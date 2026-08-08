@@ -577,7 +577,7 @@ bool MainWindow::readSettingsFromRadio(const QString & filename)
   return result;
 }
 
-void MainWindow::writeBackup()
+void MainWindow::createBUFromRadio()
 {
   RadioBackupDialog *dlg = new RadioBackupDialog(this);
   dlg->exec();
@@ -591,7 +591,7 @@ void MainWindow::writeFlash(QString fileToFlash)
   cd->deleteLater();
 }
 
-void MainWindow::readBackup()
+void MainWindow::restoreBUToRadio()
 {
   RadioRestoreDialog *dlg = new RadioRestoreDialog(this);
   dlg->exec();
@@ -916,8 +916,8 @@ void MainWindow::createActions()
   writeFlashAct =          addAct("write_flash.png",        SLOT(writeFlash()));
   writeSettingsAct =       addAct("write_eeprom.png",       SLOT(writeSettings()));
   readSettingsAct =        addAct("read_eeprom.png",        SLOT(readSettings()));
-  createBUFromRadioAct =   addAct("read_eeprom_file.png",   SLOT(createBackup()));
-  restoreBUToRadioAct =    addAct("write_eeprom_file.png",  SLOT(restoreBackup()));
+  createBUFromRadioAct =   addAct("read_eeprom_file.png",   SLOT(createBUFromRadio()));
+  restoreBUToRadioAct =    addAct("write_eeprom_file.png",  SLOT(restoreBUToRadio()));
 
   viewFileToolbarAct =     addAct("",                       SLOT(viewFileToolbar()));
   viewModelsToolbarAct =   addAct("",                       SLOT(viewModelsToolbar()));

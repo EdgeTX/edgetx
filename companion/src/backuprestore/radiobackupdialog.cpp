@@ -22,17 +22,20 @@
 #include "radiobackupdialog.h"
 #include "ui_radiobackupdialog.h"
 
-#include <QFileSystemModel>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
+#include <QDir>
+
 
 RadioBackupDialog::RadioBackupDialog(QWidget * parent) :
   QDialog(parent),
   ui(new Ui::RadioBackupDialog),
-  mdlSDCard(new QFileSystemModel()),
   backupFirmware(false)
 {
   ui->setupUi(this);
   scanForRadio();
 
+  // default name is current profile radio plus date and time plus .etxb extension
   //ui->btnBackupFileSelector->setup();
 
 
@@ -49,28 +52,65 @@ RadioBackupDialog::~RadioBackupDialog()
   // progress dialog
   // do it
 
+  // save radio type to backup file so it can be checked on restore
+
+
+  // launch progress dialog
+
 //}
 
 void RadioBackupDialog::scanForRadio()
 {
   bool found = false;
-  QString radioPath;
+  QString radioPath("/utils/edgetx/vscode/radios/v30/tx16s/sdcard");
+
 
   // look for the SD Card refer flashing
   // see if can determine if driver is EdgeTX
   // maybe try to read firmware or some attributes
 
-  if (!found)
-    return;
+  //if (!found)
+  //  return;
+
 
   // if found populate treeview
-  QFileSystemModel *fsys = new QFileSystemModel();
-  fsys->setRootPath(radioPath);
-  fsys->setOptions(QFileSystemModel::DontWatchForChanges);
-  fsys->setReadOnly(true);
-  fsys->sort(0);
 
-  ui->tvwSDCard->setModel(fsys);
+  ui->treeSDCard->setHeaderLabel(tr("Directories"));
+  ui->treeSDCard->setColumnCount(1);
+  QTreeWidgetItem *root = new QTreeWidgetItem(ui->treeSDCard);
+  root->setText(0, tr("SD Card"));
+  root->setFlags(root->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable | Qt::ItemIsAutoTristate);
+  root->setCheckState(0, Qt::Unchecked);
+  addFilesToTree(radioPath, root);
+  ui->treeSDCard->expandItem(root);
 
+}
+
+// Recursive function to populate tree items from a directory path
+void RadioBackupDialog::addFilesToTree(const QString &path, QTreeWidgetItem *parentItem)
+{
+    QDir dir(path);
+    QFileInfoList list = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    for (const QFileInfo &fileInfo : list) {
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(0, fileInfo.fileName());
+
+        // Make the item user-checkable
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable | Qt::ItemIsAutoTristate);
+        item->setCheckState(0, Qt::Unchecked);
+
+        if (parentItem) {
+            parentItem->addChild(item);
+        } else {
+            // Add as top-level if no parent specified
+            // treeWidget->addTopLevelItem(item);
+        }
+
+        // If it is a directory, recurse into it
+        if (fileInfo.isDir()) {
+            addFilesToTree(fileInfo.absoluteFilePath(), item);
+        }
+    }
 }
 

@@ -92,8 +92,8 @@ class MainWindow : public QMainWindow
     void readSettings();
     void writeFlash(QString fileToFlash="");
     void readFlash();
-    void writeBackup();
-    void readBackup();
+    void createBUFromRadio();
+    void restoreBUToRadio();
     void sdsync(bool postUpdate = false);
     void changelog();
     void customizeSplash();

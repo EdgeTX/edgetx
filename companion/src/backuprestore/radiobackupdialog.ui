@@ -59,13 +59,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>SD card</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
          <widget class="QScrollArea" name="scrlSelection">
@@ -77,60 +70,27 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>323</width>
-             <height>228</height>
+             <width>436</width>
+             <height>248</height>
             </rect>
            </property>
-           <widget class="QTreeView" name="tvwSDCard">
+           <widget class="QTreeWidget" name="treeSDCard">
             <property name="geometry">
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>331</width>
-              <height>231</height>
+              <width>441</width>
+              <height>251</height>
              </rect>
             </property>
+            <column>
+             <property name="text">
+              <string notr="true">1</string>
+             </property>
+            </column>
            </widget>
           </widget>
          </widget>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout">
-          <item>
-           <widget class="QPushButton" name="btnSelectAll">
-            <property name="text">
-             <string>Select All</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnDeselectAll">
-            <property name="text">
-             <string>Deselect All</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnSelectDefaults">
-            <property name="text">
-             <string>Select Defaults</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="verticalSpacer">
-            <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
         </item>
        </layout>
       </item>

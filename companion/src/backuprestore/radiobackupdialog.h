@@ -23,7 +23,7 @@
 
 #include <QDialog>
 
-class QFileSystemModel;
+class QTreeWidgetItem;
 
 namespace Ui {
   class RadioBackupDialog;
@@ -45,8 +45,8 @@ class RadioBackupDialog : public QDialog
 
   private:
     Ui::RadioBackupDialog *ui;
-    QFileSystemModel *mdlSDCard;
     bool backupFirmware;
 
     void scanForRadio();
+    void addFilesToTree(const QString &path, QTreeWidgetItem *parentItem);
 };

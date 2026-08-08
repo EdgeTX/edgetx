@@ -62,6 +62,8 @@ bool RadioRestoreDialog::loadBackup()
 
   //ui->btnBackupSelect.setup();
 
+  // check backup radio type in backup file to current profile
+  // Warn if different and prompt to continue or reselect backup file or exit
 
   if (backupFile.isEmpty())
     return false;
