@@ -62,7 +62,9 @@ endfunction()
 function(GenerateDatacopy source output)
 
   set(GEN_DATACOPY ${RADIO_DIRECTORY}/util/generate_datacopy.py)
-  set(GEN_DATACOPY_DEPEND ${CMAKE_CURRENT_SOURCE_DIR}/${source} ${GEN_DATACOPY})
+  set(GEN_DATACOPY_DEPEND
+    ${CMAKE_CURRENT_SOURCE_DIR}/${source} ${GEN_DATACOPY}
+    ${CMAKE_CURRENT_BINARY_DIR}/hal_settings.h)
 
   # Fetch defines / include directories in use
   AddCompilerFlags(GEN_DATACOPY_ARGS)
@@ -80,7 +82,7 @@ function(GenerateDatacopy source output)
   add_custom_command(
     OUTPUT ${output}
     COMMAND ${GEN_DATACOPY_CMD} > ${output}
-    DEPENDS ${GEN_DATACOPY_DEPEND} ${CMAKE_BINARY_DIR}/CMakeCache.txt hal_settings
+    DEPENDS ${GEN_DATACOPY_DEPEND} ${CMAKE_BINARY_DIR}/CMakeCache.txt
     )
 endfunction()
 
