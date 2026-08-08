@@ -147,6 +147,31 @@ bool getCrossfireTelemetryValue(uint8_t index, int32_t& value,
   return result;
 }
 
+// Decode an RC channels packed frame (CHANNELS_ID) into the trainer inputs.
+// rxBuffer points at the start of the frame: [addr][len][type][payload...]
+//
+// Shared by the module telemetry path and the USB-VCP trainer path, so both
+// produce identical channel values and identical freshness behaviour.
+void crossfireProcessChannelsFrame(const uint8_t* rxBuffer)
+{
+  uint8_t inputbitsavailable = 0;
+  uint32_t inputbits = 0;
+  uint8_t byteIdx = 3;
+  int16_t* pulses = trainerInput;
+
+  for (int i = 0; i < min(CROSSFIRE_CHANNELS_COUNT, MAX_TRAINER_CHANNELS); i++) {
+    while (inputbitsavailable < CROSSFIRE_CH_BITS) {
+      inputbits |= (uint32_t)(rxBuffer[byteIdx++]) << inputbitsavailable;
+      inputbitsavailable += 8;
+    }
+    *pulses++ = ((int32_t)(inputbits & CROSSFIRE_CH_MASK) - CROSSFIRE_CH_CENTER) * 5 / 8;
+    inputbitsavailable -= CROSSFIRE_CH_BITS;
+    inputbits >>= CROSSFIRE_CH_BITS;
+  }
+
+  trainerResetTimer();
+}
+
 void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                                     uint8_t rxBufferCount)
 {
@@ -327,22 +352,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
 
     case CHANNELS_ID:
       if (g_model.trainerData.mode == TRAINER_MODE_CRSF) {
-        uint8_t inputbitsavailable = 0;
-        uint32_t inputbits = 0;
-        uint8_t  byteIdx = 3;
-        int16_t *pulses = trainerInput;
-
-        for (int i = 0; i < min(CROSSFIRE_CHANNELS_COUNT, MAX_TRAINER_CHANNELS); i++) {
-          while (inputbitsavailable < CROSSFIRE_CH_BITS) {
-            inputbits |= (uint32_t)(rxBuffer[byteIdx++]) << inputbitsavailable;
-            inputbitsavailable += 8;
-          }
-          *pulses++ = ((int32_t)(inputbits & CROSSFIRE_CH_MASK) - CROSSFIRE_CH_CENTER) * 5 / 8;
-          inputbitsavailable -= CROSSFIRE_CH_BITS;
-          inputbits >>= CROSSFIRE_CH_BITS;
-        }
-
-        trainerResetTimer();
+        crossfireProcessChannelsFrame(rxBuffer);
       }
       break;
 

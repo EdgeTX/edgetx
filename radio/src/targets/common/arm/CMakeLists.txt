@@ -254,6 +254,7 @@ if(CROSSFIRE)
   set(SRC
     ${SRC}
     telemetry/crossfire.cpp
+    crsf_trainer.cpp
     )
 endif()
 
