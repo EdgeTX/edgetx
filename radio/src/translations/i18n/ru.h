@@ -714,6 +714,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Мультикаст"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Акт. мощность", "Фактич мощность")
 #define TR_AFHDS3_POWER_SOURCE         TR("Источ питания", "Источ питания")
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "FlySky RSSI")
 #define TR_GPS_COORDS_FORMAT           TR("Формат коорд GPS", "Формат коорд")
 #define TR_VARIO                       TR("Вариометр", "Вариометр")
