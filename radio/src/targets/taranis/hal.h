@@ -1387,7 +1387,7 @@
 #endif
 
 // ADC
-#if !defined(RADIO_FAMILY_T20) && !defined(RADIO_BUMBLEBEE)
+#if !defined(RADIO_FAMILY_T20) && !defined(RADIO_BUMBLEBEE) && !defined(RADIO_V14) && !defined(RADIO_V14LCD)
   #define ADC_MAIN                      ADC1
   #define ADC_DMA                       DMA2
   #define ADC_DMA_CHANNEL               LL_DMA_CHANNEL_0
@@ -1758,38 +1758,39 @@
   #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_BATT)
   #define ADC_VREF_PREC2                330
 #elif defined(RADIO_V14LCD) || defined(RADIO_V14)
+  #define ADC_MAIN                      ADC2
+  #define ADC_DMA                       DMA2
+  #define ADC_DMA_CHANNEL               LL_DMA_CHANNEL_1
+  #define ADC_DMA_STREAM                LL_DMA_STREAM_3
+  #define ADC_DMA_STREAM_IRQ            DMA2_Stream3_IRQn
+  #define ADC_DMA_STREAM_IRQHandler     DMA2_Stream3_IRQHandler
   #define ADC_GPIO_PIN_STICK_RV         LL_GPIO_PIN_0     // PA.00
   #define ADC_GPIO_PIN_STICK_RH         LL_GPIO_PIN_1     // PA.01
   #define ADC_GPIO_PIN_STICK_LH         LL_GPIO_PIN_2     // PA.02
   #define ADC_GPIO_PIN_STICK_LV         LL_GPIO_PIN_3     // PA.03
-  #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_0  // ADC123_IN0 -> ADC1_IN0
-  #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_1  // ADC123_IN1 -> ADC1_IN1
-  #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_2  // ADC123_IN2 -> ADC1_IN2
-  #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_3  // ADC123_IN3 -> ADC1_IN3
+  #define ADC_CHANNEL_STICK_RV          LL_ADC_CHANNEL_0  // ADC123_IN0 -> ADC2_IN0
+  #define ADC_CHANNEL_STICK_RH          LL_ADC_CHANNEL_1  // ADC123_IN1 -> ADC2_IN1
+  #define ADC_CHANNEL_STICK_LH          LL_ADC_CHANNEL_2  // ADC123_IN2 -> ADC2_IN2
+  #define ADC_CHANNEL_STICK_LV          LL_ADC_CHANNEL_3  // ADC123_IN3 -> ADC2_IN3
   #define ADC_GPIO_PIN_POT1             LL_GPIO_PIN_0     // PB.00
   #define ADC_GPIO_PIN_POT2             LL_GPIO_PIN_6     // PA.06
   #define ADC_GPIO_PIN_POT3             LL_GPIO_PIN_2     // PC.02
-  #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_8  // ADC12_IN8 -> ADC1_IN8
-  #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_6  // ADC12_IN6 -> ADC1_IN6
-  #define ADC_CHANNEL_POT3              LL_ADC_CHANNEL_12 // ADC123_IN12 -> ADC1_IN12
+  #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_8  // ADC12_IN8 -> ADC2_IN8
+  #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_6  // ADC12_IN6 -> ADC2_IN6
+  #define ADC_CHANNEL_POT3              LL_ADC_CHANNEL_12 // ADC123_IN12 -> ADC2_IN12
   #define ADC_GPIO_PIN_SWE              LL_GPIO_PIN_7     // PA.07
   #define ADC_GPIO_PIN_SWB              LL_GPIO_PIN_5     // PA.05
   #define ADC_GPIO_PIN_SWC              LL_GPIO_PIN_0     // PC.00
   #define ADC_GPIO_PIN_SWF              LL_GPIO_PIN_5     // PC.05
-  #define ADC_CHANNEL_SWE               LL_ADC_CHANNEL_7  // ADC12_IN7 -> ADC1_IN7
-  #define ADC_CHANNEL_SWB               LL_ADC_CHANNEL_5  // ADC12_IN5 -> ADC1_IN5
-  #define ADC_CHANNEL_SWC               LL_ADC_CHANNEL_10 // ADC123_IN10 -> ADC1_IN10
-  #define ADC_CHANNEL_SWF               LL_ADC_CHANNEL_15 // ADC12_IN15 -> ADC1_IN15
+  #define ADC_CHANNEL_SWE               LL_ADC_CHANNEL_7  // ADC12_IN7 -> ADC2_IN7
+  #define ADC_CHANNEL_SWB               LL_ADC_CHANNEL_5  // ADC12_IN5 -> ADC2_IN5
+  #define ADC_CHANNEL_SWC               LL_ADC_CHANNEL_10 // ADC123_IN10 -> ADC2_IN10
+  #define ADC_CHANNEL_SWF               LL_ADC_CHANNEL_15 // ADC12_IN15 -> ADC2_IN15
   #define ADC_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_SWE | ADC_GPIO_PIN_SWB)
   #define ADC_GPIOB_PINS                (ADC_GPIO_PIN_POT1)
   #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_POT3 | ADC_GPIO_PIN_SWC | ADC_GPIO_PIN_SWF)
-  #define ADC_EXT                       ADC3
-  #define ADC_EXT_DMA                   DMA2
-  #define ADC_EXT_DMA_CHANNEL           LL_DMA_CHANNEL_2
-  #define ADC_EXT_DMA_STREAM            LL_DMA_STREAM_0
-  #define ADC_EXT_DMA_STREAM_IRQ        DMA2_Stream0_IRQn
-  #define ADC_EXT_DMA_STREAM_IRQHandler DMA2_Stream0_IRQHandler
-  #define ADC_EXT_CHANNELS              { ADC_CHANNEL_POT3 }
+  #define ADC_EXT                       ADC1
+  #define ADC_EXT_CHANNELS              { ADC_CHANNEL_RTC_BAT }
   #define ADC_EXT_SAMPTIME              LL_ADC_SAMPLINGTIME_56CYCLES
   #define ADC_VREF_PREC2                330
 #elif defined(PCBX7)
