@@ -327,9 +327,6 @@ Mode 4:
          <height>0</height>
         </size>
        </property>
-       <property name="toolTip">
-        <string extracomment="Screen Contrast [20-45]"/>
-       </property>
        <property name="text">
         <string>Contrast</string>
        </property>
