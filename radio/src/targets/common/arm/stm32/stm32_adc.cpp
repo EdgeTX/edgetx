@@ -567,7 +567,11 @@ static inline DMA_Stream_TypeDef* _dma_get_stream(DMA_TypeDef *DMAx, uint32_t St
 #define DMA_Stream0_IT_MASK     (uint32_t)(DMA_LISR_FEIF0 | DMA_LISR_DMEIF0 | \
                                            DMA_LISR_TEIF0 | DMA_LISR_HTIF0 | \
                                            DMA_LISR_TCIF0)
-  
+
+#define DMA_Stream3_IT_MASK     (uint32_t)(DMA_LISR_FEIF3 | DMA_LISR_DMEIF3 | \
+                                           DMA_LISR_TEIF3 | DMA_LISR_HTIF3 | \
+                                           DMA_LISR_TCIF3)
+
 #define DMA_Stream4_IT_MASK     (uint32_t)(DMA_HISR_FEIF4 | DMA_HISR_DMEIF4 | \
                                            DMA_HISR_TEIF4 | DMA_HISR_HTIF4 | \
                                            DMA_HISR_TCIF4)
@@ -582,7 +586,9 @@ static void adc_dma_clear_flags(DMA_TypeDef* DMAx, uint32_t stream)
   if (stream == LL_DMA_STREAM_4) {
     /* Reset interrupt pending bits for DMA2 Stream4 */
     WRITE_REG(DMAx->HIFCR, DMA_Stream4_IT_MASK);
-
+  } else if (stream == LL_DMA_STREAM_3) {
+    /* Reset interrupt pending bits for DMA2 Stream3 (ADC2 on F4) */
+    WRITE_REG(DMAx->LIFCR, DMA_Stream3_IT_MASK);
   } else if (stream == LL_DMA_STREAM_0) {
     /* Reset interrupt pending bits for DMA2 Stream0 */
     WRITE_REG(DMAx->LIFCR, DMA_Stream0_IT_MASK);
