@@ -718,6 +718,25 @@ class ManageModelsSetupPage : public SubPage
   Window* favSelectMatch = nullptr;
 };
 
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+// Combo-specific label ("Lock keys (SYS+MDL)"), so built dynamically
+// rather than as a SetupLineDef - can't be a plain STR_TYP entry.
+static coord_t addKeyLockLine(Window* window, coord_t y, coord_t col2, PaddingSize padding)
+{
+  static char keyLockLabel[45];
+  const char* k1 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY1);
+  const char* k2 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY2);
+  snprintf(keyLockLabel, sizeof(keyLockLabel), STR_KEY_LOCK_FMT,
+           k1 ? k1 : "?", k2 ? k2 : "?");
+  Window* w = new SetupLine(window, y, col2, padding, keyLockLabel,
+                             [=](Window* parent, coord_t x, coord_t y) {
+                               new ToggleSwitch(parent, {x, y, 0, 0},
+                                   GET_SET_DEFAULT(g_eeGeneral.keyLockEnabled));
+                             });
+  return y + w->height() + padding;
+}
+#endif
+
 static SetupLineDef setupLines[] = {
   {
     // Have only one log per day
@@ -1012,6 +1031,10 @@ void RadioSetupPage::build(Window* window)
 #endif
   }, BTN_H);
   y += w->height() + padding;
+
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  y = addKeyLockLine(window, y, SubPage::EDT_X, padding);
+#endif
 
   SetupLine::showLines(window, y, SubPage::EDT_X, padding, setupLines, DIM(setupLines));
 }
