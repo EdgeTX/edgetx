@@ -50,17 +50,18 @@ brew install sdl2 sdl3 cmake uv
 If you plan to run the standalone simulator for debugging:
 
 ```bash
-brew install --cask quartz
+brew install --cask xquartz
 ```
 
 # Download EdgeTX code
--Checkout code
+
+- Checkout code
 
 ```bash
 git clone --recursive https://github.com/EdgeTX/edgetx.git
 ```
 
--Switch into the source directory:
+- Switch into the source directory:
 
 ```bash
 cd edgetx
@@ -100,7 +101,7 @@ cmake -DPCB=X10 -DPCBREV=TX16S \
 | Variable | Purpose |
 |----------|---------|
 | `CMAKE_PREFIX_PATH` | Path to your Qt installation (`$QTDIR`) |
-| `CMAKE_OSX_DEPLOYMENT_TARGET` | Minimum macOS version for Companion. Use `14.0` for Sonoma and later. If omitted, the compiler uses the current SDK minimum (for example macOS 26 only) |
+| `CMAKE_OSX_DEPLOYMENT_TARGET` | Minimum macOS version for Companion. `14.0` (Sonoma) is a convenient local-dev default; release builds (CI) target `11.0` for broader compatibility — pass `-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0` if you want a build matching what CI ships. If omitted entirely, no `-mmacosx-version-min` flag is passed and clang targets whatever OS version your Mac is running |
 | `ARM_TOOLCHAIN_DIR` | Path to ARM GCC binaries. Must end with `/` |
 
 ## Build firmware
@@ -130,19 +131,19 @@ cp wasm/edgetx-*-simulator.wasm native/plugins/
 cmake --build . --target companion --parallel 4
 ```
 
-The application bundle is created at `build/native/EdgeTX Companion 3.0.app` (the version number matches your EdgeTX release; check with `ls native/*.app`).
+The application bundle is created at `build/native/EdgeTX Companion 3.0.app` (the version number matches your EdgeTX release).
 
 ## Run Companion from the build directory
 
 ```bash
 export QT_PLUGIN_PATH=$(brew --prefix)/opt/qt@6/plugins
-open "native/EdgeTX Companion 3.0.app"
+open native/*.app
 ```
 
 For the radio simulator to work when running from the build tree, copy the WASM module into the bundle:
 
 ```bash
-cp wasm/edgetx-*-simulator.wasm "native/EdgeTX Companion 3.0.app/Contents/MacOS/"
+cp wasm/edgetx-*-simulator.wasm native/*.app/Contents/MacOS/
 ```
 
 ## Build a distributable `.dmg`
@@ -151,16 +152,16 @@ The `package` target lives in the `native` build tree, **not** in the top-level 
 
 ```bash
 mkdir -p native/plugins
-cp wasm/edgetx-*-simulator.wasm native/plugins/ 2>/dev/null || true
+cp wasm/edgetx-*-simulator.wasm native/plugins/ 2>/dev/null
 cmake --build native --target package
 ```
 
-The `.dmg` is written to `build/native/edgetx-companion-<version>.dmg` (for example `edgetx-companion-3.0.0.dmg`).
+The `.dmg` is written to `build/native/edgetx-companion-<version>.dmg` (the version number matches your EdgeTX release).
 
 Open it and drag **EdgeTX Companion** into `/Applications`:
 
 ```bash
-open native/edgetx-companion-3.0.0.dmg
+open native/edgetx-companion-*.dmg
 ```
 
 The packaging step bundles Qt, SDL2, and SDL3 into the `.app` automatically.
