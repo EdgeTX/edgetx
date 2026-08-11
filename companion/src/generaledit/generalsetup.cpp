@@ -141,6 +141,15 @@ ui(new Ui::GeneralSetup)
   ui->contrastSB->setMaximum(Boards::getCapability(board, Board::MaxContrast));
   ui->contrastSB->setValue(generalSettings.contrast);
 
+  if (Boards::getCapability(board, Board::LcdOLED)) {
+    // OLED radios have no backlight - "contrast" is the panel brightness
+    ui->label_contrast->setText(tr("Brightness"));
+    ui->BLBright_SB->hide();
+    ui->BLBright_SB->setDisabled(true);
+    ui->label_BLBright->hide();
+    ui->blAlarm_LB->setText(tr("Flash display on alarm"));
+  }
+
   ui->battwarningDSB->setValue((double)generalSettings.vBatWarn / 10);
   ui->backlightautoSB->setValue(generalSettings.backlightDelay * 5);
   ui->inactimerSB->setValue(generalSettings.inactivityTimer);
