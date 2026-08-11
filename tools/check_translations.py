@@ -61,6 +61,7 @@ class TranslationChecker:
         current_language = None
         in_translation_block = False
         conditional_depth = 0
+        past_translation_block = False
 
         for i, line in enumerate(lines):
             line = line.strip()
@@ -93,6 +94,19 @@ class TranslationChecker:
                     # This is the end of the translation block
                     in_translation_block = False
                     current_language = None
+                    past_translation_block = True
+                continue
+
+            # Past the language chain, a #define TR_BL_x is a fallback default
+            # (e.g. "#if !defined(COLORLCD) && !defined(TR_BL_X)") that fills the
+            # key in for every language that didn't already define it explicitly.
+            if past_translation_block:
+                define_match = re.match(r'#define\s+(TR_BL_\w+)', line)
+                if define_match:
+                    key = define_match.group(1)
+                    self.bootloader_keys.add(key)
+                    for lang in self.bootloader_translations:
+                        self.bootloader_translations[lang].add(key)
                 continue
 
             # Skip non-translation lines
