@@ -319,7 +319,16 @@ Examples:
                        help="Check only individual language files (*.h)")
     
     args = parser.parse_args()
-    
+
+    # The report uses Unicode status glyphs (checkmarks, crosses, bullets).
+    # Consoles that default to a non-UTF-8 encoding (e.g. Windows cp1252) would
+    # otherwise raise UnicodeEncodeError and crash the tool. Force UTF-8 output
+    # where the stream supports reconfiguration.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
     checker = TranslationChecker()
     
     # Find translations directory
