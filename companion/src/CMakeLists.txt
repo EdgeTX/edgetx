@@ -578,7 +578,18 @@ elseif(APPLE)
     if(NOT _sdl2_location)
       get_target_property(_sdl2_location SDL2::SDL2 IMPORTED_LOCATION_RELEASE)
     endif()
-    if(_sdl2_location)
+    if(_sdl2_location AND _sdl2_location MATCHES "\\.framework(/|$)")
+      # Genuine upstream SDL2.framework (CI's setup-sdl2.sh, or a manual framework
+      # install): no SDL3 dlopen shim to worry about, and IMPORTED_RUNTIME_ARTIFACTS
+      # copies frameworks correctly — it's only the Homebrew dylib case below whose
+      # symlinks it mangles. This is what CI has shipped all along.
+      message(STATUS "Bundling SDL2 framework: ${_sdl2_location}")
+      install(IMPORTED_RUNTIME_ARTIFACTS SDL2::SDL2
+              FRAMEWORK DESTINATION "${companion_app_dir}/Contents/Frameworks"
+              LIBRARY   DESTINATION "${companion_app_dir}/Contents/Frameworks"
+              COMPONENT Runtime)
+    elseif(_sdl2_location)
+      message(STATUS "Bundling SDL2 library: ${_sdl2_location}")
       get_filename_component(_sdl2_real "${_sdl2_location}" REALPATH)
       get_filename_component(_sdl2_name "${_sdl2_location}" NAME)
       install(FILES "${_sdl2_real}"
@@ -659,6 +670,8 @@ elseif(APPLE)
           endif()
         endif()
       " COMPONENT Runtime)
+    else()
+      message(WARNING "SDL2::SDL2 has no IMPORTED_LOCATION; SDL2 will not be bundled")
     endif()
   endif()
 
