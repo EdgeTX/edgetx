@@ -61,14 +61,14 @@ class TranslationChecker:
         current_language = None
         in_translation_block = False
         conditional_depth = 0
-        
+
         for i, line in enumerate(lines):
             line = line.strip()
-            
+
             # Skip empty lines and comments
             if not line or line.startswith('//'):
                 continue
-            
+
             # Check for translation language blocks
             translation_match = re.match(r'#(?:if|elif)\s+defined\(TRANSLATIONS_([A-Z]+)\)', line)
             if translation_match:
@@ -76,12 +76,12 @@ class TranslationChecker:
                 in_translation_block = True
                 conditional_depth = 0
                 continue
-                
+
             # Check for else block (default/English)
             if re.match(r'#else', line) and in_translation_block and conditional_depth == 0:
                 current_language = "EN"  # Default language
                 continue
-                
+
             # Track conditional compilation depth
             if re.match(r'#if', line) and in_translation_block:
                 conditional_depth += 1
@@ -94,18 +94,18 @@ class TranslationChecker:
                     in_translation_block = False
                     current_language = None
                 continue
-            
+
             # Skip non-translation lines
             if not in_translation_block or not current_language:
                 continue
-                
+
             # Parse #define statements
             define_match = re.match(r'#define\s+(TR_BL_\w+)', line)
             if define_match:
                 key = define_match.group(1)
                 self.bootloader_translations[current_language].add(key)
                 self.bootloader_keys.add(key)
-        
+
         self.checked_files.append(str(file_path))
         return True
     
@@ -138,22 +138,19 @@ class TranslationChecker:
     def check_language_translations(self, translations_dir: Path) -> List[str]:
         """Check individual language translation files."""
         languages_found = []
-        
-        # Look for .h files that are language files (excluding special files)
-        exclude_files = {"bl_translations.h", "untranslated.h"}
-        
-        for h_file in translations_dir.glob("*.h"):
-            if h_file.name in exclude_files:
-                continue
-                
+
+        # Language headers live under i18n/; translations_dir itself only has shared headers.
+        i18n_dir = translations_dir / "i18n"
+
+        for h_file in i18n_dir.glob("*.h"):
             # Skip files that are clearly not language files
             if h_file.name.startswith("tts_"):
                 continue
-                
+
             language = self.parse_language_file(h_file)
             if language:
                 languages_found.append(language)
-        
+
         return languages_found
     
     def analyze(self) -> Dict[str, any]:
