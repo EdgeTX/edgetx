@@ -71,7 +71,7 @@ set CXX=clang++.exe
 
 set NSIS_EXE=c:\Program Files (x86)\NSIS\makensis.exe
 set SDL2=%EDGETX_BUILD_TOOLS%\SDL2\cmake
-set QT_DIR=%EDGETX_BUILD_TOOLS%\Qt\6.9.0\msvc2022_64
+set QT_DIR=%EDGETX_BUILD_TOOLS%\Qt\6.9.3\msvc2022_64
 set PATHS="-DSDL2_DIR=%SDL2%"
 set CMAKE_PREFIX_PATH="-DCMAKE_PREFIX_PATH=%QT_DIR%"
 set LANGUAGE="-DTRANSLATIONS=%BUILD_LANGUAGE%"
@@ -168,12 +168,12 @@ uv pip install clang lz4 jinja2 pillow pyelftools aqtinstall pydantic
 
 ### Qt development framework
 
-Continue on the command prompt at `C:\edgetx\build-tools` to install Qt 6.9.0 into the Python virtual environment:
+Continue on the command prompt at `C:\edgetx\build-tools` to install Qt 6.9.3 into the Python virtual environment:
 ```
 mkdir Qt
 cd Qt
 call "C:\edgetx\build-tools\.venv\Scripts\activate.bat"
-aqt install-qt windows desktop 6.9.0 win64_msvc2022_64 -m qtmultimedia qtserialport
+aqt install-qt windows desktop 6.9.3 win64_msvc2022_64 -m qtmultimedia qtserialport
 call "C:\edgetx\build-tools\.venv\Scripts\deactivate.bat"
 ```
 Reboot your computer.
