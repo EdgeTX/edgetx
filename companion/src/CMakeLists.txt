@@ -582,6 +582,64 @@ IF(APPLE)
     #install(FILES ${OPENSSL_ABSOLUTE_PATH} DESTINATION ${companion_res_dir} COMPONENT Runtime)
   endif()
 
+  # Homebrew's SDL2 formula is now sdl2-compat, which loads SDL3 via
+  # dlopen("@loader_path/libSDL3.dylib") at runtime instead of linking it.
+  # That makes it invisible to otool-based dependency scanning, so
+  # fixup_bundle below would never discover or embed it on its own -
+  # resolve the real dylib here so it can be bundled explicitly.
+  set(_sdl3_real "")
+  find_package(SDL3 CONFIG QUIET)
+  if(TARGET SDL3::SDL3-shared)
+    get_target_property(_sdl3_location SDL3::SDL3-shared IMPORTED_LOCATION_RELEASE)
+    if(NOT _sdl3_location)
+      get_target_property(_sdl3_location SDL3::SDL3-shared IMPORTED_LOCATION)
+    endif()
+    if(_sdl3_location)
+      get_filename_component(_sdl3_real "${_sdl3_location}" REALPATH)
+    endif()
+  endif()
+  if(NOT _sdl3_real)
+    set(_sdl3_hints "")
+    if(DEFINED ENV{HOMEBREW_PREFIX})
+      list(APPEND _sdl3_hints "$ENV{HOMEBREW_PREFIX}/opt/sdl3/lib" "$ENV{HOMEBREW_PREFIX}/lib")
+    endif()
+    find_program(_brew_EXECUTABLE brew)
+    if(_brew_EXECUTABLE)
+      execute_process(
+        COMMAND "${_brew_EXECUTABLE}" --prefix sdl3
+        OUTPUT_VARIABLE _brew_sdl3_prefix
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+        RESULT_VARIABLE _brew_sdl3_result
+      )
+      if(_brew_sdl3_result EQUAL 0 AND _brew_sdl3_prefix)
+        list(APPEND _sdl3_hints "${_brew_sdl3_prefix}/lib")
+      endif()
+    endif()
+    find_library(_sdl3_library NAMES SDL3.0 SDL3 HINTS ${_sdl3_hints} NO_DEFAULT_PATH)
+    if(NOT _sdl3_library)
+      find_library(_sdl3_library NAMES SDL3.0 SDL3)
+    endif()
+    if(_sdl3_library)
+      get_filename_component(_sdl3_real "${_sdl3_library}" REALPATH)
+    endif()
+  endif()
+  if(_sdl3_real)
+    # sdl2-compat dlopens "@loader_path/libSDL3.dylib", so the copy has to sit
+    # next to the bundled SDL2 - Contents/Frameworks, where fixup_bundle puts
+    # resolved dependencies - and keep that exact filename (the real Homebrew
+    # file is libSDL3.0.dylib, which dlopen would never look for).
+    set(companion_fw_dir ${COMPANION_NAME}.app/Contents/Frameworks)
+    install(FILES ${_sdl3_real} DESTINATION ${companion_fw_dir}
+            RENAME libSDL3.dylib COMPONENT Runtime)
+    # fixup_bundle only accepts extra items that are already inside the bundle,
+    # so hand it the installed copy rather than the Homebrew original
+    set(bundle_sdl3_path "\${CMAKE_INSTALL_PREFIX}/${companion_fw_dir}/libSDL3.dylib")
+  else()
+    set(bundle_sdl3_path "")
+    message(WARNING "SDL3 not found; packaged Companion may crash if linked against sdl2-compat")
+  endif()
+
   # Include depencies (adding frameworks, fixing the embbeded libraries)
   # I get write errors without setting BU_CHMOD_BUNDLE_ITEMS even though it is
   # technically a hack (that is already is in the Bundle library ...)
@@ -589,7 +647,7 @@ IF(APPLE)
    include(BundleUtilities)
    file(GLOB bundle_simulator_libs \"\${CMAKE_INSTALL_PREFIX}/${companion_res_dir}/libedgetx-*${CMAKE_SHARED_LIBRARY_SUFFIX}\")
    set(BU_CHMOD_BUNDLE_ITEMS on)
-   fixup_bundle(\"${APPS}\"   \"\${bundle_simulator_libs};${bundle_qt_libs};${bundle_tools_path}\"   \"${QT_LIB_DIR}\")
+   fixup_bundle(\"${APPS}\"   \"\${bundle_simulator_libs};${bundle_qt_libs};${bundle_tools_path}${bundle_sdl3_path}\"   \"${QT_LIB_DIR}\")
    file(RENAME \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_NAME}.app\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")
    " COMPONENT Runtime)
 endif()

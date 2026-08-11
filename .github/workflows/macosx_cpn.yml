@@ -58,7 +58,9 @@ jobs:
         run:  brew install dfu-util
 
       - name: Install SDL2
-        run:  brew install SDL2
+        # Homebrew's SDL2 formula is sdl2-compat, which loads SDL3 at
+        # runtime via dlopen - it must be present at build time
+        run:  brew install SDL2 sdl3
 
       - name: Build
         working-directory: ${{github.workspace}}
