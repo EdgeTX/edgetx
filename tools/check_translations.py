@@ -187,11 +187,13 @@ class TranslationChecker:
                 "extra": len(results["bootloader"]["extra_keys"][lang])
             }
         
-        # Analyze language file translations
+        # Diff against EN rather than the union: unlike bl_translations.h, i18n/*.h
+        # has no fallback macros, so a key EN lacks is genuinely extra elsewhere.
+        language_reference = self.language_translations.get("EN", self.language_keys)
         for lang in language_languages:
             lang_keys = self.language_translations[lang]
-            results["language_files"]["missing_keys"][lang] = self.language_keys - lang_keys
-            results["language_files"]["extra_keys"][lang] = lang_keys - self.language_keys
+            results["language_files"]["missing_keys"][lang] = language_reference - lang_keys
+            results["language_files"]["extra_keys"][lang] = lang_keys - language_reference
             results["language_files"]["summary"][lang] = {
                 "total": len(lang_keys),
                 "missing": len(results["language_files"]["missing_keys"][lang]),
