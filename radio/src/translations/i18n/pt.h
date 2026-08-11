@@ -83,7 +83,6 @@
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Editar Modelo"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Editar Rádio"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "Editar Tela"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset Telem."
 #define TR_MAIN_MENU_STATISTICS         "Estatist."
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Sobre EdgeTX"
 #define TR_MAIN_VIEW_X                  "Screen "
