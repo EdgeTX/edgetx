@@ -581,7 +581,7 @@ static const struct YamlNode struct_anonymous_6[] = {
   YAML_PADDING( 2 ),
   YAML_UNSIGNED( "receiverTelemetryOff", 1 ),
   YAML_UNSIGNED( "receiverHigherChannels", 1 ),
-  YAML_SIGNED( "antennaMode", 2 ),
+  YAML_PADDING( 2 ),
   YAML_PADDING( 8 ),
   YAML_END
 };
@@ -659,7 +659,8 @@ static const struct YamlNode struct_ModuleData[] = {
   YAML_UNSIGNED( "channelsStart", 8 ),
   YAML_SIGNED_CUST( "channelsCount", 8, r_channelsCount, w_channelsCount ),
   YAML_ENUM("failsafeMode", 4, enum_FailsafeModes, NULL),
-  YAML_PADDING( 4 ),
+  YAML_PADDING( 2 ),
+  YAML_ENUM("antennaMode", 2, enum_AntennaModes, NULL),
   YAML_UNION("mod", 200, union_anonymous_4_elmts, select_mod_type),
   YAML_END
 };

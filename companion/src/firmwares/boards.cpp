@@ -163,6 +163,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4C78746F;
     case BOARD_IFLIGHT_COMMANDO14:
       return 0x4F78746F;
+    case BOARD_HELLORADIOSKY_V12:
+      return 0x4478746F;
     case BOARD_HELLORADIOSKY_V14:
       return 0x4D78746F;
     case BOARD_HELLORADIOSKY_V14LCD:
@@ -236,6 +238,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_FLYSKY_ST16:
     case BOARD_IFLIGHT_COMMANDO14:
     case BOARD_FATFISH_F16:
+    case BOARD_HELLORADIOSKY_V12:
     case BOARD_HELLORADIOSKY_V16:
     case BOARD_DUMBORC_DRO1:
       return 0;
@@ -303,6 +306,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_ST16: // 8MB SDRAM
     case BOARD_IFLIGHT_COMMANDO14: // 8MB SDRAM
     case BOARD_FATFISH_F16:
+    case BOARD_HELLORADIOSKY_V12: // 8MB SDRAM
     case BOARD_HELLORADIOSKY_V16:
     case BOARD_DUMBORC_DRO1:
       return FSIZE_2MB;
@@ -345,6 +349,13 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
               IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) ||
               IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board) ||
               IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board));
+
+    case HasExternalAntenna:
+      return IS_FAMILY_HORUS(board) || IS_TARANIS_XLITE(board) ||
+             getCapability(board, HasHardwareAntennaSwitch);
+
+    case HasHardwareAntennaSwitch:
+      return IS_HELLORADIOSKY_V12(board);
 
     case HasIMU:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board) ||
@@ -679,6 +690,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Fatfish F16";
     case BOARD_HELLORADIOSKY_V16:
       return "HelloRadioSky V16";
+    case BOARD_HELLORADIOSKY_V12:
+      return "HelloRadioSky V12";
     case BOARD_HELLORADIOSKY_V14:
       return "HelloRadioSky V14";
     case BOARD_HELLORADIOSKY_V14LCD:
@@ -791,6 +804,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
 
   case BOARD_BETAFPV_LR3PRO:
   case BOARD_FATFISH_F16:
+  case BOARD_HELLORADIOSKY_V12:
   case BOARD_HELLORADIOSKY_V14:
   case BOARD_HELLORADIOSKY_V14LCD:
   case BOARD_HELLORADIOSKY_V16:
@@ -834,6 +848,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
 void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int& vwarn)
 {
   switch (board) {
+    case BOARD_HELLORADIOSKY_V12:
     case BOARD_HELLORADIOSKY_V14:
     case BOARD_HELLORADIOSKY_V14LCD:
     case BOARD_JUMPER_T12:
@@ -911,6 +926,8 @@ int Boards::getDefaultExternalModuleSize(Board::Type board)
   if (getCapability(board, HasColorLcd)) {
     if (IS_FLYSKY_EL18(board))
       return EXTMODSIZE_BOTH;
+    else if (IS_HELLORADIOSKY_V12(board))
+      return EXTMODSIZE_SMALL;
     else
       return EXTMODSIZE_STD;
   }

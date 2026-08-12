@@ -49,6 +49,7 @@ jobs:
           - pa01
           - t22
           - c14
+          - v12
           - dro1
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
@@ -96,6 +97,7 @@ jobs:
           - tx16smk3;t14;t15pro
           - t22
           - c14
+          - v12
           - dro1
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest

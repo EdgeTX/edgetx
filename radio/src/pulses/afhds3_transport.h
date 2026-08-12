@@ -71,6 +71,8 @@ enum COMMAND : uint8_t {
 #define RX_CMD_IBUS_DIRECTION           ( 0x7020 ) //IBUS INPUT or OUTPUT
 #define RX_CMD_BUS_FAILSAFE             ( 0x702A )
 #define RX_CMD_GET_VERSION              ( 0x701F )
+#define RX_CMD_CODE_IBUS2_SET_PARAM          ( 0x7025 )
+#define RX_CMD_CODE_IBUS2_GET_PARAM          ( 0x7026 )
 
 enum RX_CMDRESULT: uint8_t
 {

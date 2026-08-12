@@ -1072,6 +1072,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Aktuální výkon")
 #define TR_AFHDS3_POWER_SOURCE         TR("Power src.", TR("Power src.", "Power source"))
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_ANTENNACONFIRM1             "Opravdu přepnout?"
 #define TR_ANTENNA_MODES_1           "Interní"
 #define TR_ANTENNA_MODES_2           "Zeptat se"

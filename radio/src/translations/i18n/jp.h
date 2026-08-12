@@ -711,6 +711,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "マルチキャスト"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "実電力")
 #define TR_AFHDS3_POWER_SOURCE         TR("Power src.", "出力ソース")
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "再コールせずFlySky RSSI値を使用")
 #define TR_GPS_COORDS_FORMAT           TR("GPS Coords", "GPS座標形式")
 #define TR_VARIO                       TR("Vario", "バリオメーター")
