@@ -329,13 +329,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define LCD_TE_GPIO                     GPIOI
 #define LCD_TE_GPIO_PIN                 LL_GPIO_PIN_4
 
-// Backlight
-#define BACKLIGHT_GPIO                  GPIO_PIN(GPIOA, 10) // TIM1_CH3
-#define BACKLIGHT_TIMER                 TIM1
-#define BACKLIGHT_TIMER_CHANNEL			LL_TIM_CHANNEL_CH3
-#define BACKLIGHT_GPIO_AF               GPIO_AF1
-#define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
-
 // QSPI Flash
 #define QSPI_CLK_GPIO                   GPIO_PIN(GPIOF, 10)
 #define QSPI_CLK_GPIO_AF                GPIO_AF9
@@ -400,15 +393,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define I2C_B2_SCL_GPIO                 GPIO_PIN(GPIOB, 8) // PB.08
 #define I2C_B2_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B2_CLK_RATE                 400000
-
-// Haptic: TIM3_CH2
-#define HAPTIC_PWM
-#define HAPTIC_GPIO                     GPIO_PIN(GPIOC, 7)
-#define HAPTIC_GPIO_TIMER               TIM3
-#define HAPTIC_GPIO_AF                  GPIO_AF2
-#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2E | TIM_CCER_CC2NE;
-#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
-#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
 
 #define GPIO_LED_GPIO_ON                  gpio_set
 #define GPIO_LED_GPIO_OFF                 gpio_clear
@@ -521,23 +505,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define USE_EXTI2_IRQ
 #define EXTI2_IRQ_Priority  9
 #endif
-
-// IMU
-#define IMU_I2C_BUS                     I2C_Bus_1
-#define IMU_I2C_ADDRESS                 0x6A
-#define IMU_INT_GPIO	                GPIO_PIN(GPIOG, 13) // PG.13
-// IMU_INT_EXTI IRQ
-#if !defined(USE_EXTI15_10_IRQ)
-  #define USE_EXTI15_10_IRQ
-  #define EXTI15_10_IRQ_Priority       6
-#endif
-
-
-#define LANDSCAPE_LCD true
-#define PORTRAIT_LCD false
-#define LANDSCAPE_LCD_SML false
-#define LANDSCAPE_LCD_STD true
-#define LANDSCAPE_LCD_LRG false
 
 #define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
 
