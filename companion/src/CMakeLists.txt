@@ -578,14 +578,36 @@ elseif(APPLE)
             COMPONENT Runtime)
   endif()
 
-  # Re-sign bundle after all contents are installed
+  # Re-sign bundle after all contents are installed. One execute_process() per
+  # codesign: multiple COMMANDs form a pipeline and would run concurrently.
   install(CODE "
       set(app_dir \"\${CMAKE_INSTALL_PREFIX}/${companion_app_dir}\")
       execute_process(COMMAND \${CMAKE_COMMAND} -E echo \"Re-signing: \${app_dir}\")
       execute_process(
-        COMMAND codesign --remove-signature \${app_dir}
-        COMMAND codesign --force --deep -s - \${app_dir}
+        COMMAND codesign --remove-signature \"\${app_dir}\"
+        RESULT_VARIABLE _strip_result
+        ERROR_VARIABLE _strip_error
       )
+      if(NOT _strip_result EQUAL 0)
+        # Non-fatal: the bundle may legitimately be unsigned here.
+        message(WARNING \"codesign --remove-signature failed: \${_strip_error}\")
+      endif()
+      execute_process(
+        COMMAND codesign --force --deep --sign - \"\${app_dir}\"
+        RESULT_VARIABLE _sign_result
+        ERROR_VARIABLE _sign_error
+      )
+      if(NOT _sign_result EQUAL 0)
+        message(FATAL_ERROR \"codesign failed for \${app_dir}: \${_sign_error}\")
+      endif()
+      execute_process(
+        COMMAND codesign --verify --deep --strict \"\${app_dir}\"
+        RESULT_VARIABLE _verify_result
+        ERROR_VARIABLE _verify_error
+      )
+      if(NOT _verify_result EQUAL 0)
+        message(FATAL_ERROR \"codesign --verify failed for \${app_dir}: \${_verify_error}\")
+      endif()
   " COMPONENT Runtime)
 
 else()
