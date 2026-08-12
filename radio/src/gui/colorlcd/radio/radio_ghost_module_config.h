@@ -39,5 +39,6 @@ class RadioGhostModuleConfig: public Page
   void checkEvents() override;
   void onCancel() override;
   void onLongPressRTN() override;
+  void doKeyShortcut(event_t) override {}
 #endif
 };
