@@ -39,5 +39,13 @@ class RadioGhostModuleConfig: public Page
   void checkEvents() override;
   void onCancel() override;
   void onLongPressRTN() override;
+  // 2.12 has no virtual Window::doKeyShortcut() to override - Page overrides
+  // these six hooks directly, so neutralise them individually instead.
+  void onPressSYS() override {}
+  void onLongPressSYS() override {}
+  void onPressMDL() override {}
+  void onLongPressMDL() override {}
+  void onPressTELE() override {}
+  void onLongPressTELE() override {}
 #endif
 };
