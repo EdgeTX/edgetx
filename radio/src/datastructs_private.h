@@ -1159,14 +1159,14 @@ PACK(struct RadioData {
 
   NOBACKUP(uint8_t modelQuickSelect:1);
   NOBACKUP(uint8_t oneLogPerDay:1);
+  NOBACKUP(uint8_t keyLockEnabled:1);
 
 #if defined(COLORLCD)
-  NOBACKUP(uint8_t spare:4 SKIP);
+  NOBACKUP(uint8_t spare:3 SKIP);
 #elif LCD_W == 128
   uint8_t invertLCD:1;          // Invert B&W LCD display
-  NOBACKUP(uint8_t spare:1 SKIP);
 #else
-  NOBACKUP(uint8_t spare:2 SKIP);
+  NOBACKUP(uint8_t spare:1 SKIP);
 #endif
 
   NOBACKUP(uint8_t pwrOffIfInactive);

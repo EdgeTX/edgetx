@@ -1165,3 +1165,7 @@
 #define STR_VVARIOCENTER currentLangStrings->STR_VVARIOCENTER
 #define STR_XJT_ACCST_RF_PROTOCOLS currentLangStrings->STR_XJT_ACCST_RF_PROTOCOLS
 #define STR_ONE_LOG_PER_DAY currentLangStrings->STR_ONE_LOG_PER_DAY
+#define STR_KEY_LOCK_FMT currentLangStrings->STR_KEY_LOCK_FMT
+#define STR_KEYS_LOCKED currentLangStrings->STR_KEYS_LOCKED
+#define STR_KEYS_LOCKED_FMT currentLangStrings->STR_KEYS_LOCKED_FMT
+#define STR_KEYS_UNLOCKED currentLangStrings->STR_KEYS_UNLOCKED
