@@ -46,6 +46,7 @@
 #endif
 
 #include <assert.h>
+#include <clocale>
 #include <deque>
 #include <stdint.h>
 
@@ -91,6 +92,11 @@ static void hostSerialInit();
 
 void simuInit()
 {
+  // Force the C locale for numeric conversions (strtof/strtod, etc.),
+  // otherwise the simulator picks up the host locale (e.g. es_ES) which
+  // uses a comma as decimal separator and breaks Lua number parsing.
+  setlocale(LC_NUMERIC, "C");
+
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotencValue = 0;
 #endif
