@@ -873,7 +873,7 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
 
   /* Radiomaster GX15 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("gx15"), Firmware::tr("Radiomaster GX15"), BOARD_RADIOMASTER_TX15);
+  firmware = new OpenTxFirmware(FIRMWAREID("gx15"), Firmware::tr("Radiomaster GX15"), BOARD_RADIOMASTER_GX15);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   firmware->addOptionsGroup({opt_bt, opt_internal_gps});
