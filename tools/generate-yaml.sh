@@ -12,12 +12,12 @@ if [[ -n ${GCC_ARM} ]] ; then
 fi
 
 : ${FLAVOR:="x10;t15;pl18;nv14;pl18u;nb4p;x9d;x9dp2019;x9e;xlite;xlites;x7;tpro;t20;f16;gx12;st16;c14;pa01;tx15;t15pro;tx16smk3;t22;v12"}
-: ${SRCDIR:=$(dirname "$(pwd)/$0")/..}
+: ${SRCDIR:="$(dirname "$SCRIPT_DIR")"}
 
 : ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF -Wno-dev -DDISABLE_COMPANION=YES -DCMAKE_MESSAGE_LOG_LEVEL=WARNING"}
 
 # wipe build directory clean
-rm -rf build && mkdir -p build && cd build
+cmake -E rm -rf build
 
 target_names=$(echo "$FLAVOR" | tr '[:upper:]' '[:lower:]' | tr ';' '\n')
 
@@ -33,9 +33,12 @@ do
         exit 1
     fi
 
-    cmake ${BUILD_OPTIONS} "${SRCDIR}"
-    make native-configure
-    make -C native yaml_data
+    # Own build tree per target - a shared one leaks cached options between them
+    BUILD_DIR="build/${target_name}"
 
-    rm -rf *
+    cmake ${BUILD_OPTIONS} -S "${SRCDIR}" -B "${BUILD_DIR}"
+    cmake --build "${BUILD_DIR}" --target native-configure
+    cmake --build "${BUILD_DIR}/native" --target yaml_data
+
+    cmake -E rm -rf "${BUILD_DIR}"
 done
