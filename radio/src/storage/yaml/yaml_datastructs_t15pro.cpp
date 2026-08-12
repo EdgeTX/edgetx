@@ -455,7 +455,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
   YAML_UNSIGNED( "rotEncMode", 3 ),
   YAML_PADDING( 2 ),
-  YAML_UNSIGNED( "stickDeadZone", 3 ),
+  YAML_PADDING( 3 ),
   YAML_SIGNED( "imuMax", 8 ),
   YAML_SIGNED( "imuOffset", 8 ),
   YAML_UNSIGNED( "imuInvert", 8 ),

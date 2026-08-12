@@ -10,6 +10,7 @@ option(DISK_CACHE "Enable SD card disk cache" ON)
 option(BLUETOOTH "FrSky BT module support" OFF)
 option(INTERNAL_GPS "Support for internal GPS" ON)
 option(KCX_BTAUDIO "KCX_BTAUDIO audio emitter installed" OFF)
+option(STICK_DEAD_ZONE "Enable sticks dead zone" OFF)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
@@ -42,8 +43,6 @@ elseif(KCX_BTAUDIO)
 else()
   set(AUX2_SERIAL ON)
 endif()
-
-#option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
 
 # IMU support
 set(IMU ON)
@@ -99,7 +98,7 @@ add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 
-if(STICKS_DEAD_ZONE)
+if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 
