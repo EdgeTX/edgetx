@@ -18,4 +18,5 @@ compile_commands.json
 /.vs
 CMakeUserPresets.json
 /site/
+*.dmg
 .devcontainer/devcontainer-lock.json
