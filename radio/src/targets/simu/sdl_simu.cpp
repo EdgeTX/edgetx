@@ -32,6 +32,7 @@
 #include <fstream>
 #include <filesystem>
 #include <regex>
+#include <sstream>
 #include <string>
 
 #include "hal/adc_driver.h"
@@ -655,6 +656,107 @@ static void redraw()
   }
 }
 
+#if defined(WIDGET_STUDIO) && !defined(__EMSCRIPTEN__)
+
+// Widget Studio steering channel.  The host driver appends newline-delimited
+// commands to the file given via --pipe; the simu consumes them from the main
+// loop.  Commands:
+//   exit                - quit the simulator
+//   capture <path>      - arm a one-shot PNG capture of the next frame
+//   key <code> <0|1>    - physical key up/down (EnumKeys code)
+//   touch <x> <y>       - touch-panel press/drag to (x, y)
+//   touchup             - touch-panel release
+//   reset               - full simu stop/start (used for hot reload)
+//   reload              - reload permanent Lua scripts
+static std::string pipe_path;
+static std::string pipe_pending;
+// Byte offset already consumed from the pipe file.  The file is append-only
+// on the driver side and is never truncated here: re-reading from offset 0
+// every poll would redispatch every command ever written (a stuck key, or a
+// "reset" firing every frame forever), and truncating the file to
+// acknowledge it would race the driver's next append with no locking on
+// either side. Tracking an offset needs neither.
+static std::streamoff pipe_read_offset = 0;
+
+static void dispatchPipeCommand(const std::string& line)
+{
+  std::istringstream iss(line);
+  std::string cmd;
+  iss >> cmd;
+
+  if (cmd == "exit") {
+    SDL_Event ev;
+    ev.type = SDL_QUIT;
+    SDL_PushEvent(&ev);
+  } else if (cmd == "capture") {
+    std::string path;
+    std::getline(iss >> std::ws, path);
+    if (!path.empty()) simuCaptureArm(path.c_str());
+  } else if (cmd == "key") {
+    int key = -1, state = 0;
+    if ((iss >> key >> state) && key >= 0 && key < MAX_KEYS &&
+        (state == 0 || state == 1))
+      simuSetKey((uint8_t)key, state != 0);
+  } else if (cmd == "touch") {
+    int x = -1, y = -1;
+    if ((iss >> x >> y) && x >= 0 && x < LCD_W && y >= 0 && y < LCD_H)
+      simuTouchDown((int16_t)x, (int16_t)y);
+  } else if (cmd == "touchup") {
+    simuTouchUp();
+  } else if (cmd == "reset") {
+    simuRequestReset();
+  } else if (cmd == "reload") {
+    simuLuaReloadPermanentScripts();
+  }
+}
+
+static void pollPipeCommands()
+{
+  if (pipe_path.empty()) return;
+
+  std::ifstream f(pipe_path, std::ios::in | std::ios::binary);
+  if (!f.is_open()) return;
+
+  f.seekg(0, std::ios::end);
+  std::streamoff size = f.tellg();
+  if (size < pipe_read_offset) {
+    // The driver recreated the file (e.g. a fresh run reusing the same
+    // path): resync from the start instead of reading a negative range.
+    pipe_read_offset = 0;
+    pipe_pending.clear();
+  }
+  if (size <= pipe_read_offset) return;
+
+  f.seekg(pipe_read_offset, std::ios::beg);
+  std::streamsize requested = size - pipe_read_offset;
+  std::string appended(static_cast<size_t>(requested), '\0');
+  f.read(appended.data(), requested);
+  std::streamsize bytes_read = f.gcount();
+  if (bytes_read <= 0) return;
+  appended.resize(static_cast<size_t>(bytes_read));
+  pipe_read_offset += bytes_read;
+
+  // Read only the size observed above. If the host appends concurrently, the
+  // later bytes remain beyond pipe_read_offset for the next poll instead of
+  // being dispatched now and then a second time on the next frame.
+  std::string content = pipe_pending + appended;
+  pipe_pending.clear();
+
+  size_t start = 0;
+  size_t pos;
+  while ((pos = content.find('\n', start)) != std::string::npos) {
+    std::string line = content.substr(start, pos - start);
+    start = pos + 1;
+    if (!line.empty() && line.back() == '\r') line.pop_back();
+    if (!line.empty() && line[0] != '#') dispatchPipeCommand(line);
+  }
+
+  // Hold an incomplete tail until the driver writes the newline.
+  pipe_pending = content.substr(start);
+}
+
+#endif  // WIDGET_STUDIO && !__EMSCRIPTEN__
+
 int default_input_mode()
 {
 #if defined(DEFAULT_MODE)
@@ -790,6 +892,12 @@ int main(int argc, char* argv[])
                     args.getSettingsPath().c_str());
   simuStart();
 
+#if defined(WIDGET_STUDIO) && !defined(__EMSCRIPTEN__)
+  if (args.hasPipePath()) {
+    pipe_path = args.getPipePath();
+  }
+#endif
+
   // Main loop
   SDL_SetEventFilter([](void*, SDL_Event* event){
     if (event->type == SDL_WINDOWEVENT &&
@@ -805,6 +913,13 @@ int main(int argc, char* argv[])
 #else
   do {
     Uint64 start_ts = SDL_GetPerformanceCounter();
+#if defined(WIDGET_STUDIO) && !defined(__EMSCRIPTEN__)
+    pollPipeCommands();
+    if (simuConsumeResetRequest()) {
+      simuStop();
+      simuStart();
+    }
+#endif
     if (!handleEvents()) break;
 
     Uint64 end_ts = SDL_GetPerformanceCounter();
@@ -839,6 +954,13 @@ int main(int argc, char* argv[])
 
 uint16_t simuGetAnalog(uint8_t idx)
 {
+#if defined(WIDGET_STUDIO)
+  uint16_t override_val;
+  if (simuGetAnalogOverride(idx, &override_val)) {
+    return override_val;
+  }
+#endif
+
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   if (idx < max_sticks) {
     switch(idx) {
@@ -873,4 +995,7 @@ uint16_t simuGetAnalog(uint8_t idx)
 }
 
 void simuTrace(const char* text) {}
+
+#if !defined(WIDGET_STUDIO)
 void simuLcdNotify() {}
+#endif

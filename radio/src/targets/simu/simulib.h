@@ -197,3 +197,37 @@ std::string simuFatfsGetRealPath(const std::string& p);
   extern struct TouchState simTouchState;
   extern bool simTouchOccured;
 #endif
+
+// -- Widget Studio dev hooks (WIDGET_STUDIO, simu target only) --------------
+//
+#if defined(WIDGET_STUDIO)
+
+// Deterministic LCD capture.  simuCaptureArm(path) arms a one-shot dump: the
+// NEXT frame-ready callback (simuLcdNotify) writes the current LCD framebuffer
+// to the host `path` as a PNG (RGB565 -> RGB888) and disarms.  The native
+// implementation lives in simu_capture.cpp, which is linked only into the
+// interactive simulator executable.
+//
+// Arming also raises a force-redraw request (simuConsumeCaptureRedraw):
+// simuLcdNotify only fires on the LVGL flush callback, so a capture armed
+// against an already-static screen (no pending animation, no dirty region)
+// would otherwise wait forever for a frame that never comes. The LVGL task
+// loop (LvglWrapper::run(), simu+WIDGET_STUDIO only) consumes the request and
+// invalidates the active screen, guaranteeing the next flush happens.
+void simuCaptureArm(const char* path);
+bool simuConsumeCaptureRedraw();
+bool simuConsumeCapturePath(std::string& path);
+
+// ADC override: lets the harness force an input (stick/pot) value in ADC range
+// (0..4096).  Returns false when no override is set for `idx`, in which case
+// the normal input path is used.  `idx` is the combined input index used by
+// simuGetAnalog() (main inputs first, then flex inputs).
+void simuSetAnalogValue(uint8_t idx, uint16_t value);
+bool simuGetAnalogOverride(uint8_t idx, uint16_t* value);
+
+// Async full simulator reset (hot reload).  Requested from inside Lua (safe),
+// consumed by the native simu main loop between frames.
+void simuRequestReset();
+bool simuConsumeResetRequest();
+
+#endif  // WIDGET_STUDIO

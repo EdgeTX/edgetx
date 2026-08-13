@@ -29,6 +29,10 @@
 #include "os/time.h"
 #include "view_main.h"
 
+#if defined(SIMU) && defined(WIDGET_STUDIO)
+#include "targets/simu/simulib.h"
+#endif
+
 LvglWrapper* LvglWrapper::_instance = nullptr;
 
 static lv_indev_drv_t touchDriver;
@@ -367,6 +371,13 @@ void LvglWrapper::run()
   if (!updating) {
     // Normal UI loop - call lgvl timer handler
     updating = true;
+#if defined(SIMU) && defined(WIDGET_STUDIO)
+    // A capture armed against an already-static screen would otherwise wait
+    // forever for a flush that never comes (see simuCaptureArm).
+    if (simuConsumeCaptureRedraw()) {
+      lv_obj_invalidate(lv_scr_act());
+    }
+#endif
     lv_timer_handler();
     updating = false;
   } else {
