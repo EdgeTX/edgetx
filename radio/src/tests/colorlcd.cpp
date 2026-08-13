@@ -24,6 +24,7 @@
 #if defined(COLORLCD)
 
 #include "colors.h"
+#include "widget.h"
 
 TEST(color, RGB)
 {
@@ -50,6 +51,37 @@ TEST(color, ARGB)
   EXPECT_EQ(ARGB(0, 0, 0, 255), (uint16_t)0x000F);
 
   EXPECT_EQ(ARGB(128, 30, 40, 150), (uint16_t)0x8129);
+}
+
+TEST(Widget, focusStyleDoesNotLeak)
+{
+  lv_group_t* previousGroup = lv_group_get_default();
+  lv_group_set_default(nullptr);
+
+  auto exercise = [] {
+    Widget widget(nullptr, nullptr, {0, 0, 64, 64}, 0, 0);
+    for (int i = 0; i < 16; ++i) {
+      widget.enableFocus(true);
+      widget.enableFocus(false);
+    }
+    widget.enableFocus(true);
+  };
+
+  // Warm up LVGL's object allocation paths before measuring.
+  exercise();
+
+  lv_mem_monitor_t before = {};
+  lv_mem_monitor(&before);
+
+  for (int i = 0; i < 8; ++i) {
+    exercise();
+  }
+
+  lv_mem_monitor_t after = {};
+  lv_mem_monitor(&after);
+
+  lv_group_set_default(previousGroup);
+  EXPECT_EQ(before.free_size, after.free_size);
 }
 
 #endif

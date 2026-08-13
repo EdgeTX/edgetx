@@ -272,11 +272,6 @@ void Widget::enableFocus(bool enable)
 {
   if (enable) {
     if (!focusBorder) {
-      lv_style_init(&borderStyle);
-      lv_style_set_line_width(&borderStyle, PAD_BORDER);
-      lv_style_set_line_opa(&borderStyle, LV_OPA_COVER);
-      lv_style_set_line_color(&borderStyle, makeLvColor(COLOR_THEME_FOCUS));
-
       borderPts[0] = {1, 1};
       borderPts[1] = {(lv_coord_t)(width() - 1), 1};
       borderPts[2] = {(lv_coord_t)(width() - 1), (lv_coord_t)(height() - 1)};
@@ -284,7 +279,10 @@ void Widget::enableFocus(bool enable)
       borderPts[4] = {1, 1};
 
       focusBorder = lv_line_create(lvobj);
-      lv_obj_add_style(focusBorder, &borderStyle, LV_PART_MAIN);
+      lv_obj_set_style_line_width(focusBorder, PAD_BORDER, LV_PART_MAIN);
+      lv_obj_set_style_line_opa(focusBorder, LV_OPA_COVER, LV_PART_MAIN);
+      lv_obj_set_style_line_color(focusBorder, makeLvColor(COLOR_THEME_FOCUS),
+                                  LV_PART_MAIN);
       lv_line_set_points(focusBorder, borderPts, 5);
 
       if (!hasFocus()) {

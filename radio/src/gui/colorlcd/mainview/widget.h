@@ -129,7 +129,6 @@ class Widget : public ButtonBase
   bool fullscreen = false;
   bool closeFS = false;
   lv_obj_t* focusBorder = nullptr;
-  lv_style_t borderStyle;
   lv_point_t borderPts[5];
 
   void onCancel() override;
