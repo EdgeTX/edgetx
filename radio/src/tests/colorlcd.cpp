@@ -56,7 +56,12 @@ TEST(color, ARGB)
 TEST(Widget, focusStyleDoesNotLeak)
 {
   lv_group_t* previousGroup = lv_group_get_default();
-  lv_group_set_default(nullptr);
+  lv_group_t* testGroup = lv_group_create();
+  lv_group_set_default(testGroup);
+
+  // Keep a separate object focused so the Widget focus handler is not invoked.
+  lv_obj_t* groupAnchor = lv_obj_create(nullptr);
+  lv_group_add_obj(testGroup, groupAnchor);
 
   auto exercise = [] {
     Widget widget(nullptr, nullptr, {0, 0, 64, 64}, 0, 0);
@@ -81,6 +86,8 @@ TEST(Widget, focusStyleDoesNotLeak)
   lv_mem_monitor(&after);
 
   lv_group_set_default(previousGroup);
+  lv_obj_del(groupAnchor);
+  lv_group_del(testGroup);
   EXPECT_EQ(before.free_size, after.free_size);
 }
 
