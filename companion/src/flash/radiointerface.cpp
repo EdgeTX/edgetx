@@ -29,6 +29,7 @@
 
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QListWidget>
 
 #include <chrono>
 #include <stdexcept>
@@ -859,4 +860,37 @@ QStringList uf2FileExtensions()
 QStringList firmwareFileExtensions()
 {
   return dfuFileExtensions();
+}
+
+QStringList findSDCards(const QString & dir, QWidget * parent)
+{
+  QStringList lst;
+
+  // Linux: "vfat"; macOS: "msdos" or "lifs"; Win: "FAT32"
+  QRegularExpression fstypeRe("^(v?fat|msdos|lifs)",
+                              QRegularExpression::CaseInsensitiveOption);
+
+  foreach (const QStorageInfo &si, QStorageInfo::mountedVolumes()) {
+    if (!si.isReady() || si.isReadOnly() || !QString(si.fileSystemType()).contains(fstypeRe))
+      continue;
+
+    qDebug() << "device:" << si.device()
+             << "type:" << si.fileSystemType()
+             << "block size:" << si.blockSize()
+             << "capacity:" << si.bytesTotal() / 1024000 << "MB"
+             << "available:" << si.bytesFree() / 1024000 << "MB"
+             << "root path:" << si.rootPath();
+
+    QString temppath = si.rootPath();
+    QString probefile = Helpers::concatPath(temppath, dir);
+
+    if (QFile::exists(probefile)) {
+      QStringList sd = QStringList() << si.rootPath()
+                                     << si.device()
+                                     << QString("%1GB").arg(si.bytesTotal() / 1024000000);
+      lst.append(sd);
+    }
+  }
+
+  return lst;
 }

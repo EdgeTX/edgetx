@@ -27,4 +27,5 @@ target_include_directories(${PROJECT_NAME}
     "${CMAKE_CURRENT_BINARY_DIR}"
   PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}"
+    "${RS_DFU_INCLUDE_DIRS}"
 )

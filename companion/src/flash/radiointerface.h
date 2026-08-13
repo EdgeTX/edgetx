@@ -24,7 +24,7 @@
 #include "rs_dfu.h"
 
 #include <QThread>
-#include <QString>
+#include <QStringList>
 
 using SliceU8 = rust::Slice<const uint8_t>;
 using ::rust::Vec;
@@ -100,6 +100,8 @@ struct Uf2Info {
 };
 
 QString findMassStoragePath(const QString &filename, bool onlyPath = false, ProgressWidget *progress = nullptr);
+// return all removeable drives with the requested top level directory
+QStringList findSDCards(const QString & dir, QWidget * parent = nullptr);
 
 bool readFirmware(const std::function<void(const QByteArray &)>& onComplete,
                   const std::function<void(const QString &)>& onError,

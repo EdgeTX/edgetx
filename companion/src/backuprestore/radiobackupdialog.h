@@ -38,15 +38,19 @@ class RadioBackupDialog : public QDialog
     virtual ~RadioBackupDialog();
 
   public slots:
+    //virtual void accepted() override;
 
   signals:
 
   private slots:
+    //void onItemChanged(QTreeWidgetItem *item, int column);
 
   private:
     Ui::RadioBackupDialog *ui;
     bool backupFirmware;
 
-    void scanForRadio();
+    void findRadio();
+    void loadSDCards();
+    void buildTree();
     void addFilesToTree(const QString &path, QTreeWidgetItem *parentItem);
 };

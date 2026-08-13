@@ -23,21 +23,29 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QLabel" name="lblRadio">
+      <widget class="QLabel" name="lblSDCards">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
-        <string>Radio</string>
+        <string>SD Cards</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="leRadio">
-       <property name="readOnly">
-        <bool>true</bool>
-       </property>
-      </widget>
+      <widget class="QComboBox" name="cboSDCards"/>
      </item>
      <item>
-      <widget class="QPushButton" name="btnRadioRescan">
+      <widget class="QPushButton" name="btnRescan">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
         <string>Rescan</string>
        </property>
@@ -60,12 +68,15 @@
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QScrollArea" name="scrlSelection">
           <property name="widgetResizable">
            <bool>true</bool>
           </property>
-          <widget class="QWidget" name="scrollAreaWidgetContents">
+          <widget class="QWidget" name="scrlSelectionContents">
            <property name="geometry">
             <rect>
              <x>0</x>
@@ -79,13 +90,21 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>441</width>
-              <height>251</height>
+              <width>431</width>
+              <height>241</height>
              </rect>
+            </property>
+            <property name="columnCount">
+             <number>2</number>
             </property>
             <column>
              <property name="text">
               <string notr="true">1</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string notr="true">2</string>
              </property>
             </column>
            </widget>
