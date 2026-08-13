@@ -278,7 +278,6 @@ void ViewMain::refreshWidgetSelectTimer()
 bool ViewMain::enableWidgetSelect(bool enable)
 {
   TRACE("enableWidgetSelect(%d)", enable);
-  // TODO: start timer
   if (widget_select == enable) return false;
   widget_select = enable;
 
@@ -300,6 +299,8 @@ bool ViewMain::enableWidgetSelect(bool enable)
     lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
     lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+
+    refreshWidgetSelectTimer();
   } else {
     lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
