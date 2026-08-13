@@ -33,6 +33,7 @@ class ViewMain : public NavWindow
 
  public:
   ~ViewMain() override;
+  void deleteLater() override;
 
   static ViewMain* instance();
 
@@ -85,6 +86,7 @@ class ViewMain : public NavWindow
   void setEdgeTxButtonVisible(float visible);
 
   void _refreshWidgets();
+  void cancelWidgetSelectTimer();
 
   static void ws_timer(lv_timer_t* t);
 

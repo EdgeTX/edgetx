@@ -107,7 +107,20 @@ ViewMain::ViewMain() :
   topbar = new TopBar(this);
 }
 
-ViewMain::~ViewMain() { _instance = nullptr; }
+ViewMain::~ViewMain()
+{
+  cancelWidgetSelectTimer();
+  _instance = nullptr;
+}
+
+void ViewMain::deleteLater()
+{
+  if (deleted()) return;
+
+  // LVGL timers run before the Window trash is emptied, so stop callbacks now.
+  cancelWidgetSelectTimer();
+  NavWindow::deleteLater();
+}
 
 void ViewMain::addMainView(WidgetsContainer* view, uint32_t viewId)
 {
@@ -268,9 +281,20 @@ void ViewMain::refreshWidgetSelectTimer()
   }
 }
 
+void ViewMain::cancelWidgetSelectTimer()
+{
+  if (widget_select_timer) {
+    lv_timer_del(widget_select_timer);
+    widget_select_timer = nullptr;
+  }
+}
+
 bool ViewMain::enableWidgetSelect(bool enable)
 {
   TRACE("enableWidgetSelect(%d)", enable);
+
+  if (!enable) cancelWidgetSelectTimer();
+
   // TODO: start timer
   if (widget_select == enable) return false;
   widget_select = enable;
@@ -297,11 +321,6 @@ bool ViewMain::enableWidgetSelect(bool enable)
     lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
     lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
-
-    if (widget_select_timer) {
-      lv_timer_del(widget_select_timer);
-      widget_select_timer = nullptr;
-    }
   }
 
   return true;
