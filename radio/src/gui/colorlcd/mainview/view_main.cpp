@@ -31,6 +31,15 @@
 #include "view_channels.h"
 #include "widget.h"
 
+static void saveViewId(unsigned view)
+{
+  if (view != g_model.view) {
+    TRACE("save view #%d", view);
+    g_model.view = view;
+    storageDirty(EE_MODEL);
+  }
+}
+
 static void tile_view_deleted_cb(lv_event_t* e)
 {
   lv_obj_t* target = lv_event_get_target(e);
@@ -41,15 +50,6 @@ static void tile_view_deleted_cb(lv_event_t* e)
   if (obj == target) {
     TRACE("CHILD_DELETED tile[%d]", lv_event_get_user_data(e));
     lv_obj_del(obj);
-  }
-}
-
-static void saveViewId(unsigned view)
-{
-  if (view != g_model.view) {
-    TRACE("save view #%d", view);
-    g_model.view = view;
-    storageDirty(EE_MODEL);
   }
 }
 
@@ -100,8 +100,7 @@ ViewMain::ViewMain() :
   lv_obj_set_user_data(tile_view, this);
   lv_obj_add_event_cb(tile_view, tile_view_scroll_begin, LV_EVENT_SCROLL_BEGIN, NULL);
   lv_obj_add_event_cb(tile_view, tile_view_scroll, LV_EVENT_SCROLL, nullptr);
-  lv_obj_add_event_cb(tile_view, tile_view_scroll_end, LV_EVENT_SCROLL_END,
-                      nullptr);
+  lv_obj_add_event_cb(tile_view, tile_view_scroll_end, LV_EVENT_SCROLL_END, nullptr);
 
   // create last to be on top
   topbar = new TopBar(this);
@@ -268,24 +267,20 @@ void ViewMain::onCancel()
 
 void ViewMain::refreshWidgetSelectTimer()
 {
-  if (!widget_select_timer) {
-    widget_select_timer = lv_timer_create(ViewMain::ws_timer, 10 * 1000, this);
-  } else {
-    lv_timer_reset(widget_select_timer);
-  }
+  widgetSelectCancelTime = get_tmr10ms() + 1000; // 10 seconds
 }
 
-bool ViewMain::enableWidgetSelect(bool enable)
+void ViewMain::enableWidgetSelect(bool enable)
 {
   TRACE("enableWidgetSelect(%d)", enable);
-  if (widget_select == enable) return false;
+  if (widget_select == enable) return;
   widget_select = enable;
 
   lv_obj_t* tile = lv_tileview_get_tile_act(tile_view);
-  if (!tile) return true;
+  if (!tile) return;
 
   auto cont_obj = lv_obj_get_child(tile, 0);
-  if (!cont_obj) return true;
+  if (!cont_obj) return;
 
   auto cont = (WidgetsContainer*)lv_obj_get_user_data(cont_obj);
 
@@ -306,20 +301,8 @@ bool ViewMain::enableWidgetSelect(bool enable)
     lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
     lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
 
-    if (widget_select_timer) {
-      lv_timer_del(widget_select_timer);
-      widget_select_timer = nullptr;
-    }
+    widgetSelectCancelTime = 0;
   }
-
-  return true;
-}
-
-void ViewMain::ws_timer(lv_timer_t* t)
-{
-  ViewMain* view = (ViewMain*)t->user_data;
-  if (!view) return;
-  view->enableWidgetSelect(false);
 }
 
 bool ViewMain::onLongPress()
@@ -393,6 +376,8 @@ void ViewMain::_refreshWidgets()
       if (customScreens[i])
         customScreens[i]->refreshWidgets(isVisible);
     }
+    if (widget_select && widgetSelectCancelTime < get_tmr10ms())
+      enableWidgetSelect(false);
   }
 }
 
