@@ -37,8 +37,6 @@
 #include "mainwindow.h"
 #include "version.h"
 #include "appdata.h"
-
-#error "Intentional CI test failure for PR #7654 - verifying build log artifact upload"
 #include "simulatorinterface.h"
 #include "storage.h"
 #include "translations.h"
