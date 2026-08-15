@@ -570,26 +570,35 @@ elseif(APPLE)
   # Run macdeployqt
   install(SCRIPT ${qt_deploy_companion} COMPONENT Runtime)
 
+  option(COMPANION_VERIFY_BUNDLE
+         "Fail the install if the macOS bundle references libraries outside itself" ON)
+  set(COMPANION_VERIFY_BUNDLE_ALLOW "" CACHE STRING
+      "Regex of absolute library paths the bundle verification may ignore")
+
   # Bundle SDL2 (copy the real dylib; IMPORTED_RUNTIME_ARTIFACTS keeps
   # Homebrew symlinks and breaks the app inside a .dmg). Homebrew's
   # sdl2-compat also loads SDL3 from @loader_path/libSDL3.dylib at runtime.
+  set(_bundle_expects_sdl3 FALSE)
+  set(_bundled_sdl2 FALSE)
   if(TARGET SDL2::SDL2)
     get_target_property(_sdl2_location SDL2::SDL2 IMPORTED_LOCATION)
     if(NOT _sdl2_location)
       get_target_property(_sdl2_location SDL2::SDL2 IMPORTED_LOCATION_RELEASE)
     endif()
     if(_sdl2_location AND _sdl2_location MATCHES "\\.framework(/|$)")
-      # Genuine upstream SDL2.framework (CI's setup-sdl2.sh, or a manual framework
-      # install): no SDL3 dlopen shim to worry about, and IMPORTED_RUNTIME_ARTIFACTS
-      # copies frameworks correctly — it's only the Homebrew dylib case below whose
-      # symlinks it mangles. This is what CI has shipped all along.
+      # Genuine upstream SDL2.framework (a manual framework install): no SDL3 dlopen
+      # shim to worry about, and IMPORTED_RUNTIME_ARTIFACTS copies frameworks
+      # correctly — it's only the dylib case below whose symlinks it mangles.
+      # CI no longer takes this path; setup-sdl.sh builds sdl2-compat + SDL3 instead.
       message(STATUS "Bundling SDL2 framework: ${_sdl2_location}")
       install(IMPORTED_RUNTIME_ARTIFACTS SDL2::SDL2
               FRAMEWORK DESTINATION "${companion_app_dir}/Contents/Frameworks"
               LIBRARY   DESTINATION "${companion_app_dir}/Contents/Frameworks"
               COMPONENT Runtime)
+      set(_bundled_sdl2 TRUE)
     elseif(_sdl2_location)
       message(STATUS "Bundling SDL2 library: ${_sdl2_location}")
+      set(_bundled_sdl2 TRUE)
       get_filename_component(_sdl2_real "${_sdl2_location}" REALPATH)
       get_filename_component(_sdl2_name "${_sdl2_location}" NAME)
       install(FILES "${_sdl2_real}"
@@ -645,6 +654,7 @@ elseif(APPLE)
                 DESTINATION "${companion_app_dir}/Contents/Frameworks"
                 RENAME "libSDL3.dylib"
                 COMPONENT Runtime)
+        set(_bundle_expects_sdl3 TRUE)
       else()
         message(WARNING "SDL3 not found; packaged Companion may crash if linked against sdl2-compat")
       endif()
@@ -673,6 +683,21 @@ elseif(APPLE)
     else()
       message(WARNING "SDL2::SDL2 has no IMPORTED_LOCATION; SDL2 will not be bundled")
     endif()
+
+    # Point the executable at the SDL copies bundled above. qt_deploy_runtime_dependencies
+    # ran before they existed, and install_name_tool -id only fixes each dylib's own id, so
+    # nothing else guarantees this. Runs for both the framework and dylib branches, and must
+    # stay ahead of the re-sign below so the signature covers the rewritten load commands.
+    # Skipped when nothing was bundled - rewriting to Frameworks would then point the
+    # executable at files that are not there.
+    if(_bundled_sdl2)
+      configure_file(
+        "${COMPANION_TARGETS_DIR}/bundle_sdl_fixup.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/bundle_sdl_fixup.cmake"
+        @ONLY
+      )
+      install(SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/bundle_sdl_fixup.cmake" COMPONENT Runtime)
+    endif()
   endif()
 
   # Re-sign bundle after all contents are installed
@@ -684,6 +709,17 @@ elseif(APPLE)
         COMMAND codesign --force --deep -s - \${app_dir}
       )
   " COMPONENT Runtime)
+
+  # Last gate: a bundle that still points at /opt/homebrew or a build-machine Qt prefix
+  # starts on the machine that built it and nowhere else. Fail here rather than ship it.
+  if(COMPANION_VERIFY_BUNDLE)
+    configure_file(
+      "${COMPANION_TARGETS_DIR}/bundle_verify.cmake.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/bundle_verify.cmake"
+      @ONLY
+    )
+    install(SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/bundle_verify.cmake" COMPONENT Runtime)
+  endif()
 
 else()
   # Detect architecture for linuxdeploy AppImage

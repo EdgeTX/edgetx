@@ -164,7 +164,19 @@ Open it and drag **EdgeTX Companion** into `/Applications`:
 open native/edgetx-companion-*.dmg
 ```
 
-The packaging step bundles Qt, SDL2, and SDL3 into the `.app` automatically.
+The packaging step bundles Qt, SDL2, and SDL3 into the `.app` automatically, then verifies that
+nothing in the bundle still points at a library outside it. If that check fails, the build stops
+rather than producing a `.dmg` that only runs on your machine — most often because a dependency
+was picked up from Homebrew without being copied in. Pass `-DCOMPANION_VERIFY_BUNDLE=OFF` to
+package anyway.
+
+!!! note
+    A locally built `.dmg` is not what CI ships. Homebrew's bottles are single-architecture and
+    target your macOS version, so your build is arm64-only and requires the macOS you built it
+    on. CI builds sdl2-compat and SDL3 from source as universal (`x86_64` + `arm64`) binaries
+    targeting macOS 11.0 — see `.github/actions/build_companion/setup-sdl.sh`. Both use the same
+    sdl2-compat + SDL3 stack, so the code path is identical; only the slices and minimum OS
+    differ.
 
 # Troubleshooting
 
