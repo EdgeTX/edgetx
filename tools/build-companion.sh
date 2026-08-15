@@ -34,6 +34,13 @@ if [ "$(uname)" = "Darwin" ]; then
   COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='11.0'"
 fi
 
+# find_package(... CONFIG) skips the lib/cmake/<Name> search pattern for prefixes that only
+# come from the CMAKE_PREFIX_PATH env var (not -D) - forward it so CI's source-built SDL3 is
+# actually found instead of silently missing from the bundle.
+if [[ -n "${CMAKE_PREFIX_PATH:-}" ]]; then
+  COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}"
+fi
+
 # Generate EDGETX_VERSION_SUFFIX if not already set
 if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   gh_type=$(echo "$GITHUB_REF" | awk -F / '{print $2}') #heads|tags|pull

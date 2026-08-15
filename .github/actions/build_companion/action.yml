@@ -42,7 +42,7 @@ runs:
     # run per version pays for it
     - name: Cache SDL build
       if: runner.os == 'macOS'
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ runner.temp }}/sdl
         key: sdl-${{ runner.os }}-${{ inputs.sdl3-version }}-${{ inputs.sdl2-compat-version }}-${{ inputs.macos-deployment-target }}

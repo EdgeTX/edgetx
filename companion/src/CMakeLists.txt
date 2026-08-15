@@ -619,6 +619,10 @@ elseif(APPLE)
       endif()
       if(NOT _sdl3_real)
         set(_sdl3_hints "")
+        # SDL3 usually lives right next to SDL2 (setup-sdl.sh installs both to one prefix) -
+        # check there before falling back to Homebrew heuristics.
+        get_filename_component(_sdl2_libdir "${_sdl2_location}" DIRECTORY)
+        list(APPEND _sdl3_hints "${_sdl2_libdir}")
         if(DEFINED ENV{HOMEBREW_PREFIX})
           list(APPEND _sdl3_hints
             "$ENV{HOMEBREW_PREFIX}/opt/sdl3/lib"
@@ -656,7 +660,10 @@ elseif(APPLE)
                 COMPONENT Runtime)
         set(_bundle_expects_sdl3 TRUE)
       else()
-        message(WARNING "SDL3 not found; packaged Companion may crash if linked against sdl2-compat")
+        message(FATAL_ERROR
+          "SDL3 not found, but the bundled SDL2 (${_sdl2_location}) is sdl2-compat, which "
+          "dlopens libSDL3.dylib at runtime - Companion would not start without it. Install "
+          "SDL3, or point CMAKE_PREFIX_PATH/HOMEBREW_PREFIX at a prefix that has it.")
       endif()
 
       install(CODE "
