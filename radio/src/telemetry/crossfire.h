@@ -50,12 +50,16 @@
 #define PING_DEVICES_ID                0x28
 #define DEVICE_INFO_ID                 0x29
 #define REQUEST_SETTINGS_ID            0x2A
+#if defined(RTCLOCK)
 #define PARAMETER_WRITE_ID             0x2D
+#endif
 #define COMMAND_ID                     0x32
 #define RADIO_ID                       0x3A
 
+#if defined(RTCLOCK)
 // ExpressLRS handset time synchronization field
 #define ELRS_HANDSET_TIME_ID           0x3C
+#endif
 
 #define UART_SYNC                      0xC8
 #define SUBCOMMAND_CRSF                0x10

@@ -21,13 +21,17 @@
 
 #include "gtest/gtest.h"
 #include "gtests.h"
+#if defined(RTCLOCK)
 #include "rtc.h"
+#endif
 #include "telemetry/telemetry.h"
 
 #if defined(CROSSFIRE)
 
 uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses);
+#if defined(RTCLOCK)
 uint8_t createCrossfireTimeFrame(uint8_t moduleIdx, uint8_t * frame);
+#endif
 TEST(Crossfire, createCrossfireChannelsFrame)
 {
   int16_t pulsesStart[MAX_TRAINER_CHANNELS];
@@ -43,6 +47,7 @@ TEST(Crossfire, createCrossfireChannelsFrame)
   // TODO check
 }
 
+#if defined(RTCLOCK)
 TEST(Crossfire, createCrossfireTimeFrame)
 {
   struct gtm expected = {56, 34, 12, 1, 0, 126, 0, 0};
@@ -69,6 +74,7 @@ TEST(Crossfire, createCrossfireTimeFrame)
 
   g_rtcTime = previousTime;
 }
+#endif
 
 TEST(Crossfire, crc8)
 {
