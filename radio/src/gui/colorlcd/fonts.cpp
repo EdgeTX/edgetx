@@ -341,6 +341,12 @@ void decompressFont(int idx, etxLvglFont* fonts)
 
   const etxLz4Font* etxFont = fonts[idx].lz4Font;
 
+  /**
+   * FIX : If 'etxFont' does not exist, decompression is not required!!!
+   * NOTE : This situation will only occur after 'ENABLE_FALLBACK' has been defined!!!
+   */
+  if ( etxFont == nullptr ) return;
+
   // Init SDRAM buffer
   initFontBuffers();
   uint8_t* data = (uint8_t*)fonts[idx].lvglFont;
