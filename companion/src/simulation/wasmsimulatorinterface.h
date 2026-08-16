@@ -165,6 +165,7 @@ class WasmSimulatorInterface : public SimulatorInterface
     wasm_function_inst_t m_fnTouchDown = nullptr;
     wasm_function_inst_t m_fnTouchUp = nullptr;
     wasm_function_inst_t m_fnFatfsSetPaths = nullptr;
+    wasm_function_inst_t m_fnSetUtcOffset = nullptr;
     wasm_function_inst_t m_fnRotaryEncoderEvent = nullptr;
     wasm_function_inst_t m_fnGetCapability = nullptr;
 

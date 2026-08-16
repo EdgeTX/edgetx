@@ -15,6 +15,7 @@
 
 #include "wasmsimulatorinterface.h"
 
+#include <QDateTime>
 #include <QDebug>
 #include <QFile>
 #include <QElapsedTimer>
@@ -335,6 +336,8 @@ bool WasmSimulatorInterface::resolveExports()
       wasm_runtime_lookup_function(m_moduleInst, "simuTouchUp");
   m_fnFatfsSetPaths =
       wasm_runtime_lookup_function(m_moduleInst, "simuFatfsSetPaths");
+  m_fnSetUtcOffset =
+      wasm_runtime_lookup_function(m_moduleInst, "simuSetUtcOffset");
   m_fnRotaryEncoderEvent =
       wasm_runtime_lookup_function(m_moduleInst, "simuRotaryEncoderEvent");
   m_fnGetCapability =
@@ -546,6 +549,16 @@ void WasmSimulatorInterface::start(const char * filename, bool tests)
     if (wasmSettingsPath) {
       uint32_t freeArgv[1] = {wasmSettingsPath};
       wasm_runtime_call_wasm(m_execEnv, m_fnFree, 1, freeArgv);
+    }
+  }
+
+  // WASI has no timezone support, so the module needs our UTC offset.
+  if (m_fnSetUtcOffset) {
+    uint32_t tzArgv[1] = {
+        (uint32_t)(int32_t)QDateTime::currentDateTime().offsetFromUtc()};
+    if (!wasm_runtime_call_wasm(m_execEnv, m_fnSetUtcOffset, 1, tzArgv)) {
+      qWarning() << "WASM simuSetUtcOffset failed:"
+                 << wasm_runtime_get_exception(m_moduleInst);
     }
   }
 
