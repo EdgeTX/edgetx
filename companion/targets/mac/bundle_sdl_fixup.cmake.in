@@ -1,0 +1,65 @@
+# Rewrite absolute SDL load commands in the Companion executable to the bundled copies.
+#
+# Configured from companion/targets/mac/bundle_sdl_fixup.cmake.in - do not edit the copy in
+# the build tree.
+#
+# Companion used to run fixup_bundle, which walked every Mach-O in the bundle and rewrote all
+# of their load commands in one pass. That was replaced by qt_deploy_runtime_dependencies,
+# which runs *before* the SDL install(FILES) steps, and by an install_name_tool -id call that
+# only fixes each dylib's own id. Nothing in that chain guarantees the executable actually
+# references the SDL copies sitting in Contents/Frameworks, so make it explicit here.
+
+set(_app "${CMAKE_INSTALL_PREFIX}/@companion_app_dir@")
+set(_bin "${_app}/Contents/MacOS/@_companion_exe_name@")
+
+if(NOT EXISTS "${_bin}")
+  message(FATAL_ERROR "Companion executable not found for SDL fixup: ${_bin}")
+endif()
+
+execute_process(
+  COMMAND otool -L "${_bin}"
+  OUTPUT_VARIABLE _otool_out
+  ERROR_VARIABLE _otool_err
+  RESULT_VARIABLE _otool_res
+)
+if(NOT _otool_res EQUAL 0)
+  message(FATAL_ERROR "otool -L failed for ${_bin}: ${_otool_err}")
+endif()
+
+string(REPLACE "\n" ";" _lines "${_otool_out}")
+foreach(_line IN LISTS _lines)
+  # dependency lines are tab-indented: "\t<path> (compatibility version ..., current ...)"
+  string(REGEX MATCH "^\t([^ ]+)" _matched "${_line}")
+  if(NOT _matched)
+    continue()
+  endif()
+  set(_ref "${CMAKE_MATCH_1}")
+
+  # @rpath / @executable_path / @loader_path already resolve inside the bundle
+  if(NOT _ref MATCHES "^/")
+    continue()
+  endif()
+  if(NOT _ref MATCHES "SDL2|SDL3")
+    continue()
+  endif()
+
+  # Keep the framework tail (SDL2.framework/Versions/A/SDL2) so the rewritten reference
+  # matches the layout install(IMPORTED_RUNTIME_ARTIFACTS) produced; plain dylibs land
+  # directly in Frameworks under their own name.
+  if(_ref MATCHES "/(SDL[23]\\.framework/.*)$")
+    set(_tail "${CMAKE_MATCH_1}")
+  else()
+    get_filename_component(_tail "${_ref}" NAME)
+  endif()
+
+  set(_new "@executable_path/../Frameworks/${_tail}")
+  message(STATUS "Rewriting SDL reference: ${_ref} -> ${_new}")
+  execute_process(
+    COMMAND install_name_tool -change "${_ref}" "${_new}" "${_bin}"
+    ERROR_VARIABLE _change_err
+    RESULT_VARIABLE _change_res
+  )
+  if(NOT _change_res EQUAL 0)
+    message(FATAL_ERROR "install_name_tool -change failed for ${_ref}: ${_change_err}")
+  endif()
+endforeach()

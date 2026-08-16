@@ -1,0 +1,92 @@
+# Verify the installed Companion .app carries no references to libraries outside itself.
+#
+# Configured from companion/targets/mac/bundle_verify.cmake.in - do not edit the copy in the
+# build tree.
+#
+# A .dmg that links against /opt/homebrew, /usr/local/Cellar or a build-machine Qt prefix
+# starts fine on the machine that built it and fails everywhere else, which is exactly how the
+# sdl2-compat breakage reached users. Catch it at install time instead.
+#
+# Disable with -DCOMPANION_VERIFY_BUNDLE=OFF; widen with -DCOMPANION_VERIFY_BUNDLE_ALLOW=<regex>.
+
+set(_app "${CMAKE_INSTALL_PREFIX}/@COMPANION_OSX_APP_BUNDLE_NAME@.app")
+set(_allow "@COMPANION_VERIFY_BUNDLE_ALLOW@")
+set(_expect_sdl3 "@_bundle_expects_sdl3@")
+
+if(NOT IS_DIRECTORY "${_app}")
+  message(FATAL_ERROR "Bundle not found for verification: ${_app}")
+endif()
+
+# sdl2-compat dlopens "@loader_path/libSDL3.dylib" - invisible to otool, so check by hand
+if(_expect_sdl3 AND NOT EXISTS "${_app}/Contents/Frameworks/libSDL3.dylib")
+  message(FATAL_ERROR
+    "Contents/Frameworks/libSDL3.dylib is missing. Companion was linked against "
+    "sdl2-compat, which loads SDL3 at runtime, so the bundle will not start.")
+endif()
+
+file(GLOB_RECURSE _candidates "${_app}/Contents/*")
+
+set(_offenders "")
+set(_checked 0)
+foreach(_file IN LISTS _candidates)
+  if(IS_SYMLINK "${_file}" OR IS_DIRECTORY "${_file}")
+    continue()
+  endif()
+
+  execute_process(
+    COMMAND otool -L "${_file}"
+    OUTPUT_VARIABLE _otool_out
+    ERROR_VARIABLE _otool_err
+    RESULT_VARIABLE _otool_res
+  )
+  # non-Mach-O files (plists, icons, translations) simply fail the scan - skip them
+  if(NOT _otool_res EQUAL 0 OR _otool_out MATCHES "is not an object file")
+    continue()
+  endif()
+  math(EXPR _checked "${_checked} + 1")
+
+  string(REPLACE "\n" ";" _lines "${_otool_out}")
+  foreach(_line IN LISTS _lines)
+    string(REGEX MATCH "^\t([^ ]+)" _matched "${_line}")
+    if(NOT _matched)
+      continue()
+    endif()
+    set(_ref "${CMAKE_MATCH_1}")
+
+    if(NOT _ref MATCHES "^/")
+      continue()   # @rpath / @executable_path / @loader_path resolve inside the bundle
+    endif()
+    if(_ref MATCHES "^/usr/lib/" OR _ref MATCHES "^/System/")
+      continue()   # shipped with macOS
+    endif()
+    if(_allow AND _ref MATCHES "${_allow}")
+      continue()
+    endif()
+
+    file(RELATIVE_PATH _rel "${_app}" "${_file}")
+    list(APPEND _offenders "${_rel}: ${_ref}")
+  endforeach()
+endforeach()
+
+if(_offenders)
+  list(REMOVE_DUPLICATES _offenders)
+  string(REPLACE ";" "\n  " _report "${_offenders}")
+  message(FATAL_ERROR
+    "Bundle references libraries outside itself - this .dmg would not start on another "
+    "machine:\n  ${_report}\n"
+    "Re-run with -DCOMPANION_VERIFY_BUNDLE=OFF to package anyway.")
+endif()
+
+message(STATUS "Bundle verification: ${_checked} Mach-O files, no external references")
+
+# The bundle seal is a separate concern from the per-Mach-O signatures: dyld does not consult
+# CodeResources when loading, so a stale seal does not stop the app launching. It would matter
+# for Gatekeeper/notarization, so report it - but do not fail a build over it.
+execute_process(
+  COMMAND codesign --verify --deep --strict --verbose=2 "${_app}"
+  ERROR_VARIABLE _codesign_err
+  RESULT_VARIABLE _codesign_res
+)
+if(NOT _codesign_res EQUAL 0)
+  message(WARNING "Bundle signature is not valid (not fatal): ${_codesign_err}")
+endif()
