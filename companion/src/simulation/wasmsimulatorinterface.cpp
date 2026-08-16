@@ -550,7 +550,7 @@ void WasmSimulatorInterface::start(const char * filename, bool tests)
   }
 
   // WASM does not handle timezones. 
-  // Calculat adjusted rtc time and pass to simulator
+  // Calculate adjusted rtc time and pass to simulator
   time_t rawtime;
   time(&rawtime);
   rawtime -= timezone;
