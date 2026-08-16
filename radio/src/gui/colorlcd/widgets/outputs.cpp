@@ -102,8 +102,9 @@ class ChannelValue : public Window
 
     int16_t value = channelOutputs[channel];
 
-    if (value != lastValue) {
+    if (value != lastValue || lastExtendedLimits != g_model.extendedLimits) {
       lastValue = value;
+      lastExtendedLimits = g_model.extendedLimits;
 
       std::string s;
       if (g_eeGeneral.ppmunit == PPM_US)
@@ -151,6 +152,7 @@ class ChannelValue : public Window
   int16_t lastValue = OUTPUT_INVALID_VALUE;
   int16_t lastScaledValue = OUTPUT_INVALID_VALUE;
   std::string lastText;
+  bool lastExtendedLimits = false;
   bool chanHasName = false;
   lv_style_t style;
   lv_obj_t* valueLabel = nullptr;
