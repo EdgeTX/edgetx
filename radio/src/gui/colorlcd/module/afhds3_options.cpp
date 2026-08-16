@@ -26,6 +26,7 @@
 #include "getset_helpers.h"
 #include "numberedit.h"
 #include "toggleswitch.h"
+#include "telemetry/sensor_names.h"
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                      LV_GRID_TEMPLATE_LAST};

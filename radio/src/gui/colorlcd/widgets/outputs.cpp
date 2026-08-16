@@ -51,10 +51,6 @@ class ChannelValue : public Window
 
     padAll(PAD_ZERO);
 
-    lv_style_init(&style);
-    lv_style_set_width(&style, lv_pct(100));
-    lv_style_set_height(&style, lv_pct(100));
-
     bar = lv_obj_create(lvobj);
     lv_obj_set_style_bg_opa(bar, LV_OPA_COVER, LV_PART_MAIN);
     lv_obj_clear_flag(bar, LV_OBJ_FLAG_CLICKABLE);
@@ -64,7 +60,7 @@ class ChannelValue : public Window
     valueLabel = etx_label_create(lvobj, FONT_XS_INDEX);
     etx_obj_add_style(valueLabel, styles->text_align_right, LV_PART_MAIN);
     etx_txt_color_from_flags(valueLabel, txtColor);
-    lv_obj_add_style(valueLabel, &style, LV_PART_MAIN);
+    lv_obj_set_width(valueLabel, LV_PCT(100));
     lv_label_set_text(valueLabel, "");
 
     chanLabel = etx_label_create(lvobj, FONT_XS_INDEX);
@@ -103,8 +99,9 @@ class ChannelValue : public Window
 
     int16_t value = channelOutputs[channel];
 
-    if (value != lastValue) {
+    if (value != lastValue || lastExtendedLimits != g_model.extendedLimits) {
       lastValue = value;
+      lastExtendedLimits = g_model.extendedLimits;
 
       std::string s;
       if (g_eeGeneral.ppmunit == PPM_US)
@@ -150,8 +147,8 @@ class ChannelValue : public Window
   int16_t lastValue = OUTPUT_INVALID_VALUE;
   int16_t lastScaledValue = OUTPUT_INVALID_VALUE;
   std::string lastText;
+  bool lastExtendedLimits = false;
   bool chanHasName = false;
-  lv_style_t style;
   lv_obj_t* valueLabel = nullptr;
   lv_obj_t* chanLabel = nullptr;
   lv_point_t divPoints[2];
@@ -167,9 +164,6 @@ class OutputsWidget : public Widget
       Widget(factory, parent, rect, screenNum, zoneNum)
   {
     padAll(PAD_ZERO);
-
-    lv_style_init(&style);
-    lv_obj_add_style(lvobj, &style, LV_PART_MAIN);
 
     etx_obj_add_style(lvobj, styles->bg_opacity_transparent, LV_PART_MAIN);
     etx_obj_add_style(lvobj, styles->bg_opacity_cover,
@@ -245,7 +239,6 @@ class OutputsWidget : public Widget
   uint8_t rows = 0;
   LcdFlags txtColor = 0;
   LcdFlags barColor = 0;
-  lv_style_t style;
 
   static LAYOUT_VAL_SCALED(SHOW_MIN_W, 100)
   static LAYOUT_VAL_SCALED(SHOW_MIN_H, 20)

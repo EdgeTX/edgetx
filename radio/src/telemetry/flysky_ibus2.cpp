@@ -24,6 +24,7 @@
 #include "edgetx.h"
 #include "pulses/afhds3_config.h"
 #include "pulses/afhds3_transport.h"
+#include "sensor_names.h"
 
 #define FLYSKY_TELEMETRY_LENGTH (2 + 7 * 4)
 #define ALT_PRECISION 15

@@ -57,7 +57,7 @@ void FileCarosell::setSelected(int n)
     if (n >= 0 && n < (int)_fileNames.size()) {
       fp->setFile(_fileNames[selected].c_str());
     } else
-      fp->setFile("");
+      fp->setFile(nullptr);
   }
 
   message->show(selected == -1);

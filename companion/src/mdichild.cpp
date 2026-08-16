@@ -1292,7 +1292,7 @@ void MdiChild::setDefault()
   int row = getCurrentModel();
   if (!radioData.models[row].isEmpty() && radioData.generalSettings.currModelIndex != (unsigned)row) {
     radioData.setCurrentModel(row);
-    refresh();
+    setModified();
   }
 }
 
