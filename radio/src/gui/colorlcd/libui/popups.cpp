@@ -116,8 +116,8 @@ static lv_obj_t* bubble_popup_create(lv_obj_t* parent)
 class BubbleDialog : public Window
 {
  public:
-  BubbleDialog(const char* message, int timeout, coord_t width) :
-      Window(MainWindow::instance(), rect_t{(LCD_W - width) / 2, LCD_H - 100, width, 50},
+  BubbleDialog(const char* message, int timeout, coord_t width, coord_t y) :
+      Window(MainWindow::instance(), rect_t{(LCD_W - width) / 2, y, width, BUBBLE_HEIGHT},
              bubble_popup_create),
       startTime(lv_tick_get()), timeout(timeout)
   {
@@ -147,7 +147,7 @@ class BubbleDialog : public Window
   uint32_t timeout;
 };
 
-void POPUP_BUBBLE(const char* message, uint32_t timeout, coord_t width)
+void POPUP_BUBBLE(const char* message, uint32_t timeout, coord_t width, coord_t y)
 {
-  new BubbleDialog(message, timeout, width);
+  new BubbleDialog(message, timeout, width, y);
 }

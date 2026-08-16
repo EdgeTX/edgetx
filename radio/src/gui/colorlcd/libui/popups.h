@@ -23,6 +23,7 @@
 
 #include <functional>
 #include "edgetx_types.h"
+#include "etx_lv_theme.h"
 #include "hal.h"
 
 enum WarningType
@@ -38,9 +39,13 @@ enum WarningType
 typedef std::function<void(const char *, const char *, int, int)>
     ProgressHandler;
 
+constexpr coord_t DEFAULT_BUBBLE_WIDTH = LCD_W * 3 / 4;
+constexpr coord_t DEFAULT_BUBBLE_Y = LCD_H * 7 / 10;
+LAYOUT_VAL_SCALED(BUBBLE_HEIGHT, 50)
+
 void POPUP_INFORMATION(const char *message);
 void POPUP_WARNING(const char *message, const char *info = nullptr);
 bool POPUP_WARNING_ON_UI_TASK(const char *message, const char *info = nullptr);
-void POPUP_BUBBLE(const char *message, uint32_t timeout, coord_t width = LCD_W - 100);
+void POPUP_BUBBLE(const char *message, uint32_t timeout, coord_t width = DEFAULT_BUBBLE_WIDTH, coord_t y = DEFAULT_BUBBLE_Y);
 
 void show_ui_popup();

@@ -7,6 +7,11 @@ determine a precise mapping `attribute -> [bit address, bit length]`.
 This is done by using `libclang` Python bindings to parse `ModelData` and `RadioData`
 as well as related structures to compute precise bit-offsets for each attribute.
 
+!!! note
+    This page covers the YAML parser generator in detail. See
+    [Code Generation](code-generation.md) for an overview of every generated file in
+    the tree and when each one needs regenerating.
+
 ## Generating YAML parsers for existing radios
 
 As the Python script used only works for now with certain versions of libclang,

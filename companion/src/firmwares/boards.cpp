@@ -394,7 +394,9 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
              IS_RADIOMASTER_ZORRO(board);
 
     case MaxContrast:
-      if (IS_TARANIS_SMALL(board))
+      if (getCapability(board, LcdOLED))
+        return 254;
+      else if (IS_TARANIS_SMALL(board))
         return 30;
       else
         return 45;
@@ -403,7 +405,9 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return 23;
 
     case MinContrast:
-      if (IS_TARANIS_X9(board))
+      if (getCapability(board, LcdOLED))
+        return 2;
+      else if (IS_TARANIS_X9(board))
         return 0;
       else
         return 10;

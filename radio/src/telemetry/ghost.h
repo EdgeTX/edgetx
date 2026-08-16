@@ -119,6 +119,7 @@ enum GhostTelemetryBaudrates
 };
 #endif
 #define GHOST_BAUDRATE       400000
+#define GHOST_TELEM_MIRROR_BAUDRATE  115200
 #define GHOST_PERIOD         4000 /* us */
 
 enum GhostLineFlags

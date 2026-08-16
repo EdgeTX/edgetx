@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "sensor_names.h"
 
 struct FrSkySportSensor {
   const uint16_t firstId;

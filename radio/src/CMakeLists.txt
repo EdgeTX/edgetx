@@ -225,7 +225,7 @@ if(STORAGE_MODELSLIST)
   add_definitions(-DSTORAGE_MODELSLIST)
 endif()
 
-if(RTC_BACKUP_RAM)
+if(RTC_BACKUP_RAM AND NOT WASI)
   add_definitions(-DRTC_BACKUP_RAM)
 
   GenerateDataCopy(datastructs_private.h datacopy.inc)

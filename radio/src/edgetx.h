@@ -151,12 +151,19 @@ void memswap(void * a, void * b, uint8_t size);
 
 struct CustomFunctionsContext {
   MASK_FUNC_TYPE activeFunctions;
+  MASK_FUNC_TYPE activeUIFunctions;
   MASK_CFN_TYPE  activeSwitches;
+  MASK_CFN_TYPE  activeUISwitches;
   tmr10ms_t lastFunctionTime[MAX_SPECIAL_FUNCTIONS];
 
   inline bool isFunctionActive(uint8_t func)
   {
-    return activeFunctions & ((MASK_FUNC_TYPE)1 << func);
+    return (activeFunctions | activeUIFunctions) & ((MASK_FUNC_TYPE)1 << func);
+  }
+
+  inline bool isFunctionSwitchActive(uint8_t functionIdx)
+  {
+    return (activeSwitches | activeUISwitches) & ((MASK_CFN_TYPE)1 << functionIdx);
   }
 
   void reset()
@@ -421,7 +428,6 @@ inline bool isMixActive(uint8_t mix)
 enum FunctionsActive {
   FUNCTION_TRAINER_STICK1,
   FUNCTION_TRAINER_CHANNELS = FUNCTION_TRAINER_STICK1 + MAX_STICKS,
-  FUNCTION_INSTANT_TRIM,
   FUNCTION_VARIO,
   FUNCTION_LOGS,
   FUNCTION_BACKGND_MUSIC,
@@ -431,6 +437,7 @@ enum FunctionsActive {
   FUNCTION_DISABLE_TOUCH,
   FUNCTION_DISABLE_AUDIO_AMP,
   FUNCTION_VOLUME,
+  FUNCTION_DISABLE_KEYS,
 };
 
 #define VARIO_FREQUENCY_ZERO   700/*Hz*/
@@ -445,6 +452,7 @@ inline bool isFunctionActive(uint8_t func)
   return globalFunctionsContext.isFunctionActive(func) || modelFunctionsContext.isFunctionActive(func);
 }
 void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext);
+void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext);
 inline void customFunctionsReset()
 {
   globalFunctionsContext.reset();
@@ -678,7 +686,7 @@ union ReusableBuffer
 #endif
 #if defined(PXX2)
     OtaUpdateInformation otaUpdateInformation;
-    char otaReceiverVersion[64];  // Large enough for TR_CURRENT_VERSION string plus version number
+    char otaReceiverVersion[64];  // Large enough for STR_CURRENT_VERSION string plus version number
 #endif
   } sdManager;
 

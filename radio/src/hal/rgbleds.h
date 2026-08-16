@@ -21,7 +21,7 @@
 #pragma once
 
 #include <stdint.h>
-// MUST match TR_FS_COLOR_LIST (except 'Custom') -  Custom gets displayed when none match
+// MUST match STR_FS_COLOR_LIST (except 'Custom') -  Custom gets displayed when none match
 //                                    "Off",  "White",    "Red",  "Green", "Yellow", "Orange",   "Blue",   "Pink"
 constexpr uint32_t colorTable[] = {0x000000, 0xFFFFFF, 0xFF0000, 0x00FF00, 0xFFFF00, 0xFF4000, 0x0000FF, 0xFF00FF};
 

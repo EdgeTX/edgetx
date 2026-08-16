@@ -1,0 +1,104 @@
+name: 'Codegen drift check'
+description: >
+  Runs a Justfile codegen recipe and reports a warning - without failing the
+  build - when the committed output differs from what the recipe produces.
+
+inputs:
+  recipe:
+    description: 'Justfile recipe to run (e.g. gen-fonts)'
+    required: true
+  paths:
+    description: 'Git pathspec of the generated files to check for drift'
+    required: true
+  label:
+    description: 'Human readable name of the generated artefact'
+    required: true
+  just-version:
+    description: 'Version of just to install'
+    default: '1.57.0'
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Install just
+      shell: bash
+      env:
+        JUST_VERSION: ${{ inputs.just-version }}
+      run: |
+        # The edgetx-dev image ships wget but not curl.
+        wget -qO- \
+          "https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+          | tar xz -C /usr/local/bin just
+        just --version
+
+    - name: Allow git to read the workspace
+      shell: bash
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+    - name: Regenerate ${{ inputs.label }}
+      shell: bash
+      env:
+        RECIPE: ${{ inputs.recipe }}
+      run: just "${RECIPE}" 2>&1 | tee /tmp/codegen.log
+
+    - name: Check for incomplete generation
+      shell: bash
+      env:
+        RECIPE: ${{ inputs.recipe }}
+      run: |
+        # make_fonts.sh warns and carries on when a translation header yields no
+        # characters, so a clean diff on its own does not prove a complete run.
+        if grep -q 'No characters found' /tmp/codegen.log; then
+          echo "::warning::'just ${RECIPE}' skipped one or more font sets ('No characters found' in the log), so the drift result below may be incomplete."
+        fi
+
+    - name: Check for drift
+      shell: bash
+      env:
+        PATHS: ${{ inputs.paths }}
+        RECIPE: ${{ inputs.recipe }}
+        LABEL: ${{ inputs.label }}
+      run: |
+        # Deliberately non-failing. Contributors without the local toolchain must
+        # not be blocked; this only surfaces that the committed files have drifted.
+        # Word splitting on PATHS is intentional - it may hold several pathspecs.
+        # shellcheck disable=SC2086
+        changed=$(git status --porcelain -- ${PATHS})
+        if [ -z "${changed}" ]; then
+          echo "${LABEL}: up to date"
+          exit 0
+        fi
+
+        echo "::warning::${LABEL} is out of date. Run 'just ${RECIPE}' and commit the result."
+
+        # A full regeneration diff can run to megabytes (the fonts are the worst
+        # case), so truncate well inside the 1 MiB step summary limit. Truncation
+        # uses bash substring expansion rather than `head`: piping into `head`
+        # would SIGPIPE the producer once it closed the pipe, and under `pipefail`
+        # that exits 141 - failing a step that must never fail.
+        # shellcheck disable=SC2086
+        diff=$(git diff -- ${PATHS} || true)
+        truncated="${diff:0:60000}"
+        if [ "${#diff}" -gt "${#truncated}" ]; then
+          truncated="${truncated}"$'\n''... diff truncated ...'
+        fi
+
+        {
+          echo "### :warning: ${LABEL} is out of date"
+          echo
+          echo "The committed files differ from what \`just ${RECIPE}\` produces in"
+          echo "\`ghcr.io/edgetx/edgetx-dev:latest\`. Run \`just ${RECIPE}\` and commit the result."
+          echo
+          echo '```'
+          echo "${changed}"
+          echo '```'
+          echo
+          echo "<details><summary>Diff</summary>"
+          echo
+          echo '```diff'
+          echo "${truncated}"
+          echo '```'
+          echo
+          echo "</details>"
+        } >> "$GITHUB_STEP_SUMMARY"

@@ -1,1 +1,4 @@
 __pycache__
+
+# cfn_sorter.sh intermediate - removed when it completes, left behind if it aborts
+/a.out

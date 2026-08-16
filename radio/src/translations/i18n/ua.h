@@ -243,6 +243,7 @@
 #define TR_SF_SCREENSHOT               "Скріншот"
 #define TR_SF_RACING_MODE              "Режим перегонів"
 #define TR_SF_DISABLE_TOUCH            "Сенсор вимк."
+#define TR_SF_DISABLE_KEYS             "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP        "Підсил. вимк."
 #define TR_SF_SET_SCREEN               TR_BW_COL("Set Screen", "Вибір гол. екр.")
 #define TR_SF_PUSH_CUST_SWITCH         "Push CS"
@@ -277,11 +278,6 @@
 #define TR_FUNCSOUNDS_14               "Tada"
 #define TR_FUNCSOUNDS_15               TR("Crck","Crickt")
 #define TR_FUNCSOUNDS_16               TR("Alrm","AlmClk")
-
-#define LENGTH_UNIT_IMP                "ft"
-#define SPEED_UNIT_IMP                 "mph"
-#define LENGTH_UNIT_METR               "m"
-#define SPEED_UNIT_METR                "kmh"
 
 #define TR_VUNITSSYSTEM_1              "Metric"
 #define TR_VUNITSSYSTEM_2              TR("Imper.","Imperial")
@@ -467,7 +463,6 @@
 #define TR_TTRIM                       TR("T-Трим-Порожн.", "Тримувати тількти порожнє")
 #define TR_TTRIM_SW                    TR("T-Трим-Перем.", "Перемикач тримування")
 #define TR_BEEPCTR                     TR("Сигн. центр", "Сигнал в центрі")
-#define TR_USE_GLOBAL_FUNCS            TR("Глоб.функц.", "Викор. глобальні функції")
 #define TR_PROTOCOL                    TR("Проток.", "Протокол")
 #define TR_PPMFRAME                    "PPM прийм"
 #define TR_REFRESHRATE                 TR("Оновл.", "Частота оновлення")
@@ -487,7 +482,6 @@
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_LUA_OVERRIDE                "Allow Lua override"
-#define TR_GROUPS                      "Always on groups"
 #define TR_LAST                        "Last"
 #define TR_MORE_INFO                   "More info"
 #define TR_SWITCH_TYPE                 "Type"
@@ -497,7 +491,6 @@
 #define TR_TRIMS                       "Трим."
 #define TR_FADEIN                      "Вх.Згасання"
 #define TR_FADEOUT                     "Вих.Згасання"
-#define TR_DEFAULT                     "(замовч.)"
 #define   TR_CHECKTRIMS                 TR_BW_COL("\006Перев.\012трим.", "Перевірка FM трим.")
 #define TR_SWASHTYPE                   "Тип перекосу"
 #define TR_COLLECTIVE                  TR("Колективний", "Колективне джерело тону")
@@ -565,7 +558,6 @@
 #define TR_BEEPCOUNTDOWN               "Відлік"
 #define TR_PERSISTENT                  TR("Присутн.", "Присутній")
 #define TR_BACKLIGHT_LABEL             "Підсвітка"
-#define TR_GHOST_MENU_LABEL            "Меню Привид"
 #define TR_STATUS                      "Статус"
 #define TR_BLONBRIGHTNESS              "ON яскравість"
 #define TR_BLOFFBRIGHTNESS             "OFF яскравість"
@@ -574,8 +566,10 @@
 #define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_KEY_LOCK_FMT                "Key lock (%s+%s hold)"
 #define TR_KEYS_LOCKED                 "Keys locked"
-#define TR_KEYS_LOCKED_FMT             "Keys locked (%s+%s)"
+#define TR_KEYS_LOCKED_FMT             TR_BW_COL("%s+%s to unlock", "Keys locked (%s+%s to unlock)")
 #define TR_KEYS_UNLOCKED               "Keys unlocked"
+#define TR_TOUCH_ENABLED               "Touch screen enabled"
+#define TR_TOUCH_DISABLED              "Touch screen disabled"
 #define TR_SPLASHSCREEN                "Заставка"
 #define TR_PLAY_HELLO                  "Звук запуску"
 #define TR_PWR_ON_DELAY                "Затримка увімкн."
@@ -597,7 +591,6 @@
 #define TR_SWITCHES                    "Перемикачі"
 #define TR_SWITCHES_DELAY              TR("Затримка відтвор.", "Затримка відтворення (середнє полож. перем.)")
 #define TR_SLAVE                       "Slave"		/* use english */
-#define TR_MODESRC                     "Mode\006% Source"		/* use english */
 #define TR_MULTIPLIER                  "Множник"
 #define TR_CAL                         "Калібрув."
 #define TR_CALIBRATION                 BUTTON("Калібрув.")
@@ -639,21 +632,16 @@
 #define TR_CH                          "CH"		/* use english */
 #define TR_MODEL                       "МОДЕЛЬ"
 #define TR_FM                          TR_SFC_AIR("DM", "FM")
-#define TR_EEPROMLOWMEM                "мало пам'яті EEPROM"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "Натисн. кнопку щоб пропустити"
 #define TR_THROTTLE_NOT_IDLE           "Газ не вільний"
 #define TR_ALARMSDISABLED              "Авар.Сингали вимкнені"
 #define TR_PRESSANYKEY                 TR("\010Тисни будь-яку кнопку", "Тисни будь-яку кнопку")
-#define TR_BADEEPROMDATA               "невірні дані EEPROM"
 #define TR_BAD_RADIO_DATA              "Відсутні або погані радіодані"
 #define TR_RADIO_DATA_RECOVERED        TR3("Використовую резервні радіодані", "Використовую резервні налаштування радіо", "Налаштування радіо відновлені з резервних даних")
 #define TR_RADIO_DATA_UNRECOVERABLE    TR3("Невірні налаштування радіо", "Невірні налаштування радіо", "Неможливо прочитати правильні налаштування радіо")
-#define TR_EEPROMFORMATTING            "Форматую EEPROM"
 #define TR_STORAGE_FORMAT              "Підготовка сховища"
-#define TR_EEPROMOVERFLOW              "Переповнення EEPROM"
 #define TR_RADIO_SETUP                 "НАЛАШТ. АПАРАТУРИ"
 #define TR_MENUVERSION                 "ВЕРСІЯ"
-#define TR_MENU_RADIO_ANALOGS          TR("АНАЛОГ", "ТЕСТ АНАЛОГУ")
 #define TR_MENU_RADIO_ANALOGS_CALIB    "АНАЛОГИ ВІДКАЛІБРОВАНІ"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "НЕОБРОБЛЕНІ АНАЛОГИ (5 Hz)"
 #define TR_MENU_FSWITCH                "КОРИСТУВАЦЬКІ ПЕРЕМИКАЧІ"
@@ -662,7 +650,6 @@
 #define TR_CHANNEL2FAILSAFE            "Канал=>АварРежим"
 #define TR_MENUMODELSEL                "ВИБІР МОДЕЛІ"
 #define TR_MENU_MODEL_SETUP            TR("НАЛАШТУВАННЯ", "НАЛАШТУВАННЯ МОДЕЛІ")
-#define TR_MENUCURVE                   "КРИВА"
 #define TR_MENULOGICALSWITCH           "ЛОГІЧНИЙ ПЕРЕМИКАЧ"
 #define TR_MENUSTAT                    "СТАТ."
 #define TR_MENUDEBUG                   "ВІДЛАГОДЖЕННЯ"
@@ -714,31 +701,24 @@
 #define TR_AFHDS3_ACTUAL_POWER         TR("Факт.потужн.", "Фактична потужність")
 #define TR_AFHDS3_POWER_SOURCE         TR("Джерело живл.", "Джерело живлення")
 #define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
-#define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Use FlySky RSSI")		/* use english */
 #define TR_GPS_COORDS_FORMAT           TR("Формат коорд.", "Формат координат")
 #define TR_VARIO                       TR("Варіо", "Варіометр")
 #define TR_PITCH_AT_ZERO               "Тон низ"
 #define TR_PITCH_AT_MAX                "Тон верх"
 #define TR_REPEAT_AT_ZERO              "Повтор"
 #define TR_BATT_CALIB                  TR("Калібр.акум", "Калібрування акумулятора")
-#define TR_CURRENT_CALIB               "Калібровка струму"
 #define TR_VOLTAGE                     TR("Напруга", "Джерело напруги")
 #define TR_SELECT_MODEL                "Оберіть модель"
-#define TR_MODELS                      "Моделі"
 #define TR_SELECT_MODE                 "Оберіть режим"
 #define TR_CREATE_MODEL                "Створіть модель"
 #define TR_FAVORITE_LABEL              "Обрані"
 #define TR_MODELS_MOVED                "Невикористані моделі переміщено до"
 #define TR_NEW_MODEL                   "Нова Модель"
-#define TR_INVALID_MODEL               "Невірна Модель"
-#define TR_EDIT_LABELS                 "Редагувати Мітки"
 #define TR_LABEL_MODEL                 "Мітка моделі"
 #define TR_MOVE_UP                     "Перем. вгору"
 #define TR_MOVE_DOWN                   "Перем. вниз"
 #define TR_ENTER_LABEL                 "Введіть мітку"
-#define TR_LABEL                       "Мітка"
 #define TR_LABELS                      "Мітки"
-#define TR_CURRENT_MODEL               "Поточна"
 #define TR_ACTIVE                      "Активна"
 #define TR_NEW                         "Нова"
 #define TR_NEW_LABEL                   "Нова мітка"
@@ -750,7 +730,6 @@
 #define TR_BACKUP_MODEL                "Резерв копія моделі"
 #define TR_DELETE_MODEL                "Видалити модель"
 #define TR_RESTORE_MODEL               "Відновити модель"
-#define TR_DELETE_ERROR                "Видалити помилку"
 #define TR_DELETE_INPUT_LINE           "Delete input line"
 #define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                TR("помилка SD", "помилка SD карти")
@@ -769,7 +748,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH без телем.", "16CH без телеметрії")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH з телем.", "16CH з телметрією")
-#define TR_8CH_WITH_TELEMETRY          TR("8CH з телем.", "8CH з телметрією")
 #define TR_EXT_ANTENNA                 "Зовн. антена"
 #define TR_PIN                         "Pin"
 #define TR_UPDATE_RX_OPTIONS           "Оновити опції RX?"
@@ -780,7 +758,6 @@
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE ОПЦІЇ"
 #define TR_IMU                         "IMU"
 #define TR_STICKS_POTS_SLIDERS         "Вісі/Потенц./Повзунки"
-#define TR_PWM_STICKS_POTS_SLIDERS     "PWM Вісі/Потенц./Повзунки"
 #define TR_RF_PROTOCOL                 "RF протокол"
 #define TR_MODULE_OPTIONS              "Опції модулю"
 #define TR_POWER                       "Потужність"
@@ -807,7 +784,6 @@
 #define TR_FAILSAFEWARN                "АВАРІЙНИЙ РЕЖИМ"
 #define TR_TEST_WARNING                TR("ТЕСТУВАННЯ", "ТЕСТ ПОБУДОВАНО")
 #define TR_TEST_NOTSAFE                "Використовувати тільки для тестування"
-#define TR_WRONG_SDCARDVERSION         TR("Очікувана вер.: ", "Очікувана версія: ")
 #define TR_WARN_RTC_BATTERY_LOW        "RTC Battery розряджена"
 #define TR_WARN_MULTI_LOWPOWER         "Режим низької потужності"
 #define TR_BATTERY                     "BATTERY"
@@ -816,13 +792,9 @@
 #define TR_NO_FAILSAFE                 "Аварійний режим не налаштовано"
 #define TR_KEYSTUCK                    "Залипання кнопки"
 #define TR_VOLUME                      "Загальна гучн."
-#define TR_LCD                         "LCD"		/*use english*/
 #define TR_BRIGHTNESS                  "Яскравість"
 #define TR_CONTROL                     "Control"
 #define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
-#define TR_CPU_TEMP                    "CPU темп."
-#define TR_COPROC                      "Сопроцессор"
-#define TR_COPROC_TEMP                 "MB темп."
 #define TR_TTL_WARNING                 "Увага: Не перевищуйте 3.3V на пінах TX/RX!"
 #define TR_FUNC                        "Функція"
 #define TR_V1                          "V1"
@@ -835,22 +807,17 @@
 #define TR_NO_SCRIPTS_ON_SD            "Немає скриптів на SD"
 #define TR_SCRIPT_SYNTAX_ERROR         TR("Синтакс. пом.", "Синтаксична помилка")
 #define TR_SCRIPT_PANIC                "Скрипт панікує"
-#define TR_SCRIPT_KILLED               "Скрипт вбито"
 #define TR_SCRIPT_ERROR                "Невідома помилка"
 #define TR_PLAY_FILE                   "Грати"
 #define TR_DELETE_FILE                 "Видалити"
 #define TR_COPY_FILE                   "Копіювати"
 #define TR_RENAME_FILE                 "Перейменувати"
 #define TR_ASSIGN_BITMAP               "Призначити зображення"
-#define TR_ASSIGN_SPLASH               "Заставка"
 #define TR_EXECUTE_FILE                "Виконати"
 #define TR_REMOVED                     " видалено"
 #define TR_SD_INFO                     "Інформація"
 #define TR_NA                          "Н/Д"
-#define TR_FORMATTING                  "Форматую..."
-#define TR_TEMP_CALIB                  "Калібр. темп."
 #define TR_TIME                        "Час"
-#define TR_MAXBAUDRATE                 "Max швидкість"
 #define TR_BAUDRATE                    "Швидкість"
 #define TR_CRSF_ARMING_MODE            "Arm using"
 #define TR_CRSF_ARMING_MODES           TR_CH"5", TR_SWITCH
@@ -875,8 +842,6 @@
 #define TR_FAV_MATCH_MODE_1          "Обов'язк. співпад."
 #define TR_FAV_MATCH_MODE_2          "Необов'язк. співпад."
 
-#define TR_SELECT_TEMPLATE_FOLDER      "Обрати теку моделі"
-#define TR_SELECT_TEMPLATE             "ОБЕРІТЬ ШАБЛОН МОДЕЛІ:"
 #define TR_NO_TEMPLATES                "В цій теці не знайдено шаблонів моделей"
 #define TR_SAVE_TEMPLATE               "Зберегти як шаблон"
 #define TR_BLANK_MODEL                 "Порожня модель"
@@ -885,21 +850,18 @@
 #define TR_ASK_OVERWRITE               "Бажаєш перезаписати?"
 
 #define TR_BLUETOOTH                   "Bluetooth"		/*use english*/
-#define TR_BLUETOOTH_DISC              "Визначити"
 #define TR_BLUETOOTH_INIT              "Init"
 #define TR_BLUETOOTH_DIST_ADDR         "Адр. призначення"
 #define TR_BLUETOOTH_LOCAL_ADDR        "Місцева адр."
 #define TR_BLUETOOTH_PIN_CODE          "PIN код"
 #define TR_BLUETOOTH_NODEVICES         "Пристрій Не Знайдено"
 #define TR_BLUETOOTH_SCANNING          "Сканування..."
-#define TR_BLUETOOTH_BAUDRATE          "Швидкість BT"
 #define TR_BLUETOOTH_MODES_1           "---"
 #define TR_BLUETOOTH_MODES_2           "Телеметрія"
 #define TR_BLUETOOTH_MODES_3           "Тренер"
 #define TR_BLUETOOTH_MODES_4           "Активовано"
 
 #define TR_SD_INFO_TITLE               "SD інфо"
-#define TR_SD_SPEED                    "Швидкість:"
 #define TR_SD_SECTORS                  "Сектори:"
 #define TR_SD_SIZE                     "Розмір:"
 #define TR_TYPE                        "Тип"
@@ -928,13 +890,11 @@
 #define TR_FLASH_BOOTLOADER            "Прошити завантаж."
 #define TR_FLASH_DEVICE                TR("Прошити пристрій","Прошити пристрій")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Прошити посл.порт", "Прошити пристрій посл.порт.")
-#define TR_FLASH_RECEIVER_OTA          "Пришити приймач OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Прошити RX зовн. OTA"
 #define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA "Прошити RX внутр. OTA"
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA "Прошити FC зовн. OTA"
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Прошити FC внутр. OTA"
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Прошити BT модуль", "Прошити Bluetooth модуль")
-#define TR_FLASH_POWER_MANAGEMENT_UNIT "Прошити пристрій управління живленням"
 #define TR_DEVICE_NO_RESPONSE          TR("Пристрій не відповідає", "Пристрій не відповідає")
 #define TR_DEVICE_FILE_ERROR           TR("Проблема з файлом пристрою", "Проблема з файлом пристрою")
 #define TR_DEVICE_DATA_REFUSED         TR("Дані пристрою відхилено", "Дані пристрою відхилено")
@@ -950,14 +910,12 @@
 #define TR_FIRMWARE_UPDATE_ERROR       TR("Помилка оновлення FW", "Помилка оновлення Firmware")
 #define TR_FIRMWARE_UPDATE_SUCCESS     "Прошивка успішна"
 #define TR_WRITING                     "Запис..."
-#define TR_CONFIRM_FORMAT              "Підтвердити формат?"
 #define TR_INTERNALRF                  "Внутрійшній RF"
 #define TR_INTERNAL_MODULE             TR("Внутр. модуль", "Внутрішній модуль")
 #define TR_EXTERNAL_MODULE             TR("Зовн. модуль", "Зовнішній модуль")
 #define TR_EDGETX_UPGRADE_REQUIRED     "Потрібне оновлення EdgeTX"
 #define TR_TELEMETRY_DISABLED          "Телем. вимкнуто"
 #define TR_MORE_OPTIONS_AVAILABLE      "Доступні додаткові опції"
-#define TR_NO_MODULE_INFORMATION       "Інформація по модулю відсутня"
 #define TR_EXTERNALRF                  "Зовнішній RF"
 #define TR_FAILSAFE                    TR("Відмова", "Режим відмови")
 #define TR_FAILSAFESET                 "НАЛАШТУВАННЯ АВАРІЙНОГО РЕЖИМУ"
@@ -1015,8 +973,6 @@
 #define TR_USB_JOYSTICK                "USB Джойстик (HID)"
 #define TR_USB_MASS_STORAGE            "USB Сховище (SD)"
 #define TR_USB_SERIAL                  "USB Посл. порт (VCP)"
-#define TR_SETUP_SCREENS               "Налаштування екранів"
-#define TR_MONITOR_SCREENS             "Монітори"
 #define TR_AND_SWITCH                  "AND switch"
 #define TR_SF                          "SF"
 #define TR_GF                          "GF"
@@ -1049,8 +1005,6 @@
 #define TR_KEYS_BTN                    BUTTON("Кнопк")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Анл.", "Аналоги"))
 #define TR_FS_BTN                      BUTTON(TR("Користув.перемик.", TR_FUNCTION_SWITCHES))
-#define TR_TOUCH_NOTFOUND              "Сенсорний екран не знайдено"
-#define TR_TOUCH_EXIT                  "Натисніть на екран щоб вийти"
 #define TR_SET                         BUTTON("Встановл.")
 #define TR_TRAINER                     "Тренер"
 #define TR_CHANS                       "Канали"
@@ -1116,12 +1070,10 @@
 #define TR_CHECKLIST                   TR("Чекліст", "Чекліст Дисплею")
 #define TR_CHECKLIST_INTERACTIVE       TR3("Інт. спис.", "Інтеракт. список", "Інтерактивний список")
 #define TR_AUX_SERIAL_MODE             "Послідовний порт"
-#define TR_AUX2_SERIAL_MODE            "Послідовний порт 2"
 #define TR_AUX_SERIAL_PORT_POWER       "Порт живлення"
 #define TR_SCRIPT                      "Скрипт"
 #define TR_INPUTS                      "Входи"
 #define TR_OUTPUTS                     "Виходи"
-#define TR_CONFIRMRESET                TR("Стерти все", "Стерти налаштування всіх моделей?")
 #define TR_TOO_MANY_LUA_SCRIPTS        "Забагато Lua скриптів!"
 #define TR_SPORT_UPDATE_POWER_MODE     "Режим живлення SP"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "AUTO"
@@ -1158,10 +1110,8 @@
 #define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "Заповнити фон?"
 #define TR_BG_COLOR                  "Колір фону"
-#define TR_SLIDERS_TRIMS             "Повзунки+трими"
 #define TR_SLIDERS                   "Повзунки"
 #define TR_FLIGHT_MODE               "Режим польоту"
-#define TR_INVALID_FILE              "Невірний файл"
 #define TR_TIMER_SOURCE              "Джерело таймеру"
 #define TR_SIZE                      "Розмір"
 #define TR_SHADOW                    "Тінь"
@@ -1187,8 +1137,7 @@
 // About screen
 #define TR_ABOUTUS                     TR(" ПРО... ", "ПРО...")
 
-#define TR_CHR_HOUR                    'h'
-#define TR_CHR_INPUT                   'I'   // Values between A-I will work
+#define TR_CHR_INPUT                   "I"   // Values between A-I will work
 
 #define TR_BEEP_VOLUME                 "Гучн. сигналу"
 #define TR_WAV_VOLUME                  "Гучність Wav"
@@ -1199,7 +1148,6 @@
 #define TR_FLASH_WRITE                 "Запис Flash..."
 #define TR_OTA_UPDATE                  "Оновлення OTA..."
 #define TR_MODULE_RESET                "Скидання модулю..."
-#define TR_UNKNOWN_RX                  "Невідомий RX"
 #define TR_UNSUPPORTED_RX              "Несумісний RX"
 #define TR_OTA_UPDATE_ERROR            "Помилка оновлення OTA"
 #define TR_DEVICE_RESET                "Скидання пристрою..."
@@ -1207,7 +1155,6 @@
 #define TR_SCALE                       "Масштаб"
 #define TR_VIEW_CHANNELS               "Перегляд каналів"
 #define TR_VIEW_NOTES                  "Перегляд нотаток"
-#define TR_MODEL_SELECT                "Вибір моделі"
 #define TR_ID                          "ID"
 #define TR_PRECISION                   "Точність"
 #define TR_RATIO                       "Коефіцієнт"
@@ -1239,7 +1186,6 @@
 #define TR_REMOVE_SCREEN               "Видалити екран"
 #define TR_SETUP_WIDGETS               "Налаштування віджетів"
 #define TR_THEME                       "Тема"
-#define TR_SETUP                       "Встановлення"
 #define TR_LAYOUT                      "Шар"
 #define TR_TEXT_COLOR                  "Колір тексту"
 #define TR_MENU_INPUTS                 CHAR_INPUT "Входи"
@@ -1271,13 +1217,9 @@
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Додати всі трими до субтримів"
 #define TR_DUPLICATE                    "Дублювати"
 #define TR_ACTIVATE                     "Встановити активним"
-#define TR_RED                          "Червоний"
-#define TR_BLUE                         "Синій"
-#define TR_GREEN                        "Зелений"
 #define TR_COLOR_PICKER                 "Обирач кольору"
 #define TR_FIXED                        "Fixed"
 #define TR_EDIT_THEME_DETAILS           "Редагувати деталі теми"
-#define TR_THEME_COLOR_DEFAULT         "ЗАМОВЧ"
 #define TR_THEME_COLOR_PRIMARY1        "ОСНОВНИЙ1"
 #define TR_THEME_COLOR_PRIMARY2        "ОСНОВНИЙ2"
 #define TR_THEME_COLOR_PRIMARY3        "ОСНОВНИЙ3"

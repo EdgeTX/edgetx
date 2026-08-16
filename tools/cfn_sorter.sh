@@ -88,6 +88,7 @@ cat <<EOF >> "${OUTPUT_FILE}"
 // This file is auto-generated via cfn_sorter.sh. Do not edit.
 
 #include "dataconstants.h"
+#include "hal_keys_lock.h"
 
 Functions cfn_sorted[] = {
 EOF

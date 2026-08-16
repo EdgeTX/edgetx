@@ -241,6 +241,7 @@
 #define TR_SF_SCREENSHOT              "스크린샷 저장"
 #define TR_SF_RACING_MODE             "레이싱 모드"
 #define TR_SF_DISABLE_TOUCH           "터치 비활성화"
+#define TR_SF_DISABLE_KEYS            "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP       "오디오 앰프 끄기"
 #define TR_SF_SET_SCREEN              TR_BW_COL("텔레 화면 설정", "메인 화면 설정")
 #define TR_SF_PUSH_CUST_SWITCH        "커스텀 스위치 실행"
@@ -275,11 +276,6 @@
 #define TR_FUNCSOUNDS_14              "따다~"
 #define TR_FUNCSOUNDS_15              TR("귀뚜", "귀뚜라미")
 #define TR_FUNCSOUNDS_16              TR("알람", "알람시계")
-
-#define LENGTH_UNIT_IMP               "피트"
-#define SPEED_UNIT_IMP                "마일/시"
-#define LENGTH_UNIT_METR              "미터"
-#define SPEED_UNIT_METR               "킬로미터"
 
 #define TR_VUNITSSYSTEM_1             "미터법"
 #define TR_VUNITSSYSTEM_2             TR("영국식", "영국 단위계")
@@ -468,7 +464,6 @@
 #define TR_TTRIM                      TR("유휴 트림", "유휴 시 트림")
 #define TR_TTRIM_SW                   TR("트림 스위치", "트림 스위치")
 #define TR_BEEPCTR                    TR("중앙 알림", "중앙 위치에서 비프")
-#define TR_USE_GLOBAL_FUNCS           TR("글로벌 기능", "전역 기능 사용")
 
 #define TR_PROTOCOL                   TR("프로토콜", "통신 방식")
 #define TR_PPMFRAME                   "PPM 프레임"
@@ -490,7 +485,6 @@
 #define TR_GROUP                          "그룹"
 #define TR_GROUP_ALWAYS_ON                "항상 켜짐"
 #define TR_LUA_OVERRIDE                "Allow Lua override"
-#define TR_GROUPS                         "항상 켜짐 그룹"
 #define TR_LAST                           "마지막"
 #define TR_MORE_INFO                      "자세히 보기"
 #define TR_SWITCH_TYPE                    "유형"
@@ -500,7 +494,6 @@
 #define TR_TRIMS                          "트림"
 #define TR_FADEIN                         "페이드 인"
 #define TR_FADEOUT                        "페이드 아웃"
-#define TR_DEFAULT                        "(기본값)"
 
 #define  TR_CHECKTRIMS                    TR_BW_COL("\006트림\012확인", "FM 트림 확인")
 #define TR_SWASHTYPE                    "스와시 타입"
@@ -573,7 +566,6 @@
 #define TR_PERSISTENT                   TR("유지", "값 유지")
 
 #define TR_BACKLIGHT_LABEL              "백라이트"
-#define TR_GHOST_MENU_LABEL             "고스트 메뉴"
 #define TR_STATUS                       "상태"
 #define TR_BLONBRIGHTNESS               "켜짐 밝기"
 #define TR_BLOFFBRIGHTNESS              "꺼짐 밝기"
@@ -582,8 +574,10 @@
 #define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_KEY_LOCK_FMT                "Key lock (%s+%s hold)"
 #define TR_KEYS_LOCKED                 "Keys locked"
-#define TR_KEYS_LOCKED_FMT             "Keys locked (%s+%s)"
+#define TR_KEYS_LOCKED_FMT             TR_BW_COL("%s+%s to unlock", "Keys locked (%s+%s to unlock)")
 #define TR_KEYS_UNLOCKED               "Keys unlocked"
+#define TR_TOUCH_ENABLED               "Touch screen enabled"
+#define TR_TOUCH_DISABLED              "Touch screen disabled"
 #define TR_SPLASHSCREEN                 "시작화면"
 #define TR_PLAY_HELLO                   "시작 사운드"
 
@@ -609,7 +603,6 @@
 #define TR_SWITCHES_DELAY               TR("재생 지연", "스위치 지연 (중간 위치)")
 
 #define TR_SLAVE                        "슬레이브"
-#define TR_MODESRC                      "모드별 소스"
 #define TR_MULTIPLIER                   "배율"
 #define TR_CAL                          "보정"
 #define TR_CALIBRATION                  BUTTON("보정")
@@ -653,22 +646,17 @@
 #define TR_CH                         "채널"
 #define TR_MODEL                      "모델"
 #define TR_FM                          TR_SFC_AIR("DM", "FM")
-#define TR_EEPROMLOWMEM                 "EEPROM 메모리 부족"
 #define TR_PRESS_ANY_KEY_TO_SKIP        "아무 키나 눌러 건너뛰기"
 #define TR_THROTTLE_NOT_IDLE            "스로틀이 유휴 상태가 아님"
 #define TR_ALARMSDISABLED               "알람 비활성화됨"
 #define TR_PRESSANYKEY                  TR("\010아무 키나 누르세요", "아무 키나 누르세요")
-#define TR_BADEEPROMDATA                "손상된 EEPROM 데이터"
 #define TR_BAD_RADIO_DATA               "라디오 설정 없음 또는 손상됨"
 #define TR_RADIO_DATA_RECOVERED         TR3("백업 설정 사용 중", "백업 라디오 설정 사용", "라디오 설정을 복구함")
 #define TR_RADIO_DATA_UNRECOVERABLE     TR3("라디오 설정 무효", "라디오 설정이 올바르지 않음", "유효한 라디오 설정을 읽을 수 없음")
-#define TR_EEPROMFORMATTING             "EEPROM 포맷 중"
 
 #define TR_STORAGE_FORMAT               "스토리지 준비 중"
-#define TR_EEPROMOVERFLOW               "EEPROM 메모리 초과"
 #define TR_RADIO_SETUP                  "조종기 설정"
 #define TR_MENUVERSION                  "버전 정보"
-#define TR_MENU_RADIO_ANALOGS           TR("아날로그", "아날로그 테스트")
 #define TR_MENU_RADIO_ANALOGS_CALIB     "보정된 아날로그"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW 아날로그 (5 Hz)"
 #define TR_MENU_FSWITCH                 "사용자 스위치 설정"
@@ -681,7 +669,6 @@
 #define TR_MENUMODELSEL                 TR("모델 선택", "모델 선택 메뉴")
 #define TR_MENU_MODEL_SETUP             TR("설정", "모델 설정")
 
-#define TR_MENUCURVE                    "커브 설정"
 #define TR_MENULOGICALSWITCH            "로직 스위치"
 #define TR_MENUSTAT                     "통계"
 #define TR_MENUDEBUG                    "디버그"
@@ -741,32 +728,25 @@
 #define TR_AFHDS3_ACTUAL_POWER          TR("실제 출력", "실제 RF 출력")
 #define TR_AFHDS3_POWER_SOURCE          TR("전원 소스", "전원 공급 방식")
 #define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
-#define TR_FLYSKY_TELEMETRY             TR("FlySky RSSI 값", "RSSI 값을 리스케일 없이 사용")
 #define TR_GPS_COORDS_FORMAT            TR("GPS 좌표", "좌표 표시 형식")
 #define TR_VARIO                        TR("바리오", "수직 속도계")
 #define TR_PITCH_AT_ZERO                "제로 피치"
 #define TR_PITCH_AT_MAX                 "최대 피치"
 #define TR_REPEAT_AT_ZERO               "제로에서 반복"
 #define TR_BATT_CALIB                   TR("배터리 보정", "배터리 전압 보정")
-#define TR_CURRENT_CALIB                "전류 보정"
 #define TR_VOLTAGE                      TR("전압", "전압 소스")
 #define TR_SELECT_MODEL                 "모델 선택"
-#define TR_MODELS                       "모델"
 #define TR_SELECT_MODE                  "모드 선택"
 #define TR_CREATE_MODEL                 "모델 생성"
 #define TR_FAVORITE_LABEL               "즐겨찾기"
 
 #define TR_MODELS_MOVED                   "사용하지 않는 모델이 이동됨 ->"
 #define TR_NEW_MODEL                      "새 모델"
-#define TR_INVALID_MODEL                  "잘못된 모델"
-#define TR_EDIT_LABELS                    "라벨 편집"
 #define TR_LABEL_MODEL                    "모델 라벨"
 #define TR_MOVE_UP                        "위로 이동"
 #define TR_MOVE_DOWN                      "아래로 이동"
 #define TR_ENTER_LABEL                    "라벨 입력"
-#define TR_LABEL                          "라벨"
 #define TR_LABELS                         "라벨 목록"
-#define TR_CURRENT_MODEL                  "현재 모델"
 #define TR_ACTIVE                         "활성화됨"
 #define TR_NEW                            "새로 만들기"
 #define TR_NEW_LABEL                      "새 라벨"
@@ -778,7 +758,6 @@
 #define TR_BACKUP_MODEL                   "모델 백업"
 #define TR_DELETE_MODEL                   "모델 삭제"
 #define TR_RESTORE_MODEL                  "모델 복원"
-#define TR_DELETE_ERROR                   "삭제 오류"
 #define TR_DELETE_INPUT_LINE           "Delete input line"
 #define TR_DELETE_MIX_LINE             "Delete mix line"
 #define TR_SDCARD_ERROR                   TR("SD 오류", "SD카드 오류")
@@ -798,7 +777,6 @@
 #define TR_FLEX_868                       "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY         TR("16채널(텔레메트리 없음)", "16채널(텔레메트리 비활성)")
 #define TR_16CH_WITH_TELEMETRY            TR("16채널(텔레메트리 포함)", "16채널(텔레메트리 사용)")
-#define TR_8CH_WITH_TELEMETRY             TR("8채널(텔레메트리 포함)", "8채널(텔레메트리 사용)")
 #define TR_EXT_ANTENNA                    "외부 안테나"
 #define TR_PIN                            "핀"
 
@@ -810,7 +788,6 @@
 #define TR_MENU_FIRM_OPTIONS              "펌웨어 옵션"
 #define TR_IMU                            "IMU"
 #define TR_STICKS_POTS_SLIDERS            "스틱 / 포트 / 슬라이더"
-#define TR_PWM_STICKS_POTS_SLIDERS        "PWM 스틱 / 포트 / 슬라이더"
 #define TR_RF_PROTOCOL                    "RF 프로토콜"
 #define TR_MODULE_OPTIONS                 "모듈 옵션"
 #define TR_POWER                          "전원"
@@ -839,7 +816,6 @@
 #define TR_FAILSAFEWARN                   "페일세이프"
 #define TR_TEST_WARNING                   TR("테스트 중", "테스트 빌드")
 #define TR_TEST_NOTSAFE                   "테스트 전용, 안전하지 않음"
-#define TR_WRONG_SDCARDVERSION            TR("필요 버전: ", "필요한 SD 카드 버전: ")
 #define TR_WARN_RTC_BATTERY_LOW           "RTC 배터리 부족"
 #define TR_WARN_MULTI_LOWPOWER            "저전력 모드 경고"
 #define TR_BATTERY                        "배터리"
@@ -849,13 +825,9 @@
 #define TR_NO_FAILSAFE                    "페일세이프가 설정되지 않음"
 #define TR_KEYSTUCK                       "버튼이 눌려 있음"
 #define TR_VOLUME                         "볼륨"
-#define TR_LCD                            "LCD"
 #define TR_BRIGHTNESS                     "밝기"
 #define TR_CONTROL                     "Control"
 #define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
-#define TR_CPU_TEMP                       "CPU 온도"
-#define TR_COPROC                         "보조 프로세서"
-#define TR_COPROC_TEMP                    "메인보드 온도"
 #define TR_TTL_WARNING                    "[경고] TX/RX 핀에 3.3V를 초과하지 마세요!"
 #define TR_FUNC                           "기능"
 #define TR_V1                             "V1"
@@ -869,23 +841,18 @@
 #define TR_NO_SCRIPTS_ON_SD               "SD 카드에 스크립트 없음"
 #define TR_SCRIPT_SYNTAX_ERROR            TR("문법 오류", "스크립트 문법 오류")
 #define TR_SCRIPT_PANIC                   "스크립트 중단됨"
-#define TR_SCRIPT_KILLED                  "스크립트 강제 종료됨"
 #define TR_SCRIPT_ERROR                   "알 수 없는 오류"
 #define TR_PLAY_FILE                      "재생"
 #define TR_DELETE_FILE                    "삭제"
 #define TR_COPY_FILE                      "복사"
 #define TR_RENAME_FILE                    "이름 바꾸기"
 #define TR_ASSIGN_BITMAP                  "비트맵 지정"
-#define TR_ASSIGN_SPLASH                  "시작화면 지정"
 #define TR_EXECUTE_FILE                   "실행"
 #define TR_REMOVED                        "제거됨"
 #define TR_SD_INFO                        "SD 카드 정보"
 #define TR_NA                             "N/A"
 
-#define TR_FORMATTING                     "포맷 중..."
-#define TR_TEMP_CALIB                     "온도 보정"
 #define TR_TIME                           "시간"
-#define TR_MAXBAUDRATE                    "최대 보드레이트"
 #define TR_BAUDRATE                       "보드레이트"
 #define TR_CRSF_ARMING_MODE               "아밍 방식"
 
@@ -912,8 +879,6 @@
 #define TR_FAV_MATCH_MODE_1               "일치해야 함"
 #define TR_FAV_MATCH_MODE_2               "일치해도 됨"
 
-#define TR_SELECT_TEMPLATE_FOLDER         "템플릿 폴더 선택"
-#define TR_SELECT_TEMPLATE                "모델 템플릿 선택:"
 #define TR_NO_TEMPLATES                   "이 폴더에 템플릿이 없습니다"
 #define TR_SAVE_TEMPLATE                  "템플릿으로 저장"
 #define TR_BLANK_MODEL                    "빈 모델"
@@ -922,14 +887,12 @@
 #define TR_ASK_OVERWRITE                  "덮어쓰시겠습니까?"
 
 #define TR_BLUETOOTH                      "블루투스"
-#define TR_BLUETOOTH_DISC                 "기기 검색"
 #define TR_BLUETOOTH_INIT                 "초기화"
 #define TR_BLUETOOTH_DIST_ADDR            "원격 주소"
 #define TR_BLUETOOTH_LOCAL_ADDR           "로컬 주소"
 #define TR_BLUETOOTH_PIN_CODE             "PIN 코드"
 #define TR_BLUETOOTH_NODEVICES            "기기를 찾을 수 없습니다"
 #define TR_BLUETOOTH_SCANNING             "검색 중..."
-#define TR_BLUETOOTH_BAUDRATE             "블루투스 보드레이트"
 
 #define TR_BLUETOOTH_MODES_1              "---"
 #define TR_BLUETOOTH_MODES_2              "텔레메트리"
@@ -937,7 +900,6 @@
 #define TR_BLUETOOTH_MODES_4               "사용함"
 
 #define TR_SD_INFO_TITLE                  "SD 카드 정보"
-#define TR_SD_SPEED                       "속도:"
 #define TR_SD_SECTORS                     "섹터 수:"
 #define TR_SD_SIZE                        "용량:"
 #define TR_TYPE                           "유형"
@@ -967,13 +929,11 @@
 #define TR_FLASH_BOOTLOADER               "부트로더 플래시"
 #define TR_FLASH_DEVICE                   TR("장치 플래시", "장치에 펌웨어 쓰기")
 #define TR_FLASH_EXTERNAL_DEVICE          TR("S.Port 플래시", "S.Port 장치 플래시")
-#define TR_FLASH_RECEIVER_OTA             "수신기 OTA 플래시"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "외부 모듈로 수신기 OTA"
 #define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA "내부 모듈로 수신기 OTA"
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA "외부 모듈로 FC OTA"
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "내부 모듈로 FC OTA"
 #define TR_FLASH_BLUETOOTH_MODULE         TR("BT 모듈 플래시", "블루투스 모듈 플래시")
-#define TR_FLASH_POWER_MANAGEMENT_UNIT  "전원 관리 장치 플래시"
 
 #define TR_DEVICE_NO_RESPONSE             TR("장치 응답 없음", "장치가 응답하지 않음")
 #define TR_DEVICE_FILE_ERROR              TR("장치 파일 오류", "장치 파일 문제 발생")
@@ -991,14 +951,12 @@
 
 #define TR_FIRMWARE_UPDATE_SUCCESS        "플래시 완료"
 #define TR_WRITING                        "쓰기 중..."
-#define TR_CONFIRM_FORMAT                 "포맷하시겠습니까?"
 #define TR_INTERNALRF                     "내장 RF"
 #define TR_INTERNAL_MODULE                TR("내장 모듈", "내부 RF 모듈")
 #define TR_EXTERNAL_MODULE                TR("외장 모듈", "외부 RF 모듈")
 #define TR_EDGETX_UPGRADE_REQUIRED        "EdgeTX 업그레이드 필요"
 #define TR_TELEMETRY_DISABLED             "텔레메트리 비활성화됨"
 #define TR_MORE_OPTIONS_AVAILABLE         "추가 옵션 사용 가능"
-#define TR_NO_MODULE_INFORMATION          "모듈 정보 없음"
 #define TR_EXTERNALRF                     "외장 RF"
 #define TR_FAILSAFE                       TR("페일세이프", "페일세이프 모드")
 #define TR_FAILSAFESET                    "페일세이프 설정"
@@ -1058,8 +1016,6 @@
 #define TR_USB_JOYSTICK                   "USB 조이스틱 (HID)"
 #define TR_USB_MASS_STORAGE               "USB 저장소 (SD)"
 #define TR_USB_SERIAL                     "USB 시리얼 (VCP)"
-#define TR_SETUP_SCREENS                  "설정 화면"
-#define TR_MONITOR_SCREENS                "모니터 화면"
 #define TR_AND_SWITCH                     "AND 스위치"
 #define TR_SF                             "특수 기능 (SF)"
 #define TR_GF                             "전역 기능 (GF)"
@@ -1093,8 +1049,6 @@
 #define TR_KEYS_BTN                       BUTTON("버튼")
 #define TR_ANALOGS_BTN                    BUTTON(TR("아날로그", "아날로그 입력"))
 #define TR_FS_BTN                         BUTTON(TR("사용자 스위치", TR_FUNCTION_SWITCHES))
-#define TR_TOUCH_NOTFOUND                 "터치 하드웨어를 찾을 수 없습니다."
-#define TR_TOUCH_EXIT                     "화면을 터치하여 종료하세요."
 #define TR_SET                            BUTTON("설정")
 #define TR_TRAINER                        "트레이너"
 #define TR_CHANS                          "채널"
@@ -1164,13 +1118,11 @@
 #define TR_CHECKLIST                      TR("체크리스트", "체크리스트 보기")
 #define TR_CHECKLIST_INTERACTIVE          TR3("체크리스트 상호작용", "상호작용 체크리스트", "인터랙티브 체크리스트")
 #define TR_AUX_SERIAL_MODE                "보조 시리얼 포트"
-#define TR_AUX2_SERIAL_MODE               "보조 시리얼 포트 2"
 #define TR_AUX_SERIAL_PORT_POWER          "포트 전원"
 #define TR_SCRIPT                         "스크립트"
 
 #define TR_INPUTS                         "입력"
 #define TR_OUTPUTS                        "출력"
-#define TR_CONFIRMRESET                   TR("전체 삭제", "모델과 설정을 모두 삭제할까요?")
 #define TR_TOO_MANY_LUA_SCRIPTS           "Lua 스크립트가 너무 많습니다!"
 #define TR_SPORT_UPDATE_POWER_MODE        "S.Port 전원"
 #define TR_SPORT_UPDATE_POWER_MODES_1     "자동"
@@ -1207,10 +1159,8 @@
 #define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND              "배경 채우기?"
 #define TR_BG_COLOR                     "배경 색상"
-#define TR_SLIDERS_TRIMS                "슬라이더 + 트림"
 #define TR_SLIDERS                      "슬라이더"
 #define TR_FLIGHT_MODE                  "비행 모드"
-#define TR_INVALID_FILE                 "잘못된 파일"
 #define TR_TIMER_SOURCE                 "타이머 소스"
 #define TR_SIZE                         "크기"
 #define TR_SHADOW                       "그림자"
@@ -1235,8 +1185,7 @@
 
 // About screen
 #define TR_ABOUTUS                    TR(" 정보 ", "정보")
-#define TR_CHR_HOUR                    'h'
-#define TR_CHR_INPUT                   'I'   // Values between A-I will work
+#define TR_CHR_INPUT                   "I"   // Values between A-I will work
 #define TR_BEEP_VOLUME                "비프음 볼륨"
 #define TR_WAV_VOLUME                 "음성 파일 볼륨"
 #define TR_BG_VOLUME                  TR("배경음 볼륨", "배경 사운드 볼륨")
@@ -1245,7 +1194,6 @@
 #define TR_FLASH_WRITE                    "플래시 쓰는 중..."
 #define TR_OTA_UPDATE                     "OTA 업데이트 중..."
 #define TR_MODULE_RESET                   "모듈 초기화 중..."
-#define TR_UNKNOWN_RX                     "알 수 없는 수신기"
 #define TR_UNSUPPORTED_RX                 "지원되지 않는 수신기"
 #define TR_OTA_UPDATE_ERROR               "OTA 업데이트 오류"
 #define TR_DEVICE_RESET                   "장치 초기화 중..."
@@ -1253,7 +1201,6 @@
 #define TR_SCALE                          "스케일"
 #define TR_VIEW_CHANNELS                  "채널 보기"
 #define TR_VIEW_NOTES                     "노트 보기"
-#define TR_MODEL_SELECT                   "모델 선택"
 #define TR_ID                             "ID"
 #define TR_PRECISION                      "정밀도"
 #define TR_RATIO                          "비율"
@@ -1284,7 +1231,6 @@
 #define TR_REMOVE_SCREEN                  "화면 제거"
 #define TR_SETUP_WIDGETS                  "위젯 구성"
 #define TR_THEME                          "테마"
-#define TR_SETUP                          "설정"
 #define TR_LAYOUT                         "레이아웃"
 #define TR_TEXT_COLOR                     "텍스트 색상"
 #define TR_MENU_INPUTS                    CHAR_INPUT "입력"
@@ -1314,13 +1260,9 @@
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS      "모든 트림 -> 서브트림 복사"
 #define TR_DUPLICATE                      "복제"
 #define TR_ACTIVATE                       "활성화"
-#define TR_RED                            "빨강"
-#define TR_BLUE                           "파랑"
-#define TR_GREEN                          "초록"
 #define TR_COLOR_PICKER                   "색상 선택"
 #define TR_FIXED                          "Fixed"
 #define TR_EDIT_THEME_DETAILS             "테마 세부 설정"
-#define TR_THEME_COLOR_DEFAULT            "기본"
 #define TR_THEME_COLOR_PRIMARY1           "기본색 1"
 #define TR_THEME_COLOR_PRIMARY2           "기본색 2"
 #define TR_THEME_COLOR_PRIMARY3           "기본색 3"

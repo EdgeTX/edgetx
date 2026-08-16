@@ -91,6 +91,7 @@ nav:
     - Unbrick Your Radio: troubleshooting/unbrick.md
   - Development:
     - CLI Commands: development/cli-commands.md
+    - Code Generation: development/code-generation.md
     - Control Inputs: development/control-inputs.md
     - External Module Protocols: development/external-module-protocols.md
     - YAML Parser/Generator: development/yaml-parser-generator.md

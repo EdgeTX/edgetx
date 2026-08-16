@@ -34,7 +34,6 @@
 #define STRARRAY(x) extern const char* const STR_##x[];
 
 #include "string_list.h"
-#include "string_list_notrans.h"
 
 #undef STR
 #undef STRARRAY
@@ -42,16 +41,6 @@
 #else
 
 bool isTextLangAvail(int lang);
-
-// Static string
-#define STR(x) extern const char STR_##x[];
-// Static string array
-#define STRARRAY(x) extern const char* const STR_##x[];
-
-#include "string_list_notrans.h"
-
-#undef STR
-#undef STRARRAY
 
 // Static string
 #define STR(x) const char* STR_##x;
@@ -100,7 +89,6 @@ extern const LangStrings* currentLangStrings;
 #define STRARRAY(x) extern const char* const* STR_##x##_FN();
 
 #include "string_list.h"
-#include "string_list_notrans.h"
 
 #undef STR
 #undef STRARRAY

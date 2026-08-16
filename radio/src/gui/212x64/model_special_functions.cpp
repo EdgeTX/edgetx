@@ -197,7 +197,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
       switch (j) {
         case ITEM_CUSTOM_FUNCTIONS_SWITCH:
           if(CFN_SWITCH(cfn) == SWSRC_NONE) CFN_ACTIVE(cfn) = 0; // Disable new function by default
-          drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, CFN_SWITCH(cfn), attr | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
+          drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, CFN_SWITCH(cfn), attr | (functionsContext->isFunctionSwitchActive(k) ? BOLD : 0));
           if (active || AUTOSWITCH_ENTER_LONG()) {
             if (event == EVT_KEY_LONG(KEY_ENTER))
               killEvents(event);

@@ -82,7 +82,7 @@ typedef void (* ProgressHandler)(const char *, const char *, int, int);
 
 #if !defined(GUI)
   #define DISPLAY_WARNING(...)
-  inline void POPUP_WAIT(const char * s) { }
+  inline void POPUP_WAIT(const char * s, const char * = nullptr) { }
   inline void POPUP_WARNING(const char *, const char * = nullptr) { }
   inline void POPUP_CONFIRMATION(const char * s, PopupMenuHandler handler) { }
   inline void POPUP_INPUT(const char * s, PopupFunc func) { }
@@ -90,7 +90,7 @@ typedef void (* ProgressHandler)(const char *, const char *, int, int);
 #else
   #define DISPLAY_WARNING(evt)              (*popupFunc)(evt)
   extern void CLEAR_POPUP();
-  extern void POPUP_WAIT(const char * s);
+  extern void POPUP_WAIT(const char * s, const char * = nullptr);
   extern void POPUP_INFORMATION(const char * s);
   extern void POPUP_WARNING(const char * message, const char * info = nullptr);
   extern void SET_WARNING_INFO(const char * info, uint8_t length, uint8_t flags);

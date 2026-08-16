@@ -10,8 +10,17 @@ inputs:
     description: 'Qt architecture'
     required: runner.os != 'Linux'
   sdl2-version:
-    description: 'SDL2 version'
+    description: 'Upstream SDL2 version (Windows only)'
     default: '2.32.8'
+  sdl3-version:
+    description: 'SDL3 version built from source for macOS'
+    default: '3.4.14'
+  sdl2-compat-version:
+    description: 'sdl2-compat version built from source for macOS'
+    default: '2.32.70'
+  macos-deployment-target:
+    description: 'Minimum macOS version the SDL libraries are built for'
+    default: '11.0'
 
 runs:
   using: "composite"
@@ -29,14 +38,26 @@ runs:
         cache: true
         cache-key-prefix: 'install-qt-action-${{ inputs.qt-arch }}'
 
-    - name: Setup SDL2
+    # macOS builds SDL from source (see setup-sdl.sh) - cache it so only the first
+    # run per version pays for it
+    - name: Cache SDL build
+      if: runner.os == 'macOS'
+      uses: actions/cache@v6
+      with:
+        path: ${{ runner.temp }}/sdl
+        key: sdl-${{ runner.os }}-${{ inputs.sdl3-version }}-${{ inputs.sdl2-compat-version }}-${{ inputs.macos-deployment-target }}
+
+    - name: Setup SDL
       if: runner.os != 'Linux'
       shell: bash
       env:
         ACTION_PATH: ${{ github.action_path }}
         SDL2_VERSION: ${{ inputs.sdl2-version }}
+        SDL3_VERSION: ${{ inputs.sdl3-version }}
+        SDL2_COMPAT_VERSION: ${{ inputs.sdl2-compat-version }}
+        MACOS_DEPLOYMENT_TARGET: ${{ inputs.macos-deployment-target }}
       run: |
-        "${ACTION_PATH}/setup-sdl2.sh" ${SDL2_VERSION}
+        "${ACTION_PATH}/setup-sdl.sh"
 
     - name: Setup MSVC
       if: runner.os == 'Windows'
@@ -59,8 +80,21 @@ runs:
         tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
 
     - name: Compose release filename
+      if: always()
       run: echo "artifact_name=edgetx-cpn-${{ inputs.os }}-${GITHUB_REF##*/}" >> $GITHUB_ENV
       shell: bash
+
+    - name: Collect build logs
+      if: always()
+      shell: bash
+      run: |
+        mkdir -p logs
+
+        if [ -d "build" ]; then
+          find build -name "*.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
+          find build -name "CMakeOutput.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
+          find build -name "CMakeError.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
+        fi
 
     - name: Archive production artifacts
       uses: actions/upload-artifact@v7
@@ -68,3 +102,12 @@ runs:
         name: "${{ env.artifact_name }}"
         path:  ${{github.workspace}}/output
         retention-days: 15
+
+    - name: Archive build logs
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: "${{ env.artifact_name }}-logs"
+        path: ${{github.workspace}}/logs
+        retention-days: 30
+        if-no-files-found: ignore

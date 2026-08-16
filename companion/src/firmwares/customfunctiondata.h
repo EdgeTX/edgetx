@@ -68,6 +68,7 @@ enum AssignFunc {
   FuncBindExternalModule,
   FuncRacingMode,
   FuncDisableTouch,
+  FuncDisableKeys,
   FuncSetScreen,
   FuncDisableAudioAmp,
   FuncRGBLed,

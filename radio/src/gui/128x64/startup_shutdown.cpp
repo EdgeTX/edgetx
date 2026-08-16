@@ -60,10 +60,10 @@ void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
       fsLedRGB(j, 0xFFFFFF);
       rgbLedColorApply();
 #else
-      setFSLedON(j);
+      fsLedOn(j);
 #endif
 #if defined(RADIO_FAMILY_T20)
-      setFSLedON(j + steps);
+      fsLedOn(j + steps);
 #endif
     }
   }
@@ -104,14 +104,14 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
     }
     rgbLedColorApply();
 #else
-    setFSLedOFF(j);
+    fsLedOff(j);
 #if defined(RADIO_FAMILY_T20)
-    setFSLedOFF(j + steps);
+    fsLedOff(j + steps);
 #endif
     if (steps - index2 > j) {
-      setFSLedON(j);
+      fsLedOn(j);
 #if defined(RADIO_FAMILY_T20)
-      setFSLedON(j + steps);
+      fsLedOn(j + steps);
 #endif
     }
 #endif

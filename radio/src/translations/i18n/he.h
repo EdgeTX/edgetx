@@ -244,6 +244,7 @@
 #define TR_SF_SCREENSHOT               "צילום מסך"
 #define TR_SF_RACING_MODE              "מצב תחרות"
 #define TR_SF_DISABLE_TOUCH            "ללא מסך מגע"
+#define TR_SF_DISABLE_KEYS             "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
 #define TR_SF_SET_SCREEN               TR_BW_COL("Set Screen", "הגדרת מסך ראשי")
 #define TR_SF_PUSH_CUST_SWITCH         "Push CS"
@@ -279,11 +280,6 @@
 #define TR_FUNCSOUNDS_14               "Tada"
 #define TR_FUNCSOUNDS_15               TR("Crck","Crickt")
 #define TR_FUNCSOUNDS_16               TR("Alrm","AlmClk")
-
-#define LENGTH_UNIT_IMP                "ft"
-#define SPEED_UNIT_IMP                 "mph"
-#define LENGTH_UNIT_METR               "m"
-#define SPEED_UNIT_METR                "kmh"
 
 #define TR_VUNITSSYSTEM_1              "תצוגת מילימטר"
 #define TR_VUNITSSYSTEM_2              TR("Imper.","תצוגת אינצ'ים")
@@ -469,7 +465,6 @@
 #define TR_TTRIM                       TR("T-Trim-Idle", "Trim idle only")
 #define TR_TTRIM_SW                    TR("T-Trim-Sw", "מתג קיזוז")
 #define TR_BEEPCTR                     TR("Ctr Beep", "ציפצוף במרכז")
-#define TR_USE_GLOBAL_FUNCS            TR("Glob.Funcs", "שימוש בפונקציות גלובליות")
 #define TR_PROTOCOL                    TR("Proto", "Protocol")
 #define TR_PPMFRAME                    "PPM frame"
 #define TR_REFRESHRATE                 TR("Refresh", "Refresh rate")
@@ -489,7 +484,6 @@
 #define TR_GROUP                       "קבוצה"
 #define TR_GROUP_ALWAYS_ON             "דלוק תמיד"
 #define TR_LUA_OVERRIDE                "Allow Lua override"
-#define TR_GROUPS                      "Always on groups"
 #define TR_LAST                        "אחרון"
 #define TR_MORE_INFO                   "מידע נוסף"
 #define TR_SWITCH_TYPE                 "סוג"
@@ -499,7 +493,6 @@
 #define TR_TRIMS                       "קיזוזים"
 #define TR_FADEIN                      "Fade in"
 #define TR_FADEOUT                     "Fade out"
-#define TR_DEFAULT                     "(ברירת מחדל)"
 #define   TR_CHECKTRIMS                 TR_BW_COL("\006Check\012trims", "Check FM Trims")
 #define TR_SWASHTYPE                   "Swash Type"
 #define TR_COLLECTIVE                  TR("Collective", "Coll. pitch source")
@@ -567,7 +560,6 @@
 #define TR_BEEPCOUNTDOWN               "ספירה לאחור"
 #define TR_PERSISTENT                  TR("Persist.", "Persistent")
 #define TR_BACKLIGHT_LABEL             "תאורת רקע"
-#define TR_GHOST_MENU_LABEL            "GHOST MENU"
 #define TR_STATUS                      "סטטוס"
 #define TR_BLONBRIGHTNESS              "בהירות פעילה"
 #define TR_BLOFFBRIGHTNESS             "בהירות כבויה"
@@ -576,8 +568,10 @@
 #define TR_ONE_LOG_PER_DAY             "One log per day"
 #define TR_KEY_LOCK_FMT                "Key lock (%s+%s hold)"
 #define TR_KEYS_LOCKED                 "Keys locked"
-#define TR_KEYS_LOCKED_FMT             "Keys locked (%s+%s)"
+#define TR_KEYS_LOCKED_FMT             TR_BW_COL("%s+%s to unlock", "Keys locked (%s+%s to unlock)")
 #define TR_KEYS_UNLOCKED               "Keys unlocked"
+#define TR_TOUCH_ENABLED               "Touch screen enabled"
+#define TR_TOUCH_DISABLED              "Touch screen disabled"
 #define TR_SPLASHSCREEN                "מסך פתיחה"
 #define TR_PLAY_HELLO                  "צליל אתחול"
 #define TR_PWR_ON_DELAY                "השהיית הפעלה פעיל"
@@ -599,7 +593,6 @@
 #define TR_SWITCHES                    "מתגים"
 #define TR_SWITCHES_DELAY              TR("Play delay", "השהיית השמעת מתג")
 #define TR_SLAVE                       "Slave"
-#define TR_MODESRC                     "Mode\006% Source"
 #define TR_MULTIPLIER                  "Multiplier"
 #define TR_CAL                         "Cal"
 #define TR_CALIBRATION                 BUTTON("כיול")
@@ -641,21 +634,16 @@
 #define TR_CH                          "ערוץ "
 #define TR_MODEL                       "מודל"
 #define TR_FM                          TR_SFC_AIR("DM", "FM")
-#define TR_EEPROMLOWMEM                "EEPROM low mem"
 #define TR_PRESS_ANY_KEY_TO_SKIP       "לחץ על המסך או על כפתור"
 #define TR_THROTTLE_NOT_IDLE           "סטיק מצערת פתוח"
 #define TR_ALARMSDISABLED              "התראות בוטלו"
 #define TR_PRESSANYKEY                 TR("\010Press any Key", "Press any key")
-#define TR_BADEEPROMDATA               "Bad EEprom data"
 #define TR_BAD_RADIO_DATA              "Bad radio data"
 #define TR_RADIO_DATA_RECOVERED        TR3("Using backup radio data","Using backup radio settings","Radio settings recovered from backup")
 #define TR_RADIO_DATA_UNRECOVERABLE    TR3("Radio settings invalid","Radio settings not valid", "Unable to read valid radio settings")
-#define TR_EEPROMFORMATTING            "Formatting EEPROM"
 #define TR_STORAGE_FORMAT              "Storage preparation"
-#define TR_EEPROMOVERFLOW              "EEPROM overflow"
 #define TR_RADIO_SETUP                 "הגדרות שלט ותצוגה"
 #define TR_MENUVERSION                 "גירסא"
-#define TR_MENU_RADIO_ANALOGS          TR("ANALOGS", "בדיקת אנלוגיות")
 #define TR_MENU_RADIO_ANALOGS_CALIB    "בדיקת אנלוגיות סטיקים ומגע"
 #define TR_MENU_RADIO_ANALOGS_RAWLOWFPS "RAW ANALOGS (5 Hz)"
 #define TR_MENU_FSWITCH                 "מפסקים בהתאמה אישית"
@@ -664,7 +652,6 @@
 #define TR_CHANNEL2FAILSAFE            "הגדר מצב נוכחי כקבוע"
 #define TR_MENUMODELSEL                TR("MODELSEL", "MODEL SELECTION")
 #define TR_MENU_MODEL_SETUP            TR("הגדרות מודל", "הגדרות מודל")
-#define TR_MENUCURVE                   "עקומה"
 #define TR_MENULOGICALSWITCH           "מתג לוגי"
 #define TR_MENUSTAT                    "סטטוס"
 #define TR_MENUDEBUG                   "DEBUG"
@@ -716,31 +703,24 @@
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Actual power")
 #define TR_AFHDS3_POWER_SOURCE         TR("Power src.", "Power source")
 #define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
-#define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Use FlySky RSSI value without rescalling")
 #define TR_GPS_COORDS_FORMAT           TR("GPS Coords", "Coordinate format")
 #define TR_VARIO                       TR("Vario", "הגדרות תדר")
 #define TR_PITCH_AT_ZERO               "תדר מינימלי"
 #define TR_PITCH_AT_MAX                "תדר מקסימלי"
 #define TR_REPEAT_AT_ZERO              "השהיית התראה"
 #define TR_BATT_CALIB                  TR("Batt. calib", "כיול מתח סוללה ידני")
-#define TR_CURRENT_CALIB               "Current calib"
 #define TR_VOLTAGE                     TR("Voltage", "Voltage source")
 #define TR_SELECT_MODEL                "בחירת מודל"
-#define TR_MODELS                      "מודלים"
 #define TR_SELECT_MODE                 "בחירת מצב"
 #define TR_CREATE_MODEL                "יצירת מודל"
 #define TR_FAVORITE_LABEL              "מעודפים"
 #define TR_MODELS_MOVED                "מודל שלא בשימוש עבר ל"
 #define TR_NEW_MODEL                   "מודל חדש"
-#define TR_INVALID_MODEL               "מודל לא חוקי"
-#define TR_EDIT_LABELS                 "עריכת לשונית"
 #define TR_LABEL_MODEL                 "שינוי לשונית"
 #define TR_MOVE_UP                     "עלה למעלה"
 #define TR_MOVE_DOWN                   "רד למטה"
 #define TR_ENTER_LABEL                 "הוספת לשונית"
-#define TR_LABEL                       "לשונית"
 #define TR_LABELS                      "לשוניות"
-#define TR_CURRENT_MODEL               "מודל נבחר"
 #define TR_ACTIVE                      "פעיל"
 #define TR_NEW                         "חדש"
 #define TR_NEW_LABEL                   "לשונית חדשה"
@@ -752,7 +732,6 @@
 #define TR_BACKUP_MODEL                "גיבוי מודל"
 #define TR_DELETE_MODEL                "מחיקת מודל"
 #define TR_RESTORE_MODEL               "שיחזור מודל"
-#define TR_DELETE_ERROR                "שיגאת מחיקה"
 #define TR_DELETE_INPUT_LINE           "מחיקת שורת קלט"
 #define TR_DELETE_MIX_LINE             "מחיקת שורת מיקס"
 #define TR_SDCARD_ERROR                TR("SD תקלת", "תיקיות כרטיס SD")
@@ -771,7 +750,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH without telem.", "16CH without telemetry")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH with telem.", "16CH with telemetry")
-#define TR_8CH_WITH_TELEMETRY          TR("8CH with telem.", "8CH with telemetry")
 #define TR_EXT_ANTENNA                 "Ext. antenna"
 #define TR_PIN                         "Pin"
 #define TR_UPDATE_RX_OPTIONS           "Update RX options?"
@@ -782,7 +760,6 @@
 #define TR_MENU_FIRM_OPTIONS           "FIRMWARE OPTIONS"
 #define TR_IMU                        "IMU"
 #define TR_STICKS_POTS_SLIDERS         "Sticks/Pots/Sliders"
-#define TR_PWM_STICKS_POTS_SLIDERS     "PWM Sticks/Pots/Sliders"
 #define TR_RF_PROTOCOL                 "RF פרוטוקול"
 #define TR_MODULE_OPTIONS              "אפשריות מודל"
 #define TR_POWER                       "עוצמה"
@@ -809,7 +786,6 @@
 #define TR_FAILSAFEWARN                "FAILSAFE"
 #define TR_TEST_WARNING                TR("TESTING", "TEST BUILD")
 #define TR_TEST_NOTSAFE                "שימוש לבדיקה בלבד"
-#define TR_WRONG_SDCARDVERSION         TR("Expected ver: ", "Expected version: ")
 #define TR_WARN_RTC_BATTERY_LOW        "סוללה פנימית נמוכה"
 #define TR_WARN_MULTI_LOWPOWER         "מצב מתח נמוך"
 #define TR_BATTERY                     "סוללה"
@@ -818,13 +794,9 @@
 #define TR_NO_FAILSAFE                 "מצב חירום לא הוגדר"
 #define TR_KEYSTUCK                    "כפתור לחוץ"
 #define TR_VOLUME                      "עוצמה"
-#define TR_LCD                         "מסך"
 #define TR_BRIGHTNESS                  "בהירות"
 #define TR_CONTROL                     "Control"
 #define TR_SF_OVERRIDDEN               "Overridden by SF/GF"
-#define TR_CPU_TEMP                    "טמפ' גבוה במעבד"
-#define TR_COPROC                      "CoProc."
-#define TR_COPROC_TEMP                 "MB Temp."
 #define TR_TTL_WARNING                 "Warning: Do not exceed 3.3V on TX/RX pins!"
 #define TR_FUNC                        "פונקציה"
 #define TR_V1                          "V1"
@@ -837,22 +809,17 @@
 #define TR_NO_SCRIPTS_ON_SD            "אין סקריפט בכרטיס"
 #define TR_SCRIPT_SYNTAX_ERROR         TR("Syntax error", "Script syntax error")
 #define TR_SCRIPT_PANIC                "Script panic"
-#define TR_SCRIPT_KILLED               "הסקריפט נהרג"
 #define TR_SCRIPT_ERROR                "תקלה לא ידוע"
 #define TR_PLAY_FILE                   "נגן"
 #define TR_DELETE_FILE                 "מחק"
 #define TR_COPY_FILE                   "העתק"
 #define TR_RENAME_FILE                 "שינוי שם"
 #define TR_ASSIGN_BITMAP               "בחר תמונה"
-#define TR_ASSIGN_SPLASH               "בחר תמונת רקע"
 #define TR_EXECUTE_FILE                "בצע"
 #define TR_REMOVED                     " הוסר"
 #define TR_SD_INFO                     "מידע"
 #define TR_NA                          "לא רלוונטי"
-#define TR_FORMATTING                  "...מפרמט"
-#define TR_TEMP_CALIB                  "Temp. Calib"
 #define TR_TIME                        "זמן"
-#define TR_MAXBAUDRATE                 "Max bauds"
 #define TR_BAUDRATE                    "קצב שידור"
 #define TR_CRSF_ARMING_MODE            "Arm using"
 #define TR_CRSF_ARMING_MODES           TR_CH"5", TR_SWITCH
@@ -877,8 +844,6 @@
 #define TR_FAV_MATCH_MODE_1          "חייב להתאים"
 #define TR_FAV_MATCH_MODE_2          "התאמה אופציונלית"
 
-#define TR_SELECT_TEMPLATE_FOLDER      "בחר ספרית תבנית"
-#define TR_SELECT_TEMPLATE             "בחר מודל מתבנית:"
 #define TR_NO_TEMPLATES                "אין מודל בספריית התבניות"
 #define TR_SAVE_TEMPLATE               "שמור כשמירת בסיס"
 #define TR_BLANK_MODEL                 "מודל ריק"
@@ -887,21 +852,18 @@
 #define TR_ASK_OVERWRITE               "האם אתה רוצה לכתוב על הקיים?"
 
 #define TR_BLUETOOTH                   "בלוטוס"
-#define TR_BLUETOOTH_DISC              "גילוי"
 #define TR_BLUETOOTH_INIT              "Init"
 #define TR_BLUETOOTH_DIST_ADDR         "Dist addr"
 #define TR_BLUETOOTH_LOCAL_ADDR        "Local addr"
 #define TR_BLUETOOTH_PIN_CODE          "PIN code"
 #define TR_BLUETOOTH_NODEVICES         "לא נמצאו מכשירים"
 #define TR_BLUETOOTH_SCANNING          "...סורק"
-#define TR_BLUETOOTH_BAUDRATE          "BT Baudrate"
 #define TR_BLUETOOTH_MODES_1           "---"
 #define TR_BLUETOOTH_MODES_2           "טלמטריה"
 #define TR_BLUETOOTH_MODES_3           "טריינר"
 #define TR_BLUETOOTH_MODES_4           "אפשר"
 
 #define TR_SD_INFO_TITLE               "מידע כרטיס"
-#define TR_SD_SPEED                    ":מהירות"
 #define TR_SD_SECTORS                  ":סקטורים"
 #define TR_SD_SIZE                     ":גודל"
 #define TR_TYPE                        "סוג"
@@ -930,13 +892,11 @@
 #define TR_FLASH_BOOTLOADER            "Flash bootloader"
 #define TR_FLASH_DEVICE                TR("Flash device","Flash device")
 #define TR_FLASH_EXTERNAL_DEVICE       TR("Flash S.Port", "Flash S.Port device")
-#define TR_FLASH_RECEIVER_OTA          "Flash receiver OTA"
 #define TR_FLASH_RECEIVER_BY_EXTERNAL_MODULE_OTA "Flash RX by ext. OTA"
 #define TR_FLASH_RECEIVER_BY_INTERNAL_MODULE_OTA "Flash RX by int. OTA"
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_EXTERNAL_MODULE_OTA "Flash FC by ext. OTA"
 #define TR_FLASH_FLIGHT_CONTROLLER_BY_INTERNAL_MODULE_OTA "Flash FC by int. OTA"
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Flash BT module", "Flash Bluetooth module")
-#define TR_FLASH_POWER_MANAGEMENT_UNIT "Flash pwr mngt unit"
 #define TR_DEVICE_NO_RESPONSE          TR("Device not responding", "Device not responding")
 #define TR_DEVICE_FILE_ERROR           TR("Device file prob.", "Device file prob.")
 #define TR_DEVICE_DATA_REFUSED         TR("Device data refused", "Device data refused")
@@ -952,14 +912,12 @@
 #define TR_FIRMWARE_UPDATE_ERROR       TR("FW update error", "Firmware update error")
 #define TR_FIRMWARE_UPDATE_SUCCESS     "! הפלאש עבר בהצלחה"
 #define TR_WRITING                     "...ממתין"
-#define TR_CONFIRM_FORMAT              "? מאשר פירמוט"
 #define TR_INTERNALRF                  "מודול פנימי"
 #define TR_INTERNAL_MODULE             TR("Int. module", "מודול פנימי")
 #define TR_EXTERNAL_MODULE             TR("Ext. module", "מודול חיצוני")
 #define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX upgrade required"
 #define TR_TELEMETRY_DISABLED          "Telem. disabled"
 #define TR_MORE_OPTIONS_AVAILABLE      "More options available"
-#define TR_NO_MODULE_INFORMATION       "No module information"
 #define TR_EXTERNALRF                  "מודול חיצוני"
 #define TR_FAILSAFE                    TR("Failsafe", "הגדרת כשל קליטה")
 #define TR_FAILSAFESET                 "הגדרת כשל קליטה"
@@ -1017,8 +975,6 @@
 #define TR_USB_JOYSTICK                "חיבור משחק (HID)"
 #define TR_USB_MASS_STORAGE            "חיבור העברת נתונים (SD)"
 #define TR_USB_SERIAL                  "חיבור סריילי (VCP)"
-#define TR_SETUP_SCREENS               "הגדרות מסכים"
-#define TR_MONITOR_SCREENS             "מצגים"
 #define TR_AND_SWITCH                  "AND switch"
 #define TR_SF                          "SF"
 #define TR_GF                          "GF"
@@ -1051,8 +1007,6 @@
 #define TR_KEYS_BTN                    BUTTON("בדיקת מתגים")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "בדיקת אנלוגיות"))
 #define TR_FS_BTN                      BUTTON(TR("Custom sw", TR_FUNCTION_SWITCHES))
-#define TR_TOUCH_NOTFOUND              "!מסך זה אינו מסך מגע"
-#define TR_TOUCH_EXIT                  "גע במסך כדי לצאת"
 #define TR_SET                         BUTTON("הגדר")
 #define TR_TRAINER                     "טריינר"
 #define TR_CHANS                       "Chans"
@@ -1118,12 +1072,10 @@
 #define TR_CHECKLIST                   TR("Checklist", "הצג מצב מערכת")
 #define TR_CHECKLIST_INTERACTIVE       TR3("C-Interact", "Interact. checklist", "Interactive checklist")
 #define TR_AUX_SERIAL_MODE             "חיבור פנימי נוסף"
-#define TR_AUX2_SERIAL_MODE            "חיבור פנימי נוסף 2"
 #define TR_AUX_SERIAL_PORT_POWER       "הפעלת מתח בחיבור"
 #define TR_SCRIPT                      "Script"
 #define TR_INPUTS                      "כניסות"
 #define TR_OUTPUTS                     "יציאות"
-#define TR_CONFIRMRESET                TR("Erase ALL", "Erase ALL models and settings?")
 #define TR_TOO_MANY_LUA_SCRIPTS        "Too many Lua scripts!"
 #define TR_SPORT_UPDATE_POWER_MODE     "SP Power"
 #define TR_SPORT_UPDATE_POWER_MODES_1  "אוטומטי"
@@ -1160,10 +1112,8 @@
 #define TR_LAST_CHANNEL              "Last channel"
 #define TR_FILL_BACKGROUND           "מילוי רקע?"
 #define TR_BG_COLOR                  "BG צבעי"
-#define TR_SLIDERS_TRIMS             "Sliders+Trims"
 #define TR_SLIDERS                   "סליידרים"
 #define TR_FLIGHT_MODE               "מצב טיסה"
-#define TR_INVALID_FILE              "Invalid File"
 #define TR_TIMER_SOURCE              "מקור השעון"
 #define TR_SIZE                      "גודל"
 #define TR_SHADOW                    "הצללה"
@@ -1189,8 +1139,7 @@
 // About screen
 #define TR_ABOUTUS                     TR(" ABOUT ", "ABOUT")
 
-#define TR_CHR_HOUR                    'h'
-#define TR_CHR_INPUT                   'I'   // Values between A-I will work
+#define TR_CHR_INPUT                   "I"   // Values between A-I will work
 
 #define TR_BEEP_VOLUME                 "עוצמת ציפצוף"
 #define TR_WAV_VOLUME                  "עוצמת גל"
@@ -1201,7 +1150,6 @@
 #define TR_FLASH_WRITE                 "Flash write..."
 #define TR_OTA_UPDATE                  "OTA update..."
 #define TR_MODULE_RESET                "...איפוס מודל"
-#define TR_UNKNOWN_RX                  "Unknown RX"
 #define TR_UNSUPPORTED_RX              "Unsupported RX"
 #define TR_OTA_UPDATE_ERROR            "OTA update error"
 #define TR_DEVICE_RESET                "Device reset..."
@@ -1209,7 +1157,6 @@
 #define TR_SCALE                       "מד"
 #define TR_VIEW_CHANNELS               "הצג ערוצים"
 #define TR_VIEW_NOTES                  "הצג פתקים"
-#define TR_MODEL_SELECT                "בחר מודל"
 #define TR_ID                          "ID"
 #define TR_PRECISION                   "קירוב עישריות"
 #define TR_RATIO                       "יחס"
@@ -1241,7 +1188,6 @@
 #define TR_REMOVE_SCREEN               "הסרת מסך"
 #define TR_SETUP_WIDGETS               "הגדרות וידג'טים"
 #define TR_THEME                       "ערכת נושא"
-#define TR_SETUP                       "להגדיר"
 #define TR_LAYOUT                      "תצוגת מסך"
 #define TR_TEXT_COLOR                  "צבע טקסט"
 #define TR_MENU_INPUTS                 CHAR_INPUT "כניסות"
@@ -1273,13 +1219,9 @@
 #define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "מיכרוז כל הקיזוזים"
 #define TR_DUPLICATE                    "שיכפול"
 #define TR_ACTIVATE                     "הגדר פעיל"
-#define TR_RED                          "אדום"
-#define TR_BLUE                         "כחול"
-#define TR_GREEN                        "ירוק"
 #define TR_COLOR_PICKER                 "בחירת צבע"
 #define TR_FIXED                        "Fixed"
 #define TR_EDIT_THEME_DETAILS           "עריכת ערכת נושא"
-#define TR_THEME_COLOR_DEFAULT          "בְּרִירַת מֶחדָל"
 #define TR_THEME_COLOR_PRIMARY1         "ראשי 1"
 #define TR_THEME_COLOR_PRIMARY2         "ראשי 2"
 #define TR_THEME_COLOR_PRIMARY3         "ראשי 3"

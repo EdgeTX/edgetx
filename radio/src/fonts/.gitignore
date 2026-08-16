@@ -1,3 +1,7 @@
 /*/*.lbm
 /font_*.png
 /font_*.specs
+
+# make_fonts.sh intermediates - removed when it completes, left behind if it aborts
+/lvgl/lv_font.inc
+/lvgl/lz4_font

@@ -274,7 +274,7 @@ void menuTraceBuffer(event_t event)
   int8_t sub = menuVerticalPosition;
 
   lcdDrawChar(0, FH, '#');
-  lcdDrawText(4*FW, FH, TR_TIME);
+  lcdDrawText(4*FW, FH, STR_TIME);
   lcdDrawText(14*FW, FH, "Event");
   lcdDrawText(20*FW, FH, "Data");
 
