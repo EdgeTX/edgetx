@@ -549,8 +549,14 @@ void WasmSimulatorInterface::start(const char * filename, bool tests)
     }
   }
 
-  uint32_t argv[1] = {(uint32_t)tests};
-  if (!wasm_runtime_call_wasm(m_execEnv, m_fnStart, 1, argv)) {
+  // WASM does not handle timezones. 
+  // Calculat adjusted rtc time and pass to simulator
+  time_t rawtime;
+  time(&rawtime);
+  rawtime -= timezone;
+
+  uint32_t argv[2] = {(uint32_t)tests, (uint32_t)rawtime};
+  if (!wasm_runtime_call_wasm(m_execEnv, m_fnStart, 2, argv)) {
     qWarning() << "WASM simuStart failed:"
                << wasm_runtime_get_exception(m_moduleInst);
     return;

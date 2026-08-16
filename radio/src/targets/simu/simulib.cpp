@@ -142,7 +142,7 @@ void simuCreateDefaults()
   simuCreateDefaultSettings = true;
 }
 
-void simuStart(bool tests)
+void simuStart(bool tests, time_t rawtime)
 {
   if (simu_running)
     return;
@@ -170,9 +170,11 @@ void simuStart(bool tests)
   }
 
 #if defined(RTCLOCK)
-  time_t rawtime;
+  // Time adjusted for timezone is passed from Companion
+  // Stand alone simulator does not need this
+  if (rawtime == 0)
+    time(&rawtime);
   struct tm * timeinfo;
-  time (&rawtime);
   timeinfo = localtime (&rawtime);
 
   if (timeinfo != nullptr) {

@@ -44,7 +44,7 @@
 // Lifecycle: call simuInit() once, then simuFatfsSetPaths() + simuStart().
 // Poll simuIsRunning() periodically. Call simuStop() to shut down.
 void WASM_EXPORT(simuInit)();
-void WASM_EXPORT(simuStart)(bool tests = true);
+void WASM_EXPORT(simuStart)(bool tests = true, time_t rawtime = 0);
 void WASM_EXPORT(simuStop)();
 bool WASM_EXPORT(simuIsRunning)();
 
