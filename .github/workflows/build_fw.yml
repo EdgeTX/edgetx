@@ -59,7 +59,7 @@ jobs:
           - pa01
           - t22
     container:
-      image: ghcr.io/edgetx/edgetx-dev:latest
+      image: ghcr.io/edgetx/edgetx-dev:2.12
       volumes:
         - ${{ github.workspace }}:/src
     steps:
@@ -114,7 +114,7 @@ jobs:
           - t22
           - c14
     container:
-      image: ghcr.io/edgetx/edgetx-dev:latest
+      image: ghcr.io/edgetx/edgetx-dev:2.12
       volumes:
         - ${{ github.workspace }}:/src
     steps:
