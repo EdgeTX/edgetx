@@ -44,18 +44,15 @@
 
 // Lifecycle: call simuInit() once, then simuFatfsSetPaths() + simuStart().
 // Poll simuIsRunning() periodically. Call simuStop() to shut down.
+// utcOffset: seconds east of UTC, DST applied; wasi-libc's localtime() always
+// reports UTC. Ignored by native builds.
 void WASM_EXPORT(simuInit)();
-void WASM_EXPORT(simuStart)(bool tests = true);
+void WASM_EXPORT(simuStart)(bool tests = true, int32_t utcOffset = 0);
 void WASM_EXPORT(simuStop)();
 bool WASM_EXPORT(simuIsRunning)();
 
 // Set SD card and settings paths before simuStart() to avoid STORAGE WARNING.
 void WASM_EXPORT(simuFatfsSetPaths)(const char * sdPath, const char * settingsPath);
-
-// wasi-libc's localtime() always reports UTC and ignores TZ, so hosts must
-// supply the local offset from UTC in seconds (positive east of UTC, DST
-// applied) before simuStart().  Defaults to 0; ignored by native builds.
-void WASM_EXPORT(simuSetUtcOffset)(int32_t seconds);
 
 // Input: keys use Board::Keys enum, switches use Board switch indices,
 // trims use Board::TrimSwitches enum (momentary press, not value).
@@ -196,7 +193,7 @@ void WASM_IMPORT(simuAuxSerialSendBuffer)(uint8_t port_nr, const uint8_t* data,
 
 // -- Internal (not exported) --
 
-// Use instead of localtime()/mktime(): applies simuSetUtcOffset() on WASM.
+// Use instead of localtime()/mktime(): applies simuStart()'s utcOffset on WASM.
 bool simuLocalTime(time_t t, struct tm* result);
 time_t simuLocalTimeToEpoch(struct tm* tm);
 

@@ -146,15 +146,6 @@ void simuCreateDefaults()
 static int32_t simuUtcOffset = 0;
 #endif
 
-void simuSetUtcOffset(int32_t seconds)
-{
-#if defined(__wasm__)
-  simuUtcOffset = seconds;
-#else
-  (void)seconds;
-#endif
-}
-
 bool simuLocalTime(time_t t, struct tm* result)
 {
   struct tm* tmp;
@@ -180,10 +171,16 @@ time_t simuLocalTimeToEpoch(struct tm* tm)
 #endif
 }
 
-void simuStart(bool tests)
+void simuStart(bool tests, int32_t utcOffset)
 {
   if (simu_running)
     return;
+
+#if defined(__wasm__)
+  simuUtcOffset = utcOffset;
+#else
+  (void)utcOffset;
+#endif
 
 #if !defined(COLORLCD)
   menuLevel = 0;
