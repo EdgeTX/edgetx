@@ -887,6 +887,7 @@
 #define STR_SF_BG_MUSIC currentLangStrings->STR_SF_BG_MUSIC
 #define STR_SF_DISABLE_AUDIO_AMP currentLangStrings->STR_SF_DISABLE_AUDIO_AMP
 #define STR_SF_DISABLE_TOUCH currentLangStrings->STR_SF_DISABLE_TOUCH
+#define STR_SF_DISABLE_KEYS currentLangStrings->STR_SF_DISABLE_KEYS
 #define STR_SF_FAILSAFE currentLangStrings->STR_SF_FAILSAFE
 #define STR_SF_HAPTIC currentLangStrings->STR_SF_HAPTIC
 #define STR_SF_INST_TRIM currentLangStrings->STR_SF_INST_TRIM
@@ -924,6 +925,13 @@
 #define STR_SPECTRUM_ANALYSER_EXT currentLangStrings->STR_SPECTRUM_ANALYSER_EXT
 #define STR_SPECTRUM_ANALYSER_INT currentLangStrings->STR_SPECTRUM_ANALYSER_INT
 #define STR_SPLASHSCREEN currentLangStrings->STR_SPLASHSCREEN
+#define STR_ONE_LOG_PER_DAY currentLangStrings->STR_ONE_LOG_PER_DAY
+#define STR_KEY_LOCK_FMT currentLangStrings->STR_KEY_LOCK_FMT
+#define STR_KEYS_LOCKED currentLangStrings->STR_KEYS_LOCKED
+#define STR_KEYS_LOCKED_FMT currentLangStrings->STR_KEYS_LOCKED_FMT
+#define STR_KEYS_UNLOCKED currentLangStrings->STR_KEYS_UNLOCKED
+#define STR_TOUCH_ENABLED currentLangStrings->STR_TOUCH_ENABLED
+#define STR_TOUCH_DISABLED currentLangStrings->STR_TOUCH_DISABLED
 #define STR_SPORT_UPDATE_POWER_MODE currentLangStrings->STR_SPORT_UPDATE_POWER_MODE
 #define STR_SRC_BATT currentLangStrings->STR_SRC_BATT
 #define STR_SRC_GPS currentLangStrings->STR_SRC_GPS

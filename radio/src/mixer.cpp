@@ -1228,25 +1228,6 @@ void evalMixes(uint8_t tick10ms)
       }
     }
 #endif
-
-#if defined(AUDIO)
-    if (!isFunctionActive(FUNCTION_VOLUME)) {
-      if (g_eeGeneral.volumeSrc) {
-        calcVolumeValue(g_eeGeneral.volumeSrc);
-      } else {
-        requiredSpeakerVolume =
-            limit<int>(0, g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX);
-      }
-    }
-#endif
-
-    if (!isFunctionActive(FUNCTION_BACKLIGHT)) {
-      if (g_eeGeneral.backlightSrc) {
-        calcBacklightValue(g_eeGeneral.backlightSrc);
-      } else {
-        requiredBacklightBright = g_eeGeneral.getBrightness();
-      }
-    }  
   }
 
   //========== LIMITS ===============

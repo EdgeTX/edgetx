@@ -29,8 +29,6 @@
 #include "stamp.h"
 #include "theme_manager.h"
 
-extern void checkSpeakerVolume();
-
 constexpr const char* strip_leading_hyphen(const char* str) {
     return (str[0] == '-') ? str + 1 : str;
 }
