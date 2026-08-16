@@ -302,7 +302,7 @@
       "is_cfs": false
     },
     {
-      "name": "SEA",
+      "name": "SK",
       "type": "3POS",
       "flags": 0,
       "inverted": false,
@@ -315,7 +315,7 @@
       "is_cfs": false
     },
     {
-      "name": "SEB",
+      "name": "SL",
       "type": "3POS",
       "flags": 0,
       "inverted": false,
@@ -328,7 +328,7 @@
       "is_cfs": false
     },
     {
-      "name": "SEC",
+      "name": "SM",
       "type": "3POS",
       "flags": 0,
       "inverted": false,
@@ -341,7 +341,7 @@
       "is_cfs": false
     },
     {
-      "name": "SED",
+      "name": "SN",
       "type": "3POS",
       "flags": 0,
       "inverted": false,
@@ -354,7 +354,7 @@
       "is_cfs": false
     },
     {
-      "name": "SEE",
+      "name": "SO",
       "type": "3POS",
       "flags": 0,
       "inverted": false,
@@ -367,20 +367,7 @@
       "is_cfs": false
     },
     {
-      "name": "SEF",
-      "type": "3POS",
-      "flags": 0,
-      "inverted": false,
-      "default": "3POS",
-      "display": null,
-      "gpio_high": null,
-      "pin_high": "DUMBORC_EXTCHANNEL_PIN_26",
-      "gpio_low": null,
-      "pin_low": "DUMBORC_EXTCHANNEL_PIN_10",
-      "is_cfs": false
-    },
-    {
-      "name": "SEG",
+      "name": "SQ",
       "type": "3POS",
       "flags": 0,
       "inverted": false,
@@ -393,7 +380,7 @@
       "is_cfs": false
     },
     {
-      "name": "SEH",
+      "name": "SR",
       "type": "3POS",
       "flags": 0,
       "inverted": false,
@@ -406,7 +393,7 @@
       "is_cfs": false
     },
     {
-      "name": "SEI",
+      "name": "SS",
       "type": "3POS",
       "flags": 0,
       "inverted": false,
@@ -419,7 +406,7 @@
       "is_cfs": false
     },
     {
-      "name": "SEJ",
+      "name": "ST",
       "type": "3POS",
       "flags": 0,
       "inverted": false,
@@ -432,7 +419,7 @@
       "is_cfs": false
     },
     {
-      "name": "SEK",
+      "name": "SU",
       "type": "3POS",
       "flags": 0,
       "inverted": false,

@@ -84,9 +84,9 @@ static inline void check_struct()
   CHKSIZE(RadioData, 1180);
 #elif defined(COLORLCD)
   #if defined(IMU)
-    CHKSIZE(RadioData, 1063+4);
+    CHKSIZE(RadioData, 1063);
   #else
-    CHKSIZE(RadioData, 1062+4);
+    CHKSIZE(RadioData, 1062);
   #endif
 #elif defined(RADIO_GX12)
   CHKSIZE(RadioData, 1068);
