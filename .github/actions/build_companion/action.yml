@@ -59,8 +59,21 @@ runs:
         tools/build-companion.sh "$(pwd)" "$(pwd)/output/"
 
     - name: Compose release filename
+      if: always()
       run: echo "artifact_name=edgetx-cpn-${{ inputs.os }}-${GITHUB_REF##*/}" >> $GITHUB_ENV
       shell: bash
+
+    - name: Collect build logs
+      if: always()
+      shell: bash
+      run: |
+        mkdir -p logs
+
+        if [ -d "build" ]; then
+          find build -name "*.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
+          find build -name "CMakeOutput.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
+          find build -name "CMakeError.log" -type f -exec cp {} logs/ \; 2>/dev/null || true
+        fi
 
     - name: Archive production artifacts
       uses: actions/upload-artifact@v7
@@ -68,3 +81,12 @@ runs:
         name: "${{ env.artifact_name }}"
         path:  ${{github.workspace}}/output
         retention-days: 15
+
+    - name: Archive build logs
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: "${{ env.artifact_name }}-logs"
+        path: ${{github.workspace}}/logs
+        retention-days: 30
+        if-no-files-found: ignore
