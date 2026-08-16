@@ -21,11 +21,10 @@
 
 #include "stm32_ws2812.h"
 #include "stm32_dma.h"
+#include "stm32_gpio.h"
 
-#if defined(DEBUG_WS2812)
-  // LED_STRIP_DEBUG_GPIO && LED_STRIP_DEBUG_GPIO_PIN
-  #include "hal.h"
-#endif
+// LED_STRIP_LENGTH (and LED_STRIP_DEBUG_GPIO when DEBUG_WS2812)
+#include "hal.h"
 
 #include "definitions.h"
 
@@ -41,16 +40,24 @@ static uint8_t _r_offset;
 static uint8_t _g_offset;
 static uint8_t _b_offset;
 
-// DMA buffer contains data for 2 LEDs and is filled
-// half by half on DMA HT and TC IRQs
-#define WS2821_DMA_BUFFER_HALF_LEN (WS2812_BYTES_PER_LED * 8)
-#define WS2821_DMA_BUFFER_LEN      (WS2821_DMA_BUFFER_HALF_LEN * 2)
+#define WS2812_SLOTS_PER_LED        (WS2812_BYTES_PER_LED * 8)
 
 #define WS2812_FREQ            800000UL // 800 kHz
 #define WS2812_TIMER_PERIOD    20UL
 #define WS2812_ONE             (3 * WS2812_TIMER_PERIOD / 4)
 #define WS2812_ZERO            (1 * WS2812_TIMER_PERIOD / 4)
 #define WS2812_DMA_IRQ_PRIO    3
+
+// Zero slots appended to the frame: the line stays low while they are sent,
+// so the end-of-frame IRQ may run late without emitting a spurious bit.
+#define WS2812_TRAIL_SLOTS          4
+
+#if !defined(LED_STRIP_LENGTH)
+  #define LED_STRIP_LENGTH           1
+#endif
+
+#define WS2812_FRAME_SLOTS \
+  (LED_STRIP_LENGTH * WS2812_SLOTS_PER_LED + WS2812_TRAIL_SLOTS)
 
 // Debug facility
 #if defined(LED_STRIP_DEBUG_GPIO) && defined(LED_STRIP_DEBUG_GPIO_PIN)
@@ -82,15 +89,17 @@ static void _led_dbg_init() {
 typedef uint16_t led_timer_value_t;
 uint8_t pulse_inc = 1;
 
-// DMA buffer contains pulses for 2 LED at a time
-// (allows for refill at HT and TC)
+// The whole frame is emitted in a single DMA transfer: the buffer is filled
+// before the transfer starts and no refill deadline exists, so an ISR delayed
+// by a higher priority IRQ (SDMMC, USB) can no longer corrupt a frame.
 #if defined(STM32_SUPPORT_32BIT_TIMERS)
-static led_timer_value_t _led_dma_buffer[WS2821_DMA_BUFFER_LEN * 2] __DMA_NO_CACHE;
+static led_timer_value_t _led_dma_buffer[WS2812_FRAME_SLOTS * 2] __DMA_NO_CACHE;
 #else
-static led_timer_value_t _led_dma_buffer[WS2821_DMA_BUFFER_LEN] __DMA_NO_CACHE;
+static led_timer_value_t _led_dma_buffer[WS2812_FRAME_SLOTS] __DMA_NO_CACHE;
 #endif
 
-static uint8_t _led_seq_cnt;
+// Number of slots actually sent, from the strip length given at init
+static uint32_t _frame_slots;
 
 static void _fill_byte(uint8_t c, led_timer_value_t* dma_buffer)
 {
@@ -109,57 +118,34 @@ static void _fill_pulses(const uint8_t* colors, led_timer_value_t* dma_buffer, u
   }
 }
 
-static inline uint32_t _calc_offset(uint8_t tc)
-{
-  return tc * WS2821_DMA_BUFFER_HALF_LEN * pulse_inc;
-}
-
-static void _update_dma_buffer(const stm32_pulse_timer_t* tim, uint8_t tc)
+static void _end_of_frame(const stm32_pulse_timer_t* tim)
 {
   WS2812_DBG_HIGH;
-  if (_led_seq_cnt < _led_strip_len) {
 
-    auto idx = WS2812_BYTES_PER_LED * _led_seq_cnt;
-    auto offset = _calc_offset(tc);
-    _fill_pulses(&_led_colors[idx], &_led_dma_buffer[offset], WS2812_BYTES_PER_LED);
-    _led_seq_cnt++;
+  LL_DMA_DisableIT_TC(tim->DMAx, tim->DMA_Stream);
+  LL_DMA_DisableStream(tim->DMAx, tim->DMA_Stream);
 
-  } else if(_led_seq_cnt < _led_strip_len + WS2812_TRAILING_RESET) {
-
-    // no need to reset the buffer after 2 cycles
-    if (_led_seq_cnt < _led_strip_len + 2) {
-      auto offset = _calc_offset(tc);
-      auto size = WS2821_DMA_BUFFER_HALF_LEN * sizeof(led_timer_value_t) * pulse_inc;
-      memset(&_led_dma_buffer[offset], 0, size);
-    }
-    _led_seq_cnt++;
-
-  } else {
-
-    LL_DMA_DisableIT_TC(tim->DMAx, tim->DMA_Stream);
-    LL_DMA_DisableIT_HT(tim->DMAx, tim->DMA_Stream);
-    LL_DMA_DisableStream(tim->DMAx, tim->DMA_Stream);
-
-    uint32_t timeout = 1000;
-    while (LL_DMA_IsEnabledStream(tim->DMAx, tim->DMA_Stream) && timeout--) 	{
-      __NOP();  // Wait
-    }
-
-    LL_TIM_CC_DisableChannel(tim->TIMx, tim->TIM_Channel);
+  uint32_t timeout = 1000;
+  while (LL_DMA_IsEnabledStream(tim->DMAx, tim->DMA_Stream) && timeout--) {
+    __NOP();  // Wait
   }
+
+  // Stop the request source, but leave the channel and the counter running
+  // with a null compare value: the output is then actively held low between
+  // frames. Disabling the channel releases the pad instead (OSSR = 0), the
+  // line floats, and a WS2812 that misses its reset gap keeps counting bits
+  // across frames -- which shifts the whole strip by one LED.
+  LL_TIM_DisableDMAReq_UPDATE(tim->TIMx);
+  stm32_pulse_set_cmp_val(tim, 0);
+
   WS2812_DBG_LOW;
 }
 
 void ws2812_dma_isr(const stm32_pulse_timer_t* tim)
 {
-  if (LL_DMA_IsEnabledIT_HT(tim->DMAx, tim->DMA_Stream) &&
-      stm32_dma_check_ht_flag(tim->DMAx, tim->DMA_Stream)) {
-    _update_dma_buffer(tim, 0);
-  }
-
   if (LL_DMA_IsEnabledIT_TC(tim->DMAx, tim->DMA_Stream) &&
       stm32_dma_check_tc_flag(tim->DMAx, tim->DMA_Stream)) {
-    _update_dma_buffer(tim, 1);
+    _end_of_frame(tim);
   }
 }
 
@@ -191,12 +177,17 @@ static void _init_timer(const stm32_pulse_timer_t* tim)
   stm32_pulse_config_output(tim, true, LL_TIM_OCMODE_PWM1, 0);
   LL_TIM_SetAutoReload(tim->TIMx, WS2812_TIMER_PERIOD - 1);
 
+  // Insurance for the windows where the timer does not drive the pad (boot,
+  // de-init): a floating WS2812 input can miss the inter-frame reset.
+  LL_GPIO_SetPinPull(gpio_get_port(tim->GPIO), 1 << gpio_get_pin(tim->GPIO),
+                     LL_GPIO_PULL_DOWN);
+
   // pulse driver uses DMA to ARR, but we need CCRx
   _led_set_dma_periph_addr(tim);
 
-  LL_DMA_SetMode(tim->DMAx, tim->DMA_Stream, LL_DMA_MODE_CIRCULAR);
-  LL_DMA_SetDataLength(tim->DMAx, tim->DMA_Stream, WS2821_DMA_BUFFER_LEN);
-  LL_DMA_SetMemoryAddress(tim->DMAx, tim->DMA_Stream, (uint32_t)_led_dma_buffer);
+  // One shot per frame: NDTR and the memory address are re-programmed by
+  // ws2812_update() before every transfer.
+  LL_DMA_SetMode(tim->DMAx, tim->DMA_Stream, LL_DMA_MODE_NORMAL);
 
   // we need to use a higher prio to avoid having
   // issues with some other things used during boot
@@ -209,8 +200,11 @@ void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t* strip_colors,
   WS2812_DBG_INIT;
   pulse_inc = IS_TIM_32B_COUNTER_INSTANCE(timer->TIMx) ? 2 : 1;
 
+  if (strip_len > LED_STRIP_LENGTH) strip_len = LED_STRIP_LENGTH;
+
   _led_colors = strip_colors;
   _led_strip_len = strip_len;
+  _frame_slots = strip_len * WS2812_SLOTS_PER_LED + WS2812_TRAIL_SLOTS;
   memset(_led_colors, 0, strip_len * WS2812_BYTES_PER_LED);
   memset(_led_dma_buffer, 0, sizeof(_led_dma_buffer));
 
@@ -219,6 +213,12 @@ void ws2812_init(const stm32_pulse_timer_t* timer, uint8_t* strip_colors,
   _b_offset = type & 0b11;
 
   _init_timer(timer);
+
+  // Drive the data line low right away, and keep it driven until the first
+  // frame: an idle WS2812 input must never be left floating.
+  stm32_pulse_set_cmp_val(timer, 0);
+  LL_TIM_CC_EnableChannel(timer->TIMx, timer->TIM_Channel);
+  LL_TIM_EnableCounter(timer->TIMx);
 }
 
 void ws2812_set_color_in_buf(uint8_t* buf, uint8_t led,
@@ -258,13 +258,21 @@ void ws2812_update(const stm32_pulse_timer_t* tim)
   WS2812_DBG_HIGH;
   if (!stm32_pulse_if_not_running_disable(tim)) return;
 
-  _led_seq_cnt = 0;
-  memset(_led_dma_buffer, 0, sizeof(_led_dma_buffer));
+  // Build the whole frame up front, trailing slots left at 0
+  _fill_pulses(_led_colors, _led_dma_buffer,
+               _led_strip_len * WS2812_BYTES_PER_LED);
+  memset(&_led_dma_buffer[_led_strip_len * WS2812_SLOTS_PER_LED * pulse_inc],
+         0, WS2812_TRAIL_SLOTS * sizeof(led_timer_value_t) * pulse_inc);
 
-  LL_DMA_EnableIT_HT(tim->DMAx, tim->DMA_Stream);
+  // NDTR and the address are not reloaded by enabling the stream again
+  stm32_dma_clear_flags(tim->DMAx, tim->DMA_Stream);
+  LL_DMA_SetMemoryAddress(tim->DMAx, tim->DMA_Stream, (uint32_t)_led_dma_buffer);
+  LL_DMA_SetDataLength(tim->DMAx, tim->DMA_Stream, _frame_slots);
+
   LL_DMA_EnableIT_TC(tim->DMAx, tim->DMA_Stream);
   LL_DMA_EnableStream(tim->DMAx, tim->DMA_Stream);
 
+  LL_TIM_SetCounter(tim->TIMx, 0);
   LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
   LL_TIM_CC_EnableChannel(tim->TIMx, tim->TIM_Channel);
   LL_TIM_EnableCounter(tim->TIMx);
