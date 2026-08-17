@@ -35,6 +35,7 @@ file(GLOB TEST_SRC_FILES ${RADIO_SRC_DIR}/tests/*.cpp
 
 set(TEST_SRC_FILES ${TEST_SRC_FILES}
   ${SIMU_SRC}
+  ${RADIO_SRC_DIR}/targets/simu/automation_protocol.cpp
 )
 
 add_executable(gtests-radio EXCLUDE_FROM_ALL

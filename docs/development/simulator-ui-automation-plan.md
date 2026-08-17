@@ -4,9 +4,14 @@
 
 **Phase 0 evidence:** [baseline and gate record](simulator-ui-automation-phase-0.md)
 
-**Current gate state (2026-08-17):** technical exit 0T passed; contract gate
-G0 remains pending contributor and maintainer review. Phase 1 implementation
-must not begin until G0 passes.
+**Current state (2026-08-17):** technical exit 0T passed. Contract review G0 is
+still open, but implementation may proceed in this draft. G0 is required before
+the pull request leaves draft or is merged, not before each implementation
+commit.
+
+**Working rule:** keep one branch and one draft pull request, implement the
+smallest useful vertical pieces, preserve the best requirements from both source
+pull requests, and invite both authors to review before merge.
 
 **Related pull requests:**
 
@@ -1141,10 +1146,16 @@ command manifest, baseline log, and artifact hashes.
 The dated Phase 0 baseline and gate record is maintained in
 [`simulator-ui-automation-phase-0.md`](simulator-ui-automation-phase-0.md).
 
-**Exit:** both 0T and G0 pass before Phase 1 implementation begins. Original
-PRs remain open.
+**Exit:** 0T passes before Phase 1 implementation begins. G0 passes before this
+pull request leaves draft or is merged. Original PRs remain open until the
+replacement demonstrates the retained behavior and their authors have had a
+reasonable opportunity to review it.
 
 ### Phase 1 — Pure protocol, bounds, and state model
+
+**Status (2026-08-17):** implemented in this draft. The pure protocol and state
+tests pass with the maintained Linux `gtests-radio` target (122/122 total tests),
+and `simu` builds without adding runtime activation or a new dependency.
 
 #### 1.1 Add protocol data types
 
@@ -1664,11 +1675,13 @@ The implementation may leave draft only when all of the following are true:
 
 ### 15.1 Pull-request structure
 
-1. Keep this documentation pull request focused on scope and contract.
-2. After direction is accepted, create one replacement implementation branch
-   from a fresh `upstream/main`; do not create a branch per phase.
-3. Keep one implementation draft until Phase 8 and use the phase order as its
-   default commit order.
+1. Use this branch and this draft pull request for the consolidated plan and
+   implementation; do not create a second replacement branch or a branch per
+   phase.
+2. Keep commits small and reviewable, using the phase order as guidance rather
+   than as bureaucracy.
+3. Keep the pull request in draft while the contract and implementation evolve;
+   require contributor/maintainer review before marking it ready or merging it.
 4. Use disposable local build directories or container clones for matrix work,
    not additional remote branches.
 5. Split at a phase boundary only when a maintainer explicitly requests it;
@@ -1708,7 +1721,7 @@ final review unless preserving an author's imported commit is more important.
 
 | Risk | Control | Decision gate |
 |---|---|---|
-| A third PR increases confusion | Draft, cross-links, one decision table | Do not implement until direction is visible |
+| A third PR increases confusion | One draft, cross-links, one decision table | Do not mark ready or merge until direction is reviewed |
 | Contribution appears appropriated | Provenance table and author invitation | Review attribution before importing code |
 | Protocol scope becomes a testing platform | Version 1 command list and non-goals | Defer adapters/goldens/multiple targets |
 | Windows works natively but Python fails | Binary reader threads, no pipe `select` | Windows lifecycle test in Phase 3 |
