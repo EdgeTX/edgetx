@@ -49,7 +49,6 @@ add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
-add_definitions(-DSOFTWARE_VOLUME)
 
 set(FLAVOUR gx10)
 add_definitions(-DRADIO_GX10)
@@ -61,7 +60,7 @@ set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
 
 set(BITMAPS_TARGET bm320_bitmaps)
 set(FONTS_TARGET x12_fonts)
-set(LCD_DRIVER lcd_driver_320_sî.cpp)
+set(LCD_DRIVER lcd_driver_320.cpp)
 set(HARDWARE_TOUCH YES)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
@@ -174,7 +173,8 @@ set(CMSIS_SRC ${BOARD_SRC_DIR}/system_clock.c)
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${BOARD_SRC_DIR}/tp_gt911.cpp
-  targets/common/arm/stm32/audio_dac_driver.cpp
+  ${BOARD_SRC_DIR}/audio_driver.cpp
+  drivers/tas2505.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp

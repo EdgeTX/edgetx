@@ -121,7 +121,7 @@ void boardBLEarlyInit()
 
   timersInit();
   delaysInit();
-#if defined(AUDIO_RESET_PIN)
+#if defined(IO_EXPANDER_I2C_BUS)
   bsp_io_init();
 #endif
   usbChargerInit();
