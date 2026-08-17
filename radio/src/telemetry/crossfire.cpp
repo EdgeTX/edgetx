@@ -307,7 +307,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
             value =
                 ((unsigned)value < DIM(power_values) ? power_values[value] : 0);
           } else
-          if (i ==  RX_ANTENNA_INDEX && crossfireModuleStatus[module].isELRS) {
+          if (i == RX_ANTENNA_INDEX && crossfireModuleStatus[module].isELRS) {
             value += 1;  // 0 = Antenna 1, 1 = Antenna 2
           }
           processCrossfireTelemetryValue(i, value);
