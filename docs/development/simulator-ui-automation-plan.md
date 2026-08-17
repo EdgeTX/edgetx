@@ -2,6 +2,12 @@
 
 **Status:** Proposed implementation contract for collaborative review
 
+**Phase 0 evidence:** [baseline and gate record](simulator-ui-automation-phase-0.md)
+
+**Current gate state (2026-08-17):** technical exit 0T passed; contract gate
+G0 remains pending contributor and maintainer review. Phase 1 implementation
+must not begin until G0 passes.
+
 **Related pull requests:**
 
 - [#7337 — Add TX16S UI harness](https://github.com/EdgeTX/edgetx/pull/7337),
@@ -51,9 +57,9 @@ The implementation will deliberately exclude:
 - the unrelated `EDGE_TX_BUILD_TESTS` option; and
 - direct mutation of Lua, telemetry, or LVGL state from the SDL thread.
 
-The intended result is one initiative and one protocol. It may be delivered as
-reviewable commits or stacked pull requests if maintainers request a smaller
-review surface, but it must not create parallel control APIs.
+The intended result is one initiative, one protocol, and one implementation
+draft with reviewable phase commits. Split it only if maintainers explicitly
+request a smaller review surface; never create parallel control APIs.
 
 ## 2. Evidence and current integration seams
 
@@ -167,6 +173,23 @@ The following are acceptance requirements, not optional cleanup:
 - a checked-in fixture must never be used as the simulator's writable settings
   directory.
 
+### 2.5 Phase 0 provenance ledger
+
+This ledger records expected ownership before implementation. It distinguishes
+code reuse from requirement reuse so that credit is explicit without assigning
+authorship for code that has not been imported.
+
+| Retained component | Source | Reuse class | Expected implementation ownership and credit status |
+|---|---|---|---|
+| Opt-in stdio direction, key mapping, framebuffer capture, and simulator argument-parser starting point | #7337: `arg_parser.*`, `sdl_simu.cpp` | Algorithm and implementation reference; code may be imported only in a coherent commit | Preserve Mateusz Urban's authorship if a coherent block is imported. If substantially rewritten, the consolidation author owns the new commit and requests approval before adding a `Co-authored-by` trailer. Approval is currently pending. |
+| Cross-platform host session, CLI shape, declarative flow, fixture layout, and host-side PPM conversion | #7337: `tools/ui-harness/edgetx_ui/*`, launchers, fixtures, and flow | Code, algorithm, and test ideas; MCP and root dependency files excluded | Prefer retaining original authorship for reusable host files. Otherwise credit #7337 in the commit and PR; any co-authorship trailer requires contributor approval. |
+| Explicit key/touch transitions, Windows-native transport requirement, capture-after-refresh requirement, Lua reload, and warm restart | #7646: `arg_parser.*`, `sdl_simu.cpp`, `simulib.*` | Requirements and selected implementation reference | Implemented by the consolidation author unless a source commit is retained. The append-file transport and direct state mutation are not reused. |
+| Static LVGL invalidation and capture coordination | #7646: `LvglWrapper.cpp`, `simu_capture.cpp` | Algorithm retained; implementation redesigned | Rewritten by the consolidation author to use a display sequence, preallocated snapshot, and worker-owned file I/O. |
+| Switch, analog, and telemetry injection | #7646: `api_simu.*`, `simulib.*` | Requirements retained; original Lua surface dropped | Rewritten by the consolidation author behind the common protocol and firmware mailbox. No Lua `simu` table code is imported. |
+
+The ledger is updated if review changes what is imported. A PR link is always
+required even when reuse is requirement-only.
+
 ## 3. Goals, scope, and success definition
 
 ### 3.1 Goals
@@ -219,29 +242,33 @@ artifacts, and stop without leaked processes on Linux and Windows.
 A feature being present is insufficient. Every asynchronous operation must have
 a named completion point and a timeout test.
 
-## 4. Frozen design decisions
+## 4. Proposed design decisions
 
-| ID | Decision | Rationale |
-|---|---|---|
-| D01 | Use one generic `--automation-stdio` runtime mode | Keeps #7337's reusable scope and leaves normal runs unchanged |
-| D02 | Require `--automation-output <directory>` with automation mode | Constrains writes to an explicit artifact root |
-| D03 | Use UTF-8 newline-delimited text requests and JSON-line responses | Small native parser; robust host parsing |
-| D04 | Requests are not JSON | Avoids adding a native JSON parser dependency |
-| D05 | Request IDs are strictly increasing unsigned 64-bit values per process | Correlation without an unbounded duplicate-ID set |
-| D06 | Protocol stdout contains JSON records only; diagnostics stay on stderr | Prevents logs from being mistaken for replies |
-| D07 | Timed press/touch/wait actions are composed by the host | Keeps sleeps out of the SDL command path |
-| D08 | `display_seq` increments only in `simuLcdNotify` | Distinguishes firmware LCD refresh from SDL/ImGui redraw |
-| D09 | Capture means the first full LCD refresh after arming | Gives a precise freshness boundary |
-| D10 | Capture output is PPM; PNG conversion remains in Python | Avoids another native image dependency |
-| D11 | Only one asynchronous operation is active in protocol v1 | Makes cancellation, restart, and response ownership unambiguous |
-| D12 | `restart` means warm `simuStop`/`simuStart`; the CLI exposes cold process restart separately | Avoids claiming a stronger reset than EdgeTX provides |
-| D13 | Lua and telemetry work crosses a bounded firmware mailbox | Prevents SDL-thread mutation of firmware-owned state |
-| D14 | Fixtures are immutable templates copied into a unique run directory | Prevents tracked-file mutation and cross-run contamination |
-| D15 | The reference Python client serializes commands | Simplifies v1 while preserving IDs for diagnostics and later adapters |
-| D16 | The simulator assumes a cooperative local peer that drains stdout | Keeps v1 transport small; output backpressure is stress-tested |
-| D17 | New behavior is native-simulator-only and runtime-dormant | No physical firmware feature or size impact |
-| D18 | Unknown scenario fields and unsupported capabilities are errors | Prevents typo-driven false-positive tests |
-| D19 | One dedicated capture worker writes PPM artifacts | Keeps both the LCD callback and SDL loop free of capture file I/O |
+Status is explicit and review-driven. `Proposed` does not become `accepted` by
+age, passing CI, or absence of comments. Update each row only when the relevant
+contributor and maintainer response is linked in the Phase 0 record.
+
+| ID | Status | Decision | Rationale |
+|---|---|---|---|
+| D01 | Proposed | Use one generic `--automation-stdio` runtime mode | Keeps #7337's reusable scope and leaves normal runs unchanged |
+| D02 | Proposed | Require `--automation-output <directory>` with automation mode | Constrains writes to an explicit artifact root |
+| D03 | Proposed | Use UTF-8 newline-delimited text requests and JSON-line responses | Small native parser; robust host parsing |
+| D04 | Proposed | Requests are not JSON | Avoids adding a native JSON parser dependency |
+| D05 | Proposed | Request IDs are strictly increasing unsigned 64-bit values per process | Correlation without an unbounded duplicate-ID set |
+| D06 | Proposed | Protocol stdout contains JSON records only; diagnostics stay on stderr | Prevents logs from being mistaken for replies |
+| D07 | Proposed | Timed press/touch/wait actions are composed by the host | Keeps sleeps out of the SDL command path |
+| D08 | Proposed | `display_seq` increments only in `simuLcdNotify` | Distinguishes firmware LCD refresh from SDL/ImGui redraw |
+| D09 | Proposed | Capture means the first full LCD refresh after arming | Gives a precise freshness boundary |
+| D10 | Proposed | Capture output is PPM; PNG conversion remains in Python | Avoids another native image dependency |
+| D11 | Proposed | Only one asynchronous operation is active in protocol v1 | Makes cancellation, restart, and response ownership unambiguous |
+| D12 | Proposed | `restart` means warm `simuStop`/`simuStart`; the CLI exposes cold process restart separately | Avoids claiming a stronger reset than EdgeTX provides |
+| D13 | Proposed | Lua and telemetry work crosses a bounded firmware mailbox | Prevents SDL-thread mutation of firmware-owned state |
+| D14 | Proposed | Fixtures are immutable templates copied into a unique run directory | Prevents tracked-file mutation and cross-run contamination |
+| D15 | Proposed | The reference Python client serializes commands | Simplifies v1 while preserving IDs for diagnostics and later adapters |
+| D16 | Proposed | The simulator assumes a cooperative local peer that drains stdout | Keeps v1 transport small; output backpressure is stress-tested |
+| D17 | Proposed | New behavior is native-simulator-only and runtime-dormant | No physical firmware feature or size impact |
+| D18 | Proposed | Unknown scenario fields and unsupported capabilities are errors | Prevents typo-driven false-positive tests |
+| D19 | Proposed | One dedicated capture worker writes PPM artifacts | Keeps both the LCD callback and SDL loop free of capture file I/O |
 
 ## 5. Architecture and ownership
 
@@ -614,8 +641,27 @@ must pause the reader deliberately; if the SDL loop exceeds the agreed latency
 budget, a bounded response-writer queue becomes mandatory before non-draft
 review.
 
-Performance budgets are measured against an automation-disabled run on the
-same machine and build:
+Performance budgets use paired runs from the same implementation commit,
+machine, toolchain, build type, target, fixture, window state, and power mode.
+Phase 0 records only the automation-disabled `upstream/main` baseline because
+the enabled mode does not exist yet. Phase 2 records both disabled and enabled-
+but-idle runs before its exit gate.
+
+The measurement protocol is fixed as follows:
+
+- use `SDL_GetPerformanceCounter` and `SDL_GetPerformanceFrequency`;
+- report `loop_work`, measured before deliberate frame pacing, separately from
+  start-to-start `loop_period`;
+- discard a five-second warm-up, then sample for 30 seconds and at least 1,000
+  completed iterations;
+- run three independent processes and report every run plus the median p50,
+  p95, p99, and maximum;
+- record CPU, logical-core count, OS, compiler, SDL version, build type, target,
+  display configuration, and whether the window was visible or virtual; and
+- time dependency acquisition, CMake configuration, clean compilation, and
+  incremental compilation separately instead of reporting one mixed duration.
+
+After Phase 2 adds the runtime mode:
 
 - idle automation polling adds no more than 1 ms to p95 SDL-loop duration;
 - a normal serialized command does not create an SDL iteration over 50 ms;
@@ -1013,7 +1059,15 @@ exit criteria from the previous phase.
 
 ### Phase 0 — Agreement, baseline, and provenance
 
-#### 0.1 Freeze the contract
+#### 0.1 Freeze source and contract status
+
+- Pin the exact `upstream/main` commit and fetch timestamp.
+- Record all submodule commits and verify a clean checkout.
+- Pin toolchain versions and the Linux container by immutable digest.
+- Record hashes for downloaded archives even when an existing upstream
+  `FetchContent` declaration does not specify `URL_HASH`.
+- Give every D01–D19 row an explicit `proposed`, `accepted`, or `objected`
+  review status; silence is not acceptance.
 
 - Review D01–D19 with `onliner10` and simulator maintainers.
 - Confirm `--automation-stdio` and `--automation-output` naming.
@@ -1021,32 +1075,74 @@ exit criteria from the previous phase.
 - Confirm warm versus cold restart terminology.
 - Confirm that MCP and the Lua `simu` table remain deferred.
 
-#### 0.2 Record provenance
+#### 0.2 Confirm provenance
 
-Create a PR table listing, per retained component:
+Maintain the ledger in section 2.5 and record, per retained component:
 
 - source PR and original file;
 - whether code, algorithm, test idea, or requirement is reused;
 - expected author of the implementation commit; and
 - whether a `Co-authored-by` trailer has contributor approval.
 
-#### 0.3 Establish baseline
+#### 0.3 Establish the supported baseline matrix
 
-Record on Linux and Windows where available:
+Linux is the authoritative correctness and isolation environment. Use a native
+clone inside the official EdgeTX container, checked out at the pinned commit;
+do not bind-mount a Windows linked worktree whose `.git` file contains host
+paths. Record:
 
-- clean `upstream/main` native tests;
-- TX16S simulator build command and time;
-- idle SDL-loop frame time;
-- p50, p95, and p99 SDL-loop duration with automation disabled and enabled but
-  idle;
-- normal simulator command-line help;
-- physical firmware size for a representative target; and
-- absence of automation symbols in firmware/WASM outputs.
+- clean native radio tests;
+- the TX16S simulator configuration and clean build;
+- representative TX16S firmware and WASM artifact sizes where the official
+  image exposes those targets; and
+- hashes for produced baseline artifacts.
 
-**Deliverables:** accepted decision table, provenance table, baseline log.
+Windows is the authoritative native simulator environment. Use the versions
+documented by EdgeTX, including the official SDL VC development archive and its
+CMake package files. Record:
 
-**Exit:** no unresolved architectural objection to one protocol. Original PRs
-remain open.
+- TX16S simulator configuration and clean build;
+- normal command-line help;
+- ordinary launch and clean shutdown; and
+- toolchain and artifact hashes.
+
+The existing radio-test executable is not a Phase 0 Windows requirement while
+it depends on POSIX headers. New pure protocol tests still become cross-platform
+before Phase 8.
+
+#### 0.4 Measure only observable Phase 0 baselines
+
+- Run the timing protocol in section 6.8 with automation disabled.
+- If `upstream/main` does not emit the existing SDL-loop timing samples, use an
+  uncommitted measurement-only probe, publish its complete diff and hash, keep
+  measurement buffers preallocated, and restore a byte-identical checkout
+  before recording product artifacts.
+- Run three clean simulator builds after dependency acquisition and report the
+  median; also record one no-change incremental build.
+- Record dependency acquisition separately from configure and compile time.
+- Record the physical firmware and WASM sizes for later comparison.
+- Do not report enabled-but-idle overhead until Phase 2 implements the mode.
+- Do not claim binary isolation on pre-feature `upstream/main`; perform the
+  meaningful post-implementation symbol audit in Phase 8.
+
+#### 0.5 Apply two distinct exit gates
+
+**Technical exit 0T:** source and tools are pinned, supported Linux and Windows
+commands are reproducible, required baseline checks pass, measurements include
+their method and limitations, and the provenance ledger is complete.
+
+**Contract gate G0:** no unresolved architectural objection remains to one
+protocol, and contributor/maintainer responses are recorded. G0 may remain
+pending after 0T; it must not be described as accepted by absence of comments.
+
+**Deliverables:** decision-status table, provenance ledger, environment and
+command manifest, baseline log, and artifact hashes.
+
+The dated Phase 0 baseline and gate record is maintained in
+[`simulator-ui-automation-phase-0.md`](simulator-ui-automation-phase-0.md).
+
+**Exit:** both 0T and G0 pass before Phase 1 implementation begins. Original
+PRs remain open.
 
 ### Phase 1 — Pure protocol, bounds, and state model
 
@@ -1371,8 +1467,8 @@ verified artifacts, and exits nonzero on any failed step.
 
 #### 8.1 Run native correctness matrix
 
-- parser/state unit tests on Linux and Windows;
-- normal radio tests;
+- pure parser/state unit tests on Linux and Windows;
+- normal radio tests in their supported Linux environment;
 - simulator builds;
 - automation-disabled CLI test; and
 - representative firmware build/size comparison.
@@ -1420,7 +1516,8 @@ adds a bounded writer queue and reruns T13–T16 before review.
 - no MCP;
 - no root Python dependency project;
 - no native PNG dependency;
-- no automation code in firmware/WASM; and
+- no automation symbols or sections in post-implementation firmware/WASM
+  artifacts, verified with the appropriate binary inspection tools; and
 - normal simulator behavior unchanged.
 
 #### 8.6 Update proposal to accepted contract
@@ -1568,12 +1665,14 @@ The implementation may leave draft only when all of the following are true:
 ### 15.1 Pull-request structure
 
 1. Keep this documentation pull request focused on scope and contract.
-2. After direction is accepted, branch the replacement implementation from a
-   fresh `upstream/main`.
-3. Keep the implementation draft until Phase 8.
-4. Use the phase order as the default commit order.
-5. If reviewers request smaller changes, split at phase boundaries into stacked
-   pull requests while retaining one protocol and one tracking issue/document.
+2. After direction is accepted, create one replacement implementation branch
+   from a fresh `upstream/main`; do not create a branch per phase.
+3. Keep one implementation draft until Phase 8 and use the phase order as its
+   default commit order.
+4. Use disposable local build directories or container clones for matrix work,
+   not additional remote branches.
+5. Split at a phase boundary only when a maintainer explicitly requests it;
+   retain one protocol and one tracking document if that happens.
 6. Do not merge a temporary second transport or compatibility API merely to
    reduce rebasing work.
 
@@ -1626,7 +1725,7 @@ final review unless preserving an author's imported commit is more important.
 | Async operation replies twice | Single owner state machine | S01–S12 |
 | Late completion crosses restart | Epoch-tagged mailbox/completion | L05–L12 |
 | Firmware size changes | Native-only build boundaries | Representative size comparison |
-| Large patch becomes unreviewable | Phase commits or stacked PRs | Split only at architecture boundaries |
+| Large patch becomes unreviewable | Phase commits in one implementation draft | Split only when a maintainer explicitly requests it |
 
 ## 17. Rollback and recovery
 
