@@ -25,6 +25,7 @@
 #include "stm32_spi.h"
 
 #include "delays_driver.h"
+#include "timers_driver.h"
 #include "hal/gpio.h"
 #include "lcd.h"
 
@@ -39,6 +40,11 @@
 #define CASET 0x2A
 #define RASET 0x2B
 #define RAMWR 0x2C
+
+// TE is ~60Hz; give it a couple of frames before giving up on it
+#define LCD_TE_TIMEOUT_MS 50
+
+uint32_t lcdTeTimeouts = 0;
 
 static const stm32_spi_t lcdSpi = {
   .SPIx = LCD_SPI,
@@ -108,7 +114,14 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
   (void)disp_drv;
 
   // TODO: replace through some smarter mechanism without busy wait
-  while (!gpio_read(LCD_FMARK));
+  // Bounded: a dead TE line must degrade to tearing, not to a hung UI
+  uint32_t te_deadline = timersGetMsTick() + LCD_TE_TIMEOUT_MS;
+  while (!gpio_read(LCD_FMARK)) {
+    if ((int32_t)(timersGetMsTick() - te_deadline) >= 0) {
+      lcdTeTimeouts++;
+      break;
+    }
+  }
 
   coord_t x1 = copy_area.x;
   coord_t x2 = x1 + copy_area.w - 1;

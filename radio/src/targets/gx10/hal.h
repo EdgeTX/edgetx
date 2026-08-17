@@ -29,9 +29,9 @@ SDMMC uses own DMA controler
 DMA1
 Stream0:  LED_STRIP_TIMER_DMA_STREAM
 Stream1:  INTMODULE_DMA_STREAM
-Stream2:  AUDIO_DMA_Stream
+Stream2:
 Stream3:  TELEMETRY_DMA_Stream_RX
-Stream4:
+Stream4:  I2S_DMA_Stream
 Stream5:  INTMODULE_RX_DMA_STREAM
 Stream6:  AUX_SERIAL_DMA_RX_STREAM
 Stream7:  TELEMETRY_DMA_Stream_TX
@@ -51,7 +51,7 @@ TIM2:	LED_STRIP_TIMER
 TIM3:	HAPTIC_GPIO_TIMER
 TIM4:
 TIM5:	EXTMODULE_TIMER
-TIM6:	AUDIO_TIMER
+TIM6:
 TIM7:
 TIM8:	TRAINER_TIMER
 TIM12:	MIXER_SCHEDULER_TIMER
@@ -241,7 +241,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define EXTI9_5_IRQ_Priority 5
 
 // Power
-#define PWR_SWITCH_GPIO             GPIO_PIN(GPIOA,  5)
+#define PWR_SWITCH_GPIO             GPIO_PIN(GPIOA,  1)
 #define PWR_ON_GPIO                 GPIO_PIN(GPIOH, 12)
 
 // Chargers (USB and wireless)
@@ -281,31 +281,22 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define USB_GPIO_AF                     GPIO_AF10
 
 // LCD
-#define LCD_SPI                         SPI2
+#define LCD_SPI                         SPI1
 #define LCD_SPI_DMA                     DMA2
-#define LCD_SPI_TX_DMA                  LL_DMAMUX1_REQ_SPI2_TX
-#define LCD_SPI_RX_DMA                  LL_DMAMUX1_REQ_SPI2_RX
+#define LCD_SPI_TX_DMA                  LL_DMAMUX1_REQ_SPI1_TX
+#define LCD_SPI_RX_DMA                  LL_DMAMUX1_REQ_SPI1_RX
 #define LCD_SPI_TX_DMA_STREAM           LL_DMA_STREAM_1
 #define LCD_SPI_RX_DMA_STREAM           LL_DMA_STREAM_2
 #define LCD_FMARK                       GPIO_PIN(GPIOI,  4)//TE
 #define LCD_NRST                        GPIO_PIN(GPIOJ,  12)
 #define LCD_SPI_RS                      GPIO_PIN(GPIOD, 3)
-#define LCD_SPI_CS                      GPIO_PIN(GPIOI, 0)
-#define LCD_SPI_CLK                     GPIO_PIN(GPIOI, 1)
-#define LCD_SPI_MOSI                    GPIO_PIN(GPIOI,  3)
+#define LCD_SPI_CS                      GPIO_PIN(GPIOA, 4)
+#define LCD_SPI_CLK                     GPIO_PIN(GPIOA, 5)
+#define LCD_SPI_MOSI                    GPIO_PIN(GPIOA,  7)
 #define LCD_SPI_BAUD                    100000000 //100MHz
 
 #define LTDC_IRQ_PRIO                   4
 #define DMA_SCREEN_IRQ_PRIO             6
-
-#define LCD_RESET_GPIO                  GPIOJ
-#define LCD_RESET_GPIO_PIN              LL_GPIO_PIN_12
-
-#define LCD_TE_GPIO                     GPIOI
-#define LCD_TE_GPIO_PIN                 LL_GPIO_PIN_4
-
-#define LCD_RS_GPIO                     GPIOB
-#define LCD_RS_GPIO_PIN                 LL_GPIO_PIN_3
 
 // Backlight
 #define BACKLIGHT_GPIO                  GPIO_PIN(GPIOA, 10) // TIM1_CH3
@@ -353,22 +344,16 @@ TIM17:	ROTARY_ENCODER_TIMER
 
 #define STORAGE_USE_SDIO
 
-// AUDIO
-#define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOH, 10)
-#define AUDIO_OUTPUT_GPIO             GPIO_PIN(GPIOA, 4) // PA.04
-#define AUDIO_DAC                     DAC1
-#define AUDIO_DMA_Stream              LL_DMA_STREAM_2
-#define AUDIO_DMA_Channel             LL_DMAMUX1_REQ_DAC1_CH1
-
-#define AUDIO_TIM_IRQn                TIM6_DAC_IRQn
-#define AUDIO_TIM_IRQHandler          TIM6_DAC_IRQHandler
-#define AUDIO_DMA_Stream_IRQn         DMA1_Stream2_IRQn
-#define AUDIO_DMA_Stream_IRQHandler   DMA1_Stream2_IRQHandler
-#define AUDIO_TIMER                   TIM6
-#define AUDIO_DMA                     DMA1
-#define AUDIO_UNMUTE_DELAY            100  // ms
-#define AUDIO_MUTE_DELAY              100  // ms
-#define INVERTED_MUTE_PIN
+// AUDIO (TAS2505 codec on I2S2, shared pinout with TX15)
+#define AUDIO_I2C                     I2C_Bus_1
+#define AUDIO_SPI                     SPI2
+#define AUDIO_RESET_PIN               GPIO_PIN(GPIOH, 10)
+#define AUDIO_HP_DETECT_PIN           GPIO_PIN(GPIOH, 14)
+#define I2S_DMA                       DMA1
+#define I2S_DMA_Stream                LL_DMA_STREAM_4
+#define I2S_DMA_Stream_Request        LL_DMAMUX1_REQ_SPI2_TX
+#define I2S_DMA_Stream_IRQn           DMA1_Stream4_IRQn
+#define I2S_DMA_Stream_IRQHandler     DMA1_Stream4_IRQHandler
 
 // I2C Bus
 #define I2C_B1                          I2C4
