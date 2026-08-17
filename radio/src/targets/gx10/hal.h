@@ -289,7 +289,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define LCD_SPI_RX_DMA_STREAM           LL_DMA_STREAM_2
 #define LCD_FMARK                       GPIO_PIN(GPIOI,  4)//TE
 #define LCD_NRST                        GPIO_PIN(GPIOJ,  12)
-#define LCD_SPI_RS                      GPIO_PIN(GPIOD, 3)
+#define LCD_SPI_RS                      GPIO_PIN(GPIOB, 3)
 #define LCD_SPI_CS                      GPIO_PIN(GPIOA, 4)
 #define LCD_SPI_CLK                     GPIO_PIN(GPIOA, 5)
 #define LCD_SPI_MOSI                    GPIO_PIN(GPIOA,  7)
@@ -488,18 +488,8 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define AUX_SERIAL_DMA_RX_CHANNEL          LL_DMAMUX1_REQ_USART3_RX
 #define AUX_SERIAL_PWR_GPIO                GPIO_PIN(GPIOC, 13) // PC.13
 
-#if defined(BLUETOOTH)
-// Bluetooth
-#define STORAGE_BLUETOOTH
-#define BT_USART                            UART4
-#define BT_USART_IRQn                       UART4_IRQn
-#define BT_TX_GPIO                          GPIO_PIN(GPIOB, 9)
-#define BT_RX_GPIO                          GPIO_PIN(GPIOB, 8)
-#define BT_EN_GPIO                          GPIO_PIN(GPIOH, 11)
-#endif
-
 // Touch
-#define TOUCH_I2C_BUS                   I2C_Bus_1
+#define TOUCH_I2C_BUS                   I2C_Bus_2
 #define TOUCH_INT_GPIO                  GPIO_PIN(GPIOE, 2) // PE.02
 #define TOUCH_RST_GPIO                  GPIO_PIN(GPIOJ, 13) // PJ.13
 
