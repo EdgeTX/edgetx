@@ -109,7 +109,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define TRIMS_GPIO_REG_RVD            GPIOK
 #define TRIMS_GPIO_PIN_RVD            LL_GPIO_PIN_1  // PK.01
 
-#define TRIMS_GPIO_REG_RVUL           GPIOK
+#define TRIMS_GPIO_REG_RVU            GPIOK
 #define TRIMS_GPIO_PIN_RVU            LL_GPIO_PIN_2  // PK.02
 
 // Switches
