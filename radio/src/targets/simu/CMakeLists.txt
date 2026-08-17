@@ -131,6 +131,7 @@ else()
     widgets.cpp
     knobs.cpp
     arg_parser.cpp
+    automation_protocol.cpp
     sdl_simu.cpp
   )
 

@@ -17,7 +17,7 @@ separates technical baseline completion from design acceptance.
 |---|---|---|
 | Technical exit 0T | **Passed** | Source, submodules, tools, commands, tests, artifacts, timings, limitations, and provenance are recorded below. |
 | Contract gate G0 | **Pending** | D01–D19 remain `Proposed`; there is no contributor or maintainer acceptance to record. |
-| Phase 1 implementation | **Blocked by G0** | Do not interpret passing builds or silence as protocol approval. |
+| Phase 1 implementation | **Completed in draft** | The pure core passes 122/122 maintained tests; G0 is still required before ready-for-review or merge. |
 
 The consolidation invitation was posted to
 [#7337](https://github.com/EdgeTX/edgetx/pull/7337#issuecomment-5318333983)
@@ -329,7 +329,8 @@ These attempts are intentionally not counted as passing evidence:
 
 ## 8. Known limitations and next action
 
-- G0 is pending; this is the only blocker to beginning Phase 1.
+- G0 is pending and remains a blocker to leaving draft or merging, not to
+  implementing small reviewable Phase 1 commits.
 - Windows host integration used VS 18/MSVC 14.50 rather than VS 17/2022.
 - The LLVM detached signature was not validated against a trusted key.
 - Existing ImGui and WASI downloads lack `URL_HASH`; observed hashes are
@@ -344,10 +345,11 @@ These attempts are intentionally not counted as passing evidence:
   automation symbols is checked only on post-implementation artifacts in
   Phase 8.
 
-The next action is review, not code: obtain explicit responses for D01–D19,
-transport naming, stdout/stderr separation, warm/cold restart terminology,
-deferred surfaces, and attribution. Record accepted or objected rows and begin
-Phase 1 only after G0 passes.
+The next actions may proceed in parallel: review the bounded Phase 1 protocol
+core in this draft, and invite explicit review of D01–D19, transport naming,
+stdout/stderr separation, warm/cold restart terminology, deferred surfaces, and
+attribution. Record accepted or objected rows before marking the pull request
+ready or merging it.
 
 ## Appendix A — Measurement-only probe diff
 
