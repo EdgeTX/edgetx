@@ -258,6 +258,18 @@ TEST(SimuAutomationResponse, FallsBackWithinResponseLimit)
   EXPECT_TRUE(json.empty());
 }
 
+TEST(SimuAutomationResponse, SerializesUncorrelatedEvents)
+{
+  std::string json;
+  EXPECT_EQ(
+      serializeEvent(1, ErrorCode::InvalidRecord, "bad \"record\"", &json),
+      SerializeResult::Serialized);
+  EXPECT_EQ(json,
+            "{\"version\":1,\"type\":\"event\",\"id\":null,\"epoch\":1,"
+            "\"event\":{\"code\":\"invalid_record\",\"message\":\"bad "
+            "\\\"record\\\"\"}}\n");
+}
+
 TEST(SimuAutomationTerminalResponse, HasOneOwnerAndRejectsDuplicates)
 {
   TerminalResponseOwner owner(42, 3);

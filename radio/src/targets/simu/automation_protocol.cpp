@@ -317,6 +317,22 @@ bool buildResponse(const Response& response, ErrorCode code,
   return true;
 }
 
+bool buildEvent(SessionEpoch epoch, ErrorCode code, const std::string& message,
+                std::size_t maxBytes, std::string* output)
+{
+  BoundedJson json(maxBytes);
+  if (!json.append(
+          "{\"version\":1,\"type\":\"event\",\"id\":null,\"epoch\":") ||
+      !json.appendNumber(epoch) || !json.append(",\"event\":{\"code\":\"") ||
+      !json.append(errorCodeName(code)) || !json.append("\",\"message\":") ||
+      !json.appendString(message) || !json.append("}}\n")) {
+    return false;
+  }
+
+  *output = json.take();
+  return true;
+}
+
 }  // namespace
 
 LineBuffer::LineBuffer(std::size_t maxRecordBytes) :
@@ -543,6 +559,28 @@ SerializeResult serializeResponse(const Response& response, std::string* output,
   output->clear();
   if (buildResponse(response, ErrorCode::ResponseTooLarge,
                     "response exceeded the protocol limit", maxBytes, output)) {
+    return SerializeResult::UsedSizeFallback;
+  }
+
+  output->clear();
+  return SerializeResult::LimitTooSmall;
+}
+
+SerializeResult serializeEvent(SessionEpoch epoch, ErrorCode code,
+                               const std::string& message, std::string* output,
+                               std::size_t maxBytes)
+{
+  if (output == nullptr) return SerializeResult::LimitTooSmall;
+  output->clear();
+
+  const ErrorCode eventCode =
+      code == ErrorCode::None ? ErrorCode::InternalError : code;
+  if (buildEvent(epoch, eventCode, message, maxBytes, output))
+    return SerializeResult::Serialized;
+
+  output->clear();
+  if (buildEvent(epoch, ErrorCode::ResponseTooLarge,
+                 "event exceeded the protocol limit", maxBytes, output)) {
     return SerializeResult::UsedSizeFallback;
   }
 

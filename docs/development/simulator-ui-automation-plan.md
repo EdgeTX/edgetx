@@ -1208,6 +1208,16 @@ external dependency.
 
 ### Phase 2 — Native transport and runtime activation
 
+**Status (2026-08-17):** implemented in this draft. The full native simulator
+builds on Linux; the transport also compiles with Windows Clang and MinGW; and
+the maintained Linux ASan suite passes 129/129. Process probes cover malformed
+input, `ping`, provisional unsupported commands, flushed `stop`, EOF, broken
+peers, 63/64/65 queue boundaries, and the eight-record pump budget. The same
+four-record protocol vector is byte-identical on both platforms (SHA-256
+`15276a945f8875ac6854fd22b08c5bfef2aef96df280e63a9b968d7158adab79`).
+Only `ping` and `stop` execute in this phase; recognized later-phase commands
+return `unsupported_command`.
+
 #### 2.1 Add command-line activation
 
 Add and test:
@@ -1248,16 +1258,17 @@ Use redirected standard input with:
 - Ignore SIGPIPE or handle its platform equivalent.
 - Exit cleanly when the controlling pipe disappears.
 
-#### 2.5 Add a temporary protocol probe
+#### 2.5 Use a temporary protocol probe
 
-Before the full host exists, add a test helper that:
+Before the full host exists, use a disposable validation probe that:
 
 - launches the simulator;
 - sends `ping` and malformed records;
 - verifies IDs and EOF behavior; and
 - runs on both platforms without Python `select`.
 
-The helper evolves into the Phase 3 session code; it is not a second API.
+Do not retain the probe as a second API. Phase 3 replaces it with the reusable
+cross-platform session client.
 
 **Tests:** T01–T16, B01–B04.
 

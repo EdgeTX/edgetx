@@ -28,6 +28,7 @@
 #include <imgui_impl_sdlrenderer2.h>
 
 #include <algorithm>
+#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -77,6 +78,9 @@
 #include "edgetx.h"
 
 #include "arg_parser.h"
+#if !defined(__EMSCRIPTEN__)
+#include "automation_stdio.h"
+#endif
 
 #define TIMER_INTERVAL 10 // 10ms
 
@@ -697,6 +701,28 @@ int main(int argc, char* argv[])
     return 0;
   }
 
+#if defined(__EMSCRIPTEN__)
+  if (args.isAutomationStdio()) {
+    fprintf(stderr, "Error: stdio automation is native-simulator-only\n");
+    return 1;
+  }
+#else
+  edgetx::automation::AutomationStdio automation_stdio;
+  if (args.isAutomationStdio()) {
+    SDL_LogSetOutputFunction(
+        [](void*, int, SDL_LogPriority, const char* message) {
+          fprintf(stderr, "%s\n", message);
+        },
+        nullptr);
+
+    std::string automation_error;
+    if (!automation_stdio.start(&automation_error)) {
+      fprintf(stderr, "Error: %s\n", automation_error.c_str());
+      return 1;
+    }
+  }
+#endif
+
   int window_height = 600;
   if (args.hasHeight()) {
     window_height = args.getHeight();
@@ -709,12 +735,12 @@ int main(int argc, char* argv[])
 
   // Setup SDL
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) != 0) {
-    printf("Error: %s\n", SDL_GetError());
+    fprintf(stderr, "Error: %s\n", SDL_GetError());
     return -1;
   }
 
   simuAudioInit();
-  
+
   // From 2.0.18: Enable native IME.
 #ifdef SDL_HINT_IME_SHOW_UI
   SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
@@ -800,11 +826,27 @@ int main(int argc, char* argv[])
     return 1;
   }, NULL);
 
+  int exit_code = 0;
 #if defined(__EMSCRIPTEN__)
   emscripten_set_main_loop([]() { handleEvents(); }, 0, true);
 #else
   do {
     Uint64 start_ts = SDL_GetPerformanceCounter();
+
+    if (args.isAutomationStdio()) {
+      std::string automation_error;
+      const edgetx::automation::StdioPumpResult automation_result =
+          automation_stdio.pump(&automation_error);
+      if (automation_result == edgetx::automation::StdioPumpResult::Error) {
+        fprintf(stderr, "Automation error: %s\n", automation_error.c_str());
+        exit_code = 1;
+        break;
+      }
+      if (automation_result != edgetx::automation::StdioPumpResult::Continue) {
+        break;
+      }
+    }
+
     if (!handleEvents()) break;
 
     Uint64 end_ts = SDL_GetPerformanceCounter();
@@ -833,8 +875,8 @@ int main(int argc, char* argv[])
 #endif
   SDL_CloseAudio();
   SDL_Quit();
-  
-  return 0;
+
+  return exit_code;
 }
 
 uint16_t simuGetAnalog(uint8_t idx)
