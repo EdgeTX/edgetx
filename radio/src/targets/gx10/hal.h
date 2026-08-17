@@ -180,10 +180,10 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define SWITCHES_M_CFS_IDX            4
 #define FUNCTION_SWITCH_5             SM
 //SW6
-#define SWITCHES_GPIO_REG_O           GPIOK
-#define SWITCHES_GPIO_PIN_O           LL_GPIO_PIN_7   // PK.07
-#define SWITCHES_O_CFS_IDX            5
-#define FUNCTION_SWITCH_6             SO
+#define SWITCHES_GPIO_REG_N           GPIOK
+#define SWITCHES_GPIO_PIN_N           LL_GPIO_PIN_7   // PK.07
+#define SWITCHES_N_CFS_IDX            5
+#define FUNCTION_SWITCH_6             SN
 
 
 // ADC
