@@ -135,6 +135,10 @@ else()
     sdl_simu.cpp
   )
 
+  if(NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    target_sources(simu PRIVATE automation_stdio.cpp)
+  endif()
+
   target_compile_options(simu PUBLIC -DSIMU)
 
   add_png_target(image_assets "assets/images/*.png")

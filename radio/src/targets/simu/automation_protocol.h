@@ -190,6 +190,9 @@ enum class SerializeResult {
 
 SerializeResult serializeResponse(const Response& response, std::string* output,
                                   std::size_t maxBytes = MAX_RESPONSE_BYTES);
+SerializeResult serializeEvent(SessionEpoch epoch, ErrorCode code,
+                               const std::string& message, std::string* output,
+                               std::size_t maxBytes = MAX_RESPONSE_BYTES);
 
 const char* commandName(Command command);
 const char* errorCodeName(ErrorCode code);

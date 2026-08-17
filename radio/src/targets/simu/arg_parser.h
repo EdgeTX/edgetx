@@ -8,6 +8,8 @@ private:
   int height = -1;
   std::string storage_path;
   std::string settings_path;
+  std::string automation_output_path;
+  bool automation_stdio = false;
   bool help_requested = false;
   std::string program_name;
 
@@ -24,14 +26,19 @@ public:
   int getHeight() const;
   const std::string &getStoragePath() const;
   const std::string &getSettingsPath() const;
+  const std::string &getAutomationOutputPath() const;
+  bool isAutomationStdio() const;
 
   // Check if option was provided
   bool hasWidth() const;
   bool hasHeight() const;
   bool hasStoragePath() const;
   bool hasSettingsPath() const;
+  bool hasAutomationOutputPath() const;
 
 private:
+  bool validateAutomationOptions();
+  void printMessage(const char *format, ...) const;
   bool getNextArg(int argc, char *argv[], int &i, std::string &value,
                   const std::string &option_name);
   bool parseIntOption(int argc, char *argv[], int &i, int &value,
