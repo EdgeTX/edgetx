@@ -7,7 +7,6 @@ option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
-option(BLUETOOTH "FrSky BT module support" OFF)
 option(INTERNAL_GPS "Support for internal GPS" ON)
 
 set(FIRMWARE_QSPI YES)
@@ -142,19 +141,6 @@ set(BOARD_COMMON_SRC
   targets/common/arm/stm32/rtc_driver.cpp
   targets/common/arm/stm32/watchdog_driver.cpp
 )
-
-if(BLUETOOTH)
-  set(BOARD_COMMON_SRC ${BOARD_COMMON_SRC}
-    targets/common/arm/stm32/bluetooth_driver.cpp
-  )
-endif()
-
-if(KCX_BTAUDIO)
-  set(BOARD_COMMON_SRC ${BOARD_COMMON_SRC}
-    drivers/kcx_btaudio.cpp
-  )
-  add_definitions(-DKCX_BTAUDIO)
-endif()
 
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL

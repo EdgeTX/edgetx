@@ -209,7 +209,7 @@ extern "C" void lcdSetInitalFrameBuffer(void *fbAddress)
 
 static void lcdSetOn(void) { lcdWriteCommand(0x29); }
 static void lcdSetOff(void) { lcdWriteCommand(0x28); }
-#define LCD_ST7789_VERSION 2  /*1:Gamma2.5-20241021-v1,2:Gamma2.2-2022.01.04*/
+
 extern "C" void lcdInit()
 {
   // Configure the LCD SPI + RESET pins
@@ -217,73 +217,82 @@ extern "C" void lcdInit()
   stm32_spi_unselect(&lcdSpi);
   // hard reset
   lcdReset();
-
-  lcdWriteCommand(0x11);     
   delay_ms(120);
 
-  lcdWriteCommand(0x3a);
+  lcdWriteCommand(0x11);
+  delay_ms(120);
+
+  lcdWriteCommand(0x36);
+  lcdWriteData(0x00);
+
+  lcdWriteCommand(0x3A);
   lcdWriteData(0x05);
-  
-  lcdWriteCommand(0x21);		//IPS
   //--------------------------------ST7789V Frame rate setting----------------------------------//
-  lcdWriteCommand(0xb2);
-  lcdWriteData(0x0c);
-  lcdWriteData(0x0c);
+  lcdWriteCommand(0xB2);
+  lcdWriteData(0x0C);
+  lcdWriteData(0x0C);
   lcdWriteData(0x00);
   lcdWriteData(0x33);
   lcdWriteData(0x33);
-  lcdWriteCommand(0xb7);
-  lcdWriteData(0x35);
+  lcdWriteCommand(0xB7);
+  lcdWriteData(0x46);  // VGH=13.65V, VGL=-11.38V
   //---------------------------------ST7789V Power setting--------------------------------------//
-  lcdWriteCommand(0xbb);
-  lcdWriteData(0x21);
-  lcdWriteCommand(0xc0);
-  lcdWriteData(0x2c);
-  lcdWriteCommand(0xc2);
+  lcdWriteCommand(0xBB);
+  lcdWriteData(0x1B);
+  lcdWriteCommand(0xC0);
+  lcdWriteData(0x2C);
+  lcdWriteCommand(0xC2);
   lcdWriteData(0x01);
-  lcdWriteCommand(0xc3);
-  lcdWriteData(0x0b);
-  lcdWriteCommand(0xc4);
+  lcdWriteCommand(0xC3);
+  lcdWriteData(0x0F);
+  lcdWriteCommand(0xC4);
   lcdWriteData(0x20);
-  lcdWriteCommand(0xc6);
-  lcdWriteData(0x0f);
-  lcdWriteCommand(0xd0);
-  lcdWriteData(0xa4);
-  lcdWriteData(0xa1);
-  
-  lcdWriteCommand(0xd6);
-  lcdWriteData(0xa1);
+  lcdWriteCommand(0xC6);
+  lcdWriteData(0x0F);
+  lcdWriteCommand(0xD0);
+  lcdWriteData(0xA7);
+  lcdWriteData(0xA1);
+  lcdWriteCommand(0xD0);
+  lcdWriteData(0xA4);
+  lcdWriteData(0xA1);
+
+  lcdWriteCommand(0xD6);
+  lcdWriteData(0xA1);
   //--------------------------------ST7789V gamma setting---------------------------------------//
-  lcdWriteCommand(0xe0);
-  lcdWriteData(0xD0);
+  lcdWriteCommand(0xE0);
+  lcdWriteData(0xF0);
+  lcdWriteData(0x00);
   lcdWriteData(0x06);
-  lcdWriteData(0x0B);
-  lcdWriteData(0x09);
-  lcdWriteData(0x08);
-  lcdWriteData(0x30);
-  lcdWriteData(0x30);
-  lcdWriteData(0x5B);
-  lcdWriteData(0x4B);
-  lcdWriteData(0x18);
-  lcdWriteData(0x14);
-  lcdWriteData(0x14);
-  lcdWriteData(0x2C);
-  lcdWriteData(0x32);
-  lcdWriteCommand(0xe1);
-  lcdWriteData(0xD0);
+  lcdWriteData(0x04);
   lcdWriteData(0x05);
-  lcdWriteData(0x0A);
-  lcdWriteData(0x0A);
-  lcdWriteData(0x07);
-  lcdWriteData(0x28);
+  lcdWriteData(0x05);
+  lcdWriteData(0x31);
+  lcdWriteData(0x44);
+  lcdWriteData(0x48);
+  lcdWriteData(0x36);
+  lcdWriteData(0x12);
+  lcdWriteData(0x12);
+  lcdWriteData(0x2B);
+  lcdWriteData(0x34);
+  lcdWriteCommand(0xE1);
+  lcdWriteData(0xF0);
+  lcdWriteData(0x0B);
+  lcdWriteData(0x0F);
+  lcdWriteData(0x0F);
+  lcdWriteData(0x0D);
+  lcdWriteData(0x26);
+  lcdWriteData(0x31);
+  lcdWriteData(0x43);
+  lcdWriteData(0x47);
+  lcdWriteData(0x38);
+  lcdWriteData(0x14);
+  lcdWriteData(0x14);
+  lcdWriteData(0x2C);
   lcdWriteData(0x32);
-  lcdWriteData(0x2C);
-  lcdWriteData(0x49);
-  lcdWriteData(0x18);
-  lcdWriteData(0x13);
-  lcdWriteData(0x13);
-  lcdWriteData(0x2C);
-  lcdWriteData(0x33);
+
+  lcdWriteCommand(0x21);  // IPS
+  lcdWriteCommand(0x29);
+  lcdWriteCommand(0x2C);
   // Display orientation
   lcdWriteCommand( 0x36 );
   lcdWriteData( 0xA0 );
