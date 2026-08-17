@@ -163,8 +163,8 @@ POT_CONFIG = {
         "P2": {"default": "POT_CENTER"},
     },
     "gx15": {
-        "P1": {"default": "POT"},
-        "P2": {"default": "POT"},
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"},
         "SL1": {"default": "SLIDER"},
         "SL2": {"default": "SLIDER"},
         "EXT1": {"default": "NONE"},
