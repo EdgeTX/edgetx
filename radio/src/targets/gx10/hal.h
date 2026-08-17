@@ -233,8 +233,8 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ADC_VREF_PREC2                  330
 
 #define ADC_DIRECTION {       	 \
-    0,-1,0,-1,  /* gimbals */    \
-    -1,-1   	/* pots */       \
+    0,-1,-1,0,  /* gimbals */    \
+    0,0     	/* pots */       \
   }
 
 #define USE_EXTI9_5_IRQ // used for I2C port extender interrupt
@@ -513,7 +513,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 //ROTARY emulation for trims as buttons
 #define ROTARY_ENCODER_NAVIGATION
 // Rotary Encoder
-#define ROTARY_ENCODER_INVERTED
+// #define ROTARY_ENCODER_INVERTED
 #define ROTARY_ENCODER_GPIO_A           GPIOI
 #define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_7
 #define ROTARY_ENCODER_GPIO_B           GPIOJ
