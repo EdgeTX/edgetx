@@ -1,254 +1,450 @@
 # Unified Simulator UI Automation Plan
 
-**Status:** Proposed implementation plan for a collaborative draft pull request
+**Status:** Proposed implementation contract for collaborative review
 
-**Related work:**
+**Related pull requests:**
 
 - [#7337 — Add TX16S UI harness](https://github.com/EdgeTX/edgetx/pull/7337),
   authored by `onliner10`
 - [#7646 — Add opt-in Widget Studio automation hooks](https://github.com/EdgeTX/edgetx/pull/7646),
   authored by `bultodepapas`
 
-This proposal combines the strongest ideas from both pull requests into one
-generic, bounded, cross-platform simulator automation facility. It is not a
-mechanical merge of the two patches. The intent is to converge on one protocol,
-one execution path, and one small host harness while preserving authorship and
-inviting both contributors to shape the result.
+This document proposes one generic simulator automation facility built from the
+strongest ideas in both pull requests. It is not a mechanical merge. Code is
+retained only where its behavior, ownership, and testability fit the unified
+contract.
 
-No existing pull request should be closed until the replacement has an agreed
-contract and demonstrates the required behavior.
+No existing pull request should be closed until the replacement direction is
+accepted, the relevant behavior is demonstrated, and each author has had a
+reasonable opportunity to review the result.
 
 ## 1. Executive decision
 
-The consolidated implementation will use #7337 as the conceptual foundation:
+The consolidated design will use #7337 as the product and tooling foundation:
 
-- generic simulator UI automation rather than widget-specific tooling;
-- a host-driven harness and declarative scenarios;
-- explicit status and error responses;
-- key, rotary, and touch input;
-- framebuffer-based screenshots; and
-- normal simulator behavior unless automation is explicitly requested.
+- generic simulator automation instead of Widget Studio-specific behavior;
+- one opt-in runtime mode;
+- a host-side CLI and declarative scenarios;
+- structured success and error responses;
+- key, rotary, touch, and framebuffer capture primitives; and
+- unchanged normal simulator behavior when automation is disabled.
 
-It will incorporate the following requirements proven useful by #7646:
+It will incorporate requirements demonstrated by #7646:
 
-- native Windows support;
-- safe handling of partial input and paths containing spaces;
-- frame-boundary reset and Lua reload;
-- switch, analog, and telemetry injection for widget scenarios;
-- a redraw request for capture of an otherwise static screen; and
-- synchronized state handoff between the host-facing simulator loop and the
-  firmware/UI execution context.
+- Windows-native command transport;
+- explicit key and touch transitions rather than timed simulator commands;
+- switch, analog, and telemetry state injection;
+- Lua reload and simulator task restart;
+- capture synchronized with an LCD refresh;
+- forced invalidation for a static LVGL screen; and
+- explicit coordination between the SDL thread and firmware/UI context.
 
-The result will not preserve every implementation choice from either pull
-request. In particular, the first consolidated pull request will not add a
-simulator-only Lua API, a Widget Studio build option, an in-process PNG encoder,
-an MCP server, or an unrelated native-test build switch.
+The implementation will deliberately exclude:
 
-## 2. Problem statement
+- the `WIDGET_STUDIO` build option;
+- the simulator-only Lua `simu` table;
+- the append-only command file as the primary transport;
+- PNG encoding and disk I/O inside the LCD refresh callback;
+- `SDL_Delay` inside command execution;
+- the MCP adapter in the first implementation;
+- a root `pyproject.toml` or `uv.lock` solely for this tool;
+- the unrelated `EDGE_TX_BUILD_TESTS` option; and
+- direct mutation of Lua, telemetry, or LVGL state from the SDL thread.
 
-EdgeTX UI changes currently rely heavily on manual simulator navigation and
-host-window screenshots. Those workflows are difficult to reproduce because
-they depend on local window scale, focus, timing, input method, and model/SD
-state.
+The intended result is one initiative and one protocol. It may be delivered as
+reviewable commits or stacked pull requests if maintainers request a smaller
+review surface, but it must not create parallel control APIs.
 
-The two existing pull requests independently address that problem, but keeping
-both would create competing contracts:
+## 2. Evidence and current integration seams
 
-- two command transports;
-- two command grammars;
-- different capture completion semantics;
-- different target and platform coverage;
-- overlapping changes in `arg_parser.*` and `sdl_simu.cpp`; and
-- two possible places for future tooling to add input and state controls.
+The plan is based on the current simulator architecture, not only on the two
+patches.
 
-The combined design must provide one stable boundary that can support CLI,
-tests, and optional future adapters without adding a second UI framework or
-allowing host threads to mutate LVGL objects directly.
+### 2.1 Existing EdgeTX ownership points
 
-## 3. Goals
-
-The first implementation pull request will:
-
-1. provide an opt-in native-simulator automation mode on Linux and Windows;
-2. accept versioned, correlated commands and return one visible result for
-   every accepted command;
-3. execute UI and simulator mutations on the designated simulator/UI context;
-4. support key, rotary, and complete touch transitions;
-5. support bounded switch, analog, and telemetry test input;
-6. provide reset and Lua reload without blocking the SDL event loop;
-7. provide a render-complete capture checkpoint with framebuffer metadata;
-8. provide one small standard-library-only Python harness and one deterministic
-   smoke scenario; and
-9. prove normal simulator behavior is unchanged when automation is disabled.
-
-## 4. Non-goals
-
-The first pull request will not:
-
-- redesign any EdgeTX screen or widget;
-- change firmware behavior on physical radios;
-- add a public or simulator-only Lua `simu` table;
-- add a Widget Studio-specific build mode;
-- add a general reactive UI framework;
-- add an MCP server or AI-agent-specific API;
-- add native PNG encoding or a new image dependency to `simu`;
-- add golden-image approval automation;
-- add a general telemetry simulation framework beyond the minimum bounded
-  value injection required by the pilot scenario;
-- disable native tests or change their default build policy;
-- change Companion or WebAssembly behavior; or
-- promise support for every target in the first slice.
-
-MCP, richer visual diffing, additional targets, and alternate transports can be
-follow-up work after the simulator protocol is accepted.
-
-## 5. Source comparison and disposition
-
-### 5.1 Capabilities
-
-| Capability | #7337 | #7646 | Consolidated decision |
-|---|---|---|---|
-| Generic UI automation intent | Yes | Widget-oriented | Keep the generic #7337 scope |
-| Runtime opt-in | `--automation-stdio` | `WIDGET_STUDIO` plus `--pipe` | Keep runtime opt-in; remove product-specific build flag |
-| Linux control transport | stdin/stdout | append-only file | Use non-blocking stdin/stdout |
-| Windows control transport | Not implemented | append-only file works | Implement redirected stdin on Windows with the same protocol |
-| Structured success/error | JSON response | none | Keep and strengthen correlated responses |
-| Request correlation/version | none | none | Add protocol version and request ID |
-| Status | Yes | no | Keep and extend |
-| Key input | press/long press | down/up by key code | Expose down/up primitives; implement press timing in the host |
-| Rotary input | Yes | no explicit command | Keep |
-| Touch input | combined timed touch | down/move/up primitives | Keep explicit down/move/up primitives |
-| Blocking waits | SDL delays | none | Remove from simulator; host waits or uses `wait-idle` |
-| Reset | no | asynchronous request | Keep asynchronous frame-boundary reset |
-| Lua reload | no | yes | Keep as an explicit command |
-| Switch/analog injection | no | Lua-side helpers | Keep capability through host protocol, not Lua API |
-| Telemetry injection | no | command support | Keep one bounded host command |
-| Screenshot format | PPM, host converts to PNG | native PNG through stb | Keep PPM/raw framebuffer path; no new encoder dependency |
-| Static-screen capture | immediate copy | invalidates then waits for flush | Keep redraw scheduling and reply only after capture completion |
-| CLI harness | Yes | project-specific visual kit | Keep a reduced generic CLI |
-| Declarative flows | Yes | project-specific scenes | Keep one generic scenario format |
-| MCP adapter | Yes | no | Defer until the core protocol is accepted |
-| Test build switch | `EDGE_TX_BUILD_TESTS` | no | Drop as unrelated |
-| Simulator Lua API | no | `simu` table | Drop from the consolidated core |
-
-### 5.2 Code-level treatment
-
-| Existing area | Treatment | Reason |
+| Existing symbol or file | Current behavior | Consequence for the unified design |
 |---|---|---|
-| #7337 command names and host service model | Adapt | Useful generic starting point, but blocking durations move to the host |
-| #7337 `select()` plus `std::getline()` reader | Replace | Buffered C++ input can strand commands and partial lines can block |
-| #7337 JSON response helpers | Reuse concept | Structured visible errors are required; add version and request ID |
-| #7337 framebuffer copy and PPM writer | Refactor and keep | Reuses `simuLcdCopy` and avoids an additional encoder dependency |
-| #7337 Python CLI and flow runner | Reduce and keep | Retain build/start/run/capture essentials using the Python standard library |
-| #7337 MCP layer | Remove from first slice | It is an adapter, not part of the simulator contract |
-| #7337 large checked-in settings fixture | Minimize | Keep only the deterministic state required by the smoke scenario |
-| #7646 append-only command-file poller | Do not carry forward | Its Windows requirement remains, but a second transport is unnecessary if stdin is implemented correctly |
-| #7646 partial-line and bounded-read behavior | Reimplement in transport buffer | These are required correctness properties for both platforms |
-| #7646 synchronized reset/capture state | Refactor and keep | Cross-context ownership must be explicit |
-| #7646 capture-triggered LVGL invalidation | Keep as a UI-context operation | Static screens otherwise may never produce a new flush |
-| #7646 native PNG/stb source | Remove | Host-side conversion is sufficient and keeps the simulator smaller |
-| #7646 `api_simu.*` and Lua registration | Remove | Avoid a second control surface and simulator-only script coupling |
-| #7646 analog overrides and telemetry primitives | Retain behind protocol executor | They enable real widget scenarios without a Lua-only test API |
+| `sdl_simu.cpp::main` | Owns SDL setup and the approximately 60 Hz host loop | Transport polling, command pumping, and warm restart coordination belong here |
+| `sdl_simu.cpp::handleEvents` | Drains SDL events, then redraws | Automation work must have a bounded per-iteration budget |
+| `sdl_simu.cpp::handleKeyEvents` | Calls existing simulator input setters from the SDL thread | Automation should reuse the same key/rotary path |
+| `sdl_simu.cpp::redraw` | Copies the firmware LCD into the host texture and renders ImGui | Host redraw is not the same event as a firmware LCD frame |
+| `sdl_simu.cpp::simuGetAnalog` | Converts ImGui stick/pot state into ADC values | Analog automation must override this path, not write `adcValues` once |
+| `simulib.cpp::simuStart` | Starts firmware tasks | A task restart completes only after startup and a subsequent LCD frame |
+| `simulib.cpp::simuStop` | Calls `task_shutdown_all`, which joins native tasks | A task restart may pause the SDL loop; it is not a non-blocking or cold reset |
+| `simulib.cpp::simuSetKey` | Updates native simulator key state | Canonical key validation must happen before this assertion-backed API |
+| `switch_driver.cpp::simuSetSwitch` | Updates switch state and asserts the index | Resolve and validate canonical switch names before dispatch |
+| `simulib.cpp::simuTouchDown` / `simuTouchUp` | Feed the native touch state | The protocol must impose a valid down/move/up state machine |
+| `simulib.cpp::simuLcdCopy` | Copies the current firmware framebuffer | Retain this as the capture source |
+| `simulcd.cpp::lcdRefresh` / `simuRefreshLcd` | Call `simuLcdNotify` after a firmware LCD refresh | Increment the protocol display sequence and take the capture snapshot here |
+| `LvglWrapper::run` | Runs LVGL in the firmware/UI context | A static-screen invalidation request must be consumed here |
+| `main.cpp::perMain` / `guiMain` | Own firmware/UI periodic work and invoke Lua | Firmware-only automation mailbox work can be consumed here |
+| `interface.cpp::luaTask` | Owns the Lua interpreter state machine | Lua reload completion must be observed here, not guessed by the SDL thread |
+| `telemetry_sensors.cpp::setTelemetryValue` | Mutates telemetry/model state | Telemetry injection must execute in firmware context |
+| `radio/src/tests/CMakeLists.txt` | Builds all native radio tests with simulator objects | Pure protocol/state tests can reuse the existing native test target |
 
-### 5.3 Existing review feedback incorporated
+### 2.2 What #7337 contributes
 
-The consolidated design treats the current review findings as requirements,
-not as comments to revisit after implementation:
+Keep or adapt:
 
-- screenshot paths must preserve spaces;
-- stdin polling must not mix an OS readiness check with buffered `std::cin`;
-- raw byte chunks must be assembled before UTF-8 lines are decoded;
-- partial input must never block the SDL loop;
-- SDL events must be fully initialized;
-- key, touch, and wait durations must not use `SDL_Delay` in the simulator
-  command handler; and
-- the host wrapper must close pipes and reap the child after normal exit,
-  timeout, terminate, and kill paths.
+- the generic `--automation-stdio` direction;
+- the target registry and host session abstraction;
+- named key mapping;
+- framebuffer capture through `simuLcdCopy`;
+- PPM-to-PNG conversion in the host;
+- a declarative JSON scenario; and
+- a minimal CLI entry point.
 
-## 6. Proposed architecture
+Redesign before reuse:
+
+- add protocol versioning and monotonic request IDs;
+- separate simulator protocol output from simulator diagnostics;
+- replace `select()` plus buffered `std::cin` with raw-byte reads;
+- implement the Windows native side;
+- replace Python `select.select` on child pipes with reader threads;
+- move press, long-press, touch duration, and wait timing to the host;
+- wait for a firmware LCD refresh before capture;
+- move image writing off the LCD callback;
+- validate every argument and supported target capability;
+- preserve partial UTF-8 bytes until a complete line is available;
+- copy checked-in fixtures to a run directory before launching; and
+- close pipes and reap the process on every exit path.
+
+Drop from the first implementation:
+
+- the MCP server;
+- the native-test build toggle;
+- the root Python dependency project and lockfile; and
+- any fixture content not proven necessary for deterministic startup.
+
+### 2.3 What #7646 contributes
+
+Keep or adapt:
+
+- explicit key down/up and touch down/move/up semantics;
+- partial-line accumulation as a correctness requirement;
+- reset requested at a safe loop boundary;
+- Lua permanent-script reload;
+- named switch and analog injection;
+- the use of the existing telemetry path;
+- capture armed for a later LCD refresh; and
+- LVGL invalidation so a static screen produces a refresh.
+
+Redesign before reuse:
+
+- replace the append-only file with the common stdio protocol;
+- add replies, correlation, bounds, and error propagation;
+- reject a second capture instead of silently replacing the first;
+- copy the framebuffer in `simuLcdNotify` but perform disk I/O elsewhere;
+- distinguish a warm simulator task restart from a cold process restart;
+- clear analog overrides during release/restart/stop;
+- execute telemetry and Lua transitions in firmware context;
+- avoid a mutex on every high-frequency ADC read;
+- validate rather than silently clamp invalid inputs; and
+- runtime-gate behavior instead of source-specific `WIDGET_STUDIO` definitions.
+
+Drop:
+
+- `api_simu.cpp`, `api_simu.h`, and Lua registration changes;
+- `simu_capture.cpp`'s in-process PNG encoder;
+- `stb_image_write` as a new simulator dependency;
+- `--pipe` as the main transport; and
+- direct file writing from `simuLcdNotify`.
+
+### 2.4 Review findings promoted to requirements
+
+The following are acceptance requirements, not optional cleanup:
+
+- paths containing spaces must remain intact;
+- no OS readiness check may be combined with buffered `std::cin`;
+- a partial request must never block the SDL loop;
+- UTF-8 must be decoded only after complete byte records are assembled;
+- SDL events must be zero-initialized;
+- simulator commands must not sleep to model durations;
+- Python must not use `select.select` for Windows subprocess pipes;
+- protocol stdout and diagnostic stderr must not be merged;
+- all child pipes must be closed;
+- a killed child must still be waited on; and
+- a checked-in fixture must never be used as the simulator's writable settings
+  directory.
+
+## 3. Goals, scope, and success definition
+
+### 3.1 Goals
+
+Protocol version 1 will provide:
+
+1. an opt-in native simulator automation mode on Linux and Windows;
+2. one request grammar and one JSON response schema on both platforms;
+3. bounded raw-byte input with visible parse and overflow failures;
+4. strictly correlated terminal responses;
+5. capability discovery for the selected simulator target;
+6. key, rotary, and complete touch transitions;
+7. canonical switch and analog control with explicit clearing;
+8. bounded telemetry injection in firmware context;
+9. Lua reload with observable completion;
+10. a documented warm simulator task restart;
+11. a host-driven cold process restart;
+12. a monotonic firmware display sequence;
+13. capture of the first complete LCD refresh after a request;
+14. static-screen invalidation in the LVGL context;
+15. one dependency-free Python client and CLI;
+16. one deterministic TX16S-class smoke scenario; and
+17. unchanged behavior when automation is not requested.
+
+### 3.2 Non-goals
+
+The first accepted implementation will not:
+
+- redesign an EdgeTX screen or widget;
+- change model or EEPROM formats;
+- add a public or simulator-only Lua control API;
+- add a network listener;
+- add an MCP or AI-agent adapter;
+- add golden-image approval policy;
+- add a general telemetry simulator;
+- support concurrent automation clients;
+- guarantee hostile-client resistance;
+- support every color and monochrome target;
+- alter Companion or WASM behavior;
+- change native-test defaults; or
+- make a warm task restart equivalent to a new process.
+
+### 3.3 Definition of success
+
+The initiative is successful when a fresh checkout can build the reference
+simulator, start it with a copied fixture, discover its capabilities, drive a
+mixed input/state scenario, reload Lua, capture deterministic framebuffer
+artifacts, and stop without leaked processes on Linux and Windows.
+
+A feature being present is insufficient. Every asynchronous operation must have
+a named completion point and a timeout test.
+
+## 4. Frozen design decisions
+
+| ID | Decision | Rationale |
+|---|---|---|
+| D01 | Use one generic `--automation-stdio` runtime mode | Keeps #7337's reusable scope and leaves normal runs unchanged |
+| D02 | Require `--automation-output <directory>` with automation mode | Constrains writes to an explicit artifact root |
+| D03 | Use UTF-8 newline-delimited text requests and JSON-line responses | Small native parser; robust host parsing |
+| D04 | Requests are not JSON | Avoids adding a native JSON parser dependency |
+| D05 | Request IDs are strictly increasing unsigned 64-bit values per process | Correlation without an unbounded duplicate-ID set |
+| D06 | Protocol stdout contains JSON records only; diagnostics stay on stderr | Prevents logs from being mistaken for replies |
+| D07 | Timed press/touch/wait actions are composed by the host | Keeps sleeps out of the SDL command path |
+| D08 | `display_seq` increments only in `simuLcdNotify` | Distinguishes firmware LCD refresh from SDL/ImGui redraw |
+| D09 | Capture means the first full LCD refresh after arming | Gives a precise freshness boundary |
+| D10 | Capture output is PPM; PNG conversion remains in Python | Avoids another native image dependency |
+| D11 | Only one asynchronous operation is active in protocol v1 | Makes cancellation, restart, and response ownership unambiguous |
+| D12 | `restart` means warm `simuStop`/`simuStart`; the CLI exposes cold process restart separately | Avoids claiming a stronger reset than EdgeTX provides |
+| D13 | Lua and telemetry work crosses a bounded firmware mailbox | Prevents SDL-thread mutation of firmware-owned state |
+| D14 | Fixtures are immutable templates copied into a unique run directory | Prevents tracked-file mutation and cross-run contamination |
+| D15 | The reference Python client serializes commands | Simplifies v1 while preserving IDs for diagnostics and later adapters |
+| D16 | The simulator assumes a cooperative local peer that drains stdout | Keeps v1 transport small; output backpressure is stress-tested |
+| D17 | New behavior is native-simulator-only and runtime-dormant | No physical firmware feature or size impact |
+| D18 | Unknown scenario fields and unsupported capabilities are errors | Prevents typo-driven false-positive tests |
+| D19 | One dedicated capture worker writes PPM artifacts | Keeps both the LCD callback and SDL loop free of capture file I/O |
+
+## 5. Architecture and ownership
 
 ```text
-Python CLI / test runner
-          |
-          | versioned request lines and JSON responses
-          v
-platform stdin adapter
-  POSIX: non-blocking read
-  Win32: PeekNamedPipe + ReadFile
-          |
-          v
-bounded byte buffer -> bounded command queue
-          |
-          | consumed by SDL/main loop
-          v
-automation protocol parser and executor
-          |
-          +--> key / rotary / touch
-          +--> switch / analog / telemetry
-          +--> Lua reload / simulator reset
-          +--> redraw request / capture checkpoint
-          |
-          v
-structured response with request ID and frame ID
+Python CLI / scenario runner
+  ├─ immutable fixture -> per-run writable copy
+  ├─ stdin writer
+  ├─ stdout binary reader thread -> JSON response dispatcher
+  └─ stderr binary reader thread -> bounded diagnostic ring
+                 |
+                 | v1 request records / JSON response records
+                 v
+native stdin adapter
+  POSIX: non-blocking read()
+  Win32: PeekNamedPipe() + ReadFile()
+                 |
+                 v
+bounded byte assembler -> bounded request queue
+                 |
+                 | maximum eight commands per SDL iteration
+                 v
+SDL automation session / executor
+  ├─ key / rotary / touch / switch
+  ├─ atomic analog overrides
+  ├─ firmware mailbox -> telemetry / Lua
+  ├─ warm restart state machine
+  └─ capture coordinator
+                 |
+                 +-> LVGL invalidation request (firmware/UI context)
+                 +-> simuLcdNotify() display_seq + framebuffer snapshot
+                 +-> capture writer -> PPM artifact
 ```
 
-The transport only reads bytes and assembles complete lines. It does not mutate
-simulator or UI state. The SDL/main-loop executor validates and dispatches
-commands. LVGL invalidation occurs only in the existing UI execution context.
+### 5.1 Component responsibilities
 
-### 6.1 Components
+#### `AutomationLineBuffer`
 
-1. **Transport adapter**
-   - reads redirected stdin without blocking the SDL loop;
-   - accumulates bytes rather than decoding arbitrary chunks;
-   - handles LF, CRLF, multiple lines per read, partial UTF-8 bytes, EOF, and
-     broken pipes;
-   - never mixes `select()` with `std::cin`; and
-   - pushes complete lines into a bounded queue.
+- owns raw bytes read from stdin;
+- recognizes LF and CRLF;
+- preserves partial lines and partial UTF-8 sequences;
+- discards an overlong record through its next newline;
+- creates a transport error record when possible; and
+- never calls simulator, SDL, Lua, or LVGL APIs.
 
-2. **Protocol parser**
-   - validates protocol version, request ID, command, arity, numeric ranges,
-     and trailing data;
-   - preserves the remainder of a capture line as the path, including spaces;
-   - returns explicit parse errors; and
-   - has no dependency on a new JSON parser.
+#### `AutomationProtocol`
 
-3. **Command executor**
-   - runs from the SDL/main loop;
-   - uses primitive input state transitions rather than sleeps;
-   - schedules reset, reload, redraw, and capture work at safe boundaries; and
-   - emits exactly one terminal response per request.
+- parses version, request ID, command, and arguments;
+- enforces strictly increasing request IDs;
+- validates UTF-8 and numeric overflow;
+- preserves the remainder of a capture record as one relative path;
+- serializes valid JSON, including every control character; and
+- contains no SDL or firmware dependency.
 
-4. **Capture coordinator**
-   - associates a capture request with a request ID and minimum frame ID;
-   - requests invalidation for a static screen on the UI context;
-   - waits for the corresponding framebuffer flush;
-   - writes a deterministic PPM or raw framebuffer artifact;
-   - reports dimensions, depth, frame ID, output path, and any write failure;
-   - permits only one capture in progress in the first version; and
-   - returns `busy` rather than silently replacing an armed capture.
+#### `AutomationSession`
 
-5. **Host harness**
-   - configures and starts one reference simulator target;
-   - sends correlated commands and enforces response timeouts;
-   - implements timed presses as `key-down`, host delay, `key-up`;
-   - runs declarative scenarios;
-   - records command/result metadata next to artifacts; and
-   - always closes stdin/stdout and reaps the child process.
+- owns request and response lifecycle;
+- pumps a bounded number of commands per SDL iteration;
+- exposes current capabilities and status;
+- owns one asynchronous operation slot;
+- records session epoch and display sequence;
+- rejects incompatible operations while busy; and
+- guarantees one terminal response for each admitted request.
 
-## 7. Protocol contract
+#### `AutomationFirmwareMailbox`
 
-### 7.1 Request grammar
+- is a bounded SDL-producer/firmware-consumer queue;
+- carries only operations that must run in firmware context;
+- initially supports telemetry injection and Lua reload;
+- returns completion records to the SDL session;
+- is drained with a small budget from the existing periodic firmware path; and
+- is inactive unless the runtime automation session exists.
 
-Requests are UTF-8, newline-terminated records:
+#### `AutomationCapture`
+
+- validates a relative artifact path under the configured output root;
+- arms a request against the current `display_seq`;
+- requests LVGL invalidation;
+- takes a framebuffer snapshot in `simuLcdNotify`;
+- owns one worker thread created only in automation mode;
+- sends the worker an owned snapshot through a one-job queue;
+- performs PPM encoding and filesystem work only on that worker;
+- posts a bounded completion record back to the SDL session;
+- uses a temporary file followed by an atomic rename;
+- reports the captured sequence, dimensions, depth, byte count, and path; and
+- never overwrites an existing artifact in protocol v1.
+
+#### Python `Session`
+
+- starts subprocess readers before the first request;
+- uses binary pipes, never text-mode chunk decoding;
+- assigns monotonic request IDs;
+- validates every JSON response and ID;
+- exposes host composite actions;
+- fails pending requests on EOF or child exit;
+- retains bounded recent stderr for diagnostics; and
+- owns graceful stop, terminate, kill, wait, close, and thread join.
+
+### 5.2 Thread and context ownership
+
+| Operation | Owner | Allowed work | Forbidden work |
+|---|---|---|---|
+| Raw stdin polling | SDL loop | Read bounded bytes and assemble records | Blocking read or simulator mutation |
+| Parse and dispatch | SDL loop | Validate and call existing simulator input APIs | Sleep or wait for firmware work |
+| Key / rotary / touch / switch | SDL loop | Reuse current simulator setters | Direct LVGL or Lua access |
+| Analog override write | SDL loop | Atomic packed override update | Per-read heap allocation |
+| Analog override read | ADC conversion path | Atomic load, then normal fallback | Taking the session mutex on every sample |
+| Telemetry injection | Firmware periodic context | Call the existing telemetry/model path | SDL-thread model mutation |
+| Lua reload transition | Firmware/Lua context | Set and observe interpreter state | SDL-thread write of `luaState` |
+| LVGL invalidation | Firmware/UI context | Invalidate the active screen | SDL-thread LVGL call |
+| LCD notification | Firmware display context | Increment sequence and copy a snapshot | File I/O or PNG encoding |
+| PPM write | Dedicated capture worker | Encode the owned snapshot and rename | Access a live LVGL buffer or emit protocol responses |
+| Warm restart | SDL loop between iterations | Stop joined tasks, clear session state, start tasks | Claim cold-process semantics |
+| Host timing | Python main thread | Monotonic waits and composite actions | Simulator `SDL_Delay` |
+
+### 5.3 Cross-context invariants
+
+- A request ID has exactly one owner until its terminal response is queued.
+- A pending capture owns its request ID, epoch, target path, minimum display
+  sequence, snapshot buffer, and terminal state.
+- `restart` is admitted only while `Ready`; while another asynchronous
+  operation is active it returns `operation_busy` and does not preempt it.
+- Stop, EOF, or broken transport cancels capture, frame wait, and
+  firmware-mailbox work with one visible terminal error when output remains
+  available.
+- All active keys and touch state are released before restart or stop.
+- Analog overrides are cleared on `release-all`, warm restart, and process stop.
+- A telemetry or Lua completion from an older epoch is ignored and counted.
+- `display_seq` is monotonic for the life of the process and does not reset when
+  the epoch changes.
+- The first ready session uses epoch 1; zero is reserved for pre-readiness
+  diagnostics.
+- No command may hold a shared-state lock while calling firmware, SDL, LVGL, or
+  filesystem code.
+
+### 5.4 Exact simulator bridge hooks
+
+The implementation adds only these cross-context calls outside the simulator
+automation files:
+
+1. `perMain()` calls a SIMU-only `simuAutomationBeforeUi()` after periodic
+   housekeeping and before `MainWindow::run()`. It consumes at most two
+   firmware-mailbox operations, so telemetry is visible to that UI cycle and a
+   Lua reload can enter the existing interpreter state machine.
+2. `perMain()` calls `simuAutomationAfterUi()` after `guiMain()`. It publishes
+   completed telemetry work and stable Lua reload state for the matching
+   generation.
+3. `LvglWrapper::run()` calls `simuConsumeLcdInvalidateRequest()` immediately
+   before `lv_timer_handler()`. Only that UI-owned call may invoke
+   `lv_obj_invalidate(lv_scr_act())`.
+4. The existing `simuLcdNotify()` host callback increments `display_seq` and,
+   when capture is armed, copies the complete framebuffer into preallocated
+   owned storage. It signals the capture worker and returns.
+
+All four hooks are no-ops without an active runtime automation session. They
+are compiled under `#if defined(SIMU) && !defined(__wasm__)` and the existing
+native simulator CMake boundary, not by a new user-visible product option.
+
+## 6. Protocol version 1
+
+### 6.1 Activation
+
+The reference launch form is:
 
 ```text
-v1 <request-id> <command> [arguments...]
+simu --automation-stdio \
+     --automation-output <absolute-run-artifact-directory> \
+     --storage <run-sdcard-copy> \
+     --settings <run-settings-copy>
 ```
 
-`request-id` is an unsigned 64-bit decimal value chosen by the host. Commands
-and fixed tokens use ASCII. For `capture`, everything after the command's first
-separator is treated as the path, so spaces are preserved.
+Rules:
+
+- `--automation-output` is valid only with `--automation-stdio`.
+- The output directory must exist and be a directory.
+- Automation startup fails before `simuStart` if stdin is unsuitable, the output
+  root cannot be canonicalized, or stdout cannot be opened.
+- In automation mode, stdout is reserved for protocol JSON lines.
+- SDL, TRACE, and harness diagnostics go to stderr.
+- EOF on stdin cancels pending operations, releases inputs, and requests a clean
+  simulator exit. No response is possible after EOF.
+- Broken stdout is treated as loss of the controlling peer and also requests
+  exit.
+
+### 6.2 Request record grammar
+
+```text
+v1 <request-id> <command> [arguments...]\n
+```
+
+- Records are UTF-8.
+- There is no leading whitespace.
+- Horizontal ASCII space separates fixed tokens.
+- A trailing `\r` is removed before parsing.
+- `request-id` is decimal, in `1..UINT64_MAX`, and greater than every previously
+  admitted ID in the current process.
+- Once a valid `v1 <request-id>` prefix is recognized, that ID is consumed even
+  if command parsing later fails; a client must never reuse it.
+- Blank records are ignored and are not admitted requests.
+- Fixed command and enum tokens are ASCII.
+- For `capture`, the complete remainder after the command separator is the
+  relative path, including internal spaces.
+- NUL, invalid UTF-8, missing newline beyond the record limit, and numeric
+  overflow are errors.
 
 Examples:
 
@@ -263,355 +459,1205 @@ v1 7 touch-move 130 82
 v1 8 touch-up
 v1 9 set-switch SA 1
 v1 10 set-analog AIL 2048
-v1 11 reload-lua
-v1 12 wait-idle 184
-v1 13 capture C:\EdgeTX Artifacts\home.ppm
-v1 14 stop
+v1 11 clear-analog AIL
+v1 12 set-telemetry 61696 0 1 115 1 1 RSSI
+v1 13 reload-lua
+v1 14 wait-frame 185
+v1 15 capture checkpoints/home screen.ppm
+v1 16 restart
+v1 17 release-all
+v1 18 stop
 ```
 
-The simulator does not parse arbitrary JSON requests because the native
-simulator currently has no suitable JSON dependency. Responses remain JSON so
-the host can consume them directly without fragile text matching.
-
-### 7.2 Response schema
+### 6.3 Response records
 
 Success:
 
 ```json
-{"version":1,"id":13,"ok":true,"result":{"frame":185,"path":"C:\\EdgeTX Artifacts\\home.ppm","width":480,"height":272,"depth":16}}
+{"version":1,"type":"response","id":15,"ok":true,"epoch":1,"result":{"display_seq":186,"path":"checkpoints/home screen.ppm","width":480,"height":272,"depth":16,"bytes":391695}}
 ```
 
 Failure:
 
 ```json
-{"version":1,"id":13,"ok":false,"error":{"code":"capture_busy","message":"capture request 12 is still pending"}}
+{"version":1,"type":"response","id":15,"ok":false,"epoch":1,"error":{"code":"artifact_exists","message":"capture target already exists"}}
 ```
 
-Every syntactically recoverable request receives one response. An overlong or
-malformed line receives an error when its request ID can be recovered; otherwise
-the simulator emits a protocol error event with `id: null`.
+Uncorrelated transport event:
 
-### 7.3 Initial command set
+```json
+{"version":1,"type":"event","id":null,"epoch":1,"event":{"code":"invalid_record","message":"request id could not be recovered"}}
+```
 
-| Command | Arguments | Completion point |
-|---|---|---|
-| `ping` | none | Parsed and dispatched |
-| `status` | none | State snapshot captured |
-| `key-down` / `key-up` | key name | Input state updated |
-| `rotate` | signed steps | Rotary event queued |
-| `touch-down` / `touch-move` | x, y | Touch state updated |
-| `touch-up` | none | Release state updated |
-| `set-switch` | name, -1/0/1 | Override validated and stored |
-| `set-analog` | name, 0..4096 | Override validated and stored |
-| `set-telemetry` | id, sub-ID, instance, value, unit, precision | Value accepted by telemetry path |
-| `reload-lua` | none | Reload request accepted at safe boundary |
-| `reset` | none | Restart completed and new session epoch reported |
-| `wait-idle` | minimum frame ID | No pending command/capture work and frame condition met |
-| `capture` | output path | Requested frame written successfully |
-| `stop` | none | Quit event accepted; response flushed before exit |
+Rules:
 
-`press`, `long-press`, and arbitrary-duration `wait` are host helpers, not
-simulator commands. This prevents `SDL_Delay` from blocking rendering and input.
+- Every admitted request receives exactly one terminal response.
+- Parse failures receive a response when a valid request ID can be recovered.
+- The reference host rejects a response with an unknown, repeated, or mismatched
+  ID.
+- JSON strings escape quotes, backslashes, and all bytes below U+0020.
+- JSON is emitted as valid UTF-8 and one object per line.
+- A response is flushed before `stop` causes the SDL quit event.
+- Diagnostic text never appears on stdout.
 
-### 7.4 Status result
+### 6.4 Status and discovery
 
-`status` reports at least:
+`status` returns at least:
 
 - protocol version;
-- simulator running state;
-- target identifier;
+- process running state;
+- target/flavour identifier;
 - LCD width, height, and depth;
-- current frame ID;
-- session epoch, incremented after reset;
-- whether a capture or reset is pending;
-- command-queue depth;
-- transport overflow count; and
-- Lua availability.
+- current epoch and `display_seq`;
+- current asynchronous operation;
+- request queue depth;
+- firmware mailbox depth;
+- line and queue overflow counters;
+- active key/touch state;
+- count of analog overrides;
+- Lua state as a stable protocol enum;
+- whether the target supports rotary, touch, switch, analog, telemetry, Lua,
+  capture, and warm restart; and
+- the canonical output-root status without exposing unrelated filesystem paths.
 
-## 8. Bounds and failure behavior
+`describe` returns bounded canonical names and ranges for:
 
-Initial limits are explicit compile-time constants and covered by tests:
+- supported keys;
+- physical switches and their valid positions;
+- ADC inputs;
+- LCD coordinates and pixel depth; and
+- optional command capabilities.
 
-| Resource | Initial bound | Overflow behavior |
+If the bounded description would exceed the response limit, startup must fail
+for that target rather than emit truncated JSON.
+
+### 6.5 Core command contract
+
+| Command | Arguments and validation | Terminal completion |
+|---|---|---|
+| `ping` | none | Request dispatch |
+| `status` | none | Consistent session snapshot collected |
+| `describe` | none | Capability description serialized |
+| `key-down` | supported canonical key; key currently up | Key state updated |
+| `key-up` | supported canonical key; key currently down | Key state updated |
+| `rotate` | non-zero signed steps in `-128..128`; target supports rotary | Existing rotary event updated |
+| `touch-down` | in-bounds x/y; no active touch | Touch state becomes active |
+| `touch-move` | in-bounds x/y; touch active | Position update delivered through the existing touch path |
+| `touch-up` | no arguments; touch active | Touch state released |
+| `set-switch` | canonical default switch name; valid target position | Existing switch state updated |
+| `set-analog` | canonical ADC name; value `0..4096` | Atomic override published |
+| `clear-analog` | canonical ADC name or `all` | Override cleared |
+| `set-telemetry` | validated ID tuple, int32 value, unit, precision, optional bounded name | Firmware mailbox operation completed |
+| `reload-lua` | no arguments; target has Lua; session idle | Interpreter reaches `running` or `panic` for the requested reload generation |
+| `wait-frame` | minimum `display_seq` greater than or equal to current value | Sequence reaches minimum or the operation times out at the host |
+| `capture` | safe relative `.ppm` path under output root | Fresh snapshot is written and atomically renamed |
+| `restart` | no arguments; session idle | Tasks restarted, epoch incremented, and first new LCD frame observed |
+| `release-all` | none | Keys, touch, and analog overrides are clear |
+| `stop` | none | Response flushed and zero-initialized SDL quit event accepted |
+
+### 6.6 Host-only composite actions
+
+These are scenario actions, not simulator commands:
+
+| Host action | Expansion |
+|---|---|
+| `press(key, hold_ms)` | `key-down`, monotonic host wait, `key-up` |
+| `long-press(key, hold_ms)` | Same primitives with a longer validated hold |
+| `tap(x, y, hold_ms)` | `touch-down`, host wait, `touch-up` |
+| `drag(points, step_ms)` | `touch-down`, ordered `touch-move` calls, `touch-up` |
+| `wait-ms(ms)` | Host monotonic wait only |
+| `wait-next-frame(timeout)` | Snapshot status, then `wait-frame(current + 1)` |
+| `restart-process` | Graceful stop, process reap, relaunch from a fresh fixture copy |
+| `capture-png(name)` | Native PPM capture followed by host PNG conversion |
+
+Hold durations are bounded by the host schema. A `finally` path always attempts
+the matching release if a composite action fails.
+
+### 6.7 Error code taxonomy
+
+Stable codes are machine-consumable. Messages are diagnostic and may improve.
+
+| Category | Codes |
+|---|---|
+| Record | `invalid_utf8`, `line_too_long`, `invalid_record`, `unsupported_version` |
+| ID | `invalid_id`, `id_not_monotonic` |
+| Command | `unknown_command`, `missing_argument`, `extra_argument`, `invalid_argument`, `out_of_range` |
+| Capability | `unsupported_command`, `unsupported_target`, `unsupported_lcd_depth` |
+| Input state | `key_already_down`, `key_not_down`, `touch_already_down`, `touch_not_down` |
+| Capacity | `queue_full`, `firmware_queue_full`, `operation_busy`, `response_too_large` |
+| Lifecycle | `session_stopping`, `restart_failed`, `lua_unavailable`, `lua_panic` |
+| Capture | `unsafe_path`, `path_too_long`, `artifact_exists`, `capture_failed`, `capture_cancelled` |
+| Transport | `stdin_closed`, `stdout_closed`, `io_error` |
+| Internal | `invariant_violation`, `internal_error` |
+
+### 6.8 Bounds and backpressure
+
+| Resource | Initial bound | Behavior at limit |
 |---|---:|---|
-| Input line | 16 KiB | Discard through newline and emit `line_too_long` |
-| Buffered partial input | 16 KiB | Same as overlong line |
-| Pending command queue | 64 records | Emit `queue_full`; do not block SDL |
-| Commands executed per SDL iteration | 8 | Leave remainder queued for next iteration |
-| Capture requests in flight | 1 | Emit `capture_busy` |
-| Capture path | 4 KiB | Emit `path_too_long` |
-| Response line | 16 KiB | Emit minimal `response_too_large` and count failure |
+| OS bytes read per SDL iteration | 4096 | Continue next iteration |
+| Request record | 16 KiB | Discard through newline; `line_too_long` |
+| Partial record buffer | 16 KiB | Enter discard mode until newline |
+| Pending request queue | 64 records | `queue_full` for fully read records |
+| Commands executed per SDL iteration | 8 | Leave remainder queued |
+| Firmware mailbox | 16 operations | `firmware_queue_full` |
+| Active asynchronous operation | 1 | `operation_busy` |
+| Capture relative path | 1024 UTF-8 bytes | `path_too_long` |
+| Response line | 16 KiB | Minimal `response_too_large` response |
+| Host recent stderr | 200 lines / 256 KiB | Drop oldest line |
+| Scenario steps | 1000 | Reject scenario before launch |
+| Host command timeout | command-specific, maximum 60 s | Fail request and clean session |
+| Capture writer | one job | Second capture rejected |
 
-These are simulator-host limits, not firmware budgets. They still prevent an
-automation client from causing unbounded memory growth or starving rendering.
+The reference host begins stdout/stderr readers before sending `ping` and sends
+one command at a time. This satisfies D16 for normal operation. Hardening tests
+must pause the reader deliberately; if the SDL loop exceeds the agreed latency
+budget, a bounded response-writer queue becomes mandatory before non-draft
+review.
 
-Unknown commands, unsupported targets, invalid coordinates, invalid key names,
-out-of-range values, unavailable Lua, output-file failures, EOF, and process
-shutdown are all visible states. No command is silently ignored.
+Performance budgets are measured against an automation-disabled run on the
+same machine and build:
 
-## 9. Execution and ownership rules
+- idle automation polling adds no more than 1 ms to p95 SDL-loop duration;
+- a normal serialized command does not create an SDL iteration over 50 ms;
+- the TX16S framebuffer copy in `simuLcdNotify` remains below 5 ms at p99; and
+- capture encoding time is excluded from SDL timing because it runs only on the
+  dedicated worker.
 
-- The input adapter may run in the SDL thread or perform OS polling, but it may
-  only append bytes and queue complete records.
-- Only the SDL/main-loop executor calls simulator input functions.
-- Only the established UI execution context invalidates LVGL objects.
-- Reset is represented as a request consumed between simulator iterations.
-- Lua reload uses the existing interpreter state transition; no host thread
-  touches the Lua state.
-- Capture state owns its request ID, output path, minimum frame, and terminal
-  result until completion.
-- Reset cancels a pending capture with an explicit `session_reset` error.
-- Stop flushes its response before the SDL quit event terminates the process.
-- State shared across contexts is protected by the smallest existing
-  synchronization primitive practical for the native simulator.
+Warm restart is measured separately because `task_shutdown_all()` deliberately
+joins firmware tasks.
 
-## 10. Proposed repository layout
+### 6.9 Session state machine
 
-The implementation should remain concentrated and avoid a new framework:
+```text
+Starting
+  ├─ ping / status ─> allowed (epoch 0)
+  └─ first LCD notification ─> Ready (epoch 1)
+
+Ready
+  ├─ wait-frame ─> WaitingForFrame ─> Ready
+  ├─ capture ─> AwaitingCaptureFlush ─> WritingCapture ─> Ready
+  ├─ set-telemetry ─> WaitingForFirmware ─> Ready
+  ├─ reload-lua ─> ReloadingLua ─> Ready
+  ├─ restart ─> RestartStopping ─> RestartStarting
+  |                └─ first LCD notification ─> Ready (epoch + 1)
+  └─ stop / EOF / broken peer ─> Stopping ─> Stopped
+
+Any asynchronous state
+  ├─ status / ping ─> allowed
+  ├─ incompatible mutation ─> operation_busy
+  └─ stop / transport loss ─> cancel operation, release inputs, stop
+```
+
+The reference host serializes commands, but the simulator state machine still
+defends itself against invalid sequences.
+
+## 7. Deterministic capture contract
+
+### 7.1 Artifact containment
+
+At startup the simulator canonicalizes `--automation-output`. A capture path:
+
+- must be relative;
+- must be valid UTF-8;
+- may contain internal spaces;
+- must end in `.ppm`;
+- must not contain a root name, root directory, NUL, `.`, or `..` component;
+- must remain below the canonical output root after resolution;
+- must have an existing parent directory created by the host; and
+- must not already exist.
+
+The simulator never creates arbitrary parent directories and never overwrites a
+capture. The host creates a unique run root, so this does not inconvenience
+normal flows.
+
+### 7.2 Capture sequence
+
+1. The SDL executor validates the request and records `armed_after_seq`.
+2. It reserves the single asynchronous slot and snapshot buffer.
+3. It raises a simulator LCD invalidation request.
+4. `LvglWrapper::run` consumes that flag in firmware/UI context and invalidates
+   the active screen.
+5. LVGL performs a complete refresh through the normal display driver.
+6. `simuLcdNotify` increments `display_seq`.
+7. If the new sequence is greater than `armed_after_seq`, the callback copies
+   `simuLcdBuf` into the owned capture buffer.
+8. The callback marks the snapshot ready and returns without filesystem work.
+9. The capture writer converts the owned RGB565 snapshot to PPM in a temporary
+   file.
+10. It closes the file, verifies the byte count, and renames it to the requested
+    final path.
+11. The SDL executor emits the terminal response with metadata.
+
+### 7.3 Pixel and file semantics
+
+Version 1 requires the reference TX16S-class RGB565 framebuffer. It writes PPM
+P6 with deterministic RGB565-to-RGB888 expansion. Other LCD depths are reported
+through discovery but capture returns `unsupported_lcd_depth` until they have
+their own tested conversion.
+
+The native artifact contains no timestamp or host metadata. The host writes a
+separate JSON manifest and may convert PPM to PNG. Repeating the same state must
+therefore produce byte-identical PPM data.
+
+### 7.4 Capture failure and cancellation
+
+- A second capture receives `operation_busy`.
+- `restart` is rejected while capture is pending; stop or transport loss
+  cancels a capture awaiting a flush.
+- A snapshot already being written completes or removes its temporary file;
+  shutdown joins the capture worker before process teardown continues.
+- File-open, short-write, close, and rename failures are distinct diagnostic
+  messages under `capture_failed`.
+- No terminal success is emitted until the final artifact exists.
+- A late LCD notification from a previous epoch cannot complete a new capture.
+
+## 8. State injection and lifecycle semantics
+
+### 8.1 Keys, touch, and rotary
+
+- Canonical key names come from a fixed protocol mapping and are filtered by
+  `keysGetSupported`.
+- Duplicate down and unmatched up are errors, not silent no-ops.
+- `release-all` is idempotent and is also called by cleanup.
+- Rotary steps are bounded to avoid overflow; larger motion is composed by the
+  host.
+- Touch coordinates use framebuffer coordinates, independent of host-window
+  scale.
+- Move without down and repeated up are visible flow errors.
+
+### 8.2 Switches
+
+- Protocol names are canonical hardware defaults such as `SA`, not localized or
+  model-custom labels.
+- The resolver iterates existing switch definitions and checks target presence.
+- A two-position switch rejects position `0`.
+- A three-position switch accepts `-1`, `0`, and `1`.
+- A warm restart restores the simulator's documented default switch state.
+
+### 8.3 Analog overrides
+
+Each ADC input uses one packed atomic value containing an enabled flag and the
+`0..4096` value. This avoids a mutex in the ADC sampling path.
+
+- `set-analog` replaces the current override.
+- `clear-analog` restores normal ImGui/simulator input.
+- `clear-analog all` clears every override.
+- `release-all`, warm restart, and stop clear all overrides.
+- Discovery exposes canonical ADC names from the HAL mapping.
+
+### 8.4 Telemetry
+
+`set-telemetry` enters the firmware mailbox and runs through the existing
+`PROTOCOL_TELEMETRY_LUA` sensor path in firmware context. It validates:
+
+- ID `1..65535`;
+- sub-ID `0..7`;
+- instance `0..255`;
+- signed 32-bit value;
+- a known unit;
+- supported precision; and
+- an optional bounded sensor name.
+
+The optional sensor name is one ASCII token matching
+`[A-Za-z0-9_-]{1,TELEM_LABEL_LEN}`; spaces and locale-dependent labels are not
+accepted in protocol v1.
+
+If a model sensor must be initialized, changes occur only in the run's copied
+settings. Telemetry cleanup for v1 is a cold process restart; the protocol does
+not invent partial sensor deletion semantics.
+
+### 8.5 Lua reload
+
+The SDL thread posts a reload generation to the firmware mailbox. The firmware
+periodic path:
+
+1. accepts the generation when Lua is available;
+2. transitions to `INTERPRETER_RELOAD_PERMANENT_SCRIPTS`;
+3. lets the existing `luaTask` state machine load scripts; and
+4. publishes completion only when the same generation reaches
+   `INTERPRETER_RUNNING` or `INTERPRETER_PANIC`.
+
+The response reports generation and final stable state. A request accepted into
+the mailbox is not yet a successful reload.
+
+### 8.6 Warm restart versus cold restart
+
+`restart` is a warm simulator task restart:
+
+1. reject if another asynchronous operation owns the slot;
+2. release key, touch, and analog state;
+3. verify the firmware mailbox is idle and discard stale completion records;
+4. call `simuStop` between SDL iterations;
+5. call `simuStart`;
+6. increment `epoch`;
+7. wait for the first LCD notification in the new epoch; and
+8. return the new epoch and `display_seq`.
+
+Because `simuStart` intentionally preserves some native static state, this is
+not a clean test isolation boundary. The host `restart-process` action is the
+authoritative cold reset: stop/reap the process, make a fresh writable fixture
+copy, relaunch, and wait for readiness.
+
+## 9. Host harness contract
+
+### 9.1 Process lifecycle
+
+The Python host uses `subprocess.Popen` with argument arrays and binary pipes:
+
+- `stdin=PIPE`;
+- `stdout=PIPE` for protocol only;
+- `stderr=PIPE` for diagnostics;
+- `text=False` and no implicit chunk decoding; and
+- no shell interpolation.
+
+Startup:
+
+1. create a unique run directory;
+2. copy fixture templates;
+3. create the artifact tree;
+4. launch the simulator;
+5. start stdout and stderr reader threads;
+6. send `ping`;
+7. send `status` until `Ready` or timeout; and
+8. validate target dimensions and required capabilities.
+
+There is no fixed startup `sleep`.
+
+Shutdown escalation:
+
+1. attempt `release-all`;
+2. send `stop` and wait for its response;
+3. close stdin;
+4. wait for the child;
+5. on timeout, terminate and wait;
+6. on a second timeout, kill and wait;
+7. close stdout and stderr in `finally`;
+8. join reader threads; and
+9. report exit code and retained diagnostics.
+
+Every path, including an already-dead child, executes pipe closure and `wait`.
+
+### 9.2 Response reader
+
+A blocking binary reader thread is portable across POSIX and Windows child
+pipes. It:
+
+- accumulates bytes;
+- splits on newline bytes;
+- preserves a partial trailing record;
+- decodes only a complete line as UTF-8;
+- parses JSON;
+- routes by request ID into a thread-safe queue; and
+- fails the session on malformed protocol output.
+
+The stderr reader uses the same byte discipline but stores text in a bounded
+ring. It never participates in response matching.
+
+### 9.3 Scenario schema
+
+One strict JSON representation is accepted. Equivalent alternate shapes are
+not supported.
+
+```json
+{
+  "schema": 1,
+  "target": "tx16s",
+  "requires": ["rotary", "touch", "analog", "telemetry", "lua", "capture"],
+  "steps": [
+    {"action": "wait-ready", "timeout_ms": 10000},
+    {"action": "press", "key": "ENTER", "hold_ms": 120},
+    {"action": "wait-next-frame", "timeout_ms": 3000},
+    {"action": "set-switch", "name": "SA", "position": 1},
+    {"action": "set-analog", "name": "AIL", "value": 2048},
+    {"action": "set-telemetry", "id": 61696, "sub_id": 0, "instance": 1, "value": 115, "unit": 1, "precision": 1, "name": "RSSI"},
+    {"action": "reload-lua", "timeout_ms": 10000},
+    {"action": "capture", "name": "home", "format": "png"}
+  ]
+}
+```
+
+Validation occurs before process launch:
+
+- unknown top-level keys or step keys fail;
+- every action has one canonical shape;
+- numbers are range checked;
+- artifact names are normalized but not silently changed;
+- required capabilities are compared with `describe`; and
+- the maximum step count is enforced.
+
+### 9.4 Fixture policy
+
+- Checked-in fixtures are read-only templates.
+- Every run copies them under `build/ui-harness/runs/<run-id>/settings`.
+- SD-card content and settings are separate copies.
+- The simulator receives only run-copy paths.
+- The host records a hash of the source fixture.
+- After proving which fields are required, unused generated content is removed.
+- Fixture minimization must not rely on an unreviewed assumption that missing
+  YAML fields are harmless.
+
+### 9.5 Artifact manifest
+
+Each run produces:
+
+```text
+build/ui-harness/runs/<run-id>/
+  settings/
+  sdcard/
+  artifacts/
+    checkpoints/
+      home.ppm
+      home.png
+  manifest.json
+  protocol.jsonl
+  stderr.log
+```
+
+`manifest.json` records:
+
+- schema version;
+- EdgeTX commit;
+- target and dimensions;
+- platform and Python version;
+- fixture hash;
+- start/end time;
+- exit code;
+- every request ID, command, response, epoch, and display sequence;
+- artifact SHA-256 values; and
+- failure step and recent diagnostics when applicable.
+
+Timestamps live in the manifest, not in native image bytes.
+
+## 10. Proposed repository and build layout
 
 ```text
 radio/src/targets/simu/
   automation_protocol.h
   automation_protocol.cpp
+  automation_session.h
+  automation_session.cpp
   automation_transport.h
   automation_transport.cpp
-  arg_parser.cpp                 # --automation-stdio
+  automation_capture.h
+  automation_capture.cpp
+  automation_bridge.h
+  automation_bridge.cpp
+  arg_parser.cpp
   arg_parser.h
-  sdl_simu.cpp                   # pump queue and emit responses
-  simulib.cpp/.h                 # bounded state/reset/input hooks
+  sdl_simu.cpp
+  simulib.cpp
+  simulib.h
+
+radio/src/gui/colorlcd/
+  LvglWrapper.cpp                 # tiny SIMU-only invalidation hook
+
+radio/src/
+  main.cpp                        # tiny SIMU-only firmware mailbox hook
 
 radio/src/tests/
-  simu_automation.cpp            # parser, queue, and state tests
+  simu_automation.cpp
 
 tools/ui-harness/
-  edgetx-ui                      # standard-library Python entry point
+  edgetx-ui
   README.md
-  flows/tx16s-smoke.json
-  fixtures/tx16s/                # minimum deterministic fixture only
+  PROTOCOL.md
+  edgetx_ui/
+    __init__.py
+    cli.py
+    protocol.py
+    session.py
+    flow.py
+    ppm.py
+  tests/
+    test_protocol.py
+    test_flow.py
+    test_ppm.py
+  flows/
+    tx16s-smoke.json
+  fixtures/
+    tx16s/
+      settings/
+      sdcard/
 ```
 
-If extracting transport and protocol code creates more plumbing than it
-removes, they may be combined into one narrowly named pair. The testable parser
-and queue must not remain as a large static block inside `sdl_simu.cpp`.
+This is the recommended first implementation split. A maintainer-requested
+rename is acceptable, but the following boundaries are mandatory:
 
-## 11. Implementation sequence
+- byte assembly and protocol parsing remain testable without SDL;
+- capture writing is separate from `simuLcdNotify`;
+- host subprocess management is separate from flow interpretation; and
+- `sdl_simu.cpp` does not become a second monolithic 200-line command parser.
 
-### Phase 0 — Agreement and attribution
+### 10.1 CMake constraints
 
-1. Publish this plan in a draft replacement pull request.
-2. Thank and invite `onliner10`, the author of #7337, to review or collaborate.
-3. Ask maintainers to confirm that one consolidated replacement is preferable
-   to evolving either existing pull request.
-4. Record retained ideas and code provenance in the pull-request description.
-5. Preserve Git authorship when code is reused; use contributor-approved
-   `Co-authored-by` trailers when substantial code is rewritten.
+- No new user-visible build option is required.
+- `automation_session`, `automation_transport`, and `automation_capture` are
+  added only to the native interactive `simu` executable.
+- `automation_protocol` is compiled into both `simu` and `gtests-radio` without
+  an SDL dependency.
+- `automation_bridge` is added to native simulator objects only when
+  `NOT WASI`, so `main.cpp`, `LvglWrapper.cpp`, and tests resolve the four
+  SIMU-only bridge hooks.
+- Hook call sites use `#if defined(SIMU) && !defined(__wasm__)`, preventing an
+  unresolved bridge or behavior change in firmware and WASM builds.
+- Nothing is added to physical firmware targets.
+- Nothing is added to `wasi-module`.
+- No new FetchContent dependency is introduced.
+- Existing native tests remain enabled by default.
+- Building `--target simu` remains the harness build path.
 
-**Exit:** contributors and maintainers agree on one protocol direction. Neither
-existing pull request needs to be closed merely to complete this phase.
+## 11. Detailed implementation phases
 
-### Phase 1 — Protocol and queue
+Each phase is independently reviewable. A phase does not start by hiding failed
+exit criteria from the previous phase.
 
-1. Add a pure parser/result model with no SDL or LVGL dependency.
-2. Add explicit bounds and error codes.
-3. Add the 64-record bounded queue and eight-command pump budget.
-4. Add protocol unit tests for valid, invalid, partial, overlong, and unknown
-   input.
+### Phase 0 — Agreement, baseline, and provenance
 
-**Exit:** parser and queue tests pass independently of the interactive
-simulator.
+#### 0.1 Freeze the contract
 
-### Phase 2 — Cross-platform transport
+- Review D01–D19 with `onliner10` and simulator maintainers.
+- Confirm `--automation-stdio` and `--automation-output` naming.
+- Confirm stdout/stderr separation.
+- Confirm warm versus cold restart terminology.
+- Confirm that MCP and the Lua `simu` table remain deferred.
 
-1. Implement POSIX non-blocking `read()` into the bounded byte buffer.
-2. Implement redirected Win32 stdin using `PeekNamedPipe` and `ReadFile`.
-3. Handle multiple commands, partial lines, CRLF, EOF, and broken pipes.
-4. Keep response serialization common across platforms.
+#### 0.2 Record provenance
 
-**Exit:** the same transport test vectors pass on Linux and Windows; polling
-never blocks an SDL iteration.
+Create a PR table listing, per retained component:
 
-### Phase 3 — Input and lifecycle commands
+- source PR and original file;
+- whether code, algorithm, test idea, or requirement is reused;
+- expected author of the implementation commit; and
+- whether a `Co-authored-by` trailer has contributor approval.
 
-1. Wire key down/up and rotary events.
-2. Wire touch down/move/up with target bounds.
-3. Add named switch and analog overrides.
-4. Add the bounded telemetry command.
-5. Add asynchronous Lua reload and reset.
-6. Report a new session epoch after reset.
+#### 0.3 Establish baseline
 
-**Exit:** functional assertions prove each state transition and reset/reload
-completion without fixed simulator-side delays.
+Record on Linux and Windows where available:
 
-### Phase 4 — Deterministic capture
+- clean `upstream/main` native tests;
+- TX16S simulator build command and time;
+- idle SDL-loop frame time;
+- p50, p95, and p99 SDL-loop duration with automation disabled and enabled but
+  idle;
+- normal simulator command-line help;
+- physical firmware size for a representative target; and
+- absence of automation symbols in firmware/WASM outputs.
 
-1. Introduce a monotonic frame/checkpoint ID.
-2. Arm one capture with its request and minimum frame IDs.
-3. Request a full-screen invalidation from the UI context when necessary.
-4. Complete capture only after the corresponding framebuffer flush.
-5. Write PPM from `simuLcdCopy` and return dimensions/depth/frame metadata.
-6. Return explicit errors for busy state and file failures.
+**Deliverables:** accepted decision table, provenance table, baseline log.
 
-**Exit:** twenty repeated captures of an unchanged deterministic checkpoint
-produce identical bytes and do not use sleeps as a correctness condition.
+**Exit:** no unresolved architectural objection to one protocol. Original PRs
+remain open.
 
-### Phase 5 — Minimal host harness
+### Phase 1 — Pure protocol, bounds, and state model
 
-1. Add a dependency-free Python process/session wrapper.
-2. Add monotonic request IDs and timeout diagnostics.
-3. Implement host-side press and long-press helpers.
-4. Add one minimal TX16S-class fixture and smoke flow.
-5. Capture command logs and metadata next to images.
-6. Guarantee process cleanup after success, failure, timeout, and forced kill.
+#### 1.1 Add protocol data types
 
-**Exit:** one command builds/starts the simulator, executes the smoke flow,
-captures checkpoints, and exits cleanly on Linux and Windows.
+Implement:
 
-### Phase 6 — Review hardening
+- request/response models;
+- stable error enum;
+- command enum;
+- target capability model;
+- session epoch and display sequence types; and
+- asynchronous-operation enum.
 
-1. Run the normal native test and firmware build matrix.
-2. Verify automation-disabled behavior and command-line help.
-3. Measure per-iteration automation polling cost when idle and under load.
-4. Confirm no firmware, Companion, or WASM source receives automation-only
-   definitions or dependencies.
-5. Update this document from proposal to the accepted contract.
+#### 1.2 Add raw byte assembly
 
-**Exit:** all applicable CI is green and the pull request contains one coherent
-simulator-testing capability.
+Implement and test:
 
-## 12. Test matrix
-
-### 12.1 Protocol and transport
-
-- empty and whitespace-only lines;
-- unsupported protocol version;
-- missing, invalid, maximum, and repeated request IDs;
-- unknown command;
-- missing, extra, negative, overflowed, and non-numeric arguments;
-- one command split across every byte boundary;
-- several commands in one OS read;
 - LF and CRLF;
-- UTF-8 path split across read boundaries;
-- path containing spaces;
-- 16 KiB exact boundary and one byte over;
-- queue at 63, 64, and 65 commands;
-- stdin EOF and broken pipe;
-- simulator stop with queued and pending work; and
-- response serialization of quotes, backslashes, and control characters.
+- multiple records in one feed;
+- every split position of representative UTF-8 input;
+- discard-through-newline after overflow;
+- EOF with and without a partial record; and
+- fixed memory bounds.
 
-### 12.2 Input
+#### 1.3 Add strict parser and JSON serializer
 
-- key down/up and invalid key;
-- host-composed short and long press;
-- positive, negative, zero, and excessive rotary steps;
-- touch down/move/up;
-- repeated down, move without down, and repeated up;
-- coordinates at every edge and just outside the LCD;
-- switch positions -1, 0, and 1;
-- analog values 0, midpoint, 4096, and outside range; and
-- valid and rejected telemetry metadata.
+Implement:
 
-### 12.3 Lifecycle and capture
+- version and monotonic ID validation;
+- exact arity checks;
+- overflow-safe integer conversion;
+- capture remainder parsing;
+- UTF-8 validation;
+- complete JSON escaping; and
+- response-size enforcement.
 
-- Lua available and unavailable;
-- reload during an idle screen and live widget refresh;
-- reset with no pending work;
-- reset with queued commands;
-- reset while capture is pending;
-- capture on a changing screen;
-- capture on a static screen requiring invalidation;
-- second capture while one is pending;
-- missing/unwritable output directory;
-- path containing spaces;
-- twenty deterministic captures;
-- deliberate one-pixel change detected by the host; and
-- clean stop, timeout termination, forced kill, and child reaping.
+#### 1.4 Add pure session state tests
 
-### 12.4 Target and platform
+Model legal and illegal transitions for:
 
-The first required target is one TX16S-class color simulator. The pull request
-must run protocol/parser tests on every native test platform available in CI and
-must exercise the interactive smoke scenario on Linux and Windows where the CI
-environment supports SDL execution. Additional resolutions are follow-up work
-unless adding one requires no new protocol behavior.
+- key and touch state;
+- one asynchronous operation;
+- cancellation;
+- restart epoch change; and
+- exactly-once terminal response ownership.
 
-## 13. Acceptance criteria
+**Tests:** P01–P18, S01–S12.
 
-The consolidated pull request is ready for non-draft review only when:
+**Exit:** `gtests-radio` passes parser/state tests with no SDL window and no new
+external dependency.
 
-- maintainers have confirmed the consolidation direction;
-- each accepted command has one correlated terminal response;
-- malformed and overflow input has visible bounded behavior;
-- the SDL loop contains no automation `SDL_Delay` or blocking stdin read;
-- Linux and Windows share one command grammar and result schema;
-- UI mutation remains in the established UI context;
-- reset, reload, and capture have explicit completion semantics;
-- static-screen capture completes without arbitrary sleeps;
-- deterministic capture passes twenty consecutive runs;
-- the smoke scenario covers key, rotary, touch, state injection, reload, and
-  capture;
-- process resources are released on all exit paths;
-- automation-disabled simulator behavior is unchanged;
-- no physical-radio firmware size change is attributable to the harness;
-- documentation identifies trust boundaries and unsupported targets; and
-- reused work from both original pull requests is credited.
+### Phase 2 — Native transport and runtime activation
 
-## 14. Pull-request and collaboration strategy
+#### 2.1 Add command-line activation
 
-The replacement starts as a draft from a fresh `upstream/main` branch. Its
-first commit contains this plan so that scope is reviewable before more code is
-added. Implementation commits follow the phases above and remain independently
-reviewable.
+Add and test:
 
-The draft description will:
+- `--automation-stdio`;
+- required `--automation-output` dependency;
+- help text;
+- invalid combinations;
+- output-root canonicalization; and
+- automation-disabled defaults.
 
-- thank `onliner10` for #7337 and link its design and implementation;
-- link #7646 and explain why a single replacement is proposed;
-- invite `onliner10`, `pfeerick`, and the simulator maintainers to review the
-  contract early;
-- explicitly state that the new work is a collaboration, not an attempt to
-  replace attribution; and
-- list which capabilities were kept, redesigned, deferred, or dropped.
+#### 2.2 Implement POSIX input
 
-Once the replacement reaches behavioral parity and the direction is accepted:
+Use raw non-blocking `read` with:
 
-- the author of #7646 can close it as superseded with a link to the replacement;
-- the author of #7337 decides whether to close, rebase, or continue that pull
-  request; and
-- no automated or unilateral action is taken on another contributor's branch.
+- no `std::cin`;
+- a 4096-byte per-iteration budget;
+- EAGAIN/EWOULDBLOCK handling;
+- EOF and error distinction; and
+- no change to SDL frame pacing.
 
-## 15. Risks and controls
+#### 2.3 Implement Win32 input
 
-| Risk | Control |
+Use redirected standard input with:
+
+- `GetStdHandle` and handle validation;
+- `GetFileType`;
+- `PeekNamedPipe` to determine available bytes;
+- bounded `ReadFile`;
+- broken-pipe handling; and
+- no console-only assumption.
+
+#### 2.4 Reserve protocol stdout
+
+- Emit protocol JSON only on stdout.
+- Route automation diagnostics to stderr.
+- Flush complete response lines.
+- Ignore SIGPIPE or handle its platform equivalent.
+- Exit cleanly when the controlling pipe disappears.
+
+#### 2.5 Add a temporary protocol probe
+
+Before the full host exists, add a test helper that:
+
+- launches the simulator;
+- sends `ping` and malformed records;
+- verifies IDs and EOF behavior; and
+- runs on both platforms without Python `select`.
+
+The helper evolves into the Phase 3 session code; it is not a second API.
+
+**Tests:** T01–T16, B01–B04.
+
+**Exit:** identical byte vectors and response JSON pass on Linux and Windows;
+idle automation adds no blocking read to the SDL loop.
+
+### Phase 3 — Cross-platform Python session foundation
+
+#### 3.1 Implement binary response readers
+
+- Start stdout and stderr threads before first request.
+- Preserve partial bytes across reads.
+- Route protocol responses by ID.
+- Bound stderr memory.
+- Fail on malformed stdout.
+
+#### 3.2 Implement request lifecycle
+
+- Generate strictly increasing IDs.
+- Serialize one request at a time.
+- Attach command-specific timeouts.
+- Detect child exit while waiting.
+- Include request ID and recent stderr in errors.
+
+#### 3.3 Implement process cleanup
+
+Cover:
+
+- clean `stop`;
+- simulator error response;
+- request timeout;
+- child crash;
+- terminate escalation;
+- kill escalation;
+- pipe closure; and
+- final `wait` and thread join.
+
+#### 3.4 Implement readiness
+
+Replace startup sleeps with:
+
+- `ping`;
+- `status`;
+- first-frame readiness; and
+- capability validation.
+
+**Tests:** H01–H14.
+
+**Exit:** 100 start/ping/stop cycles leave no child process, open pipe warning,
+or zombie on Linux and Windows.
+
+### Phase 4 — Core input and display barriers
+
+#### 4.1 Add discovery and status
+
+Implement `status` and `describe` with bounded response output.
+
+#### 4.2 Add key and rotary primitives
+
+- Reuse existing key and rotary functions.
+- Filter target-supported keys.
+- Enforce key state transitions.
+- Bound rotary steps.
+- Zero-initialize every synthetic SDL event.
+
+#### 4.3 Add touch primitives
+
+- Use framebuffer coordinates.
+- Enforce down/move/up order.
+- Validate every edge and out-of-bounds coordinate.
+- Guarantee cleanup release.
+
+#### 4.4 Add display sequence
+
+- Increment only from `simuLcdNotify`.
+- Publish it atomically.
+- Implement `wait-frame` as an asynchronous operation.
+- Keep SDL redraw counters out of the protocol.
+
+#### 4.5 Add host composite actions
+
+Implement validated `press`, `long-press`, `tap`, `drag`,
+`wait-next-frame`, and cleanup-on-failure.
+
+**Tests:** I01–I18, F01–F06.
+
+**Exit:** key, rotary, and touch scenarios complete without simulator-side
+duration waits, and a host can wait for a real LCD refresh.
+
+### Phase 5 — Render-complete capture
+
+#### 5.1 Add safe artifact paths
+
+Implement canonical containment, extension check, parent check, no-overwrite
+policy, length limit, and spaces.
+
+#### 5.2 Add invalidation handoff
+
+- SDL raises a request.
+- Firmware/UI consumes it.
+- LVGL invalidates the active screen.
+- Default simulator behavior remains unchanged with no request.
+
+#### 5.3 Add snapshot handoff
+
+- Arm against `display_seq`.
+- Copy only after a newer full LCD notification.
+- Copy into owned storage.
+- Perform no file I/O in `simuLcdNotify`.
+
+#### 5.4 Add deterministic PPM writer
+
+- RGB565-to-RGB888 conversion tests;
+- temporary-file write;
+- complete byte-count validation;
+- close and atomic rename; and
+- cleanup of partial artifacts.
+
+#### 5.5 Add host PNG conversion and metadata
+
+Reuse the useful #7337 host-side concept with standard-library code and verify
+dimensions, PPM hash, PNG decode, and manifest contents.
+
+**Tests:** C01–C18.
+
+**Exit:** 20 repeated captures of one static checkpoint are byte-identical;
+one deliberate pixel change changes the hash; paths containing spaces work on
+Linux and Windows.
+
+### Phase 6 — State injection and lifecycle
+
+This is deliberately after the core transport/capture path because it crosses
+more ownership boundaries.
+
+#### 6.1 Add switch control
+
+Resolve canonical names, validate switch type, and test all valid positions.
+
+#### 6.2 Add atomic analog overrides
+
+Add set, replace, clear-one, clear-all, cleanup, and fallback behavior without a
+per-sample mutex.
+
+#### 6.3 Add firmware mailbox
+
+Implement bounded request/completion queues, per-iteration budget, epoch tags,
+and stale-completion rejection.
+
+#### 6.4 Add telemetry injection
+
+Execute the existing telemetry/model path from firmware context and verify a
+real widget-visible sensor value using only the writable run fixture.
+
+#### 6.5 Add Lua reload generation
+
+Post a generation, observe existing Lua state transitions, return running or
+panic, and test missing/broken scripts.
+
+#### 6.6 Add warm restart state machine
+
+Require an idle asynchronous slot, release state, purge stale completions,
+stop/join tasks, start, increment epoch, wait for the first new LCD frame, and
+report failure visibly.
+
+#### 6.7 Add cold host restart
+
+Reap the old process, create a new fixture copy, relaunch, and prove that
+telemetry and overrides do not leak.
+
+**Tests:** V01–V12, L01–L16.
+
+**Exit:** state injection is visible in the UI, Lua completion is observed rather
+than assumed, and warm/cold restart semantics are demonstrably different.
+
+### Phase 7 — Scenario, fixture, and developer UX
+
+#### 7.1 Finalize strict flow schema
+
+Validate all steps before launch and reject unknown data.
+
+#### 7.2 Minimize the TX16S fixture
+
+Start from the proven #7337 fixture, preserve attribution, and remove content
+only when startup and smoke tests prove it unnecessary.
+
+#### 7.3 Add one representative smoke flow
+
+The flow must cover:
+
+- readiness;
+- key press;
+- rotary input;
+- touch input;
+- switch and analog injection;
+- telemetry injection;
+- Lua reload;
+- wait for a real display frame;
+- static-screen capture;
+- input release; and
+- clean stop.
+
+#### 7.4 Add artifacts and diagnostics
+
+Write manifest, protocol log, bounded stderr log, PPM, PNG, hashes, and failed
+step.
+
+#### 7.5 Document use and troubleshooting
+
+Document build, run, protocol, output layout, unsupported targets, timeouts,
+Windows behavior, and cleanup.
+
+**Tests:** Q01–Q10.
+
+**Exit:** one documented command builds, runs the smoke scenario, produces
+verified artifacts, and exits nonzero on any failed step.
+
+### Phase 8 — Hardening, CI, and review readiness
+
+#### 8.1 Run native correctness matrix
+
+- parser/state unit tests on Linux and Windows;
+- normal radio tests;
+- simulator builds;
+- automation-disabled CLI test; and
+- representative firmware build/size comparison.
+
+#### 8.2 Run transport stress
+
+- 10,000 requests;
+- every relevant byte split;
+- 64/65 queue boundary;
+- slow stdout reader;
+- stdin EOF;
+- broken stdout;
+- malformed UTF-8;
+- maximum path/record/response; and
+- forced child crash.
+
+The supported-client stress case must satisfy the performance budgets in
+section 6.8. If delayed stdout draining causes an iteration over 50 ms, Phase 8
+adds a bounded writer queue and reruns T13–T16 before review.
+
+#### 8.3 Run lifecycle stress
+
+- 100 process start/stop cycles;
+- 20 Lua reloads;
+- 20 warm restarts;
+- restart requests during each asynchronous state, which must return
+  `operation_busy` without preemption;
+- capture write failure;
+- no leftover temporary artifacts; and
+- no stale completion crossing epochs.
+
+#### 8.4 Run deterministic visual smoke
+
+- 20 identical static captures;
+- changing-screen capture;
+- one-pixel mutation;
+- unique artifact directories; and
+- Linux/Windows hash comparison where pixel format is expected to match.
+
+#### 8.5 Verify scope isolation
+
+- no Lua `simu` table;
+- no `WIDGET_STUDIO` option;
+- no append-only transport;
+- no MCP;
+- no root Python dependency project;
+- no native PNG dependency;
+- no automation code in firmware/WASM; and
+- normal simulator behavior unchanged.
+
+#### 8.6 Update proposal to accepted contract
+
+Replace future tense, record final deviations and rationale, and link test/CI
+evidence.
+
+**Exit:** all mandatory checks are green and the replacement is ready to leave
+draft.
+
+## 12. Test catalogue
+
+### 12.1 Protocol tests
+
+| ID range | Coverage |
 |---|---|
-| A third PR increases confusion | Open as a clearly labeled draft replacement and cross-link both originals immediately |
-| Contribution appears appropriated | Invite the original author before implementation, preserve authorship, and document provenance |
-| Automation blocks the SDL loop | Non-blocking OS reads, bounded pump budget, and no simulator-side duration waits |
-| Host thread mutates UI state | Queue commands and execute them only from the SDL/UI-owned path |
-| Capture returns a stale frame | Redraw request, frame ID, flush checkpoint, and completion response |
-| Static screen never flushes | UI-context invalidation specifically tied to the pending capture |
-| Input grows without bound | Fixed input, partial-line, queue, path, and response limits |
-| Two transports diverge | One stdin protocol with platform adapters and common test vectors |
-| Lua/widget tooling becomes simulator-only | Host protocol owns test control; no new Lua API |
-| Scope expands into a full testing platform | Defer MCP, golden management, rich diffs, and multiple targets |
-| Build complexity spreads to firmware | Keep code native-simulator-only and verify firmware-size stability |
+| P01–P04 | valid records, LF/CRLF, multiple records, blank record |
+| P05–P08 | version, missing ID, zero/max/overflow ID, non-monotonic ID |
+| P09–P12 | unknown command, missing/extra arguments, numeric syntax/range |
+| P13–P15 | valid UTF-8, split multi-byte path, invalid UTF-8 |
+| P16–P18 | exact line limit, one byte over, complete JSON escaping |
 
-## 16. Rollback and follow-up
+### 12.2 Session-state and build-isolation tests
 
-Automation remains opt-in. If the host process or protocol fails, the simulator
-can still run normally without the automation flag. The feature can be removed
-without changing model data, Lua APIs, firmware behavior, or persisted radio
-settings.
+| ID range | Coverage |
+|---|---|
+| S01–S04 | request ownership, one terminal response, duplicate completion, release |
+| S05–S08 | legal async transitions, busy rejection, stop cancellation, timeout cleanup |
+| S09–S12 | epoch increment, stale completion, queue purge, stop state |
+| B01–B02 | CLI flag combinations and Linux/Windows simulator build |
+| B03–B04 | automation-disabled behavior and firmware/WASM isolation |
 
-Potential follow-ups, each requiring a separate decision, are:
+### 12.3 Transport and host tests
 
-- an MCP adapter over the accepted host harness;
-- CTest/JUnit registration and visual-diff artifacts;
-- PNG conversion and comparison in host tooling;
-- additional color and monochrome targets;
-- more complete telemetry scenario APIs;
-- alternate transport for environments where redirected stdin is unavailable;
-- hardware smoke-test vocabulary aligned with simulator scenarios; and
-- performance and memory probes built on the same checkpoint IDs.
+| ID range | Coverage |
+|---|---|
+| T01–T04 | one-byte feeds, partial line, multi-line read, read budget |
+| T05–T08 | POSIX EAGAIN/EOF/error and Windows empty/broken pipe |
+| T09–T12 | 63/64/65 queue records and bounded pump fairness |
+| T13–T16 | stdout separation, broken peer, stop flush, disabled mode |
+| H01–H04 | startup readiness, response correlation, stderr isolation, crash |
+| H05–H08 | timeout, graceful stop, terminate, kill-and-wait |
+| H09–H12 | pipe closure, reader join, 100 lifecycle cycles, no warning |
+| H13–H14 | fixture copy isolation and nonzero flow failure exit |
 
-These follow-ups must reuse the accepted protocol rather than adding parallel
-simulator control surfaces.
+### 12.4 Input and frame tests
+
+| ID range | Coverage |
+|---|---|
+| I01–I04 | supported/unsupported key, duplicate down, unmatched up |
+| I05–I08 | rotary negative/positive/zero/out-of-range |
+| I09–I14 | touch state order, edges, outside bounds, cleanup |
+| I15–I18 | composite press/tap failure releases and target capability errors |
+| F01–F03 | display sequence only changes on LCD notification |
+| F04–F06 | wait current/next sequence, timeout/cancellation |
+
+### 12.5 Capture tests
+
+| ID range | Coverage |
+|---|---|
+| C01–C05 | relative path, spaces, absolute/traversal, extension, existing file |
+| C06–C09 | static invalidation, newer sequence, one capture, stop cancellation |
+| C10–C13 | RGB565 known colors, header, byte count, atomic rename |
+| C14–C16 | open/write/close failure and temporary cleanup |
+| C17–C18 | 20 identical hashes and deliberate one-pixel difference |
+
+### 12.6 State and lifecycle tests
+
+| ID range | Coverage |
+|---|---|
+| V01–V04 | switch 2/3-position validation and absent switch |
+| V05–V08 | analog set/replace/clear/fallback |
+| V09–V12 | telemetry tuple/range, real sensor visibility, copied-fixture write |
+| L01–L04 | Lua unavailable/running/panic/generation |
+| L05–L08 | warm restart success, first frame, epoch, stale completion |
+| L09–L12 | restart rejected while wait/capture/mailbox is active and input cleanup |
+| L13–L16 | cold restart isolation, child reap, no temp artifacts, failure |
+
+### 12.7 Scenario and developer-UX tests
+
+| ID range | Coverage |
+|---|---|
+| Q01–Q03 | strict schema, unknown fields, pre-launch range validation |
+| Q04–Q06 | required capabilities, immutable fixture copy, unique run directory |
+| Q07–Q08 | manifest/protocol/artifact hashes and failed-step diagnostics |
+| Q09–Q10 | documented one-command smoke and nonzero failure exit |
+
+## 13. Requirement traceability
+
+| Requirement | Source | Design decision | Phase | Proof |
+|---|---|---|---|---|
+| Generic reusable harness | #7337 | D01 | 0–3 | B01, H01 |
+| Windows control | #7646 requirement | D03, native Win32 adapter | 2–3 | T05–T08, H01–H14 |
+| Partial-line safety | Both PRs/review | Line buffer | 1–2 | P13–P18, T01–T04 |
+| Correlated errors | #7337 improved | D05–D06 | 1 | P05–P18 |
+| Non-blocking durations | #7337 review | D07 | 4 | I15–I18 |
+| Key/rotary/touch | #7337 + #7646 | Core commands | 4 | I01–I18 |
+| State injection | #7646 | Firmware ownership/atomics | 6 | V01–V12 |
+| Lua reload | #7646 | Generation completion | 6 | L01–L04 |
+| Warm restart | #7646 | D12 | 6 | L05–L12 |
+| Cold deterministic reset | #7337 host model | Host process restart | 6 | L13–L16 |
+| Fresh static capture | #7646 | D08–D10 | 5 | C06–C18 |
+| Safe paths with spaces | #7337 review | Output root containment | 5 | C01–C05 |
+| Process cleanup | #7337 review | Host lifecycle contract | 3 | H05–H12 |
+| Small native dependency surface | Both | D10, D17 | 5, 8 | scope audit |
+| Attribution | Collaboration requirement | provenance policy | 0, PR strategy | reviewed commit history |
+
+## 14. Final acceptance criteria
+
+The implementation may leave draft only when all of the following are true:
+
+- one protocol and one runtime activation path exist;
+- maintainers have reviewed or accepted the consolidation direction;
+- every admitted request has one correlated terminal response;
+- request IDs, bounds, UTF-8, paths, and JSON escaping are tested;
+- Linux and Windows use the same grammar and host API;
+- neither native nor Python input handling depends on pipe-incompatible
+  `select` behavior;
+- no automation command uses `SDL_Delay`;
+- no partial input blocks the SDL loop;
+- idle polling and supported-client stress remain inside the section 6.8
+  performance budgets;
+- stdout contains protocol only and stderr is drained separately;
+- key/touch state is released on every cleanup path;
+- analog overrides never leak across release/restart;
+- telemetry and Lua operations run in firmware context;
+- Lua reload reports actual stable completion;
+- warm restart reports a new epoch and first new LCD frame;
+- cold restart uses a new process and fixture copy;
+- static-screen capture is tied to a newer LCD notification;
+- `simuLcdNotify` performs no filesystem work;
+- 20 repeated checkpoint captures are byte-identical;
+- paths containing spaces pass on Linux and Windows;
+- fixture templates remain unmodified after tests;
+- stop, crash, timeout, terminate, and kill all reap the child;
+- the scenario runner exits nonzero on failure;
+- normal simulator behavior and help remain valid without automation flags;
+- no physical firmware or WASM artifact contains the feature;
+- no unrelated build option or dependency is added;
+- retained work from both PRs is visibly credited; and
+- the final document records any approved deviation from this contract.
+
+## 15. Pull-request, commit, and attribution strategy
+
+### 15.1 Pull-request structure
+
+1. Keep this documentation pull request focused on scope and contract.
+2. After direction is accepted, branch the replacement implementation from a
+   fresh `upstream/main`.
+3. Keep the implementation draft until Phase 8.
+4. Use the phase order as the default commit order.
+5. If reviewers request smaller changes, split at phase boundaries into stacked
+   pull requests while retaining one protocol and one tracking issue/document.
+6. Do not merge a temporary second transport or compatibility API merely to
+   reduce rebasing work.
+
+### 15.2 Recommended commit sequence
+
+1. `simu: add bounded automation protocol core and tests`
+2. `simu: add cross-platform stdio transport`
+3. `tools: add cross-platform simulator session client`
+4. `simu: add input primitives and display sequencing`
+5. `simu: add render-complete framebuffer capture`
+6. `simu: add state injection and lifecycle operations`
+7. `tools: add strict TX16S smoke scenario and fixtures`
+8. `docs: finalize simulator automation contract`
+
+Each commit must build and its tests must pass. Fixups should be folded before
+final review unless preserving an author's imported commit is more important.
+
+### 15.3 Attribution rules
+
+- Thank `onliner10` prominently in the replacement description.
+- Link both source pull requests in the document and implementation PR.
+- Preserve original Git authorship when importing a coherent block that can
+  remain a reviewable commit.
+- If substantial code is rewritten, use `Co-authored-by` only with the
+  contributor's approval.
+- If only an idea or requirement is retained, credit it in the provenance table
+  and PR description rather than manufacturing code authorship.
+- Do not close, force-push, or otherwise modify another contributor's branch.
+- #7646 may be closed by its author only after replacement parity is clear.
+- The author of #7337 decides whether that PR is closed, rebased, or retained.
+
+## 16. Risks, controls, and decision gates
+
+| Risk | Control | Decision gate |
+|---|---|---|
+| A third PR increases confusion | Draft, cross-links, one decision table | Do not implement until direction is visible |
+| Contribution appears appropriated | Provenance table and author invitation | Review attribution before importing code |
+| Protocol scope becomes a testing platform | Version 1 command list and non-goals | Defer adapters/goldens/multiple targets |
+| Windows works natively but Python fails | Binary reader threads, no pipe `select` | Windows lifecycle test in Phase 3 |
+| SDL loop stalls on input | Raw bounded reads and pump budget | Frame-time baseline and stress |
+| SDL loop stalls on output | Cooperative-reader invariant and slow-reader stress | Add response writer queue if latency budget fails |
+| Capture is stale | Newer `display_seq` and forced invalidation | C06–C09 |
+| LCD callback blocks firmware | Snapshot only; writer elsewhere | Static analysis and failure-injection test |
+| Capture writes outside run directory | Canonical relative containment | C01–C05 |
+| Analog read becomes expensive | Packed atomic override | Measure ADC path; no mutex |
+| Telemetry races model state | Firmware mailbox | Thread/context review before Phase 6 |
+| Lua reply means only “requested” | Generation and stable-state completion | L01–L04 |
+| Warm restart is mistaken for clean state | Explicit epoch and cold host action | Documentation and isolation tests |
+| Fixture is modified in Git | Copy-on-run policy | Dirty-worktree assertion after smoke |
+| Async operation replies twice | Single owner state machine | S01–S12 |
+| Late completion crosses restart | Epoch-tagged mailbox/completion | L05–L12 |
+| Firmware size changes | Native-only build boundaries | Representative size comparison |
+| Large patch becomes unreviewable | Phase commits or stacked PRs | Split only at architecture boundaries |
+
+## 17. Rollback and recovery
+
+Automation is opt-in and has no persisted protocol state. If the implementation
+must be removed:
+
+- remove the runtime flags and simulator-only sources;
+- remove the two small firmware/UI simulator hooks;
+- remove the host tool and fixtures;
+- retain no model-format, Lua-API, firmware, Companion, or WASM compatibility
+  obligation; and
+- keep generated artifacts under ignored build directories.
+
+During development, a phase that fails its exit criteria is reverted or revised
+before the next phase. It is not hidden behind another build option.
+
+## 18. Deferred follow-up work
+
+Each item requires a separate proposal after protocol v1 is accepted:
+
+- MCP adapter over the Python client;
+- JUnit/CTest integration;
+- golden-image review and approval workflow;
+- richer image diffing and masks;
+- monochrome and additional color target capture;
+- concurrent or pipelined clients;
+- a bounded asynchronous response writer if stress data requires it;
+- alternate transport for environments without redirected stdio;
+- richer telemetry scenario vocabulary;
+- hardware-in-the-loop commands aligned with the same scenario model; and
+- performance/memory probes keyed by epoch and `display_seq`.
+
+Follow-ups must consume the accepted protocol or extend it compatibly. They must
+not introduce a second simulator control surface.
