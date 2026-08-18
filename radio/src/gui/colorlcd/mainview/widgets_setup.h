@@ -69,7 +69,6 @@ class SetupWidgetsPageSlot : public ButtonBase
   WidgetsContainer* container = nullptr;
   uint8_t slotIndex = 0;
   bool openSettings = false;
-  lv_style_t borderStyle;
   lv_point_t borderPts[5];
   lv_obj_t* border;
 

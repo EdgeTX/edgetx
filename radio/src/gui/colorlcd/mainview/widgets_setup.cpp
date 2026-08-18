@@ -56,13 +56,6 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
   etx_obj_add_style(lvobj, styles->border, LV_STATE_FOCUSED);
   etx_obj_add_style(lvobj, styles->border_color[COLOR_THEME_FOCUS_INDEX], LV_STATE_FOCUSED);
 
-  lv_style_init(&borderStyle);
-  lv_style_set_line_width(&borderStyle, PAD_BORDER);
-  lv_style_set_line_opa(&borderStyle, LV_OPA_COVER);
-  lv_style_set_line_dash_width(&borderStyle, PAD_BORDER);
-  lv_style_set_line_dash_gap(&borderStyle, PAD_BORDER);
-  lv_style_set_line_color(&borderStyle, makeLvColor(COLOR_THEME_SECONDARY2));
-
   borderPts[0] = {1, 1};
   borderPts[1] = {(lv_coord_t)(width() - 1), 1};
   borderPts[2] = {(lv_coord_t)(width() - 1), (lv_coord_t)(height() - 1)};
@@ -70,7 +63,8 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
   borderPts[4] = {1, 1};
 
   border = lv_line_create(lvobj);
-  lv_obj_add_style(border, &borderStyle, LV_PART_MAIN);
+  etx_obj_add_style(border, styles->border_dash_line, LV_PART_MAIN);
+  etx_obj_add_style(border, styles->line_color[COLOR_THEME_SECONDARY2_INDEX], LV_PART_MAIN);
   lv_line_set_points(border, borderPts, 5);
 
   setFocusState();
