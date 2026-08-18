@@ -86,7 +86,8 @@ bool SdcardFormat::loadImageFile(const QString & filename, bool optional)
       return false;
     }
   } else {
-    fatalMsg(tr("No application image cache"));
+    // this should not occur
+    fatalMsg(tr("Application image cache directory not found"));
     return false;
   }
 
@@ -143,11 +144,13 @@ bool SdcardFormat::writeImageFile(const QString & filename)
     }
 
     statusMsg(tr("Image written: %1").arg(filename));
-    return true;
+  } else {
+    // the non-existence of a Companion accessible image file is not fatal
+    // it may exist on the radio - so continue
+    statusMsg(tr("Unable to find and write image file: %1").arg(filename), QtWarningMsg);
   }
 
-  fatalMsg(tr("No application image cache"));
-  return false;
+  return true;
 }
 
 bool SdcardFormat::getFileList(std::list<std::string>& filelist)
