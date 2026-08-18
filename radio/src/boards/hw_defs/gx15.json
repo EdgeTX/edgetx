@@ -67,7 +67,7 @@
         "inverted": true,
         "label": "S1",
         "short_label": "1",
-        "default": "POT"
+        "default": "POT_CENTER"
       },
       {
         "name": "P2",
@@ -79,7 +79,7 @@
         "inverted": true,
         "label": "S2",
         "short_label": "2",
-        "default": "POT"
+        "default": "POT_CENTER"
       },
       {
         "name": "SL1",

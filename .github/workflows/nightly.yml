@@ -38,7 +38,7 @@ jobs:
           - nb4p
           - st16
           - c14
-          - tx15
+          - tx15;gx15
           - t15pro
           - v12
     container:
