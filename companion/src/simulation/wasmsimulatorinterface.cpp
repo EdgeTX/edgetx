@@ -19,6 +19,7 @@
 #include <QFile>
 #include <QElapsedTimer>
 #include <QTimer>
+#include <QDir>
 
 // WAMR native callback: called by WASM module to get analog values in
 // ADC range (0..4096, center=2048).  The WASM ADC driver does a direct
@@ -231,6 +232,15 @@ bool WasmSimulatorInterface::loadModule()
   // NOTE: wasm_runtime_set_wasi_args() only stores pointers; the actual WASI
   // init happens inside wasm_runtime_instantiate(), so all buffers must remain
   // alive until after instantiation completes.
+
+  // DO NOT trust the sd path as it could be invalid
+  // sdPath MUST point to an existing directory or the simulator will crash
+  // an empty directory value is safe
+  if (!QDir(m_sdPath).exists()) {
+    qWarning() << "SD path" << m_sdPath << "does not exist and has been ignored";
+    m_sdPath.clear();
+  }
+
   QByteArray sdPathUtf8 = m_sdPath.toUtf8();
   QByteArray settingsPathUtf8 = m_settingsPath.toUtf8();
   const char * dirList[2] = {};
