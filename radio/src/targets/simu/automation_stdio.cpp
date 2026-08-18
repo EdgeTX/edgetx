@@ -6,6 +6,7 @@
 
 #include "automation_stdio.h"
 
+#include <algorithm>
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
@@ -37,6 +38,23 @@ void setError(std::string* error, const std::string& message)
 void incrementSaturating(std::uint64_t* counter)
 {
   if (*counter != (std::numeric_limits<std::uint64_t>::max)()) ++*counter;
+}
+
+std::uint64_t parseValidatedUnsigned(const std::string& value)
+{
+  std::uint64_t parsed = 0;
+  for (const char byte : value)
+    parsed = parsed * 10 + static_cast<std::uint64_t>(byte - '0');
+  return parsed;
+}
+
+std::int32_t parseValidatedSigned(const std::string& value)
+{
+  const bool negative = value[0] == '-';
+  const std::size_t offset = negative ? 1 : 0;
+  const std::uint64_t magnitude = parseValidatedUnsigned(value.substr(offset));
+  return negative ? -static_cast<std::int32_t>(magnitude)
+                  : static_cast<std::int32_t>(magnitude);
 }
 
 #if defined(_WIN32)
@@ -102,6 +120,12 @@ void AutomationStdio::setTargetDescription(const TargetDescription& target)
   targetDescription = target;
 }
 
+void AutomationStdio::setInputHandlers(const AutomationInputHandlers& handlers)
+{
+  std::lock_guard<std::mutex> lock(stateMutex);
+  inputHandlers = handlers;
+}
+
 void AutomationStdio::markRuntimeStarted()
 {
   std::lock_guard<std::mutex> lock(stateMutex);
@@ -119,6 +143,19 @@ void AutomationStdio::onDisplayFrame()
 {
   std::lock_guard<std::mutex> lock(stateMutex);
   (void)sessionState.onDisplayFrame();
+  if (!pendingFrameWait.active() ||
+      sessionState.displaySequence() < pendingFrameWait.minimum) {
+    return;
+  }
+
+  const TransitionResult completion =
+      sessionState.completeAsync(pendingFrameWait.id, pendingFrameWait.epoch);
+  if (completion == TransitionResult::Applied) {
+    completedFrameWait.id = pendingFrameWait.id;
+    completedFrameWait.epoch = pendingFrameWait.epoch;
+    completedFrameWait.sequence = sessionState.displaySequence();
+  }
+  pendingFrameWait.clear();
 }
 
 bool AutomationStdio::start(std::string* error)
@@ -255,6 +292,9 @@ StdioPumpResult AutomationStdio::pump(std::string* error)
     setError(error, "automation stdio is not active");
     return StdioPumpResult::Error;
   }
+
+  const StdioPumpResult completedResult = drainCompletedResponses(error);
+  if (completedResult != StdioPumpResult::Continue) return completedResult;
 
   if (pendingEvents.empty() && !inputClosed) {
     char input[STDIO_READ_BUDGET];
@@ -418,6 +458,15 @@ StdioPumpResult AutomationStdio::processEvent(const LineEvent& event,
     return emitEvent(parsed.error.code, parsed.error.message, error);
   }
 
+  if (!supportsCommand(parsed.request.command)) {
+    return emitResponse(
+        Response::failure(
+            parsed.request.id, currentEpoch(), ErrorCode::UnsupportedCommand,
+            std::string("command is not supported by this target: ") +
+                commandName(parsed.request.command)),
+        error);
+  }
+
   if (parsed.request.command == Command::Ping) {
     return emitResponse(Response::success(parsed.request.id, currentEpoch()),
                         error);
@@ -428,12 +477,28 @@ StdioPumpResult AutomationStdio::processEvent(const LineEvent& event,
   if (parsed.request.command == Command::Describe) {
     return emitResponse(makeDescriptionResponse(parsed.request.id), error);
   }
+  if (parsed.request.command == Command::KeyDown) {
+    return processKey(parsed.request, true, error);
+  }
+  if (parsed.request.command == Command::KeyUp) {
+    return processKey(parsed.request, false, error);
+  }
+  if (parsed.request.command == Command::Rotate) {
+    return processRotate(parsed.request, error);
+  }
+  if (parsed.request.command == Command::TouchDown ||
+      parsed.request.command == Command::TouchMove ||
+      parsed.request.command == Command::TouchUp) {
+    return processTouch(parsed.request, error);
+  }
+  if (parsed.request.command == Command::WaitFrame) {
+    return processWaitFrame(parsed.request, error);
+  }
+  if (parsed.request.command == Command::ReleaseAll) {
+    return processReleaseAll(parsed.request, error);
+  }
   if (parsed.request.command == Command::Stop) {
-    const StdioPumpResult writeResult = emitResponse(
-        Response::success(parsed.request.id, currentEpoch()), error);
-    return writeResult == StdioPumpResult::Continue
-               ? StdioPumpResult::StopRequested
-               : writeResult;
+    return processStop(parsed.request, error);
   }
 
   return emitResponse(
@@ -442,6 +507,296 @@ StdioPumpResult AutomationStdio::processEvent(const LineEvent& event,
                         std::string("command is not implemented yet: ") +
                             commandName(parsed.request.command)),
       error);
+}
+
+StdioPumpResult AutomationStdio::processKey(const Request& request,
+                                            bool pressed, std::string* error)
+{
+  Response response;
+  void (*handler)(const std::string&, bool) = nullptr;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    const SessionEpoch epoch = sessionState.epoch();
+    const std::string& key = request.arguments[0];
+    if (std::find(targetDescription.keys.begin(), targetDescription.keys.end(),
+                  key) == targetDescription.keys.end()) {
+      response =
+          Response::failure(request.id, epoch, ErrorCode::UnsupportedTarget,
+                            "key is not supported by this target: " + key);
+    } else if (inputHandlers.setKey == nullptr) {
+      response =
+          Response::failure(request.id, epoch, ErrorCode::UnsupportedCommand,
+                            "key input is not available");
+    } else {
+      const TransitionResult transition =
+          pressed ? sessionState.keyDown(key) : sessionState.keyUp(key);
+      if (transition == TransitionResult::Applied) {
+        response = Response::success(request.id, epoch);
+        handler = inputHandlers.setKey;
+      } else if (transition == TransitionResult::Busy) {
+        response =
+            Response::failure(request.id, epoch, ErrorCode::OperationBusy,
+                              "an asynchronous operation is active");
+      } else if (transition == TransitionResult::Duplicate) {
+        response =
+            Response::failure(request.id, epoch, ErrorCode::KeyAlreadyDown,
+                              "key is already down: " + key);
+      } else if (sessionState.phase() != SessionPhase::Ready) {
+        response =
+            Response::failure(request.id, epoch,
+                              sessionState.phase() == SessionPhase::Stopped
+                                  ? ErrorCode::SessionStopping
+                                  : ErrorCode::OperationBusy,
+                              "session is not ready for input");
+      } else {
+        response = Response::failure(request.id, epoch, ErrorCode::KeyNotDown,
+                                     "key is not down: " + key);
+      }
+    }
+  }
+
+  if (handler != nullptr) handler(request.arguments[0], pressed);
+  return emitResponse(response, error);
+}
+
+StdioPumpResult AutomationStdio::processRotate(const Request& request,
+                                               std::string* error)
+{
+  Response response;
+  void (*handler)(std::int32_t) = nullptr;
+  const std::int32_t steps = parseValidatedSigned(request.arguments[0]);
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    const SessionEpoch epoch = sessionState.epoch();
+    if (inputHandlers.rotate == nullptr ||
+        !targetDescription.capabilities.rotary) {
+      response =
+          Response::failure(request.id, epoch, ErrorCode::UnsupportedCommand,
+                            "rotary input is not available");
+    } else if (sessionState.phase() != SessionPhase::Ready) {
+      response = Response::failure(request.id, epoch,
+                                   sessionState.phase() == SessionPhase::Stopped
+                                       ? ErrorCode::SessionStopping
+                                       : ErrorCode::OperationBusy,
+                                   "session is not ready for input");
+    } else if (sessionState.asyncOperation() != AsyncOperation::None) {
+      response = Response::failure(request.id, epoch, ErrorCode::OperationBusy,
+                                   "an asynchronous operation is active");
+    } else {
+      response = Response::success(request.id, epoch);
+      handler = inputHandlers.rotate;
+    }
+  }
+
+  if (handler != nullptr) handler(steps);
+  return emitResponse(response, error);
+}
+
+StdioPumpResult AutomationStdio::processTouch(const Request& request,
+                                              std::string* error)
+{
+  const bool hasCoordinates = request.command != Command::TouchUp;
+  const std::uint16_t x =
+      hasCoordinates ? static_cast<std::uint16_t>(
+                           parseValidatedUnsigned(request.arguments[0]))
+                     : 0;
+  const std::uint16_t y =
+      hasCoordinates ? static_cast<std::uint16_t>(
+                           parseValidatedUnsigned(request.arguments[1]))
+                     : 0;
+  Response response;
+  void (*positionHandler)(std::uint16_t, std::uint16_t) = nullptr;
+  void (*releaseHandler)() = nullptr;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    const SessionEpoch epoch = sessionState.epoch();
+    const bool callbacksReady = inputHandlers.touchDown != nullptr &&
+                                inputHandlers.touchMove != nullptr &&
+                                inputHandlers.touchUp != nullptr;
+    if (!targetDescription.capabilities.touch || !callbacksReady) {
+      response =
+          Response::failure(request.id, epoch, ErrorCode::UnsupportedCommand,
+                            "touch input is not available");
+    } else if (hasCoordinates && (x >= targetDescription.lcdWidth ||
+                                  y >= targetDescription.lcdHeight)) {
+      response = Response::failure(request.id, epoch, ErrorCode::OutOfRange,
+                                   "touch coordinate is outside the LCD");
+    } else {
+      TransitionResult transition = TransitionResult::InvalidState;
+      if (request.command == Command::TouchDown) {
+        transition = sessionState.touchDown(x, y);
+      } else if (request.command == Command::TouchMove) {
+        transition = sessionState.touchMove(x, y);
+      } else {
+        transition = sessionState.touchUp();
+      }
+
+      if (transition == TransitionResult::Applied) {
+        response = Response::success(request.id, epoch);
+        if (request.command == Command::TouchDown)
+          positionHandler = inputHandlers.touchDown;
+        else if (request.command == Command::TouchMove)
+          positionHandler = inputHandlers.touchMove;
+        else
+          releaseHandler = inputHandlers.touchUp;
+      } else if (transition == TransitionResult::Busy) {
+        response =
+            Response::failure(request.id, epoch, ErrorCode::OperationBusy,
+                              "an asynchronous operation is active");
+      } else if (transition == TransitionResult::Duplicate) {
+        response =
+            Response::failure(request.id, epoch, ErrorCode::TouchAlreadyDown,
+                              "touch is already down");
+      } else if (sessionState.phase() != SessionPhase::Ready) {
+        response =
+            Response::failure(request.id, epoch,
+                              sessionState.phase() == SessionPhase::Stopped
+                                  ? ErrorCode::SessionStopping
+                                  : ErrorCode::OperationBusy,
+                              "session is not ready for input");
+      } else {
+        response = Response::failure(request.id, epoch, ErrorCode::TouchNotDown,
+                                     "touch is not down");
+      }
+    }
+  }
+
+  if (positionHandler != nullptr) positionHandler(x, y);
+  if (releaseHandler != nullptr) releaseHandler();
+  return emitResponse(response, error);
+}
+
+StdioPumpResult AutomationStdio::processWaitFrame(const Request& request,
+                                                  std::string* error)
+{
+  const DisplaySequence minimum = parseValidatedUnsigned(request.arguments[0]);
+  Response response;
+  bool immediate = false;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    const SessionEpoch epoch = sessionState.epoch();
+    if (sessionState.phase() != SessionPhase::Ready) {
+      response = Response::failure(request.id, epoch,
+                                   sessionState.phase() == SessionPhase::Stopped
+                                       ? ErrorCode::SessionStopping
+                                       : ErrorCode::OperationBusy,
+                                   "session is not ready for a frame barrier");
+      immediate = true;
+    } else if (sessionState.asyncOperation() != AsyncOperation::None ||
+               pendingFrameWait.active() || completedFrameWait.active()) {
+      response = Response::failure(request.id, epoch, ErrorCode::OperationBusy,
+                                   "an asynchronous operation is active");
+      immediate = true;
+    } else if (sessionState.displaySequence() >= minimum) {
+      response = Response::successWithFrame(request.id, epoch,
+                                            sessionState.displaySequence());
+      immediate = true;
+    } else if (sessionState.beginAsync(AsyncOperation::WaitFrame, request.id) !=
+               TransitionResult::Applied) {
+      response =
+          Response::failure(request.id, epoch, ErrorCode::InvariantViolation,
+                            "cannot arm the frame barrier");
+      immediate = true;
+    } else {
+      pendingFrameWait.id = request.id;
+      pendingFrameWait.epoch = epoch;
+      pendingFrameWait.minimum = minimum;
+    }
+  }
+
+  return immediate ? emitResponse(response, error) : StdioPumpResult::Continue;
+}
+
+StdioPumpResult AutomationStdio::processReleaseAll(const Request& request,
+                                                   std::string* error)
+{
+  releaseInputs();
+  return emitResponse(Response::success(request.id, currentEpoch()), error);
+}
+
+StdioPumpResult AutomationStdio::processStop(const Request& request,
+                                             std::string* error)
+{
+  CompletedFrameWait completion;
+  Response cancellation;
+  bool cancelled = false;
+  SessionEpoch epoch = 0;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    completion = completedFrameWait;
+    completedFrameWait.clear();
+    epoch = sessionState.epoch();
+    if (pendingFrameWait.active()) {
+      const RequestId pendingId = pendingFrameWait.id;
+      const SessionEpoch pendingEpoch = pendingFrameWait.epoch;
+      (void)sessionState.cancelAsync();
+      pendingFrameWait.clear();
+      cancellation = Response::failure(
+          pendingId, pendingEpoch, ErrorCode::SessionStopping,
+          "frame barrier cancelled because the session is stopping");
+      cancelled = true;
+    }
+  }
+
+  releaseInputs();
+  if (completion.active()) {
+    const StdioPumpResult result =
+        emitResponse(Response::successWithFrame(completion.id, completion.epoch,
+                                                completion.sequence),
+                     error);
+    if (result != StdioPumpResult::Continue) return result;
+  }
+  if (cancelled) {
+    const StdioPumpResult result = emitResponse(cancellation, error);
+    if (result != StdioPumpResult::Continue) return result;
+  }
+
+  const StdioPumpResult writeResult =
+      emitResponse(Response::success(request.id, epoch), error);
+  return writeResult == StdioPumpResult::Continue
+             ? StdioPumpResult::StopRequested
+             : writeResult;
+}
+
+StdioPumpResult AutomationStdio::drainCompletedResponses(std::string* error)
+{
+  CompletedFrameWait completion;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    if (!completedFrameWait.active()) return StdioPumpResult::Continue;
+    completion = completedFrameWait;
+    completedFrameWait.clear();
+  }
+  return emitResponse(Response::successWithFrame(
+                          completion.id, completion.epoch, completion.sequence),
+                      error);
+}
+
+void AutomationStdio::releaseInputs()
+{
+  std::vector<std::string> keys;
+  bool touchActive = false;
+  AutomationInputHandlers handlers;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    keys = sessionState.activeKeyNames();
+    touchActive = sessionState.isTouchActive();
+    sessionState.releaseAll();
+    handlers = inputHandlers;
+  }
+
+  if (handlers.setKey != nullptr) {
+    for (const std::string& key : keys) handlers.setKey(key, false);
+  }
+  if (touchActive && handlers.touchUp != nullptr) handlers.touchUp();
+}
+
+bool AutomationStdio::supportsCommand(Command command) const
+{
+  std::lock_guard<std::mutex> lock(stateMutex);
+  return std::find(targetDescription.commands.begin(),
+                   targetDescription.commands.end(),
+                   command) != targetDescription.commands.end();
 }
 
 StdioPumpResult AutomationStdio::emitResponse(const Response& response,

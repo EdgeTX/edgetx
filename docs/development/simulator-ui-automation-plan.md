@@ -1343,44 +1343,183 @@ or zombie on Linux and Windows.
 
 ### Phase 4 — Core input and display barriers
 
-#### 4.1 Add discovery and status
+**Implementation status:** implemented and locally verified on the single
+consolidation branch; maintainer review and CI remain pending.
+Phase 4 deliberately excludes capture, switches, analog inputs, telemetry, Lua,
+restart, and scenario files; those remain in Phases 5–7.
 
-The bounded readiness subset of `status` and `describe` lands in Phase 3 because
-the host must validate first-frame readiness before inputs are admitted. Extend
-the same result types here with canonical key, switch, and ADC names as each
-matching command becomes usable; do not advertise an unimplemented capability.
+#### 4.0 Research record and resulting constraints
 
-#### 4.2 Add key and rotary primitives
+The Phase 4 design was checked against the following primary sources on
+2026-08-17. This is an implementation record, not a request to copy either
+source pull request wholesale.
 
-- Reuse existing key and rotary functions.
-- Filter target-supported keys.
-- Enforce key state transitions.
-- Bound rotary steps.
-- Zero-initialize every synthetic SDL event.
+| # | Primary source investigated | Phase 4 conclusion |
+|---:|---|---|
+| 1 | [EdgeTX PR #7337](https://github.com/EdgeTX/edgetx/pull/7337) | Retain canonical host actions and host-side duration control; reject its simulator-side `SDL_Delay` command execution because it stalls the SDL loop. |
+| 2 | [EdgeTX PR #7646](https://github.com/EdgeTX/edgetx/pull/7646) | Retain direct use of simulator helpers and explicit touch transitions; replace numeric public key IDs and append-file transport with the consolidated protocol. |
+| 3 | [Current EdgeTX `simulib.cpp`](https://github.com/EdgeTX/edgetx/blob/main/radio/src/targets/simu/simulib.cpp) | Execute through `simuSetKey`, `simuRotaryEncoderEvent`, `simuTouchDown`, and `simuTouchUp`; do not add a parallel input state. |
+| 4 | [Current EdgeTX `sdl_simu.cpp`](https://github.com/EdgeTX/edgetx/blob/main/radio/src/targets/simu/sdl_simu.cpp) | Filter keys with the target support mask and preserve framebuffer-pixel touch coordinates. |
+| 5 | [SDL `SDL_PushEvent`](https://wiki.libsdl.org/SDL2/SDL_PushEvent) | Do not synthesize keyboard or pointer events: pushed device events do not update SDL device state. |
+| 6 | [SDL `SDL_Event`](https://wiki.libsdl.org/SDL2/SDL_Event) | If a future command must create an SDL event, zero-initialize the entire union before setting fields. Phase 4 needs no synthetic SDL input event. |
+| 7 | [SDL `SDL_PollEvent`](https://wiki.libsdl.org/SDL2/SDL_PollEvent) | Keep protocol execution non-blocking and on the existing main/video loop. |
+| 8 | [SDL `SDL_PeepEvents`](https://wiki.libsdl.org/SDL2/SDL_PeepEvents) | Do not add a second SDL queue-draining path for automation. |
+| 9 | [SDL `SDL_KeyboardEvent`](https://wiki.libsdl.org/SDL2/SDL_KeyboardEvent) | Avoid an incomplete fake keyboard transition and call the native EdgeTX key helper directly. |
+| 10 | [SDL `SDL_MouseButtonEvent`](https://wiki.libsdl.org/SDL2/SDL_MouseButtonEvent) | Public touch coordinates remain LCD framebuffer coordinates, independent of window scaling and mouse button layout. |
+| 11 | [SDL `SDL_MouseMotionEvent`](https://wiki.libsdl.org/SDL2/SDL_MouseMotionEvent) | Represent drag as ordered touch state updates, not relative host-window mouse motion. |
+| 12 | [SDL `SDL_TouchFingerEvent`](https://wiki.libsdl.org/SDL2/SDL_TouchFingerEvent) | Do not expose SDL's normalized touch coordinate convention; the EdgeTX helper consumes integer LCD pixels. |
+| 13 | [LVGL input-device overview](https://docs.lvgl.io/8/overview/indev.html) | Persist pointer pressed/released state and the latest coordinate across reads; rotary input is an immediate signed difference. |
+| 14 | [LVGL input-device porting guide](https://docs.lvgl.io/8.0/porting/indev.html) | Preserve strict pointer `down -> move* -> up` ordering and explicit released state. |
+| 15 | [Python `time`](https://docs.python.org/3/library/time.html#time.monotonic) | Measure composite deadlines with `time.monotonic()`; allow `sleep()` overshoot instead of pretending durations are exact. |
+| 16 | [Python `subprocess`](https://docs.python.org/3/library/subprocess.html#subprocess.Popen) | Keep the existing binary-pipe, `shell=False`, owned-process lifecycle for all new actions. |
 
-#### 4.3 Add touch primitives
+The combined design therefore keeps the best part of each proposal: #7337's
+portable host composition and #7646's direct simulator primitives. It removes
+four avoidable liabilities: native duration sleeps, fake SDL input events,
+target-specific numeric IDs in the public contract, and a second transport or
+branch.
 
-- Use framebuffer coordinates.
-- Enforce down/move/up order.
-- Validate every edge and out-of-bounds coordinate.
-- Guarantee cleanup release.
+#### 4.1 Freeze the Phase 4 wire contract
 
-#### 4.4 Add display sequence
+All primitive requests use the existing `v1 <id> <command> ...` record and
+produce exactly one correlated terminal JSON response. Durations never cross
+the wire.
 
-- Increment only from `simuLcdNotify`.
-- Publish it atomically.
-- Implement `wait-frame` as an asynchronous operation.
-- Keep SDL redraw counters out of the protocol.
+| Command | Arguments and bounds | Native completion | Success result |
+|---|---|---|---|
+| `key-down` | one canonical name advertised by `describe.keys` | `simuSetKey(key, true)` has run | none |
+| `key-up` | one currently-down canonical name | `simuSetKey(key, false)` has run | none |
+| `rotate` | signed non-zero integer in `[-128, 128]` | `simuRotaryEncoderEvent(steps)` has run | none |
+| `touch-down` | `x y`, with `0 <= x < lcd.width` and `0 <= y < lcd.height` | `simuTouchDown(x, y)` has run | none |
+| `touch-move` | bounded `x y` while touch is down | the latest position was passed through `simuTouchDown(x, y)` | none |
+| `touch-up` | no arguments while touch is down | `simuTouchUp()` has run | none |
+| `wait-frame` | unsigned minimum display sequence | the real LCD sequence is at least the minimum | `{"display_seq": N}` |
+| `release-all` | no arguments; idempotent | every owned key and touch is released | none |
 
-#### 4.5 Add host composite actions
+Failure mapping is stable and machine-readable:
 
-Implement validated `press`, `long-press`, `tap`, `drag`,
-`wait-next-frame`, and cleanup-on-failure.
+- a key not listed by the target returns `unsupported_target`;
+- duplicate key-down/unmatched key-up return `key_already_down` and
+  `key_not_down`;
+- duplicate touch-down or move/up without a down return
+  `touch_already_down` and `touch_not_down`;
+- invalid coordinates or rotary magnitude return `out_of_range`;
+- a second asynchronous operation or input during one returns
+  `operation_busy`;
+- a command absent from discovery returns `unsupported_command`;
+- stop cancellation of a pending barrier returns `session_stopping` for the
+  barrier before the successful `stop` response.
 
-**Tests:** I01–I18, F01–F06.
+#### 4.2 Subphase A — target discovery and native executor hooks
 
-**Exit:** key, rotary, and touch scenarios complete without simulator-side
-duration waits, and a host can wait for a real LCD refresh.
+1. Define one canonical key table containing `MENU`, `EXIT`, `ENTER`,
+   `PAGEUP`, `PAGEDN`, `UP`, `DOWN`, `LEFT`, `RIGHT`, `PLUS`, `MINUS`,
+   `MODEL`, `TELE`, `SYS`, `SHIFT`, and `BIND`.
+2. Build `describe.keys` by applying `keyIsSupported` to that table; never
+   advertise an enum value merely because it compiles.
+3. Advertise `key-down`, `key-up`, and `release-all` only when at least one
+   supported key is executable; advertise rotary/touch commands only under
+   their existing target feature definitions.
+4. Inject small native callbacks into `AutomationStdio`. The transport owns
+   validation and state; `sdl_simu.cpp` owns the name-to-target-key mapping.
+5. Set `capabilities.rotary` and `capabilities.touch` only when their commands
+   and callbacks are both usable. Do not change unrelated capability flags.
+
+#### 4.3 Subphase B — key, rotary, and touch state machines
+
+Key ownership is a set of canonical names. Touch ownership is one boolean plus
+the latest framebuffer coordinate. State changes are committed under the
+session mutex before invoking the short, non-failing native helper on the SDL
+thread. No command calls `SDL_Delay`, waits on firmware, or creates an SDL
+event.
+
+`release-all` first snapshots owned inputs, clears protocol ownership, and then
+releases the native keys/touch exactly once. It is legal while a frame barrier
+is pending so failure cleanup cannot be blocked by the operation it is cleaning
+up. `stop` runs the same release path.
+
+#### 4.4 Subphase C — real LCD sequence and asynchronous barrier
+
+`simuLcdNotify` is the only sequence producer. Under the existing session
+mutex, it performs a saturating increment and tests the one optional pending
+barrier. When the minimum is reached it claims the request once and publishes
+its POD fields into a one-slot completion mailbox.
+
+The LCD callback never serializes JSON, writes stdout, touches SDL, performs
+file I/O, sleeps, or waits for the host. `AutomationStdio::pump` drains the
+completion queue on the SDL loop and owns protocol output. This preserves
+thread ownership and prevents stdout backpressure from blocking firmware/UI
+notification code.
+
+Barrier rules:
+
+1. `minimum <= current display_seq` completes immediately with the current
+   sequence.
+2. A larger minimum arms `AsyncOperation::WaitFrame` with request ID and epoch;
+   no provisional response is emitted.
+3. Only a notification in the same epoch may complete it.
+4. Stop atomically cancels and clears it, queues one `session_stopping` terminal
+   response, releases inputs, then acknowledges stop.
+5. Sequence wrap is forbidden: at `UINT64_MAX` the published value saturates.
+
+#### 4.5 Subphase D — validated host primitives and composites
+
+Add dependency-free methods to `SimulatorSession`:
+
+- primitives: `key_down`, `key_up`, `rotate`, `touch_down`, `touch_move`,
+  `touch_up`, `release_all`, `wait_frame`, and a fresh `read_status`;
+- composites: `press`, `long_press`, `tap`, `drag`, and `wait_next_frame`.
+
+Every primitive validates discovery and bounds locally before consuming a
+request ID. `press`, `long_press`, and `tap` put their matching release in a
+`finally` path. `drag` validates the full point list before touch-down, uses a
+monotonic schedule across the requested total duration, emits ordered moves,
+and always attempts touch-up. If the matching release fails, the host attempts
+idempotent `release-all` while preserving the primary exception.
+
+`wait_next_frame` obtains a fresh status snapshot and requests
+`display_seq + 1`; cached startup status is insufficient. Host timeouts remain
+deadlines, not simulator sleeps. It does not force an LCD invalidation, so a
+static screen may legitimately time out. To synchronize an input, read status
+before the input and then call `wait_frame(previous_sequence + 1)`; Phase 5 is
+responsible for forced capture freshness. A timed-out request poisons that
+session for further commands because its eventual response cannot be safely
+re-correlated; shutdown then owns process cleanup.
+
+#### 4.6 Subphase E — verification matrix
+
+| IDs | Required proof |
+|---|---|
+| I01–I04 | supported key succeeds; unknown key, duplicate down, and unmatched up return their exact errors |
+| I05–I08 | rotary `-128`, `128`, zero, and one-beyond bounds are distinguished between execution and parser rejection |
+| I09–I14 | touch down/move/up ordering, all four framebuffer edges, first outside coordinate, and release-all cleanup |
+| I15–I18 | press/tap/drag release on success and failure; host rejects absent target capabilities before writing |
+| F01–F03 | sequence starts at first LCD notification, ignores SDL redraws, and saturates without wrap |
+| F04–F06 | current sequence completes immediately; next sequence completes only after notify; stop/timeout cannot create a late second terminal response |
+
+Validation runs in increasing cost order: native protocol/state tests, Python
+unit and fake-process lifecycle tests, incremental simulator build, then a real
+simulator probe for discovery plus representative key/rotary/touch/barrier
+commands. Normal interactive mode and WASM/firmware isolation remain unchanged.
+
+**Exit:** all I01–I18 and F01–F06 behaviors are covered, target discovery is
+truthful, key/rotary/touch scenarios contain no simulator-side duration wait,
+and a host can prove it observed a real LCD refresh without any write from the
+LCD callback.
+
+#### 4.7 Implementation evidence (2026-08-17)
+
+| Layer | Result |
+|---|---|
+| Host protocol/session | 37 Python tests passed, including composites, strict frame result decoding, local validation, release fallback, lifecycle, and poisoned timeout cleanup |
+| Native protocol/state | 22 focused `SimuAutomation*` GoogleTests passed under ASan |
+| Windows target | TX16S `simu.exe` compiled and linked with Clang 22 |
+| Real simulator primitives | Dynamic keys, rotary, touch, duplicate-key error, release cleanup, and graceful stop passed through real binary pipes |
+| Real LCD barrier | Snapshot `1`, input, then `wait-frame 2` completed at sequence `2`; later status observed sequence `3` |
+| Stop cancellation | A pipelined unreachable barrier and stop produced exactly `session_stopping` for the wait, one successful stop response, and process exit `0` |
+
+No extra branch, transport, package dependency, synthetic SDL input event, or
+simulator-side duration command was introduced.
 
 ### Phase 5 — Render-complete capture
 

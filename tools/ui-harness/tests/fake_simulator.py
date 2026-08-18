@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import sys
 import time
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 
 def emit(payload: Dict[str, Any], *, fragmented: bool = False) -> None:
@@ -24,10 +24,14 @@ def emit(payload: Dict[str, Any], *, fragmented: bool = False) -> None:
     sys.stdout.buffer.flush()
 
 
-def capabilities() -> Dict[str, bool]:
+def is_phase4(mode: str) -> bool:
+    return mode.startswith("phase4")
+
+
+def capabilities(mode: str) -> Dict[str, bool]:
     return {
-        "rotary": False,
-        "touch": False,
+        "rotary": is_phase4(mode),
+        "touch": is_phase4(mode),
         "switches": False,
         "analog": False,
         "telemetry": False,
@@ -39,6 +43,21 @@ def capabilities() -> Dict[str, bool]:
 
 def description(mode: str) -> Dict[str, Any]:
     commands = ["ping", "status", "describe", "stop"]
+    if is_phase4(mode):
+        commands = [
+            "ping",
+            "status",
+            "describe",
+            "key-down",
+            "key-up",
+            "rotate",
+            "touch-down",
+            "touch-move",
+            "touch-up",
+            "wait-frame",
+            "release-all",
+            "stop",
+        ]
     if mode == "missing-command":
         commands.remove("status")
     result: Dict[str, Any] = {
@@ -46,8 +65,8 @@ def description(mode: str) -> Dict[str, Any]:
         "target": "test-target",
         "lcd": {"width": 480, "height": 272, "depth": 16},
         "commands": commands,
-        "capabilities": capabilities(),
-        "keys": [],
+        "capabilities": capabilities(mode),
+        "keys": ["EXIT", "ENTER"] if is_phase4(mode) else [],
         "switches": [],
         "analogs": [],
     }
@@ -56,7 +75,9 @@ def description(mode: str) -> Dict[str, Any]:
     return result
 
 
-def status(mode: str, poll: int) -> Dict[str, Any]:
+def status(
+    mode: str, poll: int, state: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     ready = mode != "never-ready" and not (
         mode == "starting-then-ready" and poll < 3
     )
@@ -67,17 +88,21 @@ def status(mode: str, poll: int) -> Dict[str, Any]:
         "phase": "ready" if ready else "starting",
         "target": target,
         "lcd": {"width": 480, "height": 272, "depth": 16},
-        "display_seq": 1 if ready else 0,
+        "display_seq": (
+            int(state["display_seq"])
+            if state is not None and ready
+            else (1 if ready else 0)
+        ),
         "async_operation": "none",
         "request_queue_depth": 0,
         "firmware_mailbox_depth": 0,
         "line_overflow_count": 0,
         "queue_overflow_count": 0,
-        "active_key_count": 0,
-        "touch_active": False,
+        "active_key_count": len(state["keys"]) if state is not None else 0,
+        "touch_active": bool(state["touch"]) if state is not None else False,
         "analog_override_count": 0,
         "lua_state": "unavailable",
-        "capabilities": capabilities(),
+        "capabilities": capabilities(mode),
         "output_root": "invalid" if mode == "output-invalid" else "ready",
     }
     if mode == "bad-ready":
@@ -91,6 +116,7 @@ def response(
     command: str,
     mode: str,
     status_poll: int,
+    state: Optional[Dict[str, Any]] = None,
     *,
     ok: bool = True,
 ) -> Dict[str, Any]:
@@ -109,9 +135,74 @@ def response(
     elif command == "describe":
         payload["result"] = description(mode)
     elif command == "status":
-        payload["result"] = status(mode, status_poll)
+        payload["result"] = status(mode, status_poll, state)
         if payload["result"]["phase"] != "ready":
             payload["epoch"] = 0
+    return payload
+
+
+def phase4_response(
+    request_id: int,
+    command: str,
+    arguments: List[str],
+    mode: str,
+    status_poll: int,
+    state: Dict[str, Any],
+) -> Dict[str, Any]:
+    payload = response(request_id, command, mode, status_poll, state)
+    payload["epoch"] = 1
+
+    def fail(code: str, message: str) -> Dict[str, Any]:
+        payload["ok"] = False
+        payload["error"] = {"code": code, "message": message}
+        payload.pop("result", None)
+        return payload
+
+    if command == "key-down":
+        key = arguments[0]
+        if key not in ("EXIT", "ENTER"):
+            return fail("unsupported_target", "unsupported key")
+        if key in state["keys"]:
+            return fail("key_already_down", "key already down")
+        state["keys"].add(key)
+    elif command == "key-up":
+        key = arguments[0]
+        if key not in state["keys"]:
+            return fail("key_not_down", "key not down")
+        if mode == "phase4-release-error":
+            return fail("internal_error", "injected key release failure")
+        state["keys"].remove(key)
+    elif command == "touch-down":
+        if state["touch"]:
+            return fail("touch_already_down", "touch already down")
+        state["touch"] = True
+    elif command == "touch-move":
+        if not state["touch"]:
+            return fail("touch_not_down", "touch not down")
+    elif command == "touch-up":
+        if not state["touch"]:
+            return fail("touch_not_down", "touch not down")
+        if mode == "phase4-release-error":
+            return fail("internal_error", "injected touch release failure")
+        state["touch"] = False
+    elif command == "release-all":
+        state["keys"].clear()
+        state["touch"] = False
+    elif command == "wait-frame":
+        minimum = int(arguments[0])
+        state["display_seq"] = max(int(state["display_seq"]), minimum)
+        completed = state["display_seq"]
+        if mode == "phase4-bad-frame" and minimum > 0:
+            completed = minimum - 1
+        payload["result"] = {"display_seq": completed}
+    elif command not in (
+        "ping",
+        "status",
+        "describe",
+        "rotate",
+        "stop",
+    ):
+        return fail("unsupported_command", "unsupported fixture command")
     return payload
 
 
@@ -119,11 +210,17 @@ def main() -> int:
     mode = sys.argv[1] if len(sys.argv) > 1 else "normal"
     print("fake simulator started: " + mode, file=sys.stderr, flush=True)
     status_poll = 0
+    state: Dict[str, Any] = {
+        "keys": set(),
+        "touch": False,
+        "display_seq": 1,
+    }
 
     for raw_line in sys.stdin.buffer:
-        fields = raw_line.decode("utf-8").rstrip("\n").split(" ", 3)
+        fields = raw_line.decode("utf-8").rstrip("\n").split(" ")
         request_id = int(fields[1])
         command = fields[2]
+        arguments = fields[3:]
 
         if mode == "malformed":
             sys.stdout.buffer.write(b"not-json\n")
@@ -169,6 +266,23 @@ def main() -> int:
 
         if command == "status":
             status_poll += 1
+        if is_phase4(mode):
+            if mode == "phase4-wait-hang" and command == "wait-frame":
+                time.sleep(60)
+                continue
+            emit(
+                phase4_response(
+                    request_id,
+                    command,
+                    arguments,
+                    mode,
+                    status_poll,
+                    state,
+                )
+            )
+            if command == "stop":
+                return 0
+            continue
         emit(
             response(request_id, command, mode, status_poll),
             fragmented=mode == "fragmented",

@@ -305,6 +305,12 @@ TEST(SimuAutomationResponse, SerializesBoundedStatusAndDescriptionResults)
   EXPECT_NE(json.find("{\"name\":\"AIL\",\"min\":0,\"max\":4096}"),
             std::string::npos);
   EXPECT_LE(json.size(), MAX_RESPONSE_BYTES);
+
+  EXPECT_EQ(serializeResponse(Response::successWithFrame(9, 1, 42), &json),
+            SerializeResult::Serialized);
+  EXPECT_EQ(json,
+            "{\"version\":1,\"type\":\"response\",\"id\":9,\"ok\":true,"
+            "\"epoch\":1,\"result\":{\"display_seq\":42}}\n");
 }
 
 TEST(SimuAutomationResponse, DescriptionOverflowUsesTerminalFallback)
@@ -358,8 +364,12 @@ TEST(SimuAutomationSessionState, EnforcesKeyAndTouchTransitions)
   EXPECT_EQ(state.epoch(), 1u);
 
   EXPECT_EQ(state.keyDown("ENTER"), TransitionResult::Applied);
+  EXPECT_EQ(state.keyDown("EXIT"), TransitionResult::Applied);
+  EXPECT_EQ(state.activeKeyNames(),
+            (std::vector<std::string>{"ENTER", "EXIT"}));
   EXPECT_EQ(state.keyDown("ENTER"), TransitionResult::Duplicate);
-  EXPECT_EQ(state.keyUp("EXIT"), TransitionResult::InvalidState);
+  EXPECT_EQ(state.keyUp("MENU"), TransitionResult::InvalidState);
+  EXPECT_EQ(state.keyUp("EXIT"), TransitionResult::Applied);
   EXPECT_EQ(state.keyUp("ENTER"), TransitionResult::Applied);
 
   EXPECT_EQ(state.touchMove(1, 2), TransitionResult::InvalidState);

@@ -15,6 +15,7 @@ from edgetx_ui.protocol import (  # noqa: E402
     ProtocolViolation,
     Response,
     decode_description,
+    decode_frame,
     decode_status,
     encode_request,
     parse_message,
@@ -243,6 +244,40 @@ class DiscoveryResultTests(unittest.TestCase):
             with self.subTest(result=result):
                 with self.assertRaises(ProtocolViolation):
                     decoder(self.response(result))
+
+
+class FrameResultTests(unittest.TestCase):
+    def response(self, result: object) -> Response:
+        message = parse_message(
+            encoded(
+                {
+                    "version": 1,
+                    "type": "response",
+                    "id": 7,
+                    "ok": True,
+                    "epoch": 3,
+                    "result": result,
+                }
+            )
+        )
+        assert isinstance(message, Response)
+        return message
+
+    def test_decodes_exact_wait_frame_result(self) -> None:
+        barrier = decode_frame(self.response({"display_seq": 42}))
+        self.assertEqual(barrier.epoch, 3)
+        self.assertEqual(barrier.display_sequence, 42)
+
+    def test_rejects_ambiguous_wait_frame_result(self) -> None:
+        for result in (
+            {},
+            {"display_seq": True},
+            {"display_seq": -1},
+            {"display_seq": 4, "extra": 1},
+        ):
+            with self.subTest(result=result):
+                with self.assertRaises(ProtocolViolation):
+                    decode_frame(self.response(result))
 
 
 if __name__ == "__main__":

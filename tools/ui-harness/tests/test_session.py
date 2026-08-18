@@ -21,6 +21,7 @@ from edgetx_ui.session import (  # noqa: E402
     ProcessExited,
     ProtocolFailure,
     RequestTimeout,
+    SessionError,
     SimulatorSession,
     StartupMismatch,
 )
@@ -241,6 +242,127 @@ class SimulatorSessionTests(unittest.TestCase):
         with self.assertRaisesRegex(StartupMismatch, "capture"):
             missing.start()
         self.assert_reaped(missing)
+
+    def test_phase4_discovery_and_primitives_are_validated(self) -> None:
+        session = self.session("phase4")
+        try:
+            session.start()
+            assert session.description is not None
+            self.assertTrue(session.description.capabilities.rotary)
+            self.assertTrue(session.description.capabilities.touch)
+            self.assertEqual(session.description.keys, ("EXIT", "ENTER"))
+
+            session.key_down("ENTER")
+            self.assertEqual(session.read_status().active_key_count, 1)
+            with self.assertRaises(CommandFailed) as duplicate:
+                session.key_down("ENTER")
+            self.assertEqual(
+                duplicate.exception.response.error_code, "key_already_down"
+            )
+            session.key_up("ENTER")
+
+            session.rotate(-128)
+            session.rotate(128)
+            session.touch_down(0, 0)
+            session.touch_move(479, 271)
+            session.touch_up()
+            session.release_all()
+            status = session.read_status()
+            self.assertEqual(status.active_key_count, 0)
+            self.assertFalse(status.touch_active)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase4_host_composites_release_owned_inputs(self) -> None:
+        session = self.session("phase4")
+        try:
+            session.start()
+            session.press("ENTER", duration=0)
+            session.long_press("EXIT", duration=0)
+            session.tap(0, 0, duration=0)
+            session.drag(((0, 0), (240, 136), (479, 271)), duration=0)
+            status = session.read_status()
+            self.assertEqual(status.active_key_count, 0)
+            self.assertFalse(status.touch_active)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase4_composite_release_failure_falls_back_to_release_all(
+        self,
+    ) -> None:
+        session = self.session("phase4-release-error")
+        try:
+            session.start()
+            with self.assertRaises(CommandFailed):
+                session.press("ENTER", duration=0)
+            self.assertEqual(session.read_status().active_key_count, 0)
+
+            with self.assertRaises(CommandFailed):
+                session.tap(1, 1, duration=0)
+            self.assertFalse(session.read_status().touch_active)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase4_local_validation_does_not_consume_request_ids(self) -> None:
+        session = self.session("phase4")
+        try:
+            session.start()
+            for invalid_call in (
+                lambda: session.key_down("UNKNOWN"),
+                lambda: session.rotate(0),
+                lambda: session.rotate(129),
+                lambda: session.touch_down(-1, 0),
+                lambda: session.touch_move(480, 0),
+                lambda: session.drag(((0, 0),), duration=0),
+            ):
+                with self.subTest(call=invalid_call):
+                    with self.assertRaises(ValueError):
+                        invalid_call()
+            self.assertEqual(session.ping().id, 4)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase4_wait_frame_uses_fresh_status_and_strict_result(self) -> None:
+        session = self.session("phase4")
+        try:
+            session.start()
+            current = session.wait_frame(1)
+            self.assertEqual(current.display_sequence, 1)
+            next_frame = session.wait_next_frame()
+            self.assertEqual(next_frame.display_sequence, 2)
+            self.assertEqual(next_frame.epoch, 1)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+        malformed = self.session("phase4-bad-frame")
+        try:
+            malformed.start()
+            with self.assertRaisesRegex(ProtocolFailure, "below"):
+                malformed.wait_frame(2)
+        finally:
+            malformed.close()
+        self.assert_reaped(malformed)
+
+    def test_phase4_wait_timeout_poisons_and_reaps_session(self) -> None:
+        session = self.session(
+            "phase4-wait-hang",
+            request_timeout=0.1,
+            stop_timeout=0.1,
+            terminate_timeout=0.5,
+        )
+        session.start()
+        with self.assertRaises(RequestTimeout):
+            session.wait_frame(2)
+        with self.assertRaises(SessionError):
+            session.ping()
+        session.close()
+        self.assertIn(session.termination_stage, ("terminated", "killed"))
+        self.assert_reaped(session)
 
     def test_one_hundred_lifecycle_cycles_leave_no_reader_or_child(self) -> None:
         for cycle in range(100):
