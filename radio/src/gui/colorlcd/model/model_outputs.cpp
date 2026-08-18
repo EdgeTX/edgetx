@@ -220,6 +220,9 @@ ModelOutputsPage::ModelOutputsPage(PageDef& pageDef) :
 
 void ModelOutputsPage::build(Window* window)
 {
+  // build() runs again each time the tab is re-selected
+  outputButtons.clear();
+
   window->padAll(PAD_ZERO);
   window->padBottom(PAD_LARGE);
 
