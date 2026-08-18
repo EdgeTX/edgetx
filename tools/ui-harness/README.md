@@ -1,9 +1,10 @@
 # EdgeTX simulator UI harness
 
 This directory contains the dependency-free host side of the native simulator
-automation protocol. The current foundation intentionally supports only the
-implemented `ping` and `stop` commands. Input, discovery, flows, and capture are
-added in later phases of the consolidation plan.
+automation protocol. The current foundation supports `ping`, `status`,
+`describe`, and `stop`. Input, flows, and capture are added in later phases of
+the consolidation plan; `describe` advertises only commands and capabilities
+that are usable in the current build.
 
 Run a lifecycle probe with Python 3:
 
@@ -15,10 +16,13 @@ python tools/ui-harness/edgetx-ui probe \
 ```
 
 The client launches with binary pipes, starts independent stdout and stderr
-readers before sending `ping`, correlates every response by request ID, and
-always reaps the child process. It does not use pipe `select`, shell command
-interpolation, or a fixed startup sleep, so the same lifecycle works on POSIX
-and Windows.
+readers, sends `ping`, validates the bounded `describe` result, and polls
+`status` until the simulator reports a real first LCD frame. Target identity,
+LCD dimensions, command availability, and optional required capabilities are
+checked before startup succeeds. Every response is correlated by request ID,
+and every shutdown path waits for the child after graceful stop, terminate, or
+kill. There is no pipe `select`, shell interpolation, or fixed startup sleep, so
+the same lifecycle works on POSIX and Windows.
 
 Run the focused tests from the repository root:
 

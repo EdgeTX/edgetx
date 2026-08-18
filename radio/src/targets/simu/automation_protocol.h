@@ -92,6 +92,13 @@ enum class AsyncOperation {
   Restart,
 };
 
+enum class SessionPhase {
+  Starting,
+  Ready,
+  Restarting,
+  Stopped,
+};
+
 struct TargetCapabilities {
   bool rotary = false;
   bool touch = false;
@@ -101,6 +108,40 @@ struct TargetCapabilities {
   bool lua = false;
   bool capture = false;
   bool warmRestart = false;
+};
+
+struct NamedRange {
+  std::string name;
+  std::int32_t minimum = 0;
+  std::int32_t maximum = 0;
+};
+
+struct TargetDescription {
+  std::string flavour;
+  std::uint16_t lcdWidth = 0;
+  std::uint16_t lcdHeight = 0;
+  std::uint8_t lcdDepth = 0;
+  std::vector<Command> commands;
+  TargetCapabilities capabilities;
+  std::vector<std::string> keys;
+  std::vector<NamedRange> switches;
+  std::vector<NamedRange> analogs;
+  bool outputRootReady = false;
+};
+
+struct StatusSnapshot {
+  bool running = false;
+  SessionPhase phase = SessionPhase::Starting;
+  DisplaySequence displaySequence = 0;
+  AsyncOperation asyncOperation = AsyncOperation::None;
+  std::size_t requestQueueDepth = 0;
+  std::size_t firmwareMailboxDepth = 0;
+  std::uint64_t lineOverflowCount = 0;
+  std::uint64_t queueOverflowCount = 0;
+  std::size_t activeKeyCount = 0;
+  bool touchActive = false;
+  std::size_t analogOverrideCount = 0;
+  std::string luaState = "unavailable";
 };
 
 struct Request {
@@ -171,13 +212,27 @@ class ProtocolParser
 };
 
 struct Response {
+  enum class ResultKind {
+    None,
+    Status,
+    Description,
+  };
+
   RequestId id = 0;
   bool ok = true;
   SessionEpoch epoch = 0;
   ErrorCode errorCode = ErrorCode::None;
   std::string message;
+  ResultKind resultKind = ResultKind::None;
+  StatusSnapshot status;
+  TargetDescription target;
 
   static Response success(RequestId id, SessionEpoch epoch);
+  static Response successWithStatus(RequestId id, SessionEpoch epoch,
+                                    const StatusSnapshot& status,
+                                    const TargetDescription& target);
+  static Response successWithDescription(RequestId id, SessionEpoch epoch,
+                                         const TargetDescription& target);
   static Response failure(RequestId id, SessionEpoch epoch, ErrorCode code,
                           const std::string& message);
 };
@@ -196,6 +251,8 @@ SerializeResult serializeEvent(SessionEpoch epoch, ErrorCode code,
 
 const char* commandName(Command command);
 const char* errorCodeName(ErrorCode code);
+const char* sessionPhaseName(SessionPhase phase);
+const char* asyncOperationName(AsyncOperation operation);
 bool isValidUtf8(const std::string& value);
 
 enum class TerminalClaimResult {
@@ -222,13 +279,6 @@ class TerminalResponseOwner
   RequestId id;
   SessionEpoch ownerEpoch;
   bool terminal = false;
-};
-
-enum class SessionPhase {
-  Starting,
-  Ready,
-  Restarting,
-  Stopped,
 };
 
 enum class TransitionResult {

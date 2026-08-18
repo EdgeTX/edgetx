@@ -9,6 +9,7 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
+#include <limits>
 #include <utility>
 
 #if defined(_WIN32)
@@ -28,11 +29,14 @@ namespace automation
 namespace
 {
 
-constexpr SessionEpoch INITIAL_EPOCH = 0;
-
 void setError(std::string* error, const std::string& message)
 {
   if (error != nullptr) *error = message;
+}
+
+void incrementSaturating(std::uint64_t* counter)
+{
+  if (*counter != (std::numeric_limits<std::uint64_t>::max)()) ++*counter;
 }
 
 #if defined(_WIN32)
@@ -73,6 +77,11 @@ bool getHandleType(HANDLE handle, DWORD* type, std::string* error,
 
 }  // namespace
 
+AutomationStdio::AutomationStdio(const TargetDescription& target) :
+    targetDescription(target)
+{
+}
+
 AutomationStdio::~AutomationStdio()
 {
 #if defined(_WIN32)
@@ -85,6 +94,31 @@ AutomationStdio::~AutomationStdio()
     (void)fcntl(STDIN_FILENO, F_SETFL, originalInputFlags);
   }
 #endif
+}
+
+void AutomationStdio::setTargetDescription(const TargetDescription& target)
+{
+  std::lock_guard<std::mutex> lock(stateMutex);
+  targetDescription = target;
+}
+
+void AutomationStdio::markRuntimeStarted()
+{
+  std::lock_guard<std::mutex> lock(stateMutex);
+  runtimeRunning = true;
+}
+
+void AutomationStdio::markRuntimeStopped()
+{
+  std::lock_guard<std::mutex> lock(stateMutex);
+  runtimeRunning = false;
+  sessionState.stop();
+}
+
+void AutomationStdio::onDisplayFrame()
+{
+  std::lock_guard<std::mutex> lock(stateMutex);
+  (void)sessionState.onDisplayFrame();
 }
 
 bool AutomationStdio::start(std::string* error)
@@ -351,6 +385,8 @@ void AutomationStdio::queueEvents(std::vector<LineEvent>&& events)
     if (event.type == LineEventType::Record && event.record.empty()) continue;
     if (pendingEvents.size() == MAX_PENDING_REQUESTS) {
       queueOverflowed = true;
+      std::lock_guard<std::mutex> lock(stateMutex);
+      incrementSaturating(&queueOverflowCount);
       continue;
     }
     pendingEvents.push_back(std::move(event));
@@ -361,6 +397,10 @@ StdioPumpResult AutomationStdio::processEvent(const LineEvent& event,
                                               std::string* error)
 {
   if (event.type == LineEventType::LineTooLong) {
+    {
+      std::lock_guard<std::mutex> lock(stateMutex);
+      incrementSaturating(&lineOverflowCount);
+    }
     return emitEvent(ErrorCode::LineTooLong, "record exceeds 16 KiB", error);
   }
   if (event.type == LineEventType::PartialRecordAtEof)
@@ -371,7 +411,7 @@ StdioPumpResult AutomationStdio::processEvent(const LineEvent& event,
   if (parsed.status == ParseStatus::Error) {
     if (parsed.error.hasRequestId) {
       return emitResponse(
-          Response::failure(parsed.error.requestId, INITIAL_EPOCH,
+          Response::failure(parsed.error.requestId, currentEpoch(),
                             parsed.error.code, parsed.error.message),
           error);
     }
@@ -379,19 +419,25 @@ StdioPumpResult AutomationStdio::processEvent(const LineEvent& event,
   }
 
   if (parsed.request.command == Command::Ping) {
-    return emitResponse(Response::success(parsed.request.id, INITIAL_EPOCH),
+    return emitResponse(Response::success(parsed.request.id, currentEpoch()),
                         error);
+  }
+  if (parsed.request.command == Command::Status) {
+    return emitResponse(makeStatusResponse(parsed.request.id), error);
+  }
+  if (parsed.request.command == Command::Describe) {
+    return emitResponse(makeDescriptionResponse(parsed.request.id), error);
   }
   if (parsed.request.command == Command::Stop) {
     const StdioPumpResult writeResult = emitResponse(
-        Response::success(parsed.request.id, INITIAL_EPOCH), error);
+        Response::success(parsed.request.id, currentEpoch()), error);
     return writeResult == StdioPumpResult::Continue
                ? StdioPumpResult::StopRequested
                : writeResult;
   }
 
   return emitResponse(
-      Response::failure(parsed.request.id, INITIAL_EPOCH,
+      Response::failure(parsed.request.id, currentEpoch(),
                         ErrorCode::UnsupportedCommand,
                         std::string("command is not implemented yet: ") +
                             commandName(parsed.request.command)),
@@ -414,12 +460,43 @@ StdioPumpResult AutomationStdio::emitEvent(ErrorCode code,
                                            std::string* error)
 {
   std::string record;
-  if (serializeEvent(INITIAL_EPOCH, code, message, &record) ==
+  if (serializeEvent(currentEpoch(), code, message, &record) ==
       SerializeResult::LimitTooSmall) {
     setError(error, "cannot serialize automation event");
     return StdioPumpResult::Error;
   }
   return writeSerialized(record, error);
+}
+
+SessionEpoch AutomationStdio::currentEpoch() const
+{
+  std::lock_guard<std::mutex> lock(stateMutex);
+  return sessionState.epoch();
+}
+
+Response AutomationStdio::makeStatusResponse(RequestId id) const
+{
+  std::lock_guard<std::mutex> lock(stateMutex);
+  StatusSnapshot status;
+  status.running = runtimeRunning;
+  status.phase = sessionState.phase();
+  status.displaySequence = sessionState.displaySequence();
+  status.asyncOperation = sessionState.asyncOperation();
+  status.requestQueueDepth =
+      pendingEvents.size() + sessionState.queuedRequestCount();
+  status.lineOverflowCount = lineOverflowCount;
+  status.queueOverflowCount = queueOverflowCount;
+  status.activeKeyCount = sessionState.activeKeyCount();
+  status.touchActive = sessionState.isTouchActive();
+  return Response::successWithStatus(id, sessionState.epoch(), status,
+                                     targetDescription);
+}
+
+Response AutomationStdio::makeDescriptionResponse(RequestId id) const
+{
+  std::lock_guard<std::mutex> lock(stateMutex);
+  return Response::successWithDescription(id, sessionState.epoch(),
+                                          targetDescription);
 }
 
 StdioPumpResult AutomationStdio::writeSerialized(const std::string& record,

@@ -12,7 +12,19 @@ from collections import deque
 from pathlib import Path
 from typing import BinaryIO, Deque, Mapping, Optional, Sequence, Tuple, Union
 
-from .protocol import Event, MAX_RECORD_BYTES, Response, encode_request, parse_message
+from .protocol import (
+    CAPABILITY_NAMES,
+    Description,
+    Event,
+    MAX_RECORD_BYTES,
+    ProtocolViolation,
+    Response,
+    Status,
+    decode_description,
+    decode_status,
+    encode_request,
+    parse_message,
+)
 
 
 READ_CHUNK_BYTES = 4096
@@ -20,6 +32,7 @@ MAX_STDERR_LINES = 200
 MAX_STDERR_BYTES = 256 * 1024
 MAX_EVENTS = 64
 MAX_COMMAND_TIMEOUT = 60.0
+REQUIRED_STARTUP_COMMANDS = frozenset(("ping", "status", "describe", "stop"))
 
 
 class SessionError(RuntimeError):
@@ -40,6 +53,10 @@ class ProcessExited(SessionError):
 
 class RequestTimeout(SessionError):
     """A request did not receive its terminal response before its deadline."""
+
+
+class StartupMismatch(ProtocolFailure):
+    """The simulator target or advertised capabilities do not match the run."""
 
 
 class CommandFailed(SessionError):
@@ -109,6 +126,9 @@ class SimulatorSession:
         terminate_timeout: float = 2.0,
         kill_timeout: float = 2.0,
         reader_join_timeout: float = 2.0,
+        required_capabilities: Sequence[str] = (),
+        expected_target: Optional[str] = None,
+        expected_lcd: Optional[Tuple[int, int, int]] = None,
     ) -> None:
         self._executable = os.fspath(executable)
         self._output_root = Path(output_root)
@@ -124,6 +144,15 @@ class SimulatorSession:
         self._reader_join_timeout = _validated_timeout(
             reader_join_timeout, "reader join"
         )
+        self._required_capabilities = _validated_capabilities(
+            required_capabilities
+        )
+        if expected_target is not None and (
+            not isinstance(expected_target, str) or not expected_target
+        ):
+            raise ValueError("expected target must be a non-empty string")
+        self._expected_target = expected_target
+        self._expected_lcd = _validated_lcd(expected_lcd)
 
         self._process: Optional[subprocess.Popen[bytes]] = None
         self._stdout_thread: Optional[threading.Thread] = None
@@ -143,6 +172,11 @@ class SimulatorSession:
         self._closing = False
         self._closed = False
         self._stop_response: Optional[Response] = None
+        self._startup_ping: Optional[Response] = None
+        self._description_response: Optional[Response] = None
+        self._description: Optional[Description] = None
+        self._status_response: Optional[Response] = None
+        self._status: Optional[Status] = None
         self._termination_stage = "not-started"
 
     @property
@@ -171,6 +205,26 @@ class SimulatorSession:
             return tuple(self._events)
 
     @property
+    def startup_ping(self) -> Optional[Response]:
+        return self._startup_ping
+
+    @property
+    def description_response(self) -> Optional[Response]:
+        return self._description_response
+
+    @property
+    def description(self) -> Optional[Description]:
+        return self._description
+
+    @property
+    def status_response(self) -> Optional[Response]:
+        return self._status_response
+
+    @property
+    def status(self) -> Optional[Status]:
+        return self._status
+
+    @property
     def reader_threads_alive(self) -> bool:
         return any(
             thread is not None and thread.is_alive()
@@ -188,11 +242,17 @@ class SimulatorSession:
         )
 
     def start(self, *, timeout: Optional[float] = None) -> Response:
-        """Launch readers before the first request and use ping as readiness."""
+        """Launch, validate discovery, and wait for the first display frame."""
 
         with self._state_lock:
             if self._process is not None:
                 raise SessionError("simulator session can only be started once")
+
+        startup_timeout = (
+            self._request_timeout
+            if timeout is None
+            else _validated_timeout(timeout, "startup")
+        )
 
         try:
             resolved_output = self._output_root.resolve(strict=True)
@@ -233,14 +293,114 @@ class SimulatorSession:
         self._stdout_thread.start()
         self._stderr_thread.start()
 
+        deadline = time.monotonic() + startup_timeout
         try:
-            return self.ping(timeout=timeout)
+            self._startup_ping = self.ping(
+                timeout=self._startup_remaining(deadline)
+            )
+            self._description_response = self.request(
+                "describe", timeout=self._startup_remaining(deadline)
+            )
+            try:
+                self._description = decode_description(
+                    self._description_response
+                )
+            except ProtocolViolation as error:
+                raise ProtocolFailure(str(error)) from error
+            self._validate_description(self._description)
+
+            while True:
+                self._status_response = self.request(
+                    "status", timeout=self._startup_remaining(deadline)
+                )
+                try:
+                    self._status = decode_status(self._status_response)
+                except ProtocolViolation as error:
+                    raise ProtocolFailure(str(error)) from error
+                self._validate_status(self._status, self._description)
+
+                if self._status.phase == "ready":
+                    if (
+                        not self._status.running
+                        or self._status.epoch == 0
+                        or self._status.display_sequence == 0
+                    ):
+                        raise ProtocolFailure(
+                            "ready status does not own a running first frame"
+                        )
+                    return self._status_response
+                if self._status.phase == "stopped":
+                    raise ProtocolFailure(
+                        "simulator stopped before first-frame readiness"
+                    )
         except BaseException:
             self._shutdown(send_stop=False, raise_errors=False)
             raise
 
     def ping(self, *, timeout: Optional[float] = None) -> Response:
         return self.request("ping", timeout=timeout)
+
+    def _startup_remaining(self, deadline: float) -> float:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise RequestTimeout(
+                self._message_with_context(
+                    "timed out waiting for simulator readiness", None
+                )
+            )
+        return remaining
+
+    def _validate_description(self, description: Description) -> None:
+        commands = set(description.commands)
+        missing_commands = sorted(REQUIRED_STARTUP_COMMANDS - commands)
+        if missing_commands:
+            raise StartupMismatch(
+                "simulator discovery is missing required commands: "
+                + ", ".join(missing_commands)
+            )
+        if self._expected_target is not None and (
+            description.target != self._expected_target
+        ):
+            raise StartupMismatch(
+                "simulator target mismatch: expected "
+                + self._expected_target
+                + ", received "
+                + description.target
+            )
+        if self._expected_lcd is not None:
+            actual_lcd = (
+                description.lcd.width,
+                description.lcd.height,
+                description.lcd.depth,
+            )
+            if actual_lcd != self._expected_lcd:
+                raise StartupMismatch(
+                    "simulator LCD mismatch: expected "
+                    + "x".join(str(value) for value in self._expected_lcd)
+                    + ", received "
+                    + "x".join(str(value) for value in actual_lcd)
+                )
+        missing_capabilities = [
+            name
+            for name in self._required_capabilities
+            if not description.capabilities.supports(name)
+        ]
+        if missing_capabilities:
+            raise StartupMismatch(
+                "simulator is missing required capabilities: "
+                + ", ".join(missing_capabilities)
+            )
+
+    @staticmethod
+    def _validate_status(status: Status, description: Description) -> None:
+        if status.target != description.target:
+            raise ProtocolFailure("status target differs from describe")
+        if status.lcd != description.lcd:
+            raise ProtocolFailure("status LCD differs from describe")
+        if status.capabilities != description.capabilities:
+            raise ProtocolFailure("status capabilities differ from describe")
+        if status.output_root != "ready":
+            raise StartupMismatch("simulator output root is not ready")
 
     def request(
         self,
@@ -661,3 +821,40 @@ def _validated_timeout(value: float, name: str) -> float:
     if not math.isfinite(timeout) or timeout <= 0 or timeout > MAX_COMMAND_TIMEOUT:
         raise ValueError(name + " timeout must be in (0, 60] seconds")
     return timeout
+
+
+def _validated_capabilities(values: Sequence[str]) -> Tuple[str, ...]:
+    if isinstance(values, (str, bytes)):
+        raise ValueError("required capabilities must be a sequence of names")
+    capabilities = tuple(values)
+    for name in capabilities:
+        if not isinstance(name, str) or name not in CAPABILITY_NAMES:
+            raise ValueError("unknown required capability: " + str(name))
+    if len(set(capabilities)) != len(capabilities):
+        raise ValueError("required capabilities cannot contain duplicates")
+    return capabilities
+
+
+def _validated_lcd(
+    value: Optional[Tuple[int, int, int]],
+) -> Optional[Tuple[int, int, int]]:
+    if value is None:
+        return None
+    if not isinstance(value, tuple) or len(value) != 3:
+        raise ValueError("expected LCD must be a width/height/depth tuple")
+    width, height, depth = value
+    if (
+        not isinstance(width, int)
+        or isinstance(width, bool)
+        or not isinstance(height, int)
+        or isinstance(height, bool)
+        or not isinstance(depth, int)
+        or isinstance(depth, bool)
+        or width <= 0
+        or height <= 0
+        or width > 65535
+        or height > 65535
+        or depth not in (1, 4, 16)
+    ):
+        raise ValueError("expected LCD dimensions are invalid")
+    return value

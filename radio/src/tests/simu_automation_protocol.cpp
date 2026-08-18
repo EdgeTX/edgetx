@@ -258,6 +258,74 @@ TEST(SimuAutomationResponse, FallsBackWithinResponseLimit)
   EXPECT_TRUE(json.empty());
 }
 
+TEST(SimuAutomationResponse, SerializesBoundedStatusAndDescriptionResults)
+{
+  TargetDescription target;
+  target.flavour = "tx\"16s";
+  target.lcdWidth = 480;
+  target.lcdHeight = 272;
+  target.lcdDepth = 16;
+  target.commands = {Command::Ping, Command::Status, Command::Describe,
+                     Command::Stop};
+  target.capabilities.capture = true;
+  target.keys = {"ENTER"};
+  target.switches = {{"SA", -1, 1}};
+  target.analogs = {{"AIL", 0, 4096}};
+  target.outputRootReady = true;
+
+  StatusSnapshot status;
+  status.running = true;
+  status.phase = SessionPhase::Ready;
+  status.displaySequence = 17;
+  status.requestQueueDepth = 2;
+  status.lineOverflowCount = 3;
+  status.touchActive = true;
+
+  std::string json;
+  EXPECT_EQ(serializeResponse(Response::successWithStatus(7, 1, status, target),
+                              &json),
+            SerializeResult::Serialized);
+  EXPECT_NE(json.find("\"phase\":\"ready\""), std::string::npos);
+  EXPECT_NE(json.find("\"target\":\"tx\\\"16s\""), std::string::npos);
+  EXPECT_NE(json.find("\"display_seq\":17"), std::string::npos);
+  EXPECT_NE(json.find("\"request_queue_depth\":2"), std::string::npos);
+  EXPECT_NE(json.find("\"line_overflow_count\":3"), std::string::npos);
+  EXPECT_NE(json.find("\"capture\":true"), std::string::npos);
+  EXPECT_NE(json.find("\"output_root\":\"ready\""), std::string::npos);
+
+  EXPECT_EQ(
+      serializeResponse(Response::successWithDescription(8, 1, target), &json),
+      SerializeResult::Serialized);
+  EXPECT_NE(
+      json.find("\"commands\":[\"ping\",\"status\",\"describe\",\"stop\"]"),
+      std::string::npos);
+  EXPECT_NE(json.find("\"keys\":[\"ENTER\"]"), std::string::npos);
+  EXPECT_NE(json.find("{\"name\":\"SA\",\"min\":-1,\"max\":1}"),
+            std::string::npos);
+  EXPECT_NE(json.find("{\"name\":\"AIL\",\"min\":0,\"max\":4096}"),
+            std::string::npos);
+  EXPECT_LE(json.size(), MAX_RESPONSE_BYTES);
+}
+
+TEST(SimuAutomationResponse, DescriptionOverflowUsesTerminalFallback)
+{
+  TargetDescription target;
+  target.flavour = "test";
+  target.lcdWidth = 128;
+  target.lcdHeight = 64;
+  target.lcdDepth = 1;
+  target.commands = {Command::Ping, Command::Status, Command::Describe,
+                     Command::Stop};
+  target.keys = {std::string(MAX_RESPONSE_BYTES, 'x')};
+
+  std::string json;
+  EXPECT_EQ(
+      serializeResponse(Response::successWithDescription(1, 0, target), &json),
+      SerializeResult::UsedSizeFallback);
+  EXPECT_NE(json.find("\"code\":\"response_too_large\""), std::string::npos);
+  EXPECT_LE(json.size(), MAX_RESPONSE_BYTES);
+}
+
 TEST(SimuAutomationResponse, SerializesUncorrelatedEvents)
 {
   std::string json;

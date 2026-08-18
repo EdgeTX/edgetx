@@ -869,8 +869,10 @@ Startup:
 4. launch the simulator;
 5. start stdout and stderr reader threads;
 6. send `ping`;
-7. send `status` until `Ready` or timeout; and
-8. validate target dimensions and required capabilities.
+7. send `describe` and validate its schema, target, LCD, commands, and required
+   capabilities; and
+8. send `status` until `Ready` with a non-zero epoch and first-frame
+   sequence, or timeout.
 
 There is no fixed startup `sleep`.
 
@@ -1277,21 +1279,24 @@ idle automation adds no blocking read to the SDL loop.
 
 ### Phase 3 — Cross-platform Python session foundation
 
-**Status (2026-08-17): in progress.** Slice 3A implements the dependency-free
-binary session for the commands available after Phase 2: `start`, correlated
-`ping`, and flushed `stop`. It uses dedicated stdout/stderr reader threads,
-strict JSON and ID validation, bounded diagnostics, per-request timeouts, child
-exit detection, and graceful/terminate/kill cleanup without pipe `select` or a
-startup sleep. A minimal `edgetx-ui probe` command exercises the same public
-session path.
+**Status (2026-08-17): implementation complete and validated locally.**
+Slice 3A implements the dependency-free binary session and portable process
+lifecycle. Slice 3B connects the existing LCD notification to the guarded
+session state, adds bounded `status` and `describe` results, and makes startup
+wait for a real first frame. Discovery validates the protocol schema, target,
+LCD dimensions, implemented command set, and caller-required capabilities.
+Capability and input-name lists remain deliberately empty until their matching
+commands are usable.
 
-The 22 focused tests pass with warnings treated as errors on Windows Python
+The 29 focused tests pass with warnings treated as errors on Windows Python
 3.11 and the official Linux image's Python 3.10. They include 100 process
-lifecycle cycles on each host. Additionally, 100 cycles against the real Linux
-TX16S simulator complete with exit code zero and no live reader thread. Full
-Phase 3 remains open for a real Windows simulator lifecycle run, explicit kill
-fallback injection, and readiness based on `status`, first frame, and
-capability discovery; those native commands do not exist yet.
+lifecycle cycles per host and an explicit forced `kill`-then-`wait` fallback.
+The maintained native TX16S suite passes 131/131. The real Linux TX16S
+simulator passes 100 readiness/stop cycles with no orphan process, and the real
+Windows TX16S simulator completes the same handshake once with paths containing
+spaces and exit code zero. The Windows full build used the installed Clang 22
+with SDL's documented prefetch guard; the protocol and Win32 transport compile
+without that compatibility flag.
 
 #### 3.1 Implement binary response readers
 
@@ -1340,7 +1345,10 @@ or zombie on Linux and Windows.
 
 #### 4.1 Add discovery and status
 
-Implement `status` and `describe` with bounded response output.
+The bounded readiness subset of `status` and `describe` lands in Phase 3 because
+the host must validate first-frame readiness before inputs are admitted. Extend
+the same result types here with canonical key, switch, and ADC names as each
+matching command becomes usable; do not advertise an unimplemented capability.
 
 #### 4.2 Add key and rotary primitives
 
