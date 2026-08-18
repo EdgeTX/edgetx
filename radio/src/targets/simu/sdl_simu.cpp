@@ -28,6 +28,7 @@
 #include <imgui_impl_sdlrenderer2.h>
 
 #include <algorithm>
+#include <cstdint>
 #include <cstdio>
 #include <iostream>
 #include <fstream>
@@ -87,6 +88,29 @@
 static SDL_Window* window;
 static SDL_Renderer* renderer;
 static SDL_Texture* screen_frame_buffer;
+
+#if !defined(__EMSCRIPTEN__)
+static edgetx::automation::AutomationStdio* automation_stdio_instance = nullptr;
+
+static edgetx::automation::TargetDescription automationTargetDescription()
+{
+  edgetx::automation::TargetDescription target;
+  target.flavour = FLAVOUR;
+  target.lcdWidth = static_cast<std::uint16_t>(LCD_W);
+  target.lcdHeight = static_cast<std::uint16_t>(LCD_H);
+  target.lcdDepth = static_cast<std::uint8_t>(LCD_DEPTH);
+  target.commands = {
+      edgetx::automation::Command::Ping,
+      edgetx::automation::Command::Status,
+      edgetx::automation::Command::Describe,
+      edgetx::automation::Command::Stop,
+  };
+  // Capability flags describe commands that are usable through this protocol
+  // build, not merely hardware that the radio target happens to contain.
+  target.outputRootReady = true;
+  return target;
+}
+#endif
 
 static GimbalState stick_left = {{0.5f, 0.5f}, false};
 static GimbalState stick_right = {{0.5f, 0.5f}, false};
@@ -814,7 +838,16 @@ int main(int argc, char* argv[])
   simuInit();
   simuFatfsSetPaths(args.getStoragePath().c_str(),
                     args.getSettingsPath().c_str());
+#if !defined(__EMSCRIPTEN__)
+  if (args.isAutomationStdio()) {
+    automation_stdio.setTargetDescription(automationTargetDescription());
+    automation_stdio_instance = &automation_stdio;
+  }
+#endif
   simuStart();
+#if !defined(__EMSCRIPTEN__)
+  if (args.isAutomationStdio()) automation_stdio.markRuntimeStarted();
+#endif
 
   // Main loop
   SDL_SetEventFilter([](void*, SDL_Event* event){
@@ -861,6 +894,12 @@ int main(int argc, char* argv[])
 
   // App cleanup
   simuStop();
+#if !defined(__EMSCRIPTEN__)
+  if (args.isAutomationStdio()) {
+    automation_stdio_instance = nullptr;
+    automation_stdio.markRuntimeStopped();
+  }
+#endif
 
   // Cleanup
   ImGui_ImplSDLRenderer2_Shutdown();
@@ -915,4 +954,10 @@ uint16_t simuGetAnalog(uint8_t idx)
 }
 
 void simuTrace(const char* text) {}
-void simuLcdNotify() {}
+void simuLcdNotify()
+{
+#if !defined(__EMSCRIPTEN__)
+  if (automation_stdio_instance != nullptr)
+    automation_stdio_instance->onDisplayFrame();
+#endif
+}

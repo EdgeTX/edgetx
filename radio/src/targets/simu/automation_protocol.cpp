@@ -244,6 +244,16 @@ class BoundedJson
     return append(std::to_string(number));
   }
 
+  bool appendSigned(std::int64_t number)
+  {
+    return append(std::to_string(number));
+  }
+
+  bool appendBoolean(bool boolean)
+  {
+    return append(boolean ? "true" : "false");
+  }
+
   bool appendString(const std::string& text)
   {
     if (!isValidUtf8(text) || !append("\"")) return false;
@@ -292,6 +302,126 @@ class BoundedJson
   std::string value;
 };
 
+bool appendLcdDescription(BoundedJson& json, const TargetDescription& target)
+{
+  return json.append("{\"width\":") && json.appendNumber(target.lcdWidth) &&
+         json.append(",\"height\":") && json.appendNumber(target.lcdHeight) &&
+         json.append(",\"depth\":") && json.appendNumber(target.lcdDepth) &&
+         json.append("}");
+}
+
+bool appendCapabilities(BoundedJson& json,
+                        const TargetCapabilities& capabilities)
+{
+  return json.append("{\"rotary\":") &&
+         json.appendBoolean(capabilities.rotary) &&
+         json.append(",\"touch\":") && json.appendBoolean(capabilities.touch) &&
+         json.append(",\"switches\":") &&
+         json.appendBoolean(capabilities.switches) &&
+         json.append(",\"analog\":") &&
+         json.appendBoolean(capabilities.analog) &&
+         json.append(",\"telemetry\":") &&
+         json.appendBoolean(capabilities.telemetry) &&
+         json.append(",\"lua\":") && json.appendBoolean(capabilities.lua) &&
+         json.append(",\"capture\":") &&
+         json.appendBoolean(capabilities.capture) &&
+         json.append(",\"warm_restart\":") &&
+         json.appendBoolean(capabilities.warmRestart) && json.append("}");
+}
+
+bool appendCommands(BoundedJson& json, const std::vector<Command>& commands)
+{
+  if (!json.append("[")) return false;
+  for (std::size_t index = 0; index < commands.size(); ++index) {
+    if (index != 0 && !json.append(",")) return false;
+    if (!json.appendString(commandName(commands[index]))) return false;
+  }
+  return json.append("]");
+}
+
+bool appendStrings(BoundedJson& json, const std::vector<std::string>& values)
+{
+  if (!json.append("[")) return false;
+  for (std::size_t index = 0; index < values.size(); ++index) {
+    if (index != 0 && !json.append(",")) return false;
+    if (!json.appendString(values[index])) return false;
+  }
+  return json.append("]");
+}
+
+bool appendNamedRanges(BoundedJson& json, const std::vector<NamedRange>& ranges)
+{
+  if (!json.append("[")) return false;
+  for (std::size_t index = 0; index < ranges.size(); ++index) {
+    if (index != 0 && !json.append(",")) return false;
+    const NamedRange& range = ranges[index];
+    if (!json.append("{\"name\":") || !json.appendString(range.name) ||
+        !json.append(",\"min\":") || !json.appendSigned(range.minimum) ||
+        !json.append(",\"max\":") || !json.appendSigned(range.maximum) ||
+        !json.append("}")) {
+      return false;
+    }
+  }
+  return json.append("]");
+}
+
+bool appendStatusResult(BoundedJson& json, const Response& response)
+{
+  const StatusSnapshot& status = response.status;
+  const TargetDescription& target = response.target;
+  if (!json.append(",\"result\":{\"protocol_version\":1,\"running\":") ||
+      !json.appendBoolean(status.running) || !json.append(",\"phase\":") ||
+      !json.appendString(sessionPhaseName(status.phase)) ||
+      !json.append(",\"target\":") || !json.appendString(target.flavour) ||
+      !json.append(",\"lcd\":") || !appendLcdDescription(json, target) ||
+      !json.append(",\"display_seq\":") ||
+      !json.appendNumber(status.displaySequence) ||
+      !json.append(",\"async_operation\":") ||
+      !json.appendString(asyncOperationName(status.asyncOperation)) ||
+      !json.append(",\"request_queue_depth\":") ||
+      !json.appendNumber(status.requestQueueDepth) ||
+      !json.append(",\"firmware_mailbox_depth\":") ||
+      !json.appendNumber(status.firmwareMailboxDepth) ||
+      !json.append(",\"line_overflow_count\":") ||
+      !json.appendNumber(status.lineOverflowCount) ||
+      !json.append(",\"queue_overflow_count\":") ||
+      !json.appendNumber(status.queueOverflowCount) ||
+      !json.append(",\"active_key_count\":") ||
+      !json.appendNumber(status.activeKeyCount) ||
+      !json.append(",\"touch_active\":") ||
+      !json.appendBoolean(status.touchActive) ||
+      !json.append(",\"analog_override_count\":") ||
+      !json.appendNumber(status.analogOverrideCount) ||
+      !json.append(",\"lua_state\":") || !json.appendString(status.luaState) ||
+      !json.append(",\"capabilities\":") ||
+      !appendCapabilities(json, target.capabilities) ||
+      !json.append(",\"output_root\":") ||
+      !json.appendString(target.outputRootReady ? "ready" : "invalid") ||
+      !json.append("}")) {
+    return false;
+  }
+  return true;
+}
+
+bool appendDescriptionResult(BoundedJson& json, const Response& response)
+{
+  const TargetDescription& target = response.target;
+  if (!json.append(",\"result\":{\"protocol_version\":1,\"target\":") ||
+      !json.appendString(target.flavour) || !json.append(",\"lcd\":") ||
+      !appendLcdDescription(json, target) || !json.append(",\"commands\":") ||
+      !appendCommands(json, target.commands) ||
+      !json.append(",\"capabilities\":") ||
+      !appendCapabilities(json, target.capabilities) ||
+      !json.append(",\"keys\":") || !appendStrings(json, target.keys) ||
+      !json.append(",\"switches\":") ||
+      !appendNamedRanges(json, target.switches) ||
+      !json.append(",\"analogs\":") ||
+      !appendNamedRanges(json, target.analogs) || !json.append("}")) {
+    return false;
+  }
+  return true;
+}
+
 bool buildResponse(const Response& response, ErrorCode code,
                    const std::string& message, std::size_t maxBytes,
                    std::string* output)
@@ -310,6 +440,10 @@ bool buildResponse(const Response& response, ErrorCode code,
         !json.appendString(message) || !json.append("}")) {
       return false;
     }
+  } else if (response.resultKind == Response::ResultKind::Status) {
+    if (!appendStatusResult(json, response)) return false;
+  } else if (response.resultKind == Response::ResultKind::Description) {
+    if (!appendDescriptionResult(json, response)) return false;
   }
 
   if (!json.append("}\n")) return false;
@@ -531,6 +665,26 @@ Response Response::success(RequestId id, SessionEpoch epoch)
   return response;
 }
 
+Response Response::successWithStatus(RequestId id, SessionEpoch epoch,
+                                     const StatusSnapshot& status,
+                                     const TargetDescription& target)
+{
+  Response response = success(id, epoch);
+  response.resultKind = ResultKind::Status;
+  response.status = status;
+  response.target = target;
+  return response;
+}
+
+Response Response::successWithDescription(RequestId id, SessionEpoch epoch,
+                                          const TargetDescription& target)
+{
+  Response response = success(id, epoch);
+  response.resultKind = ResultKind::Description;
+  response.target = target;
+  return response;
+}
+
 Response Response::failure(RequestId id, SessionEpoch epoch, ErrorCode code,
                            const std::string& message)
 {
@@ -675,6 +829,40 @@ const char* errorCodeName(ErrorCode code)
       return "internal_error";
   }
   return "internal_error";
+}
+
+const char* sessionPhaseName(SessionPhase phase)
+{
+  switch (phase) {
+    case SessionPhase::Starting:
+      return "starting";
+    case SessionPhase::Ready:
+      return "ready";
+    case SessionPhase::Restarting:
+      return "restarting";
+    case SessionPhase::Stopped:
+      return "stopped";
+  }
+  return "stopped";
+}
+
+const char* asyncOperationName(AsyncOperation operation)
+{
+  switch (operation) {
+    case AsyncOperation::None:
+      return "none";
+    case AsyncOperation::WaitFrame:
+      return "wait_frame";
+    case AsyncOperation::Capture:
+      return "capture";
+    case AsyncOperation::Firmware:
+      return "firmware";
+    case AsyncOperation::ReloadLua:
+      return "reload_lua";
+    case AsyncOperation::Restart:
+      return "restart";
+  }
+  return "none";
 }
 
 bool isValidUtf8(const std::string& value)

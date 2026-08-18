@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <deque>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -32,7 +33,8 @@ enum class StdioPumpResult {
 class AutomationStdio
 {
  public:
-  AutomationStdio() = default;
+  explicit AutomationStdio(
+      const TargetDescription& target = TargetDescription());
   ~AutomationStdio();
 
   AutomationStdio(const AutomationStdio&) = delete;
@@ -40,6 +42,10 @@ class AutomationStdio
 
   bool start(std::string* error);
   StdioPumpResult pump(std::string* error);
+  void setTargetDescription(const TargetDescription& target);
+  void markRuntimeStarted();
+  void markRuntimeStopped();
+  void onDisplayFrame();
 
  private:
   enum class ReadResult {
@@ -65,10 +71,19 @@ class AutomationStdio
                             std::string* error);
   StdioPumpResult writeSerialized(const std::string& record,
                                   std::string* error);
+  SessionEpoch currentEpoch() const;
+  Response makeStatusResponse(RequestId id) const;
+  Response makeDescriptionResponse(RequestId id) const;
 
   LineBuffer lineBuffer;
   ProtocolParser parser;
   std::deque<LineEvent> pendingEvents;
+  mutable std::mutex stateMutex;
+  SessionState sessionState;
+  TargetDescription targetDescription;
+  bool runtimeRunning = false;
+  std::uint64_t lineOverflowCount = 0;
+  std::uint64_t queueOverflowCount = 0;
   bool started = false;
   bool inputClosed = false;
   bool queueOverflowed = false;

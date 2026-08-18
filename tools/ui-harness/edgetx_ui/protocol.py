@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Sequence, Union
+from typing import Any, Dict, Mapping, Optional, Sequence, Tuple, Union
 
 
 PROTOCOL_VERSION = 1
@@ -13,6 +13,26 @@ MAX_RECORD_BYTES = 16 * 1024
 UINT64_MAX = (1 << 64) - 1
 
 _COMMAND_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
+_TARGET_PATTERN = re.compile(r"^[A-Za-z0-9_.+-]+$")
+
+CAPABILITY_NAMES = (
+    "rotary",
+    "touch",
+    "switches",
+    "analog",
+    "telemetry",
+    "lua",
+    "capture",
+    "warm_restart",
+)
+
+_STATUS_PHASES = frozenset(("starting", "ready", "restarting", "stopped"))
+_ASYNC_OPERATIONS = frozenset(
+    ("none", "wait_frame", "capture", "firmware", "reload_lua", "restart")
+)
+_LUA_STATES = frozenset(
+    ("unavailable", "not_observed", "idle", "reloading", "running", "panic")
+)
 
 
 class ProtocolViolation(ValueError):
@@ -36,6 +56,69 @@ class Event:
     code: str
     message: str
     raw: Dict[str, Any]
+
+
+@dataclass(frozen=True)
+class LcdDescription:
+    width: int
+    height: int
+    depth: int
+
+
+@dataclass(frozen=True)
+class NamedRange:
+    name: str
+    minimum: int
+    maximum: int
+
+
+@dataclass(frozen=True)
+class Capabilities:
+    rotary: bool
+    touch: bool
+    switches: bool
+    analog: bool
+    telemetry: bool
+    lua: bool
+    capture: bool
+    warm_restart: bool
+
+    def supports(self, name: str) -> bool:
+        if name not in CAPABILITY_NAMES:
+            raise ValueError("unknown capability: " + name)
+        return bool(getattr(self, name))
+
+
+@dataclass(frozen=True)
+class Description:
+    target: str
+    lcd: LcdDescription
+    commands: Tuple[str, ...]
+    capabilities: Capabilities
+    keys: Tuple[str, ...]
+    switches: Tuple[NamedRange, ...]
+    analogs: Tuple[NamedRange, ...]
+
+
+@dataclass(frozen=True)
+class Status:
+    epoch: int
+    running: bool
+    phase: str
+    target: str
+    lcd: LcdDescription
+    display_sequence: int
+    async_operation: str
+    request_queue_depth: int
+    firmware_mailbox_depth: int
+    line_overflow_count: int
+    queue_overflow_count: int
+    active_key_count: int
+    touch_active: bool
+    analog_override_count: int
+    lua_state: str
+    capabilities: Capabilities
+    output_root: str
 
 
 Message = Union[Response, Event]
@@ -108,6 +191,124 @@ def parse_message(record: bytes) -> Message:
     raise ProtocolViolation("protocol response has an invalid type")
 
 
+def decode_description(response: Response) -> Description:
+    """Validate and decode the bounded result of a successful describe call."""
+
+    result = _successful_result(response, "describe")
+    _require_exact_keys(
+        result,
+        {
+            "protocol_version",
+            "target",
+            "lcd",
+            "commands",
+            "capabilities",
+            "keys",
+            "switches",
+            "analogs",
+        },
+        "describe result",
+    )
+    _require_protocol_version(result)
+    return Description(
+        target=_target(result.get("target"), "describe target"),
+        lcd=_lcd(result.get("lcd"), "describe lcd"),
+        commands=_string_tuple(
+            result.get("commands"), "describe commands", _COMMAND_PATTERN
+        ),
+        capabilities=_capabilities(result.get("capabilities")),
+        keys=_string_tuple(result.get("keys"), "describe keys", _TARGET_PATTERN),
+        switches=_named_ranges(result.get("switches"), "describe switches"),
+        analogs=_named_ranges(result.get("analogs"), "describe analogs"),
+    )
+
+
+def decode_status(response: Response) -> Status:
+    """Validate and decode one internally consistent status snapshot."""
+
+    result = _successful_result(response, "status")
+    _require_exact_keys(
+        result,
+        {
+            "protocol_version",
+            "running",
+            "phase",
+            "target",
+            "lcd",
+            "display_seq",
+            "async_operation",
+            "request_queue_depth",
+            "firmware_mailbox_depth",
+            "line_overflow_count",
+            "queue_overflow_count",
+            "active_key_count",
+            "touch_active",
+            "analog_override_count",
+            "lua_state",
+            "capabilities",
+            "output_root",
+        },
+        "status result",
+    )
+    _require_protocol_version(result)
+
+    running = result.get("running")
+    touch_active = result.get("touch_active")
+    if not isinstance(running, bool) or not isinstance(touch_active, bool):
+        raise ProtocolViolation("status boolean fields are invalid")
+
+    phase = result.get("phase")
+    if not isinstance(phase, str) or phase not in _STATUS_PHASES:
+        raise ProtocolViolation("status phase is invalid")
+    async_operation = result.get("async_operation")
+    if (
+        not isinstance(async_operation, str)
+        or async_operation not in _ASYNC_OPERATIONS
+    ):
+        raise ProtocolViolation("status async operation is invalid")
+    lua_state = result.get("lua_state")
+    if not isinstance(lua_state, str) or lua_state not in _LUA_STATES:
+        raise ProtocolViolation("status Lua state is invalid")
+    output_root = result.get("output_root")
+    if not isinstance(output_root, str) or output_root not in (
+        "ready",
+        "invalid",
+    ):
+        raise ProtocolViolation("status output-root state is invalid")
+
+    return Status(
+        epoch=response.epoch,
+        running=running,
+        phase=phase,
+        target=_target(result.get("target"), "status target"),
+        lcd=_lcd(result.get("lcd"), "status lcd"),
+        display_sequence=_uint64(result.get("display_seq"), "display sequence"),
+        async_operation=async_operation,
+        request_queue_depth=_uint64(
+            result.get("request_queue_depth"), "request queue depth"
+        ),
+        firmware_mailbox_depth=_uint64(
+            result.get("firmware_mailbox_depth"), "firmware mailbox depth"
+        ),
+        line_overflow_count=_uint64(
+            result.get("line_overflow_count"), "line overflow count"
+        ),
+        queue_overflow_count=_uint64(
+            result.get("queue_overflow_count"), "queue overflow count"
+        ),
+        active_key_count=_uint64(
+            result.get("active_key_count"), "active key count"
+        ),
+        touch_active=touch_active,
+        analog_override_count=_uint64(
+            result.get("analog_override_count"), "analog override count"
+        ),
+        lua_state=lua_state,
+        capabilities=_capabilities(result.get("capabilities")),
+        output_root=output_root,
+    )
+
+
 def _parse_response(payload: Dict[str, Any], epoch: int) -> Response:
     request_id = payload.get("id")
     if not _is_uint64(request_id) or request_id == 0:
@@ -173,3 +374,127 @@ def _is_uint64(value: object) -> bool:
 
 def _reject_json_constant(value: str) -> None:
     raise ValueError("non-standard JSON constant: " + value)
+
+
+def _successful_result(response: Response, command: str) -> Dict[str, Any]:
+    if not response.ok:
+        raise ProtocolViolation(command + " response is not successful")
+    if response.result is None:
+        raise ProtocolViolation(command + " response has no result")
+    return response.result
+
+
+def _require_exact_keys(
+    value: Mapping[str, Any], expected: set[str], label: str
+) -> None:
+    actual = set(value)
+    if actual != expected:
+        missing = sorted(expected - actual)
+        extra = sorted(actual - expected)
+        detail = ""
+        if missing:
+            detail += "; missing " + ", ".join(missing)
+        if extra:
+            detail += "; extra " + ", ".join(extra)
+        raise ProtocolViolation(label + " has an invalid schema" + detail)
+
+
+def _require_protocol_version(result: Mapping[str, Any]) -> None:
+    version = result.get("protocol_version")
+    if not _is_integer(version) or version != PROTOCOL_VERSION:
+        raise ProtocolViolation("result protocol version is invalid")
+
+
+def _target(value: object, label: str) -> str:
+    if (
+        not isinstance(value, str)
+        or not value
+        or len(value) > 64
+        or _TARGET_PATTERN.fullmatch(value) is None
+    ):
+        raise ProtocolViolation(label + " is invalid")
+    return value
+
+
+def _lcd(value: object, label: str) -> LcdDescription:
+    if not isinstance(value, dict):
+        raise ProtocolViolation(label + " must be an object")
+    _require_exact_keys(value, {"width", "height", "depth"}, label)
+    width = value.get("width")
+    height = value.get("height")
+    depth = value.get("depth")
+    if (
+        not _is_integer(width)
+        or not _is_integer(height)
+        or width <= 0
+        or height <= 0
+        or width > 65535
+        or height > 65535
+        or not _is_integer(depth)
+        or depth not in (1, 4, 16)
+    ):
+        raise ProtocolViolation(label + " dimensions are invalid")
+    return LcdDescription(width=width, height=height, depth=depth)
+
+
+def _capabilities(value: object) -> Capabilities:
+    if not isinstance(value, dict):
+        raise ProtocolViolation("capabilities must be an object")
+    _require_exact_keys(value, set(CAPABILITY_NAMES), "capabilities")
+    for name in CAPABILITY_NAMES:
+        if not isinstance(value.get(name), bool):
+            raise ProtocolViolation("capability " + name + " is not boolean")
+    return Capabilities(**{name: value[name] for name in CAPABILITY_NAMES})
+
+
+def _string_tuple(
+    value: object, label: str, pattern: re.Pattern[str]
+) -> Tuple[str, ...]:
+    if not isinstance(value, list) or len(value) > 256:
+        raise ProtocolViolation(label + " must be a bounded array")
+    strings = []
+    for item in value:
+        if (
+            not isinstance(item, str)
+            or not item
+            or len(item) > 64
+            or pattern.fullmatch(item) is None
+        ):
+            raise ProtocolViolation(label + " contains an invalid name")
+        strings.append(item)
+    if len(set(strings)) != len(strings):
+        raise ProtocolViolation(label + " contains duplicate names")
+    return tuple(strings)
+
+
+def _named_ranges(value: object, label: str) -> Tuple[NamedRange, ...]:
+    if not isinstance(value, list) or len(value) > 256:
+        raise ProtocolViolation(label + " must be a bounded array")
+    ranges = []
+    names = set()
+    for item in value:
+        if not isinstance(item, dict):
+            raise ProtocolViolation(label + " entries must be objects")
+        _require_exact_keys(item, {"name", "min", "max"}, label + " entry")
+        name = _target(item.get("name"), label + " name")
+        minimum = item.get("min")
+        maximum = item.get("max")
+        if (
+            not _is_integer(minimum)
+            or not _is_integer(maximum)
+            or minimum < -(1 << 31)
+            or maximum > (1 << 31) - 1
+            or minimum > maximum
+        ):
+            raise ProtocolViolation(label + " contains an invalid range")
+        if name in names:
+            raise ProtocolViolation(label + " contains duplicate names")
+        names.add(name)
+        ranges.append(NamedRange(name=name, minimum=minimum, maximum=maximum))
+    return tuple(ranges)
+
+
+def _uint64(value: object, label: str) -> int:
+    if not _is_uint64(value):
+        raise ProtocolViolation(label + " is invalid")
+    return value

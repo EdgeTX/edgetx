@@ -16,7 +16,7 @@ def build_parser() -> argparse.ArgumentParser:
     subcommands = parser.add_subparsers(dest="command", required=True)
 
     probe = subcommands.add_parser(
-        "probe", help="launch a simulator and perform start/ping/stop"
+        "probe", help="launch a simulator and verify first-frame readiness"
     )
     probe.add_argument("--output", required=True, type=Path)
     probe.add_argument("--timeout", type=float, default=5.0)
@@ -49,11 +49,15 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         kill_timeout=args.timeout,
     )
     try:
-        ping = session.start(timeout=args.timeout)
+        ready = session.start(timeout=args.timeout)
         stop = session.stop(timeout=args.timeout)
+        assert session.startup_ping is not None
+        assert session.description_response is not None
         payload = {
             "ok": True,
-            "ping": ping.raw,
+            "ping": session.startup_ping.raw,
+            "describe": session.description_response.raw,
+            "ready": ready.raw,
             "stop": stop.raw if stop is not None else None,
             "returncode": session.returncode,
             "termination": session.termination_stage,

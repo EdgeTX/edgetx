@@ -22,6 +22,7 @@ from edgetx_ui.session import (  # noqa: E402
     ProtocolFailure,
     RequestTimeout,
     SimulatorSession,
+    StartupMismatch,
 )
 
 
@@ -31,7 +32,7 @@ class SimulatorSessionTests(unittest.TestCase):
         self.addCleanup(self.temporary_directory.cleanup)
         self.output_root = Path(self.temporary_directory.name)
 
-    def session(self, mode: str, **overrides: float) -> SimulatorSession:
+    def session(self, mode: str, **overrides: object) -> SimulatorSession:
         options = {
             "request_timeout": 1.0,
             "stop_timeout": 0.5,
@@ -53,11 +54,14 @@ class SimulatorSessionTests(unittest.TestCase):
 
     def test_fragmented_start_ping_stop_is_correlated_and_reaped(self) -> None:
         session = self.session("fragmented")
-        ping = session.start()
+        ready = session.start()
         stop = session.stop()
 
-        self.assertEqual(ping.id, 1)
-        self.assertEqual(stop.id, 2)
+        self.assertEqual(session.startup_ping.id, 1)
+        self.assertEqual(session.description_response.id, 2)
+        self.assertEqual(ready.id, 3)
+        self.assertEqual(ready.result["phase"], "ready")
+        self.assertEqual(stop.id, 4)
         self.assertEqual(session.returncode, 0)
         self.assertEqual(session.termination_stage, "graceful")
         self.assert_reaped(session)
@@ -65,8 +69,8 @@ class SimulatorSessionTests(unittest.TestCase):
     def test_event_does_not_steal_correlated_response(self) -> None:
         session = self.session("event")
         try:
-            ping = session.start()
-            self.assertEqual(ping.id, 1)
+            ready = session.start()
+            self.assertEqual(ready.id, 3)
             self.assertEqual(session.events[-1].code, "queue_full")
         finally:
             session.close()
@@ -154,16 +158,15 @@ class SimulatorSessionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 session.request("capture", "bad\npath")
             ping = session.ping()
-            self.assertEqual(ping.id, 3)
+            self.assertEqual(ping.id, 5)
         finally:
             session.close()
         self.assert_reaped(session)
 
     def test_exit_after_ping_is_not_reported_as_a_clean_stop(self) -> None:
         session = self.session("exit-after-ping")
-        session.start()
         with self.assertRaises(ProcessExited):
-            session.stop()
+            session.start()
         self.assert_reaped(session)
 
     def test_stop_escalates_when_child_acknowledges_but_does_not_exit(self) -> None:
@@ -173,9 +176,71 @@ class SimulatorSessionTests(unittest.TestCase):
         session.start()
         stop = session.stop()
 
-        self.assertEqual(stop.id, 2)
+        self.assertEqual(stop.id, 4)
         self.assertEqual(session.termination_stage, "terminated")
         self.assert_reaped(session)
+
+    def test_stop_kills_and_waits_when_terminate_does_not_reap(self) -> None:
+        session = self.session(
+            "ignore-stop",
+            stop_timeout=0.1,
+            terminate_timeout=0.1,
+            kill_timeout=0.5,
+        )
+        session.start()
+        process = session.process
+        assert process is not None
+        process.terminate = lambda: None  # type: ignore[method-assign]
+
+        stop = session.stop()
+
+        self.assertEqual(stop.id, 4)
+        self.assertEqual(session.termination_stage, "killed")
+        self.assert_reaped(session)
+
+    def test_start_polls_status_until_a_real_first_frame(self) -> None:
+        session = self.session("starting-then-ready")
+        try:
+            ready = session.start()
+            self.assertEqual(ready.id, 5)
+            self.assertEqual(session.status.phase, "ready")
+            self.assertEqual(session.status.epoch, 1)
+            self.assertEqual(session.status.display_sequence, 1)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_startup_deadline_bounds_a_never_ready_simulator(self) -> None:
+        session = self.session("never-ready")
+        with self.assertRaisesRegex(RequestTimeout, "readiness"):
+            session.start(timeout=0.1)
+        self.assert_reaped(session)
+
+    def test_discovery_schema_and_status_identity_are_strict(self) -> None:
+        bad_description = self.session("bad-description")
+        with self.assertRaisesRegex(ProtocolFailure, "capture.*boolean"):
+            bad_description.start()
+        self.assert_reaped(bad_description)
+
+        mismatched_status = self.session("status-mismatch")
+        with self.assertRaisesRegex(ProtocolFailure, "target differs"):
+            mismatched_status.start()
+        self.assert_reaped(mismatched_status)
+
+    def test_target_lcd_and_required_capabilities_are_validated(self) -> None:
+        matching = self.session(
+            "normal",
+            expected_target="test-target",
+            expected_lcd=(480, 272, 16),
+        )
+        matching.start()
+        matching.stop()
+        self.assert_reaped(matching)
+
+        missing = self.session("normal", required_capabilities=("capture",))
+        with self.assertRaisesRegex(StartupMismatch, "capture"):
+            missing.start()
+        self.assert_reaped(missing)
 
     def test_one_hundred_lifecycle_cycles_leave_no_reader_or_child(self) -> None:
         for cycle in range(100):
@@ -210,7 +275,9 @@ class SimulatorSessionTests(unittest.TestCase):
         payload = json.loads(result.stdout)
         self.assertTrue(payload["ok"])
         self.assertEqual(payload["ping"]["id"], 1)
-        self.assertEqual(payload["stop"]["id"], 2)
+        self.assertEqual(payload["describe"]["id"], 2)
+        self.assertEqual(payload["ready"]["id"], 3)
+        self.assertEqual(payload["stop"]["id"], 4)
         self.assertEqual(payload["returncode"], 0)
 
     def test_cli_returns_nonzero_for_a_protocol_command_failure(self) -> None:
