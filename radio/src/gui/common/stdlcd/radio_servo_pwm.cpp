@@ -44,6 +44,8 @@ void pwmOutputInit() {}
 void pwmOutputEnable(uint16_t) {}
 #endif
 
+// 1-based output channel number, not a mixsrc_t
+static constexpr uint8_t PWM_SOURCE_NONE = 0;
 static uint8_t pwmOutputSource;
 
 enum {
@@ -63,12 +65,12 @@ void menuServoPwmTool(event_t event)
 
   if (event == EVT_ENTRY) {
     TRACE("starting servo pwm...");
-    pwmOutputSource = MIXSRC_NONE;
+    pwmOutputSource = PWM_SOURCE_NONE;
     pwmOutputInit();
   }
 
-  if (pwmOutputSource > MIXSRC_NONE) {
-    mixsrc_t chan = pwmOutputSource - MIXSRC_FIRST;
+  if (pwmOutputSource != PWM_SOURCE_NONE) {
+    mixsrc_t chan = pwmOutputSource - 1;
     pwmOutputEnable(PPM_CH_CENTER(chan) + channelOutputs[chan] / 2);
   } else {
     pwmOutputDisable();
@@ -79,12 +81,17 @@ void menuServoPwmTool(event_t event)
     coord_t y = MENU_HEADER_HEIGHT + 12 + i * FH;
 
     switch (i) {
-      case ITEM_PWM_SOURCE:
+      case ITEM_PWM_SOURCE: {
         lcdDrawTextAlignedLeft(y, STR_SOURCE);
-        drawSource(HW_SETTINGS_COLUMN2, y, pwmOutputSource, attr);
+        mixsrc_t src = (pwmOutputSource != PWM_SOURCE_NONE)
+                            ? MIXSRC_FIRST_CH + pwmOutputSource - 1
+                            : MIXSRC_NONE;
+        drawSource(HW_SETTINGS_COLUMN2, y, src, attr);
         if (attr & BLINK)
-          CHECK_INCDEC_GENVAR(event, pwmOutputSource, 0, MAX_OUTPUT_CHANNELS);
+          CHECK_INCDEC_GENVAR(event, pwmOutputSource, PWM_SOURCE_NONE,
+                               MAX_OUTPUT_CHANNELS);
         break;
+      }
     }
   }
 }
