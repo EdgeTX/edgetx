@@ -45,7 +45,7 @@ export interface SimulatorExports {
   free: (ptr: number) => void;
 
   simuInit: () => void;
-  simuStart: (tests: number) => void;
+  simuStart: (tests: number, utcOffset: number) => void;
   simuStop: () => void;
   simuIsRunning: () => number;
   simuFatfsSetPaths: (sdPath: number, settingsPath: number) => void;

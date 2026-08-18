@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stddef.h>
+#include <time.h>
 
 #include <string>
 
@@ -43,8 +44,10 @@
 
 // Lifecycle: call simuInit() once, then simuFatfsSetPaths() + simuStart().
 // Poll simuIsRunning() periodically. Call simuStop() to shut down.
+// utcOffset: seconds east of UTC, DST applied; wasi-libc's localtime() always
+// reports UTC. Ignored by native builds.
 void WASM_EXPORT(simuInit)();
-void WASM_EXPORT(simuStart)(bool tests = true);
+void WASM_EXPORT(simuStart)(bool tests = true, int32_t utcOffset = 0);
 void WASM_EXPORT(simuStop)();
 bool WASM_EXPORT(simuIsRunning)();
 
@@ -189,6 +192,11 @@ void WASM_IMPORT(simuAuxSerialSendBuffer)(uint8_t port_nr, const uint8_t* data,
                                          uint32_t len);
 
 // -- Internal (not exported) --
+
+// Use instead of localtime()/mktime(): applies simuStart()'s utcOffset on WASM.
+bool simuLocalTime(time_t t, struct tm* result);
+time_t simuLocalTimeToEpoch(struct tm* tm);
+
 void simuMain();
 std::string simuFatfsGetCurrentPath();
 std::string simuFatfsGetRealPath(const std::string& p);
