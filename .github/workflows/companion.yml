@@ -59,7 +59,7 @@ jobs:
           - id: color-4
             target: [nb4p, st16, pa01, c14]
           - id: color-5
-            target: [t15pro, tx16smk3]
+            target: [t15pro, tx16smk3, gx15]
 
     steps:
       - name: Check out the repo
