@@ -46,10 +46,12 @@ class PrefsProfilePanel : public PrefsPanel
   public slots:
     void onOptionChanged(QString name);
     void undoFirmwareChange();
+    void onFirmwareTypePressed();
 
   private:
     Ui::PrefsProfile * ui;
 
+    AutoLineEdit *fwTypeData;
     AutoCheckBox *chkUseSettingsBackup;
     AutoLabel    *lblSettingsBackup;
     AutoComboBox *cboStickMode;
@@ -67,7 +69,6 @@ class PrefsProfilePanel : public PrefsPanel
     QMap<QString, AutoCheckBox *> chkFirmwareBuildOpts;
     AutoCheckBox *chkBackupBeforeFlash;
 
-    QAbstractItemModel *firmwareModel();
     QString getLanguage();
     QStringList getSelectedOptions();
     QString getSplashFileFilter();

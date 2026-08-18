@@ -1230,3 +1230,75 @@ QString Boards::getCapabilityStr(Board::Type board, Board::Capability capability
 {
   return getBoardJson(board)->getCapabilityStr(capability);
 }
+
+QString Boards::getManufacturer(Board::Type board)
+{
+  switch (board) {
+    case BOARD_BETAFPV_LR3PRO:
+      return "BETAFPV";
+    case BOARD_FATFISH_F16:
+      return "Fatfish";
+    case BOARD_FLYSKY_NV14:
+    case BOARD_FLYSKY_EL18:
+    case BOARD_FLYSKY_PA01:
+    case BOARD_FLYSKY_PL18:
+    case BOARD_FLYSKY_PL18EV:
+    case BOARD_FLYSKY_PL18U:
+    case BOARD_FLYSKY_NB4P:
+    case BOARD_FLYSKY_ST16:
+      return "FlySky";
+    case BOARD_TARANIS_X7:
+    case BOARD_TARANIS_X7_ACCESS:
+    case BOARD_TARANIS_XLITE:
+    case BOARD_TARANIS_XLITES:
+    case BOARD_TARANIS_X9D:
+    case BOARD_TARANIS_X9DP:
+    case BOARD_TARANIS_X9DP_2019:
+    case BOARD_TARANIS_X9E:
+    case BOARD_TARANIS_X9LITE:
+    case BOARD_TARANIS_X9LITES:
+    case BOARD_HORUS_X12S:
+    case BOARD_X10:
+    case BOARD_X10_EXPRESS:
+      return "FrSky";
+    case BOARD_HELLORADIOSKY_V16:
+    case BOARD_HELLORADIOSKY_V12:
+    case BOARD_HELLORADIOSKY_V14:
+    case BOARD_HELLORADIOSKY_V14LCD:
+      return "HelloRadioSky";
+    case BOARD_IFLIGHT_COMMANDO8:
+    case BOARD_IFLIGHT_COMMANDO14:
+      return "iFlight";
+    case BOARD_JUMPER_T12:
+    case BOARD_JUMPER_TLITE:
+    case BOARD_JUMPER_TLITE_F4:
+    case BOARD_JUMPER_TPRO:
+    case BOARD_JUMPER_TPROV2:
+    case BOARD_JUMPER_TPROS:
+    case BOARD_JUMPER_T12MAX:
+    case BOARD_JUMPER_BUMBLEBEE:
+    case BOARD_JUMPER_T14:
+    case BOARD_JUMPER_T15:
+    case BOARD_JUMPER_T15PRO:
+    case BOARD_JUMPER_T22:
+    case BOARD_JUMPER_T16:
+    case BOARD_JUMPER_T18:
+    case BOARD_JUMPER_T20:
+    case BOARD_JUMPER_T20V2:
+      return "Jumper";
+    case BOARD_RADIOMASTER_BOXER:
+    case BOARD_RADIOMASTER_POCKET:
+    case BOARD_RADIOMASTER_MT12:
+    case BOARD_RADIOMASTER_T8:
+    case BOARD_RADIOMASTER_TX12:
+    case BOARD_RADIOMASTER_TX12_MK2:
+    case BOARD_RADIOMASTER_TX16S:
+    case BOARD_RADIOMASTER_TX16SMK3:
+    case BOARD_RADIOMASTER_TX15:
+    case BOARD_RADIOMASTER_ZORRO:
+    case BOARD_RADIOMASTER_GX12:
+      return "Radiomaster";
+    default:
+      return CPN_STR_UNKNOWN_ITEM;
+  }
+}

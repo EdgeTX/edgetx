@@ -2,6 +2,7 @@
 project(prefsedit)
 
 set(${PROJECT_NAME}_NAMES
+  firmwarepicker
   prefs_panel
   prefs_edit
   prefs_app
