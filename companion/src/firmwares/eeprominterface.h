@@ -160,6 +160,11 @@ class Firmware
       return base ? base : this;
     }
 
+    inline const bool isBase() const
+    {
+      return base ? false : true;
+    }
+
     virtual Firmware * getFirmwareVariant(const QString & id) { return NULL; }
 
     unsigned int getVariantNumber();
@@ -186,6 +191,16 @@ class Firmware
     }
 
     QString getName() const
+    {
+      return Boards::getManufacturer(board) % " " % name;
+    }
+
+    QString getFullName() const
+    {
+      return getName();
+    }
+
+    QString getShortName() const
     {
       return name;
     }
@@ -220,6 +235,8 @@ class Firmware
     const int getFlashSize();
 
     static Firmware * getFirmwareForId(const QString & id);
+
+    static Firmware * getFirmwareForFullName(const QString & name);
 
     static QVector<Firmware *> getRegisteredFirmwares()
     {

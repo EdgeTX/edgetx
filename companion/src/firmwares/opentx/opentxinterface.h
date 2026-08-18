@@ -31,7 +31,7 @@ class OpenTxFirmware: public Firmware
 
   public:
     OpenTxFirmware(const QString & id, OpenTxFirmware * parent):
-      Firmware(parent, id, parent->getName(), parent->getBoard(),
+      Firmware(parent, id, parent->getShortName(), parent->getBoard(),
                parent->getDownloadId(), parent->getSimulatorId(), parent->getHwDefnId())
     {
     }

@@ -23,6 +23,7 @@
 #include "ui_prefs_profile.h"
 #include "eeprominterface.h"
 #include "moduledata.h"
+#include "firmwarepicker.h"
 
 #include <QAbstractItemView>
 #include <QFileInfo>
@@ -56,18 +57,17 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Typ
   });
 
   // radio
-  ui->cboRadio->setModel(firmwareModel());
-  // QComboBox::sizeAdjustPolicy(QCombobox::AdjustToContents) does not resize as requested
-  // due to using a model and nested layouts. Since the list view width is correct, use it
-  ui->cboRadio->setMaximumWidth(ui->cboRadio->view()->width());
-  ui->cboRadio->setValue(profile.fwType(), this);
-  ui->cboRadio->setBindSave([this] {
-    this->profile.fwType(this->ui->cboRadio->currentData().toString());
+  // this widget is for data management
+  fwTypeData = new AutoLineEdit(this, true);
+  fwTypeData->setHidden(true);
+  fwTypeData->setValue(profile.fwType());
+  fwTypeData->setBindSave([this] {
+    this->profile.fwType(this->fwTypeData->text());
   });
-  ui->cboRadio->setBindPostChanged([this] {
+  fwTypeData->setBindPostChanged([this] {
     // appending "-xxx" forces the associated Board definition to be loaded if not already loaded
     // TODO fix as part of refactoring Firmware and Boards
-    this->firmware = Firmware::getFirmwareForId(this->ui->cboRadio->currentData().toString() % "-xxx");
+    this->firmware = Firmware::getFirmwareForId(this->fwTypeData->text() % "-xxx");
     this->board = this->firmware->getBoard();
     this->populateFirmwareOptions();
     // clear backup settings as they are specific to the firmware
@@ -76,6 +76,16 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Typ
     this->update();
     emit radioChanged(this->firmware);
   });
+
+  // this widget displays the firmware full name
+  ui->leFirmwareType->setReadOnly(true);
+  ui->leFirmwareType->setBindText([this] {
+    return Firmware::getFirmwareForId(this->fwTypeData->text())->getFullName();
+  });
+  ui->leFirmwareType->setMinimumWidth(PATH_MIN_WIDTH);
+  ui->leFirmwareType->setSizePolicy(PATH_SIZE_POLICY);
+
+  connect(ui->btnFirmwareType, &QPushButton::pressed, this, &PrefsProfilePanel::onFirmwareTypePressed);
 
   sectionNewFile();
   sectionFolders();
@@ -92,22 +102,15 @@ PrefsProfilePanel::~PrefsProfilePanel()
   delete ui;
 }
 
-QAbstractItemModel * PrefsProfilePanel::firmwareModel()
+void PrefsProfilePanel::onFirmwareTypePressed()
 {
-  QStandardItemModel * mdl = new QStandardItemModel(this);
-
-  foreach(Firmware * firmware, Firmware::getRegisteredFirmwares()) {
-    QStandardItem * item =  new QStandardItem();
-    item->setText(firmware->getName());
-    item->setData(firmware->getId(), Qt::UserRole);
-    mdl->appendRow(item);
-  }
-
-  QSortFilterProxyModel *smdl = new QSortFilterProxyModel(this);
-  smdl->setSourceModel(mdl);
-  smdl->setSortCaseSensitivity(Qt::CaseInsensitive);
-  smdl->sort(0);
-  return smdl;
+  FirmwarePicker * picker = new FirmwarePicker(this, fwTypeData->text());
+  connect(picker, &FirmwarePicker::firmwareTypeChanged, this, [this] (const QString newType) {
+    this->fwTypeData->setText(newType);
+    this->update();
+  });
+  picker->exec();
+  picker->deleteLater();
 }
 
 QString PrefsProfilePanel::getLanguage()
@@ -299,6 +302,7 @@ void PrefsProfilePanel::sectionFolders()
     this->profile.sdPath(this->leSDPath->text());
   });
   leSDPath->setBindPostChanged([this] {
+    // alert other tabs eg Updates
     emit this->sdPathChanged(this->leSDPath->text());
   });
   layFolders->addWidget(leSDPath, row, col++);
@@ -494,7 +498,8 @@ void PrefsProfilePanel::undoFirmwareChange()
 {
   firmware = getCurrentFirmware();
   board = firmware->getBoard();
-  ui->cboRadio->setValue(firmware->getFirmwareBase()->getId());
+  fwTypeData->setValue(firmware->getFirmwareBase()->getId());
+  ui->leFirmwareType->setText(Firmware::getFirmwareForId(fwTypeData->text())->getFullName());
   populateFirmwareOptions(profile.fwOptions().split("-"));
 }
 
