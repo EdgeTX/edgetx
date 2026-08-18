@@ -9,11 +9,13 @@ import subprocess
 import threading
 import time
 from collections import deque
-from pathlib import Path
+from dataclasses import dataclass
+from pathlib import Path, PurePosixPath
 from typing import BinaryIO, Deque, Mapping, Optional, Sequence, Tuple, Union
 
 from .protocol import (
     CAPABILITY_NAMES,
+    CaptureArtifact,
     Description,
     Event,
     FrameBarrier,
@@ -22,11 +24,19 @@ from .protocol import (
     Response,
     Status,
     UINT64_MAX,
+    decode_capture,
     decode_description,
     decode_frame,
     decode_status,
     encode_request,
     parse_message,
+)
+from .ppm import (
+    ArtifactDigest,
+    convert_ppm_to_png,
+    digest_file,
+    read_ppm,
+    write_json_sidecar,
 )
 
 
@@ -36,6 +46,14 @@ MAX_STDERR_BYTES = 256 * 1024
 MAX_EVENTS = 64
 MAX_COMMAND_TIMEOUT = 60.0
 REQUIRED_STARTUP_COMMANDS = frozenset(("ping", "status", "describe", "stop"))
+
+
+@dataclass(frozen=True)
+class CaptureBundle:
+    capture: CaptureArtifact
+    ppm: ArtifactDigest
+    png: ArtifactDigest
+    manifest: ArtifactDigest
 
 
 class SessionError(RuntimeError):
@@ -442,6 +460,139 @@ class SimulatorSession:
             status.display_sequence + 1, timeout=remaining()
         )
 
+    def capture_ppm(
+        self, relative_path: str, *, timeout: Optional[float] = None
+    ) -> CaptureArtifact:
+        """Capture a fresh RGB565 framebuffer as a validated native PPM."""
+
+        description = self._require_command("capture", capability="capture")
+        canonical, output_path = self._validate_artifact_path(
+            relative_path, ".ppm"
+        )
+        total_timeout = (
+            self._request_timeout
+            if timeout is None
+            else _validated_timeout(timeout, "capture")
+        )
+        deadline = time.monotonic() + total_timeout
+
+        def remaining() -> float:
+            value = deadline - time.monotonic()
+            if value <= 0:
+                raise RequestTimeout(
+                    self._message_with_context(
+                        "timed out capturing a fresh display frame", None
+                    )
+                )
+            return value
+
+        baseline = self.read_status(timeout=remaining())
+        response = self.request("capture", canonical, timeout=remaining())
+        try:
+            artifact = decode_capture(response)
+        except ProtocolViolation as error:
+            raise ProtocolFailure(str(error)) from error
+        if artifact.path != canonical:
+            raise ProtocolFailure("capture result path differs from the request")
+        if artifact.display_sequence <= baseline.display_sequence:
+            raise ProtocolFailure("capture did not use a newer display frame")
+        if (artifact.width, artifact.height, artifact.depth) != (
+            description.lcd.width,
+            description.lcd.height,
+            description.lcd.depth,
+        ):
+            raise ProtocolFailure(
+                "capture metadata differs from target discovery"
+            )
+        try:
+            image = read_ppm(output_path)
+        except (OSError, ValueError) as error:
+            raise ProtocolFailure(
+                "native capture artifact is invalid: " + str(error)
+            ) from error
+        if (image.width, image.height) != (artifact.width, artifact.height):
+            raise ProtocolFailure(
+                "PPM dimensions differ from capture metadata"
+            )
+        try:
+            actual_bytes = output_path.stat().st_size
+        except OSError as error:
+            raise ProtocolFailure(
+                "cannot inspect native capture artifact"
+            ) from error
+        if actual_bytes != artifact.byte_count:
+            raise ProtocolFailure("PPM size differs from capture metadata")
+        return artifact
+
+    def capture_png(
+        self, relative_path: str, *, timeout: Optional[float] = None
+    ) -> CaptureBundle:
+        """Capture PPM, convert and verify PNG, then write stable metadata."""
+
+        png_relative, png_path = self._validate_artifact_path(
+            relative_path, ".png"
+        )
+        png_pure = PurePosixPath(png_relative)
+        ppm_relative = png_pure.with_suffix(".ppm").as_posix()
+        manifest_relative = png_pure.with_suffix(".capture.json").as_posix()
+        _, manifest_path = self._validate_artifact_path(
+            manifest_relative, ".json"
+        )
+
+        capture = self.capture_ppm(ppm_relative, timeout=timeout)
+        root = self._output_root.resolve(strict=True)
+        ppm_path = root.joinpath(*PurePosixPath(capture.path).parts)
+        try:
+            ppm_digest = digest_file(ppm_path)
+            image, png_digest = convert_ppm_to_png(ppm_path, png_path)
+        except (OSError, ValueError) as error:
+            raise ProtocolFailure(
+                "cannot convert native capture to PNG: " + str(error)
+            ) from error
+        if (image.width, image.height) != (capture.width, capture.height):
+            raise ProtocolFailure(
+                "converted PNG dimensions differ from capture"
+            )
+
+        description = self._description
+        if description is None:
+            raise SessionError("simulator discovery is unavailable")
+        manifest_payload = {
+            "artifacts": {
+                "png": {
+                    "bytes": png_digest.byte_count,
+                    "path": png_relative,
+                    "sha256": png_digest.sha256,
+                },
+                "ppm": {
+                    "bytes": ppm_digest.byte_count,
+                    "path": capture.path,
+                    "sha256": ppm_digest.sha256,
+                },
+            },
+            "depth": capture.depth,
+            "display_seq": capture.display_sequence,
+            "epoch": capture.epoch,
+            "height": capture.height,
+            "schema_version": 1,
+            "target": description.target,
+            "width": capture.width,
+        }
+        try:
+            manifest_digest = write_json_sidecar(
+                manifest_path, manifest_payload
+            )
+        except (OSError, ValueError) as error:
+            raise ProtocolFailure(
+                "cannot write capture metadata: " + str(error)
+            ) from error
+        return CaptureBundle(
+            capture=capture,
+            ppm=ppm_digest,
+            png=png_digest,
+            manifest=manifest_digest,
+        )
+
     def press(
         self,
         key: str,
@@ -599,6 +750,52 @@ class SimulatorSession:
             _validated_integer(x, 0, description.lcd.width - 1, "touch x"),
             _validated_integer(y, 0, description.lcd.height - 1, "touch y"),
         )
+
+    def _validate_artifact_path(
+        self, value: str, extension: str
+    ) -> Tuple[str, Path]:
+        if not isinstance(value, str) or not value:
+            raise ValueError("artifact path must be a non-empty string")
+        if value != value.strip(" ") or any(
+            character in value for character in ("\0", "\r", "\n", "\\")
+        ):
+            raise ValueError("artifact path is not a canonical relative path")
+        if len(value.encode("utf-8")) > 1024:
+            raise ValueError("artifact path exceeds 1024 UTF-8 bytes")
+        relative = PurePosixPath(value)
+        canonical = relative.as_posix()
+        if (
+            relative.is_absolute()
+            or (
+                len(value) >= 2
+                and value[0].isascii()
+                and value[0].isalpha()
+                and value[1] == ":"
+            )
+            or canonical != value
+            or not relative.name
+            or any(part in (".", "..") for part in relative.parts)
+            or relative.suffix != extension
+        ):
+            raise ValueError(
+                "artifact path must be canonical, relative, and end in "
+                + extension
+            )
+        if os.name == "nt" and _is_unsafe_win32_filename(relative.name):
+            raise ValueError("artifact filename is reserved by Windows")
+
+        try:
+            root = self._output_root.resolve(strict=True)
+            parent = root.joinpath(*relative.parts[:-1]).resolve(strict=True)
+            parent.relative_to(root)
+        except (OSError, ValueError) as error:
+            raise ValueError(
+                "artifact parent must exist below the output root"
+            ) from error
+        output_path = parent / relative.name
+        if os.path.lexists(output_path):
+            raise ValueError("artifact path already exists: " + canonical)
+        return canonical, output_path
 
     def _key_release_with_fallback(
         self, key: str, timeout: Optional[float]
@@ -1063,6 +1260,24 @@ def _read_chunk(stream: BinaryIO) -> bytes:
     if read1 is not None:
         return read1(READ_CHUNK_BYTES)
     return stream.read(READ_CHUNK_BYTES)
+
+
+def _is_unsafe_win32_filename(value: str) -> bool:
+    if not value or value[-1] in (" ", "."):
+        return True
+    if any(
+        ord(character) < 32 or character in '<>:"/\\|?*'
+        for character in value
+    ):
+        return True
+    base = value.split(".", 1)[0].upper()
+    if base in ("CON", "PRN", "AUX", "NUL"):
+        return True
+    return (
+        len(base) == 4
+        and base[:3] in ("COM", "LPT")
+        and base[3] in "123456789¹²³"
+    )
 
 
 def _validated_timeout(value: float, name: str) -> float:

@@ -428,6 +428,19 @@ bool appendFrameResult(BoundedJson& json, const Response& response)
          json.appendNumber(response.frameSequence) && json.append("}");
 }
 
+bool appendCaptureResult(BoundedJson& json, const Response& response)
+{
+  const CaptureResult& capture = response.capture;
+  return json.append(",\"result\":{\"display_seq\":") &&
+         json.appendNumber(capture.displaySequence) &&
+         json.append(",\"path\":") && json.appendString(capture.path) &&
+         json.append(",\"width\":") && json.appendNumber(capture.width) &&
+         json.append(",\"height\":") && json.appendNumber(capture.height) &&
+         json.append(",\"depth\":") && json.appendNumber(capture.depth) &&
+         json.append(",\"bytes\":") && json.appendNumber(capture.bytes) &&
+         json.append("}");
+}
+
 bool buildResponse(const Response& response, ErrorCode code,
                    const std::string& message, std::size_t maxBytes,
                    std::string* output)
@@ -452,6 +465,8 @@ bool buildResponse(const Response& response, ErrorCode code,
     if (!appendDescriptionResult(json, response)) return false;
   } else if (response.resultKind == Response::ResultKind::Frame) {
     if (!appendFrameResult(json, response)) return false;
+  } else if (response.resultKind == Response::ResultKind::Capture) {
+    if (!appendCaptureResult(json, response)) return false;
   }
 
   if (!json.append("}\n")) return false;
@@ -699,6 +714,15 @@ Response Response::successWithFrame(RequestId id, SessionEpoch epoch,
   Response response = success(id, epoch);
   response.resultKind = ResultKind::Frame;
   response.frameSequence = displaySequence;
+  return response;
+}
+
+Response Response::successWithCapture(RequestId id, SessionEpoch epoch,
+                                      const CaptureResult& capture)
+{
+  Response response = success(id, epoch);
+  response.resultKind = ResultKind::Capture;
+  response.capture = capture;
   return response;
 }
 

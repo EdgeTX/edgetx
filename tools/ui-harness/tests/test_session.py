@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -14,6 +15,7 @@ FAKE_SIMULATOR = Path(__file__).with_name("fake_simulator.py")
 LAUNCHER = HARNESS_ROOT / "edgetx-ui"
 sys.path.insert(0, str(HARNESS_ROOT))
 
+from edgetx_ui.ppm import read_png  # noqa: E402
 from edgetx_ui.session import (  # noqa: E402
     MAX_STDERR_BYTES,
     MAX_STDERR_LINES,
@@ -214,7 +216,7 @@ class SimulatorSessionTests(unittest.TestCase):
     def test_startup_deadline_bounds_a_never_ready_simulator(self) -> None:
         session = self.session("never-ready")
         with self.assertRaisesRegex(RequestTimeout, "readiness"):
-            session.start(timeout=0.1)
+            session.start(timeout=1.0)
         self.assert_reaped(session)
 
     def test_discovery_schema_and_status_identity_are_strict(self) -> None:
@@ -355,13 +357,134 @@ class SimulatorSessionTests(unittest.TestCase):
             stop_timeout=0.1,
             terminate_timeout=0.5,
         )
-        session.start()
+        session.start(timeout=1.0)
         with self.assertRaises(RequestTimeout):
             session.wait_frame(2)
         with self.assertRaises(SessionError):
             session.ping()
         session.close()
         self.assertIn(session.termination_stage, ("terminated", "killed"))
+        self.assert_reaped(session)
+
+    def test_phase5_capture_ppm_is_fresh_and_preserves_safe_spaces(self) -> None:
+        capture_dir = self.output_root / "check points"
+        capture_dir.mkdir()
+        session = self.session("phase5")
+        try:
+            session.start()
+            artifact = session.capture_ppm("check points/home screen.ppm")
+
+            self.assertEqual(artifact.path, "check points/home screen.ppm")
+            self.assertEqual(artifact.display_sequence, 2)
+            self.assertEqual((artifact.width, artifact.height), (480, 272))
+            self.assertEqual(artifact.depth, 16)
+            capture_path = self.output_root / "check points" / "home screen.ppm"
+            self.assertEqual(capture_path.stat().st_size, artifact.byte_count)
+            self.assertTrue(
+                capture_path.read_bytes().startswith(b"P6\n480 272\n255\n")
+            )
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase5_local_path_rejection_does_not_consume_request_ids(self) -> None:
+        existing = self.output_root / "existing.ppm"
+        existing.write_bytes(b"keep")
+        session = self.session("phase5")
+        try:
+            session.start()
+            invalid_paths = [
+                "../escape.ppm",
+                "/absolute.ppm",
+                "C:/rooted.ppm",
+                "missing/parent.ppm",
+                "existing.ppm",
+                "wrong.PNG",
+                "double//separator.ppm",
+                "back\\slash.ppm",
+                "a" * 1021 + ".ppm",
+            ]
+            if sys.platform == "win32":
+                invalid_paths.append("CON.ppm")
+            for path in invalid_paths:
+                with self.subTest(path=path), self.assertRaises(ValueError):
+                    session.capture_ppm(path)
+            self.assertEqual(session.ping().id, 4)
+            self.assertEqual(existing.read_bytes(), b"keep")
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase5_png_bundle_has_verified_hashes_and_stable_metadata(self) -> None:
+        (self.output_root / "captures").mkdir()
+        session = self.session("phase5")
+        try:
+            session.start()
+            bundle = session.capture_png("captures/home screen.png")
+
+            manifest_path = (
+                self.output_root / "captures" / "home screen.capture.json"
+            )
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            png_path = self.output_root / "captures" / "home screen.png"
+            ppm_path = self.output_root / "captures" / "home screen.ppm"
+            self.assertEqual(
+                bundle.png.sha256,
+                hashlib.sha256(png_path.read_bytes()).hexdigest(),
+            )
+            self.assertEqual(
+                bundle.ppm.sha256,
+                hashlib.sha256(ppm_path.read_bytes()).hexdigest(),
+            )
+            self.assertEqual(manifest["schema_version"], 1)
+            self.assertEqual(
+                manifest["display_seq"], bundle.capture.display_sequence
+            )
+            self.assertEqual(
+                manifest["artifacts"]["png"]["sha256"], bundle.png.sha256
+            )
+            self.assertEqual(
+                manifest["artifacts"]["ppm"]["sha256"], bundle.ppm.sha256
+            )
+            self.assertEqual(
+                (read_png(png_path).width, read_png(png_path).height),
+                (480, 272),
+            )
+            self.assertFalse(list(self.output_root.rglob("*.tmp-ui-harness")))
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase5_static_hashes_match_and_visible_state_changes_hash(self) -> None:
+        session = self.session("phase5")
+        try:
+            session.start()
+            static_hashes = []
+            for index in range(3):
+                artifact = session.capture_ppm(f"static-{index}.ppm")
+                path = self.output_root / artifact.path
+                static_hashes.append(hashlib.sha256(path.read_bytes()).hexdigest())
+            self.assertEqual(len(set(static_hashes)), 1)
+
+            session.key_down("ENTER")
+            changed = session.capture_ppm("changed.ppm")
+            changed_hash = hashlib.sha256(
+                (self.output_root / changed.path).read_bytes()
+            ).hexdigest()
+            self.assertNotEqual(changed_hash, static_hashes[0])
+            session.key_up("ENTER")
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase5_rejects_a_stale_capture_result(self) -> None:
+        session = self.session("phase5-bad-capture")
+        try:
+            session.start()
+            with self.assertRaisesRegex(ProtocolFailure, "newer"):
+                session.capture_ppm("stale.ppm")
+        finally:
+            session.close()
         self.assert_reaped(session)
 
     def test_one_hundred_lifecycle_cycles_leave_no_reader_or_child(self) -> None:

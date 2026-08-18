@@ -69,6 +69,7 @@
 #include "display.h"
 
 #include "simuaudio.h"
+#include "simulcd.h"
 #include "simulib.h"
 
 #include "hal/key_driver.h"
@@ -136,7 +137,8 @@ static void automationTouchPosition(std::uint16_t x, std::uint16_t y)
 static void automationTouchUp() { simuTouchUp(); }
 #endif
 
-static edgetx::automation::TargetDescription automationTargetDescription()
+static edgetx::automation::TargetDescription automationTargetDescription(
+    bool captureAvailable)
 {
   edgetx::automation::TargetDescription target;
   target.flavour = FLAVOUR;
@@ -164,6 +166,10 @@ static edgetx::automation::TargetDescription automationTargetDescription()
   target.commands.push_back(edgetx::automation::Command::TouchUp);
 #endif
   target.commands.push_back(edgetx::automation::Command::WaitFrame);
+  if (captureAvailable) {
+    target.capabilities.capture = true;
+    target.commands.push_back(edgetx::automation::Command::Capture);
+  }
   if (!target.keys.empty() || target.capabilities.touch)
     target.commands.push_back(edgetx::automation::Command::ReleaseAll);
   target.commands.push_back(edgetx::automation::Command::Stop);
@@ -821,6 +827,13 @@ int main(int argc, char* argv[])
       fprintf(stderr, "Error: %s\n", automation_error.c_str());
       return 1;
     }
+    if (!automation_stdio.configureCapture(
+            args.getAutomationOutputPath(), static_cast<std::uint16_t>(LCD_W),
+            static_cast<std::uint16_t>(LCD_H),
+            static_cast<std::uint8_t>(LCD_DEPTH), &automation_error)) {
+      fprintf(stderr, "Error: %s\n", automation_error.c_str());
+      return 1;
+    }
   }
 #endif
 
@@ -917,7 +930,8 @@ int main(int argc, char* argv[])
                     args.getSettingsPath().c_str());
 #if !defined(__EMSCRIPTEN__)
   if (args.isAutomationStdio()) {
-    automation_stdio.setTargetDescription(automationTargetDescription());
+    automation_stdio.setTargetDescription(
+        automationTargetDescription(automation_stdio.captureConfigured()));
     automation_stdio.setInputHandlers(automationInputHandlers());
     automation_stdio_instance = &automation_stdio;
   }
@@ -1036,6 +1050,8 @@ void simuLcdNotify()
 {
 #if !defined(__EMSCRIPTEN__)
   if (automation_stdio_instance != nullptr)
-    automation_stdio_instance->onDisplayFrame();
+    automation_stdio_instance->onDisplayFrame(
+        reinterpret_cast<const std::uint16_t*>(simuLcdBuf),
+        LCD_DEPTH == 16 ? static_cast<std::size_t>(DISPLAY_BUFFER_SIZE) : 0);
 #endif
 }

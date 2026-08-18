@@ -57,6 +57,16 @@ std::int32_t parseValidatedSigned(const std::string& value)
                   : static_cast<std::int32_t>(magnitude);
 }
 
+Response captureResponse(const CaptureCompletion& completion)
+{
+  if (completion.ok) {
+    return Response::successWithCapture(completion.id, completion.epoch,
+                                        completion.artifact);
+  }
+  return Response::failure(completion.id, completion.epoch,
+                           completion.errorCode, completion.message);
+}
+
 #if defined(_WIN32)
 
 bool isClosedPipeError(DWORD error)
@@ -102,6 +112,7 @@ AutomationStdio::AutomationStdio(const TargetDescription& target) :
 
 AutomationStdio::~AutomationStdio()
 {
+  capture.shutdown();
 #if defined(_WIN32)
   if (outputHandle != 0) {
     (void)CloseHandle(reinterpret_cast<HANDLE>(outputHandle));
@@ -126,6 +137,16 @@ void AutomationStdio::setInputHandlers(const AutomationInputHandlers& handlers)
   inputHandlers = handlers;
 }
 
+bool AutomationStdio::configureCapture(const std::string& outputRoot,
+                                       std::uint16_t width,
+                                       std::uint16_t height, std::uint8_t depth,
+                                       std::string* error)
+{
+  return capture.configure(outputRoot, width, height, depth, error);
+}
+
+bool AutomationStdio::captureConfigured() const { return capture.configured(); }
+
 void AutomationStdio::markRuntimeStarted()
 {
   std::lock_guard<std::mutex> lock(stateMutex);
@@ -134,28 +155,34 @@ void AutomationStdio::markRuntimeStarted()
 
 void AutomationStdio::markRuntimeStopped()
 {
+  capture.shutdown();
   std::lock_guard<std::mutex> lock(stateMutex);
   runtimeRunning = false;
   sessionState.stop();
 }
 
-void AutomationStdio::onDisplayFrame()
+void AutomationStdio::onDisplayFrame(const std::uint16_t* pixels,
+                                     std::size_t pixelCount)
 {
-  std::lock_guard<std::mutex> lock(stateMutex);
-  (void)sessionState.onDisplayFrame();
-  if (!pendingFrameWait.active() ||
-      sessionState.displaySequence() < pendingFrameWait.minimum) {
-    return;
+  DisplaySequence sequence = 0;
+  SessionEpoch epoch = 0;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    (void)sessionState.onDisplayFrame();
+    sequence = sessionState.displaySequence();
+    epoch = sessionState.epoch();
+    if (pendingFrameWait.active() && sequence >= pendingFrameWait.minimum) {
+      const TransitionResult completion = sessionState.completeAsync(
+          pendingFrameWait.id, pendingFrameWait.epoch);
+      if (completion == TransitionResult::Applied) {
+        completedFrameWait.id = pendingFrameWait.id;
+        completedFrameWait.epoch = pendingFrameWait.epoch;
+        completedFrameWait.sequence = sequence;
+      }
+      pendingFrameWait.clear();
+    }
   }
-
-  const TransitionResult completion =
-      sessionState.completeAsync(pendingFrameWait.id, pendingFrameWait.epoch);
-  if (completion == TransitionResult::Applied) {
-    completedFrameWait.id = pendingFrameWait.id;
-    completedFrameWait.epoch = pendingFrameWait.epoch;
-    completedFrameWait.sequence = sessionState.displaySequence();
-  }
-  pendingFrameWait.clear();
+  capture.onDisplayFrame(sequence, epoch, pixels, pixelCount);
 }
 
 bool AutomationStdio::start(std::string* error)
@@ -494,6 +521,9 @@ StdioPumpResult AutomationStdio::processEvent(const LineEvent& event,
   if (parsed.request.command == Command::WaitFrame) {
     return processWaitFrame(parsed.request, error);
   }
+  if (parsed.request.command == Command::Capture) {
+    return processCapture(parsed.request, error);
+  }
   if (parsed.request.command == Command::ReleaseAll) {
     return processReleaseAll(parsed.request, error);
   }
@@ -707,6 +737,67 @@ StdioPumpResult AutomationStdio::processWaitFrame(const Request& request,
   return immediate ? emitResponse(response, error) : StdioPumpResult::Continue;
 }
 
+StdioPumpResult AutomationStdio::processCapture(const Request& request,
+                                                std::string* error)
+{
+  CaptureArtifactPath artifactPath;
+  const SessionEpoch validationEpoch = currentEpoch();
+  const CaptureOperationResult validation = capture.validatePath(
+      request.arguments[0], request.id, validationEpoch, &artifactPath);
+  if (!validation.ok) {
+    return emitResponse(
+        Response::failure(request.id, validationEpoch, validation.errorCode,
+                          validation.message),
+        error);
+  }
+
+  Response response;
+  SessionEpoch epoch = 0;
+  DisplaySequence armedAfter = 0;
+  bool reserved = false;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    epoch = sessionState.epoch();
+    armedAfter = sessionState.displaySequence();
+    if (sessionState.phase() != SessionPhase::Ready) {
+      response = Response::failure(request.id, epoch,
+                                   sessionState.phase() == SessionPhase::Stopped
+                                       ? ErrorCode::SessionStopping
+                                       : ErrorCode::OperationBusy,
+                                   "session is not ready for capture");
+    } else if (sessionState.asyncOperation() != AsyncOperation::None ||
+               pendingFrameWait.active() || completedFrameWait.active()) {
+      response = Response::failure(request.id, epoch, ErrorCode::OperationBusy,
+                                   "an asynchronous operation is active");
+    } else if (sessionState.beginAsync(AsyncOperation::Capture, request.id) !=
+               TransitionResult::Applied) {
+      response =
+          Response::failure(request.id, epoch, ErrorCode::InvariantViolation,
+                            "cannot reserve the capture operation");
+    } else {
+      reserved = true;
+    }
+  }
+
+  if (!reserved) return emitResponse(response, error);
+
+  CaptureOperationResult armResult =
+      capture.arm(request.id, epoch, armedAfter, std::move(artifactPath));
+  if (!armResult.ok) {
+    {
+      std::lock_guard<std::mutex> lock(stateMutex);
+      (void)sessionState.cancelAsync();
+    }
+    return emitResponse(
+        Response::failure(request.id, epoch, armResult.errorCode,
+                          armResult.message),
+        error);
+  }
+
+  requestAutomationLcdInvalidation();
+  return StdioPumpResult::Continue;
+}
+
 StdioPumpResult AutomationStdio::processReleaseAll(const Request& request,
                                                    std::string* error)
 {
@@ -717,37 +808,54 @@ StdioPumpResult AutomationStdio::processReleaseAll(const Request& request,
 StdioPumpResult AutomationStdio::processStop(const Request& request,
                                              std::string* error)
 {
-  CompletedFrameWait completion;
-  Response cancellation;
-  bool cancelled = false;
+  CaptureCompletion captureCompletion;
+  const bool hasCaptureCompletion = capture.cancelAndWait(&captureCompletion);
+  CompletedFrameWait frameCompletion;
+  Response frameCancellation;
+  bool frameCancelled = false;
   SessionEpoch epoch = 0;
   {
     std::lock_guard<std::mutex> lock(stateMutex);
-    completion = completedFrameWait;
+    frameCompletion = completedFrameWait;
     completedFrameWait.clear();
     epoch = sessionState.epoch();
+    if (hasCaptureCompletion) {
+      const TransitionResult transition = sessionState.completeAsync(
+          captureCompletion.id, captureCompletion.epoch);
+      if (transition != TransitionResult::Applied) {
+        captureCompletion.ok = false;
+        captureCompletion.errorCode = ErrorCode::InvariantViolation;
+        captureCompletion.message =
+            "capture completion did not own the asynchronous operation";
+      }
+    }
     if (pendingFrameWait.active()) {
       const RequestId pendingId = pendingFrameWait.id;
       const SessionEpoch pendingEpoch = pendingFrameWait.epoch;
       (void)sessionState.cancelAsync();
       pendingFrameWait.clear();
-      cancellation = Response::failure(
+      frameCancellation = Response::failure(
           pendingId, pendingEpoch, ErrorCode::SessionStopping,
           "frame barrier cancelled because the session is stopping");
-      cancelled = true;
+      frameCancelled = true;
     }
   }
 
   releaseInputs();
-  if (completion.active()) {
-    const StdioPumpResult result =
-        emitResponse(Response::successWithFrame(completion.id, completion.epoch,
-                                                completion.sequence),
-                     error);
+  if (frameCompletion.active()) {
+    const StdioPumpResult result = emitResponse(
+        Response::successWithFrame(frameCompletion.id, frameCompletion.epoch,
+                                   frameCompletion.sequence),
+        error);
     if (result != StdioPumpResult::Continue) return result;
   }
-  if (cancelled) {
-    const StdioPumpResult result = emitResponse(cancellation, error);
+  if (frameCancelled) {
+    const StdioPumpResult result = emitResponse(frameCancellation, error);
+    if (result != StdioPumpResult::Continue) return result;
+  }
+  if (hasCaptureCompletion) {
+    const StdioPumpResult result =
+        emitResponse(captureResponse(captureCompletion), error);
     if (result != StdioPumpResult::Continue) return result;
   }
 
@@ -760,6 +868,24 @@ StdioPumpResult AutomationStdio::processStop(const Request& request,
 
 StdioPumpResult AutomationStdio::drainCompletedResponses(std::string* error)
 {
+  CaptureCompletion captureCompletion;
+  if (capture.takeCompletion(&captureCompletion)) {
+    {
+      std::lock_guard<std::mutex> lock(stateMutex);
+      const TransitionResult transition = sessionState.completeAsync(
+          captureCompletion.id, captureCompletion.epoch);
+      if (transition != TransitionResult::Applied) {
+        captureCompletion.ok = false;
+        captureCompletion.errorCode = ErrorCode::InvariantViolation;
+        captureCompletion.message =
+            "capture completion did not own the asynchronous operation";
+      }
+    }
+    const StdioPumpResult result =
+        emitResponse(captureResponse(captureCompletion), error);
+    if (result != StdioPumpResult::Continue) return result;
+  }
+
   CompletedFrameWait completion;
   {
     std::lock_guard<std::mutex> lock(stateMutex);

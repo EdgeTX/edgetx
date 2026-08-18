@@ -127,6 +127,17 @@ class FrameBarrier:
     display_sequence: int
 
 
+@dataclass(frozen=True)
+class CaptureArtifact:
+    epoch: int
+    display_sequence: int
+    path: str
+    width: int
+    height: int
+    depth: int
+    byte_count: int
+
+
 Message = Union[Response, Event]
 
 
@@ -325,6 +336,70 @@ def decode_frame(response: Response) -> FrameBarrier:
         display_sequence=_uint64(
             result.get("display_seq"), "wait-frame display sequence"
         ),
+    )
+
+
+def decode_capture(response: Response) -> CaptureArtifact:
+    """Validate the terminal metadata of a native framebuffer capture."""
+
+    result = _successful_result(response, "capture")
+    _require_exact_keys(
+        result,
+        {"display_seq", "path", "width", "height", "depth", "bytes"},
+        "capture result",
+    )
+    path = result.get("path")
+    if not isinstance(path, str):
+        raise ProtocolViolation("capture result path is invalid")
+    try:
+        path_bytes = path.encode("utf-8")
+    except UnicodeEncodeError as error:
+        raise ProtocolViolation("capture result path is invalid") from error
+    path_parts = path.split("/")
+    if (
+        not path
+        or path != path.strip(" ")
+        or any(character in path for character in ("\0", "\r", "\n", "\\"))
+        or len(path_bytes) > 1024
+        or path.startswith("/")
+        or (
+            len(path) >= 2
+            and path[0].isascii()
+            and path[0].isalpha()
+            and path[1] == ":"
+        )
+        or any(part in ("", ".", "..") for part in path_parts)
+        or not path.endswith(".ppm")
+    ):
+        raise ProtocolViolation("capture result path is invalid")
+
+    width = _uint64(result.get("width"), "capture width")
+    height = _uint64(result.get("height"), "capture height")
+    depth = _uint64(result.get("depth"), "capture depth")
+    byte_count = _uint64(result.get("bytes"), "capture byte count")
+    if width == 0 or width > 65535 or height == 0 or height > 65535:
+        raise ProtocolViolation("capture dimensions are invalid")
+    if depth != 16:
+        raise ProtocolViolation("capture depth is not RGB565")
+    expected_bytes = len(f"P6\n{width} {height}\n255\n".encode("ascii"))
+    expected_bytes += width * height * 3
+    if byte_count != expected_bytes:
+        raise ProtocolViolation("capture byte count does not match dimensions")
+
+    display_sequence = _uint64(
+        result.get("display_seq"), "capture display sequence"
+    )
+    if display_sequence == 0:
+        raise ProtocolViolation("capture display sequence is invalid")
+
+    return CaptureArtifact(
+        epoch=response.epoch,
+        display_sequence=display_sequence,
+        path=path,
+        width=width,
+        height=height,
+        depth=depth,
+        byte_count=byte_count,
     )
 
 

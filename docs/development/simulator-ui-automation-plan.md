@@ -85,7 +85,7 @@ patches.
 | `simulib.cpp::simuSetKey` | Updates native simulator key state | Canonical key validation must happen before this assertion-backed API |
 | `switch_driver.cpp::simuSetSwitch` | Updates switch state and asserts the index | Resolve and validate canonical switch names before dispatch |
 | `simulib.cpp::simuTouchDown` / `simuTouchUp` | Feed the native touch state | The protocol must impose a valid down/move/up state machine |
-| `simulib.cpp::simuLcdCopy` | Copies the current firmware framebuffer | Retain this as the capture source |
+| `simulcd.cpp::simuLcdBuf` | Holds the assembled simulator framebuffer at LCD notification time | Copy this as the capture source after a newer notification |
 | `simulcd.cpp::lcdRefresh` / `simuRefreshLcd` | Call `simuLcdNotify` after a firmware LCD refresh | Increment the protocol display sequence and take the capture snapshot here |
 | `LvglWrapper::run` | Runs LVGL in the firmware/UI context | A static-screen invalidation request must be consumed here |
 | `main.cpp::perMain` / `guiMain` | Own firmware/UI periodic work and invoke Lua | Firmware-only automation mailbox work can be consumed here |
@@ -1346,7 +1346,8 @@ or zombie on Linux and Windows.
 **Implementation status:** implemented and locally verified on the single
 consolidation branch; maintainer review and CI remain pending.
 Phase 4 deliberately excludes capture, switches, analog inputs, telemetry, Lua,
-restart, and scenario files; those remain in Phases 5–7.
+restart, and scenario files. Capture is now implemented by Phase 5; the other
+features remain in Phases 6–7.
 
 #### 4.0 Research record and resulting constraints
 
@@ -1523,43 +1524,217 @@ simulator-side duration command was introduced.
 
 ### Phase 5 — Render-complete capture
 
-#### 5.1 Add safe artifact paths
+**Implementation status (2026-08-18):** implemented and locally verified on
+the consolidation branch. Focused native and Python suites and the real Windows
+TX16S simulator pass; maintainer review and post-push CI remain pending.
 
-Implement canonical containment, extension check, parent check, no-overwrite
-policy, length limit, and spaces.
+Phase 5 is intentionally one narrow feature: a `capture` request returns only
+after a fresh firmware framebuffer has been published as a complete,
+deterministic artifact. It does not add scenario parsing, baseline comparison,
+switch/analog injection, telemetry, Lua control, or restart behavior.
 
-#### 5.2 Add invalidation handoff
+#### 5.0 Research and option review
 
-- SDL raises a request.
-- Firmware/UI consumes it.
-- LVGL invalidates the active screen.
-- Default simulator behavior remains unchanged with no request.
+The implementation was rechecked against the two source PRs, the current
+simulator display path, and primary specifications before choosing the design.
 
-#### 5.3 Add snapshot handoff
+| Source | Relevant constraint | Phase 5 consequence |
+|---|---|---|
+| [EdgeTX #7337](https://github.com/EdgeTX/edgetx/pull/7337) | Demonstrates a small PPM producer and dependency-free Python PNG encoder | Keep PPM as the native interchange and adapt the host conversion, but remove immediate/live-buffer capture and unrestricted host paths |
+| [EdgeTX #7646](https://github.com/EdgeTX/edgetx/pull/7646) | Demonstrates static-screen invalidation and RGB565 capture | Keep the invalidation idea, but move encoding and file I/O out of `simuLcdNotify` and do not add a native PNG dependency |
+| [EdgeTX simulator LCD driver](https://github.com/EdgeTX/edgetx/blob/main/radio/src/targets/simu/simulcd.cpp) | `simuLcdNotify` follows the simulator framebuffer update | Treat that notification, not an SDL repaint, as the freshness boundary |
+| [LVGL v8 drawing](https://docs.lvgl.io/8/overview/drawing.html) | LVGL renders invalid areas and calls the display flush callback after rendering | Force one invalidation for an otherwise static screen, then wait for the normal flush path |
+| [LVGL v8 style invalidation](https://docs.lvgl.io/8.2/overview/style.html) | `lv_obj_invalidate(lv_scr_act())` is the supported simple-redraw request | Consume the request only from the firmware/UI-owned LVGL loop |
+| [LVGL v8 display interface](https://docs.lvgl.io/8.3/porting/display.html) | Full refresh and flush completion are display-driver concepts | Capture the assembled simulator framebuffer after its final notification instead of taking an independent LVGL snapshot |
+| [SDL 2 `SDL_LockTexture`](https://wiki.libsdl.org/SDL2/SDL_LockTexture) | Locked streaming-texture pixels are write-only and need not preserve old data | Reject SDL texture readback as the capture source |
+| [Netpbm PPM specification](https://netpbm.sourceforge.net/doc/ppm.html) | Minimal P6 is header plus top-to-bottom RGB triples with max value 255 | Emit one canonical header and an exact `width * height * 3` raster |
+| [PNG Third Edition](https://www.w3.org/TR/png-3/) | A PNG stream is signature, IHDR, IDAT, and IEND with CRCs and a zlib stream | Keep the small standard-library Python encoder and validate its chunks by decoding them in tests |
+| [Python `zlib`](https://docs.python.org/3/library/zlib.html) | The standard library exposes zlib compression and CRC-32 | No Pillow or native encoder dependency is needed |
+| [Python `hashlib`](https://docs.python.org/3/library/hashlib.html) | SHA-256 is guaranteed by CPython | Record reproducible PPM and PNG digests in a deterministic sidecar manifest |
+| [Python `json`](https://docs.python.org/3/library/json.html) | Stable separators and sorted keys are available | Sidecar metadata can be byte-stable and contain no timestamp |
+| [POSIX `open`](https://pubs.opengroup.org/onlinepubs/9799919799/functions/open.html) | `O_CREAT | O_EXCL` performs atomic create-if-absent, including against symlinks | Create the temporary artifact without truncating any existing path |
+| [POSIX `link`](https://pubs.opengroup.org/onlinepubs/009695399/functions/link.html) | A new hard link is created atomically and fails with `EEXIST` | Publish the already-closed temporary file without replacing the final name |
+| [POSIX `rename`](https://pubs.opengroup.org/onlinepubs/9799919799/functions/rename.html) | Rename is atomic but normally replaces an existing regular file | Do not use plain POSIX rename for protocol v1's no-overwrite contract |
+| [Win32 `CreateFileW`](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-createfilew) | `CREATE_NEW` fails when the name already exists | Match the POSIX exclusive temporary-file behavior with Unicode paths |
+| [Win32 `MoveFileExW`](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefileexw) | Moving without `MOVEFILE_REPLACE_EXISTING` preserves no-overwrite behavior | Publish the closed temporary file without replacing the final name |
+| [Win32 file naming](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file) | Device names such as `CON` and `NUL`, control bytes, and reserved punctuation do not identify ordinary files | Reject reserved final names before calling `CreateFileW` |
+| [C++ condition variables](https://eel.is/c++draft/thread.condition) | Predicate waits coordinate a worker without polling | Use one persistent worker created only for an active automation session |
 
-- Arm against `display_seq`.
-- Copy only after a newer full LCD notification.
-- Copy into owned storage.
-- Perform no file I/O in `simuLcdNotify`.
+The open questions and selected answers are:
 
-#### 5.4 Add deterministic PPM writer
+| Question | Options considered | Decision |
+|---|---|---|
+| Capture source | SDL texture, LVGL snapshot, or `simuLcdBuf` | `simuLcdBuf` at the newer `simuLcdNotify`; SDL readback has the wrong contract and an LVGL snapshot duplicates the display path |
+| Static screen | Return the current buffer, sleep, or invalidate | Invalidate once in LVGL context and require a strictly newer `display_seq` |
+| Encoding location | Native PNG, native PPM, or raw protocol bytes | Native PPM on a worker; Python converts to PNG with the standard library |
+| Artifact publication | Direct write, replacing rename, or exclusive publish | Exclusive temporary create, full write/close/size check, then atomic no-replace publish |
+| Worker model | Work in LCD callback, one thread per capture, or one session worker | One session worker; callback work is bounded to sequence accounting and one framebuffer copy |
+| Additional LCD depths | Convert all current depths or prove one reference target first | Protocol discovery remains generic; v1 capture is enabled only for tested RGB565 (`LCD_DEPTH == 16`) targets |
+| Metadata scope | Full run manifest now or capture-local metadata | Add deterministic capture-local metadata now; the run-wide log/manifest remains Phase 7 |
 
-- RGB565-to-RGB888 conversion tests;
-- temporary-file write;
-- complete byte-count validation;
-- close and atomic rename; and
-- cleanup of partial artifacts.
+#### 5.1 Safe artifact-path contract
 
-#### 5.5 Add host PNG conversion and metadata
+The simulator receives the canonical `--automation-output` root at startup.
+Before reserving the asynchronous slot, `capture` must:
 
-Reuse the useful #7337 host-side concept with standard-library code and verify
-dimensions, PPM hash, PNG decode, and manifest contents.
+1. enforce the 1024-byte UTF-8 protocol limit;
+2. reject empty, absolute, rooted, NUL-containing, `.` and `..` paths;
+3. require the exact lowercase `.ppm` extension;
+4. require an existing directory as the parent;
+5. canonicalize that parent and prove component-wise containment below the
+   configured output root;
+6. reject an existing final entry, including a symlink; and
+7. reject Win32 device names and reserved filename characters on Windows; and
+8. preserve valid internal spaces and UTF-8 names unchanged.
 
-**Tests:** C01–C18.
+The host creates parent directories. The simulator neither creates arbitrary
+parents nor silently normalizes an unsafe name. Path failures are terminal and
+must not arm invalidation or consume the asynchronous slot.
 
-**Exit:** 20 repeated captures of one static checkpoint are byte-identical;
-one deliberate pixel change changes the hash; paths containing spaces work on
-Linux and Windows.
+#### 5.2 Static-screen invalidation handoff
+
+- `capture` records the current `display_seq`, arms the capture coordinator,
+  then raises one atomic invalidation flag.
+- `LvglWrapper::run()` consumes that flag immediately before
+  `lv_timer_handler()` and calls `lv_obj_invalidate(lv_scr_act())`.
+- The hook is compiled only for native `SIMU`, has no effect without an active
+  request, and does not change normal simulator redraw behavior.
+- Repeated calls collapse to one flag; the one-slot protocol state already
+  prevents concurrent capture requests.
+
+#### 5.3 Fresh snapshot handoff
+
+- `simuLcdNotify` first advances the process display sequence.
+- A capture may consume only a notification whose sequence is greater than
+  `armed_after_seq` and whose epoch still matches.
+- The notification copies exactly `LCD_W * LCD_H * sizeof(pixel_t)` bytes from
+  `simuLcdBuf` into a preallocated, coordinator-owned RGB565 buffer.
+- The callback performs no allocation, color conversion, filesystem call,
+  JSON serialization, or protocol output.
+- A condition variable wakes the writer. The SDL loop later drains exactly one
+  completion and claims the matching protocol asynchronous operation.
+
+#### 5.4 Deterministic PPM writer and publication
+
+The worker emits the minimal Netpbm P6 form:
+
+```text
+P6
+<width> <height>
+255
+<width * height RGB bytes>
+```
+
+RGB565 channels use bit replication, not floating-point scaling:
+
+- red and blue: `(v << 3) | (v >> 2)`;
+- green: `(v << 2) | (v >> 4)`.
+
+Publication is a transaction:
+
+1. exclusively create a request-specific temporary sibling;
+2. write the canonical header and every converted scanline;
+3. flush, close, and verify the exact file size;
+4. recheck cancellation before the commit point;
+5. atomically publish without replacing the final name; and
+6. remove the temporary entry on every failure or cancellation path.
+
+Open, write, close, size, and publish errors remain distinct human-readable
+messages under `capture_failed`; a final-name collision remains
+`artifact_exists`.
+
+#### 5.5 Protocol and cancellation semantics
+
+Success is emitted only after the final artifact exists:
+
+```json
+{"display_seq":186,"path":"checkpoints/home screen.ppm","width":480,"height":272,"depth":16,"bytes":391695}
+```
+
+- `capture` uses the existing one-operation slot and reports
+  `async_operation: "capture"` while active.
+- A second asynchronous command receives `operation_busy`.
+- Stop before the writer commit point returns one terminal
+  `capture_cancelled` response, removes any temporary file, and then returns
+  the stop response.
+- Stop after the commit point drains the capture's real terminal result before
+  stopping; it never reports cancellation for an artifact already published.
+- Teardown joins the worker before simulator-owned framebuffer memory can be
+  destroyed.
+
+#### 5.6 Host PNG conversion and capture metadata
+
+The dependency-free Python client adds:
+
+- strict decoding of the one-image, max-value-255 P6 subset;
+- exact raster-length and dimension checks;
+- PNG encoding with filter type 0, zlib compression, and verified chunk CRCs;
+- SHA-256 for both files; and
+- a deterministic `<name>.capture.json` sidecar with schema version, epoch,
+  display sequence, target dimensions/depth, paths, byte counts, and hashes.
+
+`SimulatorSession.capture_ppm()` returns the validated protocol metadata.
+`SimulatorSession.capture_png()` performs native capture, local conversion,
+independent PNG decode verification, hash calculation, and sidecar creation.
+Neither file format contains a timestamp.
+
+#### 5.7 Implementation subphases
+
+1. Add capture metadata to `Response` serialization and strict Python decode.
+2. Add the isolated capture coordinator, path validator, RGB conversion, and
+   platform publication backend.
+3. Connect output-root configuration, target capability discovery, capture
+   dispatch, completion draining, cancellation, and teardown.
+4. Add the single native LVGL invalidation hook and framebuffer callback copy.
+5. Add Python PPM/PNG/manifest helpers and session composites.
+6. Run pure protocol tests, capture unit tests, fake-process tests, sanitizer
+   tests, a native target build, and a real simulator capture loop.
+
+#### 5.8 Phase 5 verification matrix
+
+| IDs | Required proof |
+|---|---|
+| C01–C05 | valid relative path with spaces; reject absolute/rooted/traversal/wrong extension; reject missing parent and existing/symlink final |
+| C06–C09 | invalidation is one-shot; capture requires a newer sequence; one-slot busy behavior; stop cancellation has one terminal response and no partial artifact |
+| C10–C13 | RGB565 black/white/primary known values; canonical P6 header; exact byte count; exclusive atomic publication |
+| C14–C16 | injected open/write/close-or-publish failures remain distinct and clean the temporary sibling |
+| C17–C18 | 20 static captures have identical PPM hashes; one deliberate visible pixel/state change changes the hash |
+| H15–H18 | strict Python capture-result decode; PPM rejection cases; PNG chunk/decode verification; deterministic sidecar contents and SHA-256 |
+
+#### 5.9 Exit evidence
+
+Phase 5 is complete only when all of the following are recorded:
+
+- focused native and Python tests pass;
+- the representative TX16S simulator compiles and links with no native PNG
+  dependency;
+- a real static-screen capture returns a sequence newer than the arm point;
+- 20 repeated captures of that checkpoint are byte-identical;
+- one deliberate visible change produces a different PPM hash;
+- paths containing spaces work through real binary pipes on Windows and in the
+  portable test suite used by Linux CI;
+- no `.tmp-*` artifact remains after success, injected failure, cancellation,
+  or shutdown; and
+- automation-disabled simulator, firmware, Companion, and WASM scopes remain
+  unchanged.
+
+Recorded local evidence (2026-08-18):
+
+| Check | Result |
+|---|---|
+| Focused native suite | 34/34 protocol, state, path, writer, invalidation, freshness, cancellation, failure, and determinism tests passed under AddressSanitizer |
+| Host suite | 49/49 protocol, strict PPM/PNG, metadata, fake-process, timeout, and lifecycle tests passed |
+| Representative build | Windows TX16S `simu.exe` compiled and linked; capture adds no native PNG dependency |
+| Real native capture | 20/20 static frames were byte-identical (`SHA-256 4649614358c3354bd16427256553c1226601096c6beb6df0696edc5e092fab13`) with strictly increasing sequences `3..22` |
+| Visible change | An `ENTER` interaction produced a different framebuffer hash (`566ea1a3f202fde8e308267929451f23e4fa137fc836a4a6dd77fce7d09ce375`) |
+| Host artifacts | A Unicode-and-space PNG decoded as 480×272; manifest hashes matched; no native or host temporary artifact remained |
+| Build isolation | Capture sources are native-only, the LVGL hook is guarded by native `SIMU`, and Emscripten does not compile the coordinator |
+
+**Tests:** C01–C18 and H15–H18.
+
+**Exit:** render-complete PPM and PNG artifacts are fresh, contained,
+deterministic, independently decodable, and produced without blocking the LCD
+notification on filesystem work.
 
 ### Phase 6 — State injection and lifecycle
 

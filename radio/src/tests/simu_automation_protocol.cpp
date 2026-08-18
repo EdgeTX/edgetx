@@ -4,10 +4,11 @@
  * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
  */
 
+#include <gtest/gtest.h>
+
 #include <limits>
 
 #include "automation_protocol.h"
-#include "gtests.h"
 
 using namespace edgetx::automation;
 
@@ -311,6 +312,22 @@ TEST(SimuAutomationResponse, SerializesBoundedStatusAndDescriptionResults)
   EXPECT_EQ(json,
             "{\"version\":1,\"type\":\"response\",\"id\":9,\"ok\":true,"
             "\"epoch\":1,\"result\":{\"display_seq\":42}}\n");
+
+  CaptureResult capture;
+  capture.displaySequence = 43;
+  capture.path = "checkpoints/home screen.ppm";
+  capture.width = 480;
+  capture.height = 272;
+  capture.depth = 16;
+  capture.bytes = 391695;
+  EXPECT_EQ(
+      serializeResponse(Response::successWithCapture(10, 1, capture), &json),
+      SerializeResult::Serialized);
+  EXPECT_EQ(json,
+            "{\"version\":1,\"type\":\"response\",\"id\":10,\"ok\":true,"
+            "\"epoch\":1,\"result\":{\"display_seq\":43,\"path\":"
+            "\"checkpoints/home screen.ppm\",\"width\":480,\"height\":272,"
+            "\"depth\":16,\"bytes\":391695}}\n");
 }
 
 TEST(SimuAutomationResponse, DescriptionOverflowUsesTerminalFallback)

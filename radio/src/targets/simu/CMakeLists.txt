@@ -136,7 +136,10 @@ else()
   )
 
   if(NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-    target_sources(simu PRIVATE automation_stdio.cpp)
+    target_sources(simu PRIVATE
+      automation_capture.cpp
+      automation_stdio.cpp
+    )
   endif()
 
   target_compile_options(simu PUBLIC -DSIMU)
