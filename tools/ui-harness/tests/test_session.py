@@ -487,6 +487,233 @@ class SimulatorSessionTests(unittest.TestCase):
             session.close()
         self.assert_reaped(session)
 
+    def test_phase6_state_injection_and_lua_generation_are_strict(self) -> None:
+        session = self.session("phase6")
+        try:
+            session.start()
+            assert session.description is not None
+            self.assertTrue(session.description.capabilities.switches)
+            self.assertTrue(session.description.capabilities.analog)
+            self.assertTrue(session.description.capabilities.telemetry)
+            self.assertTrue(session.description.capabilities.lua)
+            self.assertTrue(session.description.capabilities.warm_restart)
+            self.assertEqual(
+                tuple(item.name for item in session.description.switches),
+                ("SA", "SH"),
+            )
+            self.assertEqual(
+                tuple(item.name for item in session.description.analogs),
+                ("AIL", "P1"),
+            )
+
+            for position in (-1, 0, 1):
+                session.set_switch("SA", position)
+            session.set_switch("SH", -1)
+            session.set_switch("SH", 1)
+            with self.assertRaises(CommandFailed) as neutral:
+                session.set_switch("SH", 0)
+            self.assertEqual(neutral.exception.response.error_code, "out_of_range")
+
+            session.set_analog("AIL", 1)
+            session.set_analog("AIL", 4096)
+            self.assertEqual(session.read_status().analog_override_count, 1)
+            session.set_analog("P1", 2048)
+            self.assertEqual(session.read_status().analog_override_count, 2)
+            session.clear_analog("AIL")
+            self.assertEqual(session.read_status().analog_override_count, 1)
+            session.clear_analog()
+            self.assertEqual(session.read_status().analog_override_count, 0)
+
+            session.set_telemetry(61696, 0, 1, -115, 1, 1, "RSSI")
+            first = session.reload_lua()
+            second = session.reload_lua()
+            self.assertEqual((first.generation, second.generation), (1, 2))
+            self.assertEqual(session.read_status().lua_state, "running")
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase6_local_validation_preserves_the_next_request_id(self) -> None:
+        session = self.session("phase6")
+        try:
+            session.start()
+            for invalid_call in (
+                lambda: session.set_switch("UNKNOWN", 1),
+                lambda: session.set_switch("SA", 2),
+                lambda: session.set_analog("UNKNOWN", 1),
+                lambda: session.set_analog("AIL", 4097),
+                lambda: session.clear_analog("UNKNOWN"),
+                lambda: session.set_telemetry(0, 0, 0, 0, 0, 0),
+                lambda: session.set_telemetry(1, 8, 0, 0, 0, 0),
+                lambda: session.set_telemetry(1, 0, 0, 0, 30, 0),
+                lambda: session.set_telemetry(1, 0, 0, 0, 0, 3),
+                lambda: session.set_telemetry(1, 0, 0, 0, 0, 0, "bad name"),
+            ):
+                with self.subTest(call=invalid_call), self.assertRaises(ValueError):
+                    invalid_call()
+            self.assertEqual(session.ping().id, 4)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase6_warm_restart_advances_epoch_and_cleans_inputs(self) -> None:
+        session = self.session("phase6")
+        try:
+            session.start()
+            process = session.process
+            assert process is not None
+            original_pid = process.pid
+            session.key_down("ENTER")
+            session.touch_down(10, 20)
+            session.set_analog("AIL", 2048)
+            before = session.read_status()
+
+            restarted = session.restart()
+            after = session.read_status()
+
+            assert session.process is not None
+            self.assertEqual(session.process.pid, original_pid)
+            self.assertEqual(restarted.epoch, before.epoch + 1)
+            self.assertGreater(restarted.display_sequence, before.display_sequence)
+            self.assertEqual(after.epoch, restarted.epoch)
+            self.assertEqual(after.active_key_count, 0)
+            self.assertFalse(after.touch_active)
+            self.assertEqual(after.analog_override_count, 0)
+            self.assertTrue(session.ping().ok)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase6_rejects_unproven_restart_and_lua_completion(self) -> None:
+        bad_restart = self.session("phase6-bad-restart")
+        try:
+            bad_restart.start()
+            with self.assertRaisesRegex(ProtocolFailure, "advance the session epoch"):
+                bad_restart.restart()
+        finally:
+            bad_restart.close()
+        self.assert_reaped(bad_restart)
+
+        bad_lua = self.session("phase6-bad-lua")
+        try:
+            bad_lua.start()
+            with self.assertRaisesRegex(ProtocolFailure, "nonzero"):
+                bad_lua.reload_lua()
+        finally:
+            bad_lua.close()
+        self.assert_reaped(bad_lua)
+
+        lua_panic = self.session("phase6-lua-panic")
+        try:
+            lua_panic.start()
+            with self.assertRaises(CommandFailed) as panic:
+                lua_panic.reload_lua()
+            self.assertEqual(panic.exception.response.error_code, "lua_panic")
+        finally:
+            lua_panic.close()
+        self.assert_reaped(lua_panic)
+
+    def test_phase6_cold_restart_uses_new_process_and_fixture_copy(self) -> None:
+        fixture = self.output_root / "fixture"
+        template_settings = fixture / "settings"
+        template_storage = fixture / "sdcard"
+        template_settings.mkdir(parents=True)
+        template_storage.mkdir()
+        (template_settings / "radio.yml").write_text("template\n", encoding="utf-8")
+        (template_storage / "README.txt").write_text("template\n", encoding="utf-8")
+
+        old_run = self.output_root / "old-run"
+        old_settings = old_run / "settings"
+        old_storage = old_run / "sdcard"
+        old_artifacts = old_run / "artifacts"
+        old_settings.mkdir(parents=True)
+        old_storage.mkdir()
+        old_artifacts.mkdir()
+        (old_settings / "radio.yml").write_text("old\n", encoding="utf-8")
+
+        session = SimulatorSession(
+            sys.executable,
+            old_artifacts,
+            simulator_args=(
+                str(FAKE_SIMULATOR),
+                "phase6",
+                "--settings",
+                str(old_settings),
+                "--storage",
+                str(old_storage),
+            ),
+            request_timeout=1.0,
+            stop_timeout=0.5,
+            terminate_timeout=0.5,
+            kill_timeout=0.5,
+            reader_join_timeout=0.5,
+        )
+        replacement = None
+        try:
+            session.start()
+            assert session.process is not None
+            old_pid = session.process.pid
+            session.set_telemetry(61696, 0, 1, 115, 1, 1, "RSSI")
+            self.assertTrue((old_settings / "telemetry.marker").exists())
+            self.assertFalse((template_settings / "telemetry.marker").exists())
+
+            runs = self.output_root / "runs"
+            replacement = session.restart_process(fixture, runs)
+            assert replacement.process is not None
+            run_directory = replacement.fixture_run_directory
+            assert run_directory is not None
+
+            self.assertNotEqual(replacement.process.pid, old_pid)
+            self.assert_reaped(session)
+            self.assertEqual(run_directory.parent, runs.resolve())
+            self.assertEqual(
+                (run_directory / "settings" / "radio.yml").read_text(
+                    encoding="utf-8"
+                ),
+                "template\n",
+            )
+            self.assertFalse(
+                (run_directory / "settings" / "telemetry.marker").exists()
+            )
+            self.assertEqual(replacement.read_status().analog_override_count, 0)
+        finally:
+            if replacement is not None:
+                replacement.close()
+            else:
+                session.close()
+        if replacement is not None:
+            self.assert_reaped(replacement)
+
+    def test_phase6_cold_restart_preflight_and_failure_cleanup(self) -> None:
+        incomplete_fixture = self.output_root / "incomplete-fixture"
+        (incomplete_fixture / "settings").mkdir(parents=True)
+        session = self.session("phase6")
+        try:
+            session.start()
+            with self.assertRaisesRegex(ValueError, "fixture directory"):
+                session.restart_process(
+                    incomplete_fixture, self.output_root / "unused-runs"
+                )
+            self.assertTrue(session.ping().ok)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+        failing_fixture = self.output_root / "failing-fixture"
+        failing_settings = failing_fixture / "settings"
+        failing_storage = failing_fixture / "sdcard"
+        failing_settings.mkdir(parents=True)
+        failing_storage.mkdir()
+        (failing_settings / "startup-fail").write_text("fail\n", encoding="utf-8")
+        runs = self.output_root / "failed-runs"
+
+        failing_session = self.session("phase6")
+        failing_session.start()
+        with self.assertRaises(ProcessExited):
+            failing_session.restart_process(failing_fixture, runs)
+        self.assert_reaped(failing_session)
+        self.assertEqual(list(runs.iterdir()), [])
+
     def test_one_hundred_lifecycle_cycles_leave_no_reader_or_child(self) -> None:
         for cycle in range(100):
             with self.subTest(cycle=cycle):

@@ -5,7 +5,10 @@ from __future__ import annotations
 import math
 import os
 import queue
+import re
+import shutil
 import subprocess
+import tempfile
 import threading
 import time
 from collections import deque
@@ -19,6 +22,8 @@ from .protocol import (
     Description,
     Event,
     FrameBarrier,
+    LuaReload,
+    NamedRange,
     MAX_RECORD_BYTES,
     ProtocolViolation,
     Response,
@@ -27,6 +32,8 @@ from .protocol import (
     decode_capture,
     decode_description,
     decode_frame,
+    decode_lua_reload,
+    decode_restart,
     decode_status,
     encode_request,
     parse_message,
@@ -45,6 +52,8 @@ MAX_STDERR_LINES = 200
 MAX_STDERR_BYTES = 256 * 1024
 MAX_EVENTS = 64
 MAX_COMMAND_TIMEOUT = 60.0
+TELEMETRY_UNIT_MAX = 29
+TELEMETRY_LABEL_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,4}$")
 REQUIRED_STARTUP_COMMANDS = frozenset(("ping", "status", "describe", "stop"))
 
 
@@ -199,6 +208,7 @@ class SimulatorSession:
         self._status_response: Optional[Response] = None
         self._status: Optional[Status] = None
         self._termination_stage = "not-started"
+        self._fixture_run_directory: Optional[Path] = None
 
     @property
     def process(self) -> Optional[subprocess.Popen[bytes]]:
@@ -251,6 +261,10 @@ class SimulatorSession:
             thread is not None and thread.is_alive()
             for thread in (self._stdout_thread, self._stderr_thread)
         )
+
+    @property
+    def fixture_run_directory(self) -> Optional[Path]:
+        return self._fixture_run_directory
 
     @property
     def command(self) -> Tuple[str, ...]:
@@ -414,6 +428,178 @@ class SimulatorSession:
     def release_all(self, *, timeout: Optional[float] = None) -> Response:
         self._require_command("release-all")
         return self.request("release-all", timeout=timeout)
+
+    def set_switch(
+        self, name: str, position: int, *, timeout: Optional[float] = None
+    ) -> Response:
+        description = self._require_command("set-switch", capability="switches")
+        _require_named_range(description.switches, name, "switch")
+        position = _validated_integer(position, -1, 1, "switch position")
+        return self.request("set-switch", name, str(position), timeout=timeout)
+
+    def set_analog(
+        self, name: str, value: int, *, timeout: Optional[float] = None
+    ) -> Response:
+        description = self._require_command("set-analog", capability="analog")
+        analog = _require_named_range(description.analogs, name, "analog")
+        value = _validated_integer(
+            value, analog.minimum, analog.maximum, "analog value"
+        )
+        return self.request("set-analog", name, str(value), timeout=timeout)
+
+    def clear_analog(
+        self, name: str = "all", *, timeout: Optional[float] = None
+    ) -> Response:
+        description = self._require_command("clear-analog", capability="analog")
+        if name != "all":
+            _require_named_range(description.analogs, name, "analog")
+        return self.request("clear-analog", name, timeout=timeout)
+
+    def set_telemetry(
+        self,
+        sensor_id: int,
+        sub_id: int,
+        instance: int,
+        value: int,
+        unit: int,
+        precision: int,
+        name: Optional[str] = None,
+        *,
+        timeout: Optional[float] = None,
+    ) -> Response:
+        self._require_command("set-telemetry", capability="telemetry")
+        sensor_id = _validated_integer(sensor_id, 1, 65535, "telemetry id")
+        sub_id = _validated_integer(sub_id, 0, 7, "telemetry sub-id")
+        instance = _validated_integer(instance, 0, 255, "telemetry instance")
+        value = _validated_integer(
+            value, -(1 << 31), (1 << 31) - 1, "telemetry value"
+        )
+        unit = _validated_integer(unit, 0, TELEMETRY_UNIT_MAX, "telemetry unit")
+        precision = _validated_integer(precision, 0, 2, "telemetry precision")
+        arguments = [
+            str(sensor_id),
+            str(sub_id),
+            str(instance),
+            str(value),
+            str(unit),
+            str(precision),
+        ]
+        if name is not None:
+            if not isinstance(name, str) or not TELEMETRY_LABEL_PATTERN.fullmatch(
+                name
+            ):
+                raise ValueError(
+                    "telemetry name must match [A-Za-z0-9_-]{1,4}"
+                )
+            arguments.append(name)
+        return self.request("set-telemetry", *arguments, timeout=timeout)
+
+    def reload_lua(self, *, timeout: Optional[float] = None) -> LuaReload:
+        self._require_command("reload-lua", capability="lua")
+        response = self.request("reload-lua", timeout=timeout)
+        try:
+            return decode_lua_reload(response)
+        except ProtocolViolation as error:
+            raise ProtocolFailure(str(error)) from error
+
+    def restart(self, *, timeout: Optional[float] = None) -> FrameBarrier:
+        self._require_command("restart", capability="warm_restart")
+        before = self.read_status(timeout=timeout)
+        response = self.request("restart", timeout=timeout)
+        try:
+            restarted = decode_restart(response)
+        except ProtocolViolation as error:
+            raise ProtocolFailure(str(error)) from error
+        if restarted.epoch <= before.epoch:
+            raise ProtocolFailure("warm restart did not advance the session epoch")
+        if restarted.display_sequence <= before.display_sequence:
+            raise ProtocolFailure(
+                "warm restart did not preserve the process display sequence"
+            )
+        after = self.read_status(timeout=timeout)
+        if (
+            after.phase != "ready"
+            or not after.running
+            or after.epoch != restarted.epoch
+            or after.display_sequence < restarted.display_sequence
+        ):
+            raise ProtocolFailure("warm restart result and ready status disagree")
+        return restarted
+
+    def restart_process(
+        self,
+        fixture_root: Union[str, os.PathLike[str]],
+        runs_root: Union[str, os.PathLike[str]],
+        *,
+        timeout: Optional[float] = None,
+    ) -> "SimulatorSession":
+        """Cold-restart into a new process and fresh writable fixture copy."""
+
+        fixture = Path(fixture_root).resolve(strict=True)
+        settings_source = _validated_fixture_directory(fixture / "settings")
+        storage_source = _validated_fixture_directory(fixture / "sdcard")
+        runs = Path(runs_root)
+        runs.mkdir(parents=True, exist_ok=True)
+        runs = runs.resolve(strict=True)
+        if _path_is_below(runs, settings_source) or _path_is_below(
+            runs, storage_source
+        ):
+            raise ValueError("runs root must not be inside the fixture template")
+
+        simulator_args = _replace_option(
+            self._simulator_args, "--settings", "{settings}"
+        )
+        simulator_args = _replace_option(
+            simulator_args, "--storage", "{storage}"
+        )
+
+        self.stop(timeout=timeout)
+
+        run_directory: Optional[Path] = None
+        replacement: Optional[SimulatorSession] = None
+        try:
+            run_directory = Path(
+                tempfile.mkdtemp(prefix="edgetx-ui-", dir=str(runs))
+            ).resolve(strict=True)
+            settings_copy = run_directory / "settings"
+            storage_copy = run_directory / "sdcard"
+            artifacts = run_directory / "artifacts"
+            shutil.copytree(settings_source, settings_copy, symlinks=False)
+            shutil.copytree(storage_source, storage_copy, symlinks=False)
+            artifacts.mkdir()
+
+            copied_args = tuple(
+                str(settings_copy)
+                if value == "{settings}"
+                else str(storage_copy)
+                if value == "{storage}"
+                else value
+                for value in simulator_args
+            )
+            replacement = SimulatorSession(
+                self._executable,
+                artifacts,
+                simulator_args=copied_args,
+                cwd=self._cwd,
+                env=self._env,
+                request_timeout=self._request_timeout,
+                stop_timeout=self._stop_timeout,
+                terminate_timeout=self._terminate_timeout,
+                kill_timeout=self._kill_timeout,
+                reader_join_timeout=self._reader_join_timeout,
+                required_capabilities=self._required_capabilities,
+                expected_target=self._expected_target,
+                expected_lcd=self._expected_lcd,
+            )
+            replacement._fixture_run_directory = run_directory
+            replacement.start(timeout=timeout)
+            return replacement
+        except BaseException:
+            if replacement is not None:
+                replacement.close()
+            if run_directory is not None:
+                shutil.rmtree(run_directory, ignore_errors=True)
+            raise
 
     def wait_frame(
         self, minimum: int, *, timeout: Optional[float] = None
@@ -1260,6 +1446,56 @@ def _read_chunk(stream: BinaryIO) -> bytes:
     if read1 is not None:
         return read1(READ_CHUNK_BYTES)
     return stream.read(READ_CHUNK_BYTES)
+
+
+def _require_named_range(
+    values: Sequence[NamedRange], name: str, label: str
+) -> NamedRange:
+    if not isinstance(name, str) or not name:
+        raise ValueError(label + " name must be a non-empty string")
+    for value in values:
+        if value.name == name:
+            return value
+    raise ValueError(label + " is not supported by target: " + name)
+
+
+def _replace_option(
+    arguments: Sequence[str], option: str, replacement: str
+) -> Tuple[str, ...]:
+    result = list(arguments)
+    positions = [index for index, value in enumerate(result) if value == option]
+    if len(positions) > 1:
+        raise ValueError("simulator arguments repeat " + option)
+    if positions:
+        index = positions[0]
+        if index + 1 >= len(result) or result[index + 1].startswith("--"):
+            raise ValueError("simulator argument has no value: " + option)
+        result[index + 1] = replacement
+    else:
+        result.extend((option, replacement))
+    return tuple(result)
+
+
+def _validated_fixture_directory(path: Path) -> Path:
+    try:
+        resolved = path.resolve(strict=True)
+    except OSError as error:
+        raise ValueError("fixture directory does not exist: " + str(path)) from error
+    if not resolved.is_dir():
+        raise ValueError("fixture path is not a directory: " + str(path))
+    for current, directories, files in os.walk(resolved, followlinks=False):
+        for name in (*directories, *files):
+            if (Path(current) / name).is_symlink():
+                raise ValueError("fixture templates must not contain symlinks")
+    return resolved
+
+
+def _path_is_below(path: Path, parent: Path) -> bool:
+    try:
+        path.relative_to(parent)
+    except ValueError:
+        return False
+    return True
 
 
 def _is_unsafe_win32_filename(value: str) -> bool:

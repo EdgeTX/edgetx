@@ -17,6 +17,8 @@ from edgetx_ui.protocol import (  # noqa: E402
     decode_capture,
     decode_description,
     decode_frame,
+    decode_lua_reload,
+    decode_restart,
     decode_status,
     encode_request,
     parse_message,
@@ -66,6 +68,7 @@ def status_payload() -> dict[str, object]:
         "firmware_mailbox_depth": 0,
         "line_overflow_count": 0,
         "queue_overflow_count": 0,
+        "stale_completion_count": 0,
         "active_key_count": 0,
         "touch_active": False,
         "analog_override_count": 0,
@@ -279,6 +282,26 @@ class FrameResultTests(unittest.TestCase):
             with self.subTest(result=result):
                 with self.assertRaises(ProtocolViolation):
                     decode_frame(self.response(result))
+
+    def test_decodes_restart_and_generation_observed_lua_results(self) -> None:
+        restart = decode_restart(self.response({"display_seq": 43}))
+        lua = decode_lua_reload(
+            self.response({"generation": 7, "state": "running"})
+        )
+
+        self.assertEqual((restart.epoch, restart.display_sequence), (3, 43))
+        self.assertEqual((lua.epoch, lua.generation, lua.state), (3, 7, "running"))
+
+    def test_rejects_ambiguous_restart_and_lua_results(self) -> None:
+        for decoder, result in (
+            (decode_restart, {"display_seq": 4, "extra": 1}),
+            (decode_lua_reload, {"generation": 0, "state": "running"}),
+            (decode_lua_reload, {"generation": 1, "state": "panic"}),
+            (decode_lua_reload, {"generation": 1}),
+        ):
+            with self.subTest(decoder=decoder, result=result):
+                with self.assertRaises(ProtocolViolation):
+                    decoder(self.response(result))
 
 
 class CaptureResultTests(unittest.TestCase):

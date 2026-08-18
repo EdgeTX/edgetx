@@ -4,6 +4,7 @@ from .protocol import (
     CaptureArtifact,
     Event,
     FrameBarrier,
+    LuaReload,
     ProtocolViolation,
     Response,
 )
@@ -23,6 +24,7 @@ __all__ = [
     "CommandFailed",
     "Event",
     "FrameBarrier",
+    "LuaReload",
     "ProcessExited",
     "ProtocolFailure",
     "ProtocolViolation",

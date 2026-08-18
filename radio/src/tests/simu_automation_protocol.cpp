@@ -171,6 +171,17 @@ TEST(SimuAutomationParser, EnforcesArityAndNumericRanges)
   EXPECT_EQ(parser.parse("v1 7 wait-frame 18446744073709551616").error.code,
             ErrorCode::OutOfRange);
   EXPECT_EQ(parser.parse("v1 8 ping ").error.code, ErrorCode::ExtraArgument);
+
+  EXPECT_EQ(parser.parse("v1 9 set-telemetry 0 0 0 1 0 0").error.code,
+            ErrorCode::OutOfRange);
+  EXPECT_EQ(parser.parse("v1 10 set-telemetry 1 8 0 1 0 0").error.code,
+            ErrorCode::OutOfRange);
+  EXPECT_EQ(parser.parse("v1 11 set-telemetry 1 0 0 1 0 3").error.code,
+            ErrorCode::OutOfRange);
+  EXPECT_EQ(parser.parse("v1 12 set-telemetry 1 0 0 1 0 0 bad!").error.code,
+            ErrorCode::InvalidArgument);
+  EXPECT_EQ(parser.parse("v1 13 set-telemetry 1 0 0 1 0 0 ABCDE").error.code,
+            ErrorCode::InvalidArgument);
 }
 
 TEST(SimuAutomationParser, RejectsMalformedSeparatorsNulAndInvalidUtf8)
@@ -190,7 +201,7 @@ TEST(SimuAutomationParser, RejectsMalformedSeparatorsNulAndInvalidUtf8)
   EXPECT_EQ(parser.parse(invalidUtf8).error.code, ErrorCode::InvalidUtf8);
 }
 
-TEST(SimuAutomationParser, AcceptsValidUtf8CapturePath)
+TEST(SimuAutomationParser, AcceptsUtf8CapturePathAndAsciiTelemetryLabel)
 {
   ProtocolParser parser;
   std::string record = "v1 1 capture screenshots/";
@@ -200,9 +211,12 @@ TEST(SimuAutomationParser, AcceptsValidUtf8CapturePath)
   EXPECT_EQ(result.status, ParseStatus::Request);
   EXPECT_TRUE(isValidUtf8(result.request.arguments[0]));
 
-  std::string telemetry = "v1 2 set-telemetry 61696 0 1 115 1 1 ";
-  telemetry.append("\xc3\xa9", 2);
-  EXPECT_EQ(parser.parse(telemetry).status, ParseStatus::Request);
+  EXPECT_EQ(parser.parse("v1 2 set-telemetry 61696 0 1 115 1 1 R_1-").status,
+            ParseStatus::Request);
+
+  std::string nonAscii = "v1 3 set-telemetry 61696 0 1 115 1 1 ";
+  nonAscii.append("\xc3\xa9", 2);
+  EXPECT_EQ(parser.parse(nonAscii).error.code, ErrorCode::InvalidArgument);
 }
 
 TEST(SimuAutomationResponse, SerializesSuccessAndEscapesEveryControlByte)
@@ -280,6 +294,7 @@ TEST(SimuAutomationResponse, SerializesBoundedStatusAndDescriptionResults)
   status.displaySequence = 17;
   status.requestQueueDepth = 2;
   status.lineOverflowCount = 3;
+  status.staleCompletionCount = 4;
   status.touchActive = true;
 
   std::string json;
@@ -291,6 +306,7 @@ TEST(SimuAutomationResponse, SerializesBoundedStatusAndDescriptionResults)
   EXPECT_NE(json.find("\"display_seq\":17"), std::string::npos);
   EXPECT_NE(json.find("\"request_queue_depth\":2"), std::string::npos);
   EXPECT_NE(json.find("\"line_overflow_count\":3"), std::string::npos);
+  EXPECT_NE(json.find("\"stale_completion_count\":4"), std::string::npos);
   EXPECT_NE(json.find("\"capture\":true"), std::string::npos);
   EXPECT_NE(json.find("\"output_root\":\"ready\""), std::string::npos);
 
@@ -328,6 +344,17 @@ TEST(SimuAutomationResponse, SerializesBoundedStatusAndDescriptionResults)
             "\"epoch\":1,\"result\":{\"display_seq\":43,\"path\":"
             "\"checkpoints/home screen.ppm\",\"width\":480,\"height\":272,"
             "\"depth\":16,\"bytes\":391695}}\n");
+
+  LuaReloadResult luaReload;
+  luaReload.generation = 7;
+  luaReload.state = "running";
+  EXPECT_EQ(serializeResponse(Response::successWithLuaReload(11, 2, luaReload),
+                              &json),
+            SerializeResult::Serialized);
+  EXPECT_EQ(json,
+            "{\"version\":1,\"type\":\"response\",\"id\":11,\"ok\":true,"
+            "\"epoch\":2,\"result\":{\"generation\":7,"
+            "\"state\":\"running\"}}\n");
 }
 
 TEST(SimuAutomationResponse, DescriptionOverflowUsesTerminalFallback)
@@ -450,7 +477,7 @@ TEST(SimuAutomationSessionState, RestartAdvancesEpochAndPurgesOldWork)
   EXPECT_EQ(state.restartTasksStarted(1, 1), TransitionResult::Applied);
   EXPECT_EQ(state.epoch(), 2u);
   EXPECT_EQ(state.phase(), SessionPhase::Starting);
-  EXPECT_EQ(state.displaySequence(), 0u);
+  EXPECT_EQ(state.displaySequence(), 3u);
   EXPECT_EQ(state.activeKeyCount(), 0u);
   EXPECT_EQ(state.queuedRequestCount(), 0u);
   EXPECT_EQ(state.completeAsync(1, 1), TransitionResult::StaleEpoch);
@@ -458,7 +485,7 @@ TEST(SimuAutomationSessionState, RestartAdvancesEpochAndPurgesOldWork)
   EXPECT_EQ(state.onDisplayFrame(), 1u);
   EXPECT_EQ(state.phase(), SessionPhase::Ready);
   EXPECT_EQ(state.epoch(), 2u);
-  EXPECT_EQ(state.displaySequence(), 1u);
+  EXPECT_EQ(state.displaySequence(), 4u);
   EXPECT_EQ(state.asyncOperation(), AsyncOperation::None);
 }
 

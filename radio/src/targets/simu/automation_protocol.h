@@ -16,6 +16,7 @@ constexpr std::size_t MAX_RECORD_BYTES = 16 * 1024;
 constexpr std::size_t MAX_RESPONSE_BYTES = 16 * 1024;
 constexpr std::size_t MAX_CAPTURE_PATH_BYTES = 1024;
 constexpr std::size_t MAX_PENDING_REQUESTS = 64;
+constexpr std::size_t MAX_TELEMETRY_LABEL_BYTES = 4;
 
 using RequestId = std::uint64_t;
 using SessionEpoch = std::uint64_t;
@@ -138,6 +139,7 @@ struct StatusSnapshot {
   std::size_t firmwareMailboxDepth = 0;
   std::uint64_t lineOverflowCount = 0;
   std::uint64_t queueOverflowCount = 0;
+  std::uint64_t staleCompletionCount = 0;
   std::size_t activeKeyCount = 0;
   bool touchActive = false;
   std::size_t analogOverrideCount = 0;
@@ -151,6 +153,11 @@ struct CaptureResult {
   std::uint16_t height = 0;
   std::uint8_t depth = 0;
   std::uint64_t bytes = 0;
+};
+
+struct LuaReloadResult {
+  std::uint64_t generation = 0;
+  std::string state;
 };
 
 struct Request {
@@ -227,6 +234,7 @@ struct Response {
     Description,
     Frame,
     Capture,
+    LuaReload,
   };
 
   RequestId id = 0;
@@ -239,6 +247,7 @@ struct Response {
   TargetDescription target;
   DisplaySequence frameSequence = 0;
   CaptureResult capture;
+  LuaReloadResult luaReload;
 
   static Response success(RequestId id, SessionEpoch epoch);
   static Response successWithStatus(RequestId id, SessionEpoch epoch,
@@ -250,6 +259,8 @@ struct Response {
                                    DisplaySequence displaySequence);
   static Response successWithCapture(RequestId id, SessionEpoch epoch,
                                      const CaptureResult& capture);
+  static Response successWithLuaReload(RequestId id, SessionEpoch epoch,
+                                       const LuaReloadResult& luaReload);
   static Response failure(RequestId id, SessionEpoch epoch, ErrorCode code,
                           const std::string& message);
 };
