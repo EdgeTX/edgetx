@@ -57,20 +57,23 @@ TEST(Crossfire, createCrossfireTimeFrame)
   uint8_t frame[CROSSFIRE_FRAME_MAXLEN] = {};
   const uint8_t length = createCrossfireTimeFrame(EXTERNAL_MODULE, frame);
 
-  EXPECT_EQ(length, 13);
-  EXPECT_EQ(frame[0], MODULE_ADDRESS);
-  EXPECT_EQ(frame[1], 11);
-  EXPECT_EQ(frame[2], PARAMETER_WRITE_ID);
-  EXPECT_EQ(frame[3], MODULE_ADDRESS);
-  EXPECT_EQ(frame[4], RADIO_ADDRESS);
-  EXPECT_EQ(frame[5], ELRS_HANDSET_TIME_ID);
-  EXPECT_EQ(frame[6], 126);
-  EXPECT_EQ(frame[7], 0);
-  EXPECT_EQ(frame[8], 1);
-  EXPECT_EQ(frame[9], 12);
-  EXPECT_EQ(frame[10], 34);
-  EXPECT_EQ(frame[11], 56);
-  EXPECT_EQ(frame[12], crc8(&frame[2], frame[1] - 1));
+  // MSPv2 SET_RTC addressed to the video receiver; see ExpressLRS
+  // VideoReceiverEndpoint, which decodes this and relays it to the backpack.
+  const uint8_t expectedFrame[] = {
+    MODULE_ADDRESS, 0x11,
+    MSP_WRITE_ID, VIDEO_RECEIVER_ADDRESS, RADIO_ADDRESS,
+    MSP_V2_STATUS_START, 0x00, 0x0E, 0x03, 0x06, 0x00,
+    126, 0, 1, 12, 34, 56,
+    0x92, 0x35
+  };
+
+  EXPECT_EQ(length, sizeof(expectedFrame));
+  EXPECT_EQ(memcmp(frame, expectedFrame, sizeof(expectedFrame)), 0);
+
+  // Both CRCs are crc8 poly 0xD5: the MSP one covers flags..payload, the CRSF
+  // one covers everything from the type byte to the MSP CRC inclusive.
+  EXPECT_EQ(frame[17], crc8(&frame[6], 11));
+  EXPECT_EQ(frame[18], crc8(&frame[2], 16));
 
   g_rtcTime = previousTime;
 }

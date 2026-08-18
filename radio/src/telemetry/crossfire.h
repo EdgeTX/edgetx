@@ -50,15 +50,15 @@
 #define PING_DEVICES_ID                0x28
 #define DEVICE_INFO_ID                 0x29
 #define REQUEST_SETTINGS_ID            0x2A
-#if defined(RTCLOCK)
-#define PARAMETER_WRITE_ID             0x2D
-#endif
 #define COMMAND_ID                     0x32
 #define RADIO_ID                       0x3A
 
 #if defined(RTCLOCK)
-// ExpressLRS handset time synchronization field
-#define ELRS_HANDSET_TIME_ID           0x3C
+// MSP-over-CRSF write to the ExpressLRS backpack, via the video receiver address
+#define MSP_WRITE_ID                   0x7C
+#define VIDEO_RECEIVER_ADDRESS         0x14
+#define MSP_ELRS_BACKPACK_SET_RTC      0x030E
+#define MSP_V2_STATUS_START            0x50  // version 2, start of frame, seq 0
 #endif
 
 #define UART_SYNC                      0xC8

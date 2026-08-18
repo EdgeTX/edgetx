@@ -45,15 +45,10 @@
 
 #define MIN_FRAME_LEN 3
 
-#if defined(RTCLOCK)
-#define ELRS_HANDSET_TIME_SYNC_PERIOD 6000  // 60 seconds in 10ms ticks
-#endif
-
 #define MODULE_ALIVE_TIMEOUT  50                      // if the module has sent a valid frame within 500ms it is declared alive
 static tmr10ms_t lastAlive[NUM_MODULES];              // last time stamp module sent CRSF frames
 static bool moduleAlive[NUM_MODULES];                 // module alive status
 #if defined(RTCLOCK)
-static tmr10ms_t lastTimeSync[NUM_MODULES];
 static bool timeSyncSent[NUM_MODULES];
 #endif
 
@@ -113,18 +108,24 @@ uint8_t createCrossfireTimeFrame(uint8_t moduleIdx, uint8_t * frame)
 
   uint8_t * buf = frame;
   *buf++ = MODULE_ADDRESS;
-  *buf++ = 11;                                         // type + destination + origin + field + 6 time bytes + CRC
-  *buf++ = PARAMETER_WRITE_ID;
-  *buf++ = MODULE_ADDRESS;
+  *buf++ = 17;                              // type + dest + orig + 13 MSP bytes + CRC
+  *buf++ = MSP_WRITE_ID;
+  *buf++ = VIDEO_RECEIVER_ADDRESS;
   *buf++ = RADIO_ADDRESS;
-  *buf++ = ELRS_HANDSET_TIME_ID;
+  *buf++ = MSP_V2_STATUS_START;
+  *buf++ = 0;                               // MSP flags
+  *buf++ = MSP_ELRS_BACKPACK_SET_RTC & 0xFF;
+  *buf++ = MSP_ELRS_BACKPACK_SET_RTC >> 8;
+  *buf++ = 6;                               // MSP payload size, low byte
+  *buf++ = 0;                               // MSP payload size, high byte
   *buf++ = tm.tm_year;
   *buf++ = tm.tm_mon;
   *buf++ = tm.tm_mday;
   *buf++ = tm.tm_hour;
   *buf++ = tm.tm_min;
   *buf++ = tm.tm_sec;
-  *buf++ = crc8(frame + 2, 10);
+  *buf++ = crc8(frame + 6, 11);             // MSP CRC over flags..payload
+  *buf++ = crc8(frame + 2, 16);             // CRSF CRC over type..MSP CRC
   return buf - frame;
 }
 #endif
@@ -222,10 +223,8 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
 #if defined(RTCLOCK)
     } else if (crossfireModuleStatus[module].isELRS &&
                crossfireModuleStatus[module].queryCompleted &&
-               (!timeSyncSent[module] ||
-                (get_tmr10ms() - lastTimeSync[module]) >= ELRS_HANDSET_TIME_SYNC_PERIOD)) {
+               !timeSyncSent[module]) {
       p_buf += createCrossfireTimeFrame(module, p_buf);
-      lastTimeSync[module] = get_tmr10ms();
       timeSyncSent[module] = true;
 #endif
     } else {
@@ -421,7 +420,6 @@ static void* crossfireInit(uint8_t module)
 {
 #if defined(RTCLOCK)
   timeSyncSent[module] = false;
-  lastTimeSync[module] = 0;
 #endif
 
   etx_module_state_t* mod_st = nullptr;
@@ -492,7 +490,6 @@ static void crossfireDeInit(void* ctx)
 
 #if defined(RTCLOCK)
   timeSyncSent[modulePortGetModule(mod_st)] = false;
-  lastTimeSync[modulePortGetModule(mod_st)] = 0;
 #endif
 
   memset(&crossfireModuleStatus[modulePortGetModule(mod_st)], 0,
