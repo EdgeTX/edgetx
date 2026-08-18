@@ -187,7 +187,7 @@ authorship for code that has not been imported.
 | Retained component | Source | Reuse class | Expected implementation ownership and credit status |
 |---|---|---|---|
 | Opt-in stdio direction, key mapping, framebuffer capture, and simulator argument-parser starting point | #7337: `arg_parser.*`, `sdl_simu.cpp` | Algorithm and implementation reference; code may be imported only in a coherent commit | Preserve Mateusz Urban's authorship if a coherent block is imported. If substantially rewritten, the consolidation author owns the new commit and requests approval before adding a `Co-authored-by` trailer. Approval is currently pending. |
-| Cross-platform host session, CLI shape, declarative flow, fixture layout, and host-side PPM conversion | #7337: `tools/ui-harness/edgetx_ui/*`, launchers, fixtures, and flow | Code, algorithm, and test ideas; MCP and root dependency files excluded | Prefer retaining original authorship for reusable host files. Otherwise credit #7337 in the commit and PR; any co-authorship trailer requires contributor approval. |
+| Cross-platform host session, CLI shape, declarative flow, fixture layout, and host-side PPM conversion | #7337: `tools/ui-harness/edgetx_ui/*`, launchers, fixtures, and flow | Design and test ideas retained; the Phase 3 session is a substantial rewrite and imports no coherent source block. MCP and root dependency files remain excluded | Credit #7337 and Mateusz Urban in the commit and PR. The rewritten commit remains owned by the consolidation author; any co-authorship trailer still requires contributor approval. |
 | Explicit key/touch transitions, Windows-native transport requirement, capture-after-refresh requirement, Lua reload, and warm restart | #7646: `arg_parser.*`, `sdl_simu.cpp`, `simulib.*` | Requirements and selected implementation reference | Implemented by the consolidation author unless a source commit is retained. The append-file transport and direct state mutation are not reused. |
 | Static LVGL invalidation and capture coordination | #7646: `LvglWrapper.cpp`, `simu_capture.cpp` | Algorithm retained; implementation redesigned | Rewritten by the consolidation author to use a display sequence, preallocated snapshot, and worker-owned file I/O. |
 | Switch, analog, and telemetry injection | #7646: `api_simu.*`, `simulib.*` | Requirements retained; original Lua surface dropped | Rewritten by the consolidation author behind the common protocol and firmware mailbox. No Lua `simu` table code is imported. |
@@ -1276,6 +1276,22 @@ cross-platform session client.
 idle automation adds no blocking read to the SDL loop.
 
 ### Phase 3 — Cross-platform Python session foundation
+
+**Status (2026-08-17): in progress.** Slice 3A implements the dependency-free
+binary session for the commands available after Phase 2: `start`, correlated
+`ping`, and flushed `stop`. It uses dedicated stdout/stderr reader threads,
+strict JSON and ID validation, bounded diagnostics, per-request timeouts, child
+exit detection, and graceful/terminate/kill cleanup without pipe `select` or a
+startup sleep. A minimal `edgetx-ui probe` command exercises the same public
+session path.
+
+The 22 focused tests pass with warnings treated as errors on Windows Python
+3.11 and the official Linux image's Python 3.10. They include 100 process
+lifecycle cycles on each host. Additionally, 100 cycles against the real Linux
+TX16S simulator complete with exit code zero and no live reader thread. Full
+Phase 3 remains open for a real Windows simulator lifecycle run, explicit kill
+fallback injection, and readiness based on `status`, first frame, and
+capability discovery; those native commands do not exist yet.
 
 #### 3.1 Implement binary response readers
 
