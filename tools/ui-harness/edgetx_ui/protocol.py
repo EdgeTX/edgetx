@@ -121,6 +121,12 @@ class Status:
     output_root: str
 
 
+@dataclass(frozen=True)
+class FrameBarrier:
+    epoch: int
+    display_sequence: int
+
+
 Message = Union[Response, Event]
 
 
@@ -306,6 +312,19 @@ def decode_status(response: Response) -> Status:
         lua_state=lua_state,
         capabilities=_capabilities(result.get("capabilities")),
         output_root=output_root,
+    )
+
+
+def decode_frame(response: Response) -> FrameBarrier:
+    """Validate the terminal result of a wait-frame request."""
+
+    result = _successful_result(response, "wait-frame")
+    _require_exact_keys(result, {"display_seq"}, "wait-frame result")
+    return FrameBarrier(
+        epoch=response.epoch,
+        display_sequence=_uint64(
+            result.get("display_seq"), "wait-frame display sequence"
+        ),
     )
 
 

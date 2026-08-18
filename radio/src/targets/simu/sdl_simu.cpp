@@ -33,6 +33,7 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <limits>
 #include <regex>
 #include <string>
 
@@ -92,6 +93,49 @@ static SDL_Texture* screen_frame_buffer;
 #if !defined(__EMSCRIPTEN__)
 static edgetx::automation::AutomationStdio* automation_stdio_instance = nullptr;
 
+struct AutomationKey {
+  const char* name;
+  EnumKeys key;
+};
+
+static constexpr AutomationKey AUTOMATION_KEYS[] = {
+    {"MENU", KEY_MENU},     {"EXIT", KEY_EXIT},     {"ENTER", KEY_ENTER},
+    {"PAGEUP", KEY_PAGEUP}, {"PAGEDN", KEY_PAGEDN}, {"UP", KEY_UP},
+    {"DOWN", KEY_DOWN},     {"LEFT", KEY_LEFT},     {"RIGHT", KEY_RIGHT},
+    {"PLUS", KEY_PLUS},     {"MINUS", KEY_MINUS},   {"MODEL", KEY_MODEL},
+    {"TELE", KEY_TELE},     {"SYS", KEY_SYS},       {"SHIFT", KEY_SHIFT},
+    {"BIND", KEY_BIND},
+};
+
+static void automationSetKey(const std::string& name, bool pressed)
+{
+  for (const AutomationKey& key : AUTOMATION_KEYS) {
+    if (name == key.name) {
+      simuSetKey(static_cast<std::uint8_t>(key.key), pressed);
+      return;
+    }
+  }
+}
+
+#if defined(ROTARY_ENCODER_NAVIGATION)
+static void automationRotate(std::int32_t steps)
+{
+  simuRotaryEncoderEvent(steps);
+}
+#endif
+
+#if defined(HARDWARE_TOUCH)
+static void automationTouchPosition(std::uint16_t x, std::uint16_t y)
+{
+  static_assert(LCD_W <= (std::numeric_limits<std::int16_t>::max)() &&
+                    LCD_H <= (std::numeric_limits<std::int16_t>::max)(),
+                "automation touch coordinates must fit simuTouchDown");
+  simuTouchDown(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y));
+}
+
+static void automationTouchUp() { simuTouchUp(); }
+#endif
+
 static edgetx::automation::TargetDescription automationTargetDescription()
 {
   edgetx::automation::TargetDescription target;
@@ -99,16 +143,49 @@ static edgetx::automation::TargetDescription automationTargetDescription()
   target.lcdWidth = static_cast<std::uint16_t>(LCD_W);
   target.lcdHeight = static_cast<std::uint16_t>(LCD_H);
   target.lcdDepth = static_cast<std::uint8_t>(LCD_DEPTH);
-  target.commands = {
-      edgetx::automation::Command::Ping,
-      edgetx::automation::Command::Status,
-      edgetx::automation::Command::Describe,
-      edgetx::automation::Command::Stop,
-  };
+  target.commands = {edgetx::automation::Command::Ping,
+                     edgetx::automation::Command::Status,
+                     edgetx::automation::Command::Describe};
+  for (const AutomationKey& key : AUTOMATION_KEYS) {
+    if (keyIsSupported(key.key)) target.keys.emplace_back(key.name);
+  }
+  if (!target.keys.empty()) {
+    target.commands.push_back(edgetx::automation::Command::KeyDown);
+    target.commands.push_back(edgetx::automation::Command::KeyUp);
+  }
+#if defined(ROTARY_ENCODER_NAVIGATION)
+  target.capabilities.rotary = true;
+  target.commands.push_back(edgetx::automation::Command::Rotate);
+#endif
+#if defined(HARDWARE_TOUCH)
+  target.capabilities.touch = true;
+  target.commands.push_back(edgetx::automation::Command::TouchDown);
+  target.commands.push_back(edgetx::automation::Command::TouchMove);
+  target.commands.push_back(edgetx::automation::Command::TouchUp);
+#endif
+  target.commands.push_back(edgetx::automation::Command::WaitFrame);
+  if (!target.keys.empty() || target.capabilities.touch)
+    target.commands.push_back(edgetx::automation::Command::ReleaseAll);
+  target.commands.push_back(edgetx::automation::Command::Stop);
   // Capability flags describe commands that are usable through this protocol
   // build, not merely hardware that the radio target happens to contain.
   target.outputRootReady = true;
   return target;
+}
+
+static edgetx::automation::AutomationInputHandlers automationInputHandlers()
+{
+  edgetx::automation::AutomationInputHandlers handlers;
+  handlers.setKey = automationSetKey;
+#if defined(ROTARY_ENCODER_NAVIGATION)
+  handlers.rotate = automationRotate;
+#endif
+#if defined(HARDWARE_TOUCH)
+  handlers.touchDown = automationTouchPosition;
+  handlers.touchMove = automationTouchPosition;
+  handlers.touchUp = automationTouchUp;
+#endif
+  return handlers;
 }
 #endif
 
@@ -841,6 +918,7 @@ int main(int argc, char* argv[])
 #if !defined(__EMSCRIPTEN__)
   if (args.isAutomationStdio()) {
     automation_stdio.setTargetDescription(automationTargetDescription());
+    automation_stdio.setInputHandlers(automationInputHandlers());
     automation_stdio_instance = &automation_stdio;
   }
 #endif

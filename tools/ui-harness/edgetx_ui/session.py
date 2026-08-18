@@ -16,11 +16,14 @@ from .protocol import (
     CAPABILITY_NAMES,
     Description,
     Event,
+    FrameBarrier,
     MAX_RECORD_BYTES,
     ProtocolViolation,
     Response,
     Status,
+    UINT64_MAX,
     decode_description,
+    decode_frame,
     decode_status,
     encode_request,
     parse_message,
@@ -340,6 +343,181 @@ class SimulatorSession:
     def ping(self, *, timeout: Optional[float] = None) -> Response:
         return self.request("ping", timeout=timeout)
 
+    def read_status(self, *, timeout: Optional[float] = None) -> Status:
+        """Read and validate a fresh status snapshot."""
+
+        description = self._require_command("status")
+        response = self.request("status", timeout=timeout)
+        try:
+            status = decode_status(response)
+        except ProtocolViolation as error:
+            raise ProtocolFailure(str(error)) from error
+        self._validate_status(status, description)
+        with self._state_lock:
+            self._status_response = response
+            self._status = status
+        return status
+
+    def key_down(
+        self, key: str, *, timeout: Optional[float] = None
+    ) -> Response:
+        self._validate_key(key, "key-down")
+        return self.request("key-down", key, timeout=timeout)
+
+    def key_up(
+        self, key: str, *, timeout: Optional[float] = None
+    ) -> Response:
+        self._validate_key(key, "key-up")
+        return self.request("key-up", key, timeout=timeout)
+
+    def rotate(
+        self, steps: int, *, timeout: Optional[float] = None
+    ) -> Response:
+        self._require_command("rotate", capability="rotary")
+        _validated_integer(steps, -128, 128, "rotary steps", exclude_zero=True)
+        return self.request("rotate", str(steps), timeout=timeout)
+
+    def touch_down(
+        self, x: int, y: int, *, timeout: Optional[float] = None
+    ) -> Response:
+        x, y = self._validate_touch_point(x, y, "touch-down")
+        return self.request("touch-down", str(x), str(y), timeout=timeout)
+
+    def touch_move(
+        self, x: int, y: int, *, timeout: Optional[float] = None
+    ) -> Response:
+        x, y = self._validate_touch_point(x, y, "touch-move")
+        return self.request("touch-move", str(x), str(y), timeout=timeout)
+
+    def touch_up(self, *, timeout: Optional[float] = None) -> Response:
+        self._require_command("touch-up", capability="touch")
+        return self.request("touch-up", timeout=timeout)
+
+    def release_all(self, *, timeout: Optional[float] = None) -> Response:
+        self._require_command("release-all")
+        return self.request("release-all", timeout=timeout)
+
+    def wait_frame(
+        self, minimum: int, *, timeout: Optional[float] = None
+    ) -> FrameBarrier:
+        self._require_command("wait-frame")
+        minimum = _validated_integer(
+            minimum, 0, UINT64_MAX, "minimum display sequence"
+        )
+        response = self.request("wait-frame", str(minimum), timeout=timeout)
+        try:
+            barrier = decode_frame(response)
+        except ProtocolViolation as error:
+            raise ProtocolFailure(str(error)) from error
+        if barrier.display_sequence < minimum:
+            raise ProtocolFailure(
+                "wait-frame completed below its requested display sequence"
+            )
+        return barrier
+
+    def wait_next_frame(
+        self, *, timeout: Optional[float] = None
+    ) -> FrameBarrier:
+        total_timeout = (
+            self._request_timeout
+            if timeout is None
+            else _validated_timeout(timeout, "wait-next-frame")
+        )
+        deadline = time.monotonic() + total_timeout
+
+        def remaining() -> float:
+            value = deadline - time.monotonic()
+            if value <= 0:
+                raise RequestTimeout(
+                    self._message_with_context(
+                        "timed out waiting for the next display frame", None
+                    )
+                )
+            return value
+
+        status = self.read_status(timeout=remaining())
+        if status.display_sequence == UINT64_MAX:
+            raise SessionError("display sequence is saturated")
+        return self.wait_frame(
+            status.display_sequence + 1, timeout=remaining()
+        )
+
+    def press(
+        self,
+        key: str,
+        *,
+        duration: float = 0.05,
+        timeout: Optional[float] = None,
+    ) -> Response:
+        self._validate_key(key, "key-down")
+        duration = _validated_duration(duration, "press duration")
+        self.key_down(key, timeout=timeout)
+        try:
+            _sleep_for_duration(duration)
+        except BaseException:
+            self._best_effort_key_release(key, timeout)
+            raise
+        return self._key_release_with_fallback(key, timeout)
+
+    def long_press(
+        self,
+        key: str,
+        *,
+        duration: float = 1.0,
+        timeout: Optional[float] = None,
+    ) -> Response:
+        return self.press(key, duration=duration, timeout=timeout)
+
+    def tap(
+        self,
+        x: int,
+        y: int,
+        *,
+        duration: float = 0.05,
+        timeout: Optional[float] = None,
+    ) -> Response:
+        x, y = self._validate_touch_point(x, y, "touch-down")
+        duration = _validated_duration(duration, "tap duration")
+        self.touch_down(x, y, timeout=timeout)
+        try:
+            _sleep_for_duration(duration)
+        except BaseException:
+            self._best_effort_touch_release(timeout)
+            raise
+        return self._touch_release_with_fallback(timeout)
+
+    def drag(
+        self,
+        points: Sequence[Tuple[int, int]],
+        *,
+        duration: float = 0.2,
+        timeout: Optional[float] = None,
+    ) -> Response:
+        if isinstance(points, (str, bytes)) or len(points) < 2:
+            raise ValueError("drag requires at least two touch points")
+        try:
+            validated = tuple(
+                self._validate_touch_point(x, y, "touch-move")
+                for x, y in points
+            )
+        except (TypeError, ValueError) as error:
+            raise ValueError("drag points must be valid x/y pairs") from error
+        duration = _validated_duration(duration, "drag duration")
+        self.touch_down(*validated[0], timeout=timeout)
+        started = time.monotonic()
+        segments = len(validated) - 1
+        try:
+            for index, point in enumerate(validated[1:], start=1):
+                deadline = started + duration * index / segments
+                remaining = deadline - time.monotonic()
+                if remaining > 0:
+                    time.sleep(remaining)
+                self.touch_move(*point, timeout=timeout)
+        except BaseException:
+            self._best_effort_touch_release(timeout)
+            raise
+        return self._touch_release_with_fallback(timeout)
+
     def _startup_remaining(self, deadline: float) -> float:
         remaining = deadline - time.monotonic()
         if remaining <= 0:
@@ -390,6 +568,75 @@ class SimulatorSession:
                 "simulator is missing required capabilities: "
                 + ", ".join(missing_capabilities)
             )
+
+    def _require_command(
+        self, command: str, *, capability: Optional[str] = None
+    ) -> Description:
+        with self._state_lock:
+            description = self._description
+        if description is None:
+            raise SessionError("simulator discovery is not available")
+        if command not in description.commands:
+            raise SessionError("target does not advertise command: " + command)
+        if capability is not None and not description.capabilities.supports(
+            capability
+        ):
+            raise SessionError(
+                "target does not advertise capability: " + capability
+            )
+        return description
+
+    def _validate_key(self, key: str, command: str) -> None:
+        description = self._require_command(command)
+        if not isinstance(key, str) or key not in description.keys:
+            raise ValueError("key is not supported by target: " + str(key))
+
+    def _validate_touch_point(
+        self, x: int, y: int, command: str
+    ) -> Tuple[int, int]:
+        description = self._require_command(command, capability="touch")
+        return (
+            _validated_integer(x, 0, description.lcd.width - 1, "touch x"),
+            _validated_integer(y, 0, description.lcd.height - 1, "touch y"),
+        )
+
+    def _key_release_with_fallback(
+        self, key: str, timeout: Optional[float]
+    ) -> Response:
+        try:
+            return self.key_up(key, timeout=timeout)
+        except BaseException:
+            self._best_effort_release_all(timeout)
+            raise
+
+    def _touch_release_with_fallback(
+        self, timeout: Optional[float]
+    ) -> Response:
+        try:
+            return self.touch_up(timeout=timeout)
+        except BaseException:
+            self._best_effort_release_all(timeout)
+            raise
+
+    def _best_effort_key_release(
+        self, key: str, timeout: Optional[float]
+    ) -> None:
+        try:
+            self._key_release_with_fallback(key, timeout)
+        except BaseException:
+            pass
+
+    def _best_effort_touch_release(self, timeout: Optional[float]) -> None:
+        try:
+            self._touch_release_with_fallback(timeout)
+        except BaseException:
+            pass
+
+    def _best_effort_release_all(self, timeout: Optional[float]) -> None:
+        try:
+            self.release_all(timeout=timeout)
+        except BaseException:
+            pass
 
     @staticmethod
     def _validate_status(status: Status, description: Description) -> None:
@@ -443,6 +690,11 @@ class SimulatorSession:
             deadline = time.monotonic() + request_timeout
             try:
                 response = self._wait_for_response(pending, request_id, deadline)
+            except RequestTimeout as error:
+                # A late response cannot be safely correlated with a later
+                # request on this serialized v1 session.
+                self._record_failure(error)
+                raise
             finally:
                 self._clear_pending(pending)
 
@@ -821,6 +1073,57 @@ def _validated_timeout(value: float, name: str) -> float:
     if not math.isfinite(timeout) or timeout <= 0 or timeout > MAX_COMMAND_TIMEOUT:
         raise ValueError(name + " timeout must be in (0, 60] seconds")
     return timeout
+
+
+def _validated_integer(
+    value: int,
+    minimum: int,
+    maximum: int,
+    name: str,
+    *,
+    exclude_zero: bool = False,
+) -> int:
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, int)
+        or value < minimum
+        or value > maximum
+        or (exclude_zero and value == 0)
+    ):
+        zero_note = " and cannot be zero" if exclude_zero else ""
+        raise ValueError(
+            name
+            + " must be an integer in "
+            + str(minimum)
+            + ".."
+            + str(maximum)
+            + zero_note
+        )
+    return value
+
+
+def _validated_duration(value: float, name: str) -> float:
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+        or value < 0
+        or value > MAX_COMMAND_TIMEOUT
+    ):
+        raise ValueError(
+            name
+            + " must be a finite number in 0.."
+            + str(MAX_COMMAND_TIMEOUT)
+            + " seconds"
+        )
+    return float(value)
+
+
+def _sleep_for_duration(duration: float) -> None:
+    deadline = time.monotonic() + duration
+    remaining = deadline - time.monotonic()
+    if remaining > 0:
+        time.sleep(remaining)
 
 
 def _validated_capabilities(values: Sequence[str]) -> Tuple[str, ...]:

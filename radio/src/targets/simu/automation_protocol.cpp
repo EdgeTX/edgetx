@@ -422,6 +422,12 @@ bool appendDescriptionResult(BoundedJson& json, const Response& response)
   return true;
 }
 
+bool appendFrameResult(BoundedJson& json, const Response& response)
+{
+  return json.append(",\"result\":{\"display_seq\":") &&
+         json.appendNumber(response.frameSequence) && json.append("}");
+}
+
 bool buildResponse(const Response& response, ErrorCode code,
                    const std::string& message, std::size_t maxBytes,
                    std::string* output)
@@ -444,6 +450,8 @@ bool buildResponse(const Response& response, ErrorCode code,
     if (!appendStatusResult(json, response)) return false;
   } else if (response.resultKind == Response::ResultKind::Description) {
     if (!appendDescriptionResult(json, response)) return false;
+  } else if (response.resultKind == Response::ResultKind::Frame) {
+    if (!appendFrameResult(json, response)) return false;
   }
 
   if (!json.append("}\n")) return false;
@@ -682,6 +690,15 @@ Response Response::successWithDescription(RequestId id, SessionEpoch epoch,
   Response response = success(id, epoch);
   response.resultKind = ResultKind::Description;
   response.target = target;
+  return response;
+}
+
+Response Response::successWithFrame(RequestId id, SessionEpoch epoch,
+                                    DisplaySequence displaySequence)
+{
+  Response response = success(id, epoch);
+  response.resultKind = ResultKind::Frame;
+  response.frameSequence = displaySequence;
   return response;
 }
 
@@ -937,7 +954,9 @@ SessionState::SessionState() = default;
 RequestId SessionState::onDisplayFrame()
 {
   if (currentPhase == SessionPhase::Stopped) return 0;
-  ++currentDisplaySequence;
+  if (currentDisplaySequence != (std::numeric_limits<DisplaySequence>::max)()) {
+    ++currentDisplaySequence;
+  }
   bool becameReady = false;
   if (currentPhase == SessionPhase::Starting) {
     if (currentEpoch == 0) currentEpoch = 1;
@@ -1120,6 +1139,11 @@ DisplaySequence SessionState::displaySequence() const
 AsyncOperation SessionState::asyncOperation() const { return activeOperation; }
 
 std::size_t SessionState::activeKeyCount() const { return activeKeys.size(); }
+
+std::vector<std::string> SessionState::activeKeyNames() const
+{
+  return std::vector<std::string>(activeKeys.begin(), activeKeys.end());
+}
 
 bool SessionState::isTouchActive() const { return touchActive; }
 

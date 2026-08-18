@@ -216,6 +216,7 @@ struct Response {
     None,
     Status,
     Description,
+    Frame,
   };
 
   RequestId id = 0;
@@ -226,6 +227,7 @@ struct Response {
   ResultKind resultKind = ResultKind::None;
   StatusSnapshot status;
   TargetDescription target;
+  DisplaySequence frameSequence = 0;
 
   static Response success(RequestId id, SessionEpoch epoch);
   static Response successWithStatus(RequestId id, SessionEpoch epoch,
@@ -233,6 +235,8 @@ struct Response {
                                     const TargetDescription& target);
   static Response successWithDescription(RequestId id, SessionEpoch epoch,
                                          const TargetDescription& target);
+  static Response successWithFrame(RequestId id, SessionEpoch epoch,
+                                   DisplaySequence displaySequence);
   static Response failure(RequestId id, SessionEpoch epoch, ErrorCode code,
                           const std::string& message);
 };
@@ -318,6 +322,7 @@ class SessionState
   DisplaySequence displaySequence() const;
   AsyncOperation asyncOperation() const;
   std::size_t activeKeyCount() const;
+  std::vector<std::string> activeKeyNames() const;
   bool isTouchActive() const;
   std::size_t queuedRequestCount() const;
 

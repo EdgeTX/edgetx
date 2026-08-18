@@ -30,6 +30,14 @@ enum class StdioPumpResult {
   Error,
 };
 
+struct AutomationInputHandlers {
+  void (*setKey)(const std::string& key, bool pressed) = nullptr;
+  void (*rotate)(std::int32_t steps) = nullptr;
+  void (*touchDown)(std::uint16_t x, std::uint16_t y) = nullptr;
+  void (*touchMove)(std::uint16_t x, std::uint16_t y) = nullptr;
+  void (*touchUp)() = nullptr;
+};
+
 class AutomationStdio
 {
  public:
@@ -43,6 +51,7 @@ class AutomationStdio
   bool start(std::string* error);
   StdioPumpResult pump(std::string* error);
   void setTargetDescription(const TargetDescription& target);
+  void setInputHandlers(const AutomationInputHandlers& handlers);
   void markRuntimeStarted();
   void markRuntimeStopped();
   void onDisplayFrame();
@@ -66,6 +75,14 @@ class AutomationStdio
   WriteResult writeOutput(const std::string& record, std::string* error);
   void queueEvents(std::vector<LineEvent>&& events);
   StdioPumpResult processEvent(const LineEvent& event, std::string* error);
+  StdioPumpResult processKey(const Request& request, bool pressed,
+                             std::string* error);
+  StdioPumpResult processRotate(const Request& request, std::string* error);
+  StdioPumpResult processTouch(const Request& request, std::string* error);
+  StdioPumpResult processWaitFrame(const Request& request, std::string* error);
+  StdioPumpResult processReleaseAll(const Request& request, std::string* error);
+  StdioPumpResult processStop(const Request& request, std::string* error);
+  StdioPumpResult drainCompletedResponses(std::string* error);
   StdioPumpResult emitResponse(const Response& response, std::string* error);
   StdioPumpResult emitEvent(ErrorCode code, const std::string& message,
                             std::string* error);
@@ -74,6 +91,36 @@ class AutomationStdio
   SessionEpoch currentEpoch() const;
   Response makeStatusResponse(RequestId id) const;
   Response makeDescriptionResponse(RequestId id) const;
+  bool supportsCommand(Command command) const;
+  void releaseInputs();
+
+  struct PendingFrameWait {
+    RequestId id = 0;
+    SessionEpoch epoch = 0;
+    DisplaySequence minimum = 0;
+
+    bool active() const { return id != 0; }
+    void clear()
+    {
+      id = 0;
+      epoch = 0;
+      minimum = 0;
+    }
+  };
+
+  struct CompletedFrameWait {
+    RequestId id = 0;
+    SessionEpoch epoch = 0;
+    DisplaySequence sequence = 0;
+
+    bool active() const { return id != 0; }
+    void clear()
+    {
+      id = 0;
+      epoch = 0;
+      sequence = 0;
+    }
+  };
 
   LineBuffer lineBuffer;
   ProtocolParser parser;
@@ -81,6 +128,9 @@ class AutomationStdio
   mutable std::mutex stateMutex;
   SessionState sessionState;
   TargetDescription targetDescription;
+  AutomationInputHandlers inputHandlers;
+  PendingFrameWait pendingFrameWait;
+  CompletedFrameWait completedFrameWait;
   bool runtimeRunning = false;
   std::uint64_t lineOverflowCount = 0;
   std::uint64_t queueOverflowCount = 0;
