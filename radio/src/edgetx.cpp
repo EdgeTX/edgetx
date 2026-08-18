@@ -422,7 +422,7 @@ void generalDefault()
 
 #if defined(MANUFACTURER_RADIOMASTER)
   g_eeGeneral.audioMuteEnable = 1;
-#if defined(RADIO_TX15)
+#if defined(RADIO_TX15) || defined(RADIO_GX15)
   g_eeGeneral.backlightBright = 50; // Screen looks off if not set high enough
 #endif
 #endif

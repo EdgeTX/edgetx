@@ -19,26 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#include "hal/gpio.h"
-#include "stm32_gpio.h"
+#ifndef _USB_DESCRIPTOR_H_
+#define _USB_DESCRIPTOR_H_
 
-#include "board.h"
-#include "hal/usb_driver.h"
+#define USB_NAME                     "Radiomaster GX15"
+#define USB_MANUFACTURER             'R', 'M', ' ', ' ', ' ', ' ', ' ', ' '  /* 8 bytes */
+#define USB_PRODUCT                  'G', 'X', '1', '5', ' ', ' ', ' ', ' '  /* 8 Bytes */
 
-//TODO: charger enable control
-
-void usbChargerInit()
-{
-  gpio_init(UCHARGER_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
-  gpio_init(UCHARGER_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
-  gpio_clear(UCHARGER_EN_GPIO);
-}
-
-bool usbChargerLed()
-{
-#if defined UCHARGER_INVERTED
-  return (!gpio_read(UCHARGER_GPIO) && usbPlugged());
-#else
-  return (gpio_read(UCHARGER_GPIO) && usbPlugged());
-#endif
-}
+#endif // _USB_DESCRIPTOR_H_
