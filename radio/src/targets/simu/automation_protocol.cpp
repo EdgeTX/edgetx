@@ -62,7 +62,7 @@ bool parseUnsigned(const std::string& token, std::uint64_t maximum,
   for (char byte : token) {
     if (byte < '0' || byte > '9') return false;
     const std::uint64_t digit = static_cast<std::uint64_t>(byte - '0');
-    if (parsed > (maximum - digit) / 10) return false;
+    if (digit > maximum || parsed > (maximum - digit) / 10) return false;
     parsed = parsed * 10 + digit;
   }
 
@@ -111,6 +111,18 @@ bool isAsciiToken(const std::string& token)
   if (token.empty()) return false;
   for (unsigned char byte : token) {
     if (byte <= 0x20 || byte >= 0x7f) return false;
+  }
+  return true;
+}
+
+bool isTelemetryLabel(const std::string& token)
+{
+  if (token.empty() || token.size() > MAX_TELEMETRY_LABEL_BYTES) return false;
+  for (const unsigned char byte : token) {
+    const bool alpha =
+        (byte >= 'A' && byte <= 'Z') || (byte >= 'a' && byte <= 'z');
+    const bool digit = byte >= '0' && byte <= '9';
+    if (!alpha && !digit && byte != '_' && byte != '-') return false;
   }
   return true;
 }
@@ -187,19 +199,19 @@ ErrorCode validateArguments(Command command,
                  : ErrorCode::OutOfRange;
 
     case Command::SetTelemetry: {
-      const std::uint64_t limits[] = {65535, 255, 255};
+      const std::uint64_t limits[] = {65535, 7, 255};
       for (std::size_t index = 0; index < 3; ++index) {
         if (!parseUnsigned(arguments[index], limits[index], &unsignedValue))
           return ErrorCode::OutOfRange;
+        if (index == 0 && unsignedValue == 0) return ErrorCode::OutOfRange;
       }
       if (!parseSigned(arguments[3], std::numeric_limits<std::int32_t>::min(),
                        std::numeric_limits<std::int32_t>::max(), &signedValue))
         return ErrorCode::OutOfRange;
       if (!parseUnsigned(arguments[4], 255, &unsignedValue) ||
-          !parseUnsigned(arguments[5], 255, &unsignedValue))
+          !parseUnsigned(arguments[5], 2, &unsignedValue))
         return ErrorCode::OutOfRange;
-      if (arguments.size() == 7 &&
-          (arguments[6].empty() || arguments[6].size() > 32))
+      if (arguments.size() == 7 && !isTelemetryLabel(arguments[6]))
         return ErrorCode::InvalidArgument;
       return ErrorCode::None;
     }
@@ -386,6 +398,8 @@ bool appendStatusResult(BoundedJson& json, const Response& response)
       !json.appendNumber(status.lineOverflowCount) ||
       !json.append(",\"queue_overflow_count\":") ||
       !json.appendNumber(status.queueOverflowCount) ||
+      !json.append(",\"stale_completion_count\":") ||
+      !json.appendNumber(status.staleCompletionCount) ||
       !json.append(",\"active_key_count\":") ||
       !json.appendNumber(status.activeKeyCount) ||
       !json.append(",\"touch_active\":") ||
@@ -441,6 +455,14 @@ bool appendCaptureResult(BoundedJson& json, const Response& response)
          json.append("}");
 }
 
+bool appendLuaReloadResult(BoundedJson& json, const Response& response)
+{
+  return json.append(",\"result\":{\"generation\":") &&
+         json.appendNumber(response.luaReload.generation) &&
+         json.append(",\"state\":") &&
+         json.appendString(response.luaReload.state) && json.append("}");
+}
+
 bool buildResponse(const Response& response, ErrorCode code,
                    const std::string& message, std::size_t maxBytes,
                    std::string* output)
@@ -467,6 +489,8 @@ bool buildResponse(const Response& response, ErrorCode code,
     if (!appendFrameResult(json, response)) return false;
   } else if (response.resultKind == Response::ResultKind::Capture) {
     if (!appendCaptureResult(json, response)) return false;
+  } else if (response.resultKind == Response::ResultKind::LuaReload) {
+    if (!appendLuaReloadResult(json, response)) return false;
   }
 
   if (!json.append("}\n")) return false;
@@ -723,6 +747,15 @@ Response Response::successWithCapture(RequestId id, SessionEpoch epoch,
   Response response = success(id, epoch);
   response.resultKind = ResultKind::Capture;
   response.capture = capture;
+  return response;
+}
+
+Response Response::successWithLuaReload(RequestId id, SessionEpoch epoch,
+                                        const LuaReloadResult& luaReload)
+{
+  Response response = success(id, epoch);
+  response.resultKind = ResultKind::LuaReload;
+  response.luaReload = luaReload;
   return response;
 }
 
@@ -1136,7 +1169,6 @@ TransitionResult SessionState::restartTasksStarted(RequestId id,
   pendingRequests.clear();
   currentEpoch = currentEpoch == 0 ? 1 : currentEpoch + 1;
   activeRequestEpoch = currentEpoch;
-  currentDisplaySequence = 0;
   currentPhase = SessionPhase::Starting;
   return TransitionResult::Applied;
 }

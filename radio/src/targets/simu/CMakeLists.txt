@@ -40,6 +40,12 @@ set(SIMU_DRIVERS
   abnormal_reboot.cpp
 )
 
+set(SIMU_AUTOMATION_NATIVE OFF)
+if(NOT WASI AND NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(SIMU_AUTOMATION_NATIVE ON)
+  list(APPEND SIMU_DRIVERS automation_runtime.cpp)
+endif()
+
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # Pack all simu driver sources into an object lib
@@ -56,6 +62,11 @@ get_property(SIMU_SRC_OPTIONS
 
 target_compile_options(simu_drivers PRIVATE ${SIMU_SRC_OPTIONS})
 set_property(TARGET simu_drivers PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+if(SIMU_AUTOMATION_NATIVE)
+  target_compile_definitions(simu_drivers PRIVATE SIMU_AUTOMATION)
+  target_compile_definitions(radiolib_native PRIVATE SIMU_AUTOMATION)
+endif()
 
 if(SIMU_AUX)
   target_compile_definitions(simu_drivers PRIVATE -DSIMU_COM_PORT=${SIMU_COM_PORT})

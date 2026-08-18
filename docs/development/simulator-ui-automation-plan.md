@@ -1738,48 +1738,224 @@ notification on filesystem work.
 
 ### Phase 6 — State injection and lifecycle
 
-This is deliberately after the core transport/capture path because it crosses
-more ownership boundaries.
+**Implementation status (2026-08-18):** implemented and locally verified on
+the consolidation branch. Maintainer review and post-push CI remain before the
+pull request can be considered merge-ready.
 
-#### 6.1 Add switch control
+This phase deliberately follows transport and capture because it crosses three
+ownership boundaries: synchronous SDL inputs, firmware-owned model/Lua work,
+and process lifecycle. It does not add the Phase 7 flow language, check in a
+large fixture, expose a second Lua API, or change physical firmware behavior.
 
-Resolve canonical names, validate switch type, and test all valid positions.
+#### 6.0 Research, alternatives, and final decisions
 
-#### 6.2 Add atomic analog overrides
+The implementation was re-audited against the two source proposals and primary
+documentation before code was changed:
 
-Add set, replace, clear-one, clear-all, cleanup, and fallback behavior without a
-per-sample mutex.
+| Source | Finding used in Phase 6 |
+|---|---|
+| [PR #7337](https://github.com/EdgeTX/edgetx/pull/7337) | Preserve its generic host-session direction and process cleanup discipline; do not restore its target-specific or blocking command shortcuts |
+| [PR #7646](https://github.com/EdgeTX/edgetx/pull/7646) | Keep its reset, reload, and state-injection requirements; drop the append-file transport and simulator-only Lua table |
+| [SDL simulator loop](https://github.com/EdgeTX/edgetx/blob/main/radio/src/targets/simu/sdl_simu.cpp) | Switch mutation and warm-restart coordination belong on the SDL owner thread |
+| [Simulator lifecycle](https://github.com/EdgeTX/edgetx/blob/main/radio/src/targets/simu/simulib.cpp) | `simuStop()` joins tasks, while `simuStart()` intentionally preserves selected static state; a warm restart is not clean isolation |
+| [Native task shutdown](https://github.com/EdgeTX/edgetx/blob/main/radio/src/tasks.cpp) | Queue reset is safe only after the firmware tasks have been joined |
+| [Firmware periodic path](https://github.com/EdgeTX/edgetx/blob/main/radio/src/main.cpp) | Consume bounded firmware requests immediately before UI work and publish results after the UI cycle |
+| [Switch simulator driver](https://github.com/EdgeTX/edgetx/blob/main/radio/src/targets/simu/switch_driver.cpp) | Reuse `simuSetSwitch`; canonical discovery must still filter unsupported hardware/type combinations |
+| [Telemetry sensor path](https://github.com/EdgeTX/edgetx/blob/main/radio/src/telemetry/telemetry_sensors.cpp) | Reuse `setTelemetryValue(PROTOCOL_TELEMETRY_LUA, ...)` in firmware context rather than duplicate sensor storage logic |
+| [Lua state machine](https://github.com/EdgeTX/edgetx/blob/main/radio/src/lua/interface.cpp) | Completion must observe `INTERPRETER_RUNNING` or `INTERPRETER_PANIC`; posting the reload flag alone is not success |
+| [C++ atomic ordering](https://eel.is/c%2B%2Bdraft/atomics.order) | Publish SPSC slots with release stores and consume them with acquire loads; the ADC override itself is one lock-free packed atomic |
+| [Python subprocess lifecycle](https://docs.python.org/3/library/subprocess.html) | Launch with an argument vector and binary pipes, then always wait/reap after graceful stop, terminate, or kill |
+| [Python `copytree`](https://docs.python.org/3/library/shutil.html#shutil.copytree) | A cold restart receives new settings and SD-card directory trees, not the previous process's writable paths |
+| [Python temporary directories](https://docs.python.org/3/library/tempfile.html) | Allocate a unique run root and remove it if copying or relaunch fails |
 
-#### 6.3 Add firmware mailbox
+The rejected alternatives are intentional:
 
-Implement bounded request/completion queues, per-iteration budget, epoch tags,
-and stale-completion rejection.
+| Decision | Selected | Rejected | Reason |
+|---|---|---|---|
+| Switch surface | Existing stdio command plus `simuSetSwitch` | New Lua `simu` table | One capability-discovered control plane is easier to test and maintain |
+| ADC synchronization | Enabled bit plus `0..4096` in one atomic word | Session mutex in every ADC sample | Sampling remains allocation-free and non-blocking |
+| Firmware crossing | Fixed-capacity SPSC request/completion queues | SDL calling telemetry or writing `luaState` | Model and interpreter mutations retain their current owner |
+| Lua completion | Monotonic generation plus observed terminal state | Delay or immediate acknowledgement | A response proves the requested reload, not merely its scheduling |
+| Automation boot | Existing `simuStart(false)` no-splash/no-calibration/no-checks mode | Declaring the splash framebuffer ready | The firmware periodic loop must own commands before startup readiness is reported; normal simulator startup stays unchanged |
+| Reset semantics | Warm protocol restart and separate cold host restart | Calling both operations “reset” | Their isolation guarantees are materially different |
+| Cold restart return | A newly started `SimulatorSession` | Reusing a closed process object in place | Old reader threads, IDs, diagnostics, and protocol failure state cannot leak |
 
-#### 6.4 Add telemetry injection
+#### 6.1 Synchronous switch control
 
-Execute the existing telemetry/model path from firmware context and verify a
-real widget-visible sensor value using only the writable run fixture.
+1. Build discovery from canonical hardware names and supported switch types.
+2. Advertise only present toggle, two-position, and three-position controls.
+3. Resolve the advertised canonical name on the SDL thread.
+4. Accept `-1` and `1` for toggle/two-position controls; accept `-1`, `0`, and
+   `1` for three-position controls.
+5. Keep the automation value authoritative over the ImGui slider so the next
+   redraw cannot silently overwrite a successful command.
+6. Restore the simulator's up/default position during warm restart.
 
-#### 6.5 Add Lua reload generation
+Unknown names return `unsupported_target`; a valid name with an invalid
+position returns `out_of_range`. No switch command crosses the firmware
+mailbox.
 
-Post a generation, observe existing Lua state transitions, return running or
-panic, and test missing/broken scripts.
+#### 6.2 Lock-free analog overrides
 
-#### 6.6 Add warm restart state machine
+Discovery enumerates canonical `ADC_INPUT_MAIN` and configured
+`ADC_INPUT_FLEX` names and maps each to its flattened ADC index. Each index owns
+one `std::atomic<uint32_t>`:
 
-Require an idle asynchronous slot, release state, purge stale completions,
-stop/join tasks, start, increment epoch, wait for the first new LCD frame, and
-report failure visibly.
+```text
+bit 31       bits 12..0
+enabled      value 0..4096
+```
 
-#### 6.7 Add cold host restart
+- `set-analog` release-stores the complete packed word and replaces any prior
+  value.
+- `simuGetAnalog` acquire-loads once; an enabled word wins, otherwise the
+  existing ImGui/default calculation runs unchanged.
+- `clear-analog <name>` and `clear-analog all` store the disabled word.
+- `release-all`, warm restart, protocol stop, and teardown clear every word.
+- Status counts enabled overrides from atomic snapshots; no counter can drift
+  from the actual slots.
 
-Reap the old process, create a new fixture copy, relaunch, and prove that
-telemetry and overrides do not leak.
+The build asserts that the 32-bit atomic representation is always lock-free on
+the supported native simulator toolchains.
 
-**Tests:** V01–V12, L01–L16.
+#### 6.3 Bounded firmware mailbox
 
-**Exit:** state injection is visible in the UI, Lua completion is observed rather
-than assumed, and warm/cold restart semantics are demonstrably different.
+`AutomationFirmwareMailbox` contains independent 16-entry SPSC rings for
+requests and completions. The SDL thread is the request producer/completion
+consumer; the firmware periodic thread is the request consumer/completion
+producer.
+
+- Slots are fixed POD records: command, request ID, epoch, reload generation,
+  and validated telemetry fields.
+- Producer slot writes happen-before the release publication index; consumers
+  acquire that index before copying a slot.
+- `simuAutomationBeforeUi()` consumes at most two operations per `perMain()`.
+- `simuAutomationAfterUi()` publishes telemetry only after that UI cycle and
+  publishes Lua only after a stable matching state is observed.
+- Only one protocol asynchronous operation can be admitted, so capacity is a
+  protection boundary rather than a throughput target.
+- A completion with the wrong epoch cannot claim the active request; it is
+  discarded and increments `stale_completion_count`.
+- Queue reset occurs only while the firmware tasks are stopped/joined.
+
+#### 6.4 Telemetry injection
+
+`set-telemetry` validates before mailbox admission:
+
+- ID `1..65535`, sub-ID `0..7`, instance `0..255`;
+- signed 32-bit value;
+- stored telemetry unit `UNIT_RAW..UNIT_MAX`;
+- precision `0..2`; and
+- optional `[A-Za-z0-9_-]{1,TELEM_LABEL_LEN}` label.
+
+The firmware hook calls the existing `PROTOCOL_TELEMETRY_LUA` path. On a valid
+sensor index it initializes the model sensor exactly as the Lua API does and
+marks only the copied run model dirty. An explicit automation request
+temporarily enables allocation around that call and restores the interactive
+`allowNewSensors` setting afterward, so the Telemetry screen's Discover toggle
+cannot make a test nondeterministic. Reinjecting an existing tuple updates its
+value without allocating another slot. A genuinely full sensor table returns a
+visible terminal failure. Protocol v1 deliberately has no partial “delete
+sensor” operation: a cold process restart from the immutable template is the
+cleanup boundary.
+
+#### 6.5 Generation-observed Lua reload
+
+The SDL thread assigns a monotonically increasing nonzero generation and posts
+it with the request ID and epoch. The firmware hook sets the existing permanent
+script reload state, then lets the normal `luaTask()` path run. A successful
+terminal response is:
+
+```json
+{"generation":3,"state":"running"}
+```
+
+`panic` produces `lua_panic` with the same generation. A build without Lua does
+not advertise the command and returns `lua_unavailable` if a request reaches
+the mailbox defensively. Status reports `unavailable`, `not_observed`,
+`reloading`, `running`, or `panic` from an atomic firmware-published snapshot.
+
+#### 6.6 Warm restart state machine
+
+`restart` follows one explicit path:
+
+1. Require `Ready`, no pending frame/capture/firmware work, and empty mailbox
+   request/completion queues.
+2. Reserve the asynchronous slot and enter `Restarting`.
+3. Release keys/touch, clear analog overrides, and reset automation switches.
+4. Return control to the SDL coordinator, call `simuStop()`, and wait for its
+   task joins.
+5. Reset mailbox storage only after the join, call `simuStart(false)` to retain
+   deterministic automation startup, and verify the runtime reports started.
+6. Increment the epoch without resetting the process-monotonic
+   `display_seq`.
+7. Complete only on the first subsequent `simuLcdNotify()` and return its new
+   epoch and sequence.
+
+Any other asynchronous command during steps 2–7 receives `operation_busy`.
+Stop/EOF during a restart still follows normal process teardown; it cannot
+pretend that a first-frame barrier completed.
+
+#### 6.7 Cold host restart
+
+`SimulatorSession.restart_process(fixture_root, runs_root)` is the authoritative
+isolation operation:
+
+1. validate immutable `fixture_root/settings` and `fixture_root/sdcard` trees
+   and the destination root before closing the healthy session;
+2. stop and fully reap the old child and join both reader threads;
+3. allocate one unique directory below `runs_root`;
+4. copy both trees and create a new `artifacts` output root;
+5. replace or append the simulator's `--settings` and `--storage` arguments;
+6. construct a new session with the same timeouts and discovery expectations;
+7. launch and wait for normal first-frame readiness; and
+8. remove the newly allocated directory if copy or startup fails.
+
+The method returns the new session; the old object remains closed and cannot be
+requested again. A successful run directory is retained because it contains
+the writable fixture and evidence, while incomplete restart directories are
+removed.
+
+#### 6.8 Implementation order and verification matrix
+
+Implementation is intentionally incremental inside the same branch and PR:
+
+1. tighten protocol validation and add strict Lua/restart result decoding;
+2. implement switch discovery/control and packed analog overrides;
+3. add and unit-test the SPSC mailbox plus the two small `perMain()` hooks;
+4. connect telemetry and generation-observed Lua reload;
+5. connect warm restart and preserve process-monotonic display sequence;
+6. add the cold host restart API and failure cleanup; and
+7. run focused native/host tests, a representative TX16S build, and real
+   simulator checks.
+
+| IDs | Required proof |
+|---|---|
+| V01–V04 | two-position valid/rejected-neutral, three-position all states, absent switch rejection |
+| V05–V08 | analog set, replace, clear-one/all, and unoverridden fallback |
+| V09–V12 | telemetry tuple/range validation, real sensor visibility, and writes confined to a copied fixture |
+| L01–L04 | Lua unavailable, running, panic, and generation correlation |
+| L05–L08 | warm restart first-frame success, epoch increment, monotonic display sequence, stale completion rejection |
+| L09–L12 | restart rejection during frame/capture/mailbox work plus key/touch/analog cleanup |
+| L13–L16 | cold restart uses a new PID and fixture, fully reaps the old child, removes failed run roots, and leaks no override/telemetry state |
+
+Recorded local evidence (2026-08-18):
+
+| Check | Result |
+|---|---|
+| Focused native suite | 38/38 `SimuAutomation*` tests passed under AddressSanitizer, covering protocol, capture/state, mailbox, analog, telemetry, and restart behavior |
+| Host suite | 57/57 Python protocol/session tests passed, including validation and cold-restart cleanup failures |
+| Representative build | The Windows TX16S native simulator compiled and linked; normal startup remains unchanged and automation uses deterministic startup |
+| Real state injection | Discovery reported 8 switches and 13 analogs; two-/three-position switch rules, analog set/replace/clear, telemetry create/update, and observed Lua generation 1 all passed |
+| Warm lifecycle | Epoch advanced from 1 to 2 and the process-monotonic display sequence advanced from 2 to 4 before completion |
+| Cold lifecycle | The replacement session used a new PID and freshly copied settings/SD-card trees after the old child was reaped |
+| Build isolation | Phase 6 runtime code remains behind native simulator guards; no physical firmware or WASM source path was changed |
+
+**Tests:** V01–V12 and L01–L16.
+
+**Exit:** the implemented Phase 6 behavior satisfies the scoped local exit
+criteria. Maintainer review and repository CI remain release gates for the
+consolidated pull request.
 
 ### Phase 7 — Scenario, fixture, and developer UX
 

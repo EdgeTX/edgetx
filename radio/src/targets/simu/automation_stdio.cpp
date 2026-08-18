@@ -13,6 +13,8 @@
 #include <limits>
 #include <utility>
 
+#include "automation_runtime.h"
+
 #if defined(_WIN32)
 #include <io.h>
 #include <windows.h>
@@ -65,6 +67,17 @@ Response captureResponse(const CaptureCompletion& completion)
   }
   return Response::failure(completion.id, completion.epoch,
                            completion.errorCode, completion.message);
+}
+
+std::string defaultTelemetryName(std::uint16_t id)
+{
+  static constexpr char HEX[] = "0123456789ABCDEF";
+  std::string name(MAX_TELEMETRY_LABEL_BYTES, '0');
+  for (std::size_t index = 0; index < name.size(); ++index) {
+    const std::size_t shift = (name.size() - index - 1) * 4;
+    name[index] = HEX[(id >> shift) & 0x0f];
+  }
+  return name;
 }
 
 #if defined(_WIN32)
@@ -149,6 +162,37 @@ bool AutomationStdio::captureConfigured() const { return capture.configured(); }
 
 void AutomationStdio::markRuntimeStarted()
 {
+  simuAutomationRuntimeStart();
+  std::lock_guard<std::mutex> lock(stateMutex);
+  runtimeRunning = true;
+}
+
+bool AutomationStdio::prepareRuntimeRestart(std::string* error)
+{
+  simuAutomationRuntimeResetAfterTaskJoin();
+  AutomationInputHandlers handlers;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    runtimeRunning = false;
+    if (!pendingRestart.active()) {
+      setError(error, "no warm restart is pending");
+      return false;
+    }
+    const TransitionResult transition = sessionState.restartTasksStarted(
+        pendingRestart.id, pendingRestart.epoch);
+    if (transition != TransitionResult::Applied) {
+      setError(error, "cannot arm the restarted runtime epoch");
+      return false;
+    }
+    handlers = inputHandlers;
+  }
+  if (handlers.clearAllAnalogs != nullptr) handlers.clearAllAnalogs();
+  if (handlers.resetSwitches != nullptr) handlers.resetSwitches();
+  return true;
+}
+
+void AutomationStdio::markRuntimeRestarted()
+{
   std::lock_guard<std::mutex> lock(stateMutex);
   runtimeRunning = true;
 }
@@ -156,6 +200,8 @@ void AutomationStdio::markRuntimeStarted()
 void AutomationStdio::markRuntimeStopped()
 {
   capture.shutdown();
+  simuAutomationRuntimeStop();
+  simuAutomationRuntimeResetAfterTaskJoin();
   std::lock_guard<std::mutex> lock(stateMutex);
   runtimeRunning = false;
   sessionState.stop();
@@ -168,9 +214,16 @@ void AutomationStdio::onDisplayFrame(const std::uint16_t* pixels,
   SessionEpoch epoch = 0;
   {
     std::lock_guard<std::mutex> lock(stateMutex);
-    (void)sessionState.onDisplayFrame();
+    const RequestId restarted = sessionState.onDisplayFrame();
     sequence = sessionState.displaySequence();
     epoch = sessionState.epoch();
+    if (restarted != 0 && pendingRestart.active() &&
+        restarted == pendingRestart.id) {
+      completedRestart.id = restarted;
+      completedRestart.epoch = epoch;
+      completedRestart.sequence = sequence;
+      pendingRestart.clear();
+    }
     if (pendingFrameWait.active() && sequence >= pendingFrameWait.minimum) {
       const TransitionResult completion = sessionState.completeAsync(
           pendingFrameWait.id, pendingFrameWait.epoch);
@@ -518,11 +571,29 @@ StdioPumpResult AutomationStdio::processEvent(const LineEvent& event,
       parsed.request.command == Command::TouchUp) {
     return processTouch(parsed.request, error);
   }
+  if (parsed.request.command == Command::SetSwitch) {
+    return processSetSwitch(parsed.request, error);
+  }
+  if (parsed.request.command == Command::SetAnalog) {
+    return processSetAnalog(parsed.request, error);
+  }
+  if (parsed.request.command == Command::ClearAnalog) {
+    return processClearAnalog(parsed.request, error);
+  }
+  if (parsed.request.command == Command::SetTelemetry) {
+    return processSetTelemetry(parsed.request, error);
+  }
+  if (parsed.request.command == Command::ReloadLua) {
+    return processReloadLua(parsed.request, error);
+  }
   if (parsed.request.command == Command::WaitFrame) {
     return processWaitFrame(parsed.request, error);
   }
   if (parsed.request.command == Command::Capture) {
     return processCapture(parsed.request, error);
+  }
+  if (parsed.request.command == Command::Restart) {
+    return processRestart(parsed.request, error);
   }
   if (parsed.request.command == Command::ReleaseAll) {
     return processReleaseAll(parsed.request, error);
@@ -696,6 +767,291 @@ StdioPumpResult AutomationStdio::processTouch(const Request& request,
   return emitResponse(response, error);
 }
 
+StdioPumpResult AutomationStdio::processSetSwitch(const Request& request,
+                                                  std::string* error)
+{
+  const std::int32_t position = parseValidatedSigned(request.arguments[1]);
+  Response response;
+  bool admitted = false;
+  bool (*handler)(const std::string&, std::int8_t) = nullptr;
+  SessionEpoch epoch = 0;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    epoch = sessionState.epoch();
+    const auto target = std::find_if(targetDescription.switches.begin(),
+                                     targetDescription.switches.end(),
+                                     [&request](const NamedRange& item) {
+                                       return item.name == request.arguments[0];
+                                     });
+    if (target == targetDescription.switches.end()) {
+      response = Response::failure(
+          request.id, epoch, ErrorCode::UnsupportedTarget,
+          "switch is not supported by this target: " + request.arguments[0]);
+    } else if (position < -1 || position > 1) {
+      response = Response::failure(request.id, epoch, ErrorCode::OutOfRange,
+                                   "switch position must be -1, 0, or 1");
+    } else if (inputHandlers.setSwitch == nullptr) {
+      response =
+          Response::failure(request.id, epoch, ErrorCode::UnsupportedCommand,
+                            "switch input is not available");
+    } else if (sessionState.phase() != SessionPhase::Ready ||
+               sessionState.asyncOperation() != AsyncOperation::None) {
+      response = Response::failure(request.id, epoch,
+                                   sessionState.phase() == SessionPhase::Stopped
+                                       ? ErrorCode::SessionStopping
+                                       : ErrorCode::OperationBusy,
+                                   "session is not ready for switch input");
+    } else {
+      handler = inputHandlers.setSwitch;
+      admitted = true;
+    }
+  }
+
+  if (admitted) {
+    if (handler(request.arguments[0], static_cast<std::int8_t>(position))) {
+      response = Response::success(request.id, epoch);
+    } else {
+      response = Response::failure(
+          request.id, epoch, ErrorCode::OutOfRange,
+          "switch position is not supported by this switch type");
+    }
+  }
+  return emitResponse(response, error);
+}
+
+StdioPumpResult AutomationStdio::processSetAnalog(const Request& request,
+                                                  std::string* error)
+{
+  const std::uint16_t value =
+      static_cast<std::uint16_t>(parseValidatedUnsigned(request.arguments[1]));
+  Response response;
+  bool admitted = false;
+  bool (*handler)(const std::string&, std::uint16_t) = nullptr;
+  SessionEpoch epoch = 0;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    epoch = sessionState.epoch();
+    const auto target = std::find_if(targetDescription.analogs.begin(),
+                                     targetDescription.analogs.end(),
+                                     [&request](const NamedRange& item) {
+                                       return item.name == request.arguments[0];
+                                     });
+    if (target == targetDescription.analogs.end()) {
+      response = Response::failure(
+          request.id, epoch, ErrorCode::UnsupportedTarget,
+          "analog is not supported by this target: " + request.arguments[0]);
+    } else if (inputHandlers.setAnalog == nullptr) {
+      response =
+          Response::failure(request.id, epoch, ErrorCode::UnsupportedCommand,
+                            "analog override is not available");
+    } else if (sessionState.phase() != SessionPhase::Ready ||
+               sessionState.asyncOperation() != AsyncOperation::None) {
+      response = Response::failure(request.id, epoch,
+                                   sessionState.phase() == SessionPhase::Stopped
+                                       ? ErrorCode::SessionStopping
+                                       : ErrorCode::OperationBusy,
+                                   "session is not ready for analog input");
+    } else {
+      handler = inputHandlers.setAnalog;
+      admitted = true;
+    }
+  }
+
+  if (admitted) {
+    response =
+        handler(request.arguments[0], value)
+            ? Response::success(request.id, epoch)
+            : Response::failure(request.id, epoch, ErrorCode::UnsupportedTarget,
+                                "cannot resolve the analog input");
+  }
+  return emitResponse(response, error);
+}
+
+StdioPumpResult AutomationStdio::processClearAnalog(const Request& request,
+                                                    std::string* error)
+{
+  Response response;
+  bool admitted = false;
+  bool clearAll = request.arguments[0] == "all";
+  bool (*handler)(const std::string&) = nullptr;
+  void (*allHandler)() = nullptr;
+  SessionEpoch epoch = 0;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    epoch = sessionState.epoch();
+    const auto target = std::find_if(targetDescription.analogs.begin(),
+                                     targetDescription.analogs.end(),
+                                     [&request](const NamedRange& item) {
+                                       return item.name == request.arguments[0];
+                                     });
+    if (!clearAll && target == targetDescription.analogs.end()) {
+      response = Response::failure(
+          request.id, epoch, ErrorCode::UnsupportedTarget,
+          "analog is not supported by this target: " + request.arguments[0]);
+    } else if ((clearAll && inputHandlers.clearAllAnalogs == nullptr) ||
+               (!clearAll && inputHandlers.clearAnalog == nullptr)) {
+      response =
+          Response::failure(request.id, epoch, ErrorCode::UnsupportedCommand,
+                            "analog override is not available");
+    } else if (sessionState.phase() != SessionPhase::Ready ||
+               sessionState.asyncOperation() != AsyncOperation::None) {
+      response = Response::failure(request.id, epoch,
+                                   sessionState.phase() == SessionPhase::Stopped
+                                       ? ErrorCode::SessionStopping
+                                       : ErrorCode::OperationBusy,
+                                   "session is not ready for analog input");
+    } else {
+      handler = inputHandlers.clearAnalog;
+      allHandler = inputHandlers.clearAllAnalogs;
+      admitted = true;
+    }
+  }
+
+  if (admitted) {
+    if (clearAll) {
+      allHandler();
+      response = Response::success(request.id, epoch);
+    } else {
+      response = handler(request.arguments[0])
+                     ? Response::success(request.id, epoch)
+                     : Response::failure(request.id, epoch,
+                                         ErrorCode::UnsupportedTarget,
+                                         "cannot resolve the analog input");
+    }
+  }
+  return emitResponse(response, error);
+}
+
+StdioPumpResult AutomationStdio::processSetTelemetry(const Request& request,
+                                                     std::string* error)
+{
+  static_assert(MAX_TELEMETRY_LABEL_BYTES == TELEM_LABEL_LEN,
+                "protocol and model telemetry labels must match");
+
+  FirmwareRequest firmwareRequest;
+  firmwareRequest.operation = FirmwareOperation::Telemetry;
+  firmwareRequest.id = request.id;
+  firmwareRequest.telemetryId =
+      static_cast<std::uint16_t>(parseValidatedUnsigned(request.arguments[0]));
+  firmwareRequest.telemetrySubId =
+      static_cast<std::uint8_t>(parseValidatedUnsigned(request.arguments[1]));
+  firmwareRequest.telemetryInstance =
+      static_cast<std::uint8_t>(parseValidatedUnsigned(request.arguments[2]));
+  firmwareRequest.telemetryValue = parseValidatedSigned(request.arguments[3]);
+  firmwareRequest.telemetryUnit =
+      static_cast<std::uint8_t>(parseValidatedUnsigned(request.arguments[4]));
+  firmwareRequest.telemetryPrecision =
+      static_cast<std::uint8_t>(parseValidatedUnsigned(request.arguments[5]));
+  const std::string telemetryName =
+      request.arguments.size() == 7
+          ? request.arguments[6]
+          : defaultTelemetryName(firmwareRequest.telemetryId);
+  std::memcpy(firmwareRequest.telemetryName, telemetryName.data(),
+              telemetryName.size());
+
+  Response response;
+  SessionEpoch epoch = 0;
+  bool reserved = false;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    epoch = sessionState.epoch();
+    firmwareRequest.epoch = epoch;
+    if (firmwareRequest.telemetryUnit > UNIT_MAX) {
+      response = Response::failure(request.id, epoch, ErrorCode::OutOfRange,
+                                   "telemetry unit is not supported");
+    } else if (!targetDescription.capabilities.telemetry) {
+      response =
+          Response::failure(request.id, epoch, ErrorCode::UnsupportedCommand,
+                            "telemetry injection is not available");
+    } else if (sessionState.phase() != SessionPhase::Ready) {
+      response = Response::failure(request.id, epoch,
+                                   sessionState.phase() == SessionPhase::Stopped
+                                       ? ErrorCode::SessionStopping
+                                       : ErrorCode::OperationBusy,
+                                   "session is not ready for firmware work");
+    } else if (sessionState.beginAsync(AsyncOperation::Firmware, request.id) !=
+               TransitionResult::Applied) {
+      response = Response::failure(request.id, epoch, ErrorCode::OperationBusy,
+                                   "an asynchronous operation is active");
+    } else {
+      pendingFirmware.id = request.id;
+      pendingFirmware.epoch = epoch;
+      pendingFirmware.operation = AsyncOperation::Firmware;
+      reserved = true;
+    }
+  }
+
+  if (!reserved) return emitResponse(response, error);
+  if (simuAutomationPostFirmwareRequest(firmwareRequest))
+    return StdioPumpResult::Continue;
+
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    (void)sessionState.cancelAsync();
+    pendingFirmware.clear();
+  }
+  return emitResponse(
+      Response::failure(request.id, epoch, ErrorCode::FirmwareQueueFull,
+                        "firmware request mailbox is full"),
+      error);
+}
+
+StdioPumpResult AutomationStdio::processReloadLua(const Request& request,
+                                                  std::string* error)
+{
+  FirmwareRequest firmwareRequest;
+  firmwareRequest.operation = FirmwareOperation::ReloadLua;
+  firmwareRequest.id = request.id;
+
+  Response response;
+  SessionEpoch epoch = 0;
+  bool reserved = false;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    epoch = sessionState.epoch();
+    firmwareRequest.epoch = epoch;
+    if (!targetDescription.capabilities.lua) {
+      response = Response::failure(request.id, epoch, ErrorCode::LuaUnavailable,
+                                   "Lua is not available on this target");
+    } else if (nextLuaGeneration == 0) {
+      response =
+          Response::failure(request.id, epoch, ErrorCode::InvariantViolation,
+                            "Lua reload generation space is exhausted");
+    } else if (sessionState.phase() != SessionPhase::Ready) {
+      response = Response::failure(request.id, epoch,
+                                   sessionState.phase() == SessionPhase::Stopped
+                                       ? ErrorCode::SessionStopping
+                                       : ErrorCode::OperationBusy,
+                                   "session is not ready for Lua reload");
+    } else if (sessionState.beginAsync(AsyncOperation::ReloadLua, request.id) !=
+               TransitionResult::Applied) {
+      response = Response::failure(request.id, epoch, ErrorCode::OperationBusy,
+                                   "an asynchronous operation is active");
+    } else {
+      firmwareRequest.generation = nextLuaGeneration++;
+      pendingFirmware.id = request.id;
+      pendingFirmware.epoch = epoch;
+      pendingFirmware.operation = AsyncOperation::ReloadLua;
+      pendingFirmware.generation = firmwareRequest.generation;
+      reserved = true;
+    }
+  }
+
+  if (!reserved) return emitResponse(response, error);
+  if (simuAutomationPostFirmwareRequest(firmwareRequest))
+    return StdioPumpResult::Continue;
+
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    (void)sessionState.cancelAsync();
+    pendingFirmware.clear();
+  }
+  return emitResponse(
+      Response::failure(request.id, epoch, ErrorCode::FirmwareQueueFull,
+                        "firmware request mailbox is full"),
+      error);
+}
+
 StdioPumpResult AutomationStdio::processWaitFrame(const Request& request,
                                                   std::string* error)
 {
@@ -798,6 +1154,57 @@ StdioPumpResult AutomationStdio::processCapture(const Request& request,
   return StdioPumpResult::Continue;
 }
 
+StdioPumpResult AutomationStdio::processRestart(const Request& request,
+                                                std::string* error)
+{
+  const bool firmwareIdle = simuAutomationFirmwareIdle();
+  Response response;
+  SessionEpoch epoch = 0;
+  bool reserved = false;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    epoch = sessionState.epoch();
+    if (!targetDescription.capabilities.warmRestart) {
+      response =
+          Response::failure(request.id, epoch, ErrorCode::UnsupportedCommand,
+                            "warm restart is not available");
+    } else if (sessionState.phase() != SessionPhase::Ready) {
+      response = Response::failure(request.id, epoch,
+                                   sessionState.phase() == SessionPhase::Stopped
+                                       ? ErrorCode::SessionStopping
+                                       : ErrorCode::OperationBusy,
+                                   "session is not ready for warm restart");
+    } else if (sessionState.asyncOperation() != AsyncOperation::None ||
+               pendingFrameWait.active() || completedFrameWait.active() ||
+               pendingFirmware.active() || completedRestart.active()) {
+      response = Response::failure(request.id, epoch, ErrorCode::OperationBusy,
+                                   "an asynchronous operation is active");
+    } else if (!firmwareIdle) {
+      response = Response::failure(request.id, epoch, ErrorCode::OperationBusy,
+                                   "firmware mailbox is not idle");
+    } else if (sessionState.beginAsync(AsyncOperation::Restart, request.id) !=
+               TransitionResult::Applied) {
+      response =
+          Response::failure(request.id, epoch, ErrorCode::InvariantViolation,
+                            "cannot reserve the warm restart");
+    } else {
+      pendingRestart.id = request.id;
+      pendingRestart.epoch = epoch;
+      reserved = true;
+    }
+  }
+
+  if (!reserved) return emitResponse(response, error);
+  releaseInputs();
+  AutomationInputHandlers handlers;
+  {
+    std::lock_guard<std::mutex> lock(stateMutex);
+    handlers = inputHandlers;
+  }
+  if (handlers.resetSwitches != nullptr) handlers.resetSwitches();
+  return StdioPumpResult::RestartRequested;
+}
+
 StdioPumpResult AutomationStdio::processReleaseAll(const Request& request,
                                                    std::string* error)
 {
@@ -813,6 +1220,8 @@ StdioPumpResult AutomationStdio::processStop(const Request& request,
   CompletedFrameWait frameCompletion;
   Response frameCancellation;
   bool frameCancelled = false;
+  Response firmwareCancellation;
+  bool firmwareCancelled = false;
   SessionEpoch epoch = 0;
   {
     std::lock_guard<std::mutex> lock(stateMutex);
@@ -839,6 +1248,14 @@ StdioPumpResult AutomationStdio::processStop(const Request& request,
           "frame barrier cancelled because the session is stopping");
       frameCancelled = true;
     }
+    if (pendingFirmware.active()) {
+      firmwareCancellation = Response::failure(
+          pendingFirmware.id, pendingFirmware.epoch, ErrorCode::SessionStopping,
+          "firmware operation cancelled because the session is stopping");
+      (void)sessionState.cancelAsync();
+      pendingFirmware.clear();
+      firmwareCancelled = true;
+    }
   }
 
   releaseInputs();
@@ -851,6 +1268,10 @@ StdioPumpResult AutomationStdio::processStop(const Request& request,
   }
   if (frameCancelled) {
     const StdioPumpResult result = emitResponse(frameCancellation, error);
+    if (result != StdioPumpResult::Continue) return result;
+  }
+  if (firmwareCancelled) {
+    const StdioPumpResult result = emitResponse(firmwareCancellation, error);
     if (result != StdioPumpResult::Continue) return result;
   }
   if (hasCaptureCompletion) {
@@ -868,6 +1289,78 @@ StdioPumpResult AutomationStdio::processStop(const Request& request,
 
 StdioPumpResult AutomationStdio::drainCompletedResponses(std::string* error)
 {
+  FirmwareCompletion firmwareCompletion;
+  while (simuAutomationTakeFirmwareCompletion(&firmwareCompletion)) {
+    bool matched = false;
+    {
+      std::lock_guard<std::mutex> lock(stateMutex);
+      const bool generationMatches =
+          pendingFirmware.operation != AsyncOperation::ReloadLua ||
+          pendingFirmware.generation == firmwareCompletion.generation;
+      const bool operationMatches =
+          (pendingFirmware.operation == AsyncOperation::Firmware &&
+           firmwareCompletion.operation == FirmwareOperation::Telemetry) ||
+          (pendingFirmware.operation == AsyncOperation::ReloadLua &&
+           firmwareCompletion.operation == FirmwareOperation::ReloadLua);
+      if (!pendingFirmware.active() ||
+          pendingFirmware.id != firmwareCompletion.id ||
+          pendingFirmware.epoch != firmwareCompletion.epoch ||
+          firmwareCompletion.epoch != sessionState.epoch() ||
+          !generationMatches || !operationMatches) {
+        incrementSaturating(&staleCompletionCount);
+      } else {
+        const TransitionResult transition = sessionState.completeAsync(
+            firmwareCompletion.id, firmwareCompletion.epoch);
+        if (transition == TransitionResult::Applied) {
+          pendingFirmware.clear();
+          matched = true;
+        } else {
+          incrementSaturating(&staleCompletionCount);
+        }
+      }
+    }
+    if (!matched) continue;
+
+    Response response;
+    if (firmwareCompletion.code == FirmwareCompletionCode::None &&
+        firmwareCompletion.operation == FirmwareOperation::Telemetry) {
+      response =
+          Response::success(firmwareCompletion.id, firmwareCompletion.epoch);
+    } else if (firmwareCompletion.code == FirmwareCompletionCode::None &&
+               firmwareCompletion.operation == FirmwareOperation::ReloadLua &&
+               firmwareCompletion.luaState == AutomationLuaState::Running) {
+      LuaReloadResult luaReload;
+      luaReload.generation = firmwareCompletion.generation;
+      luaReload.state = automationLuaStateName(firmwareCompletion.luaState);
+      response = Response::successWithLuaReload(
+          firmwareCompletion.id, firmwareCompletion.epoch, luaReload);
+    } else if (firmwareCompletion.code ==
+               FirmwareCompletionCode::TelemetryUnavailable) {
+      response = Response::failure(
+          firmwareCompletion.id, firmwareCompletion.epoch,
+          ErrorCode::UnsupportedTarget,
+          "no telemetry sensor slot is available in the run fixture");
+    } else if (firmwareCompletion.code ==
+               FirmwareCompletionCode::LuaUnavailable) {
+      response = Response::failure(
+          firmwareCompletion.id, firmwareCompletion.epoch,
+          ErrorCode::LuaUnavailable, "Lua is not available on this target");
+    } else if (firmwareCompletion.code == FirmwareCompletionCode::LuaPanic) {
+      response = Response::failure(
+          firmwareCompletion.id, firmwareCompletion.epoch, ErrorCode::LuaPanic,
+          "Lua reload generation " +
+              std::to_string(firmwareCompletion.generation) +
+              " reached interpreter panic");
+    } else {
+      response = Response::failure(
+          firmwareCompletion.id, firmwareCompletion.epoch,
+          ErrorCode::InternalError, "firmware operation did not complete");
+    }
+
+    const StdioPumpResult result = emitResponse(response, error);
+    if (result != StdioPumpResult::Continue) return result;
+  }
+
   CaptureCompletion captureCompletion;
   if (capture.takeCompletion(&captureCompletion)) {
     {
@@ -887,15 +1380,32 @@ StdioPumpResult AutomationStdio::drainCompletedResponses(std::string* error)
   }
 
   CompletedFrameWait completion;
+  CompletedRestart restartCompletion;
   {
     std::lock_guard<std::mutex> lock(stateMutex);
-    if (!completedFrameWait.active()) return StdioPumpResult::Continue;
-    completion = completedFrameWait;
-    completedFrameWait.clear();
+    if (completedFrameWait.active()) {
+      completion = completedFrameWait;
+      completedFrameWait.clear();
+    }
+    if (completedRestart.active()) {
+      restartCompletion = completedRestart;
+      completedRestart.clear();
+    }
   }
-  return emitResponse(Response::successWithFrame(
-                          completion.id, completion.epoch, completion.sequence),
-                      error);
+  if (completion.active()) {
+    const StdioPumpResult result =
+        emitResponse(Response::successWithFrame(completion.id, completion.epoch,
+                                                completion.sequence),
+                     error);
+    if (result != StdioPumpResult::Continue) return result;
+  }
+  if (restartCompletion.active()) {
+    return emitResponse(Response::successWithFrame(restartCompletion.id,
+                                                   restartCompletion.epoch,
+                                                   restartCompletion.sequence),
+                        error);
+  }
+  return StdioPumpResult::Continue;
 }
 
 void AutomationStdio::releaseInputs()
@@ -915,6 +1425,7 @@ void AutomationStdio::releaseInputs()
     for (const std::string& key : keys) handlers.setKey(key, false);
   }
   if (touchActive && handlers.touchUp != nullptr) handlers.touchUp();
+  if (handlers.clearAllAnalogs != nullptr) handlers.clearAllAnalogs();
 }
 
 bool AutomationStdio::supportsCommand(Command command) const
@@ -957,6 +1468,10 @@ SessionEpoch AutomationStdio::currentEpoch() const
 
 Response AutomationStdio::makeStatusResponse(RequestId id) const
 {
+  const std::size_t firmwareDepth = simuAutomationFirmwareRequestDepth() +
+                                    simuAutomationFirmwareCompletionDepth();
+  const std::size_t analogCount = simuAutomationAnalogOverrideCount();
+  const std::string luaState = automationLuaStateName(simuAutomationLuaState());
   std::lock_guard<std::mutex> lock(stateMutex);
   StatusSnapshot status;
   status.running = runtimeRunning;
@@ -967,8 +1482,12 @@ Response AutomationStdio::makeStatusResponse(RequestId id) const
       pendingEvents.size() + sessionState.queuedRequestCount();
   status.lineOverflowCount = lineOverflowCount;
   status.queueOverflowCount = queueOverflowCount;
+  status.staleCompletionCount = staleCompletionCount;
   status.activeKeyCount = sessionState.activeKeyCount();
   status.touchActive = sessionState.isTouchActive();
+  status.firmwareMailboxDepth = firmwareDepth;
+  status.analogOverrideCount = analogCount;
+  status.luaState = luaState;
   return Response::successWithStatus(id, sessionState.epoch(), status,
                                      targetDescription);
 }

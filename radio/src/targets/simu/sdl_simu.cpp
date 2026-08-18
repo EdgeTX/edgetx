@@ -28,6 +28,7 @@
 #include <imgui_impl_sdlrenderer2.h>
 
 #include <algorithm>
+#include <array>
 #include <cstdint>
 #include <cstdio>
 #include <iostream>
@@ -37,6 +38,7 @@
 #include <regex>
 #include <string>
 
+#include "analogs.h"
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
 #include "hal/switch_driver.h"
@@ -82,6 +84,7 @@
 
 #include "arg_parser.h"
 #if !defined(__EMSCRIPTEN__)
+#include "automation_runtime.h"
 #include "automation_stdio.h"
 #endif
 
@@ -90,6 +93,13 @@
 static SDL_Window* window;
 static SDL_Renderer* renderer;
 static SDL_Texture* screen_frame_buffer;
+static constexpr std::int8_t AUTOMATION_SWITCH_DISABLED = 2;
+static std::array<int, MAX_SWITCHES> simu_switch_slider_positions{};
+static std::array<std::int8_t, MAX_SWITCHES> automation_switch_positions = [] {
+  std::array<std::int8_t, MAX_SWITCHES> positions{};
+  positions.fill(AUTOMATION_SWITCH_DISABLED);
+  return positions;
+}();
 
 #if !defined(__EMSCRIPTEN__)
 static edgetx::automation::AutomationStdio* automation_stdio_instance = nullptr;
@@ -116,6 +126,73 @@ static void automationSetKey(const std::string& name, bool pressed)
       return;
     }
   }
+}
+
+static int automationAnalogIndex(const std::string& name)
+{
+  const std::uint8_t types[] = {ADC_INPUT_MAIN, ADC_INPUT_FLEX};
+  for (const std::uint8_t type : types) {
+    const std::uint8_t count = adcGetMaxInputs(type);
+    const std::uint8_t offset = adcGetInputOffset(type);
+    for (std::uint8_t index = 0; index < count; ++index) {
+      const char* canonical = analogGetCanonicalName(type, index);
+      if (canonical != nullptr && name == canonical) return offset + index;
+    }
+  }
+  return -1;
+}
+
+static bool automationSetSwitch(const std::string& name, std::int8_t position)
+{
+  for (std::uint8_t index = 0; index < switchGetMaxSwitches(); ++index) {
+    const char* canonical = switchGetDefaultName(index);
+    if (canonical == nullptr || name != canonical ||
+        switchIsCustomSwitch(index))
+      continue;
+
+    const SwitchConfig config = switchGetDefaultConfig(index);
+    if (config == SWITCH_NONE || (position == 0 && config != SWITCH_3POS)) {
+      return false;
+    }
+    automation_switch_positions[index] = position;
+    simu_switch_slider_positions[index] = position < 0    ? 0
+                                          : position == 0 ? 1
+                                                          : 2;
+    simuSetSwitch(index, position);
+    return true;
+  }
+  return false;
+}
+
+static void automationResetSwitches()
+{
+  automation_switch_positions.fill(AUTOMATION_SWITCH_DISABLED);
+  simu_switch_slider_positions.fill(0);
+  for (std::uint8_t index = 0; index < switchGetMaxSwitches(); ++index) {
+    if (!switchIsCustomSwitch(index) &&
+        switchGetDefaultConfig(index) != SWITCH_NONE) {
+      simuSetSwitch(index, -1);
+    }
+  }
+}
+
+static bool automationSetAnalog(const std::string& name, std::uint16_t value)
+{
+  const int index = automationAnalogIndex(name);
+  return index >= 0 && edgetx::automation::simuAutomationSetAnalogOverride(
+                           static_cast<std::size_t>(index), value);
+}
+
+static bool automationClearAnalog(const std::string& name)
+{
+  const int index = automationAnalogIndex(name);
+  return index >= 0 && edgetx::automation::simuAutomationClearAnalogOverride(
+                           static_cast<std::size_t>(index));
+}
+
+static void automationClearAnalogs()
+{
+  edgetx::automation::simuAutomationClearAnalogOverrides();
 }
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
@@ -151,6 +228,39 @@ static edgetx::automation::TargetDescription automationTargetDescription(
   for (const AutomationKey& key : AUTOMATION_KEYS) {
     if (keyIsSupported(key.key)) target.keys.emplace_back(key.name);
   }
+  for (std::uint8_t index = 0; index < switchGetMaxSwitches(); ++index) {
+    if (switchIsCustomSwitch(index)) continue;
+    const SwitchConfig config = switchGetDefaultConfig(index);
+    const char* name = switchGetDefaultName(index);
+    if (name == nullptr || (config != SWITCH_TOGGLE && config != SWITCH_2POS &&
+                            config != SWITCH_3POS)) {
+      continue;
+    }
+    target.switches.push_back({name, -1, 1});
+  }
+  if (!target.switches.empty()) {
+    target.capabilities.switches = true;
+    target.commands.push_back(edgetx::automation::Command::SetSwitch);
+  }
+  const std::uint8_t analogTypes[] = {ADC_INPUT_MAIN, ADC_INPUT_FLEX};
+  for (const std::uint8_t type : analogTypes) {
+    for (std::uint8_t index = 0; index < adcGetMaxInputs(type); ++index) {
+      const char* name = analogGetCanonicalName(type, index);
+      if (name != nullptr && name[0] != '\0')
+        target.analogs.push_back({name, 0, 4096});
+    }
+  }
+  if (!target.analogs.empty()) {
+    target.capabilities.analog = true;
+    target.commands.push_back(edgetx::automation::Command::SetAnalog);
+    target.commands.push_back(edgetx::automation::Command::ClearAnalog);
+  }
+  target.capabilities.telemetry = true;
+  target.commands.push_back(edgetx::automation::Command::SetTelemetry);
+#if defined(LUA)
+  target.capabilities.lua = true;
+  target.commands.push_back(edgetx::automation::Command::ReloadLua);
+#endif
   if (!target.keys.empty()) {
     target.commands.push_back(edgetx::automation::Command::KeyDown);
     target.commands.push_back(edgetx::automation::Command::KeyUp);
@@ -170,7 +280,10 @@ static edgetx::automation::TargetDescription automationTargetDescription(
     target.capabilities.capture = true;
     target.commands.push_back(edgetx::automation::Command::Capture);
   }
-  if (!target.keys.empty() || target.capabilities.touch)
+  target.capabilities.warmRestart = true;
+  target.commands.push_back(edgetx::automation::Command::Restart);
+  if (!target.keys.empty() || target.capabilities.touch ||
+      target.capabilities.analog)
     target.commands.push_back(edgetx::automation::Command::ReleaseAll);
   target.commands.push_back(edgetx::automation::Command::Stop);
   // Capability flags describe commands that are usable through this protocol
@@ -183,6 +296,11 @@ static edgetx::automation::AutomationInputHandlers automationInputHandlers()
 {
   edgetx::automation::AutomationInputHandlers handlers;
   handlers.setKey = automationSetKey;
+  handlers.setSwitch = automationSetSwitch;
+  handlers.setAnalog = automationSetAnalog;
+  handlers.clearAnalog = automationClearAnalog;
+  handlers.clearAllAnalogs = automationClearAnalogs;
+  handlers.resetSwitches = automationResetSwitches;
 #if defined(ROTARY_ENCODER_NAVIGATION)
   handlers.rotate = automationRotate;
 #endif
@@ -423,8 +541,6 @@ static void draw_switches()
 
   ImGui::PushID("switches");
   {
-    static int switches[MAX_SWITCHES] = {0};
-
     ImGui::BeginGroup();
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(spacing, spacing));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
@@ -437,12 +553,19 @@ static void draw_switches()
       if (!switchIsCustomSwitch(i)) {
         if (++sw_idx >= MAX_SWITCHES / 2) sw_idx = 0;
         if (!SWITCH_EXISTS(i)) {
-          switches[i] = 0;
+          simu_switch_slider_positions[i] = 0;
           ImGui::Dummy(sw_size);
         } else {
+          if (automation_switch_positions[i] != AUTOMATION_SWITCH_DISABLED) {
+            const std::int8_t position = automation_switch_positions[i];
+            simu_switch_slider_positions[i] = position < 0    ? 0
+                                                : position == 0 ? 1
+                                                                : 2;
+          }
           ImGui::PushID(i);
           ImGui::VSliderInt("##sw", sw_size,
-                            &switches[i], IS_CONFIG_3POS(i) ? 2 : 1,
+                            &simu_switch_slider_positions[i],
+                            IS_CONFIG_3POS(i) ? 2 : 1,
                             0, "", ImGuiSliderFlags_NoInput);
           if (ImGui::IsItemActive() || ImGui::IsItemHovered()) {
             ImGui::SetTooltip("%s", switchGetDefaultName(i));
@@ -450,10 +573,14 @@ static void draw_switches()
           ImGui::PopID();
         }
         
-        if (IS_CONFIG_3POS(i)) {
-          simuSetSwitch(i, switches[i] == 0 ? -1 : switches[i] == 1 ? 0 : 1);
+        if (automation_switch_positions[i] != AUTOMATION_SWITCH_DISABLED) {
+          simuSetSwitch(i, automation_switch_positions[i]);
+        } else if (IS_CONFIG_3POS(i)) {
+          simuSetSwitch(i, simu_switch_slider_positions[i] == 0
+                               ? -1
+                               : simu_switch_slider_positions[i] == 1 ? 0 : 1);
         } else {
-          simuSetSwitch(i, switches[i] == 0 ? -1 : 1);
+          simuSetSwitch(i, simu_switch_slider_positions[i] == 0 ? -1 : 1);
         }
       }
     }
@@ -933,10 +1060,14 @@ int main(int argc, char* argv[])
     automation_stdio.setTargetDescription(
         automationTargetDescription(automation_stdio.captureConfigured()));
     automation_stdio.setInputHandlers(automationInputHandlers());
+    automationResetSwitches();
     automation_stdio_instance = &automation_stdio;
   }
 #endif
-  simuStart();
+  // Automation must reach the periodic firmware loop without interactive
+  // splash, calibration, or startup checks. Normal simulator runs keep the
+  // existing startup behavior.
+  simuStart(!args.isAutomationStdio());
 #if !defined(__EMSCRIPTEN__)
   if (args.isAutomationStdio()) automation_stdio.markRuntimeStarted();
 #endif
@@ -966,6 +1097,24 @@ int main(int argc, char* argv[])
         fprintf(stderr, "Automation error: %s\n", automation_error.c_str());
         exit_code = 1;
         break;
+      }
+      if (automation_result ==
+          edgetx::automation::StdioPumpResult::RestartRequested) {
+        simuStop();
+        if (!automation_stdio.prepareRuntimeRestart(&automation_error)) {
+          fprintf(stderr, "Automation restart error: %s\n",
+                  automation_error.c_str());
+          exit_code = 1;
+          break;
+        }
+        simuStart(false);
+        if (!simuIsRunning()) {
+          fprintf(stderr, "Automation restart error: simulator did not start\n");
+          exit_code = 1;
+          break;
+        }
+        automation_stdio.markRuntimeRestarted();
+        continue;
       }
       if (automation_result != edgetx::automation::StdioPumpResult::Continue) {
         break;
@@ -1012,6 +1161,14 @@ int main(int argc, char* argv[])
 
 uint16_t simuGetAnalog(uint8_t idx)
 {
+#if !defined(__EMSCRIPTEN__)
+  std::uint16_t automationValue = 0;
+  if (edgetx::automation::simuAutomationGetAnalogOverride(idx,
+                                                           &automationValue)) {
+    return automationValue;
+  }
+#endif
+
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   if (idx < max_sticks) {
     switch(idx) {

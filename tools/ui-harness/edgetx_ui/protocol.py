@@ -113,6 +113,7 @@ class Status:
     firmware_mailbox_depth: int
     line_overflow_count: int
     queue_overflow_count: int
+    stale_completion_count: int
     active_key_count: int
     touch_active: bool
     analog_override_count: int
@@ -125,6 +126,13 @@ class Status:
 class FrameBarrier:
     epoch: int
     display_sequence: int
+
+
+@dataclass(frozen=True)
+class LuaReload:
+    epoch: int
+    generation: int
+    state: str
 
 
 @dataclass(frozen=True)
@@ -258,6 +266,7 @@ def decode_status(response: Response) -> Status:
             "firmware_mailbox_depth",
             "line_overflow_count",
             "queue_overflow_count",
+            "stale_completion_count",
             "active_key_count",
             "touch_active",
             "analog_override_count",
@@ -313,6 +322,9 @@ def decode_status(response: Response) -> Status:
         queue_overflow_count=_uint64(
             result.get("queue_overflow_count"), "queue overflow count"
         ),
+        stale_completion_count=_uint64(
+            result.get("stale_completion_count"), "stale completion count"
+        ),
         active_key_count=_uint64(
             result.get("active_key_count"), "active key count"
         ),
@@ -337,6 +349,33 @@ def decode_frame(response: Response) -> FrameBarrier:
             result.get("display_seq"), "wait-frame display sequence"
         ),
     )
+
+
+def decode_restart(response: Response) -> FrameBarrier:
+    """Validate the first-frame result of a successful warm restart."""
+
+    result = _successful_result(response, "restart")
+    _require_exact_keys(result, {"display_seq"}, "restart result")
+    return FrameBarrier(
+        epoch=response.epoch,
+        display_sequence=_uint64(
+            result.get("display_seq"), "restart display sequence"
+        ),
+    )
+
+
+def decode_lua_reload(response: Response) -> LuaReload:
+    """Validate a generation-correlated successful Lua reload."""
+
+    result = _successful_result(response, "reload-lua")
+    _require_exact_keys(result, {"generation", "state"}, "reload-lua result")
+    state = result.get("state")
+    if state != "running":
+        raise ProtocolViolation("reload-lua terminal state is invalid")
+    generation = _uint64(result.get("generation"), "Lua reload generation")
+    if generation == 0:
+        raise ProtocolViolation("Lua reload generation must be nonzero")
+    return LuaReload(epoch=response.epoch, generation=generation, state=state)
 
 
 def decode_capture(response: Response) -> CaptureArtifact:
