@@ -14,6 +14,7 @@ from edgetx_ui.protocol import (  # noqa: E402
     Event,
     ProtocolViolation,
     Response,
+    decode_capture,
     decode_description,
     decode_frame,
     decode_status,
@@ -278,6 +279,70 @@ class FrameResultTests(unittest.TestCase):
             with self.subTest(result=result):
                 with self.assertRaises(ProtocolViolation):
                     decode_frame(self.response(result))
+
+
+class CaptureResultTests(unittest.TestCase):
+    @staticmethod
+    def response(result: object) -> Response:
+        message = parse_message(
+            encoded(
+                {
+                    "version": 1,
+                    "type": "response",
+                    "id": 9,
+                    "ok": True,
+                    "epoch": 4,
+                    "result": result,
+                }
+            )
+        )
+        assert isinstance(message, Response)
+        return message
+
+    @staticmethod
+    def valid_result() -> dict[str, object]:
+        return {
+            "display_seq": 42,
+            "path": "checkpoints/home screen.ppm",
+            "width": 480,
+            "height": 272,
+            "depth": 16,
+            "bytes": 391695,
+        }
+
+    def test_decodes_exact_capture_metadata(self) -> None:
+        artifact = decode_capture(self.response(self.valid_result()))
+
+        self.assertEqual(artifact.epoch, 4)
+        self.assertEqual(artifact.display_sequence, 42)
+        self.assertEqual(artifact.path, "checkpoints/home screen.ppm")
+        self.assertEqual((artifact.width, artifact.height), (480, 272))
+        self.assertEqual(artifact.depth, 16)
+        self.assertEqual(artifact.byte_count, 391695)
+
+    def test_rejects_noncanonical_or_inconsistent_capture_metadata(self) -> None:
+        mutations = (
+            ("missing", None),
+            ("extra", 1),
+            ("display_seq", 0),
+            ("display_seq", True),
+            ("path", "../escape.ppm"),
+            ("path", "/absolute.ppm"),
+            ("path", "C:/rooted.ppm"),
+            ("path", "wrong.PNG"),
+            ("depth", 1),
+            ("width", 0),
+            ("bytes", 391694),
+        )
+        for field, value in mutations:
+            result = self.valid_result()
+            if field == "missing":
+                del result["path"]
+            else:
+                result[field] = value
+            with self.subTest(field=field, value=value):
+                with self.assertRaises(ProtocolViolation):
+                    decode_capture(self.response(result))
 
 
 if __name__ == "__main__":

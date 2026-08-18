@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import sys
 import time
+from pathlib import Path, PurePosixPath
 from typing import Any, Dict, List, Optional
 
 
@@ -25,7 +26,11 @@ def emit(payload: Dict[str, Any], *, fragmented: bool = False) -> None:
 
 
 def is_phase4(mode: str) -> bool:
-    return mode.startswith("phase4")
+    return mode.startswith("phase4") or mode.startswith("phase5")
+
+
+def is_phase5(mode: str) -> bool:
+    return mode.startswith("phase5")
 
 
 def capabilities(mode: str) -> Dict[str, bool]:
@@ -36,7 +41,7 @@ def capabilities(mode: str) -> Dict[str, bool]:
         "analog": False,
         "telemetry": False,
         "lua": False,
-        "capture": False,
+        "capture": is_phase5(mode),
         "warm_restart": False,
     }
 
@@ -58,6 +63,8 @@ def description(mode: str) -> Dict[str, Any]:
             "release-all",
             "stop",
         ]
+        if is_phase5(mode):
+            commands.insert(-2, "capture")
     if mode == "missing-command":
         commands.remove("status")
     result: Dict[str, Any] = {
@@ -148,6 +155,7 @@ def phase4_response(
     mode: str,
     status_poll: int,
     state: Dict[str, Any],
+    output_root: Path,
 ) -> Dict[str, Any]:
     payload = response(request_id, command, mode, status_poll, state)
     payload["epoch"] = 1
@@ -195,6 +203,27 @@ def phase4_response(
         if mode == "phase4-bad-frame" and minimum > 0:
             completed = minimum - 1
         payload["result"] = {"display_seq": completed}
+    elif command == "capture":
+        relative_path = " ".join(arguments)
+        target = output_root.joinpath(*PurePosixPath(relative_path).parts)
+        state["display_seq"] = int(state["display_seq"]) + 1
+        rgb = b"\x20\x40\x60"
+        if "ENTER" in state["keys"]:
+            rgb = b"\xe0\x30\x10"
+        header = b"P6\n480 272\n255\n"
+        with target.open("xb") as stream:
+            stream.write(header)
+            stream.write(rgb * (480 * 272))
+        payload["result"] = {
+            "display_seq": state["display_seq"],
+            "path": relative_path,
+            "width": 480,
+            "height": 272,
+            "depth": 16,
+            "bytes": len(header) + 480 * 272 * 3,
+        }
+        if mode == "phase5-bad-capture":
+            payload["result"]["display_seq"] -= 1
     elif command not in (
         "ping",
         "status",
@@ -215,6 +244,10 @@ def main() -> int:
         "touch": False,
         "display_seq": 1,
     }
+    output_root = Path.cwd()
+    if "--automation-output" in sys.argv:
+        output_index = sys.argv.index("--automation-output") + 1
+        output_root = Path(sys.argv[output_index]).resolve(strict=True)
 
     for raw_line in sys.stdin.buffer:
         fields = raw_line.decode("utf-8").rstrip("\n").split(" ")
@@ -278,6 +311,7 @@ def main() -> int:
                     mode,
                     status_poll,
                     state,
+                    output_root,
                 )
             )
             if command == "stop":

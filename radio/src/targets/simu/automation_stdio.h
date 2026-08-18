@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 
+#include "automation_capture.h"
 #include "automation_protocol.h"
 
 namespace edgetx
@@ -52,9 +53,13 @@ class AutomationStdio
   StdioPumpResult pump(std::string* error);
   void setTargetDescription(const TargetDescription& target);
   void setInputHandlers(const AutomationInputHandlers& handlers);
+  bool configureCapture(const std::string& outputRoot, std::uint16_t width,
+                        std::uint16_t height, std::uint8_t depth,
+                        std::string* error);
+  bool captureConfigured() const;
   void markRuntimeStarted();
   void markRuntimeStopped();
-  void onDisplayFrame();
+  void onDisplayFrame(const std::uint16_t* pixels, std::size_t pixelCount);
 
  private:
   enum class ReadResult {
@@ -80,6 +85,7 @@ class AutomationStdio
   StdioPumpResult processRotate(const Request& request, std::string* error);
   StdioPumpResult processTouch(const Request& request, std::string* error);
   StdioPumpResult processWaitFrame(const Request& request, std::string* error);
+  StdioPumpResult processCapture(const Request& request, std::string* error);
   StdioPumpResult processReleaseAll(const Request& request, std::string* error);
   StdioPumpResult processStop(const Request& request, std::string* error);
   StdioPumpResult drainCompletedResponses(std::string* error);
@@ -127,6 +133,7 @@ class AutomationStdio
   std::deque<LineEvent> pendingEvents;
   mutable std::mutex stateMutex;
   SessionState sessionState;
+  AutomationCapture capture;
   TargetDescription targetDescription;
   AutomationInputHandlers inputHandlers;
   PendingFrameWait pendingFrameWait;

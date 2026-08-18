@@ -144,6 +144,15 @@ struct StatusSnapshot {
   std::string luaState = "unavailable";
 };
 
+struct CaptureResult {
+  DisplaySequence displaySequence = 0;
+  std::string path;
+  std::uint16_t width = 0;
+  std::uint16_t height = 0;
+  std::uint8_t depth = 0;
+  std::uint64_t bytes = 0;
+};
+
 struct Request {
   RequestId id = 0;
   Command command = Command::Ping;
@@ -217,6 +226,7 @@ struct Response {
     Status,
     Description,
     Frame,
+    Capture,
   };
 
   RequestId id = 0;
@@ -228,6 +238,7 @@ struct Response {
   StatusSnapshot status;
   TargetDescription target;
   DisplaySequence frameSequence = 0;
+  CaptureResult capture;
 
   static Response success(RequestId id, SessionEpoch epoch);
   static Response successWithStatus(RequestId id, SessionEpoch epoch,
@@ -237,6 +248,8 @@ struct Response {
                                          const TargetDescription& target);
   static Response successWithFrame(RequestId id, SessionEpoch epoch,
                                    DisplaySequence displaySequence);
+  static Response successWithCapture(RequestId id, SessionEpoch epoch,
+                                     const CaptureResult& capture);
   static Response failure(RequestId id, SessionEpoch epoch, ErrorCode code,
                           const std::string& message);
 };
