@@ -144,8 +144,16 @@ void TextEdit::update()
     std::string s(text, length);
     setText(s);
   } else {
-    setText("---");
+    setText(placeholder);
   }
+}
+
+void TextEdit::setPlaceholder(const char* p)
+{
+  placeholder = p ? p : "";
+  // apply live: the edit overlay may already exist (even be open)
+  if (edit) lv_textarea_set_placeholder_text(edit->getLvObj(), placeholder.c_str());
+  update();
 }
 
 void TextEdit::openEdit()
@@ -155,6 +163,7 @@ void TextEdit::openEdit()
                         {-(PAD_MEDIUM + 2), -(PAD_BORDER * 2),
                           lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)},
                         text, length);
+    lv_textarea_set_placeholder_text(edit->getLvObj(), placeholder.c_str());
     edit->setChangeHandler([=]() {
       update();
       if (updateHandler) updateHandler();
@@ -165,6 +174,8 @@ void TextEdit::openEdit()
       lv_group_focus_obj(lvobj);
       edit->hide();
     });
+    // forward the keyboard "Enter" key to this TextEdit's own enter handler
+    edit->setEnterHandler([=]() { onEnter(); });
   }
   edit->update();
   edit->show();
