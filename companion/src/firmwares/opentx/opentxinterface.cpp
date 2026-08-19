@@ -805,6 +805,13 @@ void registerOpenTxFirmwares()
   firmware->addOption(opt_nogps);
   registerOpenTxFirmware(firmware);
 
+  /* Radiomaster GX10 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("gx10"), Firmware::tr("Radiomaster GX10"), BOARD_RADIOMASTER_GX10);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+  firmware->addOptionsGroup({opt_internal_gps});
+  registerOpenTxFirmware(firmware);
+
   /* Radiomaster TX16S board */
   firmware = new OpenTxFirmware(FIRMWAREID("tx16s"), Firmware::tr("TX16S / SE / Hall / Masterfire"), BOARD_RADIOMASTER_TX16S);
   addOpenTxFrskyOptions(firmware);

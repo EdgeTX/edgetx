@@ -46,6 +46,7 @@ jobs:
           - t22 # Jumper
           - gx12;mt12 # RadioMaster
           - tx15 # RadioMaster
+          - gx10 # RadioMaster
           - tx16s;tx16smk3 # RadioMaster
           - h17 # Senduwing
           - t18h7 # Jumper
