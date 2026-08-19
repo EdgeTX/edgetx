@@ -41,7 +41,7 @@ PrefsEditDialog::PrefsEditDialog(QWidget * parent, UpdateFactories * factories) 
   ui->setupUi(this);
   setWindowIcon(CompanionIcon("apppreferences.png"));
   setAttribute(Qt::WA_DeleteOnClose);
-  restoreGeometry(g.prefsEditGeo());
+  bool hasSavedGeo = restoreGeometry(g.prefsEditGeo());
 
   PrefsProfilePanel *prefsProfPanel = new PrefsProfilePanel(this, firmware, board, profile);
   PrefsPanel *profPanel = addTab(prefsProfPanel, tr("Radio Profile"));
@@ -62,7 +62,7 @@ PrefsEditDialog::PrefsEditDialog(QWidget * parent, UpdateFactories * factories) 
   connect(prefsProfPanel, &PrefsProfilePanel::sdPathChanged, prefsUpdatePanel, &PrefsUpdatePanel::onSDPathChanged);
 
   ui->tabWidget->setCurrentIndex(0);
-  shrink();
+  if (!hasSavedGeo) shrink();
 }
 
 PrefsEditDialog::~PrefsEditDialog()
@@ -159,5 +159,20 @@ void PrefsEditDialog::setMainWinHasDirtyChild(bool value)
 
  void PrefsEditDialog::shrink()
 {
+// adjustSize() only accounts for the currently visible tab, since
+// QStackedWidget doesn't lay out hidden pages. Walk every tab once so
+// each panel reports its real size hint, and size the dialog to fit
+// the largest one so switching tabs later doesn't resize the window.
+  QSize maxHint;
+  const int current = ui->tabWidget->currentIndex();
+
+  for (int i = 0; i < ui->tabWidget->count(); i++) {
+    ui->tabWidget->setCurrentIndex(i);
+    ui->tabWidget->currentWidget()->adjustSize();
+    maxHint = maxHint.expandedTo(ui->tabWidget->currentWidget()->sizeHint());
+  }
+
+  ui->tabWidget->setCurrentIndex(current);
   adjustSize();
+  resize(maxHint.expandedTo(size()));
 }
