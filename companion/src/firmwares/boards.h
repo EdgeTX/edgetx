@@ -896,6 +896,7 @@ inline bool IS_STM32H7(Board::Type board)
          IS_JUMPER_T22(board) ||
          IS_RADIOMASTER_TX15(board) ||
          IS_RADIOMASTER_TX16SMK3(board) ||
+         IS_RADIOMASTER_GX15(board) ||
          IS_IFLIGHT_C14(board);
 }
 
