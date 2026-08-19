@@ -25,7 +25,7 @@
 #include "board.h"
 #include "hal/usb_driver.h"
 
-  #if defined(USB_CHARGE_CONTROL)
+#if defined(USB_CHARGE_CONTROL)
 void usbChargerEnableCharge(bool enable)
 {
   if (enable)
