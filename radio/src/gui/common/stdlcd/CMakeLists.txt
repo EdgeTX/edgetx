@@ -46,6 +46,13 @@ if(GHOST)
     )
 endif()
 
+if(CROSSFIRE AND CRSF_CONFIG_MENU)
+  set(GUI_SRC
+    ${GUI_SRC}
+    ../common/stdlcd/radio_crsf_config.cpp
+    )
+endif()
+
 if(PXX2 OR MULTIMODULE)
   set(GUI_SRC
     ${GUI_SRC}

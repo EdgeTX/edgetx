@@ -60,6 +60,7 @@ else()
 endif()
 option(AUDIO "Enable audio" ON)
 option(EXFAT "Enable exFAT filesystem support in FatFs" OFF)
+option(CRSF_CONFIG_MENU "Native CRSF device configuration menu" ON)
 
 if(NATIVE_BUILD)
   option(ALL_LANGUAGES "Enable runtime language selection" ON)

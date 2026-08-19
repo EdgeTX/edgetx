@@ -124,6 +124,17 @@ class ModuleWindow : public Window
     moduleUpdateMsg.subscribe(Messaging::MODULE_UPDATE, [=](uint32_t param) { updateLayout(); });
   }
 
+#if defined(CRSF_CONFIG_MENU)
+  ~ModuleWindow()
+  {
+    // the ELRS bind loop does not clear itself the way the one-shot
+    // CRSF bind does: leaving the page must not keep the module binding
+    if (isModuleCrossfire(moduleIdx) &&
+        moduleState[moduleIdx].mode == MODULE_MODE_BIND)
+      moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+  }
+#endif
+
   void updateModule()
   {
     FlexGridLayout grid(col_dsc, row_dsc, PAD_TINY);

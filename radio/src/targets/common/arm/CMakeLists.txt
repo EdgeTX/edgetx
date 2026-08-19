@@ -256,6 +256,13 @@ if(CROSSFIRE)
     ${SRC}
     telemetry/crossfire.cpp
     )
+  if(CRSF_CONFIG_MENU)
+    add_definitions(-DCRSF_CONFIG_MENU)
+    set(SRC
+      ${SRC}
+      telemetry/crsf_device_config.cpp
+      )
+  endif()
 endif()
 
 if(MULTIMODULE OR AFHDS3)

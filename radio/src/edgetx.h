@@ -607,6 +607,10 @@ constexpr uint8_t TEXT_FILENAME_MAXLEN = 40;
   #include "telemetry/ghost_menu.h"
 #endif
 
+#if defined(CRSF_CONFIG_MENU) && !defined(COLORLCD)
+  #include "telemetry/crsf_device_config.h"
+#endif
+
 // Re-useable byte array to save having multiple buffers
 union ReusableBuffer
 {
@@ -741,6 +745,10 @@ union ReusableBuffer
     uint8_t menuAction;
     uint8_t buttonAction;
   } ghostMenu;
+#endif
+
+#if defined(CRSF_CONFIG_MENU) && !defined(COLORLCD)
+  CrsfMenuState crsfConfig;
 #endif
 
   struct {

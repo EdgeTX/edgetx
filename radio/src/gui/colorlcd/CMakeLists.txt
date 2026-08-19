@@ -146,6 +146,9 @@ endif()
 
 if(CROSSFIRE)
   add_gui_src(module/crossfire_settings.cpp)
+  if(CRSF_CONFIG_MENU)
+    add_gui_src(radio/radio_crsf_config.cpp)
+  endif()
 endif()
 
 if(AFHDS2)
