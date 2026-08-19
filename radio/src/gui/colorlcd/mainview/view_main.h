@@ -54,7 +54,7 @@ class ViewMain : public NavWindow
   void enableTopbar();
   void disableTopbar();
   void updateTopbarVisibility();
-  bool enableWidgetSelect(bool enable);
+  void enableWidgetSelect(bool enable);
 
   // Get the available space in the middle of the screen
   // (without topbar)
@@ -87,6 +87,8 @@ class ViewMain : public NavWindow
   void runBackground();
   void refreshWidgetSelectTimer();
 
+  static void checkWidgetSelectTimeout();
+
  protected:
   static ViewMain* _instance;
 
@@ -94,7 +96,7 @@ class ViewMain : public NavWindow
   lv_obj_t* tile_view = nullptr;
   TopBar* topbar = nullptr;
   bool widget_select = false;
-  lv_timer_t* widget_select_timer = nullptr;
+  tmr10ms_t widgetSelectCancelTime = 0;
   ViewMainMenu* viewMainMenu = nullptr;
 
   // Widget setup requires special permissions ;-)
@@ -105,7 +107,7 @@ class ViewMain : public NavWindow
   void setTopbarVisible(float visible);
   void setEdgeTxButtonVisible(float visible);
 
-  static void ws_timer(lv_timer_t* t);
+  void _checkWidgetSelectTimeout();
 
 #if defined(HARDWARE_KEYS)
   void onPressSYS() override;
