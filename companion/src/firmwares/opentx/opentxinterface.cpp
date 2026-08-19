@@ -336,7 +336,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
               IS_JUMPER_T15H7(board) || IS_JUMPER_T18H7(board) ||
               IS_FLYSKY_PA01(board) || IS_FLYSKY_ST16(board) ||
               IS_RADIOMASTER_TX16SMK3(board) || IS_JUMPER_T22(board)) || IS_RADIOMASTER_GX15(board) ||
-             IS_SENDUWING_H17(board);
+             IS_SENDUWING_H17(board) || IS_RADIOMASTER_GX10(board);
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
     case HasIntModuleMulti:
@@ -903,6 +903,13 @@ void registerOpenTxFirmwares()
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   firmware->addOptionsGroup({opt_bt, opt_internal_gps});
+  registerOpenTxFirmware(firmware);
+
+  /* Radiomaster GX10 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("gx10"), Firmware::tr("Radiomaster GX10"), BOARD_RADIOMASTER_GX10);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+  firmware->addOptionsGroup({opt_internal_gps});
   registerOpenTxFirmware(firmware);
 
   /* Radiomaster TX16S board */
