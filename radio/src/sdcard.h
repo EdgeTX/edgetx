@@ -120,7 +120,7 @@ const char YAMLFILE_CHECKSUM_TAG_NAME[] = "checksum";
 extern uint8_t logDelay100ms;
 void logsInit();
 void logsClose();
-void logsWrite();
+void logsHandle();
 
 void sdInit();
 void sdMount();
