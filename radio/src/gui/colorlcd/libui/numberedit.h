@@ -40,7 +40,11 @@ class NumberEdit : public TextButton
 
   virtual void update();
 
+  int32_t getMin() const { return vmin; }
   int32_t getMax() const { return vmax; }
+  bool hasDecimalPrecision() const;
+  bool useDirectKeyboard() const;
+  const std::string& getEditTitle() const { return editTitle; }
 
   void setMin(int value) { vmin = value; }
   void setMax(int value) { vmax = value; }
@@ -76,8 +80,13 @@ class NumberEdit : public TextButton
   void setDisplayHandler(std::function<std::string(int value)> function)
   {
     displayFunction = std::move(function);
+    // Custom display strings are not always safe to parse as direct numeric input.
+    directKeyboard = displayFunction == nullptr;
     update();
   }
+
+  void setDirectKeyboard(bool value) { directKeyboard = value; }
+  void setEditTitle(std::string value) { editTitle = std::move(value); }
 
   void setSetValueHandler(std::function<void(int)> handler)
   {
@@ -95,6 +104,9 @@ class NumberEdit : public TextButton
   }
 
   int32_t getValue() const { return _getValue != nullptr ? _getValue() : 0; }
+  std::string getDisplayVal() const;
+  std::string getEditVal() const;
+  void setValueFromEditVal(const char* text);
 
  protected:
   friend class NumberArea;
@@ -115,8 +127,8 @@ class NumberEdit : public TextButton
   std::string zeroText;
   std::function<std::string(int)> displayFunction;
   std::function<bool(int)> isValueAvailable;
-
-  std::string getDisplayVal();
+  bool directKeyboard = true;
+  std::string editTitle;
 
   void updateDisplay();
   void openEdit();

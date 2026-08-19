@@ -168,6 +168,7 @@ class Window
   virtual bool isNavWindow() { return false; }
   virtual bool isPageGroup() { return false; }
   virtual bool isBubblePopup() { return false; }
+  virtual const char* getFormFieldTitle() const { return nullptr; }
 
   void setFlexLayout(lv_flex_flow_t flow = LV_FLEX_FLOW_COLUMN,
                      lv_coord_t padding = PAD_TINY, coord_t width = LV_PCT(100),
@@ -287,12 +288,15 @@ class SetupLine : public Window
  public:
   SetupLine(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const char* title,
     std::function<void(SetupLine*, coord_t, coord_t)> createEdit, coord_t lblYOffset = 0);
+  const std::string& getTitle() const { return titleText; }
+  const char* getFormFieldTitle() const override { return titleText.c_str(); }
 
   static coord_t showLines(Window* parent, coord_t y, coord_t col2, PaddingSize padding, const SetupLineDef* setupLines);
 
   Messaging setupMsg;
 
  protected:
+  std::string titleText;
 };
 
 //-----------------------------------------------------------------------------

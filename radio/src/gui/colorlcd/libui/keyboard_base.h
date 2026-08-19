@@ -25,7 +25,7 @@ class FormField;
 class Keyboard : public NavWindow
 {
  public:
-  explicit Keyboard(coord_t height);
+  explicit Keyboard(coord_t height, bool fullScreen = false);
   ~Keyboard();
 
   void clearField(bool wasCancelled);
@@ -44,6 +44,7 @@ class Keyboard : public NavWindow
   Window* fieldContainer = nullptr;
   lv_group_t* fieldGroup = nullptr;
   lv_coord_t scroll_pos = 0;
+  bool fullScreen = false;
 
   void setField(FormField* newField);
   bool attachKeyboard();
