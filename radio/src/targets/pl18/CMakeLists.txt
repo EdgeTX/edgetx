@@ -1,4 +1,3 @@
-option(DISK_CACHE "Enable SD card disk cache" OFF)
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(STICK_DEAD_ZONE "Enable sticks dead zone" ON)
 option(PXX1 "PXX1 protocol support" ON)
@@ -136,7 +135,7 @@ add_definitions(-DCROSSFIRE_NATIVE)
 add_definitions(-DHARDWARE_EXTERNAL_MODULE)
 
 if(PREFER_SDIO)
-  if(HAS_SDIO)  
+  if(HAS_SDIO)
     set(STORAGE_USE_SDIO ON)
   endif()
 endif()
@@ -234,7 +233,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/diskio_spi_flash.cpp
-  drivers/frftl.cpp  
+  drivers/frftl.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
