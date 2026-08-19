@@ -977,8 +977,7 @@ bool isExternalModuleAvailable(int moduleType)
   if (moduleType == MODULE_TYPE_R9M_PXX1 ||
       moduleType == MODULE_TYPE_R9M_PXX2 ||
       moduleType == MODULE_TYPE_XJT_PXX1 ||
-      moduleType == MODULE_TYPE_DSM2
-    )
+      moduleType == MODULE_TYPE_DSM2)
     return false;
 #endif
 
@@ -1016,7 +1015,7 @@ bool isExternalModuleAvailable(int moduleType)
 #endif
 
 #if !defined(DSMP)
-  if (moduleType == MODULE_TYPE_LEMON_DSMP) return false;
+  if (moduleType == MODULE_TYPE_DSMP) return false;
 #endif
 
 #if !defined(SBUS)
