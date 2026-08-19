@@ -185,7 +185,7 @@
   // Switches
   #define SWITCHES_A_2POS
   #define SWITCHES_B_2POS
-  
+
   // Keys
   #define KEYS_GPIO_PIN_ENTER
   #define KEYS_GPIO_REG_ENTER
@@ -207,7 +207,7 @@
   #define ADC_CHANNEL_POT1              LL_ADC_CHANNEL_12   // ADC123_IN12 -> ADC1_IN12
   #define ADC_CHANNEL_POT2              LL_ADC_CHANNEL_7    // ADC12_IN7 -> ADC1_IN7
   #define ADC_CHANNEL_RAW1              LL_ADC_CHANNEL_11   // ADC123_IN11 -> ADC1_IN11
-  #define ADC_CHANNEL_RAW2              LL_ADC_CHANNEL_10   // ADC123_IN10 -> ADC1_IN10  
+  #define ADC_CHANNEL_RAW2              LL_ADC_CHANNEL_10   // ADC123_IN10 -> ADC1_IN10
   #define ADC_CHANNEL_RAW3              LL_ADC_CHANNEL_6    // ADC12_IN6 -> ADC1_IN6
   #define ADC_CHANNEL_RAW4              LL_ADC_CHANNEL_14   // ADC12_IN14 -> ADC1_IN14
   #define ADC_CHANNEL_BATT              LL_ADC_CHANNEL_15   // ADC12_IN15  -> ADC1_IN15
@@ -646,7 +646,7 @@
 #define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
 #define USB_GPIO_AF                     GPIO_AF10
 
-#if defined(RADIO_NV14_FAMILY) 
+#if defined(RADIO_NV14_FAMILY)
   #define USB_GPIO_VBUS                 GPIO_PIN(GPIOA, 9)  // PA.09
   #define USB_SW_GPIO                   GPIO_PIN(GPIOI, 10) // PI.10
 #elif defined(RADIO_PL18U)
@@ -725,12 +725,6 @@
 #define FLASH_SPI_DMA_CHANNEL          LL_DMA_CHANNEL_1
 #define FLASH_SPI_DMA_TX_STREAM        LL_DMA_STREAM_5
 #define FLASH_SPI_DMA_RX_STREAM        LL_DMA_STREAM_6
-
-#if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U)
-  #define STORAGE_USE_SDIO
-#else
-  #define STORAGE_USE_SPI_FLASH
-#endif
 
 // SDRAM
 #define SDRAM_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH)
