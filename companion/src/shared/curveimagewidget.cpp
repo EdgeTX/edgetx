@@ -81,7 +81,7 @@ void CurveImageWidget::draw()
 
     QImage image = curveImage->get();
     if (index < 0)
-      image = image.flipped(Qt::Horizontal);
+      image = image.mirrored(true, false);
     setPixmap(QPixmap::fromImage(image.scaled(height(), width())));
 
     delete curveImage;
