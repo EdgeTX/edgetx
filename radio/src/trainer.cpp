@@ -112,6 +112,10 @@ void stopTrainer()
     case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
       trainer_stop_module_sbus();
       break;
+
+    case TRAINER_MODE_LUA:
+      memset(trainerInput, 0, sizeof(trainerInput));
+      break;
   }
 
   if (_on_change_cb) {
@@ -148,6 +152,10 @@ void checkTrainerSettings()
 
       case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
         trainer_init_module_sbus();
+        break;
+
+      case TRAINER_MODE_LUA:
+        // Software-only mode: no hardware init needed
         break;
     }
 
