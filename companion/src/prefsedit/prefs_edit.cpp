@@ -41,7 +41,6 @@ PrefsEditDialog::PrefsEditDialog(QWidget * parent, UpdateFactories * factories) 
   ui->setupUi(this);
   setWindowIcon(CompanionIcon("apppreferences.png"));
   setAttribute(Qt::WA_DeleteOnClose);
-  bool hasSavedGeo = restoreGeometry(g.prefsEditGeo());
 
   PrefsProfilePanel *prefsProfPanel = new PrefsProfilePanel(this, firmware, board, profile);
   PrefsPanel *profPanel = addTab(prefsProfPanel, tr("Radio Profile"));
@@ -61,8 +60,9 @@ PrefsEditDialog::PrefsEditDialog(QWidget * parent, UpdateFactories * factories) 
   addTab(prefsUpdatePanel, tr("Update"));
   connect(prefsProfPanel, &PrefsProfilePanel::sdPathChanged, prefsUpdatePanel, &PrefsUpdatePanel::onSDPathChanged);
 
-  ui->tabWidget->setCurrentIndex(0);
+  bool hasSavedGeo = restoreGeometry(g.prefsEditGeo());
   if (!hasSavedGeo) shrink();
+  ui->tabWidget->setCurrentIndex(0);
 }
 
 PrefsEditDialog::~PrefsEditDialog()
@@ -73,6 +73,8 @@ PrefsEditDialog::~PrefsEditDialog()
 void PrefsEditDialog::accept()
 {
   save();
+
+  if (!isMaximized()) g.prefsEditGeo(saveGeometry());
 }
 
 PrefsPanel * PrefsEditDialog::addTab(PrefsPanel * panel, QString text)
@@ -88,8 +90,9 @@ void PrefsEditDialog::closeEvent(QCloseEvent *event)
 {
   maybeSave();
 
-  if (!isMaximized())
-    g.prefsEditGeo(saveGeometry());
+  if (!isMaximized()) g.prefsEditGeo(saveGeometry());
+
+  QDialog::closeEvent(event);
 }
 
 void PrefsEditDialog::maybeSave()
@@ -107,6 +110,9 @@ void PrefsEditDialog::maybeSave()
 void PrefsEditDialog::reject()
 {
   maybeSave();
+
+  if (!isMaximized()) g.prefsEditGeo(saveGeometry());
+
   QDialog::reject();
 }
 
