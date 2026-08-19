@@ -410,7 +410,7 @@ void ModulePanel::update()
         mask |= MASK_CHANNELS_RANGE| MASK_CHANNELS_COUNT | MASK_FAILSAFES | MASK_AFHDS;
         break;
       case PULSES_LEMON_DSMP:
-        mask |= MASK_CHANNELS_RANGE | MASK_ENABLE_AETR;
+        mask |= MASK_CHANNELS_RANGE | MASK_CHANNELS_COUNT | MASK_ENABLE_AETR;
         break;
       default:
         break;
