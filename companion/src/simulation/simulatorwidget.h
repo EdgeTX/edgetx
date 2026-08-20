@@ -142,7 +142,7 @@ class SimulatorWidget : public QWidget
     QString sdCardPath;
     QString radioDataPath;
     QByteArray startupData;
-    Board::Type m_board;
+    Boards * m_board;
     quint8 flags;
     int radioProfileId;
     bool startupFromFile = false;

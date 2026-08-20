@@ -1,0 +1,8 @@
+{
+  "basedOn": [
+    "radiomaster",
+    "flexsw"
+  ],
+  "id": "tx16s",
+  "name": "TX16S"
+}

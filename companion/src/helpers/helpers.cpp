@@ -907,3 +907,24 @@ void StatusDialog::update(QString text)
 {
   msg->setText(text);
 }
+
+float ValToTim(int value)
+{
+   return ((value < -109 ? 129 + value : (value < 7 ? (113 + value) * 5 : (53 + value) * 10)) / 10.0);
+}
+
+int TimToVal(float value)
+{
+  int temp;
+  if (value > 60) {
+    temp = 136 + round((value - 60));
+  }
+  else if (value > 2) {
+    temp = 20 + round((value - 2.0) * 2.0);
+  }
+  else {
+    temp = round(value * 10.0);
+  }
+  return (temp - 129);
+}
+

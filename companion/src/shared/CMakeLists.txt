@@ -31,6 +31,7 @@ set(${PROJECT_NAME}_NAMES
   abstractpanel
   genericpanel
   firmwarepicker
+  exclusivecombogroup
 )
 
 AddHeadersSources()
@@ -56,6 +57,8 @@ set(${PROJECT_NAME}_SRCS
   curveimage.cpp
   semanticversion.h
   semanticversion.cpp
+  widgetbindings.h
+  widgetbindings.cpp
   widgetbindings.h
   widgetbindings.cpp
 )
