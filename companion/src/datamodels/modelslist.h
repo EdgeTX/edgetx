@@ -83,7 +83,7 @@ class ModelsListModel : public QAbstractItemModel
     struct MimeHeaderData {
       QUuid instanceId{};
       quint16 dataVersion{0};
-      Board::Type board{Board::BOARD_UNKNOWN};
+      QString board{Board::BOARD_UNKNOWN};
     };
 
     ModelsListModel(RadioData * radioData, QObject *parent = nullptr);
@@ -118,7 +118,7 @@ class ModelsListModel : public QAbstractItemModel
     QMimeData * getHeaderMimeData(QMimeData * mimeData = nullptr) const;
     QMimeData * getFileMimeData(QMimeData * mimeData = nullptr) const;
     QUuid getMimeDataSourceId(const QMimeData * mimeData) const;
-    Board::Type getMimeDataBoard(const QMimeData * mimeData) const;
+    QString getMimeDataBoard(const QMimeData * mimeData) const;
 
     bool hasSupportedMimeData(const QMimeData * mimeData) const;
     bool hasModelsMimeData(const QMimeData * mimeData) const;

@@ -24,7 +24,7 @@
 #include "helpers.h"
 
 QString SourceNumRef::toString(const ModelData * model, const GeneralSettings * const generalSettings,
-                     Board::Type board, bool prefixCustomName) const
+                     QString board, bool prefixCustomName) const
 {
   if (srcNum.type == SOURCE_TYPE_NONE)
     return QString::number(srcNum.index);

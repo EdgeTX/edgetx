@@ -35,6 +35,7 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
   ui(new Ui::FlightMode),
   phaseIdx(phaseIdx),
   phase(model.flightModeData[phaseIdx]),
+  board(firmware->getBoard()),
   radioMode(radioMode)
 {
   ui->setupUi(this);
@@ -44,9 +45,8 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
   ui->labelName->setToolTip(tr("Popup menu available"));
   connect(ui->labelName, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(onCustomContextMenuRequested(const QPoint &)));
 
-  board = firmware->getBoard();
   fmCount = firmware->getCapability(FlightModes);
-  trimCount = Boards::getCapability(board, Board::NumTrims);
+  trimCount = board->getCapability(Capability::NumTrims);
   gvCount = firmware->getCapability(Gvars);
 
   ui->name->setValidator(new NameValidator(board, this));
@@ -76,11 +76,11 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
   // The trims
   QString labels[CPN_MAX_TRIMS];
 
-  for (int i = 0; i < Boards::getCapability(board, Board::Sticks); i++) {
-    labels[i] = Boards::getInputName(i);
+  for (int i = 0; i < board->getCapability(Capability::Sticks); i++) {
+    labels[i] = board->getInputName(i);
   }
 
-  for (int i = Boards::getCapability(board, Board::Sticks); i < CPN_MAX_TRIMS; i++) {
+  for (int i = board->getCapability(Capability::Sticks); i < CPN_MAX_TRIMS; i++) {
     labels[i] = QString("T%1").arg(i + 1);
   }
 
@@ -97,7 +97,7 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
   }
 
   for (int i = 0; i < trimCount; i++) {
-    trimsLabel[i]->setText(labels[Boards::isAir(board) ? CONVERT_AIRMODE(i + 1) - 1 : CONVERT_SURFACEMODE(i + 1) - 1]);
+    trimsLabel[i]->setText(labels[board->getCapability(Capability::Air) ? CONVERT_AIRMODE(i + 1) - 1 : CONVERT_SURFACEMODE(i + 1) - 1]);
     QComboBox * cb = trimsUse[i];
     cb->setProperty("index", i);
     cb->addItem(tr("Trim disabled"), -1);
@@ -126,10 +126,10 @@ FlightModePanel::FlightModePanel(QWidget * parent, ModelData & model, int phaseI
 
     trimsSlider[i]->setProperty("index", i);
     trimsSlider[i]->setRange(-trimsMax, +trimsMax);
-    int chn = Boards::isAir(board) ? CONVERT_AIRMODE(i + 1) - 1 : CONVERT_SURFACEMODE(i + 1) - 1;
+    int chn = board->getCapability(Capability::Air) ? CONVERT_AIRMODE(i + 1) - 1 : CONVERT_SURFACEMODE(i + 1) - 1;
 
-    if (model.throttleReversed && ((Boards::isAir(board) && chn == 2/*TODO constant*/) ||
-                                   (Boards::isSurface(board) && chn == 1/*TODO constant*/)))
+    if (model.throttleReversed && ((board->getCapability(Capability::Air) && chn == 2/*TODO constant*/) ||
+                                   (board->getCapability(Capability::Surface) && chn == 1/*TODO constant*/)))
       trimsSlider[i]->setInvertedAppearance(true);
 
     connect(trimsSlider[i], SIGNAL(valueChanged(int)), this, SLOT(phaseTrimSlider_valueChanged()));
@@ -154,7 +154,7 @@ void FlightModePanel::update()
   ui->fadeIn->setValue(float(phase.fadeIn)/scale);
   ui->fadeOut->setValue(float(phase.fadeOut)/scale);
 
-  for (int i = 0; i < getBoardCapability(firmware->getBoard(), Board::NumTrims); i++) {
+  for (int i = 0; i < board->getCapability(Capability::NumTrims); i++) {
     trimUpdate(i);
   }
 }
@@ -200,7 +200,7 @@ void FlightModePanel::phaseFadeOut_editingFinished()
 void FlightModePanel::trimUpdate(unsigned int trim)
 {
   lock = true;
-  int chn = Boards::isAir(board) ? CONVERT_AIRMODE(trim + 1) - 1 : CONVERT_SURFACEMODE(trim + 1) - 1;
+  int chn = board->getCapability(Capability::Air) ? CONVERT_AIRMODE(trim + 1) - 1 : CONVERT_SURFACEMODE(trim + 1) - 1;
   int value = model->getTrimValue(phaseIdx, chn);
   trimsSlider[trim]->setValue(value);
   trimsValue[trim]->setValue(value);
@@ -234,7 +234,7 @@ void FlightModePanel::phaseTrimUse_currentIndexChanged(int index)
   if (!lock) {
     QComboBox *comboBox = qobject_cast<QComboBox*>(sender());
     int trim = comboBox->property("index").toInt();
-    int chn = Boards::isAir(board) ? CONVERT_AIRMODE(trim + 1) - 1 : CONVERT_SURFACEMODE(trim + 1) - 1;
+    int chn = board->getCapability(Capability::Air) ? CONVERT_AIRMODE(trim + 1) - 1 : CONVERT_SURFACEMODE(trim + 1) - 1;
     int data = comboBox->itemData(index).toInt();
 
     if (data < 0) {
@@ -261,7 +261,7 @@ void FlightModePanel::phaseTrim_valueChanged()
   if (!lock) {
     QSpinBox *spinBox = qobject_cast<QSpinBox*>(sender());
     int trim = spinBox->property("index").toInt();
-    int chn = Boards::isAir(board) ? CONVERT_AIRMODE(trim + 1) - 1 : CONVERT_SURFACEMODE(trim + 1) - 1;
+    int chn = board->getCapability(Capability::Air) ? CONVERT_AIRMODE(trim + 1) - 1 : CONVERT_SURFACEMODE(trim + 1) - 1;
     int value = spinBox->value();
     model->setTrimValue(phaseIdx, chn, value);
     lock = true;
@@ -276,7 +276,7 @@ void FlightModePanel::phaseTrimSlider_valueChanged()
   if (!lock) {
     QSlider *slider = qobject_cast<QSlider*>(sender());
     int trim = slider->property("index").toInt();
-    int chn = Boards::isAir(board) ? CONVERT_AIRMODE(trim + 1) - 1 : CONVERT_SURFACEMODE(trim + 1) - 1;
+    int chn = board->getCapability(Capability::Air) ? CONVERT_AIRMODE(trim + 1) - 1 : CONVERT_SURFACEMODE(trim + 1) - 1;
     int value = slider->value();
     model->setTrimValue(phaseIdx, chn, value);
     lock = true;
@@ -641,10 +641,10 @@ void FlightModePanel::onItemModelUpdateComplete()
 void FlightModePanel::onThrottleReverseChanged()
 {
   for (int i = 0; i < CPN_MAX_TRIMS; i++) {
-    int chn = Boards::isAir(board) ? CONVERT_AIRMODE(i + 1) - 1 : CONVERT_SURFACEMODE(i + 1) - 1;
+    int chn = board->getCapability(Capability::Air) ? CONVERT_AIRMODE(i + 1) - 1 : CONVERT_SURFACEMODE(i + 1) - 1;
 
-    if (model->throttleReversed && ((Boards::isAir(board) && chn == 2/*TODO constant*/) ||
-                                    (Boards::isSurface(board) && chn == 1/*TODO constant*/)))
+    if (model->throttleReversed && ((board->getCapability(Capability::Air) && chn == 2/*TODO constant*/) ||
+                                    (board->getCapability(Capability::Surface) && chn == 1/*TODO constant*/)))
       trimsSlider[i]->setInvertedAppearance(true);
     else
       trimsSlider[i]->setInvertedAppearance(false);

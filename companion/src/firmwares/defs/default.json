@@ -1,0 +1,131 @@
+{
+  "comments": [
+    "This file is always loaded first and variations overlaid in basedOn sequence",
+    "hidden: true prevents the name being displayed in any ui lists",
+    "supported: false prevents the name being displayed in any ui list however available for raio and model settions",
+    "Hardcoded CPN_MAX_xxx limits/sizes applied to char[] and data arrays until refactoring to std::string and std::vector respectively",
+    "Some entries are future proofing and for parsing consistency",
+    "Some values are used for field initialisation only",
+    "Values are accessed using Firmware::getCapability"
+  ],
+  "hidden": true,
+  "basedOn": [
+  ],
+  "supported": true,
+  "name": "",
+  "board": "",
+  "gitHubAsset": "",
+  "simulator": "",
+  "buildOpts": [
+  ],
+  "curves": {
+    "comments": "",
+    "cnt": 32,
+    "name": 3,
+    "points": {
+      "min": 2,
+      "max": 17,
+      "total": 512
+    }
+  },
+  "customScreens": {
+    "comments": "color",
+    "cnt": 9,
+    "layoutOptions": 10,
+    "layoutZones": 10,
+    "themeOptions": 5,
+    "topBarOptions": 1,
+    "topBarZones": 7,
+    "widgetOptions": 50
+  },
+  "eepromSize": 0,
+  "expos": {
+    "comments": "input lines",
+    "cnt": 64,
+    "name": 10
+  },
+  "flightModes": {
+    "comments": "Flight Drive etc TODO rename operatingModes",
+    "cnt": 9,
+    "name": 4
+  },
+  "flashSize": 0,
+  "fourCC": 0,
+  "globalFuncs": {
+    "comments": "",
+    "cnt": 32,
+    "name": 0
+  },
+  "globalVars": {
+    "comments": "h7 cnt: 15",
+    "cnt": 9,
+    "name": 3
+  },
+  "inactivityTimer": {
+    "comments": "",
+    "min": 0,
+    "max": 99,
+    "dflt": 10
+  },
+  "inputs": {
+    "comments": "",
+    "cnt": 32,
+    "name": 4
+  },
+  "keyShortcuts": 0,
+  "lcdToVideo": false,
+  "logicalSw": {
+    "comments": "",
+    "cnt": 40,
+    "name": 0
+  },
+  "luaScripts": {
+    "comments": "mixer scripts",
+    "cnt": 9,
+    "name": 6,
+    "inputs": 6,
+    "outputs": 6
+  },
+  "modelSlots": 60,
+  "mixes": {
+    "comments": "",
+    "cnt": 64,
+    "name": 3
+  },
+  "modelName": 15,
+  "modelImage": {
+    "comments": "b&w defaults",
+    "filters": ".bmp",
+    "name": 8,
+    "image": true,
+    "keepExtn": false
+  },
+  "outputs": {
+    "comments": "name: HAS_LARGE_LCD 6 else 4",
+    "cnt": 32,
+    "name": 4
+  },
+  "powerOnDelay": false,
+  "quickMenuFavs": 0,
+  "sensors": {
+    "comments": "cnt: b&w - 40 color - 60 h7 - 99",
+    "cnt": 40,
+    "name": 4
+  },
+  "specialFuncs": {
+    "comments": "",
+    "cnt": 32
+  },
+  "teleCstmScrns": {
+    "comments": "only used for b&w radios",
+    "cnt": 4,
+    "lines": 4,
+    "bars": 4,
+    "perLine": 3
+  },
+  "timers": {
+    "comments": "",
+    "cnt": 3,
+    "name": 8
+  }
+}

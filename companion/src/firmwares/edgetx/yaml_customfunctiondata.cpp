@@ -225,7 +225,7 @@ Node convert<CustomFunctionData>::encode(const CustomFunctionData& rhs)
     def += std::to_string(rhs.param);
     break;
   case FuncPushCustomSwitch1: {
-    int idx = Boards::getCFSIndexForSwitch(Boards::getSwitchIndexForCFSOffset(p1));
+    int idx = getCurrentBoard()->getCFSIndexForSwitch(getCurrentBoard()->getSwitchIndexForCFSOffset(p1));
     def += std::to_string(idx);
     def += ",";
     def += std::to_string(rhs.param);
@@ -395,7 +395,7 @@ bool convert<CustomFunctionData>::decode(const Node& node,
   case FuncPushCustomSwitch1: {
     int sw = 0;
     def >> sw;
-    int offset = Boards::getCFSOffsetForCFSIndex(sw);
+    int offset = getCurrentBoard()->getCFSOffsetForCFSIndex(sw);
     rhs.func = (AssignFunc)((int)rhs.func + offset);
     def.ignore();
     int param = 0;

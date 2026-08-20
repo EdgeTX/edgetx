@@ -760,7 +760,7 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
 
   QString backupDir;
 
-  if (g.currentProfile().getVariantFromType() == fw.getFlavour()) {
+  if (g.currentProfile().getBoardId() == fw.getBoardId()) {
     backupDir = g.currentProfile().pBackupDir();
   }
   else {
@@ -775,7 +775,7 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
       QMapIterator<int, QString> i(map);
       while (i.hasNext()) {
           i.next();
-          if (g.getProfile(i.key()).getVariantFromType() == fw.getFlavour()) {
+          if (g.getProfile(i.key()).getBoardId() == fw.getBoardId()) {
             progress->addMessage(TR("Firmware type match found in profile %1 %2")
                                   .arg(QString::number(i.key()))
                                   .arg(i.value()));
@@ -800,7 +800,7 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
   // include time in file name as there could be multiple backups in a day
   QString filePath = QString("%1/fw-%2-%3-%4.%5")
                       .arg(backupDir.replace("\\", "/"))  // for Windows
-                      .arg(fw.getFlavour())
+                      .arg(fw.getBoardId())
                       .arg(QDate(QDate::currentDate()).toString("yyyyMMdd"))
                       .arg(QTime(QTime::currentTime()).toString("HHmmss"))
                       .arg(fw.typeFileExtn());

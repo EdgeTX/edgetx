@@ -46,7 +46,7 @@ ModelOptionsPanel::ModelOptionsPanel(QWidget * parent, ModelData & model, Genera
 
   addSection(tr("Radio Menus"));
 
-  if (Boards::getCapability(board, Board::HasColorLcd)) {
+  if (board->getCapability(Capability::HasColorLcd)) {
     addLabel(tr("Themes"));
     AutoComboBox *themesDisable = new AutoComboBox(this);
     themesDisable->setModel(mdl);
@@ -73,7 +73,7 @@ ModelOptionsPanel::ModelOptionsPanel(QWidget * parent, ModelData & model, Genera
   col = 2;
   addSection(tr("Model Menus"));
 
-  if (firmware->getCapability(Heli)) {
+  if (firmware->getCapability(Capability::Heli)) {
     addLabel(tr("Heli"));
     AutoComboBox *heliDisable = new AutoComboBox(this);
     heliDisable->setModel(mdl);
@@ -82,7 +82,7 @@ ModelOptionsPanel::ModelOptionsPanel(QWidget * parent, ModelData & model, Genera
     addParams();
   }
 
-  addLabel(tr("%1 Modes").arg(Boards::getRadioModeString(firmware->getBoard())));
+  addLabel(tr("%1 Modes").arg(board->radioModeString()));
   AutoComboBox *fmDisable = new AutoComboBox(this);
   fmDisable->setModel(mdl);
   fmDisable->setField(model.modelFMDisabled, this);
@@ -96,7 +96,7 @@ ModelOptionsPanel::ModelOptionsPanel(QWidget * parent, ModelData & model, Genera
   params->append(curvesDisable);
   addParams();
 
-  if (firmware->getCapability(Gvars)) {
+  if (firmware->getCapability(Capability::Gvars)) {
     addLabel(tr("Global Variables"));
     AutoComboBox *gvDisable = new AutoComboBox(this);
     gvDisable->setModel(mdl);

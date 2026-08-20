@@ -43,6 +43,9 @@
 #include "translations.h"
 #include "helpers.h"
 #include "boardfactories.h"
+#include "firmwarefactories.h"
+
+#include <iostream>
 
 #ifdef __APPLE__
 #include <QProxyStyle>
@@ -244,10 +247,20 @@ int main(int argc, char *argv[])
   }
 #endif
 
+  Q_INIT_RESOURCE(fwdefs);
   Q_INIT_RESOURCE(hwdefs);
-  gBoardFactories = new BoardFactories();
+  Q_INIT_RESOURCE(bddefs);
+
+  // TODO refactor into singleton
   registerStorageFactories();
-  registerOpenTxFirmwares();
+
+  // IMPORTANT load boards before firmware
+  // instantiate singleton
+  BoardFactories::getInstance();
+  // instantiate singleton
+  FirmwareFactories::getInstance();
+
+  // TODO refactor into singleton
   SimulatorLoader::registerSimulators();
 
   QTemporaryDir tempDir(QDir::tempPath() % "/etx-cpn-XXXXXX");
@@ -266,12 +279,11 @@ int main(int argc, char *argv[])
 
   Profile & profile = g.currentProfile();
   if (profile.fwType().isEmpty()){
-    profile.fwType(Firmware::getDefaultVariant()->getId());
+    profile.fwType(Firmware::getFallback()->getId());
     profile.fwName("");
   }
 
-  // force the Board definition to load by appending "-xxx"
-  Firmware::setCurrentVariant(Firmware::getFirmwareForId(g.profile[g.id()].fwVariantId() % "-xxx"));
+  Firmware::setCurrent(Firmware::getFirmware(g.profile[g.id()].fwType()));
 
   MainWindow *mainWin = new MainWindow();
   mainWin->show();
@@ -292,9 +304,7 @@ int main(int argc, char *argv[])
   delete mainWin;
 
   SimulatorLoader::unregisterSimulators();
-  unregisterOpenTxFirmwares();
   unregisterStorageFactories();
-  gBoardFactories->unregisterBoardFactories();
 
 #if defined(USE_SDL)
   SDL_Quit();

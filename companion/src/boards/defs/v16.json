@@ -1,0 +1,8 @@
+{
+  "basedOn": [
+    "switches_flex",
+    "switches_voice"
+  ],
+  "name": "V16",
+  "voiceControl": true
+}

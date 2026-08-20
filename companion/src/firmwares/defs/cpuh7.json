@@ -1,0 +1,9 @@
+{
+  "hidden": true,
+  "globalVars": {
+    "cnt": 15
+  },
+  "sensors": {
+    "cnt": 99
+  }
+}

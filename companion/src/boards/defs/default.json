@@ -1,0 +1,92 @@
+{
+  "comments": [
+    "This file is always loaded first, then hwdefn, then variations overlaid in basedOn sequence",
+    "hidden: true prevents the name being displayed in any ui lists",
+    "Some entries are future proofing eg external modules and for parsing consistency",
+    "Some values are used for field initialisation only"
+  ],
+  "hidden": true,
+  "name": "Default",
+  "supported": true,
+  "hwdefn": "",
+  "battery": {
+    "comments": "",
+    "min": 0,
+    "max": 0,
+    "warn": 0
+  },
+  "backgroundVolume": {
+    "comments": "",
+    "min": 0,
+    "max": 99,
+    "dflt": 1
+  },
+  "backlight": {
+    "comments": "initialisation values",
+    "delay": 2,
+    "keys": false,
+    "min": 0,
+    "mode": 0,
+    "offBrightness": 0,
+    "onBrightness": 0
+  },
+  "bluetoothName": "unknown",
+  "chargeWhileOn": false,
+  "contrast": {
+    "comments": "b&w",
+    "min": 0,
+    "max": 100,
+    "dflt": 25
+  },
+  "externalAntenna": false,
+  "hardwareAntennaSwitch": false,
+  "hats": false,
+  "imu": false,
+  "modules": [
+    {
+      "internal": {
+        "comments": "refer external for complete list",
+        "available": [
+          "elrs",
+          "multi"
+        ],
+        "default": "elrs"
+      }
+    },
+    {
+      "external": {
+        "comments": "available replaces size in modules refactor",
+        "size": "std",
+        "available": [
+          "crsf",
+          "dsm2",
+          "elrs",
+          "ghost",
+          "lemon-dsmp",
+          "multi",
+          "ppm",
+          "sbus"
+        ]
+      }
+    }
+  ],
+  "pwrButtonPress": true,
+  "speakerVolume": {
+    "comments": "",
+    "min": 0,
+    "max": 99,
+    "dflt": 0
+  },
+  "stickDeadZone": false,
+  "switchableJack": false,
+  "topLCD": false,
+  "trainerModule": "none",
+  "vcpSerialMode": false,
+  "voiceControl": false,
+  "wavVolume": {
+    "comments": "",
+    "min": 0,
+    "max": 99,
+    "dflt": 2
+  }
+}

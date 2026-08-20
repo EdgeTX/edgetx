@@ -149,7 +149,7 @@ static const YamlLookupTable moduleAntennaModeLut = {
 // boards without an external antenna, where it aliased the top bits of subType.
 static bool hasModuleAntennaMode()
 {
-  return Boards::getCapability(getCurrentBoard(), Board::HasExternalAntenna);
+  return getCurrentBoard()->getCapability(Capability::HasExternalAntenna);
 }
 
 static int exportPpmDelay(int delay) { return (delay - 300) / 50; }
@@ -428,13 +428,13 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           Node ghost = mod["ghost"];
           YamlTelemetryBaudrate telemetryBaudrate;
           ghost["telemetryBaudrate"] >> telemetryBaudrate.value;
-          telemetryBaudrate.toCpn(&rhs.ghost.telemetryBaudrate, getCurrentFirmware()->getBoard());
+          telemetryBaudrate.toCpn(&rhs.ghost.telemetryBaudrate, getCurrentFirmware()->getBoard()->getId());
           ghost["raw12bits"] >> rhs.ghost.raw12bits;
       } else if (mod["crsf"]) {
           Node crsf = mod["crsf"];
           YamlTelemetryBaudrate telemetryBaudrate;
           crsf["telemetryBaudrate"] >> telemetryBaudrate.value;
-          telemetryBaudrate.toCpn(&rhs.crsf.telemetryBaudrate, getCurrentFirmware()->getBoard());
+          telemetryBaudrate.toCpn(&rhs.crsf.telemetryBaudrate, getCurrentFirmware()->getBoard()->getId());
           crsf["crsfArmingMode"] >> rhs.crsf.crsfArmingMode;
           crsf["crsfArmingTrigger"] >> rhs.crsf.crsfArmingTrigger;
       } else if (mod["dsmp"]) {

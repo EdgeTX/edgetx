@@ -49,7 +49,7 @@ TimerPanel::TimerPanel(QWidget * parent, ModelData & model, TimerData & timer,
 
   // Start
   ui->value->setField(timer.val, this);
-  ui->value->setMaximumTime(firmware->getMaxTimerStart());
+  ui->value->setMaximumTime(QTime(23, 59, 59));
   ui->value->setBindPostChanged([this]{
     this->update();
   });

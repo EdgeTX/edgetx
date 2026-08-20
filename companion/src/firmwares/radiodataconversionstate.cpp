@@ -24,11 +24,11 @@
 
 #include <QStandardItemModel>
 
-RadioDataConversionState::RadioDataConversionState(Board::Type before, Board::Type after, RadioData * rdata) :
+RadioDataConversionState::RadioDataConversionState(QString before, QString after, RadioData * rdata) :
   fromType(before),
   toType(after),
-  fromBoard(Boards(before)),
-  toBoard(Boards(after)),
+  fromBoard(Board::getBoard(before)),
+  toBoard(Board::getBoard(after)),
   rd(NULL),
   rdCopy(NULL),
   maxEventType(EVT_NONE),

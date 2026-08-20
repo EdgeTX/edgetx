@@ -26,7 +26,7 @@
 
 #include "virtualjoystickwidget.h"
 
-#include "boards.h"
+#include "board.h"
 #include "modeledit/node.h"
 #include "helpers.h"
 #include "radiotrimwidget.h"
@@ -47,7 +47,7 @@ VirtualJoystickWidget::VirtualJoystickWidget(QWidget *parent, QChar side, bool s
   m_stickScale(1024),
   m_stickPressed(false)
 {
-  isBoardSurface = Boards::isSurface(getCurrentBoard());
+  isBoardSurface = getCurrentBoard()->getCapability(Capability::Surface);
   ar = (float)size.width() / size.height();
   extraSize = QSize(0, 0);
 
@@ -188,16 +188,15 @@ void VirtualJoystickWidget::setStickPos(QPointF xy)
 
 void VirtualJoystickWidget::setStickAxisValue(int index, int value)
 {
-  using namespace Board;
   qreal rvalue = value / 1024.0f;
 
   if (isBoardSurface) {
     switch (index) {
-      case STICK_AXIS_SURFACE_LV :
+      case Board::STICK_AXIS_SURFACE_LV :
         if (stickSide == 'L')
           setStickY(rvalue);
         break;
-      case STICK_AXIS_SURFACE_RH :
+      case Board::STICK_AXIS_SURFACE_RH :
         if (stickSide == 'R')
           setStickX(rvalue);
         break;
@@ -205,19 +204,19 @@ void VirtualJoystickWidget::setStickAxisValue(int index, int value)
   }
   else {
     switch (index) {
-      case STICK_AXIS_LH :
+      case Board::STICK_AXIS_LH :
         if (stickSide == 'L')
           setStickX(rvalue);
         break;
-      case STICK_AXIS_RH :
+      case Board::STICK_AXIS_RH :
         if (stickSide == 'R')
           setStickX(rvalue);
         break;
-      case STICK_AXIS_LV :
+      case Board::STICK_AXIS_LV :
         if (stickSide == 'L')
           setStickY(rvalue);
         break;
-      case STICK_AXIS_RV :
+      case Board::STICK_AXIS_RV :
         if (stickSide == 'R')
           setStickY(rvalue);
         break;
@@ -510,104 +509,98 @@ QLayout *VirtualJoystickWidget::createNodeValueLayout(QChar type, QLabel *& valL
 
 int VirtualJoystickWidget::getStickIndex(QChar type)
 {
-  using namespace Board;
-
   if (isBoardSurface) {
     if (stickSide == 'L') {
       if (type == 'H')
-        return STICK_AXIS_SURFACE_LV;
+        return Board::STICK_AXIS_SURFACE_LV;
       else
-        return STICK_AXIS_SURFACE_LV;
+        return Board::STICK_AXIS_SURFACE_LV;
     }
     else {
       if (type == 'H')
-        return STICK_AXIS_SURFACE_RH;
+        return Board::STICK_AXIS_SURFACE_RH;
       else
-        return STICK_AXIS_SURFACE_RH;
+        return Board::STICK_AXIS_SURFACE_RH;
     }
   }
   else {
     if (stickSide == 'L') {
       if (type == 'H')
-        return STICK_AXIS_LH;
+        return Board::STICK_AXIS_LH;
       else
-        return STICK_AXIS_LV;
+        return Board::STICK_AXIS_LV;
     }
     else {
       if (type == 'H')
-        return STICK_AXIS_RH;
+        return Board::STICK_AXIS_RH;
       else
-        return STICK_AXIS_RV;
+        return Board::STICK_AXIS_RV;
     }
   }
 }
 
 int VirtualJoystickWidget::getTrimSliderType(QChar type)
 {
-  using namespace Board;
-
   if (isBoardSurface) {
     if (stickSide == 'L') {
       if (type == 'H')
-        return TRIM_AXIS_SURFACE_LH;
+        return Board::TRIM_AXIS_SURFACE_LH;
       else
-        return TRIM_AXIS_SURFACE_LH;
+        return Board::TRIM_AXIS_SURFACE_LH;
     }
     else {
       if (type == 'H')
-        return TRIM_AXIS_SURFACE_RH;
+        return Board::TRIM_AXIS_SURFACE_RH;
       else
-        return TRIM_AXIS_SURFACE_RH;
+        return Board::TRIM_AXIS_SURFACE_RH;
     }
   }
   else {
     if (stickSide == 'L') {
       if (type == 'H')
-        return TRIM_AXIS_LH;
+        return Board::TRIM_AXIS_LH;
       else
-        return TRIM_AXIS_LV;
+        return Board::TRIM_AXIS_LV;
     }
     else {
       if (type == 'H')
-        return TRIM_AXIS_RH;
+        return Board::TRIM_AXIS_RH;
       else
-        return TRIM_AXIS_RV;
+        return Board::TRIM_AXIS_RV;
     }
   }
 }
 
 int VirtualJoystickWidget::getTrimButtonType(QChar type, int pos)
 {
-  using namespace Board;
-
   if (isBoardSurface) {
     if (stickSide == 'L') {
       if (type == 'H') {
         if (pos == 0)
-          return TRIM_SW_SURFACE_LH_DEC;
+          return Board::TRIM_SW_SURFACE_LH_DEC;
         else
-          return TRIM_SW_SURFACE_LH_INC;
+          return Board::TRIM_SW_SURFACE_LH_INC;
       }
       else {
         if (pos == 0)
-          return TRIM_SW_SURFACE_LH_DEC;
+          return Board::TRIM_SW_SURFACE_LH_DEC;
         else
-          return TRIM_SW_SURFACE_LH_INC;
+          return Board::TRIM_SW_SURFACE_LH_INC;
       }
     }
     // right side
     else {
       if (type == 'H') {
         if (pos == 0)
-          return TRIM_SW_SURFACE_RH_DEC;
+          return Board::TRIM_SW_SURFACE_RH_DEC;
         else
-          return TRIM_SW_SURFACE_RH_INC;
+          return Board::TRIM_SW_SURFACE_RH_INC;
       }
       else {
         if (pos == 0)
-          return TRIM_SW_SURFACE_RH_DEC;
+          return Board::TRIM_SW_SURFACE_RH_DEC;
         else
-          return TRIM_SW_SURFACE_RH_INC;
+          return Board::TRIM_SW_SURFACE_RH_INC;
       }
     }
   }
@@ -615,30 +608,30 @@ int VirtualJoystickWidget::getTrimButtonType(QChar type, int pos)
     if (stickSide == 'L') {
       if (type == 'H') {
         if (pos == 0)
-          return TRIM_SW_LH_DEC;
+          return Board::TRIM_SW_LH_DEC;
         else
-          return TRIM_SW_LH_INC;
+          return Board::TRIM_SW_LH_INC;
       }
       else {
         if (pos == 0)
-          return TRIM_SW_LV_DEC;
+          return Board::TRIM_SW_LV_DEC;
         else
-          return TRIM_SW_LV_INC;
+          return Board::TRIM_SW_LV_INC;
       }
     }
     // right side
     else {
       if (type == 'H') {
         if (pos == 0)
-          return TRIM_SW_RH_DEC;
+          return Board::TRIM_SW_RH_DEC;
         else
-          return TRIM_SW_RH_INC;
+          return Board::TRIM_SW_RH_INC;
       }
       else {
         if (pos == 0)
-          return TRIM_SW_RV_DEC;
+          return Board::TRIM_SW_RV_DEC;
         else
-          return TRIM_SW_RV_INC;
+          return Board::TRIM_SW_RV_INC;
       }
     }
   }

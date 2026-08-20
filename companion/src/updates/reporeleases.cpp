@@ -81,7 +81,7 @@ void ReleasesRawItemModel::parseJsonObject(const QJsonObject & obj)
 void ReleasesRawItemModel::parseJsonObjectBuild(const QJsonObject & obj)
 {
   Repo *repo = static_cast<Repo*>(m_parentRepo);
-  const QString fwRadio = getCurrentFirmware()->getFlavour();
+  const QString fwRadio = getCurrentFirmware()->getId();
 
   if (obj.value("releases").isObject()) {
     repo->setConfig(obj);

@@ -331,7 +331,7 @@ void ModulePanel::update()
         if (isInternalModule(moduleIdx) &&
             (protocol==PULSES_PXX_XJT_X16 ||
              protocol==PULSES_PXX_XJT_D8 || protocol==PULSES_PXX_XJT_LR12) &&
-            Boards::getCapability(board, Board::HasExternalAntenna) && generalSettings.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
+            board->getCapability(Capability::HasExternalAntenna) && generalSettings.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
           mask |= MASK_ANTENNA;
         if (protocol == PULSES_ACCESS_ISRM && module.channelsCount == 8)
           mask |= MASK_RF_RACING_MODE;
@@ -354,7 +354,7 @@ void ModulePanel::update()
           ui->crsfArmingTrigger->setCurrentIndex(ui->crsfArmingTrigger->findData(RawSwitch(module.crsf.crsfArmingTrigger).toValue()));
         }
         if (isInternalModule(moduleIdx) &&
-            Boards::getCapability(board, Board::HasHardwareAntennaSwitch) &&
+            board->getCapability(Capability::HasHardwareAntennaSwitch) &&
             generalSettings.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
           mask |= MASK_ANTENNA;
         break;
@@ -466,8 +466,8 @@ void ModulePanel::update()
   ui->ppmDelay->setValue(module.ppm.delay);
   ui->label_ppmFrameLength->setVisible(mask & MASK_SBUSPPM_FIELDS);
   ui->ppmFrameLength->setVisible(mask & MASK_SBUSPPM_FIELDS);
-  ui->ppmFrameLength->setMinimum(module.channelsCount * (model->extendedLimits ? 2.250 : 2)+3.5);
-  ui->ppmFrameLength->setMaximum(firmware->getCapability(PPMFrameLength));
+  ui->ppmFrameLength->setMinimum(module.channelsCount * (model->extendedLimits ? 2.250 : 2) + 3.5);
+  ui->ppmFrameLength->setMaximum(firmware->getCapability(PPMFrameLen));
   ui->ppmFrameLength->setValue(22.5 + ((double)module.ppm.frameLength) * 0.5);
 
   if (mask & MASK_ANTENNA) {
@@ -711,8 +711,7 @@ void ModulePanel::onProtocolChanged(int index)
 
     if (module.protocol == PULSES_GHOST ||
         module.protocol == PULSES_CROSSFIRE) {
-      if (Boards::getCapability(getCurrentFirmware()->getBoard(),
-                                Board::SportMaxBaudRate) < 400000) {
+      if (getCurrentBoard()->getCapability(Capability::SportMaxBaudRate) < 400000) {
         // default to 115k
         ui->telemetryBaudrate->setCurrentIndex(0);
       } else {

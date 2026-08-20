@@ -22,7 +22,7 @@
 #pragma once
 
 #include "radiowidget.h"
-#include "boards.h"
+#include "board.h"
 #include "sliderwidget.h"
 
 #include <QToolButton>

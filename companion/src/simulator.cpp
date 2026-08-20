@@ -46,6 +46,7 @@
 #include "version.h"
 #include "boardfactories.h"
 #include "helpers.h"
+#include "firmwarefactories.h"
 
 using namespace Simulator;
 
@@ -292,7 +293,7 @@ int main(int argc, char *argv[])
   Q_INIT_RESOURCE(hwdefs);
   gBoardFactories = new BoardFactories();
   registerStorageFactories();
-  registerOpenTxFirmwares();
+  gFirmwareFactories = new FirmwareFactories();
   SimulatorLoader::registerSimulators();
 
   if (!SimulatorLoader::getAvailableSimulators().size()) {
@@ -325,7 +326,7 @@ int main(int argc, char *argv[])
 
   // DO NOT use saved simulatorId as could be changed in later releases
   // must be set after cli parse as --profile will load old data or blank
-  simOptions.simulatorId = SimulatorLoader::findSimulatorByName(Firmware::getFirmwareForId(simOptions.firmwareId)->getSimulatorId());
+  simOptions.simulatorId = SimulatorLoader::findSimulatorByName(Firmware::getFirmware(simOptions.firmwareId)->getSimulatorId());
 
     // Present GUI startup options dialog if necessary
   if (cliResult == CommandLineNone || profileId == -1 || simOptions.simulatorId.isEmpty() || (simOptions.dataFile.isEmpty() && simOptions.dataFolder.isEmpty())) {
@@ -361,11 +362,11 @@ int main(int argc, char *argv[])
 
   // TODO: fix this in Firmware and Boards refactor
   // Append a dummy variant to firmware name to force the Board Type to be registered
-  Firmware * simfw = Firmware::getFirmwareForId(simOptions.firmwareId + "-simulator");
+  Firmware * simfw = Firmware::getFirmware(simOptions.firmwareId + "-simulator");
   delete simfw;
 
   // Set global firmware environment
-  Firmware::setCurrentVariant(Firmware::getFirmwareForId(simOptions.firmwareId));
+  Firmware::setCurrent(Firmware::getFirmware(simOptions.firmwareId));
   //qDebug() << "current firmware:" << getCurrentFirmware()->getId();
 
   QTemporaryDir tempDir(QDir::tempPath() % "/etx-cpn-XXXXXX");
@@ -411,7 +412,7 @@ int main(int argc, char *argv[])
 int finish(int exitCode)
 {
   SimulatorLoader::unregisterSimulators();
-  unregisterOpenTxFirmwares();
+  gFirmwareFactories->unregisterFactories();
   unregisterStorageFactories();
   gBoardFactories->unregisterBoardFactories();
 
