@@ -311,7 +311,9 @@ class AudioBufferFifo {
 
     bool full() const { return bufferFull; }
     bool empty() const { return readIdx == writeIdx && !bufferFull; }
-    uint8_t used() const { return bufferFull ? AUDIO_BUFFER_COUNT : (writeIdx - readIdx) % AUDIO_BUFFER_COUNT; }
+    uint8_t used() const { return bufferFull ? AUDIO_BUFFER_COUNT
+                                             : (writeIdx < readIdx) ? writeIdx + AUDIO_BUFFER_COUNT - readIdx
+                                                                    : writeIdx - readIdx; }
 
    public:
     AudioBufferFifo() : readIdx(0), writeIdx(0), bufferFull(false)
