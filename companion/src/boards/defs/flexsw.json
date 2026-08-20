@@ -1,0 +1,13 @@
+{
+  "hidden": true,
+  "adc_inputs": {
+    "switches": [
+      {
+      "name": "FL1"
+      },
+      {
+      "name": "FL2"
+      }
+    ]
+  }
+}

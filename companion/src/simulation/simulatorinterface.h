@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "firmwares/boards.h"
+#include "boards/boards.h"
 #include "constants.h"
 
 #include <algorithm>

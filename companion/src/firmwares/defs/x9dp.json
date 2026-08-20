@@ -1,0 +1,10 @@
+{
+  "basedOn": [
+    "bw",
+    "f2"
+  ],
+  "id": "x9dp",
+  "name": "X9D+",
+  "supported": false,
+  "channelsName": 4
+}

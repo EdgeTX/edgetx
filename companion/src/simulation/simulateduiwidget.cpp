@@ -47,7 +47,7 @@ SimulatedUIWidget::SimulatedUIWidget(SimulatorInterface * simulator, QWidget * p
   m_scrollDnAction(nullptr),
   m_mouseMidClickAction(nullptr),
   m_screenshotAction(nullptr),
-  m_board(getCurrentBoard()),
+  m_board(getCurrentFirmwareBoard()),
   m_backLight(0),
   m_beepShow(0),
   m_beepVal(0)
@@ -207,9 +207,9 @@ void SimulatedUIWidget::setLcd(LcdWidget * lcd)
 {
   m_lcd = lcd;
 
-  auto width = Boards::getCapability(m_board, Board::LcdWidth);
-  auto height = Boards::getCapability(m_board, Board::LcdHeight);
-  auto depth = Boards::getCapability(m_board, Board::LcdDepth);
+  auto width = m_board->getCapability(Capability::LcdWidth);
+  auto height = m_board->getCapability(Capability::LcdHeight);
+  auto depth = m_board->getCapability(Capability::LcdDepth);
   m_lcd->setData(width, height, depth);
 
   if (!m_backlightColors.size())
@@ -311,7 +311,7 @@ static const QList<RadioKeyDefinition> radioKeyDefinitions = {
 
 void SimulatedUIWidget::addScrollActions()
 {
-  if (g.simuScrollButtons() || !Boards::getCapability(m_board, Board::RotaryEncoderNavigation))
+  if (g.simuScrollButtons() || !m_board->getCapability(Capability::RotaryEncoderNavigation))
     return;
 
   const RadioKeyDefinition *updefn = getRadioKeyDefinition(KEY_SCRLUP);
@@ -392,8 +392,8 @@ void SimulatedUIWidget::addPushButtons(ButtonsWidget * leftButtons, ButtonsWidge
     rightButtons->setFixedSize(0, 0);
   }
 
-  for (int i = 0; i < Boards::getCapability(m_board, Board::Keys); i++) {
-    Board::KeyInfo info = Boards::getKeyInfo(i, m_board);
+  for (int i = 0; i < m_board->getCapability(Capability::Keys); i++) {
+    Board::KeyInfo info = m_board->getKeyInfo(i);
     int idx = strKeyToInt(info.key);
     //qDebug() << "key:" << info.key.c_str() << info.name.c_str() << info.label.c_str() << idx;
     if (idx >= 0)
@@ -402,7 +402,7 @@ void SimulatedUIWidget::addPushButtons(ButtonsWidget * leftButtons, ButtonsWidge
       qDebug() << "Unknown key:" << info.key.c_str() << info.name.c_str() << info.label.c_str();
   }
 
-  if (g.simuScrollButtons() && Boards::getCapability(m_board, Board::RotaryEncoderNavigation)) {
+  if (g.simuScrollButtons() && m_board->getCapability(Capability::RotaryEncoderNavigation)) {
       addPushButton(KEY_SCRLUP, tr("Scrl Up"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
       addPushButton(KEY_SCRLDN, tr("Scrl Dn"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
       connectScrollActions();

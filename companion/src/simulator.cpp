@@ -46,6 +46,7 @@
 #include "version.h"
 #include "boardfactories.h"
 #include "helpers.h"
+#include "firmwarefactories.h"
 
 using namespace Simulator;
 
@@ -292,7 +293,7 @@ int main(int argc, char *argv[])
   Q_INIT_RESOURCE(hwdefs);
   gBoardFactories = new BoardFactories();
   registerStorageFactories();
-  registerOpenTxFirmwares();
+  gFirmwareFactories = new FirmwareFactories();
   SimulatorLoader::registerSimulators();
 
   if (!SimulatorLoader::getAvailableSimulators().size()) {
@@ -411,7 +412,7 @@ int main(int argc, char *argv[])
 int finish(int exitCode)
 {
   SimulatorLoader::unregisterSimulators();
-  unregisterOpenTxFirmwares();
+  gFirmwareFactories->unregisterFactories();
   unregisterStorageFactories();
   gBoardFactories->unregisterBoardFactories();
 
