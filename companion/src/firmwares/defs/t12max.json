@@ -1,0 +1,28 @@
+{
+    "basedOn": [
+        "bw"
+    ],
+    "buildOpts": [
+        [
+            "faichoice",
+            "faimode"
+        ],
+        "nooverridech",
+        "noheli",
+        "nogvars",
+        "lua",
+        "internalelrs",
+        "bluetooth"
+    ],
+    "expos": {
+        "name": 6
+    },
+    "mixes": {
+        "name": 6
+    },
+    "modelSlots": 60,
+    "name": "T12 MAX",
+    "teleCstmScrns": {
+        "fieldsPerLine": 2
+    }
+}

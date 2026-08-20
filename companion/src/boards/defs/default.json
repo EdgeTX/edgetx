@@ -1,0 +1,81 @@
+{
+  "comments": [
+    "This file is always loaded first, then hwdefn, then variations overlaid in basedOn sequence",
+    "hidden: true prevents the name being displayed in any ui lists",
+    "Some entries are future proofing eg external modules and for parsing consistency",
+    "Some values are used for field initialisation or range limits"
+  ],
+  "hidden": true,
+  "name": "Default",
+  "supported": true,
+  "hwdefn": "",
+  "battery": {
+    "comments": "decimals 1",
+    "vmin": 60,
+    "vmax": 80,
+    "vwarn": 65
+  },
+  "backlight": {
+    "comments": "initialisation values",
+    "delay": 2,
+    "keys": false,
+    "min": 0,
+    "mode": 0,
+    "offBrightness": 0,
+    "onBrightness": 0
+  },
+  "chargeWhileOn": false,
+  "contrast": {
+    "comments": "b&w",
+    "min": 10,
+    "max": 45,
+    "dflt": 25
+  },
+  "eepromSize": 0,
+  "externalAntenna": false,
+  "flashSize": 0,
+  "hwAntennaSwitch": false,
+  "hats": false,
+  "modules": [
+    {
+      "internal": {
+        "comments": [
+          "available modules",
+          "crsf, dsm2, elrs, ghost, lemondsmp, multi, ppm, sbus",
+          "afhds2a, afhds3",
+          "isrm, r9m, r9maccess, r9mlite, r9mliteaccess, r9mliteproaccess, xjt, xjtlite"
+        ],
+        "available": [
+        ],
+        "default": ""
+      }
+    },
+    {
+      "external": {
+        "comments": [
+          "size is used to initially populate available",
+          "available will replace size in modules refactor",
+          "refer internal for complete list of available modules"
+        ],
+        "size": "std",
+        "available": [
+        ]
+      }
+    }
+  ],
+  "pwrButtonPress": true,
+  "rotEncNav": false,
+  "sdCard": true,
+  "stickDeadZone": {
+    "comments": "dflt values 0, 2, 4, 8, 16, 32, 64, 128",
+    "min": 0,
+    "max": 128,
+    "dflt": 0
+  },
+  "switchableJack": false,
+  "topLCD": false,
+  "trainerModuleCPPM": true,
+  "trainerModuleSBUS": true,
+  "vcpSerialMode": false,
+  "voiceControl": false
+}

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "boards.h"
+#include "board.h"
 #include "constants.h"
 #include "radiowidget.h"
 #include "simulator.h"
@@ -145,7 +145,7 @@ class SimulatedUIWidget : public QWidget
     RadioUiAction * m_scrollDnAction;
     RadioUiAction * m_mouseMidClickAction;
     RadioUiAction * m_screenshotAction;
-    Board::Type m_board;
+    Board * m_board;
     unsigned int m_backLight;
     int m_beepShow;
     int m_beepVal;

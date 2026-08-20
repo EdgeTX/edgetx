@@ -1,0 +1,32 @@
+{
+    "basedOn": [
+        "bw"
+    ],
+    "buildOpts": [
+        [
+            "faichoice",
+            "faimode"
+        ],
+        "nooverridech",
+        "noheli",
+        "nogvars",
+        "lua",
+        "internalelrs",
+        "sqt5font",
+        "bluetooth",
+        "flexr9m",
+        "afhds2a",
+        "afhds3"
+    ],
+    "expos": {
+        "name": 6
+    },
+    "mixes": {
+        "name": 6
+    },
+    "modelSlots": 60,
+    "name": "Zorro",
+    "teleCstmScrns": {
+        "fieldsPerLine": 2
+    }
+}

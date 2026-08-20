@@ -1,0 +1,14 @@
+{
+  "comments": "Acceleration source",
+  "hidden": true,
+  "adc_inputs": {
+    "inputs": [
+      {
+        "name": "G_FORCE",
+        "type": "FLEX",
+        "label": "Accl",
+        "short_label": "Accl"
+      }
+    ]
+  }
+}

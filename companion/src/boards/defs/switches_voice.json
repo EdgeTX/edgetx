@@ -1,0 +1,22 @@
+{
+  "comments": [
+    "CI1302 voice control virtual switches are not listed in json file",
+    "They must follow the flex switches: firmware indexes them at",
+    "switchGetMaxSwitches() + MAX_FLEX_SWITCHES",
+    "VGR (voice gear) is a 2POS switch, VFL (voice flap) is 3POS -- see",
+    "isTwoPosVoiceSwitch() in radio/src/drivers/CI1302.cpp"
+  ],
+  "hidden": true,
+  "switches": [
+    {
+      "name": "VGR",
+      "type": "2POS",
+      "default": "2POS"
+    },
+    {
+      "name": "VFL",
+      "type": "3POS",
+      "default": "3POS"
+    }
+  ]
+}

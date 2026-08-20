@@ -44,7 +44,7 @@ eepromFatHeader(NULL)
 #define EEPROM_MAX_FILES      (EEPROM_MAX_ZONES - 1)
 #define FIRST_FILE_AVAILABLE  (1+MAX_MODELS)
 
-void RleFile::EeFsCreate(uint8_t *eeprom, int size, Board::Type board,
+void RleFile::EeFsCreate(uint8_t *eeprom, int size, QString board,
                          unsigned int version)
 {
   this->eeprom = eeprom;
@@ -92,7 +92,7 @@ bool RleFile::searchFat()
   return (eepromFatHeader != NULL);
 }
 
-bool RleFile::EeFsOpen(uint8_t *eeprom, int size, Board::Type board)
+bool RleFile::EeFsOpen(uint8_t *eeprom, int size, QString board)
 {
   this->eeprom = eeprom;
   this->eeprom_size = size;

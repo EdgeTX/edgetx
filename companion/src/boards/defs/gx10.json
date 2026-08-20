@@ -1,0 +1,44 @@
+{
+    "backlight": {
+        "min": 1
+    },
+    "basedOn": [
+        "color"
+    ],
+    "battery": {
+        "vmax": 83,
+        "vmin": 67,
+        "vwarn": 66
+    },
+    "flashSize": 2097152,
+    "modules": [
+        {
+            "internal": {
+                "available": [
+                    "elrs"
+                ],
+                "default": "elrs"
+            }
+        },
+        {
+            "external": {
+                "available": [
+                    "r9mlite",
+                    "r9mliteaccess",
+                    "r9mliteproaccess",
+                    "xjtlite",
+                    "crsf",
+                    "multi",
+                    "ghost",
+                    "ppm",
+                    "sbus",
+                    "lemondsmp"
+                ],
+                "size": "small"
+            }
+        }
+    ],
+    "name": "Radiomaster GX10",
+    "rotEncNav": true,
+    "vcpSerialMode": true
+}

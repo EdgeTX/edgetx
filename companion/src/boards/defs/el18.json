@@ -1,0 +1,51 @@
+{
+    "backlight": {
+        "min": 1
+    },
+    "basedOn": [
+        "color"
+    ],
+    "battery": {
+        "vmax": 42,
+        "vmin": 35,
+        "vwarn": 37
+    },
+    "flashSize": 2097152,
+    "modules": [
+        {
+            "internal": {
+                "available": [
+                    "afhds3",
+                    "crsf"
+                ],
+                "default": "afhds3"
+            }
+        },
+        {
+            "external": {
+                "available": [
+                    "xjt",
+                    "isrm",
+                    "r9m",
+                    "r9maccess",
+                    "dsm2",
+                    "crsf",
+                    "multi",
+                    "ghost",
+                    "afhds3",
+                    "lemondsmp",
+                    "r9mlite",
+                    "r9mliteaccess",
+                    "r9mliteproaccess",
+                    "xjtlite",
+                    "ppm",
+                    "sbus"
+                ],
+                "size": "both"
+            }
+        }
+    ],
+    "name": "FlySky EL18",
+    "trainerModuleSBUS": false,
+    "vcpSerialMode": true
+}

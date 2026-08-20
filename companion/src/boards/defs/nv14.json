@@ -1,0 +1,46 @@
+{
+    "backlight": {
+        "min": 1
+    },
+    "basedOn": [
+        "color"
+    ],
+    "battery": {
+        "vmax": 42,
+        "vmin": 35,
+        "vwarn": 37
+    },
+    "flashSize": 2097152,
+    "modules": [
+        {
+            "internal": {
+                "available": [
+                    "afhds2a"
+                ],
+                "default": "afhds2a"
+            }
+        },
+        {
+            "external": {
+                "available": [
+                    "xjt",
+                    "isrm",
+                    "r9m",
+                    "r9maccess",
+                    "dsm2",
+                    "crsf",
+                    "multi",
+                    "ghost",
+                    "afhds3",
+                    "lemondsmp",
+                    "ppm",
+                    "sbus"
+                ],
+                "size": "standard"
+            }
+        }
+    ],
+    "name": "FlySky NV14",
+    "trainerModuleSBUS": false,
+    "vcpSerialMode": true
+}

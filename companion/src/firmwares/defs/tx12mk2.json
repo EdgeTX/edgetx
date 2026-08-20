@@ -1,0 +1,29 @@
+{
+    "basedOn": [
+        "bw"
+    ],
+    "buildOpts": [
+        [
+            "faichoice",
+            "faimode"
+        ],
+        "nooverridech",
+        "noheli",
+        "nogvars",
+        "lua",
+        "sqt5font",
+        "bluetooth",
+        "flexr9m"
+    ],
+    "expos": {
+        "name": 6
+    },
+    "mixes": {
+        "name": 6
+    },
+    "modelSlots": 60,
+    "name": "TX12 Mark II",
+    "teleCstmScrns": {
+        "fieldsPerLine": 2
+    }
+}

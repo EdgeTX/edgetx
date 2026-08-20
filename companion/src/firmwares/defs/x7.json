@@ -1,0 +1,31 @@
+{
+    "basedOn": [
+        "bw"
+    ],
+    "buildOpts": [
+        [
+            "faichoice",
+            "faimode"
+        ],
+        "nooverridech",
+        "noheli",
+        "nogvars",
+        "lua",
+        "sqt5font",
+        [
+            "eu",
+            "flexr9m"
+        ]
+    ],
+    "expos": {
+        "name": 6
+    },
+    "mixes": {
+        "name": 6
+    },
+    "modelSlots": 60,
+    "name": "Taranis X7 / X7S",
+    "teleCstmScrns": {
+        "fieldsPerLine": 2
+    }
+}

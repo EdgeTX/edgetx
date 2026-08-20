@@ -1,0 +1,45 @@
+{
+    "backlight": {
+        "min": 1
+    },
+    "basedOn": [
+        "color"
+    ],
+    "battery": {
+        "vmax": 80,
+        "vmin": 60,
+        "vwarn": 65
+    },
+    "externalAntenna": true,
+    "flashSize": 2097152,
+    "hwAntennaSwitch": true,
+    "modules": [
+        {
+            "internal": {
+                "available": [
+                    "elrs"
+                ],
+                "default": "elrs"
+            }
+        },
+        {
+            "external": {
+                "available": [
+                    "r9mlite",
+                    "r9mliteaccess",
+                    "r9mliteproaccess",
+                    "xjtlite",
+                    "crsf",
+                    "multi",
+                    "ghost",
+                    "ppm",
+                    "sbus",
+                    "lemondsmp"
+                ],
+                "size": "small"
+            }
+        }
+    ],
+    "name": "HelloRadioSky V12",
+    "vcpSerialMode": true
+}

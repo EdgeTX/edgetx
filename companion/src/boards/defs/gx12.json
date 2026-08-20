@@ -1,0 +1,50 @@
+{
+    "basedOn": [
+        "bw"
+    ],
+    "battery": {
+        "vmax": 80,
+        "vmin": 60,
+        "vwarn": 65
+    },
+    "contrast": {
+        "max": 254,
+        "min": 2
+    },
+    "eepromSize": 32768,
+    "flashSize": 1048576,
+    "modules": [
+        {
+            "internal": {
+                "available": [
+                    "xjt",
+                    "isrm",
+                    "elrs",
+                    "multi"
+                ],
+                "default": "elrs"
+            }
+        },
+        {
+            "external": {
+                "available": [
+                    "xjt",
+                    "isrm",
+                    "r9m",
+                    "r9maccess",
+                    "dsm2",
+                    "crsf",
+                    "multi",
+                    "ghost",
+                    "afhds3",
+                    "lemondsmp",
+                    "ppm",
+                    "sbus"
+                ],
+                "size": "standard"
+            }
+        }
+    ],
+    "name": "Radiomaster GX12",
+    "rotEncNav": true
+}

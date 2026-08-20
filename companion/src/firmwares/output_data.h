@@ -21,11 +21,10 @@
 
 #pragma once
 
+#include "constants.h"
 #include "curvereference.h"
 
 #include <QtCore>
-
-#define LIMITDATA_NAME_LEN  6
 
 class LimitData {
   Q_DECLARE_TR_FUNCTIONS(LimitData)

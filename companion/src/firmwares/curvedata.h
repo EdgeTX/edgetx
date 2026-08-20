@@ -33,8 +33,6 @@ class CurvePoint {
     int8_t y;
 };
 
-#define CURVEDATA_NAME_LEN  3
-
 class CurveData {
   Q_DECLARE_TR_FUNCTIONS(CurveData)
 
@@ -50,7 +48,7 @@ class CurveData {
     CurveType type;
     bool smooth;
     int  count;
-    CurvePoint points[CPN_MAX_POINTS];
+    CurvePoint points[CPN_MAX_CURVE_POINTS];
     char name[CURVEDATA_NAME_LEN + 1];
 
     void clear(int count = 5);

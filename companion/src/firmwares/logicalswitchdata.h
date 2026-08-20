@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef LOGICALSWITCHDATA_H
-#define LOGICALSWITCHDATA_H
+#pragma once
 
 #include <QtCore>
 
@@ -88,5 +87,3 @@ class LogicalSwitchData {
     QString nameToString(int index) const;
     void convert(RadioDataConversionState & cstate);
 };
-
-#endif // LOGICALSWITCHDATA_H
