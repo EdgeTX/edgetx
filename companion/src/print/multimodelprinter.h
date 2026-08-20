@@ -75,6 +75,7 @@ class MultiModelPrinter: public QObject
     };
 
     Firmware * firmware;
+    Board *board;
     GeneralSettings defaultSettings;
     QMap<int, QPair<const ModelData *, ModelPrinter *> > modelPrinterMap;
 

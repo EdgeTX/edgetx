@@ -40,6 +40,18 @@ extern QString gAppTempPath;
 
 //convert from mode 1 to mode generalSettings.stickMode
 //NOTICE!  =>  1..4 -> 1..4
+
+const uint8_t modn12x3[8][4]= {
+  {1, 2, 3, 4}, // air mode 1
+  {1, 3, 2, 4}, // air mode 2
+  {4, 2, 3, 1}, // air mode 3
+  {4, 3, 2, 1}, // air mode 4
+  {2, 3, 4, 1}, // surface mode 1
+  {2, 3, 4, 1}, // surface mode 2
+  {2, 3, 4, 1}, // surface mode 3
+  {2, 3, 4, 1}  // surface mode 4
+};
+
 #define CONVERT_AIRMODE(x)      (((x)<=4) ? modn12x3[generalSettings.stickMode][((x)-1)] : (x))
 #define CONVERT_SURFACEMODE(x)  (((x)<=4) ? modn12x3[4 + generalSettings.stickMode][((x)-1)] : (x))
 
@@ -279,3 +291,17 @@ T rangeCheck(T value, T min, T max, T defaultValue) {
   }
   return value;
 }
+
+inline int divRoundClosest(const int n, const int d)
+{
+  return ((n < 0) ^ (d < 0)) ? ((n - d / 2) / d) : ((n + d / 2) / d);
+}
+
+inline int calcRESXto100(int x)
+{
+  return divRoundClosest(x * 100, 1024);
+}
+
+float ValToTim(int value);
+int TimToVal(float value);
+

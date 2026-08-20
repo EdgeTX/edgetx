@@ -55,12 +55,13 @@ int SimulatorLoader::registerSimulators(const QDir & dir)
     QString wasmPath = dir.path() + "/" + filename;
 
     // Resolve board type from name
-    Board::Type boardType = Board::BOARD_UNKNOWN;
+    QString boardId = Board::BOARD_UNKNOWN;
     Firmware * fw = Firmware::getFirmwareForId(QString("edgetx-") + simuName);
-    if (fw)
-      boardType = fw->getBoard();
 
-    auto * factory = new WasmSimulatorFactory(wasmPath, simuName, boardType);
+    if (fw)
+      boardId = fw->getBoard()->getId();
+
+    auto * factory = new WasmSimulatorFactory(wasmPath, simuName, boardId);
     registeredSimulators.insert(simuName, factory);
 
     qCDebug(simulatorInterfaceLoader) << "Registered WASM simulator:"

@@ -78,12 +78,13 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
   connect(radioUiWidget, &SimulatedUIWidget::customStyleRequest, this, &SimulatorWidget::setUiAreaStyle);
   connect(radioUiWidget, &SimulatedUIWidget::resizeRequest, radioUiWidget, &SimulatedUIWidget::shrink);
 
-  vJoyLeft = new VirtualJoystickWidget(this, 'L', Boards::getCapability(m_board, Board::Surface) ? false : true);
+  vJoyLeft = new VirtualJoystickWidget(this, 'L', m_board->getCapability(Capability::Surface) ? false : true);
   ui->leftStickLayout->addWidget(vJoyLeft);
 
-  vJoyRight = new VirtualJoystickWidget(this, 'R', (Boards::getCapability(m_board, Board::Surface) ||
-                                                    m_board == Board::BOARD_TARANIS_XLITE ||
-                                                    m_board == Board::BOARD_TARANIS_XLITES ? false : true));  // TODO: maybe remove trims for both joysticks and add a cross in the middle?
+  vJoyRight = new VirtualJoystickWidget(this, 'R', (m_board->getCapability(Capability::Surface)
+                                                    // || m_board == Board::BOARD_TARANIS_XLITE ||  Not sure why these 2 are listed
+                                                    // m_board == Board::BOARD_TARANIS_XLITES */
+                                                    ? false : true));  // TODO: maybe remove trims for both joysticks and add a cross in the middle?
   ui->rightStickLayout->addWidget(vJoyRight);
 
   connect(vJoyLeft, &VirtualJoystickWidget::valueChange, this, &SimulatorWidget::onRadioWidgetValueChange);
@@ -244,13 +245,13 @@ bool SimulatorWidget::setRadioData(RadioData * radioData)
   saveTempRadioData = (flags & SIMULATOR_FLAGS_STANDALONE);
 
   // All radios use SD card data path from 2.6.0 on
-  bool hasSdCard = Boards::getCapability(m_board, Board::HasSDCard);
+  bool hasSdCard = m_board->getCapability(Capability::HasSDCard);
   if (hasSdCard)
     ret = useTempDataPath(true);
 
   if (ret) {
     if (!hasSdCard) {
-      startupData.fill(0, Boards::getEEpromSize(m_board));
+      startupData.fill(0, m_board->getCapability(Capability::EepromSize));
       //if (firmware->getEEpromInterface()->save(
       //        (uint8_t *)startupData.data(), *radioData, 0,
       //        firmware->getCapability(SimulatorVariant)) <= 0) {
@@ -467,7 +468,7 @@ void SimulatorWidget::onSimulatorStopped()
   m_heartbeatTimer.invalidate();
 
   if (simulator && !simulator->isRunning() && saveTempRadioData) {
-    startupData.fill(0, Boards::getEEpromSize(m_board));
+    startupData.fill(0, m_board->getCapability(Capability::EepromSize));
     simulator->readRadioData(startupData);
   }
 }
@@ -505,11 +506,11 @@ void SimulatorWidget::setupRadioWidgets()
 {
   QString wname;
   int i, midpos;
-  const int ttlSticks = Boards::getCapability(m_board, Board::Sticks);
-  const int ttlSwitches = Boards::getCapability(m_board, Board::Switches);
-  const int ttlInputs = Boards::getCapability(m_board, Board::Inputs);
-  const int stickTrims = Boards::getCapability(m_board, Board::Air) ? ttlSticks : 0;
-  const int extraTrims = Boards::getCapability(m_board, Board::NumTrims) - stickTrims;
+  const int ttlSticks = m_board->getCapability(Capability::Sticks);
+  const int ttlSwitches = m_board->getCapability(Capability::Switches);
+  const int ttlInputs = m_board->getCapability(Capability::Inputs);
+  const int stickTrims = m_board->getCapability(Capability::Air) ? ttlSticks : 0;
+  const int extraTrims = m_board->getCapability(Capability::NumTrims) - stickTrims;
 
   // First clear out any existing widgets.
   foreach (RadioWidget * rw, m_radioWidgets) {
@@ -536,7 +537,7 @@ void SimulatorWidget::setupRadioWidgets()
 
   // Now set up new widgets.
 
-  if (!Boards::getCapability(m_board, Board::FunctionSwitches)) {
+  if (!m_board->getCapability(Capability::FunctionSwitches)) {
     ui->radioWidgetsCS->hide();
   }
 
@@ -548,7 +549,7 @@ void SimulatorWidget::setupRadioWidgets()
       RadioWidget * sw;
       Board::SwitchType swcfg;
 
-      if (Boards::isSwitchFunc(i)) {
+      if (m_board->isSwitchFunc(i)) {
         swcfg = Board::SWITCH_2POS;  // TODO: get this from model settings
         sw = new RadioFuncSwitchWidget(simulator, swcfg, wname, -1, ui->radioWidgetsCS);
         ui->radioWidgetsCSLayout->addWidget(sw);
@@ -757,7 +758,9 @@ void SimulatorWidget::onSimulatorError(const QString & error)
 
 void SimulatorWidget::onPhaseChanged(qint32 phase, const QString & name)
 {
-  setWindowTitle(windowName + QString(" - %1 %2 (#%3)").arg(Boards::getCapability(m_board, Board::Air) ? tr("Flight Mode") : tr("Drive Mode")).arg(name).arg(phase));
+  setWindowTitle(windowName + QString(" - %1 %2 (#%3)")
+      .arg(m_board->getCapability(Capability::Air) ? tr("Flight Mode") : tr("Drive Mode"))
+      .arg(name).arg(phase));
 }
 
 void SimulatorWidget::onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, int index, int value)
@@ -828,8 +831,8 @@ void SimulatorWidget::onjoystickAxisValueChanged(int axis, int value)
 {
 #ifdef USE_SDL
   static const int ttlSticks = 4;
-  const int ttlKnobs = Boards::getCapability(m_board, Board::Pots);
-  const int ttlFaders = Boards::getCapability(m_board, Board::Sliders);
+  const int ttlKnobs = m_board->getCapability(Capability::Pots);
+  const int ttlFaders = m_board->getCapability(Capability::Sliders);
   static const int valueRange = 1024;
 
   if (!joystick || axis >= MAX_JS_AXES)
@@ -878,7 +881,7 @@ void SimulatorWidget::onjoystickButtonValueChanged(int button, bool state)
   if (!joystick || button >= MAX_JS_BUTTONS)
     return;
 
-  int ttlSwitches = Boards::getCapability(m_board, Board::Switches);
+  int ttlSwitches = m_board->getCapability(Capability::Switches);
 
   int btn = g.jsButton[button].button_idx();
 

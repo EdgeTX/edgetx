@@ -1,0 +1,99 @@
+{
+  "comments": [
+    "This file is always loaded first and variations overlaid in basedOn sequence",
+    "hidden: true prevents the name being displayed in any ui lists",
+    "supported: false prevents the name being displayed in any ui list however available for data conversion",
+    "Hardcoded CPN_MAX_xxx limits/sizes applied to char[] and data arrays until refactoring to std::string and std::vector respectively",
+    "Some entries are future proofing eg name and for parsing consistency"
+  ],
+  "hidden": true,
+  "basedOn": "",
+  "supported": true,
+  "id": "default",
+  "name": "Default",
+  "boardId": "",
+  "dwnldId": "",
+  "simuId": "",
+  "channels": {
+    "max": 32,
+    "name": 6
+  },
+  "curves": {
+    "comments": "",
+    "max": 32,
+    "name": 3,
+    "points": {
+      "min": 2,
+      "max": 17,
+      "total": 512
+    }
+  },
+  "expos": {
+    "comments": "input lines",
+    "max": 64,
+    "name": 10
+  },
+  "globalFuncs": {
+    "comments": "",
+    "max": 32,
+    "name": 0
+  },
+  "gvars": {
+    "comments": "h7 max: 15",
+    "max": 9,
+    "name": 3
+  },
+  "inputs": {
+    "comments": "",
+    "max": 32,
+    "name": 4
+  },
+  "logicalSw": {
+    "comments": "",
+    "max": 40,
+    "name": 0
+  },
+  "mixes": {
+    "comments": "",
+    "max": 64,
+    "name": 3
+  },
+  "modes": {
+    "comments": "Flight or Drive or some future modes",
+    "max": 9,
+    "name": 4
+  },
+  "outputs": {
+    "comments": "TODO or use channels?",
+    "max": 32,
+    "name": 6
+  },
+  "luaScripts": {
+    "comments": "",
+    "max": 0,
+    "name": 0
+  },
+  "sensors": {
+    "comments": "h7 max: 99",
+    "max": 40,
+    "name": 4
+  },
+  "specialFuncs": {
+    "comments": "",
+    "max": 32,
+    "name": 0
+  },
+  "teleCstmScrns": {
+    "comments": "only used for b&w radios",
+    "max": 4,
+    "name": 0,
+    "maxLines": 4,
+    "maxBars": 4,
+    "maxPerLine": 3
+  },
+  "timers": {
+    "comments": "",
+    "max": 3,
+    "name": 8
+  }
+}

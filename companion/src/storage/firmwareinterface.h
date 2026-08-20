@@ -30,7 +30,7 @@
 #define SPLASH_HEIGHT (64)
 #define SPLASHX9D_WIDTH (212)
 #define SPLASHX9D_HEIGHT (64)
-#define SPLASH_SIZE_MAX   (SPLASHX9D_WIDTH*SPLASHX9D_HEIGHT/2)
+#define SPLASH_SIZE_MAX  (SPLASHX9D_WIDTH * SPLASHX9D_HEIGHT / 2)
 #define ERSPLASH_MARKER "Splash"
 #define ERSPLASH_OFFSET (10)
 #define ERSKY9X_SPS "SPS"
@@ -71,7 +71,7 @@ class FirmwareInterface
     inline QString getTime() { return time; }
     inline const QByteArray& getFlash() { return flash; }
     inline int getSize() { return flashSize; }
-    inline QString getFlavour() const { return flavour; }
+    inline QString getBoardId() const { return boardId; }
     bool isHardwareCompatible(const FirmwareInterface &previousFirmware) const;
     inline QString getVersion() { return version; }
     inline int getEEpromVersion() { return eepromVersion; }
@@ -95,7 +95,7 @@ class FirmwareInterface
     QString filename;
     QString date;
     QString time;
-    QString flavour;
+    QString boardId;
     QString version;
     QString eepromId;
     int eepromVersion = 0;

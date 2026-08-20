@@ -28,7 +28,6 @@
 
 class AbstractStaticItemModel;
 class SemanticVersion;
-class BoardJson;
 class GeneralSettings;
 
 // identiying names of static abstract item models
@@ -500,6 +499,10 @@ class Boards
     static bool isSurface(Board::Type board = Board::BOARD_UNKNOWN);
 
     static void tests();
+
+    // temporary until Boards refactored
+    static Board::Type getBoardForHwDefn(const QString & hwdefn);
+    //
 
   private:
 

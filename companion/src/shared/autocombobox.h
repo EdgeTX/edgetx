@@ -25,7 +25,7 @@
 #include "rawsource.h"
 #include "rawswitch.h"
 #include "curvedata.h"
-#include "boards.h"
+#include "board.h"
 
 #include <QComboBox>
 

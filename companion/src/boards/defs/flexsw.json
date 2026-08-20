@@ -1,0 +1,11 @@
+{
+  "hidden": true,
+  "switches": [
+    {
+    "name": "FL1"
+    },
+    {
+    "name": "FL2"
+    }
+  ]
+}

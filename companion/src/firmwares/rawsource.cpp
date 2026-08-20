@@ -73,7 +73,7 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
 {
   RawSourceRange result;
 
-  Firmware * firmware = Firmware::getCurrentVariant();
+  Firmware *firmware = getCurrentFirmware();
 
   switch (type) {
     case SOURCE_TYPE_TELEMETRY:
@@ -172,13 +172,12 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
   return result;
 }
 
-QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings, Board::Type board, bool prefixCustomName) const
+QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings, QString boardId, bool prefixCustomName) const
 {
   if (index < 0)
-    return CPN_STR_SRC_INDICATOR_NEG % RawSource(type, -index).toString(model, generalSettings, board, prefixCustomName);
+    return CPN_STR_SRC_INDICATOR_NEG % RawSource(type, -index).toString(model, generalSettings, boardId, prefixCustomName);
 
-  if (board == Board::BOARD_UNKNOWN)
-    board = getCurrentBoard();
+  Board *board = boardId == Board::BOARD_UNKNOWN ? getCurrentBoard() : Board::getBoardForId(boardId);
 
   static const QString trimsAir[] = {
     "", tr("Trim Rud"), tr("Trim Ele"), tr("Trim Thr"), tr("Trim Ail"), tr("Trim 5"), tr("Trim 6"), tr("Trim 7"), tr("Trim 8")
@@ -221,14 +220,14 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       }
 
     case SOURCE_TYPE_INPUT:
-      dfltName = Boards::getInputName(index - 1, board);
+      dfltName = board->getInputName(index - 1);
       if (generalSettings && index <= CPN_MAX_INPUTS)
         custName = QString(generalSettings->inputConfig[index - 1].name).trimmed();
       return DataHelpers::getCompositeName(dfltName, custName, prefixCustomName);
 
     case SOURCE_TYPE_TRIM:
-      return (Boards::getCapability(board, Board::NumTrims) == 2 ? CHECK_IN_ARRAY(trims2, index) :
-              (Boards::isAir(board) ? CHECK_IN_ARRAY(trimsAir, index) :
+      return (board->getCapability(Capability::NumTrims) == 2 ? CHECK_IN_ARRAY(trims2, index) :
+              (board->getCapability(Capability::Air) ? CHECK_IN_ARRAY(trimsAir, index) :
                CHECK_IN_ARRAY(trimsSurface, index)));
 
     case SOURCE_TYPE_MIN:
@@ -238,10 +237,10 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return tr("MAX");
 
     case SOURCE_TYPE_SWITCH:
-      dfltName = Boards::getSwitchInfo(index - 1, board).name.c_str();
-      if (Boards::isSwitchFunc(index - 1, board)) {
+      dfltName = board->getSwitchInfo(index - 1).name.c_str();
+      if (board->isSwitchFunc(index - 1)) {
         if (model) {
-          int fsindex = Boards::getCFSIndexForSwitch(index - 1, board);
+          int fsindex = board->getCFSIndexForSwitch(index - 1);
           if (fsindex >= 0 && fsindex < CPN_MAX_SWITCHES_FUNCTION)
             custName = QString(model->customSwitches[fsindex].name).trimmed();
         }
@@ -312,12 +311,11 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   }
 }
 
-bool RawSource::isStick(Board::Type board) const
+bool RawSource::isStick(QString boardId) const
 {
-  if (board == Board::BOARD_UNKNOWN)
-    board = getCurrentBoard();
+  Board *board = boardId == Board::BOARD_UNKNOWN ? getCurrentBoard() : Board::getBoardForId(boardId);
 
-  if (type == SOURCE_TYPE_INPUT && index - 1 < Boards::getCapability(board, Board::Sticks)) {
+  if (type == SOURCE_TYPE_INPUT && index - 1 < board->getCapability(Capability::Sticks)) {
     return true;
   }
   return false;
@@ -325,22 +323,20 @@ bool RawSource::isStick(Board::Type board) const
 
 bool RawSource::isAvailable(const ModelData * const model,
                             const GeneralSettings * const gs,
-                            Board::Type board,
+                            QString boardId,
                             const int flags) const
 {
   if (type == SOURCE_TYPE_NONE && index == 0)
     return true;
 
-  if (board == Board::BOARD_UNKNOWN)
-    board = getCurrentBoard();
-
-  Boards b(board);
+  Board *board = boardId == Board::BOARD_UNKNOWN ? getCurrentBoard() : Board::getBoardForId(boardId);
+  // TODO fix as this can create a mismatch if boardId does not match firmware board
   Firmware *firmware = getCurrentFirmware();
 
   if (type == SOURCE_TYPE_CH && abs(index) > CPN_MAX_CHNOUT)
     return false;
 
-  if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP && index >= b.getCapability(Board::FunctionSwitches))
+  if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP && index >= board->getCapability(Capability::FunctionSwitches))
     return false;
 
   if (type == SOURCE_TYPE_CUSTOM_SWITCH && abs(index) > CPN_MAX_LOGICAL_SWITCHES)
@@ -349,10 +345,10 @@ bool RawSource::isAvailable(const ModelData * const model,
   if (type == SOURCE_TYPE_LUA_OUTPUT && div(abs(index - 1), 16).quot >= CPN_MAX_SCRIPTS)
     return false;
 
-  if (type == SOURCE_TYPE_INPUT && abs(index) > b.getCapability(Board::Inputs))
+  if (type == SOURCE_TYPE_INPUT && abs(index) > board->getCapability(Capability::Inputs))
     return false;
 
-  if (type == SOURCE_TYPE_SWITCH && abs(index) > b.getCapability(Board::Switches))
+  if (type == SOURCE_TYPE_SWITCH && abs(index) > board->getCapability(Capability::Switches))
     return false;
 
   if (type == SOURCE_TYPE_SPECIAL && abs(index) >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED)
@@ -364,18 +360,18 @@ bool RawSource::isAvailable(const ModelData * const model,
   if (type == SOURCE_TYPE_TELEMETRY && div(abs(index), 3).quot > CPN_MAX_SENSORS)
     return false;
 
-  if (type == SOURCE_TYPE_CYC && !firmware->getCapability(Heli))
+  if (type == SOURCE_TYPE_CYC && !firmware->getCapability(Capability::Heli))
     return false;
 
-  if (type == SOURCE_TYPE_GVAR && abs(index) > firmware->getCapability(Gvars))
+  if (type == SOURCE_TYPE_GVAR && abs(index) > firmware->getCapability(Capability::Gvars))
     return false;
 
   if (model) {
     if (type == SOURCE_TYPE_TIMER && model->timers[abs(index) - 1].isModeOff())
       return false;
 
-    if (type == SOURCE_TYPE_SWITCH && b.isSwitchFunc(abs(index) - 1, board) &&
-        !model->isFunctionSwitchSourceAllowed(b.getCFSIndexForSwitch(abs(index) - 1, board)))
+    if (type == SOURCE_TYPE_SWITCH && board->isSwitchFunc(abs(index) - 1) &&
+        !model->isFunctionSwitchSourceAllowed(board->getCFSIndexForSwitch(abs(index) - 1)))
       return false;
 
     if (type == SOURCE_TYPE_VIRTUAL_INPUT && !model->isInputValid(abs(index) - 1))
@@ -397,14 +393,14 @@ bool RawSource::isAvailable(const ModelData * const model,
       return false;
 
     if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP) {
-      if (!b.getCapability(Board::FunctionSwitches))
+      if (!board->getCapability(Capability::FunctionSwitches))
         return false;
       else if (model->getFuncGroupSwitchCount(abs(index), CPN_MAX_SWITCHES_FUNCTION) == 0)
         return false;
     }
   }
   else {
-    if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP && b.getCapability(Board::FunctionSwitches))
+    if (type == SOURCE_TYPE_FUNCTIONSWITCH_GROUP && board->getCapability(Capability::FunctionSwitches))
       return false;
   }
 
@@ -416,20 +412,20 @@ bool RawSource::isAvailable(const ModelData * const model,
         return false;
     }
 
-    if (type == SOURCE_TYPE_SWITCH && !b.isSwitchFunc(abs(index) - 1, board) &&
+    if (type == SOURCE_TYPE_SWITCH && !board->isSwitchFunc(abs(index) - 1) &&
         !gs->switchSourceAllowed(abs(index) - 1))
       return false;
   }
   else {
     if (type == SOURCE_TYPE_INPUT) {
-      if (!Boards::isInputAvailable(abs(index) - 1, board))
+      if (!board->isInputAvailable(abs(index) - 1))
         return false;
-      if (Boards::getInputInfo(abs(index) - 1, board).flexType == Board::FLEX_SWITCH)
+      if (board->getInputInfo(abs(index) - 1).flexType == Board::FLEX_SWITCH)
         return false;
     }
   }
 
-  if (type == SOURCE_TYPE_TRIM && abs(index) > b.getCapability(Board::NumTrims))
+  if (type == SOURCE_TYPE_TRIM && abs(index) > board->getCapability(Capability::NumTrims))
     return false;
 
   if (type == SOURCE_TYPE_SPACEMOUSE &&
@@ -439,7 +435,7 @@ bool RawSource::isAvailable(const ModelData * const model,
     return false;
 
   if (type == SOURCE_TYPE_INPUT && (flags & AVAILABLE_CONTROLSRC) &&
-      Boards::isInputGyroAxis(abs(index) - 1, board))
+      board->isInputFlexGyroAxis(abs(index) - 1))
     return false;
 
   return true;
@@ -451,9 +447,9 @@ RawSource RawSource::convert(RadioDataConversionState & cstate)
   RadioDataConversionState::LogField oldData(index, toString(cstate.fromModel(), cstate.fromGS(), cstate.fromType));
 
   if (type == SOURCE_TYPE_INPUT)
-    index = Boards::getInputIndex(Boards::getInputTag(oldData.id, cstate.fromType), Board::LVT_TAG, cstate.toType);
+    index = cstate.toBoard->getInputIndex(cstate.fromBoard->getInputTag(oldData.id), Board::LVT_TAG);
   else if (type == SOURCE_TYPE_SWITCH)
-    index = Boards::getSwitchIndex(Boards::getSwitchTag(oldData.id, cstate.fromType), Board::LVT_TAG, cstate.toType);
+    index = cstate.toBoard->getSwitchIndex(cstate.fromBoard->getSwitchTag(oldData.id), Board::LVT_TAG);
 
   // final validation (we do not pass model to isAvailable() because we don't know what has or hasn't been converted)
   if (index < 0 || !isAvailable(nullptr, cstate.toGS(), cstate.toType)) {

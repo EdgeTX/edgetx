@@ -42,7 +42,7 @@ void RadioData::fixModelFilename(unsigned int index)
 {
   ModelData & model = models[index];
   QString filename = model.filename.toQString();
-  const bool hasSDCard = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::HasSDCard);
+  const bool hasSDCard = getCurrentBoard()->getCapability(Capability::HasSDCard);
   bool ok = hasSDCard ? filename.endsWith(".yml") : filename.endsWith(".bin");
   if (ok) {
     if (filename.startsWith("model") && filename.mid(5, filename.length()-9).toInt() > 0) {
@@ -96,7 +96,7 @@ void RadioData::convert(RadioDataConversionState & cstate)
     models[i].convert(cstate.withModelIndex(i));
   }
 
-  if (IS_FAMILY_HORUS_OR_T16(cstate.toType)) {
+  if (cstate.toBoard->getCapability(Capability::HasColorLcd)) {
     fixModelFilenames();
   }
 

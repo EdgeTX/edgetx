@@ -40,7 +40,7 @@ def main(jsondir, template, placeholder, output):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description='Generate hardware definitions resource file')
+    parser = argparse.ArgumentParser(description='Generate definitions resource file')
     parser.add_argument('-d', metavar='json files directory', required=True)
     parser.add_argument('-t', metavar='template file', required=True)
     parser.add_argument('-p', metavar='placeholder', required=True)

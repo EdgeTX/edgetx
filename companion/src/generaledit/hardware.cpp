@@ -59,11 +59,11 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 {
   tabFilteredModels = new FilteredItemModelFactory();
 
-  int id = editorItemModels->registerItemModel(Boards::flexTypeItemModel());
+  int id = editorItemModels->registerItemModel(Board::flexTypeItemModel());
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::FlexTypeContextSwitch), FIM_FLEXTYPE_SWITCH);
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::FlexTypeContextNoSwitch), FIM_FLEXTYPE_NOSWITCH);
 
-  id = editorItemModels->registerItemModel(Boards::switchTypeItemModel());
+  id = editorItemModels->registerItemModel(Board::switchTypeItemModel());
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContextNone), FIM_SWITCHTYPENONE);
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContext2Pos), FIM_SWITCHTYPE2POS);
   tabFilteredModels->registerItemModel(new FilteredItemModel(editorItemModels->getItemModel(id), Board::SwitchTypeContext3Pos), FIM_SWITCHTYPE3POS);
@@ -87,7 +87,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
   addSection(tr("Axis"));
 
-  count = Boards::getCapability(board, Board::Sticks);
+  count = board->getCapability(Capability::Sticks);
   if (count > 0) {
     addLabel("");
     addLabel(tr("Name"));
@@ -98,7 +98,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     }
   }
 
-  if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board)) {
+  if (board->getCapability(Capability::HasStickDeadZone)) {
     addLabel(tr("Dead zone"));
     AutoComboBox *spnStickDeadZone = new AutoComboBox(this);
     spnStickDeadZone->setModel(GeneralSettings::stickDeadZoneItemModel());
@@ -107,7 +107,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  if (Boards::getCapability(board, Board::HasIMU)) {
+  if (board->getCapability(Capability::HasIMU)) {
     addSection(tr("IMU"));
     addLabel("");
     addLabel(tr("Invert"));
@@ -126,7 +126,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  count = Boards::getCapability(board, Board::Inputs);
+  count = board->getCapability(Capability::Inputs);
 
   if (count > 0) {
     addSection(tr("Pots"));
@@ -135,13 +135,13 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addLabel(tr("Type"));
     addLabel(tr("Invert"));
     addParams();
-    for (int i = Boards::getCapability(board, Board::Sticks); i < count; i++) {
-      if (Boards::isInputConfigurable(i, board))
+    for (int i = board->getCapability(Capability::Sticks); i < count; i++) {
+      if (board->isInputConfigurable(i))
         addFlex(i);
     }
   }
 
-  if (Boards::getCapability(board, Board::Switches)) {
+  if (board->getCapability(Capability::Switches)) {
     addSection(tr("Switches"));
 
     addLabel("");
@@ -150,12 +150,12 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
 
     for (int i = 0; i < CPN_MAX_SWITCHES; i++) {
-      if (Boards::isSwitchConfigurable(i, board) && !generalSettings.isSwitchFunc(i) && !generalSettings.isSwitchFlex(i))
+      if (board->isSwitchConfigurable(i) && !generalSettings.isSwitchFunc(i) && !generalSettings.isSwitchFlex(i))
         addSwitch(i);
     }
   }
 
-  if (Boards::getCapability(board, Board::FlexSwitches)) {
+  if (board->getCapability(Capability::FlexSwitches)) {
     // All values except -1 (None) are mutually exclusive
     exclFlexSwitchesGroup = new ExclusiveComboGroup(
         this, [=](const QVariant &value) { return value == -1; });
@@ -169,7 +169,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
 
     for (int i = 0; i < CPN_MAX_SWITCHES; i++) {
-      if (Boards::isSwitchConfigurable(i, board) && generalSettings.isSwitchFlex(i))
+      if (board->isSwitchConfigurable(i) && generalSettings.isSwitchFlex(i))
         addSwitch(i);
     }
 
@@ -180,14 +180,14 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     }
   }
 
-  if (Boards::getCapability(board, Board::FunctionSwitches)) {
+  if (board->getCapability(Capability::FunctionSwitches)) {
     addSection(tr("Customisable Switches"));
 
     addLabel("");
     addLabel(tr("Name"));
     addLabel(tr("Type"));
     addLabel(tr("Start"));
-    if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
+    if (board->getCapability(Capability::FunctionSwitchColors)) {
       addLabel(tr("Off color"));
       addLabel(tr("Lua override"));
       addLabel(tr("On color"));
@@ -196,14 +196,14 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
 
     for (int i = 0; i < CPN_MAX_SWITCHES; i++) {
-      if (Boards::isSwitchConfigurable(i, board) && generalSettings.isSwitchFunc(i))
+      if (board->isSwitchConfigurable(i) && generalSettings.isSwitchFunc(i))
         addSwitch(i);
     }
   }
 
   addLine();
 
-  if (Boards::getCapability(board, Board::HasRTC)) {
+  if (board->getCapability(Capability::HasRTC)) {
     addLabel(tr("RTC Battery Check"));
     AutoCheckBox *rtcCheckDisable = new AutoCheckBox(this);
     rtcCheckDisable->setField(generalSettings.rtcCheckDisable, this, true);
@@ -217,7 +217,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   params->append(filterEnable);
   addParams();
 
-  if (Boards::getCapability(board, Board::HasAudioMuteGPIO)) {
+  if (board->getCapability(Capability::HasAudioMuteGPIO)) {
     addLabel(tr("Mute if no sound"));
     AutoCheckBox *muteIfNoSound = new AutoCheckBox(this);
     muteIfNoSound->setField(generalSettings.muteIfNoSound, this, false);
@@ -225,7 +225,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  if (Boards::getCapability(board, Board::HasBluetooth)) {
+  if (board->getCapability(Capability::HasBluetooth)) {
     addLabel(tr("Bluetooth"));
 
     AutoComboBox *bluetoothMode = new AutoComboBox(this);
@@ -245,7 +245,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  if (Boards::getCapability(board, Board::HasInternalModuleSupport)) {
+  if (board->getCapability(Capability::HasInternalModuleSupport)) {
     m_internalModule = generalSettings.internalModule; // to permit undo
     addSection(tr("Internal RF"));
     addLabel(tr("Type"));
@@ -279,7 +279,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     antennaMode->setField(generalSettings.antennaMode, this);
     params->append(antennaMode);
 
-    if (!((m_internalModule == MODULE_TYPE_XJT_PXX1 || Boards::getCapability(board, Board::HasHardwareAntennaSwitch)) && Boards::getCapability(board, Board::HasExternalAntenna))) {
+    if (!((m_internalModule == MODULE_TYPE_XJT_PXX1 || board->getCapability(Capability::HasHardwareAntennaSwitch)) && board->getCapability(Capability::HasExternalAntenna))) {
       antennaLabel->setVisible(false);
       antennaMode->setVisible(false);
     }
@@ -287,7 +287,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  if (Boards::getCapability(board, Board::HasExternalModuleSupport)) {
+  if (board->getCapability(Capability::HasExternalModuleSupport)) {
     addSection(tr("External RF"));
     addLabel(tr("Sample Mode"));
     AutoComboBox *uartSampleMode = new AutoComboBox(this);
@@ -301,12 +301,12 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   ExclusiveComboGroup *exclGroup = new ExclusiveComboGroup(
       this, [=](const QVariant &value) { return value == 0; });
 
-  if (Boards::getCapability(board, Board::HasAuxSerialMode) ||
-      Boards::getCapability(board, Board::HasAux2SerialMode) ||
-      Boards::getCapability(board, Board::HasVCPSerialMode))
+  if (board->getCapability(Capability::HasAuxSerialMode) ||
+      board->getCapability(Capability::HasAux2SerialMode) ||
+      board->getCapability(Capability::HasVCPSerialMode))
     addSection(tr("Serial ports"));
 
-  if (Boards::getCapability(board, Board::HasAuxSerialMode)) {
+  if (board->getCapability(Capability::HasAuxSerialMode)) {
     addLabel(tr("AUX1"));
     AutoComboBox *serialPortMode = new AutoComboBox(this);
     serialPortMode->setModel(tabFilteredModels->getItemModel(FIM_AUX1SERIALMODES));
@@ -321,11 +321,11 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
     addParams();
 
-    if (!Boards::getCapability(board, Board::HasSoftwareSerialPower))
+    if (!board->getCapability(Capability::HasSoftwareSerialPower))
       serialPortPower->setVisible(false);
   }
 
-  if (Boards::getCapability(board, Board::HasAux2SerialMode)) {
+  if (board->getCapability(Capability::HasAux2SerialMode)) {
     addLabel(tr("AUX2"));
     AutoComboBox *serialPortMode = new AutoComboBox(this);
     serialPortMode->setModel(tabFilteredModels->getItemModel(FIM_AUX2SERIALMODES));
@@ -340,11 +340,11 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
     addParams();
 
-    if (!Boards::getCapability(board, Board::HasSoftwareSerialPower))
+    if (!board->getCapability(Capability::HasSoftwareSerialPower))
       serialPortPower->setVisible(false);
   }
 
-  if (Boards::getCapability(board, Board::HasVCPSerialMode)) {
+  if (board->getCapability(Capability::HasVCPSerialMode)) {
     addLabel(tr("USB-VCP"));
     serialPortUSBVCP = new AutoComboBox(this);
     serialPortUSBVCP->setModel(tabFilteredModels->getItemModel(FIM_VCPSERIALMODES));
@@ -364,7 +364,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  if (Boards::getCapability(board, Board::LcdWidth) == 128) {
+  if (board->getCapability(Capability::LcdWidth) == 128) {
     addSection(tr("Screen"));
 
     addLabel(tr("Invert"));
@@ -401,8 +401,7 @@ void HardwarePanel::on_internalModuleChanged()
     m_internalModule = generalSettings.internalModule;
     if (m_internalModule == MODULE_TYPE_GHOST || m_internalModule == MODULE_TYPE_CROSSFIRE) {
 
-      if (Boards::getCapability(getCurrentFirmware()->getBoard(),
-                                Board::SportMaxBaudRate) < 400000) {
+      if (board->getCapability(Capability::SportMaxBaudRate) < 400000) {
         // default to 115k
         internalModuleBaudRate->setCurrentIndex(0);
       } else {
@@ -418,7 +417,7 @@ void HardwarePanel::on_internalModuleChanged()
       internalModuleBaudRate->setVisible(false);
     }
 
-    if ((m_internalModule == MODULE_TYPE_XJT_PXX1 || Boards::getCapability(board, Board::HasHardwareAntennaSwitch)) && Boards::getCapability(board, Board::HasExternalAntenna)) {
+    if ((m_internalModule == MODULE_TYPE_XJT_PXX1 || board->getCapability(Capability::HasHardwareAntennaSwitch)) && board->getCapability(Capability::HasExternalAntenna)) {
       antennaLabel->setVisible(true);
       antennaMode->setVisible(true);
     } else {
@@ -434,7 +433,7 @@ void HardwarePanel::addStick(int index)
 {
   GeneralSettings::InputConfig &config = generalSettings.inputConfig[index];
 
-  addLabel(Boards::getInputName(index, board));
+  addLabel(board->getInputName(index));
 
   AutoLineEdit *name = new AutoLineEdit(this);
   name->setValidator(new NameValidator(board, this));
@@ -452,7 +451,7 @@ void HardwarePanel::addFlex(int index)
 {
   GeneralSettings::InputConfig &config = generalSettings.inputConfig[index];
 
-  addLabel(Boards::getInputName(index, board));
+  addLabel(board->getInputName(index));
 
   AutoLineEdit *name = new AutoLineEdit(this);
   name->setValidator(new NameValidator(board, this));
@@ -469,14 +468,14 @@ void HardwarePanel::addFlex(int index)
           if (mdl)
             mdl->update(AbstractItemModel::IMUE_FunctionSwitches);
           if (generalSettings.isInputMultiPosPot(index)) {
-            invertToggles[index - Boards::getCapability(board, Board::Sticks)]->hide();
+            invertToggles[index - board->getCapability(Capability::Sticks)]->hide();
             if (generalSettings.inputConfig[index].inverted) {
               generalSettings.inputConfig[index].inverted = false;
-              invertToggles[index - Boards::getCapability(board, Board::Sticks)]->updateValue();
+              invertToggles[index - board->getCapability(Capability::Sticks)]->updateValue();
               emit modified();
             }
           } else {
-            invertToggles[index - Boards::getCapability(board, Board::Sticks)]->show();
+            invertToggles[index - board->getCapability(Capability::Sticks)]->show();
           }
           emit inputFlexTypeChanged(type, index);
           emit refreshItemModels();
@@ -510,10 +509,10 @@ void HardwarePanel::setFlexTypeModel(AutoComboBox * cb, int index)
 void HardwarePanel::addSwitch(int index)
 {
   GeneralSettings::SwitchConfig &config = generalSettings.switchConfig[index];
-  Board::SwitchInfo info = Boards::getSwitchInfo(index);
+  Board::SwitchInfo info = board->getSwitchInfo(index);
 
   QLabel *label = new QLabel(this);
-  label->setText(Boards::getSwitchName(index));
+  label->setText(board->getSwitchName(index));
   params->append(label);
 
   AutoLineEdit *name = new AutoLineEdit(this);
@@ -586,7 +585,7 @@ void HardwarePanel::addSwitch(int index)
             emit refreshItemModels();
     });
 
-    if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
+    if (board->getCapability(Capability::FunctionSwitchColors)) {
       const QString qss = QString("border-style: outset; border-width: 2px; border-radius: 5px; border-color: darkgrey; padding: 2px; background-color: %1;");
       QPushButton * btnOffColor = new QPushButton();
       QColor off = generalSettings.switchConfig[index].offColor.getQColor();

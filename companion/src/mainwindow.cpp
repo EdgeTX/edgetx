@@ -412,8 +412,7 @@ void MainWindow::openRecentFile()
 
 bool MainWindow::checkProfileRadioExists(int profId)
 {
-  const QString profType = g.getProfile(profId).fwType();
-  return (Firmware::getFirmwareForId(profType)->getFirmwareBase()->getId() == profType.section('-', 0, 1));
+  return (Firmware::isAvailable(g.getProfile(profId).fwType()));
 }
 
 bool MainWindow::loadProfileId(const unsigned pid)  // TODO Load all variables - Also HW!
@@ -426,7 +425,7 @@ bool MainWindow::loadProfileId(const unsigned pid)  // TODO Load all variables -
   if (!checkProfileRadioExists(pid))
     AppMessages::displayMessage(AppMessages::MSG_NO_RADIO_TYPE, this);
   // warn if we're switching between incompatible board types and any files have been modified
-  if (!Boards::isBoardCompatible(Firmware::getCurrentVariant()->getBoard(), newFw->getBoard()) && anyChildrenDirty()) {
+  if (getCurrentFirmware()->getBoard() != newFw->getBoard() && anyChildrenDirty()) {
     if (QMessageBox::question(this, CPN_STR_APP_NAME,
                               tr("There are unsaved file changes which you may lose when switching radio types.\n\nDo you wish to continue?"),
                               (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) != QMessageBox::Yes) {
@@ -675,7 +674,7 @@ void MainWindow::updateMenus()
   readSettingsSDPathAct->setEnabled(isSDPathValid());
   writeBUToRadioAct->setEnabled(false);
   readBUToFileAct->setEnabled(false);
-  editSplashAct->setDisabled(Boards::getBoardCapability(getCurrentBoard(), Board::HasColorLcd));
+  editSplashAct->setDisabled(getCurrentBoard()->getCapability(Capability::HasColorLcd));
 
   foreach (QAction * act, fileWindowActions) {
     if (!act)
@@ -1296,7 +1295,7 @@ void MainWindow::onChangeWindowAction(QAction * act)
 void MainWindow::onCurrentProfileChanged()
 {
   g.moveCurrentProfileToTop();
-  Firmware::setCurrentVariant(Firmware::getFirmwareForId(g.currentProfile().fwType()));
+  Firmware::setCurrent(Firmware::getFirmwareForId(g.currentProfile().fwType()));
   emit firmwareChanged();
   updateFactories->radioProfileChanged();
   QApplication::clipboard()->clear();
@@ -1313,12 +1312,12 @@ int MainWindow::newProfile(bool loadProfile)
     return -1;
   }
 
-  Firmware *newfw = Firmware::getDefaultVariant();
+  Firmware *newfw = Firmware::getDefault();
   g.profile[i].init();
   g.profile[i].name("New Radio");
   g.profile[i].fwType(newfw->getId());
-  g.profile[i].defaultInternalModule(Boards::getDefaultInternalModules(newfw->getBoard()));
-  g.profile[i].externalModuleSize(Boards::getDefaultExternalModuleSize(newfw->getBoard()));
+  g.profile[i].defaultInternalModule(newfw->getBoard()->getCapability(Capability::DefaultInternalModule));
+  g.profile[i].externalModuleSize(newfw->getBoard()->getCapability(Capability::DefaultExternalModuleSize));
   g.profile[i].useSavedSettings(g.useSavedSettings());
 
   if (loadProfile) {
