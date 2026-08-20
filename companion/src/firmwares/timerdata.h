@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "constants.h"
 #include "rawswitch.h"
 #include "datahelpers.h"
 
@@ -34,8 +35,6 @@ constexpr char AIM_TIMER_COUNTDOWNSTART[] {"timerdata.countdownStart"};
 constexpr char AIM_TIMER_PERSISTENT[]     {"timerdata.persistent"};
 constexpr char AIM_TIMER_MODE[]           {"timerdata.mode"};
 constexpr char AIM_TIMER_SHOWELAPSED[]    {"timerdata.showElapsed"};
-
-constexpr int TIMER_NAME_LEN {8};
 
 class TimerData {
   Q_DECLARE_TR_FUNCTIONS(TimerData)

@@ -31,14 +31,6 @@
 
 */
 
-constexpr int MAX_CUSTOM_SCREENS      {10};
-constexpr int MAX_THEME_OPTIONS       {5};
-constexpr int MAX_LAYOUT_ZONES        {10};
-constexpr int MAX_LAYOUT_OPTIONS      {10};
-constexpr int MAX_WIDGET_OPTIONS      {50};
-constexpr int MAX_TOPBAR_ZONES        {7};    // 4 for portrait LCD, 6 for standard LCD, 7 for wide screen LCD
-constexpr int MAX_TOPBAR_OPTIONS      {1};
-
 // Common 'ZoneOptionValue's among all layouts
 enum {
   LAYOUT_OPTION_TOPBAR = 0,

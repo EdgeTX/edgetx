@@ -35,7 +35,7 @@ class ModelOptionsPanel : public ModelPanel
     virtual ~ModelOptionsPanel();
 
   private:
-    Board::Type board;
+    Board *board;
     QGridLayout *grid;
     QList<QWidget *> *params;
     int row;

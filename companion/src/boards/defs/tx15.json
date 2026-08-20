@@ -1,0 +1,6 @@
+{
+  "basedOn": [
+  ],
+  "name": "TX15",
+  "chargeWhileOn": true
+}
