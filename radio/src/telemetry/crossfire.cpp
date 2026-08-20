@@ -41,14 +41,14 @@ struct CrossfireSensor {
 };
 
 const CrossfireSensor crossfireSensors[] = {
-  CS(LINK_ID,        0, STR_DEF(STR_SENSOR_RX_RSSI1),      UNIT_DB,                0),
-  CS(LINK_ID,        1, STR_DEF(STR_SENSOR_RX_RSSI2),      UNIT_DB,                0),
+  CS(LINK_ID,        0, STR_DEF(STR_SENSOR_RX_RSSI1),      UNIT_DBM,               0),
+  CS(LINK_ID,        1, STR_DEF(STR_SENSOR_RX_RSSI2),      UNIT_DBM,               0),
   CS(LINK_ID,        2, STR_DEF(STR_SENSOR_RX_QUALITY),    UNIT_PERCENT,           0),
   CS(LINK_ID,        3, STR_DEF(STR_SENSOR_RX_SNR),        UNIT_DB,                0),
   CS(LINK_ID,        4, STR_DEF(STR_SENSOR_ANTENNA),       UNIT_RAW,               0),
   CS(LINK_ID,        5, STR_DEF(STR_SENSOR_RF_MODE),       UNIT_RAW,               0),
   CS(LINK_ID,        6, STR_DEF(STR_SENSOR_TX_POWER),      UNIT_MILLIWATTS,        0),
-  CS(LINK_ID,        7, STR_DEF(STR_SENSOR_TX_RSSI),       UNIT_DB,                0),
+  CS(LINK_ID,        7, STR_DEF(STR_SENSOR_TX_RSSI),       UNIT_DBM,               0),
   CS(LINK_ID,        8, STR_DEF(STR_SENSOR_TX_QUALITY),    UNIT_PERCENT,           0),
   CS(LINK_ID,        9, STR_DEF(STR_SENSOR_TX_SNR),        UNIT_DB,                0),
   CS(LINK_RX_ID,     0, STR_DEF(STR_SENSOR_RX_RSSI_PERC),  UNIT_PERCENT,           0),
