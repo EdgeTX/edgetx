@@ -24,6 +24,7 @@
 
 #include "appdata.h"
 #include "constants.h"
+#include "helpers.h"
 #include "eeprominterface.h"
 #include "radiodata.h"
 #include "simulator.h"

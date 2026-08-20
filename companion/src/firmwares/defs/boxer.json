@@ -1,0 +1,9 @@
+{
+  "basedOn": [
+    "bw",
+    "f4"
+  ],
+  "id": "boxer",
+  "name": "Boxer",
+  "channelsName": 4
+}

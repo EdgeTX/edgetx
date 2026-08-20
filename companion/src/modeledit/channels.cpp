@@ -20,7 +20,6 @@
  */
 
 #include "channels.h"
-#include "helpers.h"
 #include "filtereditemmodels.h"
 #include "curveimagewidget.h"
 #include "namevalidator.h"

@@ -45,6 +45,16 @@ BoardJson* BoardFactories::instance(Board::Type board) const
   return m_default;
 }
 
+BoardJson* BoardFactories::instance(QString hwdefn) const
+{
+  for (auto *registeredFactory : registeredBoardFactories) {
+    if (registeredFactory->instance()->hwdefn() == hwdefn)
+      return registeredFactory->instance();
+  }
+
+  return m_default;
+}
+
 //  Registering firmware triggers registering the associated board
 bool BoardFactories::registerBoard(Board::Type board, QString hwdefn)
 {

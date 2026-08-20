@@ -45,6 +45,7 @@ class BoardFactories
     virtual ~BoardFactories();
 
     BoardJson* instance(Board::Type board) const;
+    BoardJson* instance(QString hwdefn) const;
 
     bool registerBoard(Board::Type board, QString hwdefn);
     bool registerBoardFactory(BoardFactory * factory);

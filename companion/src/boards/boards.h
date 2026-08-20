@@ -499,6 +499,10 @@ class Boards
 
     static void tests();
 
+    // temporary until Boards refactored
+    static Board::Type getBoardForHwDefn(const QString & hwdefn);
+    //
+
   private:
 
     Board::Type m_boardType = Board::BOARD_UNKNOWN;
