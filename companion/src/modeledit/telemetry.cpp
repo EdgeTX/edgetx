@@ -430,7 +430,7 @@ TelemetryPanel::TelemetryPanel(QWidget *parent, ModelData & model, GeneralSettin
   id = panelItemModels->registerItemModel(SensorData::precisionItemModel());
   panelFilteredItemModels->registerItemModel(new FilteredItemModel(panelItemModels->getItemModel(id)), FIM_SENSORPRECISION);
 
-  sensorCapability = firmware->getCapability(Sensors);
+  sensorCapability = firmware->getCapability(Capability::Sensors);
   if (sensorCapability > CPN_MAX_SENSORS) //  TODO should be role of getCapability
     sensorCapability = CPN_MAX_SENSORS;
 
@@ -456,7 +456,7 @@ TelemetryPanel::TelemetryPanel(QWidget *parent, ModelData & model, GeneralSettin
     connect(panel, SIGNAL(moveDownSensor(int)), this, SLOT(on_moveDownSensor(int)));
   }
 
-  if (IS_TARANIS_X9(firmware->getBoard())) {
+  if (!firmware->getBoard()->getCapability(Capability::HasColorLcd)) {
     ui->voltsSource->setModel(panelFilteredItemModels->getItemModel(FIM_TELEPOSSRC));
     ui->voltsSource->setField(model.frsky.voltsSource, this);
     ui->altitudeSource->setModel(panelFilteredItemModels->getItemModel(FIM_TELEPOSSRC));

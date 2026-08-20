@@ -49,13 +49,13 @@ QString FlightModeData::nameToString(int phaseIdx) const
 // static
 QString FlightModeData::modeAbbrev()
 {
-  return Boards::isAir() ? tr("F") : tr("D");
+  return getCurrentBoard()->getCapability(Capability::Air) ? tr("F") : tr("D");
 }
 
 // static
 QString FlightModeData::modeName()
 {
-  return Boards::isAir() ? tr("Flight") : tr("Drive");
+  return getCurrentBoard()->getCapability(Capability::Air) ? tr("Flight") : tr("Drive");
 }
 
 bool FlightModeData::isEmpty(int phaseIdx) const
