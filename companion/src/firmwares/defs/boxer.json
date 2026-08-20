@@ -1,0 +1,7 @@
+{
+  "basedOn": [
+    "bw",
+    "cpuf4"
+  ],
+  "name": "Boxer"
+}

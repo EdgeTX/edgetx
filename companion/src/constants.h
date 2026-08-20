@@ -33,6 +33,7 @@
 #define CPN_MAX_GVARS                  15 // 0, 9, 15
 #define CPN_MAX_CHNOUT                 32 // number of real output channels
 #define CPN_MAX_LOGICAL_SWITCHES       64 // number of custom switches
+#define CPN_MAX_GLOBAL_FUNCTIONS       64 // number of functions assigned to switches
 #define CPN_MAX_SPECIAL_FUNCTIONS      64 // number of functions assigned to switches
 #define CPN_MAX_MODELS                 60 // B&W
 #define CPN_MAX_MODULES                2
@@ -50,7 +51,6 @@
 #define CPN_MAX_SCRIPT_INPUTS          6
 #define CPN_MAX_SCRIPT_OUTPUTS         6
 #define CPN_MAX_SPACEMOUSE             6
-#define CPN_MAX_INPUTS                 32 // v2.10 replaces CPN_MAX_ANALOGS - the value is abitary as radio ADC refactor is still a WIP
 #define CPN_MAX_USER_DATA              50
 
 // pre v2.10

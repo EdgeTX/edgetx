@@ -1,0 +1,18 @@
+{
+  "hidden": true,
+  "categories": true,
+  "labels": true,
+  "modelsList": true,
+  "modelImage": {
+    "filters": "*.bmp|*.jpg|*.png",
+    "keepExtn": false,
+    "name": 10
+  },
+  "keyShortcuts": 6,
+  "quickMenuFavs": 12,
+  "modelSlots": 0,
+  "modelNameLen": 15,
+  "sensors": {
+    "max": 60
+  }
+}

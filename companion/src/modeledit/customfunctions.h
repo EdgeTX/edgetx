@@ -79,6 +79,7 @@ class CustomFunctionsPanel : public GenericPanel
     void resetCBsAndRefresh(int idx);
     void connectItemModelEvents(FilteredItemModel * itemModel);
 
+    Board *board;
     CompoundItemModelFactory * tabModelFactory;
     FilteredItemModelFactory * tabFilterFactory;
     int funcActionsId;

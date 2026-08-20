@@ -91,7 +91,7 @@ class RleFile
   unsigned int  m_err;       //error reasons
   uint16_t      m_size;
 
-  Board::Type board;
+  QString board;
   unsigned int version;
   uint8_t *eeprom;
   unsigned int eeprom_size;
@@ -125,14 +125,14 @@ public:
 
   RleFile();
 
-  void EeFsCreate(uint8_t *eeprom, int size, Board::Type board, unsigned int version);
+  void EeFsCreate(uint8_t *eeprom, int size, QString board, unsigned int version);
 
-  bool EeFsOpen(uint8_t *eeprom, int size, Board::Type board);
+  bool EeFsOpen(uint8_t *eeprom, int size, QString board);
 
   ///open file for reading, no close necessary
   ///for writing use writeRlc() or create()
   unsigned int openRd(unsigned int i_fileId);
-  /// create a new file with given fileId, 
+  /// create a new file with given fileId,
   /// !!! if this file already exists, then all blocks are reused
   /// and all contents will be overwritten.
   /// after writing closeTrunc has to be called
@@ -140,8 +140,8 @@ public:
   /// close file and truncate the blockchain if to long.
   void    closeTrunc();
 
-  ///open file, write to file and close it. 
-  ///If file existed before, then contents is overwritten. 
+  ///open file, write to file and close it.
+  ///If file existed before, then contents is overwritten.
   ///If file was larger before, then unused blocks are freed
   unsigned int writeRlc1(unsigned int i_fileId, unsigned int typ, const uint8_t *buf, unsigned int i_len);
   unsigned int writeRlc2(unsigned int i_fileId, unsigned int typ, const uint8_t *buf, unsigned int i_len);

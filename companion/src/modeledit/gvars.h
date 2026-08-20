@@ -23,7 +23,7 @@
 
 #include "modeledit.h"
 #include "constants.h"
-#include "boards.h"
+#include "board.h"
 
 class CompoundItemModelFactory;
 class FilteredItemModel;

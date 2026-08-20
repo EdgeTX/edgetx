@@ -1,0 +1,12 @@
+{
+  "comments": "MUST be listed in basedOn BEFORE voice_switches",
+  "hidden": true,
+  "switches": [
+    {
+    "name": "FL1"
+    },
+    {
+    "name": "FL2"
+    }
+  ]
+}

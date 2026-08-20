@@ -314,7 +314,7 @@ void ModelData::clear()
 
   toplcdTimer = 0;
 
-  if (Boards::getCapability(getCurrentBoard(), Board::HasColorLcd)) {
+  if (getCurrentBoard()->getCapability(Capability::HasColorLcd)) {
     RadioLayout::init("Layout2P1", customScreens);
     initTopBar();
   } else {
@@ -373,13 +373,14 @@ bool ModelData::isEmpty() const
 
 void ModelData::setDefaultInputs(const GeneralSettings & settings)
 {
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Sticks); i++) {
+  for (int i = 0; i < getCurrentBoard()->getCapability(Capability::Sticks); i++) {
     ExpoData * expo = &expoData[i];
     expo->chn = i;
     expo->mode = INPUT_MODE_BOTH;
     expo->srcRaw = settings.getDefaultSource(i);
     expo->weight = 100;
-    strncpy(inputNames[i], Helpers::removeAccents(expo->srcRaw.toString(this)).toLatin1().constData(), sizeof(inputNames[i]) - 1);
+    strncpy(inputNames[i], Helpers::removeAccents(expo->srcRaw.toString(this)).toLatin1().constData(),
+            sizeof(inputNames[i]) - 1);
   }
 }
 
@@ -387,7 +388,7 @@ void ModelData::setDefaultMixes(const GeneralSettings & settings)
 {
   setDefaultInputs(settings);
 
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Sticks); i++) {
+  for (int i = 0; i < getCurrentBoard()->getCapability(Capability::Sticks); i++) {
     MixData * mix = &mixData[i];
     mix->destCh = i + 1;
     mix->weight = 100;
@@ -401,7 +402,7 @@ void ModelData::setDefaultFunctionSwitches(int functionSwitchCount)
     return;
 
   for (int i = 0; i < functionSwitchCount; i++) {
-    auto nm = Boards::getSwitchName(Boards::getSwitchIndexForCFS(i,getCurrentFirmware()->getBoard()));
+    auto nm = getCurrentBoard()->getSwitchName(getCurrentBoard()->getSwitchIndexForCFS(i));
     if (nm.startsWith("SW")) {
       customSwitches[i].type = Board::SWITCH_2POS;
       customSwitches[i].group = 1;
@@ -434,7 +435,7 @@ void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settin
   }
 
   setDefaultMixes(settings);
-  setDefaultFunctionSwitches(Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches));
+  setDefaultFunctionSwitches(getCurrentBoard()->getCapability(Capability::FunctionSwitches));
 }
 
 int ModelData::getTrimValue(int phaseIdx, int trimIdx)
@@ -555,7 +556,7 @@ bool ModelData::isFunctionSwitchPositionAvailable(int swIndex, int swPos, const 
   if (swPos == 1)
     return false;
 
-  int fsindex = Boards::getCFSIndexForSwitch(swIndex);
+  int fsindex = getCurrentBoard()->getCFSIndexForSwitch(swIndex);
   int fs = getFuncSwitchConfig(fsindex);
 
   if (fs == Board::SWITCH_GLOBAL)
@@ -566,7 +567,7 @@ bool ModelData::isFunctionSwitchPositionAvailable(int swIndex, int swPos, const 
 
 bool ModelData::isFunctionSwitchSourceAllowed(int index) const
 {
-  if (index >= 0 && index < Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches))
+  if (index >= 0 && index < getCurrentBoard()->getCapability(Capability::FunctionSwitches))
     return (int)getFuncSwitchConfig(index) != Board::SWITCH_NOT_AVAILABLE;
 
   return false;
@@ -606,7 +607,8 @@ void ModelData::convert(RadioDataConversionState & cstate)
   cstate.setOrigin(tr("Model: ") % origin);
 
   cstate.setComponent("Settings", 0);
-  if (thrTraceSrc && (int)thrTraceSrc < cstate.fromBoard.getCapability(Board::Pots) + cstate.fromBoard.getCapability(Board::Sliders)) {
+  if (thrTraceSrc && (int)thrTraceSrc < cstate.fromBoard->getCapability(Capability::Pots) +
+                                        cstate.fromBoard->getCapability(Capability::Sliders)) {
     cstate.setSubComp(tr("Throttle Source"));
     thrTraceSrc = RawSource(SOURCE_TYPE_INPUT, (int)thrTraceSrc + 3).convert(cstate).index - 3;
   }
@@ -1687,14 +1689,15 @@ QString ModelData::thrTraceSrcToString() const
 
 QString ModelData::thrTraceSrcToString(const GeneralSettings * generalSettings, const int index) const
 {
-  const Board::Type board = getCurrentBoard();
-  const int pscnt = Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders);
+  Board *board = getCurrentBoard();
+  const int pscnt = board->getCapability(Capability::Pots) + board->getCapability(Capability::Sliders);
 
   if (index == 0)
-    return Boards::getCapability(board, Board::Air) ? tr("THR") : tr("TH");
+    return board->getCapability(Capability::Air) ? tr("THR") : tr("TH");
   else if (index <= pscnt)
-    //return Boards::getInputName(index + Boards::getCapability(board, Board::Sticks) - 1, board);
-    return RawSource(SOURCE_TYPE_INPUT, index + Boards::getCapability(board, Board::Sticks)).toString(this, generalSettings, board);
+    //return board->getInputName(index + board->getCapability(Capability::Sticks) - 1);
+    return RawSource(SOURCE_TYPE_INPUT, index +
+                     board->getCapability(Capability::Sticks)).toString(this, generalSettings, board->getId());
   else if (index <= pscnt + getCurrentFirmware()->getCapability(Outputs))
     return RawSource(SOURCE_TYPE_CH, index - pscnt).toString(this);
 
@@ -1703,22 +1706,21 @@ QString ModelData::thrTraceSrcToString(const GeneralSettings * generalSettings, 
 
 int ModelData::thrTraceSrcCount() const
 {
-  Firmware * firmware = getCurrentFirmware();
-  const Board::Type board = firmware->getBoard();
+  Board *board = getCurrentBoard();
 
-  return 1 + Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders) + firmware->getCapability(Outputs);
+  return 1 + board->getCapability(Capability::Pots) + board->getCapability(Capability::Sliders) + board->getCapability(Outputs);
 }
 
 bool ModelData::isThrTraceSrcAvailable(const GeneralSettings * generalSettings, const int index) const
 {
-  const Board::Type board = getCurrentBoard();
+  Board *board = getCurrentBoard();
 
   if (index == 0)
     return true;
-  else if (index > 0 && index <= Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders))
-    return RawSource(SOURCE_TYPE_INPUT, index + Boards::getCapability(board, Board::Sticks)).isAvailable(this, generalSettings, board);
+  else if (index > 0 && index <= board->getCapability(Capability::Pots) + board->getCapability(Capability::Sliders))
+    return RawSource(SOURCE_TYPE_INPUT, index + board->getCapability(Capability::Sticks)).isAvailable(this, generalSettings, board->getId());
   else
-    return hasMixes(index - Boards::getCapability(board, Board::Pots) - Boards::getCapability(board, Board::Sliders) - 1);
+    return hasMixes(index - board->getCapability(Capability::Pots) - board->getCapability(Capability::Sliders) - 1);
 }
 
 void ModelData::limitsClear(const int index)
@@ -1836,20 +1838,20 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
   if (value < TRAINER_MODE_FIRST || value > TRAINER_MODE_LAST)
     return false;
 
-  const Board::Type board = firmware->getBoard();
+  Board *board = getCurrentBoard();
 
   if (value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE &&
-      IS_TARANIS_X9E(board) &&
+      board->getId() == "x9e" &&
       generalSettings.bluetoothMode)
     return false;
 
   if (value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE &&
-      !Boards::getCapability(board, Board::HasTrainerModuleSBUS))
+      !board->getCapability(Capability::HasTrainerModuleSBUS))
     return false;
 
   if ((value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE || value == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE) &&
-      (Boards::getCapability(board, Board::HasTrainerModuleCPPM) ||
-       Boards::getCapability(board, Board::HasTrainerModuleSBUS)) &&
+      (board->getCapability(Capability::HasTrainerModuleCPPM) ||
+       board->getCapability(Capability::HasTrainerModuleSBUS)) &&
       moduleData[1].protocol != PULSES_OFF)
     return false;
 
@@ -1859,21 +1861,21 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
     return false;
 
   if ((value == TRAINER_MODE_MASTER_BLUETOOTH || value == TRAINER_MODE_SLAVE_BLUETOOTH) &&
-      !IS_TARANIS_X9E(board) &&
+      board->getId() != "x9e" &&
       generalSettings.bluetoothMode != GeneralSettings::BLUETOOTH_MODE_TRAINER)
     return false;
 
   if ((value == TRAINER_MODE_MASTER_JACK || value == TRAINER_MODE_SLAVE_JACK) &&
-      ((IS_TARANIS_XLITE(board) && !IS_TARANIS_X9LITES(board)) || IS_IFLIGHT_COMMANDO8(board)))
+      ((board->getId() == "xlite" || board->getId() != "x9lites") || board->getId() == "commando8"))
     return false;
 
   if (value == TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE &&
-      !Boards::getCapability(board, Board::HasTrainerModuleCPPM))
+      !board->getCapability(Capability::HasTrainerModuleCPPM))
     return false;
 
   if (value == TRAINER_MODE_MULTI &&
-      ((!Boards::getCapability(board, Board::HasInternalModuleSupport) &&
-        !Boards::getCapability(board, Board::HasExternalModuleSupport)) ||
+      ((!board->getCapability(Capability::HasInternalModuleSupport) &&
+        !board->getCapability(Capability::HasExternalModuleSupport)) ||
        (moduleData[0].protocol != PULSES_MULTIMODULE && moduleData[1].protocol != PULSES_MULTIMODULE)))
     return false;
 
@@ -1957,7 +1959,7 @@ AbstractStaticItemModel * ModelData::funcSwitchGroupsModel()
   mdl->setName(AIM_MODELDATA_FUNCSWITCHGROUPS);
 
   mdl->appendToItemList(tr("---"), 0);
-  for (int i = 1; i <= Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchGroups); i++) {
+  for (int i = 1; i <= getCurrentBoard()->getCapability(Capability::FunctionSwitchGroups); i++) {
     mdl->appendToItemList(tr("Group ") + QString::number(i), i);
   }
 
@@ -1981,7 +1983,7 @@ void ModelData::setFuncSwitchGroup(unsigned int index, unsigned int value)
 
 unsigned int ModelData::getFuncSwitchAlwaysOnGroup(unsigned int group) const
 {
-  if (group > 0 && group <= (unsigned int)Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchGroups)) {
+  if (group > 0 && group <= (unsigned int)getCurrentBoard()->getCapability(Capability::FunctionSwitchGroups)) {
     return cfsGroupOn[group];
   }
   else
@@ -1998,7 +2000,7 @@ unsigned int ModelData::getFuncSwitchAlwaysOnGroupForSwitch(unsigned int index) 
 
 void ModelData::setFuncSwitchAlwaysOnGroup(unsigned int group, unsigned int value)
 {
-  if (group > 0 && group <= (unsigned int)Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchGroups)) {
+  if (group > 0 && group <= (unsigned int)getCurrentBoard()->getCapability(Capability::FunctionSwitchGroups)) {
     cfsGroupOn[group] = value;
   }
 }
@@ -2175,11 +2177,13 @@ int ModelData::getInputLine(int index) const
 
 const Board::SwitchType ModelData::getSwitchType(int sw, const GeneralSettings & gs) const
 {
-  if (sw < 0 || sw >= Boards::getCapability(getCurrentBoard(), Board::Switches))
+  Board *board = getCurrentBoard();
+
+  if (sw < 0 || sw >= board->getCapability(Capability::Switches))
     return Board::SWITCH_NOT_AVAILABLE;
 
-  if (Boards::isSwitchFunc(sw)) {
-    int fsIndex = Boards::getCFSIndexForSwitch(sw);
+  if (board->isSwitchFunc(sw)) {
+    int fsIndex = board->getCFSIndexForSwitch(sw);
     if (customSwitches[fsIndex].type != Board::SWITCH_GLOBAL)
       return customSwitches[fsIndex].type;
   }
@@ -2337,7 +2341,7 @@ void ModelData::initTopBar()
     zone.widgetName = "Radio Info";
   }
 
-  if (zones - 3 >= 0 && Boards::getCapability(getCurrentBoard(), Board::HasInternalGPS)) {
+  if (zones - 3 >= 0 && getCurrentBoard()->getCapability(Capability::HasInternalGPS)) {
     ZonePersistentData & zone = topBarData.zones[zones - 3];
     zone.widgetName = "Internal GPS";
   }
@@ -2369,12 +2373,8 @@ QString ModelData::getImageFileExtn() const
 
 QString ModelData::getDefaultImageFileExtn()
 {
-  QString ret;
-
-  if (!getCurrentFirmware()->getCapability(ModelImageKeepExtn))
-    ret = getCurrentFirmware()->getCapabilityStr(ModelImageFilters).replace("*.", "");
-
-  return ret;
+  return (!getCurrentFirmware()->getCapability(ModelImageKeepExtn) ?
+    getCurrentFirmware()->getCapabilityStr(ModelImageFilters).replace("*.", "") : "");
 }
 
 bool ModelData::isBitmapEmpty() const

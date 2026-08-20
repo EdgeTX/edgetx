@@ -1,0 +1,20 @@
+{
+  "basedOn": [
+    "color"
+  ],
+  "name": "TX16S / SE / Hall / Masterfire",
+  "board": "tx16s",
+  "buildOpts": [
+    [
+      "faichoice",
+      "faimode"
+    ],
+    "nooverridech",
+    "noheli",
+    "nogvars",
+    "lua",
+    "flexr9m",
+    "bluetooth",
+    "internalgps"
+  ]
+}

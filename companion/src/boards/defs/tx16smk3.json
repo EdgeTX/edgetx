@@ -1,0 +1,8 @@
+{
+  "basedOn": [
+    "tx16s",
+    "inputs_imu"
+  ],
+  "name": "TX16S MK 3",
+  "chargeWhileOn": true
+}

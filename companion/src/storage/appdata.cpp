@@ -966,11 +966,11 @@ void AppData::convertSettings(QSettings & settings)
           }
 
           // invalid or non-existent language
-          if (!getCurrentFirmware()->getFirmwareBase()->languageList().contains(newfwLang)) {
+          if (!Firmware::getLanguageList().contains(newfwLang)) {
             // depending on the OS environment this does not always return a valid language
             newfwLang = QLocale::languageToString(QLocale().language()).split("_").first();
 
-            if (!getCurrentFirmware()->getFirmwareBase()->languageList().contains(newfwLang))
+            if (!Firmware::getLanguageList().contains(newfwLang))
               newfwLang = "en"; // give up trying
 
             settings.setValue(profilePath.arg(i) % "/fwLanguage", newfwLang);
@@ -983,6 +983,28 @@ void AppData::convertSettings(QSettings & settings)
       }
     }
 
+  }
+
+  if (savedMajMin <= 0x300 && savedRevision < CPN_SETTINGS_REVISION) {
+    // split out profile fwType options and language into separate fields
+    qInfo().noquote() << "Removing edgetx- prefix from fwType";
+    static const QString profilePath = QStringLiteral("Profiles/profile%1");
+    static const QString profileFwTypePath = QStringLiteral("Profiles/profile%1/fwType");
+    for (int i = 0; i < MAX_PROFILES; i++) {
+      if (settings.contains(profileFwTypePath.arg(i))) {
+        const QVariant oldValue = settings.value(profileFwTypePath.arg(i));
+        if (oldValue.isValid()) {
+          const QStringList oldparts = settings.value(profileFwTypePath.arg(i)).toString().split("-");
+          QString newfwType;
+          if (oldparts.count() > 1 && oldparts.at(0) == "edgetx-") {
+            newfwType = oldparts.at(1);
+            settings.setValue(profileFwTypePath.arg(i), newfwType);
+          }
+          qInfo().noquote() << "Converted entry" << profileFwTypePath.arg(i)
+                            << "from: " << oldValue << " to: " << newfwType;
+        }
+      }
+    }
   }
 
   if (removeUnused)

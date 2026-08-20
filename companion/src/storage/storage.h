@@ -70,7 +70,7 @@ class StorageFormat
 
     virtual QString name() = 0;
 
-    virtual Board::Type getBoard()
+    virtual QString getBoard()
     {
       return board;
     }
@@ -101,7 +101,7 @@ class StorageFormat
     uint8_t version;
     QString _error;
     QString _warning;
-    Board::Type board;
+    QString board;
     ProgressWidget * _progress;
 };
 

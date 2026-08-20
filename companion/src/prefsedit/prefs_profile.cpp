@@ -33,16 +33,17 @@
 
 constexpr char FIM_TEMPLATESETUP[]    {"Template Setup"};
 
-PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Type & bd, Profile & prof) :
-  PrefsPanel(parent, fw, bd, prof),
+PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * firmware, Board * board, Profile & prof) :
+  PrefsPanel(parent, firmware, board, prof),
   ui(new Ui::PrefsProfile)
 {
   lock = true;
   ui->setupUi(this);
 
   panelItemModels->registerItemModel(new FilteredItemModel(GeneralSettings::templateSetupItemModel()), FIM_TEMPLATESETUP);
-  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
-                                                                                          GeneralSettings::RadioTypeContextSurface);
+  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(board->getCapability(Capability::Air) ?
+                                                                   GeneralSettings::RadioTypeContextAir :
+                                                                   GeneralSettings::RadioTypeContextSurface);
 
   // name
   // The profile name may NEVER be empty
@@ -70,18 +71,13 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Typ
     this->profile.fwType(this->fwTypeData->text());
   });
   fwTypeData->setBindPostChanged([this] {
-    // appending "-xxx" forces the associated Board definition to be loaded if not already loaded
-    // TODO fix as part of refactoring Firmware and Boards
-    Firmware *fw = Firmware::getFirmwareForId(this->fwTypeData->text() % "-xxx");
-    // this will be trapped by PrefsEditDialog which will trigger onRadioChanged for each panel
-    // including this panel which has an override onRadioChanged function
-    emit radioChanged(fw);
+    emit radioChanged(Firmware::getFirmware(this->fwTypeData->text()));
   });
 
   // this widget displays the firmware full name
   ui->leFirmwareType->setReadOnly(true);
   ui->leFirmwareType->setBindText([this] {
-    return Firmware::getFirmwareForId(this->fwTypeData->text())->getFullName();
+    return Firmware::getFirmware(this->fwTypeData->text())->getFullName();
   });
   ui->leFirmwareType->setMinimumWidth(PATH_MIN_WIDTH);
   ui->leFirmwareType->setSizePolicy(PATH_SIZE_POLICY);
@@ -108,7 +104,6 @@ void PrefsProfilePanel::onFirmwareTypePressed()
   FirmwarePicker * picker = new FirmwarePicker(this, fwTypeData->text());
   connect(picker, &FirmwarePicker::firmwareTypeChanged, this, [this] (const QString newType) {
     this->fwTypeData->setText(newType);
-    this->update();
   });
   picker->exec();
   picker->deleteLater();
@@ -119,13 +114,13 @@ QString PrefsProfilePanel::getLanguage()
   QString lang;
 
   if (!profile.fwLanguage().isEmpty() &&
-      firmware->getFirmwareBase()->languageList().contains(profile.fwLanguage()))
+      Firmware::getLanguageList().contains(profile.fwLanguage()))
     lang = profile.fwLanguage();
   else {
     // depending on the OS environment this does not always return a valid language
     lang = QLocale::languageToString(QLocale().language()).split("_").first();
 
-    if (!firmware->getFirmwareBase()->languageList().contains(lang))
+    if (!Firmware::getLanguageList().contains(lang))
       lang = "en";  // give up trying
 
     // the signal is emitted in the ctor however the signal is not trapped by PrefsEditDialog
@@ -170,7 +165,7 @@ QAbstractItemModel * PrefsProfilePanel::languageModel()
 {
   QStandardItemModel * mdl = new QStandardItemModel(this);
 
-  for (const char *lang : firmware->getFirmwareBase()->languageList()) {
+  for (const QString &lang : Firmware::getLanguageList()) {
     QStandardItem * item =  new QStandardItem();
     item->setText(lang);
     item->setData(lang, Qt::UserRole);
@@ -190,16 +185,16 @@ void PrefsProfilePanel::onOptionChanged(QString name)
 
   if (!(chk && chk->isChecked())) return;
 
-  const Firmware::OptionsList & fwOpts = firmware->getFirmwareBase()->optionGroups();
+  const Firmware::OptionsList & fwOpts = firmware->optionGroups();
 
   // This de-selects any mutually exlusive options (that is, members of the same QList<Option> list).
   for (const Firmware::OptionsGroup & optGrp : fwOpts) {
-    for (const Firmware::Option & opt : optGrp) {
-      if (name == opt.name) {
+    for (const QString & opt : optGrp) {
+      if (name == opt) {
         AutoCheckBox *ochk = nullptr;
 
-        foreach(const Firmware::Option & other, optGrp) {
-          if (other.name != opt.name && (ochk = chkFirmwareBuildOpts.value(other.name, nullptr)))
+        foreach(const QString & other, optGrp) {
+          if (other != opt && (ochk = chkFirmwareBuildOpts.value(other, nullptr)))
             ochk->setValue(false);
         }
 
@@ -233,18 +228,18 @@ void PrefsProfilePanel::populateFirmwareOptions(QStringList opts)
   int index = 0;
   QWidget * prevFocus = cboFirmwareLanguage;
 
-  for (const Firmware::OptionsGroup &optGrp : firmware->getFirmwareBase()->optionGroups()) {
-    for (const Firmware::Option &opt : optGrp) {
-      AutoCheckBox * chk = new AutoCheckBox(this, opt.name);
-      chk->setValue(currOpts.contains(opt.name));
-      chk->setToolTip(opt.tooltip);
+  for (const Firmware::OptionsGroup &optGrp : firmware->optionGroups()) {
+    for (const QString &opt : optGrp) {
+      AutoCheckBox * chk = new AutoCheckBox(this, opt);
+      chk->setValue(currOpts.contains(opt));
+      chk->setToolTip(Firmware::getOptionTooltip(opt));
       // connect to duplicates check handler if this option is part of a group
       if (optGrp.size() > 1)
-        chk->setBindPostChanged([=] { this->onOptionChanged(opt.name); });
+        chk->setBindPostChanged([=] { this->onOptionChanged(opt); });
 
       layFirmwareBuildOpts->addWidget(chk, index / 4, index % 4);
       chk->show();    // so the size hint counts it when panel already visible
-      chkFirmwareBuildOpts.insert(opt.name, chk);
+      chkFirmwareBuildOpts.insert(opt, chk);
       QWidget::setTabOrder(prevFocus, chk);
       prevFocus = chk;
       ++index;
@@ -404,7 +399,7 @@ void PrefsProfilePanel::sectionNewFile()
             (this->chkUseSettingsBackup->isChecked() &&
              this->profile.generalSettings().isEmpty()));
   });
-  lblStickMode->setBindVisible([this] { return Boards::isAir(board); });
+  lblStickMode->setBindVisible([this] { return this->board->getCapability(Capability::Air); });
   layNewFile->addWidget(lblStickMode, row, col++);
 
   cboStickMode = new AutoComboBox(this);
@@ -418,7 +413,7 @@ void PrefsProfilePanel::sectionNewFile()
             (this->chkUseSettingsBackup->isChecked() &&
              this->profile.generalSettings().isEmpty()));
   });
-  cboStickMode->setBindVisible([this] { return Boards::isAir(board); });
+  cboStickMode->setBindVisible([this] { return this->board->getCapability(Capability::Air); });
   layNewFile->addWidget(cboStickMode, row, col++);
   // Channel Order
   ++row; col = 0;
@@ -459,7 +454,7 @@ void PrefsProfilePanel::sectionNewFile()
   layNewFile->addWidget(lblModuleExternal, row, col++);
 
   cboModuleExternal = new AutoComboBox(this);
-  cboModuleExternal->setModel(Boards::externalModuleSizeItemModel());
+  cboModuleExternal->setModel(Board::externalModuleSizeItemModel());
   cboModuleExternal->setValue(profile.externalModuleSize());
   cboModuleExternal->setBindSave([this] {
     this->profile.externalModuleSize(this->cboModuleExternal->currentData().toInt());
@@ -473,7 +468,7 @@ void PrefsProfilePanel::sectionSplash()
 {
   QGridLayout *laySplash = ui->csectSplash->start(tr("Splash Screen"));
   ui->csectSplash->setBindVisible([this] {
-    return !Boards::getCapability(this->board, Board::HasColorLcd);
+    return !this->board->getCapability(Capability::HasColorLcd);
   });
   row = col = 0;
 
@@ -498,9 +493,9 @@ void PrefsProfilePanel::sectionSplash()
   imgSplash = new AutoImage(this, leSplashPath->text());
   // change of firmware and thus board can effect the image
   imgSplash->setBindPreUpdate([this] {
-    imgSplash->setDimensions(Boards::getCapability(this->board, Board::LcdWidth),
-                             Boards::getCapability(this->board, Board::LcdHeight),
-                             Boards::getCapability(this->board, Board::LcdDepth));
+    imgSplash->setDimensions(this->board->getCapability(Capability::LcdWidth),
+                             this->board->getCapability(Capability::LcdHeight),
+                             this->board->getCapability(Capability::LcdDepth));
   });
   laySplash->addWidget(imgSplash, row, col++);
   // Splash clear
@@ -518,12 +513,12 @@ void PrefsProfilePanel::sectionSplash()
 // slot not used due to risk of Qt events not being processed in required sequence
 void PrefsProfilePanel::onRadioChanged(Firmware * firmware, bool deferUpdate)
 {
-  const Board::Type prevBoard = board;
+  const Board *prevBoard = board;
   PrefsPanel::onRadioChanged(firmware, true);
-  fwTypeData->setText(firmware->getFirmwareBase()->getId());
   populateFirmwareOptions();
-  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
-                                                                                          GeneralSettings::RadioTypeContextSurface);
+  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(board->getCapability(Capability::Air) ?
+                                                                   GeneralSettings::RadioTypeContextAir :
+                                                                   GeneralSettings::RadioTypeContextSurface);
 
   if (board != prevBoard) {
     // module choices and defaults depend on the radio; restore the saved
@@ -534,9 +529,9 @@ void PrefsProfilePanel::onRadioChanged(Firmware * firmware, bool deferUpdate)
     cboModuleInternal->setModel(ModuleData::internalModuleItemModel(board));
     delete oldModel;
     cboModuleInternal->setValue(profileBoard ? profile.defaultInternalModule()
-                                             : Boards::getDefaultInternalModules(board));
+                                             : board->getCapability(Capability::DefaultInternalModule));
     cboModuleExternal->setValue(profileBoard ? profile.externalModuleSize()
-                                             : Boards::getDefaultExternalModuleSize(board));
+                                             : board->getCapability(Capability::ExternalModuleSize));
   }
 
   update();

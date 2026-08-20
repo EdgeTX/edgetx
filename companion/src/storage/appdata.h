@@ -41,7 +41,9 @@
 
 //! CPN_SETTINGS_REVISION is used to track settings changes independently of EdgeTX version. It should be reset to zero whenever settings are migrated to new COMPANY or PRODUCT.
 //! \note !! Increment this value if properties are removed or refactored. It will trigger a conversion/cleanup of any stored settings. \sa AppData::convertSettings()
-#define CPN_SETTINGS_REVISION       4 // Note: bumped for multiple changes during 3.0 dev
+// 4 - refactor Application Preferences and split out fwType into fwType, fwLanguage and fwOpts
+// 5 - refactor Firmware and Boards removing edgetx- prefix from fwType
+#define CPN_SETTINGS_REVISION       5
 
 //! CPN_SETTINGS_VERSION is used for settings data version tracking.
 #define CPN_SETTINGS_VERSION        ((VERSION_NUMBER << 8) | CPN_SETTINGS_REVISION)
@@ -480,7 +482,9 @@ class Profile: public CompStoreObj
   Q_OBJECT
   public:
     Profile & operator=(const Profile & rhs);
-    QString getVariantFromType() const { return fwType().section("-", 1, 1); }
+    // TODO fix when edgetx- removed
+    //      also find firmware in factories and get boardId from there
+    QString getBoardId() const { return fwType().section("-", 1, 1); }
     ComponentReleaseData & getCompRelease(int index);
     const ComponentReleaseData & getCompRelease(int index) const;
 

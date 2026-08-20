@@ -1,0 +1,68 @@
+{
+  "comments": [
+    "This file is always loaded first, then hwdefn, then variations overlaid in basedOn sequence",
+    "hidden: true prevents the name being displayed in any ui lists",
+    "Some entries are future proofing eg external modules and for parsing consistency"
+  ],
+  "hidden": true,
+  "name": "Default",
+  "modules": [
+    {
+      "internal": {
+        "comments": "refer external for complete list",
+        "available": [
+          "elrs",
+          "multi"
+        ],
+        "default": "elrs"
+      }
+    },
+    {
+      "external": {
+        "comments": "available replaces size in modules refactor",
+        "size": "std",
+        "available": [
+          "crsf",
+          "dsm2",
+          "elrs",
+          "ghost",
+          "lemon-dsmp",
+          "multi",
+          "ppm",
+          "sbus"
+        ]
+      }
+    }
+  ],
+  "auxSerialMode": false,
+  "aux2SerialMode": false,
+  "backlightLevelMin": 0,
+  "battery": {
+    "min": 0,
+    "max": 0,
+    "warn": 0
+  },
+  "bluetoothName": "unknown",
+  "chargeWhileOn": false,
+  "contrast": {
+    "min": 0,
+    "max": 0
+  },
+  "externalAntenna": false,
+  "hardwareAntennaSwitch": false,
+  "hats": false,
+  "imu": false,
+  "internalGPS": false,
+  "maxVolume": 0,
+  "pwrButtonPress": true,
+  "rotaryEncNav": true,
+  "softwareSerialPower": false,
+  "stickDeadZone": false,
+  "switchableJack": false,
+  "trainerModule": "none",
+  "vcpSerialMode": false,
+  "voiceControl": false,
+  "eepromSize": 0,
+  "flashSize": 0,
+  "fourCC": 0
+}
