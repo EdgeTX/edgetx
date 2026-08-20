@@ -156,9 +156,6 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
                       FONT(L) | COLOR_THEME_PRIMARY2 | CENTERED);
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
-
-    lv_group_add_obj(lv_group_get_default(), lvobj);
-    lv_group_set_editing(lv_group_get_default(), true);
   }
 
   // setup LUA event handler
