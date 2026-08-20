@@ -106,7 +106,10 @@ bool YamlFormat::load(RadioData & radioData)
 
     //  without knowing the radio this model came from the old to new radio conversion can cause more issues than it tries to solve
     //  so leave fixing incompatibilities to the user
-    radioData.generalSettings.variant = getCurrentBoard();
+    std::strncpy(radioData.generalSettings.variant,
+                 getCurrentBoard().toLatin1().constData(),
+                 sizeof(radioData.generalSettings.variant) - 1);
+    radioData.generalSettings.variant[sizeof(radioData.generalSettings.variant) - 1] = '\0'; // Enforce null termination
 
     setWarning(tr("Please check all model settings as minimal conversion performed."));
     return true;

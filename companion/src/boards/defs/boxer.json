@@ -1,0 +1,7 @@
+{
+  "basedOn": [
+    "radiomaster"
+  ],
+  "id": "boxer",
+  "name": "Boxer"
+}

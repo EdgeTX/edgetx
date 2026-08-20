@@ -3,20 +3,18 @@ project(firmwares)
 
 set(${PROJECT_NAME}_NAMES
   adjustmentreference
-  boardfactories
-  boardjson
-  boards
   curvedata
   curvereference
   customfunctiondata
   customisation_data
   datahelpers
-  eeprominterface
+  firmware
+  firmwarefactories
+  flightmodedata
   generalsettings
   gvardata
-  input_data
-  flightmodedata
   heli_data
+  input_data
   logicalswitchdata
   mixdata
   modeldata
@@ -31,7 +29,6 @@ set(${PROJECT_NAME}_NAMES
   sourcenumref
   telem_data
   timerdata
-  opentx/opentxinterface
   edgetx/edgetxinterface
   edgetx/yaml_calibdata
   edgetx/yaml_curvedata
@@ -53,6 +50,13 @@ set(${PROJECT_NAME}_NAMES
 )
 
 AddHeadersSources()
+
+# these have no cpp
+set(${PROJECT_NAME}_HDRS
+  ${${PROJECT_NAME}_HDRS}
+  eeprominterface.h
+  opentx/opentxinterface.h
+)
 
 add_library(${PROJECT_NAME}
   ${${PROJECT_NAME}_HDRS}

@@ -47,7 +47,7 @@ VirtualJoystickWidget::VirtualJoystickWidget(QWidget *parent, QChar side, bool s
   m_stickScale(1024),
   m_stickPressed(false)
 {
-  isBoardSurface = Boards::isSurface(getCurrentBoard());
+  isBoardSurface = getCurrentFirmwareBoard()->getCapability(Capability::Surface);
   ar = (float)size.width() / size.height();
   extraSize = QSize(0, 0);
 

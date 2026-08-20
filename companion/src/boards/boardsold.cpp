@@ -1241,3 +1241,10 @@ QString Boards::getCapabilityStr(Board::Type board, Board::Capability capability
 {
   return getBoardJson(board)->getCapabilityStr(capability);
 }
+
+// temporary until boards refactored
+// only called from Firmware::getBoard()
+Board::Type Boards::getBoardForHwDefn(const QString & hwdefn)
+{
+  return gBoardFactories->instance(hwdefn)->board();
+}

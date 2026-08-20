@@ -42,6 +42,9 @@
 #include "translations.h"
 #include "helpers.h"
 #include "boardfactories.h"
+#include "firmwarefactories.h"
+
+#include <iostream>
 
 #ifdef __APPLE__
 #include <QProxyStyle>
@@ -226,10 +229,13 @@ int main(int argc, char *argv[])
   }
 #endif
 
+  Q_INIT_RESOURCE(fwdefs);
   Q_INIT_RESOURCE(hwdefs);
+  Q_INIT_RESOURCE(bddefs);
+
   gBoardFactories = new BoardFactories();
   registerStorageFactories();
-  registerOpenTxFirmwares();
+  gFirmwareFactories = new FirmwareFactories();
   SimulatorLoader::registerSimulators();
 
   QTemporaryDir tempDir(QDir::tempPath() % "/etx-cpn-XXXXXX");
@@ -273,7 +279,7 @@ int main(int argc, char *argv[])
   delete mainWin;
 
   SimulatorLoader::unregisterSimulators();
-  unregisterOpenTxFirmwares();
+  gFirmwareFactories->unregisterFactories();
   unregisterStorageFactories();
   gBoardFactories->unregisterBoardFactories();
 
