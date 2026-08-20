@@ -19,35 +19,25 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#include "autolineeditpath.h"
 
-#include <QDialog>
+#include <QDir>
 
-class QTreeWidget;
-class QTreeWidgetItem;
-
-namespace Ui {
-  class FirmwarePicker;
+AutoLineEditPath::AutoLineEditPath(QWidget * parent, bool updateOnChange):
+  AutoLineEdit(parent, updateOnChange)
+{
 }
 
-class FirmwarePicker : public QDialog
+AutoLineEditPath::~AutoLineEditPath()
 {
-    Q_OBJECT
+}
 
-  public:
-    FirmwarePicker(QWidget * parent, const QString & currentType);
-    virtual ~FirmwarePicker();
+void AutoLineEditPath::setText(const QString & path)
+{
+  QLineEdit::setText(QDir::toNativeSeparators(path));
+}
 
-  public slots:
-    void accept() Q_DECL_OVERRIDE;
-
-  signals:
-    void firmwareTypeChanged(const QString newType);
-
-  private:
-    Ui::FirmwarePicker *ui;
-    const QString &m_oldtype;
-    QTreeWidgetItem *m_currentItem;
-
-    void shrink();
-};
+QString AutoLineEditPath::text() const
+{
+  return QDir::fromNativeSeparators(QLineEdit::text());
+}

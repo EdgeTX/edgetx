@@ -37,7 +37,7 @@ PrefsPanel::~PrefsPanel()
 
 AutoLineEdit * PrefsPanel::newPathWidget(QWidget * parent)
 {
-  AutoLineEdit *wgt = new AutoLineEdit(parent, true);
+  AutoLineEditPath *wgt = new AutoLineEditPath(parent, true);
   setPathWidget(wgt);
   return wgt;
 }

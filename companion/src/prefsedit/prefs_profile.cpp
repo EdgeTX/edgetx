@@ -24,6 +24,7 @@
 #include "eeprominterface.h"
 #include "moduledata.h"
 #include "firmwarepicker.h"
+#include "firmwarepicker.h"
 
 #include <QAbstractItemView>
 #include <QFileInfo>
@@ -498,9 +499,9 @@ void PrefsProfilePanel::undoFirmwareChange()
 {
   firmware = getCurrentFirmware();
   board = firmware->getBoard();
-  fwTypeData->setValue(firmware->getFirmwareBase()->getId());
-  ui->leFirmwareType->setText(Firmware::getFirmwareForId(fwTypeData->text())->getFullName());
+  fwTypeData->setText(firmware->getFirmwareBase()->getId());
   populateFirmwareOptions(profile.fwOptions().split("-"));
+  update();
 }
 
 void PrefsProfilePanel::update()

@@ -121,11 +121,3 @@ void FirmwarePicker::accept()
 
   QDialog::accept();
 }
-
-void FirmwarePicker::shrink()
-{
-  adjustSize();
-
-  if (m_currentItem)
-    ui->treeWidget->scrollToItem(m_currentItem);
-}
