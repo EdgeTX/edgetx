@@ -19,12 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MACROS_H_
-#define _MACROS_H_
+#pragma once
 
 #include "constants.h"
 #include <QDataStream>
 #include <iterator>
+#include <algorithm>
 
 #define DIM(arr__)   (std::end(arr__) - std::begin(arr__))
 
@@ -45,4 +45,4 @@
 #define CREATE_ENUM_FRIEND_STREAM_OPS2(type, datatype)   CREATE_ENUM_STREAM_OPS3(friend inline , type, datatype)
 #define CREATE_ENUM_FRIEND_STREAM_OPS(type)              CREATE_ENUM_FRIEND_STREAM_OPS2(type, quint32)
 
-#endif // _MACROS_H_
+#define IS_IN_ARRAY(T, target)  std::find(T.begin(), T.end(), target) != T.end()

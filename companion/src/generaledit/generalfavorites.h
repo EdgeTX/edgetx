@@ -40,7 +40,6 @@ class GeneralFavsPanel : public GeneralPanel
     void on_favToolChanged();
 
   private:
-    Board::Type board;
     QGridLayout *grid;
     QList<QWidget *> *params;
     int row;

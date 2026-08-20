@@ -21,7 +21,7 @@
 
 #include "yaml_rawsource.h"
 #include "eeprominterface.h"
-#include "boardjson.h"
+#include "board.h"
 
 static const YamlLookupTable spacemouseLut = {
   {  0, "INVALID"       },
@@ -35,8 +35,7 @@ static const YamlLookupTable spacemouseLut = {
 
 std::string YamlRawSourceEncode(const RawSource& rhs)
 {
-  Board::Type board = getCurrentBoard();
-  Boards b = Boards(board);
+  Board *board = getCurrentBoard();
   std::string src_str;
   div_t qr;
   char c = 'A';
@@ -64,10 +63,10 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_INPUT:
-      src_str += Boards::getInputYamlName(sval - 1, BoardJson::YLT_REF).toStdString();
+      src_str += board->getInputYamlName(sval - 1, Board::YLT_REF).toStdString();
       break;
     case SOURCE_TYPE_TRIM:
-      src_str += Boards::getTrimYamlName(sval - 1, BoardJson::YLT_REF).toStdString();
+      src_str += board->getTrimYamlName(sval - 1, Board::YLT_REF).toStdString();
       break;
     case SOURCE_TYPE_MIN:
       src_str += "MIN";
@@ -76,7 +75,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += "MAX";
       break;
     case SOURCE_TYPE_SWITCH:
-      src_str += Boards::getSwitchYamlName(sval - 1, BoardJson::YLT_REF).toStdString();
+      src_str += board->getSwitchYamlName(sval - 1, Board::YLT_REF).toStdString();
       break;
     case SOURCE_TYPE_CUSTOM_SWITCH:
       src_str += "ls(";
@@ -102,7 +101,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += ")";
       break;
     case SOURCE_TYPE_SPECIAL:
-      src_str += b.getRawSourceSpecialTypeTag(sval);
+      src_str += board->getRawSourceSpecialTypeTag(sval);
       break;
     case SOURCE_TYPE_TIMER:
       src_str += "Tmr" + std::to_string(sval);
@@ -138,8 +137,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
 RawSource YamlRawSourceDecode(const std::string& src_str)
 {
   Firmware *firmware = getCurrentFirmware();
-  Board::Type board = getCurrentBoard();
-  Boards b = Boards(board);
+  Board *board = getCurrentBoard();
   RawSource rhs;
   const char* val = src_str.data();
   size_t val_len = src_str.size();
@@ -169,7 +167,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
               (val[0] == 'S' && val[1] == 'W')) &&
               val[2] >= '1' && val[2] <= '9')) {
 
-    int idx = Boards::getSwitchYamlIndex(src_str_tmp.c_str(), BoardJson::YLT_REF);
+    int idx = board->getSwitchYamlIndex(src_str_tmp.c_str(), Board::YLT_REF);
     if (idx >= 0) {
       rhs = RawSource(SOURCE_TYPE_SWITCH, idx + 1);
     }
@@ -217,7 +215,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     int fs = 0;
     src >> fs;
     if (fs > 0) {
-      int fsidx = Boards::getSwitchYamlIndex(QString("SW%1").arg(fs), BoardJson::YLT_REF);
+      int fsidx = board->getSwitchYamlIndex(QString("SW%1").arg(fs), Board::YLT_REF);
       if (fsidx >= 0)
         rhs = RawSource(SOURCE_TYPE_SWITCH, fsidx + 1);
     }
@@ -310,13 +308,13 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     node >> ana_str;
 
     if (modelSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
-      ana_str = Boards::getLegacyAnalogMappedInputTag(ana_str.c_str());
-      int idx = Boards::getInputIndex(ana_str.c_str(), Board::LVT_TAG);
-      if (idx >= 0 && Boards::isInputStick(idx))
-        ana_str = Boards::getInputName(idx).toStdString();
+      ana_str = board->getLegacyAnalogMappedInputTag(ana_str.c_str());
+      int idx = board->getInputIndex(ana_str.c_str(), Board::LVT_TAG);
+      if (idx >= 0 && board->isInputStick(idx))
+        ana_str = board->getInputName(idx).toStdString();
     }
 
-    int ana_idx = Boards::getInputYamlIndex(ana_str.c_str(), BoardJson::YLT_REF);
+    int ana_idx = board->getInputYamlIndex(ana_str.c_str(), Board::YLT_REF);
     if (ana_idx >= 0) {
       rhs.type = SOURCE_TYPE_INPUT;
       rhs.index = ana_idx + 1;
@@ -326,12 +324,12 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     node >> trim_str;
 
     if (modelSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
-      int idx = b.getLegacyTrimSourceIndex(src_str_tmp.c_str());
+      int idx = board->getLegacyTrimSourceIndex(src_str_tmp.c_str());
       if (idx >= 0)
-        trim_str = Boards::getTrimYamlName(idx, BoardJson::YLT_REF).toStdString();
+        trim_str = board->getTrimYamlName(idx, Board::YLT_REF).toStdString();
     }
 
-    int trm_idx = Boards::getTrimYamlIndex(trim_str.c_str(), BoardJson::YLT_REF);
+    int trm_idx = board->getTrimYamlIndex(trim_str.c_str(), Board::YLT_REF);
     if (trm_idx >= 0) {
       rhs.type = SOURCE_TYPE_TRIM;
       rhs.index = trm_idx + 1;
@@ -356,7 +354,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     std::string special_str;
     node >> special_str;
 
-    int sp_idx = b.getRawSourceSpecialTypeIndex(special_str.c_str());
+    int sp_idx = board->getRawSourceSpecialTypeIndex(special_str.c_str());
     if (sp_idx > 0) {
       rhs.type = SOURCE_TYPE_SPECIAL;
       rhs.index = sp_idx;

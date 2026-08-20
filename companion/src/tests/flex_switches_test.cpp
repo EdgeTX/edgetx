@@ -26,9 +26,8 @@
 
 #include "gtests.h"
 
-#include "firmwares/eeprominterface.h"
-#include "firmwares/boardjson.h"
-#include "firmwares/boards.h"
+#include "firmwares/opentx/opentxinterface.h"
+#include "boards/board.h"
 
 namespace {
 
@@ -42,7 +41,7 @@ class FlexSwitchesBoard : public ::testing::TestWithParam<FlexCase>
  protected:
   void SetUp() override
   {
-    Firmware::setCurrentVariant(Firmware::getFirmwareForFlavour(GetParam().flavour));
+    Firmware::setCurrent(Firmware::getFirmware(GetParam().flavour));
     ASSERT_NE(getCurrentFirmware(), nullptr)
         << GetParam().flavour << " firmware must be registered for this test";
   }
@@ -54,12 +53,12 @@ class FlexSwitchesBoard : public ::testing::TestWithParam<FlexCase>
 // (switchGetMaxSwitches()), which is what the simulator and YAML rely on.
 TEST_P(FlexSwitchesBoard, FlexSwitchesFollowPhysicalSwitches)
 {
-  const Board::Type board = getCurrentBoard();
+  const auto board = getCurrentBoard();
   const int n = GetParam().stdSwitches;
 
-  EXPECT_EQ(Boards::getCapability(board, Board::FlexSwitches), 2);
-  EXPECT_EQ(Boards::getSwitchYamlIndex(QStringLiteral("FL1"), BoardJson::YLT_REF, board), n);
-  EXPECT_EQ(Boards::getSwitchYamlIndex(QStringLiteral("FL2"), BoardJson::YLT_REF, board), n + 1);
+  EXPECT_EQ(board->getCapability(Capability::FlexSwitches), 2);
+  EXPECT_EQ(board->getSwitchYamlIndex(QStringLiteral("FL1"), Board::YLT_REF), n);
+  EXPECT_EQ(board->getSwitchYamlIndex(QStringLiteral("FL2"), Board::YLT_REF), n + 1);
 }
 
 INSTANTIATE_TEST_SUITE_P(
@@ -73,9 +72,9 @@ INSTANTIATE_TEST_SUITE_P(
 TEST(FlexSwitchesAbsent, BoardsWithoutFlexSwitches)
 {
   for (const char* flavour : {"x10", "t16", "t18", "st16", "pl18"}) {
-    Firmware* fw = Firmware::getFirmwareForFlavour(flavour);
+    Firmware* fw = Firmware::getFirmware(flavour);
     ASSERT_NE(fw, nullptr) << flavour << " firmware must be registered for this test";
-    Firmware::setCurrentVariant(fw);
-    EXPECT_EQ(Boards::getCapability(getCurrentBoard(), Board::FlexSwitches), 0) << flavour;
+    Firmware::setCurrent(fw);
+    EXPECT_EQ(fw->getBoard()->getCapability(Capability::FlexSwitches), 0) << flavour;
   }
 }

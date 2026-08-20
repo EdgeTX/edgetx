@@ -31,8 +31,6 @@ class RadioDataConversionState;
 class AbstractStaticItemModel;
 class Firmware;
 
-#define FLIGHTMODE_NAME_LEN  10
-
 constexpr char AIM_FLIGHTMODEDATA_GVARFM[]  {"flightmodedata.gvarfm"};
 
 class FlightModeData {

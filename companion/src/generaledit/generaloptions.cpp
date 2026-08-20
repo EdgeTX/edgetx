@@ -36,7 +36,7 @@ GeneralOptionsPanel::GeneralOptionsPanel(QWidget * parent, GeneralSettings & gen
 
   addSection(tr("Radio Menus"));
 
-  if (Boards::getCapability(board, Board::HasColorLcd)) {
+  if (board->getCapability(Capability::HasColorLcd)) {
     addLabel(tr("Themes"));
     AutoCheckBox *themesDisable = new AutoCheckBox(this);
     themesDisable->setField(generalSettings.radioThemesDisabled, this, true);
@@ -68,7 +68,7 @@ GeneralOptionsPanel::GeneralOptionsPanel(QWidget * parent, GeneralSettings & gen
     addParams();
   }
 
-  addLabel(tr("%1 Modes").arg(Boards::getRadioModeString(board)));
+  addLabel(tr("%1 Modes").arg(board->radioModeString()));
   AutoCheckBox *fmDisable = new AutoCheckBox(this);
   fmDisable->setField(generalSettings.modelFMDisabled, this, true);
   params->append(fmDisable);

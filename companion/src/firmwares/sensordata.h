@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "constants.h"
 #include "datahelpers.h"
 
 #include <QtCore>

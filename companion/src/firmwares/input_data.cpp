@@ -47,7 +47,7 @@ QString ExpoData::carryTrimToString() const
       else
         return tr("OFF");
   }
-  else if (carryTrim < 0 && abs(carryTrim) <= Boards::getBoardCapability(getCurrentBoard(), Board::NumTrims))
+  else if (carryTrim < 0 && abs(carryTrim) <= getCurrentBoard()->getCapability(Capability::NumTrims))
     return RawSource(SOURCE_TYPE_TRIM, abs(carryTrim)).toString();
   else
     return CPN_STR_UNKNOWN_ITEM;
@@ -62,14 +62,14 @@ AbstractStaticItemModel * ExpoData::carryTrimItemModel()
 
   tmp.srcRaw = RawSource(SOURCE_TYPE_INPUT, 0);
 
-  for (int i = -CARRYTRIM_STICK_OFF; i <= Boards::getBoardCapability(getCurrentBoard(), Board::NumTrims); i++) {
+  for (int i = -CARRYTRIM_STICK_OFF; i <= getCurrentBoard()->getCapability(Capability::NumTrims); i++) {
     tmp.carryTrim = -i;
     mdl->appendToItemList(tmp.carryTrimToString(), -i, true, 0, CarryTrimSticksGroup);
   }
 
   tmp.srcRaw = RawSource(SOURCE_TYPE_NONE, 0);
 
-  for (int i = CARRYTRIM_DEFAULT; i <= Boards::getBoardCapability(getCurrentBoard(), Board::NumTrims); i++) {
+  for (int i = CARRYTRIM_DEFAULT; i <= getCurrentBoard()->getCapability(Capability::NumTrims); i++) {
     tmp.carryTrim = -i;
     mdl->appendToItemList(tmp.carryTrimToString(), -i, true, 0, CarryTrimNotSticksGroup);
   }

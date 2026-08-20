@@ -24,6 +24,7 @@
 
 #include "appdata.h"
 #include "constants.h"
+#include "helpers.h"
 #include "eeprominterface.h"
 #include "radiodata.h"
 #include "simulator.h"
@@ -201,8 +202,8 @@ void RadioOutputsWidget::setupChannelsDisplay(bool mixes)
 
 void RadioOutputsWidget::setupGVarsDisplay()
 {
-  int gvars = m_firmware->getCapability(Capability(Gvars));
-  int fmodes = m_firmware->getCapability(Capability(FlightModes));
+  int gvars = m_firmware->getCapability(Capability::Gvars);
+  int fmodes = m_firmware->getCapability(Capability::FlightModes);
 
   // delete old widgets if already exist
   m_globalVarsMap.clear();
@@ -222,7 +223,7 @@ void RadioOutputsWidget::setupGVarsDisplay()
   ui->globalVarsScroll->setWidget(gvarsWidget);
 
   QPalette::ColorRole bgrole = QPalette::AlternateBase;
-  const bool isAir = Boards::isAir();
+  const bool isAir = m_firmware->getCapability(Capability::Air);
   for (int fm=0; fm < fmodes; fm++) {
     QLabel * label = new QLabel(gvarsWidget);
     label->setText(QString("%1%2").arg(isAir ? tr("FM") : tr("DM")).arg(fm));

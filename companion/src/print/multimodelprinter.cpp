@@ -231,7 +231,8 @@ QString MultiModelPrinter::printTitle(const QString & label)
 }
 
 MultiModelPrinter::MultiModelPrinter(Firmware * firmware):
-  firmware(firmware)
+  firmware(firmware),
+  board(firmware->getBoard())
 {
 }
 
@@ -278,7 +279,7 @@ QString MultiModelPrinter::print(QTextDocument * document)
   if (firmware->getCapability(Timers)) {
     str.append(printTimers());
   }
-  if (Boards::getCapability(firmware->getBoard(), Board::FunctionSwitches)) {
+  if (board->getCapability(Capability::FunctionSwitches)) {
     str.append(printFunctionSwitches());
   }
 
@@ -417,7 +418,7 @@ QString MultiModelPrinter::printHeliSetup()
 
 QString MultiModelPrinter::printFlightModes()
 {
-  QString str = printTitle(Boards::getCapability(getCurrentBoard(), Board::Air)
+  QString str = printTitle(board->getCapability(Capability::Air)
                                ? tr("Flight modes")
                                : tr("Drive modes"));
   // Trims
@@ -425,16 +426,16 @@ QString MultiModelPrinter::printFlightModes()
     MultiColumns columns(modelPrinterMap.size());
     columns.appendSectionTableStart();
     QStringList hd = QStringList()
-                     << (Boards::getCapability(getCurrentBoard(), Board::Air)
+                     << (board->getCapability(Capability::Air)
                              ? tr("Flight mode")
                              : tr("Drive mode"))
                      << tr("Switch") << tr("F.In") << tr("F.Out");
-    for (int i = 0; i < getBoardCapability(getCurrentBoard(), Board::NumTrims);
+    for (int i = 0; i < board->getCapability(Capability::NumTrims);
          i++) {
       hd << RawSource(SOURCE_TYPE_TRIM, i + 1).toString();
     }
     columns.appendRowHeader(hd);
-    int wd = 80 / (getBoardCapability(getCurrentBoard(), Board::NumTrims) + 3);
+    int wd = 80 / (board->getCapability(Capability::NumTrims) + 3);
     for (int i = 0; i < firmware->getCapability(FlightModes); i++) {
       columns.appendRowStart();
       columns.appendCellStart(20, true);
@@ -443,7 +444,7 @@ QString MultiModelPrinter::printFlightModes()
       COMPARECELLWIDTH(modelPrinter->printFlightModeSwitch(model->flightModeData[i].swtch), wd);
       COMPARECELLWIDTH(model->flightModeData[i].fadeIn, wd);
       COMPARECELLWIDTH(model->flightModeData[i].fadeOut, wd);
-      for (int k = 0; k < getBoardCapability(getCurrentBoard(), Board::NumTrims); k++) {
+      for (int k = 0; k < board->getCapability(Capability::NumTrims); k++) {
         COMPARECELLWIDTH(modelPrinter->printTrim(i, k), wd);
       }
       columns.appendRowEnd();
@@ -496,11 +497,11 @@ QString MultiModelPrinter::printFlightModes()
   columns.appendRowEnd();
 
   columns.appendRowHeader(
-      QStringList() << (Boards::getCapability(getCurrentBoard(), Board::Air)
+      QStringList() << (board->getCapability(Capability::Air)
                             ? tr("Flight mode")
                             : tr("Drive mode")));
 
-  for (int i = 0; i < firmware->getCapability(FlightModes); i++) {
+  for (int i = 0; i < firmware->getCapability(Capability::FlightModes); i++) {
     columns.appendRowStart();
     columns.appendCellStart(0, true);
     COMPARE(modelPrinter->printFlightModeName(i));
@@ -695,7 +696,7 @@ QString MultiModelPrinter::printSpecialFunctions()
   columns.appendSectionTableStart();
   columns.appendRowHeader(QStringList() << "" << tr("Switch") << tr("Function") << tr("Parameters") << tr("Repeat") << tr("Enabled"));
 
-  for (int i=0; i < firmware->getCapability(CustomFunctions); i++) {
+  for (int i=0; i < firmware->getCapability(Capability::SpecialFunctions); i++) {
     bool sfEmpty = true;
     for (int k=0; k < modelPrinterMap.size(); k++) {
       if (!modelPrinterMap.value(k).first->customFn[i].isEmpty()) {
@@ -706,7 +707,7 @@ QString MultiModelPrinter::printSpecialFunctions()
     if (!sfEmpty) {
       count++;
       columns.appendRowStart(tr("SF%1").arg(i + 1), 20);
-      COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? model->customFn[i].swtch.toString(getCurrentBoard(), &defaultSettings, model) : "", 10);
+      COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? model->customFn[i].swtch.toString(getCurrentBoard()->getId(), &defaultSettings, model) : "", 10);
       COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? model->customFn[i].funcToString(model) : "", 20);
       COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? model->customFn[i].paramToString(model) : "", 20);
       COMPARECELLWIDTH(!model->customFn[i].isEmpty() ? model->customFn[i].repeatToString(true) : "", 10);
@@ -874,7 +875,7 @@ QString MultiModelPrinter::printGlobalFunctions()
       if (!generalSettings->customFn[i].isEmpty()) {
         count++;
         columns.appendRowStart(tr("GF%1").arg(i + 1), 20);
-        COMPARECELLWIDTH(generalSettings->customFn[i].swtch.toString(getCurrentBoard(), &defaultSettings), 10);
+        COMPARECELLWIDTH(generalSettings->customFn[i].swtch.toString(getCurrentBoard()->getId(), &defaultSettings), 10);
         COMPARECELLWIDTH(generalSettings->customFn[i].funcToString(), 20);
         COMPARECELLWIDTH(generalSettings->customFn[i].paramToString(), 20);
         COMPARECELLWIDTH(generalSettings->customFn[i].repeatToString(true), 10);
@@ -917,7 +918,7 @@ QString MultiModelPrinter::printFunctionSwitches()
    MultiColumns columns(modelPrinterMap.size());
    columns.appendSectionTableStart();
 
-   int numFS = Boards::getCapability(firmware->getBoard(), Board::FunctionSwitches);
+   int numFS = board->getCapability(Capability::FunctionSwitches);
    int colwidth = 80 / numFS;
 
    QStringList headings = { tr("Customizable Switches") };

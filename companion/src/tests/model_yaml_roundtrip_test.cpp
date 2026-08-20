@@ -37,7 +37,7 @@
 #include <string>
 #include <vector>
 
-#include "firmwares/eeprominterface.h"
+#include "firmwares/opentx/opentxinterface.h"
 #include "firmwares/edgetx/edgetxinterface.h"
 #include "firmwares/edgetx/yaml_moduledata.h"
 #include "firmwares/sourcenumref.h"
@@ -60,7 +60,7 @@ class ModelYamlRoundTrip : public ::testing::Test
  protected:
   void SetUp() override
   {
-    Firmware::setCurrentVariant(Firmware::getFirmwareForFlavour("tx16s"));
+    Firmware::setCurrent(Firmware::getFirmware("tx16s"));
     ASSERT_NE(getCurrentFirmware(), nullptr)
         << "tx16s firmware must be registered for this test";
   }
@@ -162,7 +162,7 @@ TEST_F(ModelYamlRoundTrip, RadioWrittenAntennaModeDecodes)
 // change the sub-protocol on load.
 TEST_F(ModelYamlRoundTrip, AntennaModeNotWrittenWithoutExternalAntenna)
 {
-  ASSERT_FALSE(Boards::getCapability(getCurrentBoard(), Board::HasExternalAntenna))
+  ASSERT_FALSE(getCurrentBoard()->getCapability(Capability::HasExternalAntenna))
       << "fixture board is expected to have no external antenna";
 
   ModelData m;

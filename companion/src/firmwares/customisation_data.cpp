@@ -33,12 +33,11 @@
 int layoutValueScaled(int value)
 {
   Firmware *firmware = getCurrentFirmware();
-  Board::Type board = firmware->getBoard();
 
-  if (firmware->getCapability(IsLandscape)) {
-    if (Boards::getCapability(board, Board::LcdWidth) == 320)
+  if (firmware->getCapability(Capability::IsLandscape)) {
+    if (firmware->getCapability(Capability::LcdWidth) == 320)
       return ((value * 8 + 5) / 10);
-    else if (Boards::getCapability(board, Board::LcdWidth) == 800)
+    else if (firmware->getCapability(Capability::LcdWidth) == 800)
       return ((value * 11 + 4) / 8);
   }
 
@@ -285,9 +284,8 @@ void RadioLayout::init(const std::string layoutId, CustomScreens& customScreens)
 int RadioLayout::topBarZones()
 {
   Firmware *firmware = getCurrentFirmware();
-  Board::Type board = firmware->getBoard();
   const int menuHeaderButtonsLeft = layoutValueScaled(47);
-  const int topBarZoneWidth = layoutValueScaled((firmware->getCapability(IsWideLayout) ? 74 : 70));
-  return rangeCheck(((Boards::getCapability(board, Board::LcdWidth) - menuHeaderButtonsLeft - 1 +
+  const int topBarZoneWidth = layoutValueScaled((firmware->getCapability(Capability::IsWideLayout) ? 74 : 70));
+  return rangeCheck(((firmware->getCapability(Capability::LcdWidth) - menuHeaderButtonsLeft - 1 +
           topBarZoneWidth / 2) / topBarZoneWidth), 0, MAX_TOPBAR_ZONES, 0);
 }

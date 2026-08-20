@@ -44,5 +44,5 @@ class GenericPanel : public AbstractPanel
     ModelData * model;
     GeneralSettings & generalSettings;
     Firmware * firmware;
-    //Board::Type board;  TODO: as part of refactor to move physical capabilities from Firmware to Boards
+    //QString board;  TODO: as part of refactor to move physical capabilities from Firmware to Boards
 };
