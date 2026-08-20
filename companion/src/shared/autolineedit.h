@@ -35,6 +35,9 @@ class AutoLineEdit: public QLineEdit, public AutoWidget
 
 
     virtual void updateValue() override;
+    virtual void setText(const QString & text);
+    virtual QString text() const;
+
     void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
 
     void setField(char * field, int len, AbstractPanel * panel = nullptr);
@@ -46,7 +49,7 @@ class AutoLineEdit: public QLineEdit, public AutoWidget
     void setValue(QString text, AbstractPanel * panel, int len = 0);
     void setValue(QString text);
 
-  signals:
+    signals:
     void currentDataChanged();
 
   protected slots:

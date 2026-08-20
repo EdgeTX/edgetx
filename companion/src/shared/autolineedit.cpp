@@ -75,11 +75,11 @@ void AutoLineEdit::updateValue()
   setLock(true);
 
   if (m_strField)
-    QLineEdit::setText(*m_strField);
+    setText(*m_strField);
   else if (m_charField)
-    QLineEdit::setText(m_charField);
+    setText(m_charField);
   else
-    QLineEdit::setText(m_value);
+    setText(m_value);
 
   setLock(false);
 }
@@ -123,4 +123,16 @@ void AutoLineEdit::setValue(QString text, AbstractPanel * panel, int len)
     m_value = text;
     setFieldInit(len, panel);
   }
+}
+
+// virtual default
+void AutoLineEdit::setText(const QString & text)
+{
+  QLineEdit::setText(text);
+}
+
+// virtual default
+QString AutoLineEdit::text() const
+{
+  return QLineEdit::text();
 }

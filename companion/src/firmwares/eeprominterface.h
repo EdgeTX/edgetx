@@ -236,8 +236,6 @@ class Firmware
 
     static Firmware * getFirmwareForId(const QString & id);
 
-    static Firmware * getFirmwareForFullName(const QString & name);
-
     static QVector<Firmware *> getRegisteredFirmwares()
     {
       return registeredFirmwares;

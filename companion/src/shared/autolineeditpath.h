@@ -21,23 +21,21 @@
 
 #pragma once
 
-#include "autobitmappedcheckbox.h"
-#include "autobitmappedcombobox.h"
-#include "autobitsetcheckbox.h"
-#include "autocheckbox.h"
-#include "autocollapsiblesection.h"
-#include "autocolorselectbutton.h"
-#include "autocombobox.h"
-#include "autodoublespinbox.h"
-#include "autofileselectbutton.h"
-#include "autodirectoryselectbutton.h"
-#include "autohexspinbox.h"
-#include "autoimage.h"
-#include "autolabel.h"
 #include "autolineedit.h"
-#include "autolineeditpath.h"
-#include "autoprecisioncombobox.h"
-#include "autopushbutton.h"
-#include "autoslider.h"
-#include "autospinbox.h"
-#include "autotimeedit.h"
+
+// encapsulates calls to and from native separators
+class AutoLineEditPath : public AutoLineEdit
+{
+  Q_OBJECT
+
+  public:
+    explicit AutoLineEditPath(QWidget * parent = nullptr, bool updateOnChange = false);
+    virtual ~AutoLineEditPath();
+
+    virtual void setText(const QString & path) override;
+    virtual QString text() const override;
+
+  protected:
+
+  private:
+};

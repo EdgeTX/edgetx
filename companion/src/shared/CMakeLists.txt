@@ -16,6 +16,7 @@ set(${PROJECT_NAME}_NAMES
   autoimage
   autolabel
   autolineedit
+  autolineeditpath
   autoprecisioncombobox
   autopushbutton
   autoslider
@@ -29,6 +30,7 @@ set(${PROJECT_NAME}_NAMES
   textvalidator
   abstractpanel
   genericpanel
+  firmwarepicker
 )
 
 AddHeadersSources()

@@ -79,17 +79,6 @@ Firmware * Firmware::getFirmwareForId(const QString & id)
   return defaultVariant;
 }
 
-Firmware * Firmware::getFirmwareForFullName(const QString & name)
-{
-  foreach(Firmware * firmware, registeredFirmwares) {
-    if (firmware->getFullName() == name) {
-      return firmware;
-    }
-  }
-
-  return defaultVariant;
-}
-
 unsigned int Firmware::getVariantNumber()
 {
   unsigned int result = 0;

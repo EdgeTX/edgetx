@@ -21,23 +21,31 @@
 
 #pragma once
 
-#include "autobitmappedcheckbox.h"
-#include "autobitmappedcombobox.h"
-#include "autobitsetcheckbox.h"
-#include "autocheckbox.h"
-#include "autocollapsiblesection.h"
-#include "autocolorselectbutton.h"
-#include "autocombobox.h"
-#include "autodoublespinbox.h"
-#include "autofileselectbutton.h"
-#include "autodirectoryselectbutton.h"
-#include "autohexspinbox.h"
-#include "autoimage.h"
-#include "autolabel.h"
-#include "autolineedit.h"
-#include "autolineeditpath.h"
-#include "autoprecisioncombobox.h"
-#include "autopushbutton.h"
-#include "autoslider.h"
-#include "autospinbox.h"
-#include "autotimeedit.h"
+#include <QDialog>
+
+class QTreeWidget;
+class QTreeWidgetItem;
+
+namespace Ui {
+  class FirmwarePicker;
+}
+
+class FirmwarePicker : public QDialog
+{
+    Q_OBJECT
+
+  public:
+    FirmwarePicker(QWidget * parent, const QString & currentType);
+    virtual ~FirmwarePicker();
+
+  public slots:
+    virtual void accept() Q_DECL_OVERRIDE;
+
+  signals:
+    void firmwareTypeChanged(const QString newType);
+
+  private:
+    Ui::FirmwarePicker *ui;
+    const QString &m_oldtype;
+    QTreeWidgetItem *m_currentItem;
+};
