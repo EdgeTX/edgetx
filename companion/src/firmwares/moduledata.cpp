@@ -40,13 +40,13 @@ void ModuleData::convert(RadioDataConversionState & cstate)
   RadioDataConversionState::EventType evt = RadioDataConversionState::EVT_NONE;
   RadioDataConversionState::LogField oldData(protocol, protocolToString(protocol));
 
-  if (fw->getBoard() == cstate.toType) {
+  if (fw->getBoard() == cstate.toBoard) {
+    GeneralSettings toGS = *cstate.toGS();
     if (cstate.subCompIdx < fw->getCapability(NumFirstUsableModule) || cstate.subCompIdx > fw->getCapability(NumModules) - 1) {
       if ((PulsesProtocol) protocol != PULSES_OFF)
         evt = RadioDataConversionState::EVT_INV;
     }
-    else if (!isAvailable((PulsesProtocol) protocol, cstate.subCompIdx)) {  //  TODO: replace with call to ModuleData::isProtocolAvailable
-    //else if (!isProtocolAvailable(cstate.subCompIdx, (PulsesProtocol) protocol, cstate.toGS)) {
+    else if (!isProtocolAvailable(cstate.subCompIdx, (PulsesProtocol) protocol, toGS)) {
       evt = RadioDataConversionState::EVT_INV;
     }
 
@@ -77,13 +77,12 @@ void ModuleData::clear()
 //  only called by ModuleData::convert
 //  TODO: merge with ModuleData::isProtocolAvailable as share much of the same logic
 //        however they differ but why? Suspect have diverged as existence of both functions not known to devs
+//  Commented out so available for conversion reference
 //  static
-bool ModuleData::isAvailable(PulsesProtocol proto, int port)
+/* bool ModuleData::isAvailable(PulsesProtocol proto, int port)
 {
-  Firmware *fw = getCurrentFirmware();
-  Board::Type board = fw->getBoard();
-
-  QString id = fw->getId();
+  Board *board = getCurrentBoard();
+  const QStringList opts = g.currentProfile().fwOptions().split("-");
 
   switch (port) {
     case 0:
@@ -157,7 +156,7 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
 
   return false; //  to avoid compiler warning
 }
-
+ */
 bool ModuleData::isPxx2Module() const
 {
   switch(protocol){
@@ -477,10 +476,12 @@ QString ModuleData::typeToString(int type)
 
 AbstractStaticItemModel * ModuleData::internalModuleItemModel(int board)
 {
+  Board *bd = getCurrentBoard();
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName("moduledata.internalmodule");
 
-  auto modules = Boards::getSupportedInternalModules(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : (Board::Type)board);
+  auto modules = bd->supportedInternalModules();
+
   for(auto mod : modules) {
     mdl->appendToItemList(typeToString(mod), mod);
   }
@@ -490,21 +491,23 @@ AbstractStaticItemModel * ModuleData::internalModuleItemModel(int board)
 }
 
 //  TODO: merge with ModuleData::isAvailable noting the functions have diverged!!!
+//  Refactor out module sizes which can be unreliable and use HardwareDefn intModule and extModule
 //  static
 bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, GeneralSettings & generalSettings)
 {
   if (protocol == PULSES_OFF)
     return true;
 
-  if (moduleidx == 0)
-    return (int)generalSettings.internalModule == getTypeFromProtocol(protocol);
-
   switch (moduleidx) {
+    case 0:
+      return (int)generalSettings.internalModule == getTypeFromProtocol(protocol);
+
     case 1: {
       const int moduleSize = g.currentProfile().externalModuleSize();
       const int moduleType = getTypeFromProtocol(protocol);
 
-      if (IS_IFLIGHT_C14(getCurrentBoard()))
+      // does not fit the standard external module scheme
+      if (getCurrentBoard()->getId() == "c14")
         return moduleType == MODULE_TYPE_CROSSFIRE || moduleType == MODULE_TYPE_GHOST;
 
       switch(moduleSize) {
@@ -604,13 +607,14 @@ AbstractStaticItemModel * ModuleData::protocolItemModel(GeneralSettings & settin
 
 AbstractStaticItemModel * ModuleData::telemetryBaudrateItemModel(unsigned int protocol, int moduleIdx, int board)
 {
+  Board *bd = getCurrentBoard();
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName("moduledata.baudrate");
 
   for (int i = 0; i < moduleBaudratesList.size(); i++) {
     // CRSF limit external module to 3.75M for older boards
     if (protocol == PULSES_CROSSFIRE && moduleIdx == 1 &&
-        Boards::getCapability((Board::Type)board, Board::IsF4) &&
+        bd->getCapability(Capability::IsF4) &&
         i > 4) break;
 
     if (protocol == PULSES_GHOST && i >= 2) break;

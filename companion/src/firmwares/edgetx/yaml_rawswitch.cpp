@@ -39,7 +39,7 @@ static const StringTagMappingTable funcSwitchConversionTable = {
 
 std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 {
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
   Boards b = Boards(board);
   std::string sw_str;
   int32_t sval = rhs.index;
@@ -90,7 +90,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 
 RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 {
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
   Boards b = Boards(board);
   RawSwitch rhs;  // constructor sets to SWITCH_TYPE_NONE
   const char* val = sw_str.data();

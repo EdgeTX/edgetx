@@ -40,7 +40,7 @@ GeneralPanel(parent, generalSettings, firmware),
 ui(new Ui::GeneralSetup)
 {
   ui->setupUi(this);
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
   panelFilteredModels = new FilteredItemModelFactory();
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::hatsModeItemModel()), FIM_HATSMODE);
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::stickModeItemModel()), FIM_STICKMODE);
@@ -471,7 +471,7 @@ int pwrDelayToYaml(int delay)
 
 void GeneralSetupPanel::setValues()
 {
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
   ui->beeperCB->setCurrentIndex(generalSettings.beeperMode+2);
   ui->channelorderCB->setCurrentIndex(ui->channelorderCB->findData(generalSettings.templateSetup));
   ui->stickmodeCB->setCurrentIndex(ui->stickmodeCB->findData(generalSettings.stickMode));

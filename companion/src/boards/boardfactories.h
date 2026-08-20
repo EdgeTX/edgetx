@@ -21,21 +21,19 @@
 
 #pragma once
 
-#include "boardjson.h"
+#include "board.h"
 
 class BoardFactory
 {
   public:
-    explicit BoardFactory(Board::Type board, QString hwdefn) :
-      m_instance(new BoardJson(board, hwdefn))
-      {}
+    explicit BoardFactory(const QString & id, const QString & hwdefn, const bool isSupported = true);
 
     virtual ~BoardFactory() {}
 
-    BoardJson* instance() const { return m_instance; }
+    Board * board() const { return m_board; }
 
   private:
-    BoardJson *m_instance;
+    Board *m_board;
 };
 
 class BoardFactories
@@ -44,16 +42,18 @@ class BoardFactories
     explicit BoardFactories();
     virtual ~BoardFactories();
 
-    BoardJson* instance(Board::Type board) const;
+    Board * boardForId(const QString & id) const;
+    Board * boardForHwDefn(const QString & hwdefn) const;
 
-    bool registerBoard(Board::Type board, QString hwdefn);
+    void registerAllBoards();
+    bool registerBoard(const QString & board, const QString & hwdefn, const bool isSupported = true);
     bool registerBoardFactory(BoardFactory * factory);
     void unregisterBoardFactories();
 
   private:
     QList<BoardFactory *> registeredBoardFactories;
 
-    BoardJson *m_default;
+    Board *m_default;
 };
 
 extern BoardFactories* gBoardFactories;

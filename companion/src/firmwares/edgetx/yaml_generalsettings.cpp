@@ -35,7 +35,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-void YamlValidateNames(GeneralSettings& gs, Board::Type board)
+void YamlValidateNames(GeneralSettings& gs, QString board)
 {
   for (int i = 0; i < CPN_MAX_INPUTS; i++) {
     YamlValidateName(gs.inputConfig[i].name, board);
@@ -184,8 +184,7 @@ static const YamlLookupTable QMPageLut = {
 YamlTelemetryBaudrate::YamlTelemetryBaudrate(
     const unsigned int* moduleBaudrate)
 {
-  if (Boards::getCapability(getCurrentFirmware()->getBoard(),
-                            Board::SportMaxBaudRate) < 400000) {
+  if (getCurrentBoard()->getCapability(Capability::SportMaxBaudRate) < 400000) {
     value = *moduleBaudrate;
   } else {
     value = (*moduleBaudrate + moduleBaudratesList.size() - 1) %
@@ -194,9 +193,9 @@ YamlTelemetryBaudrate::YamlTelemetryBaudrate(
 }
 
 void YamlTelemetryBaudrate::toCpn(unsigned int* moduleBaudrate,
-                                  unsigned int variant)
+                                  QString boardId)
 {
-  if (Boards::getCapability((Board::Type)variant, Board::SportMaxBaudRate) <
+  if (Board::getBoardForId(boardId)->getCapability(Capability::SportMaxBaudRate) <
       400000) {
     *moduleBaudrate = value;
   } else {
@@ -216,11 +215,11 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   auto fw = getCurrentFirmware();
   auto board = fw->getBoard();
 
-  bool hasColorLcd = Boards::getCapability(board, Board::HasColorLcd);
+  bool hasColorLcd = board->getCapability(Capability::HasColorLcd);
 
   node["semver"] = VERSION;
 
-  std::string strboard = fw->getFlavour().toStdString();
+  std::string strboard = board->getId().toStdString();
   node["board"] = strboard;
 
   if (rhs.manuallyEdited)
@@ -236,7 +235,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["vBatMin"] = rhs.vBatMin + 90;
   node["vBatMax"] = rhs.vBatMax + 120;
 
-  if (!Boards::getCapability(board, Board::HasColorLcd)) {
+  if (!board->getCapability(Capability::HasColorLcd)) {
     node["backlightColor"] = rhs.backlightColor;
     node["contrast"] = rhs.contrast;
     node["currModel"] = rhs.currModelIndex;
@@ -309,7 +308,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
     node["labelSingleSelect"] = rhs.labelSingleSelect;
     node["labelMultiMode"] = rhs.labelMultiMode;
     node["favMultiMode"] = rhs.favMultiMode;
-  } else if (Boards::getCapability(board, Board::LcdWidth) == 128) {
+  } else if (board->getCapability(Capability::LcdWidth) == 128) {
     node["invertLCD"] = (int)rhs.invertLCD;
   }
 
@@ -363,7 +362,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 
   node["ownerRegistrationID"] = rhs.registrationId;
 
-  if (Boards::getCapability(board, Board::HasIMU)) {
+  if (board->getCapability(Capability::HasIMU)) {
     node["imuMax"] = rhs.imuMax;
     node["imuOffset"] = rhs.imuOffset;
     node["imuInvert"] = (rhs.imuInvertX ? 1 : 0) | (rhs.imuInvertY ? 2 : 0);
@@ -485,28 +484,27 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   bool needsConversion = false;
   //
 
-  rhs.variant = Board::BOARD_UNKNOWN;
+  std::strncpy(rhs.boardId, Board::BOARD_UNKNOWN.toLatin1().data(), sizeof(rhs.boardId) - 1);
+  rhs.boardId[sizeof(rhs.boardId) - 1] = '\0';
 
-  std::string flavour;
-  node["board"] >> flavour;
+  std::string boardId;
+  node["board"] >> boardId;
 
   auto fw = getCurrentFirmware();
 
-  qDebug() << "Settings version:" << rhs.semver << "File flavour:" << flavour.c_str() << "Firmware flavour:" << fw->getFlavour();
+  qDebug() << "Settings version:" << rhs.semver << "File board:" << boardId.c_str() << "Firmware board:" << fw->getBoard()->getId();
 
-  if (flavour.empty()) {
+  if (boardId.empty()) {
     QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Warning: Radio settings file is missing the board entry!\n\nCurrent firmware profile board will be used.\n\nDo you wish to continue?");
     if (QMessageBox::question(NULL, CPN_STR_APP_NAME, prmpt, (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) != QMessageBox::Yes) {
       //  TODO: this triggers an error in the calling code so we need a graceful way to handle
       return false;
     }
-    flavour = fw->getFlavour().toStdString();
+    boardId = fw->getBoard()->getId().toStdString();
     needsConversion = true;
   }
-  else if (fw->getFlavour().toStdString() != flavour) {
-    auto msfw = Firmware::getFirmwareForFlavour(QString(flavour.c_str()));
-
-    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Settings file board (%1) does not match current profile board (%2).\n\nDo you wish to continue?").arg(Boards::getBoardName(msfw->getBoard())).arg(Boards::getBoardName(fw->getBoard()));
+  else if (fw->getBoard()->getId().toStdString() != boardId) {
+    QString prmpt = QCoreApplication::translate("YamlGeneralSettings", "Settings file board (%1) does not match current profile board (%2).\n\nDo you wish to continue?").arg(Board::getBoardForId(boardId.c_str())->getName()).arg(fw->getBoard()->getName());
 
     if (QMessageBox::question(NULL, CPN_STR_APP_NAME, prmpt, (QMessageBox::Yes | QMessageBox::No), QMessageBox::No) != QMessageBox::Yes) {
       //  TODO: this triggers an error in the calling code so we need a graceful way to handle
@@ -516,7 +514,11 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   }
 
   //  TODO: do not override here
-  rhs.variant = fw->getBoard();
+  memcpy(rhs.boardId, fw->getBoard()->getId().toLatin1().data(), fw->getBoard()->getId().size());
+  rhs.boardId[fw->getBoard()->getId().size()] = '\0';
+
+  std::strncpy(rhs.boardId, fw->getBoard()->getId().toLatin1().constData(), sizeof(rhs.boardId) - 1);
+  rhs.boardId[sizeof(rhs.boardId) - 1] = '\0';
 
   YamlCalibData calib;
   node["calib"] >> calib;
@@ -560,12 +562,12 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   } else {
     node["internalModuleBaudrate"] >> internalModuleBaudrate.value;
   }
-  internalModuleBaudrate.toCpn(&rhs.internalModuleBaudrate, rhs.variant);
+  internalModuleBaudrate.toCpn(&rhs.internalModuleBaudrate, fw->getBoard()->getId());
 
   if (node["internalModule"]) {
     node["internalModule"] >> internalModuleLut >> rhs.internalModule;
   } else {
-    rhs.internalModule = Boards::getDefaultInternalModules(fw->getBoard());
+    rhs.internalModule = fw->getBoard()->getCapability(Capability::defaultInternalModule);
   }
 
   node["splashMode"] >> rhs.splashMode;
@@ -662,7 +664,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   // exceptions:
   //   preserve those hardware defaults never written to yaml
   for (int i = 0; i < CPN_MAX_INPUTS; i++) {
-    if (Boards::isInputConfigurable(i))
+    if (fw->getBoard()->isInputConfigurable(i))
       rhs.inputConfig[i].flexType = (Board::FlexType)Board::FLEX_NONE;
   }
 
@@ -692,7 +694,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   // however when parsing saved settings set all switches to None and override with parsed values
   // thus any switches not parsed will be None rather than the default
   for (int i = 0; i < CPN_MAX_SWITCHES; i++) {
-    if (Boards::getCFSIndexForSwitch(i) < 0)
+    if (fw->getBoard()->getCFSIndexForSwitch(i) < 0)
       rhs.switchConfig[i].type = Board::SWITCH_NOT_AVAILABLE;
   }
 
@@ -791,7 +793,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
     rhs.init();
 
   // perform integrity checks and fix-ups
-  YamlValidateNames(rhs, fw->getBoard());
+  YamlValidateNames(rhs, fw->getBoard()->getId());
   rhs.validateFlexSwitches();
 
   return true;

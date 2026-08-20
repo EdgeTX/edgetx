@@ -33,7 +33,7 @@
 
 constexpr char FIM_TEMPLATESETUP[]    {"Template Setup"};
 
-PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Type & bd, Profile & prof) :
+PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, QString & bd, Profile & prof) :
   PrefsPanel(parent, fw, bd, prof),
   ui(new Ui::PrefsProfile)
 {

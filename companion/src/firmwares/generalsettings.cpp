@@ -84,9 +84,7 @@ bool GeneralSettings::switchSourceAllowed(int index) const
 
 bool GeneralSettings::isInputAvailable(int index) const
 {
-  Board::Type board = getCurrentBoard();
-
-  if (index < 0 || index >= Boards::getCapability(board, Board::Inputs))
+  if (index < 0 || index >= getCurrentBoard()->getCapability(Capability::Inputs))
     return false;
 
   const InputConfig &config = inputConfig[index];
@@ -98,9 +96,7 @@ bool GeneralSettings::isInputAvailable(int index) const
 
 bool GeneralSettings::isInputFlexSwitchAvailable(int index) const
 {
-  Board::Type board = getCurrentBoard();
-
-  if (index < 0 || index >= Boards::getCapability(board, Board::Inputs))
+  if (index < 0 || index >= getCurrentBoard()->getCapability(Capability::Inputs))
     return false;
 
   const InputConfig &config = inputConfig[index];
@@ -159,7 +155,7 @@ bool GeneralSettings::isInputStick(int index) const
 
 bool GeneralSettings::isSwitchAvailable(int index) const
 {
-  if (index < 0 || index >= Boards::getCapability(getCurrentBoard(), Board::Switches))
+  if (index < 0 || index >= getCurrentBoard()->getCapability(Capability::Switches))
     return false;
 
   const SwitchConfig &config = switchConfig[index];
@@ -169,108 +165,88 @@ bool GeneralSettings::isSwitchAvailable(int index) const
 
 bool GeneralSettings::isSwitchFlex(int index) const
 {
-  return Boards::isSwitchFlex(index);
+  return getCurrentBoard()->isSwitchFlex(index);
 }
 
 bool GeneralSettings::isSwitchFunc(int index) const
 {
-  return Boards::isSwitchFunc(index);
+  return getCurrentBoard()->isSwitchFunc(index);
 }
 
 bool GeneralSettings::unassignedInputFlexSwitches() const
 {
-  Board::Type board = getCurrentBoard();
+  Board *board = getCurrentBoard();
   int cnt = 0;
 
-  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
+  for (int i = 0; i < board->getCapability(Capability::Inputs); i++) {
     if (inputConfig[i].flexType == Board::FLEX_SWITCH)
       cnt++;
   }
-  return cnt < Boards::getCapability(board, Board::FlexSwitches);
+  return cnt < board->getCapability(Capability::FlexSwitches);
 }
 
 void GeneralSettings::clear()
 {
   memset(reinterpret_cast<void *>(this), 0, sizeof(GeneralSettings));
-  setDefaultControlTypes(getCurrentBoard());
+  setDefaultControlTypes(getCurrentBoard()->getId());
   init();
 }
 
 void GeneralSettings::init()
 {
-  Board::Type board = Firmware::getCurrentVariant()->getBoard();
-  Boards::getBattRange(board, vBatMin, vBatMax, vBatWarn);
-
-  if (IS_JUMPER_T16(board))
-    strcpy(bluetoothName, "t16");
-  else if (IS_FLYSKY_NV14(board))
-    strcpy(bluetoothName, "nv14");
-  else if (IS_FLYSKY_PL18(board))
-    strcpy(bluetoothName, "pl18");
-  else if (IS_FLYSKY_PL18EV(board))
-    strcpy(bluetoothName, "pl18ev");
-  else if (IS_FLYSKY_PL18U(board))
-    strcpy(bluetoothName, "pl18u");
-  else if (IS_FLYSKY_ST16(board))
-    strcpy(bluetoothName, "st16");
-  else if (IS_RADIOMASTER_TX15(board))
-    strcpy(bluetoothName, "tx15");
-  else if (IS_RADIOMASTER_GX15(board))
-    strcpy(bluetoothName, "gx15");
-  else if (IS_RADIOMASTER_TX16SMK3(board))
-    strcpy(bluetoothName, "tx16smk3");
-  else if (IS_FAMILY_HORUS_OR_T16(board))
-    strcpy(bluetoothName, "horus");
-  else if (IS_TARANIS_X9E(board) || IS_TARANIS_SMALL(board))
-    strcpy(bluetoothName, "taranis");
-
-  contrast = IS_TARANIS(board) ? 25 : 0;
-  backlightBright = 0;  // 0 = 100%
-  backlightDelay = 2;   // 2 * 5 = 10 secs
-  backlightMode = BACKLIGHT_MODE_KEYSCTRL;
-  backlightOffBright = IS_FAMILY_HORUS_OR_T16(board) ? 20 : 0;
-
-  backgroundVolume = 1;
-  speakerVolume = 0;
-  wavVolume = 2;
-
-  hatsMode = HATSMODE_SWITCHABLE;
-  inactivityTimer = 10;
+  Firmware *firmware = getCurrentFirmware();
+  Board *board = firmware->getBoard();
+  board->getBatteryRange(vBatMin, vBatMax, vBatWarn);
+  strcpy(bluetoothName, board->getCapabilityStr(Capability::BluetoothName).toLatin1().constData());
+  contrast = board->getCapability(Capability::Contrast);
+  backlightBright = board->getCapability(Capability::BacklightBright);
+  backlightDelay = board->getCapability(Capability::BacklightDelay);
+  backlightMode = board->getCapability(Capability::BacklightMode);
+  backlightOffBright = board->getCapability(Capability::BacklightOffBright);
+  backgroundVolume = board->getCapability(Capability::BackgroundVolume);
+  speakerVolume = board->getCapability(Capability::SpeakerVolume);
+  wavVolume = board->getCapability(Capability::WavVolume);
+  hatsMode = board->getCapability(Capability::HatsMode);
+  inactivityTimer = board->getCapability(Capability::InactivityTimer);
   internalModule = g.profile[g.sessionId()].defaultInternalModule();
   stickMode = g.profile[g.sessionId()].defaultMode();
   templateSetup = g.profile[g.sessionId()].channelOrder();
+  stickDeadZone = board->getCapability(Capability::StickDeadZone);
 
-  QString lang = getCurrentFirmware()->getLanguage();
+  QString lang = g.profile[g.sessionId()].fwLanguage();
+
   if (lang.size() > 1) {
     memcpy(ttsLanguage, lang.toLatin1().data(), 2);
   } else {
     ttsLanguage[0] = 'e';
     ttsLanguage[1] = 'n';
   }
+
   ttsLanguage[2] = 0;
   memcpy(uiLanguage, ttsLanguage, 3);
 
-  stickDeadZone = (IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) ? 2 : 0;
   setDefaultFavorites();
   setDefaultKeyShortcuts();
 }
 
-void GeneralSettings::setDefaultControlTypes(Board::Type board)
+void GeneralSettings::setDefaultControlTypes(QString boardId)
 {
-  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-    if (!Boards::isInputIgnored(i, board)) {
-      Board::InputInfo info =  Boards::getInputInfo(i, board);
+  Board *board = Board::getBoardForId(boardId);
+
+  for (int i = 0; i < board->getCapability(Capability::Inputs); i++) {
+    if (!board->isInputIgnored(i)) {
+      Board::InputInfo info =  board->getInputInfo(i);
       inputConfig[i].type = info.type;
       inputConfig[i].flexType = info.flexType;
       inputConfig[i].inverted = false; //info.inverted;
     }
   }
 
-  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); ++i) {
-    if (!Boards::isInputCalibrated(i, board))
+  for (int i = 0; i < board->getCapability(Capability::Inputs); ++i) {
+    if (!board->isInputCalibrated(i))
       continue;
 
-    Board::InputInfo info = Boards::getInputInfo(i, board);
+    Board::InputInfo info = board->getInputInfo(i);
 
     if (info.type == Board::AIT_FLEX && info.flexType == Board::FLEX_MULTIPOS) {
       inputConfig[i].calib.mid     = 773;
@@ -283,12 +259,12 @@ void GeneralSettings::setDefaultControlTypes(Board::Type board)
     }
   }
 
-  for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
-    Board::SwitchInfo info =  Boards::getSwitchInfo(i, board);
+  for (int i = 0; i < board->getCapability(Capability::Switches); i++) {
+    Board::SwitchInfo info =  board->getSwitchInfo(i);
     switchConfig[i].type = info.dflt;
     switchConfig[i].inverted = info.inverted;
     switchConfig[i].inputIdx = SWITCH_INPUTINDEX_NONE;
-    if (Boards::isSwitchFunc(i)) {
+    if (board->isSwitchFunc(i)) {
       switchConfig[i].start = ModelData::FUNC_SWITCH_START_PREVIOUS;
       switchConfig[i].onColor.setColor(255, 255, 255);
     }
@@ -306,7 +282,8 @@ int GeneralSettings::getDefaultStick(unsigned int channel) const
   if (channel >= CPN_MAX_STICKS)
     return -1;
   else {
-    return useChannels(Boards::isAir())[controlsCount(Boards::isAir()) * templateSetup + channel] - 1;
+    Board *board = getCurrentBoard();
+    return useChannels(board->getCapability(Capability::Air))[controlsCount(board->getCapability(Capability::Air)) * templateSetup + channel] - 1;
   }
 }
 
@@ -322,7 +299,7 @@ RawSource GeneralSettings::getDefaultSource(unsigned int channel) const
 
 int GeneralSettings::getDefaultChannel(unsigned int stick) const
 {
-  for (int i = 0; i < controlsCount(Boards::isAir()); i++) {
+  for (int i = 0; i < controlsCount(getCurrentBoard()->getCapability(Capability::Air)); i++) {
     if (getDefaultStick(i) == (int)stick)
       return i;
   }
@@ -353,12 +330,12 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
   //  step 3 copy matching config based on tags
   cstate.setSubComp(tr("Axis & Pots"));
 
-  for (int i = 0; i < Boards::getCapability(cstate.fromType, Board::Inputs); i++) {
-    if (Boards::isInputConfigurable(i, cstate.fromType)) {
+  for (int i = 0; i < cstate.fromBoard->getCapability(Capability::Inputs); i++) {
+    if (cstate.fromBoard->isInputConfigurable(i)) {
       cstate.withComponentField("");
-      cstate.setItemType(Boards::isInputStick(i, cstate.fromType) ? tr("Axis") : tr("Pot"));
-      RadioDataConversionState::LogField oldData(i, Boards::getInputName(i, cstate.fromType));
-      const int idx = Boards::getInputIndex(Boards::getInputTag(i, cstate.fromType), Board::LVT_TAG, cstate.toType);
+      cstate.setItemType(cstate.fromBoard->isInputStick(i) ? tr("Axis") : tr("Pot"));
+      RadioDataConversionState::LogField oldData(i, cstate.fromBoard->getInputName(i));
+      const int idx = cstate.toBoard->getInputIndex(cstate.fromBoard->getInputTag(i), Board::LVT_TAG);
 
       if (idx > -1) {
         const InputConfig &fromcfg = cstate.fromGS()->inputConfig[i];
@@ -366,12 +343,12 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
         strncpy(tocfg.name, fromcfg.name, sizeof(inputConfig[0].name));
         tocfg.type = fromcfg.type;
 
-        if (tocfg.type == Board::AIT_FLEX && !Boards::getCapability(cstate.toType, Board::FlexSwitches) &&
+        if (tocfg.type == Board::AIT_FLEX && !cstate.toBoard->getCapability(Capability::FlexSwitches) &&
             fromcfg.flexType == Board::FLEX_SWITCH) {
-          cstate.withComponentField(Boards::getInputName(i, cstate.fromType));
-          RadioDataConversionState::LogField oldFT(i, Boards::flexTypeToString(fromcfg.flexType));
+          cstate.withComponentField(cstate.fromBoard->getInputName(i));
+          RadioDataConversionState::LogField oldFT(i, Board::flexTypeToString(fromcfg.flexType));
           tocfg.flexType = Board::FLEX_NONE;
-          cstate.setConverted(oldFT, RadioDataConversionState::LogField(i, Boards::flexTypeToString(tocfg.flexType)));
+          cstate.setConverted(oldFT, RadioDataConversionState::LogField(i, Board::flexTypeToString(tocfg.flexType)));
         }
         else
           tocfg.flexType = fromcfg.flexType;
@@ -379,7 +356,8 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
         tocfg.inverted = fromcfg.inverted;
         // do not copy calibration - use defaults as safer
       }
-      else if (cstate.fromGS()->inputConfig[i].type == Board::AIT_FLEX && cstate.fromGS()->inputConfig[i].flexType != Board::FLEX_NONE) {
+      else if (cstate.fromGS()->inputConfig[i].type == Board::AIT_FLEX &&
+               cstate.fromGS()->inputConfig[i].flexType != Board::FLEX_NONE) {
         cstate.setUnsupported(oldData);
       }
     }
@@ -387,27 +365,27 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
 
   cstate.setSubComp(tr("Switches"));
 
-  for (int i = 0; i < Boards::getCapability(cstate.fromType, Board::Switches); i++) {
-    if (Boards::isSwitchConfigurable(i, cstate.fromType)) {
+  for (int i = 0; i < cstate.fromBoard->getCapability(Capability::Switches); i++) {
+    if (cstate.fromBoard->isSwitchConfigurable(i)) {
       cstate.withComponentField("");
-      cstate.setItemType(Boards::isSwitchFlex(i, cstate.fromType) ? tr("Flex Switch") :
-                         Boards::isSwitchFunc(i, cstate.fromType) ? tr("Function Switch") : tr("Switch"));
-      RadioDataConversionState::LogField oldData(i, Boards::getSwitchName(i, cstate.fromType));
-      const int idx = Boards::getSwitchIndex(Boards::getSwitchTag(i, cstate.fromType), Board::LVT_TAG, cstate.toType);
+      cstate.setItemType(cstate.fromBoard->isSwitchFlex(i) ? tr("Flex Switch") :
+                         cstate.fromBoard->isSwitchFunc(i) ? tr("Function Switch") : tr("Switch"));
+      RadioDataConversionState::LogField oldData(i, cstate.fromBoard->getSwitchName(i));
+      const int idx = cstate.toBoard->getSwitchIndex(cstate.fromBoard->getSwitchTag(i), Board::LVT_TAG);
 
       if (idx > -1) {
         const SwitchConfig &fromcfg = cstate.fromGS()->switchConfig[i];
         SwitchConfig &tocfg = switchConfig[idx];
         strncpy(tocfg.name, fromcfg.name, sizeof(switchConfig[0].name));
 
-        if (Boards::getSwitchInfo(i, cstate.fromType).type > Boards::getSwitchInfo(idx, cstate.toType).type) {
-          cstate.withComponentField(Boards::getSwitchName(i, cstate.fromType));
-          cstate.setItemType(Boards::isSwitchFlex(i, cstate.fromType) ? tr("Flex Switch") :
-                             Boards::isSwitchFunc(i, cstate.fromType) ? tr("Function Switch") : tr("Switch"));
-          RadioDataConversionState::LogField oldSWT(i, Boards::switchTypeToString(fromcfg.type));
+        if (cstate.fromBoard->getSwitchInfo(i).type > cstate.toBoard->getSwitchInfo(idx).type) {
+          cstate.withComponentField(cstate.fromBoard->getSwitchName(i));
+          cstate.setItemType(cstate.fromBoard->isSwitchFlex(i) ? tr("Flex Switch") :
+                             cstate.fromBoard->isSwitchFunc(i) ? tr("Function Switch") : tr("Switch"));
+          RadioDataConversionState::LogField oldSWT(i, Board::switchTypeToString(fromcfg.type));
           // switch type not supported on to profile so leave as hw default eg from 3 Pos and to 2 Pos
           // if switch position not supported it will be reported where used on each model
-          cstate.setConverted(oldSWT, RadioDataConversionState::LogField(i, Boards::switchTypeToString(tocfg.type)));
+          cstate.setConverted(oldSWT, RadioDataConversionState::LogField(i, Board::switchTypeToString(tocfg.type)));
         }
         else
           tocfg.type = fromcfg.type;
@@ -415,10 +393,10 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
         tocfg.inverted = fromcfg.inverted;
 
         if (fromcfg.inputIdx != SWITCH_INPUTINDEX_NONE) {
-          if (!Boards::getCapability(cstate.toType, Board::FlexSwitches) ||
-              Boards::getInputIndex(Boards::getInputTag(fromcfg.inputIdx, cstate.fromType), Board::LVT_TAG, cstate.toType) < 0) {
-            cstate.withComponentField(Boards::getSwitchName(i, cstate.fromType));
-            RadioDataConversionState::LogField oldFT(i, Boards::getInputName(fromcfg.inputIdx, cstate.fromType));
+          if (!cstate.toBoard->getCapability(Capability::FlexSwitches) ||
+              cstate.toBoard->getInputIndex(cstate.fromBoard->getInputTag(fromcfg.inputIdx), Board::LVT_TAG) < 0) {
+            cstate.withComponentField(cstate.fromBoard->getSwitchName(i));
+            RadioDataConversionState::LogField oldFT(i, cstate.fromBoard->getInputName(fromcfg.inputIdx));
             tocfg.inputIdx = SWITCH_INPUTINDEX_NONE;
             cstate.setConverted(oldFT, RadioDataConversionState::LogField(i, tr("None")));
           }
@@ -431,10 +409,8 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
     }
   }
 
-  if (IS_TARANIS(cstate.toType)) {
-    contrast = qBound<int>(Boards::getCapability(cstate.toType, Board::MinContrast),
-               contrast, Boards::getCapability(cstate.toType, Board::MaxContrast));
-  }
+  contrast = qBound<int>(cstate.toBoard->getCapability(Capability::MinContrast),
+              contrast, cstate.toBoard->getCapability(Capability::MaxContrast));
 
   // TODO: Would be nice at this point to have GUI pause and ask the user to set up any custom hardware they have on the destination radio.
 
@@ -476,7 +452,7 @@ QString GeneralSettings::internalModuleBaudrateToString() const
 //  static
 QString GeneralSettings::antennaModeToString(int value)
 {
-  Board::Type board = getCurrentBoard();
+  Board *board = getCurrentBoard();
 
   switch(value) {
     case ANTENNA_MODE_INTERNAL:
@@ -486,8 +462,9 @@ QString GeneralSettings::antennaModeToString(int value)
     case ANTENNA_MODE_PER_MODEL:
       return tr("Per model");
     case ANTENNA_MODE_EXTERNAL:
+    // TODO try to fix this hardcoding or just wait until board becomes unsupported
     // case ANTENNA_MODE_INTERNAL_EXTERNAL:
-      return IS_HORUS_X12S(board) ? tr("Internal + External") : tr("External");
+      return board->getId() == "x12s" ? tr("Internal + External") : tr("External");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -496,14 +473,15 @@ QString GeneralSettings::antennaModeToString(int value)
 //  static
 QString GeneralSettings::bluetoothModeToString(int value)
 {
-  Board::Type board = getCurrentBoard();
+  Board *board = getCurrentBoard();
 
   switch(value) {
     case BLUETOOTH_MODE_OFF:
       return tr("OFF");
     case BLUETOOTH_MODE_ENABLED:
+    // TODO try to fix this hardcoding or just wait until board becomes unsupported
     // case BLUETOOTH_MODE_TELEMETRY:
-      return IS_TARANIS_X9E(board) ? tr("Enabled") : tr("Telemetry");
+      return board->getId() == "x9e" ? tr("Enabled") : tr("Telemetry");
     case BLUETOOTH_MODE_TRAINER:
       return tr("Trainer");
     default:
@@ -760,7 +738,7 @@ void GeneralSettings::validateFlexSwitches()
     if (inputConfig[switchConfig[i].inputIdx].flexType != Board::FLEX_SWITCH)
       switchConfig[i].inputIdx = -1;
 
-    int idx = Boards::getSwitchIndex(QString("FL%1").arg(i), Board::LVT_TAG);
+    int idx = getCurrentBoard()->getSwitchIndex(QString("FL%1").arg(i), Board::LVT_TAG);
     if (idx >= 0) {
       if (switchConfig[idx].type == Board::SWITCH_NOT_AVAILABLE)
         switchConfig[i].inputIdx = -1;
@@ -836,7 +814,7 @@ AbstractStaticItemModel * TrainerMix::srcItemModel()
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName(AIM_TRAINERMIX_SRC);
 
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Sticks); i++) {
+  for (int i = 0; i < getCurrentBoard()->getCapability(Capability::Sticks); i++) {
     mdl->appendToItemList(srcToString(i), i);
   }
 
@@ -882,7 +860,7 @@ AbstractStaticItemModel * GeneralSettings::stickModeItemModel()
 
 QString GeneralSettings::templateSetupToString() const
 {
-  return templateSetupToString(templateSetup, Boards::isAir());
+  return templateSetupToString(templateSetup, getCurrentBoard()->getCapability(Capability::Air));
 }
 
 //  static
@@ -937,7 +915,7 @@ void GeneralSettings::switchConfigClear()
 
 bool GeneralSettings::isBacklightModeAvailable(int index)
 {
-  int start = (Boards::getCapability(getCurrentFirmware()->getBoard(), Board::LcdDepth) >= 8) ? 1 : 0;
+  int start = (getCurrentBoard()->getCapability(Capability::LcdDepth) >= 8) ? 1 : 0;
   return index >= start;
 }
 

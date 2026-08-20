@@ -33,7 +33,7 @@
 #include "yaml_usbjoystickdata.h"
 #include "yaml_switchconfig.h"
 
-#include "boardjson.h"
+#include "board.h"
 #include "modeldata.h"
 #include "output_data.h"
 #include "eeprominterface.h"
@@ -44,7 +44,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-void YamlValidateLabelsNames(ModelData& model, Board::Type board)
+void YamlValidateLabelsNames(ModelData& model, QString board)
 {
   model.name = YamlValidateName(model.name.toQString(), board).toLatin1().constData();
 
@@ -196,19 +196,19 @@ struct YamlThrTrace {
 
   YamlThrTrace(unsigned int cpn_value)
   {
-    Board::Type board = getCurrentBoard();
+    Board *board = getCurrentBoard();
 
     if (cpn_value == 0) {
-      if (Boards::getInputThrottleIndex(board) >= 0)
-        src = RawSource(SOURCE_TYPE_INPUT, Boards::getInputThrottleIndex(board) + 1);
+      if (board->getInputThrottleIndex() >= 0)
+        src = RawSource(SOURCE_TYPE_INPUT, board->getInputThrottleIndex() + 1);
       else
         src = RawSource(SOURCE_TYPE_NONE);
       return;
     }
 
-    int sticks = Boards::getCapability(board, Board::Sticks);
-    int pots = Boards::getCapability(board, Board::Pots);
-    int sliders = Boards::getCapability(board, Board::Sliders);
+    int sticks = board->getCapability(Capability::Sticks);
+    int pots = board->getCapability(Capability::Pots);
+    int sliders = board->getCapability(Capability::Sliders);
 
     if (cpn_value <= (unsigned int)(pots + sliders))
       src = RawSource(SOURCE_TYPE_INPUT, sticks + cpn_value);
@@ -218,19 +218,19 @@ struct YamlThrTrace {
 
   unsigned int toCpn()
   {
-    Board::Type board = getCurrentBoard();
-    int sticks = Boards::getCapability(board, Board::Sticks);
+    Board *board = getCurrentBoard();
+    int sticks = board->getCapability(Capability::Sticks);
 
     switch (src.type) {
       case SOURCE_TYPE_INPUT:
-        if (src.index == Boards::getInputThrottleIndex(board) + 1)
+        if (src.index == board->getInputThrottleIndex() + 1)
           return 0;
         else
           return src.index - sticks;
         break;
       case SOURCE_TYPE_CH: {
-        int pots = Boards::getCapability(board, Board::Pots);
-        int sliders = Boards::getCapability(board, Board::Sliders);
+        int pots = board->getCapability(Capability::Pots);
+        int sliders = board->getCapability(Capability::Sliders);
         return pots + sliders + src.index;
       } break;
       default:
@@ -243,9 +243,9 @@ struct YamlThrTrace {
 struct YamlPotsWarnEnabled {
   unsigned int value;
 
-  const Board::Type board = getCurrentBoard();
-  const int maxradio = 8 * (int)(Boards::getCapability(board, Board::HasColorLcd) ? sizeof(uint16_t) : sizeof(uint8_t));
-  const int maxcpn = Boards::getCapability(board, Board::FlexInputs);
+  const Board *board = getCurrentBoard();
+  const int maxradio = 8 * (int)(board->getCapability(Capability::HasColorLcd) ? sizeof(uint16_t) : sizeof(uint8_t));
+  const int maxcpn = board->getCapability(Capability::FlexInputs);
 
   YamlPotsWarnEnabled() = default;
 
@@ -315,8 +315,9 @@ struct YamlSwitchWarning {
   YamlSwitchWarning(YAML::Node& node, uint64_t cpn_value)
   {
     uint64_t states = cpn_value;
+    Board *board = getCurrentBoard();
 
-    for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
+    for (int i = 0; i < board->getCapability(Capability::Switches); i++) {
       if (states & MASK) {
         std::string posn;
 
@@ -332,7 +333,7 @@ struct YamlSwitchWarning {
           break;
         }
 
-        node[Boards::getSwitchTag(i).toStdString()]["pos"] = posn;
+        node[board->getSwitchTag(i).toStdString()]["pos"] = posn;
       }
 
       states >>= MASK_LEN;
@@ -347,7 +348,7 @@ struct YamlSwitchWarning {
       for (const auto& sw : warn) {
         std::string tag;
         sw.first >> tag;
-        int index = Boards::getSwitchIndex(tag.c_str(), Board::LVT_NAME);
+        int index = getCurrentBoard()->getSwitchIndex(tag.c_str(), Board::LVT_NAME);
 
         if (index < 0)
           continue;
@@ -388,12 +389,13 @@ struct YamlSwitchWarningState {
   YamlSwitchWarningState(uint64_t cpn_value)
   {
     uint64_t states = cpn_value;
+    Board *board = getCurrentBoard();
 
     std::stringstream ss;
-    for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
+    for (int i = 0; i < board->getCapability(Capability::Switches); i++) {
       //TODO: exclude 2-pos toggle from switch warnings
       if (states & MASK) {
-        std::string tag = Boards::getSwitchTag(i).toStdString();
+        std::string tag = board->getSwitchTag(i).toStdString();
         const char *sw = tag.data();
 
         if (tag.size() >= 2 && sw[0] == 'S') {
@@ -430,7 +432,7 @@ struct YamlSwitchWarningState {
       }
 
       std::string sw = std::string("S") + (char)c;
-      int index = Boards::getSwitchIndex(sw.c_str(), Board::LVT_NAME);
+      int index = getCurrentBoard()->getSwitchIndex(sw.c_str(), Board::LVT_NAME);
       if (index < 0) {
         ss.ignore();
         continue;
@@ -649,7 +651,7 @@ Node EncodeFMData(const FlightModeData& rhs, int phaseIdx)
 {
     Node node;
 
-    size_t n_trims = Boards::getCapability(getCurrentBoard(), Board::NumTrims);
+    size_t n_trims = getCurrentBoard()->getCapability(Capability::NumTrims);
 
     Node trims;
     for (size_t i=0; i<n_trims; i++) {
@@ -1003,7 +1005,7 @@ Node convert<CustomSwitchData>::encode(const CustomSwitchData& rhs)
   node["start"] = cfsSwitchStart << rhs.start;
   node["state"] = rhs.state;
   node["name"] = rhs.name;
-  if (Boards::getCapability(getCurrentBoard(), Board::FunctionSwitchColors)) {
+  if (getCurrentBoard()->getCapability(Capability::FunctionSwitchColors)) {
     node["onColorLuaOverride"] = cfsSwitchLuaOverride << rhs.onColorLuaOverride;
     node["offColorLuaOverride"] = cfsSwitchLuaOverride << rhs.offColorLuaOverride;
     node["onColor"] = rhs.onColor;
@@ -1038,7 +1040,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   auto firmware = getCurrentFirmware();
   auto board = firmware->getBoard();
 
-  bool hasColorLcd = Boards::getCapability(board, Board::HasColorLcd);
+  bool hasColorLcd = board->getCapability(Capability::HasColorLcd);
 
   node["semver"] = VERSION;
 
@@ -1182,7 +1184,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
 
   node["telemetryProtocol"] = rhs.telemetryProtocol;
 
-  if (!IS_FAMILY_HORUS_OR_T16(board)) {
+  if (!board->getCapability(Capability::HasColorLcd)) {
     Node screens;
     for (int i=0; i<4; i++) {
       const auto& scr = rhs.frsky.screens[i];
@@ -1206,7 +1208,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["varioData"] = vario;
   node["rssiSource"] = YamlTelemSource(rhs.rssiSource);
 
-  if (IS_TARANIS_X9(board)) {
+  if (board->getId() == "x9d" || board->getId() == "x9d+" || board->getId() == "x9d+2019" || board->getId() == "x9e") {
     node["voltsSource"] = YamlTelemSource(rhs.frsky.voltsSource);
     node["altitudeSource"] = YamlTelemSource(rhs.frsky.altitudeSource);
   }
@@ -1245,11 +1247,11 @@ Node convert<ModelData>::encode(const ModelData& rhs)
     }
   }
 
-  if (IS_TARANIS_X9E(board)) {
+  if (board->getId() == "x9e") {
     node["toplcdTimer"] = rhs.toplcdTimer;
   }
 
-  if (Boards::getCapability(board, Board::HasColorLcd)) {
+  if (board->getCapability(Capability::HasColorLcd)) {
     for (int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
       const auto& csd = rhs.customScreens.customScreenData[i];
       if (!csd.isEmpty()) {
@@ -1272,15 +1274,15 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["modelRegistrationID"] = rhs.registrationId;
   node["hatsMode"] = hatsModeLut << rhs.hatsMode;
 
-  int funcSwCnt = Boards::getCapability(board, Board::FunctionSwitches);
+  int funcSwCnt = board->getCapability(Capability::FunctionSwitches);
   if (funcSwCnt) {
     for (int i = 0; i < funcSwCnt; i++) {
-      int sw = Boards::getSwitchIndexForCFS(i);
-      std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();
+      int sw = board->getSwitchIndexForCFS(i);
+      std::string tag = board->getSwitchYamlName(sw, Board::YLT_CONFIG).toStdString();
       node["customSwitches"][tag] = rhs.customSwitches[i];
     }
 
-    int funcSwGrps = Boards::getCapability(board, Board::FunctionSwitchGroups);
+    int funcSwGrps = board->getCapability(Capability::FunctionSwitchGroups);
     if (funcSwGrps) {
       for (int i = 1; i <= funcSwGrps; i++) {
         node["cfsGroupOn"][std::to_string(i)]["v"] = rhs.cfsGroupOn[i];
@@ -1523,7 +1525,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   }
 
   // v2.12 CRSF limit external module to 3.75M for older boards
-  if (Boards::getCapability((Board::Type)board, Board::IsF4) &&
+  if (board->getCapability(Capability::IsF4) &&
       rhs.moduleData[1].protocol == PULSES_CROSSFIRE &&
       rhs.moduleData[1].crsf.telemetryBaudrate > 4)
     rhs.moduleData[1].crsf.telemetryBaudrate = 4;
@@ -1569,7 +1571,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["modelRegistrationID"] >> rhs.registrationId;
   node["hatsMode"] >> hatsModeLut >> rhs.hatsMode;
 
-  rhs.setDefaultFunctionSwitches(Boards::getCapability(board, Board::FunctionSwitches));
+  rhs.setDefaultFunctionSwitches(board->getCapability(Capability::FunctionSwitches));
 
   if (node["functionSwitchConfig"]) {
     uint16_t v;
@@ -1629,10 +1631,10 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
     }
   }
   if (node["customSwitches"]) {
-    int funcSwCnt = Boards::getCapability(board, Board::FunctionSwitches);
+    int funcSwCnt = board->getCapability(Capability::FunctionSwitches);
     for (int i = 0; i < funcSwCnt; i += 1) {
-      int sw = Boards::getSwitchIndexForCFS(i);
-      std::string tag = Boards::getSwitchYamlName(sw, BoardJson::YLT_CONFIG).toStdString();
+      int sw = board->getSwitchIndexForCFS(i);
+      std::string tag = board->getSwitchYamlName(sw, Board::YLT_CONFIG).toStdString();
       node["customSwitches"][tag] >> rhs.customSwitches[i];
     }
   }
@@ -1688,11 +1690,11 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   }
 
   // perform integrity checks and fix-ups
-  YamlValidateLabelsNames(rhs, board);
+  YamlValidateLabelsNames(rhs, board->getName());
   rhs.sortMixes();  // critical for Companion and radio that mix lines are in sequence
 
   //  TODO move to model conversion so any changes reported
-  if (Boards::getCapability(board, Board::HasColorLcd)) {
+  if (board->getCapability(Capability::HasColorLcd)) {
     // total width of topbar widgets cannot exceed firmware topbar zones
     const int fwzones = firmware->getCapability(TopBarZones);
     int usedzones = 0;

@@ -20,7 +20,6 @@
  */
 
 #include "channels.h"
-#include "helpers.h"
 #include "filtereditemmodels.h"
 #include "curveimagewidget.h"
 #include "namevalidator.h"
@@ -93,7 +92,7 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
   ModelPanel(parent, model, generalSettings, firmware),
   sharedItemModels(sharedItemModels)
 {
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
 
   chnCapability = firmware->getCapability(Outputs);
   int channelNameMaxLen = firmware->getCapability(ChannelsName);

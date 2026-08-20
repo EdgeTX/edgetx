@@ -39,7 +39,7 @@ ExpoDialog::ExpoDialog(QWidget *parent, ModelData & model, ExpoData *expoData, G
 {
   ui->setupUi(this);
 
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
   dialogFilteredItemModels = new FilteredItemModelFactory();
 
   QLabel * lb_fp[CPN_MAX_FLIGHT_MODES] = {ui->lb_FP0, ui->lb_FP1, ui->lb_FP2, ui->lb_FP3, ui->lb_FP4, ui->lb_FP5, ui->lb_FP6, ui->lb_FP7, ui->lb_FP8 };

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "boards.h"
+#include "board.h"
 #include "constants.h"
 #include "customfunctiondata.h"
 #include "rawsource.h"
@@ -286,7 +286,7 @@ class GeneralSettings {
     void init();
     void convert(RadioDataConversionState & cstate);
 
-    void setDefaultControlTypes(Board::Type board);
+    void setDefaultControlTypes(QString board);
     int getDefaultStick(unsigned int channel) const;
     RawSource getDefaultSource(unsigned int channel) const;
     int getDefaultChannel(unsigned int stick) const;
@@ -298,7 +298,10 @@ class GeneralSettings {
 
     char semver[8 + 1];
     unsigned int version;
-    unsigned int variant;
+    // should be a std::string but that breaks stuff
+    // size arbitary for testing poc
+    // yaml is a string equates to flavour
+    char boardId[50 + 1];
     unsigned int currModelIndex;
     char currModelFilename[CURR_MODEL_FILENAME_LEN + 1];
     unsigned int contrast;

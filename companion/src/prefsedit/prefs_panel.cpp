@@ -21,7 +21,7 @@
 
 #include "prefs_panel.h"
 
-PrefsPanel::PrefsPanel(QWidget * parent, Firmware * firmware, Board::Type & board, Profile & profile):
+PrefsPanel::PrefsPanel(QWidget * parent, Firmware * firmware, QString & board, Profile & profile):
   AbstractPanel(parent),
   firmware(firmware),
   board(board),

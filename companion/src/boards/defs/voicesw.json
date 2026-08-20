@@ -1,0 +1,15 @@
+{
+  "hidden": true,
+  "switches": [
+    {
+      "name": "VGR",
+      "type": "2POS",
+      "default": "2POS"
+    },
+    {
+      "name": "VFL",
+      "type": "3POS",
+      "default": "3POS"
+    }
+  ]
+}

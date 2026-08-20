@@ -29,7 +29,7 @@
 #include "sourcenumref.h"
 
 const QString CurveReference::toString(const ModelData * model, bool verbose, const GeneralSettings * const generalSettings,
-                                       Board::Type board, bool prefixCustomName) const
+                                       QString board, bool prefixCustomName) const
 {
   if (value == 0)
     return CPN_STR_NONE_ITEM;

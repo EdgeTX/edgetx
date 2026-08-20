@@ -451,10 +451,10 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
 
 QPixmap makePixMap(const QImage & image)
 {
-  Board::Type board = getCurrentBoard();
-  QImage result = image.scaled(Boards::getCapability(board, Board::LcdWidth), Boards::getCapability(board, Board::LcdHeight));
+  Board *board = getCurrentBoard();
+  QImage result = image.scaled(board->getCapability(Capability::LcdWidth), board->getCapability(Capability::LcdHeight));
 
-  if (Boards::getCapability(board, Board::LcdDepth) == 4) {
+  if (board->getCapability(Capability::LcdDepth) == 4) {
     result = result.convertToFormat(QImage::Format_RGB32);
     for (int i = 0; i < result.width(); ++i) {
       for (int j = 0; j < result.height(); ++j) {
@@ -907,3 +907,24 @@ void StatusDialog::update(QString text)
 {
   msg->setText(text);
 }
+
+float ValToTim(int value)
+{
+   return ((value < -109 ? 129 + value : (value < 7 ? (113 + value) * 5 : (53 + value) * 10)) / 10.0);
+}
+
+int TimToVal(float value)
+{
+  int temp;
+  if (value > 60) {
+    temp = 136 + round((value - 60));
+  }
+  else if (value > 2) {
+    temp = 20 + round((value - 2.0) * 2.0);
+  }
+  else {
+    temp = round(value * 10.0);
+  }
+  return (temp - 129);
+}
+

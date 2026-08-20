@@ -25,11 +25,9 @@
 #include "radiodata.h"
 #include "radiodataconversionstate.h"
 
-QString RawSwitch::toString(Board::Type board, const GeneralSettings * const generalSettings, const ModelData * const modelData, bool prefixCustomName) const
+QString RawSwitch::toString(QString boardId, const GeneralSettings * const generalSettings, const ModelData * const modelData, bool prefixCustomName) const
 {
-  if (board == Board::BOARD_UNKNOWN) {
-    board = getCurrentBoard();
-  }
+  Board *board = boardId == Board::BOARD_UNKNOWN ? getCurrentBoard() : Board::getBoardForId(boardId);
 
   static const QString switches9X[] = {
     QString("THR"), QString("RUD"), QString("ELE"),
@@ -79,7 +77,7 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
       << CPN_STR_SW_INDICATOR_DN;
 
   if (index < 0) {
-    return CPN_STR_SW_INDICATOR_REV % RawSwitch(type, -index).toString(board, generalSettings, modelData);
+    return CPN_STR_SW_INDICATOR_REV % RawSwitch(type, -index).toString(boardId, generalSettings, modelData);
   }
   else {
     QString swName;
@@ -88,10 +86,10 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
     switch(type) {
       case SWITCH_TYPE_SWITCH:
         qr = div(index - 1, 3);
-        swName = Boards::getSwitchInfo(qr.quot, board).name.c_str();
-        if (Boards::isSwitchFunc(qr.quot, board)) {
+        swName = board->getSwitchInfo(qr.quot).name.c_str();
+        if (board->isSwitchFunc(qr.quot)) {
           if (modelData) {
-            int fsindex = Boards::getCFSIndexForSwitch(qr.quot, board);
+            int fsindex = board->getCFSIndexForSwitch(qr.quot);
             if (fsindex >= 0 && fsindex < CPN_MAX_SWITCHES_FUNCTION)
               custName = QString(modelData->customSwitches[fsindex].name).trimmed();
           }
@@ -111,19 +109,19 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
           return LogicalSwitchData().nameToString(index - 1);
 
       case SWITCH_TYPE_MULTIPOS_POT:
-        if (!Boards::getCapability(board, Board::MultiposPotsPositions))
+        if (!board->getCapability(Capability::MultiposPotsPositions))
           return CPN_STR_UNKNOWN_ITEM;
-        qr = div(index - 1, Boards::getCapability(board, Board::MultiposPotsPositions));
+        qr = div(index - 1, board->getCapability(Capability::MultiposPotsPositions));
         if (generalSettings && qr.quot < (int)DIM(generalSettings->inputConfig))
           swName = QString(generalSettings->inputConfig[qr.quot].name);
         if (swName.isEmpty())
-          swName = Boards::getInputName(qr.quot, board);
+          swName = board->getInputName(qr.quot);
         return swName + "_" + QString::number(qr.rem + 1);
 
       case SWITCH_TYPE_TRIM:
-        return (Boards::getCapability(board, Board::NumTrims) == 2 ?
+        return (board->getCapability(Capability::NumTrims) == 2 ?
                 CHECK_IN_ARRAY(trimsSwitches2, index - 1) :
-                (Boards::isAir(board) ? CHECK_IN_ARRAY(trimsSwitchesAir, index - 1) :
+                (board->getCapability(Capability::Air) ? CHECK_IN_ARRAY(trimsSwitchesAir, index - 1) :
                                         CHECK_IN_ARRAY(trimsSwitchesSurface, index - 1)));
 
       case SWITCH_TYPE_ROTARY_ENCODER:
@@ -171,36 +169,34 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
   }
 }
 
-bool RawSwitch::isAvailable(const ModelData * const model, const GeneralSettings * const gs, Board::Type board) const
+bool RawSwitch::isAvailable(const ModelData * const model, const GeneralSettings * const gs, QString boardId) const
 {
-  if (board == Board::BOARD_UNKNOWN)
-    board = getCurrentBoard();
+  Board *board = boardId == Board::BOARD_UNKNOWN ? getCurrentBoard() : Board::getBoardForId(boardId);
 
-  Boards b(board);
   div_t sw = {0, 0};
 
-  if (type == SWITCH_TYPE_SWITCH && abs(index) > b.getCapability(Board::SwitchesPositions))
+  if (type == SWITCH_TYPE_SWITCH && abs(index) > board->getCapability(Capability::SwitchesPositions))
     return false;
 
-  if (type == SWITCH_TYPE_TRIM && abs(index) > b.getCapability(Board::NumTrimSwitches))
+  if (type == SWITCH_TYPE_TRIM && abs(index) > board->getCapability(Capability::NumTrimSwitches))
     return false;
 
   if (type == SWITCH_TYPE_SWITCH)
     sw = div(abs(index) - 1, 3);
 
   if (gs) {
-    if (type == SWITCH_TYPE_SWITCH && !b.isSwitchFunc(sw.quot, board) && !gs->switchPositionAllowed(abs(index)))
+    if (type == SWITCH_TYPE_SWITCH && !board->isSwitchFunc(sw.quot) && !gs->switchPositionAllowed(abs(index)))
       return false;
 
     if (type == SWITCH_TYPE_MULTIPOS_POT) {
-      int idx = div(abs(index) - 1, b.getCapability(Board::MultiposPotsPositions)).quot;
+      int idx = div(abs(index) - 1, board->getCapability(Capability::MultiposPotsPositions)).quot;
       if (!gs->isInputAvailable(idx) || gs->inputConfig[idx].flexType != Board::FLEX_MULTIPOS)
         return false;
     }
   }
 
   if (model) {
-    if (type == SWITCH_TYPE_SWITCH && b.isSwitchFunc(sw.quot, board)) {
+    if (type == SWITCH_TYPE_SWITCH && board->isSwitchFunc(sw.quot)) {
       return model->isFunctionSwitchPositionAvailable(sw.quot, sw.rem, gs);
     }
     else
@@ -222,7 +218,7 @@ RawSwitch RawSwitch::convert(RadioDataConversionState & cstate)
 
   if (type == SWITCH_TYPE_SWITCH) {
     div_t swtch = div(abs(index) - 1, 3);
-    newIdx = Boards::getSwitchIndex(Boards::getSwitchTag(swtch.quot, cstate.fromType), Board::LVT_TAG, cstate.toType);
+    newIdx = cstate.toBoard->getSwitchIndex(cstate.fromBoard->getSwitchTag(swtch.quot), Board::LVT_TAG);
 
     if (newIdx >= 0)
       index = (newIdx * 3 + 1 + swtch.rem) * (index < 0 ? -1 : 1);

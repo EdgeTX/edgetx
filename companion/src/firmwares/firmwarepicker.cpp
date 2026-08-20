@@ -42,14 +42,12 @@ FirmwarePicker::FirmwarePicker(QWidget * parent, const QString & type) :
   QList<QStringList> list;
 
   foreach(Firmware * firmware, Firmware::getRegisteredFirmwares()) {
-    if (firmware->isBase()) {
-      QStringList item;
-      item.append(firmware->getFullName());
-      item.append(Boards::getManufacturer(firmware->getBoard()));
-      item.append(firmware->getShortName());
-      item.append(firmware->getId());
-      list.append(item);
-    }
+    QStringList item;
+    item.append(firmware->getBoard()->getManufacturer() % " " % firmware->getName());
+    item.append(firmware->getBoard()->getManufacturer());
+    item.append(firmware->getName());
+    item.append(firmware->getId());
+    list.append(item);
   }
 
   // sort by full name

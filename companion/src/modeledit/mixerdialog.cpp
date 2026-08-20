@@ -39,7 +39,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
 {
   ui->setupUi(this);
 
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
 
   dialogFilteredItemModels = new FilteredItemModelFactory();
 

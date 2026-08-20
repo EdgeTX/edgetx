@@ -21,7 +21,7 @@
 
 #include "yaml_switchconfig.h"
 
-#include "boards.h"
+#include "board.h"
 #include "eeprominterface.h"
 #include "generalsettings.h"
 #include "boardjson.h"
@@ -405,7 +405,7 @@ bool convert<YamlSwitchConfig>::decode(const Node& node, YamlSwitchConfig& rhs)
 {
   if (!node.IsMap()) return false;
 
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
 
   const int maxcnt = Boards::getCapability(board, Board::Switches);
 

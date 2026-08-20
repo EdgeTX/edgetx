@@ -89,7 +89,7 @@ class AbstractItemModel: public QStandardItemModel
     Q_ENUM(ItemModelUpdateEvent)
 
     explicit AbstractItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                               Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+                               Firmware * firmware, const Board * const board, const QString boardType) :
       QStandardItemModel(nullptr),
       generalSettings(generalSettings),
       modelData(modelData),
@@ -124,8 +124,8 @@ class AbstractItemModel: public QStandardItemModel
     const GeneralSettings * generalSettings;
     const ModelData * modelData;
     Firmware * firmware;
-    const Boards * board;
-    const Board::Type boardType;
+    const Board * board;
+    const QString boardType;
 
   private:
     int m_id = IMID_Unknown;
@@ -140,8 +140,8 @@ class AbstractStaticItemModel: public AbstractItemModel
     Q_OBJECT
   public:
     explicit AbstractStaticItemModel(const GeneralSettings * const generalSettings = nullptr, const ModelData * const modelData = nullptr,
-                                     Firmware * firmware = nullptr, const Boards * const board = nullptr,
-                                     const Board::Type boardType = Board::BOARD_UNKNOWN) :
+                                     Firmware * firmware = nullptr, const Board * const board = nullptr,
+                                     const QString boardType = Board::BOARD_UNKNOWN) :
       AbstractItemModel(generalSettings, modelData, firmware, board, boardType) {}
     virtual ~AbstractStaticItemModel() {};
 
@@ -175,7 +175,7 @@ class AbstractDynamicItemModel: public AbstractItemModel
     Q_OBJECT
   public:
     explicit AbstractDynamicItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                      Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+                                      Firmware * firmware, const Board * const board, const QString boardType) :
       AbstractItemModel(generalSettings, modelData, firmware, board, boardType) {}
     virtual ~AbstractDynamicItemModel() {};
 
@@ -192,7 +192,7 @@ class RawSourceItemModel: public AbstractDynamicItemModel
     Q_OBJECT
   public:
     explicit RawSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                Firmware * firmware, const Boards * const board, const Board::Type boardType);
+                                Firmware * firmware, const Board * const board, const QString boardType);
     virtual ~RawSourceItemModel() {};
 
   public slots:
@@ -208,7 +208,7 @@ class RawSwitchItemModel: public AbstractDynamicItemModel
     Q_OBJECT
   public:
     explicit RawSwitchItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                Firmware * firmware, const Boards * const board, const Board::Type boardType);
+                                Firmware * firmware, const Board * const board, const QString boardType);
     virtual ~RawSwitchItemModel() {};
 
   public slots:
@@ -224,7 +224,7 @@ class CurveItemModel: public AbstractDynamicItemModel
     Q_OBJECT
   public:
     explicit CurveItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                            Firmware * firmware, const Boards * const board, const Board::Type boardType);
+                            Firmware * firmware, const Board * const board, const QString boardType);
     virtual ~CurveItemModel() {};
 
   public slots:
@@ -239,7 +239,7 @@ class GVarReferenceItemModel: public AbstractDynamicItemModel
     Q_OBJECT
   public:
     explicit GVarReferenceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                    Firmware * firmware, const Boards * const board, const Board::Type boardType);
+                                    Firmware * firmware, const Board * const board, const QString boardType);
     virtual ~GVarReferenceItemModel() {};
 
   public slots:
@@ -255,7 +255,7 @@ class ThrottleSourceItemModel: public AbstractDynamicItemModel
     Q_OBJECT
   public:
     explicit ThrottleSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                     Firmware * firmware, const Boards * const board, const Board::Type boardType);
+                                     Firmware * firmware, const Board * const board, const QString boardType);
     virtual ~ThrottleSourceItemModel() {};
 
   public slots:
@@ -270,7 +270,7 @@ class CustomFuncActionItemModel: public AbstractDynamicItemModel
     Q_OBJECT
   public:
     explicit CustomFuncActionItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                       Firmware * firmware, const Boards * const board, const Board::Type boardType);
+                                       Firmware * firmware, const Board * const board, const QString boardType);
     virtual ~CustomFuncActionItemModel() {};
 
   public slots:
@@ -285,7 +285,7 @@ class CustomFuncResetParamItemModel: public AbstractDynamicItemModel
     Q_OBJECT
   public:
     explicit CustomFuncResetParamItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                           Firmware * firmware, const Boards * const board, const Board::Type boardType);
+                                           Firmware * firmware, const Board * const board, const QString boardType);
     virtual ~CustomFuncResetParamItemModel() {};
 
   public slots:
@@ -300,7 +300,7 @@ class TelemetrySourceItemModel: public AbstractDynamicItemModel
     Q_OBJECT
   public:
     explicit TelemetrySourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                      Firmware * firmware, const Boards * const board, const Board::Type boardType);
+                                      Firmware * firmware, const Board * const board, const QString boardType);
     virtual ~TelemetrySourceItemModel() {};
 
   public slots:
@@ -315,7 +315,7 @@ class CurveRefTypeItemModel : public AbstractStaticItemModel
     Q_OBJECT
   public:
     explicit CurveRefTypeItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                   Firmware * firmware, const Boards * const board, const Board::Type boardType);
+                                   Firmware * firmware, const Board * const board, const QString boardType);
     virtual ~CurveRefTypeItemModel() {};
 };
 
@@ -324,7 +324,7 @@ class CurveRefFuncItemModel : public AbstractStaticItemModel
     Q_OBJECT
   public:
     explicit CurveRefFuncItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                   Firmware * firmware, const Boards * const board, const Board::Type boardType);
+                                   Firmware * firmware, const Board * const board, const QString boardType);
     virtual ~CurveRefFuncItemModel() {};
 };
 
@@ -341,7 +341,7 @@ class FlexSwitchesItemModel: public AbstractDynamicItemModel
     Q_OBJECT
   public:
     explicit FlexSwitchesItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                      Firmware * firmware, const Boards * const board, const Board::Type boardType);
+                                      Firmware * firmware, const Board * const board, const QString boardType);
     virtual ~FlexSwitchesItemModel() {};
 
   public slots:
@@ -356,7 +356,7 @@ class ControlSourceItemModel: public AbstractDynamicItemModel
     Q_OBJECT
   public:
     explicit ControlSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                Firmware * firmware, const Boards * const board, const Board::Type boardType);
+                                Firmware * firmware, const Board * const board, const QString boardType);
     virtual ~ControlSourceItemModel() {};
 
   public slots:
@@ -392,8 +392,8 @@ class CompoundItemModelFactory
     const GeneralSettings * generalSettings;
     const ModelData * modelData;
     Firmware * firmware;
-    Boards * board;
-    Board::Type boardType;
+    Board * board;
+    QString boardType;
     QVector<AbstractItemModel *> registeredItemModels;
 
   private:

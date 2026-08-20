@@ -776,7 +776,7 @@ void ModelsListModel::setFilename(QString & name)
   filename = name;
 }
 
-Board::Type ModelsListModel::getMimeDataBoard(const QMimeData * mimeData) const
+QString ModelsListModel::getMimeDataBoard(const QMimeData * mimeData) const
 {
   MimeHeaderData header;
   decodeHeaderData(mimeData, &header);

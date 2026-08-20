@@ -222,7 +222,7 @@ class MdiChild : public QWidget
     bool maybeSave();
     void setCurrentFile(const QString & fileName);
     void forceNewFilename(const QString & suffix = "", const QString & ext = "etx");
-    bool convertStorage(Board::Type from, Board::Type to, bool newFile = false);
+    bool convertStorage(QString from, QString to, bool newFile = false);
     void showWarning(const QString & msg);
     int askQuestion(const QString & msg, QMessageBox::StandardButtons buttons = (QMessageBox::Yes | QMessageBox::No), QMessageBox::StandardButton defaultButton = QMessageBox::No);
 

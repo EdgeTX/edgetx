@@ -40,7 +40,7 @@ class GeneralKeysPanel : public GeneralPanel
     void on_shortcutToolChanged();
 
   private:
-    Board::Type board;
+    QString board;
     QGridLayout *grid;
     QList<QWidget *> *params;
     int row;

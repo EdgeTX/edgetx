@@ -34,7 +34,7 @@ class PrefsProfilePanel : public PrefsPanel
     Q_OBJECT
 
   public:
-    PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Type & bd, Profile & prof);
+    PrefsProfilePanel(QWidget * parent, Firmware * fw, QString & bd, Profile & prof);
     virtual ~PrefsProfilePanel();
 
     virtual void save() override;

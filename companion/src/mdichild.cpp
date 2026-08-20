@@ -1541,7 +1541,7 @@ void MdiChild::forceNewFilename(const QString & suffix, const QString & ext)
   curFile.replace(QRegularExpression("\\.etx$"), suffix + "." + ext);
 }
 
-bool MdiChild::convertStorage(Board::Type from, Board::Type to, bool newFile)
+bool MdiChild::convertStorage(QString from, QString to, bool newFile)
 {
   QMessageBox::StandardButtons btns;
   QMessageBox::StandardButton dfltBtn;
