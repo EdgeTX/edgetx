@@ -95,7 +95,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board) ||
              IS_IFLIGHT_COMMANDO8(board) || IS_RADIOMASTER_BOXER(board) ||
              IS_RADIOMASTER_POCKET(board) || IS_JUMPER_T20(board) ||
-             IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T22(board) ||
+             IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T15H7(board) || IS_JUMPER_T22(board) ||
              IS_SENDUWING_H17(board);
     case HasIntModuleFlySky:
       return  id.contains("afhds2a") || id.contains("afhds3") ||
@@ -625,6 +625,12 @@ void registerOpenTxFirmwares()
 
   /* Jumper T15 Pro board */
   firmware = new OpenTxFirmware(FIRMWAREID("t15pro"), Firmware::tr("T15 Pro"), BOARD_JUMPER_T15PRO);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+  registerOpenTxFirmware(firmware);
+
+  /* Jumper T15-H7 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("t15h7"), Firmware::tr("Jumper T15-H7"), BOARD_JUMPER_T15H7);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
