@@ -41,8 +41,6 @@ class PrefsEditDialog : public QDialog
     virtual ~PrefsEditDialog();
 
   public slots:
-    void accept() Q_DECL_OVERRIDE;
-    void done(int r) Q_DECL_OVERRIDE;
     void setMainWinHasDirtyChild(bool value);
 
   signals:
@@ -50,7 +48,11 @@ class PrefsEditDialog : public QDialog
     void firmwareProfileAboutToChange(bool saveFiles = true);
     void resetFirmware();
 
-  protected:
+  protected slots:
+    void accept() Q_DECL_OVERRIDE;
+    void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
+    void done(int r) Q_DECL_OVERRIDE;
+    void reject() Q_DECL_OVERRIDE;
 
   private slots:
 
@@ -64,7 +66,7 @@ class PrefsEditDialog : public QDialog
     bool dirty;
 
     PrefsPanel * addTab(PrefsPanel * panel, QString text);
-    void maybeSave();
-    void save();
+    bool maybeSave();
+    bool save();
     void shrink();
 };
