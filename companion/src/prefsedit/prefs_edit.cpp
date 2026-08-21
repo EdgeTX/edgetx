@@ -72,8 +72,26 @@ PrefsEditDialog::~PrefsEditDialog()
 
 void PrefsEditDialog::accept()
 {
-  save();
+  if (!save())
+    return;
+
   QDialog::accept();
+}
+
+void PrefsEditDialog::closeEvent(QCloseEvent *event)
+{
+  if (!maybeSave())
+    return;
+
+  QDialog::closeEvent(event);
+}
+
+void PrefsEditDialog::reject()
+{
+  if (!maybeSave())
+    return;
+
+  QDialog::reject();
 }
 
 PrefsPanel * PrefsEditDialog::addTab(PrefsPanel * panel, QString text)
@@ -91,15 +109,13 @@ PrefsPanel * PrefsEditDialog::addTab(PrefsPanel * panel, QString text)
 
 void PrefsEditDialog::done(int r)
 {
-  maybeSave();
-
   if (!isMaximized())
     g.prefsEditGeo(saveGeometry());
 
   QDialog::done(r);
 }
 
-void PrefsEditDialog::maybeSave()
+bool PrefsEditDialog::maybeSave()
 {
   if (dirty) {
     int ret = QMessageBox::question(this, tr("Edit Preferences"),
@@ -107,11 +123,13 @@ void PrefsEditDialog::maybeSave()
                 (QMessageBox::Save | QMessageBox::Discard), QMessageBox::Save);
 
     if (ret == QMessageBox::Save)
-      save();
+      return save();
   }
+
+  return true;
 }
 
-void PrefsEditDialog::save()
+bool PrefsEditDialog::save()
 {
   if (dirty) {
     bool fwchange = false;
@@ -119,20 +137,21 @@ void PrefsEditDialog::save()
     if (Firmware::getCurrentVariant()->getFirmwareBase()->getId() != firmware->getFirmwareBase()->getId()) {
       // check if we're going to be converting to a new radio type and there are unsaved files in the main window
       if (mainWinHasDirtyChild && !Boards::isBoardCompatible(Firmware::getCurrentVariant()->getBoard(), board)) {
-        QString q = tr("<p><b>You cannot switch Radio Type or change Build Options while there are unsaved file changes. What do you wish to do?</b></p> <ul>" \
-                      "<li><i>Save All</i> - Save any open file(s) before saving Settings.<li>" \
-                      "<li><i>Reset</i> - Revert to the previous Radio Type and Build Options before saving Settings.</li>" \
-                      "<li><i>Cancel</i> - Return to the Settings editor dialog.</li></ul>");
+        QString q = tr("<p><b>You cannot change Radio Types while there are unsaved model file changes. What do you wish to do?</b></p> <ul>" \
+                      "<li><i>Save All</i> - save all open model file(s) before saving preferences.<li>" \
+                      "<li><i>Reset</i> - revert Radio Type and Build Options before saving all other preferences.</li>" \
+                      "<li><i>Cancel</i> - return to the Preferences editor.</li></ul>");
         int resp = QMessageBox::question(this, windowTitle(), q, (QMessageBox::SaveAll | QMessageBox::Reset | QMessageBox::Cancel), QMessageBox::Cancel);
         if (resp == QMessageBox::SaveAll) {
-          // signal main window to save files, need to do this before the curent firmware actually changes
+          // signal main window to save files, need to do this before the current firmware actually changes
           emit firmwareProfileAboutToChange();
+          fwchange = true;
         } else if (resp == QMessageBox::Reset) {
-          // notify profile to restore settings prior to save
+          // notify profile to restore radio type and build options prior to save
           emit resetFirmware();
         } else {
           // we do not accept the dialog close
-          return;
+          return false;
         }
       }
 
@@ -142,8 +161,6 @@ void PrefsEditDialog::save()
       profile.timeStamp(QString());
       // used by flash firmware
       profile.fwName(QString());
-
-      fwchange = true;
     }
 
     // save preferences for every tab
@@ -153,9 +170,13 @@ void PrefsEditDialog::save()
     // prevent re-prompting
     dirty = false;
 
+    hide();
+
     if (fwchange)
       emit firmwareProfileChanged();
   }
+
+  return true;
 }
 
 void PrefsEditDialog::setMainWinHasDirtyChild(bool value)
