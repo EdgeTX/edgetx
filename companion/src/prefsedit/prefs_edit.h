@@ -45,8 +45,8 @@ class PrefsEditDialog : public QDialog
     void setMainWinHasDirtyChild(bool value);
 
   signals:
-    void firmwareProfileChanged();
-    void firmwareProfileAboutToChange(bool saveFiles = true);
+    void profileFirmwareChanged();
+    void profileFirmwareAboutToChange(bool saveFiles = true);
     void resetFirmware();
 
   protected slots:

@@ -138,7 +138,7 @@ bool PrefsEditDialog::save()
         if (resp == QMessageBox::SaveAll) {
           // signal main window to save files
           // need to do this before the current firmware actually changes
-          emit firmwareProfileAboutToChange();
+          emit profileFirmwareAboutToChange();
           fwchange = true;
         } else if (resp == QMessageBox::Reset) {
           // reset firmware to that at time of dialog ctor
@@ -167,9 +167,7 @@ bool PrefsEditDialog::save()
       profile.timeStamp(QString());
       // used by flash firmware so no longer applicable
       profile.fwName(QString());
-      // time to update current firmware
-      Firmware::setCurrentVariant(firmware);
-      emit firmwareProfileChanged();
+      emit profileFirmwareChanged();
     }
   }
 
