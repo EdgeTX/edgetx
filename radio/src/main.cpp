@@ -28,11 +28,6 @@
 #include "edgetx.h"
 #include "lua/lua_states.h"
 
-#if defined(USB_CHARGE_CONTROL)
-#include "hal/gpio.h"
-#include "stm32_gpio.h"
-#endif
-
 #if defined(COLORLCD)
 #include "LvglWrapper.h"
 #include "view_main.h"
@@ -158,10 +153,18 @@ void handleUsbConnection()
     TRACE("USB unplugged");
     closeUsbMenu();
     _pluggedUsb = false;
+#if defined(USB_CHARGE_CONTROL)
+    usbChargerEnableCharge(true);
+#endif
   } else if (!_pluggedUsb && usbPlugged()) {
     TRACE("USB plugged");
     _pluggedUsb = true;
     _usbDisabled = false;
+#if defined(USB_CHARGE_CONTROL)
+    // Apply on plug, not on usbStart(): the mode popup can sit open for a long
+    // time and the radio would charge until a mode is picked
+    usbChargerEnableCharge(!g_eeGeneral.usbChargeDisabled);
+#endif
   }
 
   if (!_usbDisabled && !usbStarted() && usbPlugged()) {
@@ -190,26 +193,12 @@ void handleUsbConnection()
 
       usbStart();
       TRACE("USB started");
-
-#if defined(USB_CHARGE_CONTROL)
-      // When "USB SD/JOY/VCP charge" is set to OFF, disable charging by
-      // driving the charger-enable pin high while USB is active.
-      if (g_eeGeneral.usbChargeDisabled) {
-        gpio_set(UCHARGER_EN_GPIO);
-      } else {
-        gpio_clear(UCHARGER_EN_GPIO);
-      }
-#endif
     }
   }
 
   if (usbStarted() && !usbPlugged()) {
     usbStop();
     TRACE("USB stopped");
-#if defined(USB_CHARGE_CONTROL)
-    // Restore default charger-enable state on unplug
-    gpio_clear(UCHARGER_EN_GPIO);
-#endif
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
       edgeTxResume();
 #if defined(COLORLCD)
