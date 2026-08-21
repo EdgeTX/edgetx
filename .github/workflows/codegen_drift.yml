@@ -29,6 +29,10 @@ on:
       - 'radio/util/yaml_parser.tmpl'
       - 'radio/util/hw_defs/**'
       - 'radio/src/boards/hw_defs/**'
+      # web simulator radio list (also fed by the hw_defs above)
+      - 'fw.json'
+      - 'web/scripts/gen-radios-json.js'
+      - 'web/public/radios.json'
   pull_request:
     paths: *trigger-paths
   workflow_dispatch:
@@ -54,6 +58,7 @@ jobs:
       cfn: ${{ steps.filter.outputs.cfn }}
       fonts: ${{ steps.filter.outputs.fonts }}
       yaml: ${{ steps.filter.outputs.yaml }}
+      radios: ${{ steps.filter.outputs.radios }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v7
@@ -69,7 +74,7 @@ jobs:
       - name: Check the recipes this workflow calls still resolve
         run: |
           just --list >/dev/null
-          for recipe in cfn-sort gen-fonts gen-yaml; do
+          for recipe in cfn-sort gen-fonts gen-yaml gen-radios; do
             just --show "${recipe}" >/dev/null
           done
 
@@ -108,6 +113,13 @@ jobs:
               - 'radio/util/yaml_parser.tmpl'
               - 'radio/util/hw_defs/**'
               - 'radio/src/boards/hw_defs/**'
+            radios:
+              - '.github/workflows/codegen_drift.yml'
+              - '.github/actions/codegen_drift/action.yml'
+              - 'fw.json'
+              - 'radio/src/boards/hw_defs/**'
+              - 'web/scripts/gen-radios-json.js'
+              - 'web/public/radios.json'
 
   cfn-sort:
     name: Custom function sort order
@@ -180,3 +192,25 @@ jobs:
           recipe: gen-yaml
           paths: radio/src/storage/yaml
           label: YAML parsers
+
+  radios:
+    name: Web simulator radio list
+    needs: changes
+    if: needs.changes.outputs.radios == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:latest
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+
+      - name: Check for drift
+        uses: ./.github/actions/codegen_drift
+        with:
+          just-version: ${{ env.JUST_VERSION }}
+          recipe: gen-radios
+          paths: web/public/radios.json
+          label: Web simulator radio list

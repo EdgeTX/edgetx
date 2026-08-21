@@ -2215,8 +2215,286 @@
     ]
   },
   {
+    "name": "HelloRadioSky V12",
+    "wasm": "edgetx-v12-simulator.wasm",
+    "display": {
+      "w": 320,
+      "h": 240,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW5",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW6",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      }
+    ]
+  },
+  {
     "name": "HelloRadioSky V14",
     "wasm": "edgetx-v14-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S3",
+        "default": "MULTIPOS"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "3POS",
+        "default": "TOGGLE"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "HelloRadioSky V14LCD",
+    "wasm": "edgetx-v14lcd-simulator.wasm",
     "display": {
       "w": 128,
       "h": 64,
@@ -2646,6 +2924,149 @@
     ]
   },
   {
+    "name": "iFlight Commando 14",
+    "wasm": "edgetx-c14-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_UP",
+        "label": "▲",
+        "side": "L"
+      },
+      {
+        "key": "KEY_DOWN",
+        "label": "▼",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
     "name": "Jumper Bumblebee",
     "wasm": "edgetx-bumblebee-simulator.wasm",
     "display": {
@@ -2727,268 +3148,6 @@
         "name": "SH",
         "type": "2POS",
         "default": "TOGGLE"
-      },
-      {
-        "name": "SW1",
-        "type": "2POS",
-        "default": "2POS"
-      },
-      {
-        "name": "SW2",
-        "type": "2POS",
-        "default": "2POS"
-      },
-      {
-        "name": "SW3",
-        "type": "2POS",
-        "default": "2POS"
-      },
-      {
-        "name": "SW4",
-        "type": "2POS",
-        "default": "2POS"
-      },
-      {
-        "name": "SW5",
-        "type": "2POS",
-        "default": "2POS"
-      },
-      {
-        "name": "SW6",
-        "type": "2POS",
-        "default": "2POS"
-      }
-    ],
-    "trims": [
-      {
-        "name": "T1"
-      },
-      {
-        "name": "T2"
-      },
-      {
-        "name": "T3"
-      },
-      {
-        "name": "T4"
-      }
-    ],
-    "keys": [
-      {
-        "key": "KEY_PAGEDN",
-        "label": "PAGE▶",
-        "side": "R"
-      },
-      {
-        "key": "KEY_MENU",
-        "label": "MENU",
-        "side": "L"
-      },
-      {
-        "key": "KEY_EXIT",
-        "label": "EXIT",
-        "side": "L"
-      },
-      {
-        "key": "KEY_ENTER",
-        "label": "Enter ⏎",
-        "side": "R"
-      }
-    ]
-  },
-  {
-    "name": "Jumper T-Pro S",
-    "wasm": "edgetx-tpros-simulator.wasm",
-    "display": {
-      "w": 128,
-      "h": 64,
-      "depth": 1
-    },
-    "inputs": [
-      {
-        "name": "LH",
-        "type": "STICK",
-        "label": "LH"
-      },
-      {
-        "name": "LV",
-        "type": "STICK",
-        "label": "LV"
-      },
-      {
-        "name": "RV",
-        "type": "STICK",
-        "label": "RV"
-      },
-      {
-        "name": "RH",
-        "type": "STICK",
-        "label": "RH"
-      },
-      {
-        "name": "P1",
-        "type": "FLEX",
-        "label": "S1",
-        "default": "POT_CENTER"
-      },
-      {
-        "name": "P2",
-        "type": "FLEX",
-        "label": "S2",
-        "default": "POT_CENTER"
-      }
-    ],
-    "switches": [
-      {
-        "name": "SA",
-        "type": "3POS",
-        "default": "3POS"
-      },
-      {
-        "name": "SB",
-        "type": "3POS",
-        "default": "3POS"
-      },
-      {
-        "name": "SC",
-        "type": "2POS",
-        "default": "TOGGLE"
-      },
-      {
-        "name": "SD",
-        "type": "2POS",
-        "default": "TOGGLE"
-      },
-      {
-        "name": "SE",
-        "type": "2POS",
-        "default": "2POS"
-      },
-      {
-        "name": "SF",
-        "type": "2POS",
-        "default": "2POS"
-      }
-    ],
-    "trims": [
-      {
-        "name": "T1"
-      },
-      {
-        "name": "T2"
-      },
-      {
-        "name": "T3"
-      },
-      {
-        "name": "T4"
-      }
-    ],
-    "keys": [
-      {
-        "key": "KEY_PAGEDN",
-        "label": "PAGE▶",
-        "side": "R"
-      },
-      {
-        "key": "KEY_MENU",
-        "label": "MENU",
-        "side": "L"
-      },
-      {
-        "key": "KEY_EXIT",
-        "label": "EXIT",
-        "side": "L"
-      },
-      {
-        "key": "KEY_ENTER",
-        "label": "Enter ⏎",
-        "side": "R"
-      }
-    ]
-  },
-  {
-    "name": "Jumper T-Pro V2",
-    "wasm": "edgetx-tprov2-simulator.wasm",
-    "display": {
-      "w": 128,
-      "h": 64,
-      "depth": 1
-    },
-    "inputs": [
-      {
-        "name": "LH",
-        "type": "STICK",
-        "label": "LH"
-      },
-      {
-        "name": "LV",
-        "type": "STICK",
-        "label": "LV"
-      },
-      {
-        "name": "RV",
-        "type": "STICK",
-        "label": "RV"
-      },
-      {
-        "name": "RH",
-        "type": "STICK",
-        "label": "RH"
-      },
-      {
-        "name": "P1",
-        "type": "FLEX",
-        "label": "S1",
-        "default": "POT_CENTER"
-      },
-      {
-        "name": "P2",
-        "type": "FLEX",
-        "label": "S2",
-        "default": "POT_CENTER"
-      }
-    ],
-    "switches": [
-      {
-        "name": "SA",
-        "type": "3POS",
-        "default": "3POS"
-      },
-      {
-        "name": "SB",
-        "type": "3POS",
-        "default": "3POS"
-      },
-      {
-        "name": "SC",
-        "type": "2POS",
-        "default": "TOGGLE"
-      },
-      {
-        "name": "SD",
-        "type": "2POS",
-        "default": "TOGGLE"
-      },
-      {
-        "name": "SE",
-        "type": "2POS",
-        "default": "2POS"
-      },
-      {
-        "name": "SF",
-        "type": "2POS",
-        "default": "2POS"
-      },
-      {
-        "name": "SG",
-        "type": "2POS",
-        "default": "NONE"
-      },
-      {
-        "name": "SH",
-        "type": "2POS",
-        "default": "NONE"
       },
       {
         "name": "SW1",
@@ -4347,6 +4506,473 @@
     ]
   },
   {
+    "name": "Jumper T22",
+    "wasm": "edgetx-t22-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "S3",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "S4",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL3",
+        "type": "FLEX",
+        "label": "SL",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL4",
+        "type": "FLEX",
+        "label": "SR",
+        "default": "SLIDER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SK",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SL",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW5",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW6",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Jumper T-Pro S",
+    "wasm": "edgetx-tpros-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_MENU",
+        "label": "MENU",
+        "side": "L"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "Jumper T-Pro V2",
+    "wasm": "edgetx-tprov2-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SD",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW5",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW6",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_MENU",
+        "label": "MENU",
+        "side": "L"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
     "name": "RadioMaster Boxer",
     "wasm": "edgetx-boxer-simulator.wasm",
     "display": {
@@ -4616,6 +5242,210 @@
       },
       {
         "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
+    "name": "RadioMaster GX15",
+    "wasm": "edgetx-gx15-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 320,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "EXT1",
+        "type": "FLEX",
+        "label": "EXT1"
+      },
+      {
+        "name": "EXT2",
+        "type": "FLEX",
+        "label": "EXT2"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "NONE"
+      },
+      {
+        "name": "SW1",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW2",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW3",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW4",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW5",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SW6",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
       }
     ],
     "keys": [
