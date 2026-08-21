@@ -137,6 +137,10 @@ void PrefsEditDialog::save()
       }
 
       Firmware::setCurrentVariant(firmware);
+      // do not keep incompatible backup settings
+      profile.generalSettings(QByteArray());
+      profile.timeStamp(QString());
+
       fwchange = true;
     }
 
