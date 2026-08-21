@@ -981,6 +981,7 @@
 #define TR_SENSOR              "SENSOR"
 #define TR_COUNTRY_CODE         "Landcode"
 #define TR_USBMODE             "USB Mode"
+#define TR_USB_CHARGE                 "Laden als zender aan"
 #define TR_JACK_MODE                    "Jack Mode"
 #define TR_VOICE_LANGUAGE           "Taal"
 #define TR_TEXT_LANGUAGE               "Text language"
