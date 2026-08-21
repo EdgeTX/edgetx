@@ -26,7 +26,7 @@
 #include "edgetx.h"
 #include "telemetry/spektrum.h"
 
-#define DSMP_SEND_X_PLUS    0
+#define DSMP_SEND_X_PLUS    1
 
 #define DSMP_BITRATE        115200
 
@@ -58,8 +58,8 @@
 
 #define DSMP_NO_CHANNEL     0xFF
 
-// MAP AETR->TAER:     
-static uint8_t AETR_TAER_MAP[] = {2, 0, 1};  
+// MAP AETR->TAER:
+static uint8_t AETR_TAER_MAP[] = {2, 0, 1};
 
 static DSMPModuleStatus dsmpStatus = DSMPModuleStatus();
 
@@ -70,9 +70,9 @@ static DSMPModuleStatus dsmpStatus = DSMPModuleStatus();
 // When the Setup package is received, will send the existing CH values (0), so servos will move to the side until valid
 // Ch data is received.
 // Scenario 2: Channel packed process by DSMP before Setup package
-// In this case, it will assume that the Ch data is encoded in 10bits instead of 2048 (if DSMX), then the servos move to 
+// In this case, it will assume that the Ch data is encoded in 10bits instead of 2048 (if DSMX), then the servos move to
 // to extreme too.
-// 
+//
 // Both scenarios are not right, so initially send more frequently the Setup package (usualy every 2.2 sec), but will
 // be sent every 2 messages (66ms). There is still jump, but for an instant.
 // The only way to properly fix it is at the DSMP firmware level.. (fixed on DSMP V2).
@@ -86,7 +86,7 @@ static DSMPModuleStatus dsmpStatus = DSMPModuleStatus();
 // DSMP module, is really 4.025/7.033/4.025/6.x and the last will be cut too short
 // to 6.88 by the new TX message (needs to be at least 6.92, up to 7.05). That
 // can create problems in some RXs (Servos not moving smoth). Compensating for
-// that little extra delay to make the last closer to 7ms spacing. 
+// that little extra delay to make the last closer to 7ms spacing.
 
 #define SCHEDULER_PERIOD_V1       22060
 #define SCHEDULER_PERIOD_V2       11000
@@ -95,15 +95,15 @@ static uint8_t pass;
 static uint8_t pass0_counter;
 static uint8_t pass0_period;
 
-static uint16_t fastSetup_count;  
+static uint16_t fastSetup_count;
 
 #if DSMP_SEND_X_PLUS
 static uint8_t x_plus_ch = 0;
 #endif
 
 DSMPModuleStatus& getDSMPStatus(uint8_t module)
-{ 
-    return dsmpStatus; 
+{
+    return dsmpStatus;
 }
 
 static void* dsmpInit(uint8_t module)
@@ -158,16 +158,16 @@ static void updateModuleStatus(uint8_t flags)
 }
 
 static uint16_t getDSMPChannelValue(uint8_t module, uint8_t flags, uint8_t channel)
-{ 
+{
     uint8_t txChannel = channel;
     // Map from AETR->TAER ???
-    if ((flags & DSMP_FLAGS_FUTABA) && (channel < 3)) { 
+    if ((flags & DSMP_FLAGS_FUTABA) && (channel < 3)) {
         txChannel = AETR_TAER_MAP[channel];
     }
 
     int value = channelOutputs[txChannel] + 2 * PPM_CH_CENTER(txChannel) - 2 * PPM_CENTER;
     uint16_t pulse;
-    
+
     if (flags & DSMP_FLAGS_2048) {  // Use 11-bit ?
         // Scale to 349/512=0.681, MultiModule is about 0.667
         pulse = limit(0, ((value * 349) >> 9) + 1024, 2047) | (channel << 11);
@@ -190,7 +190,7 @@ static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
     auto version     = dsmpStatus.version[0];
 
     if (md.dsmp.enableAETR) { // Move GUI settings to flags
-        flags |= DSMP_FLAGS_FUTABA;  
+        flags |= DSMP_FLAGS_FUTABA;
     }
 
     if (pass0_counter == pass0_period/2) {
@@ -231,7 +231,7 @@ static void setupPulsesLemonDSMP(uint8_t module, uint8_t*& p_buf)
         sendByte(p_buf, modelId); // V1.0 ignores it, V2.0 use it
 
         pass = 1; // move to send Ch data
-        return; 
+        return;
     } else {
 #if DSMP_SEND_X_PLUS
         uint8_t xPlusEnabled = (version > 1) && (channels >= MAX_REG_CHANNELS) && (flags & DSMP_FLAGS_DSMX);
@@ -300,15 +300,15 @@ static void dsmpSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
 
 /* The DSMP Bind Return Message contains:
 Byte
-0       Flags: 
+0       Flags:
             Protocol:      Maxk 0x01   0=DSM2, 1=DSMX
             RefreshCycle:  Mask 0x02   0=22ms, 1=11ms
-            Resolution:    Mask 0x04   0=1024, 1=2048    
+            Resolution:    Mask 0x04   0=1024, 1=2048
             Bind:          Mask 0x80   1=Enter Bind Mode  (Output only)
             Bind_Auto:     Mask 0x40   1=Use AutoBind     (Output only)
 1       ?? Always 0x00;   ?? RX type maybe
-2       Number of Channels  (Up to 12) 
-3       TX Mode: 
+2       Number of Channels  (Up to 12)
+3       TX Mode:
             0x01 - DSM2 1024/22ms,
             0x02 - DSM2 1024/22ms >7 channels,
             0x11 - DSM2 2048/11ms
@@ -317,7 +317,7 @@ Byte
             0xb2 - DSMX 11ms
  */
 
-static void processDSMPBindPacket(uint8_t module, uint8_t* packet) 
+static void processDSMPBindPacket(uint8_t module, uint8_t* packet)
 {
     uint8_t flags    = packet[0];
     uint8_t rxType   = packet[1];
@@ -333,7 +333,7 @@ static void processDSMPBindPacket(uint8_t module, uint8_t* packet)
     }
     g_model.moduleData[module].channelsCount = channels - 8;
     if (dsmpStatus.version[0] == 1) { // V1.0 always use modelId=0
-        g_model.header.modelId[module] = 0;  
+        g_model.header.modelId[module] = 0;
     }
 
     TRACE("[DSMP] DSMP bind packet: flags:0x%X / Ch: %i / TxMode =0x%X", flags & 0x3F, channels, txMode);
@@ -354,16 +354,24 @@ static void processDSMPBindPacket(uint8_t module, uint8_t* packet)
 }
 
 
-static void processDSMPManufacturerData(uint8_t module, uint8_t* packet) 
+static void processDSMPManufacturerData(uint8_t module, uint8_t* packet)
 {
-    // Format M,M,M,M, V, V    where M is 4 byte manufacturer data, and V is 2 byte
+    // Format M,M,M,M, V, V, yy,yy, mm, dd, rel
+    // where M is 4 byte manufacturer data, and V is 2 byte
+
     dsmpStatus.version[0] = packet[4];  // Major
     dsmpStatus.version[1] = packet[5];  // Minor
+    dsmpStatus.fm_year    = (packet[6] << 8) | packet[7]; // FM Year
+    dsmpStatus.fm_mm      = packet[8];  // FM Month
+    dsmpStatus.fm_dd      = packet[9];  // FM Day
+    dsmpStatus.fm_rev     = packet[10]; // FM Rev
 
     TRACE("LemonDSMP: Ver [%d.%d]", dsmpStatus.version[0], dsmpStatus.version[1]);
+    TRACE("LemonDSMP: FW  [%d-%d-%d.%d]",
+            dsmpStatus.fm_year, dsmpStatus.fm_mm, dsmpStatus.fm_dd, dsmpStatus.fm_rev);
 
     if (dsmpStatus.version[0] > 1 && mixerSchedulerGetPeriod(module) != SCHEDULER_PERIOD_V2) {
-      // V2 suppors 11ms 
+      // V2 suppors 11ms
       mixerSchedulerSetPeriod(module, SCHEDULER_PERIOD_V2);
       pass0_period = 200; // extend period
     }
@@ -448,8 +456,9 @@ static void dsmpProcessData(void* ctx, uint8_t data, uint8_t* buffer,
     }
 
     if (rxBufferCount < TELEMETRY_RX_PACKET_SIZE) {
-
+ #if 0
         TRACE("[DSMP] Data 0x%02X, len = %d", data, rxBufferCount);
+ #endif
         buffer[rxBufferCount++] = data;  // Keep building message
     } else {
         TRACE("[DSMP] array size %d error", rxBufferCount);
@@ -465,23 +474,48 @@ static void dsmpProcessData(void* ctx, uint8_t data, uint8_t* buffer,
 
 void DSMPModuleStatus::getStatusString(char* statusText) const
 {
-    if (!isValid()) {
-        strcpy(statusText, STR_MODULE_NO_TELEMETRY);
-        return;
-    }
+  if (!isValid()) {
+    strcpy(statusText, STR_MODULE_NO_TELEMETRY);
+    return;
+  }
 
-    const auto& md = g_model.moduleData[EXTERNAL_MODULE];
-    auto channels = md.getChannelsCount();
+  const auto& md = g_model.moduleData[EXTERNAL_MODULE];
+  auto channels = md.getChannelsCount();
 
-    char* tmp = statusText;
+  char* tmp = statusText;
 
-    // Version
-    *tmp = 0;
-    tmp = strAppend(tmp, "v", 1);
+  *tmp = 0;
+
+  const char* mode;
+
+  // Protocol Used
+  mode = (flags & DSMP_FLAGS_DSMX) ? "X" : "2";  // DSMX or DSM2
+  tmp = strAppend(tmp, mode, strlen(mode));
+  mode =
+      (flags & DSMP_FLAGS_11mS) ? "_2F" : "_1F";  // 1 or 2 Frames (11ms/22ms)
+  tmp = strAppend(tmp, mode, strlen(mode));
+
+  // Version
+  tmp = strAppend(tmp, " v", 2);
+  if (dsmpStatus.fm_year > 0) {
+    // Firmware Build Date (Compact, ex:251012.1)
+    tmp = strAppendUnsigned(tmp, dsmpStatus.fm_year % 100);
+    tmp = strAppendUnsigned(tmp, dsmpStatus.fm_mm / 10);
+    tmp = strAppendUnsigned(tmp, dsmpStatus.fm_mm % 10);
+    tmp = strAppendUnsigned(tmp, dsmpStatus.fm_dd / 10);
+    tmp = strAppendUnsigned(tmp, dsmpStatus.fm_dd % 10);
+    tmp = strAppend(tmp, ".", 1);
+    tmp = strAppendUnsigned(tmp, dsmpStatus.fm_rev);
+  } else {
+    // Simple version format
     tmp = strAppendUnsigned(tmp, dsmpStatus.version[0]);
     tmp = strAppend(tmp, ".", 1);
     tmp = strAppendUnsigned(tmp, dsmpStatus.version[1]);
+  }
 
+#if 0
+    // Already displayin the TAER checkbox, so probably not needed
+    // Channel Order
     char b[] = "?   ";
     if (ch_order != 0xFF) { // Same encoding as MultiModule
         uint8_t temp = ch_order;
@@ -496,23 +530,16 @@ void DSMPModuleStatus::getStatusString(char* statusText) const
 
     tmp = strAppend(tmp, " ", 1);
     tmp = strAppend(tmp, b, strlen(b));
-
-    const char* mode;
-
-    mode = (flags & DSMP_FLAGS_DSMX) ? " X" : " 2"; // DSMX or DSM2
-    tmp = strAppend(tmp, mode, strlen(mode));
-
-    mode = (flags & DSMP_FLAGS_11mS) ? "_2F" : "_1F"; // 1 or 2 Frames (11ms/22ms)
-    tmp = strAppend(tmp, mode, strlen(mode));
+#endif
 
 #if 0
     // Good for Debugging, but not much for regular users
-    
+
     //mode = (flags & DSMP_FLAGS_2048) ? " 2048" : " 1024";
     //tmp = strAppend(tmp, mode, strlen(mode));
 
     tmp = strAppend(tmp, "  S:", 4);
-    uint16_t servoRefresh = (mixerSchedulerGetPeriod(EXTERNAL_MODULE) / 1000); 
+    uint16_t servoRefresh = (mixerSchedulerGetPeriod(EXTERNAL_MODULE) / 1000);
     if (channels > 7) servoRefresh *= 2;
     tmp = strAppendUnsigned(tmp, servoRefresh);
     tmp = strAppend(tmp, "ms", 2);

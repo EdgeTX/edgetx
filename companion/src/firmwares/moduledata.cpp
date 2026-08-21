@@ -390,7 +390,7 @@ int ModuleData::getMaxChannelCount()
     case PULSES_FLYSKY_AFHDS3:
       return 18;
     case PULSES_LEMON_DSMP:
-      return 12;
+      return 16;
     case PULSES_OFF:
       break;
     default:
@@ -586,6 +586,7 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
               case MODULE_TYPE_GHOST:
               case MODULE_TYPE_PPM:
               case MODULE_TYPE_SBUS:
+              case MODULE_TYPE_LEMON_DSMP:
                 return true;
               default:
                 return false;
