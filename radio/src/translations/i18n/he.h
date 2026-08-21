@@ -147,6 +147,7 @@
 #define TR_AUX_SERIAL_MODES_9          "מיפוי שגיאות"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "מודול חיצוני"
+#define TR_AUX_SERIAL_MODES_12         "CRSF Trainer"
 #define TR_SWTYPES_1                   "כלום"
 #define TR_SWTYPES_2                   "להחליף"
 #define TR_SWTYPES_3                   "2POS"

@@ -121,6 +121,10 @@ extern CrossfireModuleStatus crossfireModuleStatus[2];
 
 void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                                     uint8_t rxBufferCount);
+
+// Decode a CHANNELS_ID frame into trainerInput[] and reset the trainer
+// validity timer. rxBuffer points at [addr][len][type][payload...].
+void crossfireProcessChannelsFrame(const uint8_t* rxBuffer);
 void crossfireSetDefault(int index, uint16_t id, uint8_t subId);
 
 const uint32_t CROSSFIRE_BAUDRATES[] = {
