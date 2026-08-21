@@ -944,6 +944,7 @@
 #define TR_SENSOR                      "SENZOR"
 #define TR_COUNTRY_CODE                "Kód regionu"
 #define TR_USBMODE                     "Režim USB"
+#define TR_USB_CHARGE                  "Nabíjení za chodu"
 #define TR_JACK_MODE                   "Režim Jack"
 #define TR_VOICE_LANGUAGE              "Jazyk hlasu"
 #define TR_TEXT_LANGUAGE               "Text language"

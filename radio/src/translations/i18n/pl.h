@@ -939,6 +939,7 @@
 #define TR_SENSOR              "SENSOR"
 #define TR_COUNTRY_CODE        "Kod regionu"
 #define TR_USBMODE             "Tryb USB"
+#define TR_USB_CHARGE          "Ładuj gdy radio włączone"
 #define TR_JACK_MODE           "Tryb Jack"
 #define TR_VOICE_LANGUAGE      "Język głosu"
 #define TR_TEXT_LANGUAGE               "Text language"
