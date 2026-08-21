@@ -72,9 +72,6 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Typ
     this->firmware = Firmware::getFirmwareForId(this->fwTypeData->text() % "-xxx");
     this->board = this->firmware->getBoard();
     this->populateFirmwareOptions();
-    // clear backup settings as they are specific to the firmware
-    this->profile.generalSettings(QByteArray());
-    this->profile.timeStamp(QString());
     this->update();
     emit radioChanged(this->firmware);
   });
