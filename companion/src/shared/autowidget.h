@@ -68,7 +68,6 @@ class AutoWidget
     virtual void updateValue() = 0;
 
     void applyBindings();
-    void applyPreUpdate();
     void clearBindEnabled();
     void clearBindVisible();
     void clearBuddyBinds(AutoWidget * wgt);

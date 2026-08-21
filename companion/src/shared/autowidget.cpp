@@ -103,11 +103,6 @@ void AutoWidget::applyBindings()
   if (m_model) setAutoModel(m_model());
 }
 
-void AutoWidget::applyPreUpdate()
-{
-  if (m_preUpdate) m_preUpdate();
-}
-
 void AutoWidget::clearBindEnabled()
 {
   m_enabled = nullptr;
