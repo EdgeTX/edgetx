@@ -43,25 +43,22 @@ PrefsEditDialog::PrefsEditDialog(QWidget * parent, UpdateFactories * factories) 
   setAttribute(Qt::WA_DeleteOnClose);
 
   PrefsProfilePanel *prefsProfPanel = new PrefsProfilePanel(this, firmware, board, profile);
-  PrefsPanel *profPanel = addTab(prefsProfPanel, tr("Radio Profile"));
-  connect(profPanel, &PrefsPanel::radioChanged, this, [this] (Firmware * firmware) {
-    this->firmware = firmware;
-    this->board = this->firmware->getBoard();
-  });
-  connect(this, &PrefsEditDialog::resetFirmware, prefsProfPanel, &PrefsProfilePanel::undoFirmwareChange);
+  addTab(prefsProfPanel, tr("Radio Profile"));
+  connect(prefsProfPanel, &PrefsProfilePanel::radioChanged, this, &PrefsEditDialog::onRadioChanged);
 
-  PrefsPanel *appPanel = addTab(new PrefsAppPanel(this, firmware, board, profile), tr("Application"));
-  connect(profPanel, &PrefsPanel::radioChanged, appPanel, &PrefsPanel::onRadioChanged);
-
-  PrefsPanel *simuPanel = addTab(new PrefsSimuPanel(this, firmware, board, profile), tr("Simulator"));
-  connect(profPanel, &PrefsPanel::radioChanged, simuPanel, &PrefsPanel::onRadioChanged);
+  addTab(new PrefsAppPanel(this, firmware, board, profile), tr("Application"));
+  addTab(new PrefsSimuPanel(this, firmware, board, profile), tr("Simulator"));
 
   PrefsUpdatePanel *prefsUpdatePanel = new PrefsUpdatePanel(this, firmware, board, profile, factories);
   addTab(prefsUpdatePanel, tr("Update"));
+
   connect(prefsProfPanel, &PrefsProfilePanel::sdPathChanged, prefsUpdatePanel, &PrefsUpdatePanel::onSDPathChanged);
 
   bool hasSavedGeo = restoreGeometry(g.prefsEditGeo());
-  if (!hasSavedGeo) shrink();
+
+  if (!hasSavedGeo)
+    shrink();
+
   ui->tabWidget->setCurrentIndex(0);
 }
 
@@ -99,11 +96,7 @@ PrefsPanel * PrefsEditDialog::addTab(PrefsPanel * panel, QString text)
   panels << panel;
   PrefsScrollArea *scrollArea = new PrefsScrollArea(ui->tabWidget, panel);
   ui->tabWidget->addTab(scrollArea, text);
-
-  connect(panel, &PrefsPanel::modified, this, [this] {
-    this->dirty = true;
-  });
-
+  connect(panel, &PrefsPanel::modified, this, [this] { this->dirty = true; });
   return panel;
 }
 
@@ -134,33 +127,29 @@ bool PrefsEditDialog::save()
   if (dirty) {
     bool fwchange = false;
     // If a new fw type has been choosen, several things need to reset
-    if (Firmware::getCurrentVariant()->getFirmwareBase()->getId() != firmware->getFirmwareBase()->getId()) {
+    if (getCurrentFirmware()->getFirmwareBase()->getId() != firmware->getFirmwareBase()->getId()) {
       // check if we're going to be converting to a new radio type and there are unsaved files in the main window
-      if (mainWinHasDirtyChild && !Boards::isBoardCompatible(Firmware::getCurrentVariant()->getBoard(), board)) {
+      if (mainWinHasDirtyChild && !Boards::isBoardCompatible(getCurrentBoard(), firmware->getBoard())) {
         QString q = tr("<p><b>You cannot change Radio Types while there are unsaved model file changes. What do you wish to do?</b></p> <ul>" \
                       "<li><i>Save All</i> - save all open model file(s) before saving preferences.<li>" \
                       "<li><i>Reset</i> - revert Radio Type and Build Options before saving all other preferences.</li>" \
-                      "<li><i>Cancel</i> - return to the Preferences editor.</li></ul>");
+                      "<li><i>Cancel</i> - return to the editing preferences.</li></ul>");
         int resp = QMessageBox::question(this, windowTitle(), q, (QMessageBox::SaveAll | QMessageBox::Reset | QMessageBox::Cancel), QMessageBox::Cancel);
         if (resp == QMessageBox::SaveAll) {
-          // signal main window to save files, need to do this before the current firmware actually changes
+          // signal main window to save files
+          // need to do this before the current firmware actually changes
           emit firmwareProfileAboutToChange();
           fwchange = true;
         } else if (resp == QMessageBox::Reset) {
-          // notify profile to restore radio type and build options prior to save
-          emit resetFirmware();
+          // reset firmware to that at time of dialog ctor
+          onRadioChanged(getCurrentFirmware());
         } else {
           // we do not accept the dialog close
           return false;
         }
+      } else {
+        fwchange = true;
       }
-
-      Firmware::setCurrentVariant(firmware);
-      // do not keep incompatible backup settings
-      profile.generalSettings(QByteArray());
-      profile.timeStamp(QString());
-      // used by flash firmware
-      profile.fwName(QString());
     }
 
     // save preferences for every tab
@@ -172,8 +161,16 @@ bool PrefsEditDialog::save()
 
     hide();
 
-    if (fwchange)
+    if (fwchange) {
+      // do not keep incompatible backup settings
+      profile.generalSettings(QByteArray());
+      profile.timeStamp(QString());
+      // used by flash firmware so no longer applicable
+      profile.fwName(QString());
+      // time to update current firmware
+      Firmware::setCurrentVariant(firmware);
       emit firmwareProfileChanged();
+    }
   }
 
   return true;
@@ -202,4 +199,12 @@ void PrefsEditDialog::shrink()
   ui->tabWidget->setCurrentIndex(current);
   adjustSize();
   resize(maxHint.expandedTo(size()));
+}
+
+void PrefsEditDialog::onRadioChanged(Firmware * newFirmware)
+{
+  firmware = newFirmware;
+
+  for (const auto panel : panels)
+    panel->onRadioChanged(firmware);
 }

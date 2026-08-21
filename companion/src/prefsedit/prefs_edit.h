@@ -26,6 +26,7 @@
 
 #include <QDialog>
 
+class Firmware;
 class UpdateFactories;
 
 namespace Ui {
@@ -54,7 +55,7 @@ class PrefsEditDialog : public QDialog
     void done(int r) Q_DECL_OVERRIDE;
     void reject() Q_DECL_OVERRIDE;
 
-  private slots:
+    void onRadioChanged(Firmware * firmware);
 
   private:
     Ui::PrefsEdit *ui;

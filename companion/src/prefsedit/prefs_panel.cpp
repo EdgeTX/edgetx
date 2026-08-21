@@ -50,11 +50,13 @@ void PrefsPanel::setPathWidget(AutoLineEdit * wgt)
   wgt->setClearButtonEnabled(true);
 }
 
-void PrefsPanel::onRadioChanged(Firmware * firmware)
+void PrefsPanel::onRadioChanged(Firmware * firmware, bool deferUpdate)
 {
   this->firmware = firmware;
   board = this->firmware->getBoard();
-  update();
+
+  if (!deferUpdate)
+    update();
 }
 
 /*

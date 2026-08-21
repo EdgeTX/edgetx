@@ -45,8 +45,10 @@ class PrefsProfilePanel : public PrefsPanel
 
   public slots:
     void onOptionChanged(QString name);
-    void undoFirmwareChange();
     void onFirmwareTypePressed();
+
+  protected slots:
+    virtual void onRadioChanged(Firmware * firmware, bool deferUpdate = true) override;
 
   private:
     Ui::PrefsProfile * ui;
