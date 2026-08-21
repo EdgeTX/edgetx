@@ -73,8 +73,7 @@ PrefsEditDialog::~PrefsEditDialog()
 void PrefsEditDialog::accept()
 {
   save();
-
-  if (!isMaximized()) g.prefsEditGeo(saveGeometry());
+  QDialog::accept();
 }
 
 PrefsPanel * PrefsEditDialog::addTab(PrefsPanel * panel, QString text)
@@ -82,17 +81,22 @@ PrefsPanel * PrefsEditDialog::addTab(PrefsPanel * panel, QString text)
   panels << panel;
   PrefsScrollArea *scrollArea = new PrefsScrollArea(ui->tabWidget, panel);
   ui->tabWidget->addTab(scrollArea, text);
-  connect(panel, &PrefsPanel::modified, this, [this] { dirty = true; });
+
+  connect(panel, &PrefsPanel::modified, this, [this] {
+    this->dirty = true;
+  });
+
   return panel;
 }
 
-void PrefsEditDialog::closeEvent(QCloseEvent *event)
+void PrefsEditDialog::done(int r)
 {
   maybeSave();
 
-  if (!isMaximized()) g.prefsEditGeo(saveGeometry());
+  if (!isMaximized())
+    g.prefsEditGeo(saveGeometry());
 
-  QDialog::closeEvent(event);
+  QDialog::done(r);
 }
 
 void PrefsEditDialog::maybeSave()
@@ -105,15 +109,6 @@ void PrefsEditDialog::maybeSave()
     if (ret == QMessageBox::Save)
       save();
   }
-}
-
-void PrefsEditDialog::reject()
-{
-  maybeSave();
-
-  if (!isMaximized()) g.prefsEditGeo(saveGeometry());
-
-  QDialog::reject();
 }
 
 void PrefsEditDialog::save()
@@ -132,12 +127,10 @@ void PrefsEditDialog::save()
         if (resp == QMessageBox::SaveAll) {
           // signal main window to save files, need to do this before the curent firmware actually changes
           emit firmwareProfileAboutToChange();
-        }
-        else if (resp == QMessageBox::Reset) {
+        } else if (resp == QMessageBox::Reset) {
           // notify profile to restore settings prior to save
           emit resetFirmware();
-        }
-        else {
+        } else {
           // we do not accept the dialog close
           return;
         }
@@ -147,15 +140,16 @@ void PrefsEditDialog::save()
       fwchange = true;
     }
 
+    // save preferences for every tab
     for (const auto panel : panels)
       panel->save();
 
-    QDialog::accept();
+    // prevent re-prompting
+    dirty = false;
 
     if (fwchange)
-      emit firmwareProfileChanged();  // important to do this after the accepted() signal
-  } else
-    QDialog::accept();
+      emit firmwareProfileChanged();
+  }
 }
 
 void PrefsEditDialog::setMainWinHasDirtyChild(bool value)
@@ -163,7 +157,7 @@ void PrefsEditDialog::setMainWinHasDirtyChild(bool value)
   mainWinHasDirtyChild = value;
 }
 
- void PrefsEditDialog::shrink()
+void PrefsEditDialog::shrink()
 {
 // adjustSize() only accounts for the currently visible tab, since
 // QStackedWidget doesn't lay out hidden pages. Walk every tab once so
