@@ -391,9 +391,23 @@ const char * writeModelYaml(const char* filename)
 void getModelNumberStr(uint8_t idx, char* model_idx)
 {
   memcpy(model_idx, MODEL_FILENAME_PREFIX, sizeof(MODEL_FILENAME_PREFIX));
-  model_idx[sizeof(MODEL_FILENAME_PREFIX)-1] = '0' + idx / 10;
-  model_idx[sizeof(MODEL_FILENAME_PREFIX)]   = '0' + idx % 10;
-  model_idx[sizeof(MODEL_FILENAME_PREFIX)+1] = '\0';
+
+  // Handle indices up to 999
+  if (idx < 10) {
+    model_idx[sizeof(MODEL_FILENAME_PREFIX) - 1] = '0';
+    model_idx[sizeof(MODEL_FILENAME_PREFIX)] = '0' + idx;
+  } else if (idx < 100) {
+    model_idx[sizeof(MODEL_FILENAME_PREFIX) - 1] = '0' + idx / 10;
+    model_idx[sizeof(MODEL_FILENAME_PREFIX)] = '0' + idx % 10;
+  } else {
+    model_idx[sizeof(MODEL_FILENAME_PREFIX) - 1] = '0' + (idx / 100);
+    model_idx[sizeof(MODEL_FILENAME_PREFIX)] = '0' + ((idx / 10) % 10);
+    model_idx[sizeof(MODEL_FILENAME_PREFIX) + 1] = '0' + (idx % 10);
+    model_idx[sizeof(MODEL_FILENAME_PREFIX) + 2] = '\0';
+    return;
+  }
+
+  model_idx[sizeof(MODEL_FILENAME_PREFIX) + 1] = '\0';
 }
 #endif
 
@@ -540,27 +554,17 @@ const char * backupModel(uint8_t idx)
     return error;
   }
 
-  strncpy(buf, modelHeaders[idx].name, sizeof(g_model.header.name));
-  buf[sizeof(g_model.header.name)] = '\0';
-
-  int8_t i = sizeof(g_model.header.name)-1;
-  uint8_t len = 0;
-  while (i > 0) {
-    if (!len && buf[i])
-      len = i+1;
-    if (len) {
-      if (!buf[i])
-        buf[i] = '_';
-    }
-    i--;
-  }
-
-  if (len == 0) {
+  // Use the model name if it exists, otherwise fallback to model number
+  if (modelHeaders[idx].name[0] != '\0') {
+    strncpy(buf, modelHeaders[idx].name, sizeof(g_model.header.name));
+    buf[sizeof(g_model.header.name)] = '\0';
+  } else {
     uint8_t num = idx + 1;
     strcpy(buf, STR_MODEL);
-    buf[PSIZE(TR_MODEL)] = (char)((num / 10) + '0');
-    buf[PSIZE(TR_MODEL) + 1] = (char)((num % 10) + '0');
-    len = PSIZE(TR_MODEL) + 2;
+    buf[PSIZE(TR_MODEL)] = '0' + (num / 100);
+    buf[PSIZE(TR_MODEL) + 1] = '0' + ((num / 10) % 10);
+    buf[PSIZE(TR_MODEL) + 2] = '0' + (num % 10);
+    buf[PSIZE(TR_MODEL) + 3] = '\0';
   }
 
 #if defined(RTCLOCK)
