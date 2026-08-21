@@ -9,6 +9,7 @@ option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(BLUETOOTH "FrSky BT module support" OFF)
 option(INTERNAL_GPS "Support for internal GPS" ON)
+option(STICK_DEAD_ZONE "Enable sticks dead zone" OFF)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
@@ -39,8 +40,6 @@ else()
   set(AUX2_SERIAL ON)
 endif()
 
-#option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
-
 # IMU support
 set(IMU ON)
 add_definitions(-DIMU_ICM4207C)
@@ -61,6 +60,7 @@ add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
+add_definitions(-DUSB_CHARGE_CONTROL)
 add_definitions(-DLUMINOSITY_SENSOR)
 
 set(FLAVOUR tx16smk3)
@@ -95,7 +95,7 @@ add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 
-if(STICKS_DEAD_ZONE)
+if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 

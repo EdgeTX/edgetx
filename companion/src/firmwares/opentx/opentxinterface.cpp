@@ -161,12 +161,16 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case MaxVolume:
       return 23;
     case MaxContrast:
-      if (IS_TARANIS_SMALL(board))
+      if (Boards::getCapability(board, Board::LcdOLED))
+        return 254;
+      else if (IS_TARANIS_SMALL(board))
         return 30;
       else
         return 45;
     case MinContrast:
-      if (IS_TARANIS_X9(board))
+      if (Boards::getCapability(board, Board::LcdOLED))
+        return 2;
+      else if (IS_TARANIS_X9(board))
         return 0;
       else
         return 10;

@@ -7,6 +7,7 @@ option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
+option(STICK_DEAD_ZONE "Enable sticks dead zone" OFF)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
@@ -27,8 +28,6 @@ set(INTERNAL_MODULE_AFHDS3 NO)
 set(INTERNAL_EXTERNAL_ANT YES)
 set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
-
-#option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
 
 # IMU support (not populated in final)
 set(IMU OFF)
@@ -88,7 +87,7 @@ add_definitions(-DPWR_BUTTON_DUAL)
 
 #add_definitions(-DINTERNAL_MODULE_PXX1)
 
-if(STICKS_DEAD_ZONE)
+if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 

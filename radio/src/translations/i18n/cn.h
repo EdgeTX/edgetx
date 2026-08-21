@@ -712,6 +712,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Actual power")
 #define TR_AFHDS3_POWER_SOURCE         TR("Power src.", "Power source")
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "使用 FlySky RSSI 值无需重缩放")
 #define TR_GPS_COORDS_FORMAT           TR("方向角", "方向角格式")
 #define TR_VARIO                       TR("变化率", "高度变化率")
@@ -985,6 +986,7 @@
 #define TR_SENSOR                      "传感器"
 #define TR_COUNTRY_CODE                "国别码"
 #define TR_USBMODE                     "USB模式"
+#define TR_USB_CHARGE                 "开机时充电"
 #define TR_JACK_MODE                   "教练插口模式"
 #define TR_VOICE_LANGUAGE              "播报语言"
 #define TR_TEXT_LANGUAGE               "Text language"

@@ -979,6 +979,7 @@
 #define TR_SENSOR                      "SENSOR"
 #define TR_COUNTRY_CODE                 "Código país"
 #define TR_USBMODE                     "Modo USB"
+#define TR_USB_CHARGE                 "Cargar con radio ON"
 #define TR_JACK_MODE                    "Modo Jack"
 #define TR_VOICE_LANGUAGE                   "Idioma voces"
 #define TR_TEXT_LANGUAGE               "Text language"
@@ -1064,6 +1065,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Actual power")
 #define TR_AFHDS3_POWER_SOURCE         TR("Power src.", "Power source")
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_ANTENNACONFIRM1     "ANTENA EXT."
 #define TR_ANTENNA_MODES_1     "Interna"
 #define TR_ANTENNA_MODES_2     "Preguntar"

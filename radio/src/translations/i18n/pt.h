@@ -83,7 +83,6 @@
 #define TR_MAIN_MENU_MODEL_SETTINGS     "Editar Modelo"
 #define TR_MAIN_MENU_RADIO_SETTINGS     "Editar Rádio"
 #define TR_MAIN_MENU_SCREEN_SETTINGS    "Editar Tela"
-#define TR_MAIN_MENU_RESET_TELEMETRY    "Reset Telem."
 #define TR_MAIN_MENU_STATISTICS         "Estatist."
 #define TR_MAIN_MENU_ABOUT_EDGETX       "Sobre EdgeTX"
 #define TR_MAIN_VIEW_X                  "Screen "
@@ -712,6 +711,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Actual power")
 #define TR_AFHDS3_POWER_SOURCE         TR("Power src.", "Power source")
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Use FlySky RSSI value without rescalling")
 #define TR_GPS_COORDS_FORMAT           TR("GPS Coords", "Coordinate format")
 #define TR_VARIO                       TR("Vario", "Variometer")
@@ -986,6 +986,7 @@
 #define TR_SENSOR                      "SENSOR"
 #define TR_COUNTRY_CODE                "Código pais"
 #define TR_USBMODE                     "Modo USB"
+#define TR_USB_CHARGE                 "Carregar com rádio ON"
 #define TR_JACK_MODE                   "Jack mode"
 #define TR_VOICE_LANGUAGE              "Idoma da Voz"
 #define TR_TEXT_LANGUAGE               "Text language"

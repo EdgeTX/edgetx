@@ -713,6 +713,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Факт.потужн.", "Фактична потужність")
 #define TR_AFHDS3_POWER_SOURCE         TR("Джерело живл.", "Джерело живлення")
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Use FlySky RSSI")		/* use english */
 #define TR_GPS_COORDS_FORMAT           TR("Формат коорд.", "Формат координат")
 #define TR_VARIO                       TR("Варіо", "Варіометр")
@@ -986,6 +987,7 @@
 #define TR_SENSOR                      "СЕНСОР"
 #define TR_COUNTRY_CODE                "Код країни"
 #define TR_USBMODE                     "Режим USB"
+#define TR_USB_CHARGE                 "Заряджати коли увімкнено"
 #define TR_JACK_MODE                   "Режим коннектора"
 #define TR_VOICE_LANGUAGE              "Мова голосу"
 #define TR_TEXT_LANGUAGE               "Text language"

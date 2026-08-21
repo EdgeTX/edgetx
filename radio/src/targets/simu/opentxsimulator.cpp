@@ -20,6 +20,7 @@
  */
 
 #include "opentxsimulator.h"
+#include "simpgmspace.h"
 #include "edgetx.h"
 #include "simulcd.h"
 #include "simuaudio.h"
@@ -33,6 +34,7 @@
 #include "boards/generic_stm32/rgb_leds.h"
 
 #include <QDebug>
+#include <QDir>
 #include <QElapsedTimer>
 
 #if !defined(MAX_LOGICAL_SWITCHES) && defined(NUM_CSW)
@@ -301,6 +303,16 @@ void OpenTxSimulator::stop()
 void OpenTxSimulator::setSdPath(const QString & sdPath, const QString & settingsPath)
 {
   QMutexLocker lckr(&m_mtxSettings);
+
+  // DO NOT trust the sd path as it could be invalid.
+  // Unlike the WASM simulator this one does not crash on a bad path - the
+  // std::filesystem calls behind simuFatfs* just fail - so the path is kept
+  // rather than cleared: an empty value here makes simuFatfsSetPaths() fall
+  // back to the current working directory, which would silently treat the
+  // wrong directory as the SD card. Warn and carry on instead.
+  if (!sdPath.isEmpty() && !QDir(sdPath).exists())
+    qWarning() << "SD path" << sdPath << "does not exist";
+
   simuSdDirectory = sdPath;
   simuSettingsDirectory = settingsPath;
 }
@@ -511,7 +523,10 @@ void OpenTxSimulator::touchEvent(int type, int x, int y)
 
 void OpenTxSimulator::lcdFlushed()
 {
-  ::lcdFlushed();
+  // lcdFlushed() now calls lv_disp_flush_ready() unconditionally, so it must not
+  // run before lcdInitDisplayDriver() has set up disp_drv, nor after shutdown.
+  if (simuIsRunning())
+    ::lcdFlushed();
 }
 
 void OpenTxSimulator::setTrainerTimeout(uint16_t ms)

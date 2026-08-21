@@ -149,6 +149,9 @@ void LayoutFactory::loadDefaultLayout()
 //
 void LayoutFactory::loadCustomScreens()
 {
+  // Delete old screens
+  deleteCustomScreens();
+
   unsigned i = 0;
   auto viewMain = ViewMain::instance();
 

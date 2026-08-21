@@ -717,6 +717,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Akt. strøm", "Aktuel strøm")
 #define TR_AFHDS3_POWER_SOURCE         TR("Strøm", "Strøm kilde")
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Brug FlySky RSSI værdi uden reskalering")
 #define TR_GPS_COORDS_FORMAT           TR("GPS kordi.", "Kordinat format")
 #define TR_VARIO                       TR("Højde", "Højdemåler")
@@ -990,6 +991,7 @@
 #define TR_SENSOR                      "SENSOR"
 #define TR_COUNTRY_CODE                "Lande kode"
 #define TR_USBMODE                     "USB tilstand"
+#define TR_USB_CHARGE                 "Oplad med radio tændt"
 #define TR_JACK_MODE                   "Jack tilstand"
 #define TR_VOICE_LANGUAGE              "Stemme sprog"
 #define TR_TEXT_LANGUAGE               "Text language"

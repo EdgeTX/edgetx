@@ -7,6 +7,7 @@ option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
+option(STICK_DEAD_ZONE "Enable sticks dead zone" OFF)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
@@ -27,8 +28,6 @@ set(INTERNAL_MODULE_AFHDS3 NO)
 set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
 
-#option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
-
 # IMU support
 set(IMU ON)
 add_definitions(-DIMU_ICM4207C)
@@ -48,6 +47,7 @@ add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
+add_definitions(-DUSB_CHARGE_CONTROL)
 
 set(FLAVOUR gx15)
 add_definitions(-DRADIO_GX15)
@@ -82,7 +82,7 @@ add_definitions(-DRTCLOCK)
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 
-if(STICKS_DEAD_ZONE)
+if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 

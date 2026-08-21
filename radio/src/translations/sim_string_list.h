@@ -361,6 +361,7 @@
 #define STR_AFHDS3_ONE_TO_ONE_TELEMETRY currentLangStrings->STR_AFHDS3_ONE_TO_ONE_TELEMETRY
 #define STR_AFHDS3_POWER_SOURCE currentLangStrings->STR_AFHDS3_POWER_SOURCE
 #define STR_AFHDS3_RX_FREQ currentLangStrings->STR_AFHDS3_RX_FREQ
+#define STR_IBUS2_SENSORS_MODE_ONLY currentLangStrings->STR_IBUS2_SENSORS_MODE_ONLY
 #endif
 
 #if defined(BLUETOOTH)
@@ -1037,6 +1038,7 @@
 #define STR_UPDATE_RX_OPTIONS currentLangStrings->STR_UPDATE_RX_OPTIONS
 #define STR_UPDATE_TX_OPTIONS currentLangStrings->STR_UPDATE_TX_OPTIONS
 #define STR_US currentLangStrings->STR_US
+#define STR_USB_CHARGE currentLangStrings->STR_USB_CHARGE
 #define STR_USB_JOYSTICK currentLangStrings->STR_USB_JOYSTICK
 #define STR_USB_MASS_STORAGE currentLangStrings->STR_USB_MASS_STORAGE
 #define STR_USB_SERIAL currentLangStrings->STR_USB_SERIAL

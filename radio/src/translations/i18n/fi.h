@@ -979,6 +979,7 @@
 #define TR_SENSOR                      "SENSORI"
 #define TR_COUNTRY_CODE                "Maatunnus"
 #define TR_USBMODE                     "USB-tila"
+#define TR_USB_CHARGE                 "Lataa radio päällä"
 #define TR_JACK_MODE                   "Jack Mode"
 #define TR_VOICE_LANGUAGE              "Äänen kieli"
 #define TR_TEXT_LANGUAGE               "Text language"
@@ -1064,6 +1065,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Actual power")
 #define TR_AFHDS3_POWER_SOURCE         TR("Power src.", "Power source")
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_ANTENNACONFIRM1             "EXT. ANTENNA"
 #define TR_ANTENNA_MODES_1             "Internal"
 #define TR_ANTENNA_MODES_2             "Ask"

@@ -4,8 +4,8 @@
 /*.user
 /*.user.*
 /doc/
-build*/
-cmake-build-*/
+/build*/
+/cmake-build-*/
 /debian/
 /*.vscode
 radio/src/tests/googletest*
@@ -18,4 +18,6 @@ compile_commands.json
 /.vs
 CMakeUserPresets.json
 /site/
+output/
+*.dmg
 .devcontainer/devcontainer-lock.json

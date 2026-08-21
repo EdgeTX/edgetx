@@ -740,6 +740,7 @@
 
 #define TR_AFHDS3_ACTUAL_POWER          TR("실제 출력", "실제 RF 출력")
 #define TR_AFHDS3_POWER_SOURCE          TR("전원 소스", "전원 공급 방식")
+#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_FLYSKY_TELEMETRY             TR("FlySky RSSI 값", "RSSI 값을 리스케일 없이 사용")
 #define TR_GPS_COORDS_FORMAT            TR("GPS 좌표", "좌표 표시 형식")
 #define TR_VARIO                        TR("바리오", "수직 속도계")
@@ -1029,6 +1030,7 @@
 #define TR_SENSOR                         "센서"
 #define TR_COUNTRY_CODE                   "국가 코드"
 #define TR_USBMODE                        "USB 모드"
+#define TR_USB_CHARGE                 "전원 켜짐 시 충전"
 #define TR_JACK_MODE                      "잭 모드"
 #define TR_VOICE_LANGUAGE                 "음성 언어"
 #define TR_TEXT_LANGUAGE               "Text language"

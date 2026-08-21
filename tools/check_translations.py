@@ -61,14 +61,15 @@ class TranslationChecker:
         current_language = None
         in_translation_block = False
         conditional_depth = 0
-        
+        past_translation_block = False
+
         for i, line in enumerate(lines):
             line = line.strip()
-            
+
             # Skip empty lines and comments
             if not line or line.startswith('//'):
                 continue
-            
+
             # Check for translation language blocks
             translation_match = re.match(r'#(?:if|elif)\s+defined\(TRANSLATIONS_([A-Z]+)\)', line)
             if translation_match:
@@ -76,12 +77,12 @@ class TranslationChecker:
                 in_translation_block = True
                 conditional_depth = 0
                 continue
-                
+
             # Check for else block (default/English)
             if re.match(r'#else', line) and in_translation_block and conditional_depth == 0:
                 current_language = "EN"  # Default language
                 continue
-                
+
             # Track conditional compilation depth
             if re.match(r'#if', line) and in_translation_block:
                 conditional_depth += 1
@@ -93,19 +94,32 @@ class TranslationChecker:
                     # This is the end of the translation block
                     in_translation_block = False
                     current_language = None
+                    past_translation_block = True
                 continue
-            
+
+            # Past the language chain, a #define TR_BL_x is a fallback default
+            # (e.g. "#if !defined(COLORLCD) && !defined(TR_BL_X)") that fills the
+            # key in for every language that didn't already define it explicitly.
+            if past_translation_block:
+                define_match = re.match(r'#define\s+(TR_BL_\w+)', line)
+                if define_match:
+                    key = define_match.group(1)
+                    self.bootloader_keys.add(key)
+                    for lang in self.bootloader_translations:
+                        self.bootloader_translations[lang].add(key)
+                continue
+
             # Skip non-translation lines
             if not in_translation_block or not current_language:
                 continue
-                
+
             # Parse #define statements
             define_match = re.match(r'#define\s+(TR_BL_\w+)', line)
             if define_match:
                 key = define_match.group(1)
                 self.bootloader_translations[current_language].add(key)
                 self.bootloader_keys.add(key)
-        
+
         self.checked_files.append(str(file_path))
         return True
     
@@ -138,22 +152,19 @@ class TranslationChecker:
     def check_language_translations(self, translations_dir: Path) -> List[str]:
         """Check individual language translation files."""
         languages_found = []
-        
-        # Look for .h files that are language files (excluding special files)
-        exclude_files = {"bl_translations.h", "untranslated.h"}
-        
-        for h_file in translations_dir.glob("*.h"):
-            if h_file.name in exclude_files:
-                continue
-                
+
+        # Language headers live under i18n/; translations_dir itself only has shared headers.
+        i18n_dir = translations_dir / "i18n"
+
+        for h_file in i18n_dir.glob("*.h"):
             # Skip files that are clearly not language files
             if h_file.name.startswith("tts_"):
                 continue
-                
+
             language = self.parse_language_file(h_file)
             if language:
                 languages_found.append(language)
-        
+
         return languages_found
     
     def analyze(self) -> Dict[str, any]:
@@ -190,11 +201,13 @@ class TranslationChecker:
                 "extra": len(results["bootloader"]["extra_keys"][lang])
             }
         
-        # Analyze language file translations
+        # Diff against EN rather than the union: unlike bl_translations.h, i18n/*.h
+        # has no fallback macros, so a key EN lacks is genuinely extra elsewhere.
+        language_reference = self.language_translations.get("EN", self.language_keys)
         for lang in language_languages:
             lang_keys = self.language_translations[lang]
-            results["language_files"]["missing_keys"][lang] = self.language_keys - lang_keys
-            results["language_files"]["extra_keys"][lang] = lang_keys - self.language_keys
+            results["language_files"]["missing_keys"][lang] = language_reference - lang_keys
+            results["language_files"]["extra_keys"][lang] = lang_keys - language_reference
             results["language_files"]["summary"][lang] = {
                 "total": len(lang_keys),
                 "missing": len(results["language_files"]["missing_keys"][lang]),
@@ -319,7 +332,16 @@ Examples:
                        help="Check only individual language files (*.h)")
     
     args = parser.parse_args()
-    
+
+    # The report uses Unicode status glyphs (checkmarks, crosses, bullets).
+    # Consoles that default to a non-UTF-8 encoding (e.g. Windows cp1252) would
+    # otherwise raise UnicodeEncodeError and crash the tool. Force UTF-8 output
+    # where the stream supports reconfiguration.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
     checker = TranslationChecker()
     
     # Find translations directory
