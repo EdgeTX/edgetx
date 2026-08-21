@@ -455,10 +455,9 @@ void MainWindow::editPreferences()
 {
   PrefsEditDialog * dlg = new PrefsEditDialog(this, updateFactories);
   dlg->setMainWinHasDirtyChild(anyChildrenDirty());
-  connect(dlg, &PrefsEditDialog::firmwareProfileAboutToChange, this, &MainWindow::saveAll);
-  connect(dlg, &PrefsEditDialog::firmwareProfileChanged, this, &MainWindow::onCurrentProfileChanged);
+  connect(dlg, &PrefsEditDialog::profileFirmwareAboutToChange, this, &MainWindow::saveAll);
+  connect(dlg, &PrefsEditDialog::profileFirmwareChanged, this, &MainWindow::onCurrentProfileChanged);
   dlg->exec();
-  updateMenus();
 }
 
 void MainWindow::sdsync(bool postUpdate)
