@@ -7,6 +7,18 @@ on:
         description: 'Tag to create release for'
         required: true
         type: string
+      summary:
+        description: 'Optional sentence appended to the opening line, e.g. "the second maintenance release for 2.12, and is recommended for anyone already on 2.12.x"'
+        required: false
+        type: string
+      custom_build_issue:
+        description: 'Issue number for custom build requests, e.g. 7357'
+        required: false
+        type: string
+      tracking_issue:
+        description: 'Pre-release tracking issue number, listed under Known Limitations'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -19,7 +31,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.tag }}
           fetch-depth: 0
@@ -41,6 +53,17 @@ jobs:
           VERSION="${{ inputs.tag }}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+          # For a patch release, link back to the .0 notes which carry the full
+          # list of what is new in the series.
+          BASE=$(echo "$VERSION" | sed -E 's/^v?([0-9]+)\.([0-9]+)\.([0-9]+).*/\1.\2.\3/')
+          MAJOR=${BASE%%.*}; REST=${BASE#*.}; MINOR=${REST%%.*}; PATCH=${REST##*.}
+          if [ "$PATCH" != "0" ]; then
+            echo "series_tag=v${MAJOR}.${MINOR}.0" >> $GITHUB_OUTPUT
+            echo "has_series_link=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_series_link=false" >> $GITHUB_OUTPUT
+          fi
+
           # Extract codename from CMakeLists.txt
           if [ -f "CMakeLists.txt" ]; then
             CODENAME=$(grep -oP 'set\(CODENAME\s+"\K[^"]+' CMakeLists.txt || echo "")
@@ -60,6 +83,62 @@ jobs:
             echo "has_codename=false" >> $GITHUB_OUTPUT
             echo "CMakeLists.txt not found"
           fi
+
+      - name: Derive STM32H7 radio list
+        id: radios
+        run: |
+          # Source of truth is the firmware build, not companion, which can lag.
+          LIST=$(python3 -c "
+          import json, re, glob, os
+          names = {t[1].rstrip('-'): t[0] for t in json.load(open('fw.json'))['targets']}
+          out = []
+          for f in sorted(glob.glob('radio/src/targets/*/CMakeLists.txt')):
+              flavour = os.path.basename(os.path.dirname(f))
+              m = re.search(r'set\(CPU_TYPE\s+(\w+)', open(f).read())
+              if m and m.group(1) == 'STM32H7' and flavour in names:
+                  out.append(names[flavour])
+          out.sort()
+          print(', '.join(out[:-1]) + ' and ' + out[-1] if len(out) > 1 else (out[0] if out else ''))
+          ")
+
+          if [ -z "$LIST" ]; then
+            echo "::error::No STM32H7 targets found - check the CPU_TYPE parsing"
+            exit 1
+          fi
+          echo "h7_radios=$LIST" >> $GITHUB_OUTPUT
+          echo "STM32H7 radios: $LIST"
+
+      - name: Carry forward series notes
+        id: series
+        if: steps.version.outputs.has_series_link == 'true'
+        run: |
+          SERIES="${{ steps.version.outputs.series_tag }}"
+
+          if ! gh release view "$SERIES" --json body --jq '.body' > series.md 2>/dev/null; then
+            echo "No $SERIES release to carry sections forward from."
+            exit 0
+          fi
+          tr -d '\r' < series.md > series.clean && mv series.clean series.md
+
+          # Section runs from its heading to the next "## ", with blank lines trimmed.
+          extract() {
+            awk -v hdr="$1" 'index($0, hdr) == 1 && !f { f = 1; next } f && /^## / { exit } f' series.md \
+              | sed -e '/./,$!d' | tac | sed -e '/./,$!d' | tac
+          }
+
+          for pair in "known_limitations:## Known Limitations and Issues" \
+                      "uiux_changes:## UI/UX behavioral changes"; do
+            name="${pair%%:*}"
+            value=$(extract "${pair#*:}")
+            {
+              echo "${name}<<SERIES_EOF"
+              echo "$value"
+              echo "SERIES_EOF"
+            } >> $GITHUB_OUTPUT
+            echo "$name: $(printf '%s' "$value" | grep -c '^- ' || true) point(s) from $SERIES"
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install git-cliff
         run: |
@@ -189,57 +268,62 @@ jobs:
           ls -lh release-assets/*.zip
 
       - name: Create draft release
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ inputs.tag }}
           draft: true
           prerelease: ${{ contains(inputs.tag, '-rc') || contains(inputs.tag, '-beta') || contains(inputs.tag, '-alpha') }}
           name: EdgeTX "${{ steps.version.outputs.codename }}" ${{ steps.version.outputs.version }}
           body: |
-            We are pleased to offer EdgeTX "${{ steps.version.outputs.codename }}" ${{ steps.version.outputs.version }}.
+            We are pleased to offer EdgeTX "${{ steps.version.outputs.codename }}" ${{ steps.version.outputs.version }}${{ inputs.summary != '' && format(', {0}', inputs.summary) || '' }}.
 
             ${{ (contains(inputs.tag, '-rc') || contains(inputs.tag, '-beta') || contains(inputs.tag, '-alpha')) && '> [!WARNING]
             > As this is a pre-release, it is virtually guaranteed there will still be some minor issues that need resolving before final release - some may be documented already under "known issues" section of these release notes or the associated tracking issue. During pre-releases, the matching SD card pack and voice pack versions to use are those marked/tagged ''Latest''.
             >
             > We **need** _your_ help in testing this release to ensure there are no major bugs or faults that will cause problems during flight.  Please ensure you back up your model and radio settings before updating, fully bench-test your models after updating, and report any issues you encounter. It is only with your feedback and testing by you, our community (and the assistance provided by partner manufacturers) which will allow us to identify and squash both new and old bugs, and progress onto a stable release version!! We simply cannot do this without you! :hugs: :beers:' || '' }}
 
-            > [!WARNING]
-            > If you are using a STM32 F2 based radio, EdgeTX v2.11 is the last release series to support these radios. Check [this list](https://hackmd.io/@edgetx/B12oQyQKye) or the [Supported Radios list](https://edgetx.org/supportedradios/) if you are unsure if this affects you. Because of this, EdgeTX v2.11 will continue to be supported alongside 2.12, 3.0, etc., with a focus on bug fixes.
-
-            > [!TIP]
-            > Radios based on STM32H7 MCUs update differently to older radios. To update radios such as the Flysky PA01 & ST16, Jumper T15 Pro, RadioMaster TX15 and TX16S MK3, please follow the instructions in the [EdgeTX Manual](https://manual.edgetx.org/installing-and-updating-edgetx/updating-your-stm32h7-radio).
-
             > [!NOTE]
+            > As with any firmware update, please ensure you back up your model and radio settings before updating, fully bench-test your models after updating, and report any issues you encounter.
+            >
             > For MacOS users, Companion is now only compiled for MacOS 12 and above. Stay with v2.10.5 or earlier if you need support for an older version of MacOS.
-
-            > [!NOTE]
+            >
             > **Migration Information**
             > - If you have an old OpenTX Companion (`.otx`) file you need to convert or open, you will need to use EdgeTX Companion v2.10 or earlier.
             > - If you wish to upgrade from OpenTX 2.3 or EdgeTX 2.4/2.5, you must use either EdgeTX v2.8.x firmware or EdgeTX Companion v2.10.x.
             >
             > See the [EdgeTX Manual](https://manual.edgetx.org/installing-and-updating-edgetx) for more information.
 
+            > [!WARNING]
+            > If you are using a STM32 F2 based radio, EdgeTX v2.11 is the last release series to support these radios. Check [this list](https://hackmd.io/@edgetx/B12oQyQKye) or the [Supported Radios list](https://edgetx.org/supportedradios/) if you are unsure if this affects you. Because of this, EdgeTX v2.11 will continue to be supported alongside 2.12, 3.0, etc., with a focus on bug fixes.
+
+            > [!TIP]
+            > Radios based on STM32H7 MCUs update differently to older radios. To update the ${{ steps.radios.outputs.h7_radios }}, please follow the instructions in the [EdgeTX Manual](https://manual.edgetx.org/installing-and-updating-edgetx/updating-your-stm32h7-radio).
+
             ## Changes
 
             ${{ steps.changelog.outputs.changelog }}
+            ${{ steps.version.outputs.has_series_link == 'true' && format('
+            See the [{0} Release notes](https://github.com/EdgeTX/edgetx/releases/tag/{1}) for the full list of what is new for {0}!', steps.version.outputs.series_tag, steps.version.outputs.series_tag) || '' }}
 
             ## Known Limitations and Issues
-            ${{ (contains(inputs.tag, '-rc') || contains(inputs.tag, '-beta') || contains(inputs.tag, '-alpha')) && '> [!WARNING]
-            - Please check TODO during the release candidate phase for any other release candidate-specific issues and status of fixes.' || '' }}
+            ${{ (contains(inputs.tag, '-rc') || contains(inputs.tag, '-beta') || contains(inputs.tag, '-alpha')) && inputs.tracking_issue != '' && format('> [!WARNING]
+            > Please check #{0} during the release candidate phase for any other release candidate-specific issues and status of fixes.', inputs.tracking_issue) || '' }}
+            ${{ steps.series.outputs.known_limitations }}
 
             ## UI/UX behavioral changes and/or new capabilities:
+            ${{ steps.series.outputs.uiux_changes }}
 
             ## Supported radios
             The full list of supported radios and their support status can be viewed [here on the EdgeTX website](https://edgetx.org/supportedradios).
 
             ## Installation Guide
-            https://manual.edgetx.org/edgetx-user-manual/installing-and-updating-edgetx
+            https://manual.edgetx.org/installing-and-updating-edgetx
 
             ## Flash firmware via Chrome based browser
             https://buddy.edgetx.org/#/flash?version=${{ steps.version.outputs.version }}
 
             ## Language and Custom builds
-            Custom prebuilt firmware is no longer available. However, the [CloudBuild option in EdgeTX](https://buddy.edgetx.org/) is here to allow you to build your own firmware, with just a few clicks. Additionally, EdgeTX Companion now also has some support for CloudBuild, and will automatically fetch firmware for a supported language when you use the "Update components" option. But you can still build your own firmware online [following this guide](https://github.com/EdgeTX/edgetx/wiki/Building-radio-firmware-in-a-web-browser-with-GitHub-CodeSpaces), request a specific build at TODO or ask on Discord for someone to build one for you.
+            Custom prebuilt firmware is no longer available. However, the [CloudBuild option in EdgeTX Buddy](https://buddy.edgetx.org/) is here to allow you to build your own firmware, with just a few clicks. Additionally, EdgeTX Companion now also has some support for CloudBuild, and will automatically fetch firmware for a supported language when you use the "Update components" option. But you can still build your own firmware online [following this guide](https://github.com/EdgeTX/edgetx/wiki/Building-radio-firmware-in-a-web-browser-with-GitHub-CodeSpaces)${{ inputs.custom_build_issue != '' && format(', request a specific build at #{0}', inputs.custom_build_issue) || '' }} or ask on Discord for someone to build one for you.
 
             ${{ steps.changelog.outputs.contributors != '' && '## Contributors
             Thank you to the following contributors who made this release possible!' || '' }}
