@@ -50,7 +50,7 @@ class PrefsPanel : public AbstractPanel
     void radioChanged(Firmware * firmware);
 
   protected slots:
-    void onRadioChanged(Firmware * firmware);
+    virtual void onRadioChanged(Firmware * firmware, bool deferUpdate = false);
 
   protected:
     Firmware *firmware;

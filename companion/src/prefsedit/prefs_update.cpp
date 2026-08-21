@@ -31,8 +31,8 @@ PrefsUpdatePanel::PrefsUpdatePanel(QWidget * parent, Firmware * fw, Board::Type 
   ui(new Ui::PrefsUpdate),
   factories(factories)
 {
-  ui->setupUi(this);
   lock = true;
+  ui->setupUi(this);
   // need to track latest value in editor so
   // save before changed in profile preferences ui
   // updated by onSDPathChanged;

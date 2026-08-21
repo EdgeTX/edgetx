@@ -37,8 +37,8 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Typ
   PrefsPanel(parent, fw, bd, prof),
   ui(new Ui::PrefsProfile)
 {
-  ui->setupUi(this);
   lock = true;
+  ui->setupUi(this);
 
   panelItemModels->registerItemModel(new FilteredItemModel(GeneralSettings::templateSetupItemModel()), FIM_TEMPLATESETUP);
   panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir() ? GeneralSettings::RadioTypeContextAir :
@@ -69,11 +69,10 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Typ
   fwTypeData->setBindPostChanged([this] {
     // appending "-xxx" forces the associated Board definition to be loaded if not already loaded
     // TODO fix as part of refactoring Firmware and Boards
-    this->firmware = Firmware::getFirmwareForId(this->fwTypeData->text() % "-xxx");
-    this->board = this->firmware->getBoard();
-    this->populateFirmwareOptions();
-    this->update();
-    emit radioChanged(this->firmware);
+    Firmware *fw = Firmware::getFirmwareForId(this->fwTypeData->text() % "-xxx");
+    // this will be trapped by PrefsEditDialog which will trigger onRadioChanged for each panel
+    // including this panel which has an override onRadioChanged function
+    emit radioChanged(fw);
   });
 
   // this widget displays the firmware full name
@@ -493,10 +492,11 @@ void PrefsProfilePanel::sectionSplash()
   ui->csectSplash->finish(row, col, [this] { this->shrink(); });
 }
 
-void PrefsProfilePanel::undoFirmwareChange()
+// called directly by PrefsEditDialog
+// slot not used due to risk of Qt events not being processed in required sequence
+void PrefsProfilePanel::onRadioChanged(Firmware * firmware, bool deferUpdate)
 {
-  firmware = getCurrentFirmware();
-  board = firmware->getBoard();
+  PrefsPanel::onRadioChanged(firmware, true);
   fwTypeData->setText(firmware->getFirmwareBase()->getId());
   populateFirmwareOptions(profile.fwOptions().split("-"));
   update();

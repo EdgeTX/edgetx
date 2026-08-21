@@ -155,15 +155,10 @@ class Firmware
 
     virtual ~Firmware() { }
 
-    inline const Firmware * getFirmwareBase() const
-    {
-      return base ? base : this;
-    }
+    // const
+    inline const Firmware * getFirmwareBase() const { return base ? base : this; }
 
-    inline const bool isBase() const
-    {
-      return base ? false : true;
-    }
+    inline const bool isBase() const { return base ? false : true; }
 
     virtual Firmware * getFirmwareVariant(const QString & id) { return NULL; }
 

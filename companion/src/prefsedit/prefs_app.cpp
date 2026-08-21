@@ -27,8 +27,8 @@ PrefsAppPanel::PrefsAppPanel(QWidget * parent, Firmware * fw, Board::Type & bd, 
   PrefsPanel(parent, fw, bd, prof),
   ui(new Ui::PrefsApp)
 {
-  ui->setupUi(this);
   lock = true;
+  ui->setupUi(this);
 
   sectionGeneral();
   sectionRadioProfiles();

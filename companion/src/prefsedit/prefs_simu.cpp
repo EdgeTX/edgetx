@@ -31,10 +31,9 @@
 PrefsSimuPanel::PrefsSimuPanel(QWidget * parent, Firmware * fw, Board::Type & bd, Profile & prof) :
   PrefsPanel(parent, fw, bd, prof),
   ui(new Ui::PrefsSimu)
-
 {
-  ui->setupUi(this);
   lock = true;
+  ui->setupUi(this);
 
   // fix ups TODO move to Appdata load
   if (g.snapshotDir().isEmpty() && !g.snapToClpbrd())
