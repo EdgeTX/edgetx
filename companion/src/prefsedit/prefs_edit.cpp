@@ -140,6 +140,8 @@ void PrefsEditDialog::save()
       // do not keep incompatible backup settings
       profile.generalSettings(QByteArray());
       profile.timeStamp(QString());
+      // used by flash firmware
+      profile.fwName(QString());
 
       fwchange = true;
     }
