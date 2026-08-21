@@ -900,7 +900,7 @@ p, li { white-space: pre-wrap; }
      <item row="26" column="0">
       <widget class="QLabel" name="usbChargeLabel">
        <property name="text">
-        <string>USB SD/Joystick/VCP charge</string>
+        <string>Charge while radio on</string>
        </property>
       </widget>
      </item>

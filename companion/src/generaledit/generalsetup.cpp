@@ -97,9 +97,10 @@ ui(new Ui::GeneralSetup)
   ui->adjustRTC->setChecked(generalSettings.adjustRTC);
   ui->usbModeCB->setCurrentIndex(generalSettings.usbMode);
 
-  // "USB SD/Joystick/VCP charge" is only available on RadioMaster radios
+  // "Charge while radio on" is only available on RadioMaster radios
   // that expose the charger-enable pin (rm-h750 based targets).
-  if (IS_RADIOMASTER_TX16SMK3(board) || IS_RADIOMASTER_TX15(board)) {
+  if (IS_RADIOMASTER_TX16SMK3(board) || IS_RADIOMASTER_TX15(board) ||
+      IS_RADIOMASTER_GX15(board)) {
     ui->usbChargeChkB->setChecked(!generalSettings.usbChargeDisabled); // Default is zero=checked
   }
   else {

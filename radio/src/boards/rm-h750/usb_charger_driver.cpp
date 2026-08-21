@@ -45,7 +45,7 @@ void usbChargerInit()
 bool usbChargerLed()
 {
 #if defined(USB_CHARGE_CONTROL)
-  // When charging is disabled via the "USB SD/Joystick/VCP charge" setting,
+  // When charging is disabled via the "Charge while radio on" setting,
   // the charger-enable pin is driven high to hold the charger off, so it is
   // not charging.
   if (gpio_read(UCHARGER_EN_GPIO))

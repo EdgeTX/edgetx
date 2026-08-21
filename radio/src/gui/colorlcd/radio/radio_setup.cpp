@@ -968,11 +968,18 @@ const static SetupLineDef setupLines[] = {
   },
 #if defined(USB_CHARGE_CONTROL)
   {
-    // USB SD/Joystick/VCP charge
+    // Charge while radio on
     STR_DEF(STR_USB_CHARGE),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0},
-                       GET_SET_INVERTED(g_eeGeneral.usbChargeDisabled));
+                       GET_INVERTED(g_eeGeneral.usbChargeDisabled),
+                       [](uint8_t newValue) {
+                         g_eeGeneral.usbChargeDisabled = !newValue;
+                         SET_DIRTY();
+                         // take effect now, not only on the next plug
+                         if (usbPlugged())
+                           usbChargerEnableCharge(!g_eeGeneral.usbChargeDisabled);
+                       });
     }
   },
 #endif
