@@ -50,6 +50,7 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Typ
     profile.name(tr("My Radio"));
 
   ui->leName->setValue(profile.name(), this);
+  ui->leName->setEditSignal(true);
   ui->leName->setBindSave([this] {
     profile.name(ui->leName->text());
 

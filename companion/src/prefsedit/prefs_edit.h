@@ -42,7 +42,7 @@ class PrefsEditDialog : public QDialog
 
   public slots:
     void accept() Q_DECL_OVERRIDE;
-    void reject() Q_DECL_OVERRIDE;
+    void done(int r) Q_DECL_OVERRIDE;
     void setMainWinHasDirtyChild(bool value);
 
   signals:
@@ -51,7 +51,6 @@ class PrefsEditDialog : public QDialog
     void resetFirmware();
 
   protected:
-    void closeEvent(QCloseEvent *event);
 
   private slots:
 

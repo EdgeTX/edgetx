@@ -459,7 +459,6 @@ void MainWindow::editPreferences()
   connect(dlg, &PrefsEditDialog::firmwareProfileChanged, this, &MainWindow::onCurrentProfileChanged);
   dlg->exec();
   updateMenus();
-  // delete dlg or deleteLater() triggers segfault with no debug stack trace in Linux
 }
 
 void MainWindow::sdsync(bool postUpdate)
