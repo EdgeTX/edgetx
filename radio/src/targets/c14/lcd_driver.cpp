@@ -63,6 +63,8 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
   // wait for reload
   // TODO: replace through some smarter mechanism without busy wait
   while(_frame_addr_reloaded == 0);
+
+  lcdFlushed();
 }
 
 
