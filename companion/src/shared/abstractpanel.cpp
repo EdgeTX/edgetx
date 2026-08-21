@@ -154,7 +154,7 @@ void AbstractPanel::updateAutoWidgets()
   foreach(QWidget *wdgt, findChildren<QWidget *>()) {
     AutoWidget *autowdgt = dynamic_cast<AutoWidget *>(wdgt);
     if (autowdgt) {
-      autowdgt->applyPreUpdate();
+      autowdgt->runPreUpdate();
       autowdgt->updateValue();
       autowdgt->applyBindings();
     }

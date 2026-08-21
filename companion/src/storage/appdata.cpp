@@ -1142,7 +1142,6 @@ void AppData::resetUpdatesSettings()
   decompressDirUseDwnldReset();
   updateDirReset();
   updateDirUseSDReset();
-  updDelDownloadsReset();
   updLogLevelReset();
   updDelDownloadsReset();
   updDelDecompressReset();
