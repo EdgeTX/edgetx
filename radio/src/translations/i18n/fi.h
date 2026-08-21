@@ -979,6 +979,7 @@
 #define TR_SENSOR                      "SENSORI"
 #define TR_COUNTRY_CODE                "Maatunnus"
 #define TR_USBMODE                     "USB-tila"
+#define TR_USB_CHARGE                 "Lataa radio päällä"
 #define TR_JACK_MODE                   "Jack Mode"
 #define TR_VOICE_LANGUAGE              "Äänen kieli"
 #define TR_TEXT_LANGUAGE               "Text language"

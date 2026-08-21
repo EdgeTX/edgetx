@@ -60,6 +60,7 @@ add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
+add_definitions(-DUSB_CHARGE_CONTROL)
 add_definitions(-DLUMINOSITY_SENSOR)
 
 set(FLAVOUR tx16smk3)

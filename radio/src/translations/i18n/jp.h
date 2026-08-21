@@ -985,6 +985,7 @@
 #define TR_SENSOR                      "センサー"
 #define TR_COUNTRY_CODE                "カントリーコード"
 #define TR_USBMODE                     "USBモード"
+#define TR_USB_CHARGE                 "電源オン時に充電"
 #define TR_JACK_MODE                   "Jackモード"
 #define TR_VOICE_LANGUAGE              "音声言語"
 #define TR_TEXT_LANGUAGE               "Text language"
