@@ -990,6 +990,7 @@
 #define TR_SENSOR                       "SENSORE"
 #define TR_COUNTRY_CODE                 TR("Cod. Paese", "Codice del Paese")
 #define TR_USBMODE                      "Modo USB"
+#define TR_USB_CHARGE                 "Carica con radio accesa"
 #define TR_JACK_MODE                    "Modo JACK"
 #define TR_VOICE_LANGUAGE               "Lingua vocale"
 #define TR_TEXT_LANGUAGE               "Lingua testo"
