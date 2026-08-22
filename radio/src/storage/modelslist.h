@@ -160,9 +160,6 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
   static void escapeCSV(std::string &str);
   static void unEscapeCSV(std::string &str);
   static void removeYAMLChars(std::string &str);
-  static void replace_all(std::string &str,
-                          const std::string &from,
-                          const std::string &to);
 
   void clear()
   {

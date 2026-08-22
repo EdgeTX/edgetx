@@ -216,3 +216,5 @@ extern int timezoneIndex(int8_t tzHour, int8_t tzMinute);
 extern int8_t timezoneHour(int tz);
 extern int8_t timezoneMinute(int tz);
 extern int timezoneOffsetSeconds(int8_t tzHour, int8_t tzMinute);
+
+extern void strReplaceAll(std::string& str, const std::string& from, const std::string& to);
