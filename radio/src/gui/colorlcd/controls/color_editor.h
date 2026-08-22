@@ -52,7 +52,7 @@ class ColorEditor : public Window
   static LAYOUT_VAL_SCALED(BAR_HEIGHT_OFFSET, 25)
   static LAYOUT_VAL_SCALED(LBL_YO, 9)
   static LAYOUT_VAL_SCALED(VAL_XO, 10)
-  static LAYOUT_VAL_SCALED_EVEN(CRSR_SZ, 10)
+  static LAYOUT_VAL_SCALED_ODD(CRSR_SZ, 11)
 
  protected:
   ColorType* _colorType = nullptr;
