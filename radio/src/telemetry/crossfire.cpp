@@ -20,6 +20,7 @@
  */
 
 #include "crossfire.h"
+#include "crsf_device_config.h"
 #include "edgetx.h"
 #include "math.h"
 
@@ -415,7 +416,7 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
       }
       break;
 
-#if defined(LUA)
+#if defined(LUA) || defined(CRSF_CONFIG_MENU)
     default:
       if (id == DEVICE_INFO_ID && rxBuffer[4]== MODULE_ADDRESS) {
         uint8_t nameSize = rxBuffer[1] - 18;
@@ -440,8 +441,14 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         crossfireModuleStatus[module].queryCompleted = true;
       }
 
+#if defined(CRSF_CONFIG_MENU)
+      crsfConfigFrameReceived(module, rxBuffer, rxBufferCount);
+#endif
+
+#if defined(LUA)
       // destination address and CRC are skipped
       pushTelemetryDataToQueues(rxBuffer + 1, rxBufferCount - 2);
+#endif
       break;
 #endif
   }

@@ -484,6 +484,8 @@ if(CPU_TYPE_FULL STREQUAL STM32F205xE)
   set(CPU_TYPE STM32F2)
   add_definitions(-DSTM32F205xx)
   set(TARGET_LINKER_DIR stm32f20x)
+  # 512KB of flash: no room for the native CRSF configuration menu
+  set(CRSF_CONFIG_MENU OFF)
 elseif ((CPU_TYPE_FULL STREQUAL STM32F407xE) OR (CPU_TYPE_FULL STREQUAL STM32F407xG))
   set(CPU_TYPE STM32F4)
   add_definitions(-DSTM32F40_41xxx -DSTM32F407xx)
@@ -493,6 +495,8 @@ elseif ((CPU_TYPE_FULL STREQUAL STM32F407xE) OR (CPU_TYPE_FULL STREQUAL STM32F40
     add_definitions(-DSTM32F407xG)
   else()
     set(USBJ_EX OFF)
+    # 512KB of flash: no room for the native CRSF configuration menu
+    set(CRSF_CONFIG_MENU OFF)
   endif()
 elseif (CPU_TYPE_FULL STREQUAL STM32F413xG)
   set(CPU_TYPE STM32F4)

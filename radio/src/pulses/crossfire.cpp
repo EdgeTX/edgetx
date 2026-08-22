@@ -46,6 +46,13 @@
 static tmr10ms_t lastAlive[NUM_MODULES];              // last time stamp module sent CRSF frames
 static bool moduleAlive[NUM_MODULES];                 // module alive status
 
+#if defined(CRSF_CONFIG_MENU)
+#define ELRS_BIND_RESEND      500                     // one bind command every 5s
+static tmr10ms_t elrsBindNextSend[NUM_MODULES];
+static bool elrsBindStarted[NUM_MODULES];
+static bool elrsBindSawDrop[NUM_MODULES];
+#endif
+
 uint8_t createCrossfireBindFrame(uint8_t moduleIdx, uint8_t * frame)
 {
   uint8_t * buf = frame;
@@ -137,8 +144,10 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
                                  uint8_t endpoint, int16_t* channels,
                                  uint8_t nChannels)
 {
-#if defined(LUA)
-  if (outputTelemetryBuffer.destination == endpoint) {
+#if defined(LUA) || defined(CRSF_CONFIG_MENU)
+  // frames queued by Lua scripts or the native CRSF configuration menu
+  if (outputTelemetryBuffer.destination == endpoint &&
+      outputTelemetryBuffer.size > 0) {
     auto len = outputTelemetryBuffer.size;
     memcpy(p_buf, outputTelemetryBuffer.data, len);
     outputTelemetryBuffer.reset();
@@ -173,6 +182,11 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
       }
     }
 
+#if defined(CRSF_CONFIG_MENU)
+    if (moduleState[module].mode != MODULE_MODE_BIND)
+      elrsBindStarted[module] = false;
+#endif
+
     if (moduleState[module].counter == CRSF_FRAME_MODELID) {
       TRACE("[XF] ModelID %d", g_model.header.modelId[module]);
       p_buf += createCrossfireModelIDFrame(module, p_buf);
@@ -180,8 +194,37 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
     } else if (moduleState[module].counter == CRSF_FRAME_MODELID_SENT && crossfireModuleStatus[module].queryCompleted == false) {
       p_buf += createCrossfirePingFrame(module, p_buf);
     } else if (moduleState[module].mode == MODULE_MODE_BIND) {
-      p_buf += createCrossfireBindFrame(module, p_buf);
-      moduleState[module].mode = MODULE_MODE_NORMAL;
+#if defined(CRSF_CONFIG_MENU)
+      if (crossfireModuleStatus[module].isELRS) {
+        // an ELRS module ends its ~1s bind burst by itself: keep
+        // re-triggering it while bind mode is engaged, and go quiet
+        // once the receiver has (re)connected and telemetry resumed -
+        // the bind button stays in control of the mode
+        if (!elrsBindStarted[module]) {
+          elrsBindStarted[module] = true;
+          elrsBindSawDrop[module] = false;
+          elrsBindNextSend[module] = get_tmr10ms();
+        }
+        // per module: with two RF modules the other one may well keep
+        // the global telemetry state alive during the whole bind
+        bool streaming = TELEMETRY_STREAMING() &&
+                         (telemetryData.telemetryValid & (1 << module));
+        if (!streaming) elrsBindSawDrop[module] = true;
+        // go quiet once the receiver has (re)connected: another bind
+        // command would un-bind it again
+        if (!(streaming && elrsBindSawDrop[module]) &&
+            (tmr10ms_t)(get_tmr10ms() - elrsBindNextSend[module]) < 0x8000) {
+          p_buf += createCrossfireBindFrame(module, p_buf);
+          elrsBindNextSend[module] = get_tmr10ms() + ELRS_BIND_RESEND;
+        } else {
+          p_buf += createCrossfireChannelsFrame(module, p_buf, channels);
+        }
+      } else
+#endif
+      {
+        p_buf += createCrossfireBindFrame(module, p_buf);
+        moduleState[module].mode = MODULE_MODE_NORMAL;
+      }
     } else {
       /* TODO: nChannels */
       p_buf += createCrossfireChannelsFrame(module, p_buf, channels);

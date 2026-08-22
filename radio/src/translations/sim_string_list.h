@@ -268,6 +268,26 @@
 
 #endif // !COLORLCD
 
+#if defined(CRSF_CONFIG_MENU)
+#if !defined(PDM_CLOCK)
+#define STR_STOP currentLangStrings->STR_STOP
+#endif
+#define STR_CRSF_CONFIG currentLangStrings->STR_CRSF_CONFIG
+#define STR_CRSF_BIND_PHRASE currentLangStrings->STR_CRSF_BIND_PHRASE
+#define STR_CRSF_BIND_METHOD currentLangStrings->STR_CRSF_BIND_METHOD
+#define STR_CRSF_CLASSIC_BIND currentLangStrings->STR_CRSF_CLASSIC_BIND
+#define STR_CRSF_BIND_UID currentLangStrings->STR_CRSF_BIND_UID
+#define STR_CRSF_APPLY_TO currentLangStrings->STR_CRSF_APPLY_TO
+#define STR_CRSF_APPLY currentLangStrings->STR_CRSF_APPLY
+#define STR_CRSF_RX_BIND currentLangStrings->STR_CRSF_RX_BIND
+#define STR_CRSF_REBOOTING currentLangStrings->STR_CRSF_REBOOTING
+#define STR_CRSF_ELRS_V1 currentLangStrings->STR_CRSF_ELRS_V1
+#define STR_CRSF_NEEDS_41 currentLangStrings->STR_CRSF_NEEDS_41
+#define STR_CRSF_ARMED currentLangStrings->STR_CRSF_ARMED
+#define STR_CRSF_BIND_METHODS currentLangStrings->STR_CRSF_BIND_METHODS
+#define STR_CRSF_BIND_APPLY_MODES currentLangStrings->STR_CRSF_BIND_APPLY_MODES
+#endif
+
 #if defined(IMU)
 #define STR_IMU_LABEL currentLangStrings->STR_IMU_LABEL
 #define STR_IMU_MAX currentLangStrings->STR_IMU_MAX

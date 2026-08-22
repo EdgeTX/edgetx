@@ -141,6 +141,9 @@ enum MenuModelSetupItems {
   #if defined(CROSSFIRE)
   ITEM_MODEL_SETUP_INTERNAL_MODULE_ARMING_MODE,
   ITEM_MODEL_SETUP_INTERNAL_MODULE_ARMING_TRIGGER,
+  #if defined(CRSF_CONFIG_MENU)
+  ITEM_MODEL_SETUP_INTERNAL_MODULE_CRSF_CONFIG,
+  #endif
   #endif
 #endif
 #if defined(MULTIMODULE)
@@ -181,6 +184,9 @@ enum MenuModelSetupItems {
   #if defined(CROSSFIRE)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_MODE,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_TRIGGER,
+  #if defined(CRSF_CONFIG_MENU)
+  ITEM_MODEL_SETUP_EXTERNAL_MODULE_CRSF_CONFIG,
+  #endif
   #endif
 #endif
 #if defined(MULTIMODULE)
@@ -302,11 +308,18 @@ static uint8_t VIEWOPT_ROW(uint8_t value) { return expandState.viewOpt ? value :
 #endif
 #define IF_MODULE_ARMED(module, xxx) (CRSF_ELRS_MIN_VER(module, 4, 0) ? (uint8_t)(xxx) : HIDDEN_ROW)
 #define IF_MODULE_ARMED_TRIGGER(module, xxx) ((CRSF_ELRS_MIN_VER(module, 4, 0) && g_model.moduleData[module].crsf.crsfArmingMode) ? (uint8_t)(xxx) : HIDDEN_ROW)
+#if defined(CRSF_CONFIG_MENU)
+// includes the separator so the row vanishes entirely when disabled
+#define IF_MODULE_CRSF_CONFIG_ROW(module) (isModuleCrossfire(module) ? (uint8_t)0 : HIDDEN_ROW),
+#else
+#define IF_MODULE_CRSF_CONFIG_ROW(module)
+#endif
 #else
 #define IF_MODULE_SYNCED(module, xxx)
 #define IF_MODULE_BAUDRATE_ADJUST(module, xxx)
 #define IF_MODULE_ARMED(module, xxx)
 #define IF_MODULE_ARMED_TRIGGER(module, xxx)
+#define IF_MODULE_CRSF_CONFIG_ROW(module)
 #endif
 
 
@@ -519,6 +532,7 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
     IF_MODULE_SYNCED(INTERNAL_MODULE, 0),      /* Sync rate + errors */ \
     IF_MODULE_ARMED(INTERNAL_MODULE, 0),       /* Arming Mode */ \
     IF_MODULE_ARMED_TRIGGER(INTERNAL_MODULE, 0),/* Arming Trigger */ \
+    IF_MODULE_CRSF_CONFIG_ROW(INTERNAL_MODULE) /* native config menu */ \
     MULTIMODULE_TYPE_ROWS(INTERNAL_MODULE)     /* ITEM_MODEL_SETUP_INTERNAL_MODULE_PROTOCOL */ \
     MULTIMODULE_SUBTYPE_ROWS(INTERNAL_MODULE)  /* ITEM_MODEL_SETUP_INTERNAL_MODULE_SUBTYPE */ \
     MULTIMODULE_STATUS_ROWS(INTERNAL_MODULE)   /* ITEM_MODEL_SETUP_INTERNAL_MODULE_STATUS, ITEM_MODEL_SETUP_INTERNAL_MODULE_SYNCSTATUS */ \
@@ -548,6 +562,7 @@ void editTimerCountdown(int timerIdx, coord_t y, LcdFlags attr, event_t event)
     IF_MODULE_SYNCED(EXTERNAL_MODULE, 0),          /* Sync rate + errors */ \
     IF_MODULE_ARMED(EXTERNAL_MODULE, 0),           /* Arming Mode */ \
     IF_MODULE_ARMED_TRIGGER(EXTERNAL_MODULE, 0),   /* Arming TRIGGER */ \
+    IF_MODULE_CRSF_CONFIG_ROW(EXTERNAL_MODULE)     /* native config menu */ \
     MULTIMODULE_TYPE_ROWS(EXTERNAL_MODULE)         /* PROTOCOL */ \
     MULTIMODULE_SUBTYPE_ROWS(EXTERNAL_MODULE)      /* SUBTYPE */  \
     MULTIMODULE_STATUS_ROWS(EXTERNAL_MODULE)  \
@@ -1661,6 +1676,22 @@ void menuModelSetup(event_t event)
         if(attr)
           CHECK_INCDEC_SWITCH(event, g_model.moduleData[moduleIdx].crsf.crsfArmingTrigger, SWSRC_FIRST, SWSRC_LAST, EE_MODEL, isSwitchAvailableForArming);
         break;
+
+#if defined(CRSF_CONFIG_MENU)
+#if defined(HARDWARE_INTERNAL_MODULE)
+      case ITEM_MODEL_SETUP_INTERNAL_MODULE_CRSF_CONFIG:
+#endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_CRSF_CONFIG:
+#endif
+        lcdDrawTextIndented(y, STR_CRSF_CONFIG);
+        lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_SET, attr);
+        if (event == EVT_KEY_BREAK(KEY_ENTER) && attr) {
+          g_moduleIdx = moduleIdx;
+          pushMenu(menuRadioCrsfDeviceConfig);
+        }
+        break;
+#endif
 #endif
 
 #if defined(MULTIMODULE)
@@ -2103,8 +2134,8 @@ void menuModelSetup(event_t event)
                   }
                   else {
                     newFlag = MODULE_MODE_BIND;
-                    if (isModuleELRS(moduleIdx))
-                       AUDIO_PLAY(AU_SPECIAL_SOUND_CHEEP); // Since ELRS bind is just one frame, we need to play the sound manually
+                    if (isModuleELRS(moduleIdx) && oldFlag != MODULE_MODE_BIND)
+                       AUDIO_PLAY(AU_SPECIAL_SOUND_CHEEP); // ELRS has no bind acknowledgement, play the sound manually
                   }
 
                   if (!event && (oldFlag != newFlag) &&

@@ -141,6 +141,9 @@ void menuRadioPowerMeter(event_t event);
 void menuRadioCalibration(event_t event);
 void menuGhostModuleConfig(event_t event);
 void menuServoPwmTool(event_t event);
+#if defined(CRSF_CONFIG_MENU)
+void menuRadioCrsfDeviceConfig(event_t event);
+#endif
 
 void menuModelSelect(event_t event);
 void menuModelSetup(event_t event);

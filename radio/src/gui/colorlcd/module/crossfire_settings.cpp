@@ -21,9 +21,11 @@
 
 #include "crossfire_settings.h"
 
+#include "button.h"
 #include "edgetx.h"
 #include "getset_helpers.h"
 #include "mixer_scheduler.h"
+#include "radio/radio_crsf_config.h"
 #include "telemetry/crossfire.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -75,6 +77,16 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
   choArmMode = new Choice(box, rect_t{}, STR_CRSF_ARMING_MODES, 0, 1, GET_SET_DEFAULT(md->crsf.crsfArmingMode));
   choArmSwitch = new SwitchChoice(box, rect_t{}, SWSRC_FIRST, SWSRC_LAST, GET_SET_DEFAULT(md->crsf.crsfArmingTrigger));
   choArmSwitch->setAvailableHandler([=](int sw) { return isSwitchAvailableForArming(sw); });
+
+#if defined(CRSF_CONFIG_MENU)
+  // native device configuration (ExpressLRS / TBS Crossfire)
+  line = newLine(grid);
+  new StaticText(line, rect_t{}, STR_CRSF_CONFIG);
+  new TextButton(line, rect_t{}, LV_SYMBOL_SETTINGS, [=]() -> uint8_t {
+    new RadioCrsfConfigPage(moduleIdx);
+    return 0;
+  });
+#endif
 
   update();
 }

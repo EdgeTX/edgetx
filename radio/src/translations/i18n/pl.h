@@ -760,6 +760,18 @@
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
+#define TR_CRSF_CONFIG                 TR("Config", "CRSF device config")
+#define TR_CRSF_BIND_PHRASE            TR("Phrase", "Bind phrase")
+#define TR_CRSF_BIND_METHOD            "Method"
+#define TR_CRSF_CLASSIC_BIND           TR("Classic", "Classic bind")
+#define TR_CRSF_BIND_UID               TR("UID", "Bind phrase UID")
+#define TR_CRSF_APPLY_TO               "Apply to"
+#define TR_CRSF_APPLY                  "Apply"
+#define TR_CRSF_RX_BIND                TR("RX bind", "Enter bind mode")
+#define TR_CRSF_REBOOTING              TR("Rebooting...", "Module is rebooting...")
+#define TR_CRSF_ELRS_V1                "ELRS 1.x not supported"
+#define TR_CRSF_NEEDS_41               TR("Needs ELRS 4.1+", "Bind phrase needs ELRS 4.1+")
+#define TR_CRSF_ARMED                  "ARMED"
 #define TR_GPS_MODEL_LOCATOR           "GPS model locator"
 #define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "Pełna karta SD"
