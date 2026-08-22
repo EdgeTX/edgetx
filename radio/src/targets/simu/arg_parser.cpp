@@ -24,6 +24,8 @@ bool ArgumentParser::parse(int argc, char *argv[]) {
     } else if (arg == "--settings") {
       if (!getNextArg(argc, argv, i, settings_path, "settings"))
         return false;
+    } else if (arg == "--automation-stdio") {
+      automation_stdio = true;
     } else if (arg == "-h" || arg == "--help") {
       help_requested = true;
       return true;
@@ -38,7 +40,7 @@ bool ArgumentParser::parse(int argc, char *argv[]) {
 
 void ArgumentParser::printUsage() const {
   printf("usage: %s [--width width] [--height height] [--storage path] "
-         "[--settings path] [-h | --help]\n",
+         "[--settings path] [--automation-stdio] [-h | --help]\n",
          program_name.c_str());
 }
 
@@ -49,6 +51,7 @@ void ArgumentParser::printHelp() const {
   printf("  --height height    Set the height (integer)\n");
   printf("  --storage path     Set the storage path\n");
   printf("  --settings path    Set the settings path\n");
+  printf("  --automation-stdio Enable newline command automation over stdin/stdout\n");
   printf("  -h, --help         Show this help message\n");
 }
 
@@ -65,6 +68,8 @@ const std::string &ArgumentParser::getStoragePath() const {
 const std::string &ArgumentParser::getSettingsPath() const {
   return settings_path;
 }
+
+bool ArgumentParser::isAutomationStdioEnabled() const { return automation_stdio; }
 
 bool ArgumentParser::hasWidth() const { return width != -1; }
 

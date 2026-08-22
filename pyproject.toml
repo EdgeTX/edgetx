@@ -1,0 +1,15 @@
+[project]
+name = "edgetx-dev"
+version = "0.0.0"
+requires-python = ">=3.11"
+dependencies = [
+  "clang",
+  "jinja2",
+  "lz4",
+  "pillow",
+  "pydantic",
+  "typing-extensions",
+]
+
+[tool.uv]
+package = false
