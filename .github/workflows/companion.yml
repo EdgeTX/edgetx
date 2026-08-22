@@ -47,15 +47,15 @@ jobs:
           - id: color-2
             target: [pl18u, t15, t16, t18, t22]
           - id: bw-1
-            target: [zorro, pocket, mt12, commando8, tprov2, tpros, bumblebee, t14]
+            target: [zorro, pocket, commando8, tprov2, tpros, bumblebee, t14]
           - id: bw-2
             target: [mt12, gx12, t20, t20v2, t12max, tx12mk2, boxer]
           - id: color-3
             target: [tx15, tx16s, x12s, f16]
           - id: mixed-1
-            target: [v14, v14lcd, v16, x10, x10express]
+            target: [v12, v14, v14lcd, v16, x10, x10express]
           - id: bw-3
-            target: [x7access, x9dp2019, x9e, x9e-hall]
+            target: [x7access, x9dp2019, x9e]
           - id: color-4
             target: [nb4p, st16, pa01, c14]
           - id: color-5
