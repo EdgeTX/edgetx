@@ -19,14 +19,14 @@
  * GNU General Public License for more details.
  */
 
-#include "labeled.h"
+#include "tree.h"
 #include "firmwares/opentx/opentxinterface.h"
 #include "firmwares/edgetx/edgetxinterface.h"
 #include "progressdialog.h"
 
 #include <regex>
 
-StorageType LabelsStorageFormat::probeFormat()
+StorageType TreeStorageFormat::probeFormat()
 {
   if (QFile(filename + "/RADIO/radio.yml").exists()) // converted
     return getStorageType("radio.yml");
@@ -34,7 +34,7 @@ StorageType LabelsStorageFormat::probeFormat()
     return getStorageType(filename);
 }
 
-bool LabelsStorageFormat::load(RadioData & radioData)
+bool TreeStorageFormat::load(RadioData & radioData)
 {
   int steps = 2;  // initialisation and load radio.yml
   bool hasLabels = getCurrentFirmware()->getCapability(HasModelLabels);
@@ -211,7 +211,7 @@ bool LabelsStorageFormat::load(RadioData & radioData)
   return true;
 }
 
-bool LabelsStorageFormat::write(RadioData & radioData)
+bool TreeStorageFormat::write(RadioData & radioData)
 {
   // TODO
   // move all unique radio settings to a separate file eg RADIO/hardware.yml.
@@ -377,7 +377,7 @@ bool LabelsStorageFormat::write(RadioData & radioData)
   return true;
 }
 
-bool LabelsStorageFormat::loadChecklist(ModelData & model)
+bool TreeStorageFormat::loadChecklist(ModelData & model)
 {
   const QString fname("MODELS/" + model.getChecklistFilename());
   //qDebug() << "Searching for checklist file:" << fname;
@@ -388,7 +388,7 @@ bool LabelsStorageFormat::loadChecklist(ModelData & model)
   return true;
 }
 
-bool LabelsStorageFormat::writeChecklist(const ModelData & model)
+bool TreeStorageFormat::writeChecklist(const ModelData & model)
 {
   if (!model.checklistData.isEmpty()) {
     const QString fname("MODELS/" + model.getChecklistFilename());
@@ -401,7 +401,7 @@ bool LabelsStorageFormat::writeChecklist(const ModelData & model)
   return true;
 }
 
-bool LabelsStorageFormat::loadRadioSettings(GeneralSettings & generalSettings)
+bool TreeStorageFormat::loadRadioSettings(GeneralSettings & generalSettings)
 {
   QByteArray radioSettingsBuffer;
 

@@ -22,7 +22,6 @@ set(${PROJECT_NAME}_NAMES
   scrollarea
   textvalidator
   exclusivecombogroup
-  widgetbindings
 )
 
 AddHeadersSources()
@@ -48,6 +47,8 @@ set(${PROJECT_NAME}_SRCS
   curveimage.cpp
   semanticversion.h
   semanticversion.cpp
+  widgetbindings.h
+  widgetbindings.cpp
 )
 
 add_library(${PROJECT_NAME}
