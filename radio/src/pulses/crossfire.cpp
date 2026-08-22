@@ -28,6 +28,9 @@
 #include "mixer_scheduler.h"
 #include "hal/module_driver.h"
 #include "hal/module_port.h"
+#if defined(RTCLOCK)
+#include "rtc.h"
+#endif
 
 #include "crossfire.h"
 #include "telemetry/crossfire.h"
@@ -45,6 +48,9 @@
 #define MODULE_ALIVE_TIMEOUT  50                      // if the module has sent a valid frame within 500ms it is declared alive
 static tmr10ms_t lastAlive[NUM_MODULES];              // last time stamp module sent CRSF frames
 static bool moduleAlive[NUM_MODULES];                 // module alive status
+#if defined(RTCLOCK)
+static bool timeSyncSent[NUM_MODULES];
+#endif
 
 uint8_t createCrossfireBindFrame(uint8_t moduleIdx, uint8_t * frame)
 {
@@ -91,6 +97,38 @@ uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
   *buf++ = crc8(frame + 2, 7);
   return buf - frame;
 }
+
+#if defined(RTCLOCK)
+uint8_t createCrossfireTimeFrame(uint8_t moduleIdx, uint8_t * frame)
+{
+  (void)moduleIdx;
+
+  struct gtm tm;
+  gettime(&tm);
+
+  uint8_t * buf = frame;
+  *buf++ = MODULE_ADDRESS;
+  *buf++ = 17;                              // type + dest + orig + 13 MSP bytes + CRC
+  *buf++ = MSP_WRITE_ID;
+  *buf++ = VIDEO_RECEIVER_ADDRESS;
+  *buf++ = RADIO_ADDRESS;
+  *buf++ = MSP_V2_STATUS_START;
+  *buf++ = 0;                               // MSP flags
+  *buf++ = MSP_ELRS_BACKPACK_SET_RTC & 0xFF;
+  *buf++ = MSP_ELRS_BACKPACK_SET_RTC >> 8;
+  *buf++ = 6;                               // MSP payload size, low byte
+  *buf++ = 0;                               // MSP payload size, high byte
+  *buf++ = tm.tm_year;
+  *buf++ = tm.tm_mon;
+  *buf++ = tm.tm_mday;
+  *buf++ = tm.tm_hour;
+  *buf++ = tm.tm_min;
+  *buf++ = tm.tm_sec;
+  *buf++ = crc8(frame + 6, 11);             // MSP CRC over flags..payload
+  *buf++ = crc8(frame + 2, 16);             // CRSF CRC over type..MSP CRC
+  return buf - frame;
+}
+#endif
 
 // Range for pulses (channels output) is [-1024:+1024]
 uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses)
@@ -182,6 +220,13 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
     } else if (moduleState[module].mode == MODULE_MODE_BIND) {
       p_buf += createCrossfireBindFrame(module, p_buf);
       moduleState[module].mode = MODULE_MODE_NORMAL;
+#if defined(RTCLOCK)
+    } else if (crossfireModuleStatus[module].isELRS &&
+               crossfireModuleStatus[module].queryCompleted &&
+               !timeSyncSent[module]) {
+      p_buf += createCrossfireTimeFrame(module, p_buf);
+      timeSyncSent[module] = true;
+#endif
     } else {
       /* TODO: nChannels */
       p_buf += createCrossfireChannelsFrame(module, p_buf, channels);
@@ -373,6 +418,10 @@ static void _soft_irq_trigger(void* param)
 
 static void* crossfireInit(uint8_t module)
 {
+#if defined(RTCLOCK)
+  timeSyncSent[module] = false;
+#endif
+
   etx_module_state_t* mod_st = nullptr;
   etx_serial_init params(crsfSerialParams);
 
@@ -438,6 +487,10 @@ static void* crossfireInit(uint8_t module)
 static void crossfireDeInit(void* ctx)
 {
   auto mod_st = (etx_module_state_t*)ctx;
+
+#if defined(RTCLOCK)
+  timeSyncSent[modulePortGetModule(mod_st)] = false;
+#endif
 
   memset(&crossfireModuleStatus[modulePortGetModule(mod_st)], 0,
          sizeof(CrossfireModuleStatus));

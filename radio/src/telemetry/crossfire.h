@@ -53,6 +53,14 @@
 #define COMMAND_ID                     0x32
 #define RADIO_ID                       0x3A
 
+#if defined(RTCLOCK)
+// MSP-over-CRSF write to the ExpressLRS backpack, via the video receiver address
+#define MSP_WRITE_ID                   0x7C
+#define VIDEO_RECEIVER_ADDRESS         0x14
+#define MSP_ELRS_BACKPACK_SET_RTC      0x030E
+#define MSP_V2_STATUS_START            0x50  // version 2, start of frame, seq 0
+#endif
+
 #define UART_SYNC                      0xC8
 #define SUBCOMMAND_CRSF                0x10
 #define COMMAND_MODEL_SELECT_ID        0x05
