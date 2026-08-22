@@ -1,0 +1,41 @@
+/*
+ * Copyright (C) EdgeTX
+ *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+ #include "vcontrols.h"
+
+#include "edgetx.h"
+
+#if defined(VCONTROLS) && defined(COLORLCD)
+int16_t virtualInputs[MAX_VIRTUAL_INPUTS] = {};
+uint64_t virtualSwitches = 0; 
+
+uint32_t activeVirtualInputs   = 0; 
+uint64_t activeVirtualSwitches = 0; 
+
+void resetVirtualControls() {
+    activeVirtualInputs   = 0;
+    activeVirtualSwitches = 0;
+    virtualSwitches = 0;
+    for(auto& vin: virtualInputs) {
+        vin = 0;
+    }
+}
+#endif

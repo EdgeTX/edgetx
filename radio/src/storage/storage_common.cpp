@@ -29,6 +29,9 @@
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 #include "hal/rgbleds.h"
 #endif
+#if defined(VCONTROLS) && defined(COLORLCD)
+#include "vcontrols.h"
+#endif
 
 #if defined(COLORLCD)
 #include "view_main.h"
@@ -277,6 +280,10 @@ if(g_model.rssiSource) {
   customFunctionsReset();
 
   logicalSwitchesInit(false);
+
+#if defined(VCONTROLS) && defined(COLORLCD)
+  resetVirtualControls();
+#endif
 
   restoreTimers();
 
