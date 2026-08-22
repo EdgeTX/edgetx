@@ -127,15 +127,14 @@ void FileChoice::loadFiles()
 
   FRESULT res = f_opendir(&dir, folder.c_str());  // Open the directory
   if (res == FR_OK) {
-    bool firstTime = true;
     for (;;) {
-      res = sdReadDir(&dir, &fno, firstTime);
+      res = f_readdir(&dir, &fno);
       if (res != FR_OK || fno.fname[0] == 0)
         break;  // break on error or end of dir
       if (fno.fattrib & (AM_HID | AM_SYS | AM_DIR))
         continue;  // Ignore subfolders, hidden files and system files
-      if (fno.fname[0] == '.' && fno.fname[1] != '.')
-        continue;  // Ignore hidden files under UNIX, but not ..
+      if (fno.fname[0] == '.')
+        continue;  // Ignore hidden files under UNIX
 
       fnExt = getFileExtension(fno.fname, 0, 0, &fnLen, &extLen);
 

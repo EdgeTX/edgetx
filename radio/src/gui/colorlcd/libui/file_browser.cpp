@@ -22,28 +22,13 @@
 #include "file_browser.h"
 #include "lib_file.h"
 #include "fonts.h"
+#include "sdcard.h"
 
 #include <list>
 #include <string>
 
 #define CELL_CTRL_DIR  LV_TABLE_CELL_CTRL_CUSTOM_1
 #define CELL_CTRL_FILE LV_TABLE_CELL_CTRL_CUSTOM_2
-
-static const char* getFullPath(const char* filename)
-{
-  static char full_path[FF_MAX_LFN + 1];
-  f_getcwd((TCHAR*)full_path, FF_MAX_LFN);
-  strcat(full_path, "/");
-  strcat(full_path, filename);
-  return full_path;
-}
-
-static const char* getCurrentPath()
-{
-  static char path[FF_MAX_LFN + 1];
-  f_getcwd((TCHAR*)path, FF_MAX_LFN);
-  return path;
-}
 
 static int strnatcasecmp(char const *s1, char const *s2)
 {
@@ -104,7 +89,7 @@ static bool natural_compare_nocase(const std::string & first, const std::string 
   return strnatcasecmp(first.c_str(), second.c_str()) < 0;
 }
 
-static int scan_files(std::list<std::string>& files,
+int FileBrowser::scan_files(std::list<std::string>& files,
                       std::list<std::string>& directories)
 {
   FILINFO fno;
@@ -116,14 +101,18 @@ static int scan_files(std::list<std::string>& files,
   // read all entries
   bool firstTime = true;
   for (;;) {
-    res = sdReadDir(&dir, &fno, firstTime);
+    if (firstTime && currentPath != ROOT_PATH) {
+      strcpy(fno.fname, "..");
+      fno.fattrib = AM_DIR;
+    } else {
+      res = f_readdir(&dir, &fno);
 
-    if (res != FR_OK || fno.fname[0] == 0)
-      break; // Break on error or end of dir
-    // if (strlen((const char*)fno.fname) > SD_SCREEN_FILE_LENGTH)
-    //   continue;
-    if (fno.fattrib & (AM_HID|AM_SYS)) continue;     /* Ignore hidden and system files */
-    if (fno.fname[0] == '.' && fno.fname[1] != '.') continue; // Ignore hidden files under UNIX, but not ..
+      if (res != FR_OK || fno.fname[0] == 0)
+        break; // Break on error or end of dir
+      if (fno.fattrib & (AM_HID|AM_SYS)) continue;    /* Ignore hidden and system files */
+      if (fno.fname[0] == '.') continue;              // Ignore hidden files under UNIX
+    }
+    firstTime = false;
 
     if (fno.fattrib & AM_DIR) {
       directories.push_back((char*)fno.fname);
@@ -138,10 +127,25 @@ static int scan_files(std::list<std::string>& files,
   return 0;
 }
 
-FileBrowser::FileBrowser(Window* parent, const rect_t& rect, const char* dir) :
-    TableField(parent, rect)
+void FileBrowser::setFullPath(const char* name)
 {
-  f_chdir(dir);
+  if (currentPath.back() == '/')
+    fullPathBuf = currentPath + name;
+  else
+    fullPathBuf = currentPath + "/" + name;
+}
+
+FileBrowser::FileBrowser(Window* parent, const rect_t& rect, const char* dir) :
+    TableField(parent, rect), currentPath((dir && dir[0]) ? dir : "/")
+{
+  // Normalize once: drop any trailing slash (except root) so the join/parent
+  // logic never has to deal with it later.
+  while (currentPath.size() > 1 && currentPath.back() == '/') currentPath.pop_back();
+
+  if (etxChdir(currentPath.c_str()) != FR_OK) {
+    currentPath = ROOT_PATH;  // keep currentPath in sync with the FatFs CWD
+    etxChdir(currentPath.c_str());
+  }
 
   setAutoEdit();
 
@@ -244,18 +248,25 @@ void FileBrowser::onSelected(const char* name, bool is_dir)
     return;
   }
 
-  const char* path = getCurrentPath();
-  const char* fullpath = getFullPath(name);
-  if (fileSelected) fileSelected(path, name, fullpath, is_dir);
+  setFullPath(name);
+  if (fileSelected) fileSelected(currentPath.c_str(), name, fullPathBuf.c_str(), is_dir);
   selected = name;
 }
 
 void FileBrowser::onPress(const char* name, bool is_dir)
 {
-  const char* path = getCurrentPath();
-  const char* fullpath = getFullPath(name);
   if (is_dir) {
-    f_chdir(fullpath);
+    std::string nextPath = currentPath;
+    if (strcmp(name, "..") == 0) {
+      // Go up: trim last segment (f_chdir("..") / f_getcwd are no-ops on exFAT).
+      auto pos = nextPath.find_last_of('/');
+      nextPath = (pos == 0 || pos == std::string::npos) ? "/" : nextPath.substr(0, pos);
+    } else {
+      setFullPath(name);
+      nextPath = fullPathBuf;
+    }
+    // Only commit the tracked path if the CWD actually changed.
+    if (etxChdir(nextPath.c_str()) == FR_OK) currentPath = nextPath;
     if (fileSelected) fileSelected(nullptr, nullptr, nullptr, is_dir);
     selected = nullptr;
     refresh();
@@ -268,20 +279,22 @@ void FileBrowser::onPress(const char* name, bool is_dir)
   }
 
   if (fileAction){
-    fileAction(path, name, fullpath, is_dir);
+    setFullPath(name);
+    fileAction(currentPath.c_str(), name, fullPathBuf.c_str(), is_dir);
   }
 }
 
 void FileBrowser::onPressLong(const char* name, bool is_dir)
 {
-  const char* path = getCurrentPath();
-  const char* fullpath = getFullPath(name);
+  // the synthetic parent-directory row is navigation-only
+  if (strcmp(name, "..") == 0) return;
 
   if (!selected || (selected != name)) {
     onSelected(name, is_dir);
   }
 
   if (fileAction){
-    fileAction(path, name, fullpath, is_dir);
+    setFullPath(name);
+    fileAction(currentPath.c_str(), name, fullPathBuf.c_str(), is_dir);
   }
 }
