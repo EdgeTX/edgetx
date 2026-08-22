@@ -23,6 +23,10 @@
 #include "lua/api_filesystem.h"
 #include "lua/api_colorlcd.h"
 
+#if defined(COLORLCD) && defined(SIMU) && defined(WIDGET_STUDIO)
+#include "lua/api_simu.h"
+#endif
+
 extern LROT_TABLE(iolib);
 extern LROT_TABLE(strlib);
 extern LROT_TABLE(mathlib);
@@ -101,6 +105,9 @@ LROT_BEGIN(rotables, LROT_TABLEREF(rotables_meta), 0)
 #if defined(COLORLCD)
   LROT_TABENTRY( lvgl, lvgllib )
   LROT_TABENTRY( table, tablib )
+#endif
+#if defined(COLORLCD) && defined(SIMU) && defined(WIDGET_STUDIO)
+  LROT_TABENTRY( simu, simulib )
 #endif
   LROT_TABENTRY( ROM, rotables )
 LROT_END(rotables, LROT_TABLEREF(rotables_meta), 0)
