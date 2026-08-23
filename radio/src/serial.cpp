@@ -223,10 +223,8 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
 
   case UART_MODE_SBUS_TRAINER:
   case UART_MODE_SBUS_TRAINER_INV:
-    sbusSetReceiveCtx(ctx, drv);
-    if (drv && drv->setIdleCb) {
-      drv->setIdleCb(ctx, sbusAuxFrameReceived, nullptr);
-    }
+    // Nothing to do: the trainer claims the port when (and only when) the
+    // trainer mode selects it as input source. See sbusTrainerAcquire().
     break;
 
   case UART_MODE_TELEMETRY:
@@ -438,6 +436,10 @@ void serialInit(uint8_t port_nr, int mode)
   if (!port) return;
 
   if (state->port) {
+#if !defined(BOOT)
+    // Drop the trainer input before the driver context goes away
+    sbusTrainerReleaseCtx(state->usart_ctx);
+#endif
     auto drv = state->port->uart;
     if (drv && drv->deinit && state->usart_ctx) {
       drv->deinit(state->usart_ctx);
@@ -499,6 +501,27 @@ void serialInit(uint8_t port_nr, int mode)
 #endif
 }
 
+#if !defined(BOOT)
+int serialGetSbusTrainerPort()
+{
+  int port_nr = serialGetModePort(UART_MODE_SBUS_TRAINER);
+  if (port_nr < 0) port_nr = serialGetModePort(UART_MODE_SBUS_TRAINER_INV);
+  return port_nr;
+}
+
+bool serialGetPortCtx(uint8_t port_nr, void** ctx,
+                      const etx_serial_driver_t** drv)
+{
+  auto state = getSerialPortState(port_nr);
+  if (!state || !state->port || !state->usart_ctx || !state->port->uart)
+    return false;
+
+  *ctx = state->usart_ctx;
+  *drv = state->port->uart;
+  return true;
+}
+#endif
+
 void initSerialPorts()
 {
   for (uint8_t port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {
@@ -544,6 +567,10 @@ void serialStop(uint8_t port_nr)
   if (!state) return;
 
   if (state->port) {
+#if !defined(BOOT)
+    // Drop the trainer input before the driver context goes away
+    sbusTrainerReleaseCtx(state->usart_ctx);
+#endif
     auto port = state->port;
     auto drv = port->uart;
     if (drv && drv->deinit) {
