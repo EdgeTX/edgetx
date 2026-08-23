@@ -183,7 +183,7 @@ void Key::killEvents()
 static Key keys[MAX_KEYS];
 static Key trim_keys[MAX_TRIMS * 2];
 
-#if !defined(BOOT)
+#if !defined(BOOT) && defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
 // Per-target key combo (from hal.h KEYS_LOCK_KEY1/KEY2) long-pressed together
 // toggles a software key lock.
 static bool s_keys_locked = false;
@@ -541,7 +541,7 @@ bool keysPollingCycle()
     event_t evt = keys[i].input(keys_input & (1 << i));
     if (evt) {
       evt = keyMapping(evt | i);
-#if !defined(BOOT)
+#if !defined(BOOT) && defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
       if (evt) {
         if (!s_keys_locked) {
           pushEvent(evt);
