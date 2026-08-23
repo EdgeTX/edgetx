@@ -231,7 +231,7 @@ void ModelOutputsPage::build(Window* window)
         STR_TRIMS2OFFSETS, STR_ADD_ALL_TRIMS_TO_SUBTRIMS,
         [=] {
           moveTrimsToOffsets();
-          for (int i = 0; i < outputButtons.size(); i += 1)
+          for (size_t i = 0; i < outputButtons.size(); i += 1)
             outputButtons[i]->refresh();
         });
     return 0;
