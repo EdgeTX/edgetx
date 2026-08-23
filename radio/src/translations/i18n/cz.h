@@ -944,6 +944,7 @@
 #define TR_SENSOR                      "SENZOR"
 #define TR_COUNTRY_CODE                "Kód regionu"
 #define TR_USBMODE                     "Režim USB"
+#define TR_USB_CHARGE                  "Nabíjení za chodu"
 #define TR_JACK_MODE                   "Režim Jack"
 #define TR_VOICE_LANGUAGE              "Jazyk hlasu"
 #define TR_TEXT_LANGUAGE               "Text language"
@@ -1209,6 +1210,7 @@
 #define TR_MENU_OTHER                  "Ostatní"
 #define TR_MENU_INVERT                 "Invertovat"
 #define TR_AUDIO_MUTE                  TR("Ztlumení zvuku","Ztlumení, pokud není slyšet zvuk")
+#define TR_PWM_OUTPUT                  "PWM output"
 #define TR_JITTER_FILTER               "ADC Filtr"
 #define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Kontr RTC", "Hlídat RTC napětí")

@@ -254,6 +254,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["disableRssiPoweroffAlarm"] = (int)rhs.disableRssiPoweroffAlarm;
   node["disableTrainerPoweroffAlarm"] = (int)rhs.disableTrainerPoweroffAlarm;
   node["USBMode"] = rhs.usbMode;
+  node["usbChargeDisabled"] = (int)rhs.usbChargeDisabled;
   node["hatsMode"] = hatsModeLut << rhs.hatsMode;
   node["stickDeadZone"] = rhs.stickDeadZone;
   node["jackMode"] = rhs.jackMode;
@@ -542,6 +543,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["disableRssiPoweroffAlarm"] >> rhs.disableRssiPoweroffAlarm;
   node["disableTrainerPoweroffAlarm"] >> rhs.disableTrainerPoweroffAlarm;
   node["USBMode"] >> rhs.usbMode;
+  node["usbChargeDisabled"] >> rhs.usbChargeDisabled;
   node["hatsMode"] >> hatsModeLut >> rhs.hatsMode;
   node["stickDeadZone"] >> rhs.stickDeadZone;
   node["jackMode"] >> rhs.jackMode;

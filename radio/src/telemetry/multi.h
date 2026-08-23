@@ -90,6 +90,10 @@ Type 0x0B Spectrum Scanner telemetry data
    data[0] = start channel (2400 + x*0.333 Mhz)
    data[1-5] power levels
 
+Type 0x12 RadioLink/DumboRC P raw command payload
+   length: variable
+   data[0..] = raw command payload, used to send failsafe and gyro settings
+
 */
 
 void processMultiTelemetryData(uint8_t data, uint8_t module);

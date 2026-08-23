@@ -37,9 +37,16 @@ cfn-sort:
 gen-yaml FLAVOR='':
     FLAVOR="{{ FLAVOR }}" tools/generate-yaml.sh
 
-[doc('Regenerate the YAML parsers, LVGL fonts and cfn sort order')]
+# Needs: node. Which radios are included comes from fw.json, so this only
+# picks up a new target once it is listed there.
+[doc('Regenerate the web simulator radio list (web/public/radios.json)')]
 [group('codegen')]
-codegen: gen-fonts cfn-sort gen-yaml
+gen-radios:
+    node web/scripts/gen-radios-json.js
+
+[doc('Regenerate the YAML parsers, LVGL fonts, cfn sort order and radio list')]
+[group('codegen')]
+codegen: gen-fonts cfn-sort gen-yaml gen-radios
 
 [doc('Regenerate the LVGL fonts in the dev container')]
 [group('codegen (docker)')]
@@ -60,6 +67,11 @@ docker-gen-yaml FLAVOR='':
         FETCHCONTENT_BASE_DIR=/src/.cache/fetchcontent-docker \
         tools/generate-yaml.sh
 
+[doc('Regenerate the web simulator radio list in the dev container')]
+[group('codegen (docker)')]
+docker-gen-radios:
+    {{ _docker }} node web/scripts/gen-radios-json.js
+
 [doc('Regenerate everything in the dev container')]
 [group('codegen (docker)')]
-docker-codegen: docker-gen-fonts docker-cfn-sort docker-gen-yaml
+docker-codegen: docker-gen-fonts docker-cfn-sort docker-gen-yaml docker-gen-radios

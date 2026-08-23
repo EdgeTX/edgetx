@@ -365,11 +365,7 @@ int ModuleData::getMaxChannelCount()
     case PULSES_DSMX:
       return 6;
     case PULSES_MULTIMODULE:
-      if (multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
-        return 12;
-      else
-        return 16;
-      break;
+      return 16;
     case PULSES_FLYSKY_AFHDS2A:
       return 14;
     case PULSES_FLYSKY_AFHDS3:

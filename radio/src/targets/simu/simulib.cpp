@@ -142,10 +142,45 @@ void simuCreateDefaults()
   simuCreateDefaultSettings = true;
 }
 
-void simuStart(bool tests)
+#if defined(__wasm__)
+static int32_t simuUtcOffset = 0;
+#endif
+
+bool simuLocalTime(time_t t, struct tm* result)
+{
+  struct tm* tmp;
+#if defined(__wasm__)
+  t += simuUtcOffset;
+  tmp = gmtime(&t);
+#else
+  tmp = localtime(&t);
+#endif
+  if (tmp == nullptr) return false;
+  *result = *tmp;
+  return true;
+}
+
+time_t simuLocalTimeToEpoch(struct tm* tm)
+{
+#if defined(__wasm__)
+  // wasi-libc's mktime() is timezone-less, i.e. equivalent to timegm()
+  time_t t = mktime(tm);
+  return t == (time_t)-1 ? t : t - simuUtcOffset;
+#else
+  return mktime(tm);
+#endif
+}
+
+void simuStart(bool tests, int32_t utcOffset)
 {
   if (simu_running)
     return;
+
+#if defined(__wasm__)
+  simuUtcOffset = utcOffset;
+#else
+  (void)utcOffset;
+#endif
 
 #if !defined(COLORLCD)
   menuLevel = 0;
@@ -171,20 +206,19 @@ void simuStart(bool tests)
 
 #if defined(RTCLOCK)
   time_t rawtime;
-  struct tm * timeinfo;
+  struct tm timeinfo;
   time (&rawtime);
-  timeinfo = localtime (&rawtime);
 
-  if (timeinfo != nullptr) {
+  if (simuLocalTime(rawtime, &timeinfo)) {
     struct gtm gti;
-    gti.tm_sec  = timeinfo->tm_sec;
-    gti.tm_min  = timeinfo->tm_min;
-    gti.tm_hour = timeinfo->tm_hour;
-    gti.tm_mday = timeinfo->tm_mday;
-    gti.tm_mon  = timeinfo->tm_mon;
-    gti.tm_year = timeinfo->tm_year;
-    gti.tm_wday = timeinfo->tm_wday;
-    gti.tm_yday = timeinfo->tm_yday;
+    gti.tm_sec  = timeinfo.tm_sec;
+    gti.tm_min  = timeinfo.tm_min;
+    gti.tm_hour = timeinfo.tm_hour;
+    gti.tm_mday = timeinfo.tm_mday;
+    gti.tm_mon  = timeinfo.tm_mon;
+    gti.tm_year = timeinfo.tm_year;
+    gti.tm_wday = timeinfo.tm_wday;
+    gti.tm_yday = timeinfo.tm_yday;
     g_rtcTime = gmktime(&gti);
   } else {
     g_rtcTime = rawtime;

@@ -208,14 +208,14 @@ FRESULT file_stat(const std::string& realPath, FILINFO* fno)
     if (!ec) {
       auto systime = ftime_to_systime(ftime);
       auto time_t_val = std::chrono::system_clock::to_time_t(systime);
-      struct tm* ltime = localtime(&time_t_val);
+      struct tm ltime;
 
-      if (ltime) {
+      if (simuLocalTime(time_t_val, &ltime)) {
         // Convert to FatFs format
-        fno->fdate = ((ltime->tm_year - 80) << 9) | ((ltime->tm_mon + 1) << 5) |
-                     ltime->tm_mday;
+        fno->fdate = ((ltime.tm_year - 80) << 9) | ((ltime.tm_mon + 1) << 5) |
+                     ltime.tm_mday;
         fno->ftime =
-            (ltime->tm_hour << 11) | (ltime->tm_min << 5) | (ltime->tm_sec / 2);
+            (ltime.tm_hour << 11) | (ltime.tm_min << 5) | (ltime.tm_sec / 2);
       } else {
         fno->fdate = 0;
         fno->ftime = 0;
@@ -572,7 +572,7 @@ FRESULT f_utime(const TCHAR* path, const FILINFO* fno)
     ltime.tm_sec = (fno->ftime & 0x1F) * 2;
     ltime.tm_isdst = -1;
 
-    time_t timestamp = mktime(&ltime);
+    time_t timestamp = simuLocalTimeToEpoch(&ltime);
     if (timestamp == -1) {
         return FR_INVALID_PARAMETER;
     }

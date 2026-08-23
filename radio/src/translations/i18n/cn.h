@@ -947,6 +947,7 @@
 #define TR_SENSOR                      "传感器"
 #define TR_COUNTRY_CODE                "国别码"
 #define TR_USBMODE                     "USB模式"
+#define TR_USB_CHARGE                  "开机时充电"
 #define TR_JACK_MODE                   "教练插口模式"
 #define TR_VOICE_LANGUAGE              "播报语言"
 #define TR_TEXT_LANGUAGE               "Text language"
@@ -1205,6 +1206,7 @@
 #define TR_MENU_OTHER                  "其它"
 #define TR_MENU_INVERT                 "反向"
 #define TR_AUDIO_MUTE                  TR("自动静音","音频停播时自动静音")
+#define TR_PWM_OUTPUT                  "PWM output"
 #define TR_JITTER_FILTER               "ADC滤波器"
 #define TR_DEAD_ZONE                   "死区"
 #define TR_RTC_CHECK                   TR("RTC电池", "RTC纽扣电池电压")

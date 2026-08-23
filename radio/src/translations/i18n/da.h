@@ -952,6 +952,7 @@
 #define TR_SENSOR                      "SENSOR"
 #define TR_COUNTRY_CODE                "Lande kode"
 #define TR_USBMODE                     "USB tilstand"
+#define TR_USB_CHARGE                  "Oplad med radio tændt"
 #define TR_JACK_MODE                   "Jack tilstand"
 #define TR_VOICE_LANGUAGE              "Stemme sprog"
 #define TR_TEXT_LANGUAGE               "Text language"
@@ -1212,6 +1213,7 @@
 #define TR_MENU_OTHER                  "Andet"
 #define TR_MENU_INVERT                 "Invers"
 #define TR_AUDIO_MUTE                  TR("Audio fra","Audio fra, hvis der ikke gives lyd")
+#define TR_PWM_OUTPUT                  "PWM output"
 #define TR_JITTER_FILTER               "ADC filter"
 #define TR_DEAD_ZONE                   "Dødt område"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC spænding")

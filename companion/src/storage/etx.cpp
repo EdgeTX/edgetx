@@ -174,11 +174,13 @@ bool EtxFormat::writeImageFile(const QString & filename)
     }
 
     statusMsg(tr("File written: %1").arg(filename));
-    return true;
+  } else {
+    // the non-existence of a Companion accessible image file is not fatal
+    // it may exist on the radio - so continue
+    statusMsg(tr("Unable to find and write image file: %1").arg(filename), QtWarningMsg);
   }
 
-  fatalMsg(tr("No application image cache"));
-  return false;
+  return true;
 }
 
 bool EtxFormat::getFileList(std::list<std::string>& filelist)

@@ -950,6 +950,7 @@
 #define TR_SENSOR                      "חיישן"
 #define TR_COUNTRY_CODE                "קוד ארץ"
 #define TR_USBMODE                     "USB מצב"
+#define TR_USB_CHARGE                  "טעינה כאשר השלט פועל"
 #define TR_JACK_MODE                   "Jack mode"
 #define TR_VOICE_LANGUAGE              "שפת שמע"
 #define TR_TEXT_LANGUAGE               "שפת הטקסט"
@@ -1208,6 +1209,7 @@
 #define TR_MENU_OTHER                  "אחר"
 #define TR_MENU_INVERT                 "הפוך"
 #define TR_AUDIO_MUTE                  TR("השתקת קול","השתק כאשר אין סאונד")
+#define TR_PWM_OUTPUT                  "PWM output"
 #define TR_JITTER_FILTER               "ADC filter"
 #define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC voltage")

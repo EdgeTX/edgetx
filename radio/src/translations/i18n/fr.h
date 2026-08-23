@@ -944,6 +944,7 @@
 #define TR_SENSOR                      "CAPTEUR"
 #define TR_COUNTRY_CODE                 TR("Zone géo.", "Zone géographique")
 #define TR_USBMODE                     "Mode USB"
+#define TR_USB_CHARGE                  "Charge radio allumée"
 #define TR_JACK_MODE                   "Mode Jack"
 #define TR_VOICE_LANGUAGE               TR("Langue voix", "Langue annonces vocales")
 #define TR_TEXT_LANGUAGE               "Text language"
@@ -1209,6 +1210,7 @@
 #define TR_MENU_OTHER                  "Autres"
 #define TR_MENU_INVERT                 "Inverser"
 #define TR_AUDIO_MUTE                  TR("Audio muet","Muet si pas de son")
+#define TR_PWM_OUTPUT                  "PWM output"
 #define TR_JITTER_FILTER               "Filtre ADC"
 #define TR_DEAD_ZONE                   "Zone Neutre"
 #define TR_RTC_CHECK                   TR("Vérif. RTC", "Vérif. pile RTC")

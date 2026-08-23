@@ -42,13 +42,19 @@ cp output/*.wasm web/public/
 
 ### Supported Radios
 
-The radios available in the web UI are defined in `public/radios.json`. This file is **generated** from the authoritative hardware definitions in `radio/src/boards/hw_defs/`. To regenerate it (e.g. after adding a new radio target):
+The radios available in the web UI are defined in `public/radios.json`. This file is **generated** from the authoritative hardware definitions in `radio/src/boards/hw_defs/`. To regenerate it (e.g. after adding a new radio target), from the repo root:
 
 ```bash
+just gen-radios
+# or, without just:
 node web/scripts/gen-radios-json.js
 ```
 
 The script extracts inputs, switches, trims, keys, and display info from the hw_defs JSON files. Key left/right side placement matches Companion's layout.
+
+*Which* radios are included comes from the `targets` list in the repo-root `fw.json`, so a new board only appears here once it is a released target. Targets with no matching hw_defs file are skipped with a warning: `x9e-hall` always warns, as it is a build option of `x9e` rather than a board of its own.
+
+Passing flavour names as arguments limits generation to those radios only — the whole file is rewritten, so use that for inspection, not to update the committed list.
 
 ## Architecture
 

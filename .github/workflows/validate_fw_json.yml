@@ -22,7 +22,7 @@ jobs:
     name: Validate fw.json file
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Validate fw.json syntax and schema
         run: python3 tools/validate-json.py --syntax-only

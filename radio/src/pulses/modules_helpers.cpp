@@ -66,7 +66,7 @@ int8_t maxModuleChannels_M8(uint8_t moduleIdx)
       return 8;  // always 16 channels in FCC / FLEX
     }
   } else if (isModuleMultimoduleDSM2(moduleIdx)) {
-    return 4;  // 12 channels
+    return 8;  // 16 channels with new MultiModule Firmware. Older firmware will still work up to 12ch.
   } else if (isModuleDSMP(moduleIdx)) {
     return 4; //  12 channels
   } else {

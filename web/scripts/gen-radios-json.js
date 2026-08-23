@@ -123,9 +123,9 @@ function processFlavour(flavour) {
   // Display / LCD info
   const disp = hw.display ?? {};
   const display = {
-    w: disp.w ?? 480,
-    h: disp.h ?? 272,
-    depth: disp.depth ?? 16,
+    w: disp.lcd_w ?? 480,
+    h: disp.lcd_h ?? 272,
+    depth: disp.lcd_depth ?? 16,
   };
 
   // WASM filename uses the flavour name directly

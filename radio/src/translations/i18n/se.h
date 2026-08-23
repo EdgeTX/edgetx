@@ -947,6 +947,7 @@
 #define TR_SENSOR                       "SENSOR"
 #define TR_COUNTRY_CODE                 "Landskod"
 #define TR_USBMODE                      "USB-läge"
+#define TR_USB_CHARGE                   "Ladda när radion är på"
 #define TR_JACK_MODE                    "Uttagsläge"
 #define TR_VOICE_LANGUAGE               "Röstspråk"
 #define TR_TEXT_LANGUAGE                "Textspråk"
@@ -1220,6 +1221,7 @@
 #define TR_MENU_OTHER                   "Övrigt"
 #define TR_MENU_INVERT                  "Invertera"
 #define TR_AUDIO_MUTE                   TR("Audio av","Audio av om inget ljud")
+#define TR_PWM_OUTPUT                   "PWM output"
 #define TR_JITTER_FILTER                "ADC-filter"
 #define TR_DEAD_ZONE                    "Dödläge"
 #define TR_RTC_CHECK                    TR("Kolla RTC", "Kolla RTC-batteriet")

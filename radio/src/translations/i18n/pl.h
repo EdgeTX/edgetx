@@ -939,6 +939,7 @@
 #define TR_SENSOR              "SENSOR"
 #define TR_COUNTRY_CODE        "Kod regionu"
 #define TR_USBMODE             "Tryb USB"
+#define TR_USB_CHARGE          "Ładuj gdy radio włączone"
 #define TR_JACK_MODE           "Tryb Jack"
 #define TR_VOICE_LANGUAGE      "Język głosu"
 #define TR_TEXT_LANGUAGE               "Text language"
@@ -1204,7 +1205,8 @@
 #define TR_MENU_DISPLAY                 "DISPLAY"
 #define TR_MENU_OTHER                   "Inny "
 #define TR_MENU_INVERT                  "Odwróć"
-#define TR_AUDIO_MUTE                  TR("Audio mute","Mute if no sound")
+#define TR_AUDIO_MUTE                   TR("Audio mute","Mute if no sound")
+#define TR_PWM_OUTPUT                   "PWM output"
 #define TR_JITTER_FILTER                "Filtr ADC"
 #define TR_DEAD_ZONE                    "Dead zone"
 #define TR_RTC_CHECK                    TR("Check RTC", "Check RTC voltage")

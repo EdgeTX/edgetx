@@ -947,6 +947,7 @@
 #define TR_SENSOR                      TR_BW_COL("SENSOR", "Sensor")
 #define TR_COUNTRY_CODE                "Landescode"
 #define TR_USBMODE                     "USB Modus"
+#define TR_USB_CHARGE                  "Laden wenn Sender an"
 #define TR_JACK_MODE                   "Klinken-Modus"
 #define TR_VOICE_LANGUAGE              "Sprachansagen"
 #define TR_TEXT_LANGUAGE               "Textsprache"
@@ -1206,6 +1207,7 @@
 #define TR_MENU_OTHER                  "Weitere"
 #define TR_MENU_INVERT                 TR_BW_COL("Invert.", "Invertieren")
 #define TR_AUDIO_MUTE                  TR("Ton Stumm","Geräuschunterdrückung")
+#define TR_PWM_OUTPUT                  "PWM output"
 #define TR_JITTER_FILTER               "ADC Filter"
 #define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("RTC Prüfen", "RTC Spannung prüfen")

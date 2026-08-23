@@ -283,12 +283,6 @@
 #define FLASH_SPI_DMA_TX_STREAM        LL_DMA_STREAM_5
 #define FLASH_SPI_DMA_RX_STREAM        LL_DMA_STREAM_6
 
-#if defined(RADIO_NV14_FAMILY) || defined(RADIO_PL18U)
-  #define STORAGE_USE_SDIO
-#else
-  #define STORAGE_USE_SPI_FLASH
-#endif
-
 // SDRAM
 #define SDRAM_RCC_AHB1Periph            (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOD | RCC_AHB1Periph_GPIOE | RCC_AHB1Periph_GPIOF | RCC_AHB1Periph_GPIOG | RCC_AHB1Periph_GPIOH)
 #define SDRAM_RCC_AHB3Periph            RCC_AHB3Periph_FMC

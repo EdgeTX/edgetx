@@ -24,6 +24,9 @@
 #include "definitions.h"
 
 bool usbChargerLed() { return true; }
+#if defined(USB_CHARGE_CONTROL)
+void usbChargerEnableCharge(bool enable) {}
+#endif
 void ledRed() {}
 void ledGreen() {}
 void ledBlue() {}

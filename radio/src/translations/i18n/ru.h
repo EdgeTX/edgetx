@@ -949,6 +949,7 @@
 #define TR_SENSOR                      "СЕНСОР"
 #define TR_COUNTRY_CODE                "Код страны"
 #define TR_USBMODE                     "Режим USB"
+#define TR_USB_CHARGE                  "Зарядка при вкл. пульте"
 #define TR_JACK_MODE                   "Режим разъема"
 #define TR_VOICE_LANGUAGE              "Язык озвучки"
 #define TR_TEXT_LANGUAGE               "Text language"
@@ -1207,6 +1208,7 @@
 #define TR_MENU_OTHER                  "Другое"
 #define TR_MENU_INVERT                 "Инвертир"
 #define TR_AUDIO_MUTE                  TR("Выкл звук", "Выкл звук")
+#define TR_PWM_OUTPUT                  "PWM output"
 #define TR_JITTER_FILTER               "Фильтр АЦП"
 #define TR_DEAD_ZONE                   "Зона нечувств"
 #define TR_RTC_CHECK                   TR("Проверка RTC", "Проверка RTC")

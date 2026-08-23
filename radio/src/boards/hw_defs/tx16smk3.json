@@ -479,7 +479,6 @@
   "hardware": {
     "has_ext_module_support": true,
     "has_int_module_support": true,
-    "sport_max_baudrate": 400000,
     "cpu": "STM32H750xB",
     "cpu_type": "STM32H7"
   },
