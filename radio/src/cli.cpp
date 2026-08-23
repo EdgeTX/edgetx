@@ -1233,7 +1233,7 @@ static void _sp_Tx(uint8_t* buf, uint32_t len)
   }
 }
 
-#if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
+#if defined(HARDWARE_INTERNAL_MODULE)
 static etx_module_state_t *spModuleState = nullptr;
 
 static void spModuleInit(int port_n, int baudrate)
