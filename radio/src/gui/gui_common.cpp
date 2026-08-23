@@ -1077,7 +1077,7 @@ bool isExternalModuleAvailable(int moduleType)
 #endif
 
 #if !defined(DSMP)
-  if (moduleType == MODULE_TYPE_DSMP) return false;
+  if (moduleType == MODULE_TYPE_LEMON_DSMP) return false;
 #endif
 
 #if !defined(SBUS)
