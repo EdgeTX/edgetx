@@ -2930,18 +2930,20 @@ static int luaSetRgbLedColor(lua_State * L)
   uint8_t b = luaL_checkunsigned(L, 4);
 
 #if CFS_LED_STRIP_LENGTH > 0
-  if (id >= BLING_LED_STRIP_LENGTH) {
-    id -= BLING_LED_STRIP_LENGTH;
-    uint8_t swIdx = switchGetSwitchFromCustomIdx(id / CFS_LEDS_PER_SWITCH);
-    if (g_model.getSwitchType(swIdx) == SWITCH_NONE) {
-      rgbSetLedColor(id + CFS_LED_STRIP_START, r, g, b);
-    } else {
-      lua_pushboolean(L, false);
-      return 1;
-    }
-  } else {
+#if BLING_LED_STRIP_LENGTH > 0
+  if (id < BLING_LED_STRIP_LENGTH) {
     rgbSetLedColor(id + BLING_LED_STRIP_START, r, g, b);
+    lua_pushboolean(L, true);
+    return 1;
   }
+  id -= BLING_LED_STRIP_LENGTH;
+#endif
+  uint8_t swIdx = switchGetSwitchFromCustomIdx(id / CFS_LEDS_PER_SWITCH);
+  if (g_model.getSwitchType(swIdx) != SWITCH_NONE) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+  rgbSetLedColor(id + CFS_LED_STRIP_START, r, g, b);
 #else
   rgbSetLedColor(id + BLING_LED_STRIP_START, r, g, b);
 #endif
