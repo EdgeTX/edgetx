@@ -45,6 +45,10 @@ void initSerialPorts();
 void serialInit(uint8_t port_nr, int mode);
 void serialStop(uint8_t port_nr);
 
+#if !defined(BOOT)
+void serialSbusTrainerSetCtx();
+#endif
+
 //
 // Functions used by debug.h
 //

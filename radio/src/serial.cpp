@@ -499,6 +499,21 @@ void serialInit(uint8_t port_nr, int mode)
 #endif
 }
 
+#if !defined(BOOT)
+// SBUS trainer callbacks are shared with the ext module trainer: take them back
+void serialSbusTrainerSetCtx()
+{
+  int port_nr = serialGetModePort(UART_MODE_SBUS_TRAINER);
+  if (port_nr < 0) port_nr = serialGetModePort(UART_MODE_SBUS_TRAINER_INV);
+  if (port_nr < 0) return;
+
+  auto state = getSerialPortState(port_nr);
+  if (!state || !state->port || !state->usart_ctx) return;
+
+  serialSetCallBacks(state->mode, state->usart_ctx, state->port);
+}
+#endif
+
 void initSerialPorts()
 {
   for (uint8_t port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {

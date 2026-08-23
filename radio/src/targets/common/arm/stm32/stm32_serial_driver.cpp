@@ -129,6 +129,9 @@ static inline void _usart_isr_handler(_STM32_USART n)
 {
   auto st = &(_serial_states[n]);
 
+  // port already de-initialised: IRQ was still pending
+  if (!st->sp) return;
+
   // This tricks is necessary for now to allow
   // callbacks to use the serial context while
   // keeping the callbacks re-entrant
@@ -315,7 +318,7 @@ static void* stm32_serial_init(void* hw_def, const etx_serial_init* params)
 static void stm32_serial_deinit(void* ctx)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return;
+  if (!st || !st->sp) return;
 
   stm32_usart_deinit(st->sp->usart);
   stm32_serial_free_state(st);
@@ -328,7 +331,7 @@ static void stm32_serial_send_byte(void* ctx, uint8_t c)
   // only enables the corresponding IRQ
 
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return;
+  if (!st || !st->sp) return;
 
   auto sp = st->sp;
   auto buf_len = sp->tx_buffer.length;
@@ -367,7 +370,7 @@ extern uint32_t _e_dram;
 static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint32_t size)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return;
+  if (!st || !st->sp) return;
 
   // try TX DMA first
   auto sp = st->sp;
@@ -396,7 +399,7 @@ static void stm32_serial_send_buffer(void* ctx, const uint8_t* data, uint32_t si
 static bool stm32_serial_tx_completed(void* ctx)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return 1;
+  if (!st || !st->sp) return 1;
 
   return stm32_usart_tx_completed(st->sp->usart);
 }
@@ -404,7 +407,7 @@ static bool stm32_serial_tx_completed(void* ctx)
 static void stm32_wait_tx_completed(void* ctx)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return;
+  if (!st || !st->sp) return;
 
   while(!stm32_usart_tx_completed(st->sp->usart));
 }
@@ -412,7 +415,7 @@ static void stm32_wait_tx_completed(void* ctx)
 static void stm32_enable_rx(void* ctx)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return;
+  if (!st || !st->sp) return;
 
   stm32_usart_enable_rx(st->sp->usart);
 }
@@ -420,7 +423,7 @@ static void stm32_enable_rx(void* ctx)
 static int stm32_serial_get_byte(void* ctx, uint8_t* data)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return -1;
+  if (!st || !st->sp) return -1;
 
   auto sp = st->sp;
   const auto& rx_buf = sp->rx_buffer;
@@ -452,7 +455,7 @@ static int stm32_serial_get_byte(void* ctx, uint8_t* data)
 static int stm32_serial_get_last_byte(void* ctx, uint32_t idx, uint8_t* data)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return -1;
+  if (!st || !st->sp) return -1;
 
   auto sp = st->sp;
   const auto& rx_buf = sp->rx_buffer;
@@ -484,7 +487,7 @@ static int stm32_serial_get_last_byte(void* ctx, uint32_t idx, uint8_t* data)
 static int stm32_serial_get_buffered_bytes(void* ctx)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return -1;
+  if (!st || !st->sp) return -1;
 
   auto sp = st->sp;
   const auto& rx_buf = sp->rx_buffer;
@@ -517,7 +520,7 @@ static inline void _copy_buffer_chunk(const stm32_serial_buffer& rx_buf,
 static int stm32_serial_copy_rx_buffer(void* ctx, uint8_t* buf, uint32_t len)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return -1;
+  if (!st || !st->sp) return -1;
 
   auto sp = st->sp;
   const auto& rx_buf = sp->rx_buffer;
@@ -560,7 +563,7 @@ static int stm32_serial_copy_rx_buffer(void* ctx, uint8_t* buf, uint32_t len)
 static void stm32_serial_clear_rx_buffer(void* ctx)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return;
+  if (!st || !st->sp) return;
 
   auto sp = st->sp;
   auto buf_st = &st->rx_buf;
@@ -578,7 +581,7 @@ static void stm32_serial_clear_rx_buffer(void* ctx)
 static uint32_t stm32_serial_get_baudrate(void* ctx)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return 0;
+  if (!st || !st->sp) return 0;
 
   auto sp = st->sp;
   auto usart = sp->usart;
@@ -588,7 +591,7 @@ static uint32_t stm32_serial_get_baudrate(void* ctx)
 static void stm32_serial_set_baudrate(void* ctx, uint32_t baudrate)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return;
+  if (!st || !st->sp) return;
   
   auto sp = st->sp;
   auto usart = sp->usart;
@@ -598,7 +601,7 @@ static void stm32_serial_set_baudrate(void* ctx, uint32_t baudrate)
 static void stm32_serial_hw_option(void* ctx, uint32_t option)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return;
+  if (!st || !st->sp) return;
 
   auto sp = st->sp;
   auto usart = sp->usart;
@@ -608,7 +611,7 @@ static void stm32_serial_hw_option(void* ctx, uint32_t option)
 static void stm32_serial_set_idle_cb(void* ctx, void (*on_idle)(void*), void* param)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return;
+  if (!st || !st->sp) return;
 
   st->callbacks.on_idle = on_idle;
   st->callbacks.on_idle_ctx = param;

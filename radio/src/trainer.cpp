@@ -139,6 +139,7 @@ void checkTrainerSettings()
         break;
 
       case TRAINER_MODE_MASTER_SERIAL:
+        serialSbusTrainerSetCtx();
         sbusAuxSetEnabled(true);
         break;
 
@@ -203,6 +204,7 @@ static void trainer_init_module_sbus()
 static void trainer_stop_module_sbus()
 {
   if (!sbus_trainer_mod_st) return;
+  sbusSetReceiveCtx(nullptr, nullptr);
   modulePortDeInit(sbus_trainer_mod_st);
   modulePortSetPower(EXTERNAL_MODULE,false);
   sbus_trainer_mod_st = nullptr;
