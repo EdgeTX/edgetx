@@ -940,6 +940,7 @@
 #define TR_SENSOR                      "SENSORI"
 #define TR_COUNTRY_CODE                "Maatunnus"
 #define TR_USBMODE                     "USB-tila"
+#define TR_USB_CHARGE                  "Lataa radio päällä"
 #define TR_JACK_MODE                   "Jack Mode"
 #define TR_VOICE_LANGUAGE              "Äänen kieli"
 #define TR_TEXT_LANGUAGE               "Text language"
@@ -1207,6 +1208,7 @@
 #define TR_MENU_OTHER                  "Other"
 #define TR_MENU_INVERT                 "Invert"
 #define TR_AUDIO_MUTE                  TR("Audio mute","Mute if no sound")
+#define TR_PWM_OUTPUT                  "PWM output"
 #define TR_JITTER_FILTER               "ADC Filter"
 #define TR_DEAD_ZONE                   "Dead zone"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC voltage")

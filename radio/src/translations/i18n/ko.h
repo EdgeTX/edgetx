@@ -990,6 +990,7 @@
 #define TR_SENSOR                         "센서"
 #define TR_COUNTRY_CODE                   "국가 코드"
 #define TR_USBMODE                        "USB 모드"
+#define TR_USB_CHARGE                     "전원 켜짐 시 충전"
 #define TR_JACK_MODE                      "잭 모드"
 #define TR_VOICE_LANGUAGE                 "음성 언어"
 #define TR_TEXT_LANGUAGE               "Text language"
@@ -1251,6 +1252,7 @@
 #define TR_MENU_OTHER                     "기타"
 #define TR_MENU_INVERT                    "반전"
 #define TR_AUDIO_MUTE                     TR("오디오 음소거", "소리가 없을 때 음소거")
+#define TR_PWM_OUTPUT                     "PWM output"
 #define TR_JITTER_FILTER                  "ADC 필터"
 #define TR_DEAD_ZONE                      "데드존"
 #define TR_RTC_CHECK                      TR("RTC 확인", "RTC 전압 확인")

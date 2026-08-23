@@ -241,4 +241,8 @@ void usbChargerInit();
 bool usbChargerLed();
 #endif
 
+#if defined(USB_CHARGE_CONTROL)
+void usbChargerEnableCharge(bool enable);
+#endif
+
 #endif // _BOARD_H_

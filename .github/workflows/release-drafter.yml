@@ -19,7 +19,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.tag }}
           fetch-depth: 0
@@ -159,7 +159,7 @@ jobs:
           ls -lh release-assets/*.zip
 
       - name: Create draft release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ inputs.tag }}
           draft: true
@@ -177,7 +177,7 @@ jobs:
             > If you are using a STM32 F2 based radio, *stop right now*, this release is not for you! EdgeTX v2.11 is the last release series to support these radios. Check [this list](https://hackmd.io/@edgetx/B12oQyQKye) if you are unsure if this affects you. Because of this, EdgeTX v2.11 will continue to be supported alongside 2.12, 3.0, etc., with a focus on bug fixes.
 
             > [!WARNING]
-            > Radios based on STM32H7 MCUs update differently to older radios. Do **not** use the "Flash via USB" option in EdgeTX Buddy with them (yet). To update radios such as the Flysky PA01 & ST16, Jumper T15 Pro, RM TX15 and RM TX16S MK3, please follow the instructions in the [EdgeTX Manual](https://manual.edgetx.org/installing-and-updating-edgetx/updating-your-stm32h7-radio).
+            > Radios based on STM32H7 MCUs update differently to older radios. Do **not** use the "Flash via USB" option in EdgeTX Buddy with them (yet). To update radios such as the Flysky PA01 & ST16, Jumper T15 Pro, RM TX15, RM GX15 and RM TX16S MK3, please follow the instructions in the [EdgeTX Manual](https://manual.edgetx.org/installing-and-updating-edgetx/updating-your-stm32h7-radio).
 
             > [!NOTE]
             > For MacOS users, Companion is now only compiled for MacOS 12 and above. Stay with v2.10.5 or earlier if you need support for an older version of MacOS.

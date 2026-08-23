@@ -137,6 +137,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x3878746F;
     case BOARD_RADIOMASTER_TX15:
       return 0x4978746F;
+    case BOARD_RADIOMASTER_GX15:
+      return 0x4978746F;
     case BOARD_RADIOMASTER_TX16SMK3:
       return 0x4978746F;
     case BOARD_RADIOMASTER_TX12:
@@ -296,6 +298,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_RADIOMASTER_TX16S:
     case BOARD_RADIOMASTER_TX16SMK3:
     case BOARD_RADIOMASTER_TX15:
+    case BOARD_RADIOMASTER_GX15:
     case BOARD_FLYSKY_NV14:
     case BOARD_FLYSKY_EL18:
     case BOARD_FLYSKY_PA01: // 8MB SDRAM
@@ -359,7 +362,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
 
     case HasIMU:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board) ||
-              IS_RADIOMASTER_TX15(board));
+              IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board) || IS_RADIOMASTER_TX16SMK3(board));
 
     case HasInternalGPS:
       return ((IS_FAMILY_HORUS_OR_T16(board) && getCapability(board, HasAuxSerialMode)) ||
@@ -426,7 +429,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
               IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX15(board) ||
               IS_JUMPER_T15PRO(board) || IS_FLYSKY_PA01(board) ||
               IS_FLYSKY_ST16(board) || IS_RADIOMASTER_TX16SMK3(board) ||
-              IS_IFLIGHT_C14(board));
+              IS_IFLIGHT_C14(board) || IS_RADIOMASTER_GX15(board));
 
     default:
       return getBoardJson(board)->getCapability(capability);
@@ -664,6 +667,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Radiomaster TX16 SMK3";
     case BOARD_RADIOMASTER_TX15:
       return "Radiomaster TX15";
+    case BOARD_RADIOMASTER_GX15:
+      return "Radiomaster GX15";
     case BOARD_RADIOMASTER_ZORRO:
       return "Radiomaster Zorro";
     case BOARD_RADIOMASTER_GX12:
@@ -813,6 +818,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_HELLORADIOSKY_V14LCD:
   case BOARD_HELLORADIOSKY_V16:
   case BOARD_RADIOMASTER_TX15:
+  case BOARD_RADIOMASTER_GX15:
   case BOARD_RADIOMASTER_TX16SMK3:
   case BOARD_IFLIGHT_COMMANDO8:
   case BOARD_IFLIGHT_COMMANDO14:
@@ -888,6 +894,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
     case BOARD_RADIOMASTER_TX16S:
     case BOARD_RADIOMASTER_TX16SMK3:
     case BOARD_RADIOMASTER_TX15:
+    case BOARD_RADIOMASTER_GX15:
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:
     case BOARD_JUMPER_T20:

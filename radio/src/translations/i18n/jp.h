@@ -946,6 +946,7 @@
 #define TR_SENSOR                      "センサー"
 #define TR_COUNTRY_CODE                "カントリーコード"
 #define TR_USBMODE                     "USBモード"
+#define TR_USB_CHARGE                  "電源オン時に充電"
 #define TR_JACK_MODE                   "Jackモード"
 #define TR_VOICE_LANGUAGE              "音声言語"
 #define TR_TEXT_LANGUAGE               "Text language"
@@ -1204,6 +1205,7 @@
 #define TR_MENU_OTHER                  "その他"
 #define TR_MENU_INVERT                 "リバース"
 #define TR_AUDIO_MUTE                  TR("Audio mute","音源ミュート")
+#define TR_PWM_OUTPUT                  "PWM output"
 #define TR_JITTER_FILTER               "ADCフィルター"
 #define TR_DEAD_ZONE                   "デッドゾーン"
 #define TR_RTC_CHECK                   TR("Check RTC", "内蔵電池チェック")

@@ -93,7 +93,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board) ||
              IS_IFLIGHT_COMMANDO8(board) || IS_RADIOMASTER_BOXER(board) ||
              IS_RADIOMASTER_POCKET(board) || IS_JUMPER_T20(board) ||
-             IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_TX15(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T22(board);
+             IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T22(board);
     case HasIntModuleFlySky:
       return  id.contains("afhds2a") || id.contains("afhds3") ||
               IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board);
@@ -730,6 +730,13 @@ void registerOpenTxFirmwares()
 
   /* Radiomaster TX15 board */
   firmware = new OpenTxFirmware(FIRMWAREID("tx15"), Firmware::tr("Radiomaster TX15"), BOARD_RADIOMASTER_TX15);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+  firmware->addOptionsGroup({opt_bt, opt_internal_gps});
+  registerOpenTxFirmware(firmware);
+
+  /* Radiomaster GX15 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("gx15"), Firmware::tr("Radiomaster GX15"), BOARD_RADIOMASTER_GX15);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   firmware->addOptionsGroup({opt_bt, opt_internal_gps});

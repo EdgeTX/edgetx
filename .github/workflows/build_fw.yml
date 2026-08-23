@@ -57,7 +57,7 @@ jobs:
         - ${{ github.workspace }}:/src
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -88,7 +88,8 @@ jobs:
           - tprov2;tpros;bumblebee
           - mt12;gx12;t20;t20v2
           - t12max;tx12mk2;boxer
-          - tx15;tx16s
+          - tx16s
+          - tx15;gx15
           - x12s;f16
           - v14;v14lcd;v16
           - x10;x10express
@@ -105,7 +106,7 @@ jobs:
         - ${{ github.workspace }}:/src
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 

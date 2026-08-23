@@ -812,6 +812,7 @@
 #define STR_PROTOCOL currentLangStrings->STR_PROTOCOL
 #define STR_PT currentLangStrings->STR_PT
 #define STR_PTS currentLangStrings->STR_PTS
+#define STR_PWM_OUTPUT currentLangStrings->STR_PWM_OUTPUT
 #define STR_PWR_AUTO_OFF currentLangStrings->STR_PWR_AUTO_OFF
 #define STR_PWR_OFF_DELAY currentLangStrings->STR_PWR_OFF_DELAY
 #define STR_PWR_ON_DELAY currentLangStrings->STR_PWR_ON_DELAY
@@ -1012,6 +1013,7 @@
 #define STR_UPDATE_RX_OPTIONS currentLangStrings->STR_UPDATE_RX_OPTIONS
 #define STR_UPDATE_TX_OPTIONS currentLangStrings->STR_UPDATE_TX_OPTIONS
 #define STR_US currentLangStrings->STR_US
+#define STR_USB_CHARGE currentLangStrings->STR_USB_CHARGE
 #define STR_USB_JOYSTICK currentLangStrings->STR_USB_JOYSTICK
 #define STR_USB_MASS_STORAGE currentLangStrings->STR_USB_MASS_STORAGE
 #define STR_USB_SERIAL currentLangStrings->STR_USB_SERIAL

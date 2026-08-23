@@ -448,7 +448,8 @@
       ex.simuInit();
       runner.setFatfsPaths('/', '/');
       ex.simuCreateDefaults();
-      ex.simuStart(1);
+      // WASI has no timezone support, so the module needs our UTC offset.
+      ex.simuStart(1, -new Date().getTimezoneOffset() * 60);
 
       if (canvas) {
         lcdRenderer = new LcdRenderer(canvas);
