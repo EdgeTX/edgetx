@@ -505,7 +505,15 @@ void serialInit(uint8_t port_nr, int mode)
 int serialGetSbusTrainerPort()
 {
   int port_nr = serialGetModePort(UART_MODE_SBUS_TRAINER);
+
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
+  // Ports without a hardware inverter rely on the USART inverting RX itself,
+  // which only exists on these families (see stm32_serial_init()). Elsewhere
+  // the mode cannot work, so do not offer such a port as trainer input even
+  // if a configuration written on another radio selects it.
   if (port_nr < 0) port_nr = serialGetModePort(UART_MODE_SBUS_TRAINER_INV);
+#endif
+
   return port_nr;
 }
 
