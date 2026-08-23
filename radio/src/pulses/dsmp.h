@@ -28,6 +28,10 @@ struct DSMPModuleStatus {
   tmr10ms_t lastUpdate;
   uint8_t	ch_order   = 0xFF;
   uint8_t	flags      = 0;
+  uint16_t	fm_year	   = 0;
+  uint8_t	fm_mm	   = 0;
+  uint8_t	fm_dd	   = 0;
+  uint8_t	fm_rev	   = 0;
 
   inline bool isValid() const { return (bool)(get_tmr10ms() - lastUpdate < 500);}
   void getStatusString(char *statusText) const;
