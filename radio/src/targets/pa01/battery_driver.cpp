@@ -216,7 +216,7 @@ void ledChargingInfo(uint16_t chargeState) {
     ledIdx = LED_CHARGING_START;
   else
     ledIdx += LED_CHARGING_START > LED_CHARGING_END ? -1 : 1;
-  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
+  for (int i = 0; i < LED_STRIP_LENGTH; i++) {
     uint8_t green = 0;
     if (CHARGE_FINISHED == chargeState) {
       if (LED_CHARGING_START > LED_CHARGING_END && i <= LED_CHARGING_START && i >= LED_CHARGING_END)
