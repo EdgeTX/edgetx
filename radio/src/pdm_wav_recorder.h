@@ -43,8 +43,18 @@ class PdmWavRecorder
   // Called from the audio task every ~4 ms.
   static void audioTick();
 
-  // Trim leading/trailing silence in-place and patch the WAV header.
-  static FRESULT trimSilence(const char* path);
+  // Finish a take in one go, in two passes over the card: trim leading and
+  // trailing silence, high-pass, compensate CIC droop, normalise, fade the
+  // edges, patch the WAV header, and report the peak envelope (one 0..255
+  // level per column), the final length and how much of the capture hit
+  // int16 saturation (a high value means PDM_POST_GAIN_SHIFT is too hot).
+  static FRESULT finalise(const char* path, uint8_t* env, uint16_t cols,
+                          uint32_t* totalSamples = nullptr,
+                          uint32_t* clippedPermille = nullptr);
+
+  // Peak of everything written since the previous call, 0..255 of full scale.
+  // Feeds the live waveform; a lost update just costs one display column.
+  uint8_t takePeakLevel();
 
   bool isRecording() const { return recording; }
   uint32_t getSamplesWritten() const { return samplesWritten; }
@@ -62,6 +72,7 @@ class PdmWavRecorder
   volatile uint32_t samplesWritten = 0;
   uint32_t maxSamples = 0;  // 0 = open-ended
   volatile bool recording = false;
+  volatile uint16_t peakSinceRead = 0;
 };
 
 #endif  // PDM_CLOCK

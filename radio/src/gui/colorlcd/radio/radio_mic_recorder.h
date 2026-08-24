@@ -29,6 +29,7 @@
 
 class TextButton;
 class StaticText;
+class WaveformView;
 
 class RadioMicRecorder : public Page
 {
@@ -37,7 +38,7 @@ class RadioMicRecorder : public Page
   ~RadioMicRecorder() override;
 
  protected:
-  enum class State : uint8_t { IDLE, COUNTDOWN, RECORDING };
+  enum class State : uint8_t { IDLE, COUNTDOWN, RECORDING, REVIEW };
 
   static constexpr uint32_t COUNTDOWN_SECONDS = 5;
   static constexpr int PATH_MAX_LEN = sizeof(SOUNDS_PATH) + 14; // "/lang/rec_00.wav\0"
@@ -48,9 +49,19 @@ class RadioMicRecorder : public Page
   char pendingRename[PATH_MAX_LEN] = {0};
   PdmWavRecorder recorder;
 
+  bool takeSaved = false;
+  bool playingShown = false;
+  uint32_t lastWaveSamples = 0;
+  uint32_t takeSamples = 0;
+  tmr10ms_t playStart = 0;
+
   StaticText* bigLabel = nullptr;
   StaticText* infoLabel = nullptr;
   TextButton* actionButton = nullptr;
+  TextButton* playButton = nullptr;
+  TextButton* saveButton = nullptr;
+  TextButton* redoButton = nullptr;
+  WaveformView* waveform = nullptr;
 
   void buildHeader(Window* window);
   void buildBody(Window* window);
@@ -58,10 +69,16 @@ class RadioMicRecorder : public Page
   void onEvent(event_t event) override;
 
   void onActionPressed();
+  void onPlayPressed();
   void enterIdle();
   void enterCountdown();
   void enterRecording();
+  void enterReview();
   void stopRecording();
+  void discardTake();
+  void askSaveAs();
+  void showReviewButtons(bool reviewing);
+  bool isPlayingTake() const;
   void processPendingRename();
   void applyRename();
   void refreshUI();
