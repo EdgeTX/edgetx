@@ -29,7 +29,7 @@ SDMMC uses own DMA controler
 DMA1
 Stream0:  LED_STRIP_TIMER_DMA_STREAM
 Stream1:  INTMODULE_DMA_STREAM
-Stream2:
+Stream2:  PDM_DFSDM_DMA_STREAM
 Stream3:  TELEMETRY_DMA_Stream_RX
 Stream4:  I2S_DMA_Stream
 Stream5:  INTMODULE_RX_DMA_STREAM
@@ -59,6 +59,8 @@ TIM14:	MS_TIMER
 TIM15:
 TIM16:
 TIM17:	ROTARY_ENCODER_TIMER
+
+DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
  */
 
 #ifndef _HAL_H_
@@ -354,6 +356,25 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define I2S_DMA_Stream_Request        LL_DMAMUX1_REQ_SPI2_TX
 #define I2S_DMA_Stream_IRQn           DMA1_Stream4_IRQn
 #define I2S_DMA_Stream_IRQHandler     DMA1_Stream4_IRQHandler
+
+// MEMS — PDM microphone (LMD4737T261-04C02), captured by DFSDM:
+//   PD3 = DFSDM1 CKOUT (1.6 MHz), PE4 = DFSDM1_DATIN3
+#define PDM_CLOCK                       GPIO_PIN(GPIOD, 3)
+#define PDM_CLOCK_GPIO_AF               LL_GPIO_AF_3
+#define PDM_CLOCK_FREQ                  1600000   // PCLK2 / 75
+#define PDM_DATA                        GPIO_PIN(GPIOE, 4)
+#define PDM_DATA_GPIO_AF                LL_GPIO_AF_3
+
+#define PDM_DFSDM_KER_FREQ              PERI2_FREQUENCY  // DFSDM1SEL = 0 (pclk2)
+#define PDM_DFSDM_CHANNEL               DFSDM1_Channel3
+#define PDM_DFSDM_CHANNEL_ID            3
+#define PDM_DFSDM_FILTER                DFSDM1_Filter0
+#define PDM_DFSDM_FOSR                  100  // Sinc3, 1.6 MHz / 100 = 16 kHz PCM
+#define PDM_DFSDM_SITP                  0    // L/R strapped low: strobe on rising edge
+
+#define PDM_DFSDM_DMA                   DMA1
+#define PDM_DFSDM_DMA_STREAM            LL_DMA_STREAM_2
+#define PDM_DFSDM_DMA_REQUEST           LL_DMAMUX1_REQ_DFSDM1_FLT0
 
 // I2C Bus
 #define I2C_B1                          I2C4
