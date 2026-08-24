@@ -29,7 +29,7 @@ SDMMC uses own DMA controler
 DMA1
 Stream0:  LED_STRIP_TIMER_DMA_STREAM
 Stream1:  INTMODULE_DMA_STREAM
-Stream2:  FLYSKY_HALL_DMA_Stream_RX
+Stream2:  PDM_CAPTURE_DMA_STREAM
 Stream3:  TELEMETRY_DMA_Stream_RX
 Stream4:  I2S_DMA_Stream
 Stream5:  INTMODULE_RX_DMA_STREAM
@@ -55,7 +55,7 @@ TIM7:
 TIM8:   TRAINER_TIMER
 TIM12:  MIXER_SCHEDULER_TIMER
 TIM14:  MS_TIMER
-TIM15:  PDM
+TIM15:
 TIM16:
 TIM17:  ROTARY_ENCODER_TIMER
  */
@@ -198,10 +198,6 @@ TIM17:  ROTARY_ENCODER_TIMER
 #define SWITCHES_J_2POS
 #define SWITCHES_GPIO_REG_J
 #define SWITCHES_GPIO_PIN_J              PCA95XX_P3
-
-// MEMS
-#define PDM_DATA                         GPIO_PIN(GPIOD, 4)
-#define PDM_CLK                          GPIO_PIN(GPIOD, 13)
 
 // Expanders
 #define IO_INT_GPIO                      GPIO_PIN(GPIOB, 3)
@@ -395,6 +391,23 @@ TIM17:  ROTARY_ENCODER_TIMER
 #define I2S_DMA_Stream_Request           LL_DMAMUX1_REQ_SPI2_TX
 #define I2S_DMA_Stream_IRQn              DMA1_Stream4_IRQn
 #define I2S_DMA_Stream_IRQHandler        DMA1_Stream4_IRQHandler
+
+#if !defined(FLYSKY_GIMBAL)
+  #define PDM_CLOCK                     GPIO_PIN(GPIOE, 5)
+  #define PDM_CLOCK_GPIO_AF             LL_GPIO_AF_6
+  #define PDM_SAI_BLOCK                 SAI1_Block_A
+  #define PDM_SAI_KER_FREQ              48000000  // PLL1Q (see system_clock.c)
+  #define PDM_CLOCK_FREQ                1600000   // 1.6 MHz → MCKDIV=30, R=100 → 16 kHz PCM direct
+  #define PDM_DATA                      GPIO_PIN(GPIOE, 4)
+  #define PDM_DATA_GPIO_PORT            GPIOE
+  #define PDM_DATA_GPIO_PIN             4
+  #define PDM_DATA_IDR_MASK             (1U << PDM_DATA_GPIO_PIN)
+  #define PDM_CAPTURE_DMA               DMA1
+  #define PDM_CAPTURE_DMA_STREAM        LL_DMA_STREAM_2
+  #define PDM_CAPTURE_DMA_REQUEST       LL_DMAMUX1_REQ_TIM15_UP
+  #define PDM_CAPTURE_TIMER             TIM15
+  #define PDM_CAPTURE_TIMER_FREQ        (PERI2_FREQUENCY * TIMER_MULT_APB2)
+#endif
 
 // I2C Bus
 #define I2C_B1                           I2C4
