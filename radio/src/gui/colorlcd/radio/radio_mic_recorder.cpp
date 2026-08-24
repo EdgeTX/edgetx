@@ -43,31 +43,35 @@ static constexpr coord_t MIC_BTN_H = EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_L
 class WaveformView : public Window
 {
  public:
-  static constexpr coord_t COL_STEP = 2;
-  static constexpr uint16_t MAX_COLS = 256;
+  static constexpr uint16_t MAX_COLS = 400;
 
   WaveformView(Window* parent, const rect_t& rect) : Window(parent, rect)
   {
     padAll(PAD_ZERO);
 
-    uint16_t fit = (uint16_t)((width() - 1) / COL_STEP + 1);
-    maxCols = fit < MAX_COLS ? fit : MAX_COLS;
+    // Widen the columns rather than leaving the trace short of the edge:
+    // 800 px screens need more than MAX_COLS columns at 2 px.
+    colStep = (coord_t)((width() + MAX_COLS - 1) / MAX_COLS);
+    if (colStep < 2) colStep = 2;
+    maxCols = (uint16_t)((width() - 1) / colStep + 1);
+    if (maxCols > MAX_COLS) maxCols = MAX_COLS;
+    traceW = (coord_t)((maxCols - 1) * colStep);
 
     const lv_coord_t mid = height() / 2;
     basePts[0] = {0, mid};
-    basePts[1] = {(lv_coord_t)(width() - 1), mid};
+    basePts[1] = {traceW, mid};
     baseLine = lv_line_create(lvobj);
     etx_obj_add_style(baseLine, styles->graph_dashed, LV_PART_MAIN);
     lv_line_set_points(baseLine, basePts, 2);
 
     topLine = lv_line_create(lvobj);
     etx_obj_add_style(topLine, styles->graph_line, LV_PART_MAIN);
-    etx_obj_add_style(topLine, styles->line_color[COLOR_THEME_ACTIVE_INDEX],
+    etx_obj_add_style(topLine, styles->line_color[COLOR_THEME_SECONDARY1_INDEX],
                       LV_PART_MAIN);
 
     botLine = lv_line_create(lvobj);
     etx_obj_add_style(botLine, styles->graph_line, LV_PART_MAIN);
-    etx_obj_add_style(botLine, styles->line_color[COLOR_THEME_ACTIVE_INDEX],
+    etx_obj_add_style(botLine, styles->line_color[COLOR_THEME_SECONDARY1_INDEX],
                       LV_PART_MAIN);
 
     cursorLine = lv_line_create(lvobj);
@@ -101,7 +105,7 @@ class WaveformView : public Window
     }
     if (permille > 1000) permille = 1000;
 
-    const lv_coord_t x = (lv_coord_t)((permille * (width() - 1)) / 1000);
+    const lv_coord_t x = (lv_coord_t)((permille * traceW) / 1000);
     if (cursorAt >= 0 && x == cursorPts[0].x) return;
 
     cursorPts[0] = {x, 0};
@@ -133,6 +137,8 @@ class WaveformView : public Window
   }
 
  protected:
+  coord_t colStep = 2;
+  coord_t traceW = 0;
   uint16_t maxCols = 0;
   uint16_t count = 0;
   uint16_t merge = 1;
@@ -173,7 +179,7 @@ class WaveformView : public Window
     const int32_t half = height() / 2 - 1;
 
     for (uint16_t i = 0; i < count; i++) {
-      const lv_coord_t x = (lv_coord_t)(i * COL_STEP);
+      const lv_coord_t x = (lv_coord_t)(i * colStep);
       const lv_coord_t a = (lv_coord_t)((cols[i] * half) / 255);
       topPts[i] = {x, (lv_coord_t)(mid - a)};
       botPts[i] = {x, (lv_coord_t)(mid + a)};
