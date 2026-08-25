@@ -981,6 +981,9 @@
 #define TR_GET_READY                   "준비하세요..."
 #define TR_SAVED                       "저장됨:"
 #define TR_SAVE_AS                     "다른 이름으로 저장"
+#define TR_AUTO_TRIM                   "Auto-trim"
+#define TR_TRIM_START                  "Trim start"
+#define TR_TRIM_END                    "Trim end"
 #define TR_OPEN_ERROR                  "열기 오류"
 
 #define TR_TURN_OFF_RECEIVER              "수신기 전원 끄기"

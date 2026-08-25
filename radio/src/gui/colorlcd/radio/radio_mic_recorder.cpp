@@ -27,6 +27,7 @@
 
 #include "audio.h"
 #include "button.h"
+#include "slider.h"
 #include "dialog.h"
 #include "edgetx.h"
 #include "ff.h"
@@ -37,6 +38,9 @@
 
 static constexpr coord_t MIC_BTN_W = 260;
 static constexpr coord_t MIC_BTN_H = EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_LARGE;
+
+// Review needs two rows in the space the single record button occupies.
+static constexpr coord_t REV_BTN_H = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM;
 
 // Mirrored peak envelope, drawn as two polylines around a centre line. Fed one
 // column at a time while recording, then re-filled from the finished file.
@@ -234,9 +238,11 @@ void RadioMicRecorder::buildBody(Window* window)
   const coord_t h = window->height();
 
   const coord_t btnY = h - MIC_BTN_H - PAD_LARGE * 2;
+  const coord_t rowY2 = h - REV_BTN_H - PAD_LARGE;      // play / save / record
+  const coord_t rowY1 = rowY2 - REV_BTN_H - PAD_SMALL;  // the trim actions
   const coord_t bigH = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM;
   const coord_t infoH = EdgeTxStyles::STD_FONT_HEIGHT;
-  const coord_t infoY = btnY - infoH - PAD_SMALL;
+  const coord_t infoY = rowY1 - infoH - PAD_SMALL;
   const coord_t waveY = PAD_SMALL + bigH + PAD_SMALL;
 
   bigLabel = new StaticText(
@@ -265,44 +271,164 @@ void RadioMicRecorder::buildBody(Window* window)
   actionButton->setFont(FONT_XL_INDEX);
 
   const coord_t revW = (w - PAD_LARGE * 4) / 3;
+  const coord_t revX[3] = {PAD_LARGE, (coord_t)(PAD_LARGE * 2 + revW),
+                           (coord_t)(PAD_LARGE * 3 + revW * 2)};
+
+  autoTrimButton = new TextButton(
+      window, {revX[0], rowY1, revW, REV_BTN_H}, STR_AUTO_TRIM, [this]() {
+        onAutoTrim();
+        return 0;
+      });
+
+  trimStartButton = new TextButton(
+      window, {revX[1], rowY1, revW, REV_BTN_H}, STR_TRIM_START, [this]() {
+        enterTrim(TrimMode::START);
+        return 0;
+      });
+
+  trimEndButton = new TextButton(
+      window, {revX[2], rowY1, revW, REV_BTN_H}, STR_TRIM_END, [this]() {
+        enterTrim(TrimMode::END);
+        return 0;
+      });
 
   playButton = new TextButton(
-      window, {PAD_LARGE, btnY, revW, MIC_BTN_H}, STR_PLAY_FILE, [this]() {
+      window, {revX[0], rowY2, revW, REV_BTN_H}, STR_PLAY_FILE, [this]() {
         onPlayPressed();
         return 0;
       });
-  playButton->setWrap();
 
   saveButton = new TextButton(
-      window, {PAD_LARGE * 2 + revW, btnY, revW, MIC_BTN_H}, STR_SAVE_AS,
-      [this]() {
+      window, {revX[1], rowY2, revW, REV_BTN_H}, STR_SAVE_AS, [this]() {
         askSaveAs();
         return 0;
       });
-  saveButton->setWrap();
 
   redoButton = new TextButton(
-      window, {PAD_LARGE * 3 + revW * 2, btnY, revW, MIC_BTN_H}, STR_RECORD,
-      [this]() {
+      window, {revX[2], rowY2, revW, REV_BTN_H}, STR_RECORD, [this]() {
         discardTake();
         enterCountdown();
         return 0;
       });
-  redoButton->setWrap();
 
-  playButton->hide();
-  saveButton->hide();
-  redoButton->hide();
+  trimSlider = new Slider(
+      window, w - PAD_LARGE * 2, 0, 1000,
+      [this]() { return trimPermille; },
+      [this](int v) { onTrimSliderMoved(v); });
+  trimSlider->setPos(PAD_LARGE, rowY1);
+
+  applyButton = new TextButton(
+      window, {revX[0], rowY2, revW, REV_BTN_H}, STR_OK, [this]() {
+        onApplyTrim();
+        return 0;
+      });
+
+  cancelButton = new TextButton(
+      window, {revX[1], rowY2, revW, REV_BTN_H}, STR_CANCEL, [this]() {
+        exitTrim();
+        return 0;
+      });
+
+  updateButtons();
+  built = true;
 }
 
-void RadioMicRecorder::showReviewButtons(bool reviewing)
+// Slider runs 0..1000 over the take so its range never has to change as the
+// take gets shorter.
+uint32_t RadioMicRecorder::trimSample() const
 {
-  actionButton->show(!reviewing);
-  playButton->show(reviewing);
-  saveButton->show(reviewing);
-  redoButton->show(reviewing);
-  lv_group_focus_obj(reviewing ? playButton->getLvObj()
-                               : actionButton->getLvObj());
+  if (takeSamples == 0) return 0;
+  return (uint32_t)(((uint64_t)trimPermille * (takeSamples - 1)) / 1000U);
+}
+
+void RadioMicRecorder::enterTrim(TrimMode mode)
+{
+  if (isPlayingTake()) audioQueue.stopAll();
+  if (takeSamples < 2) return;
+
+  trimMode = mode;
+  trimPermille = (mode == TrimMode::START) ? 0 : 1000;
+  trimSlider->setValue(trimPermille);
+  waveform->setCursor(trimPermille);
+  updateButtons();
+  refreshUI();
+}
+
+void RadioMicRecorder::exitTrim()
+{
+  trimMode = TrimMode::NONE;
+  waveform->setCursor(-1);
+  updateButtons();
+  refreshUI();
+}
+
+void RadioMicRecorder::onTrimSliderMoved(int value)
+{
+  trimPermille = value;
+  waveform->setCursor(value);
+  refreshUI();
+}
+
+void RadioMicRecorder::onApplyTrim()
+{
+  const uint32_t cut = trimSample();
+  const TrimMode mode = trimMode;
+
+  exitTrim();
+
+  if (mode == TrimMode::START) {
+    applyTrim(cut, takeSamples - 1);
+  } else {
+    applyTrim(0, cut);
+  }
+}
+
+// Trims are sample surgery on the finished file: cut, refade the new edge,
+// refresh the trace. Playback stops because the length just changed.
+void RadioMicRecorder::applyTrim(uint32_t from, uint32_t to)
+{
+  if (isPlayingTake()) audioQueue.stopAll();
+  waveform->setCursor(-1);
+
+  const uint16_t cols = waveform->columns();
+  uint8_t env[WaveformView::MAX_COLS];
+  if (PdmWavRecorder::cut(filename, from, to, env, cols, &takeSamples) == FR_OK)
+    waveform->setEnvelope(env, cols);
+
+  playingShown = false;
+  refreshUI();
+}
+
+void RadioMicRecorder::onAutoTrim()
+{
+  uint32_t from = 0, to = 0;
+  if (PdmWavRecorder::silenceBounds(filename, &from, &to) == FR_OK)
+    applyTrim(from, to);
+}
+
+void RadioMicRecorder::updateButtons()
+{
+  const bool review = (state == State::REVIEW);
+  const bool trimming = review && trimMode != TrimMode::NONE;
+
+  actionButton->show(!review);
+  autoTrimButton->show(review && !trimming);
+  trimStartButton->show(review && !trimming);
+  trimEndButton->show(review && !trimming);
+  playButton->show(review && !trimming);
+  saveButton->show(review && !trimming);
+  redoButton->show(review && !trimming);
+  trimSlider->show(trimming);
+  applyButton->show(trimming);
+  cancelButton->show(trimming);
+
+  if (!built) return;
+  if (trimming)
+    lv_group_focus_obj(trimSlider->getLvObj());
+  else if (review)
+    lv_group_focus_obj(playButton->getLvObj());
+  else
+    lv_group_focus_obj(actionButton->getLvObj());
 }
 
 bool RadioMicRecorder::isPlayingTake() const
@@ -354,9 +480,10 @@ void RadioMicRecorder::onActionPressed()
 void RadioMicRecorder::enterIdle()
 {
   if (recorder.isRecording()) recorder.stop();
-  showReviewButtons(false);
-  waveform->hide();
   state = State::IDLE;
+  trimMode = TrimMode::NONE;
+  updateButtons();
+  waveform->hide();
   stateStart = get_tmr10ms();
   refreshUI();
 }
@@ -364,9 +491,10 @@ void RadioMicRecorder::enterIdle()
 void RadioMicRecorder::enterCountdown()
 {
   if (isPlayingTake()) audioQueue.stopAll();
-  showReviewButtons(false);
-  waveform->hide();
   state = State::COUNTDOWN;
+  trimMode = TrimMode::NONE;
+  updateButtons();
+  waveform->hide();
   stateStart = get_tmr10ms();
   refreshUI();
 }
@@ -402,7 +530,8 @@ void RadioMicRecorder::stopRecording()
   uint32_t clipped = 0;
   const uint16_t cols = waveform->columns();
   uint8_t env[WaveformView::MAX_COLS];
-  if (PdmWavRecorder::finalise(filename, env, cols, &takeSamples, &clipped) == FR_OK)
+  if (PdmWavRecorder::finalise(filename, env, cols, &takeSamples, &clipped) ==
+      FR_OK)
     waveform->setEnvelope(env, cols);
   TRACE("mic: %u/1000 samples clipped at capture", (unsigned)clipped);
 
@@ -412,9 +541,10 @@ void RadioMicRecorder::stopRecording()
 void RadioMicRecorder::enterReview()
 {
   playingShown = false;
-  showReviewButtons(true);
-  waveform->show();
   state = State::REVIEW;
+  trimMode = TrimMode::NONE;
+  updateButtons();
+  waveform->show();
   stateStart = get_tmr10ms();
   refreshUI();
 }
@@ -509,6 +639,21 @@ void RadioMicRecorder::refreshUI()
     }
 
     case State::REVIEW: {
+      if (trimMode != TrimMode::NONE) {
+        // Show what would be left, so the slider reads as a result not a cut.
+        const uint32_t cut = trimSample();
+        const uint32_t kept = (trimMode == TrimMode::START)
+                                  ? takeSamples - cut
+                                  : cut + 1;
+        const uint32_t k = kept / PdmWavRecorder::DST_RATE;
+        snprintf(buf, sizeof(buf), "%02u:%02u", (unsigned)(k / 60U),
+                 (unsigned)(k % 60U));
+        bigLabel->setText(buf);
+        infoLabel->setText(trimMode == TrimMode::START ? STR_TRIM_START
+                                                       : STR_TRIM_END);
+        break;
+      }
+
       const uint32_t s = takeSamples / PdmWavRecorder::DST_RATE;
       snprintf(buf, sizeof(buf), "%02u:%02u", (unsigned)(s / 60U),
                (unsigned)(s % 60U));

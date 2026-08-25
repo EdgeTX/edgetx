@@ -43,10 +43,20 @@ class PdmWavRecorder
   // Called from the audio task every ~4 ms.
   static void audioTick();
 
-  // The tap or ENT press that ends a take is audible in the last fraction of
-  // a second. Dropped by stop() from the sample count, so nothing has to be
-  // rewritten on the card.
-  static constexpr uint32_t TAIL_CUT_MS = 450;
+  // The tap or ENT press that ends a take is audible at the end of it.
+  // finalise() locates that burst and cuts from its onset, rather than
+  // dropping a fixed slice that would eat speech on a prompt stop.
+
+  // Shortest take a trim is allowed to leave behind.
+  static constexpr uint32_t MIN_TAKE_MS = 200;
+
+  // What the press detector saw. Reported so the review screen can show it.
+  struct PressDiag {
+    uint32_t cutSamples;   // removed from the end as a press, 0 if none found
+    int32_t voiceLevel;    // level the burst had to beat
+    int32_t burstPeak;     // peak of the last loud event
+    uint32_t burstMs;      // how long that event ran
+  };
 
   // Finish a take in one go, in two passes over the card: trim leading and
   // trailing silence, high-pass, compensate CIC droop, normalise, fade the
@@ -55,7 +65,18 @@ class PdmWavRecorder
   // int16 saturation (a high value means PDM_POST_GAIN_SHIFT is too hot).
   static FRESULT finalise(const char* path, uint8_t* env, uint16_t cols,
                           uint32_t* totalSamples = nullptr,
-                          uint32_t* clippedPermille = nullptr);
+                          uint32_t* clippedPermille = nullptr,
+                          PressDiag* diag = nullptr);
+
+  // Cut the take down to [from, to] in place, fading the new edges and
+  // refreshing the envelope. Pure sample surgery — no filtering or
+  // normalisation, so repeated trims never stack DSP on the same audio.
+  static FRESULT cut(const char* path, uint32_t from, uint32_t to,
+                     uint8_t* env, uint16_t cols,
+                     uint32_t* totalSamples = nullptr);
+
+  // Silence bounds of the file as it stands, for the auto-trim button.
+  static FRESULT silenceBounds(const char* path, uint32_t* from, uint32_t* to);
 
   // Peak of everything written since the previous call, 0..255 of full scale.
   // Feeds the live waveform; a lost update just costs one display column.
