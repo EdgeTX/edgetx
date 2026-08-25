@@ -87,12 +87,6 @@ class ModelCell
   bool fetchRfData();
 };
 
-typedef struct {
-  std::string icon;
-  // Anything else?
-} SLabelDetail;
-
-typedef std::vector<std::pair<uint16_t, ModelCell *>> ModelLabelsVector;
 typedef std::vector<std::string> LabelsVector;
 typedef std::vector<ModelCell *> ModelsVector;
 typedef enum {
@@ -248,8 +242,6 @@ class ModelsList : public ModelsVector
   bool loadYaml();
   bool loadYamlDirScanner();
 };
-
-ModelLabelsVector getUniqueLabels();
 
 extern ModelsList modelslist;
 extern ModelMap modelslabels;
