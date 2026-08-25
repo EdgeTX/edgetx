@@ -30,7 +30,6 @@
 class TextButton;
 class StaticText;
 class WaveformView;
-class Slider;
 
 class RadioMicRecorder : public Page
 {
@@ -68,7 +67,6 @@ class RadioMicRecorder : public Page
   TextButton* trimEndButton = nullptr;
   TextButton* applyButton = nullptr;
   TextButton* cancelButton = nullptr;
-  Slider* trimSlider = nullptr;
   bool built = false;
 
   TrimMode trimMode = TrimMode::NONE;
@@ -85,7 +83,7 @@ class RadioMicRecorder : public Page
   void onAutoTrim();
   void enterTrim(TrimMode mode);
   void exitTrim();
-  void onTrimSliderMoved(int value);
+  void onTrimMoved(int value);
   void onApplyTrim();
   void applyTrim(uint32_t from, uint32_t to);
   uint32_t trimSample() const;

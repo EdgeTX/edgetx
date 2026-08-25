@@ -27,10 +27,11 @@
 
 #include "audio.h"
 #include "button.h"
-#include "slider.h"
 #include "dialog.h"
 #include "edgetx.h"
 #include "ff.h"
+#include "form.h"
+#include "hal/rotary_encoder.h"
 #include "sdcard.h"
 #include "static.h"
 #include "timers_driver.h"
@@ -44,14 +45,40 @@ static constexpr coord_t REV_BTN_H = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIU
 
 // Mirrored peak envelope, drawn as two polylines around a centre line. Fed one
 // column at a time while recording, then re-filled from the finished file.
-class WaveformView : public Window
+// It doubles as the trim editor: a marker line dragged straight over the trace,
+// with the part that would be cut greyed out.
+class WaveformView : public FormField
 {
  public:
   static constexpr uint16_t MAX_COLS = 400;
+  static constexpr coord_t KNOB_W = PAD_LARGE * 2;
+  static constexpr coord_t KNOB_H = PAD_MEDIUM;
 
-  WaveformView(Window* parent, const rect_t& rect) : Window(parent, rect)
+  WaveformView(Window* parent, const rect_t& rect,
+               std::function<void(int)> onMove, std::function<void()> onConfirm,
+               std::function<void()> onDismiss) :
+      FormField(parent, rect),
+      moveHandler(std::move(onMove)),
+      confirmHandler(std::move(onConfirm)),
+      dismissHandler(std::move(onDismiss))
   {
     padAll(PAD_ZERO);
+
+    // No scrolling: a horizontal drag has to reach the marker, not pan the view.
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_SCROLLABLE);
+    // No click focus either: LVGL clears the group's edit mode on every focus
+    // call, so a touch would otherwise leave the encoder stuck in navigation.
+    lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
+    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
+    lv_obj_add_event_cb(lvobj, WaveformView::on_pressing, LV_EVENT_PRESSING, this);
+    lv_obj_add_event_cb(lvobj, WaveformView::on_released, LV_EVENT_RELEASED, this);
+    lv_obj_add_event_cb(lvobj, WaveformView::on_key, LV_EVENT_KEY, this);
+    etx_obj_add_style(lvobj, styles->outline, LV_PART_MAIN | LV_STATE_EDITED);
+    etx_obj_add_style(lvobj, styles->outline_color_edit,
+                      LV_PART_MAIN | LV_STATE_EDITED);
+    setFocusHandler([this](bool focus) {
+      if (!focus && isEditMode()) setEditMode(false);
+    });
 
     // Widen the columns rather than leaving the trace short of the edge:
     // 800 px screens need more than MAX_COLS columns at 2 px.
@@ -83,6 +110,32 @@ class WaveformView : public Window
     etx_obj_add_style(cursorLine, styles->line_color[COLOR_THEME_WARNING_INDEX],
                       LV_PART_MAIN);
     lv_obj_add_flag(cursorLine, LV_OBJ_FLAG_HIDDEN);
+
+    // Created last so they sit on top of the trace.
+    cutShade = lv_obj_create(lvobj);
+    lv_obj_clear_flag(cutShade, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_clear_flag(cutShade, LV_OBJ_FLAG_SCROLLABLE);
+    etx_bg_color(cutShade, COLOR_THEME_DISABLED_INDEX, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(cutShade, LV_OPA_60, LV_PART_MAIN);
+    lv_obj_set_style_border_width(cutShade, 0, LV_PART_MAIN);
+    lv_obj_set_style_radius(cutShade, 0, LV_PART_MAIN);
+    lv_obj_add_flag(cutShade, LV_OBJ_FLAG_HIDDEN);
+
+    trimLine = lv_line_create(lvobj);
+    etx_obj_add_style(trimLine, styles->graph_line, LV_PART_MAIN);
+    etx_obj_add_style(trimLine, styles->line_color[COLOR_THEME_EDIT_INDEX],
+                      LV_PART_MAIN);
+    lv_obj_set_style_line_width(trimLine, PAD_THREE, LV_PART_MAIN);
+    lv_obj_add_flag(trimLine, LV_OBJ_FLAG_HIDDEN);
+
+    trimKnob = lv_obj_create(lvobj);
+    lv_obj_clear_flag(trimKnob, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_clear_flag(trimKnob, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_set_size(trimKnob, KNOB_W, KNOB_H);
+    etx_solid_bg(trimKnob, COLOR_THEME_EDIT_INDEX);
+    lv_obj_set_style_border_width(trimKnob, 0, LV_PART_MAIN);
+    etx_obj_add_style(trimKnob, styles->rounded, LV_PART_MAIN);
+    lv_obj_add_flag(trimKnob, LV_OBJ_FLAG_HIDDEN);
 
     clear();
   }
@@ -117,6 +170,31 @@ class WaveformView : public Window
     lv_line_set_points(cursorLine, cursorPts, 2);
     lv_obj_clear_flag(cursorLine, LV_OBJ_FLAG_HIDDEN);
     cursorAt = permille;
+  }
+
+  // Trim editing: the marker takes the focus so the encoder drags it directly,
+  // and a touch anywhere on the trace drops it at that point.
+  void showTrim(int32_t permille, bool cutBefore)
+  {
+    trimShown = true;
+    cutLeft = cutBefore;
+    lv_obj_clear_flag(trimLine, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(trimKnob, LV_OBJ_FLAG_HIDDEN);
+    setTrim(permille);
+    lv_group_add_obj((lv_group_t*)lv_group_get_default(), lvobj);
+    lv_group_focus_obj(lvobj);
+    setEditMode(true);
+  }
+
+  void hideTrim()
+  {
+    if (!trimShown) return;
+    trimShown = false;
+    if (isEditMode()) setEditMode(false);
+    lv_group_remove_obj(lvobj);
+    lv_obj_add_flag(trimLine, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(trimKnob, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(cutShade, LV_OBJ_FLAG_HIDDEN);
   }
 
   // Live feed. Once the view is full, columns are merged pairwise so the whole
@@ -154,11 +232,122 @@ class WaveformView : public Window
   lv_point_t botPts[MAX_COLS];
   lv_point_t basePts[2];
   lv_point_t cursorPts[2];
+  lv_point_t trimPts[2];
   int32_t cursorAt = -1;
   lv_obj_t* cursorLine = nullptr;
   lv_obj_t* topLine = nullptr;
   lv_obj_t* botLine = nullptr;
   lv_obj_t* baseLine = nullptr;
+  lv_obj_t* trimLine = nullptr;
+  lv_obj_t* trimKnob = nullptr;
+  lv_obj_t* cutShade = nullptr;
+
+  std::function<void(int)> moveHandler;
+  std::function<void()> confirmHandler;
+  std::function<void()> dismissHandler;
+  bool trimShown = false;
+  bool cutLeft = false;
+  int32_t trimAt = -1;
+
+  void setTrim(int32_t permille)
+  {
+    trimAt = permille;
+
+    const lv_coord_t x = (lv_coord_t)((permille * traceW) / 1000);
+    trimPts[0] = {x, 0};
+    trimPts[1] = {x, (lv_coord_t)(height() - 1)};
+    lv_line_set_points(trimLine, trimPts, 2);
+    lv_coord_t knobX = x - KNOB_W / 2;
+    if (knobX < 0) knobX = 0;
+    if (knobX > traceW - KNOB_W) knobX = traceW - KNOB_W;
+    lv_obj_set_pos(trimKnob, knobX, 0);
+
+    const lv_coord_t w = cutLeft ? x : (lv_coord_t)(traceW - x);
+    if (w > 0) {
+      lv_obj_set_pos(cutShade, cutLeft ? 0 : x, 0);
+      lv_obj_set_size(cutShade, w, height());
+      lv_obj_clear_flag(cutShade, LV_OBJ_FLAG_HIDDEN);
+    } else {
+      lv_obj_add_flag(cutShade, LV_OBJ_FLAG_HIDDEN);
+    }
+  }
+
+  void moveTo(int32_t permille)
+  {
+    if (permille < 0) permille = 0;
+    if (permille > 1000) permille = 1000;
+    if (permille == trimAt) return;
+    setTrim(permille);
+    if (moveHandler) moveHandler(permille);
+  }
+
+  static void on_pressing(lv_event_t* e)
+  {
+    auto wv = (WaveformView*)lv_event_get_user_data(e);
+    if (!wv || wv->deleted() || !wv->trimShown || wv->traceW <= 0) return;
+
+    auto indev = (lv_indev_t*)lv_event_get_param(e);
+    if (!indev || lv_indev_get_type(indev) != LV_INDEV_TYPE_POINTER) return;
+
+    lv_area_t coords;
+    lv_obj_get_coords(lv_event_get_target(e), &coords);
+    lv_point_t point;
+    lv_indev_get_point(indev, &point);
+
+    const int32_t x = point.x - coords.x1;
+    wv->moveTo((x * 1000) / wv->traceW);
+    wv->rearmEdit();
+  }
+
+  static void on_released(lv_event_t* e)
+  {
+    auto wv = (WaveformView*)lv_event_get_user_data(e);
+    if (wv && !wv->deleted()) wv->rearmEdit();
+  }
+
+  // Anything that focuses an object drops edit mode group wide, so take it back
+  // after a touch: the encoder has to keep driving the marker.
+  void rearmEdit()
+  {
+    if (!trimShown || isEditMode()) return;
+    auto g = (lv_group_t*)lv_obj_get_group(lvobj);
+    if (g && lv_group_get_focused(g) == lvobj) setEditMode(true);
+  }
+
+  static void on_key(lv_event_t* e)
+  {
+    auto wv = (WaveformView*)lv_event_get_user_data(e);
+    if (!wv || wv->deleted() || !wv->trimShown) return;
+
+    const uint32_t key = lv_event_get_key(e);
+    if (key != LV_KEY_LEFT && key != LV_KEY_RIGHT) return;
+
+    // One detent moves the marker by one column, more when spun fast.
+    int32_t step = wv->maxCols ? 1000 / wv->maxCols : 1;
+    if (step < 1) step = 1;
+    step += rotaryEncoderGetAccel() / 4;
+    wv->moveTo(wv->trimAt + (key == LV_KEY_RIGHT ? step : -step));
+  }
+
+  // A touch only drops the marker; ENTER is what confirms the trim.
+  void onClicked() override
+  {
+    if (!trimShown) {
+      FormField::onClicked();
+      return;
+    }
+    if (lv_indev_get_type(lv_indev_get_act()) == LV_INDEV_TYPE_POINTER) return;
+    if (confirmHandler) confirmHandler();
+  }
+
+  void onCancel() override
+  {
+    if (trimShown && dismissHandler) {
+      dismissHandler();
+      return;
+    }
+    FormField::onCancel();
+  }
 
   void compact()
   {
@@ -252,7 +441,9 @@ void RadioMicRecorder::buildBody(Window* window)
   lv_obj_set_style_text_align(bigLabel->getLvObj(), LV_TEXT_ALIGN_CENTER, 0);
 
   waveform = new WaveformView(
-      window, {PAD_LARGE, waveY, w - PAD_LARGE * 2, infoY - waveY - PAD_SMALL});
+      window, {PAD_LARGE, waveY, w - PAD_LARGE * 2, infoY - waveY - PAD_SMALL},
+      [this](int v) { onTrimMoved(v); }, [this]() { onApplyTrim(); },
+      [this]() { exitTrim(); });
   waveform->hide();
 
   infoLabel = new StaticText(
@@ -311,12 +502,6 @@ void RadioMicRecorder::buildBody(Window* window)
         return 0;
       });
 
-  trimSlider = new Slider(
-      window, w - PAD_LARGE * 2, 0, 1000,
-      [this]() { return trimPermille; },
-      [this](int v) { onTrimSliderMoved(v); });
-  trimSlider->setPos(PAD_LARGE, rowY1);
-
   applyButton = new TextButton(
       window, {revX[0], rowY2, revW, REV_BTN_H}, STR_OK, [this]() {
         onApplyTrim();
@@ -333,8 +518,8 @@ void RadioMicRecorder::buildBody(Window* window)
   built = true;
 }
 
-// Slider runs 0..1000 over the take so its range never has to change as the
-// take gets shorter.
+// The marker runs 0..1000 over the take so its range never has to change as
+// the take gets shorter.
 uint32_t RadioMicRecorder::trimSample() const
 {
   if (takeSamples == 0) return 0;
@@ -348,8 +533,8 @@ void RadioMicRecorder::enterTrim(TrimMode mode)
 
   trimMode = mode;
   trimPermille = (mode == TrimMode::START) ? 0 : 1000;
-  trimSlider->setValue(trimPermille);
-  waveform->setCursor(trimPermille);
+  waveform->setCursor(-1);
+  waveform->showTrim(trimPermille, mode == TrimMode::START);
   updateButtons();
   refreshUI();
 }
@@ -357,15 +542,15 @@ void RadioMicRecorder::enterTrim(TrimMode mode)
 void RadioMicRecorder::exitTrim()
 {
   trimMode = TrimMode::NONE;
+  waveform->hideTrim();
   waveform->setCursor(-1);
   updateButtons();
   refreshUI();
 }
 
-void RadioMicRecorder::onTrimSliderMoved(int value)
+void RadioMicRecorder::onTrimMoved(int value)
 {
   trimPermille = value;
-  waveform->setCursor(value);
   refreshUI();
 }
 
@@ -388,6 +573,7 @@ void RadioMicRecorder::onApplyTrim()
 void RadioMicRecorder::applyTrim(uint32_t from, uint32_t to)
 {
   if (isPlayingTake()) audioQueue.stopAll();
+  waveform->hideTrim();
   waveform->setCursor(-1);
 
   const uint16_t cols = waveform->columns();
@@ -418,13 +604,13 @@ void RadioMicRecorder::updateButtons()
   playButton->show(review && !trimming);
   saveButton->show(review && !trimming);
   redoButton->show(review && !trimming);
-  trimSlider->show(trimming);
   applyButton->show(trimming);
   cancelButton->show(trimming);
 
   if (!built) return;
+  // While trimming the marker itself holds the focus.
   if (trimming)
-    lv_group_focus_obj(trimSlider->getLvObj());
+    return;
   else if (review)
     lv_group_focus_obj(playButton->getLvObj());
   else
@@ -482,6 +668,7 @@ void RadioMicRecorder::enterIdle()
   if (recorder.isRecording()) recorder.stop();
   state = State::IDLE;
   trimMode = TrimMode::NONE;
+  waveform->hideTrim();
   updateButtons();
   waveform->hide();
   stateStart = get_tmr10ms();
@@ -493,6 +680,7 @@ void RadioMicRecorder::enterCountdown()
   if (isPlayingTake()) audioQueue.stopAll();
   state = State::COUNTDOWN;
   trimMode = TrimMode::NONE;
+  waveform->hideTrim();
   updateButtons();
   waveform->hide();
   stateStart = get_tmr10ms();
@@ -544,6 +732,7 @@ void RadioMicRecorder::enterReview()
   playingShown = false;
   state = State::REVIEW;
   trimMode = TrimMode::NONE;
+  waveform->hideTrim();
   updateButtons();
   waveform->show();
   stateStart = get_tmr10ms();
@@ -641,7 +830,7 @@ void RadioMicRecorder::refreshUI()
 
     case State::REVIEW: {
       if (trimMode != TrimMode::NONE) {
-        // Show what would be left, so the slider reads as a result not a cut.
+        // Show what would be left, so the marker reads as a result not a cut.
         const uint32_t cut = trimSample();
         const uint32_t kept = (trimMode == TrimMode::START)
                                   ? takeSamples - cut
