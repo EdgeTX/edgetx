@@ -43,6 +43,11 @@ class PdmWavRecorder
   // Called from the audio task every ~4 ms.
   static void audioTick();
 
+  // The tap or ENT press that ends a take is audible in the last fraction of
+  // a second. Dropped by stop() from the sample count, so nothing has to be
+  // rewritten on the card.
+  static constexpr uint32_t TAIL_CUT_MS = 450;
+
   // Finish a take in one go, in two passes over the card: trim leading and
   // trailing silence, high-pass, compensate CIC droop, normalise, fade the
   // edges, patch the WAV header, and report the peak envelope (one 0..255

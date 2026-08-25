@@ -148,6 +148,11 @@ FRESULT PdmWavRecorder::stop()
   s_active = nullptr;
   recording = false;
 
+  // Drop the tail the stop press lands in. Only the header count changes;
+  // finalise() truncates the stray bytes when it rewrites the file.
+  static constexpr uint32_t TAIL_CUT = (DST_RATE * TAIL_CUT_MS) / 1000;
+  if (samplesWritten > TAIL_CUT + DST_RATE / 10) samplesWritten -= TAIL_CUT;
+
   const uint32_t dataBytes = samplesWritten * 2U;
   uint8_t buf[4];
   UINT written = 0;
@@ -188,7 +193,13 @@ static constexpr float PP_HPF_A = 0.969f;
 static constexpr float PP_COMP_A = 0.25f;
 
 static constexpr float PP_NORM_TARGET = 29500.0f;  // ~-0.9 dBFS
-static constexpr float PP_MAX_GAIN = 8.0f;
+static constexpr float PP_MAX_GAIN = 4.0f;
+
+// Gain is also capped so it never lifts the take's own noise floor past this
+// RMS (~-38 dBFS). The stop click used to be the loudest thing in every file
+// and quietly held the gain near 1; with it gone, a quiet take would other-
+// wise be boosted until room tone and CIC hiss become the loudest thing.
+static constexpr float PP_NOISE_CEILING = 400.0f;
 static constexpr uint32_t PP_FADE_SAMPLES = PdmWavRecorder::DST_RATE / 125;  // 8 ms
 
 namespace {
@@ -256,12 +267,15 @@ FRESULT PdmWavRecorder::finalise(const char* path, uint8_t* env, uint16_t cols,
   uint32_t lastActive = 0;
   uint32_t clipped = 0;
   float peak = 0.0f;
+  float quietestRms = 0.0f;
+  bool haveRms = false;
 
   for (uint32_t base = 0; base < total; base += CHUNK) {
     const uint32_t n = (base + CHUNK <= total) ? CHUNK : total - base;
     res = f_read(&f, ioBuf, n * 2, &br);
     if (res != FR_OK) { f_close(&f); return res; }
     const uint32_t got = br / 2;
+    float sumSq = 0.0f;
     for (uint32_t i = 0; i < got; i++) {
       const int16_t s = ioBuf[i];
       const int32_t a = s < 0 ? -(int32_t)s : (int32_t)s;
@@ -270,8 +284,14 @@ FRESULT PdmWavRecorder::finalise(const char* path, uint8_t* env, uint16_t cols,
         if (firstActive == UINT32_MAX) firstActive = base + i;
         lastActive = base + i;
       }
-      const float v = fabsf(flt.process(s));
-      if (v > peak) peak = v;
+      const float v = flt.process(s);
+      const float m = fabsf(v);
+      if (m > peak) peak = m;
+      sumSq += v * v;
+    }
+    if (got == CHUNK) {   // quietest full block is the noise floor
+      const float rms = sqrtf(sumSq / (float)CHUNK);
+      if (!haveRms || rms < quietestRms) { quietestRms = rms; haveRms = true; }
     }
     if (got < n) break;
   }
@@ -292,6 +312,11 @@ FRESULT PdmWavRecorder::finalise(const char* path, uint8_t* env, uint16_t cols,
   float gain = 1.0f;
   if (doFilter && peak > 1.0f) {
     gain = PP_NORM_TARGET / peak;
+    if (haveRms && quietestRms > 1.0f) {
+      float noiseLimit = PP_NOISE_CEILING / quietestRms;
+      if (noiseLimit < 1.0f) noiseLimit = 1.0f;   // never attenuate for noise
+      if (gain > noiseLimit) gain = noiseLimit;
+    }
     if (gain > PP_MAX_GAIN) gain = PP_MAX_GAIN;
   }
 
