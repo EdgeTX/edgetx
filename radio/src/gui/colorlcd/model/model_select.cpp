@@ -137,7 +137,6 @@ class ModelButton : public Button
             return true;
           }
         }
-        showNoImgMsg();
       }
 
       return false;
@@ -266,10 +265,12 @@ class ModelsPageBody : public Window
 
       // Long Press Handler for Models
       button->setLongPressHandler([=]() -> uint8_t {
-        button->setFocused();
-        focusedModel = model;
+        if (model != focusedModel) {
+          button->setFocused();
+          focusedModel = model;
+        }
         openMenu();
-        return 0;
+        return model == modelslist.getCurrentModel();
       });
     }
 
