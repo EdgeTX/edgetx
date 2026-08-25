@@ -29,6 +29,9 @@
 #include "hal/switch_driver.h"
 #include "edgetx.h"
 #include "switches.h"
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
 
 static char _static_str_buffer[32];
 static const char s_charTab[] = "_-.,";
@@ -799,9 +802,19 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
       case MIXSRC_TX_GPS:
         src_str = STR_SRC_GPS;
         break;
+#if defined(VOICE_CONTROL_SENSOR)
+      default:
+        if (const char* voiceName = CI1302_voiceIntegrationMixSrcName(idx)) {
+          src_str = voiceName;
+          break;
+        }
+        src_str = "";
+        break;
+#else
       default:
         src_str = "";
         break;
+#endif
     }
     strncpy(dest, src_str, dest_len - 1);
   } else if (idx <= MIXSRC_LAST_TIMER) {

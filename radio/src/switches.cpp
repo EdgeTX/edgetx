@@ -28,6 +28,9 @@
 #include "edgetx_constants.h"
 #include "os/sleep.h"
 #include "switches.h"
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
 #include "input_mapping.h"
 #include "inactivity_timer.h"
 #include "tasks/mixer_task.h"
@@ -380,7 +383,10 @@ static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
   }
 
   if (!(switchesPos & result)) {
-    PLAY_SWITCH_MOVED(index);
+#if defined(VOICE_CONTROL_SENSOR)
+    if (!CI1302_voiceSwitchSuppressMovedAudio(idx, startup))
+#endif
+      PLAY_SWITCH_MOVED(index);
   }
 
   return result;
