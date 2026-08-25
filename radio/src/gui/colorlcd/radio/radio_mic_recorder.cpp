@@ -530,8 +530,9 @@ void RadioMicRecorder::stopRecording()
   uint32_t clipped = 0;
   const uint16_t cols = waveform->columns();
   uint8_t env[WaveformView::MAX_COLS];
-  if (PdmWavRecorder::finalise(filename, env, cols, &takeSamples, &clipped) ==
-      FR_OK)
+  // Silence is left in place; Auto-trim is the deliberate action.
+  if (PdmWavRecorder::finalise(filename, env, cols, false, &takeSamples,
+                               &clipped) == FR_OK)
     waveform->setEnvelope(env, cols);
   TRACE("mic: %u/1000 samples clipped at capture", (unsigned)clipped);
 

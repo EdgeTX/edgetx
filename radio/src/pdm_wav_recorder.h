@@ -58,13 +58,15 @@ class PdmWavRecorder
     uint32_t burstMs;      // how long that event ran
   };
 
-  // Finish a take in one go, in two passes over the card: trim leading and
-  // trailing silence, high-pass, compensate CIC droop, normalise, fade the
-  // edges, patch the WAV header, and report the peak envelope (one 0..255
-  // level per column), the final length and how much of the capture hit
-  // int16 saturation (a high value means PDM_POST_GAIN_SHIFT is too hot).
+  // Finish a take in one go, in two passes over the card: remove the stop
+  // press, high-pass, compensate CIC droop, normalise, fade the edges, patch
+  // the WAV header, and report the peak envelope (one 0..255 level per
+  // column), the final length and how much of the capture hit int16
+  // saturation (a high value means PDM_POST_GAIN_SHIFT is too hot).
+  // trimSilence additionally cuts leading and trailing silence; left to the
+  // Auto-trim button so the take is kept whole until asked otherwise.
   static FRESULT finalise(const char* path, uint8_t* env, uint16_t cols,
-                          uint32_t* totalSamples = nullptr,
+                          bool trimSilence, uint32_t* totalSamples = nullptr,
                           uint32_t* clippedPermille = nullptr,
                           PressDiag* diag = nullptr);
 

@@ -410,7 +410,7 @@ FRESULT PdmWavRecorder::cut(const char* path, uint32_t from, uint32_t to,
 }
 
 FRESULT PdmWavRecorder::finalise(const char* path, uint8_t* env, uint16_t cols,
-                                 uint32_t* totalSamples,
+                                 bool trimSilence, uint32_t* totalSamples,
                                  uint32_t* clippedPermille,
                                  PressDiag* diag)
 {
@@ -620,12 +620,14 @@ FRESULT PdmWavRecorder::finalise(const char* path, uint8_t* env, uint16_t cols,
   if (silence < SILENCE_FLOOR) silence = SILENCE_FLOOR;
 
   uint32_t firstActive = UINT32_MAX, lastActive = 0;
-  for (uint32_t b = 0; b < pressBlock && b < coarseCount; b++) {
-    if (coarseLevel[b] <= silence) continue;
-    if (firstActive == UINT32_MAX) firstActive = b * coarseSize;
-    lastActive = (b + 1) * coarseSize - 1;
+  if (trimSilence) {
+    for (uint32_t b = 0; b < pressBlock && b < coarseCount; b++) {
+      if (coarseLevel[b] <= silence) continue;
+      if (firstActive == UINT32_MAX) firstActive = b * coarseSize;
+      lastActive = (b + 1) * coarseSize - 1;
+    }
+    if (lastActive >= total) lastActive = total - 1;
   }
-  if (lastActive >= total) lastActive = total - 1;
 
   uint32_t trimStart = 0, trimEnd = total - 1;
   if (firstActive != UINT32_MAX) {
