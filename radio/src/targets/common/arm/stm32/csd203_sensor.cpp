@@ -189,64 +189,43 @@ bool CSD203ExtInitFlag = false;
 
 bool IICReadStatusFlag = false;
 
-static uint16_t csd203BatteryVoltage = 0;
-static int16_t csd203ExtModuleCurrent = 0;
-static uint16_t csd203BatteryMidVoltage = 0;
-static int16_t csd203SystemCurrent = 0;
-static uint16_t csd203ExtModuleVoltage = 0;
-static int16_t csd203IntModuleCurrent = 0;
+/** The three CSD203 sensor configs polled in round-robin by readCSD203(). */
+enum CsdChannel { CSD_CH_MAIN, CSD_CH_IN, CSD_CH_EXT, CSD_CH_COUNT };
+
+static uint16_t csd203VoltMv[CSD_CH_COUNT] = {0, 0, 0};
+static int16_t csd203CurrMa[CSD_CH_COUNT] = {0, 0, 0};
 
 /** EMA low-pass: new += (sample - new) / 2^shift */
 constexpr uint8_t CSD203_VOLT_EMA_SHIFT = 4;
 constexpr uint8_t CSD203_CURR_EMA_SHIFT = 3;
 
-static int32_t filtBatteryVoltageMv = 0;
-static int32_t filtExtModuleCurrentMa = 0;
-static int32_t filtBatteryMidVoltageMv = 0;
-static int32_t filtSystemCurrentMa = 0;
-static int32_t filtExtModuleVoltageMv = 0;
-static int32_t filtIntModuleCurrentMa = 0;
-static bool filtBatteryVoltageInit = false;
-static bool filtExtModuleCurrentInit = false;
-static bool filtBatteryMidVoltageInit = false;
-static bool filtSystemCurrentInit = false;
-static bool filtExtModuleVoltageInit = false;
-static bool filtIntModuleCurrentInit = false;
+struct EmaState {
+  int32_t value = 0;
+  bool inited = false;
+};
 
-static int32_t csd203EmaI32(int32_t* state, bool* inited, int32_t sample,
-                            uint8_t shift)
+static EmaState csd203VoltFilt[CSD_CH_COUNT];
+static EmaState csd203CurrFilt[CSD_CH_COUNT];
+
+static int32_t csd203EmaI32(EmaState& filt, int32_t sample, uint8_t shift)
 {
-  if (!*inited) {
-    *state = sample;
-    *inited = true;
+  if (!filt.inited) {
+    filt.value = sample;
+    filt.inited = true;
     return sample;
   }
-  *state += (sample - *state) >> shift;
-  return *state;
+  filt.value += (sample - filt.value) >> shift;
+  return filt.value;
 }
 
 static void csd203ResetFilters()
 {
-  filtBatteryVoltageInit = false;
-  filtExtModuleCurrentInit = false;
-  filtBatteryMidVoltageInit = false;
-  filtSystemCurrentInit = false;
-  filtExtModuleVoltageInit = false;
-  filtIntModuleCurrentInit = false;
-
-  csd203BatteryVoltage = 0;
-  csd203ExtModuleCurrent = 0;
-  csd203BatteryMidVoltage = 0;
-  csd203SystemCurrent = 0;
-  csd203ExtModuleVoltage = 0;
-  csd203IntModuleCurrent = 0;
-
-  filtBatteryVoltageMv = 0;
-  filtExtModuleCurrentMa = 0;
-  filtBatteryMidVoltageMv = 0;
-  filtSystemCurrentMa = 0;
-  filtExtModuleVoltageMv = 0;
-  filtIntModuleCurrentMa = 0;
+  for (int ch = 0; ch < CSD_CH_COUNT; ch++) {
+    csd203VoltFilt[ch] = EmaState();
+    csd203CurrFilt[ch] = EmaState();
+    csd203VoltMv[ch] = 0;
+    csd203CurrMa[ch] = 0;
+  }
 }
 
 static int16_t csd203ClampI16(int32_t value)
@@ -484,32 +463,32 @@ static int16_t csd203RawToMilliamps(uint16_t raw, const CSD_CONFIG* cfg)
 
 uint16_t getBatteryVoltage()
 {
-  return csd203BatteryVoltage / 10;  // 10mV steps for EdgeTX API
+  return csd203VoltMv[CSD_CH_EXT] / 10;  // 10mV steps for EdgeTX API
 }
 
 uint16_t getBatteryMidVoltage()
 {
-  return csd203BatteryMidVoltage / 10;
+  return csd203VoltMv[CSD_CH_MAIN] / 10;
 }
 
 uint16_t getExtModuleVoltage()
 {
-  return csd203ExtModuleVoltage / 10;
+  return csd203VoltMv[CSD_CH_IN] / 10;
 }
 
 int16_t getExtModuleCurrent()
 {
-  return csd203ExtModuleCurrent;
+  return csd203CurrMa[CSD_CH_EXT];
 }
 
 int16_t getSystemCurrent()
 {
-  return csd203SystemCurrent;
+  return csd203CurrMa[CSD_CH_MAIN];
 }
 
 int16_t getIntModuleCurrent()
 {
-  return csd203IntModuleCurrent;
+  return csd203CurrMa[CSD_CH_IN];
 }
 
 void readCSD203(void)
@@ -525,51 +504,47 @@ void readCSD203(void)
     const int32_t rawCurr =
         csd203RawToMilliamps(CSD203_ReadCurrent(&CSD203_MainSensorCFG),
                              &CSD203_MainSensorCFG);
-    csd203SystemCurrent = csd203ClampI16(
-        csd203EmaI32(&filtSystemCurrentMa, &filtSystemCurrentInit, rawCurr,
-                     CSD203_CURR_EMA_SHIFT));
+    csd203CurrMa[CSD_CH_MAIN] = csd203ClampI16(csd203EmaI32(
+        csd203CurrFilt[CSD_CH_MAIN], rawCurr, CSD203_CURR_EMA_SHIFT));
 
     const uint32_t rawVolt = csd203RawToMillivolts(
         CSD203_ReadVbus(&CSD203_MainSensorCFG));
-    csd203BatteryMidVoltage = csd203ClampU16(
-        csd203EmaI32(&filtBatteryMidVoltageMv, &filtBatteryMidVoltageInit,
-                     (int32_t)rawVolt, CSD203_VOLT_EMA_SHIFT));
+    csd203VoltMv[CSD_CH_MAIN] = csd203ClampU16(csd203EmaI32(
+        csd203VoltFilt[CSD_CH_MAIN], (int32_t)rawVolt, CSD203_VOLT_EMA_SHIFT));
   } else if (GetSenSorStep == 1 && CSD203InInitFlag == true) {
     const int32_t rawCurr =
         csd203RawToMilliamps(CSD203_ReadCurrent(&CSD203_InSensorCFG),
                              &CSD203_InSensorCFG);
-    csd203IntModuleCurrent = csd203ClampI16(
-        csd203EmaI32(&filtIntModuleCurrentMa, &filtIntModuleCurrentInit, rawCurr,
-                     CSD203_CURR_EMA_SHIFT));
+    csd203CurrMa[CSD_CH_IN] = csd203ClampI16(csd203EmaI32(
+        csd203CurrFilt[CSD_CH_IN], rawCurr, CSD203_CURR_EMA_SHIFT));
 
     const uint32_t rawVolt =
         csd203RawToMillivolts(CSD203_ReadVbus(&CSD203_InSensorCFG));
-    csd203ExtModuleVoltage = csd203ClampU16(
-        csd203EmaI32(&filtExtModuleVoltageMv, &filtExtModuleVoltageInit,
-                     (int32_t)rawVolt, CSD203_VOLT_EMA_SHIFT));
+    csd203VoltMv[CSD_CH_IN] = csd203ClampU16(csd203EmaI32(
+        csd203VoltFilt[CSD_CH_IN], (int32_t)rawVolt, CSD203_VOLT_EMA_SHIFT));
   } else if (GetSenSorStep == 2 && CSD203ExtInitFlag == true) {
     const int32_t rawCurr =
         csd203RawToMilliamps(CSD203_ReadCurrent(&CSD203_ExtSensorCFG),
                              &CSD203_ExtSensorCFG);
-    csd203ExtModuleCurrent = csd203ClampI16(
-        csd203EmaI32(&filtExtModuleCurrentMa, &filtExtModuleCurrentInit, rawCurr,
-                     CSD203_CURR_EMA_SHIFT));
+    csd203CurrMa[CSD_CH_EXT] = csd203ClampI16(csd203EmaI32(
+        csd203CurrFilt[CSD_CH_EXT], rawCurr, CSD203_CURR_EMA_SHIFT));
 
     const uint32_t rawVolt = csd203RawToMillivolts(
         CSD203_ReadVbus(&CSD203_ExtSensorCFG));
-    csd203BatteryVoltage = csd203ClampU16(
-        csd203EmaI32(&filtBatteryVoltageMv, &filtBatteryVoltageInit,
-                     (int32_t)rawVolt, CSD203_VOLT_EMA_SHIFT));
+    csd203VoltMv[CSD_CH_EXT] = csd203ClampU16(csd203EmaI32(
+        csd203VoltFilt[CSD_CH_EXT], (int32_t)rawVolt, CSD203_VOLT_EMA_SHIFT));
   }
   IICReadStatusFlag = false;
   if (++GetSenSorStep >= 3) {
     GetSenSorStep = 0;
 
-    //TRACE("csd203BatteryVoltage: %d", csd203BatteryVoltage);
-    //TRACE("csd203SystemCurrent: %d", csd203SystemCurrent);
-    //TRACE("csd203ExtModuleVoltage: %d", csd203ExtModuleVoltage);
-    //TRACE("csd203ExtModuleCurrent: %d", csd203ExtModuleCurrent);  
-    //TRACE("csd203IntModuleCurrent: %d", csd203IntModuleCurrent);
-    //TRACE("csd203BatteryMidVoltage: %d\r\n", csd203BatteryMidVoltage);  
+#if defined(DEBUG_CSD203)
+    TRACE("csd203BatteryVoltage: %d", csd203VoltMv[CSD_CH_EXT]);
+    TRACE("csd203SystemCurrent: %d", csd203CurrMa[CSD_CH_MAIN]);
+    TRACE("csd203ExtModuleVoltage: %d", csd203VoltMv[CSD_CH_IN]);
+    TRACE("csd203ExtModuleCurrent: %d", csd203CurrMa[CSD_CH_EXT]);
+    TRACE("csd203IntModuleCurrent: %d", csd203CurrMa[CSD_CH_IN]);
+    TRACE("csd203BatteryMidVoltage: %d", csd203VoltMv[CSD_CH_MAIN]);
+#endif
   }
 }

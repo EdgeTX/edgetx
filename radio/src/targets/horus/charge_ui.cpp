@@ -164,10 +164,6 @@ static inline lv_color_t colBgGlow()
 {
   return lv_color_hex(0x061208);
 }
-static inline lv_color_t colText()
-{
-  return lv_color_hex(0xe8ffe8);
-}
 static inline lv_color_t colTextDim()
 {
   return lv_color_hex(0x7a9a82);
