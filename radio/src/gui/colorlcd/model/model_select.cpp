@@ -281,10 +281,15 @@ class ModelsPageBody : public Window
     }
   }
 
-  void reload()
+  void clearButtons()
   {
     modelButtons.clear();
     clear();
+  }
+
+  void reload()
+  {
+    clearButtons();
     update();
   }
 
@@ -824,6 +829,7 @@ void ModelLabelsWindow::buildBody(Window *window)
                   });
               auto labels = getLabels();
               lblselector->setNames(labels);
+              mdlselector->clearButtons();
               updateFilteredLabels(modelslabels.filteredLabels(), false);
             }
           });
@@ -848,6 +854,7 @@ void ModelLabelsWindow::buildBody(Window *window)
                 lblselector->setSelected(newset);
                 if (g_eeGeneral.labelSingleSelect && selected == lblselector->getActiveItem())
                   lblselector->setActiveItem(-1);
+                mdlselector->clearButtons();
                 updateFilteredLabels(newset);
               });
           return 0;
