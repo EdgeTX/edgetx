@@ -98,6 +98,11 @@ constexpr uint8_t AUDIO_FILENAME_MAXLEN = (AUDIO_LUA_FILENAME_MAXLEN > AUDIO_MOD
   #define AUDIO_BUFFER_COUNT           (3)
 #endif
 
+static_assert((AUDIO_QUEUE_LENGTH & (AUDIO_QUEUE_LENGTH - 1)) == 0,
+              "AUDIO_QUEUE_LENGTH must be a power of 2");
+static_assert(2 * AUDIO_BUFFER_COUNT <= 255,
+              "AUDIO_BUFFER_COUNT free-running counter must fit in uint8_t");
+
 #define BEEP_MIN_FREQ                  (150)
 #define BEEP_MAX_FREQ                  (15000)
 #define BEEP_DEFAULT_FREQ              (2250)
@@ -302,20 +307,31 @@ class AudioBufferFifo {
 #endif
 
   private:
+    // free-running counters in [0, 2*AUDIO_BUFFER_COUNT); each written by only one side
     volatile uint8_t readIdx;
     volatile uint8_t writeIdx;
-    volatile bool bufferFull;
 
-    inline uint8_t nextBufferIdx(uint8_t idx) const
+    inline uint8_t nextIndex(uint8_t idx) const
     {
-      return (idx >= AUDIO_BUFFER_COUNT - 1 ? 0 : idx + 1);
+      return (idx >= 2 * AUDIO_BUFFER_COUNT - 1 ? 0 : idx + 1);
     }
 
-    bool full() const { return bufferFull; }
-    bool empty() const { return readIdx == writeIdx && !bufferFull; }
+    inline uint8_t slot(uint8_t idx) const
+    {
+      return idx >= AUDIO_BUFFER_COUNT ? idx - AUDIO_BUFFER_COUNT : idx;
+    }
+
+    uint8_t used() const
+    {
+      uint8_t w = writeIdx, r = readIdx;
+      return w >= r ? w - r : w + 2 * AUDIO_BUFFER_COUNT - r;
+    }
+
+    bool full() const { return used() == AUDIO_BUFFER_COUNT; }
+    bool empty() const { return readIdx == writeIdx; }
 
    public:
-    AudioBufferFifo() : readIdx(0), writeIdx(0), bufferFull(false)
+    AudioBufferFifo() : readIdx(0), writeIdx(0)
     {
       memset(audioBuffers, 0, sizeof(audioBuffers));
     }
@@ -324,27 +340,19 @@ class AudioBufferFifo {
     // with audioPushBuffer()
     AudioBuffer *getEmptyBuffer() const
     {
-      return full() ? nullptr : &audioBuffers[writeIdx];
+      return full() ? nullptr : &audioBuffers[slot(writeIdx)];
     }
 
     // puts filled buffer into FIFO
-    void audioPushBuffer()
-    {
-      writeIdx = nextBufferIdx(writeIdx);
-      if (writeIdx == readIdx) bufferFull = true;
-    }
+    void audioPushBuffer() { writeIdx = nextIndex(writeIdx); }
 
     // frees the last played buffer
-    void freeNextFilledBuffer()
-    {
-      readIdx = nextBufferIdx(readIdx);
-      bufferFull = false;
-    }
+    void freeNextFilledBuffer() { readIdx = nextIndex(readIdx); }
 
     // returns a pointer to the audio buffer to be played
     const AudioBuffer *getNextFilledBuffer()
     {
-      return empty() ? nullptr : &audioBuffers[readIdx];
+      return empty() ? nullptr : &audioBuffers[slot(readIdx)];
     }
 };
 
@@ -354,13 +362,25 @@ class AudioFragmentFifo
   friend void printAudioVars();
 #endif
   private:
+    // free-running counters in [0, 2*AUDIO_QUEUE_LENGTH); each written by only one side
     volatile uint8_t ridx;
     volatile uint8_t widx;
     AudioFragment fragments[AUDIO_QUEUE_LENGTH];
 
     uint8_t nextIdx(uint8_t idx) const
     {
-      return (idx + 1) & (AUDIO_QUEUE_LENGTH - 1);
+      return (idx + 1) & (2 * AUDIO_QUEUE_LENGTH - 1);
+    }
+
+    uint8_t slot(uint8_t idx) const
+    {
+      return idx & (AUDIO_QUEUE_LENGTH - 1);
+    }
+
+    uint8_t used() const
+    {
+      uint8_t w = widx, r = ridx;
+      return w >= r ? w - r : w + 2 * AUDIO_QUEUE_LENGTH - r;
     }
 
   public:
@@ -370,7 +390,7 @@ class AudioFragmentFifo
     {
       uint8_t i = ridx;
       while (i != widx) {
-        AudioFragment & fragment = fragments[i];
+        AudioFragment & fragment = fragments[slot(i)];
         if (fragment.id == id) return true;
         i = nextIdx(i);
       }
@@ -381,7 +401,7 @@ class AudioFragmentFifo
     {
       uint8_t i = ridx;
       while (i != widx) {
-        AudioFragment & fragment = fragments[i];
+        AudioFragment & fragment = fragments[slot(i)];
         if (fragment.id == id) fragment.clear();
         i = nextIdx(i);
       }
@@ -395,7 +415,7 @@ class AudioFragmentFifo
 
     bool full() const
     {
-      return ridx == nextIdx(widx);
+      return used() == AUDIO_QUEUE_LENGTH;
     }
 
     void clear()
@@ -406,8 +426,8 @@ class AudioFragmentFifo
     const AudioFragment * get()
     {
       if (!empty()) {
-        const AudioFragment * result = &fragments[ridx];
-        if (!fragments[ridx].repeat--) {
+        const AudioFragment * result = &fragments[slot(ridx)];
+        if (!fragments[slot(ridx)].repeat--) {
           // repeat is done, move to the next fragment
           ridx = nextIdx(ridx);
         }
@@ -420,7 +440,7 @@ class AudioFragmentFifo
     {
       if (!full()) {
         // TRACE("fragment %d at %d", fragment.type, widx);
-        fragments[widx] = fragment;
+        fragments[slot(widx)] = fragment;
         widx = nextIdx(widx);
       }
     }
