@@ -485,6 +485,21 @@
   #define FLYSKY_HALL_DMA_Stream_TX                LL_DMA_STREAM_4
 #endif
 
+#if defined(VOICE_CONTROL_SENSOR)
+  #define VOICE_CTRL_BAUD               115200
+#if defined(RADIO_V16)
+  #define VOICE_CONTROL_USART           UART7
+  #define VOICE_CONTROL_USART_IRQn      UART7_IRQn
+  #define VOICE_CONTROL_GPIO            GPIOF
+  #define VOICE_CONTROL_TX_GPIO         GPIO_PIN(GPIOF, 7) // PF.7
+  #define VOICE_CONTROL_RX_GPIO         GPIO_PIN(GPIOF, 6)  // PF.6
+  #define VOICE_CONTROL_DMA_RX          DMA1
+  #define VOICE_CONTROL_DMA_RX_STREAM   LL_DMA_STREAM_3
+  #define VOICE_CONTROL_DMA_RX_CHANNEL  LL_DMA_CHANNEL_5
+  #define VOICE_CONTROL_PWR_GPIO        GPIO_PIN(GPIOH, 13) // PH.13  1=ON, 0=OFF
+#endif
+#endif
+
 // Internal Module
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOA, 8) // PA.08
 #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 6) // PB.06
