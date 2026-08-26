@@ -2046,7 +2046,7 @@ static int luaGetAllUserData(lua_State *L)
 
   for (int i = 0; i < g_model.getUserDataCount(); i += 1) {
     auto ud = g_model.getUserData(i);
-    if (ud) {
+    if (ud && !ud->key.empty()) {
       std::string k = ud->key;
       if (matchApp) {
         if (k.rfind(s, 0) != 0)
