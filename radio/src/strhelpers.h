@@ -208,6 +208,10 @@ std::string getTelemTime(TelemetryItem &telemetryItem);
 
 int countDigits(int number);
 
+// Replace all occurrences of 'from' with 'to' in 'str', in place.
+void strReplaceAll(std::string &str, const std::string &from,
+                    const std::string &to);
+
 // Timezone handling
 extern int8_t minTimezone();
 extern int8_t maxTimezone();
