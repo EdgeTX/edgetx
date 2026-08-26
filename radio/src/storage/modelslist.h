@@ -43,7 +43,7 @@
 
 #define DEFAULT_MODEL_SORT NAME_ASC
 
-struct ModelData;
+struct ModelHeader;
 struct ModuleData;
 
 struct SimpleModuleData {
@@ -80,7 +80,7 @@ class ModelCell
 
   void setModelName(char *name);
   void setModelName(char *name, uint8_t len);
-  void setRfData(ModelData *model);
+  void setRfData(ModelHeader *header, ModuleData* moduleData);
 
   void setModelId(uint8_t moduleIdx, uint8_t id);
   void setRfModuleData(uint8_t moduleIdx, ModuleData *modData);
@@ -168,6 +168,7 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
       ModelCell *);  // Should only be called from ModelsList remove model
   bool updateModelFile(ModelCell *);
   void sortModelsBy(ModelsVector &mv, ModelsSortBy sortby);
+  bool writeModelLabels(ModelCell*, const char*);
 
   void clear()
   {
