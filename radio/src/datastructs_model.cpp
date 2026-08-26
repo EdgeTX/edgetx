@@ -291,6 +291,21 @@ UserData* ModelData::getUserData(const char* key)
   return nullptr;
 }
 
+// Get User Data item at position 'n', growing the store to fit if needed.
+// Used when parsing YAML files: entries are normally written in
+// contiguous index order, but a hand-edited or Companion-generated file
+// could have gaps - resize (rather than append) so the entry ends up at
+// the index the file actually specified.
+UserData* ModelData::getOrCreateUserData(int n)
+{
+  if ((size_t)n >= MAX_USER_DATA) return nullptr;
+  if ((size_t)n >= userData.size()) {
+    userData.resize(n + 1);
+    storageDirty(EE_MODEL);
+  }
+  return &userData[n];
+}
+
 static bool setUD(const char* key, const char* val, UDType typ)
 {
   if (key[0] == 0) return false;
@@ -323,7 +338,12 @@ bool ModelData::setUserData(const char* key, int32_t num)
 // Update or add User Data item
 bool ModelData::setUserData(const char* key, float num)
 {
-  return setUD(key, std::to_string(num).c_str(), UD_FLOAT);
+  // %.9g gives enough significant digits to round-trip a 32-bit float,
+  // unlike std::to_string() which fixes 6 decimal places and silently
+  // loses precision (e.g. very small or very large values).
+  char buf[32];
+  snprintf(buf, sizeof(buf), "%.9g", (double)num);
+  return setUD(key, buf, UD_FLOAT);
 }
 
 void ModelData::deleteUserData(const char* key)
