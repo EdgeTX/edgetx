@@ -291,17 +291,14 @@ UserData* ModelData::getUserData(const char* key)
   return nullptr;
 }
 
-// Get User Data item at position 'n', growing the store to fit if needed.
-// Used when parsing YAML files: entries are normally written in
-// contiguous index order, but a hand-edited or Companion-generated file
-// could have gaps - resize (rather than append) so the entry ends up at
-// the index the file actually specified.
+// Get User Data item at position 'n', resizing the store if needed
+// (handles gaps in a sparse/hand-edited YAML index sequence). No
+// storageDirty() here - this also runs on plain loads, not just mutations.
 UserData* ModelData::getOrCreateUserData(int n)
 {
   if ((size_t)n >= MAX_USER_DATA) return nullptr;
   if ((size_t)n >= userData.size()) {
     userData.resize(n + 1);
-    storageDirty(EE_MODEL);
   }
   return &userData[n];
 }
@@ -312,9 +309,7 @@ static bool setUD(const char* key, const char* val, UDType typ)
 
   auto ud = g_model.getUserData(key);
   if (ud == nullptr) {
-    // Reuse an inactive slot left by a sparse YAML load (see
-    // getOrCreateUserData()) before growing the store, so a store full of
-    // mostly-empty gap slots doesn't spuriously refuse new entries.
+    // Reuse a gap slot (see getOrCreateUserData()) before growing the store.
     for (auto& slot : userData) {
       if (slot.key.empty()) {
         slot = UserData(key, val, typ);
