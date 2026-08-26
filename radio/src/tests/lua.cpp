@@ -243,4 +243,37 @@ TEST(Lua, ioSeek)
   std::filesystem::remove(simuFatfsGetRealPath("seek-test.txt"));
 }
 
+// Adapted from the sample script in PR #7562 (minus the LVGL UI part):
+// populates the same app/key/value set and exercises the full Lua API
+// through the real binding layer, not just the underlying C++ store.
+TEST(Lua, testUserData)
+{
+  MODEL_RESET();
+
+  const char userdata_tst[] =
+      "model.setUserData('App', 'K1', 'String')\n"
+      "model.setUserData('App', 'K2', 12345)\n"
+      "model.setUserData('App', 'K3', 12.345)\n"
+
+      "assert(model.getUserData('App', 'K1') == 'String')\n"
+      "assert(model.getUserData('App', 'K2') == 12345)\n"
+      "assert(math.abs(model.getUserData('App', 'K3') - 12.345) < 0.001)\n"
+      "assert(model.getUserData('Other', 'K1') == nil)\n"
+
+      "local ud = model.getAllUserData('App')\n"
+      "local n = 0\n"
+      "for k in pairs(ud) do n = n + 1 end\n"
+      "assert(n == 3)\n"
+      "assert(ud.K1 == 'String')\n"
+
+      "local all = model.getAllUserData()\n"
+      "assert(all['App|K1'] == 'String')\n"
+
+      "model.deleteUserData('App', 'K1')\n"
+      "assert(model.getUserData('App', 'K1') == nil)\n"
+      "assert(model.getUserData('App', 'K2') == 12345)\n";
+
+  luaExecStr(userdata_tst);
+}
+
 #endif   // #if defined(LUA)
