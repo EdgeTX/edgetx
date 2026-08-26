@@ -249,6 +249,7 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 // Chargers (USB and wireless)
 #define UCHARGER_GPIO               GPIO_PIN(GPIOD, 11)
 #define UCHARGER_EN_GPIO            GPIO_PIN(GPIOB, 12)
+#define UCHARGER_INVERTED           (true)
 
 // S.Port update connector
 #define HAS_SPORT_UPDATE_CONNECTOR()    (false)
