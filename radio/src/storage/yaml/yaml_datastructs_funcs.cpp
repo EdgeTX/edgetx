@@ -2902,6 +2902,7 @@ bool w_userdata_key(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   auto ud = g_model.getUserData(tw->getElmts(1));
+  if (!ud) return false;
   return yaml_output_string(ud->key.c_str(), ud->key.size(), wf, opaque);
 }
 
@@ -2929,6 +2930,7 @@ bool w_userdata_type(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   auto ud = g_model.getUserData(tw->getElmts(1));
+  if (!ud) return false;
   const char* s = yaml_output_enum(ud->type, enum_UDType);
   return wf(opaque, s, strlen(s));
 }
@@ -2950,5 +2952,6 @@ bool w_userdata_value(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
   auto ud = g_model.getUserData(tw->getElmts(1));
+  if (!ud) return false;
   return yaml_output_string(ud->value.c_str(), ud->value.size(), wf, opaque);
 }
