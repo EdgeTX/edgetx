@@ -1172,7 +1172,7 @@ bool isTrainerModeAvailable(int mode)
 #endif
 
   if (mode == TRAINER_MODE_MASTER_SERIAL) {
-    return serialGetModePort(UART_MODE_SBUS_TRAINER) >= 0;
+    return serialGetSbusTrainerPort() >= 0;
   }
 
   if ((mode == TRAINER_MODE_MASTER_BLUETOOTH ||
