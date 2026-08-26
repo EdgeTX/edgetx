@@ -312,6 +312,16 @@ static bool setUD(const char* key, const char* val, UDType typ)
 
   auto ud = g_model.getUserData(key);
   if (ud == nullptr) {
+    // Reuse an inactive slot left by a sparse YAML load (see
+    // getOrCreateUserData()) before growing the store, so a store full of
+    // mostly-empty gap slots doesn't spuriously refuse new entries.
+    for (auto& slot : userData) {
+      if (slot.key.empty()) {
+        slot = UserData(key, val, typ);
+        storageDirty(EE_MODEL);
+        return true;
+      }
+    }
     if (userData.size() >= MAX_USER_DATA) return false;
     userData.emplace_back(key, val, typ);
     storageDirty(EE_MODEL);

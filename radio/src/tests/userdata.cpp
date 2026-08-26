@@ -102,3 +102,20 @@ TEST_F(UserDataTest, GetOrCreateRespectsMax)
 {
   EXPECT_EQ(g_model.getOrCreateUserData(MAX_USER_DATA), nullptr);
 }
+
+TEST_F(UserDataTest, SetUserDataReusesGapSlot)
+{
+  // A sparse YAML load can leave the store full of inactive gap slots
+  // (empty key) well before MAX_USER_DATA active entries exist; setUserData
+  // must reuse a gap rather than spuriously refusing the new entry.
+  auto ud = g_model.getOrCreateUserData(MAX_USER_DATA - 1);
+  ASSERT_NE(ud, nullptr);
+  ud->key = "last";
+  EXPECT_EQ(g_model.getUserDataCount(), MAX_USER_DATA);
+
+  EXPECT_TRUE(g_model.setUserData("newkey", "value"));
+  EXPECT_EQ(g_model.getUserDataCount(), MAX_USER_DATA);
+  auto found = g_model.getUserData("newkey");
+  ASSERT_NE(found, nullptr);
+  EXPECT_EQ(found->value, "value");
+}
