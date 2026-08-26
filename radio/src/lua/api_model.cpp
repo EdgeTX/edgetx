@@ -2027,14 +2027,15 @@ Get a table of all User Data entries
 */
 static int luaGetAllUserData(lua_State *L)
 {
+  // Increases stack by pushing an empty table so lua_gettop(L) checks below must check for >= 2 (not 1).
   lua_newtable(L);
 
   if (g_model.getUserDataCount() == 0) return 1;
-  if (lua_gettop(L) >= 1 && lua_type(L, 1) != LUA_TSTRING) return 1;
+  if (lua_gettop(L) >= 2 && lua_type(L, 1) != LUA_TSTRING) return 1;
 
   bool matchApp = false;
   std::string s;
-  if (lua_gettop(L) >= 1) {
+  if (lua_gettop(L) >= 2) {
     s = luaL_checkstring(L, 1);
     // App name cannot contain '|' - no entry can match, since no app
     // name stored via setUserData()/getUDKey() ever contains one either.
