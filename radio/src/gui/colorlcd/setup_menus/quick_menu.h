@@ -61,10 +61,6 @@ extern const QMMainDef qmTopItems[];
 
 //-----------------------------------------------------------------------------
 
-std::string replaceAll(std::string str, const std::string& from, const std::string& to);
-
-//-----------------------------------------------------------------------------
-
 #define GRP_W(n) ((QuickMenu::QM_BUTTON_WIDTH + QuickMenu::QM_HPAD) * n - QuickMenu::QM_HPAD + PAD_OUTLINE * 2)
 #define GRP_H(n) ((QuickMenu::QM_BUTTON_HEIGHT + QuickMenu::QM_VPAD) * n - QuickMenu::QM_VPAD + PAD_OUTLINE * 2)
 

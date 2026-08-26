@@ -1314,3 +1314,14 @@ int timezoneOffsetSeconds(int8_t tzHour, int8_t tzMinute)
 {
   return (tzHour * 3600) + (tzMinute * 15 * 60);
 }
+
+void strReplaceAll(std::string &str, const std::string &from,
+                    const std::string &to)
+{
+  if (from.empty()) return;
+  size_t pos = 0;
+  while ((pos = str.find(from, pos)) != std::string::npos) {
+    str.replace(pos, from.length(), to);
+    pos += to.length();
+  }
+}
