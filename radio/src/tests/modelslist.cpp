@@ -95,7 +95,10 @@ TEST(PartialModel, HeaderParsesIdenticallyToModelData)
 #if LEN_BITMAP_NAME > 0
       "   bitmap: \"pic.bmp\"\n"
 #endif
-      "   labels: \"alpha,bravo\"\n";
+#if defined(STORAGE_MODELSLIST)
+      "   labels: \"alpha,bravo\"\n"
+#endif
+      ;
 
   PartialModel partial;
   memclear(&partial, sizeof(partial));
@@ -123,7 +126,9 @@ TEST(PartialModel, HeaderParsesIdenticallyToModelData)
 #if LEN_BITMAP_NAME > 0
   EXPECT_STREQ(partial.header.bitmap, model.header.bitmap);
 #endif
+#if defined(STORAGE_MODELSLIST)
   EXPECT_STREQ(partial.header.labels, model.header.labels);
+#endif
 
   // Sanity: the fixture actually populated something non-zero, otherwise a
   // parser that silently no-ops on both sides would pass trivially.
@@ -137,6 +142,9 @@ TEST(PartialModel, HeaderParsesIdenticallyToModelData)
 // several labels attached should keep all of them when this field gets
 // (re)written, up to the field's own declared capacity, not just as much
 // as would fit in a single label name.
+//
+// header.labels only exists on targets with STORAGE_MODELSLIST.
+#if defined(STORAGE_MODELSLIST)
 TEST(PartialModel, LabelsFieldRetainsFullCsvUpToItsOwnCapacity)
 {
   PartialModel partial;
@@ -155,3 +163,4 @@ TEST(PartialModel, LabelsFieldRetainsFullCsvUpToItsOwnCapacity)
          "LABELS_LENGTH-1 characters, not just a single label name's "
          "worth.";
 }
+#endif // defined(STORAGE_MODELSLIST)
