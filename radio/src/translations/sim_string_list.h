@@ -244,6 +244,7 @@
 // Main Menu
 
 #if defined(PDM_CLOCK)
+#define STR_AUTO_TRIM currentLangStrings->STR_AUTO_TRIM
 #define STR_MIC_RECORDER currentLangStrings->STR_MIC_RECORDER
 #define STR_PUSH_TO_RECORD currentLangStrings->STR_PUSH_TO_RECORD
 #define STR_RECORD currentLangStrings->STR_RECORD
@@ -254,6 +255,8 @@
 #define STR_SAVED currentLangStrings->STR_SAVED
 #define STR_SAVE_AS currentLangStrings->STR_SAVE_AS
 #define STR_OPEN_ERROR currentLangStrings->STR_OPEN_ERROR
+#define STR_TRIM_END currentLangStrings->STR_TRIM_END
+#define STR_TRIM_START currentLangStrings->STR_TRIM_START
 #endif
 
 #else // !COLORLCD

@@ -39,6 +39,7 @@ class RadioMicRecorder : public Page
 
  protected:
   enum class State : uint8_t { IDLE, COUNTDOWN, RECORDING, REVIEW };
+  enum class TrimMode : uint8_t { NONE, START, END };
 
   static constexpr uint32_t COUNTDOWN_SECONDS = 5;
   static constexpr int PATH_MAX_LEN = sizeof(SOUNDS_PATH) + 14; // "/lang/rec_00.wav\0"
@@ -61,6 +62,15 @@ class RadioMicRecorder : public Page
   TextButton* playButton = nullptr;
   TextButton* saveButton = nullptr;
   TextButton* redoButton = nullptr;
+  TextButton* autoTrimButton = nullptr;
+  TextButton* trimStartButton = nullptr;
+  TextButton* trimEndButton = nullptr;
+  TextButton* applyButton = nullptr;
+  TextButton* cancelButton = nullptr;
+  bool built = false;
+
+  TrimMode trimMode = TrimMode::NONE;
+  int trimPermille = 0;
   WaveformView* waveform = nullptr;
 
   void buildHeader(Window* window);
@@ -70,6 +80,13 @@ class RadioMicRecorder : public Page
 
   void onActionPressed();
   void onPlayPressed();
+  void onAutoTrim();
+  void enterTrim(TrimMode mode);
+  void exitTrim();
+  void onTrimMoved(int value);
+  void onApplyTrim();
+  void applyTrim(uint32_t from, uint32_t to);
+  uint32_t trimSample() const;
   void enterIdle();
   void enterCountdown();
   void enterRecording();
@@ -77,7 +94,7 @@ class RadioMicRecorder : public Page
   void stopRecording();
   void discardTake();
   void askSaveAs();
-  void showReviewButtons(bool reviewing);
+  void updateButtons();
   bool isPlayingTake() const;
   void processPendingRename();
   void applyRename();
