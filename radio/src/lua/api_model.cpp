@@ -2005,7 +2005,7 @@ static int luaGetUserData(lua_State *L)
     } else if (ud->type == UD_FLOAT) {
       lua_pushnumber(L, strtof(ud->value.c_str(), nullptr));
     } else {
-      lua_pushstring(L, ud->value.c_str());
+      lua_pushlstring(L, ud->value.data(), ud->value.size());
     }
   }
   else {
@@ -2058,7 +2058,10 @@ static int luaGetAllUserData(lua_State *L)
       } else if (ud->type == UD_FLOAT) {
         lua_pushtablenumber(L, k.c_str(), strtof(ud->value.c_str(), nullptr));
       } else {
-        lua_pushtablestring(L, k.c_str(), ud->value.c_str());
+        // lua_pushtablestring() would truncate an embedded NUL byte.
+        lua_pushstring(L, k.c_str());
+        lua_pushlstring(L, ud->value.data(), ud->value.size());
+        lua_settable(L, -3);
       }
     }
   }
@@ -2073,9 +2076,11 @@ Update User Data string for given app and key with new value.
 A new User Data entry will be created if the app + key is not found.
 
 @param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
-App, key and string values are stored as NUL-terminated C strings, so any
-embedded '\0' character - and everything after it - will be silently
-truncated.
+App and key names are stored as NUL-terminated C strings, so any embedded
+'\0' character - and everything after it - will be silently truncated.
+String values may contain embedded '\0' characters, except when the value
+is both longer than 255 bytes and contains one - such a value is
+truncated at the first '\0'.
 
 @param key (string) name of User Data entry
 
@@ -2102,8 +2107,9 @@ static int luaSetUserData(lua_State *L)
   }
 
   if (lua_type(L, 3) == LUA_TSTRING) {
-    const char* v = lua_tostring(L, 3);
-    lua_pushboolean(L, g_model.setUserData(s.c_str(), v));
+    size_t len;
+    const char* v = lua_tolstring(L, 3, &len);
+    lua_pushboolean(L, g_model.setUserData(s.c_str(), v, len));
   } else if (lua_isinteger(L, 3)) {
     int32_t n = luaL_checkinteger(L, 3);
     lua_pushboolean(L, g_model.setUserData(s.c_str(), n));

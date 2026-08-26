@@ -303,7 +303,9 @@ UserData* ModelData::getOrCreateUserData(int n)
   return &userData[n];
 }
 
-static bool setUD(const char* key, const char* val, UDType typ)
+// val/val_len are used verbatim (not NUL-terminated semantics), so a
+// string value may contain embedded NUL bytes.
+static bool setUD(const char* key, const char* val, size_t val_len, UDType typ)
 {
   if (key[0] == 0) return false;
 
@@ -312,16 +314,21 @@ static bool setUD(const char* key, const char* val, UDType typ)
     // Reuse a gap slot (see getOrCreateUserData()) before growing the store.
     for (auto& slot : userData) {
       if (slot.key.empty()) {
-        slot = UserData(key, val, typ);
+        slot.key = key;
+        slot.value.assign(val, val_len);
+        slot.type = typ;
         storageDirty(EE_MODEL);
         return true;
       }
     }
     if (userData.size() >= MAX_USER_DATA) return false;
-    userData.emplace_back(key, val, typ);
+    userData.emplace_back();
+    userData.back().key = key;
+    userData.back().value.assign(val, val_len);
+    userData.back().type = typ;
     storageDirty(EE_MODEL);
-  } else if (ud->type != typ || ud->value != val) {
-    ud->value = val;
+  } else if (ud->type != typ || ud->value.compare(0, std::string::npos, val, val_len) != 0) {
+    ud->value.assign(val, val_len);
     ud->type = typ;
     storageDirty(EE_MODEL);
   }
@@ -331,13 +338,20 @@ static bool setUD(const char* key, const char* val, UDType typ)
 // Update or add User Data item
 bool ModelData::setUserData(const char* key, const char* str)
 {
-  return setUD(key, str, UD_STRING);
+  return setUD(key, str, strlen(str), UD_STRING);
+}
+
+// Update or add User Data item - str may contain embedded NUL bytes.
+bool ModelData::setUserData(const char* key, const char* str, size_t len)
+{
+  return setUD(key, str, len, UD_STRING);
 }
 
 // Update or add User Data item
 bool ModelData::setUserData(const char* key, int32_t num)
 {
-  return setUD(key, std::to_string(num).c_str(), UD_INT);
+  std::string s = std::to_string(num);
+  return setUD(key, s.c_str(), s.size(), UD_INT);
 }
 
 // Update or add User Data item
@@ -347,8 +361,8 @@ bool ModelData::setUserData(const char* key, float num)
   // unlike std::to_string() which fixes 6 decimal places and silently
   // loses precision (e.g. very small or very large values).
   char buf[32];
-  snprintf(buf, sizeof(buf), "%.9g", (double)num);
-  return setUD(key, buf, UD_FLOAT);
+  int len = snprintf(buf, sizeof(buf), "%.9g", (double)num);
+  return setUD(key, buf, len, UD_FLOAT);
 }
 
 void ModelData::deleteUserData(const char* key)

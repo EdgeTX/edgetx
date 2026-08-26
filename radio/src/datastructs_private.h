@@ -983,6 +983,8 @@ PACK(struct ModelData {
   // sequence (e.g. a hand-edited or Companion-generated model file).
   UserData* getOrCreateUserData(int n);
   bool setUserData(const char* key, const char* str);
+  // str may contain embedded NUL bytes.
+  bool setUserData(const char* key, const char* str, size_t len);
   bool setUserData(const char* key, int32_t num);
   bool setUserData(const char* key, float num);
   void deleteUserData(const char* key);

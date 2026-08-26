@@ -21,6 +21,10 @@
 
 #include "gtests.h"
 
+#include "storage/yaml/yaml_tree_walker.h"
+#include "storage/yaml/yaml_parser.h"
+#include "storage/yaml/yaml_datastructs.h"
+
 class UserDataTest : public EdgeTxTest {};
 
 TEST_F(UserDataTest, SetGetString)
@@ -118,4 +122,89 @@ TEST_F(UserDataTest, SetUserDataReusesGapSlot)
   auto found = g_model.getUserData("newkey");
   ASSERT_NE(found, nullptr);
   EXPECT_EQ(found->value, "value");
+}
+
+TEST_F(UserDataTest, SetGetEmbeddedNulString)
+{
+  const char raw[] = {'a', '\0', 'b', 'c'};
+  EXPECT_TRUE(g_model.setUserData("key1", raw, sizeof(raw)));
+  auto ud = g_model.getUserData("key1");
+  ASSERT_NE(ud, nullptr);
+  EXPECT_EQ(ud->value.size(), sizeof(raw));
+  EXPECT_EQ(memcmp(ud->value.data(), raw, sizeof(raw)), 0);
+}
+
+static bool yaml_string_writer(void* opaque, const char* str, size_t len)
+{
+  static_cast<std::string*>(opaque)->append(str, len);
+  return true;
+}
+
+TEST_F(UserDataTest, YamlRoundTripPreservesEmbeddedNul)
+{
+  const char raw[] = {'e', 'm', 'b', '\0', 'X'};
+  ASSERT_TRUE(g_model.setUserData("nulkey", raw, sizeof(raw)));
+
+  // Pin the no-regression case alongside it: a value over 255 bytes with
+  // no embedded NUL must still round-trip in full.
+  std::string longVal(300, 'Y');
+  ASSERT_TRUE(g_model.setUserData("longkey", longVal.c_str(), longVal.size()));
+
+  std::string yaml;
+  {
+    YamlTreeWalker tree;
+    tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
+    ASSERT_TRUE(tree.generate(yaml_string_writer, &yaml));
+  }
+
+  g_model.clearUserData();
+  ASSERT_EQ(g_model.getUserDataCount(), 0);
+
+  {
+    YamlTreeWalker tree;
+    tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
+    YamlParser yp;
+    yp.init(YamlTreeWalker::get_parser_calls(), &tree);
+    yp.parse(yaml.c_str(), yaml.size());
+  }
+
+  auto ud = g_model.getUserData("nulkey");
+  ASSERT_NE(ud, nullptr);
+  EXPECT_EQ(ud->value.size(), sizeof(raw));
+  EXPECT_EQ(memcmp(ud->value.data(), raw, sizeof(raw)), 0);
+
+  auto udLong = g_model.getUserData("longkey");
+  ASSERT_NE(udLong, nullptr);
+  EXPECT_EQ(udLong->value, longVal);
+}
+
+// Characterization test: 255 bytes is the largest value for which the
+// embedded-NUL fix is guaranteed exact (see userdata_val_len() in
+// yaml_datastructs_funcs.cpp) - pin the boundary explicitly.
+TEST_F(UserDataTest, YamlRoundTripPreserves255ByteEmbeddedNul)
+{
+  std::string raw(255, 'Z');
+  raw[100] = '\0';
+  ASSERT_TRUE(g_model.setUserData("boundary", raw.data(), raw.size()));
+
+  std::string yaml;
+  {
+    YamlTreeWalker tree;
+    tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
+    ASSERT_TRUE(tree.generate(yaml_string_writer, &yaml));
+  }
+
+  g_model.clearUserData();
+
+  {
+    YamlTreeWalker tree;
+    tree.reset(get_modeldata_nodes(), (uint8_t*)&g_model);
+    YamlParser yp;
+    yp.init(YamlTreeWalker::get_parser_calls(), &tree);
+    yp.parse(yaml.c_str(), yaml.size());
+  }
+
+  auto ud = g_model.getUserData("boundary");
+  ASSERT_NE(ud, nullptr);
+  EXPECT_EQ(ud->value, raw);
 }

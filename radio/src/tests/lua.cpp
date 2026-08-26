@@ -276,4 +276,28 @@ TEST(Lua, testUserData)
   luaExecStr(userdata_tst);
 }
 
+// string.char() builds the value at runtime, sidestepping the fact that
+// luaL_loadstring() (used to load this test's own Lua source) is itself
+// strlen()-based and couldn't carry a literal embedded NUL through.
+TEST(Lua, testUserDataEmbeddedNul)
+{
+  MODEL_RESET();
+
+  const char userdata_nul_tst[] =
+      "local v = string.char(65, 0, 66)\n"
+      "assert(#v == 3)\n"
+      "model.setUserData('App', 'NulKey', v)\n"
+
+      "local got = model.getUserData('App', 'NulKey')\n"
+      "assert(#got == 3)\n"
+      "assert(got == v)\n"
+      "assert(string.byte(got, 2) == 0)\n"
+
+      "local all = model.getAllUserData('App')\n"
+      "assert(#all.NulKey == 3)\n"
+      "assert(all.NulKey == v)\n";
+
+  luaExecStr(userdata_nul_tst);
+}
+
 #endif   // #if defined(LUA)
