@@ -1966,13 +1966,13 @@ static std::string getUDKey(lua_State *L)
   const char* a = luaL_checkstring(L, 1);
   const char* k = luaL_checkstring(L, 2);
 
-  // App name and key are mandatory
-  if (a[0] == 0 || k[0] == 0) {
+  // App name and key are mandatory, and app name cannot contain '|'
+  // (used internally as the app/key separator)
+  if (a[0] == 0 || k[0] == 0 || strchr(a, '|') != nullptr) {
     return "";
   }
 
   std::string s(a);
-  strReplaceAll(s, "|", "_");
   s += "|";
   s += k;
 
@@ -2036,7 +2036,9 @@ static int luaGetAllUserData(lua_State *L)
   std::string s;
   if (lua_gettop(L) >= 1) {
     s = luaL_checkstring(L, 1);
-    strReplaceAll(s, "|", "_");
+    // App name cannot contain '|' - no entry can match, since no app
+    // name stored via setUserData()/getUDKey() ever contains one either.
+    if (s.find('|') != std::string::npos) return 1;
     s += "|";
     matchApp = true;
   }
@@ -2070,6 +2072,9 @@ Update User Data string for given app and key with new value.
 A new User Data entry will be created if the app + key is not found.
 
 @param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
+App, key and string values are stored as NUL-terminated C strings, so any
+embedded '\0' character - and everything after it - will be silently
+truncated.
 
 @param key (string) name of User Data entry
 

@@ -774,8 +774,9 @@ struct UserData {
 #else
 #if !defined(BACKUP)
   std::string key;
-  UDType type;
+  UDType type = UD_STRING;
   std::string value;
+  UserData() = default;
   UserData(const char* k, const char* v, UDType t) { key = k; value = v; type = t; }
 #endif
 #endif
@@ -977,6 +978,10 @@ PACK(struct ModelData {
   bool hasUserData(int n);
   UserData* getUserData(int n);
   UserData* getUserData(const char* key);
+  // Used by the YAML reader: get (creating/resizing as needed) the entry
+  // at parsed array index n, in case of a sparse/non-contiguous index
+  // sequence (e.g. a hand-edited or Companion-generated model file).
+  UserData* getOrCreateUserData(int n);
   bool setUserData(const char* key, const char* str);
   bool setUserData(const char* key, int32_t num);
   bool setUserData(const char* key, float num);

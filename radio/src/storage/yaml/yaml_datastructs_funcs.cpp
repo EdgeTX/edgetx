@@ -2893,11 +2893,8 @@ void r_userdata_key(void* user, uint8_t* data, uint32_t bitoffs,
                  const char* val, uint8_t val_len)
 {
   auto tw = reinterpret_cast<YamlTreeWalker*>(user);
-  auto ud = g_model.getUserData(tw->getElmts(1));
-  if (ud == nullptr)
-    g_model.setUserData(val, "");
-  else
-    ud->key = val;
+  auto ud = g_model.getOrCreateUserData(tw->getElmts(1));
+  if (ud) ud->key = val;
 }
 
 bool w_userdata_key(void* user, uint8_t* data, uint32_t bitoffs,
