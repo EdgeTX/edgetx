@@ -35,7 +35,6 @@ class RadioMicRecorder : public Page
 {
  public:
   RadioMicRecorder();
-  ~RadioMicRecorder() override;
 
  protected:
   enum class State : uint8_t { IDLE, COUNTDOWN, RECORDING, REVIEW };
@@ -76,7 +75,7 @@ class RadioMicRecorder : public Page
   void buildHeader(Window* window);
   void buildBody(Window* window);
   void checkEvents() override;
-  void onEvent(event_t event) override;
+  void deleteLater() override;
 
   void onActionPressed();
   void onPlayPressed();
@@ -100,10 +99,6 @@ class RadioMicRecorder : public Page
   void applyRename();
   void refreshUI();
   void pickNextFilename();
-
-  // Stable callback address so the dtor can cancel a pending lv_async call
-  // scheduled from the LabelDialog confirm path.
-  static void asyncProcessPendingRename(void* ctx);
 };
 
 #endif  // PDM_CLOCK
