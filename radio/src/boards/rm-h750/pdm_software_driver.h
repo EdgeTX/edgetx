@@ -28,9 +28,10 @@
 #define PDM_PCM_DECIMATION 100
 
 // Post-CIC gain (left shift before int16 saturation; +6 dB per step).
-// Default calibrated at 4. Override per target in hal.h before this header
-// is reached. trimSilence() in pdm_wav_recorder.cpp scales its threshold
-// from this same value, so changing it keeps trim in sync automatically.
+// Lowering this for headroom needs finalise()'s normaliser to be silence
+// aware first: a cooler capture needs more make-up gain, and on a take with
+// no speech that gain lands entirely on the room noise. The absolute levels
+// in pdm_wav_recorder.cpp scale off this value.
 #ifndef PDM_POST_GAIN_SHIFT
 #define PDM_POST_GAIN_SHIFT 5
 #endif

@@ -236,6 +236,7 @@
 // Main Menu
 
 #if defined(PDM_CLOCK)
+#define STR_AUTO_TRIM currentLangStrings->STR_AUTO_TRIM
 #define STR_GET_READY currentLangStrings->STR_GET_READY
 #define STR_MIC_RECORDER currentLangStrings->STR_MIC_RECORDER
 #define STR_OPEN_ERROR currentLangStrings->STR_OPEN_ERROR
@@ -246,6 +247,8 @@
 #define STR_SAVED currentLangStrings->STR_SAVED
 #define STR_STARTING_IN currentLangStrings->STR_STARTING_IN
 #define STR_STOP currentLangStrings->STR_STOP
+#define STR_TRIM_END currentLangStrings->STR_TRIM_END
+#define STR_TRIM_START currentLangStrings->STR_TRIM_START
 #endif
 
 #else // !COLORLCD
