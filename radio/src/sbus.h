@@ -25,13 +25,20 @@
 
 #define SBUS_BAUDRATE         100000
 
-// SBUS serial driver + context
-void sbusSetReceiveCtx(void* ctx, const etx_serial_driver_t* drv);
+// The SBUS trainer receiver is a single consumer (trainerInput[]): only one
+// source can feed it at a time. Which one is decided by the trainer mode, so
+// the trainer owns the context and arms/disarms the IDLE callback itself.
 
-// SBUS AUX idle callback
-void sbusAuxFrameReceived(void* param);
+// Claim the SBUS trainer receiver for a serial port.
+// Returns false if the port cannot be used as SBUS trainer input.
+bool sbusTrainerAcquire(void* ctx, const etx_serial_driver_t* drv);
 
-// Enable / disable SBUS AUX
-void sbusAuxSetEnabled(bool enabled);
+// Release the SBUS trainer receiver (no-op if nothing is claimed)
+void sbusTrainerRelease();
 
-void sbusFrameReceived(void* param);
+// Is a source currently feeding the SBUS trainer receiver?
+bool sbusTrainerActive();
+
+// Release the SBUS trainer receiver, but only if 'ctx' is the current owner.
+// Used when tearing down a serial port that may or may not be in use.
+void sbusTrainerReleaseCtx(void* ctx);
