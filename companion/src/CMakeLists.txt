@@ -272,19 +272,6 @@ target_link_libraries(${COMPANION_NAME} PRIVATE
 
 PrintTargetReport("${COMPANION_NAME}")
 
-# Copy WASM simulator modules next to executables for local dev
-if(SIMULATOR_WASM_DIR)
-  foreach(_target ${COMPANION_NAME} ${SIMULATOR_NAME})
-    add_custom_command(TARGET ${_target} POST_BUILD
-      COMMAND ${CMAKE_COMMAND}
-        -DSRC_DIR=${SIMULATOR_WASM_DIR}
-        -DDST_DIR=$<TARGET_FILE_DIR:${_target}>
-        -P ${CMAKE_SOURCE_DIR}/cmake/CopyWasmModules.cmake
-      COMMENT "Copying WASM simulator modules to ${_target} output"
-    )
-  endforeach()
-endif()
-
 ############# Standalone simulator ###############
 
 set(simu_SRCS simulator.cpp )
@@ -298,6 +285,19 @@ target_link_libraries(${SIMULATOR_NAME} PRIVATE
   ${CPN_COMMON_LIB}
   ${SDL2_LIBRARIES}
 )
+
+# Copy WASM simulator modules next to executables for local dev
+if(SIMULATOR_WASM_DIR)
+  foreach(_target ${COMPANION_NAME} ${SIMULATOR_NAME})
+    add_custom_command(TARGET ${_target} POST_BUILD
+      COMMAND ${CMAKE_COMMAND}
+        -DSRC_DIR=${SIMULATOR_WASM_DIR}
+        -DDST_DIR=$<TARGET_FILE_DIR:${_target}>
+        -P ${CMAKE_SOURCE_DIR}/cmake/CopyWasmModules.cmake
+      COMMENT "Copying WASM simulator modules to ${_target} output"
+    )
+  endforeach()
+endif()
 
 add_subdirectory(tests)
 
