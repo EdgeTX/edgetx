@@ -164,3 +164,86 @@ TEST(PartialModel, LabelsFieldRetainsFullCsvUpToItsOwnCapacity)
          "worth.";
 }
 #endif // defined(STORAGE_MODELSLIST)
+
+// Real FatFS round-trip tests for ModelMap::writeModelLabels() itself -
+// the raw file-surgery function these PartialModel tests don't exercise.
+#if defined(SIMU) && defined(STORAGE_MODELSLIST)
+
+#include "storage/modelslist.h"
+#include "storage/sdcard_common.h"
+
+#include <filesystem>
+#include <fstream>
+
+static void writeRawModelFile(const char* modelFilename, const std::string& content)
+{
+  char path[256];
+  getModelPath(path, modelFilename);
+  std::filesystem::create_directories(
+      std::filesystem::path(simuFatfsGetRealPath(path)).parent_path());
+  std::ofstream f(simuFatfsGetRealPath(path), std::ios::binary);
+  f << content;
+}
+
+static size_t modelFileSize(const char* modelFilename)
+{
+  char path[256];
+  getModelPath(path, modelFilename);
+  return std::filesystem::file_size(simuFatfsGetRealPath(path));
+}
+
+// writeModelLabels() locates "header:" then raw-copies everything from the
+// next unindented line onward, so a top-level "body:" key after the header
+// is enough to pin that boundary without needing a real, schema-valid
+// model file.
+TEST(ModelsList, WriteModelLabelsPreservesBodySize)
+{
+  ModelMap map;
+
+  const char* fileA = "wml_test_a.yml";
+  const char* fileB = "wml_test_b.yml";
+
+  // Both fixtures are well under 512 bytes (a single short f_read/EOF), and
+  // differ only in body length. writeModelLabels() must reproduce that
+  // exact size difference in its output - if it instead always pads the
+  // first chunk out to sizeof(buf), both outputs collapse to the same size
+  // regardless of the real body length (the uninitialized-memory bug).
+  std::string bodyA = "body:\n  marker: AAAA\n";
+  std::string bodyB = bodyA + std::string(300, 'X');
+  ASSERT_LT(bodyA.size() + 40, 512u);
+  ASSERT_LT(bodyB.size() + 40, 512u);
+
+  writeRawModelFile(fileA, "header:\n  name: OldName\n  labels: \n" + bodyA);
+  writeRawModelFile(fileB, "header:\n  name: OldName\n  labels: \n" + bodyB);
+
+  ModelCell cellA(fileA);
+  ModelCell cellB(fileB);
+
+  EXPECT_TRUE(map.writeModelLabels(&cellA, "NewLabel"));
+  EXPECT_TRUE(map.writeModelLabels(&cellB, "NewLabel"));
+
+  size_t sizeA = modelFileSize(fileA);
+  size_t sizeB = modelFileSize(fileB);
+
+  // The two headers are generated from identical inputs, so the size
+  // delta between the outputs must equal the body length delta exactly.
+  EXPECT_EQ(sizeB - sizeA, bodyB.size() - bodyA.size());
+
+  std::filesystem::remove(simuFatfsGetRealPath(std::string(MODELS_PATH) + "/" + fileA));
+  std::filesystem::remove(simuFatfsGetRealPath(std::string(MODELS_PATH) + "/" + fileB));
+}
+
+TEST(ModelsList, WriteModelLabelsFailsCleanlyWithoutHeader)
+{
+  ModelMap map;
+  const char* file = "wml_test_noheader.yml";
+
+  writeRawModelFile(file, "notheader:\n  foo: bar\n");
+  ModelCell cell(file);
+
+  EXPECT_FALSE(map.writeModelLabels(&cell, "NewLabel"));
+
+  std::filesystem::remove(simuFatfsGetRealPath(std::string(MODELS_PATH) + "/" + file));
+}
+
+#endif  // #if defined(SIMU) && defined(STORAGE_MODELSLIST)

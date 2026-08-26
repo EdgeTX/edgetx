@@ -714,7 +714,7 @@ bool ModelMap::renameLabel(const std::string &from, std::string to,
       memcpy(g_model.header.labels, partial.header.labels, LABELS_LENGTH);
       storageDirty(EE_MODEL);
     } else {
-      fault = writeModelLabels(modcell, partial.header.labels);
+      fault = !writeModelLabels(modcell, partial.header.labels);
     }
 #if defined(SIMU)
     sleep_ms(100);
@@ -855,12 +855,16 @@ bool ModelMap::writeModelLabels(ModelCell* cell, const char* labels)
     return false;
   }
 
+  // Bound searches/writes below by bytes actually read, not sizeof(buf) -
+  // the rest of buf is uninitialized for a file shorter than 512 bytes.
+  int len = (int)bytes_cnt;
+
   // Find header section
   int n = 0;
-  while (n < sizeof(buf) - 7 && strncmp(&buf[n], "header:", 7) != 0)
+  while (n < len - 7 && strncmp(&buf[n], "header:", 7) != 0)
     n += 1;
 
-  if (n >= sizeof(buf) - 7) {
+  if (n >= len - 7) {
     TRACE("ERROR model header not found in %s", cell->modelFilename);
     f_close(&out);
     f_close(&file);
@@ -871,11 +875,11 @@ bool ModelMap::writeModelLabels(ModelCell* cell, const char* labels)
   // Skip header section - look for next section after 'header:'
   do {
     // Skip current line
-    while (n < sizeof(buf) && buf[n] != '\n') n += 1;
+    while (n < len && buf[n] != '\n') n += 1;
     n += 1;
-  } while ((n < sizeof(buf)) && buf[n] == ' ');
+  } while ((n < len) && buf[n] == ' ');
 
-  if (n >= sizeof(buf)) {
+  if (n >= len) {
     TRACE("ERROR could not match model header in %s", cell->modelFilename);
     f_close(&out);
     f_close(&file);
@@ -883,19 +887,26 @@ bool ModelMap::writeModelLabels(ModelCell* cell, const char* labels)
     return false;
   }
 
-  // Write remainder of first buffer after header
-  result = f_write(&out, &buf[n], sizeof(buf) - n, &bytes_cnt);
+  // Write remainder of first buffer after header - check for short
+  // writes (e.g. SD full), which f_write() can return FR_OK for.
+  UINT written;
+  UINT to_write = (UINT)(len - n);
+  result = f_write(&out, &buf[n], to_write, &written);
+  bool short_write = (result == FR_OK && written != to_write);
+
   // Block copy the rest of the original file to the temp file
-  while (result == FR_OK && bytes_cnt != 0) {
+  while (result == FR_OK && !short_write && bytes_cnt != 0) {
     result = f_read(&file, buf, sizeof(buf), &bytes_cnt);
-    if (result == FR_OK && bytes_cnt != 0)
-      result = f_write(&out, buf, bytes_cnt, &bytes_cnt);
+    if (result == FR_OK && bytes_cnt != 0) {
+      result = f_write(&out, buf, bytes_cnt, &written);
+      short_write = (result == FR_OK && written != bytes_cnt);
+    }
   }
 
   f_close(&out);
   f_close(&file);
 
-  if (result != FR_OK) {
+  if (result != FR_OK || short_write) {
     TRACE("ERROR copying to temp file");
     f_unlink(tempPath);
     return false;
@@ -904,7 +915,10 @@ bool ModelMap::writeModelLabels(ModelCell* cell, const char* labels)
   // Delete original file and rename temp file
   getModelPath(buf, cell->modelFilename);
   f_unlink(buf);
-  f_rename(tempPath, buf);
+  if (f_rename(tempPath, buf) != FR_OK) {
+    TRACE("ERROR renaming temp file to %s", cell->modelFilename);
+    return false;
+  }
 
   return true;
 }
@@ -930,7 +944,7 @@ bool ModelMap::updateModelFile(ModelCell *cell)
     return false;
   }
 
-  bool fault = writeModelLabels(cell, ModelMap::toCSV(getLabelsByModel(cell)).c_str());
+  bool fault = !writeModelLabels(cell, ModelMap::toCSV(getLabelsByModel(cell)).c_str());
 
 #if defined(DEBUG_TIMERS)
   DEBUG_TIMER_SAMPLE(debugTimerYamlScan);

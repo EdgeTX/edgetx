@@ -157,6 +157,15 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
                           const std::string &from,
                           const std::string &to);
 
+  bool writeModelLabels(ModelCell*, const char*);
+
+  void clear()
+  {
+    _isDirty = true;
+    labels.clear();
+    std::multimap<uint16_t, ModelCell *>::clear();
+  }
+
  protected:
   ModelsSortBy _sortOrder = DEFAULT_MODEL_SORT;
   bool _isDirty = true;
@@ -168,14 +177,6 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
       ModelCell *);  // Should only be called from ModelsList remove model
   bool updateModelFile(ModelCell *);
   void sortModelsBy(ModelsVector &mv, ModelsSortBy sortby);
-  bool writeModelLabels(ModelCell*, const char*);
-
-  void clear()
-  {
-    _isDirty = true;
-    labels.clear();
-    std::multimap<uint16_t, ModelCell *>::clear();
-  }
 
   int getIndexByLabel(const std::string &str)
   {
