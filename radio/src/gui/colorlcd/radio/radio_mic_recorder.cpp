@@ -396,21 +396,15 @@ RadioMicRecorder::RadioMicRecorder() :
   enterIdle();
 }
 
-RadioMicRecorder::~RadioMicRecorder()
+void RadioMicRecorder::deleteLater(bool detach, bool trash)
 {
-  // An async call scheduled from the LabelDialog confirm path may still be
-  // pending when the page is closed (e.g. user long-presses EXIT while the
-  // dialog is being dismissed). Cancelling ensures the callback never fires
-  // on a destroyed instance.
-  lv_async_call_cancel(&RadioMicRecorder::asyncProcessPendingRename, this);
-  if (recorder.isRecording()) recorder.stop();
-  if (isPlayingTake()) audioQueue.stopAll();
-  pdmStop();
-}
+  if (!deleted()) {
+    if (recorder.isRecording()) recorder.stop();
+    if (isPlayingTake()) audioQueue.stopAll();
+    pdmStop();
 
-void RadioMicRecorder::asyncProcessPendingRename(void* ctx)
-{
-  static_cast<RadioMicRecorder*>(ctx)->processPendingRename();
+    Page::deleteLater(detach, trash);
+  }
 }
 
 void RadioMicRecorder::buildHeader(Window* window)
@@ -643,16 +637,6 @@ void RadioMicRecorder::discardTake()
   if (!takeSaved && filename[0]) f_unlink(filename);
 }
 
-void RadioMicRecorder::onEvent(event_t event)
-{
-  if (event == EVT_KEY_LONG(KEY_EXIT)) {
-    killEvents(event);
-    if (recorder.isRecording()) recorder.stop();
-    if (isPlayingTake()) audioQueue.stopAll();
-    onCancel();
-  }
-}
-
 void RadioMicRecorder::onActionPressed()
 {
   switch (state) {
@@ -758,13 +742,7 @@ void RadioMicRecorder::askSaveAs()
     strncpy(dir + SOUNDS_PATH_LNG_OFS, currentLanguagePack->id, 2);
     snprintf(pendingRename, sizeof(pendingRename), "%s%s.wav", dir, newName.c_str());
     if (strcmp(pendingRename, filename) == 0) { takeSaved = true; refreshUI(); return; }
-
-    // Defer the overwrite check until LabelDialog has finished closing —
-    // creating a modal now would leave us stacked on top of LabelDialog,
-    // which corrupts the lv_group chain when LabelDialog deletes itself.
-    // The page dtor cancels this async call if the user bails out before
-    // it fires (see ~RadioMicRecorder).
-    lv_async_call(&RadioMicRecorder::asyncProcessPendingRename, this);
+    processPendingRename();
   });
 }
 
