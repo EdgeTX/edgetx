@@ -36,6 +36,15 @@
 
 bool suspendI2CTasks = false;
 
+static bool keyPollEnabled = false;
+
+// poll keys every 10ms, independently of the frame rate
+void per5ms()
+{
+  static uint32_t cnt = 0;
+  if (keyPollEnabled && (++cnt & 1)) { keysPollingCycle(); }
+}
+
 void bootloaderUF2()
 {
   BootloaderState state = ST_START;
@@ -44,6 +53,8 @@ void bootloaderUF2()
   storageInit();
   disk_initialize(0);
 
+  keyPollEnabled = true;
+
   uint32_t next_frame = time_get_ms();
 
   for (;;) {
@@ -51,7 +62,6 @@ void bootloaderUF2()
     if (time_get_ms() - next_frame >= FRAME_INTERVAL_MS) {
       next_frame += FRAME_INTERVAL_MS;
 
-      keysPollingCycle();
       event_t event = getEvent();
 
       if (state != ST_FLASHING && event == EVT_KEY_LONG(KEY_EXIT)) {
