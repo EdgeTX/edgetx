@@ -19,7 +19,6 @@
  * GNU General Public License for more details.
  */
 
-
 /*
 
 STM32H750
@@ -66,12 +65,7 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 #ifndef _HAL_H_
 #define _HAL_H_
 
-#define CPU_FREQ                480000000
-
-#define PERI1_FREQUENCY         120000000
-#define PERI2_FREQUENCY         120000000
-#define TIMER_MULT_APB1         2
-#define TIMER_MULT_APB2         2
+#include "hal_settings.h"
 
 // Keys
 #define KEYS_GPIO_REG_PAGEDN          GPIOA
@@ -187,7 +181,6 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 #define SWITCHES_N_CFS_IDX            5
 #define FUNCTION_SWITCH_6             SN
 
-
 // ADC
 #define ADC_GPIO_PIN_STICK_RH           LL_GPIO_PIN_6      // PA.06
 #define ADC_GPIO_PIN_STICK_RV           LL_GPIO_PIN_3      // PC.03
@@ -202,7 +195,6 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 #define ADC_GPIOB_PINS                  (ADC_GPIO_PIN_POT2)
 #define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_POT1)
 #define ADC_GPIOH_PINS                  (ADC_GPIO_PIN_BATT)
-
 
 #define ADC_CHANNEL_STICK_RH            LL_ADC_CHANNEL_3    // ADC12_INP3
 #define ADC_CHANNEL_STICK_RV            LL_ADC_CHANNEL_13   // ADC12_INP13
@@ -296,17 +288,6 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 #define LCD_SPI_CLK                     GPIO_PIN(GPIOA, 5)
 #define LCD_SPI_MOSI                    GPIO_PIN(GPIOA,  7)
 #define LCD_SPI_BAUD                    100000000 //100MHz
-
-#define LTDC_IRQ_PRIO                   4
-#define DMA_SCREEN_IRQ_PRIO             6
-
-// Backlight
-#define BACKLIGHT_GPIO                  GPIO_PIN(GPIOA, 10) // TIM1_CH3
-#define BACKLIGHT_TIMER                 TIM1
-#define BACKLIGHT_TIMER_CHANNEL			LL_TIM_CHANNEL_CH3
-#define BACKLIGHT_GPIO_AF               GPIO_AF1
-#define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
-
 // QSPI Flash
 #define QSPI_CLK_GPIO                   GPIO_PIN(GPIOF, 10)
 #define QSPI_CLK_GPIO_AF                GPIO_AF9
@@ -321,7 +302,6 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 #define QSPI_HOLD_GPIO                  GPIO_PIN(GPIOF, 6)
 #define QSPI_HOLD_GPIO_AF               GPIO_AF9
 #define QSPI_FLASH_SIZE                 0x1000000
-
 
 // SD
 #define SD_SDIO                         SDMMC1
@@ -389,40 +369,8 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 #define I2C_B2_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B2_CLK_RATE                 400000
 
-// Haptic: TIM3_CH2
-#define HAPTIC_PWM
-#define HAPTIC_GPIO                     GPIO_PIN(GPIOC, 7)
-#define HAPTIC_GPIO_TIMER               TIM3
-#define HAPTIC_GPIO_AF                  GPIO_AF2
-#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2E | TIM_CCER_CC2NE;
-#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
-#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
-
-// LED Strip
-#define LED_STRIP_LENGTH                  26  // 6POS + 2 rings of 10
-#define BLING_LED_STRIP_START             6
-#define BLING_LED_STRIP_LENGTH            20
-#define CFS_LED_STRIP_START               0
-#define CFS_LED_STRIP_LENGTH              6
-#define CFS_LEDS_PER_SWITCH               1
-#define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 0)  // PA.00 / TIM2_CH1
-#define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1         // TIM1/2/16/17
-#define LED_STRIP_TIMER                   TIM2
-#define LED_STRIP_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH1
-#define LED_STRIP_TIMER_DMA               DMA1
-#define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMAMUX1_REQ_TIM2_UP
-#define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_0
-#define LED_STRIP_TIMER_DMA_IRQn          DMA1_Stream0_IRQn
-#define LED_STRIP_TIMER_DMA_IRQHandler    DMA1_Stream0_IRQHandler
-#define LED_STRIP_REFRESH_PERIOD          50 //ms
-
-#define STATUS_LEDS
 #define GPIO_LED_GPIO_ON                  gpio_set
 #define GPIO_LED_GPIO_OFF                 gpio_clear
-#define LED_RED_GPIO                      GPIO_PIN(GPIOI, 8)   // PI.08
-#define LED_GREEN_GPIO                    GPIO_PIN(GPIOI, 11)  // PI.11
-#define LED_BLUE_GPIO                     GPIO_PIN(GPIOI, 10)  // PI.10
 
 // Internal Module
 #define INTMODULE_PWR_GPIO                GPIO_PIN(GPIOB, 13) // PB.13
@@ -459,7 +407,6 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 #define EXTMODULE_TIMER_IRQHandler      TIM5_IRQHandler
 #define EXTMODULE_TIMER_FREQ            (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #define EXTMODULE_TIMER_TX_GPIO_AF      LL_GPIO_AF_2
-
 
 //USART
 #define EXTMODULE_USART                    USART2
@@ -520,67 +467,6 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 #define EXTI2_IRQ_Priority  9
 #endif
 
-// IMU
-#define IMU_I2C_BUS                     I2C_Bus_1
-#define IMU_INT_GPIO	                GPIO_PIN(GPIOG, 13) // PG.13
-
-// IMU_INT_EXTI IRQ
-#if !defined(USE_EXTI15_10_IRQ)
-  #define USE_EXTI15_10_IRQ
-  #define EXTI15_10_IRQ_Priority       6
-#endif
-
-
-//ROTARY emulation for trims as buttons
-#define ROTARY_ENCODER_NAVIGATION
-// Rotary Encoder
-// #define ROTARY_ENCODER_INVERTED
-#define ROTARY_ENCODER_GPIO_A           GPIOI
-#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_7
-#define ROTARY_ENCODER_GPIO_B           GPIOJ
-#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_8
-#define ROTARY_ENCODER_POSITION()       (((ROTARY_ENCODER_GPIO_A->IDR >> 7) & 0x01)|((ROTARY_ENCODER_GPIO_B->IDR >> 7) & 0x02))
-#define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_7
-#define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_8
-#if !defined(USE_EXTI7_IRQ)
-  #define USE_EXTI7_IRQ
-  #define EXTI7_IRQ_Priority 5
-#endif
-#if !defined(USE_EXTI8_IRQ)
-  #define USE_EXTI8_IRQ
-  #define EXTI8_IRQ_Priority 5
-#endif
-#define ROTARY_ENCODER_EXTI_PORT_A      LL_SYSCFG_EXTI_PORTI
-#define ROTARY_ENCODER_EXTI_PORT_B      LL_SYSCFG_EXTI_PORTJ
-#define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE7
-#define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE8
-#define ROTARY_ENCODER_TIMER            TIM17
-#define ROTARY_ENCODER_TIMER_IRQn       TIM17_IRQn
-#define ROTARY_ENCODER_TIMER_IRQHandler TIM17_IRQHandler
-
-// Millisecond timer
-#define MS_TIMER                        TIM14
-#define MS_TIMER_IRQn                   TIM8_TRG_COM_TIM14_IRQn
-#define MS_TIMER_IRQHandler             TIM8_TRG_COM_TIM14_IRQHandler
-
-// Mixer scheduler timer
-#define MIXER_SCHEDULER_TIMER                TIM12
-#define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
-#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
-
-#define LCD_W                           320
-#define LCD_H                           240
-
-#define LCD_PHYS_W                      LCD_W
-#define LCD_PHYS_H                      LCD_H
-
-#define LCD_DEPTH                       16
-
 #define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
-
-// Keys held together to toggle the keyboard lock.
-#define KEYS_LOCK_KEY1                  KEY_SYS
-#define KEYS_LOCK_KEY2                  KEY_MODEL
 
 #endif // _HAL_H_
