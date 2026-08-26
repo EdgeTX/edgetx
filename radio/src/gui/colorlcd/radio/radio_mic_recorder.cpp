@@ -137,12 +137,12 @@ class WaveformView : public FormField
     etx_obj_add_style(trimKnob, styles->rounded, LV_PART_MAIN);
     lv_obj_add_flag(trimKnob, LV_OBJ_FLAG_HIDDEN);
 
-    clear();
+    resetTrace();
   }
 
   uint16_t columns() const { return maxCols; }
 
-  void clear()
+  void resetTrace()
   {
     count = 0;
     merge = 1;
@@ -701,7 +701,7 @@ void RadioMicRecorder::enterRecording()
     actionButton->setText(STR_RECORD);
     return;
   }
-  waveform->clear();
+  waveform->resetTrace();
   waveform->show();
   lastWaveSamples = 0;
   takeSamples = 0;
