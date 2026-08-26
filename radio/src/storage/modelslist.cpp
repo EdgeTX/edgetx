@@ -816,7 +816,7 @@ bool ModelMap::writeModelLabels(ModelCell* cell, const char* labels)
   readModelYaml(cell->modelFilename, (uint8_t*)&partial, sizeof(PartialModel));
 
   // Update header with new labels
-  strAppend(partial.header.labels, labels, LABEL_LENGTH - 1);
+  strAppend(partial.header.labels, labels, LABELS_LENGTH - 1);
   // Remove module data - only want to write the header
   memclear(&partial.moduleData, sizeof(ModuleData) * NUM_MODULES);
 
