@@ -508,7 +508,7 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 #define AUX_SERIAL_DMA_RX                  DMA1
 #define AUX_SERIAL_DMA_RX_STREAM           LL_DMA_STREAM_6
 #define AUX_SERIAL_DMA_RX_CHANNEL          LL_DMAMUX1_REQ_USART3_RX
-#define AUX_SERIAL_PWR_GPIO                GPIO_PIN(GPIOC, 13) // PC.13
+#define AUX_SERIAL_PWR_GPIO                GPIO_PIN(GPIOE, 6)  // PE.06
 
 // Touch
 #define TOUCH_I2C_BUS                   I2C_Bus_2
