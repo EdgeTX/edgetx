@@ -527,6 +527,8 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 // IMU
 #define IMU_I2C_BUS                     I2C_Bus_1
 #define IMU_INT_GPIO	                GPIO_PIN(GPIOG, 13) // PG.13
+#define IMU_INVERT_X                    // X axis is mounted reversed
+#define IMU_INVERT_Y                    // Y axis is mounted reversed
 
 // IMU_INT_EXTI IRQ
 #if !defined(USE_EXTI15_10_IRQ)
