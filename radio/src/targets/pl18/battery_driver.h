@@ -19,14 +19,7 @@
  * GNU General Public License for more details.
  */
 
-/***************************************************************************************************
-
-***************************************************************************************************/
-#ifndef      __BATTERY_DRIVER_H__
-    #define  __BATTERY_DRIVER_H__
-/***************************************************************************************************
-
-***************************************************************************************************/
+#pragma once
 
 #include "board.h"
 #include "hal.h"
@@ -42,22 +35,22 @@ enum ChargeState
   CHARGE_FINISHED
 };
 
-#define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO) ? 1 : 0
-#define IS_UCHARGER_CHARGE_END_ACTIVE()   gpio_read(UCHARGER_CHARGE_END_GPIO) ? 1 : 0
-#define ENABLE_UCHARGER()                 gpio_set(UCHARGER_EN_GPIO)
-#define DISABLE_UCHARGER()                gpio_clear(UCHARGER_EN_GPIO)
-
 #define IS_WCHARGER_ACTIVE()              gpio_read(WCHARGER_GPIO) ? 1 : 0
 #define IS_WCHARGER_CHARGE_END_ACTIVE()   gpio_read(WCHARGER_CHARGE_END_GPIO) ? 1 : 0
 #define ENABLE_WCHARGER()                 gpio_set(WCHARGER_EN_GPIO)
 #define DISABLE_WCHARGER()                gpio_clear(WCHARGER_EN_GPIO)
-#define WCHARGER_CURRENT_LOW()            gpio_set(WCHARGER_I_CONTROL_GPIO)
-#define WCHARGER_CURRENT_HIGH()           gpio_clear(WCHARGER_I_CONTROL_GPIO)
+
+#if defined(WCHARGER_I_CONTROL_GPIO)
+  #define WCHARGER_CURRENT_LOW()            gpio_set(WCHARGER_I_CONTROL_GPIO)
+  #define WCHARGER_CURRENT_HIGH()           gpio_clear(WCHARGER_I_CONTROL_GPIO)
+#else
+  #define WCHARGER_CURRENT_LOW()
+  #define WCHARGER_CURRENT_HIGH()
+#endif
 
 extern void battery_charge_init();
 extern void handle_battery_charge(uint32_t last_press_time);
 extern uint16_t get_battery_charge_state();
 extern uint16_t getBatteryVoltage();   // returns current battery voltage in 10mV steps
 extern bool isChargerActive();
-
-#endif
+extern void battery_charge_end();

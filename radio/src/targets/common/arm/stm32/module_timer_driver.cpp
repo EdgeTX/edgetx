@@ -58,8 +58,21 @@ static void module_timer_send(void* ctx, const etx_timer_config_t* cfg,
   stm32_pulse_start_dma_req(timer, pulses, length, ocmode, ocval);  
 }
 
+static bool module_timer_tx_complete(void* ctx)
+{
+  auto tim = (const stm32_pulse_timer_t*)ctx;
+
+  if (LL_DMA_IsEnabledStream(tim->DMAx, tim->DMA_Stream)) 
+  {
+    return false;
+  }
+
+  return true;
+}
+
 const etx_timer_driver_t STM32ModuleTimerDriver = {
   .init = module_timer_init,
   .deinit = module_timer_deinit,
   .send = module_timer_send,
+  .txCompleted = module_timer_tx_complete
 };

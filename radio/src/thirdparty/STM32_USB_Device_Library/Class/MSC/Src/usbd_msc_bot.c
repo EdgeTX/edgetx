@@ -273,7 +273,7 @@ static void  MSC_BOT_CBW_Decode(USBD_HandleTypeDef *pdev)
 
   if ((USBD_LL_GetRxDataSize(pdev, MSCOutEpAdd) != USBD_BOT_CBW_LENGTH) ||
       (hmsc->cbw.dSignature != USBD_BOT_CBW_SIGNATURE) ||
-      (hmsc->cbw.bLUN > 1U) || (hmsc->cbw.bCBLength < 1U) ||
+      (hmsc->cbw.bLUN > hmsc->max_lun) || (hmsc->cbw.bCBLength < 1U) ||
       (hmsc->cbw.bCBLength > 16U))
   {
     SCSI_SenseCode(pdev, hmsc->cbw.bLUN, ILLEGAL_REQUEST, INVALID_CDB);

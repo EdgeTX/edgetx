@@ -18,22 +18,17 @@
 
 #include "menu.h"
 
-#include <lvgl/lvgl.h>
-
-#include "menutoolbar.h"
 #include "edgetx.h"
-#include "table.h"
 #include "etx_lv_theme.h"
+#include "keyboard_base.h"
+#include "menutoolbar.h"
+#include "static.h"
+#include "table.h"
 
-constexpr coord_t MENUS_WIDTH = 200;
-
-static void _force_editing(lv_group_t* g) { lv_group_set_editing(g, true); }
+//-----------------------------------------------------------------------------
 
 class MenuBody : public TableField
 {
-  friend class MenuWindowContent;
-  friend class Menu;
-
   enum MENU_DIRECTION { DIRECTION_UP = 1, DIRECTION_DOWN = -1 };
 
   class MenuLine
@@ -71,22 +66,14 @@ class MenuBody : public TableField
   {
     // Allow encoder acceleration
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
-    // Add scroll bar if needed
-    etx_scrollbar(lvobj);
 
     setColumnWidth(0, rect.w);
 
-    lv_group_t* g = (lv_group_t*)lv_obj_get_group(lvobj);
-    if (g) {
-      setFocusHandler([=](bool focus) {
-        if (focus) {
-          lv_group_set_focus_cb(g, _force_editing);
-        } else {
-          lv_group_set_focus_cb(g, nullptr);
-        }
-      });
-      lv_group_set_editing(g, true);
-    }
+    setAutoEdit();
+
+    setLongPressHandler([=]() {
+      getParentMenu()->handleLongPress();
+    });
   }
 
   ~MenuBody()
@@ -142,18 +129,7 @@ class MenuBody : public TableField
 
   int count() const { return lines.size(); }
 
-  void onEvent(event_t event) override
-  {
-#if defined(HARDWARE_KEYS)
-    if (event == EVT_KEY_BREAK(KEY_EXIT)) {
-      onCancel();
-    } else {
-      TableField::onEvent(event);
-    }
-#endif
-  }
-
-  void addLine(const uint8_t* icon_mask, const std::string& text,
+  void addLine(const MaskBitmap* icon_mask, const std::string& text,
                std::function<void()> onPress, std::function<bool()> isChecked,
                bool update = true)
   {
@@ -161,10 +137,9 @@ class MenuBody : public TableField
     if (icon_mask) {
       canvas = lv_canvas_create(nullptr);
 
-      lv_coord_t w = *((uint16_t*)icon_mask);
-      lv_coord_t h = *(((uint16_t*)icon_mask) + 1);
-      void* buf = (void*)(icon_mask + 4);
-      lv_canvas_set_buffer(canvas, buf, w, h, LV_IMG_CF_ALPHA_8BIT);
+      lv_coord_t w = icon_mask->width;
+      lv_coord_t h = icon_mask->height;
+      lv_canvas_set_buffer(canvas, (void*)&icon_mask->data[0], w, h, LV_IMG_CF_ALPHA_8BIT);
     }
 
     auto l = new MenuLine(text, onPress, isChecked, canvas);
@@ -208,7 +183,7 @@ class MenuBody : public TableField
   {
     Menu* menu = getParentMenu();
     if (row < lines.size()) {
-      if (menu->multiple) {
+      if (menu->isMultiple()) {
         if (selectedIndex == (int)row)
           lines[row]->onPress();
         else {
@@ -227,6 +202,8 @@ class MenuBody : public TableField
   void onDrawBegin(uint16_t row, uint16_t col,
                    lv_obj_draw_part_dsc_t* dsc) override
   {
+    if (lines.size() == 0) return;
+
     lv_canvas_t* icon = (lv_canvas_t*)lines[row]->getIcon();
     if (!icon) return;
 
@@ -276,8 +253,6 @@ class MenuBody : public TableField
   void onSelected(uint16_t row, uint16_t col) override { selectedIndex = row; }
 
  protected:
-  bool isLongPressed = false;
-
   std::vector<MenuLine*> lines;
   int selectedIndex = 0;
 
@@ -311,25 +286,27 @@ static lv_obj_t* menu_content_create(lv_obj_t* parent)
   return etx_create(&menu_content_class, parent);
 }
 
-class MenuWindowContent : public Window
+class MenuWindowContent : public NavWindow
 {
  public:
-  explicit MenuWindowContent(Menu* parent) :
-      Window(parent, rect_t{}, menu_content_create)
+  explicit MenuWindowContent(Menu* parent, coord_t popupWidth) :
+      NavWindow(parent, rect_t{}, menu_content_create)
   {
     setWindowFlag(OPAQUE);
 
-    lv_obj_center(lvobj);
-    setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, MENUS_WIDTH, LV_SIZE_CONTENT);
+    coord_t w = (popupWidth > 0) ? popupWidth : MENUS_WIDTH;
 
-    header = new StaticText(this, {0, 0, LV_PCT(100), 0}, "", 
+    lv_obj_center(lvobj);
+    setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_ZERO, w, LV_SIZE_CONTENT);
+
+    header = new StaticText(this, {0, 0, LV_PCT(100), 0}, "",
                             COLOR_THEME_PRIMARY2_INDEX);
     etx_solid_bg(header->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
     header->padAll(PAD_SMALL);
     header->hide();
 
-    body = new MenuBody(this, rect_t{0, 0, MENUS_WIDTH, LV_SIZE_CONTENT});
-    lv_obj_set_style_max_height(body->getLvObj(), LCD_H * 0.8, LV_PART_MAIN);
+    body = new MenuBody(this, rect_t{0, 0, w, LV_SIZE_CONTENT});
+    lv_obj_set_style_max_height(body->getLvObj(), LCD_H - EdgeTxStyles::STD_FONT_HEIGHT - PAD_SMALL * 2 - PAD_LARGE * 2, LV_PART_MAIN);
   }
 
   virtual void setTitle(const std::string& text)
@@ -350,12 +327,26 @@ class MenuWindowContent : public Window
   int selection() { return body->selection(); }
   void setIndex(int index) { body->setIndex(index); }
 
-  void addLine(const uint8_t* icon_mask, const std::string& text,
+  void addLine(const MaskBitmap* icon_mask, const std::string& text,
                std::function<void()> onPress, std::function<bool()> isChecked,
                bool update = true)
   {
     body->addLine(icon_mask, text, onPress, isChecked, update);
   }
+
+#if defined(HARDWARE_KEYS)
+  void onPressPGUP() override
+  {
+    Messaging::send(Messaging::MENU_CHANGE_FILTER, -1);
+  }
+
+  void onPressPGDN() override
+  {
+    Messaging::send(Messaging::MENU_CHANGE_FILTER, 1);
+  }
+#endif
+
+  static LAYOUT_VAL_SCALED(MENUS_WIDTH, 200)
 
  protected:
   StaticText* header = nullptr;
@@ -364,10 +355,10 @@ class MenuWindowContent : public Window
 
 //-----------------------------------------------------------------------------
 
-Menu::Menu(bool multiple) :
+Menu::Menu(bool multiple, coord_t popupWidth) :
     ModalWindow(true),
     multiple(multiple),
-    content(new MenuWindowContent(this))
+    content(new MenuWindowContent(this, popupWidth))
 {
 }
 
@@ -399,7 +390,7 @@ void Menu::setTitle(std::string text)
   updatePosition();
 }
 
-void Menu::addLine(const uint8_t* icon_mask, const std::string& text,
+void Menu::addLine(const MaskBitmap* icon_mask, const std::string& text,
                    std::function<void()> onPress,
                    std::function<bool()> isChecked)
 {
@@ -407,12 +398,16 @@ void Menu::addLine(const uint8_t* icon_mask, const std::string& text,
   updatePosition();
 }
 
-void Menu::addLineBuffered(const uint8_t* icon_mask, const std::string& text,
-                           std::function<void()> onPress,
+void Menu::addLine(const std::string &text, std::function<void()> onPress,
+                  std::function<bool()> isChecked)
+{
+  addLine(nullptr, text, onPress, isChecked);
+}
+
+void Menu::addLineBuffered(const std::string &text, std::function<void()> onPress,
                            std::function<bool()> isChecked)
 {
-  content->addLine(icon_mask, text, std::move(onPress), std::move(isChecked),
-                   false);
+  content->addLine(nullptr, text, std::move(onPress), std::move(isChecked), false);
 }
 
 void Menu::updateLines()
@@ -425,16 +420,6 @@ void Menu::removeLines()
 {
   content->removeLines();
   updatePosition();
-}
-
-void Menu::onEvent(event_t event)
-{
-#if defined(HARDWARE_KEYS)
-  if (toolbar && (event == EVT_KEY_BREAK(KEY_PAGEDN) ||
-                  event == EVT_KEY_BREAK(KEY_PAGEUP))) {
-    toolbar->onEvent(event);
-  }
-#endif
 }
 
 void Menu::onCancel()
@@ -453,8 +438,26 @@ void Menu::setWaitHandler(std::function<void()> handler)
   waitHandler = std::move(handler);
 }
 
+void Menu::setLongPressHandler(std::function<void()> handler)
+{
+  longPressHandler = std::move(handler);
+}
+
+void Menu::handleLongPress()
+{
+  if (longPressHandler)
+    longPressHandler();
+}
+
 unsigned Menu::count() const { return content->count(); }
 
 int Menu::selection() const { return content->selection(); }
 
 void Menu::select(int index) { content->setIndex(index); }
+
+void Menu::checkEvents()
+{
+  ModalWindow::checkEvents();
+  if (waitHandler)
+    waitHandler();
+}

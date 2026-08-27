@@ -51,6 +51,11 @@ enum EnumKeys {
   MAX_KEYS
 };
 
+// When port entender is used, readKeys should only return the cached key values
+// read key from port extender will only come from pollKeys
+// Which is called by the timer task
+void pollKeys();
+
 // returns a bit field with each key set as (1 << KEY_xxx)
 uint32_t readKeys();
 
@@ -60,7 +65,12 @@ uint32_t readTrims();
 // Init GPIO ports
 void keysInit();
 
+// returns a bit field with each supported key
 uint32_t keysGetSupported();
+
+static inline bool keyIsSupported(EnumKeys key) {
+  return keysGetSupported() & (1 << key);
+}
 
 uint8_t keysGetMaxKeys();
 uint8_t keysGetMaxTrims();

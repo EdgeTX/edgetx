@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EdgeTX Lua Compiler</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #0C7BCD;
+    --primary-dark: #0a6ab3;
+    --bg: #1c1c1c;
+    --surface: #2a2a2a;
+    --surface-light: #333;
+    --border: #444;
+    --text: #f0f0f0;
+    --text-dim: #999;
+    --success: #4ade80;
+    --error: #f87171;
+    --mono: "Roboto Mono", "SF Mono", Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+  .header img {
+    height: 40px;
+    width: auto;
+  }
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+  .container {
+    width: 100%;
+    max-width: 720px;
+  }
+  textarea {
+    width: 100%;
+    height: 300px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    resize: vertical;
+    tab-size: 2;
+  }
+  textarea:focus { outline: 1px solid var(--primary); border-color: var(--primary); }
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.75rem 0;
+    flex-wrap: wrap;
+  }
+  button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1.25rem;
+    font-family: "Roboto", sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--primary-dark); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; background: var(--primary); }
+  label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    cursor: pointer;
+  }
+  input[type="checkbox"] { accent-color: var(--primary); }
+  .file-input-wrapper {
+    position: relative;
+  }
+  .file-input-wrapper input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .file-input-wrapper .btn-file {
+    background: var(--surface-light);
+    border: 1px solid var(--border);
+    pointer-events: none;
+  }
+  .file-input-wrapper .btn-file:hover { background: var(--surface-light); }
+  #status {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    display: none;
+  }
+  #status.error { display: block; background: #2d1515; color: var(--error); border: 1px solid #5c2020; }
+  #status.success { display: block; background: #0d2818; color: var(--success); border: 1px solid #1a4028; }
+  #status.info { display: block; background: var(--surface); color: var(--text-dim); border: 1px solid var(--border); }
+  .drop-target {
+    outline: 2px dashed var(--primary);
+    outline-offset: -4px;
+  }
+  footer {
+    margin-top: auto;
+    padding-top: 2rem;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+  }
+  footer a { color: var(--primary); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="edgetx-logo.png" alt="EdgeTX">
+  <h1>Lua Compiler</h1>
+</div>
+<p class="subtitle">Compile Lua scripts to EdgeTX bytecode — runs entirely in your browser</p>
+
+<div class="container">
+  <textarea id="source" spellcheck="false" placeholder="-- Paste or drop your Lua script here...
+
+local function hello()
+  print('Hello from EdgeTX!')
+end
+
+return { run = hello }
+"></textarea>
+
+  <div class="toolbar">
+    <button id="compile-btn" disabled>Loading WASM...</button>
+    <label><input type="checkbox" id="strip" checked> Strip debug info</label>
+    <div class="file-input-wrapper">
+      <input type="file" id="file-input" accept=".lua,.txt">
+      <button class="btn-file">Open file...</button>
+    </div>
+  </div>
+
+  <div id="status"></div>
+</div>
+
+<footer>
+  Powered by <a href="https://github.com/EdgeTX/edgetx">EdgeTX</a> Lua 5.3
+  &mdash; compiled to WebAssembly, no server needed
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  const sourceEl = document.getElementById("source");
+  const compileBtn = document.getElementById("compile-btn");
+  const stripEl = document.getElementById("strip");
+  const statusEl = document.getElementById("status");
+  const fileInput = document.getElementById("file-input");
+
+  let wasm = null; // WASM instance exports
+  let currentFileName = "script.lua"; // track loaded filename
+
+  /* ---- WASI stubs (never actually called at runtime) ---- */
+  const wasiStubs = {
+    args_get: () => 0,
+    args_sizes_get: () => 0,
+    clock_time_get: () => 0,
+    fd_close: () => 0,
+    fd_prestat_get: () => 8, /* EBADF — no preopens */
+    fd_prestat_dir_name: () => 8,
+    fd_read: () => 0,
+    fd_seek: () => 0,
+    fd_write: (fd, iovs, iovs_len, nwritten) => {
+      /* minimal fd_write so Lua error messages via fprintf(stderr,...) don't crash */
+      const mem = new DataView(wasm.memory.buffer);
+      let written = 0;
+      for (let i = 0; i < iovs_len; i++) {
+        const ptr = mem.getUint32(iovs + i * 8, true);
+        const len = mem.getUint32(iovs + i * 8 + 4, true);
+        written += len;
+      }
+      mem.setUint32(nwritten, written, true);
+      return 0;
+    },
+    proc_exit: (code) => { throw new Error("proc_exit(" + code + ")"); },
+    random_get: () => 0,
+  };
+
+  /* ---- Load WASM module ---- */
+  async function loadWasm() {
+    const importObject = {
+      wasi_snapshot_preview1: wasiStubs,
+    };
+    const resp = await fetch("edgetx-luac.wasm");
+    const { instance } = await WebAssembly.instantiateStreaming(resp, importObject);
+    wasm = instance.exports;
+
+    /* reactor model: call _initialize once */
+    if (wasm._initialize) wasm._initialize();
+
+    compileBtn.textContent = "Compile";
+    compileBtn.disabled = false;
+  }
+
+  /* ---- Compile ---- */
+  function compile() {
+    const source = sourceEl.value;
+    if (!source.trim()) {
+      showStatus("error", "No Lua source to compile.");
+      return;
+    }
+
+    const encoder = new TextEncoder();
+    const srcBytes = encoder.encode(source);
+
+    /* allocate WASM memory and copy source in */
+    const srcPtr = wasm.wasm_malloc(srcBytes.length);
+    if (!srcPtr) {
+      showStatus("error", "Failed to allocate WASM memory.");
+      return;
+    }
+
+    const mem = new Uint8Array(wasm.memory.buffer);
+    mem.set(srcBytes, srcPtr);
+
+    const strip = stripEl.checked ? 1 : 0;
+    const result = wasm.compile(srcPtr, srcBytes.length, strip);
+    wasm.wasm_free(srcPtr);
+
+    if (result > 0) {
+      /* success — read output bytecode */
+      const outPtr = wasm.get_output_ptr();
+      const bytecode = new Uint8Array(wasm.memory.buffer, outPtr, result).slice();
+
+      /* trigger download — use original filename with .luac extension */
+      const name = currentFileName.replace(/\.[^.]+$/, "") + ".luac";
+      const blob = new Blob([bytecode], { type: "application/octet-stream" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      showStatus("success", "Compiled successfully (" + bytecode.length + " bytes) — downloading " + name);
+    } else {
+      /* error — read message */
+      const errLen = wasm.get_error_len();
+      let msg = "Compilation failed (code " + result + ")";
+      if (errLen > 0) {
+        const errPtr = wasm.get_error_ptr();
+        const errBytes = new Uint8Array(wasm.memory.buffer, errPtr, errLen);
+        msg = new TextDecoder().decode(errBytes);
+      }
+      showStatus("error", msg);
+    }
+  }
+
+  /* ---- UI helpers ---- */
+  function showStatus(type, msg) {
+    statusEl.className = type;
+    statusEl.textContent = msg;
+  }
+
+  function loadFile(file) {
+    currentFileName = file.name;
+    file.text().then((text) => {
+      sourceEl.value = text;
+      showStatus("info", "Loaded " + file.name + " (" + text.length + " bytes)");
+    });
+  }
+
+  compileBtn.addEventListener("click", compile);
+
+  /* File input */
+  fileInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    loadFile(file);
+    fileInput.value = ""; /* allow re-uploading the same file */
+  });
+
+  /* Drag & drop */
+  sourceEl.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    sourceEl.classList.add("drop-target");
+  });
+  sourceEl.addEventListener("dragleave", () => {
+    sourceEl.classList.remove("drop-target");
+  });
+  sourceEl.addEventListener("drop", (e) => {
+    e.preventDefault();
+    sourceEl.classList.remove("drop-target");
+    const file = e.dataTransfer.files[0];
+    if (file) loadFile(file);
+  });
+
+  /* Ctrl/Cmd+Enter to compile */
+  sourceEl.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      if (!compileBtn.disabled) compile();
+    }
+  });
+
+  /* Boot */
+  loadWasm().catch((err) => {
+    showStatus("error", "Failed to load WASM module: " + err.message);
+  });
+})();
+</script>
+</body>
+</html>

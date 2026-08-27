@@ -19,13 +19,12 @@
  * GNU General Public License for more details.
  */
 
-#include <QApplication>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <memory>
 #include "gtests.h"
-#include "hal/adc_driver.h"
+#include "location.h"
 
 using ::testing::TestEventListener;
 using ::testing::EmptyTestEventListener;
@@ -123,20 +122,12 @@ class TersePrinter : public EmptyTestEventListener  {
 
 int32_t lastAct = 0;
 
-uint16_t simu_get_analog(uint8_t idx)
-{
-  return 0;
-}
+uint16_t simuGetAnalog(uint8_t) { return 0; }
+void simuQueueAudio(const uint8_t *, uint32_t) {}
+void simuTrace(const char* text) {}
+void simuLcdNotify() {}
 
 static char _stringResult[200];
-const char * zchar2string(const char * zstring, int size)
-{
-  if (size > (int)sizeof(_stringResult) ) {
-    return nullptr;
-  }
-  zchar2str(_stringResult, zstring, size);
-  return _stringResult;
-}
 
 const char * nchar2string(const char * string, int size)
 {
@@ -148,13 +139,10 @@ const char * nchar2string(const char * string, int size)
   return _stringResult;
 }
 
-extern const etx_hal_adc_driver_t simu_adc_driver;
-
 int main(int argc, char **argv)
 {
-  QCoreApplication app(argc, argv);
   simuInit();
-  adcInit(&simu_adc_driver);
+  simuFatfsSetPaths(TESTS_PATH, nullptr);
 
 #if !defined(COLORLCD)
   menuLevel = 0;
@@ -172,7 +160,7 @@ int main(int argc, char **argv)
     listeners.Append(new TersePrinter(defaultPrinter));
   }
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
   lcdInitDisplayDriver();
 #endif
   

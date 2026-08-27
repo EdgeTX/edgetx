@@ -27,6 +27,7 @@
 #include "edgetx.h"
 #include "switches.h"
 #include "mixes.h"
+#include "os/sleep.h"
 
 #undef CPN
 #include "MultiSubtypeDefs.h"
@@ -246,36 +247,6 @@ static bool isSourceTelemAvailable(int source) {
     return isTelemetryFieldComparisonAvailable(qr.quot);
 }
 
-static bool isSourceTelemCompAvailable(int source) {
-  if (!modelTelemetryEnabled())
-    return false;
-  div_t qr = div(source, 3);
-  return isTelemetryFieldComparisonAvailable(qr.quot);
-}
-
-enum SrcTypes {
-  SRC_INPUT = 1 << 0,
-  SRC_LUA = 1 << 1,
-  SRC_STICK = 1 << 2,
-  SRC_POT = 1 << 3,
-  SRC_TILT = 1 << 4,
-  SRC_SPACEMOUSE = 1 << 5,
-  SRC_MINMAX = 1 << 6,
-  SRC_HELI = 1 << 7,
-  SRC_TRIM = 1 << 8,
-  SRC_SWITCH = 1 << 9,
-  SRC_FUNC_SWITCH = 1 << 10,
-  SRC_LOGICAL_SWITCH = 1 << 11,
-  SRC_TRAINER = 1 << 12,
-  SRC_CHANNEL = 1 << 13,
-  SRC_CHANNEL_ALL = 1 << 14,
-  SRC_GVAR = 1 << 15,
-  SRC_TX = 1 << 16,
-  SRC_TIMER = 1 << 17,
-  SRC_TELEM = 1 << 18,
-  SRC_TELEM_COMP = 1 << 19,
-};
-
 struct sourceAvailableCheck {
   uint16_t first;
   uint16_t last;
@@ -290,6 +261,9 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_FIRST_POT, MIXSRC_LAST_POT, SRC_POT, isSourcePotAvailable },
 #if defined(IMU)
   { MIXSRC_TILT_X, MIXSRC_TILT_Y, SRC_TILT, sourceIsAvailable },
+#endif
+#if defined(LUMINOSITY_SENSOR)
+  { MIXSRC_LIGHT, MIXSRC_LIGHT, SRC_LIGHT, sourceIsAvailable },
 #endif
 #if defined(PCBHORUS)
   { MIXSRC_FIRST_SPACEMOUSE, MIXSRC_LAST_SPACEMOUSE, SRC_SPACEMOUSE, isSourceSpacemouseAvailable },
@@ -309,7 +283,7 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, sourceIsAvailable },
   { MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SRC_TIMER, isSourceTimerAvailable },
   { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM, isSourceTelemAvailable },
-  { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM_COMP, isSourceTelemCompAvailable },
+  { MIXSRC_NONE, MIXSRC_NONE, SRC_NONE, sourceIsAvailable },
 };
 
 bool checkSourceAvailable(int source, uint32_t sourceTypes)
@@ -327,39 +301,19 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 }
 
 #define SRC_COMMON \
-            SRC_STICK | SRC_POT | SRC_TILT | SRC_SPACEMOUSE | SRC_MINMAX | SRC_TRIM | \
+            SRC_STICK | SRC_POT | SRC_TILT | SRC_LIGHT | SRC_SPACEMOUSE | SRC_MINMAX | SRC_TRIM | \
             SRC_SWITCH | SRC_FUNC_SWITCH | SRC_LOGICAL_SWITCH | SRC_TRAINER | SRC_GVAR
 
 bool isSourceAvailable(int source)
 {
   return checkSourceAvailable(source,
-            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM
+            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
             );
 }
 
-// Used only in B&W radios for Global Functions when funcion is FUNC_PLAY_VALUE
-bool isSourceAvailableInGlobalFunctions(int source)
+bool isSourceAvailableForBacklightOrVolume(int source)
 {
-  return checkSourceAvailable(source,
-            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER
-            );
-}
-
-// Used only in B&W radios with wide screen LCD (212x64) for logical switches
-// V1 parameter when LS function is LS_FAMILY_OFS or LS_FAMILY_DIFF
-bool isSourceAvailableInCustomSwitches(int source)
-{
-  return checkSourceAvailable(source,
-            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM_COMP
-            );
-}
-
-// Only used for B&W radios for Input source (color radios use isSourceAvailable)
-bool isSourceAvailableInInputs(int source)
-{
-  return checkSourceAvailable(source,
-            SRC_COMMON | SRC_CHANNEL_ALL | SRC_TELEM_COMP
-            );
+  return checkSourceAvailable(source, SRC_SWITCH | SRC_POT | SRC_LIGHT | SRC_NONE);
 }
 
 bool isLogicalSwitchAvailable(int index)
@@ -383,7 +337,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
 
   if (swtch >= SWSRC_FIRST_SWITCH && swtch <= SWSRC_LAST_SWITCH) {
     div_t swinfo = switchInfo(swtch);
-    if (swinfo.quot >= switchGetMaxSwitches() + switchGetMaxFctSwitches()) {
+    if (swinfo.quot >= switchGetMaxAllSwitches()) {
       return false;
     }
 
@@ -391,7 +345,7 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
       return false;
     }
 
-    if (IS_SWITCH_FS(swinfo.quot) && context == GeneralCustomFunctionsContext) {
+    if (switchIsCustomSwitch(swinfo.quot) && context == GeneralCustomFunctionsContext) {
       return false;   // FS are defined at model level, and cannot be in global functions
     }
 
@@ -451,6 +405,106 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
   return true;
 }
 
+static bool switchIsAvailable(int swtch, bool invert)
+{
+  return true;
+}
+
+static bool isSwitchSwitchAvailable(int swtch, bool invert) {
+  // Check normal switch
+  if (swtch < MAX_SWITCHES * 3) {
+    div_t swinfo = switchInfo(swtch + SWSRC_FIRST_SWITCH);
+    if (swinfo.quot >= switchGetMaxAllSwitches()) {
+      return false;
+    }
+
+    if (!SWITCH_EXISTS(swinfo.quot)) {
+      return false;
+    }
+
+    if (!IS_CONFIG_3POS(swinfo.quot)) {
+      if (swinfo.rem == 1) {
+        // mid position not available for 2POS switches
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // Multipos switch
+  int index = (swtch + SWSRC_FIRST_SWITCH - SWSRC_FIRST_MULTIPOS_SWITCH) / XPOTS_MULTIPOS_COUNT;
+  return (index < adcGetMaxInputs(ADC_INPUT_FLEX)) ? IS_POT_MULTIPOS(index) : false;
+}
+
+static bool isSwitchTrimAvailable(int swtch, bool invert) {
+  int index = swtch / 2;
+  return index < keysGetMaxTrims();
+}
+
+static bool isSwitchLSAvailable(int swtch, bool invert) {
+  return isLogicalSwitchAvailable(swtch);
+}
+
+static bool isSwitchFMAvailable(int swtch, bool invert) {
+  if (swtch == 0)
+    return true;
+  FlightModeData * fm = flightModeAddress(swtch);
+  return (fm->swtch != SWSRC_NONE);
+}
+
+static bool isSwitchTelemAvailable(int swtch, bool invert) {
+  return isTelemetryFieldAvailable(swtch);
+}
+
+static bool isSwitchOtherAvailable(int swtch, bool invert) {
+  swtch += SWSRC_ON;
+  if (invert && (swtch == SWSRC_ON || swtch == SWSRC_ONE))
+    return false;
+  if (swtch == SWSRC_ON || swtch == SWSRC_ONE || swtch == SWSRC_TELEMETRY_STREAMING ||
+      swtch == SWSRC_RADIO_ACTIVITY || swtch == SWSRC_TRAINER_CONNECTED)
+    return true;
+#if defined(DEBUG_LATENCY)
+  if (swtch == SWSRC_LATENCY_TOGGLE)
+    return true;
+#endif
+  return false;
+}
+
+struct switchAvailableCheck {
+  uint16_t first;
+  uint16_t last;
+  SwitchTypes type;
+  bool (*check)(int, bool);
+};
+
+static struct switchAvailableCheck switchChecks[] = {
+  { SWSRC_FIRST_SWITCH, SWSRC_LAST_MULTIPOS_SWITCH, SW_SWITCH, isSwitchSwitchAvailable },
+  { SWSRC_FIRST_TRIM, SWSRC_LAST_TRIM, SW_TRIM, isSwitchTrimAvailable },
+  { SWSRC_FIRST_LOGICAL_SWITCH, SWSRC_LAST_LOGICAL_SWITCH, SW_LOGICAL_SWITCH, isSwitchLSAvailable },
+  { SWSRC_FIRST_FLIGHT_MODE, SWSRC_LAST_FLIGHT_MODE, SW_FLIGHT_MODE, isSwitchFMAvailable },
+  { SWSRC_FIRST_SENSOR, SWSRC_LAST_SENSOR, SW_TELEM, isSwitchTelemAvailable },
+  { SWSRC_ON, SWSRC_COUNT - 1, SW_OTHER, isSwitchOtherAvailable },
+  { SWSRC_NONE, SWSRC_NONE, SW_NONE, switchIsAvailable },
+};
+
+bool checkSwitchAvailable(int swtch, uint32_t swtchTypes)
+{
+  bool invert = false;
+  if (swtch < 0) {
+    swtch = -swtch;
+    invert = true;
+  }
+
+  for (size_t i = 0 ; i < DIM(switchChecks); i += 1) {
+    if (switchChecks[i].type & swtchTypes && swtch >= switchChecks[i].first && swtch <= switchChecks[i].last) {
+      return switchChecks[i].check(swtch - switchChecks[i].first, invert);
+    }
+  }
+
+  return false;
+}
+
 bool isSerialModeAvailable(uint8_t port_nr, int mode)
 {
 #if defined(USB_SERIAL)
@@ -501,6 +555,11 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
     return false;
 #endif
 
+#if defined(STM32F4)
+  if (mode == UART_MODE_SBUS_TRAINER_INV)
+    return false;
+#endif
+
 #if !defined(LUA)
   if (mode == UART_MODE_LUA)
     return false;
@@ -536,6 +595,11 @@ bool isSwitchAvailableInMixes(int swtch)
   return isSwitchAvailable(swtch, MixesContext);
 }
 
+bool isSwitchAvailableForArming(int swtch)
+{
+  return isSwitchAvailable(swtch, ModelCustomFunctionsContext);
+}
+
 #if defined(COLORLCD)
 bool isSwitch2POSWarningStateAvailable(int state)
 {
@@ -545,7 +609,7 @@ bool isSwitch2POSWarningStateAvailable(int state)
 
 bool isThrottleSourceAvailable(int src)
 {
-#if !defined(LIBOPENUI)
+#if !defined(COLORLCD)
   src = throttleSource2Source(src);
 #endif
   return isSourceAvailable(src) &&
@@ -586,7 +650,7 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
     case FUNC_DISABLE_AUDIO_AMP:
       return false;
 #endif
-#if !defined(LED_STRIP_GPIO)
+#if !defined(LED_STRIP_LENGTH)
     case FUNC_RGB_LED:
       return false;
 #endif
@@ -594,6 +658,15 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
     case FUNC_TEST:
       return false;
 #endif
+#if defined(FUNCTION_SWITCHES) || defined(CFN_ONLY)
+    case FUNC_PUSH_CUST_SWITCH:
+      return modelFunctions;
+#endif
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+    case FUNC_DISABLE_KEYS:
+      return g_eeGeneral.keyLockEnabled;
+#endif
+
     default:
       return true;
   }
@@ -605,6 +678,15 @@ bool isAssignableFunctionAvailable(int function)
   return isAssignableFunctionAvailable(function, menuHandlers[menuLevel] == menuModelSpecialFunctions);
 }
 #endif
+
+int timersSetupCount()
+{
+  int tc = 0;
+  for (int i = 0; i < MAX_TIMERS; i += 1)
+    if (isTimerSourceAvailable(i))
+      tc += 1;
+  return tc;
+}
 
 bool isTimerSourceAvailable(int index)
 {
@@ -639,41 +721,41 @@ bool isSourceAvailableInResetSpecialFunction(int index)
   }
 }
 
-#if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
+#if defined(EXTERNAL_ANTENNA)
 
 #if defined(COLORLCD)
 
+#include "menu.h"
+#include "mainwindow.h"
+
 class AntennaSelectionMenu : public Menu
 {
-  bool& done;
-
-public:
-  AntennaSelectionMenu(bool& done) : Menu(), done(done) {
+ public:
+  AntennaSelectionMenu() : Menu()
+  {
     setTitle(STR_ANTENNA);
     addLine(STR_USE_INTERNAL_ANTENNA,
             [] { globalData.externalAntennaEnabled = false; });
     addLine(STR_USE_EXTERNAL_ANTENNA,
             [] { globalData.externalAntennaEnabled = true; });
-    setCloseHandler([=]() { this->done = true; });
     setCloseWhenClickOutside(false);
   }
-protected:
+
+ protected:
   void onCancel() override {}
 };
 
 static void runAntennaSelectionMenu()
 {
-  bool finished = false;
-  new AntennaSelectionMenu(finished);
+  auto menu = new AntennaSelectionMenu();
 
-  while (!finished) {
-    WDG_RESET();
-    MainWindow::instance()->run();
-    LvglWrapper::runNested();
-    RTOS_WAIT_MS(20);
-  }
+  MainWindow::instance()->blockUntilClose(true, [=]() {
+    return menu->deleted();
+  });
 }
-#else
+#else // !COLORLCD
+
+#if defined(EXTERNAL_ANTENNA)
 void onAntennaSelection(const char* result)
 {
   if (result == STR_USE_INTERNAL_ANTENNA) {
@@ -692,49 +774,96 @@ void onAntennaSwitchConfirm(const char * result)
     globalData.externalAntennaEnabled = true;
   }
 }
-#endif
+#endif // defined(EXTERNAL_ANTENNA)
+
+#endif // defined(COLORLCD)
 
 void checkExternalAntenna()
 {
-  if (isModuleXJT(INTERNAL_MODULE)) {
-    if (g_eeGeneral.antennaMode == ANTENNA_MODE_EXTERNAL) {
-      // TRACE("checkExternalAntenna(): External");
-      globalData.externalAntennaEnabled = true;
-    } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL &&
-               g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode ==
-                   ANTENNA_MODE_EXTERNAL) {
-      // TRACE("checkExternalAntenna(): Per Model, External");
-      if (!globalData.externalAntennaEnabled) {
-#if defined(COLORLCD)
-        if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
-          globalData.externalAntennaEnabled = true;
-        }
-#else
-        POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onAntennaSwitchConfirm);
-        SET_WARNING_INFO(STR_ANTENNACONFIRM2, sizeof(TR_ANTENNACONFIRM2), 0);
+  // Get the per-model antenna mode from the appropriate field
+  int8_t modelAntennaMode = g_model.moduleData[INTERNAL_MODULE].antennaMode;
+
+#if !defined(INTMODULE_ANTSEL_GPIO)
+  if (!isModuleXJT(INTERNAL_MODULE)) {
+    globalData.externalAntennaEnabled = false;
+    return;
+  }
 #endif
+
+  if (g_eeGeneral.antennaMode == ANTENNA_MODE_EXTERNAL) {
+    globalData.externalAntennaEnabled = true;
+#if defined(INTMODULE_ANTSEL_GPIO) && !defined(SIMU)
+    INTMODULE_ANTSEL_EXT();
+    LED_ERROR_BEGIN();
+    RAISE_ALERT(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2, STR_PRESS_ANY_KEY_TO_SKIP, AU_WARNING1);
+#endif
+  } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL &&
+             modelAntennaMode == ANTENNA_MODE_EXTERNAL) {
+    if (!globalData.externalAntennaEnabled) {
+#if defined(COLORLCD)
+      if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
+        globalData.externalAntennaEnabled = true;
       }
-    } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_ASK ||
-               (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL &&
-                g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode ==
-                    ANTENNA_MODE_ASK)) {
-
-      // TRACE("checkExternalAntenna(): Ask");
-      globalData.externalAntennaEnabled = false;
-
-#if defined(COLORLCD)
-      runAntennaSelectionMenu();
-#else
-      POPUP_MENU_START(onAntennaSelection, 2, STR_USE_INTERNAL_ANTENNA, STR_USE_EXTERNAL_ANTENNA);
+#elif defined(EXTERNAL_ANTENNA)
+      POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onAntennaSwitchConfirm);
+      SET_WARNING_INFO(STR_ANTENNACONFIRM2, strlen(STR_ANTENNACONFIRM2), 0);
 #endif
-    } else {
-      globalData.externalAntennaEnabled = false;
     }
+  } else if (g_eeGeneral.antennaMode == ANTENNA_MODE_ASK ||
+             (g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL &&
+              modelAntennaMode == ANTENNA_MODE_ASK)) {
+    globalData.externalAntennaEnabled = false;
+#if defined(COLORLCD)
+    runAntennaSelectionMenu();
+#elif defined(EXTERNAL_ANTENNA)
+    POPUP_MENU_START(onAntennaSelection, 2, STR_USE_INTERNAL_ANTENNA, STR_USE_EXTERNAL_ANTENNA);
+#endif
   } else {
     globalData.externalAntennaEnabled = false;
   }
-}
+
+#if defined(INTMODULE_ANTSEL_GPIO) && !defined(SIMU)
+  // Apply hardware GPIO switch based on result
+  if (g_eeGeneral.antennaMode != ANTENNA_MODE_EXTERNAL) {
+    if (globalData.externalAntennaEnabled) {
+      INTMODULE_ANTSEL_EXT();
+    } else {
+      INTMODULE_ANTSEL_INT();
+    }
+  }
 #endif
+}
+
+#if defined(COLORLCD)
+// Shared by every antenna-mode Choice widget (radio-level and per-model,
+// GPIO and non-GPIO boards) so the "apply to hardware" step can't be
+// forgotten in just one of the call sites.
+void setAntennaModeWithConfirm(int8_t newMode, uint8_t storageId,
+                                std::function<void(int8_t)> setter)
+{
+  int8_t modelAntennaMode = g_model.moduleData[INTERNAL_MODULE].antennaMode;
+  bool willEnableExternal =
+      newMode == ANTENNA_MODE_EXTERNAL ||
+      (newMode == ANTENNA_MODE_PER_MODEL && modelAntennaMode == ANTENNA_MODE_EXTERNAL);
+
+  if (!isExternalAntennaEnabled() && willEnableExternal) {
+    if (confirmationDialog(STR_ANTENNACONFIRM1, STR_ANTENNACONFIRM2)) {
+      setter(newMode);
+      storageDirty(storageId);
+      // Consent already obtained above; mark enabled so checkExternalAntenna()
+      // applies the GPIO instead of asking again.
+      globalData.externalAntennaEnabled = true;
+      checkExternalAntenna();
+    }
+  } else {
+    setter(newMode);
+    storageDirty(storageId);
+    checkExternalAntenna();
+  }
+}
+#endif // defined(COLORLCD)
+
+#endif // defined(EXTERNAL_ANTENNA)
 
 #if defined(PXX2)
 bool isPxx2IsrmChannelsCountAllowed(int channels)
@@ -882,6 +1011,19 @@ bool isExternalModuleAvailable(int moduleType)
 #if defined(MUTUALLY_EXCLUSIVE_MODULES)
   if (!isModuleNone(INTERNAL_MODULE))
     return false;
+#endif
+
+#if defined(EXTMODULE_USART) && !defined(EXTMODULE_TIMER)
+  // Serial external bay with no PPM timer (e.g. C14, S.PORT-only): restrict to
+  // the protocols that run over the half-duplex telemetry line.
+  switch (moduleType) {
+    case MODULE_TYPE_NONE:
+    case MODULE_TYPE_CROSSFIRE:
+    case MODULE_TYPE_GHOST:
+      break;
+    default:
+      return false;
+  }
 #endif
 
 #if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_SML)
@@ -1034,7 +1176,7 @@ bool isTrainerModeAvailable(int mode)
 #endif
 
   if (mode == TRAINER_MODE_MASTER_SERIAL) {
-    return serialGetModePort(UART_MODE_SBUS_TRAINER) >= 0;
+    return serialGetSbusTrainerPort() >= 0;
   }
 
   if ((mode == TRAINER_MODE_MASTER_BLUETOOTH ||
@@ -1096,6 +1238,18 @@ bool isTrainerModeAvailable(int mode)
 #endif
   }
 
+  if (mode == TRAINER_MODE_CRSF) {
+
+#if !defined(CROSSFIRE)
+    return false;
+#else
+    if ((!IS_INTERNAL_MODULE_ENABLED() && !IS_EXTERNAL_MODULE_ENABLED()) ||
+         (!(isModuleELRS(INTERNAL_MODULE) && CRSF_ELRS_MIN_VER(INTERNAL_MODULE, 4, 0)) &&
+          !(isModuleELRS(EXTERNAL_MODULE) && CRSF_ELRS_MIN_VER(EXTERNAL_MODULE, 4, 0))))
+      return false;
+#endif
+  }
+
   return true;
 }
 
@@ -1131,7 +1285,7 @@ bool confirmModelChange()
   if (TELEMETRY_STREAMING()) {
     RAISE_ALERT(STR_MODEL, STR_MODEL_STILL_POWERED, STR_PRESS_ENTER_TO_CONFIRM, AU_MODEL_STILL_POWERED);
     while (TELEMETRY_STREAMING()) {
-      RTOS_WAIT_MS(20);
+      sleep_ms(20);
       if (readKeys() == (1 << KEY_ENTER)) {
         killEvents(KEY_ENTER);
         return true;
@@ -1179,7 +1333,7 @@ const char * getMultiOptionTitleStatic(uint8_t moduleIdx)
 {
   const uint8_t multi_proto = g_model.moduleData[moduleIdx].multi.rfProtocol;
   const mm_protocol_definition * pdef = getMultiProtocolDefinition(multi_proto);
-  return pdef->optionsstr;
+  return STR_SAFE_VAL(pdef->optionsstr);
 }
 
 const char * getMultiOptionTitle(uint8_t moduleIdx)
@@ -1190,7 +1344,7 @@ const char * getMultiOptionTitle(uint8_t moduleIdx)
     if (status.optionDisp >= getMaxMultiOptions()) {
       status.optionDisp = 1; // Unknown options are defaulted to type 1 (basic option)
     }
-    return mm_options_strings::options[status.optionDisp];
+    return STR_SAFE_VAL(mm_options_strings::options[status.optionDisp]);
   }
 
   return getMultiOptionTitleStatic(moduleIdx);
@@ -1201,7 +1355,7 @@ const char * getMultiOptionTitle(uint8_t moduleIdx)
 uint8_t expandableSection(coord_t y, const char* title, uint8_t value, uint8_t attr, event_t event)
 {
   lcdDrawTextAlignedLeft(y, title);
-  lcdDrawText(LCD_W == 128 ? 120 : 200, y, value ? STR_CHAR_UP : STR_CHAR_DOWN, attr);
+  lcdDrawText(LCD_W == 128 ? 120 : 200, y, value ? CHAR_UP : CHAR_DOWN, attr);
   if (attr && (event == EVT_KEY_BREAK(KEY_ENTER))) {
     value = !value;
     s_editMode = 0;
@@ -1244,6 +1398,16 @@ bool isFlexSwitchSourceValid(int source)
   return true;
 }
 
+bool getStickInversion(int index)
+{
+  return bfGet<uint8_t>(g_eeGeneral.stickInvert, index, STICK_CFG_INV_BITS);
+}
+
+void setStickInversion(int index, bool value)
+{
+  g_eeGeneral.stickInvert = bfSet<uint8_t>(g_eeGeneral.stickInvert, value, index, STICK_CFG_INV_BITS);
+}
+
 bool getPotInversion(int index)
 {
   return bfGet<potconfig_t>(g_eeGeneral.potsConfig, (POT_CFG_BITS * index) + POT_CFG_TYPE_BITS, POT_CFG_INV_BITS);
@@ -1264,24 +1428,9 @@ void setPotType(int index, int value)
   g_eeGeneral.potsConfig = bfSet<potconfig_t>(g_eeGeneral.potsConfig, value, (POT_CFG_BITS * index), POT_CFG_TYPE_BITS);
 }
 
-#if defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
-uint8_t MENU_FIRST_LINE_EDIT(const uint8_t * horTab, uint8_t horTabMax)
-{
-  if (horTab) {
-    uint8_t result = 0;
-    while (result < horTabMax && horTab[result] >= HIDDEN_ROW)
-      ++result;
-    return result;
-  }
-  else {
-    return 0;
-  }
-}
-#endif
-
 uint8_t MODULE_BIND_ROWS(int moduleIdx)
 {
-  if (isModuleELRS(moduleIdx) && (crossfireModuleStatus[moduleIdx].major >= 4 || (crossfireModuleStatus[moduleIdx].major == 3 && crossfireModuleStatus[moduleIdx].minor >= 4)))
+  if (isModuleELRS(moduleIdx) && CRSF_ELRS_MIN_VER(moduleIdx, 3, 4)) 
     return 1;
 
   if (isModuleCrossfire(moduleIdx))

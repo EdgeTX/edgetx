@@ -22,18 +22,18 @@
 #pragma once
 
 #include "list_line_button.h"
-#include <list>
+#include "pagegroup.h"
 
 class ModelInputsPage : public InputMixPageBase
 {
  public:
-  ModelInputsPage();
+  ModelInputsPage(const PageDef& pageDef);
 
   void build(Window *window) override;
 
  protected:
   InputMixGroupBase* getGroupByIndex(uint8_t index) override;
-  
+
   void addLineButton(uint8_t index) override;
   InputMixGroupBase* createGroup(Window* form, mixsrc_t src) override;
   InputMixButtonBase* createLineButton(InputMixGroupBase *group, uint8_t index) override;

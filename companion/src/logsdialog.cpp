@@ -80,8 +80,8 @@ LogsDialog::LogsDialog(QWidget *parent) :
   timeTicker->setDateTimeFormat("hh:mm:ss.zzz");
   axisRect->axis(QCPAxis::atBottom)->setTicker(timeTicker);
   QDateTime now = QDateTime::currentDateTime();
-  axisRect->axis(QCPAxis::atBottom)->setRange(now.addSecs(-60 * 60 * 2).toTime_t(), now.toTime_t());
-
+  axisRect->axis(QCPAxis::atBottom)->setRange(QCPAxisTickerDateTime::dateTimeToKey(now.addSecs(-60 * 60 * 2)),
+                                              QCPAxisTickerDateTime::dateTimeToKey(now));
   axisRect->axis(QCPAxis::atLeft)->setTickLabels(false);
   axisRect->addAxis(QCPAxis::atLeft);
   axisRect->addAxis(QCPAxis::atRight);
@@ -124,7 +124,13 @@ LogsDialog::LogsDialog(QWidget *parent) :
   connect(ui->customPlot, &QCustomPlot::legendDoubleClick, this, &LogsDialog::legendDoubleClick);
   connect(ui->FieldsTW, &QTableWidget::itemSelectionChanged, this, &LogsDialog::plotLogs);
   connect(ui->logTable, &QTableWidget::itemSelectionChanged, this, &LogsDialog::plotLogs);
-  connect(ui->Reset_PB, &QPushButton::clicked, this, &LogsDialog::plotLogs);
+  connect(ui->Reset_PB, &QPushButton::clicked, this, [this]() {
+    ui->ZoomX_ChkB->setChecked(false);
+    ui->ZoomY_ChkB->setChecked(false);
+    ui->CommonAxes_ChkB->setChecked(false);
+    plotLogs();
+  });
+  connect(ui->CommonAxes_ChkB, &QPushButton::clicked, this, &LogsDialog::plotLogs);
   connect(ui->SaveSession_PB, &QPushButton::clicked, this, &LogsDialog::saveSession);
   connect(ui->fileOpen_PB, &QPushButton::clicked, this, &LogsDialog::fileOpen);
   connect(ui->mapsButton, &QPushButton::clicked, this, &LogsDialog::mapsButtonClicked);
@@ -308,31 +314,49 @@ void LogsDialog::exportToGoogleEarth()
   // filter data points
   QList<QStringList> dataPoints = filterGePoints(csvlog);
   int n = dataPoints.count(); // number of points to export
-  if (n==0) return;
+  if (n == 0) return;
 
-  int gpscol=0, altcol=0, speedcol=0;
+  int gpscol = 0, altcol = 0, speedcol = 0, datecol = 0, timecol = 0;
   double altMultiplier = 1.0;
 
-  QSet<int> nondataCols;
-  for (int i=1; i<dataPoints.at(0).count(); i++) {
+  QSet<int> extradataCols;
+
+  for (int i = 1; i < dataPoints.at(0).count(); i++) {
+    // Date and Time
     // Long,Lat,Course,GPS Speed,GPS Alt
-    if (dataPoints.at(0).at(i) == "GPS") {
+    bool incExtraData = true;
+
+    if (dataPoints.at(0).at(i) == "Date") {
+      datecol=i;
+      incExtraData = false;
+    } else if (dataPoints.at(0).at(i) == "Time") {
+      timecol=i;
+      incExtraData = false;
+    } else if (dataPoints.at(0).at(i) == "GPS") {
       gpscol=i;
-    }
-    if (dataPoints.at(0).at(i).contains("GAlt")) {
+      incExtraData = false;
+    } else if (dataPoints.at(0).at(i).contains("GAlt")) {
       altcol = i;
-      nondataCols << i;
+      incExtraData = false;
       if (dataPoints.at(0).at(i).contains("(ft)")) {
         altMultiplier = 0.3048;    // feet to meters
       }
-    }
-    if (dataPoints.at(0).at(i).contains("GSpd")) {
+    } else if (dataPoints.at(0).at(i).contains("GSpd")) {
       speedcol = i;
-      nondataCols << i;
+      incExtraData = false;
+    }
+
+    if (incExtraData) {
+      for (int j = 0; j < ui->FieldsTW->rowCount(); j++) {
+        if (ui->FieldsTW->item(j, 0) && ui->FieldsTW->item(j, 0)->isSelected() &&
+            ui->FieldsTW->item(j, 0)->data(Qt::DisplayRole).toString() == dataPoints.at(0).at(i)) {
+          extradataCols << i; // save data index not selection list index
+        }
+      }
     }
   }
 
-  if (gpscol==0 ) {
+  if (gpscol == 0 ) {
     return;
   }
 
@@ -366,22 +390,20 @@ void LogsDialog::exportToGoogleEarth()
   outputStream << "\t\t\t<gx:SimpleArrayField name=\"GPSSpeed\" type=\"float\">\n\t\t\t\t<displayName>GPS Speed</displayName>\n\t\t\t</gx:SimpleArrayField>\n";
 
   // declare additional fields
-  for (int i=0; i<dataPoints.at(0).count()-2; i++) {
-    if (ui->FieldsTW->item(i, 0) && ui->FieldsTW->item(i, 0)->isSelected() && !nondataCols.contains(i+2)) {
-      QString origName = dataPoints.at(0).at(i+2);
-      QString safeName = origName;
-      safeName.replace(" ","_");
-      outputStream << "\t\t\t<gx:SimpleArrayField name=\""<< safeName <<"\" ";
-      outputStream << "type=\"string\"";   // additional fields have fixed type: string
-      outputStream << ">\n\t\t\t\t<displayName>" << origName << "</displayName>\n\t\t\t</gx:SimpleArrayField>\n";
-    }
+  for (auto i = extradataCols.cbegin(), end = extradataCols.cend(); i != end; ++i) {
+    QString origName = dataPoints.at(0).at(*i);
+    QString safeName = origName;
+    safeName.replace(" ","_");
+    outputStream << "\t\t\t<gx:SimpleArrayField name=\""<< safeName <<"\" ";
+    outputStream << "type=\"string\"";   // additional fields have fixed type: string
+    outputStream << ">\n\t\t\t\t<displayName>" << origName << "</displayName>\n\t\t\t</gx:SimpleArrayField>\n";
   }
 
   QString planeName;
-  if (logFilename.indexOf("-")>0) {
-    planeName=logFilename.left(logFilename.indexOf("-"));
+  if (logFilename.indexOf("-") > 0) {
+    planeName = logFilename.left(logFilename.indexOf("-"));
   } else {
-    planeName=logFilename;
+    planeName = logFilename;
   }
 
   outputStream << "\t\t</Schema>\n";
@@ -390,16 +412,17 @@ void LogsDialog::exportToGoogleEarth()
   outputStream << "\n\t\t\t\t<gx:Track>\n";
   outputStream << "\n\t\t\t\t\t<altitudeMode>absolute</altitudeMode>\n";
 
-  // time data points
-  for (int i=1; i<n; i++) {
-    QString tstamp=dataPoints.at(i).at(0)+QString("T")+dataPoints.at(i).at(1)+QString("Z");
+  // date and time data points
+  for (int i = 1; i < n; i++) {
+    QString tstamp = dataPoints.at(i).at(datecol) + QString("T") + dataPoints.at(i).at(timecol) + QString("Z");
     outputStream << "\t\t\t\t\t<when>"<< tstamp <<"</when>\n";
   }
 
   // coordinate data points
   outputStream.setRealNumberNotation(QTextStream::FixedNotation);
   outputStream.setRealNumberPrecision(8);
-  for (int i=1; i<n; i++) {
+
+  for (int i = 1; i < n; i++) {
     GpsCoord coord = extractGpsCoordinates(dataPoints.at(i).at(gpscol));
     int altitude = altcol ? (dataPoints.at(i).at(altcol).toFloat() * altMultiplier) : 0;
     outputStream << "\t\t\t\t\t<gx:coord>" << coord.longitude << " " << coord.latitude << " " << altitude << " </gx:coord>\n" ;
@@ -411,23 +434,24 @@ void LogsDialog::exportToGoogleEarth()
   if (speedcol) {
     // gps speed data points
     outputStream << "\t\t\t\t\t\t\t<gx:SimpleArrayData name=\"GPSSpeed\">\n";
-    for (int i=1; i<n; i++) {
+
+    for (int i = 1; i < n; i++) {
       outputStream << "\t\t\t\t\t\t\t\t<gx:value>"<< dataPoints.at(i).at(speedcol) <<"</gx:value>\n";
     }
     outputStream << "\t\t\t\t\t\t\t</gx:SimpleArrayData>\n";
   }
 
   // add values for additional fields
-  for (int i=0; i<dataPoints.at(0).count()-2; i++) {
-    if (ui->FieldsTW->item(i, 0) && ui->FieldsTW->item(i, 0)->isSelected() && !nondataCols.contains(i+2)) {
-      QString safeName = dataPoints.at(0).at(i+2);;
-      safeName.replace(" ","_");
-      outputStream << "\t\t\t\t\t\t\t<gx:SimpleArrayData name=\""<< safeName <<"\">\n";
-      for (int j=1; j<n; j++) {
-        outputStream << "\t\t\t\t\t\t\t\t<gx:value>"<< dataPoints.at(j).at(i+2) <<"</gx:value>\n";
-      }
-      outputStream << "\t\t\t\t\t\t\t</gx:SimpleArrayData>\n";
+  for (auto i = extradataCols.cbegin(), end = extradataCols.cend(); i != end; ++i) {
+    QString safeName = dataPoints.at(0).at(*i);
+    safeName.replace(" ","_");
+    outputStream << "\t\t\t\t\t\t\t<gx:SimpleArrayData name=\""<< safeName <<"\">\n";
+
+    for (int j = 1; j < n; j++) {
+      outputStream << "\t\t\t\t\t\t\t\t<gx:value>"<< dataPoints.at(j).at(*i) <<"</gx:value>\n";
     }
+
+    outputStream << "\t\t\t\t\t\t\t</gx:SimpleArrayData>\n";
   }
 
   outputStream << "\t\t\t\t\t\t</SchemaData>\n\t\t\t\t\t</ExtendedData>\n\t\t\t\t</gx:Track>\n\t\t\t</Placemark>\n\t\t</Folder>\n\t</Document>\n</kml>";
@@ -584,40 +608,56 @@ void LogsDialog::fileOpen()
   if (!fileName.isEmpty()) {
     g.logDir(fileName);
     ui->FileName_LE->setText(fileName);
+    //Stopwatch s1("LogViewer");
+    //s1.report("Start");
+
     if (cvsFileParse()) {
       ui->FieldsTW->clear();
       ui->logTable->clear();
       ui->FieldsTW->setShowGrid(false);
-      ui->FieldsTW->setContentsMargins(0,0,0,0);
-      ui->FieldsTW->setRowCount(csvlog.at(0).count()-2);
+      ui->FieldsTW->setContentsMargins(0, 0, 0, 0);
+      ui->FieldsTW->setRowCount(csvlog.at(0).count() - 2);
       ui->FieldsTW->setColumnCount(1);
       ui->FieldsTW->setHorizontalHeaderLabels(QStringList(tr("Available fields")));
       ui->logTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-      for (int i=2; i<csvlog.at(0).count(); i++) {
+
+      for (int i = 3; i < csvlog.at(0).count(); i++) {
         QTableWidgetItem* item= new QTableWidgetItem(csvlog.at(0).at(i));
-        ui->FieldsTW->setItem(i-2, 0, item);
+        ui->FieldsTW->setItem(i - 3, 0, item);
       }
+
       ui->FieldsTW->resizeRowsToContents();
       ui->logTable->setColumnCount(csvlog.at(0).count());
-      ui->logTable->setRowCount(csvlog.count()-1);
+      ui->logTable->setRowCount(csvlog.count() - 1);
       ui->logTable->setHorizontalHeaderLabels(csvlog.at(0));
+      //s1.report("Load fields");
 
       QAbstractItemModel *model = ui->logTable->model();
-      for (int i=1; i<csvlog.count(); i++) {
-        for (int j=0; j<csvlog.at(0).count(); j++) {
+      for (int i = 1; i < csvlog.count(); i++) {
+        for (int j = 0; j < csvlog.at(0).count(); j++) {
           model->setData(model->index(i - 1, j, QModelIndex()), csvlog.at(i).at(j));
         }
       }
 
+      //s1.report("Load data model");
+
       ui->logTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
       QVarLengthArray<int> sizes;
+
       for (int i = 0; i < ui->logTable->columnCount(); i++) {
         sizes.append(ui->logTable->columnWidth(i));
       }
+
       ui->logTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
+
       for (int i = 0; i < ui->logTable->columnCount(); i++) {
-        ui->logTable->setColumnWidth(i, sizes.at(i));
+        if (i == 0)
+          ui->logTable->setColumnHidden(i, true); // hide MSecsSinceEpoch column
+        else
+          ui->logTable->setColumnWidth(i, sizes.at(i));
       }
+
+      //s1.report("Adjust headers");
     }
   }
 }
@@ -666,6 +706,8 @@ void LogsDialog::saveSession()
 
 bool LogsDialog::cvsFileParse()
 {
+  //Stopwatch s("Parse");
+
   QFile file(ui->FileName_LE->text());
   int errors=0;
   int lines=-1;
@@ -690,13 +732,39 @@ bool LogsDialog::cvsFileParse()
     while (!file.atEnd()) {
       QString line = file.readLine().trimmed();
       QStringList columns = line.split(',');
-      if (numfields==-1) {
+
+      if (numfields == -1) {
         numfields=columns.count();
       }
-      if (columns.count()==numfields) {
-        csvlog.append(columns);
-      }
-      else {
+
+      if (columns.count() == numfields) {
+        if (lines == -1) {
+          csvlog.append(QStringList("MSecsSinceEpoch") << columns);
+        } else {
+          // Qt v6.2 onwards QDateTime::fromString() is very slow
+          QStringList sDate = columns.at(0).split("-");
+          QStringList sTime = columns.at(1).split(":");
+          QStringList sSecs;
+
+          if (sTime.count() == 3) {
+            sSecs = sTime.at(2).split(".");
+
+            if (sSecs.count() == 1)
+              sSecs.append("0");
+          }
+
+          if (sDate.count() == 3 && sTime.count() == 3 && sSecs.count() == 2) {
+            QDate d(sDate.at(0).toInt(), sDate.at(1).toInt(), sDate.at(2).toInt());
+            QTime t(sTime.at(0).toInt(), sTime.at(1).toInt(), sSecs.at(0).toInt(), sSecs.at(1).toInt());
+            QDateTime dt(d, t);
+            //qDebug() << dt << dt.toString() << dt.toMSecsSinceEpoch() << QDateTime::fromMSecsSinceEpoch(dt.toMSecsSinceEpoch());
+            csvlog.append(QStringList(QString::number(dt.toMSecsSinceEpoch())) << columns);
+            //qDebug() << csvlog.at(csvlog.count() - 1);
+          } else {
+            errors++;
+          }
+        }
+      } else {
         errors++;
       }
       lines++;
@@ -716,9 +784,13 @@ bool LogsDialog::cvsFileParse()
     return false;
   }
 
+  //s.report("Data loaded");
+
   plotLock = true;
   setFlightSessions();
   plotLock = false;
+
+  //s.report("Sessions loaded");
 
   return true;
 }
@@ -730,10 +802,8 @@ struct FlightSession {
 
 QDateTime LogsDialog::getRecordTimeStamp(int index)
 {
-  QString tstamp = csvlog.at(index).at(0) + " " + csvlog.at(index).at(1);
-  if (csvlog.at(index).at(1).contains("."))
-    return QDateTime::fromString(tstamp, "yyyy-MM-dd HH:mm:ss.zzz");
-  return QDateTime::fromString(tstamp, "yyyy-MM-dd HH:mm:ss");
+  //qDebug() << csvlog.at(index).at(0).toLongLong() << QDateTime::fromMSecsSinceEpoch(csvlog.at(index).at(0).toLongLong());
+  return QDateTime::fromMSecsSinceEpoch(csvlog.at(index).at(0).toLongLong());
 }
 
 QString LogsDialog::generateDuration(const QDateTime & start, const QDateTime & end)
@@ -750,6 +820,8 @@ QString LogsDialog::generateDuration(const QDateTime & start, const QDateTime & 
 
 void LogsDialog::setFlightSessions()
 {
+  //Stopwatch s("Sessions");
+
   ui->sessions_CB->clear();
   ui->SaveSession_PB->setEnabled(false);
 
@@ -769,24 +841,28 @@ void LogsDialog::setFlightSessions()
   }
   sessions.push_back(n-1);
 
+  //s.report("Breaks found");
+
   //now construct a list of sessions with their times
   //total time
-  int noSesions = sessions.size()-1;
+  int noSesions = sessions.size() - 1;
   QString label = QString("%1 ").arg(noSesions);
   label += tr(noSesions > 1 ? "sessions" : "session");
-  label += " <" + tr("time span") + generateDuration(getRecordTimeStamp(1), getRecordTimeStamp(n-1)) + ">";
+  label += " <" + tr("time span ") + generateDuration(getRecordTimeStamp(1), getRecordTimeStamp(n - 1)) + ">";
   ui->sessions_CB->addItem(label);
 
   // add individual sessions
   if (sessions.size() > 2) {
     for (int i = 1; i < sessions.size(); i++) {
-      QDateTime sessionStart = getRecordTimeStamp(sessions.at(i-1)+1);
+      QDateTime sessionStart = getRecordTimeStamp(sessions.at(i - 1) + 1);
       QDateTime sessionEnd = getRecordTimeStamp(sessions.at(i));
       QString label = sessionStart.toString("HH:mm:ss") + " <" + tr("duration ") + generateDuration(sessionStart, sessionEnd) + ">";
-      ui->sessions_CB->addItem(label, sessions.at(i-1));
+      ui->sessions_CB->addItem(label, sessions.at(i - 1));
       // qDebug() << "added label" << label << sessions.at(i-1);
     }
   }
+
+  //s.report("List created");
 }
 
 void LogsDialog::sessionsCurrentIndexChanged(int index)
@@ -822,6 +898,50 @@ void LogsDialog::sessionsCurrentIndexChanged(int index)
   plotLogs();
 }
 
+std::pair<double, double> LogsDialog::GetMinMaxY() const
+{
+  double minVal = 0.0;
+  double maxVal = 0.0;
+  bool found = false;
+
+  // determine selected rows in the log table
+  QModelIndexList sel = ui->logTable->selectionModel()->selectedRows();
+  bool hasSelection = !sel.isEmpty();
+  QVarLengthArray<int> selectedRows;
+
+  if (hasSelection) {
+    selectedRows.reserve(sel.size());
+    for (const QModelIndex &idx : sel) selectedRows.append(idx.row());
+  }
+
+  // iterate over selected fields and rows to compute global min/max Y
+  for (QTableWidgetItem *fieldItem : ui->FieldsTW->selectedItems()) {
+    const int col = fieldItem->row() + 2;  // Date and Time are first two columns
+    const int rows = hasSelection ? selectedRows.length() : ui->logTable->rowCount();
+
+    for (int r = 0; r < rows; ++r) {
+      const int tableRow = hasSelection ? selectedRows.at(r) : r;
+      QTableWidgetItem *cell = ui->logTable->item(tableRow, col);
+      if (!cell) continue;
+
+      bool ok = false;
+      const double v = cell->text().toDouble(&ok);
+      if (!ok) continue;
+
+      if (!found) {
+        minVal = maxVal = v;
+        found = true;
+      } else {
+        if (v < minVal) minVal = v;
+        if (v > maxVal) maxVal = v;
+      }
+    }
+  }
+
+  if (!found) return {0.0, 0.0};
+  return {minVal, maxVal};
+}
+
 void LogsDialog::plotLogs()
 {
   if (plotLock) return;
@@ -831,11 +951,13 @@ void LogsDialog::plotLogs()
     return;
   }
 
+  //Stopwatch s("Plot");
   plotsCollection plots;
 
   QModelIndexList selection = ui->logTable->selectionModel()->selectedRows();
   int rowCount = selection.length();
   bool hasLogSelection;
+  bool useCommonAxes = ui->CommonAxes_ChkB->isChecked();
   QVarLengthArray<int> selectedRows;
 
   if (rowCount) {
@@ -849,12 +971,14 @@ void LogsDialog::plotLogs()
     rowCount = ui->logTable->rowCount();
   }
 
+  //s.report("Row count");
+
   plots.min_x = INVALID_MIN;
   plots.max_x = 0;
 
   foreach (QTableWidgetItem *plot, ui->FieldsTW->selectedItems()) {
     coords_t plotCoords;
-    int plotColumn = plot->row() + 2; // Date and Time first
+    int plotColumn = plot->row() + 3; // Epoch, Date and Time first
 
     plotCoords.min_y = INVALID_MIN;
     plotCoords.max_y = INVALID_MAX;
@@ -865,16 +989,14 @@ void LogsDialog::plotLogs()
       QTableWidgetItem *logValue;
       double y;
       double time;
-      QString time_str;
+      QDateTime datetime;
 
       if (hasLogSelection) {
         logValue = ui->logTable->item(selectedRows.at(row), plotColumn);
-        time_str = ui->logTable->item(selectedRows.at(row), 0)->text() +
-          QString(" ") + ui->logTable->item(selectedRows.at(row), 1)->text();
+        datetime = QDateTime::fromMSecsSinceEpoch(ui->logTable->item(selectedRows.at(row), 0)->text().toLongLong());
       } else {
         logValue = ui->logTable->item(row, plotColumn);
-        time_str = ui->logTable->item(row, 0)->text() + QString(" ") +
-          ui->logTable->item(row, 1)->text();
+        datetime = QDateTime::fromMSecsSinceEpoch(ui->logTable->item(row, 0)->text().toLongLong());
       }
 
       y = logValue->text().toDouble();
@@ -883,14 +1005,8 @@ void LogsDialog::plotLogs()
       if (plotCoords.min_y > y) plotCoords.min_y = y;
       if (plotCoords.max_y < y) plotCoords.max_y = y;
 
-      if (time_str.contains('.')) {
-        time = QDateTime::fromString(time_str, "yyyy-MM-dd HH:mm:ss.zzz")
-          .toTime_t();
-        time += time_str.mid(time_str.indexOf('.')).toDouble();
-      } else {
-        time = QDateTime::fromString(time_str, "yyyy-MM-dd HH:mm:ss")
-          .toTime_t();
-      }
+      time = QCPAxisTickerDateTime::dateTimeToKey(datetime);
+
       plotCoords.x.push_back(time);
 
       if(plots.min_x == INVALID_MIN)
@@ -908,6 +1024,8 @@ void LogsDialog::plotLogs()
 
     plots.coords.append(plotCoords);
   }
+
+  //s.report("Cords");
 
   yAxesRanges[firstLeft].min = plots.coords.at(0).min_y;
   yAxesRanges[firstLeft].max = plots.coords.at(0).max_y;
@@ -927,23 +1045,25 @@ void LogsDialog::plotLogs()
         plots.coords.at(i).max_y < yAxesRanges[plots.coords.at(i).yaxis].min)
       ) {
 
-      switch (plots.coords[i].yaxis) {
-        case firstLeft:
-          plots.coords[i].yaxis = firstRight;
-          break;
-        case firstRight:
-          plots.coords[i].yaxis = secondLeft;
-          break;
-        case secondLeft:
-          plots.coords[i].yaxis = secondRight;
-          break;
-        case secondRight:
-          plots.tooManyRanges = true;
-          break;
-        default:
-          break;
+      if (!useCommonAxes) {
+        switch (plots.coords[i].yaxis) {
+          case firstLeft:
+            plots.coords[i].yaxis = firstRight;
+            break;
+          case firstRight:
+            plots.coords[i].yaxis = secondLeft;
+            break;
+          case secondLeft:
+            plots.coords[i].yaxis = secondRight;
+            break;
+          case secondRight:
+            plots.tooManyRanges = true;
+            break;
+          default:
+            break;
+        }
+        if (plots.tooManyRanges) break;
       }
-      if (plots.tooManyRanges) break;
 
       actualRange = yAxesRanges[plots.coords.at(i).yaxis].max
         - yAxesRanges[plots.coords.at(i).yaxis].min;
@@ -960,6 +1080,8 @@ void LogsDialog::plotLogs()
       }
     }
   }
+
+  //s.report("Check too many ranges");
 
   if (plots.tooManyRanges) {
     yAxesRanges[firstLeft].max = 101;
@@ -990,10 +1112,15 @@ void LogsDialog::plotLogs()
 
   removeAllGraphs();
 
-  axisRect->axis(QCPAxis::atBottom)->setRange(plots.min_x, plots.max_x);
+  //s.report("Remove existing graphs");
 
-  axisRect->axis(QCPAxis::atLeft)->setRange(yAxesRanges[firstLeft].min,
-    yAxesRanges[firstLeft].max);
+  axisRect->axis(QCPAxis::atBottom)->setRange(plots.min_x, plots.max_x);
+  if (useCommonAxes) {
+    auto [min, max] = this->GetMinMaxY();
+    axisRect->axis(QCPAxis::atLeft)->setRange(min, max);
+  } else {
+    axisRect->axis(QCPAxis::atLeft)->setRange(yAxesRanges[firstLeft].min, yAxesRanges[firstLeft].max);
+  }
 
   if (plots.tooManyRanges) {
     axisRect->axis(QCPAxis::atLeft)->setTickLabels(false);
@@ -1020,6 +1147,8 @@ void LogsDialog::plotLogs()
       }
     }
   }
+
+  //s.report("Set axis");
 
   for (int i = 0; i < plots.coords.size(); i++) {
     switch (plots.coords[i].yaxis) {
@@ -1062,6 +1191,8 @@ void LogsDialog::plotLogs()
         break;
     }
 
+    //s.report("Legend");
+
     ui->customPlot->graph(i)->setData(plots.coords.at(i).x,
       plots.coords.at(i).y);
     pen.setColor(colors.at(i % colors.size()));
@@ -1079,8 +1210,12 @@ void LogsDialog::plotLogs()
     }
   }
 
+  //s.report("Set graph");
+
   ui->customPlot->legend->setVisible(true);
   ui->customPlot->replot();
+
+  //s.report("Refresh graph");
 }
 
 void LogsDialog::yAxisChangeRanges(QCPRange range)

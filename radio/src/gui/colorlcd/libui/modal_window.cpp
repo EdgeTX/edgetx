@@ -18,7 +18,6 @@
 
 #include "modal_window.h"
 
-#include "layer.h"
 #include "etx_lv_theme.h"
 #include "mainwindow.h"
 
@@ -51,14 +50,7 @@ ModalWindow::ModalWindow(bool closeWhenClickOutside) :
     closeWhenClickOutside(closeWhenClickOutside)
 {
   setWindowFlag(OPAQUE);
-  Layer::push(this);
-}
-
-void ModalWindow::deleteLater(bool detach, bool trash)
-{
-  if (_deleted) return;
-  Layer::pop(this);
-  Window::deleteLater(detach, trash);
+  pushLayer();
 }
 
 void ModalWindow::onClicked()

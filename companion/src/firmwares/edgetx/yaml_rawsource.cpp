@@ -137,6 +137,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
 
 RawSource YamlRawSourceDecode(const std::string& src_str)
 {
+  Firmware *firmware = getCurrentFirmware();
   Board::Type board = getCurrentBoard();
   Boards b = Boards(board);
   RawSource rhs;
@@ -251,7 +252,7 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
     std::stringstream src(src_str_tmp.substr(3));
     int gv = 0;
     src >> gv;
-    if (gv < CPN_MAX_GVARS)
+    if (gv < firmware->getCapability(Gvars))
       rhs = RawSource(SOURCE_TYPE_GVAR, gv + 1);
 
   } else if (val_len > 5 &&

@@ -50,19 +50,19 @@ class NumberEdit : public TextButton
   void setAccelFactor(int value) { accelFactor = value; }
   void setValue(int value);
 
-  void setPrefix(std::string value)
+  void setPrefix(const std::string& value)
   {
     prefix = std::move(value);
     update();
   }
 
-  void setSuffix(std::string value)
+  void setSuffix(const std::string& value)
   {
     suffix = std::move(value);
     update();
   }
 
-  void setZeroText(std::string value)
+  void setZeroText(const std::string& value)
   {
     zeroText = std::move(value);
     update();
@@ -89,9 +89,12 @@ class NumberEdit : public TextButton
     _getValue = std::move(handler);
   }
 
-  int32_t getValue() const { return _getValue != nullptr ? _getValue() : 0; }
+  void setOnEditedHandler(std::function<void(int)> handler)
+  {
+    onEdited = std::move(handler);
+  }
 
-  static LAYOUT_VAL(DEF_W, 100, 100)
+  int32_t getValue() const { return _getValue != nullptr ? _getValue() : 0; }
 
  protected:
   friend class NumberArea;
@@ -99,6 +102,7 @@ class NumberEdit : public TextButton
   NumberArea* edit = nullptr;
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
+  std::function<void(int)> onEdited;
   int vdefault = 0;
   int vmin;
   int vmax;
@@ -116,4 +120,6 @@ class NumberEdit : public TextButton
 
   void updateDisplay();
   void openEdit();
+
+  void checkEvents() override;
 };

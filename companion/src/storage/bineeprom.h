@@ -36,9 +36,9 @@ class BinEepromFormat : public StorageFormat
     {
     }
 
-    virtual QString name() { return "bin"; }
-    virtual bool load(RadioData & radioData);
-    virtual bool write(const RadioData & radioData);
+    virtual QString name() override { return "bin"; }
+    virtual bool load(RadioData & radioData) override;
+    virtual bool write(RadioData & radioData) override;
 
   protected:
     bool extract(RadioData & radioData, const QByteArray & eeprom);

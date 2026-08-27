@@ -21,18 +21,22 @@
 
 #include "fullscreen_dialog.h"
 
-#include "LvglWrapper.h"
-#include "libopenui.h"
-#include "mainwindow.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
-#include "view_main.h"
+#include "hal/usb_driver.h"
 #include "hal/watchdog_driver.h"
+#include "mainwindow.h"
+#include "os/sleep.h"
+#include "static.h"
+#include "theme_manager.h"
+#include "view_main.h"
+
+//-----------------------------------------------------------------------------
 
 FullScreenDialog::FullScreenDialog(
     uint8_t type, std::string title, std::string message, std::string action,
     const std::function<void(void)>& confirmHandler) :
-    Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H}),
+    NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H}),
     type(type),
     title(std::move(title)),
     message(std::move(message)),
@@ -40,40 +44,21 @@ FullScreenDialog::FullScreenDialog(
     confirmHandler(confirmHandler)
 {
   setWindowFlag(OPAQUE);
+  etx_solid_bg(lvobj, (type == WARNING_TYPE_ALERT) ? COLOR_THEME_WARNING_INDEX : COLOR_THEME_SECONDARY1_INDEX);
 
   // In case alert raised while splash screen is showing.
   cancelSplash();
 
-  Window* p = Layer::back();
-  if (p) p->hide();
-
-  Layer::push(this);
-
-  bringToTop();
+  pushLayer();
 
   build();
-
-  lv_obj_add_event_cb(lvobj, FullScreenDialog::on_draw,
-                      LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
-}
-
-void FullScreenDialog::on_draw(lv_event_t* e)
-{
-  auto dlg = (FullScreenDialog*)lv_obj_get_user_data(lv_event_get_target(e));
-  if (dlg) {
-    if (!dlg->loaded) {
-      dlg->loaded = true;
-      dlg->delayedInit();
-    }
-  }
 }
 
 void FullScreenDialog::build()
 {
   auto div = new Window(this, {0, ALERT_FRAME_TOP, LCD_W, ALERT_FRAME_HEIGHT});
   div->setWindowFlag(NO_FOCUS);
-  etx_bg_color(div->getLvObj(), COLOR_THEME_PRIMARY2_INDEX);
-  etx_obj_add_style(div->getLvObj(), styles->bg_opacity_50, LV_PART_MAIN);
+  etx_solid_bg(div->getLvObj(), COLOR_THEME_PRIMARY2_INDEX);
 
   new StaticIcon(
       this, ALERT_BITMAP_LEFT, ALERT_BITMAP_TOP,
@@ -106,7 +91,7 @@ void FullScreenDialog::build()
 
   if (!action.empty()) {
     auto btn = new TextButton(
-        this, {(LCD_W - 280) / 2, LCD_H - 48, 280, 40}, action.c_str(),
+        this, {(LCD_W - ONEBTN_W) / 2, LCD_H - ONEBTN_H - PAD_LARGE, ONEBTN_W, ONEBTN_H}, action.c_str(),
         [=]() {
           closeDialog();
           return 0;
@@ -116,7 +101,7 @@ void FullScreenDialog::build()
   } else {
     if (type == WARNING_TYPE_CONFIRM) {
       auto btn = new TextButton(
-          this, {LCD_W / 3 - 50, LCD_H - 48, 100, 40}, STR_EXIT,
+          this, {LCD_W / 3 - TWOBTN_W / 2, LCD_H - TWOBTN_H - PAD_LARGE, TWOBTN_W, TWOBTN_H}, STR_CANCEL,
           [=]() {
             deleteLater();
             return 0;
@@ -124,7 +109,7 @@ void FullScreenDialog::build()
       etx_bg_color(btn->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
       etx_txt_color(btn->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
       btn = new TextButton(
-          this, {LCD_W * 2 / 3 - 50, LCD_H - 48, 100, 40}, STR_OK,
+          this, {LCD_W * 2 / 3 - TWOBTN_W / 2, LCD_H - TWOBTN_H - PAD_LARGE, TWOBTN_W, TWOBTN_H}, STR_OK,
           [=]() {
             closeDialog();
             return 0;
@@ -148,82 +133,26 @@ bool FullScreenDialog::onLongPress()
   return false;
 }
 
-void FullScreenDialog::onEvent(event_t event)
+#if defined(HARDWARE_KEYS)
+void FullScreenDialog::alertCancel()
 {
   // Buttons other than RTN or ENTER
-  if (type == WARNING_TYPE_ALERT) {
+  if (type == WARNING_TYPE_ALERT)
     closeDialog();
-    killEvents(event);
-  }
 }
-
-void FullScreenDialog::onCancel() { deleteLater(); }
-
-void FullScreenDialog::checkEvents()
-{
-  Window::checkEvents();
-  if (closeCondition && closeCondition()) {
-    deleteLater();
-  }
-}
-
-void FullScreenDialog::deleteLater(bool detach, bool trash)
-{
-  if (running) {
-    running = false;
-  } else {
-    Layer::pop(this);
-    Window::deleteLater(detach, trash);
-  }
-  Window* p = Layer::back();
-  if (p) p->show();
-}
-
-void FullScreenDialog::setMessage(std::string text)
-{
-  messageLabel->setText(text);
-}
-
-static void run_ui_manually()
-{
-  checkBacklight();
-  WDG_RESET();
-
-  RTOS_WAIT_MS(10);
-  LvglWrapper::runNested();
-  MainWindow::instance()->run(false);
-}
-
-void FullScreenDialog::runForever(bool checkPwr)
-{
-  running = true;
-
-  // reset input devices to avoid
-  // RELEASED/CLICKED to be called in a loop
-  lv_indev_reset(nullptr, nullptr);
-
-  while (running) {
-    resetBacklightTimeout();
-
-    if (checkPwr) {
-      auto check = pwrCheck();
-      if (check == e_power_off) {
-        boardOff();
-#if defined(SIMU)
-        return;
+void FullScreenDialog::onPressSYS() { alertCancel(); }
+void FullScreenDialog::onPressMDL() { alertCancel(); }
+void FullScreenDialog::onPressPGUP() { alertCancel(); }
+void FullScreenDialog::onPressPGDN() { alertCancel(); }
+void FullScreenDialog::onPressTELE() { alertCancel(); }
 #endif
-      } else if (check == e_power_press) {
-        WDG_RESET();
-        RTOS_WAIT_MS(1);
-        continue;
-      }
-    }
 
-    run_ui_manually();
-  }
-
-  deleteLater();
+void FullScreenDialog::setMessage(const char* text)
+{
+  if (messageLabel) messageLabel->setText(text);
 }
+
+//-----------------------------------------------------------------------------
 
 void raiseAlert(const char* title, const char* msg, const char* action,
                 uint8_t sound)
@@ -233,7 +162,9 @@ void raiseAlert(const char* title, const char* msg, const char* action,
   LED_ERROR_BEGIN();
   auto dialog = new FullScreenDialog(WARNING_TYPE_ALERT, title ? title : "",
                                      msg ? msg : "", action ? action : "");
-  dialog->runForever();
+  MainWindow::instance()->blockUntilClose(true, [=]() {
+    return dialog->deleted();
+  });
   LED_ERROR_END();
 }
 
@@ -245,18 +176,15 @@ bool confirmationDialog(const char* title, const char* msg, bool checkPwr,
   auto dialog = new FullScreenDialog(WARNING_TYPE_CONFIRM, title ? title : "",
                                      msg ? msg : "", "",
                                      [&confirmed]() { confirmed = true; });
-  if (closeCondition) {
-    dialog->setCloseCondition([&confirmed, &closeCondition]() {
-      if (closeCondition()) {
-        confirmed = true;
-        return true;
-      } else {
-        return false;
-      }
-    });
-  }
 
-  dialog->runForever(checkPwr);
+  MainWindow::instance()->blockUntilClose(checkPwr, [&]() {
+    if (dialog->deleted()) return true;
+    if (closeCondition && closeCondition()) {
+      confirmed = true;
+      dialog->deleteLater();
+    }
+    return confirmed;
+  });
 
   return confirmed;
 }

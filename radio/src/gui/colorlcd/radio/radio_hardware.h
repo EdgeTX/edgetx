@@ -21,20 +21,23 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
-class RadioHardwarePage : public PageTab
+class RadioHardwarePage : public PageGroupItem
 {
   void checkEvents() override;
 
  public:
-  RadioHardwarePage();
+  RadioHardwarePage(const PageDef& pageDef);
 
   void build(Window* window) override;
 
-  static LAYOUT_VAL(NUM_EDIT_W, 80, 80)
-  static LAYOUT_VAL(BTN_COLS, 4, 3)
-  static LAYOUT_VAL(FS_BTN_COLS, 2, 2)
+#if defined(FUNCTION_SWITCHES)
+  static LAYOUT_SIZE(BTN_COLS, 2, 2)
+#else
+  static LAYOUT_SIZE(BTN_COLS, 4, 3)
+#endif
+  static LAYOUT_SIZE(FS_BTN_COLS, 2, 2)
 
  protected:
   void cleanup() override;

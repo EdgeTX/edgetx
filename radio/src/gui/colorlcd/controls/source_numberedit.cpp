@@ -31,15 +31,16 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
                                    int16_t sourceMin,
                                    LcdFlags textFlags, int32_t voffset,
                                    int32_t vdefault) :
-    Window(parent, {0, 0, NUM_EDIT_W + SRC_BTN_W + PAD_TINY * 3, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}),
+    Window(parent, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + SRC_BTN_W + PAD_TINY * 3, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}),
     vmin(vmin),
     vmax(vmax),
     sourceMin(sourceMin),
     getValue(getValue),
     setValue(setValue),
-    textFlags(textFlags),
     voffset(voffset)
 {
+  setTextFlag(textFlags);
+
   padAll(PAD_TINY);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW_WRAP);
   lv_obj_set_style_flex_cross_place(lvobj, LV_FLEX_ALIGN_CENTER, 0);
@@ -47,7 +48,7 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
 
   // Source field
   source_field = new SourceChoice(
-      this, {0, 0, NUM_EDIT_W, 0}, sourceMin, INPUTSRC_LAST,
+      this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, sourceMin, INPUTSRC_LAST,
       [=]() {
         SourceNumVal v;
         v.rawValue = getValue();
@@ -59,7 +60,7 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
       }, true);
 
   num_field = new NumberEdit(
-      this, {0, 0, NUM_EDIT_W, 0}, vmin, vmax,
+      this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, vmin, vmax,
       [=]() {
         SourceNumVal v;
         v.rawValue = getValue();
@@ -73,7 +74,7 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
   num_field->setDefault(vdefault);
 
   // The Source button
-  m_srcBtn = new TextButton(this, {NUM_EDIT_W + PAD_TINY, 0, SRC_BTN_W, 0}, "SRC", [=]() {
+  m_srcBtn = new TextButton(this, {EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + PAD_TINY, 0, SRC_BTN_W, 0}, "SRC", [=]() {
     switchSourceMode();
     return isSource();
   });
@@ -103,7 +104,7 @@ void SourceNumberEdit::switchSourceMode()
   update();
 }
 
-void SourceNumberEdit::setSuffix(std::string value)
+void SourceNumberEdit::setSuffix(const std::string& value)
 {
   num_field->setSuffix(value);
 }

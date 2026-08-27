@@ -43,13 +43,7 @@
 
 #define DEFAULT_MODEL_SORT NAME_ASC
 
-#if !PORTRAIT_LCD // Landscape
-#define LABEL_TRUNCATE_LENGTH 21
-#else
-#define LABEL_TRUNCATE_LENGTH 16
-#endif
-
-struct ModelData;
+struct ModelHeader;
 struct ModuleData;
 
 struct SimpleModuleData {
@@ -86,19 +80,13 @@ class ModelCell
 
   void setModelName(char *name);
   void setModelName(char *name, uint8_t len);
-  void setRfData(ModelData *model);
+  void setRfData(ModelHeader *header, ModuleData* moduleData);
 
   void setModelId(uint8_t moduleIdx, uint8_t id);
   void setRfModuleData(uint8_t moduleIdx, ModuleData *modData);
   bool fetchRfData();
 };
 
-typedef struct {
-  std::string icon;
-  // Anything else?
-} SLabelDetail;
-
-typedef std::vector<std::pair<uint16_t, ModelCell *>> ModelLabelsVector;
 typedef std::vector<std::string> LabelsVector;
 typedef std::vector<ModelCell *> ModelsVector;
 typedef enum {
@@ -145,6 +133,7 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
   }
   std::string getBulletLabelString(ModelCell *, const char *noresults = "");
   void setDirty(bool save = false);
+  void resetDirty() { _isDirty = false; }
   bool isDirty() { return _isDirty; }
 
   // Currently selected labels in the GUI
@@ -165,21 +154,6 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
   static void escapeCSV(std::string &str);
   static void unEscapeCSV(std::string &str);
   static void removeYAMLChars(std::string &str);
-  static void replace_all(std::string &str,
-                          const std::string &from,
-                          const std::string &to);
-
- protected:
-  ModelsSortBy _sortOrder = DEFAULT_MODEL_SORT;
-  bool _isDirty = true;
-  std::set<uint32_t> filtlbls;
-  std::string currentlabel = "";
-
-  void updateModelCell(ModelCell *);
-  bool removeModels(
-      ModelCell *);  // Should only be called from ModelsList remove model
-  bool updateModelFile(ModelCell *);
-  void sortModelsBy(ModelsVector &mv, ModelsSortBy sortby);
 
   void clear()
   {
@@ -187,6 +161,20 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
     labels.clear();
     std::multimap<uint16_t, ModelCell *>::clear();
   }
+
+  void updateModelCell(ModelCell *);
+  bool removeModels(ModelCell *);
+
+  bool writeModelLabels(ModelCell*, const char*);
+
+ protected:
+  ModelsSortBy _sortOrder = DEFAULT_MODEL_SORT;
+  bool _isDirty = true;
+  std::set<uint32_t> filtlbls;
+  std::string currentlabel = "";
+
+  bool updateModelFile(ModelCell *);
+  void sortModelsBy(ModelsVector &mv, ModelsSortBy sortby);
 
   int getIndexByLabel(const std::string &str)
   {
@@ -201,8 +189,6 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
     else
       return std::string();
   }
-
-  friend class ModelsList;
 
  private:
   LabelsVector labels;  // Storage space for discovered labels
@@ -255,8 +241,6 @@ class ModelsList : public ModelsVector
   bool loadYaml();
   bool loadYamlDirScanner();
 };
-
-ModelLabelsVector getUniqueLabels();
 
 extern ModelsList modelslist;
 extern ModelMap modelslabels;

@@ -51,7 +51,6 @@ enum AssignFunc {
   FuncSetTimerLast = FuncSetTimer1 + CPN_MAX_TIMERS - 1,
   FuncVario,
   FuncPlayPrompt,
-  FuncPlayBoth,
   FuncPlayValue,
   FuncPlayScript,
   FuncLogs,
@@ -69,6 +68,7 @@ enum AssignFunc {
   FuncBindExternalModule,
   FuncRacingMode,
   FuncDisableTouch,
+  FuncDisableKeys,
   FuncSetScreen,
   FuncDisableAudioAmp,
   FuncRGBLed,
@@ -141,6 +141,7 @@ class CustomFunctionData {
     static QString gvarAdjustModeToString(const int value);
     static AbstractStaticItemModel * repeatItemModel();
     static AbstractStaticItemModel * repeatLuaItemModel();
+    static AbstractStaticItemModel * repeatSetScreenItemModel();
     static AbstractStaticItemModel * playSoundItemModel();
     static AbstractStaticItemModel * harpicItemModel();
     static AbstractStaticItemModel * gvarAdjustModeItemModel();

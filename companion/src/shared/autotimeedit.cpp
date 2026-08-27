@@ -67,6 +67,6 @@ void AutoTimeEdit::onTimeChanged(QTime time)
   if (*m_field != val) {
     *m_field = val;
     emit currentDataChanged(val);
-    dataChanged();
+    runPostChanged();
   }
 }

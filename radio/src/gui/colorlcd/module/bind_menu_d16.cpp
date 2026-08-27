@@ -32,16 +32,16 @@ BindChoiceMenu::BindChoiceMenu(uint8_t moduleIdx,
     Menu(), moduleIdx(moduleIdx), onPressHandler(std::move(onPress))
 {
   if (isTelemAllowedOnBind(moduleIdx)) {
-    addLine(STR_BINDING_1_8_TELEM_ON, [=]() { onSelect(Bind_1_8_TELEM_ON); });
+    addLine(STR_BINDING_CH1_8_TELEM_ON, [=]() { onSelect(Bind_1_8_TELEM_ON); });
   }
-  addLine(STR_BINDING_1_8_TELEM_OFF, [=]() { onSelect(Bind_1_8_TELEM_OFF); });
+  addLine(STR_BINDING_CH1_8_TELEM_OFF, [=]() { onSelect(Bind_1_8_TELEM_OFF); });
 
   if (isBindCh9To16Allowed(moduleIdx)) {
     if (isTelemAllowedOnBind(moduleIdx)) {
-      addLine(STR_BINDING_9_16_TELEM_ON,
+      addLine(STR_BINDING_CH9_16_TELEM_ON,
               [=]() { onSelect(Bind_9_16_TELEM_ON); });
     }
-    addLine(STR_BINDING_9_16_TELEM_OFF,
+    addLine(STR_BINDING_CH9_16_TELEM_OFF,
             [=]() { onSelect(Bind_9_16_TELEM_OFF); });
   }
   setTitle(STR_SELECT_MODE);

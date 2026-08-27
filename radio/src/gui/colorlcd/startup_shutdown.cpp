@@ -19,69 +19,32 @@
  * GNU General Public License for more details.
  */
 
+#include "startup_shutdown.h"
+
+#include "edgetx.h"
 #include "hal/abnormal_reboot.h"
 #include "inactivity_timer.h"
-#include "edgetx.h"
+#include "mainwindow.h"
+#include "os/sleep.h"
 #include "stamp.h"
 #include "theme_manager.h"
 
-extern void checkSpeakerVolume();
+constexpr const char* strip_leading_hyphen(const char* str) {
+    return (str[0] == '-') ? str + 1 : str;
+}
 
 #if defined(VERSION_TAG)
 const std::string ver_str = "" VERSION_TAG;
 const std::string nam_str = "" CODENAME;
-#if PORTRAIT_LCD
-#define TXT_Y 404
 #else
-#define TXT_Y (LCD_H * 3 / 4)
-#endif
-#else
-const std::string ver_str = "" VERSION;
-const std::string nam_str = "" VERSION_SUFFIX;
+const std::string ver_str = "" VERSION_PREFIX VERSION;
+const std::string nam_str = strip_leading_hyphen("" VERSION_SUFFIX);
 const std::string git_str = "(" GIT_STR ")";
-#if PORTRAIT_LCD
-#define TXT_Y 380
-#else
-#define TXT_Y (LCD_H * 2 / 3)
-#endif
 #endif
 
-static LAYOUT_VAL(TXT_H, 24, 24)
-
-#if !PORTRAIT_LCD
-#define TXT_X (LCD_W * 4 / 5)
-#define IMG_X (LCD_W / 3)
-#define IMG_Y (LCD_H / 2)
-#else
-#define TXT_X (LCD_W / 2)
-#define IMG_X (LCD_W / 2)
-#define IMG_Y (LCD_H * 2 / 5)
-#endif
-
-const uint8_t __bmp_splash_logo[]{
-#include "splash_logo.lbm"
+const uint8_t __bmp_splash_logo[] __FLASH = {
+#include "bmp_logo_edgetx_splash.lbm"
 };
-
-void draw_splash_cb(lv_event_t* e)
-{
-  auto draw_ctx = lv_event_get_draw_ctx(e);
-  auto splashImg = (BitmapBuffer*)lv_event_get_user_data(e);
-
-  if (splashImg) {
-    lv_draw_img_dsc_t img_dsc;
-    lv_draw_img_dsc_init(&img_dsc);
-
-    lv_area_t coords;
-    coords.x1 = (LCD_W / 2) - (splashImg->width() / 2);
-    coords.y1 = (LCD_H / 2) - (splashImg->height() / 2);
-    coords.x2 = coords.x1 + splashImg->width() - 1;
-    coords.y2 = coords.y1 + splashImg->height() - 1;
-
-    lv_draw_img_decoded(draw_ctx, &img_dsc, &coords,
-                        (const uint8_t*)splashImg->getData(),
-                        LV_IMG_CF_TRUE_COLOR);
-  }
-}
 
 static Window* splashScreen = nullptr;
 
@@ -100,28 +63,34 @@ void drawSplash()
 
   if (!bg->hasImage()) {
     LZ4Bitmap* logo = (LZ4Bitmap*)__bmp_splash_logo;
-    new StaticLZ4Image(splashScreen, IMG_X - logo->width / 2,
-                       IMG_Y - logo->height / 2, logo);
+    coord_t x = (LANDSCAPE ? LCD_W / 3 : LCD_W / 2) - logo->width / 2;
+    coord_t y = (LANDSCAPE ? LCD_H / 2 : LCD_H * 2 / 5) - logo->height / 2;
+    new StaticLZ4Image(splashScreen, x, y, logo);
 
-    new StaticText(splashScreen, {TXT_X - 100, TXT_Y, 200, 24}, ver_str.c_str(), COLOR_GREY_INDEX, CENTERED);
-    new StaticText(splashScreen, {TXT_X - 100, TXT_Y + TXT_H, 200, TXT_H},
+    coord_t w = LAYOUT_SCALE(200);
+    x = (LANDSCAPE ? LCD_W * 4 / 5 : LCD_W / 2) - w / 2;
+    y = LCD_H - EdgeTxStyles::STD_FONT_HEIGHT * 4;
+    new StaticText(splashScreen, {x, y, w, EdgeTxStyles::STD_FONT_HEIGHT}, ver_str.c_str(), COLOR_GREY_INDEX, CENTERED);
+    new StaticText(splashScreen, {x, y + EdgeTxStyles::STD_FONT_HEIGHT, w, EdgeTxStyles::STD_FONT_HEIGHT},
                    nam_str.c_str(), COLOR_GREY_INDEX, CENTERED);
 #if !defined(VERSION_TAG)
-    new StaticText(splashScreen, {TXT_X - 100, TXT_Y + TXT_H * 2, 200, TXT_H},
+    new StaticText(splashScreen, {x, y + EdgeTxStyles::STD_FONT_HEIGHT * 2, w, EdgeTxStyles::STD_FONT_HEIGHT},
                    git_str.c_str(), COLOR_GREY_INDEX, CENTERED);
 #endif
   }
 
-  MainWindow::instance()->setActiveScreen();
-  lv_refr_now(nullptr);
+  // Refresh to show splash screen
+  MainWindow::instance()->run();
 }
 
 static tmr10ms_t splashStartTime = 0;
+static bool splashRunning = false;
 
 void startSplash()
 {
   if (!UNEXPECTED_SHUTDOWN()) {
     splashStartTime = get_tmr10ms();
+    splashRunning = true;
     drawSplash();
   }
 }
@@ -131,7 +100,6 @@ void cancelSplash()
   if (splashScreen) {
     splashScreen->deleteLater();
     splashScreen = nullptr;
-    MainWindow::instance()->setActiveScreen();
     splashStartTime = 0;
   }
 }
@@ -139,33 +107,31 @@ void cancelSplash()
 void waitSplash()
 {
   // Handle color splash screen
-  if (splashStartTime) {
-#if defined(SIMU)
-    // Simulator - inputsMoved() returns true immediately without this!
-    RTOS_WAIT_TICKS(30);
-#endif  // defined(SIMU)
-
+  if (splashRunning) {
+    inactivityCheckInputs();
     splashStartTime += SPLASH_TIMEOUT;
-    while (splashStartTime >= get_tmr10ms()) {
-      LvglWrapper::instance()->run();
-      MainWindow::instance()->run();
+
+#if defined(PWR_BUTTON_DUAL)
+    // Wait for dual power buttons to be released
+    while (pwrPressed()) {
       WDG_RESET();
-      checkSpeakerVolume();
-      checkBacklight();
-      RTOS_WAIT_TICKS(10);
+      sleep_ms(10);
+    }
+    // Kill SYS and/or MDL events
+    killAllEvents();
+    MainWindow::instance()->run();
+#endif
+
+    MainWindow::instance()->blockUntilClose(true, [=]() {
+      if (splashStartTime < get_tmr10ms())
+        return true;
       auto evt = getEvent();
       if (evt || inactivityCheckInputs()) {
         if (evt) killEvents(evt);
-        break;
+        return true;
       }
-#if defined(SIMU)
-      // Allow simulator to exit if closed while splash showing
-      uint32_t pwr_check = pwrCheck();
-      if (pwr_check == e_power_off) {
-        break;
-      }
-#endif  // defined(SIMU)
-    }
+      return false;
+    });
 
     // Reset timer so special/global functions set to !1x don't get triggered
     START_SILENCE_PERIOD();
@@ -174,7 +140,7 @@ void waitSplash()
   cancelSplash();
 }
 
-#define SHUTDOWN_CIRCLE_RADIUS 75
+static LAYOUT_VAL_SCALED(SHUTDOWN_CIRCLE_RADIUS, 75)
 
 const int8_t bmp_shutdown_xo[] = {0, 0, -SHUTDOWN_CIRCLE_RADIUS,
                                   -SHUTDOWN_CIRCLE_RADIUS};
@@ -184,7 +150,6 @@ const int8_t bmp_shutdown_yo[] = {-SHUTDOWN_CIRCLE_RADIUS, 0, 0,
 static Window* shutdownWindow = nullptr;
 static StaticIcon* shutdownAnim[4] = {nullptr};
 static BitmapBuffer* shutdownSplashImg = nullptr;
-static lv_obj_t* shutdownCanvas = nullptr;
 
 void drawSleepBitmap()
 {
@@ -200,7 +165,8 @@ void drawSleepBitmap()
   (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
       ->center(LCD_W, LCD_H);
 
-  LvglWrapper::instance()->run();
+  // Force screen refresh
+  lv_refr_now(nullptr);
 }
 
 void cancelShutdownAnimation()
@@ -208,7 +174,6 @@ void cancelShutdownAnimation()
   if (shutdownWindow) {
     shutdownWindow->deleteLater();
     shutdownWindow = nullptr;
-    shutdownCanvas = nullptr;
     for (int i = 0; i < 4; i += 1) shutdownAnim[i] = nullptr;
   }
 }
@@ -224,17 +189,13 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
     shutdownWindow->setWindowFlag(OPAQUE);
     etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
 
-    if (sdMounted() && !shutdownSplashImg)
+    if (sdMounted() && !shutdownSplashImg) {
       shutdownSplashImg = BitmapBuffer::loadBitmap(
           BITMAPS_PATH "/" SHUTDOWN_SPLASH_FILE, BMP_RGB565);
-
-    if (shutdownSplashImg) {
-      shutdownCanvas = lv_canvas_create(shutdownWindow->getLvObj());
-      lv_obj_center(shutdownCanvas);
-      lv_canvas_set_buffer(shutdownCanvas, shutdownSplashImg->getData(),
-                           shutdownSplashImg->width(),
-                           shutdownSplashImg->height(), LV_IMG_CF_TRUE_COLOR);
+      if (shutdownSplashImg)
+        shutdownSplashImg->addCanvas(shutdownWindow);
     }
+
     (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
         ->center(LCD_W, LCD_H);
 
@@ -250,45 +211,26 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
   if (quarter < 0) quarter = 0;
   for (int i = 3; i >= quarter; i -= 1) shutdownAnim[i]->hide();
 
-  LvglWrapper::instance()->run();
+  MainWindow::instance()->run();
 }
 
-void drawFatalErrorScreen(const char* message)
+Window* drawFatalErrorScreen(const char* message)
 {
-  static Window* fatalErrorWindow = nullptr;
+  auto w = new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
+  w->setWindowFlag(OPAQUE);
+  etx_solid_bg(w->getLvObj(), COLOR_BLACK_INDEX);
 
-  if (!fatalErrorWindow) {
-    fatalErrorWindow =
-        new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
-    fatalErrorWindow->setWindowFlag(OPAQUE);
-    etx_solid_bg(fatalErrorWindow->getLvObj(), COLOR_BLACK_INDEX);
+  new StaticText(w, rect_t{0, LCD_H / 2 - EdgeTxStyles::STD_FONT_HEIGHT, LCD_W, EdgeTxStyles::STD_FONT_HEIGHT * 2},
+                 message, COLOR_WHITE_INDEX, FONT(XL) | CENTERED);
 
-    new StaticText(fatalErrorWindow, rect_t{0, LCD_H / 2 - 20, LCD_W, 40},
-                   message, COLOR_WHITE_INDEX, FONT(XL) | CENTERED);
-  }
-
-  backlightEnable(100);
-  LvglWrapper::instance()->run();
+  return w;
 }
 
 void runFatalErrorScreen(const char* message)
 {
-  lcdInitDisplayDriver();
+  drawFatalErrorScreen(message);
 
-  while (true) {
-    drawFatalErrorScreen(message);
-    WDG_RESET();
-
-    // loop as long as PWR button is pressed
-    while (true) {
-      uint32_t pwr_check = pwrCheck();
-      if (pwr_check == e_power_off) {
-        boardOff();
-        return;  // only happens in SIMU, required for proper shutdown
-      } else if (pwr_check == e_power_on) {
-        break;
-      }
-      WDG_RESET();
-    }
-  }
+  MainWindow::instance()->blockUntilClose(true, []() {
+    return false;
+  }, true);
 }

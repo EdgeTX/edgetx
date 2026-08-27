@@ -6,6 +6,7 @@ set(${PROJECT_NAME}_NAMES
   autobitmappedcombobox
   autobitsetcheckbox
   autocheckbox
+  autocollapsiblesection
   autocombobox
   autodoublespinbox
   autohexspinbox
@@ -18,8 +19,10 @@ set(${PROJECT_NAME}_NAMES
   curveimagewidget
   curvedialog
   genericpanel
-  verticalscrollarea
+  scrollarea
   textvalidator
+  exclusivecombogroup
+  widgetbindings
 )
 
 AddHeadersSources()
@@ -32,7 +35,7 @@ set(${PROJECT_NAME}_HDRS
 )
 
 # AUTOMOC does not detect so manually process
-qt5_wrap_cpp(${PROJECT_NAME}_SRCS
+qt_wrap_cpp(${PROJECT_NAME}_SRCS
   ${${PROJECT_NAME}_HDRS}
 )
 
@@ -43,6 +46,8 @@ set(${PROJECT_NAME}_SRCS
   autowidget.cpp
   curveimage.h
   curveimage.cpp
+  semanticversion.h
+  semanticversion.cpp
 )
 
 add_library(${PROJECT_NAME}

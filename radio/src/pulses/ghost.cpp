@@ -44,6 +44,7 @@ static uint8_t getGhostModuleAddr()
 static uint8_t createGhostMenuControlFrame(uint8_t * frame, int16_t * pulses)
 {
   uint8_t * buf = frame;
+  memset(buf, 0, GHST_UL_RC_CHANS_SIZE + 2);
 
   *buf++ = getGhostModuleAddr();            // addr
   *buf++ = GHST_UL_RC_CHANS_SIZE;           // length
@@ -53,9 +54,9 @@ static uint8_t createGhostMenuControlFrame(uint8_t * frame, int16_t * pulses)
   // payload
   *buf++ = reusableBuffer.ghostMenu.buttonAction; // Joystick states, Up, Down, Left, Right, Press
   *buf++ = reusableBuffer.ghostMenu.menuAction;   // menu control, open, close, etc.
-  for (uint8_t i = 0; i < 8; i++) {
-    *buf++ = 0;   // padding to make this the same size as the pulses packet
-  }
+
+  // skip padding
+  buf += 8;
 
   // crc
   *buf++ = crc8(crc_start, GHST_UL_RC_CHANS_SIZE - 1);
@@ -200,7 +201,12 @@ static void ghostSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8
       *p_data++ = getGhostModuleAddr();
       // and length
       *p_data++ = 12;
-      memcpy(p_data, f_data, 12);
+      // byte-wise: this buffer is non-cacheable memory on some targets, where
+      // the unaligned wide accesses memcpy emits at this offset are faulting
+      volatile uint8_t* dst = p_data;
+      for (uint8_t i = 0; i < 12; i++) {
+        *dst++ = f_data[i];
+      }
       p_data += 12; f_data += 12;
       len -= 12;
     }
@@ -254,4 +260,5 @@ const etx_proto_driver_t GhostDriver = {
   .processData = ghostProcessData,
   .processFrame = nullptr,
   .onConfigChange = nullptr,
+  .txCompleted = modulePortSerialTxCompleted,
 };

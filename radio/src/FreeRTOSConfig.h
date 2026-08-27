@@ -57,7 +57,6 @@ extern uint32_t SystemCoreClock;
 #else
   #define configMAX_TASK_NAME_LEN         10
   #define configUSE_TRACE_FACILITY        1
-  //#define configCHECK_FOR_STACK_OVERFLOW  2
   #define configCHECK_FOR_STACK_OVERFLOW  0
 #endif
 
@@ -70,8 +69,8 @@ extern uint32_t SystemCoreClock;
 
 /* Software timer definitions. */
 #define configTIMER_TASK_PRIORITY       ( 2 )
-#define configTIMER_QUEUE_LENGTH        10
-#define configTIMER_TASK_STACK_DEPTH    ( 512 )
+#define configTIMER_QUEUE_LENGTH        20
+#define configTIMER_TASK_STACK_DEPTH    ( 1024 )
 
 /* Set the following definitions to 1 to include the API function, or zero
 to exclude the API function. */
@@ -125,3 +124,6 @@ standard names. */
 #define vPortSVCHandler SVC_Handler
 #define xPortPendSVHandler PendSV_Handler
 #define xPortSysTickHandler SysTick_Handler
+#if defined(DEBUG_SEGGER_SYSVIEW)
+#include "SEGGER_SYSVIEW_FreeRTOS.h"
+#endif

@@ -21,17 +21,19 @@
 
 #include "curve_param.h"
 
-#include "gvar_numberedit.h"
-#include "source_numberedit.h"
-#include "model_curves.h"
+#include "curve.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "gvar_numberedit.h"
+#include "model_curves.h"
+#include "source_numberedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
-CurveChoice::CurveChoice(Window* parent, std::function<int()> getRefValue, 
-        std::function<void(int32_t)> setRefValue, std::function<void(void)> refreshView, mixsrc_t source) :
+CurveChoice::CurveChoice(Window* parent, std::function<int()> getRefValue,
+        std::function<void(int32_t)> setRefValue, mixsrc_t source) :
   Choice(parent, rect_t{}, -MAX_CURVES, MAX_CURVES, getRefValue, setRefValue),
-  source(source), refreshView(std::move(refreshView))
+  source(source)
   {
     setTextHandler([](int value) { return getCurveString(value); });
   }
@@ -41,16 +43,15 @@ bool CurveChoice::onLongPress()
   if (modelCurvesEnabled()) {
     if (_getValue()) {
       lv_obj_clear_state(lvobj, LV_STATE_PRESSED);
-      ModelCurvesPage::pushEditCurve(abs(_getValue()) - 1, refreshView, source);
+      ModelCurvesPage::pushEditCurve(abs(_getValue()) - 1, source);
     }
   }
   return true;
 }
 
 CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
-                       std::function<void(int32_t)> setRefValue, int16_t sourceMin, mixsrc_t source,
-                       std::function<void(void)> refreshView) :
-    Window(parent, rect), ref(ref), refreshView(std::move(refreshView))
+                       std::function<void(int32_t)> setRefValue, int16_t sourceMin, mixsrc_t source) :
+    Window(parent, rect), ref(ref)
 {
   padAll(PAD_TINY);
   lv_obj_set_flex_flow(lvobj, LV_FLEX_FLOW_ROW_WRAP);
@@ -86,7 +87,7 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
                            });
 
   // CURVE_REF_CUSTOM
-  cust_choice = new CurveChoice(this, 
+  cust_choice = new CurveChoice(this,
                                 [=]() {
                                   SourceNumVal v;
                                   v.rawValue = ref->value;
@@ -97,7 +98,7 @@ CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
                                   v.isSource = false;
                                   v.value = newValue;
                                   setRefValue(v.rawValue);
-                                }, refreshView, source);
+                                }, source);
 
   update();
 }
@@ -132,8 +133,7 @@ void CurveParam::update()
   }
 
   act_field->show();
-  if (refreshView)
-    refreshView();
+  Messaging::send(Messaging::CURVE_UPDATE);
 
   auto act_obj = act_field->getLvObj();
   if (has_focus) {

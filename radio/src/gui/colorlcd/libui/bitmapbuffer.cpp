@@ -19,16 +19,17 @@
 #include "bitmapbuffer.h"
 
 #include <math.h>
-
 #include <string>
 
 #include "bitmaps.h"
 #include "board.h"
 #include "dma2d.h"
 #include "fonts.h"
-#include "lvgl/src/draw/sw/lv_draw_sw.h"
 #include "edgetx_helpers.h"
 #include "strhelpers.h"
+#if !defined(BOOT)
+#include "window.h"
+#endif
 
 BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height) :
     format(format),
@@ -44,12 +45,6 @@ BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height) :
 {
   data = (uint16_t *)malloc(align32(width * height * sizeof(uint16_t)));
   data_end = data + (width * height);
-
-#if !defined(BOOT)
-  // Assume we need a canvas here
-  canvas = lv_canvas_create(nullptr);
-  lv_canvas_set_buffer(canvas, data, width, height, LV_IMG_CF_TRUE_COLOR);
-#endif
 }
 
 BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height,
@@ -71,14 +66,29 @@ BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height,
 
 BitmapBuffer::~BitmapBuffer()
 {
-  DMAWait();
   if (dataAllocated) {
-#if !defined(BOOT)
-    lv_obj_del(canvas);
-#endif
     free(data);
   }
 }
+
+#if !defined(BOOT)
+lv_obj_t* BitmapBuffer::addCanvas(Window* parent, lv_img_cf_t fmt)
+{
+  removeCanvas();
+  canvas = lv_canvas_create(parent ? parent->getLvObj() : nullptr);
+  lv_canvas_set_buffer(canvas, data, _width, _height, fmt);
+  lv_obj_center(canvas);
+  return canvas;
+}
+
+void BitmapBuffer::removeCanvas()
+{
+  if (canvas) {
+    lv_obj_del(canvas);
+    canvas = nullptr;
+  }
+}
+#endif
 
 void BitmapBuffer::setData(uint16_t *d)
 {
@@ -149,12 +159,6 @@ bool BitmapBuffer::applyClippingRect(coord_t& x, coord_t& y, coord_t& w,
   if (x + w > xmax) w = xmax - x;
 
   return data && h > 0 && w > 0;
-}
-
-void BitmapBuffer::setOffset(coord_t offsetX, coord_t offsetY)
-{
-  this->offsetX = offsetX;
-  this->offsetY = offsetY;
 }
 
 void BitmapBuffer::drawBitmap(coord_t x, coord_t y, const BitmapBuffer *bmp,
@@ -460,7 +464,13 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
                                     uint8_t len, LcdFlags flags)
 {
   if (!s) return x;
-  MOVE_OFFSET();
+
+  coord_t offsetX = this->offsetX;
+  x += offsetX;
+  this->offsetX = 0;
+  coord_t offsetY = this->offsetY;
+  y += offsetY;
+  this->offsetY = 0;
 
   // LVGL does not handle non-null terminated strings
   static char buffer[256];
@@ -522,11 +532,17 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
   }
 #endif
 
-  RESTORE_OFFSET();
-
+  this->offsetX = offsetX;
+  this->offsetY = offsetY;
   pos += p.x;
 
   return ((flags & RIGHT) ? orig_pos : pos) - offsetX;
+}
+
+coord_t BitmapBuffer::drawText(coord_t x, coord_t y, const char* s, LcdFlags flags)
+{
+  if (!s) return x;
+  return drawSizedText(x, y, s, strlen(s), flags);
 }
 
 // Resize and convert to LVGL image data format with alpha blending to

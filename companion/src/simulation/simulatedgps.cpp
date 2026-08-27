@@ -22,6 +22,7 @@
 #include "simulatedgps.h"
 #include <QtMath>
 #include <QDebug>
+#include <QTimeZone>
 
 SimulatedGPS::SimulatedGPS()
 {
@@ -109,7 +110,7 @@ void SimulatedGPS::update()
     return;
   }
 
-  dt = QDateTime::currentDateTime().toTimeSpec(Qt::UTC);
+  dt = QDateTime::currentDateTime().toTimeZone(QTimeZone::utc());
   emitDateTimeChange();
 
   double b2 = lat;
@@ -140,7 +141,7 @@ void SimulatedGPS::update()
   lat = b3;
   lon = c3;
 
-  emitPositionChange(); 
+  emitPositionChange();
 }
 
 void SimulatedGPS::emitPositionChange()

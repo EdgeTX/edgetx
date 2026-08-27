@@ -40,24 +40,17 @@ static void* initialFrameBuffer = nullptr;
 
 #define GPIO_AF_LTDC GPIO_AF14
 
-static volatile uint8_t _frame_addr_reloaded = 0;
-
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
 {
   (void)disp_drv;
   (void)copy_area;
 
-  LTDC_Layer1->CFBAR &= ~(LTDC_LxCFBAR_CFBADD);
   LTDC_Layer1->CFBAR = (uint32_t)buffer;
   // reload shadow registers on vertical blank
-  _frame_addr_reloaded = 0;
   LTDC->SRCR = LTDC_SRCR_VBR;
-  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 
-  // wait for reload
-  // TODO: replace through some smarter mechanism without busy wait
-  while(_frame_addr_reloaded == 0);
+  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 }
 
 lcdSpiInitFucPtr lcdInitFunction;
@@ -1150,18 +1143,33 @@ void LCD_ST7796S_Init(void) {
   lcdWriteData( 0x96 );
 
   lcdWriteCommand( 0x36 );
-  lcdWriteData( 0x28 );
+  if (LCD_W != LCD_PHYS_W) {
+    lcdWriteData( 0x28 );
 
-  lcdWriteCommand( 0x2A );
-  lcdWriteData( 0x00 );
-  lcdWriteData( 0x00 );
-  lcdWriteData( 0x01 );
-  lcdWriteData( 0xDF );
-  lcdWriteCommand( 0x2B );
-  lcdWriteData( 0x00 );
-  lcdWriteData( 0x00 );
-  lcdWriteData( 0x01 );
-  lcdWriteData( 0x3F );
+    lcdWriteCommand( 0x2A );
+    lcdWriteData( 0x00 );
+    lcdWriteData( 0x00 );
+    lcdWriteData( 0x01 );
+    lcdWriteData( 0xDF );
+    lcdWriteCommand( 0x2B );
+    lcdWriteData( 0x00 );
+    lcdWriteData( 0x00 );
+    lcdWriteData( 0x01 );
+    lcdWriteData( 0x3F );
+  } else {
+    lcdWriteData( 0x88 );
+
+    lcdWriteCommand( 0x2A );
+    lcdWriteData( 0x00 );
+    lcdWriteData( 0x00 );
+    lcdWriteData( 0x01 );
+    lcdWriteData( 0x3F );
+    lcdWriteCommand( 0x2B );
+    lcdWriteData( 0x00 );
+    lcdWriteData( 0x00 );
+    lcdWriteData( 0x01 );
+    lcdWriteData( 0xDF );
+  }
 
   lcdWriteCommand( 0x3A );
   lcdWriteData( 0x66 );
@@ -2748,7 +2756,6 @@ void LCD_Init_LTDC() {
   
   // Trigger on last line
   HAL_LTDC_ProgramLineEvent(&hltdc, lcd_phys_h);
-  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 }
 
 void LCD_LayerInit() {
@@ -2872,6 +2879,6 @@ extern "C" void LTDC_IRQHandler(void)
 {
   __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
   __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
-  _frame_addr_reloaded = 1;
-}
 
+  lcdFlushed();
+}

@@ -23,7 +23,7 @@
 
 #define STATUS_BAR_Y     (7*FH+1)
 
-uint8_t s_frsky_view = 0;
+uint8_t selectedTelemView = 0;
 
 #define BAR_LEFT    25
 #define BAR_WIDTH   100
@@ -32,10 +32,11 @@ void displayRssiLine()
 {
   if (TELEMETRY_STREAMING()) {
     lcdDrawSolidHorizontalLine(0, 55, 128, 0); // separator
-    uint8_t rssi;
-    rssi = min((uint8_t)99, TELEMETRY_RSSI());
+    rxStatStruct *rxStat = getRxStatLabels();
+    uint8_t rssi = min(rxStat->max, TELEMETRY_RSSI());
     lcdDrawNumber(LCD_W/2 -2, STATUS_BAR_Y, rssi, LEADING0 | RIGHT | SMLSIZE, 2);
-    lcdDrawText(lcdLastLeftPos,STATUS_BAR_Y, "RSSI : ", RIGHT | SMLSIZE);
+    lcdDrawText(lcdLastLeftPos, STATUS_BAR_Y, ": ", RIGHT | SMLSIZE);
+    lcdDrawText(lcdLastLeftPos, STATUS_BAR_Y, rxStat->label, RIGHT | SMLSIZE);
     lcdDrawRect(65, 57, 38, 7);
     uint8_t v = 4*rssi/11;
     lcdDrawFilledRect(66+36-v, 58, v, 5, (rssi < g_model.rfAlarms.warning) ? DOTTED : SOLID);
@@ -108,7 +109,7 @@ bool displayNumbersTelemetryScreen(TelemetryScreenData & screen)
         fields_count++;
       }
       if (i==3) {
-        if (!TELEMETRY_STREAMING()) {
+        if (!TELEMETRY_STREAMING() || (screen.lines[i].sources[0] == 0 && screen.lines[i].sources[1] == 0)) {
           displayRssiLine();
           return fields_count;
         }
@@ -163,7 +164,7 @@ bool displayCustomTelemetryScreen(uint8_t index)
 {
   TelemetryScreenData & screen = g_model.screens[index];
 
-  if (IS_BARS_SCREEN(s_frsky_view)) {
+  if (IS_BARS_SCREEN(selectedTelemView)) {
     return displayGaugesTelemetryScreen(screen);
   }
 
@@ -175,19 +176,19 @@ bool displayCustomTelemetryScreen(uint8_t index)
 bool displayTelemetryScreen()
 {
 #if defined(LUA)
-  if (TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_SCRIPT) {
+  if (TELEMETRY_SCREEN_TYPE(selectedTelemView) == TELEMETRY_SCREEN_TYPE_SCRIPT) {
     return isTelemetryScriptAvailable(); // contents will be drawn by Lua Task
   }
 #endif
 
-  if (TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_NONE) {
+  if (TELEMETRY_SCREEN_TYPE(selectedTelemView) == TELEMETRY_SCREEN_TYPE_NONE) {
     return false;
   }
 
   drawTelemetryTopBar();
 
-  if (s_frsky_view < MAX_TELEMETRY_SCREENS) {
-    return displayCustomTelemetryScreen(s_frsky_view);
+  if (selectedTelemView < MAX_TELEMETRY_SCREENS) {
+    return displayCustomTelemetryScreen(selectedTelemView);
   }
 
   return true;

@@ -31,9 +31,6 @@ set(${PROJECT_NAME}_NAMES
   sourcenumref
   telem_data
   timerdata
-  ersky9x/ersky9xeeprom
-  ersky9x/ersky9xinterface
-  opentx/opentxeeprom
   opentx/opentxinterface
   edgetx/edgetxinterface
   edgetx/yaml_calibdata
@@ -73,8 +70,6 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_BINARY_DIR}
   PUBLIC
     "${CMAKE_CURRENT_LIST_DIR}"
-    "${CMAKE_CURRENT_LIST_DIR}/er9x"
-    "${CMAKE_CURRENT_LIST_DIR}/ersky9x"
     "${CMAKE_CURRENT_LIST_DIR}/opentx"
     "${CMAKE_CURRENT_LIST_DIR}/edgetx"
 )

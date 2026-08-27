@@ -22,9 +22,12 @@
 #include "mpm_settings.h"
 
 #include "choice.h"
+#include "edgetx.h"
+#include "getset_helpers.h"
 #include "io/multi_protolist.h"
 #include "multi_rfprotos.h"
-#include "edgetx.h"
+#include "numberedit.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -172,6 +175,7 @@ struct MPMSubtype : public FormLine {
     }
 
     choice->setValues(rfProto->subProtos);
+    choice->update();
     choice->setMax(rfProto->subProtos.size() - 1);
 
     show();
@@ -308,7 +312,7 @@ MultimoduleSettings::MultimoduleSettings(Window* parent,
   // TODO: needs to be placed differently
   // MultiModuleStatus &status = getMultiModuleStatus(moduleIdx);
   // if (status.protocolName[0] && status.isValid()) {
-  //   new StaticText(this, grid.getFieldSlot(2, 1), status.protocolName, 
+  //   new StaticText(this, grid.getFieldSlot(2, 1), status.protocolName,
   //                  COLOR_THEME_PRIMARY1);
   //   grid.nextLine();
   // }

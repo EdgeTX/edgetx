@@ -129,7 +129,7 @@ QVariant LabelsModel::data(const QModelIndex &index, int role) const
   } else if (role == Qt::CheckStateRole) {
     if (index.column() == 0 && selectedModel >= 0 &&
       selectedModel < (int)radioData->models.size()) {
-      QStringList modelLabels = QString(radioData->models.at(selectedModel).labels).split(',',Qt::SkipEmptyParts);
+      QStringList modelLabels = radioData->models.at(selectedModel).labels.toQString().split(',',Qt::SkipEmptyParts);
       label = RadioData::escapeCSV(label);
       return modelLabels.indexOf(label)==-1?Qt::Unchecked:Qt::Checked;
     } else if (index.column() == 0 && selectedModel == -1) {

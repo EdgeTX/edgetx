@@ -25,8 +25,8 @@
 #include "input_mapping.h"
 #include "mixes.h"
 
-#define _STR_MAX(x)                     "/" #x
-#define STR_MAX(x)                     _STR_MAX(x)
+#define _STRING_MAX(x)                     "/" #x
+#define STRING_MAX(x)                     _STRING_MAX(x)
 
 bool reachMixesLimit()
 {
@@ -35,6 +35,12 @@ bool reachMixesLimit()
     return true;
   }
   return false;
+}
+
+void onDeleteMixConfirm(const char * result)
+{
+  if (result == STR_OK)
+    deleteMix(s_currIdx);
 }
 
 void onMixesMenu(const char * result)
@@ -59,7 +65,7 @@ void onMixesMenu(const char * result)
     s_copySrcRow = menuVerticalPosition;
   }
   else if (result == STR_DELETE) {
-    deleteMix(s_currIdx);
+    POPUP_CONFIRMATION(STR_DELETE_MIX_LINE, onDeleteMixConfirm);
   }
 }
 
@@ -141,8 +147,8 @@ void displayMixInfos(coord_t y, MixData * md)
 void displayMixLine(coord_t y, MixData * md, bool active)
 {
   if(active && md->name[0]) {
-    lcdDrawFilledRect(FW*sizeof(TR_MIXES)+FW/2, 0, FW*4+1, MENU_HEADER_HEIGHT, 0xFF, ERASE);
-    lcdDrawSizedText(FW*sizeof(TR_MIXES)+FW/2, 0, md->name, sizeof(md->name), 0);
+    lcdDrawFilledRect(FW*strlen(STR_MIXES)+FW/2, 0, FW*4+1, MENU_HEADER_HEIGHT, 0xFF, ERASE);
+    lcdDrawSizedText(FW*strlen(STR_MIXES)+FW/2, 0, md->name, sizeof(md->name), 0);
     if (!md->flightModes || ((md->curve.value || md->swtch) && ((get_tmr10ms() / 200) & 1)))
       displayMixInfos(y, md);
     else
@@ -279,8 +285,8 @@ void menuModelMixAll(event_t event)
     s_copyTgtOfs = next_ofs;
   }
 
-  lcdDrawNumber(FW*sizeof(TR_MIXES)+FW/2, 0, getMixCount(), 0);
-  lcdDrawText(lcdNextPos, 0, STR_MAX(MAX_MIXERS));
+  lcdDrawNumber(FW*strlen(STR_MIXES)+FW/2, 0, getMixCount(), 0);
+  lcdDrawText(lcdNextPos, 0, STRING_MAX(MAX_MIXERS));
 
   // Value
   uint8_t index = mixAddress(s_currIdx)->destCh;

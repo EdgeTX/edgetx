@@ -19,9 +19,12 @@
 #include "dialog.h"
 
 #include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "keyboard_base.h"
 #include "mainwindow.h"
 #include "progress.h"
-#include "etx_lv_theme.h"
+#include "static.h"
+#include "textedit.h"
 
 //-----------------------------------------------------------------------------
 
@@ -73,7 +76,7 @@ ProgressDialog::ProgressDialog(const char* title,
                                std::function<void()> onClose) :
     BaseDialog(title, false), onClose(std::move(onClose))
 {
-  progress = new Progress(form, rect_t{0, 0, LV_PCT(100), 32});
+  progress = new Progress(form, rect_t{0, 0, LV_PCT(100), EdgeTxStyles::UI_ELEMENT_HEIGHT});
   updateProgress(0);
 }
 
@@ -173,9 +176,7 @@ LabelDialog::LabelDialog(const char *label, int length, const char* title,
             std::function<void(std::string)> _saveHandler) :
     ModalWindow(false), saveHandler(std::move(_saveHandler))
 {
-  assert(length <= MAX_LABEL_LENGTH);
-
-  strncpy(this->label, label, length);
+  strncpy(this->label, label, std::min(length, MAX_LABEL_LENGTH));
   this->label[length] = '\0';
 
   auto form = new Window(this, rect_t{});
@@ -210,8 +211,8 @@ LabelDialog::LabelDialog(const char *label, int length, const char* title,
   });
 
   new TextButton(box, rect_t{0, 0, 96, 0}, STR_SAVE, [=]() {
-    if (saveHandler != nullptr) saveHandler(this->label);
     deleteLater();
+    if (saveHandler != nullptr) saveHandler(this->label);
     return 0;
   });
 }

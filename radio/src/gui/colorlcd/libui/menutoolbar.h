@@ -21,6 +21,7 @@
 #include "button.h"
 #include "choice.h"
 #include "listbox.h"
+#include "messaging.h"
 
 class Menu;
 
@@ -34,19 +35,18 @@ class MenuToolbarButton : public ButtonBase
 
 class MenuToolbar : public Window
 {
-  // friend Menu;
-
  public:
   MenuToolbar(Choice* choice, Menu* menu, const int columns);
   ~MenuToolbar();
 
   void resetFilter();
-  void onEvent(event_t event) override;
+
+  void nextFilter();
+  void prevFilter();
 
   virtual void longPress() {}
 
-  static LAYOUT_VAL(MENUS_TOOLBAR_BUTTON_WIDTH, 36, 36)
-  static LAYOUT_VAL(MENUS_MAX_HEIGHT, ListBox::MENUS_LINE_HEIGHT * 7 + 8, ListBox::MENUS_LINE_HEIGHT * 10)
+  static LAYOUT_VAL_SCALED(MENUS_TOOLBAR_BUTTON_WIDTH, 36)
 
  protected:
   Choice* choice;
@@ -55,6 +55,7 @@ class MenuToolbar : public Window
   int nxtBtnPos = 0;
   int filterColumns = 0;
   MenuToolbarButton* allBtn = nullptr;
+  Messaging changeFilterMsg;
 
   lv_group_t* group;
 

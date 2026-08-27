@@ -172,8 +172,8 @@ void DebugOutput::processBytesReceived()
   const int sbValue = ui->console->verticalScrollBar()->value();
   const bool sbAtBottom = (sbValue == ui->console->verticalScrollBar()->maximum());
 
-  while (m_dataBufferDevice && m_dataBufferDevice->bytesAvailable() > 0) {
-    text = m_dataBufferDevice->read(qint64(text.capacity()));
+  while (m_dataBufferDevice && m_dataBufferDevice->bytesAvailable() > 0) {  // Note: bytesAvailable() returns a boolean - TODO why?
+    text = m_dataBufferDevice->read(DEBUG_OUTPUT_WIDGET_OUT_BUFF_SIZE);
     if (text.isEmpty())
       break;
     ui->console->moveCursor(QTextCursor::End);
@@ -326,9 +326,9 @@ QRegularExpression DebugOutput::makeRegEx(const QString & input, bool * isExlusi
   }
   // no, convert arbitrary string to regex
   else {
-    output.replace(QRegExp("^\\\\/"), "/");  // remove escape before fwd-slash ("\/...")
+    output.replace(QRegularExpression("^\\\\/"), "/");  // remove escape before fwd-slash ("\/...")
     // escape all special chars except * and ?
-    output.replace(QRegExp("(\\\\|\\.|\\+|\\^|\\$|\\||\\)|\\(|\\]|\\[|\\}|\\{)"), "\\\\1");
+    output.replace(QRegularExpression("(\\\\|\\.|\\+|\\^|\\$|\\||\\)|\\(|\\]|\\[|\\}|\\{)"), "\\\\1");
     output.replace("\\*", "\x30").replace("\\?", "\x31");  // save escaped wildcard chars
     output.replace("*", ".*").replace("?", ".");  // convert common wildcards
     output.replace("\x30", "\\\\*").replace("\x31", "\\\\?");  // replace escaped wildcard chars

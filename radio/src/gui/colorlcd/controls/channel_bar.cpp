@@ -23,6 +23,7 @@
 
 #include "bitmaps.h"
 #include "etx_lv_theme.h"
+#include "static.h"
 
 #define VIEW_CHANNELS_LIMIT_PCT \
   (g_model.extendedLimits ? LIMIT_EXT_PERCENT : LIMIT_STD_PERCENT)
@@ -35,6 +36,8 @@ ChannelBar::ChannelBar(Window* parent, const rect_t& rect, uint8_t channel,
     Window(parent, rect), channel(channel),
     getValue(std::move(getValueFunc))
 {
+  setWindowFlag(NO_CLICK);
+
   etx_solid_bg(lvobj, COLOR_THEME_PRIMARY2_INDEX);
 
   bar = lv_obj_create(lvobj);
@@ -42,15 +45,14 @@ ChannelBar::ChannelBar(Window* parent, const rect_t& rect, uint8_t channel,
   lv_obj_set_pos(bar, width() / 2, 0);
   lv_obj_set_size(bar, 0, height());
 
-  coord_t yo = (height() < 10) ? -1 : VAL_YO;
+  coord_t yo = (height() < 10) ? -1 : -PAD_TINY;
 
-  valText = lv_label_create(lvobj);
+  valText = etx_label_create(lvobj, FONT_XS_INDEX);
   lv_obj_set_pos(valText, width() / 2 + VAL_XO, yo);
   lv_obj_set_size(valText, VAL_W, VAL_H);
   etx_obj_add_style(valText, styles->text_align_left, LV_PART_MAIN);
   lv_obj_set_style_translate_x(valText, VAL_XT, LV_STATE_USER_1);
   etx_obj_add_style(valText, styles->text_align_right, LV_STATE_USER_1);
-  etx_font(valText, FONT_XS_INDEX);
   etx_txt_color(valText, txtColorIndex);
   lv_label_set_text(valText, "");
 
@@ -70,7 +72,7 @@ void ChannelBar::checkEvents()
 
   int newValue = getValue();
 
-  if (value != newValue) {
+  if (value != newValue || extendedLimits != g_model.extendedLimits) {
     value = newValue;
 
     std::string s;
@@ -81,7 +83,7 @@ void ChannelBar::checkEvents()
     else
       s = formatNumberAsString(calcRESXto100(value), 0, 0, "", "%");
 
-    if (s != valStr) {
+    if (s != valStr || extendedLimits != g_model.extendedLimits) {
       valStr = s;
       lv_label_set_text(valText, s.c_str());
 
@@ -100,6 +102,8 @@ void ChannelBar::checkEvents()
       lv_obj_set_pos(bar, x, 0);
       lv_obj_set_size(bar, size, height());
     }
+
+    extendedLimits = g_model.extendedLimits;
   }
 }
 
@@ -154,7 +158,7 @@ void OutputChannelBar::drawLimitLines(bool forced)
     int32_t ldMin;
     int32_t ldMax;
 
-    if (GV_IS_GV_VALUE(ld->min, -CHANNELS_LIMIT, 0)) {
+    if (GV_IS_GV_VALUE(ld->min)) {
       ldMin =
           GET_GVAR_PREC1(ld->min, -CHANNELS_LIMIT, 0, mixerCurrentFlightMode) +
           LIMIT_STD_MAX;
@@ -166,7 +170,7 @@ void OutputChannelBar::drawLimitLines(bool forced)
       limMin = ldMin;
     }
 
-    if (GV_IS_GV_VALUE(ld->max, 0, CHANNELS_LIMIT)) {
+    if (GV_IS_GV_VALUE(ld->max)) {
       ldMax =
           GET_GVAR_PREC1(ld->max, 0, CHANNELS_LIMIT, mixerCurrentFlightMode) -
           LIMIT_STD_MAX;
@@ -221,26 +225,31 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
 {
   LcdColorIndex txtColIdx = isInHeader ? COLOR_THEME_PRIMARY2_INDEX : COLOR_THEME_SECONDARY1_INDEX;
 
+  auto invMask = getBuiltinIcon(ICON_CHAN_MONITOR_INVERTED);
+
+  coord_t barW = width() - invMask->width - PAD_TINY;
+
   outputChannelBar = new OutputChannelBar(
-      this, {PAD_TINY, ChannelBar::BAR_HEIGHT + PAD_TINY, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
+      this, {PAD_TINY + invMask->width, ChannelBar::BAR_HEIGHT + PAD_TINY, barW, ChannelBar::BAR_HEIGHT},
       channel, isInHeader);
 
   new MixerChannelBar(
       this,
-      {PAD_TINY, (2 * ChannelBar::BAR_HEIGHT) + PAD_TINY + 1, width() - PAD_TINY, ChannelBar::BAR_HEIGHT},
+      {PAD_TINY + invMask->width, (2 * ChannelBar::BAR_HEIGHT) + PAD_TINY + 1, barW, ChannelBar::BAR_HEIGHT},
       channel);
 
   // Channel number
-  char chanString[] = TR_CH "32 ";
-  strAppendSigned(&chanString[2], channel + 1, 2);
-  new StaticText(this, {PAD_TINY, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, chanString, 
+  char chanString[10];
+  char* s = strAppend(chanString, STR_CH);
+  strAppendSigned(s, channel + 1);
+  new StaticText(this, {PAD_TINY + invMask->width, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, chanString,
                  txtColIdx, FONT(XS) | LEFT);
 
   // Channel name
   if (g_model.limitData[channel].name[0]) {
     char nm[LEN_CHANNEL_NAME + 1];
     strAppend(nm, g_model.limitData[channel].name, LEN_CHANNEL_NAME);
-    new StaticText(this, {PAD_TINY + ChannelBar::VAL_W, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, nm, 
+    new StaticText(this, {PAD_TINY + ChannelBar::VAL_W, 0, LV_SIZE_CONTENT, ChannelBar::VAL_H}, nm,
                    txtColIdx, FONT(XS) | LEFT);
   }
 
@@ -258,14 +267,14 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
   // Override icon
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
   overrideIcon = new StaticIcon(
-      this, 0, 5, ICON_CHAN_MONITOR_LOCKED, txtColIdx);
+      this, 0, PAD_SMALL, ICON_CHAN_MONITOR_LOCKED, txtColIdx);
   overrideIcon->show(safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED);
 #endif
 
   // Channel reverted icon
   LimitData* ld = limitAddress(channel);
   if (ld && ld->revert) {
-    new StaticIcon(this, 0, ICON_SZ, ICON_CHAN_MONITOR_INVERTED,
+    new StaticIcon(this, 0, invMask->height + PAD_MEDIUM, ICON_CHAN_MONITOR_INVERTED,
                    txtColIdx);
   }
 }

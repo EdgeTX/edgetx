@@ -24,8 +24,10 @@
 
 #if defined(LUA)
 
-#define SWAP_DEFINED
 #include "edgetx.h"
+#include "lua/lua_states.h"
+
+#include <filesystem>
 
 #define MIXSRC_THR     (MIXSRC_FIRST_STICK + inputMappingGetThrottle())
 #define MIXSRC_TRIMTHR (MIXSRC_FIRST_TRIM + inputMappingGetThrottle())
@@ -33,7 +35,7 @@
 ::testing::AssertionResult __luaExecStr(const char * str)
 {
   extern lua_State * lsScripts;
-  if (!lsScripts) luaInit();
+  if (!lsScripts) { luaInitMainState(); luaInit(); }
   if (!lsScripts) return ::testing::AssertionFailure() << "No Lua state!";
   if (luaL_dostring(lsScripts, str)) {
     return ::testing::AssertionFailure() << "lua error: " << lua_tostring(lsScripts, -1);
@@ -118,11 +120,11 @@ TEST(Lua, testModelInputs)
 #else
   luaExecStr("model.insertInput(3, 0, {name='test1', source=MIXSRC_Thr, weight=56, offset=3, switch=2})");
 #endif
-  EXPECT_EQ(3, (int)g_model.expoData[0].chn);
+  EXPECT_EQ(3u, g_model.expoData[0].chn);
   EXPECT_STRNEQ("test1", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_THR, g_model.expoData[0].srcRaw);
-  EXPECT_EQ(56, g_model.expoData[0].weight);
-  EXPECT_EQ(3, g_model.expoData[0].offset);
+  EXPECT_EQ(56u, g_model.expoData[0].weight);
+  EXPECT_EQ(3u, g_model.expoData[0].offset);
   EXPECT_EQ(2, g_model.expoData[0].swtch);
 
   // add another one before existing line on Input4
@@ -131,20 +133,20 @@ TEST(Lua, testModelInputs)
 #else
   luaExecStr("model.insertInput(3, 0, {name='test2', source=MIXSRC_Rud, weight=-56})");
 #endif
-  EXPECT_EQ(3, (int)g_model.expoData[0].chn);
+  EXPECT_EQ(3u, g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
-  EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
+  EXPECT_EQ((short int)MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
   SourceNumVal v;
   v.rawValue = g_model.expoData[0].weight;
   EXPECT_EQ(-56, v.value);
-  EXPECT_EQ(0, g_model.expoData[0].offset);
+  EXPECT_EQ(0u, g_model.expoData[0].offset);
   EXPECT_EQ(0, g_model.expoData[0].swtch);
 
-  EXPECT_EQ(3, (int)g_model.expoData[1].chn);
+  EXPECT_EQ(3u, g_model.expoData[1].chn);
   EXPECT_STRNEQ("test1", g_model.expoData[1].name);
   EXPECT_EQ(MIXSRC_THR, g_model.expoData[1].srcRaw);
-  EXPECT_EQ(56, g_model.expoData[1].weight);
-  EXPECT_EQ(3, g_model.expoData[1].offset);
+  EXPECT_EQ(56u, g_model.expoData[1].weight);
+  EXPECT_EQ(3u, g_model.expoData[1].offset);
   EXPECT_EQ(2, g_model.expoData[1].swtch);
 
 
@@ -154,30 +156,30 @@ TEST(Lua, testModelInputs)
 #else
   luaExecStr("model.insertInput(3, model.getInputsCount(3), {name='test3', source=MIXSRC_Ail, weight=100})");
 #endif
-  EXPECT_EQ(3, (int)g_model.expoData[0].chn);
+  EXPECT_EQ(3u, g_model.expoData[0].chn);
   EXPECT_STRNEQ("test2", g_model.expoData[0].name);
   EXPECT_EQ(MIXSRC_FIRST_STICK, g_model.expoData[0].srcRaw);
   v.rawValue = g_model.expoData[0].weight;
   EXPECT_EQ(-56, v.value);
-  EXPECT_EQ(0, g_model.expoData[0].offset);
+  EXPECT_EQ(0u, g_model.expoData[0].offset);
   EXPECT_EQ(0, g_model.expoData[0].swtch);
 
-  EXPECT_EQ(3, (int)g_model.expoData[1].chn);
+  EXPECT_EQ(3u, g_model.expoData[1].chn);
   EXPECT_STRNEQ("test1", g_model.expoData[1].name);
   EXPECT_EQ(MIXSRC_THR, g_model.expoData[1].srcRaw);
-  EXPECT_EQ(56, g_model.expoData[1].weight);
-  EXPECT_EQ(3, g_model.expoData[1].offset);
+  EXPECT_EQ(56u, g_model.expoData[1].weight);
+  EXPECT_EQ(3u, g_model.expoData[1].offset);
   EXPECT_EQ(2, g_model.expoData[1].swtch);
 
-  EXPECT_EQ(3, (int)g_model.expoData[2].chn);
+  EXPECT_EQ(3u, g_model.expoData[2].chn);
   EXPECT_STRNEQ("test3", g_model.expoData[2].name);
 #if defined(SURFACE_RADIO)
   EXPECT_EQ(MIXSRC_THR, g_model.expoData[2].srcRaw);
 #else
   EXPECT_EQ(MIXSRC_LAST_STICK, g_model.expoData[2].srcRaw);
 #endif
-  EXPECT_EQ(100, g_model.expoData[2].weight);
-  EXPECT_EQ(0, g_model.expoData[2].offset);
+  EXPECT_EQ(100u, g_model.expoData[2].weight);
+  EXPECT_EQ(0u, g_model.expoData[2].offset);
   EXPECT_EQ(0, g_model.expoData[2].swtch);
 
   // verify number of lines for Input4
@@ -189,6 +191,11 @@ TEST(Lua, Switches)
 {
   luaExecStr("if MIXSRC_SA == nil then error('failed') end");
   luaExecStr("if MIXSRC_SB == nil then error('failed') end");
+#if defined(SURFACE_RADIO)
+  luaExecStr("if getSwitchIndex('St-') == nil then error('failed') end");
+#else
+  luaExecStr("if getSwitchIndex('Rud-') == nil then error('failed') end");
+#endif
 }
 
 TEST(Lua, testLegacyNames)
@@ -213,6 +220,27 @@ TEST(Lua, testLegacyNames)
   luaExecStr("value = getValue('ele')");
   luaExecStr("if value ~= -1024 then error('ele not defined in Legacy') end");
 #endif
+}
+
+TEST(Lua, ioSeek)
+{
+  const char io_seek_tst[] =
+      "local file_name = \"seek-test.txt\"\n"
+      "local file = io.open(file_name, \"w\")\n"
+      "io.write(file, \"abcd\")\n"
+      "io.close(file)\n"
+      "file = io.open(file_name, \"r\")\n"
+      // the file should have 4 characters
+      "assert(#io.read(file, 32) == 4)\n"
+      // io.seek() should return 0 if it is successful
+      "assert(io.seek(file, 2) == 0)\n"
+      "local r = io.read(file, 32)\n"
+      // if reading from position 2,
+      // we should read 2 characters,
+      "assert(#r == 2)\n";
+
+  luaExecStr(io_seek_tst);
+  std::filesystem::remove(simuFatfsGetRealPath("seek-test.txt"));
 }
 
 #endif   // #if defined(LUA)

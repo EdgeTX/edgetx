@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 
+#include "os/sleep.h"
 #if !defined(DISABLE_MULTI_UPDATE)
 
 #include "hal.h"
@@ -32,12 +33,11 @@
 
 #include "timers_driver.h"
 #include "hal/watchdog_driver.h"
+#include "os/time.h"
 
 #include <memory>
 
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#else
+#if !defined(COLORLCD)
   #include "lib_file.h"
 #endif
 
@@ -157,9 +157,9 @@ void MultiFirmwareUpdateDriver::deinit()
 
 bool MultiFirmwareUpdateDriver::getRxByte(uint8_t & byte) const
 {
-  uint32_t time = RTOS_GET_MS();
+  uint32_t time = time_get_ms();
   
-  while ((RTOS_GET_MS() - time) < 100) {              // 100ms
+  while ((time_get_ms() - time) < 100) {              // 100ms
     if (getByte(byte)) {
 #if defined(DEBUG_EXT_MODULE_FLASH)
       TRACE("[RX] 0x%X", byte);
@@ -220,7 +220,7 @@ const char * MultiFirmwareUpdateDriver::waitForInitialSync()
   // avoids sending STK_READ_SIGN with STK_OK
   // in case the receiver is too slow changing
   // to RX mode (half-duplex).
-  RTOS_WAIT_TICKS(1);
+  sleep_ms(1);
 
   return nullptr;
 }
@@ -258,7 +258,7 @@ const char * MultiFirmwareUpdateDriver::loadAddress(uint32_t offset) const
 
   // avoids sending next page back-to-back with STK_OK
   // in case the receiver is to slow changing to RX mode (half-duplex).
-  RTOS_WAIT_TICKS(1);
+  sleep_ms(1);
 
   return nullptr;
 }
@@ -310,8 +310,7 @@ const char* MultiFirmwareUpdateDriver::flashFirmware(
 #if defined(SIMU)
   for (uint16_t i = 0; i < 100; i++) {
     progressHandler(label, STR_WRITING, i, 100);
-    if (SIMU_SLEEP_OR_EXIT_MS(30))
-      break;
+    sleep_ms(30);
   }
   return nullptr;
 #endif
@@ -321,7 +320,7 @@ const char* MultiFirmwareUpdateDriver::flashFirmware(
 
   /* wait 500ms for power on */
   watchdogSuspend(500 /*5s*/);
-  RTOS_WAIT_MS(500);
+  sleep_ms(500);
 
   result = waitForInitialSync();
   if (result) {
@@ -553,7 +552,7 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
 
   /* wait 2s off */
   watchdogSuspend(500 /*5s*/);
-  RTOS_WAIT_MS(3000);
+  sleep_ms(3000);
 
   MultiFirmwareUpdateDriver driver(module, type);
   const char * result = driver.flashFirmware(&file, getBasename(filename), progressHandler);

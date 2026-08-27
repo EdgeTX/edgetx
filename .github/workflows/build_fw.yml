@@ -1,0 +1,145 @@
+---
+name: Run tests and package firmware
+on:
+  push:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+    tags:
+      - v*
+    paths: &trigger-paths
+      - '.github/workflows/build_fw.yml'
+      - 'cmake/**'
+      - 'radio/**'
+      - 'tools/build-gh.sh'
+      - '.gitmodules'
+      - 'CMakeLists.txt'
+  pull_request:
+    paths: *trigger-paths
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name != 'pull_request' ||
+      !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw')
+    strategy:
+      matrix:
+        target:
+          - x9dp2019;x9e
+          - tx15
+          - tx16s
+          - tx16smk3
+          - nv14
+          - el18
+          - pl18
+          - pl18ev
+          - t12max;t14
+          - t15
+          - t16
+          - t18
+          - t20;t20v2
+          - x10
+          - x12s
+          - mt12;gx12
+          - nb4p
+          - st16
+          - t15pro
+          - pa01
+          - t22
+          - c14
+          - v12
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:latest
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Test ${{ matrix.target }}
+        env:
+          FLAVOR: ${{ matrix.target }}
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
+        run: |
+          echo "Running commit tests"
+          ./tools/commit-tests.sh
+
+  build:
+    name: Run builds
+    needs: test
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name != 'pull_request' ||
+      !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw')
+    strategy:
+      matrix:
+        target:
+          - nv14;el18
+          - pl18;pl18ev
+          - pl18u;pa01
+          - t15;t16
+          - t14;t18;mt12
+          - zorro;pocket;commando8
+          - tprov2;tpros;bumblebee
+          - mt12;gx12;t20;t20v2
+          - t12max;tx12mk2;boxer
+          - tx16s
+          - tx15;gx15
+          - x12s;f16
+          - v14;v14lcd;v16
+          - x10;x10express
+          - x7access;x9dp2019;x9e;x9e-hall
+          - nb4p;st16
+          - tx16smk3;t14;t15pro
+          - t22
+          - c14
+          - v12
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:latest
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Build ${{ matrix.target }}
+        env:
+          FLAVOR: ${{ matrix.target }}
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
+        run: |
+          echo "Running firmware build"
+          ./tools/build-gh.sh
+
+      - name: Upload ${{ matrix.target }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: firmware-${{ matrix.target }}
+          path: |
+            fw.json
+            LICENSE
+            *.bin
+            *.uf2
+          retention-days: 15
+          if-no-files-found: error
+
+  package:
+    name: Package firmwares
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Compose release filename
+        run: echo "artifact_name=edgetx-firmware-${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Merge firmware artifact packages
+        uses: actions/upload-artifact/merge@v7
+        with:
+          name: "${{ env.artifact_name }}"
+          pattern: firmware-*
+          delete-merged: true
+          retention-days: 15

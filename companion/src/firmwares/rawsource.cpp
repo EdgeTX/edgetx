@@ -34,13 +34,40 @@
 
 float RawSourceRange::getValue(int value)
 {
-  return float(value) * step;
+  return float(value) * step; // TODO + offset ??
 }
 
+double RawSourceRange::toDisplay(int value)
+{
+  return (double(value) * step) + offset;
+}
+
+int RawSourceRange::toRaw(double value)
+{
+  return round((value - offset) / step);
+}
+
+double RawSourceRange::validateDisplay(double value)
+{
+  if (value < min || value > max)
+    value = (value < min) ? min : max;
+
+  return value;
+}
+
+int RawSourceRange::validateRaw(int val)
+{
+  double value = toDisplay(val);
+
+  if (value < min || value > max)
+    value = (value < min) ? min : max;
+
+  return toRaw(value);
+}
 
 /*
  * RawSource
- */
+*/
 
 RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSettings & settings, unsigned int flags) const
 {
@@ -77,28 +104,48 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
       break;
 
     case SOURCE_TYPE_GVAR: {
-      GVarData gv = model->gvarData[index];
+      GVarData gv = model->gvarData[index - 1];
       result.step = gv.multiplierGet();
       result.decimals = gv.prec;
-      result.max = gv.getMaxPrec();
-      result.min = gv.getMinPrec();
       result.unit = gv.unitToString();
+      result.min = 0;
+      result.max= 0;
+
+      if (flags & RANGE_DELTA_FUNCTION) {
+        result.min = gv.getMinPrec() - gv.getMaxPrec();
+        result.max = gv.getMaxPrec() - gv.getMinPrec();
+      } else {
+        result.min = gv.getMinPrec();
+        result.max = gv.getMaxPrec();
+      }
+
+      if (flags & RANGE_ABS_FUNCTION) {
+        result.min = (flags & RANGE_DELTA_FUNCTION) ? 0 : abs(result.min);
+        result.max = abs(result.max);
+      }
+
+      if (result.min > result.max) {
+        double tmp = result.min;
+        result.min = result.max;
+        result.max = tmp;
+      }
+
       break;
     }
 
     case SOURCE_TYPE_SPECIAL:
-      if (index == 0)  {       //Batt
+      if (abs(index) == SOURCE_TYPE_SPECIAL_TX_BATT)  {
         result.step = 0.1;
         result.decimals = 1;
         result.max = 25.5;
         result.unit = tr("V");
       }
-      else if (index == 1) {   //Time
+      else if (abs(index) == SOURCE_TYPE_SPECIAL_TX_TIME) {
         result.step = 60;
         result.max = 24 * 60 * result.step - 60;  // 23:59:00 with 1-minute resolution
         result.unit = tr("s");
       }
-      else if (index == 2) {   //GPS
+      else if (abs(index) == SOURCE_TYPE_SPECIAL_TX_GPS) {
         result.max = 30000;
         result.min = -result.max;
       }
@@ -120,10 +167,6 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
       result.max = 100;
       result.min = -result.max;
       break;
-  }
-
-  if (flags & RANGE_ABS_FUNCTION) {
-    result.min = 0;
   }
 
   return result;
@@ -188,9 +231,6 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
               (Boards::isAir(board) ? CHECK_IN_ARRAY(trimsAir, index) :
                CHECK_IN_ARRAY(trimsSurface, index)));
 
-    case SOURCE_TYPE_ROTARY_ENCODER:
-      return CHECK_IN_ARRAY(rotary, index);
-
     case SOURCE_TYPE_MIN:
       return tr("MIN");
 
@@ -201,9 +241,9 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       dfltName = Boards::getSwitchInfo(index - 1, board).name.c_str();
       if (Boards::isSwitchFunc(index - 1, board)) {
         if (model) {
-          int fsindex = Boards::getSwitchTagNum(index - 1, board) - 1;
+          int fsindex = Boards::getCFSIndexForSwitch(index - 1, board);
           if (fsindex >= 0 && fsindex < CPN_MAX_SWITCHES_FUNCTION)
-            custName = QString(model->functionSwitchNames[fsindex]).trimmed();
+            custName = QString(model->customSwitches[fsindex].name).trimmed();
         }
       }
       else {
@@ -232,7 +272,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
       return result;
 
     case SOURCE_TYPE_SPECIAL:
-      return CHECK_IN_ARRAY(special, index);
+      return CHECK_IN_ARRAY(special, abs(index));
 
     case SOURCE_TYPE_TIMER:
       if (model && index <= CPN_MAX_TIMERS)
@@ -283,7 +323,10 @@ bool RawSource::isStick(Board::Type board) const
   return false;
 }
 
-bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings * const gs, Board::Type board) const
+bool RawSource::isAvailable(const ModelData * const model,
+                            const GeneralSettings * const gs,
+                            Board::Type board,
+                            const int flags) const
 {
   if (type == SOURCE_TYPE_NONE && index == 0)
     return true;
@@ -324,12 +367,15 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
   if (type == SOURCE_TYPE_CYC && !firmware->getCapability(Heli))
     return false;
 
+  if (type == SOURCE_TYPE_GVAR && abs(index) > firmware->getCapability(Gvars))
+    return false;
+
   if (model) {
     if (type == SOURCE_TYPE_TIMER && model->timers[abs(index) - 1].isModeOff())
       return false;
 
     if (type == SOURCE_TYPE_SWITCH && b.isSwitchFunc(abs(index) - 1, board) &&
-        !model->isFunctionSwitchSourceAllowed(b.getSwitchTagNum(abs(index) - 1, board) - 1))
+        !model->isFunctionSwitchSourceAllowed(b.getCFSIndexForSwitch(abs(index) - 1, board)))
       return false;
 
     if (type == SOURCE_TYPE_VIRTUAL_INPUT && !model->isInputValid(abs(index) - 1))
@@ -370,7 +416,7 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
         return false;
     }
 
-    if (type == SOURCE_TYPE_SWITCH && !b.isSwitchFunc(abs(index) - 1, board) && IS_HORUS_OR_TARANIS(board) &&
+    if (type == SOURCE_TYPE_SWITCH && !b.isSwitchFunc(abs(index) - 1, board) &&
         !gs->switchSourceAllowed(abs(index) - 1))
       return false;
   }
@@ -390,6 +436,10 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
      (abs(index) > CPN_MAX_SPACEMOUSE ||
      (!(gs->serialPort[GeneralSettings::SP_AUX1] == GeneralSettings::AUX_SERIAL_SPACEMOUSE ||
         gs->serialPort[GeneralSettings::SP_AUX2] == GeneralSettings::AUX_SERIAL_SPACEMOUSE))))
+    return false;
+
+  if (type == SOURCE_TYPE_INPUT && (flags & AVAILABLE_CONTROLSRC) &&
+      Boards::isInputGyroAxis(abs(index) - 1, board))
     return false;
 
   return true;

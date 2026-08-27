@@ -49,6 +49,7 @@ class UpdateCloudBuild: public UpdateInterface
     int asyncInstall() override;
     void assetSettingsInit() override;
     bool buildFlaggedAsset(const int row) override;
+    bool downloadFlaggedAsset(const int row) override;
 
   private slots:
     void cancel();

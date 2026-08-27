@@ -21,6 +21,7 @@
 
 #include "stm32_spi.h"
 #include "delays_driver.h"
+#include "stm32_gpio.h"
 
 #include "hal.h"
 
@@ -70,10 +71,10 @@ struct SpiFlashDescriptor {
 
 const stm32_spi_t _flash_spi = {
   .SPIx = FLASH_SPI,
-  .SPI_GPIOx = FLASH_SPI_GPIO,
-  .SPI_Pins = FLASH_SPI_SCK_GPIO_PIN | FLASH_SPI_MISO_GPIO_PIN | FLASH_SPI_MOSI_GPIO_PIN,
-  .CS_GPIOx = FLASH_SPI_CS_GPIO,
-  .CS_Pin = FLASH_SPI_CS_GPIO_PIN,
+  .SCK = FLASH_SPI_SCK_GPIO,
+  .MISO = FLASH_SPI_MISO_GPIO,
+  .MOSI = FLASH_SPI_MOSI_GPIO,
+  .CS = FLASH_SPI_CS_GPIO,
   .DMA = FLASH_SPI_DMA,
   .DMA_Channel = FLASH_SPI_DMA_CHANNEL,
   .txDMA_Stream = FLASH_SPI_DMA_TX_STREAM,
@@ -269,8 +270,10 @@ uint32_t flashSpiGetSize()
 
 bool flashSpiIsErased(uint32_t address)
 {
-  // verify sector alignment
-  if((address & FLASH_SECTOR_MASK) != 0)
+  static uint8_t temp_buffer[FLASH_SECTOR_SIZE] __DMA_NO_CACHE;
+
+  // Verify sector alignment
+  if ((address & FLASH_SECTOR_MASK) != 0)
     return false;
 
   flash_wait_for_not_busy();
@@ -282,17 +285,25 @@ bool flashSpiIsErased(uint32_t address)
     flash_put_cmd_addr(FLASH_CMD_READ, address);
   }
 
-  bool ret = true;
-  for(uint32_t i = 0; i < FLASH_SECTOR_SIZE; i++) {
-    uint8_t byte = flash_rw_byte(0xFF);
-    if (byte != 0xff) {
-      ret = false;
-      break;
+  // Check first 4 bytes
+  for (uint32_t i = 0; i < 4; i++) {
+    if (flash_rw_byte(0xFF) != 0xff) {
+      flash_unselect();
+      return false;
     }
   }
 
+  // First 4 bytes all 0xFF, now need to check the remaining using DMA
+  flash_dma_read_bytes(temp_buffer, FLASH_SECTOR_SIZE - 4);
   flash_unselect();
-  return ret;
+
+  for (uint32_t i = 0; i < FLASH_SECTOR_SIZE - 4; i++) {
+    if (temp_buffer[i] != 0xff) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 uint32_t flashSpiRead(uint32_t address, uint8_t* data, uint32_t size)

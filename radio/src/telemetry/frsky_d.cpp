@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "sensor_names.h"
 
 void parseTelemHubByte(uint8_t byte)
 {
@@ -103,7 +104,7 @@ PACK_NOT_SIMU(struct FrSkyDSensor {
   const uint8_t id;
   const TelemetryUnit unit:6;
   const uint8_t prec:2;
-  const char * name;
+  const char* name;
 });
 
 #define FS(id,name,unit,prec) {id,unit,prec,name}

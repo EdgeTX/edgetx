@@ -23,6 +23,7 @@
 #include "yaml_generalsettings.h"
 #include "eeprominterface.h"
 #include "rawsource.h"
+#include "yaml_rawswitch.h"
 #include "multiprotocols.h"
 
 //  type: TYPE_MULTIMODULE
@@ -108,7 +109,13 @@ static const YamlLookupTable r9mLut = {
 
 static const YamlLookupTable ppmLut = {
   { 0, "NOTLM" },
-  { 1, "MLINK" }
+  { 1, "MLINK" },
+  { 2, "SPort"}
+};
+
+static const YamlLookupTable sbusLut = {
+  { 0, "NOTLM" },
+  { 1, "SPort"}
 };
 
 static const YamlLookupTable dsmLut = {
@@ -129,6 +136,13 @@ static const YamlLookupTable failsafeLut = {
   {  FAILSAFE_CUSTOM, "CUSTOM"  },
   {  FAILSAFE_NOPULSES, "NOPULSES"  },
   {  FAILSAFE_RECEIVER, "RECEIVER"  },
+};
+
+static const YamlLookupTable moduleAntennaModeLut = {
+  {  GeneralSettings::ANTENNA_MODE_INTERNAL, "MODE_INTERNAL"  },
+  {  GeneralSettings::ANTENNA_MODE_ASK, "MODE_ASK"  },
+  {  GeneralSettings::ANTENNA_MODE_PER_MODEL, "MODE_PER_MODEL"  },
+  {  GeneralSettings::ANTENNA_MODE_EXTERNAL, "MODE_EXTERNAL"  },
 };
 
 static int exportPpmDelay(int delay) { return (delay - 300) / 50; }
@@ -174,6 +188,9 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
     case PULSES_PPM:
       node["subType"] = LookupValue(ppmLut, subtype);
       break;
+    case PULSES_SBUS:
+      node["subType"] = LookupValue(sbusLut, subtype);
+      break;
     case PULSES_MULTIMODULE: {
       int rfProtocol = rhs.multi.rfProtocol + 1;
       int subType = rhs.subType;
@@ -187,6 +204,8 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
   node["channelsStart"] = rhs.channelsStart;
   node["channelsCount"] = rhs.channelsCount;
   node["failsafeMode"] = LookupValue(failsafeLut, rhs.failsafeMode);
+  if (rhs.antennaMode)
+    node["antennaMode"] = LookupValue(moduleAntennaModeLut, rhs.antennaMode);
 
   Node mod;
   switch (protocol) {
@@ -197,7 +216,6 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
         pxx["power"] = rhs.pxx.power;
         // pxx["receiverTelemetryOff"] = rhs.pxx.receiverTelemetryOff;
         // pxx["receiverHigherChannels"] = rhs.pxx.receiverHigherChannels;
-        pxx["antennaMode"] = rhs.pxx.antennaMode;
         mod["pxx"] = pxx;
     } break;
     case PULSES_ACCESS_ISRM:
@@ -242,11 +260,14 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
         Node crsf;
         YamlTelemetryBaudrate br(&rhs.crsf.telemetryBaudrate);
         crsf["telemetryBaudrate"] = br.value;
+        crsf["crsfArmingMode"] = rhs.crsf.crsfArmingMode;
+        crsf["crsfArmingTrigger"] = rhs.crsf.crsfArmingTrigger;
         mod["crsf"] = crsf;
     } break;
     case PULSES_LEMON_DSMP: {
         Node dsmp;
         dsmp["flags"] = rhs.dsmp.flags;
+        dsmp["enableAETR"] = (int)rhs.dsmp.enableAETR;
         mod["dsmp"] = dsmp;
     } break;
     case PULSES_FLYSKY_AFHDS2A: {
@@ -314,6 +335,9 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
     case PULSES_PPM: {
       subType >> ppmLut >> rhs.subType;
     } break;
+    case PULSES_SBUS: {
+      subType >> sbusLut >> rhs.subType;
+    } break;
     case PULSES_LP45: {
       int subProto = 0;
       subType >> dsmLut >> subProto;
@@ -346,6 +370,8 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
   node["channelsStart"] >> rhs.channelsStart;
   node["channelsCount"] >> rhs.channelsCount;
   node["failsafeMode"] >> failsafeLut >> rhs.failsafeMode;
+  if (node["antennaMode"])
+    node["antennaMode"] >> moduleAntennaModeLut >> rhs.antennaMode;
 
   if (node["mod"]) {
       const Node& mod = node["mod"];
@@ -370,7 +396,10 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           pxx["power"] >> rhs.pxx.power;
           // pxx["receiverTelemetryOff"] >> rhs.pxx.receiverTelemetryOff;
           // pxx["receiverHigherChannels"] >> rhs.pxx.receiverHigherChannels;
-          pxx["antennaMode"] >> rhs.pxx.antennaMode;
+          // Migration: legacy raw-int antennaMode, only if not already set
+          if (!node["antennaMode"] && pxx["antennaMode"]) {
+            pxx["antennaMode"] >> rhs.antennaMode;
+          }
       } else if (mod["sbus"]) {
           mod["sbus"]["refreshRate"] >> rhs.ppm.frameLength;
       } else if (mod["pxx2"]) {
@@ -399,9 +428,12 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           YamlTelemetryBaudrate telemetryBaudrate;
           crsf["telemetryBaudrate"] >> telemetryBaudrate.value;
           telemetryBaudrate.toCpn(&rhs.crsf.telemetryBaudrate, getCurrentFirmware()->getBoard());
+          crsf["crsfArmingMode"] >> rhs.crsf.crsfArmingMode;
+          crsf["crsfArmingTrigger"] >> rhs.crsf.crsfArmingTrigger;
       } else if (mod["dsmp"]) {
           Node dsmp = mod["dsmp"];
           dsmp["flags"] >> rhs.dsmp.flags;
+          dsmp["enableAETR"] >> rhs.dsmp.enableAETR;
       } else if (mod["flysky"]) {
           Node flysky = mod["flysky"];
           for (int i = 0; i < 4; i++) {

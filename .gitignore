@@ -4,8 +4,8 @@
 /*.user
 /*.user.*
 /doc/
-build*/
-cmake-build-*/
+/build*/
+/cmake-build-*/
 /debian/
 /*.vscode
 radio/src/tests/googletest*
@@ -13,3 +13,18 @@ radio/src/tests/gtest*.tar.gz
 .editorconfig
 .cache
 compile_commands.json
+/ys_Doc
+/.idea
+/.vs
+CMakeUserPresets.json
+.DS_Store
+_deps
+_wasi_sdk_fetch
+*.pyc
+
+# MkDocs
+/site/
+
+output/
+*.dmg
+.devcontainer/devcontainer-lock.json

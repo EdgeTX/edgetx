@@ -78,7 +78,7 @@ static void writeYamlToByteArray(const YAML::Node& node, QByteArray& data, bool 
     data_ostream << node;
     data = QByteArray::fromStdString(data_ostream.str());
 
-    qDebug() << "Saving YAML:";
+    //qDebug() << "Saving YAML:";
 
     if(addChecksum) {
       uint16_t checksum = 0xFFFF;
@@ -88,7 +88,7 @@ static void writeYamlToByteArray(const YAML::Node& node, QByteArray& data, bool 
       data.prepend(checksum_ostream.str().c_str());
     }
 
-    qDebug() << data.toStdString().c_str();
+    //qDebug() << data.toStdString().c_str();
 }
 
 bool loadLabelsListFromYaml(RadioData::ModelLabels& labels,

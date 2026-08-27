@@ -31,6 +31,9 @@ MixData* mixAddress(uint8_t idx) { return &g_model.mixData[idx]; }
 
 uint8_t getMixCount() { return _nb_mix_lines; }
 
+// Slow up/down calculation array
+extern int32_t act [MAX_MIXERS];
+
 void insertMix(uint8_t idx, uint8_t channel)
 {
   mixerTaskStop();
@@ -52,6 +55,10 @@ void insertMix(uint8_t idx, uint8_t channel)
   mix->weight = 100;
   mixerTaskStart();
 
+  // Update slow up/down array
+  memmove(&act[idx + 1], &act[idx], (MAX_MIXERS - (idx + 1)) * sizeof(int32_t));
+  act[idx] = 0;
+
   _nb_mix_lines += 1;
   storageDirty(EE_MODEL);
 }
@@ -63,6 +70,10 @@ void deleteMix(uint8_t idx)
   memmove(mix, mix + 1, (MAX_MIXERS - (idx + 1)) * sizeof(MixData));
   memclear(&g_model.mixData[MAX_MIXERS - 1], sizeof(MixData));
   mixerTaskStart();
+
+  // Update slow up/down array
+  memmove(&act[idx], &act[idx + 1], (MAX_MIXERS - (idx + 1)) * sizeof(int32_t));
+  act[MAX_MIXERS - 1] = 0;
 
   _nb_mix_lines -= 1;
   storageDirty(EE_MODEL);

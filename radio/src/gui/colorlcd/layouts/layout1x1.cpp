@@ -20,12 +20,14 @@
  */
 
 #include "layout.h"
-#include "layout_factory_impl.h"
+#include "translations/translations.h"
 
+// Zone map: 1x1 (single full-screen zone)
+// clang-format off
 static const uint8_t zmap[] = {
-    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_FULL, LAYOUT_MAP_FULL,
+    LAYOUT_MAP_0, LAYOUT_MAP_0, LAYOUT_MAP_FULL, LAYOUT_MAP_FULL,  // Full screen
 };
+// clang-format on
 
 BaseLayoutFactory<Layout> layout1x1("Layout1x1", STR_WIDGET_FULLSCREEN,
-                                    defaultZoneOptions,
-                                    1, (uint8_t*)zmap);
+                                    defaultLayoutOptions, 1, (uint8_t*)zmap);

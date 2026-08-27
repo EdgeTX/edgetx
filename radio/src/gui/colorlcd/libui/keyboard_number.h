@@ -53,8 +53,6 @@ class NumberKeyboard : public Keyboard
   void onLongPressTELE() override;
   void onPressPGUP() override;
   void onPressPGDN() override;
-  void onLongPressPGUP() override;
-  void onLongPressPGDN() override;
 #endif
 
   static NumberKeyboard* _instance;

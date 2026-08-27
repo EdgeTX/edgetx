@@ -1,0 +1,67 @@
+
+/* Task stacks */
+.ccm (NOLOAD) :
+{
+  . = ALIGN(4);
+  _sccm = .;
+  *(.ccm)
+  . = ALIGN(4);
+  _eccm = .;
+} > DTCMRAM
+
+/* Reserve stack space */
+.stack (NOLOAD) :
+{
+  . = ALIGN(4);
+  . = . + MAIN_STACK_SIZE;
+  . = ALIGN(4);
+} > DTCMRAM
+
+/* Fast code */
+.iram :
+{
+  . = ALIGN(4);
+  _siram = .;
+  *(.iram)
+  . = ALIGN(4);
+  _eiram = .;
+} > ITCMRAM AT> REGION_TEXT_STORAGE
+
+_stext_iram = LOADADDR(.iram);
+
+/* Disk cache buffers */
+.disk_cache (NOLOAD) :
+{
+  . = ALIGN(4);
+  *(.disk_cache)
+} > RAM_D1
+
+/* Extra DMA section */
+.dram (NOLOAD) :
+{
+  . = ALIGN(4);
+  _s_dram = .;
+  *(.dram)
+  . = ALIGN(4);
+  _e_dram = .;
+} > RAM_D2
+
+_dram_addr = ADDR(.dram);
+
+.sdram (NOLOAD) :
+{
+  . = ALIGN(4);
+  *(.sdram)
+  *(.sdram*)
+  *(.sdram_rodata)
+  *(.sdram_rodata*)
+
+  . = ALIGN(4);
+  _esdram = .;
+
+  /* Reserve heap space in RAM */
+  . = . + MIN_HEAP_SIZE;
+  . = ALIGN(4);
+} > SDRAM
+
+PROVIDE(_heap_start = _esdram);

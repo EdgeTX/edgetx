@@ -1,0 +1,56 @@
+/*
+ * Copyright (C) EdgeTX
+ *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+#include "ext_antenna_settings.h"
+#include "choice.h"
+
+#include "edgetx.h"
+#include "getset_helpers.h"
+
+#if defined(EXTERNAL_ANTENNA)
+ExtAntennaSettings::ExtAntennaSettings(Window* parent,
+                                 const FlexGridLayout& g,
+                                 uint8_t moduleIdx) :
+    Window(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
+{
+  FlexGridLayout grid(g);
+  setFlexLayout();
+
+  auto line = newLine(grid);
+  new StaticText(line, rect_t{}, STR_ANTENNA);
+
+  if (md->antennaMode == ANTENNA_MODE_PER_MODEL) {
+    md->antennaMode = ANTENNA_MODE_INTERNAL;
+    storageDirty(EE_MODEL);
+  }
+
+  auto antennaChoice = new Choice(
+      line, rect_t{}, STR_ANTENNA_MODES, ANTENNA_MODE_INTERNAL,
+      ANTENNA_MODE_EXTERNAL, GET_DEFAULT(md->antennaMode),
+      [=](int32_t antenna) -> void {
+        setAntennaModeWithConfirm(antenna, EE_MODEL,
+            [=](int8_t mode) { md->antennaMode = mode; });
+      });
+
+  antennaChoice->setAvailableHandler(
+      [=](int8_t mode) { return mode != ANTENNA_MODE_PER_MODEL; });
+}
+#endif

@@ -23,21 +23,33 @@
 #include "ui_mdichild.h"
 #include "modeledit/modeledit.h"
 #include "generaledit/generaledit.h"
-#include "burnconfigdialog.h"
 #include "printdialog.h"
-#include "flasheepromdialog.h"
 #include "helpers.h"
 #include "appdata.h"
-#include "wizarddialog.h"
+#include "wizard/wizarddialog.h"
 #include "flashfirmwaredialog.h"
 #include "storage.h"
 #include "radiointerface.h"
 #include "radiodataconversionstate.h"
 #include "filtereditemmodels.h"
 #include "labels.h"
+#include "firmwares/edgetx/edgetxinterface.h"
+#include "progress/progressdialog.h"
+#include "progress/progresswidget.h"
 
 #include <algorithm>
 #include <ExportableTableView>
+
+
+void StatusBarIcon::mouseDoubleClickEvent(QMouseEvent * event)
+{
+  QLabel::mouseDoubleClickEvent(event);
+  emit doubleClicked();
+}
+
+/*
+  class MdiChild
+*/
 
 MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   QWidget(parent, f),
@@ -64,6 +76,7 @@ MdiChild::MdiChild(QWidget * parent, QWidget * parentWin, Qt::WindowFlags f):
   if (parentWindow)
     parentWindow->setWindowIcon(windowIcon());
 
+  setupStatusBar();
   setupNavigation();
   initModelsList();
 
@@ -217,33 +230,34 @@ void MdiChild::setupNavigation()
   addAct(ACT_GEN_PST, "paste.png",    SLOT(pasteGeneralSettings()), tr("Ctrl+Alt+V"));
   addAct(ACT_GEN_SIM, "simulate.png", SLOT(radioSimulate()),        tr("Alt+Shift+S"));
 
-  addAct(ACT_ITM_EDT, "edit.png",  SLOT(edit()),          Qt::Key_Enter);
-  addAct(ACT_ITM_DEL, "clear.png", SLOT(confirmDelete()), QKeySequence::Delete);
-
+  addAct(ACT_MDL_EDT, "edit.png",   SLOT(edit()),          Qt::Key_Enter);
+  addAct(ACT_MDL_DEL, "clear.png",  SLOT(confirmDelete()), QKeySequence::Delete);
   addAct(ACT_MDL_ADD, "add.png",    SLOT(modelAdd()),   tr("Alt+A"));
   addAct(ACT_MDL_RTR, "open.png",   SLOT(loadBackup()), tr("Alt+R"));
   addAct(ACT_MDL_WIZ, "wizard.png", SLOT(wizardEdit()), tr("Alt+W"));
-
-  addAct(ACT_LBL_ADD, "add.png",    SLOT(labelAdd()), tr("Alt-L"));
-  addAct(ACT_LBL_DEL, "clear.png",  SLOT(labelDelete()), tr("Alt-L"));
-  addAct(ACT_LBL_REN, "edit.png",   SLOT(labelRename()), tr("Alt-R"));
-  addAct(ACT_LBL_MVU, "moveup.png", SLOT(labelMoveUp()), tr("Alt-+"));
-  addAct(ACT_LBL_MVD, "movedown.png", SLOT(labelMoveDown()), tr("Alt--"));
 
   addAct(ACT_MDL_DFT, "currentmodel.png", SLOT(setDefault()),     tr("Alt+U"));
   addAct(ACT_MDL_PRT, "print.png",        SLOT(print()),          QKeySequence::Print);
   addAct(ACT_MDL_SIM, "simulate.png",     SLOT(modelSimulate()),  tr("Alt+S"));
   addAct(ACT_MDL_DUP, "duplicate.png",    SLOT(modelDuplicate()), QKeySequence::Underline);
 
-  addAct(ACT_MDL_CUT, "cut.png",   SLOT(cut()),           QKeySequence::Cut);
-  addAct(ACT_MDL_CPY, "copy.png",  SLOT(copy()),          QKeySequence::Copy);
-  addAct(ACT_MDL_PST, "paste.png", SLOT(paste()),         QKeySequence::Paste);
-  addAct(ACT_MDL_INS, "list.png",  SLOT(insert()),        QKeySequence::Italic);
-  addAct(ACT_MDL_EXP, "save.png",  SLOT(modelExport()),   tr("Ctrl+Alt+S"));
+  addAct(ACT_MDL_CUT, "cut.png",         SLOT(cut()),             QKeySequence::Cut);
+  addAct(ACT_MDL_CPY, "copy.png",        SLOT(copy()),            QKeySequence::Copy);
+  addAct(ACT_MDL_PST, "paste.png",       SLOT(paste()),           QKeySequence::Paste);
+  addAct(ACT_MDL_INS, "list.png",        SLOT(insert()),          QKeySequence::Italic);
+  addAct(ACT_MDL_EXP, "save.png",        SLOT(modelExport()),     tr("Ctrl+Alt+S"));
+  addAct(ACT_MDL_IMP, "open.png",        SLOT(modelImport()),     tr("Ctrl+Alt+O"));
+  addAct(ACT_MDL_ERR, "information.png", SLOT(modelShowErrors()), tr("Ctrl+Alt+E"));
 
   addAct(ACT_MDL_MOV, "arrow-right.png");
   QMenu * catsMenu = new QMenu(this);
   action[ACT_MDL_MOV]->setMenu(catsMenu);
+
+  addAct(ACT_LBL_ADD, "add.png",      SLOT(labelAdd()), tr("Alt-L"));
+  addAct(ACT_LBL_DEL, "clear.png",    SLOT(labelDelete()), tr("Alt-L"));
+  addAct(ACT_LBL_REN, "edit.png",     SLOT(labelRename()), tr("Alt-R"));
+  addAct(ACT_LBL_MVU, "moveup.png",   SLOT(labelMoveUp()), tr("Alt-+"));
+  addAct(ACT_LBL_MVD, "movedown.png", SLOT(labelMoveDown()), tr("Alt--"));
 
   // set up the toolbars
 
@@ -351,8 +365,11 @@ void MdiChild::updateNavigation()
     cboModelSortOrder->setCurrentIndex(radioData.sortOrder);
     cboModelSortOrder->blockSignals(false);
   }
+  action[ACT_GEN_SIM]->setEnabled(true);
   action[ACT_GEN_SRT]->setVisible(hasLabels);
 
+  action[ACT_MDL_DEL]->setEnabled(modelsSelected);
+  action[ACT_MDL_DEL]->setText(tr("Delete") % (modelsSelected ? sp % modelsRemvTxt : ns));
   action[ACT_MDL_CUT]->setEnabled(modelsSelected);
   action[ACT_MDL_CUT]->setText(tr("Cut") % (modelsSelected ? sp % modelsRemvTxt : ns));
   action[ACT_MDL_CPY]->setEnabled(modelsSelected);
@@ -363,6 +380,8 @@ void MdiChild::updateNavigation()
   action[ACT_MDL_INS]->setText(tr("Insert") % QString(action[ACT_MDL_INS]->isEnabled() ? sp % modelsAddTxt : ns));
   action[ACT_MDL_EXP]->setEnabled(modelsSelected);
   action[ACT_MDL_EXP]->setText(tr("Export") % (modelsSelected ? sp % modelsRemvTxt : ns));
+  action[ACT_MDL_IMP]->setEnabled(true);
+  action[ACT_MDL_IMP]->setText(tr("Import"));
   action[ACT_MDL_MOV]->setVisible(false);
   action[ACT_MDL_DUP]->setEnabled(singleModelSelected);
   action[ACT_MDL_RTR]->setEnabled(singleModelSelected);
@@ -370,6 +389,9 @@ void MdiChild::updateNavigation()
   action[ACT_MDL_DFT]->setEnabled(singleModelSelected && getCurrentModel() != (int)radioData.generalSettings.currModelIndex);
   action[ACT_MDL_PRT]->setEnabled(singleModelSelected);
   action[ACT_MDL_SIM]->setEnabled(singleModelSelected);
+  action[ACT_MDL_ERR]->setEnabled(singleModelSelected && radioData.models[getCurrentModel()].modelErrors);
+
+  emit navigationUpdated();
 }
 
 void MdiChild::retranslateUi()
@@ -380,8 +402,8 @@ void MdiChild::retranslateUi()
   action[ACT_GEN_SIM]->setText(tr("Simulate Radio"));
   cboModelSortOrder->setToolTip(tr("Radio Models Order"));
 
-  action[ACT_ITM_EDT]->setText(tr("Edit Model"));
-  action[ACT_ITM_DEL]->setText(tr("Delete"));
+  action[ACT_MDL_EDT]->setText(tr("Edit Model"));
+  action[ACT_MDL_DEL]->setText(tr("Delete Model"));
 
   action[ACT_LBL_ADD]->setText(tr("Add"));
   action[ACT_LBL_DEL]->setText(tr("Delete"));
@@ -393,12 +415,15 @@ void MdiChild::retranslateUi()
   action[ACT_MDL_ADD]->setIconText(tr("Model"));
   action[ACT_MDL_EXP]->setText(tr("Export Model"));
   action[ACT_MDL_EXP]->setIconText(tr("Export"));
+  action[ACT_MDL_IMP]->setText(tr("Import Model"));
+  action[ACT_MDL_IMP]->setIconText(tr("Import"));
   action[ACT_MDL_RTR]->setText(tr("Restore from Backup"));
   action[ACT_MDL_WIZ]->setText(tr("Model Wizard"));
   action[ACT_MDL_DFT]->setText(tr("Set as Default"));
   action[ACT_MDL_PRT]->setText(tr("Print Model"));
   action[ACT_MDL_SIM]->setText(tr("Simulate Model"));
   action[ACT_MDL_DUP]->setText(tr("Duplicate Model"));
+  action[ACT_MDL_ERR]->setText(tr("Show Model Errors"));
 
   radioToolbar->setWindowTitle(tr("Show Radio Actions Toolbar"));
   modelsToolbar->setWindowTitle(tr("Show Model Actions Toolbar"));
@@ -409,6 +434,7 @@ QList<QAction *> MdiChild::getGeneralActions()
 {
   QList<QAction *> actGrp;
   actGrp.append(getAction(ACT_GEN_SIM));
+  actGrp.append(actionsSeparator());
   actGrp.append(getAction(ACT_GEN_EDT));
   actGrp.append(getAction(ACT_GEN_CPY));
   actGrp.append(getAction(ACT_GEN_PST));
@@ -419,29 +445,32 @@ QList<QAction *> MdiChild::getEditActions()
 {
   QList<QAction *> actGrp;
   actGrp.append(action[ACT_MDL_ADD]);
-  QAction * sep2 = new QAction(this);
-  sep2->setSeparator(true);
-  actGrp.append(sep2);
-  actGrp.append(getAction(ACT_ITM_EDT));
-  actGrp.append(getAction(ACT_ITM_DEL));
+  actGrp.append(actionsSeparator());
+  actGrp.append(getAction(ACT_MDL_EDT));
+  actGrp.append(getAction(ACT_MDL_DEL));
   actGrp.append(getAction(ACT_MDL_CUT));
   actGrp.append(getAction(ACT_MDL_CPY));
   actGrp.append(getAction(ACT_MDL_PST));
   actGrp.append(getAction(ACT_MDL_INS));
   actGrp.append(getAction(ACT_MDL_DUP));
-  actGrp.append(getAction(ACT_MDL_MOV));
   actGrp.append(getAction(ACT_MDL_EXP));
+  actGrp.append(getAction(ACT_MDL_IMP));
+  actGrp.append(getAction(ACT_MDL_MOV));
   return actGrp;
 }
 
 QList<QAction *> MdiChild::getModelActions()
 {
   QList<QAction *> actGrp;
-  actGrp.append(getAction(ACT_MDL_RTR));
   actGrp.append(getAction(ACT_MDL_WIZ));
   actGrp.append(getAction(ACT_MDL_DFT));
+  // TODO remove
+  // the function has been hobbled as expects eeprom binary backup so do not list
+  // can just open another etx so use case doubtful
+  //actGrp.append(getAction(ACT_MDL_RTR));
   actGrp.append(getAction(ACT_MDL_PRT));
   actGrp.append(getAction(ACT_MDL_SIM));
+  actGrp.append(getAction(ACT_MDL_ERR));
   return actGrp;
 }
 
@@ -601,6 +630,7 @@ void MdiChild::refresh()
   }
   updateNavigation();
   updateTitle();
+  updateStatusBar();
 }
 
 void MdiChild::onItemActivated(const QModelIndex index)
@@ -779,7 +809,9 @@ bool MdiChild::insertModelRows(int atModelIdx, int count)
       }
     }
     // add a placeholder model
-    radioData.models.insert(radioData.models.begin() + atModelIdx + i, ModelData());
+    ModelData *md = new ModelData();
+    radioData.models.insert(radioData.models.begin() + atModelIdx + i, *md);
+    delete md;
     // adjust current model index if needed
     if ((int)radioData.generalSettings.currModelIndex >= atModelIdx + i)
       findNewDefaultModel(radioData.generalSettings.currModelIndex + 1);
@@ -910,8 +942,10 @@ unsigned MdiChild::countUsedModels()
 
 void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row, bool insert, bool move)
 {
-  QVector<ModelData> modelsList;
-  if (!ModelsListModel::decodeMimeData(mimeData, &modelsList))
+  QVector<ModelData> *modelsList = new QVector<ModelData>;
+  modelsList->clear();
+
+  if (!ModelsListModel::decodeMimeData(mimeData, modelsList))
     return;
 
   bool modified = false;
@@ -923,17 +957,21 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
   bool hasOwnData = modelsListModel->hasOwnMimeData(mimeData);
   move = (move && hasOwnData);
 
+  bool actionOverwrite = false;
+  bool actionInsert = false;
+  bool actionApplyAll = false;
+
   //qDebug().nospace() << "row: " << row << "; ins: " << insert << "; mv: " << move << "; row modelIdx: " << modelIdx;
 
   // Model data
-  for (int i=0; i < modelsList.size(); ++i) {
-    int origMdlIdx = hasOwnData ? modelsList.at(i).modelIndex : -1;               // where is the model in *our* current array?
+  for (int i=0; i < modelsList->size(); ++i) {
+    int origMdlIdx = hasOwnData ? modelsList->at(i).modelIndex : -1;               // where is the model in *our* current array?
     bool doMove = (origMdlIdx > -1 && origMdlIdx < (int)radioData.models.size() && (move || cutModels.contains(origMdlIdx)));  // DnD-moved or clipboard cut
     bool ok = true;
 
     if (modelIdx == -1 || (!insert && modelIdx >= (int)radioData.models.size())) {
       // This handles pasting past the end or when pasting multiple models.
-      modelIdx = modelAppend(modelsList[i]);
+      modelIdx = modelAppend(modelsList->at(i));
       if (modelIdx < 0) {
         ok = false;
         showWarning(tr("Cannot paste model, out of available model slots."));
@@ -942,40 +980,51 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
     else if (insert) {
       ok = insertModelRows(modelIdx, 1);
       if (ok) {
-        radioData.models[modelIdx] = modelsList[i];
+        radioData.models[modelIdx] = modelsList->at(i);
         // ++inserts;
       }
     }
     else if (!deletesList.contains(modelIdx)) {
       // pasting on top of a slot
       if (radioData.models[modelIdx].isEmpty()) {
-        radioData.models[modelIdx] = modelsList[i];
+        radioData.models[modelIdx] = modelsList->at(i);
         ok = true;
       }
       else {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle(CPN_STR_APP_NAME);
-        msgBox.setIcon(QMessageBox::Warning);
-        msgBox.setText(tr("Model already exists! Do you want to overwrite it or insert into a new slot?"));
-        QPushButton *overwriteButton = msgBox.addButton(tr("Overwrite"),QMessageBox::ActionRole);
-        QPushButton *insertButton = msgBox.addButton(tr("Insert"),QMessageBox::ActionRole);
-        QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
+        if (!actionApplyAll) {
+          actionOverwrite = false;
+          actionInsert = false;
+          QMessageBox msgBox;
+          msgBox.setWindowTitle(CPN_STR_APP_NAME);
+          msgBox.setIcon(QMessageBox::Warning);
+          msgBox.setText(tr("Model already exists! Do you want to overwrite it or insert into a new slot?"));
+          QPushButton *overwriteButton = msgBox.addButton(tr("Overwrite"),QMessageBox::ActionRole);
+          QPushButton *insertButton = msgBox.addButton(tr("Insert"),QMessageBox::ActionRole);
+          QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
+          QCheckBox *cb = new QCheckBox(tr("Apply to all remaining models"));
+          msgBox.setCheckBox(cb);
+          connect(cb, &QCheckBox::checkStateChanged, [&](const int &state){ actionApplyAll = state; });
 
-        msgBox.exec();
+          msgBox.exec();
 
-        if (msgBox.clickedButton() == overwriteButton) {
-          radioData.models[modelIdx] = modelsList[i];
-          ok = true;
-        }
-        else if (msgBox.clickedButton() == insertButton) {
-          ok = insertModelRows(modelIdx, 1);
-          if (ok) {
-            radioData.models[modelIdx] = modelsList[i];
-            // ++inserts;
+          if (msgBox.clickedButton() == overwriteButton) {
+            actionOverwrite = true;
+          } else if (msgBox.clickedButton() == insertButton) {
+            actionInsert = true;
+          } else if (msgBox.clickedButton() == cancelButton) {
+            break;  // stop all further processing
           }
         }
-        else if (msgBox.clickedButton() == cancelButton) {
-          ok = false;
+
+        if (actionOverwrite) {
+          radioData.models[modelIdx] = modelsList->at(i);
+          ok = true;
+        } else if (actionInsert) {
+          ok = insertModelRows(modelIdx, 1);
+          if (ok) {
+            radioData.models[modelIdx] = modelsList->at(i);
+            // ++inserts;
+          }
         }
       }
     }
@@ -984,14 +1033,16 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
       // We don't want to create an index value conflict so use an invalid one (it will get updated after we're done here)
       //   this is esp. important because otherwise we may delete this model during a move operation (eg. after a cut)
       radioData.models[modelIdx].modelIndex = -modelIdx;
-      strcpy(radioData.models[modelIdx].filename, radioData.getNextModelFilename().toStdString().c_str());
+      radioData.models[modelIdx].filename = radioData.getNextModelFilename();
       lastSelectedModel = modelIdx;  // after refresh the last pasted model will be selected
       modified = true;
       setModelModified(modelIdx, false);  // avoid unnecessary refreshes
+
       if (doMove) {
         deletesList.append(origMdlIdx);
         removeModelFromCutList(origMdlIdx);
       }
+
       radioData.addLabelsFromModels();
     }
     //qDebug().nospace() << "i: " << i << "; modelIdx:" << modelIdx << "; origMdlIdx: " << origMdlIdx << "; doMove: " << doMove << "; inserts:" << inserts << "; deletes: " << deletesList;
@@ -999,12 +1050,19 @@ void MdiChild::pasteModelData(const QMimeData * mimeData, const QModelIndex row,
     ++modelIdx;
   }
 
+  // even if we cancel we need to delete those models already moved
   if (deletesList.size()) {
     deleteModels(deletesList);
   }
+
   if (modified) {
     setModified();
   }
+
+  delete modelsList;
+
+  radioData.validateModels();
+  refresh();
 }
 
 /*
@@ -1035,7 +1093,8 @@ void MdiChild::generalEdit()
   GeneralEdit * t = new GeneralEdit(this, radioData, firmware);
   connect(t, &GeneralEdit::modified, this, &MdiChild::setModified);
   connect(t, &GeneralEdit::internalModuleChanged, this, &MdiChild::onInternalModuleChanged);  // passed up from HardwarePanel >> GeneralEdit
-  t->exec();
+  if (t->exec() == -1)  // -1 is user defined return value
+    generalEdit();
 }
 
 void MdiChild::copyGeneralSettings()
@@ -1200,8 +1259,9 @@ void MdiChild::openModelEditWindow(int row)
   gStopwatch.report("ModelEdit creation");
   ModelEdit * t = new ModelEdit(this, radioData, (row), firmware);
   gStopwatch.report("ModelEdit created");
-  t->setWindowTitle(tr("Editing model %1: ").arg(row+1) + QString(model.name) + QString("   (%1)").arg(userFriendlyCurrentFile()));
+  t->setWindowTitle(tr("Editing model %1: ").arg(row+1) + model.name.toQString() + QString("   (%1)").arg(userFriendlyCurrentFile()));
   connect(t, &ModelEdit::modified, this, &MdiChild::setCurrentModelModified);
+  connect(t, &ModelEdit::closed, this, &MdiChild::onModelEditClosed);
   gStopwatch.report("STARTING MODEL EDIT");
   t->show();
   QApplication::restoreOverrideCursor();
@@ -1232,21 +1292,44 @@ void MdiChild::setDefault()
   int row = getCurrentModel();
   if (!radioData.models[row].isEmpty() && radioData.generalSettings.currModelIndex != (unsigned)row) {
     radioData.setCurrentModel(row);
-    refresh();
+    setModified();
   }
 }
 
 void MdiChild::radioSimulate()
 {
+  //  safeguard as the menu actions are enabled
+  int cnt = radioData.invalidModels();
+
+  if (cnt) {
+    QMessageBox::critical(this, tr("Simulate Radio"),
+      tr("Operation aborted: %1 models have errors that may affect simulation.\n%2")
+      .arg(cnt)
+      .arg(radioData.modelErrorsList().join("\n")));
+    return;
+  }
+
   startSimulation(this, radioData, -1);
 }
 
 void MdiChild::modelSimulate()
 {
-  startSimulation(this, radioData, getCurrentModel());
+  int currMdlIdx = getCurrentModel();
+
+  if (currMdlIdx > -1 && !radioData.models[currMdlIdx].isValid()) {
+    QMessageBox::critical(this, tr("Simulate Model"),
+      tr("Operation aborted: selected model has errors that may affect simulation.\n%1")
+      .arg(radioData.models[currMdlIdx].errorsList().join("\n")));
+    return;
+  }
+
+  if (currMdlIdx < 0)
+    radioSimulate();
+  else
+    startSimulation(this, radioData, getCurrentModel());
 }
 
-void MdiChild::newFile(bool createDefaults)
+void MdiChild::newFile(bool useProfileSettings)
 {
   static int sequenceNumber = 1;
   isUntitled = true;
@@ -1255,12 +1338,22 @@ void MdiChild::newFile(bool createDefaults)
   modelsListModel->setFilename(curFile);
   radioData.addLabel(tr("Favorites"));
   labelsListModel->buildLabelsList();
+
+  if (useProfileSettings && g.currentProfile().useSavedSettings() &&
+      !g.currentProfile().generalSettings().isEmpty()) {
+    QByteArray data = g.currentProfile().generalSettings();
+
+    if (!loadRadioSettingsFromYaml(radioData.generalSettings, data)) {
+      QMessageBox::critical(this, tr("New File"), tr("Unable to load settings from profile!"));
+      return;
+    }
+  }
 }
 
 bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
 {
   if (getStorageType(filename) == STORAGE_TYPE_YML) {
-    newFile(false);
+    newFile();
     resetCurrentFile = false;
   }
 
@@ -1296,6 +1389,9 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
     refresh();
   }
 
+  radioData.validateModels();
+  updateStatusBar();
+
   return true;
 }
 
@@ -1327,23 +1423,33 @@ bool MdiChild::saveAs(bool isNew)
   }
   while (QFileInfo(fileName).suffix().toLower() != "etx");
 
-  g.eepromDir(QFileInfo(fileName).dir().absolutePath());
-
   return saveFile(fileName, true);
 }
 
-bool MdiChild::saveFile(const QString & filename, bool setCurrent)
+bool MdiChild::saveFile(const QString & filename, bool setCurrent, bool toRadio)
 {
   radioData.fixModelFilenames();
-  Storage storage(filename);
-  bool result = storage.write(radioData);
+
+  bool result = false;
+
+  if (toRadio)
+    result = saveFileProgress(filename);
+  else {
+    Storage storage(filename);
+    result = storage.write(radioData);
+  }
+
   if (!result) {
     return false;
   }
 
+  g.eepromDir(QFileInfo(filename).dir().absolutePath());
+
   for (int i = 0; i < (int)radioData.models.size(); i++) {
-    if (!radioData.models[i].isEmpty())
+    if (!radioData.models[i].isEmpty()) {
       radioData.models[i].modelUpdated = false;
+      radioData.models[i].validate();
+    }
   }
 
   refresh();
@@ -1353,6 +1459,29 @@ bool MdiChild::saveFile(const QString & filename, bool setCurrent)
   }
 
   return true;
+}
+
+bool MdiChild::saveFileProgress(const QString & filename)
+{
+  ProgressDialog dlg(parentWidget(), tr("Write Models and Settings"),
+                     CompanionIcon("write_eeprom.png"));
+
+  ProgressWidget * progress = dlg.progress();
+  progress->lock(false);
+  dlg.setProcessStarted();
+  progress->updateInfoAndMessages(tr("Initialising"));
+
+  Storage storage(filename);
+  storage.setProgress(progress);
+  bool result = storage.write(radioData);
+
+  dlg.setProcessStopped();
+  progress->updateInfoAndMessages(tr("Finished %1").arg(result ? tr("successfully") : tr("with errors")));
+  progress->setValue(progress->maximum());
+  progress->refresh();
+  QApplication::processEvents();
+  dlg.exec();
+  return result;
 }
 
 void MdiChild::closeFile(bool force)
@@ -1409,18 +1538,13 @@ void MdiChild::setCurrentFile(const QString & fileName)
 
 void MdiChild::forceNewFilename(const QString & suffix, const QString & ext)
 {
-  curFile.replace(QRegExp("\\.(eepe|bin|hex|otx|etx)$"), suffix + "." + ext);
+  curFile.replace(QRegularExpression("\\.etx$"), suffix + "." + ext);
 }
 
 bool MdiChild::convertStorage(Board::Type from, Board::Type to, bool newFile)
 {
   QMessageBox::StandardButtons btns;
   QMessageBox::StandardButton dfltBtn;
-
-  if (from == Board::BOARD_X10 && to == Board::BOARD_JUMPER_T16) {
-    if (displayT16ImportWarning() == false)
-      return false;
-  }
 
   QString q = tr("<p><b>Currently selected radio type (%1) is not compatible with file %3 (from %2), models and settings need to be converted.</b></p>").arg(Boards::getBoardName(to)).arg(Boards::getBoardName(from)).arg(userFriendlyCurrentFile());
   if (newFile) {
@@ -1482,54 +1606,59 @@ int MdiChild::askQuestion(const QString & msg, QMessageBox::StandardButtons butt
   return QMessageBox::question(this, CPN_STR_APP_NAME, msg, buttons, defaultButton);
 }
 
-void MdiChild::writeSettings(StatusDialog * status)  // write to Tx
+void MdiChild::writeModelsSettings(bool toRadio)
 {
+  //  safeguard as the menu actions are enabled
+  int cnt = radioData.invalidModels();
+
+  if (cnt) {
+    QMessageBox::critical(this, tr("Write Models and Settings"),
+      tr("Operation aborted as %1 models have significant errors that may affect model operation.\n%2")
+      .arg(cnt)
+      .arg(radioData.modelErrorsList().join("\n")));
+    return;
+  }
+
   if (g.confirmWriteModelsAndSettings()) {
     QMessageBox msgbox;
-    msgbox.setText(tr("You are about to overwrite ALL models on the Radio."));
-    msgbox.setInformativeText(tr("Do you want to continue?"));
+    msgbox.setText(tr("You are about to overwrite ALL models."));
+    msgbox.setInformativeText(tr("Continue?"));
     msgbox.setIcon(QMessageBox::Icon::Question);
     msgbox.setStandardButtons(QMessageBox::Yes | QMessageBox::Abort);
     msgbox.setDefaultButton(QMessageBox::Abort);
 
     QCheckBox *cb = new QCheckBox(tr("Do not show this message again"));
     msgbox.setCheckBox(cb);
-    connect(cb, &QCheckBox::stateChanged, [=](const int &state){ g.confirmWriteModelsAndSettings(!state); });
-
+    connect(cb, &QCheckBox::checkStateChanged, [=](const int &state){ g.confirmWriteModelsAndSettings(!state); });
     if (msgbox.exec() == QMessageBox::Abort)
       return;
   }
 
-  Board::Type board = getCurrentBoard();
+  QString radioPath;
 
-  if (Boards::getCapability(board, Board::HasSDCard)) {
-    QString radioPath = findMassstoragePath("RADIO", true);
-    qDebug() << "Searching for SD card, found" << radioPath;
+  if (toRadio) {
+    radioPath = findMassStoragePath("RADIO", true);
     if (radioPath.isEmpty()) {
-      qDebug() << "Radio SD card not found";
       QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find radio SD card!"));
       return;
     }
-
-    if (saveFile(radioPath, false)) {
-      status->hide();
-      QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written to radio"));
-    }
-    else {
-      qDebug() << "MdiChild::writeEeprom(): saveFile error";
-      status->hide();
-      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings to radio!"));
-    }
-  }
-  else {
-    QString tempFile = generateProcessUniqueTempFileName("temp.bin");
-    saveFile(tempFile, false);
-    if (!QFileInfo(tempFile).exists()) {
-      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Cannot write temporary file!"));
+    qDebug() << "SD card found" << radioPath;
+  } else {
+    radioPath = g.currentProfile().sdPath();
+    if (!QFile(radioPath % "/RADIO").exists()) {
+      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Unable to find SD path '%1'!")
+                            .arg(QDir::toNativeSeparators(radioPath % "/RADIO")));
       return;
     }
-    FlashEEpromDialog * cd = new FlashEEpromDialog(this, tempFile);
-    cd->exec();
+  }
+
+  bool ret = saveFile(radioPath, false, toRadio);
+
+  if (!toRadio) {
+    if (ret)
+      QMessageBox::information(this, CPN_STR_TTL_INFO, tr("Models and settings written"));
+    else
+      QMessageBox::critical(this, CPN_STR_TTL_ERROR, tr("Error writing models and settings!"));
   }
 }
 
@@ -1793,7 +1922,7 @@ unsigned MdiChild::exportModels(const QVector<int> modelIndices)
     if (idx < 0 || idx >= (int)radioData.models.size())
       continue;
 
-    const QString path(QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES/" + QString(radioData.models[idx].name) + ".yml"));
+    const QString path(QDir::toNativeSeparators(g.profile[g.id()].sdPath() + "/TEMPLATES/" + radioData.models[idx].name.toQString() + ".yml"));
     qDebug() << path;
 
     QString filename;
@@ -1848,5 +1977,146 @@ void MdiChild::setModelModified(const int modelIndex, bool cascade)
     radioData.models[modelIndex].modelUpdated = true;
     if (cascade)
       setModified();
+  }
+}
+
+QAction * MdiChild::actionsSeparator()
+{
+  QAction * act = new QAction(this);
+  act->setSeparator(true);
+  return act;
+}
+
+int MdiChild::invalidModels()
+{
+  return radioData.invalidModels();
+}
+
+QStringList MdiChild::modelErrorsList()
+{
+  return radioData.modelErrorsList();
+}
+
+void MdiChild::modelShowErrors()
+{
+  ModelData &mdl = radioData.models[getCurrentModel()];
+  QMessageBox::critical(this, QString("%1").arg(mdl.name.toQString()), mdl.errorsList().join("\n"));
+}
+
+void MdiChild::onModelEditClosed(int id)
+{
+  radioData.models[id].validate();
+  refresh();
+}
+
+void MdiChild::setupStatusBar()
+{
+  statusBar = new QStatusBar();
+  ui->statusBarLayout->addWidget(statusBar);
+  QLabel *lbl = new QLabel(tr("Models status"));
+  statusBar->addPermanentWidget(lbl);
+  statusBarIcon = new StatusBarIcon(this);
+  statusBar->addPermanentWidget(statusBarIcon);
+  statusBarCount = new QLabel();
+  statusBar->addPermanentWidget(statusBarCount);
+}
+
+void MdiChild::updateStatusBar()
+{
+  QPixmap p;
+  QLabel cnt;
+  int invalid = radioData.invalidModels();
+  disconnect(statusBarIcon, &StatusBarIcon::doubleClicked, nullptr, nullptr);
+
+  if (!invalidModels()) {
+    statusBarIcon->setToolTip(tr("No errors"));
+    p.load(":/images/png/tick-green.png");
+  } else {
+    statusBarIcon->setToolTip(tr("Double click to display errors"));
+    connect(statusBarIcon, &StatusBarIcon::doubleClicked, [this] () {
+      QMessageBox::critical(this, tr("Models Status"), radioData.modelErrorsList().join("\n"));
+    });
+    p.load(":/images/png/cross-red.png");
+    cnt.setText(QString::number(invalid));
+  }
+
+  statusBarIcon->setPixmap(p.scaled(QSize(24, 24)));
+  statusBarCount->setText(cnt.text());
+}
+
+void MdiChild::modelImport()
+{
+  QString filename = QFileDialog::getOpenFileName(this, tr("Open Model file"), g.eepromDir(), YML_FILES_FILTER);
+
+  if (filename.isEmpty())
+    return;
+
+  if (getStorageType(filename) != STORAGE_TYPE_YML)
+    return;
+
+  RadioData tmpRadioData;
+
+  Storage storage(filename);
+
+  if (!storage.load(tmpRadioData)) {
+    QMessageBox::critical(this, CPN_STR_TTL_ERROR, storage.error());
+    return;
+  }
+
+  QString warning = storage.warning();
+
+  if (!warning.isEmpty())
+    QMessageBox::warning(this, CPN_STR_TTL_WARNING, warning);
+
+  bool ok = true;
+  int modelIdx = modelsListModel->getModelIndex(getCurrentIndex());
+  ModelData &modelData = tmpRadioData.models[0];
+
+  if (modelIdx == -1 || modelIdx >= (int)radioData.models.size()) {
+    // This handles importing past the end
+    modelIdx = modelAppend(modelData);
+
+    if (modelIdx < 0) {
+      ok = false;
+      showWarning(tr("Cannot import model, out of available model slots."));
+    }
+  } else if (radioData.models[modelIdx].isEmpty()) {
+    radioData.models[modelIdx] = modelData;
+  } else {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(CPN_STR_APP_NAME);
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setText(tr("Model slot in use! Do you want to overwrite or insert into a new slot?"));
+    QPushButton *overwriteButton = msgBox.addButton(tr("Overwrite"),QMessageBox::ActionRole);
+    QPushButton *insertButton = msgBox.addButton(tr("Insert"),QMessageBox::ActionRole);
+    QPushButton *cancelButton = msgBox.addButton(QMessageBox::Cancel);
+    msgBox.setDefaultButton(insertButton);
+
+    msgBox.exec();
+
+    if (msgBox.clickedButton() == overwriteButton) {
+      radioData.models[modelIdx] = modelData;
+    }
+    else if (msgBox.clickedButton() == insertButton) {
+      ok = insertModelRows(modelIdx, 1);
+      if (ok) {
+        radioData.models[modelIdx] = modelData;
+      }
+    }
+    else if (msgBox.clickedButton() == cancelButton) {
+      ok = false;
+    }
+  }
+
+  if (ok) {
+    // We don't want to create an index value conflict so use an invalid one (it will get updated after we're done here)
+    radioData.models[modelIdx].modelIndex = -modelIdx;
+    radioData.models[modelIdx].filename = radioData.getNextModelFilename();
+    lastSelectedModel = modelIdx;  // after refresh the last pasted model will be selected
+    setModelModified(modelIdx, false);  // avoid unnecessary refreshes
+    radioData.addLabelsFromModels();
+    radioData.validateModels();
+    refresh();
+    setModified();
   }
 }

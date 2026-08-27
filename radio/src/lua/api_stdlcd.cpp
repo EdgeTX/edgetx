@@ -25,6 +25,7 @@
 #include <cstdio>
 #include "edgetx.h"
 #include "lua_api.h"
+#include "lua_states.h"
 
 /*luadoc
 @function lcd.refresh()
@@ -512,8 +513,8 @@ static int luaLcdDrawGauge(lua_State *L)
 #else
   lcdDrawRect(x, y, w, h, 0xff, flags);
 #endif
-  uint8_t len = limit((uint8_t)1, uint8_t(w*num/den), uint8_t(w));
-  lcdDrawSolidFilledRect(x+1, y+1, len, h-2, flags);
+  uint8_t len = limit((uint8_t)0, uint8_t(((w-2)*num + den/2) / den), uint8_t(w-2));
+  if (len > 0) lcdDrawSolidFilledRect(x+1, y+1, len, h-2, flags);
   return 0;
 }
 
@@ -622,6 +623,7 @@ static int luaLcdDrawCombobox(lua_State *L)
   return 0;
 }
 
+extern "C" {
 LROT_BEGIN(lcdlib, NULL, 0)
   LROT_FUNCENTRY( refresh, luaLcdRefresh )
   LROT_FUNCENTRY( clear, luaLcdClear )
@@ -648,8 +650,7 @@ LROT_END(lcdlib, NULL, 0)
 LROT_BEGIN(bitmaplib, NULL, 0)
 LROT_END(bitmaplib, NULL, 0)
 
-extern "C" {
-  LUALIB_API int luaopen_bitmap(lua_State * L) {
-    return 0;
-  }
+LUALIB_API int luaopen_bitmap(lua_State * L) {
+  return 0;
+}
 }

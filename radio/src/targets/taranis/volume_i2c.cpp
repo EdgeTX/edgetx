@@ -21,17 +21,19 @@
 
 #if !defined(SOFTWARE_VOLUME)
 
-#include "hal/i2c_driver.h"
 #include "stm32_i2c_driver.h"
+
+#include "hal/i2c_driver.h"
+#include "hal/audio_driver.h"
 
 #include "board.h"
 
-static const uint8_t volumeScale[VOLUME_LEVEL_MAX+1] = {
-  0,  1,  2,  3,  5,  9,  13,  17,  22,  27,  33,  40,
-  64, 82, 96, 105, 112, 117, 120, 122, 124, 125, 126, 127
+static const uint8_t volumeScale[VOLUME_LEVEL_MAX + 1] = {
+    0,  1,  2,  3,   5,   9,   13,  17,  22,  27,  33,  40,
+    64, 82, 96, 105, 112, 117, 120, 122, 124, 125, 126, 127,
 };
 
-int32_t getVolume()
+static int32_t read_i2c_volume()
 {
   uint8_t value = 0;
   if (i2c_read(VOLUME_I2C_BUS, VOLUME_I2C_ADDRESS, 0, 1, &value, 1) < 0)
@@ -40,19 +42,19 @@ int32_t getVolume()
   return value;
 }
 
-void setVolume(uint8_t volume)
+static void write_i2c_volume(uint8_t volume)
 {
   i2c_init(VOLUME_I2C_BUS);
   i2c_write(VOLUME_I2C_BUS, VOLUME_I2C_ADDRESS, 0, 1, &volume, 1);
 }
 
-void setScaledVolume(uint8_t volume)
+void audioSetVolume(uint8_t volume)
 {
   if (volume > VOLUME_LEVEL_MAX) {
     volume = VOLUME_LEVEL_MAX;
   }
 
-  setVolume(volumeScale[volume]);
+  write_i2c_volume(volumeScale[volume]);
 }
 
 #endif

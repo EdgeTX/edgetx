@@ -46,8 +46,12 @@
   #include "telemetry/crossfire.h"
 #endif
 
+#if defined(GHOST)
+  #include "telemetry/ghost.h"
+#endif
+
 #if defined(DEBUG_SEGGER_RTT)
-  #include "thirdparty/Segger_RTT/RTT/SEGGER_RTT.h"
+  #include "thirdparty/Segger/SEGGER/SEGGER_RTT.h"
 #endif
 
 #define PRINTF_BUFFER_SIZE    128
@@ -218,8 +222,9 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
 #endif
 
   case UART_MODE_SBUS_TRAINER:
-    sbusSetAuxGetByte(ctx, getByte);
-    // TODO: setRxCb (see MODE_LUA)
+  case UART_MODE_SBUS_TRAINER_INV:
+    // Nothing to do: the trainer claims the port when (and only when) the
+    // trainer mode selects it as input source. See sbusTrainerAcquire().
     break;
 
   case UART_MODE_TELEMETRY:
@@ -298,6 +303,12 @@ static void serialSetupPort(int mode, etx_serial_init& params)
       break;
     }
 #endif
+#if defined(GHOST)
+    if (isModuleGhost(EXTERNAL_MODULE) || isModuleGhost(INTERNAL_MODULE)) {
+      params.baudrate = GHOST_TELEM_MIRROR_BAUDRATE;
+      break;
+    }
+#endif
     params.baudrate = FRSKY_TELEM_MIRROR_BAUDRATE;
     break;
 
@@ -313,6 +324,13 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     params.baudrate = SBUS_BAUDRATE;
     params.encoding = ETX_Encoding_8E2,
     params.direction = ETX_Dir_RX;
+    break;
+
+  case UART_MODE_SBUS_TRAINER_INV:
+    params.baudrate = SBUS_BAUDRATE;
+    params.encoding = ETX_Encoding_8E2,
+    params.direction = ETX_Dir_RX;
+    params.polarity = ETX_Pol_Inverted;
     break;
 
 #if defined(LUA)
@@ -418,6 +436,10 @@ void serialInit(uint8_t port_nr, int mode)
   if (!port) return;
 
   if (state->port) {
+#if !defined(BOOT)
+    // Drop the trainer input before the driver context goes away
+    sbusTrainerReleaseCtx(state->usart_ctx);
+#endif
     auto drv = state->port->uart;
     if (drv && drv->deinit && state->usart_ctx) {
       drv->deinit(state->usart_ctx);
@@ -454,12 +476,7 @@ void serialInit(uint8_t port_nr, int mode)
   };
 
   serialSetupPort(mode, params);
-
-  if (mode == UART_MODE_NONE ) {
-    // Even if port has no mode, port power needs to be set
-    serialSetPowerState(port_nr);
-    return;
-  }
+  serialSetPowerState(port_nr);
 
   if (!port || params.baudrate == 0 ||
       !port->uart || !port->uart->init)
@@ -484,22 +501,41 @@ void serialInit(uint8_t port_nr, int mode)
 #endif
 }
 
+#if !defined(BOOT)
+int serialGetSbusTrainerPort()
+{
+  int port_nr = serialGetModePort(UART_MODE_SBUS_TRAINER);
+
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
+  // Ports without a hardware inverter rely on the USART inverting RX itself,
+  // which only exists on these families (see stm32_serial_init()). Elsewhere
+  // the mode cannot work, so do not offer such a port as trainer input even
+  // if a configuration written on another radio selects it.
+  if (port_nr < 0) port_nr = serialGetModePort(UART_MODE_SBUS_TRAINER_INV);
+#endif
+
+  return port_nr;
+}
+
+bool serialGetPortCtx(uint8_t port_nr, void** ctx,
+                      const etx_serial_driver_t** drv)
+{
+  auto state = getSerialPortState(port_nr);
+  if (!state || !state->port || !state->usart_ctx || !state->port->uart)
+    return false;
+
+  *ctx = state->usart_ctx;
+  *drv = state->port->uart;
+  return true;
+}
+#endif
+
 void initSerialPorts()
 {
-#if defined(DEBUG)
-  // AUX1 and serialPortStates was already initialized early in DEBUG config
-  for (uint8_t port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {
-    if (port_nr != SP_AUX1) {
-      auto mode = getSerialPortMode(port_nr);
-      serialInit(port_nr, mode);
-    }
-  }
-#else
   for (uint8_t port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {
     auto mode = getSerialPortMode(port_nr);
     serialInit(port_nr, mode);
   }
-#endif
 }
 
 int serialGetMode(uint8_t port_nr)
@@ -539,6 +575,10 @@ void serialStop(uint8_t port_nr)
   if (!state) return;
 
   if (state->port) {
+#if !defined(BOOT)
+    // Drop the trainer input before the driver context goes away
+    sbusTrainerReleaseCtx(state->usart_ctx);
+#endif
     auto port = state->port;
     auto drv = port->uart;
     if (drv && drv->deinit) {

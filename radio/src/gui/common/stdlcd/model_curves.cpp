@@ -147,7 +147,7 @@ void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlag
       drawCurveName(x, y, v.value, flags);
       if (active && menuHorizontalPosition == 1) {
         if (event == EVT_KEY_LONG(KEY_ENTER) && v.value != 0) {
-          s_currIdxSubMenu = abs(curve.value) - 1;
+          s_currIdxSubMenu = abs(v.value) - 1;
           pushMenu(menuModelCurveOne);
         }
         else {

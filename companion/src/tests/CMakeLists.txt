@@ -1,6 +1,5 @@
 
-
-if(Qt5Widgets_FOUND)
+if(Qt6Widgets_FOUND)
   add_library(gtests-companion-lib STATIC EXCLUDE_FROM_ALL
     ${googletest_SOURCE_DIR}/googletest/src/gtest-all.cc
   )
@@ -15,11 +14,6 @@ if(Qt5Widgets_FOUND)
 
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-  if(WIN32)
-    target_include_directories(gtests-companion-lib PUBLIC ${WIN_INCLUDE_DIRS})
-    target_link_libraries(gtests-companion-lib PRIVATE ${WIN_LINK_LIBRARIES})
-  endif(WIN32)
-
   file(GLOB TEST_SRC_FILES ${TESTS_PATH}/*.cpp)
 
   set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -O0")
@@ -30,5 +24,5 @@ if(Qt5Widgets_FOUND)
   target_link_libraries(gtests-companion gtests-companion-lib simulation firmwares storage common)
   message(STATUS "Added optional gtests-companion target")
 else()
-  message(WARNING "WARNING: gtests target will not be available (check that Qt5Widgets are configured).")
+  message(WARNING "WARNING: gtests target will not be available (check that QtWidgets are configured).")
 endif()

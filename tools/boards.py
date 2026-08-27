@@ -69,12 +69,15 @@ boards = {
         "INTERNAL_MODULE_MULTI": "YES"
     },
     "V12": {
-        "PCB": "X7",
-        "PCBREV": "V12",
+        "PCB": "V12",
     },
     "V14": {
         "PCB": "X7",
         "PCBREV": "V14",
+    },
+    "V14LCD": {
+        "PCB": "X7",
+        "PCBREV": "V14LCD",
     },
     "V16": {
         "PCB": "X10",

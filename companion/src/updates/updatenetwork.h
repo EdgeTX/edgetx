@@ -71,6 +71,8 @@ class UpdateNetwork : public QObject
 
     static QString downloadDataTypeToString(const DownloadDataType val);
 
+    QUrl getFinalUrl() const { return m_finalUrl; }
+
   private slots:
     void onGetFinished(QNetworkReply * reply, DownloadDataType ddt);
     void onPostFinished();
@@ -85,6 +87,7 @@ class UpdateNetwork : public QObject
     QByteArray *m_buffer;
     QFile *m_file;
     QUrl m_url;
+    QUrl m_finalUrl;
     bool m_success;
     QEventLoop m_eventLoop;
     QTimer m_timer;

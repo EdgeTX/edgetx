@@ -186,7 +186,7 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateInterface * ifa
     leSubFolders << leSubFolder;
     layout3->addWidget(leSubFolder, 1, 2, 1, 2);
 
-    connect(chkDownload, &QCheckBox::stateChanged, [=](const int checked) {
+    connect(chkDownload, &QCheckBox::checkStateChanged, [=](const int checked) {
       if (!checked) {
         chkDecompress->setChecked(false);
         chkCopy->setChecked(false);
@@ -199,7 +199,7 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateInterface * ifa
       }
     });
 
-    connect(chkDecompress, &QCheckBox::stateChanged, [=](const int checked) {
+    connect(chkDecompress, &QCheckBox::checkStateChanged, [=](const int checked) {
       if (!checked) {
         chkCopy->setChecked(false);
         chkInstall->setChecked(false);
@@ -210,7 +210,7 @@ UpdateOptionsDialog::UpdateOptionsDialog(QWidget * parent, UpdateInterface * ifa
       }
     });
 
-    connect(chkCopy, &QCheckBox::stateChanged, [=](const int checked) {
+    connect(chkCopy, &QCheckBox::checkStateChanged, [=](const int checked) {
       cboCopyFilterType->setEnabled(checked ? (processes & UpdateInterface::UPDFLG_CopyDest) && (!locked) : checked);
       leCopyFilter->setEnabled(checked ? (processes & UpdateInterface::UPDFLG_CopyDest) && (!locked) : checked);
       leSubFolder->setEnabled(checked ? (processes & UpdateInterface::UPDFLG_CopyDest) && (!locked) : checked);

@@ -37,6 +37,7 @@ struct stick_pwm_timer_t {
 
   TIM_TypeDef*               TIMx;
   IRQn_Type                  TIM_IRQn;
+  uint32_t                   TIM_Freq;
 };
 
 // returns 'true' if PWM sticks have been detected

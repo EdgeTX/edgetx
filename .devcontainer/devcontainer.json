@@ -3,10 +3,17 @@
 {
 	"name": "edgetx-dev",
 	"image": "ghcr.io/edgetx/edgetx-dev:latest",
-
-	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
-		"ms-vscode.cpptools"
+	"runArgs": [
+		"--ipc=host"
 	],
-
+	// Add the IDs of extensions you want installed when the container is created.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools"
+			]
+		}
+	},
+	// Post-create command to set up the environment
+	"postCreateCommand": "git submodule update --init --recursive && mkdir -p build && echo 'EdgeTX development environment ready!'"
 }

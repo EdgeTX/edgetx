@@ -23,4 +23,4 @@
 
 extern const etx_hal_adc_driver_t _adc_driver;
 
-bool sticksPwmDetect();
+void gimbalsDetect();

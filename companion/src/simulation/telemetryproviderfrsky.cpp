@@ -397,7 +397,7 @@ QString convertGPSDate(QString input)
   // output is dd-MM-yyyy hh:mm:ss
   QString localDateString = dateParts[2] + "-" + dateParts[1] + "-20" + dateParts[0] + " " + dateTime[1];
   QString format("dd-MM-yyyy hh:mm:ss");
-  QDateTime utcDate = QDateTime::fromString(localDateString, format).toTimeSpec(Qt::UTC);
+  QDateTime utcDate = QDateTime::fromString(localDateString, format).toTimeZone(QTimeZone::UTC);
   return utcDate.toString(format);
 }
 
@@ -601,7 +601,7 @@ uint32_t TelemetryProviderFrSky::getNextGPSPacketData(uint32_t packetType)
 
 void TelemetryProviderFrSky::setGPSDateTime(QString dateTime)
 {
-  QDateTime dt = QDateTime::currentDateTime().toTimeSpec(Qt::UTC); // default to current systemtime
+  QDateTime dt = QDateTime::currentDateTime().toTimeZone(QTimeZone::UTC); // default to current systemtime
   if (!dateTime.startsWith('*')) {
     QString format("dd-MM-yyyy hh:mm:ss");
     dt = QDateTime::fromString(dateTime, format);
@@ -679,9 +679,9 @@ void TelemetryProviderFrSky::on_saveTelemetryvalues_clicked()
     out << ui -> cell6 -> text();
     out<<"\r\n";
     out << ui -> cell7 -> text();
-    out<<"\r\n";    
+    out<<"\r\n";
     out << ui -> cell8 -> text();
-    out<<"\r\n"; 
+    out<<"\r\n";
     out << ui -> aspeed -> text();
     out<<"\r\n";
     out << ui -> gps_alt -> text();
@@ -830,7 +830,7 @@ void TelemetryProviderFrSky::on_loadTelemetryvalues_clicked()
     n = in.readLine();
     ns = n.toDouble();
     ui -> cell7 -> setValue(ns);
-    
+
     n = in.readLine();
     ns = n.toDouble();
     ui -> cell8 -> setValue(ns);

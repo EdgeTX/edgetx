@@ -21,6 +21,7 @@
 
 #include "updatefirmware.h"
 #include "flashfirmwaredialog.h"
+#include "radiointerface.h"
 
 UpdateFirmware::UpdateFirmware(QWidget * parent) :
   UpdateInterface(parent, CID_Firmware, tr("Firmware"), Repo::REPO_TYPE_GITHUB,
@@ -46,7 +47,7 @@ void UpdateFirmware::assetSettingsInit()
   cad.maxExpected(1);
   cad.destSubDir("FIRMWARE");
   cad.copyFilterType(UpdateParameters::UFT_Pattern);
-  cad.copyFilter("^%FWFLAVOUR%-.*\\.bin$");
+  cad.copyFilter("^%FWFLAVOUR%-.*\\.(bin|uf2)$");
 
   qDebug() << "Asset settings initialised";
 }
@@ -106,6 +107,22 @@ int UpdateFirmware::asyncInstall()
 
   int ret = QMessageBox::question(status()->progress(), CPN_STR_APP_NAME, tr("Write the updated firmware to the radio now ?"), QMessageBox::Yes | QMessageBox::No);
   if (ret == QMessageBox::Yes) {
+    QString extn(QFileInfo(destPath).suffix().toLower());
+    QString bootmodes;
+    if (dfuFileExtensions().contains(extn))
+      bootmodes.append("DFU");
+
+    if (uf2FileExtensions().contains(extn)) {
+      if (!bootmodes.isEmpty()) {
+        bootmodes.append(tr(" or "));
+      }
+      bootmodes.append("UF2");
+    }
+
+    QMessageBox::warning(status()->progress(), tr("Write Firmware to Radio"),
+                         tr("Before continuing, ensure the radio is connected and booted in %1 mode(s)")
+                         .arg(bootmodes));
+
     FlashFirmwareDialog *dlg = new FlashFirmwareDialog(this);
     dlg->exec();
     dlg->deleteLater();

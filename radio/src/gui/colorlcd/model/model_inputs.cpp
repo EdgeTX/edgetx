@@ -23,9 +23,12 @@
 
 #include <algorithm>
 
+#include "dialog.h"
+#include "edgetx.h"
 #include "hal/adc_driver.h"
 #include "input_edit.h"
-#include "edgetx.h"
+#include "menu.h"
+#include "messaging.h"
 #include "tasks/mixer_task.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
@@ -104,6 +107,8 @@ class InputLineButton : public InputMixButtonBase
     InputMixButtonBase(parent, index)
   {
     check(isActive());
+
+    refreshMsg.subscribe(Messaging::REFRESH, [=](uint32_t param) { refresh(); });
   }
 
   void refresh() override
@@ -177,8 +182,10 @@ class InputLineButton : public InputMixButtonBase
     }
   }
 
- protected:
   bool isActive() const override { return isExpoActive(index); }
+
+ protected:
+  Messaging refreshMsg;
 };
 
 class InputGroup : public InputMixGroupBase
@@ -189,13 +196,13 @@ class InputGroup : public InputMixGroupBase
   {
     adjustHeight();
 
-    lv_obj_set_pos(label, 2, 4);
+    lv_obj_set_pos(label, PAD_TINY, PAD_SMALL);
 
     refresh();
   }
 };
 
-ModelInputsPage::ModelInputsPage() : InputMixPageBase(STR_MENUINPUTS, ICON_MODEL_INPUTS)
+ModelInputsPage::ModelInputsPage(const PageDef& pageDef) : InputMixPageBase(pageDef)
 {
 }
 
@@ -270,7 +277,7 @@ InputMixButtonBase* ModelInputsPage::createLineButton(InputMixGroupBase* group,
       uint8_t idx = button->getIndex();
       deleteInput(idx);
     });
-    return 0;
+    return button->isActive();
   });
 
   return button;
@@ -325,7 +332,7 @@ void ModelInputsPage::editInput(uint8_t input, uint8_t index)
 
   auto edit = new InputEditWindow(input, index);
   edit->setCloseHandler([=]() {
-    line->refresh();
+    Messaging::send(Messaging::REFRESH);
     group->refresh();
     group->adjustHeight();
   });
@@ -340,24 +347,36 @@ void ModelInputsPage::insertInput(uint8_t input, uint8_t index)
 
 void ModelInputsPage::deleteInput(uint8_t index)
 {
-  _copyMode = 0;
-
   auto group = getGroupByIndex(index);
-  if (!group) return;
+    if (!group) return;
 
   auto line = getLineByIndex(index);
   if (!line) return;
 
-  group->removeLine(line);
-  if (group->getLineCount() == 0) {
-    group->deleteLater();
-    removeGroup(group);
+  auto expo = expoAddress(index);
+  std::string s(getSourceString(group->getMixSrc()));
+  s += " - ";
+  if (expo->name[0]) {
+    s += expo->name;
   } else {
-    line->deleteLater();
+    s += "#";
+    s += std::to_string(group->getLineNumber(index));
   }
-  removeLine(line);
 
-  ::deleteExpo(index);
+  if (confirmationDialog(STR_DELETE_INPUT_LINE, s.c_str())) {
+    _copyMode = 0;
+
+    group->removeLine(line);
+    if (group->getLineCount() == 0) {
+      group->deleteLater();
+      removeGroup(group);
+    } else {
+      line->deleteLater();
+    }
+    removeLine(line);
+
+    ::deleteExpo(index);
+  }
 }
 
 void ModelInputsPage::pasteInput(uint8_t dst_idx, uint8_t input)

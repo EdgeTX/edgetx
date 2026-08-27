@@ -21,19 +21,22 @@
 
 #include "model_logical_switches.h"
 
-#include "libopenui.h"
-#include "list_line_button.h"
 #include "edgetx.h"
+#include "etx_lv_theme.h"
+#include "getset_helpers.h"
+#include "list_line_button.h"
+#include "menu.h"
+#include "numberedit.h"
 #include "page.h"
 #include "sourcechoice.h"
 #include "switchchoice.h"
 #include "switches.h"
-#include "etx_lv_theme.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 #define ETX_STATE_LS_ACTIVE LV_STATE_USER_1
-#define ETX_STATE_V1_SMALL_FONT LV_STATE_USER_1
+#define ETX_STATE_V1_SMALL_FONT LV_STATE_USER_2
 
 static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                      LV_GRID_TEMPLATE_LAST};
@@ -87,14 +90,6 @@ class LogicalSwitchEditPage : public Page
     etx_font(headerSwitchName->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_LS_ACTIVE);
   }
 
-  void getV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max)
-  {
-    getMixSrcRange(cs->v1, v2_min, v2_max);
-    if ((cs->func == LS_FUNC_APOS) || (cs->func == LS_FUNC_ANEG) ||
-        (cs->func == LS_FUNC_ADIFFEGREATER))
-      v2_min = 0;
-  }
-
   void updateLogicalSwitchOneWindow()
   {
     SwitchChoice* choice;
@@ -138,7 +133,7 @@ class LogicalSwitchEditPage : public Page
                            cs->v1 = newValue;
                            if (v2Edit != nullptr) {
                              int16_t v2_min = 0, v2_max = 0;
-                             getV2Range(cs, v2_min, v2_max);
+                             validateLSV2Range(cs, v2_min, v2_max, nullptr);
                              v2Edit->setMin(v2_min);
                              v2Edit->setMax(v2_max);
                              v2Edit->setValue(cs->v2);
@@ -203,7 +198,7 @@ class LogicalSwitchEditPage : public Page
         break;
       default:
         int16_t v2_min = 0, v2_max = 0;
-        getV2Range(cs, v2_min, v2_max);
+        if (validateLSV2Range(cs, v2_min, v2_max, nullptr)) SET_DIRTY();
         v2Edit = new NumberEdit(line, rect_t{}, v2_min, v2_max,
                                 GET_SET_DEFAULT(cs->v2));
 
@@ -312,71 +307,59 @@ class LogicalSwitchButton : public ListLineButton
 
     check(isActive());
 
-    lv_obj_add_event_cb(lvobj, LogicalSwitchButton::on_draw,
-                        LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+    delayLoad();
   }
 
-  static void on_draw(lv_event_t* e)
+  void delayedInit() override
   {
-    lv_obj_t* target = lv_event_get_target(e);
-    auto line = (LogicalSwitchButton*)lv_obj_get_user_data(target);
-    if (line) {
-      if (!line->init)
-        line->delayed_init();
-      line->refresh();
-    }
-  }
-
-  void delayed_init()
-  {
-    init = true;
-
     lv_obj_enable_style_refresh(false);
 
-    lsName = lv_label_create(lvobj);
+    lsName = etx_label_create(lvobj);
     etx_obj_add_style(lsName, styles->text_align_left, LV_PART_MAIN);
     lv_obj_set_pos(lsName, NM_X, NM_Y);
-    lv_obj_set_size(lsName, NM_W, NM_H);
+    lv_obj_set_size(lsName, NM_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
-    lsFunc = lv_label_create(lvobj);
+    lsFunc = etx_label_create(lvobj);
     etx_obj_add_style(lsFunc, styles->text_align_left, LV_PART_MAIN);
     lv_obj_set_pos(lsFunc, FN_X, FN_Y);
-    lv_obj_set_size(lsFunc, FN_W, FN_H);
+    lv_obj_set_size(lsFunc, FN_W, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_style_text_font(lsFunc, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
-    lsV1 = lv_label_create(lvobj);
+    lsV1 = etx_label_create(lvobj);
     etx_obj_add_style(lsV1, styles->text_align_center, LV_PART_MAIN);
     etx_font(lsV1, FONT_XS_INDEX, ETX_STATE_V1_SMALL_FONT);
     lv_obj_set_pos(lsV1, V1_X, V1_Y);
-    lv_obj_set_size(lsV1, V1_W, V1_H);
+    lv_obj_set_size(lsV1, V1_W, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_style_text_font(lsV1, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
-    lsV2 = lv_label_create(lvobj);
+    lsV2 = etx_label_create(lvobj);
     etx_obj_add_style(lsV2, styles->text_align_center, LV_PART_MAIN);
     lv_obj_set_pos(lsV2, V2_X, V2_Y);
-    lv_obj_set_size(lsV2, V2_W, V2_H);
+    lv_obj_set_size(lsV2, V2_W, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_style_text_font(lsV2, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
-    lsAnd = lv_label_create(lvobj);
+    lsAnd = etx_label_create(lvobj);
     etx_obj_add_style(lsAnd, styles->text_align_center, LV_PART_MAIN);
     lv_obj_set_pos(lsAnd, AND_X, AND_Y);
-    lv_obj_set_size(lsAnd, AND_W, AND_H);
+    lv_obj_set_size(lsAnd, AND_W, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_style_text_font(lsAnd, getFont(FONT(BOLD)), LV_STATE_USER_1);
 
-    lsDuration = lv_label_create(lvobj);
+    lsDuration = etx_label_create(lvobj);
     etx_obj_add_style(lsDuration, styles->text_align_center, LV_PART_MAIN);
     lv_obj_set_pos(lsDuration, DUR_X, DUR_Y);
-    lv_obj_set_size(lsDuration, DUR_W, DUR_H);
+    lv_obj_set_size(lsDuration, DUR_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
-    lsDelay = lv_label_create(lvobj);
+    lsDelay = etx_label_create(lvobj);
     etx_obj_add_style(lsDelay, styles->text_align_center, LV_PART_MAIN);
     lv_obj_set_pos(lsDelay, DEL_X, DEL_Y);
-    lv_obj_set_size(lsDelay, DEL_W, DEL_H);
+    lv_obj_set_size(lsDelay, DEL_W, EdgeTxStyles::STD_FONT_HEIGHT);
 
     lv_obj_update_layout(lvobj);
 
     lv_obj_enable_style_refresh(true);
     lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
+
+    refresh();
   }
 
   bool isActive() const override
@@ -386,6 +369,8 @@ class LogicalSwitchButton : public ListLineButton
 
   void checkEvents() override
   {
+    if (!loaded) return;
+
     ListLineButton::checkEvents();
     check(isActive());
 
@@ -415,7 +400,7 @@ class LogicalSwitchButton : public ListLineButton
 
   void refresh() override
   {
-    if (!init) return;
+    if (!loaded) return;
 
     char s[20];
 
@@ -449,7 +434,6 @@ class LogicalSwitchButton : public ListLineButton
     }
 
     // CSW params - V2
-    strcat(s, " ");
     switch (lsFamily) {
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
@@ -499,40 +483,31 @@ class LogicalSwitchButton : public ListLineButton
     }
   }
 
-  static LAYOUT_VAL(LS_BUTTON_H, 32, 44)
+  static LAYOUT_SIZE_SCALED(LS_BUTTON_H, 32, 44)
 
   static constexpr coord_t NM_X = PAD_TINY;
-  static LAYOUT_VAL(NM_Y, 4, 10)
-  static LAYOUT_VAL(NM_W, 30, 36)
-  static LAYOUT_VAL(NM_H, 20, 20)
+  static LAYOUT_SIZE_SCALED(NM_Y, 4, 10)
+  static LAYOUT_SIZE_SCALED(NM_W, 30, 36)
   static constexpr coord_t FN_X = NM_X + NM_W + PAD_TINY;
   static constexpr coord_t FN_Y = NM_Y;
-  static LAYOUT_VAL(FN_W, 50, 58)
-  static constexpr coord_t FN_H = NM_H;
+  static LAYOUT_SIZE_SCALED(FN_W, 50, 58)
   static constexpr coord_t V1_X = FN_X + FN_W + PAD_TINY;
-  static LAYOUT_VAL(V1_Y, NM_Y, 0)
-  static LAYOUT_VAL(V1_W, 88, 88)
-  static constexpr coord_t V1_H = NM_H;
+  static LAYOUT_SIZE(V1_Y, NM_Y, 0)
+  static LAYOUT_VAL_SCALED(V1_W, 88)
   static constexpr coord_t V2_X = V1_X + V1_W + PAD_TINY;
   static constexpr coord_t V2_Y = V1_Y;
-  static LAYOUT_VAL(V2_W, 110, 110)
-  static constexpr coord_t V2_H = NM_H;
-  static LAYOUT_VAL(AND_X, V2_X + V2_W + PAD_TINY, FN_X + FN_W + PAD_TINY)
-  static LAYOUT_VAL(AND_Y, NM_Y, 20)
   static constexpr coord_t AND_W = V1_W;
-  static constexpr coord_t AND_H = NM_H;
-  static constexpr coord_t DUR_X = AND_X + AND_W + PAD_TINY;
-  static constexpr coord_t DUR_Y = AND_Y;
-  static LAYOUT_VAL(DUR_W, 40, 54)
-  static constexpr coord_t DUR_H = NM_H;
-  static constexpr coord_t DEL_X = DUR_X + DUR_W + PAD_TINY;
-  static constexpr coord_t DEL_Y = AND_Y;
-  static constexpr coord_t DEL_H = NM_H;
+  static LAYOUT_SIZE_SCALED(DUR_W, 40, 54)
   static constexpr coord_t DEL_W = DUR_W;
+  static constexpr coord_t AND_X = ListLineButton::GRP_W - PAD_BORDER * 2 - AND_W - DUR_W - DEL_W - PAD_TINY * 3;
+  static LAYOUT_SIZE_SCALED(AND_Y, 4, 20)
+  static constexpr coord_t V2_W = AND_X - V2_X - PAD_TINY;
+  static constexpr coord_t DUR_X = ListLineButton::GRP_W - PAD_BORDER * 2 - DUR_W - DEL_W - PAD_TINY * 2;
+  static constexpr coord_t DUR_Y = AND_Y;
+  static constexpr coord_t DEL_X = ListLineButton::GRP_W - PAD_BORDER * 2 - DEL_W - PAD_TINY;
+  static constexpr coord_t DEL_Y = AND_Y;
 
  protected:
-  bool init = false;
-
   lv_obj_t* lsName = nullptr;
   lv_obj_t* lsFunc = nullptr;
   lv_obj_t* lsV1 = nullptr;
@@ -542,8 +517,8 @@ class LogicalSwitchButton : public ListLineButton
   lv_obj_t* lsDelay = nullptr;
 };
 
-ModelLogicalSwitchesPage::ModelLogicalSwitchesPage() :
-    PageTab(STR_MENULOGICALSWITCHES, ICON_MODEL_LOGICAL_SWITCHES)
+ModelLogicalSwitchesPage::ModelLogicalSwitchesPage(const PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
 }
 
@@ -603,7 +578,7 @@ void ModelLogicalSwitchesPage::plusPopup(Window* window)
 
 void ModelLogicalSwitchesPage::build(Window* window)
 {
-  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_OUTLINE);
 
   bool hasEmptySwitch = false;
 
@@ -623,31 +598,28 @@ void ModelLogicalSwitchesPage::build(Window* window)
         menu->addLine(STR_EDIT, [=]() {
           Window* lsWindow = new LogicalSwitchEditPage(i);
           lsWindow->setCloseHandler([=]() {
-            if (!isActive)
+            if (ls->func == LS_FUNC_NONE)
               rebuild(window);
+            else
+              button->refresh();
           });
         });
-        if (isActive) {
-          menu->addLine(STR_COPY, [=]() {
-            clipboard.type = CLIPBOARD_TYPE_CUSTOM_SWITCH;
-            clipboard.data.csw = *ls;
-          });
-        }
+        menu->addLine(STR_COPY, [=]() {
+          clipboard.type = CLIPBOARD_TYPE_CUSTOM_SWITCH;
+          clipboard.data.csw = *ls;
+        });
         if (clipboard.type == CLIPBOARD_TYPE_CUSTOM_SWITCH)
           menu->addLine(STR_PASTE, [=]() {
             *ls = clipboard.data.csw;
             storageDirty(EE_MODEL);
             rebuild(window);
           });
-        if (isActive || ls->v1 || ls->v2 || ls->delay || ls->duration ||
-            ls->andsw) {
-          menu->addLine(STR_CLEAR, [=]() {
-            memset(ls, 0, sizeof(LogicalSwitchData));
-            storageDirty(EE_MODEL);
-            rebuild(window);
-          });
-        }
-        return 0;
+        menu->addLine(STR_CLEAR, [=]() {
+          memset(ls, 0, sizeof(LogicalSwitchData));
+          storageDirty(EE_MODEL);
+          rebuild(window);
+        });
+        return button->isActive();
       });
 
       if (focusIndex == i) {
@@ -675,7 +647,7 @@ void ModelLogicalSwitchesPage::build(Window* window)
 
   if (hasEmptySwitch) {
     addButton =
-        new TextButton(window, rect_t{0, 0, window->width() - 12, LogicalSwitchButton::LS_BUTTON_H},
+        new TextButton(window, rect_t{0, 0, window->width() - PAD_SMALL * 2, LogicalSwitchButton::LS_BUTTON_H},
                        LV_SYMBOL_PLUS, [=]() {
                          plusPopup(window);
                          return 0;

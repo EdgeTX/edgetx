@@ -100,3 +100,14 @@ void ToggleSwitch::onClicked()
 {
   // prevent FormField::onClicked()
 }
+
+void ToggleSwitch::checkEvents()
+{
+  Window::checkEvents();
+  if (_getValue != nullptr) {
+    bool v = _getValue() != 0;
+    bool s = (lv_obj_get_state(lvobj) & LV_STATE_CHECKED) == LV_STATE_CHECKED;
+    if (v != s)
+      update();
+  }
+}

@@ -23,6 +23,10 @@
 
 #include "serial_driver.h"
 
+#if defined(AUX_SERIAL_PWR_GPIO) || defined(AUX2_SERIAL_PWR_GPIO)
+  #define SWSERIALPOWER
+#endif
+
 typedef struct {
     const char*                name;
     const etx_serial_driver_t* uart;

@@ -21,22 +21,41 @@
 
 #include "radio_spectrum_analyser.h"
 
-#include "libopenui.h"
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "numberedit.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
-constexpr coord_t SCALE_HEIGHT = 15;
-constexpr coord_t FOOTER_HEIGHT = 32;
-constexpr coord_t SPECTRUM_HEIGHT = LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT - SCALE_HEIGHT - FOOTER_HEIGHT;
+LAYOUT_VAL_SCALED(SCALE_HEIGHT, 15)
+constexpr coord_t SPECTRUM_HEIGHT = LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT -
+                                    SCALE_HEIGHT -
+                                    EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_OUTLINE * 2;
 
-coord_t getAverage(uint8_t number, const uint8_t* value)
+// Empirical full-scale value of bars/max/peak samples. Used to map sample
+// values to chart pixels so bars fill the available height on any LCD.
+constexpr uint8_t SPECTRUM_FULL_SCALE = 90;
+
+static inline coord_t scaleSample(uint16_t value)
+{
+  return (value * SPECTRUM_HEIGHT) / SPECTRUM_FULL_SCALE;
+}
+
+template <uint8_t CNT>
+coord_t getAverage(const uint8_t* value)
 {
   uint16_t sum = 0;
-  for (uint8_t i = 0; i < number; i++) {
+  for (uint8_t i = 0; i < CNT; i++) {
     sum += value[i];
   }
-  return sum / number;
+  return scaleSample(sum / CNT);
+}
+
+template <>
+coord_t getAverage<4>(const uint8_t* value)
+{
+  uint16_t sum = value[0] + value[1] + value[2] + value[3];
+  return scaleSample(sum / 4);
 }
 
 class SpectrumFooterWindow : public Window
@@ -45,7 +64,7 @@ class SpectrumFooterWindow : public Window
   SpectrumFooterWindow(Window* parent, const rect_t& rect, int moduleIdx) :
       Window(parent, rect)
   {
-    padAll(PAD_ZERO);
+    padAll(PAD_OUTLINE);
 
     if (isModuleMultimodule(moduleIdx)) {
       char label[16];
@@ -53,18 +72,23 @@ class SpectrumFooterWindow : public Window
       // Frequency
       sprintf(label, "T: %dMHz",
               int(reusableBuffer.spectrumAnalyser.freq / 1000000));
-      (new StaticText(this, rect_t{PAD_TINY, 0, FLD_W, FOOTER_HEIGHT}, label))
+      (new StaticText(
+           this, rect_t{0, 0, FLD_W, 0},
+           label))
           ->padTop(PAD_MEDIUM);
 
       // Span
       sprintf(label, "S: %dMHz",
               int(reusableBuffer.spectrumAnalyser.span / 1000000));
-      (new StaticText(this, rect_t{PAD_TINY + FLD_W, 0, FLD_W, FOOTER_HEIGHT}, label))
+      (new StaticText(
+           this,
+           rect_t{FLD_W + PAD_OUTLINE, 0, FLD_W, 0},
+           label))
           ->padTop(PAD_MEDIUM);
     } else {
       // Frequency
       auto freq = new NumberEdit(
-          this, rect_t{PAD_TINY, 0, FLD_W, 0},
+          this, rect_t{0, 0, FLD_W, 0},
           reusableBuffer.spectrumAnalyser.freqMin,
           reusableBuffer.spectrumAnalyser.freqMax,
           GET_DEFAULT(reusableBuffer.spectrumAnalyser.freq / 1000000),
@@ -74,7 +98,7 @@ class SpectrumFooterWindow : public Window
 
       // Span
       auto span = new NumberEdit(
-          this, rect_t{PAD_TINY + FLD_W, 0, FLD_W, 0}, 1,
+          this, rect_t{FLD_W + PAD_OUTLINE, 0, FLD_W, 0}, 1,
           reusableBuffer.spectrumAnalyser.spanMax,
           GET_DEFAULT(reusableBuffer.spectrumAnalyser.span / 1000000),
           SET_VALUE(reusableBuffer.spectrumAnalyser.span, newValue * 1000000));
@@ -84,7 +108,8 @@ class SpectrumFooterWindow : public Window
 
     // Tracker
     auto tracker = new NumberEdit(
-        this, rect_t{(PAD_TINY + FLD_W) * 2, 0, FLD_W, FOOTER_HEIGHT},
+        this,
+        rect_t{(FLD_W + PAD_OUTLINE) * 2, 0, FLD_W, 0},
         (reusableBuffer.spectrumAnalyser.freq -
          reusableBuffer.spectrumAnalyser.span / 2) /
             1000000,
@@ -98,7 +123,7 @@ class SpectrumFooterWindow : public Window
     tracker->setDefault(reusableBuffer.spectrumAnalyser.freqDefault);
   }
 
-  static constexpr coord_t FLD_W = (LCD_W - PAD_TINY * 4) / 3;
+  static constexpr coord_t FLD_W = (LCD_W - PAD_OUTLINE * 4) / 3;
 };
 
 class SpectrumScaleWindow : public Window
@@ -122,8 +147,8 @@ class SpectrumScaleWindow : public Window
       int x = (frequency - startFreq) / reusableBuffer.spectrumAnalyser.step;
       if (x >= LCD_W - 1) break;
       formatNumberAsString(s, 16, frequency / 1000000, 16);
-      new StaticText(this, {x - 16, 0, 32, SCALE_HEIGHT}, s, 
-                     COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | CENTERED);
+      new StaticText(this, {x - PAD_LARGE * 2, 0, PAD_LARGE * 4, SCALE_HEIGHT},
+                     s, COLOR_THEME_PRIMARY1_INDEX, FONT(XS) | CENTERED);
     }
   }
 
@@ -146,17 +171,11 @@ class SpectrumScaleWindow : public Window
 class SpectrumWindow : public Window
 {
  public:
-  SpectrumWindow(Window* parent, const rect_t& rect) :
-      Window(parent, rect)
+  SpectrumWindow(Window* parent, const rect_t& rect) : Window(parent, rect)
   {
-    lv_style_init(&style);
-    lv_style_set_line_width(&style, 3);
-    lv_style_set_line_opa(&style, LV_OPA_COVER);
-    lv_style_set_line_color(&style, makeLvColor(COLOR_THEME_ACTIVE));
-
     lv_coord_t w = width() - 1;
-    for (int i = 0; i < SPECTRUM_HEIGHT / 40; i += 1) {
-      lv_coord_t y = height() - 40 - (i * 40);
+    for (int i = 0; i < SPECTRUM_HEIGHT / LINE_SPACE; i += 1) {
+      lv_coord_t y = height() - LINE_SPACE - (i * LINE_SPACE);
       hAxisPts[i * 2] = {0, y};
       hAxisPts[i * 2 + 1] = {w, y};
       auto line = lv_line_create(lvobj);
@@ -177,12 +196,17 @@ class SpectrumWindow : public Window
       maxLines[i] = line;
 
       line = lv_line_create(lvobj);
-      lv_obj_add_style(line, &style, LV_PART_MAIN);
+      etx_obj_add_style(line, styles->graph_line, LV_PART_MAIN);
+      etx_obj_add_style(line, styles->line_color[COLOR_THEME_ACTIVE_INDEX], LV_PART_MAIN);
       barLines[i] = line;
+
+      line = lv_line_create(lvobj);
+      etx_obj_add_style(line, styles->div_line_warn, LV_PART_MAIN);
+      peakLines[i] = line;
     }
 
     warning = new StaticText(
-        this, {0, height() / 2 - 20, lv_pct(100), LV_SIZE_CONTENT},
+        this, {0, height() / 2 - WARN_YO, lv_pct(100), LV_SIZE_CONTENT},
         STR_TURN_OFF_RECEIVER, COLOR_THEME_PRIMARY1_INDEX, CENTERED | FONT(XL));
     warning->show(TELEMETRY_STREAMING());
   }
@@ -200,13 +224,14 @@ class SpectrumWindow : public Window
 
 #if defined(SIMU)
     // Geneate random data for simu
-    for (coord_t x = 0; x < width() - 1; x++) {
+    for (coord_t x = 0; x < width(); x++) {
       uint8_t power = rand() % 80;
       reusableBuffer.spectrumAnalyser.bars[x] = power;
-      reusableBuffer.spectrumAnalyser.bars[x + 1] = power;
       if (power > reusableBuffer.spectrumAnalyser.max[x]) {
         reusableBuffer.spectrumAnalyser.max[x] = power;
-        reusableBuffer.spectrumAnalyser.max[x + 1] = power;
+      }
+      if (power > reusableBuffer.spectrumAnalyser.peak[x]) {
+        reusableBuffer.spectrumAnalyser.peak[x] = power;
       }
     }
 #endif
@@ -215,18 +240,26 @@ class SpectrumWindow : public Window
       lv_coord_t yv =
           SCALE_TOP - 1 -
           limit<int>(0,
-                     getAverage(step, &reusableBuffer.spectrumAnalyser.bars[x])
-                         << 1,
+                     getAverage<step>(&reusableBuffer.spectrumAnalyser.bars[x]),
                      SCALE_TOP);
       lv_coord_t max_yv =
           SCALE_TOP - 1 -
           limit<int>(
-              0, getAverage(step, &reusableBuffer.spectrumAnalyser.max[x]) << 1,
+              0, getAverage<step>(&reusableBuffer.spectrumAnalyser.max[x]),
               SCALE_TOP);
+      lv_coord_t peak_yv =
+          SCALE_TOP - 1 -
+          limit<int>(0,
+                     getAverage<step>(&reusableBuffer.spectrumAnalyser.peak[x]),
+                     SCALE_TOP);
 
       maxPts[i] = {x, max_yv};
       maxPts[i + 1] = {(lv_coord_t)(x + 3), max_yv};
       lv_line_set_points(maxLines[i / 2], &maxPts[i], 2);
+
+      peakPts[i] = {x, peak_yv};
+      peakPts[i + 1] = {(lv_coord_t)(x + 3), peak_yv};
+      lv_line_set_points(peakLines[i / 2], &peakPts[i], 2);
 
       barPts[i] = {(lv_coord_t)(x + 1), yv};
       barPts[i + 1] = {(lv_coord_t)(x + 1), SCALE_TOP};
@@ -252,7 +285,8 @@ class SpectrumWindow : public Window
                            reusableBuffer.spectrumAnalyser.span / 2;
       for (uint32_t frequency = (startFreq / 10000000) * 10000000 + 10000000;;
            frequency += 10000000) {
-        lv_coord_t x = (frequency - startFreq) / reusableBuffer.spectrumAnalyser.step;
+        lv_coord_t x =
+            (frequency - startFreq) / reusableBuffer.spectrumAnalyser.step;
         if (x >= LCD_W - 1) break;
         vAxisPts[i * 2] = {x, 0};
         vAxisPts[i * 2 + 1] = {x, h};
@@ -269,13 +303,16 @@ class SpectrumWindow : public Window
   }
 
  protected:
-  lv_style_t style;
+  static LAYOUT_VAL_SCALED(LINE_SPACE, 40) static LAYOUT_VAL_SCALED(WARN_YO, 20)
+
   lv_point_t maxPts[2 * LCD_W / 4];
   lv_point_t barPts[2 * LCD_W / 4];
-  lv_point_t hAxisPts[2 * SPECTRUM_HEIGHT / 40];
+  lv_point_t peakPts[2 * LCD_W / 4];
+  lv_point_t hAxisPts[2 * SPECTRUM_HEIGHT / LINE_SPACE];
   lv_point_t vAxisPts[2 * 8];
   lv_obj_t* maxLines[LCD_W / 4];
   lv_obj_t* barLines[LCD_W / 4];
+  lv_obj_t* peakLines[LCD_W / 4];
   lv_obj_t* vAxisLines[8];
   StaticText* warning = nullptr;
 
@@ -306,9 +343,10 @@ void RadioSpectrumAnalyser::buildBody(Window* window)
 {
   new SpectrumWindow(window, {0, 0, LCD_W, SPECTRUM_HEIGHT});
   new SpectrumScaleWindow(window, {0, SPECTRUM_HEIGHT, LCD_W, SCALE_HEIGHT});
-  new SpectrumFooterWindow(
-      window, {0, SPECTRUM_HEIGHT + SCALE_HEIGHT, LCD_W, FOOTER_HEIGHT},
-      moduleIdx);
+  new SpectrumFooterWindow(window,
+                           {0, SPECTRUM_HEIGHT + SCALE_HEIGHT, LCD_W,
+                            EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE * 2},
+                           moduleIdx);
 }
 
 void RadioSpectrumAnalyser::checkEvents()
@@ -322,7 +360,8 @@ void RadioSpectrumAnalyser::checkEvents()
   if (x != trackX) {
     trackX = x;
     trackPts[0] = {(lv_coord_t)x, EdgeTxStyles::MENU_HEADER_HEIGHT};
-    trackPts[1] = {(lv_coord_t)x, (lv_coord_t)(height() - FOOTER_HEIGHT)};
+    trackPts[1] = {(lv_coord_t)x,
+                   (lv_coord_t)(height() - EdgeTxStyles::UI_ELEMENT_HEIGHT)};
     lv_line_set_points(trackLine, trackPts, 2);
   }
   Page::checkEvents();

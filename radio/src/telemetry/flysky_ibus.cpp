@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "sensor_names.h"
 
 /*
  *  TXID + RXID are already skipped in MULTI module to save memory+transmission time, format from Multi is:
@@ -39,7 +40,7 @@ struct FlySkySensor
   const uint16_t type;
   const TelemetryUnit unit;
   const uint8_t precision;
-  const char * name;
+  const char* name;
 };
 
 // telemetry sensors type
@@ -153,7 +154,7 @@ const FlySkySensor flySkySensors[] = {
   FS( SENSOR_TYPE_TEMPERATURE,         STR_SENSOR_TEMP1,          UNIT_CELSIUS,           1 ),  // Temperature
   FS( SENSOR_TYPE_MOT,                 STR_SENSOR_RPM,            UNIT_RAW,               0 ),  // RPM
   FS( SENSOR_TYPE_EXT_VOL,             STR_SENSOR_A3,             UNIT_VOLTS,             2 ),  // External voltage
-  FS( SENSOR_TYPE_BVD,                 "BVD",                     UNIT_VOLTS,             2 ),  // BVD
+  FS( SENSOR_TYPE_BVD,                 STR_SENSOR_BVD,            UNIT_VOLTS,             2 ),  // BVD
   FS( SENSOR_TYPE_GYROSCOPE_1_AXIS,    STR_SENSOR_CELLS,          UNIT_DEGREE,            1 ),  //
   FS( SENSOR_TYPE_PRES,                STR_SENSOR_PRES,           UNIT_RAW,               2 ),  // 4 bytes In fact Temperature + Pressure -> Altitude
   FS( SENSOR_TYPE_ALT,                 STR_SENSOR_ALT,            UNIT_METERS,            2 ),
@@ -202,6 +203,8 @@ const FlySkySensor flySkySensors[] = {
 };
 // clang-format on
 
+uint16_t  sns_RFCurrentPower;
+
 int32_t getALT(uint32_t value);
 inline int setFlyskyTelemetryValue( int16_t type, uint8_t instance, int32_t value, uint32_t unit, uint32_t prec)
 {
@@ -240,6 +243,7 @@ void processFlySkyAFHDS3Sensor(const uint8_t * packet, uint8_t len )
       uint8_t data2[] = { (uint8_t)(SENSOR_TYPE_RF_MODULE_VOL>>8), (uint8_t)SENSOR_TYPE_RF_MODULE_VOL, id, packet[4], packet[5] };
       uint8_t data3[] = { (uint8_t)(SENSOR_TYPE_RF_MODULE_POWER>>8), (uint8_t)SENSOR_TYPE_RF_MODULE_POWER, id, packet[8], packet[9] };
 //      uint8_t data4[] = { (uint8_t)(SENSOR_TYPE_RF_MODULE_RAW>>8), (uint8_t)SENSOR_TYPE_RF_MODULE_RAW, id, packet[6] & 0x07};
+      sns_RFCurrentPower = (packet[9]<<8)+packet[8];
 
       processFlySkyAFHDS3Sensor(data1, 1 );
       processFlySkyAFHDS3Sensor(data2, 2 );

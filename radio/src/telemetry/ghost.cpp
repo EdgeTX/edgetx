@@ -23,6 +23,7 @@
 #include "ghost_menu.h"
 
 #include "edgetx.h"
+#include "sensor_names.h"
 
 const char * const ghstRfProfileValue[GHST_RF_PROFILE_COUNT] = { "Auto", "Norm", "Race", "Pure", "Long", "Unused", "Race2", "Pure2" };
 const char * const ghstVtxBandName[GHST_VTX_BAND_COUNT] = { "- - -" , "IRC", "Race", "BandE", "BandB", "BandA" };
@@ -32,7 +33,7 @@ struct GhostSensor
   const uint16_t id;
   const TelemetryUnit unit;
   const uint8_t precision;
-  const char * name;
+  const char* name;
 };
 
 // clang-format off
@@ -315,11 +316,7 @@ void processGhostTelemetryFrame(uint8_t module, uint8_t* buffer, uint32_t length
 #if defined(LUA)
     default:
       // destination address and CRC are skipped
-      if (luaInputTelemetryFifo && luaInputTelemetryFifo->hasSpace(length - 2) ) {
-        for (uint8_t i = 1; i < length - 1; i++) {
-          luaInputTelemetryFifo->push(buffer[i]);
-        }
-      }
+      pushTelemetryDataToQueues(buffer + 1, length - 2);
       break;
 #endif
   }

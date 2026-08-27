@@ -90,7 +90,7 @@ void onUpdateStateChanged()
     uint8_t modelId = reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.modelID;
     if (isPXX2ReceiverOptionAvailable(modelId, RECEIVER_OPTION_OTA_TO_UPDATE_SELF)) {
       POPUP_CONFIRMATION(getPXX2ReceiverName(modelId), onUpdateConfirmation);
-      char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, TR_CURRENT_VERSION);
+      char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, STR_CURRENT_VERSION);
       tmp = strAppendUnsigned(tmp, 1 + reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.major);
       *tmp++ = '.';
       tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.minor);
@@ -100,7 +100,7 @@ void onUpdateStateChanged()
     }
     else {
       POPUP_WARNING(STR_OTA_UPDATE_ERROR);
-      SET_WARNING_INFO(STR_UNSUPPORTED_RX, sizeof(TR_UNSUPPORTED_RX) - 1, 0);
+      SET_WARNING_INFO(STR_UNSUPPORTED_RX, strlen(STR_UNSUPPORTED_RX) - 1, 0);
       moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].mode = MODULE_MODE_NORMAL;
     }
   }
@@ -273,13 +273,13 @@ void onUpdateReceiverSelection(const char * result)
 
 void menuRadioSdManager(event_t _event)
 {
-#if defined(NAVIGATION_X9D)
+#if LCD_DEPTH > 1
   int lastPos = menuVerticalPosition;
 #endif
 
   if (_event == EVT_ENTRY) {
     f_chdir(ROOT_PATH);
-#if defined(NAVIGATION_X9D)
+#if LCD_DEPTH > 1
     lastPos = -1;
 #endif
   }
@@ -304,14 +304,12 @@ void menuRadioSdManager(event_t _event)
 
   switch (_event) {
 
-#if defined(KEYS_GPIO_REG_MENU)
     case EVT_KEY_LONG(KEY_MENU):
       if (SD_CARD_PRESENT() && s_editMode == 0) {
         POPUP_MENU_ADD_ITEM(STR_SD_INFO);
         POPUP_MENU_START(onSdManagerMenu);
       }
       break;
-#endif
 
     case EVT_KEY_BREAK(KEY_EXIT):
       REFRESH_FILES();
@@ -605,7 +603,7 @@ void menuRadioSdManager(event_t _event)
     if (ext && isExtensionMatching(ext, BITMAPS_EXT)) {
       if (lastPos != menuVerticalPosition) {
         if (!lcdLoadBitmap(modelBitmap, reusableBuffer.sdManager.lines[index], MODEL_BITMAP_WIDTH, MODEL_BITMAP_HEIGHT)) {
-          memcpy(modelBitmap, logo_taranis, MODEL_BITMAP_SIZE);
+          loadLogoBitmap(modelBitmap);
         }
       }
       lcdDrawBitmap(22*FW+2, 2*FH+FH/2, modelBitmap);

@@ -30,6 +30,7 @@ enum FontIndex {
   FONT_L_INDEX,
   FONT_XL_INDEX,
   FONT_XXL_INDEX,
+  FONT_LXL_INDEX,     // Halfway between XL and XXL added here to avoid affecting scripts
 
   // this one MUST be last
   FONTS_COUNT

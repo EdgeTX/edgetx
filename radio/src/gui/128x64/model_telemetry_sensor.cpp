@@ -68,7 +68,7 @@ void menuModelSensor(event_t event)
     0 // Logs
   });
 
-  lcdDrawNumber(PSIZE(TR_MENUSENSOR)*FW+1, 0, s_currIdx+1, INVERS|LEFT);
+  lcdDrawNumber(strlen(STR_MENUSENSOR)*FW+1, 0, s_currIdx+1, INVERS|LEFT);
 
   if (!isGPSSensor(s_currIdx+1))
     drawSensorCustomValue(SENSOR_2ND_COLUMN, 0, s_currIdx, getValue(MIXSRC_FIRST_TELEM+3*s_currIdx), LEFT);
@@ -212,14 +212,12 @@ void menuModelSensor(event_t event)
         }
         else {
           if (sensor->unit == UNIT_RPMS) {
-            lcdDrawTextAlignedLeft(y, STR_BLADES);
-            if (attr) CHECK_INCDEC_MODELVAR(event, sensor->custom.ratio, 1, 30000);
-            lcdDrawNumber(SENSOR_2ND_COLUMN, y, sensor->custom.ratio, LEFT|attr);
+            sensor->custom.ratio = editNumberField(STR_BLADES, 0, SENSOR_2ND_COLUMN, y, sensor->custom.ratio, 1, MIXSRC_MAX_VALUE, attr, event);
             break;
           }
           else {
             lcdDrawTextAlignedLeft(y, STR_RATIO);
-            if (attr) CHECK_INCDEC_MODELVAR(event, sensor->custom.ratio, 0, 30000);
+            if (attr) CHECK_INCDEC_MODELVAR(event, sensor->custom.ratio, 0, MIXSRC_MAX_VALUE);
             if (sensor->custom.ratio == 0) {
               lcdDrawChar(SENSOR_2ND_COLUMN, y, '-', attr);
             } else {  // Ratio + Ratio Percent
@@ -283,15 +281,13 @@ void menuModelSensor(event_t event)
         }
         else if (sensor->unit == UNIT_RPMS) {
           lcdDrawTextAlignedLeft(y, STR_MULTIPLIER);
-          if (attr) sensor->custom.offset = checkIncDec(event, sensor->custom.offset, 1, 30000, EE_MODEL|NO_INCDEC_MARKS|INCDEC_REP10);
+          if (attr) sensor->custom.offset = checkIncDec(event, sensor->custom.offset, 1, MIXSRC_MAX_VALUE, EE_MODEL|NO_INCDEC_MARKS|INCDEC_REP10);
           lcdDrawNumber(SENSOR_2ND_COLUMN, y, sensor->custom.offset, LEFT|attr);
           break;
         }
         else {
-          lcdDrawTextAlignedLeft(y, STR_OFFSET);
-          if (attr) CHECK_INCDEC_MODELVAR(event, sensor->custom.offset, -30000, +30000);
           if (sensor->prec > 0) attr |= (sensor->prec == 2 ? PREC2 : PREC1);
-          lcdDrawNumber(SENSOR_2ND_COLUMN, y, sensor->custom.offset, LEFT|attr);
+          sensor->custom.offset = editNumberField(STR_OFFSET, 0, SENSOR_2ND_COLUMN, y, sensor->custom.offset, -MIXSRC_MAX_VALUE, MIXSRC_MAX_VALUE, attr, event);
           break;
         }
         // no break

@@ -82,6 +82,7 @@ private slots:
   void sessionsCurrentIndexChanged(int index);
   void mapsButtonClicked();
   void yAxisChangeRanges(QCPRange range);
+  std::pair<double, double> GetMinMaxY() const;
 
 private:
   QList<QStringList> csvlog;

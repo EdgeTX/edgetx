@@ -35,7 +35,6 @@ class ModalWindow : public Window
   }
 
   void onClicked() override;
-  void deleteLater(bool detach = true, bool trash = true) override;
 
  protected:
   bool closeWhenClickOutside;

@@ -44,46 +44,32 @@ eepromFatHeader(NULL)
 #define EEPROM_MAX_FILES      (EEPROM_MAX_ZONES - 1)
 #define FIRST_FILE_AVAILABLE  (1+MAX_MODELS)
 
-void RleFile::EeFsCreate(uint8_t *eeprom, int size, Board::Type board, unsigned int version)
+void RleFile::EeFsCreate(uint8_t *eeprom, int size, Board::Type board,
+                         unsigned int version)
 {
   this->eeprom = eeprom;
   this->eeprom_size = size;
   this->board = board;
   this->version = version;
 
-  if (IS_SKY9X(board)) {
-    memset(eeprom, 0xFF, size);
-    if (version >= 217) {
-      memset(eeprom, 0, EEPROM_FAT_SIZE);
-      eepromFatHeader = (EepromHeader *)(eeprom + EEPROM_FAT_SIZE);
-      eepromFatHeader->mark = EEPROM_MARK;
-      eepromFatHeader->index = 1;
-      for (int i=0; i<EEPROM_MAX_FILES; i++) {
-        eepromFatHeader->files[i].exists = 0;
-        eepromFatHeader->files[i].zoneIndex = i+1;
-      }
-    }
-  }
-  else {
-    eeFsArm = (EeFsArm *)eeprom;
-    eeFsVersion = 5;
-    eeFsSize = 8+4*62;
-    eeFsBlockSize = 64;
-    eeFsFirstBlock = 1;
-    eeFsBlocksOffset = eeFsSize - eeFsBlockSize;
-    eeFsBlocksMax = 1 + (Boards::getEEpromSize(board)-eeFsSize) / eeFsBlockSize;
-    eeFsLinkSize = sizeof(int16_t);
-    memset(eeprom, 0, size);
-    eeFsArm->version  = eeFsVersion;
-    eeFsArm->mySize   = eeFsSize;
-    eeFsArm->freeList = 0;
-    eeFsArm->bs       = 64;
-    for (unsigned int i=eeFsFirstBlock; i<eeFsBlocksMax-1; i++)
-      EeFsSetLink(i, i+1);
-    EeFsSetLink(eeFsBlocksMax-1, 0);
-    eeFsArm->freeList = eeFsFirstBlock;
-    // EeFsFlush();
-  }
+  eeFsArm = (EeFsArm *)eeprom;
+  eeFsVersion = 5;
+  eeFsSize = 8 + 4 * 62;
+  eeFsBlockSize = 64;
+  eeFsFirstBlock = 1;
+  eeFsBlocksOffset = eeFsSize - eeFsBlockSize;
+  eeFsBlocksMax = 1 + (Boards::getEEpromSize(board) - eeFsSize) / eeFsBlockSize;
+  eeFsLinkSize = sizeof(int16_t);
+  memset(eeprom, 0, size);
+  eeFsArm->version = eeFsVersion;
+  eeFsArm->mySize = eeFsSize;
+  eeFsArm->freeList = 0;
+  eeFsArm->bs = 64;
+  for (unsigned int i = eeFsFirstBlock; i < eeFsBlocksMax - 1; i++)
+    EeFsSetLink(i, i + 1);
+  EeFsSetLink(eeFsBlocksMax - 1, 0);
+  eeFsArm->freeList = eeFsFirstBlock;
+  // EeFsFlush();
 }
 
 PACK(struct EepromFileHeader
@@ -112,21 +98,15 @@ bool RleFile::EeFsOpen(uint8_t *eeprom, int size, Board::Type board)
   this->eeprom_size = size;
   this->board = board;
 
-  if (IS_SKY9X(board)) {
-    searchFat();
-    return 1;
-  }
-  else {
-    eeFsArm = (EeFsArm *)eeprom;
-    eeFsVersion = eeFsArm->version;
-    eeFsSize = 8+4*62;
-    eeFsBlockSize = 64;
-    eeFsLinkSize = sizeof(int16_t);
-    eeFsFirstBlock = 1;
-    eeFsBlocksOffset = eeFsSize - eeFsBlockSize;
-    eeFsBlocksMax = 1 + (Boards::getEEpromSize(board)-eeFsSize) / eeFsBlockSize;
-    return eeFsArm->mySize == eeFsSize;
-  }
+  eeFsArm = (EeFsArm *)eeprom;
+  eeFsVersion = eeFsArm->version;
+  eeFsSize = 8 + 4 * 62;
+  eeFsBlockSize = 64;
+  eeFsLinkSize = sizeof(int16_t);
+  eeFsFirstBlock = 1;
+  eeFsBlocksOffset = eeFsSize - eeFsBlockSize;
+  eeFsBlocksMax = 1 + (Boards::getEEpromSize(board) - eeFsSize) / eeFsBlockSize;
+  return eeFsArm->mySize == eeFsSize;
 }
 
 void RleFile::eeprom_read_block (void *pointer_ram, unsigned int pointer_eeprom, size_t size)
@@ -232,32 +212,14 @@ unsigned int RleFile::openRd(unsigned int i_fileId)
 {
   if (IS_FAMILY_HORUS_OR_T16(board)) {
     return 1;
-  }
-  else if (IS_SKY9X(board)) {
-    if (eepromFatHeader) {
-      m_fileId = eepromFatHeader->files[i_fileId].zoneIndex;
-      if (eepromFatHeader->files[i_fileId].exists) {
-        eeprom_read_block(&m_size, m_fileId*(1<<13)+sizeof(uint16_t), sizeof(uint16_t));
-      }
-      else {
-        m_size = 0;
-      }
-      m_pos = sizeof(EepromFileHeader);
-    }
-    else {
-      m_fileId = get_current_block_number(i_fileId * 2, &m_size);
-      m_pos = sizeof(t_eeprom_header);
-    }
-    return 1;
-  }
-  else {
-    m_fileId   = i_fileId;
-    m_pos      = 0;
-    m_currBlk  = eeFsArm->files[m_fileId].startBlk;
-    m_ofs      = 0;
-    m_zeroes   = 0;
-    m_bRlc     = 0;
-    m_err      = ERR_NONE;       //error reasons
+  } else {
+    m_fileId = i_fileId;
+    m_pos = 0;
+    m_currBlk = eeFsArm->files[m_fileId].startBlk;
+    m_ofs = 0;
+    m_zeroes = 0;
+    m_bRlc = 0;
+    m_err = ERR_NONE;  // error reasons
     return eeFsArm->files[m_fileId].typ;
   }
 }
@@ -287,69 +249,48 @@ unsigned int RleFile::read(uint8_t *buf, unsigned int i_len)
 // G: Read runlength (RLE) compressed bytes into buf.
 unsigned int RleFile::readRlc12(uint8_t *buf, unsigned int i_len, bool rlc2)
 {
-  if (IS_FAMILY_HORUS_OR_T16(board))
-    return 0;
+  if (IS_FAMILY_HORUS_OR_T16(board)) return 0;
 
   memset(buf, 0, i_len);
 
-  if (IS_SKY9X(board)) {
-    int len;
-    if (eepromFatHeader) {
-      len = std::min((int)i_len, (int)m_size + (int)sizeof(EepromFileHeader) - (int)m_pos);
-      eeprom_read_block(buf, (m_fileId << 13) + m_pos, len);
-      m_pos += len;
+  unsigned int i = 0;
+  for (; 1;) {
+    uint8_t ln = std::min<uint16_t>(m_zeroes, i_len - i);
+    memset(&buf[i], 0, ln);
+    i += ln;
+    m_zeroes -= ln;
+    if (m_zeroes) break;
+
+    ln = std::min<uint16_t>(m_bRlc, i_len - i);
+    uint8_t lr = read(&buf[i], ln);
+    i += lr;
+    m_bRlc -= lr;
+    if (m_bRlc) break;
+
+    if (read(&m_bRlc, 1) != 1) break;  // read how many bytes to read
+
+    if (!(m_bRlc & 0x7f)) {
+      qDebug() << "RLC decoding error!";
+      return 0;
     }
-    else {
-      len = std::min((int)i_len, (int)m_size + (int)sizeof(t_eeprom_header) - (int)m_pos);
-      if (len > 0) {
-        eeprom_read_block(buf, (m_fileId << 12) + m_pos, len);
-        m_pos += len;
+
+    if (rlc2) {
+      if (m_bRlc & 0x80) {  // if contains high byte
+        m_zeroes = (m_bRlc >> 4) & 0x7;
+        m_bRlc = m_bRlc & 0x0f;
+      } else if (m_bRlc & 0x40) {
+        m_zeroes = m_bRlc & 0x3f;
+        m_bRlc = 0;
+      }
+      // else   m_bRlc
+    } else {
+      if (m_bRlc & 0x80) {  // if contains high byte
+        m_zeroes = m_bRlc & 0x7f;
+        m_bRlc = 0;
       }
     }
-    return len;
   }
-  else {
-    unsigned int i=0;
-    for( ; 1; ) {
-      uint8_t ln = std::min<uint16_t>(m_zeroes, i_len-i);
-      memset(&buf[i], 0, ln);
-      i        += ln;
-      m_zeroes -= ln;
-      if(m_zeroes) break;
-
-      ln = std::min<uint16_t>(m_bRlc, i_len-i);
-      uint8_t lr = read(&buf[i], ln);
-      i        += lr ;
-      m_bRlc   -= lr;
-      if(m_bRlc) break;
-
-      if (read(&m_bRlc, 1) !=1) break; //read how many bytes to read
-
-      if (!(m_bRlc & 0x7f)) {
-        qDebug() << "RLC decoding error!";
-        return 0;
-      }
-
-      if (rlc2) {
-        if(m_bRlc&0x80){ // if contains high byte
-          m_zeroes  =(m_bRlc>>4) & 0x7;
-          m_bRlc    = m_bRlc & 0x0f;
-        }
-        else if(m_bRlc&0x40){
-          m_zeroes  = m_bRlc & 0x3f;
-          m_bRlc    = 0;
-        }
-        //else   m_bRlc
-      }
-      else {
-        if(m_bRlc&0x80){ // if contains high byte
-          m_zeroes  = m_bRlc & 0x7f;
-          m_bRlc    = 0;
-        }
-      }
-    }
-    return i;
-  }
+  return i;
 }
 
 unsigned int importRlc(QByteArray & dst, QByteArray & src, unsigned int rlcVersion)
@@ -509,83 +450,59 @@ unsigned int RleFile::writeRlc1(unsigned int i_fileId, unsigned int typ, const u
 /*
  * Write runlength (RLE) compressed bytes
  */
-unsigned int RleFile::writeRlc2(unsigned int i_fileId, unsigned int typ, const uint8_t *buf, unsigned int i_len)
+unsigned int RleFile::writeRlc2(unsigned int i_fileId, unsigned int typ,
+                                const uint8_t *buf, unsigned int i_len)
 {
-  if (IS_FAMILY_HORUS_OR_T16(board))
-    return 0;
+  if (IS_FAMILY_HORUS_OR_T16(board)) return 0;
 
-  if (IS_SKY9X(board)) {
-    openRd(i_fileId);
-    if (eepromFatHeader) {
-      eepromFatHeader->files[i_fileId].exists = 1;
-      eeprom_write_block(buf, (m_fileId << 13) + m_pos, i_len);
-      {
-        EepromFileHeader header;
-        header.fileIndex = i_fileId;
-        header.size = i_len;
-        eeprom_write_block(&header, (m_fileId << 13), sizeof(header));
-      }
-    }
-    else {
-      eeprom_write_block(buf, (m_fileId << 12) + m_pos, i_len);
-      t_eeprom_header header;
-      header.sequence_no = 1;
-      header.data_size = i_len;
-      header.flags = 0;
-      header.hcsum = byte_checksum((uint8_t *) &header, 7);
-      eeprom_write_block(&header, (m_fileId << 12), sizeof(header));
-    }
-    return i_len;
-  }
-  else {
-    create(i_fileId, typ);
-    bool    run0   = buf[0] == 0;
-    uint8_t cnt    = 1;
-    uint8_t cnt0   = 0;
-    uint16_t i     = 0;
-    if (i_len==0) goto close;
+  create(i_fileId, typ);
+  bool run0 = buf[0] == 0;
+  uint8_t cnt = 1;
+  uint8_t cnt0 = 0;
+  uint16_t i = 0;
+  if (i_len == 0) goto close;
 
-    //RLE compression:
-    //rb = read byte
-    //if (rb | 0x80) write rb & 0x7F zeros
-    //else write rb bytes
-    for (i=1; 1; i++) { // !! laeuft ein byte zu weit !!
-      bool cur0 = buf[i] == 0;
-      if (i==i_len || cur0 != run0 || cnt==0x3f || (cnt0 && cnt==0xf)) {
-        if (run0){
-          assert(cnt0==0);
-          if (cnt<8 && i!=i_len)
-            cnt0 = cnt; //aufbew fuer spaeter
-          else {
-            if (write1(cnt|0x40)!=1)                goto error;//-cnt&0x3f
-          }
-        }
+  // RLE compression:
+  // rb = read byte
+  // if (rb | 0x80) write rb & 0x7F zeros
+  // else write rb bytes
+  for (i = 1; 1; i++) {  // !! laeuft ein byte zu weit !!
+    bool cur0 = buf[i] == 0;
+    if (i == i_len || cur0 != run0 || cnt == 0x3f || (cnt0 && cnt == 0xf)) {
+      if (run0) {
+        assert(cnt0 == 0);
+        if (cnt < 8 && i != i_len)
+          cnt0 = cnt;  // aufbew fuer spaeter
         else {
-          if (cnt0) {
-            if (write1(0x80 | (cnt0<<4) | cnt)!=1)  goto error;//-cnt0xx-cnt
-            cnt0 = 0;
-          }
-          else {
-            if (write1(cnt)!=1)                    goto error;//-cnt
-          }
-          uint8_t ret = write(&buf[i-cnt], cnt);
-          if (ret != cnt) { cnt-=ret;                goto error;}//-cnt
+          if (write1(cnt | 0x40) != 1) goto error;  //-cnt&0x3f
         }
-        cnt=0;
-        if (i==i_len) break;
-        run0 = cur0;
+      } else {
+        if (cnt0) {
+          if (write1(0x80 | (cnt0 << 4) | cnt) != 1) goto error;  //-cnt0xx-cnt
+          cnt0 = 0;
+        } else {
+          if (write1(cnt) != 1) goto error;  //-cnt
+        }
+        uint8_t ret = write(&buf[i - cnt], cnt);
+        if (ret != cnt) {
+          cnt -= ret;
+          goto error;
+        }  //-cnt
       }
-      cnt++;
+      cnt = 0;
+      if (i == i_len) break;
+      run0 = cur0;
     }
-    if (0) {
-      error:
-      i-=cnt+cnt0;
-    }
-
-    close:
-    closeTrunc();
-    return i;
+    cnt++;
   }
+  if (0) {
+  error:
+    i -= cnt + cnt0;
+  }
+
+close:
+  closeTrunc();
+  return i;
 }
 
 uint8_t RleFile::byte_checksum( uint8_t *p, unsigned int size )

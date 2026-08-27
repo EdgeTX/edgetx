@@ -22,6 +22,7 @@
 #include "repotypes.h"
 #include "appdata.h"
 #include "helpers.h"
+#include "semanticversion.h"
 
 /*
     ReleasesItemModels

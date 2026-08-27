@@ -56,7 +56,8 @@ static int _lookup_input_idx(uint8_t type, const char* name, size_t len,
   if (!max_inputs) return -1;
 
   for (uint8_t i = 0; i < max_inputs; i++) {
-    if (!strncmp(fct(type, i), name, len)) return i;
+    const char* input_name = fct(type, i);
+    if (strlen(input_name) == len && !strncmp(input_name, name, len)) return i;
   }
 
   return -1;

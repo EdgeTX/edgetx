@@ -34,7 +34,7 @@
 #include "telemetry/multi.h"
 #endif
 
-#if defined(PCBNV14) && defined(AFHDS2)
+#if defined(RADIO_NV14_FAMILY) && defined(AFHDS2)
 extern uint32_t NV14internalModuleFwVersion;
 #endif
 
@@ -67,6 +67,9 @@ extern uint32_t NV14internalModuleFwVersion;
   #define IS_DSM_MULTI(module)                                            \
     (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
 
+  #define IS_RLINK_MULTI(module)                                          \
+    (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_RLINK)
+
   #define IS_RX_MULTI(module)                          \
     ((g_model.moduleData[module].multi.rfProtocol == \
       MODULE_SUBTYPE_MULTI_AFHDS2A_RX) ||              \
@@ -80,7 +83,7 @@ extern uint32_t NV14internalModuleFwVersion;
   // When using packed, the pointer in here end up not being aligned, which clang and gcc complain about
   // Keep the order of the fields that the so that the size stays small
   struct mm_options_strings {
-    static const char* const options[];
+    static STR_TYP const options[];
   };
 
   const uint8_t getMaxMultiOptions();
@@ -91,7 +94,7 @@ extern uint32_t NV14internalModuleFwVersion;
     bool failsafe:1;
     bool disable_ch_mapping:1;
     const char* const* subTypeString;
-    const char* optionsstr;
+    STR_TYP optionsstr;
   });
 
   const mm_protocol_definition *getMultiProtocolDefinition (uint8_t protocol);
@@ -152,6 +155,7 @@ extern uint32_t NV14internalModuleFwVersion;
   #define IS_HOTT_MULTI(module)          false
   #define IS_CONFIG_MULTI(module)        false
   #define IS_DSM_MULTI(module)           false
+  #define IS_RLINK_MULTI(module)         false
   #define IS_RX_MULTI(module)            false
 
   inline bool isModuleMultimodule(uint8_t)
@@ -487,7 +491,7 @@ inline int8_t minModuleChannels(uint8_t idx)
   else if (isModuleSBUS(idx))
     return 16;
   else if (isModuleDSMP(idx))
-    return maxModuleChannels(idx);
+    return 1;  // FARZU:  module assume always start with Ch1. Was: maxModuleChannels(idx);
   else
     return 1;
 }
@@ -532,6 +536,9 @@ inline bool isModuleRxNumAvailable(uint8_t moduleIdx)
   if (isModuleCrossfire(moduleIdx))
     return true;
 
+  if (isModuleDSMP(moduleIdx)) 
+    return true;
+
   return false;
 }
 
@@ -556,6 +563,9 @@ inline bool isModuleModelIndexAvailable(uint8_t idx)
     return true;
 
   if (isModuleAFHDS3(idx))
+    return true;
+
+  if (isModuleDSMP(idx)) 
     return true;
   
   return false;
@@ -619,12 +629,12 @@ inline bool isModuleBindRangeAvailable(uint8_t moduleIdx)
   return isModulePXX2(moduleIdx) || isModulePXX1(moduleIdx) ||
          isModuleDSM2(moduleIdx) || isModuleMultimodule(moduleIdx) ||
          isModuleFlySky(moduleIdx) || isModuleDSMP(moduleIdx) ||
-         (isModuleELRS(moduleIdx) && (crossfireModuleStatus[moduleIdx].major >= 4 || (crossfireModuleStatus[moduleIdx].major == 3 && crossfireModuleStatus[moduleIdx].minor >= 4)));
+         (isModuleELRS(moduleIdx) && CRSF_ELRS_MIN_VER(moduleIdx, 3, 4));
 }
 
 inline uint32_t getNV14RfFwVersion()
 {
-#if defined(PCBNV14) && defined(AFHDS2)
+#if defined(RADIO_NV14_FAMILY) && defined(AFHDS2)
   return  NV14internalModuleFwVersion;
 #else
   return 0;
@@ -634,7 +644,7 @@ inline uint32_t getNV14RfFwVersion()
 inline bool isModuleRangeAvailable(uint8_t moduleIdx)
 {
   bool ret = isModuleBindRangeAvailable(moduleIdx) && !IS_RX_MULTI(moduleIdx) && !isModuleCrossfire(moduleIdx);
-#if defined(PCBNV14) && defined(AFHDS2)
+#if defined(RADIO_NV14_FAMILY) && defined(AFHDS2)
   ret = ret &&
         (!isModuleAFHDS2A(moduleIdx) || NV14internalModuleFwVersion >= 0x1000E);
 #elif defined(AFHDS3)

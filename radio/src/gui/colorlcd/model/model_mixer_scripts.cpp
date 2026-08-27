@@ -21,22 +21,23 @@
 
 #include "model_mixer_scripts.h"
 
-#include "dataconstants.h"
+#include "edgetx.h"
+#include "etx_lv_theme.h"
 #include "filechoice.h"
-#include "libopenui.h"
+#include "getset_helpers.h"
 #include "list_line_button.h"
 #include "lua/lua_api.h"
+#include "menu.h"
 #include "menus.h"
-#include "edgetx.h"
+#include "numberedit.h"
 #include "page.h"
 #include "sourcechoice.h"
-#include "etx_lv_theme.h"
-#include "translations.h"
+#include "textedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 // Edit grid
-#if !PORTRAIT_LCD
+#if LANDSCAPE
 static const lv_coord_t e_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                        LV_GRID_TEMPLATE_LAST};
 #else
@@ -146,10 +147,8 @@ class ScriptEditWindow : public Page
         auto lbl = new DynamicText(
             line, rect_t{},
             [=]() {
-              char s[16];
-              getSourceString(
-                  s, MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
-              return std::string(s, sizeof(s) - 1);
+              char* s = getSourceString(MIXSRC_FIRST_LUA + (idx * MAX_SCRIPT_OUTPUTS) + i);
+              return std::string(s);
             });
         lbl->padLeft(PAD_LARGE);
         new DynamicNumber<int16_t>(
@@ -185,31 +184,16 @@ class ScriptLineButton : public ListLineButton
     lv_obj_set_layout(lvobj, LV_LAYOUT_GRID);
     lv_obj_set_grid_dsc_array(lvobj, b_col_dsc, row_dsc);
     lv_obj_set_style_pad_row(lvobj, 0, 0);
-    lv_obj_set_style_pad_column(lvobj, 4, 0);
+    lv_obj_set_style_pad_column(lvobj, PAD_SMALL, 0);
 
     lv_obj_update_layout(parent->getLvObj());
-    if (lv_obj_is_visible(lvobj)) delayed_init();
 
-    lv_obj_add_event_cb(lvobj, ScriptLineButton::on_draw,
-                        LV_EVENT_DRAW_MAIN_BEGIN, nullptr);
+    delayLoad();
   }
 
-  static void on_draw(lv_event_t* e)
+  void delayedInit() override
   {
-    lv_obj_t* target = lv_event_get_target(e);
-    auto line = (ScriptLineButton*)lv_obj_get_user_data(target);
-    if (line) {
-      if (!line->init)
-        line->delayed_init();
-      line->refresh();
-    }
-  }
-
-  void delayed_init()
-  {
-    init = true;
-
-    auto lbl = lv_label_create(lvobj);
+    auto lbl = etx_label_create(lvobj);
     etx_obj_add_style(lbl, styles->text_align_left, LV_PART_MAIN);
     lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 0, 1, LV_GRID_ALIGN_CENTER,
                          0, 1);
@@ -220,7 +204,7 @@ class ScriptLineButton : public ListLineButton
     if (runtimeData) {
       char s[20];
 
-      lbl = lv_label_create(lvobj);
+      lbl = etx_label_create(lvobj);
       etx_obj_add_style(lbl, styles->text_align_left, LV_PART_MAIN);
       lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 1, 1, LV_GRID_ALIGN_CENTER,
                            0, 1);
@@ -228,7 +212,7 @@ class ScriptLineButton : public ListLineButton
       strAppend(s, scriptData.name, LEN_SCRIPT_NAME);
       lv_label_set_text(lbl, s);
 
-      lbl = lv_label_create(lvobj);
+      lbl = etx_label_create(lvobj);
       etx_obj_add_style(lbl, styles->text_align_left, LV_PART_MAIN);
       lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 2, 1, LV_GRID_ALIGN_CENTER,
                            0, 1);
@@ -236,7 +220,7 @@ class ScriptLineButton : public ListLineButton
       strAppend(s, scriptData.file, LEN_SCRIPT_FILENAME);
       lv_label_set_text(lbl, s);
 
-      lbl = lv_label_create(lvobj);
+      lbl = etx_label_create(lvobj);
       etx_obj_add_style(lbl, styles->text_align_left, LV_PART_MAIN);
       lv_obj_set_grid_cell(lbl, LV_GRID_ALIGN_START, 3, 1, LV_GRID_ALIGN_CENTER,
                            0, 1);
@@ -259,19 +243,19 @@ class ScriptLineButton : public ListLineButton
     }
 
     lv_obj_update_layout(lvobj);
+    refresh();
   }
 
   bool isActive() const override { return false; }
   void refresh() override {}
 
  protected:
-  bool init = false;
   const ScriptData& scriptData;
   const ScriptInternalData* runtimeData;
 };
 
-ModelMixerScriptsPage::ModelMixerScriptsPage() :
-    PageTab(STR_MENUCUSTOMSCRIPTS, ICON_MODEL_LUA_SCRIPTS)
+ModelMixerScriptsPage::ModelMixerScriptsPage(const PageDef& pageDef) :
+    PageGroupItem(pageDef)
 {
 }
 

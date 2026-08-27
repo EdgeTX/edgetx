@@ -78,7 +78,7 @@ class ModuleOptions : public BaseDialog
     MO_WriteSettings,
     MO_WritingSettings,
   };
-  
+
   uint8_t moduleIdx;
   uint8_t state = MO_Init;
 

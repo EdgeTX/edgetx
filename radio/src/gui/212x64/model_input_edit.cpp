@@ -62,7 +62,7 @@ void menuModelExpoOne(event_t event)
   }
 
   ExpoData * ed = expoAddress(s_currIdx);
-  drawSource(PSIZE(TR_MENUINPUTS)*FW+FW, 0, MIXSRC_FIRST_INPUT+ed->chn, 0);
+  drawSource(strlen(STR_MENUINPUTS)*FW+FW, 0, MIXSRC_FIRST_INPUT+ed->chn, 0);
   lcdDrawFilledRect(0, 0, LCD_W, FH, SOLID, FILL_WHITE|GREY_DEFAULT);
 
   uint8_t old_editMode = s_editMode;
@@ -102,7 +102,7 @@ void menuModelExpoOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_SOURCE);
         drawSource(EXPO_ONE_2ND_COLUMN, y, ed->srcRaw, STREXPANDED|attr);
         if (attr && menuHorizontalPosition==0)
-          ed->srcRaw = checkIncDec(event, ed->srcRaw, INPUTSRC_FIRST, INPUTSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailableInInputs);
+          ed->srcRaw = checkIncDec(event, ed->srcRaw, INPUTSRC_FIRST, INPUTSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
         if (abs(ed->srcRaw) >= MIXSRC_FIRST_TELEM) {
           drawSensorCustomValue(EXPO_ONE_2ND_COLUMN+30, y, (abs(ed->srcRaw) - MIXSRC_FIRST_TELEM)/3, getValue(ed->srcRaw), LEFT|(menuHorizontalPosition==1?attr:0));
           if (attr && menuHorizontalPosition == 1) ed->scale = checkIncDec(event, ed->scale, 0, maxTelemValue(abs(ed->srcRaw) - MIXSRC_FIRST_TELEM + 1), EE_MODEL);

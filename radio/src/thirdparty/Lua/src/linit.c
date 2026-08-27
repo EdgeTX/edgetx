@@ -1,21 +1,16 @@
 /*
-** $Id: linit.c,v 1.32 2011/04/08 19:17:36 roberto Exp $
+** $Id: linit.c,v 1.39.1.1 2017/04/19 17:20:42 roberto Exp $
 ** Initialization of libraries for lua.c and other clients
 ** See Copyright Notice in lua.h
 */
 
 
-/*
-** If you embed Lua in your program and need to open the standard
-** libraries, call luaL_openlibs in your program. If you need a
-** different set of libraries, copy this file to your project and edit
-** it to suit your needs.
-*/
-
-
 #define linit_c
 #define LUA_LIB
+#define LUA_CORE
 
+#include "lprefix.h"
+#include <stddef.h>
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
@@ -45,6 +40,7 @@ extern LROT_TABLE(bitmaplib);
 #if defined(COLORLCD)
 extern LROT_TABLE(lvgllib);
 extern LROT_TABLE(tablib);
+extern LROT_TABLE(colorlib);
 #endif
 
 /* _G __index -> rotables __index -> _index_hook_fct */
@@ -57,6 +53,9 @@ static const ROTable* const _global_symbols[] = {
   LROT_TABLEREF(etxdir),
   LROT_TABLEREF(etxcst),
   LROT_TABLEREF(etxstr),
+#if defined(COLORLCD)
+  LROT_TABLEREF(colorlib),
+#endif
   NULL,
 };
 
@@ -67,7 +66,7 @@ static int _index_hook_fct(lua_State * L)
   TString* key;
 
   lua_lock(L);
-  key = rawtsvalue(L->top - 1);
+  key = tsvalue(L->top - 1);
   for(; *t; t++) {
     res = luaH_getstr((Table*)*t, key);
     if (!ttisnil(res)) break;
@@ -98,7 +97,7 @@ LROT_BEGIN(rotables, LROT_TABLEREF(rotables_meta), 0)
   LROT_TABENTRY( lcd, lcdlib )
   LROT_TABENTRY( model, modellib )
   LROT_TABENTRY( bitmap, bitmaplib )
-  LROT_TABENTRY( Bitmap, bitmaplib ) /* TODO: obsolete after 2.9 */
+  LROT_TABENTRY( Bitmap, bitmaplib ) /* TODO: obsolete after 2.11 */
 #if defined(COLORLCD)
   LROT_TABENTRY( lvgl, lvgllib )
   LROT_TABENTRY( table, tablib )
@@ -129,4 +128,3 @@ LUALIB_API void luaL_openlibs (lua_State *L) {
       luaL_requiref(L, p->key, fvalue(&p->value), 1);
   }
 }
-

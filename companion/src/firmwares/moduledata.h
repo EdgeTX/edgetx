@@ -23,8 +23,11 @@
 
 #include "constants.h"
 #include "radio/src/MultiProtoDefs.h"
+#include "rawswitch.h"
 
 #include <QtCore>
+
+constexpr char AIM_MODULE_CRSFARMINGMODE[]  {"moduledata.crsfArmingMode"};
 
 class Firmware;
 class RadioDataConversionState;
@@ -100,7 +103,8 @@ enum ModuleSubtypeR9M {
   MODULE_SUBTYPE_R9M_LAST=MODULE_SUBTYPE_R9M_AUPLUS
 };
 
-#define PPM_NUM_SUBTYPES  2
+#define PPM_NUM_SUBTYPES  3
+#define SBUS_NUM_SUBTYPES  2
 
 constexpr int PXX2_MAX_RECEIVERS_PER_MODULE = 3;
 constexpr int PXX2_LEN_RX_NAME              = 8;
@@ -114,6 +118,12 @@ class ModuleData {
   Q_DECLARE_TR_FUNCTIONS(ModuleData)
 
   public:
+    enum CrsfArmingMode {
+      CRSF_ARMING_MODE_CH5,
+      CRSF_ARMING_MODE_SWITCH,
+      CRSF_ARMING_MODE_COUNT
+    };
+
     ModuleData()
     {
       clear();
@@ -128,6 +138,7 @@ class ModuleData {
     unsigned int channelsStart;
     int          channelsCount;
     unsigned int failsafeMode;
+    int          antennaMode;       // false = internal antenna, true = external antenna
 
     struct PPM {
       int delay;
@@ -181,7 +192,6 @@ class ModuleData {
       unsigned int power;          // 0 10 mW, 1 100 mW, 2 500 mW, 3 1W
       bool receiverTelemetryOff;     // false = receiver telem enabled
       bool receiverHigherChannels;  // false = pwm out 1-8, true 9-16
-      int antennaMode;       // false = internal antenna, true = external antenna
     } pxx;
 
     struct GHOST {
@@ -191,6 +201,8 @@ class ModuleData {
 
     struct CRSF {
       unsigned int telemetryBaudrate;
+      unsigned int crsfArmingMode;
+      RawSwitch crsfArmingTrigger;
     } crsf;
 
     struct Access {
@@ -201,9 +213,10 @@ class ModuleData {
 
     struct DSMP {
       unsigned int flags;
+      bool enableAETR;
     } dsmp;
 
-    void clear() { memset(this, 0, sizeof(ModuleData)); }
+    void clear();
     void convert(RadioDataConversionState & cstate);
     bool isPxx2Module() const;
     bool supportRxNum() const;
@@ -222,7 +235,7 @@ class ModuleData {
     static AbstractStaticItemModel * internalModuleItemModel(int board = -1);
     static bool isProtocolAvailable(int moduleidx, unsigned int  protocol, GeneralSettings & generalSettings);
     static AbstractStaticItemModel * protocolItemModel(GeneralSettings & settings);
-    static AbstractStaticItemModel * telemetryBaudrateItemModel(unsigned int protocol);
+    static AbstractStaticItemModel * telemetryBaudrateItemModel(unsigned int protocol, int moduleIdx = -1, int board = 0);
     static bool isAvailable(PulsesProtocol proto, int port = 0);  //  moved from OpenTxFirmware EdgeTX v2.9 - TODO remove and use isProtocolAvailable
 
     QString afhds2aMode1ToString() const;
@@ -234,4 +247,8 @@ class ModuleData {
     static AbstractStaticItemModel * afhds2aMode2ItemModel();
     static AbstractStaticItemModel * afhds3PhyModeItemModel();
     static AbstractStaticItemModel * afhds3EmiItemModel();
+
+    QString crsfArmingModeToString() const;
+    static QString crsfArmingModeToString(int mode);
+    static AbstractStaticItemModel * crsfArmingModeItemModel();
 };

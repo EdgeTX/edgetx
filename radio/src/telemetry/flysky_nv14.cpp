@@ -24,8 +24,7 @@
 #include "flysky_ibus.h"
 #include "pulses/afhds2.h"
 #include "dataconstants.h"
-
-
+#include "sensor_names.h"
 
 #define FLYSKY_FIXED_RX_VOLTAGE (uint8_t)(FLYSKY_SENSOR_RX_VOLTAGE + (uint8_t)0xA0)
 
@@ -43,7 +42,7 @@
 struct FlyskyNv14Sensor {
   const uint16_t id;
   const uint8_t subId;
-  const char * name;
+  const char* name;
   const TelemetryUnit unit;
   const uint8_t precision;
   const uint8_t offset;
@@ -58,7 +57,7 @@ union nv14SensorData {
   uint32_t UINT32;
 };
 
-FlyskyNv14Sensor defaultNv14Sensor = {0, 0, "UNKNOWN", UNIT_RAW, 0, 0, 2, false};
+FlyskyNv14Sensor defaultNv14Sensor = {0, 0, STR_SENSOR_UNKNOWN, UNIT_RAW, 0, 0, 2, false};
 
 // clang-format off
 const FlyskyNv14Sensor Nv14Sensor[]=

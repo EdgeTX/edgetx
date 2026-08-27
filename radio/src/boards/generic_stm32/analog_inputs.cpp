@@ -23,24 +23,30 @@
 #include "stm32_adc.h"
 #include "stm32_spi_adc.h"
 #include "sticks_pwm_driver.h"
+#include "flysky_gimbal_driver.h"
 
 #include "hal.h"
 
-#if defined(ADC_SPI)
+#if defined(USE_ADS79XX)
   #include "ads79xx.h"
+#endif
+
+#if defined(SIXPOS_SWITCH_INDEX)
+  #include "rgb_leds.h"
 #endif
 
 #include "definitions.h"
 
 #include "myeeprom.h"
-#include "translations.h"
+#include "translations/translations.h"
 
 #include <string.h>
 
 // generated files
 #include "stm32_adc_inputs.inc"
-#include "stm32_pwm_inputs.inc"
+#if !defined(BOOT)
 #include "hal_adc_inputs.inc"
+#endif
 
 constexpr uint8_t n_ADC = DIM(_ADC_adc);
 constexpr uint8_t n_ADC_spi = DIM(_ADC_spi);
@@ -53,16 +59,21 @@ static_assert(n_inputs <= MAX_ANALOG_INPUTS, "Too many analog inputs");
 static bool adc_init()
 {
   bool success = stm32_hal_adc_init(_ADC_adc, n_ADC, _ADC_inputs, _ADC_GPIOs, n_GPIO);
-#if defined(ADC_SPI)
+#if defined(USE_ADS79XX)
   if (n_ADC_spi > 0) ads79xx_init(&_ADC_spi[0]);
 #endif
   return success;
 }
 
+static void adc_deinit()
+{
+  stm32_hal_adc_deinit(_ADC_adc, n_ADC);
+}
+
 static bool adc_start_read()
 {
   bool success = stm32_hal_adc_start_read(_ADC_adc, n_ADC, _ADC_inputs, n_inputs);
-#if defined(ADC_SPI)
+#if defined(USE_ADS79XX)
   if (n_ADC_spi > 0) {
     success = success && ads79xx_adc_start_read(&_ADC_spi[0], _ADC_inputs);
   }
@@ -72,26 +83,34 @@ static bool adc_start_read()
 
 static void adc_wait_completion()
 {
-#if defined(ADC_SPI)
+#if defined(USE_ADS79XX)
   // ADS79xx does all the work in the completion function
   // so it's probably better to poll it first
   if (n_ADC_spi > 0) ads79xx_adc_wait_completion(&_ADC_spi[0], _ADC_inputs);
 #endif
   stm32_hal_adc_wait_completion(_ADC_adc, n_ADC, _ADC_inputs, n_inputs);
+#if defined(SIXPOS_SWITCH_INDEX)
+  sixPosUpdateFromAdc();
+#endif
 }
 
 const etx_hal_adc_driver_t _adc_driver = {
+#if !defined(BOOT)
   .inputs = _hal_inputs,
   .default_pots_cfg = _pot_default_config,
+#endif
   .init = adc_init,
+  .deinit = adc_deinit,
   .start_conversion = adc_start_read,
   .wait_completion = adc_wait_completion,
   .set_input_mask = stm32_hal_set_inputs_mask,
   .get_input_mask = stm32_hal_get_inputs_mask,
 };
 
+#if !defined(BOOT)
 #if defined(PWM_STICKS)
 #include "stm32_gpio.h"
+#include "stm32_pwm_inputs.inc"
 
 static const stick_pwm_timer_t _sticks_timer = {
   .GPIOx = PWM_GPIO,
@@ -99,27 +118,45 @@ static const stick_pwm_timer_t _sticks_timer = {
   .GPIO_Alternate = PWM_GPIO_AF,
   .TIMx = PWM_TIMER,
   .TIM_IRQn = PWM_IRQn,
+  .TIM_Freq = PWM_TIMER_FREQ,
 };
 
 #if !defined(PWM_IRQHandler)
   #error "Missing PWM_IRQHandler"
 #endif
 
+static_assert(DIM(_PWM_inputs) <= MAX_STICKS, "too many PWM inputs");
+
 extern "C" void PWM_IRQHandler(void)
 {
   sticks_pwm_isr(&_sticks_timer, _PWM_inputs, DIM(_PWM_inputs));
 }
 
-bool sticksPwmDetect()
+static bool pwm_gimbal_init()
 {
   return sticks_pwm_detect(&_sticks_timer, _PWM_inputs, DIM(_PWM_inputs));
 }
 
-#else
-
-bool sticksPwmDetect()
-{
-  return false;
-}
-
 #endif
+
+typedef bool (*gimbal_driver_t)();
+
+const gimbal_driver_t gimbal_drivers[] = {
+#if defined(PWM_STICKS)
+    pwm_gimbal_init,
+#endif
+#if defined(FLYSKY_GIMBAL)
+    flysky_gimbal_init,
+#endif
+};
+
+void gimbalsDetect()
+{
+  unsigned idx = 0;
+  bool detected = false;
+
+  while (idx < DIM(gimbal_drivers) && !detected) {
+    detected = gimbal_drivers[idx++]();
+  }
+}
+#endif // !BOOT

@@ -90,8 +90,6 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
     return tr("Vario");
   else if (func == FuncPlayPrompt)
     return tr("Play Track");
-  else if (func == FuncPlayBoth)
-    return tr("Play Both");
   else if (func == FuncPlayValue)
     return tr("Play Value");
   else if (func == FuncPlayScript)
@@ -124,6 +122,8 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
     return tr("Racing Mode");
   else if (func == FuncDisableTouch)
     return tr("Disable Touch");
+  else if (func == FuncDisableKeys)
+    return tr("Disable Keys");
   else if (func == FuncSetScreen)
     return tr("Set Main Screen");
   else if (func == FuncDisableAudioAmp)
@@ -132,8 +132,8 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
     return tr("RGB leds");
   else if (func == FuncLCDtoVideo)
     return tr("LCD to Video");
-  else if (func >= FuncPushCustomSwitch1 && func <= FuncPushCustomSwitchLast) {
-    const int idx = Boards::getSwitchTypeOffset(Board::SWITCH_FUNC) + func - FuncPushCustomSwitch1 + 1;
+  else if (func >= FuncPushCustomSwitch1 && func <= FuncPushCustomSwitchLast && Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
+    const int idx = Boards::getSwitchIndexForCFSOffset(func - FuncPushCustomSwitch1) + 1;
     return tr("Push Custom Switch %1").arg(RawSource(SOURCE_TYPE_SWITCH, idx).toString(model));
   }
   else {
@@ -181,13 +181,8 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
   else if (func == FuncVolume || func == FuncPlayValue || func == FuncBacklight) {
     return RawSource(param).toString(model);
   }
-  else if (func == FuncPlayPrompt || func == FuncPlayBoth) {
-    if ( getCurrentFirmware()->getCapability(VoicesAsNumbers)) {
-      return QString("%1").arg(param);
-    }
-    else {
-      return paramarm;
-    }
+  else if (func == FuncPlayPrompt) {
+    return paramarm;
   }
   else if (func >= FuncAdjustGV1 && func <= FuncAdjustGVLast) {
     switch (adjustMode) {
@@ -202,6 +197,9 @@ QString CustomFunctionData::paramToString(const ModelData * model) const
         const QString unit = model->gvarData[func - FuncAdjustGV1].unitToString();
         return QString("%1= %2%3").arg(val < 0 ? "-" : "+").arg(abs(val)).arg(unit);
     }
+  }
+  else if (func == FuncPlayScript || func == FuncRGBLed) {
+    return paramarm;
   }
 
   return "";
@@ -249,23 +247,17 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
   Firmware * fw = getCurrentFirmware();
 
   bool ret = (((index >= FuncOverrideCH1 && index <= FuncOverrideCHLast) && !fw->getCapability(SafetyChannelCustomFunction)) ||
-        ((index == FuncVolume || index == FuncBackgroundMusic || index == FuncBackgroundMusicPause) && !fw->getCapability(HasVolume)) ||
-        ((index == FuncPlayScript && !IS_HORUS_OR_TARANIS(fw->getBoard()))) ||
         ((index == FuncPlayHaptic) && !fw->getCapability(Haptic)) ||
-        ((index == FuncPlayBoth) && !fw->getCapability(HasBeeper)) ||
-        ((index == FuncLogs) && !fw->getCapability(HasSDLogs)) ||
         ((index >= FuncSetTimer1 && index <= FuncSetTimerLast) &&
          (index > FuncSetTimer1 + fw->getCapability(Timers) ||
          (model ? model->timers[index - FuncSetTimer1].isModeOff() : false))) ||
-        ((index == FuncScreenshot) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
         ((index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) && !fw->getCapability(DangerousFunctions)) ||
-        ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && !fw->getCapability(Gvars)) ||
-        ((index == FuncDisableTouch) && !IS_HORUS_OR_TARANIS(fw->getBoard())) ||
-        ((index == FuncSetScreen && !Boards::getCapability(fw->getBoard(), Board::HasColorLcd))) ||
+        ((index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) && ((index - FuncAdjustGV1) >= fw->getCapability(Gvars))) ||
         ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))) ||
-        ((index == FuncRGBLed && !Boards::getCapability(fw->getBoard(), Board::HasLedStripGPIO))) ||
+        ((index == FuncRGBLed && !(Boards::getCapability(fw->getBoard(), Board::HasBlingLEDS) || Boards::getCapability(fw->getBoard(), Board::FunctionSwitchColors)))) ||
         ((index == FuncLCDtoVideo && !IS_FATFISH_F16(fw->getBoard()))) ||
-        ((index >= FuncPushCustomSwitch1 && index <= FuncPushCustomSwitchLast) && !Boards::getCapability(fw->getBoard(), Board::FunctionSwitches))
+        ((index >= FuncPushCustomSwitch1 && index <= FuncPushCustomSwitchLast) &&
+          !Boards::isSwitchFunc(Boards::getSwitchIndexForCFSOffset(index - FuncPushCustomSwitch1)))
         );
   return !ret;
 }
@@ -277,7 +269,8 @@ int CustomFunctionData::funcContext(const int index)
 
   if ((index >= FuncOverrideCH1 && index <= FuncOverrideCHLast) ||
       (index >= FuncRangeCheckInternalModule && index <= FuncBindExternalModule) ||
-      (index >= FuncAdjustGV1 && index <= FuncAdjustGVLast))
+      (index >= FuncAdjustGV1 && index <= FuncAdjustGVLast) ||
+      (index >= FuncPushCustomSwitch1 && index <= FuncPushCustomSwitchLast))
     ret &= ~GlobalFunctionsContext;
 
   return ret;
@@ -297,7 +290,7 @@ QString CustomFunctionData::resetToString(const int value, const ModelData * mod
   }
 
   if (value < ++step)
-    return tr("Flight");
+    return tr("Session");
 
   if (value < ++step)
     return tr("Telemetry");
@@ -383,7 +376,7 @@ QString CustomFunctionData::gvarAdjustModeToString(const int value)
 {
   switch (value) {
     case FUNC_ADJUST_GVAR_CONSTANT:
-      return tr("Value");
+      return tr("Constant");
     case FUNC_ADJUST_GVAR_SOURCE:
       return tr("Source (%)");
     case FUNC_ADJUST_GVAR_SOURCERAW:
@@ -419,6 +412,19 @@ AbstractStaticItemModel * CustomFunctionData::repeatLuaItemModel()
 
   mdl->appendToItemList(tr("On"), 0);
   mdl->appendToItemList(tr("1x"), 1);
+
+  mdl->loadItemList();
+  return mdl;
+}
+
+//  static
+AbstractStaticItemModel * CustomFunctionData::repeatSetScreenItemModel()
+{
+  AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
+  mdl->setName("customfunctiondata.repeatSetScreen");
+
+  mdl->appendToItemList(repeatToString(-1, false), -1);
+  mdl->appendToItemList(repeatToString(0, false), 0);
 
   mdl->loadItemList();
   return mdl;
@@ -487,8 +493,8 @@ bool CustomFunctionData::isParamAvailable() const
     FuncBindExternalModule,
     FuncRacingMode,
     FuncDisableTouch,
-    FuncDisableAudioAmp,
-    FuncRGBLed
+    FuncDisableKeys,
+    FuncDisableAudioAmp
   };
 
   return funcList.contains(func) ? false : true;
@@ -507,7 +513,6 @@ bool CustomFunctionData::isRepeatParamAvailable(const AssignFunc func)
     FuncPlayHaptic,
     FuncPlayValue,
     FuncPlayPrompt,
-    FuncPlayBoth,
     FuncSetScreen
   };
 

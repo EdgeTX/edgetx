@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef FILTEREDITEMMODELS_H
-#define FILTEREDITEMMODELS_H
+#pragma once
 
 #include "compounditemmodels.h"
 
@@ -112,5 +111,3 @@ class CurveRefFilteredFactory : public FilteredItemModelFactory
 
     static QString fidToString(const int value);
 };
-
-#endif // FILTEREDITEMMODELS_H

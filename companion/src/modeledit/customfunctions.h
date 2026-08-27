@@ -27,6 +27,7 @@
 #include "filtereditemmodels.h"
 
 #include <QMediaPlayer>
+#include <QAudioOutput>
 
 class TimerEdit;
 
@@ -49,12 +50,13 @@ class CustomFunctionsPanel : public GenericPanel
     void customFunctionEdited();
     void functionEdited();
     void onCustomContextMenuRequested(QPoint pos);
-    void refreshCustomFunction(int index, bool modified=false);
+    void refreshCustomFunction(int index, bool changed = false);
     bool playSound(int index);
     void stopSound(int index);
     void toggleSound(bool play);
-    void onMediaPlayerStateChanged(QMediaPlayer::State state);
-    void onMediaPlayerError(QMediaPlayer::Error error);
+    void onMediaPlayerPlaybackStateChanged(QMediaPlayer::PlaybackState state);
+    void onMediaPlayerErrorOccurred(QMediaPlayer::Error error, const QString &errorString);
+
     void cmDelete();
     void cmCopy();
     void cmPaste();
@@ -89,10 +91,12 @@ class CustomFunctionsPanel : public GenericPanel
     int harpicId;
     int repeatId;
     int repeatLuaId;
+    int repeatSetScreenId;
     int gvarAdjustModeId;
 
     QSet<QString> tracksSet;
     QSet<QString> scriptsSet;
+    QSet<QString> scriptsSetRGB;
     int mediaPlayerCurrent;
     QComboBox * fswtchSwtch[CPN_MAX_SPECIAL_FUNCTIONS];
     QComboBox * fswtchFunc[CPN_MAX_SPECIAL_FUNCTIONS];
@@ -106,6 +110,7 @@ class CustomFunctionsPanel : public GenericPanel
     QComboBox * fswtchRepeat[CPN_MAX_SPECIAL_FUNCTIONS];
     QComboBox * fswtchGVmode[CPN_MAX_SPECIAL_FUNCTIONS];
     QMediaPlayer * mediaPlayer;
+    QAudioOutput * audioOutput;
 
     int selectedIndex;
     int fswCapability;

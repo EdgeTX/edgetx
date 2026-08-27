@@ -38,7 +38,7 @@ class Firmware;
 class SimulatorInterface;
 class SimulatedUIWidget;
 class VirtualJoystickWidget;
-#ifdef JOYSTICKS
+#ifdef USE_SDL
 class Joystick;
 #endif
 
@@ -74,6 +74,7 @@ class SimulatorWidget : public QWidget
     void setUiAreaStyle(const QString & style);
     void captureScreenshot(bool);
     void setupJoysticks();
+    void setupSerialPorts(QSerialPort *aux1, QSerialPort *aux2);
 
     QString getSdPath()   const { return sdCardPath; }
     QString getDataPath() const { return radioDataPath; }
@@ -98,6 +99,7 @@ class SimulatorWidget : public QWidget
     void simulatorStop();
     void simulatorSdPathChange(const QString & sdPath, const QString & dataPath);
     void simulatorVolumeGainChange(const int gain);
+    void settingsBatteryChanged(const int batMin, const int batMax, const unsigned int batWarn);
 
   private slots:
     virtual void mousePressEvent(QMouseEvent *event);
@@ -113,6 +115,7 @@ class SimulatorWidget : public QWidget
     void onRadioWidgetValueChange(const RadioWidget::RadioWidgetType type, int index, int value);
     void onjoystickAxisValueChanged(int axis, int value);
     void onjoystickButtonValueChanged(int button, bool state);
+    void onTxBatteryVoltageChanged(qint16 volts);
 
     void setRadioProfileId(int value);
     void setupRadioWidgets();
@@ -146,7 +149,7 @@ class SimulatorWidget : public QWidget
     bool deleteTempRadioData = false;
     bool saveTempRadioData = false;
 
-#ifdef JOYSTICKS
+#ifdef USE_SDL
     Joystick * joystick = nullptr;
     int switchDirection[MAX_JS_BUTTONS];
 #endif

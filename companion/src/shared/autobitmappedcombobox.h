@@ -41,6 +41,8 @@ class AutoBitMappedComboBox : public QComboBox, public AutoWidget
     virtual void insertItems(int index, const QStringList & items);
     // AutoWidget
     virtual void updateValue() override;
+    void setAutoModel(QAbstractItemModel * model) override;
+    void setBindText(std::function<QString()> fn) = delete;
 
     void clear();
 
@@ -52,7 +54,7 @@ class AutoBitMappedComboBox : public QComboBox, public AutoWidget
     void setField(RawSwitch & field, GenericPanel * panel = nullptr);
 
     void setAutoIndexes();
-    void setModel(QAbstractItemModel * model);
+    void setModel(QAbstractItemModel * model) override;
 
   signals:
     void currentDataChanged(int value);

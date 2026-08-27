@@ -24,28 +24,27 @@
 class FileChoice : public Choice
 {
 public:
-  FileChoice(Window* parent, const rect_t& rect, std::string folder,
-             const char* extension, int maxlen,
+  FileChoice(Window* parent, const rect_t& rect, const std::string folder,
+             const std::string extension, int maxlen,
              std::function<std::string()> getValue,
              std::function<void(std::string)> setValue,
              bool stripExtension = false,
-             const char* title = nullptr);
+             const char* title = "");
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "FileChoice"; }
 #endif
 
 protected:
-  bool loaded = false;
+  bool filesLoaded = false;
   int fileCount = 0;
   int selectedIdx = -1;
   Menu* menu = nullptr;
   std::string getLabelText() override;
   std::string folder;
-  const char* extension;
+  std::string extension;
   int maxlen;
   std::function<std::string()> getValue;
-  std::function<void(std::string)> setValue;
   bool stripExtension;
 
   void loadFiles();

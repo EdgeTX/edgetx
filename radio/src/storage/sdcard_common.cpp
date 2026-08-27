@@ -27,7 +27,12 @@
 
 #include "hal/abnormal_reboot.h"
 
+#if defined(SIMU)
+extern bool simuCreateDefaultSettings;
+#endif
+
 #if defined(COLORLCD)
+  #include "layout.h"
   #include "theme_manager.h"
 #endif
 
@@ -39,7 +44,22 @@ void getModelPath(char * path, const char * filename, const char* pathName)
   strcpy(&path[len + 1], filename);
 }
 
-void storageEraseAll(bool warn)
+static void forceSave()
+{
+  storageDirty(EE_GENERAL);
+  storageDirty(EE_MODEL);
+  storageCheck(true);
+}
+
+static void storageFormat()
+{
+  sdCheckAndCreateDirectory(RADIO_PATH);
+  sdCheckAndCreateDirectory(MODELS_PATH);
+  generalDefault();
+  setModelDefaults();
+}
+
+static void storageEraseAll()
 {
   TRACE("storageEraseAll");
 
@@ -55,24 +75,11 @@ void storageEraseAll(bool warn)
   g_eeGeneral.blOffBright = 20;
 #endif
 
-  if (warn) {
-    ALERT(STR_STORAGE_WARNING, STR_BAD_RADIO_DATA, AU_BAD_RADIODATA);
-  }
-
+  ALERT(STR_STORAGE_WARNING, STR_BAD_RADIO_DATA, AU_BAD_RADIODATA);
   RAISE_ALERT(STR_STORAGE_WARNING, STR_STORAGE_FORMAT, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
 
   storageFormat();
-  storageDirty(EE_GENERAL);
-  storageDirty(EE_MODEL);
-  storageCheck(true);
-}
-
-void storageFormat()
-{
-  sdCheckAndCreateDirectory(RADIO_PATH);
-  sdCheckAndCreateDirectory(MODELS_PATH);
-  generalDefault();
-  setModelDefaults();
+  forceSave();
 }
 
 void storageCheck(bool immediately)
@@ -80,35 +87,70 @@ void storageCheck(bool immediately)
   // Don't write anything to SD card if in EM
   if (UNEXPECTED_SHUTDOWN()) return;
 
+  static constexpr uint8_t retryLimit = 10;
+
+  static uint8_t retryRadioCount = 0;
   if (storageDirtyMsk & EE_GENERAL) {
-    TRACE("eeprom write general");
-    storageDirtyMsk &= ~EE_GENERAL;
-    const char * error = writeGeneralSettings();
-    if (error) {
-      TRACE("writeGeneralSettings error=%s", error);
+    if (retryRadioCount < retryLimit) {
+      TRACE("SD card write radio settings");
+      const char * error = writeGeneralSettings();
+      if (error) {
+        TRACE("writeGeneralSettings error=%s", error);
+        retryRadioCount += 1;
+      } else {
+        storageDirtyMsk &= ~EE_GENERAL;
+        retryRadioCount = 0;
+      }
+    } else {
+      // Reset timeout to next check
+      storageDirtyTime10ms = get_tmr10ms();
+      retryRadioCount = retryLimit / 2; // Retry again after timeout; but fewer times
+      // TODO: provide some mechanism to alert user that SD card has serious error
     }
   }
 
 #if defined(STORAGE_MODELSLIST)
+  static uint8_t retryLabelsCount = 0;
   if (storageDirtyMsk & EE_LABELS) {
-    TRACE("SD card write labels");
-    storageDirtyMsk &= ~EE_LABELS;
-    const char * error = modelslist.save();
-    if (error) {
-      TRACE("writeLabels error=%s", error);
+    if (retryLabelsCount < retryLimit) {
+      TRACE("SD card write labels");
+      const char * error = modelslist.save();
+      if (error) {
+        TRACE("writeLabels error=%s", error);
+        retryLabelsCount += 1;
+      } else {
+        storageDirtyMsk &= ~EE_LABELS;
+        retryLabelsCount = 0;
+      }
+    } else {
+      // Reset timeout to next check
+      storageDirtyTime10ms = get_tmr10ms();
+      retryLabelsCount = retryLimit / 2; // Retry again after timeout; but fewer times
+      // TODO: provide some mechanism to alert user that SD card has serious error
     }
   }
 #endif
 
+  static uint8_t retryModelCount = 0;
   if (storageDirtyMsk & EE_MODEL) {
-    TRACE("eeprom write model");
-    storageDirtyMsk &= ~EE_MODEL;
-    const char * error = writeModel();
+    if (retryModelCount < retryLimit) {
+      TRACE("SD card write model settings");
+      const char * error = writeModel();
 #if defined(STORAGE_MODELSLIST)
-    modelslist.updateCurrentModelCell();
+      modelslist.updateCurrentModelCell();
 #endif
-    if (error) {
-      TRACE("writeModel error=%s", error);
+      if (error) {
+        TRACE("writeModel error=%s", error);
+        retryModelCount += 1;
+      } else {
+        storageDirtyMsk &= ~EE_MODEL;
+        retryModelCount = 0;
+      }
+    } else {
+      // Reset timeout to next check
+      storageDirtyTime10ms = get_tmr10ms();
+      retryModelCount = retryLimit / 2; // Retry again after timeout; but fewer times
+      // TODO: provide some mechanism to alert user that SD card has serious error
     }
   }
 }
@@ -126,26 +168,20 @@ const char * createModel()
   if (index > 0) {
     setModelDefaults(index);
     memcpy(g_eeGeneral.currModelFilename, filename, sizeof(g_eeGeneral.currModelFilename));
-
-    storageDirty(EE_GENERAL);
-    storageDirty(EE_MODEL);
-    storageCheck(true);
-#if defined(COLORLCD)
-    // Default layout loaded when setting model defaults - neeed to remove it.
-    LayoutFactory::deleteCustomScreens();
-#endif
+    forceSave();
   }
+
   postModelLoad(false);
 
   return g_eeGeneral.currModelFilename;
 }
 #endif
 
-const char* loadModel(char* filename, bool alarms)
+const char* loadModel(const char* filename, bool alarms, const char* filePath)
 {
   preModelLoad();
 
-  const char* error = readModel(filename, (uint8_t*)&g_model, sizeof(g_model));
+  const char* error = readModel(filename, (uint8_t*)&g_model, sizeof(g_model), filePath);
   if (error) {
     TRACE("loadModel error=%s", error);
 
@@ -155,37 +191,17 @@ const char* loadModel(char* filename, bool alarms)
     applyDefaultTemplate();
 
     storageCheck(true);
-    postModelLoad(false);
-    return error;
   }
 
-  postModelLoad(alarms);
-  return nullptr;
-}
-
-const char* loadModelTemplate(const char* fileName, const char* filePath)
-{
-  preModelLoad();
-  // Assuming that the template is located in current working directory
-  const char* error = readModel(fileName, (uint8_t*)&g_model, sizeof(g_model), filePath);
-  if (error) {
-    TRACE("loadModel error=%s", error);
-    // just get some clean memory state in "g_model" so the mixer can run safely
-    memset(&g_model, 0, sizeof(g_model));
-    applyDefaultTemplate();
-
-    storageCheck(true);
-    postModelLoad(false);
-    return error;
-  }
-
-  postModelLoad(false);
-  return nullptr;
+  postModelLoad(error ? false : alarms);
+  return error;
 }
 
 void storageReadAll()
 {
   TRACE("storageReadAll");
+
+  memset(&g_eeGeneral, 0, sizeof(g_eeGeneral));
 
 #if defined(STORAGE_MODELSLIST)
   // Wipe models list in case
@@ -198,7 +214,17 @@ void storageReadAll()
   g_eeGeneral.modelCustomScriptsDisabled = true;
   
   if (loadRadioSettings() != nullptr) {
-    storageEraseAll(true);
+#if defined(SIMU)
+    if (simuCreateDefaultSettings) {
+      // Web simulator first run: silently create defaults without
+      // STORAGE WARNING alert or calibration screen.
+      simuCreateDefaultSettings = false;
+      storageFormat();
+      g_eeGeneral.chkSum = evalChkSum();
+      forceSave();
+    } else
+#endif
+    storageEraseAll();
   }
 #if !defined(STORAGE_MODELSLIST)
   else {
@@ -206,13 +232,16 @@ void storageReadAll()
   }
 #endif
 
-  for (uint8_t i = 0; languagePacks[i] != nullptr; i++) {
-    if (!strncmp(g_eeGeneral.ttsLanguage, languagePacks[i]->id, 2)) {
-      currentLanguagePackIdx = i;
-      currentLanguagePack = languagePacks[i];
-      break;
-    }
-  }
+  if (g_eeGeneral.uiLanguage[0] == 0)
+    generalDefaultUILanguage();
+  currentLanguagePackIdx = getLanguageId(g_eeGeneral.ttsLanguage);
+  currentLanguagePack = languagePacks[currentLanguagePackIdx];
+#if defined(ALL_LANGS)
+  uint8_t uiLangIdx = getLanguageId(g_eeGeneral.uiLanguage);
+  currentLangStrings = langStrings[uiLangIdx];
+  extern void setLanguageFont(int n);
+  setLanguageFont(uiLangIdx);
+#endif
 
 #if defined(STORAGE_MODELSLIST)
   // and reload the list
@@ -247,4 +276,3 @@ void checkModelIdUnique(uint8_t index, uint8_t module)
   //TODO
 }
 #endif
-

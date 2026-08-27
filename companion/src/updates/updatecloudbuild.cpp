@@ -24,11 +24,14 @@
 #include "appdata.h"
 #include "eeprominterface.h"
 #include "flashfirmwaredialog.h"
+#include "firmwareinterface.h"
+#include "radiointerface.h"
 
 // these must match text strings in server response
 constexpr char CLOUD_BUILD_WAITING[]       {"WAITING_FOR_BUILD"};
 constexpr char CLOUD_BUILD_IN_PROGRESS[]   {"BUILD_IN_PROGRESS"};
 constexpr char CLOUD_BUILD_SUCCESS[]       {"BUILD_SUCCESS"};
+constexpr char CLOUD_BUILD_ERROR[]         {"BUILD_ERROR"};
 
 UpdateCloudBuild::UpdateCloudBuild(QWidget * parent) :
   UpdateInterface(parent, CID_CloudBuild, tr("CloudBuild"), Repo::REPO_TYPE_BUILD,
@@ -75,6 +78,8 @@ int UpdateCloudBuild::cloudStatusToInt(const QString status)
     return STATUS_IN_PROGRESS;
   else if (status == QString(CLOUD_BUILD_SUCCESS))
     return STATUS_SUCCESS;
+  else if (status == QString(CLOUD_BUILD_ERROR))
+    return STATUS_ERROR;
   else
     return STATUS_UNKNOWN;
 }
@@ -95,7 +100,7 @@ void UpdateCloudBuild::assetSettingsInit()
   cad.filter("%FWFLAVOUR%");
   cad.destSubDir("FIRMWARE");
   cad.copyFilterType(UpdateParameters::UFT_Pattern);
-  cad.copyFilter("^%FWFLAVOUR%-%LANGUAGE%.*-%RELEASE%\\.bin$");
+  cad.copyFilter("^%FWFLAVOUR%-%LANGUAGE%.*-%RELEASE%\\.(bin|uf2)$");
   cad.maxExpected(1);
 
   qDebug() << "Asset settings initialised";
@@ -210,6 +215,22 @@ int UpdateCloudBuild::asyncInstall()
 
   int ret = QMessageBox::question(status()->progress(), CPN_STR_APP_NAME, tr("Write the updated firmware to the radio now ?"), QMessageBox::Yes | QMessageBox::No);
   if (ret == QMessageBox::Yes) {
+    QString extn(QFileInfo(destPath).suffix().toLower());
+    QString bootmodes;
+    if (dfuFileExtensions().contains(extn))
+      bootmodes.append("DFU");
+
+    if (uf2FileExtensions().contains(extn)) {
+      if (!bootmodes.isEmpty()) {
+        bootmodes.append(tr(" or "));
+      }
+      bootmodes.append("UF2");
+    }
+
+    QMessageBox::warning(status()->progress(), tr("Write Firmware to Radio"),
+                         tr("Before continuing, ensure the radio is connected and booted in %1 mode(s)")
+                         .arg(bootmodes));
+
     FlashFirmwareDialog *dlg = new FlashFirmwareDialog(this);
     dlg->exec();
     dlg->deleteLater();
@@ -398,6 +419,44 @@ void UpdateCloudBuild::cleanup()
    m_eventLoop.quit();
 }
 
+bool UpdateCloudBuild::downloadFlaggedAsset(const int row)
+{
+  if (!UpdateInterface::downloadFlaggedAsset(row))
+    return false;
+
+  // rename downloaded firmware file based on the file contents
+  // flashing processes use the file extension to decide on
+  // the flashing mode i.e. DFU or UF2
+  QString path = QString("%1/A%2/%3").arg(downloadDir()).arg(repo()->assets()->id()).arg(repo()->assets()->downloadName());
+  status()->reportProgress(tr("Renaming: %1").arg(path), QtDebugMsg);
+
+  FirmwareInterface firmware(path);
+  if (firmware.isValid()) {
+    QFileInfo fi(path);
+    QString newfname = QString("%1/%2.%3").arg(fi.absoluteDir().path()).arg(fi.completeBaseName()).arg(firmware.typeFileExtn());
+
+    if (QFileInfo::exists(newfname) && !QFile(newfname).remove()) {
+      status()->reportProgress(tr("Unable to delete: %1").arg(newfname), QtCriticalMsg);
+      return false;
+    }
+
+    QFile fw(path);
+    if (!fw.rename(newfname)) {
+      status()->reportProgress(tr("Unable to rename %1 to %2").arg(fw.fileName()).arg(newfname), QtCriticalMsg);
+      return false;
+    }
+
+    QFileInfo newfi(fw);
+    repo()->assets()->setDownloadName(newfi.fileName());
+    status()->reportProgress(tr("Renamed: %1").arg(newfi.fileName()), QtInfoMsg);
+  } else {
+    status()->reportProgress(tr("%1 is not a valid firmware file").arg(path), QtCriticalMsg);
+    return false;
+  }
+
+  return true;
+}
+
 bool UpdateCloudBuild::getStatus()
 {
   m_jobStatus = STATUS_UNKNOWN;
@@ -438,8 +497,9 @@ bool UpdateCloudBuild::objectExists(const QJsonObject & parent, const QString ch
 
 bool UpdateCloudBuild::setAssetDownload()
 {
-  //  this format MUST align with the asset copy filter
-  QString name = QString("%1-%2%3-%4.bin").arg(m_radio).arg(params()->language.toLower()).arg(m_buildFlags/* has a leading hyphen*/).arg(repo()->releases()->name());
+  // Note: this format MUST align with the asset copy filter
+  //       the file is renamed post download to amend the extension
+  QString name = QString("%1-%2%3-%4.tmp").arg(m_radio).arg(params()->language.toLower()).arg(m_buildFlags/* has a leading hyphen*/).arg(repo()->releases()->name());
 
   repo()->assets()->setDownloadName(name.toLower());
 
@@ -454,6 +514,7 @@ bool UpdateCloudBuild::setAssetDownload()
       if (artifacts[i].isObject()) {
         const QJsonObject &artifact = artifacts[i].toObject();
         if (stringExists(artifact, "slug") && artifact.value("slug").toString() == "firmware") {
+          //qDebug() << artifact;
           if (stringExists(artifact, "download_url")) {
             repo()->assets()->setDownloadUrl(artifact.value("download_url").toString());
           }

@@ -23,14 +23,10 @@
 #include "edgetx.h"
 #include "frsky_firmware_update.h"
 #include "debug.h"
+#include "os/sleep.h"
 #include "timers_driver.h"
 #include "tasks/mixer_task.h"
-
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#else
-  #include "lib_file.h"
-#endif
+#include "lib_file.h"
 
 #include "hal/module_port.h"
 
@@ -118,11 +114,9 @@ bool FrskyDeviceFirmwareUpdate::readBuffer(uint8_t * buffer, uint8_t count, uint
   while (index < count && elapsed < timeout) {
     if (uart_drv->getByte(uart_ctx, &(buffer[index]))) {
       ++index;
-    }
-    else {
-      RTOS_WAIT_MS(1);
-      if (++elapsed == timeout)
-        return false;
+    } else {
+      sleep_ms(1);
+      if (++elapsed == timeout) return false;
     }
   }
 
@@ -131,7 +125,7 @@ bool FrskyDeviceFirmwareUpdate::readBuffer(uint8_t * buffer, uint8_t count, uint
 
 const uint8_t * FrskyDeviceFirmwareUpdate::readFrame(uint32_t timeout)
 {
-  RTOS_WAIT_MS(1);
+  sleep_ms(1);
 
   uint8_t len = 0;
   bool bytestuff = false;
@@ -142,7 +136,7 @@ const uint8_t * FrskyDeviceFirmwareUpdate::readFrame(uint32_t timeout)
     uint8_t byte = 0;
 
     while (uart_drv->getByte(uart_ctx, &byte) == 0) {
-      RTOS_WAIT_MS(1);
+      sleep_ms(1);
       if (elapsed++ >= timeout) {
         TRACE("timeout in frame (len=%d)",len);
         return nullptr;
@@ -178,7 +172,7 @@ bool FrskyDeviceFirmwareUpdate::waitState(State newState, uint32_t timeout)
   static uint8_t pass = 0;
   if (++pass == 10) {
     pass = 0;
-    RTOS_WAIT_MS(1);
+    sleep_ms(1);
   }
   return true;
 #else
@@ -226,7 +220,7 @@ const char * FrskyDeviceFirmwareUpdate::sendPowerOn()
 {
   state = SPORT_POWERUP_REQ;
 
-  RTOS_WAIT_MS(50);
+  sleep_ms(50);
   uart_drv->clearRxBuffer(uart_ctx);
 
   for (int i=0; i<10; i++) {
@@ -242,7 +236,7 @@ const char * FrskyDeviceFirmwareUpdate::sendPowerOn()
 
 const char * FrskyDeviceFirmwareUpdate::sendReqVersion()
 {
-  RTOS_WAIT_MS(20);
+  sleep_ms(20);
   uart_drv->clearRxBuffer(uart_ctx);
 
   state = SPORT_VERSION_REQ;
@@ -354,7 +348,7 @@ const char *FrskyDeviceFirmwareUpdate::doFlashFirmware(
   if (set_pwr) set_pwr(true);
 
   // wait a bit for PWR to settle
-  RTOS_WAIT_MS(1);
+  sleep_ms(1);
 
   // Special update method for X12S / X10 iXJT
   if (module == INTERNAL_MODULE && port == ETX_MOD_PORT_UART && set_bootcmd != nullptr) {
@@ -408,7 +402,7 @@ const char *FrskyDeviceFirmwareUpdate::uploadFileToHorusXJT(
 
     if (count == 0) {
       uart_drv->sendByte(uart_ctx, 0xA1);
-      RTOS_WAIT_MS(50);
+      sleep_ms(50);
       return nullptr;
     }
 
@@ -453,7 +447,7 @@ const char *FrskyDeviceFirmwareUpdate::uploadFileNormal(
   if (result)
     return result;
 
-  RTOS_WAIT_MS(200);
+  sleep_ms(200);
   uart_drv->clearRxBuffer(uart_ctx);
 
   state = SPORT_DATA_TRANSFER;
@@ -519,7 +513,7 @@ const char *FrskyDeviceFirmwareUpdate::flashFirmware(
 
   /* wait 2s off */
   watchdogSuspend(1000 /*10s*/);
-  RTOS_WAIT_MS(2000);
+  sleep_ms(2000);
 
   const char * result = doFlashFirmware(filename, progressHandler);
 

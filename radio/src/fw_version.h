@@ -37,5 +37,5 @@ extern const char vers_stamp[];
  * (the one not running) or the buffer
  * @param buffer If non-null find the firmware version in the buffer instead
  */
-const char * getFirmwareVersion(const char * buffer = nullptr);
+const char * getFirmwareVersion(const uint8_t* buffer = nullptr);
 #endif

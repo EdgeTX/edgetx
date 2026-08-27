@@ -29,7 +29,15 @@
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
+#include "hal/audio_driver.h"
 
+#if defined(LUMINOSITY_SENSOR)
+#include "luminosity_sensor.h"
+#endif
+
+#if defined(RADIO_GX12)
+#include "targets/taranis/gx12/bsp_io.h"
+#endif
 #define DELAY_POS_MARGIN   3
 
 uint8_t s_mixer_first_run_done = false;
@@ -62,7 +70,8 @@ int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max)
     result = getValue(v.value);
     if (abs(v.value) >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
       // Mimic behviour of GET_GVAR_PREC1
-      result = result * 10;
+      if (g_model.gvars[abs(v.value) - MIXSRC_FIRST_GVAR].prec == 0)
+        result = result * 10;
     } else {
       result = calcRESXto1000(result);
     }
@@ -229,6 +238,8 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
           virtualInputsTrims[cur_chn] = -1;
         // if (srcRaw < 0) v = -v;
         anas[cur_chn] = v;
+      } else {
+        anas[ed->chn] = 0;
       }
     }
   }
@@ -375,10 +386,10 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
 
 #if defined(IMU)
   else if (i == MIXSRC_TILT_X) {
-    return gyro.scaledX();
+    return gyroScaledX();
   }
   else if (i == MIXSRC_TILT_Y) {
-    return gyro.scaledY();
+    return gyroScaledY();
   }
 #endif
 
@@ -399,6 +410,12 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
     return RESX;
   }
 
+#if defined(LUMINOSITY_SENSOR)
+  else if (i == MIXSRC_LIGHT) {
+    return getLuxSensorValue() - RESX;
+  }
+#endif
+
   else if (i <= MIXSRC_LAST_HELI) {
 #if defined(HELI)
     return cyc_anas[i - MIXSRC_FIRST_HELI];
@@ -417,24 +434,19 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
       else if (trimDown(tidx + 1)) return RESX;
       return 0;
     }
-    auto trim_value = getTrimValue(mixerCurrentFlightMode, i);
-    return calc1000toRESX((int16_t)8 * trim_value);
+    return 8 * getTrimValue(mixerCurrentFlightMode, i);
   }
   else if (i >= MIXSRC_FIRST_SWITCH && i <= MIXSRC_LAST_SWITCH) {
     auto sw_idx = (uint8_t)(i - MIXSRC_FIRST_SWITCH);
 #if defined(FUNCTION_SWITCHES)
-    auto max_reg_switches = switchGetMaxSwitches();
-    if (sw_idx >= max_reg_switches) {
-      auto fct_idx = sw_idx - max_reg_switches;
-      auto max_fct_switches = switchGetMaxFctSwitches();
-      if (fct_idx < max_fct_switches) {
-	return _switch_2pos_lookup[getFSLogicalState(fct_idx)];
-      }
+    auto max_switches = switchGetMaxSwitches();
+    if (sw_idx < max_switches && switchIsCustomSwitch(sw_idx)) {
+      return _switch_2pos_lookup[g_model.cfsState(sw_idx)];
     }
 #endif
-    auto sw_cfg = (SwitchConfig)SWITCH_CONFIG(sw_idx);
+    auto sw_cfg = g_model.getSwitchType(sw_idx);
     switch(sw_cfg) {
-    case SWITCH_NONE:
+    default:
       if (valid != nullptr) *valid = false;
       return 0;
     case SWITCH_TOGGLE:
@@ -451,18 +463,20 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
       if (stepcount == 0)
         return 0;
 
-      if (IS_FSWITCH_GROUP_ON(group_idx))
+      if (g_model.cfsGroupAlwaysOn(group_idx))
         stepcount--;
 
       int stepsize = (2 * RESX) / stepcount;
       int value = -RESX;
 
-      for (uint8_t i =  0; i < switchGetMaxFctSwitches(); i++) {
-        if(FSWITCH_GROUP(i) == group_idx) {
-          if (getFSLogicalState(i) == 1)
-            return value + (IS_FSWITCH_GROUP_ON(group_idx) ? 0 : stepsize);
-          else
-            value += stepsize;
+      for (uint8_t i =  0; i < switchGetMaxSwitches(); i++) {
+        if (switchIsCustomSwitch(i)) {
+          if (g_model.getSwitchGroup(i) == group_idx) {
+            if (g_model.cfsState(i) == 1)
+              return value + (g_model.cfsGroupAlwaysOn(group_idx) ? 0 : stepsize);
+            else
+              value += stepsize;
+          }
         }
       }
       return -RESX;
@@ -832,8 +846,10 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
         activeMixes[i] = 0;
 
       MixData * md = mixAddress(i);
+      mixsrc_t srcRaw = md->srcRaw;
+      mixsrc_t srcRawAbs = abs(srcRaw);
 
-      if (md->srcRaw == 0) {
+      if (srcRaw == 0) {
 #if defined(COLORLCD)
         continue;
 #else
@@ -857,19 +873,21 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
       if (mixLineActive) {
         // disable mixer using trainer channels if not connected
-        if (md->srcRaw >= MIXSRC_FIRST_TRAINER &&
-            md->srcRaw <= MIXSRC_LAST_TRAINER && !isTrainerValid()) {
+        if (srcRawAbs >= MIXSRC_FIRST_TRAINER &&
+            srcRawAbs <= MIXSRC_LAST_TRAINER && !isTrainerValid()) {
           mixCondition = true;
           mixEnabled = 0;
         }
 
 #if defined(LUA_MODEL_SCRIPTS)
         // disable mixer if Lua script is used as source and script was killed
-        if (md->srcRaw >= MIXSRC_FIRST_LUA && md->srcRaw <= MIXSRC_LAST_LUA) {
-          div_t qr = div(md->srcRaw - MIXSRC_FIRST_LUA, MAX_SCRIPT_OUTPUTS);
-          if (scriptInternalData[qr.quot].state != SCRIPT_OK) {
-            mixCondition = true;
-            mixEnabled = 0;
+        if (srcRawAbs >= MIXSRC_FIRST_LUA && srcRawAbs <= MIXSRC_LAST_LUA) {
+          div_t qr = div(int(srcRawAbs - MIXSRC_FIRST_LUA), MAX_SCRIPT_OUTPUTS);
+          for (int n = 0; n < MAX_SCRIPTS; n += 1) {
+            if ((scriptInternalData[n].reference == qr.quot) && (scriptInternalData[n].state != SCRIPT_OK)) {
+              mixCondition = true;
+              mixEnabled = 0;
+            }
           }
         }
 #endif
@@ -880,16 +898,15 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
       if (mode > e_perout_mode_inactive_flight_mode) {
         if (mixEnabled)
-          v = getValue(md->srcRaw);
+          v = getValue(srcRaw);
         else
           continue;
       } else {
-        mixsrc_t srcRaw = md->srcRaw;
         v = getValue(srcRaw);
 
-        if (srcRaw >= MIXSRC_FIRST_CH) {
+        if (srcRawAbs >= MIXSRC_FIRST_CH && srcRawAbs <= MIXSRC_LAST_CH) {
 
-          auto srcChan = srcRaw - MIXSRC_FIRST_CH;
+          auto srcChan = srcRawAbs - MIXSRC_FIRST_CH;
           if (srcChan <= MAX_OUTPUT_CHANNELS && md->destCh != srcChan) {
 
             // check whether we need to recompute the current channel later
@@ -961,13 +978,13 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       if (applyOffsetAndCurve) {
         bool applyTrims = !(mode & e_perout_mode_notrims);
         if (!applyTrims && g_model.thrTrim) {
-          auto origin = getSourceTrimOrigin(md->srcRaw);
+          auto origin = getSourceTrimOrigin(srcRaw);
           if (origin == g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM) {
             applyTrims = true;
           }
         }
         if (applyTrims && md->carryTrim == 0) {
-          v += getSourceTrimValue(md->srcRaw, v);
+          v += getSourceTrimValue(srcRaw, v);
         }
       }
 
@@ -1130,6 +1147,11 @@ void evalMixes(uint8_t tick10ms)
   static uint16_t delta = 0;
   static uint16_t flightModesFade = 0;
 
+#if defined(RADIO_GX12)
+  // see #6159
+  _poll_switches();
+#endif
+
   uint8_t fm = getFlightMode();
 
   if (lastFlightMode != fm) {
@@ -1178,7 +1200,6 @@ void evalMixes(uint8_t tick10ms)
         weight += fp_act[p];
       }
     }
-    assert(weight);
     mixerCurrentFlightMode = fm;
   }
   else {
@@ -1190,12 +1211,6 @@ void evalMixes(uint8_t tick10ms)
   // must be done after mixing because some functions use the inputs/channels values
   // must be done before limits because of the applyLimit function: it checks for safety switches which would be not initialized otherwise
   if (tick10ms) {
-#if defined(AUDIO)
-    requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
-#endif
-  
-    requiredBacklightBright = g_eeGeneral.getBrightness();
-
     if (radioGFEnabled()) {
       evalFunctions(g_eeGeneral.customFn, globalFunctionsContext);
     } else {
@@ -1314,7 +1329,14 @@ void doMixerPeriodicUpdates()
       val = RESX + calibratedAnalogs[g_model.thrTraceSrc == 0 ? inputMappingConvertMode(inputMappingGetThrottle()) : g_model.thrTraceSrc + MAX_STICKS - 1];
     }
 
-    val >>= (RESX_SHIFT-6); // calibrate it (resolution increased by factor 4)
+    // calibrate it (resolution increased by factor 4)
+#if defined(SURFACE_RADIO)
+    // For surface radio round to nearest value for center point calculation in evalTimers
+    val = (val + ((1 << (RESX_SHIFT - 6)) / 2)) >> (RESX_SHIFT - 6);
+#else
+    // Use previous calculation for air radios to avoid breaking things
+    val = val >> (RESX_SHIFT - 6);
+#endif
 
     evalTimers(val, tick10ms);
 

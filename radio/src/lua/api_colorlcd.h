@@ -19,7 +19,10 @@
  * GNU General Public License for more details.
  */
 
+#pragma once
+
 #include "definitions.h"
+#include "lua_states.h"
 
 EXTERN_C(LUALIB_API int luaopen_bitmap(lua_State * L));
 EXTERN_C(LUALIB_API int luaopen_lvgl(lua_State * L));

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "rtos.h"
+#include "os/task.h"
 
 // stack sizes should be in multiples of 8 for better alignment
 #if defined (COLORLCD)
@@ -53,15 +53,14 @@
 #endif
 
 
-extern TaskStack<MENUS_STACK_SIZE> menusStack;
-extern TaskStack<MIXER_STACK_SIZE> mixerStack;
+extern task_handle_t menusTaskId;
 
 #if defined(AUDIO)
-extern TaskStack<AUDIO_STACK_SIZE> audioStack;
+extern task_handle_t audioTaskId;
 #endif
 
 #if defined(CLI)
-extern TaskStack<CLI_STACK_SIZE> cliStack;
+extern task_handle_t cliTaskId;
 #endif
 
 void tasksStart();

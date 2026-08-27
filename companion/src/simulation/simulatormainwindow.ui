@@ -37,7 +37,7 @@
      <x>0</x>
      <y>0</y>
      <width>644</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="nativeMenuBar">
@@ -69,13 +69,22 @@
     <property name="title">
      <string>Tools</string>
     </property>
+    <addaction name="actionSetTxBatteryVoltage"/>
     <addaction name="actionScreenshot"/>
     <addaction name="actionJoystickSettings"/>
+    <addaction name="actionSerialPorts"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
     <addaction name="actionShowKeymap"/>
+    <addaction name="actionAbout"/>
    </widget>
    <addaction name="menuView"/>
    <addaction name="menuReload"/>
    <addaction name="menuTools"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
@@ -214,6 +223,24 @@
    </property>
    <property name="toolTip">
     <string>Set radio widget height to be a fixed size.</string>
+   </property>
+  </action>
+  <action name="actionSerialPorts">
+   <property name="text">
+    <string>Serial Ports</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionSetTxBatteryVoltage">
+   <property name="text">
+    <string>TX Battery Voltage...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open set transmitter battery voltage dialog</string>
    </property>
   </action>
  </widget>

@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "sensor_names.h"
 
 /* HoTT Telemetry 
 
@@ -214,7 +215,7 @@ struct HottSensor
   const uint16_t id;
   const TelemetryUnit unit;
   const uint8_t precision;
-  const char * name;
+  const char* name;
 };
 
 // clang-format off

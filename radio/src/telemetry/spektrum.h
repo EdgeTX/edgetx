@@ -21,9 +21,11 @@
 
 #pragma once
 
-void processSpektrumTelemetryData(uint8_t module, uint8_t data, uint8_t* rxBuffer, uint8_t& rxBufferCount);
+#define SPEKTRUM_TELEMETRY_LENGTH 18
+#define DSM_BIND_PACKET_LENGTH 12
+
 void spektrumSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
 
-// Used directly by multi telemetry protocol
+// Used directly by multi and DSMP telemetry protocol 
 void processSpektrumPacket(const uint8_t *packet);
-void processDSMBindPacket(uint8_t module, const uint8_t *packet);
+void processDSMBindPacket(const uint8_t *packet);

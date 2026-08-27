@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "libopenui.h"
+#include "static.h"
 
 class FilePreview : public StaticBitmap
 {
@@ -33,4 +33,7 @@ class FilePreview : public StaticBitmap
 #endif
 
   void setFile(const char *filename);
+
+ protected:
+  StaticIcon* errorIcon = nullptr;
 };

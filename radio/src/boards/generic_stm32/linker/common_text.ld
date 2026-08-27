@@ -8,6 +8,12 @@
 *(.eh_frame)
 *(.data.__global_locale)
 
+/* Init hooks table */
+. = ALIGN(4);
+__init_hook_array_start = .;
+KEEP (*(.init_hook))
+__init_hook_array_end = .;
+
 /*
    C++ Runtime: initializers for static variables.
    C Runtime: designated constructors

@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MODELEDIT_H_
-#define _MODELEDIT_H_
+#pragma once
 
 #include <QtWidgets>
 #include "genericpanel.h"
@@ -56,6 +55,7 @@ class ModelEdit : public QDialog
 
   signals:
     void modified();
+    void closed(int id);
 
   private slots:
     void onTabIndexChanged(int index);
@@ -72,5 +72,3 @@ class ModelEdit : public QDialog
     void launchSimulation();
 
 };
-
-#endif // _MODELEDIT_H_

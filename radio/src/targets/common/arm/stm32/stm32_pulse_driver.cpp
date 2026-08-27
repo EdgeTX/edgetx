@@ -78,10 +78,10 @@ static void init_dma_arr_mode(const stm32_pulse_timer_t* tim)
 int stm32_pulse_init(const stm32_pulse_timer_t* tim, uint32_t freq)
 {
   // check if timer is free first (clock disabled)
-  if (stm32_timer_is_clock_enabled(tim->TIMx)) return -1;
+  // if (stm32_timer_is_clock_enabled(tim->TIMx)) return -1;
 
   // .. and GPIO pin is not used
-  if(gpio_get_mode(tim->GPIO) != GPIO_IN) return -1;
+  // if(gpio_get_mode(tim->GPIO) != GPIO_IN) return -1;
 
   if (tim->DMA_TC_CallbackPtr) {
     memset(tim->DMA_TC_CallbackPtr, 0, sizeof(stm32_pulse_dma_tc_cb_t));
@@ -272,6 +272,13 @@ static void set_oc_mode(const stm32_pulse_timer_t* tim, uint32_t ocmode)
 {
   uint32_t channel = _get_base_channel(tim->TIM_Channel);
   LL_TIM_OC_SetMode(tim->TIMx, channel, ocmode);
+}
+
+bool stm32_pulse_is_completed(const stm32_pulse_timer_t* tim)
+{
+  uint32_t channel = _get_base_channel(tim->TIM_Channel);
+  return !LL_TIM_IsEnabledCounter(tim->TIMx) ||
+         LL_TIM_OC_GetMode(tim->TIMx, channel) == LL_TIM_OCMODE_FORCED_INACTIVE;
 }
 
 void stm32_pulse_wait_for_completed(const stm32_pulse_timer_t* tim)

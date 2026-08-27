@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include "edgetx_types.h"
+
 #if defined(SIMU)
   #define WRITE_DELAY_10MS 100
 #elif defined(RTC_BACKUP_RAM)
@@ -45,8 +47,6 @@ extern tmr10ms_t rambackupDirtyTime10ms;
 //
 // Generic storage interface
 //
-void storageEraseAll(bool warn);
-void storageFormat();
 void storageReadAll();
 void storageCheck(bool immediately);
 

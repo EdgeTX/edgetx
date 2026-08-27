@@ -22,10 +22,11 @@
 // This file is auto-generated via cfn_sorter.sh. Do not edit.
 
 #include "dataconstants.h"
+#include "hal_keys_lock.h"
 
 Functions cfn_sorted[] = {
 #if defined(TRANSLATIONS_CN)
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* 背光 */ FUNC_BACKLIGHT,
 #endif
   /* 播放背景音乐 */ FUNC_BACKGND_MUSIC,
@@ -38,14 +39,14 @@ Functions cfn_sorted[] = {
 #endif
   /* 复位 */ FUNC_RESET,
   /* 关闭音频功放 */ FUNC_DISABLE_AUDIO_AMP,
-  /* 记录日志到SD卡 */ FUNC_LOGS,
+  /* 记录日志LOG */ FUNC_LOGS,
   /* 教练 */ FUNC_TRAINER,
   /* 截屏 */ FUNC_SCREENSHOT,
 #if defined(COLORLCD)
   /* 禁用触摸 */ FUNC_DISABLE_TOUCH,
 #endif
   /* 竞速模式 */ FUNC_RACING_MODE,
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* 亮度 */ FUNC_BACKLIGHT,
 #endif
   /* 模块对频 */ FUNC_BIND,
@@ -56,14 +57,15 @@ Functions cfn_sorted[] = {
   /* 设置失控保护 */ FUNC_SET_FAILSAFE,
   /* 锁定通道值 */ FUNC_OVERRIDE_CHANNEL,
   /* 修改全局变量GV值 */ FUNC_ADJUST_GVAR,
-#if defined(COLORLCD)
   /* 选择主屏 */ FUNC_SET_SCREEN,
-#endif
   /* 摇杆值存储到微调 */ FUNC_INSTANT_TRIM,
   /* 音量 */ FUNC_VOLUME,
   /* 暂停背景音乐 */ FUNC_BACKGND_MUSIC_PAUSE,
   /* 振动 */ FUNC_HAPTIC,
-  /* Lua脚本 */ FUNC_PLAY_SCRIPT,
+  /* LUA脚本 */ FUNC_PLAY_SCRIPT,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
 #if defined(FUNCTION_SWITCHES)
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
@@ -79,7 +81,7 @@ Functions cfn_sorted[] = {
   /* Hudba */ FUNC_BACKGND_MUSIC,
   /* Hudba pauza */ FUNC_BACKGND_MUSIC_PAUSE,
   /* Insta-Trim */ FUNC_INSTANT_TRIM,
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* Jas */ FUNC_BACKLIGHT,
 #endif
   /* Kontrola dosahu */ FUNC_RANGECHECK,
@@ -91,7 +93,10 @@ Functions cfn_sorted[] = {
   /* ModuleBind */ FUNC_BIND,
   /* Nastav */ FUNC_ADJUST_GVAR,
   /* Nastavit Failsafe */ FUNC_SET_FAILSAFE,
-#if !defined(OLED_SCREEN)
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
+#if !OLED_SCREEN
   /* Podsvětlení */ FUNC_BACKLIGHT,
 #endif
   /* Přehrát wav */ FUNC_PLAY_TRACK,
@@ -107,63 +112,64 @@ Functions cfn_sorted[] = {
   /* Trenér */ FUNC_TRAINER,
   /* Vario */ FUNC_VARIO,
   /* Vibrovat */ FUNC_HAPTIC,
-#if defined(COLORLCD)
   /* Vybrat hlavní obrazovku */ FUNC_SET_SCREEN,
-#endif
   /* Vypnutí zesilovače zvuku */ FUNC_DISABLE_AUDIO_AMP,
   /* Zámek */ FUNC_OVERRIDE_CHANNEL,
   /* Závodní režim */ FUNC_RACING_MODE,
   /* Změna */ FUNC_SET_TIMER,
 #elif defined(TRANSLATIONS_DA)
-  /* Afspil lydfil */ FUNC_PLAY_TRACK,
   /* Afstand kontrol */ FUNC_RANGECHECK,
-#if !defined(OLED_SCREEN)
-  /* Baggrundslys */ FUNC_BACKLIGHT,
+#if !OLED_SCREEN
+  /* Baggrund lys */ FUNC_BACKLIGHT,
 #endif
-  /* BgMusik */ FUNC_BACKGND_MUSIC,
-  /* BgMusik || */ FUNC_BACKGND_MUSIC_PAUSE,
+  /* Baggrund musik */ FUNC_BACKGND_MUSIC,
+  /* Baggrund musik || */ FUNC_BACKGND_MUSIC_PAUSE,
+  /* Højdemåler */ FUNC_VARIO,
 #if defined(COLORLCD)
   /* Ikke berøringsaktiv */ FUNC_DISABLE_TOUCH,
 #endif
   /* Inst. Trim */ FUNC_INSTANT_TRIM,
   /* Juster */ FUNC_ADJUST_GVAR,
 #if defined(VIDEO_SWITCH)
-  /* LCD to Video */ FUNC_LCD_TO_VIDEO,
+  /* LCD til Video */ FUNC_LCD_TO_VIDEO,
 #endif
-  /* Lua Script */ FUNC_PLAY_SCRIPT,
+  /* Lua skript */ FUNC_PLAY_SCRIPT,
   /* Lydstyrke */ FUNC_VOLUME,
   /* Modul tilslut */ FUNC_BIND,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
   /* Nulstil */ FUNC_RESET,
   /* Overskriv */ FUNC_OVERRIDE_CHANNEL,
-#if defined(FUNCTION_SWITCHES)
-  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
-#endif
-  /* RGB led */ FUNC_RGB_LED,
+  /* RGB lys */ FUNC_RGB_LED,
   /* Ræs tilstand */ FUNC_RACING_MODE,
   /* SD Log */ FUNC_LOGS,
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* Skarphed */ FUNC_BACKLIGHT,
 #endif
   /* Skærm klip */ FUNC_SCREENSHOT,
   /* Sluk audio amplifier */ FUNC_DISABLE_AUDIO_AMP,
   /* Spil lyd */ FUNC_PLAY_SOUND,
+  /* Spil lydfil */ FUNC_PLAY_TRACK,
   /* Spil Værdi */ FUNC_PLAY_VALUE,
   /* Sæt */ FUNC_SET_TIMER,
   /* Sæt fejlsikring */ FUNC_SET_FAILSAFE,
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
-  /* Træner */ FUNC_TRAINER,
-  /* Vario */ FUNC_VARIO,
-  /* Vibration */ FUNC_HAPTIC,
-#if defined(COLORLCD)
-  /* Vælg hoved skærm */ FUNC_SET_SCREEN,
+#if defined(FUNCTION_SWITCHES)
+  /* Tryk bruger kontakt */ FUNC_PUSH_CUST_SWITCH,
 #endif
+  /* Træner */ FUNC_TRAINER,
+  /* Vibration */ FUNC_HAPTIC,
+  /* Vælg hoved skærm */ FUNC_SET_SCREEN,
 #elif defined(TRANSLATIONS_DE)
   /* Ändere */ FUNC_ADJUST_GVAR,
   /* Audio Verst. Aus */ FUNC_DISABLE_AUDIO_AMP,
+  /* Datei abspielen */ FUNC_PLAY_TRACK,
   /* Haptik */ FUNC_HAPTIC,
-#if defined(OLED_SCREEN)
+  /* Hauptseite anzeigen */ FUNC_SET_SCREEN,
+#if OLED_SCREEN
   /* Helligkeit */ FUNC_BACKLIGHT,
 #endif
   /* Inst. Trim */ FUNC_INSTANT_TRIM,
@@ -171,46 +177,45 @@ Functions cfn_sorted[] = {
   /* Kein Touch */ FUNC_DISABLE_TOUCH,
 #endif
   /* Lautstr. */ FUNC_VOLUME,
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* LCD Licht */ FUNC_BACKLIGHT,
 #endif
 #if defined(VIDEO_SWITCH)
-  /* LCD to Video */ FUNC_LCD_TO_VIDEO,
+  /* LCD zu Video */ FUNC_LCD_TO_VIDEO,
 #endif
   /* Lehrer */ FUNC_TRAINER,
-  /* Lua Skript */ FUNC_PLAY_SCRIPT,
-  /* ModuleBind */ FUNC_BIND,
 #if defined(FUNCTION_SWITCHES)
-  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+  /* LS setzen */ FUNC_PUSH_CUST_SWITCH,
+#endif
+  /* Lua-Skript */ FUNC_PLAY_SCRIPT,
+  /* ModuleBind */ FUNC_BIND,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
 #endif
   /* RacingMode */ FUNC_RACING_MODE,
   /* RangeCheck */ FUNC_RANGECHECK,
   /* RGB LED */ FUNC_RGB_LED,
   /* Rücksetz. */ FUNC_RESET,
-  /* Sag Text */ FUNC_PLAY_TRACK,
-  /* Sag Wert */ FUNC_PLAY_VALUE,
   /* Screenshot */ FUNC_SCREENSHOT,
   /* SD-Aufz. */ FUNC_LOGS,
   /* SetFailsafe */ FUNC_SET_FAILSAFE,
-#if defined(COLORLCD)
-  /* Set Main Screen */ FUNC_SET_SCREEN,
-#endif
   /* Setze */ FUNC_SET_TIMER,
   /* Spiel Töne */ FUNC_PLAY_SOUND,
   /* StartMusik */ FUNC_BACKGND_MUSIC,
-  /* Stop Musik */ FUNC_BACKGND_MUSIC_PAUSE,
+  /* StopMusik */ FUNC_BACKGND_MUSIC_PAUSE,
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
   /* Überschreibe */ FUNC_OVERRIDE_CHANNEL,
   /* Vario */ FUNC_VARIO,
+  /* Wert ansagen */ FUNC_PLAY_VALUE,
 #elif defined(TRANSLATIONS_ES)
   /* Ajuste */ FUNC_SET_TIMER,
   /* Ajuste */ FUNC_ADJUST_GVAR,
   /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
   /* BgMúsica */ FUNC_BACKGND_MUSIC,
   /* BgMúsica|| */ FUNC_BACKGND_MUSIC_PAUSE,
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* Brillo */ FUNC_BACKLIGHT,
 #endif
   /* Captura */ FUNC_SCREENSHOT,
@@ -224,8 +229,11 @@ Functions cfn_sorted[] = {
   /* LCD to Video */ FUNC_LCD_TO_VIDEO,
 #endif
   /* Lua Script */ FUNC_PLAY_SCRIPT,
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* Luz Fondo */ FUNC_BACKLIGHT,
+#endif
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
 #endif
 #if defined(COLORLCD)
   /* No Touch */ FUNC_DISABLE_TOUCH,
@@ -241,9 +249,7 @@ Functions cfn_sorted[] = {
   /* RGB leds */ FUNC_RGB_LED,
   /* SD Logs */ FUNC_LOGS,
   /* Seguro */ FUNC_OVERRIDE_CHANNEL,
-#if defined(COLORLCD)
   /* Set Main Screen */ FUNC_SET_SCREEN,
-#endif
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
@@ -252,14 +258,14 @@ Functions cfn_sorted[] = {
 #elif defined(TRANSLATIONS_FI)
   /* Adjust */ FUNC_ADJUST_GVAR,
   /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* Backlight */ FUNC_BACKLIGHT,
 #endif
   /* BgMusic */ FUNC_BACKGND_MUSIC,
   /* BgMusic || */ FUNC_BACKGND_MUSIC_PAUSE,
   /* Haptic */ FUNC_HAPTIC,
   /* Inst. Trim */ FUNC_INSTANT_TRIM,
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* Kirkkaus */ FUNC_BACKLIGHT,
 #endif
 #if defined(VIDEO_SWITCH)
@@ -267,6 +273,9 @@ Functions cfn_sorted[] = {
 #endif
   /* Lua Script */ FUNC_PLAY_SCRIPT,
   /* ModuleBind */ FUNC_BIND,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
 #if defined(COLORLCD)
   /* No Touch */ FUNC_DISABLE_TOUCH,
 #endif
@@ -285,9 +294,7 @@ Functions cfn_sorted[] = {
   /* SD Logs */ FUNC_LOGS,
   /* Set */ FUNC_SET_TIMER,
   /* SetFailsafe */ FUNC_SET_FAILSAFE,
-#if defined(COLORLCD)
   /* Set Main Screen */ FUNC_SET_SCREEN,
-#endif
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
@@ -298,9 +305,7 @@ Functions cfn_sorted[] = {
   /* Ajuster */ FUNC_ADJUST_GVAR,
   /* Bind */ FUNC_BIND,
   /* Déf. */ FUNC_SET_TIMER,
-#if defined(COLORLCD)
   /* Définir Écran Princ. */ FUNC_SET_SCREEN,
-#endif
   /* Désact. Ampli Audio */ FUNC_DISABLE_AUDIO_AMP,
   /* Écolage */ FUNC_TRAINER,
   /* Inst. Trim */ FUNC_INSTANT_TRIM,
@@ -311,10 +316,13 @@ Functions cfn_sorted[] = {
 #endif
   /* Lire valeur */ FUNC_PLAY_VALUE,
   /* Logs SD */ FUNC_LOGS,
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* Luminosité */ FUNC_BACKLIGHT,
 #endif
   /* Musique */ FUNC_BACKGND_MUSIC,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
 #if defined(COLORLCD)
   /* Non Tactile */ FUNC_DISABLE_TOUCH,
 #endif
@@ -324,10 +332,10 @@ Functions cfn_sorted[] = {
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* Racing Mode */ FUNC_RACING_MODE,
-  /* Régle Failsafe */ FUNC_SET_FAILSAFE,
+  /* Règle Failsafe */ FUNC_SET_FAILSAFE,
   /* Remise à 0 */ FUNC_RESET,
   /* Remplace */ FUNC_OVERRIDE_CHANNEL,
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* Rétroécl. */ FUNC_BACKLIGHT,
 #endif
   /* RGB leds */ FUNC_RGB_LED,
@@ -340,11 +348,7 @@ Functions cfn_sorted[] = {
   /* Vibreur */ FUNC_HAPTIC,
   /* Volume */ FUNC_VOLUME,
 #elif defined(TRANSLATIONS_HE)
-  /* Adjust */ FUNC_ADJUST_GVAR,
   /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
-#if !defined(OLED_SCREEN)
-  /* Backlight */ FUNC_BACKLIGHT,
-#endif
   /* BgMusic */ FUNC_BACKGND_MUSIC,
   /* BgMusic || */ FUNC_BACKGND_MUSIC_PAUSE,
   /* Haptic */ FUNC_HAPTIC,
@@ -354,73 +358,79 @@ Functions cfn_sorted[] = {
 #endif
   /* Lua Script */ FUNC_PLAY_SCRIPT,
   /* ModuleBind */ FUNC_BIND,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
   /* Override */ FUNC_OVERRIDE_CHANNEL,
-  /* Play Sound */ FUNC_PLAY_SOUND,
   /* Play Track */ FUNC_PLAY_TRACK,
   /* Play Value */ FUNC_PLAY_VALUE,
 #if defined(FUNCTION_SWITCHES)
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* RangeCheck */ FUNC_RANGECHECK,
-  /* Reset */ FUNC_RESET,
   /* RGB leds */ FUNC_RGB_LED,
   /* SD Logs */ FUNC_LOGS,
   /* Set */ FUNC_SET_TIMER,
   /* SetFailsafe */ FUNC_SET_FAILSAFE,
-#if defined(DEBUG)
-  /* Test */ FUNC_TEST,
-#endif
-  /* Trainer */ FUNC_TRAINER,
   /* Vario */ FUNC_VARIO,
-  /* Volume */ FUNC_VOLUME,
-#if defined(OLED_SCREEN)
+#if !OLED_SCREEN
+  /* אור אחורי */ FUNC_BACKLIGHT,
+#endif
+  /* איפוס */ FUNC_RESET,
+#if defined(DEBUG)
+  /* בדיקה */ FUNC_TEST,
+#endif
+#if OLED_SCREEN
   /* בהירות */ FUNC_BACKLIGHT,
 #endif
-#if defined(COLORLCD)
   /* הגדרת מסך ראשי */ FUNC_SET_SCREEN,
-#endif
+  /* הפעל סאונד */ FUNC_PLAY_SOUND,
+  /* התאם */ FUNC_ADJUST_GVAR,
 #if defined(COLORLCD)
   /* ללא מסך מגע */ FUNC_DISABLE_TOUCH,
 #endif
+  /* מדריך */ FUNC_TRAINER,
   /* מצב תחרות */ FUNC_RACING_MODE,
+  /* עוצמת קול */ FUNC_VOLUME,
   /* צילום מסך */ FUNC_SCREENSHOT,
 #elif defined(TRANSLATIONS_IT)
   /* Amp Audio Off */ FUNC_DISABLE_AUDIO_AMP,
   /* Azzera */ FUNC_RESET,
   /* BindModulo */ FUNC_BIND,
-  /* Blocco */ FUNC_OVERRIDE_CHANNEL,
+#if defined(COLORLCD)
+  /* Disab. touch */ FUNC_DISABLE_TOUCH,
+#endif
+  /* Ignora */ FUNC_OVERRIDE_CHANNEL,
   /* Inst. Trim */ FUNC_INSTANT_TRIM,
 #if defined(VIDEO_SWITCH)
-  /* LCD to Video */ FUNC_LCD_TO_VIDEO,
+  /* LCD su video */ FUNC_LCD_TO_VIDEO,
 #endif
   /* Leds RGB */ FUNC_RGB_LED,
   /* Leggi Valore */ FUNC_PLAY_VALUE,
-  /* Logs SDCard */ FUNC_LOGS,
-#if defined(OLED_SCREEN)
+  /* Log scheda SD */ FUNC_LOGS,
+#if OLED_SCREEN
   /* Luminosità */ FUNC_BACKLIGHT,
 #endif
   /* Maestro */ FUNC_TRAINER,
   /* Modo Racing */ FUNC_RACING_MODE,
   /* Musica Sf */ FUNC_BACKGND_MUSIC,
   /* Musica Sf || */ FUNC_BACKGND_MUSIC_PAUSE,
-#if defined(COLORLCD)
-  /* No Touch */ FUNC_DISABLE_TOUCH,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
 #endif
 #if defined(FUNCTION_SWITCHES)
-  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+  /* Premi CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* RangeCheck */ FUNC_RANGECHECK,
   /* Regola */ FUNC_ADJUST_GVAR,
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* Retroillum. */ FUNC_BACKLIGHT,
 #endif
   /* Screenshot */ FUNC_SCREENSHOT,
   /* Script Lua */ FUNC_PLAY_SCRIPT,
   /* Set */ FUNC_SET_TIMER,
   /* SetFailsafe */ FUNC_SET_FAILSAFE,
-#if defined(COLORLCD)
   /* Setta Schermo Princ. */ FUNC_SET_SCREEN,
-#endif
   /* Suona */ FUNC_PLAY_SOUND,
   /* Suona Traccia */ FUNC_PLAY_TRACK,
 #if defined(DEBUG)
@@ -439,6 +449,9 @@ Functions cfn_sorted[] = {
   /* LCD to Video */ FUNC_LCD_TO_VIDEO,
 #endif
   /* LUAスクリプト */ FUNC_PLAY_SCRIPT,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
 #if defined(FUNCTION_SWITCHES)
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
@@ -452,20 +465,18 @@ Functions cfn_sorted[] = {
 #endif
   /* トレーナー */ FUNC_TRAINER,
   /* バイブレート */ FUNC_HAPTIC,
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* バックライト */ FUNC_BACKLIGHT,
 #endif
   /* バリオ */ FUNC_VARIO,
-#if defined(COLORLCD)
   /* メイン画面設定 */ FUNC_SET_SCREEN,
-#endif
   /* モジュールバインド */ FUNC_BIND,
   /* リセット */ FUNC_RESET,
   /* レースモード */ FUNC_RACING_MODE,
   /* レンジチェック */ FUNC_RANGECHECK,
   /* 音源再生 */ FUNC_PLAY_TRACK,
   /* 画面キャプチャ */ FUNC_SCREENSHOT,
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* 輝度 */ FUNC_BACKLIGHT,
 #endif
   /* 再生値 */ FUNC_PLAY_VALUE,
@@ -474,16 +485,62 @@ Functions cfn_sorted[] = {
 #if defined(COLORLCD)
   /* 非タッチ */ FUNC_DISABLE_TOUCH,
 #endif
+#elif defined(TRANSLATIONS_KO)
+#if defined(VIDEO_SWITCH)
+  /* LCD -> 비디오 출력 */ FUNC_LCD_TO_VIDEO,
+#endif
+  /* Lua 스크립트 실행 */ FUNC_PLAY_SCRIPT,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
+  /* RGB LED */ FUNC_RGB_LED,
+  /* SD 로그 저장 */ FUNC_LOGS,
+  /* 값 재생 */ FUNC_PLAY_VALUE,
+  /* 거리체크 */ FUNC_RANGECHECK,
+  /* 레이싱 모드 */ FUNC_RACING_MODE,
+  /* 메인 화면 설정 */ FUNC_SET_SCREEN,
+  /* 모듈 바인딩 */ FUNC_BIND,
+  /* 바리오 */ FUNC_VARIO,
+#if OLED_SCREEN
+  /* 밝기 */ FUNC_BACKLIGHT,
+#endif
+  /* 배경 음악 */ FUNC_BACKGND_MUSIC,
+  /* 배경 음악 일시정지 */ FUNC_BACKGND_MUSIC_PAUSE,
+#if !OLED_SCREEN
+  /* 백라이트 */ FUNC_BACKLIGHT,
+#endif
+  /* 볼륨 */ FUNC_VOLUME,
+  /* 소리 재생 */ FUNC_PLAY_SOUND,
+  /* 스크린샷 저장 */ FUNC_SCREENSHOT,
+  /* 오디오 앰프 끄기 */ FUNC_DISABLE_AUDIO_AMP,
+  /* 전역 변수 조정 */ FUNC_ADJUST_GVAR,
+  /* 즉시 트림 */ FUNC_INSTANT_TRIM,
+  /* 진동 */ FUNC_HAPTIC,
+  /* 초기화 */ FUNC_RESET,
+  /* 출력 오버라이드 */ FUNC_OVERRIDE_CHANNEL,
+#if defined(FUNCTION_SWITCHES)
+  /* 커스텀 스위치 실행 */ FUNC_PUSH_CUST_SWITCH,
+#endif
+  /* 타이머 설정 */ FUNC_SET_TIMER,
+#if defined(COLORLCD)
+  /* 터치 비활성화 */ FUNC_DISABLE_TOUCH,
+#endif
+#if defined(DEBUG)
+  /* 테스트 */ FUNC_TEST,
+#endif
+  /* 트랙 재생 */ FUNC_PLAY_TRACK,
+  /* 트레이너 */ FUNC_TRAINER,
+  /* 페일세이프 설정 */ FUNC_SET_FAILSAFE,
 #elif defined(TRANSLATIONS_NL)
   /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* Backlight */ FUNC_BACKLIGHT,
 #endif
   /* BgMusic */ FUNC_BACKGND_MUSIC,
   /* BgMusic || */ FUNC_BACKGND_MUSIC_PAUSE,
   /* Geluid */ FUNC_PLAY_SOUND,
   /* Haptic */ FUNC_HAPTIC,
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* Helderheid */ FUNC_BACKLIGHT,
 #endif
   /* Inst. Trim */ FUNC_INSTANT_TRIM,
@@ -492,6 +549,9 @@ Functions cfn_sorted[] = {
 #endif
   /* Lua Script */ FUNC_PLAY_SCRIPT,
   /* ModuleBind */ FUNC_BIND,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
 #if defined(COLORLCD)
   /* No Touch */ FUNC_DISABLE_TOUCH,
 #endif
@@ -509,9 +569,7 @@ Functions cfn_sorted[] = {
   /* SD Logs */ FUNC_LOGS,
   /* Set */ FUNC_SET_TIMER,
   /* SetFailsafe */ FUNC_SET_FAILSAFE,
-#if defined(COLORLCD)
   /* Set Main Screen */ FUNC_SET_SCREEN,
-#endif
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
@@ -526,7 +584,7 @@ Functions cfn_sorted[] = {
   /* GrajŚcieżk */ FUNC_PLAY_TRACK,
   /* GrajWartoś */ FUNC_PLAY_VALUE,
   /* Inst-Trim */ FUNC_INSTANT_TRIM,
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* Jasność */ FUNC_BACKLIGHT,
 #endif
 #if defined(VIDEO_SWITCH)
@@ -536,10 +594,13 @@ Functions cfn_sorted[] = {
   /* ModuleBind */ FUNC_BIND,
   /* Muz. tła */ FUNC_BACKGND_MUSIC,
   /* Muz. tła || */ FUNC_BACKGND_MUSIC_PAUSE,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
 #if defined(COLORLCD)
   /* No Touch */ FUNC_DISABLE_TOUCH,
 #endif
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* Podświetl */ FUNC_BACKLIGHT,
 #endif
 #if defined(FUNCTION_SWITCHES)
@@ -549,9 +610,7 @@ Functions cfn_sorted[] = {
   /* RangeCheck */ FUNC_RANGECHECK,
   /* Resetuj */ FUNC_RESET,
   /* RGB ledy */ FUNC_RGB_LED,
-#if defined(COLORLCD)
   /* Set Main Screen */ FUNC_SET_SCREEN,
-#endif
   /* SetFailsafe */ FUNC_SET_FAILSAFE,
   /* SkryptyLua */ FUNC_PLAY_SCRIPT,
 #if defined(DEBUG)
@@ -570,24 +629,25 @@ Functions cfn_sorted[] = {
   /* BgMusica */ FUNC_BACKGND_MUSIC,
   /* BgMusica || */ FUNC_BACKGND_MUSIC_PAUSE,
   /* BindMódulo */ FUNC_BIND,
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* Brilho */ FUNC_BACKLIGHT,
 #endif
   /* Capt. Tela */ FUNC_SCREENSHOT,
   /* DefFailsafe */ FUNC_SET_FAILSAFE,
   /* Definir */ FUNC_SET_TIMER,
-#if defined(COLORLCD)
   /* Def Tela Princ */ FUNC_SET_SCREEN,
-#endif
 #if defined(VIDEO_SWITCH)
   /* LCD to Video */ FUNC_LCD_TO_VIDEO,
 #endif
   /* Leds RGB */ FUNC_RGB_LED,
   /* Logs SD */ FUNC_LOGS,
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* LuzFundo */ FUNC_BACKLIGHT,
 #endif
   /* ModCorrida */ FUNC_RACING_MODE,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
 #if defined(COLORLCD)
   /* No Touch */ FUNC_DISABLE_TOUCH,
 #endif
@@ -612,13 +672,13 @@ Functions cfn_sorted[] = {
 #elif defined(TRANSLATIONS_RU)
   /* Bind модуль */ FUNC_BIND,
 #if defined(VIDEO_SWITCH)
-  /* LCD to Video */ FUNC_LCD_TO_VIDEO,
+  /* LCD в видео */ FUNC_LCD_TO_VIDEO,
 #endif
   /* Lua скрипт */ FUNC_PLAY_SCRIPT,
-  /* Play Value */ FUNC_PLAY_VALUE,
-#if defined(FUNCTION_SWITCHES)
-  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
 #endif
+  /* Play Value */ FUNC_PLAY_VALUE,
   /* RGB подсветка */ FUNC_RGB_LED,
   /* SD логи */ FUNC_LOGS,
   /* Авар управ */ FUNC_SET_FAILSAFE,
@@ -626,20 +686,21 @@ Functions cfn_sorted[] = {
   /* Вибро */ FUNC_HAPTIC,
   /* Воспр звук */ FUNC_PLAY_SOUND,
   /* Воспр трек */ FUNC_PLAY_TRACK,
-#if defined(COLORLCD)
   /* Выбр глав экран */ FUNC_SET_SCREEN,
-#endif
   /* Вык аудио усил. */ FUNC_DISABLE_AUDIO_AMP,
   /* Громкость */ FUNC_VOLUME,
   /* Мгнов трим */ FUNC_INSTANT_TRIM,
   /* Муз || */ FUNC_BACKGND_MUSIC_PAUSE,
   /* Муз фон */ FUNC_BACKGND_MUSIC,
+#if defined(FUNCTION_SWITCHES)
+  /* Нажать CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
   /* Настройка */ FUNC_ADJUST_GVAR,
   /* Оменить */ FUNC_OVERRIDE_CHANNEL,
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* Подсветка */ FUNC_BACKLIGHT,
 #endif
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* Подсветка */ FUNC_BACKLIGHT,
 #endif
   /* Пров диапаз */ FUNC_RANGECHECK,
@@ -656,7 +717,7 @@ Functions cfn_sorted[] = {
   /* Установ */ FUNC_SET_TIMER,
 #elif defined(TRANSLATIONS_SE)
   /* Audioförstärkare av */ FUNC_DISABLE_AUDIO_AMP,
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* Belysning */ FUNC_BACKLIGHT,
 #endif
 #if defined(COLORLCD)
@@ -667,7 +728,7 @@ Functions cfn_sorted[] = {
 #if defined(VIDEO_SWITCH)
   /* LCD till Video */ FUNC_LCD_TO_VIDEO,
 #endif
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* Ljusstyrka */ FUNC_BACKLIGHT,
 #endif
   /* Logga data */ FUNC_LOGS,
@@ -675,20 +736,21 @@ Functions cfn_sorted[] = {
   /* Lås */ FUNC_OVERRIDE_CHANNEL,
   /* Lärare */ FUNC_TRAINER,
   /* Musik */ FUNC_BACKGND_MUSIC,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
   /* Parkoppla modul */ FUNC_BIND,
-  /* Pausa Musik */ FUNC_BACKGND_MUSIC_PAUSE,
+  /* Pausa musik */ FUNC_BACKGND_MUSIC_PAUSE,
   /* Range check */ FUNC_RANGECHECK,
   /* RGB ledljus */ FUNC_RGB_LED,
   /* Skärmbild */ FUNC_SCREENSHOT,
   /* Spara trimmar */ FUNC_INSTANT_TRIM,
   /* Spela ljud */ FUNC_PLAY_SOUND,
   /* Spela upp */ FUNC_PLAY_TRACK,
-  /* Säg värdet */ FUNC_PLAY_VALUE,
+  /* Säg värde */ FUNC_PLAY_VALUE,
   /* Sätt */ FUNC_SET_TIMER,
   /* Sätt failsafe */ FUNC_SET_FAILSAFE,
-#if defined(COLORLCD)
   /* Sätt huvudskärm */ FUNC_SET_SCREEN,
-#endif
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif
@@ -701,12 +763,15 @@ Functions cfn_sorted[] = {
   /* Återställ */ FUNC_RESET,
 #elif defined(TRANSLATIONS_TW)
   /* Lua腳本 */ FUNC_PLAY_SCRIPT,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
 #if defined(FUNCTION_SWITCHES)
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
-  /* RGB led燈 */ FUNC_RGB_LED,
+  /* RGB LED 燈 */ FUNC_RGB_LED,
   /* Vario傳感器 */ FUNC_VARIO,
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* 亮度 */ FUNC_BACKLIGHT,
 #endif
   /* 修改全局變量GV值 */ FUNC_ADJUST_GVAR,
@@ -731,15 +796,13 @@ Functions cfn_sorted[] = {
   /* 禁用觸摸 */ FUNC_DISABLE_TOUCH,
 #endif
   /* 競速模式 */ FUNC_RACING_MODE,
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* 背光 */ FUNC_BACKLIGHT,
 #endif
-  /* 記錄日誌到SD卡 */ FUNC_LOGS,
+  /* 記錄日誌LOG */ FUNC_LOGS,
   /* 設置 */ FUNC_SET_TIMER,
   /* 設置失控保護 */ FUNC_SET_FAILSAFE,
-#if defined(COLORLCD)
   /* 選擇主屏 */ FUNC_SET_SCREEN,
-#endif
   /* 重啟 */ FUNC_RESET,
   /* 鎖定通道值 */ FUNC_OVERRIDE_CHANNEL,
   /* 關閉音頻功放 */ FUNC_DISABLE_AUDIO_AMP,
@@ -747,9 +810,7 @@ Functions cfn_sorted[] = {
 #elif defined(TRANSLATIONS_UA)
   /* АварРежим */ FUNC_SET_FAILSAFE,
   /* Варіо */ FUNC_VARIO,
-#if defined(COLORLCD)
   /* Вибір гол. екр. */ FUNC_SET_SCREEN,
-#endif
   /* Вібро */ FUNC_HAPTIC,
   /* Встан. */ FUNC_SET_TIMER,
   /* Грати Звук */ FUNC_PLAY_SOUND,
@@ -761,7 +822,7 @@ Functions cfn_sorted[] = {
   /* Налашт. */ FUNC_ADJUST_GVAR,
   /* Перевизнач. */ FUNC_OVERRIDE_CHANNEL,
   /* ПеревірДіап. */ FUNC_RANGECHECK,
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* Підсвіт. */ FUNC_BACKLIGHT,
 #endif
   /* Підсил. вимк. */ FUNC_DISABLE_AUDIO_AMP,
@@ -777,13 +838,16 @@ Functions cfn_sorted[] = {
   /* Тренер */ FUNC_TRAINER,
   /* Фон.Муз. */ FUNC_BACKGND_MUSIC,
   /* Фон.Муз. || */ FUNC_BACKGND_MUSIC_PAUSE,
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* Яскравість */ FUNC_BACKLIGHT,
 #endif
 #if defined(VIDEO_SWITCH)
   /* LCD to Video */ FUNC_LCD_TO_VIDEO,
 #endif
   /* Lua Скрипт */ FUNC_PLAY_SCRIPT,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
 #if defined(FUNCTION_SWITCHES)
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
@@ -792,12 +856,12 @@ Functions cfn_sorted[] = {
 #else
   /* Adjust */ FUNC_ADJUST_GVAR,
   /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
-#if !defined(OLED_SCREEN)
+#if !OLED_SCREEN
   /* Backlight */ FUNC_BACKLIGHT,
 #endif
   /* BgMusic */ FUNC_BACKGND_MUSIC,
   /* BgMusic || */ FUNC_BACKGND_MUSIC_PAUSE,
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   /* Brightness */ FUNC_BACKLIGHT,
 #endif
   /* Haptic */ FUNC_HAPTIC,
@@ -807,6 +871,9 @@ Functions cfn_sorted[] = {
 #endif
   /* Lua Script */ FUNC_PLAY_SCRIPT,
   /* ModuleBind */ FUNC_BIND,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
 #if defined(COLORLCD)
   /* No Touch */ FUNC_DISABLE_TOUCH,
 #endif
@@ -825,9 +892,7 @@ Functions cfn_sorted[] = {
   /* SD Logs */ FUNC_LOGS,
   /* Set */ FUNC_SET_TIMER,
   /* SetFailsafe */ FUNC_SET_FAILSAFE,
-#if defined(COLORLCD)
   /* Set Main Screen */ FUNC_SET_SCREEN,
-#endif
 #if defined(DEBUG)
   /* Test */ FUNC_TEST,
 #endif

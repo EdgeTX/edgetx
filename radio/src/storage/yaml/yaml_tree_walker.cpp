@@ -181,6 +181,11 @@ static bool yaml_output_attr(void* user, uint8_t* ptr, uint32_t bit_ofs,
             break;
           case YDT_ENUM:
             p_out = yaml_output_enum(i, node->u._enum.choices);
+            if (!p_out) {
+              // Field holds a signed enum value (e.g. AntennaModes)
+              p_out = yaml_output_enum(yaml_to_signed(i, node->size),
+                                        node->u._enum.choices);
+            }
             break;
 
           case YDT_ARRAY:
@@ -442,7 +447,7 @@ void YamlTreeWalker::toNextAttr()
     }
 }
 
-void YamlTreeWalker::setAttrValue(char* buf, uint16_t len)
+void YamlTreeWalker::setAttrValue(const char* buf, uint16_t len)
 {
     if (!buf || !len || isIdxInvalid())
         return;
@@ -622,6 +627,13 @@ bool YamlTreeWalker::generate(yaml_writer_func wf, void* opaque)
         }
         else {
 
+            if (attr->type == YDT_ENUM && attr->u._enum.is_active) {
+                if (!attr->u._enum.is_active(this, data, getBitOffset())) {
+                    toNextAttr();
+                    continue;
+                }
+            }
+
             // only for lists:
             // - arrays have IDX upfront
             // - structs are not marked as arrays
@@ -679,12 +691,12 @@ static bool to_next_elmt(void* ctx)
     return ((YamlTreeWalker*)ctx)->toNextElmt();
 }
 
-static bool find_node(void* ctx, char* buf, uint8_t len)
+static bool find_node(void* ctx, const char* buf, uint8_t len)
 {
     return ((YamlTreeWalker*)ctx)->findNode(buf,len);
 }
 
-static void set_attr(void* ctx, char* buf, uint16_t len)
+static void set_attr(void* ctx, const char* buf, uint16_t len)
 {
     ((YamlTreeWalker*)ctx)->setAttrValue(buf,len);
 }

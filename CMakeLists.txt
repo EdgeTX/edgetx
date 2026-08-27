@@ -1,12 +1,14 @@
 
-cmake_minimum_required(VERSION 3.13)
+cmake_minimum_required(VERSION 3.21)
 project(EdgeTX)
 
-set(VERSION_MAJOR "2")
-set(VERSION_MINOR "11")
+set(VERSION_MAJOR "3")
+set(VERSION_MINOR "0")
 set(VERSION_REVISION "0")
 set(CODENAME "dev")
 string(TIMESTAMP BUILD_YEAR "%Y")
+
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 if(MINGW OR WIN32)
   set(CMAKE_OBJECT_PATH_MAX 200)
@@ -15,10 +17,15 @@ endif()
 if(DEFINED ENV{EDGETX_VERSION_TAG})
   set(VERSION_TAG "$ENV{EDGETX_VERSION_TAG}")
 else()
-  if(DEFINED ENV{EDGETX_VERSION_SUFFIX})
-    set(VERSION_SUFFIX "$ENV{EDGETX_VERSION_SUFFIX}")
+  if(DEFINED ENV{EDGETX_VERSION_PREFIX})
+    set(VERSION_PREFIX "$ENV{EDGETX_VERSION_PREFIX}-")
   else()
-    set(VERSION_SUFFIX "selfbuild") # If not defined, set suffix to selfbuild
+    set(VERSION_PREFIX "pre-") # Default prefix for when not tagged
+  endif()
+  if(DEFINED ENV{EDGETX_VERSION_SUFFIX})
+    set(VERSION_SUFFIX "-$ENV{EDGETX_VERSION_SUFFIX}")
+  else()
+    set(VERSION_SUFFIX "-selfbuild") # Default suffix for when not in automated build environments
   endif()
 endif()
 
@@ -28,21 +35,22 @@ set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION})
 option(EdgeTX_SUPERBUILD "Cross-compile EdgeTX for each toolchain" ON)
 include(ExternalProject)
 
+# Cache FetchContent downloads in a shared directory so that multiple build
+# directories (and rebuilds after a clean) reuse already-fetched dependencies.
+# Priority: -D flag > $ENV{FETCHCONTENT_BASE_DIR} > default (.cache/fetchcontent)
+if(NOT FETCHCONTENT_BASE_DIR)
+  if(DEFINED ENV{FETCHCONTENT_BASE_DIR})
+    set(FETCHCONTENT_BASE_DIR "$ENV{FETCHCONTENT_BASE_DIR}" CACHE PATH
+        "Shared cache for FetchContent downloads" FORCE)
+  else()
+    set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/.cache/fetchcontent" CACHE PATH
+        "Shared cache for FetchContent downloads" FORCE)
+  endif()
+endif()
+
 if(EdgeTX_SUPERBUILD)
-  # Fetch all command line args into CMAKE_ARGS
-  get_cmake_property(CACHE_VARS CACHE_VARIABLES)
-  foreach(CACHE_VAR ${CACHE_VARS})
-    get_property(CACHE_VAR_HELPSTRING CACHE ${CACHE_VAR} PROPERTY HELPSTRING)
-    if(CACHE_VAR_HELPSTRING STREQUAL "No help, variable specified on the command line.")
-      get_property(CACHE_VAR_TYPE CACHE ${CACHE_VAR} PROPERTY TYPE)
-      if(CACHE_VAR_TYPE STREQUAL "UNINITIALIZED")
-        set(CACHE_VAR_TYPE)
-      else()
-        set(CACHE_VAR_TYPE :${CACHE_VAR_TYPE})
-      endif()
-      list(APPEND CMAKE_ARGS "-D${CACHE_VAR}${CACHE_VAR_TYPE}=${${CACHE_VAR}}")
-    endif()
-  endforeach()
+  include(Macros)
+  CollectCommandLineArgs(CMAKE_ARGS)
   message("-- CMAKE_ARGS: ${CMAKE_ARGS}")
   message("-- CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
@@ -58,6 +66,7 @@ if(EdgeTX_SUPERBUILD)
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/native.cmake
       -DEdgeTX_SUPERBUILD:BOOL=0
       -DNATIVE_BUILD:BOOL=1
+      -DFETCHCONTENT_BASE_DIR:PATH=${FETCHCONTENT_BASE_DIR}
     INSTALL_COMMAND  ""
     EXCLUDE_FROM_ALL TRUE
     )
@@ -71,63 +80,71 @@ if(EdgeTX_SUPERBUILD)
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/arm-none-eabi.cmake
       -DEdgeTX_SUPERBUILD:BOOL=0
       -DNATIVE_BUILD:BOOL=0
+      -DFETCHCONTENT_BASE_DIR:PATH=${FETCHCONTENT_BASE_DIR}
     INSTALL_COMMAND  ""
     EXCLUDE_FROM_ALL TRUE
-    )
+  )
+
+  # Webasm targets — deferred to a separate CMake project so that
+  # the WASI SDK is only fetched when wasi-module is actually built.
 
   add_custom_target(configure
     DEPENDS native-configure arm-none-eabi-configure)
 
-  add_custom_target(libsimulator
-    COMMAND $(MAKE) -C native libsimulator
-    DEPENDS native-configure
-    )
-
   add_custom_target(simulator
-    COMMAND $(MAKE) -C native simulator
+    COMMAND ${CMAKE_COMMAND} --build native --target simulator
     DEPENDS native-configure
-    )
+  )
 
   add_custom_target(simu
-    COMMAND $(MAKE) -C native simu
+    COMMAND ${CMAKE_COMMAND} --build native --target simu
     DEPENDS native-configure
-    )
+  )
+
+  add_custom_target(wasi-module
+    COMMAND ${CMAKE_COMMAND}
+      -S ${CMAKE_SOURCE_DIR}/cmake/wasm
+      -B ${CMAKE_BINARY_DIR}/wasm
+      -DEDGETX_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+      -DEDGETX_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+      -DFETCHCONTENT_BASE_DIR=${FETCHCONTENT_BASE_DIR}
+      ${CMAKE_ARGS}
+    COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/wasm
+  )
 
   add_custom_target(companion
-    COMMAND $(MAKE) -C native companion
+    COMMAND ${CMAKE_COMMAND} --build native --target companion
     DEPENDS native-configure
-    )
+  )
 
   add_custom_target(gtests-radio
-    COMMAND $(MAKE) -C native gtests-radio
+    COMMAND ${CMAKE_COMMAND} --build native --target gtests-radio
     DEPENDS native-configure
-    )
+  )
 
   add_custom_target(tests-radio
-    COMMAND $(MAKE) -C native tests-radio
+    COMMAND ${CMAKE_COMMAND} --build native --target tests-radio
     DEPENDS native-configure
-    )
+  )
 
   add_custom_target(bootloader
-    COMMAND $(MAKE) -C arm-none-eabi bootloader
+    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target bootloader
     DEPENDS arm-none-eabi-configure
-    )
+  )
 
   add_custom_target(firmware
-    COMMAND $(MAKE) -C arm-none-eabi firmware
+    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware
     DEPENDS arm-none-eabi-configure
-    )
+  )
 
   add_custom_target(firmware-size
-    COMMAND $(MAKE) -C arm-none-eabi firmware-size
+    COMMAND ${CMAKE_COMMAND} --build arm-none-eabi --target firmware-size
     DEPENDS arm-none-eabi-configure
-    )
+  )
 
   # Quit cmake at this point
   return()
 endif()
-
-enable_language(ASM)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 include(GenericDefinitions)
@@ -135,14 +152,14 @@ include(GenericDefinitions)
 if (VERSION_TAG)
   message(STATUS "EdgeTX ${VERSION_TAG} @ ${GIT_STR}")
 else()
-  message(STATUS "EdgeTX ${VERSION}-${VERSION_SUFFIX} @ ${GIT_STR}")
+  message(STATUS "EdgeTX ${VERSION_PREFIX}${VERSION}${VERSION_SUFFIX} @ ${GIT_STR}")
 endif()
 
-if(NATIVE_BUILD)
+if(NATIVE_BUILD AND NOT WASI)
   include(NativeTargets)
 else()
   # Prevent CMake warnings
-  set(IGNORE "${SDL2_LIBRARY_PATH}" "${LIBSSL1_ROOT_DIR}" "${OPENSSL_ROOT_DIR}")
+  set(IGNORE "${LIBUSB1_ROOT_DIR}" "${OPENSSL_ROOT_DIR}")
 endif()
 
 add_subdirectory(${RADIO_SRC_DIR})

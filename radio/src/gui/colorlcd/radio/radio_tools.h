@@ -21,12 +21,26 @@
 
 #pragma once
 
-#include "tabsgroup.h"
+#include "pagegroup.h"
 
-class RadioToolsPage : public PageTab
+typedef void (*ToolExec)(const std::string& path);
+
+struct ToolEntry {
+  std::string label;
+  std::string path;
+  ToolExec exec;
+};
+
+extern void loadLuaTools();
+extern void getLuaToolNames(std::vector<std::string>& nameList);
+extern const ToolEntry* getLuaTool(int n);
+extern int getLuaToolId(const std::string nm);
+extern void runLuaTool(const std::string nm);
+
+class RadioToolsPage : public PageGroupItem
 {
  public:
-  RadioToolsPage();
+  RadioToolsPage(const PageDef& pageDefageDef);
 
   void build(Window* window) override;
 

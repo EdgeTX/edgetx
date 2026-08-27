@@ -47,7 +47,8 @@ void menuRadioTrainer(event_t event)
         NAVIGATION_LINE_BY_LINE|2,
         (uint8_t)((controls > 2) ? NAVIGATION_LINE_BY_LINE|2 : HIDDEN_ROW),
         (uint8_t)((controls > 2) ? NAVIGATION_LINE_BY_LINE|2 : HIDDEN_ROW),
-        0, 0
+        (uint8_t)((g_model.trainerData.mode == TRAINER_MODE_MASTER_TRAINER_JACK) ? 0 : HIDDEN_ROW),
+        0
       });
 
   if (slave) {
@@ -97,9 +98,11 @@ void menuRadioTrainer(event_t event)
   }
 
   attr = (menuVerticalPosition==HEADER_LINE+4) ? blink : 0;
-  lcdDrawTextAlignedLeft(y, STR_MULTIPLIER);
-  lcdDrawNumber(LEN_MULTIPLIER*FW+3*FW, y, g_eeGeneral.PPM_Multiplier+10, attr|PREC1|RIGHT);
-  if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.PPM_Multiplier, -10, 40);
+  if (g_model.trainerData.mode == TRAINER_MODE_MASTER_TRAINER_JACK) {
+      lcdDrawTextAlignedLeft(y, STR_MULTIPLIER);
+      lcdDrawNumber(strlen(STR_MULTIPLIER) * FW + 3 * FW, y, g_eeGeneral.PPM_Multiplier + 10, attr | PREC1 | RIGHT);
+      if (attr) CHECK_INCDEC_GENVAR(event, g_eeGeneral.PPM_Multiplier, -10, 40);
+  }
   y += FH;
 
   attr = (menuVerticalPosition==HEADER_LINE+5) ? INVERS : 0;

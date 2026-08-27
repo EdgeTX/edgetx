@@ -57,17 +57,12 @@ uint8_t FM_ROW(uint8_t value)
 
 void menuModelExpoOne(event_t event)
 {
-#if defined(NAVIGATION_XLITE)
-  if (event == EVT_KEY_FIRST(KEY_ENTER) && keysGetState(KEY_SHIFT)) {
+  if (EVT_KEY_OPEN_CHAN_VIEW(event)) {
     pushMenu(menuChannelsView);
   }
-#else
-  if (event == EVT_KEY_BREAK(KEY_MODEL) || event == EVT_KEY_BREAK(KEY_MENU)) {
-    pushMenu(menuChannelsView);
-  }
-#endif
+
   ExpoData * ed = expoAddress(s_currIdx);
-  drawSource(PSIZE(TR_MENUINPUTS)*FW+FW, 0, MIXSRC_FIRST_INPUT+ed->chn, 0);
+  drawSource(strlen(STR_MENUINPUTS)*FW+FW, 0, MIXSRC_FIRST_INPUT+ed->chn, 0);
 
   uint8_t old_editMode = s_editMode;
 
@@ -105,7 +100,7 @@ void menuModelExpoOne(event_t event)
         lcdDrawTextAlignedLeft(y, STR_SOURCE);
         drawSource(EXPO_ONE_2ND_COLUMN, y, ed->srcRaw, STREXPANDED|attr);
         if (attr)
-          ed->srcRaw = checkIncDec(event, ed->srcRaw, INPUTSRC_FIRST, INPUTSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailableInInputs);
+          ed->srcRaw = checkIncDec(event, ed->srcRaw, INPUTSRC_FIRST, INPUTSRC_LAST, EE_MODEL|INCDEC_SOURCE|INCDEC_SOURCE_INVERT|NO_INCDEC_MARKS, isSourceAvailable);
         break;
 
       case EXPO_FIELD_SCALE:

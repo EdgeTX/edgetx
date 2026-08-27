@@ -20,6 +20,7 @@
  */
 
 #include "modelslist.h"
+#include "edgetxinterface.h"
 
 ModelListItem::ModelListItem(const QVector<QVariant> & itemData):
   itemData(itemData),
@@ -144,7 +145,8 @@ ModelsListModel::ModelsListModel(RadioData * radioData, QObject * parent):
   rootItem = new ModelListItem(labels);
   // uniqueId and version for drag/drop operations (see encodeHeaderData())
   mimeHeaderData.instanceId = QUuid::createUuid();
-  mimeHeaderData.dataVersion = 1;
+  mimeHeaderData.dataVersion = MIME_HEADER_DATA_VERSION;
+  mimeHeaderData.board = getCurrentBoard();
 
   refresh();
   //connect(this, &QAbstractItemModel::rowsAboutToBeRemoved, this, &ModelsListModel::onRowsAboutToBeRemoved);
@@ -186,6 +188,12 @@ QVariant ModelsListModel::data(const QModelIndex & index, int role) const
   }
 
   if (role == Qt::ForegroundRole && item->isModel()) {
+    if (index.column() == (hasLabels ? 0 : 1) && radioData->models[item->getModelIndex()].modelErrors) {
+      QBrush brush;
+      brush.setColor(Qt::red);
+      return brush;
+    }
+
     int col = item->columnCount() - 1;
     if(hasLabels)
         col --;
@@ -329,7 +337,10 @@ bool ModelsListModel::canDropMimeData(const QMimeData * data, Qt::DropAction act
   //qDebug() << action << row << column << parent.row();
 
   // we do not accept dropped general settings right now (user must copy/paste those)
-  if (hasHeaderMimeData(data) && hasModelsMimeData(data) && (row > -1 || parent.isValid()))
+  if (hasHeaderMimeData(data) &&
+      hasCompatibleBoardMimeData(data) &&
+      hasModelsMimeData(data) &&
+      (row > -1 || parent.isValid()))
     return true;
 
   return false;
@@ -454,10 +465,26 @@ bool ModelsListModel::hasOwnMimeData(const QMimeData * mimeData) const
 
 void ModelsListModel::encodeModelsData(const QModelIndexList & indexes, QByteArray * data) const
 {
+  int mdlCnt = 0;
+
+  foreach (const QModelIndex &index, indexes) {
+    if (index.isValid() && index.column() == 0)
+      mdlCnt++;
+  }
+
+  if (mdlCnt < 1)
+    return;
+
+  QDataStream out(data, QIODevice::WriteOnly);
+  out << mdlCnt;
+
   foreach (const QModelIndex &index, indexes) {
     if (index.isValid() && index.column() == 0) {
-      data->append('M');
-      data->append((char *)&radioData->models[getModelIndex(index)], sizeof(ModelData));
+      ModelData &modelData = radioData->models[getModelIndex(index)];
+      QByteArray yaml;
+
+      if (writeModelToYaml(modelData, yaml))
+        out << yaml << modelData.checklistData.data();
     }
   }
 }
@@ -475,6 +502,7 @@ void ModelsListModel::encodeHeaderData(QByteArray * data) const
   QDataStream stream(data, QIODevice::WriteOnly);
   stream << mimeHeaderData.dataVersion;
   stream << mimeHeaderData.instanceId;
+  stream << mimeHeaderData.board;
 }
 
 void ModelsListModel::encodeFileData(QByteArray * data) const
@@ -489,8 +517,16 @@ bool ModelsListModel::decodeHeaderData(const QMimeData * mimeData, MimeHeaderDat
     QByteArray data = mimeData->data("application/x-companion-radiodata-header");
     QDataStream stream(&data, QIODevice::ReadOnly);
     stream >> header->dataVersion >> header->instanceId;
-    return true;
+
+    if (header->dataVersion >= 2) {
+      stream >> header->board;
+    } else {
+      header->board = Board::BOARD_UNKNOWN;
+    }
+
+    return stream.status() == QDataStream::Ok;
   }
+
   return false;
 }
 
@@ -514,18 +550,36 @@ bool ModelsListModel::decodeMimeData(const QMimeData * mimeData, QVector<ModelDa
     *hasGenSet = false;
 
   if (models && mimeData->hasFormat("application/x-companion-modeldata")) {
-    QByteArray mdlData = mimeData->data("application/x-companion-modeldata");
-    gData = mdlData.data();
-    int size = 0;
-    while (size < mdlData.size()) {
-      char c = *gData++;
-      if (c != 'M')
-        break;
-      ModelData model(*((ModelData *)gData));
-      models->append(model);
-      gData += sizeof(ModelData);
-      size += sizeof(ModelData) + 1;
-      ret = true;
+    QByteArray clipboard = mimeData->data("application/x-companion-modeldata");
+    QDataStream in(&clipboard, QIODevice::ReadOnly);
+
+    int mdlCnt;
+    in >> mdlCnt;
+
+    for (int i = 1; i <= mdlCnt; i++) {
+      QByteArray *buffer = new QByteArray();
+      in >> *buffer;
+
+      if (buffer->size() > 0) {
+        ModelData *model = new ModelData();
+
+        if (loadModelFromYaml(*model, *buffer)) {
+          model->used = true;
+          QByteArray *chklst = new QByteArray();
+          in >> *chklst;
+
+          if (chklst->size() > 0) {
+            model->checklistData = *chklst;
+            models->append(*model);
+          }
+
+          delete chklst;
+          ret = true;
+        }
+
+        delete model;
+        delete buffer;
+      }
     }
   }
 
@@ -545,14 +599,17 @@ bool ModelsListModel::decodeMimeData(const QMimeData * mimeData, QVector<ModelDa
   return ret;
 }
 
-// static
-int ModelsListModel::countModelsInMimeData(const QMimeData * mimeData)
+int ModelsListModel::countModelsInMimeData(const QMimeData * mimeData) const
 {
   int ret = 0;
-  if (mimeData->hasFormat("application/x-companion-modeldata")) {
-    QByteArray mdlData = mimeData->data("application/x-companion-modeldata");
-    ret = mdlData.size() / (sizeof(ModelData) + 1);
+
+  if (hasCompatibleBoardMimeData(mimeData) &&
+      mimeData->hasFormat("application/x-companion-modeldata")) {
+    QByteArray data = mimeData->data("application/x-companion-modeldata");
+    QDataStream in(&data, QIODevice::ReadOnly);
+    in >> ret;
   }
+
   return ret;
 }
 
@@ -658,8 +715,8 @@ void ModelsListModel::refresh()
 
     if (!model.isEmpty() && current) {
       QString modelName;
-      if (strlen(model.name) > 0) {
-        modelName = model.name;
+      if (!model.name.empty()) {
+        modelName = model.name.toQString();
       }
       else {
         /*: Translators: do NOT use accents here, this is a default model name. */
@@ -689,7 +746,7 @@ void ModelsListModel::refresh()
       current->setData(currentColumn++, rxs);
     }
    if (hasLabels) {
-      QStringList labels = RadioData::fromCSV(QString::fromUtf8(model.labels));
+      QStringList labels = RadioData::fromCSV(QString::fromUtf8(model.labels.c_str()));
      current->setData(currentColumn++, labels.join(QChar(0x2022)));
    }
   }
@@ -717,6 +774,19 @@ bool ModelsListModel::isModelIdUnique(unsigned modelIdx, unsigned module, unsign
 void ModelsListModel::setFilename(QString & name)
 {
   filename = name;
+}
+
+Board::Type ModelsListModel::getMimeDataBoard(const QMimeData * mimeData) const
+{
+  MimeHeaderData header;
+  decodeHeaderData(mimeData, &header);
+  return header.board;
+}
+
+// returns true if mime data board type is the same as this data model
+bool ModelsListModel::hasCompatibleBoardMimeData(const QMimeData * mimeData) const
+{
+  return (getMimeDataBoard(mimeData) == mimeHeaderData.board);
 }
 
 /*

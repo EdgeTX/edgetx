@@ -25,7 +25,7 @@
 
 /*
     Structures for handling LZ4 compressed versions of LVGL fonts
-    Compressed data is uncompressed at runtime and these strucutres
+    Compressed data is uncompressed at runtime and these structures
     then used to rebuild the LVGL font structures.
 
     Note: this is dependant on the LVGL font structure formats. If
@@ -77,6 +77,5 @@ typedef struct {
     // Pointers to cmaps, compressed data and buffer for uncompressed data
     const etxFontCmap* cmaps;
     const uint8_t* compressed;
-    uint8_t* lvglFontBuf;
     uint32_t lvglFontBufSize;
 } etxLz4Font;

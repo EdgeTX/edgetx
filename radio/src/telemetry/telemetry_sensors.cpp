@@ -23,10 +23,6 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#if defined(LIBOPENUI)
-  #include "libopenui.h"
-#endif
-
 #include "spektrum.h"
 
 #if defined(CROSSFIRE)
@@ -37,7 +33,7 @@
   #include "ghost.h"
 #endif
 
-#if defined(PCBNV14)
+#if defined(RADIO_NV14_FAMILY)
   #include "telemetry/flysky_nv14.h"
 #endif
 
@@ -55,8 +51,12 @@
   #include "flysky_ibus.h"
 #endif
 
+#if defined(AFHDS3)
+  #include "flysky_ibus2.h"
+#endif
+
 TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
-uint8_t allowNewSensors;
+bool allowNewSensors;
 
 bool isFaiForbidden(source_t idx)
 {
@@ -557,7 +557,13 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
         break;
 #endif
 
-#if defined(AFHDS2) && defined(PCBNV14)
+#if defined(AFHDS3)
+      case PROTOCOL_TELEMETRY_FLYSKY_IBUS2:
+        flySkyIbus2SetDefault(index, id, subId, instance);
+        break;
+#endif
+
+#if defined(AFHDS2) && defined(RADIO_NV14_FAMILY)
       case PROTOCOL_TELEMETRY_FLYSKY_NV14:
         flySkyNv14SetDefault(index, id, subId, instance);
         break;
@@ -597,7 +603,11 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
     return index;
   }
   else {
+    allowNewSensors = false;
+#if !defined(COLORLCD)
+    // Not safe on color LCD - handled in telemetry page instead
     POPUP_WARNING(STR_TELEMETRYFULL);
+#endif
     return -1;
   }
 }
@@ -617,10 +627,6 @@ void TelemetrySensor::init(const char * label, uint8_t unit, uint8_t prec)
   memclear(this->label, TELEM_LABEL_LEN);
   strncpy(this->label, label, TELEM_LABEL_LEN);
   this->unit = unit;
-  if (prec > 1 && (IS_DISTANCE_UNIT(unit) || IS_SPEED_UNIT(unit))) {
-    // 2 digits precision is not needed here
-    prec = 1;
-  }
   this->prec = prec;
   // Log sensors by default
   this->logs = true;

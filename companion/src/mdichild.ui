@@ -51,6 +51,9 @@
      </property>
     </widget>
    </item>
+   <item>
+    <layout class="QVBoxLayout" name="statusBarLayout"/>
+   </item>
   </layout>
  </widget>
  <resources/>

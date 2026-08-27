@@ -30,13 +30,11 @@ class TextEdit : public TextButton
            std::function<void(void)> updateHandler = nullptr);
 
 #if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "TextEdit \"" + text + "\""; }
+  std::string getName() const override { return std::string("TextEdit \"") + text + "\""; }
 #endif
 
   void preview(bool edited, char* text, uint8_t length);
   void update();
-
-  static LAYOUT_VAL(DEF_W, 100, 100)
 
  protected:
   std::function<void(void)> updateHandler = nullptr;
@@ -52,6 +50,18 @@ class ModelTextEdit : public TextEdit
  public:
   ModelTextEdit(Window* parent, const rect_t& rect, char* value,
                 uint8_t length, std::function<void(void)> updateHandler = nullptr);
+};
+
+class ModelStringEdit : public TextEdit
+{
+ public:
+  ModelStringEdit(Window* parent, const rect_t& rect, std::string value,
+                  std::function<void(const char* s)> updateHandler);
+
+  static constexpr int MAX_STR_EDIT_LEN = 255;
+
+ protected:
+  char txt[MAX_STR_EDIT_LEN+1];
 };
 
 class RadioTextEdit : public TextEdit

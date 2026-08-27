@@ -50,6 +50,7 @@ static void sendSport(uint8_t*& p_buf, uint8_t module);
 static void sendHott(uint8_t*& p_buf, uint8_t module);
 static void sendConfig(uint8_t*& p_buf, uint8_t module);
 static void sendDSM(uint8_t*& p_buf, uint8_t module);
+static void sendRlink(uint8_t*& p_buf, uint8_t module);
 #endif
 
 #include "hal/module_port.h"
@@ -193,6 +194,9 @@ static void setupPulsesMulti(uint8_t*& p_buf, uint8_t module)
       else if (IS_DSM_MULTI(module)) {
         sendDSM(p_buf, module);         //7 bytes of additional data
       }
+      else if (IS_RLINK_MULTI(module)) {
+        sendRlink(p_buf, module);       //1..8 bytes of raw payload
+      }
 #endif
     }
   }
@@ -288,6 +292,7 @@ const etx_proto_driver_t MultiDriver = {
   .processData = multiProcessData,
   .processFrame = nullptr,
   .onConfigChange = nullptr,
+  .txCompleted = modulePortSerialTxCompleted,
 };
 
 static void sendChannels(uint8_t*& p_buf, uint8_t module)
@@ -365,7 +370,7 @@ void sendFrameProtocolHeader(uint8_t*& p_buf, uint8_t module, bool failsafe)
       optionValue |= 0x40; // 11ms servo refresh
     if (g_model.moduleData[module].multi.optionValue & 0x04)
       optionValue |= 0x20; // Cloned
-    optionValue |= sentModuleChannels(module); //add number of channels
+    optionValue |= sentModuleChannels(module) & 0x0F; //add number of channels, make sure is only 4 bits, 0 means 16 channels.
   }
 
   // Set the highest bit of option byte in AFHDS2A protocol to instruct MULTI to passthrough telemetry bytes instead
@@ -467,6 +472,23 @@ void sendDSM(uint8_t*& p_buf, uint8_t module)
         sendMulti(p_buf, Multi_Buffer[3+i]);
     }
     Multi_Buffer[3] = 0x00;    // Data sent
+  }
+}
+
+void sendRlink(uint8_t*& p_buf, uint8_t module)
+{
+  // Multi_Buffer[0..3]  == "RLnk" / Lua script is running
+  // Multi_Buffer[4]     == 1..8 -> payload ready to send
+  // Multi_Buffer[5..12] == payload to receiver
+  // Multi_Buffer[14]    == 0 RX buffer can be written / >0 Lua has not consumed it
+  // Multi_Buffer[15..]  == payload from receiver
+  if (Multi_Buffer && memcmp(Multi_Buffer, "RLnk", 4) == 0) {
+    uint8_t payloadLen = Multi_Buffer[4];
+    if (payloadLen < 1 || payloadLen > 8) return;
+    for (uint8_t i = 0; i < payloadLen; i++) {
+      sendMulti(p_buf, Multi_Buffer[5 + i]);
+    }
+    Multi_Buffer[4] = 0x00; // Data sent
   }
 }
 #endif

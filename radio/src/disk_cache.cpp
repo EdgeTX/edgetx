@@ -38,6 +38,10 @@
 #define BLOCK_SIZE FF_MAX_SS
 #define DISK_CACHE_BLOCK_SIZE (DISK_CACHE_BLOCK_SECTORS * BLOCK_SIZE)
 
+#if !defined(__DISK_CACHE)
+#define __DISK_CACHE __SDRAM
+#endif
+
 DiskCache diskCache;
 
 class DiskCacheBlock
@@ -112,9 +116,11 @@ DiskCache::DiskCache() : lastBlock(0), blocks(nullptr), diskDrv(nullptr)
   stats.noWrites = 0;
 }
 
+static DiskCacheBlock _cache_blocks[DISK_CACHE_BLOCKS_NUM] __DISK_CACHE;
+
 void DiskCache::initialize(const diskio_driver_t* drv)
 {
-  blocks = new DiskCacheBlock[DISK_CACHE_BLOCKS_NUM];
+  blocks = _cache_blocks;
   diskDrv = drv;
 }
 

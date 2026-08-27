@@ -72,18 +72,22 @@ void YamlValidateLabel(QString &input)
   delete lv;
 }
 
-void YamlValidateName(char *input, Board::Type board)
+QString YamlValidateName(const QString &input, Board::Type board)
 {
-  NameValidator *nv = new NameValidator(board);
+  NameValidator nv(board);
   QString in(input);
 
-  if (!nv->isValid(in)) {
-    nv->fixup(in);
+  if (!nv.isValid(in)) {
+    nv.fixup(in);
     in = in.trimmed();
   }
 
-  strcpy(input, in.toLatin1().data());
-  delete nv;
+  return in;
+}
+
+void YamlValidateName(char *input, Board::Type board)
+{
+  strcpy(input, YamlValidateName(QString(input), board).toLatin1().data());
 }
 
 namespace YAML {

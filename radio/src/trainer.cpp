@@ -22,6 +22,7 @@
 #include "hal/trainer_driver.h"
 
 #include "edgetx.h"
+#include "serial.h"
 
 // Timer gets decremented in per10ms()
 #define TRAINER_IN_VALID_TIMEOUT 100 // 1s
@@ -90,9 +91,9 @@ void checkTrainerSignalWarning()
   }
 }
 
+static bool trainer_init_aux_sbus();
 static void trainer_init_module_sbus();
 static void trainer_stop_module_sbus();
-static int sbus_trainer_get_byte(uint8_t* data);
 
 void stopTrainer()
 {
@@ -103,7 +104,7 @@ void stopTrainer()
       break;
 
     case TRAINER_MODE_MASTER_SERIAL:
-      sbusSetGetByte(nullptr);
+      sbusTrainerRelease();
       break;
 
     case TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE:
@@ -111,7 +112,6 @@ void stopTrainer()
       break;
 
     case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
-      sbusSetGetByte(nullptr);
       trainer_stop_module_sbus();
       break;
   }
@@ -141,7 +141,7 @@ void checkTrainerSettings()
         break;
 
       case TRAINER_MODE_MASTER_SERIAL:
-        sbusSetGetByte(sbusAuxGetByte);
+        trainer_init_aux_sbus();
         break;
 
       case TRAINER_MODE_MASTER_CPPM_EXTERNAL_MODULE:
@@ -150,7 +150,6 @@ void checkTrainerSettings()
 
       case TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE:
         trainer_init_module_sbus();
-        sbusSetGetByte(sbus_trainer_get_byte);
         break;
     }
 
@@ -158,6 +157,14 @@ void checkTrainerSettings()
       _on_change_cb(currentTrainerMode, requiredTrainerMode);
     }
     currentTrainerMode = requiredTrainerMode;
+
+  } else if (currentTrainerMode == TRAINER_MODE_MASTER_SERIAL &&
+             !sbusTrainerActive()) {
+    // The serial port backing this mode can be (re-)configured at any time
+    // from the radio settings, which drops us as its user. Pick it up again
+    // as soon as it is usable, rather than relying on every caller of
+    // serialInit() to notify us.
+    trainer_init_aux_sbus();
   }
 }
 
@@ -176,6 +183,20 @@ static const etx_serial_init sbusTrainerParams = {
 
 static etx_module_state_t* sbus_trainer_mod_st = nullptr;
 
+// SBUS trainer input from an AUX serial port
+static bool trainer_init_aux_sbus()
+{
+  int port_nr = serialGetSbusTrainerPort();
+  if (port_nr < 0) return false;
+
+  void* ctx;
+  const etx_serial_driver_t* drv;
+  if (!serialGetPortCtx(port_nr, &ctx, &drv)) return false;
+
+  return sbusTrainerAcquire(ctx, drv);
+}
+
+// SBUS trainer input from the external module bay
 static void trainer_init_module_sbus()
 {
   if (sbus_trainer_mod_st) return;
@@ -189,29 +210,29 @@ static void trainer_init_module_sbus()
         EXTERNAL_MODULE, ETX_MOD_PORT_SPORT, &sbusTrainerParams, false);
   }
 
-  if (sbus_trainer_mod_st) {
-    modulePortSetPower(EXTERNAL_MODULE,true);
+  if (!sbus_trainer_mod_st) return;
+
+  auto drv = modulePortGetSerialDrv(sbus_trainer_mod_st->rx);
+  auto ctx = modulePortGetCtx(sbus_trainer_mod_st->rx);
+
+  if (!sbusTrainerAcquire(ctx, drv)) {
+    modulePortDeInit(sbus_trainer_mod_st);
+    sbus_trainer_mod_st = nullptr;
+    return;
   }
+
+  // switch ON
+  modulePortSetPower(EXTERNAL_MODULE, true);
 }
 
 static void trainer_stop_module_sbus()
 {
   if (!sbus_trainer_mod_st) return;
+
+  // release before modulePortDeInit() invalidates the driver context
+  sbusTrainerRelease();
+
   modulePortDeInit(sbus_trainer_mod_st);
   modulePortSetPower(EXTERNAL_MODULE,false);
   sbus_trainer_mod_st = nullptr;
-}
-
-static int sbus_trainer_get_byte(uint8_t* data)
-{
-  if (!sbus_trainer_mod_st) return 0;
-
-  auto serial_driver = modulePortGetSerialDrv(sbus_trainer_mod_st->rx);
-  auto ctx = modulePortGetCtx(sbus_trainer_mod_st->rx);
-
-  if (ctx) {
-    return serial_driver->getByte(ctx, data);
-  }
-
-  return 0;
 }

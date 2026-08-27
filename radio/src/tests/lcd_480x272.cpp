@@ -22,43 +22,46 @@
 #include <gtest/gtest.h>
 #include <math.h>
 
-#define SWAP_DEFINED
-#include "location.h"
-#include "edgetx.h"
-
 #if defined(COLORLCD)
 
+#include "simulib.h"
 #include "bitmaps.h"
+#include "debug.h"
 
+// #if !(defined(STM32H7) || defined(STM32H7RS))
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+// #endif
 #include "stb/stb_image_write.h"
 
 void convert_RGB565_to_RGB888(uint8_t* dst, const BitmapBuffer* src, coord_t w,
                               coord_t h)
 {
+  extern uint8_t rbScale[32];
+  extern uint8_t gScale[64];
+
   for (int y = 0; y < src->height(); y++) {
     for (int x = 0; x < src->width(); x++) {
       RGB_SPLIT(*src->getPixelPtrAbs(x, y), r, g, b);
-      *(dst++) = (uint8_t)(r << 3);
-      *(dst++) = (uint8_t)(g << 2);
-      *(dst++) = (uint8_t)(b << 3);
+      *(dst++) = rbScale[r];
+      *(dst++) = gScale[g];
+      *(dst++) = rbScale[b];
     }
   }
 }
 
 void dumpImage(const std::string& filename, const BitmapBuffer* dc)
 {
-  std::string fullpath = TESTS_PATH "/images/color/failed_" + filename;
-
+  std::string fullpath = simuFatfsGetRealPath("images/color/failed_" + filename);
   TRACE("dumping image '%s'", fullpath.c_str());
 
   // allocate enough for 3 channels
-  auto pixels = dc->width() * dc->height();
+  std::vector<uint8_t> img;
   auto stride = dc->width() * 3;
-  uint8_t* img = (uint8_t*)malloc(pixels * 3);
-  convert_RGB565_to_RGB888(img, dc, dc->width(), dc->height());
-  stbi_write_png(fullpath.c_str(), dc->width(), dc->height(), 3, img, stride);
-  free(img);
+  auto pixel_bytes = stride * dc->height();
+  img.resize(pixel_bytes);
+
+  convert_RGB565_to_RGB888(img.data(), dc, dc->width(), dc->height());
+  stbi_write_png(fullpath.c_str(), dc->width(), dc->height(), 3, img.data(), stride);
 }
 
 bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
@@ -72,7 +75,7 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
   filename += 'x' + std::to_string(LCD_H);
   filename += ".png";
 
-  std::string fullpath = TESTS_PATH "/images/color/" + filename;
+  std::string fullpath = "images/color/" + filename;
 
   std::unique_ptr<BitmapBuffer> testPict(
       BitmapBuffer::loadBitmap(fullpath.c_str()));
@@ -96,6 +99,7 @@ bool checkScreenshot_colorlcd(const BitmapBuffer* dc, const char* test)
 TEST(Lcd_colorlcd, lines)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_THEME_SECONDARY3);
   dc.setClippingRect(50, 400, 50, 230);
@@ -110,11 +114,13 @@ TEST(Lcd_colorlcd, lines)
 
   dc.clearClippingRect();
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "lines"));
+  dc.removeCanvas();
 }
 
 TEST(Lcd_colorlcd, vline)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -122,11 +128,13 @@ TEST(Lcd_colorlcd, vline)
     dc.drawVerticalLine(x, x / 2, 12, SOLID, COLOR_THEME_SECONDARY1);
   }
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "vline"));
+  dc.removeCanvas();
 }
 
 TEST(Lcd_colorlcd, primitives)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -153,11 +161,13 @@ TEST(Lcd_colorlcd, primitives)
   dc.drawHorizontalLine(30, 85, 70, SOLID, COLOR_THEME_SECONDARY1);
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "primitives_" TRANSLATIONS));
+  dc.removeCanvas();
 }
 
 TEST(Lcd_colorlcd, transparency)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -195,6 +205,7 @@ TEST(Lcd_colorlcd, transparency)
   }
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "transparency_" TRANSLATIONS));
+  dc.removeCanvas();
 }
 
 //
@@ -207,7 +218,8 @@ TEST(Lcd_colorlcd, transparency)
 TEST(Lcd_colorlcd, fonts)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
-  
+  dc.addCanvas(nullptr);
+
   dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.drawText(8, 8, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
@@ -223,12 +235,14 @@ TEST(Lcd_colorlcd, fonts)
   dc.drawText(5, 205, "The quick brown fox jumps over the lazy dog", COLOR_THEME_SECONDARY1);
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "fonts_" TRANSLATIONS));
+  dc.removeCanvas();
 }
 #endif
 
 TEST(Lcd_colorlcd, clipping)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -256,23 +270,25 @@ TEST(Lcd_colorlcd, clipping)
 
   dc.clearClippingRect();
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "clipping"));
+  dc.removeCanvas();
 }
 
 TEST(Lcd_colorlcd, bitmap)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.setClippingRect(100, 400, 50, 200);
-  std::unique_ptr<BitmapBuffer> bmp(
-      BitmapBuffer::loadBitmap(TESTS_PATH "/images/color/edgetx.png"));
+  std::unique_ptr<BitmapBuffer> bmp(BitmapBuffer::loadBitmap("images/color/edgetx.png"));
   dc.drawBitmap(0, 0, bmp.get());
   dc.drawBitmap(320, 0, bmp.get());
   dc.drawBitmap(0, 150, bmp.get());
 
   dc.clearClippingRect();
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "bitmap"));
+  dc.removeCanvas();
 }
 
 static const uint8_t mask_menu_radio[] = {
@@ -284,6 +300,7 @@ extern MaskBitmap* _decompressed_mask(const uint8_t* lz4_compressed);
 TEST(Lcd_colorlcd, masks)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
@@ -297,6 +314,7 @@ TEST(Lcd_colorlcd, masks)
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "masks"));
   free(mask);
+  dc.removeCanvas();
 }
 
 #if 0
@@ -335,6 +353,7 @@ TEST(Lcd_colorlcd, masks)
 TEST(Lcd_colorlcd, extra_font)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
   dc.clear(COLOR_THEME_SECONDARY3);
 
   dc.drawText(10, 25, EXTRA_FULL, COLOR_THEME_SECONDARY1 | FONT(XXS));
@@ -345,6 +364,7 @@ TEST(Lcd_colorlcd, extra_font)
   dc.drawText(10, 184, EXTRA_TEST2, COLOR_THEME_SECONDARY1 | FONT(XXL));
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "extra"));
+  dc.removeCanvas();
 }
 
 constexpr coord_t LBM_USB_PLUGGED_W = 211;
@@ -357,6 +377,7 @@ const uint8_t LBM_USB_PLUGGED[] = {
 TEST(Lcd_colorlcd, darkmode)
 {
   BitmapBuffer dc(BMP_RGB565, LCD_W, LCD_H);
+  dc.addCanvas(nullptr);
 
   dc.clear(COLOR_BLACK);
 
@@ -368,6 +389,7 @@ TEST(Lcd_colorlcd, darkmode)
                        COLOR2FLAGS(RGB(0, 0, 0xFF)));
 
   EXPECT_TRUE(checkScreenshot_colorlcd(&dc, "darkmode_" TRANSLATIONS));
+  dc.removeCanvas();
 }
 #endif
 

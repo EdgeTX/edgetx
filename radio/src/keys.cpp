@@ -28,7 +28,7 @@
 #include "hal/rotary_encoder.h"
 #include "dataconstants.h"
 
-#if !defined(BOOT) && (defined(USE_HATS_AS_KEYS) || defined(PCBXLITE))
+#if !defined(BOOT)
 #include "edgetx.h"
 #endif
 
@@ -183,6 +183,35 @@ void Key::killEvents()
 static Key keys[MAX_KEYS];
 static Key trim_keys[MAX_TRIMS * 2];
 
+#if !defined(BOOT) && defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+// Per-target key combo (from hal.h KEYS_LOCK_KEY1/KEY2) long-pressed together
+// toggles a software key lock.
+static bool s_keys_locked = false;
+static bool s_keys_lock_notify = false;
+static uint8_t s_keys_lock_combo_cnt = 0;
+
+bool areKeysLocked() { return s_keys_locked; }
+
+bool consumeKeysLockToggleEvent()
+{
+  if (!s_keys_lock_notify) return false;
+  s_keys_lock_notify = false;
+  return true;
+}
+
+void setKeyLockedState(bool state)
+{
+  if (g_eeGeneral.keyLockEnabled && s_keys_locked != state) {
+    s_keys_locked = state;
+    s_keys_lock_notify = true;
+  }
+}
+#else
+bool areKeysLocked() { return false; }
+bool consumeKeysLockToggleEvent() { return false; }
+void setKeyLockedState(bool state) {}
+#endif
+
 /**
  * @brief returns true if there is an event waiting.
  * 
@@ -311,7 +340,7 @@ bool trimDown(uint8_t idx)
   return READ_TRIMS() & (1 << idx);
 }
 
-uint8_t keysGetState(uint8_t key)
+bool keysGetState(uint8_t key)
 {
   if (key >= MAX_KEYS) return 0;
   return keys[key].pressed();
@@ -326,6 +355,10 @@ uint8_t keysGetTrimState(uint8_t trim)
 #if defined(USE_HATS_AS_KEYS)
 #define ROTARY_EMU_KEY_REPEAT_RATE 12  // times 10 [ms]
 
+#if defined(BOOT)
+bool getHatsAsKeys() { return true; }
+bool getTransposeHatsForLUA() { return false; }
+#else
 static bool _trims_as_buttons = false;
 static bool _trims_as_buttons_LUA = false;
 
@@ -366,6 +399,7 @@ int16_t getEmuRotaryData()
 
   return 0;
 }
+#endif
 
 static void transpose_trims(uint32_t *keys)
 {
@@ -441,9 +475,40 @@ static void transpose_trims(uint32_t *keys)
 }
 #endif
 
-bool keysPollingCycle()
+// Mapping for:
+//  - quick menu shortcut key on radios with limited keys
+//  - radios with single PAGE key
+//  - radios with a SHIFT key
+uint16_t keyMapping(uint16_t event)
+{
+  // TODO: this needs to be done in radio specific code!
+#if defined(RADIO_PA01)
+  if (event == EVT_KEY_BREAK(KEY_MODEL)) return EVT_KEY_BREAK(KEY_SYS);
+#endif
+  // TODO: this needs to be done in radio specific code!
+#if defined(RADIO_ST16)
+  if (event == EVT_KEY_LONG(KEY_PAGEDN)) return EVT_KEY_BREAK(KEY_SYS);
+#endif
+
+  // Radio with single PAGEDN key
+  if (!keyIsSupported(KEY_PAGEUP)) {
+    if (event == EVT_KEY_LONG(KEY_PAGEDN)) {
+      // Convert long press PAGEDN to short press PAGEUP
+      killEvents(KEY_PAGEDN);
+      return EVT_KEY_BREAK(KEY_PAGEUP);
+    }
+  }
+
+  // SHIFT key should not trigger REPT events
+  if (event == EVT_KEY_REPT(KEY_SHIFT)) return 0;
+
+  return event;
+}
+
+uint8_t keysPollingCycle()
 {
   uint32_t trims_input;
+  pollKeys();
   uint32_t keys_input = readKeys();
 
 #if defined(USE_HATS_AS_KEYS)
@@ -458,25 +523,47 @@ bool keysPollingCycle()
   trims_input = READ_TRIMS();
 #endif
 
+#if !defined(BOOT) && defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  // Combo keys (from hal.h) long-pressed together toggle the key lock; killing
+  // the per-key events while both are held prevents their individual actions
+  // from firing.
+  if (g_eeGeneral.keyLockEnabled &&
+      keyIsSupported(KEYS_LOCK_KEY1) && keyIsSupported(KEYS_LOCK_KEY2)) {
+    bool both = (keys_input & (1u << KEYS_LOCK_KEY1)) &&
+                (keys_input & (1u << KEYS_LOCK_KEY2));
+    if (both) {
+      keys[KEYS_LOCK_KEY1].killEvents();
+      keys[KEYS_LOCK_KEY2].killEvents();
+      if (s_keys_lock_combo_cnt < 0xFF) s_keys_lock_combo_cnt++;
+      if (s_keys_lock_combo_cnt == KEY_LONG_DELAY) {
+        s_keys_locked = !s_keys_locked;
+        s_keys_lock_notify = true;
+      }
+    } else {
+      s_keys_lock_combo_cnt = 0;
+    }
+  } else {
+    // Feature disabled: never leave keys stuck locked.
+    s_keys_locked = false;
+    s_keys_lock_combo_cnt = 0;
+  }
+#endif
+
   for (int i = 0; i < MAX_KEYS; i++) {
     event_t evt = keys[i].input(keys_input & (1 << i));
     if (evt) {
-      evt |= i;
-#if defined(KEYS_GPIO_REG_PAGEDN) && !defined(KEYS_GPIO_REG_PAGEUP)
-      // Radio with single PAGEDN key
-      if (evt == EVT_KEY_LONG(KEY_PAGEDN)) {
-        // Convert long press PAGEDN to short press PAGEUP
-        evt = EVT_KEY_BREAK(KEY_PAGEUP);
-        killEvents(KEY_PAGEDN);
-      }
-#endif
-#if defined(KEYS_GPIO_REG_SHIFT)
-      // SHIFT key should not trigger REPT events
-      if (evt != EVT_KEY_REPT(KEY_SHIFT)) {
-        pushEvent(evt);
+      evt = keyMapping(evt | i);
+#if !defined(BOOT) && defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+      if (evt) {
+        if (!s_keys_locked) {
+          pushEvent(evt);
+        } else if ((evt & _MSK_KEY_FLAGS) == _MSK_KEY_FIRST) {
+          // Re-show the "Keys locked" toast on each new key press while locked.
+          s_keys_lock_notify = true;
+        }
       }
 #else
-      pushEvent(evt);
+      if (evt) pushEvent(evt);
 #endif
     }
   }
@@ -487,7 +574,12 @@ bool keysPollingCycle()
     if (evt) pushTrimEvent(evt | i);
   }
 
-  return keys_input || trims_input;
+  // Report trims separately so they count as controls, not keys, for the
+  // backlight. Nav hats (USE_HATS_AS_KEYS) are folded into keys_input.
+  uint8_t activity = 0;
+  if (keys_input) activity |= KEY_ACTIVITY_KEYS;
+  if (trims_input) activity |= KEY_ACTIVITY_TRIMS;
+  return activity;
 }
 
 #if !defined(COLORLCD)
@@ -547,10 +639,5 @@ bool rotaryEncoderPollingCycle()
 
   return false;
 }
-
-#elif !defined(COLORLCD)
-
-int8_t rotaryEncoderGetAccel() { return ROTENC_LOWSPEED; }
-void rotaryEncoderResetAccel() {}
 
 #endif

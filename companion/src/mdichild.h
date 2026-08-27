@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _MDICHILD_H_
-#define _MDICHILD_H_
+#pragma once
 
 #include "eeprominterface.h"
 #include "modelslist.h"
@@ -33,6 +32,7 @@
 #include <QWidget>
 #include <QStyledItemDelegate>
 #include <QListWidget>
+#include <QStatusBar>
 
 class QToolBar;
 class StatusDialog;
@@ -43,6 +43,21 @@ class MdiChild;
 
 class LabelsDelegate;
 class LabelsProxy;
+
+class StatusBarIcon : public QLabel
+{
+    Q_OBJECT
+
+  public:
+    StatusBarIcon(QWidget * parent) : QLabel(parent) {}
+    virtual ~StatusBarIcon() {}
+
+  signals:
+    void doubleClicked();
+
+  protected:
+    virtual void mouseDoubleClickEvent(QMouseEvent * event);
+};
 
 class MdiChild : public QWidget
 {
@@ -55,14 +70,9 @@ class MdiChild : public QWidget
       ACT_GEN_PST,
       ACT_GEN_SIM,
       ACT_GEN_SRT,  // model sort order
-      ACT_ITM_EDT,
-      ACT_ITM_DEL,
-      ACT_LBL_ADD,
-      ACT_LBL_DEL,
-      ACT_LBL_MVU,  // Move up
-      ACT_LBL_MVD,  // Move down
-      ACT_LBL_REN,  // Move down
-      ACT_MDL_ADD,  // model actions...
+      ACT_MDL_EDT,  // model actions...
+      ACT_MDL_DEL,
+      ACT_MDL_ADD,
       ACT_MDL_CPY,
       ACT_MDL_CUT,
       ACT_MDL_PST,
@@ -70,11 +80,18 @@ class MdiChild : public QWidget
       ACT_MDL_INS,
       ACT_MDL_MOV,
       ACT_MDL_EXP,
+      ACT_MDL_IMP,
       ACT_MDL_RTR,  // ResToRe backup
       ACT_MDL_WIZ,
       ACT_MDL_DFT,  // set as DeFaulT
       ACT_MDL_PRT,  // print
       ACT_MDL_SIM,
+      ACT_MDL_ERR,
+      ACT_LBL_ADD,  // label actions..
+      ACT_LBL_DEL,
+      ACT_LBL_MVU,  // Move up
+      ACT_LBL_MVD,  // Move down
+      ACT_LBL_REN,  // Move down
       ACT_ENUM_END
     };
 
@@ -89,21 +106,25 @@ class MdiChild : public QWidget
     QList<QAction *> getModelActions();
     QList<QAction *> getLabelsActions();
     QAction * getAction(const Actions type);
+    int invalidModels();
+    QStringList modelErrorsList();
 
   public slots:
-    void newFile(bool createDefaults = true);
+    void newFile(bool useProfileSettings = false);
     bool loadFile(const QString & fileName, bool resetCurrentFile=true);
     bool save();
     bool saveAs(bool isNew=false);
-    bool saveFile(const QString & fileName, bool setCurrent=true);
+    bool saveFile(const QString & fileName, bool setCurrent = true, bool toRadio = false);
+    bool saveFileProgress(const QString & fileName);
     void closeFile(bool force = false);
-    void writeSettings(StatusDialog * status);
+    void writeModelsSettings(bool toRadio = true);
     void print(int model=-1, const QString & filename="");
     void onFirmwareChanged();
 
   signals:
     void modified();
     void newStatusMessage(const QString & msg, const int duration);
+    void navigationUpdated();
 
   protected:
     virtual void changeEvent(QEvent * event);
@@ -130,6 +151,7 @@ class MdiChild : public QWidget
     void onCurrentItemChanged(const QModelIndex &, const QModelIndex &);
     void onDataChanged(const QModelIndex & index);
     void onInternalModuleChanged();
+    void onModelEditClosed(int id);
 
     void generalEdit();
     void copyGeneralSettings();
@@ -144,6 +166,7 @@ class MdiChild : public QWidget
     void modelAdd();
     void modelEdit();
     void modelExport();
+    void modelImport();
     void labelAdd();
     void labelDelete();
     void labelRename();
@@ -153,6 +176,7 @@ class MdiChild : public QWidget
     void labelsFault(QString msg);
     void wizardEdit();
     void modelDuplicate();
+    void modelShowErrors();
 
     void openModelWizard(int row = -1);
     void openModelEditWindow(int row = -1);
@@ -201,6 +225,7 @@ class MdiChild : public QWidget
     bool convertStorage(Board::Type from, Board::Type to, bool newFile = false);
     void showWarning(const QString & msg);
     int askQuestion(const QString & msg, QMessageBox::StandardButtons buttons = (QMessageBox::Yes | QMessageBox::No), QMessageBox::StandardButton defaultButton = QMessageBox::No);
+
     QDialog * getChildDialog(QRegularExpression & regexp);
     QDialog * getModelEditDialog(int row);
     QList<QDialog *> * getChildrenDialogsList(QRegularExpression & regexp);
@@ -219,6 +244,9 @@ class MdiChild : public QWidget
     QToolBar * modelsToolbar;
     QToolBar * labelsToolbar;
     QLabel *lblLabels;
+    QStatusBar *statusBar;
+    StatusBarIcon *statusBarIcon;
+    QLabel *statusBarCount;
 
     Firmware * firmware;
     RadioData radioData;
@@ -231,6 +259,9 @@ class MdiChild : public QWidget
     AbstractStaticItemModel* modelSortOrderItemModel;
     QComboBox* cboModelSortOrder;
     void setModelModified(const int modelIndex, bool cascade = true);
+    QAction * actionsSeparator();
+    void setupStatusBar();
+    void updateStatusBar();
 };
 
 // This will draw the drop indicator across all columns of a model View (vs. in just one column), and lets us make the indicator more obvious.
@@ -261,5 +292,3 @@ class ItemViewProxyStyle: public QProxyStyle
       }
     }
 };
-
-#endif // _MDICHILD_H_

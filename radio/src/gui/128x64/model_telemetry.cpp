@@ -42,11 +42,11 @@ enum MenuModelTelemetryFrskyItems {
   ITEM_TELEMETRY_MAX
 };
 
-PACK(struct ExpandState {
+PACK(struct TelemetryExpandState {
   uint8_t sensors:1;
 });
 
-struct ExpandState telemExpandState;
+struct TelemetryExpandState telemExpandState;
 
 uint8_t SENSOR_ROW(uint8_t value)
 {
@@ -214,7 +214,7 @@ void menuModelTelemetry(event_t event)
             pushMenu(menuModelSensor);
           }
           else {
-            allowNewSensors = 0;
+            allowNewSensors = false;
             POPUP_WARNING(STR_TELEMETRYFULL);
           }
         }
@@ -239,19 +239,12 @@ void menuModelTelemetry(event_t event)
         break;
 
       case ITEM_TELEMETRY_RSSI_ALARM1:
-      case ITEM_TELEMETRY_RSSI_ALARM2:
-      {
-        bool warning = (k==ITEM_TELEMETRY_RSSI_ALARM1);
-        lcdDrawTextIndented(y, (warning ? STR_LOWALARM : STR_CRITICALALARM));
-        lcdDrawNumber(TELEM_COL3, y, warning? g_model.rfAlarms.warning : g_model.rfAlarms.critical, attr, 3);
-        if (attr && s_editMode>0) {
-          if (warning)
-            CHECK_INCDEC_MODELVAR(event, g_model.rfAlarms.warning, 0, 100);
-          else
-            CHECK_INCDEC_MODELVAR(event, g_model.rfAlarms.critical, 0, 100);
-        }
+        g_model.rfAlarms.warning = editNumberField(STR_LOWALARM, INDENT_WIDTH, TELEM_COL3, y, g_model.rfAlarms.warning, 0, 100, attr, event);
         break;
-      }
+
+      case ITEM_TELEMETRY_RSSI_ALARM2:
+        g_model.rfAlarms.critical = editNumberField(STR_CRITICALALARM, INDENT_WIDTH, TELEM_COL3, y, g_model.rfAlarms.critical, 0, 100, attr, event);
+        break;
 
       case ITEM_TELEMETRY_DISABLE_ALARMS:
         g_model.disableTelemetryWarning = editCheckBox(g_model.disableTelemetryWarning, TELEM_COL3, y, STR_DISABLE_ALARM, attr, event, INDENT_WIDTH);

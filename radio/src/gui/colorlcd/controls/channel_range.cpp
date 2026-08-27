@@ -22,6 +22,8 @@
 #include "channel_range.h"
 
 #include "edgetx.h"
+#include "getset_helpers.h"
+#include "numberedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -45,13 +47,13 @@ ChannelRange::ChannelRange(Window* parent) : Window(parent, rect_t{})
 
 void ChannelRange::build()
 {
-  chStart = new NumberEdit(this, rect_t{0, 0, 80, 0}, 1, 1,
+  chStart = new NumberEdit(this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 1, 1,
                            GET_DEFAULT(1 + getChannelsStart()));
   chStart->setSetValueHandler([=](int newValue) { setStart(newValue); });
   chStart->setPrefix(STR_CH);
 
   chEnd =
-      new NumberEdit(this, rect_t{0, 0, 80, 0}, 8, 8,
+      new NumberEdit(this, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 8, 8,
                      GET_DEFAULT(getChannelsStart() + 8 + getChannelsCount()));
 
   chEnd->setPrefix(STR_CH);
@@ -117,6 +119,13 @@ ModuleChannelRange::ModuleChannelRange(Window* parent, uint8_t moduleIdx) :
 void ModuleChannelRange::update()
 {
   ChannelRange::update();
+
+#if defined(DSMP)
+  if (isModuleDSMP(moduleIdx)) {
+    // Disable Ch start, module asume starting in Ch1
+    chStart->enable(false);
+  } 
+#endif   
 
   auto min_mod_ch = minModuleChannels(moduleIdx);
   auto max_mod_ch = maxModuleChannels(moduleIdx);

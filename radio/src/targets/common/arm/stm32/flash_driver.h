@@ -23,24 +23,26 @@
 
 #include <stdint.h>
 
-uint32_t stm32_flash_get_size_kb();
-uint32_t stm32_flash_get_sector(uint32_t address);
-uint32_t stm32_flash_get_sector_size(uint32_t sector);
-uint32_t stm32_flash_get_bank(uint32_t address);
+#include "hal/flash_driver.h"
 
-void stm32_flash_unlock();
-void stm32_flash_lock();
+// uint32_t stm32_flash_get_size_kb();
+// uint32_t stm32_flash_get_sector(uint32_t address);
+// uint32_t stm32_flash_get_sector_size(uint32_t sector);
+// uint32_t stm32_flash_get_bank(uint32_t address);
 
-int stm32_flash_erase_sector(uint32_t address);
-int stm32_flash_program(uint32_t address, uint8_t* data, uint32_t len);
+// void stm32_flash_unlock();
+// void stm32_flash_lock();
+
+// int stm32_flash_erase_sector(uint32_t address);
+// int stm32_flash_program(uint32_t address, uint8_t* data, uint32_t len);
+
+extern const etx_flash_driver_t stm32_flash_driver;
+extern const void* stm32_flash_dfu_media;
 
 // Legacy API
 
 uint32_t isFirmwareStart(const uint8_t * buffer);
 uint32_t isBootloaderStart(const uint8_t * buffer);
-
-void unlockFlash();
-void lockFlash();
 
 void flashWrite(uint32_t* address, const uint32_t* buffer);
 

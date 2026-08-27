@@ -19,10 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _STORAGE_H_
-#define _STORAGE_H_
+#pragma once
 
 #include "radiodata.h"
+#include "progressdialog.h"
+#include "progresswidget.h"
 
 #include <QtCore>
 #include <QString>
@@ -31,13 +32,8 @@
 enum StorageType
 {
   STORAGE_TYPE_UNKNOWN,
-  STORAGE_TYPE_BIN,
-  STORAGE_TYPE_HEX,
-  STORAGE_TYPE_EEPE,
-  STORAGE_TYPE_EEPM,
-  STORAGE_TYPE_XML,
+  STORAGE_TYPE_HEX,   // needed for FirmwareInterface
   STORAGE_TYPE_SDCARD,
-  STORAGE_TYPE_OTX,
   STORAGE_TYPE_ETX,
   STORAGE_TYPE_YML
 };
@@ -52,13 +48,17 @@ class StorageFormat
     StorageFormat(const QString & filename, uint8_t version=0):
       filename(filename),
       version(version),
-      board(Board::BOARD_UNKNOWN)
+      board(Board::BOARD_UNKNOWN),
+      _progress(nullptr)
     {
     }
     virtual ~StorageFormat() {}
     virtual bool load(RadioData & radioData) = 0;
-    virtual bool write(const RadioData & radioData) = 0;
+    virtual bool load(GeneralSettings & generalSettings) { return false; }
+    virtual bool write(RadioData & radioData) = 0;
     virtual bool writeModel(const RadioData & radioData, const int modelIndex) { return false; }
+
+    void setProgress(ProgressWidget * progress) { _progress = progress; }
 
     QString error() {
       return _error;
@@ -88,11 +88,21 @@ class StorageFormat
       _warning = warning;
     }
 
+    void statusMsg(const QString & text, const int & type = QtInfoMsg,
+                   const bool richText = false, const bool updateLast = false);
+    void fatalMsg(const QString & text, const bool richText = false);
+    void progressSetInfoAndMsg(const QString & text, const int & type = QtInfoMsg, const bool richText = false);
+    void progressSetInfo(const QString & msg);
+    void progressSetLock(const bool lock);
+    void progressSetMaximum(const int max);
+    void progressSetValue(const int val);
+
     QString filename;
     uint8_t version;
     QString _error;
     QString _warning;
     Board::Type board;
+    ProgressWidget * _progress;
 };
 
 class StorageFactory
@@ -145,7 +155,7 @@ class Storage : public StorageFormat
     {
     }
 
-    virtual QString name() { return "storage"; }
+    virtual QString name() override { return "storage"; }
 
     void setError(const QString & error)
     {
@@ -157,20 +167,15 @@ class Storage : public StorageFormat
       _warning = warning;
     }
 
-    virtual bool load(RadioData & radioData);
-    virtual bool write(const RadioData & radioData);
-    virtual bool writeModel(const RadioData & radioData, const int modelIndex);
+    virtual bool load(RadioData & radioData) override;
+    virtual bool load(GeneralSettings & generalSettings) override;
+    virtual bool write(RadioData & radioData) override;
+    virtual bool writeModel(const RadioData & radioData, const int modelIndex) override;
+
+  protected:
+    bool fileExists();
+    StorageFormat * getStorageFormat();
 };
 
 void registerStorageFactories();
 void unregisterStorageFactories();
-
-#if 0
-unsigned long LoadBackup(RadioData &radioData, uint8_t *eeprom, int esize, int index);
-unsigned long LoadEeprom(RadioData &radioData, const uint8_t *eeprom, int size);
-unsigned long LoadEepromXml(RadioData &radioData, QDomDocument &doc);
-#endif
-
-bool convertEEprom(const QString & sourceEEprom, const QString & destinationEEprom, const QString & firmware);
-
-#endif // _STORAGE_H_

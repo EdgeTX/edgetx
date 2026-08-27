@@ -21,8 +21,12 @@
 
 #include "page.h"
 
-#include "theme_manager.h"
 #include "etx_lv_theme.h"
+#include "keyboard_base.h"
+#include "mainwindow.h"
+#include "pagegroup.h"
+#include "quick_menu.h"
+#include "theme_manager.h"
 #include "view_main.h"
 
 PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
@@ -36,7 +40,7 @@ PageHeader::PageHeader(Window* parent, EdgeTxIcon icon) :
 
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
-                          LCD_W - PAGE_TITLE_LEFT, EdgeTxStyles::PAGE_LINE_HEIGHT},
+                          LCD_W - PAGE_TITLE_LEFT, EdgeTxStyles::STD_FONT_HEIGHT},
                          "", COLOR_THEME_PRIMARY2_INDEX);
 }
 
@@ -51,7 +55,7 @@ PageHeader::PageHeader(Window* parent, const char* iconFile) :
 
   title = new StaticText(this,
                          {PAGE_TITLE_LEFT, PAGE_TITLE_TOP,
-                          LCD_W - PAGE_TITLE_LEFT, EdgeTxStyles::PAGE_LINE_HEIGHT},
+                          LCD_W - PAGE_TITLE_LEFT, EdgeTxStyles::STD_FONT_HEIGHT},
                          "", COLOR_THEME_PRIMARY2_INDEX);
 }
 
@@ -59,8 +63,8 @@ StaticText* PageHeader::setTitle2(std::string txt)
 {
   if (title2 == nullptr) {
     title2 = new StaticText(this,
-                            {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + EdgeTxStyles::PAGE_LINE_HEIGHT,
-                             LCD_W - PAGE_TITLE_LEFT, EdgeTxStyles::PAGE_LINE_HEIGHT},
+                            {PAGE_TITLE_LEFT, PAGE_TITLE_TOP + EdgeTxStyles::STD_FONT_HEIGHT,
+                             LCD_W - PAGE_TITLE_LEFT, EdgeTxStyles::STD_FONT_HEIGHT},
                             "", COLOR_THEME_PRIMARY2_INDEX);
   }
   title2->setText(std::move(txt));
@@ -74,6 +78,20 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
     lv_obj_enable_style_refresh(false);
 
   header = new PageHeader(this, icon);
+
+#if VERSION_MAJOR > 2
+  new HeaderBackIcon(header);
+#endif
+
+#if defined(HARDWARE_TOUCH)
+#if VERSION_MAJOR == 2
+  addCustomButton(0, 0, [=]() { onCancel(); });
+#else
+  addCustomButton(0, 0, [=]() { QuickMenu::openQuickMenu(); });
+  addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
+#endif
+#endif
+
   body = new Window(this,
                     {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});
   body->setWindowFlag(NO_FOCUS);
@@ -83,39 +101,52 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
                               LV_PART_MAIN);
   etx_scrollbar(body->getLvObj());
 
-  Layer::back()->hide();
-  Layer::push(this);
+  pushLayer(true);
 
   body->padAll(padding);
 
-#if defined(HARDWARE_TOUCH)
-  addBackButton();
-#endif
+  quickMenuMsg.subscribe(Messaging::QUICK_MENU_ITEM_SELECT,
+      [=](uint32_t param) {
+        onCancel();
+      });
 }
 
-void Page::deleteLater(bool detach, bool trash)
+void Page::onCancel()
 {
-  Layer::pop(this);
-  Layer::back()->show();
-
-  Window::deleteLater(detach, trash);
+  if (!_deleted)
+    deleteLater();
 }
-
-void Page::onCancel() { deleteLater(); }
 
 void Page::onClicked() { Keyboard::hide(false); }
-
-void Page::checkEvents()
-{
-  ViewMain::instance()->runBackground();
-  NavWindow::checkEvents();
-}
 
 void Page::enableRefresh()
 {
   lv_obj_enable_style_refresh(true);
   lv_obj_refresh_style(lvobj, LV_PART_ANY, LV_STYLE_PROP_ANY);
 }
+
+NavWindow* Page::navWindow()
+{
+  auto p = Window::topWindow();
+  if (p->isNavWindow()) return (NavWindow*)p;
+  return nullptr;
+}
+
+#if defined(HARDWARE_KEYS)
+void Page::doKeyShortcut(event_t event)
+{
+  QMPage pg = g_eeGeneral.getKeyShortcut(event);
+  if (pg == QM_OPEN_QUICK_MENU) {
+    QuickMenu::openQuickMenu();
+  } else if (pg != QM_NONE) {
+    onCancel();
+    auto p = navWindow();
+    if (p)
+      p->doKeyShortcut(event);
+  }
+}
+void Page::onLongPressRTN() { onCancel(); }
+#endif
 
 SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, bool pauseRefresh) :
   Page(icon, PAD_SMALL, pauseRefresh)
@@ -126,7 +157,7 @@ SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, bool 
   header->setTitle2(subtitle);
 }
 
-SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, SetupLineDef* setupLines, int lineCount) :
+SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, const SetupLineDef* setupLines) :
   Page(icon, PAD_SMALL, true)
 {
   body->padBottom(PAD_LARGE * 2);
@@ -134,14 +165,19 @@ SubPage::SubPage(EdgeTxIcon icon, const char* title, const char* subtitle, Setup
   header->setTitle(title);
   header->setTitle2(subtitle);
 
-  SetupLine::showLines(body, y, EDT_X, PAD_SMALL, setupLines, lineCount);
+  SetupLine::showLines(body, y, EDT_X, PAD_SMALL, setupLines);
 
   enableRefresh();
 }
 
-Window* SubPage::setupLine(const char* title, std::function<void(Window*, coord_t, coord_t)> createEdit, coord_t lblYOffset)
+Window* SubPage::setupLine(const char* title, std::function<void(SetupLine*, coord_t, coord_t)> createEdit, coord_t lblYOffset)
 {
   auto w = new SetupLine(body, y, EDT_X, PAD_SMALL, title, createEdit, lblYOffset);
   y += w->height();
   return w;
+}
+
+void SubPage::useFlexLayout()
+{
+  body->setFlexLayout();
 }

@@ -23,15 +23,18 @@
 #include "hal/storage.h"
 #include "hal/abnormal_reboot.h"
 #include "hal/usb_driver.h"
-#include "edgetx.h"
+#include "hal/audio_driver.h"
 
-#if defined(LIBOPENUI)
-#include "libopenui.h"
-#include "LvglWrapper.h"
+#include "edgetx.h"
+#include "lua/lua_states.h"
+
+#if defined(COLORLCD)
 #include "view_main.h"
 #include "startup_shutdown.h"
 #include "theme_manager.h"
 #include "etx_lv_theme.h"
+#include "menu.h"
+#include "mainwindow.h"
 #endif
 
 #if defined(CLI)
@@ -45,15 +48,17 @@
 #if defined(AUDIO)
 uint8_t currentSpeakerVolume = 255;
 uint8_t requiredSpeakerVolume = 255;
+#if defined(AUDIO_HP_DETECT_PIN)
+bool hpDetected = false;
+#endif
 #endif
 
 uint8_t currentBacklightBright = 0;
 uint8_t requiredBacklightBright = 0;
-uint8_t mainRequestFlags = 0;
 
 static bool _usbDisabled = false;
 
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
 static Menu* _usbMenu = nullptr;
 
 void closeUsbMenu()
@@ -135,6 +140,23 @@ void closeUsbMenu()
 #endif
 
 #if defined(COLORLCD)
+class UsbSDConnected : public Window
+{
+ public:
+  UsbSDConnected() : Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
+  {
+    setWindowFlag(OPAQUE);
+
+    pushLayer(false);
+
+    etx_solid_bg(lvobj, COLOR_THEME_PRIMARY1_INDEX);
+    new HeaderDateTime(this, LCD_W - TopBar::HDR_DATE_XO, PAD_MEDIUM);
+
+    auto icon = new StaticIcon(this, 0, 0, ICON_USB_PLUGGED, COLOR_THEME_PRIMARY2_INDEX);
+    lv_obj_center(icon->getLvObj());
+  }
+};
+
 static UsbSDConnected* usbConnectedWindow = nullptr;
 #endif
 
@@ -148,10 +170,18 @@ void handleUsbConnection()
     TRACE("USB unplugged");
     closeUsbMenu();
     _pluggedUsb = false;
+#if defined(USB_CHARGE_CONTROL)
+    usbChargerEnableCharge(true);
+#endif
   } else if (!_pluggedUsb && usbPlugged()) {
     TRACE("USB plugged");
     _pluggedUsb = true;
     _usbDisabled = false;
+#if defined(USB_CHARGE_CONTROL)
+    // Apply on plug, not on usbStart(): the mode popup can sit open for a long
+    // time and the radio would charge until a mode is picked
+    usbChargerEnableCharge(!g_eeGeneral.usbChargeDisabled);
+#endif
   }
 
   if (!_usbDisabled && !usbStarted() && usbPlugged()) {
@@ -187,11 +217,21 @@ void handleUsbConnection()
     usbStop();
     TRACE("USB stopped");
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
-      edgeTxResume();
 #if defined(COLORLCD)
       usbConnectedWindow->deleteLater();
       usbConnectedWindow = nullptr;
+      // In case the SD card is removed during the session
+      if (!SD_CARD_PRESENT()) {
+        // Blocks until shutdown or SD card inserted
+        auto w = drawFatalErrorScreen(STR_NO_SDCARD);
+        MainWindow::instance()->blockUntilClose(true, []() {
+          return SD_CARD_PRESENT();
+        }, true);
+        w->deleteLater();
+      }
+      edgeTxResume();
 #else
+      edgeTxResume();
       pushEvent(EVT_ENTRY);
 #endif
     } else if (getSelectedUsbMode() == USB_SERIAL_MODE) {
@@ -203,54 +243,20 @@ void handleUsbConnection()
 #endif  // defined(STM32) && !defined(SIMU)
 }
 
-#if defined(PCBXLITES)
-uint8_t jackState = SPEAKER_ACTIVE;
-
-const char STR_JACK_HEADPHONE[] = "Headphone";
-const char STR_JACK_TRAINER[] = "Trainer";
-
-void onJackConnectMenu(const char* result)
-{
-  if (result == STR_JACK_HEADPHONE) {
-    jackState = HEADPHONE_ACTIVE;
-    disableSpeaker();
-    enableHeadphone();
-  } else if (result == STR_JACK_TRAINER) {
-    jackState = TRAINER_ACTIVE;
-    enableTrainer();
-  }
-}
-
-void handleJackConnection()
-{
-  if (jackState == SPEAKER_ACTIVE && isJackPlugged()) {
-    if (g_eeGeneral.jackMode == JACK_HEADPHONE_MODE) {
-      jackState = HEADPHONE_ACTIVE;
-      disableSpeaker();
-      enableHeadphone();
-    } else if (g_eeGeneral.jackMode == JACK_TRAINER_MODE) {
-      jackState = TRAINER_ACTIVE;
-      enableTrainer();
-    } else if (popupMenuItemsCount == 0) {
-      POPUP_MENU_START(onJackConnectMenu, 2, STR_JACK_HEADPHONE, STR_JACK_TRAINER);
-    }
-  } else if (jackState == SPEAKER_ACTIVE && !isJackPlugged() &&
-             popupMenuItemsCount > 0 && popupMenuHandler == onJackConnectMenu) {
-    popupMenuItemsCount = 0;
-  } else if (jackState != SPEAKER_ACTIVE && !isJackPlugged()) {
-    jackState = SPEAKER_ACTIVE;
-    enableSpeaker();
-  }
-}
-#endif
-
 void checkSpeakerVolume()
 {
+#if defined(AUDIO_HP_DETECT_PIN)
+  // volume needs to be set on plug/unplug to set the the right volume on each device
+  if (hpDetected != audioHeadphoneDetect()) {
+    hpDetected = !hpDetected;
+    audioSetVolume(currentSpeakerVolume);
+  }
+#endif
 #if defined(AUDIO)
   if (currentSpeakerVolume != requiredSpeakerVolume) {
     currentSpeakerVolume = requiredSpeakerVolume;
 #if !defined(SOFTWARE_VOLUME)
-    setScaledVolume(currentSpeakerVolume);
+    audioSetVolume(currentSpeakerVolume);
 #endif
   }
 #endif
@@ -282,6 +288,57 @@ void checkHatsAsKeys()
   POPUP_BUBBLE(hatsModeKeys ? STR_HATSMODE_KEYS : STR_HATSMODE_TRIMS, 2000);
 }
 #endif
+
+#if !defined(COLORLCD)
+// Tick count at which to clear our key-lock message. 0 = no message active.
+static tmr10ms_t s_keysLockMsgUntil = 0;
+static const char* s_keysLockMsg = nullptr;
+static const char* s_keysLockInfo = nullptr;
+#endif
+
+void checkKeysLock()
+{
+  if (consumeKeysLockToggleEvent()) {
+    audioKeyPress();
+    const char* lockedMsg = STR_KEYS_LOCKED;
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+    static char lockedBuf[45];
+    const char* k1 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY1);
+    const char* k2 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY2);
+    snprintf(lockedBuf, sizeof(lockedBuf), STR_KEYS_LOCKED_FMT,
+             k1 ? k1 : "?", k2 ? k2 : "?");
+    lockedMsg = lockedBuf;
+#endif
+#if defined(COLORLCD)
+    POPUP_BUBBLE(areKeysLocked() ? lockedMsg : STR_KEYS_UNLOCKED, 1500);
+#else
+    // Can't use a modal POPUP_INFORMATION: keys may be locked, so the user
+    // couldn't dismiss it. Keep our own deadline and re-arm POPUP_WAIT every
+    // tick below — that survives other code clearing warningText (e.g. the
+    // GVAR display in view_main.cpp).
+    s_keysLockMsg = areKeysLocked() ? STR_KEYS_LOCKED : STR_KEYS_UNLOCKED;
+    s_keysLockInfo = areKeysLocked() ? lockedMsg : nullptr;
+    s_keysLockMsgUntil = get_tmr10ms() + 150;
+#endif
+  }
+
+#if !defined(COLORLCD)
+  if (s_keysLockMsgUntil) {
+    if ((int32_t)(get_tmr10ms() - s_keysLockMsgUntil) >= 0) {
+      s_keysLockMsgUntil = 0;
+      // Only clear if our message is still the active one; another popup
+      // may have replaced it in the meantime.
+      if (warningText == s_keysLockMsg) CLEAR_POPUP();
+      s_keysLockMsg = nullptr;
+      s_keysLockInfo = nullptr;
+    } else {
+      // Keep the popup fresh every tick — another path (GVAR, etc.) may
+      // have cleared warningText; just re-arm it.
+      POPUP_WAIT(s_keysLockMsg, s_keysLockInfo);
+    }
+  }
+#endif
+}
 
 void checkStorageUpdate()
 {
@@ -355,18 +412,19 @@ void periodicTick()
 }
 
 #if defined(GUI) && defined(COLORLCD)
+static LAYOUT_VAL_SCALED(GV_POPUP_WIDTH, 200)
+
 void guiMain(event_t evt)
 {
 #if defined(LUA)
   uint32_t t0 = get_tmr10ms();
-  static uint32_t lastLuaTime = 0;
   uint16_t interval = (lastLuaTime == 0 ? 0 : (t0 - lastLuaTime));
   lastLuaTime = t0;
   if (interval > maxLuaInterval) {
     maxLuaInterval = interval;
   }
 
-  luaDoGc(lsWidgets, true);
+  luaDoGc(lsWidgets, false);
 
   DEBUG_TIMER_START(debugTimerLua);
   luaTask(false);
@@ -378,25 +436,18 @@ void guiMain(event_t evt)
   }
 #endif
 
-  LvglWrapper::instance()->run();
-  MainWindow::instance()->run();
-
-  bool mainViewRequested = (mainRequestFlags & (1u << REQUEST_MAIN_VIEW));
-  if (mainViewRequested) {
-    auto viewMain = ViewMain::instance();
-    if (g_model.view < viewMain->getMainViewsCount()) {
-      viewMain->setCurrentMainView(g_model.view);
-      storageDirty(EE_MODEL);
-    } else {
-      g_model.view = viewMain->getCurrentMainView();
-    }
-    mainRequestFlags &= ~(1u << REQUEST_MAIN_VIEW);
-  }
-
-  bool screenshotRequested = (mainRequestFlags & (1u << REQUEST_SCREENSHOT));
-  if (screenshotRequested) {
-    writeScreenshot();
-    mainRequestFlags &= ~(1u << REQUEST_SCREENSHOT);
+  // For color screens show a popup deferred from another task
+  show_ui_popup();
+  // Show GVAR popup
+  if (gvarDisplayTimer > 0) {
+    char s[30], *p;
+    p = strAppendStringWithIndex(s, STR_GV, gvarLastChanged + 1);
+    p = strAppend(p, " ", 1);
+    p = strAppend(p, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME);
+    p = strAppend(p, " = ", 3);
+    p = strAppendSigned(p, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)));
+    POPUP_BUBBLE(s, gvarDisplayTimer * 10, GV_POPUP_WIDTH);
+    gvarDisplayTimer = 0;
   }
 }
 #elif defined(GUI)
@@ -407,7 +458,7 @@ bool handleGui(event_t event)
 #if defined(LUA)
   bool isTelemView =
       menuHandlers[menuLevel] == menuViewTelemetry &&
-      TELEMETRY_SCREEN_TYPE(s_frsky_view) == TELEMETRY_SCREEN_TYPE_SCRIPT;
+      TELEMETRY_SCREEN_TYPE(selectedTelemView) == TELEMETRY_SCREEN_TYPE_SCRIPT;
   bool isStandalone = scriptInternalData[0].reference == SCRIPT_STANDALONE;
   if ((isTelemView || isStandalone) && event) {
     luaPushEvent(event);
@@ -433,7 +484,6 @@ void guiMain(event_t evt)
 #if defined(LUA)
   // TODO better lua stopwatch
   uint32_t t0 = get_tmr10ms();
-  static uint32_t lastLuaTime = 0;
   uint16_t interval = (lastLuaTime == 0 ? 0 : (t0 - lastLuaTime));
   lastLuaTime = t0;
   if (interval > maxLuaInterval) {
@@ -495,17 +545,11 @@ void guiMain(event_t evt)
   }
 
   if (refreshNeeded) lcdRefresh();
-
-  if (mainRequestFlags & (1u << REQUEST_SCREENSHOT)) {
-    writeScreenshot();
-    mainRequestFlags &= ~(1u << REQUEST_SCREENSHOT);
-  }
 }
 #endif
 
-#if !defined(SIMU)
+// from logs.cpp
 void initLoggingTimer();
-#endif
 
 void perMain()
 {
@@ -515,17 +559,12 @@ void perMain()
 
   if (!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE)) {
     checkStorageUpdate();
-
-#if !defined(SIMU)       // use FreeRTOS software timer if radio firmware
     initLoggingTimer();  // initialize software timer for logging
-#else
-    logsWrite();  // call logsWrite the old way for simu
-#endif
   }
 
   handleUsbConnection();
 
-#if defined(PCBXLITES)
+#if defined(SHARED_DSC_HEADPHONE_JACK)
   handleJackConnection();
 #endif
 
@@ -533,45 +572,43 @@ void perMain()
   periodicTick();
   DEBUG_TIMER_STOP(debugTimerPerMain1);
 
-  if (mainRequestFlags & (1u << REQUEST_FLIGHT_RESET)) {
-    TRACE("Executing requested Flight Reset");
-    flightReset();
-    mainRequestFlags &= ~(1u << REQUEST_FLIGHT_RESET);
-  }
-
   checkBacklight();
 
 #if defined(USE_HATS_AS_KEYS)
   checkHatsAsKeys();
 #endif
 
+  checkKeysLock();
+
+#if defined(COLORLCD)
+  MainWindow::instance()->run();
+#endif
+
 #if defined(RTC_BACKUP_RAM)
   if (UNEXPECTED_SHUTDOWN()) {
-    drawFatalErrorScreen(STR_EMERGENCY_MODE);
-    return;
-  }
-#endif
-
-  if ((!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE)) &&
-      SD_CARD_PRESENT() && !sdMounted()) {
-    sdMount();
-  }
-
-  // In case the SD card is removed during the session
-  if ((!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE)) &&
-      !SD_CARD_PRESENT() && !UNEXPECTED_SHUTDOWN()) {
-    // TODO: implement for b/w
 #if defined(COLORLCD)
-    drawFatalErrorScreen(STR_NO_SDCARD);
-    return;
+    backlightEnable(BACKLIGHT_LEVEL_MAX);
+#else
+    lcdClear();
+    menuMainView(0);
+    lcdRefresh();
 #endif
+    return;
+  }
+#endif
+
+  if (!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE)) {
+    if (SD_CARD_PRESENT() && !sdMounted())
+      sdMount();
+
+    // In case the SD card is removed during the session
+    if (!SD_CARD_PRESENT()) {
+      // TODO: implement for b/w
+    }
   }
 
   if (usbPlugged() && getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
-#if defined(LIBOPENUI)
-    LvglWrapper::instance()->run();
-    usbConnectedWindow->checkEvents();
-#else
+#if !defined(COLORLCD)
     // disable access to menus
     lcdClear();
     menuMainView(0);
@@ -584,7 +621,7 @@ void perMain()
   checkFailsafeMulti();
 #endif
 
-#if !defined(LIBOPENUI)
+#if !defined(COLORLCD)
   event_t evt = getEvent();
 #endif
 
@@ -592,23 +629,15 @@ void perMain()
   bindButtonHandler(evt);
 #endif
 
+  if (radioGFEnabled())
+    evalUIFunctions(g_eeGeneral.customFn, globalFunctionsContext);
+  if (modelSFEnabled())
+    evalUIFunctions(g_model.customFn, modelFunctionsContext);
+
 #if defined(GUI)
   DEBUG_TIMER_START(debugTimerGuiMain);
-#if defined(LIBOPENUI)
+#if defined(COLORLCD)
   guiMain(0);
-  // For color screens show a popup deferred from another task
-  show_ui_popup();
-  // Show GVAR popup
-  if (gvarDisplayTimer > 0) {
-    char s[30], *p;
-    p = strAppendStringWithIndex(s, STR_GV, gvarLastChanged + 1);
-    p = strAppend(p, " ", 1);
-    p = strAppend(p, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME);
-    p = strAppend(p, " = ", 3);
-    p = strAppendSigned(p, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)));
-    POPUP_BUBBLE(s, gvarDisplayTimer * 10, 200);
-    gvarDisplayTimer = 0;
-  }
 #else
   guiMain(evt);
 #endif

@@ -19,13 +19,11 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _EEPROMINTERFACE_H_
-#define _EEPROMINTERFACE_H_
+#pragma once
 
 #include "boards.h"
 #include "macros.h"
 #include "radiodata.h"
-#include "../../radio/src/definitions.h"
 #include "simulatorinterface.h"
 #include "datahelpers.h"
 
@@ -49,226 +47,83 @@ const uint8_t modn12x3[8][4]= {
 };
 
 enum Capability {
-  Models,
-  ModelName,
+  ChannelsName,
+  CustomFunctions,
+  DangerousFunctions,
+  ExtendedTrimsRange,
   FlightModes,
   FlightModesName,
-  FlightModesHaveFades,
-  Imperial,
-  Mixes,
-  Timers,
-  TimersName,
-  VoicesAsNumbers,
-  VoicesMaxLength,
-  MultiLangVoice,
-  HasModelImage,
-  ModelImageNameLen,
-  ModelImageFilters,
-  ModelImageKeepExtn,
-  CustomFunctions,
-  SafetyChannelCustomFunction,
-  LogicalSwitches,
-  CustomAndSwitches,
-  HasNegAndSwitches,
-  LogicalSwitchesExt,
-  RotaryEncoders,
-  Outputs,
-  ChannelsName,
-  ExtraInputs,
-  TrimsRange,
-  ExtendedTrimsRange,
-  NumCurves,
-  NumCurvePoints,
-  OffsetWeight,
-  Simulation,
-  SoundMod,
-  SoundPitch,
-  MaxVolume,
-  MaxContrast,
-  MinContrast,
-  Haptic,
-  HasBeeper,
-  ModelTrainerEnable,
-  HasExpoNames,
-  HasNoExpo,
-  HasMixerNames,
-  HasCvNames,
-  HasPxxCountry,
-  HasPPMStart,
-  HasGeneralUnits,
-  HasFAIMode,
-  OptrexDisplay,
-  PPMExtCtrl,
-  PPMFrameLength,
-  Telemetry,
-  TelemetryUnits,
-  TelemetryBars,
-  Heli,
-  Gvars,
-  GvarsInCS,
-  GvarsAreNamed,
-  GvarsFlightModes,
-  GvarsName,
-  NoTelemetryProtocol,
-  TelemetryCustomScreens,
-  TelemetryCustomScreensBars,
-  TelemetryCustomScreensLines,
-  TelemetryCustomScreensFieldsPerLine,
-  TelemetryMaxMultiplier,
-  HasVario,
-  HasVarioSink,
-  HasFailsafe,
-  HasSoundMixer,
-  NumModules,
-  NumFirstUsableModule,
-  HasModuleR9MFlex,
-  HasModuleR9MMini,
-  PPMCenter,
-  SYMLimits,
-  HastxCurrentCalibration,
-  HasVolume,
-  HasBrightness,
-  PerModelTimers,
-  SlowScale,
-  SlowRange,
-  PermTimers,
-  HasSDLogs,
-  CSFunc,
-  GetThrSwitch,
-  HasDisplayText,
-  HasTopLcd,
   GlobalFunctions,
-  VirtualInputs,
-  InputsLength,
-  TrainerInputs,
-  SportTelemetry,
-  LuaScripts,
-  LuaInputsPerScript,
-  LuaOutputsPerScript,
-  LimitsPer1000,
-  EnhancedCurves,
-  HasFasOffset,
-  HasMahPersistent,
-  SimulatorVariant,
-  MavlinkTelemetry,
-  HasInputDiff,
-  HasMixerExpo,
-  HasBatMeterRange,
-  DangerousFunctions,
-  HasModelLabels,
-  HasSwitchableJack,
-  HasSportConnector,
-  PwrButtonPress,
-  Sensors,
-  HasAuxSerialMode,
-  HasAux2SerialMode,
-  HasVCPSerialMode,
-  HasBluetooth,
-  HasADCJitterFilter,
-  HasTelemetryBaudrate,
-  TopBarZones,
-  HasModelsList,
+  Gvars,
+  GvarsName,
+  Haptic,                     // TODO remove with X9D
+  HasExpoNames,
+  HasFailsafe,
   HasFlySkyGimbals,
-  RotaryEncoderNavigation,
-  HasSoftwareSerialPower,
-  HasIntModuleMulti,
   HasIntModuleCRSF,
   HasIntModuleELRS,
   HasIntModuleFlySky,
-  BacklightLevelMin,
+  HasIntModuleMulti,
+  HasMixerNames,
+  HasModelImage,
+  HasModelLabels,
+  HasModelsList,
+  HasModuleR9MFlex,
+  HasModuleR9MMini,
+  HasSportConnector,
+  HasTopLcd,
+  HasVario,
+  HasVarioSink,
+  Heli,
+  InputsLength,
+  IsLandscape,
+  IsNarrowLayout,
+  IsPortrait,
+  IsWideLayout,
+  KeyShortcuts,
+  LogicalSwitches,
+  LuaInputsPerScript,
+  LuaOutputsPerScript,
+  LuaScripts,
+  MavlinkTelemetry,
+  Mixes,
+  ModelImageFilters,
+  ModelImageKeepExtn,
+  ModelImageNameLen,
+  ModelName,
+  Models,
+  ModelTrainerEnable,
+  NumCurvePoints,
+  NumCurves,
+  NumFirstUsableModule,
+  NumModules,
+  OffsetWeight,
+  Outputs,
+  PPMCenter,
+  PPMFrameLength,
+  QMFavourites,
+  SafetyChannelCustomFunction,
+  Sensors,
+  SlowRange,
+  SlowScale,
+  TelemetryCustomScreens,
+  TelemetryCustomScreensBars,
+  TelemetryCustomScreensFieldsPerLine,
+  TelemetryCustomScreensLines,
+  Timers,
+  TimersName,
+  TopBarZones,
+  TrainerInputs,
+  TrimsRange,
+  VirtualInputs,
+  VoicesMaxLength,
 };
-
-class EEPROMInterface
-{
-  Q_DECLARE_TR_FUNCTIONS(EEPROMInterface)
-
-  public:
-
-    EEPROMInterface(Board::Type board):
-      board(board)
-    {
-    }
-
-    virtual ~EEPROMInterface() {}
-
-    inline Board::Type getBoard() { return board; }
-
-    virtual unsigned long load(RadioData &radioData, const uint8_t * eeprom, int size) = 0;
-
-    virtual unsigned long loadBackup(RadioData & radioData, const uint8_t * eeprom, int esize, int index) = 0;
-
-    virtual int save(uint8_t * eeprom, const RadioData & radioData, uint8_t version=0, uint32_t variant=0) = 0;
-
-    virtual int getSize(const ModelData &) = 0;
-
-    virtual int getSize(const GeneralSettings &) = 0;
-
-    //static void showEepromErrors(QWidget *parent, const QString &title, const QString &mainMessage, unsigned long errorsFound);
-    static QString getEepromWarnings(unsigned long errorsFound);
-
-  protected:
-
-    Board::Type board;
-
-  private:
-
-    EEPROMInterface();
-
-};
-
-/* EEPROM string conversion function (used only by er9xeeprom and ersky9xeeprom) */
-inline void getEEPROMString(char *dst, const char *src, int size)
-{
-  memcpy(dst, src, size);
-  dst[size] = '\0';
-  for (int i=size-1; i>=0; i--) {
-    if (dst[i] == ' ')
-      dst[i] = '\0';
-    else
-      break;
-  }
-}
-
-// (used only by er9xeeprom and ersky9xeeprom)
-inline int applyStickMode(int stick, unsigned int mode)
-{
-  if (mode == 0 || mode > 4) {
-    std::cerr << "Incorrect stick mode" << mode;
-    return stick;
-  }
-
-  if (stick >= 1 && stick <= 4)
-    return modn12x3[mode-1][stick-1];
-  else
-    return stick;
-}
 
 float ValToTim(int value);
 int TimToVal(float value);
 
-void registerEEpromInterfaces();
-void unregisterEEpromInterfaces();
 void registerOpenTxFirmwares();
 void unregisterOpenTxFirmwares();
-
-enum EepromLoadErrors {
-  ALL_OK,
-  UNKNOWN_ERROR,
-  UNSUPPORTED_NEWER_VERSION,
-  WRONG_SIZE,
-  WRONG_FILE_SYSTEM,
-  NOT_OPENTX,
-  NOT_ERSKY9X,
-  UNKNOWN_BOARD,
-  WRONG_BOARD,
-  BACKUP_NOT_SUPPORTED,
-
-  HAS_WARNINGS,
-  OLD_VERSION,
-  WARNING_WRONG_FIRMWARE,
-
-  NUM_ERRORS
-};
 
 constexpr char FIRMWARE_ID_PREFIX[] = { "edgetx-" };
 
@@ -330,16 +185,6 @@ class Firmware
       return board;
     }
 
-    void setEEpromInterface(EEPROMInterface * eeprom)
-    {
-      eepromInterface = eeprom;
-    }
-
-    EEPROMInterface * getEEpromInterface()
-    {
-      return eepromInterface;
-    }
-
     QString getName() const
     {
       return name;
@@ -369,6 +214,8 @@ class Firmware
     virtual QTime getMaxTimerStart() = 0;
 
     virtual bool isAvailable(PulsesProtocol proto, int port=0) = 0;
+
+    virtual QString getLanguage() const = 0;
 
     const int getFlashSize();
 
@@ -429,7 +276,6 @@ class Firmware
     Board::Type board;
     unsigned int variantBase;
     Firmware * base;
-    EEPROMInterface * eepromInterface;
     QString downloadId;
     QString simulatorId;
     QString hwdefnId;
@@ -449,11 +295,6 @@ inline Firmware * getCurrentFirmware()
   return Firmware::getCurrentVariant();
 }
 
-inline EEPROMInterface * getCurrentEEpromInterface()
-{
-  return Firmware::getCurrentVariant()->getEEpromInterface();
-}
-
 inline Board::Type getCurrentBoard()
 {
   return Firmware::getCurrentVariant()->getBoard();
@@ -461,15 +302,10 @@ inline Board::Type getCurrentBoard()
 
 inline int divRoundClosest(const int n, const int d)
 {
-  return ((n < 0) ^ (d < 0)) ? ((n - d/2)/d) : ((n + d/2)/d);
+  return ((n < 0) ^ (d < 0)) ? ((n - d / 2) / d) : ((n + d / 2) / d);
 }
 
 inline int calcRESXto100(int x)
 {
-  return divRoundClosest(x*100, 1024);
+  return divRoundClosest(x * 100, 1024);
 }
-
-extern QList<EEPROMInterface *> eepromInterfaces;
-
-
-#endif // _EEPROMINTERFACE_H_

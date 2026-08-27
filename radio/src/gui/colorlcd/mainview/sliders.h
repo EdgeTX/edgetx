@@ -21,7 +21,11 @@
 
 #pragma once
 
-#include "libopenui.h"
+#include "dataconstants.h"
+#include "window.h"
+#include <vector>
+
+class MaskBitmap;
 
 class SliderIcon : public Window
 {
@@ -29,7 +33,8 @@ class SliderIcon : public Window
   SliderIcon(Window* parent);
 
  protected:
-  lv_obj_t* fill = nullptr;
+  lv_obj_t* mask = nullptr;
+  lv_obj_t* shadow = nullptr;
 };
 
 class MainViewSlider : public Window
@@ -38,32 +43,32 @@ class MainViewSlider : public Window
   MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
                  bool isVertical);
 
-  static LAYOUT_VAL(SLIDER_TICK_SPACING, 4, 4)
-  static LAYOUT_VAL(SLIDER_VTICKS_COUNT, 40, 30)
-#if defined(RADIO_PL18) || defined(RADIO_PL18EV)
-  static constexpr coord_t SLIDER_HTICKS_COUNT = 34;
+#if defined(RADIO_PL18) || defined(RADIO_PL18EV) || defined(RADIO_PL18U)
+  static constexpr coord_t SLIDER_SIZE = 136; // to fit 3 across bottom row
 #else
-  static LAYOUT_VAL(SLIDER_HTICKS_COUNT, 40, 30)
+  static LAYOUT_SIZE_SCALED_EVEN(SLIDER_SIZE, 160, 120)
 #endif
-  static constexpr coord_t HORIZONTAL_SLIDERS_WIDTH =
-      SLIDER_HTICKS_COUNT * SLIDER_TICK_SPACING + LayoutFactory::TRIM_SQUARE_SIZE;
-  static constexpr coord_t VERTICAL_SLIDERS_HEIGHT =
-      SLIDER_VTICKS_COUNT * SLIDER_TICK_SPACING + LayoutFactory::TRIM_SQUARE_SIZE;
-
-  static LAYOUT_VAL(SL_SZ, 15, 15)
+  static LAYOUT_VAL_SCALED_ODD(SLIDER_ICON_SIZE, 15)
+  static constexpr coord_t SLIDER_BAR_SIZE = SLIDER_ICON_SIZE + 2;
+  static LAYOUT_VAL_SCALED(SLIDER_TICK_SPACING, 4)
+  static constexpr coord_t HORIZONTAL_SLIDERS_WIDTH = SLIDER_SIZE + SLIDER_BAR_SIZE;
+  static constexpr coord_t VERTICAL_SLIDERS_HEIGHT = SLIDER_SIZE + SLIDER_BAR_SIZE;
+  static constexpr coord_t MASK_SHORT_DIM = SLIDER_ICON_SIZE - PAD_TINY;
+  static constexpr coord_t MASK_LONG_DIM = SLIDER_SIZE + 1;
 
  protected:
   uint8_t potIdx;
   int16_t value = 0;
   bool isVertical;
+  lv_obj_t* maskCanvas = nullptr;
   SliderIcon* sliderIcon = nullptr;
-  lv_point_t* tickPoints = nullptr;
+  static std::vector<MaskBitmap*> tickMasks;
 
   void setPos();
 
   void checkEvents() override;
 
-  void deleteLater(bool detach = true, bool trash = true) override;
+  MaskBitmap* getTicksMask();
 };
 
 class MainViewHorizontalSlider : public MainViewSlider
@@ -85,9 +90,8 @@ class MainView6POS : public Window
 
   void checkEvents() override;
 
-  static LAYOUT_VAL(MULTIPOS_W_SPACING, 12, 12)
-  static LAYOUT_VAL(MULTIPOS_SZ, 12, 12)
-  static LAYOUT_VAL(MULTIPOS_XO, 3, 3)
+  static LAYOUT_VAL_SCALED(MULTIPOS_W_SPACING, 12)
+  static LAYOUT_VAL_SCALED(MULTIPOS_SZ, 12)
   static constexpr coord_t MULTIPOS_W = (XPOTS_MULTIPOS_COUNT + 1) * MULTIPOS_W_SPACING;
 
  protected:

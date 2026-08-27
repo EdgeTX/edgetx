@@ -21,6 +21,8 @@
 #include "form.h"
 #include "mainwindow.h"
 #include "etx_lv_theme.h"
+#include "debug.h"
+#include "keys.h"
 
 static void keyboard_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
@@ -28,10 +30,18 @@ static void keyboard_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
   etx_obj_add_style(obj, styles->pad_tiny, LV_PART_MAIN);
   etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
 
-  etx_std_style(obj, LV_PART_ITEMS, PAD_SMALL);
-  etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX, LV_PART_ITEMS);
-  etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_ITEMS | LV_STATE_FOCUSED);
+  etx_obj_add_style(obj, styles->border, LV_PART_ITEMS);
+  etx_obj_add_style(obj, styles->border_color[COLOR_THEME_SECONDARY2_INDEX], LV_PART_ITEMS);
+  etx_obj_add_style(obj, styles->rounded, LV_PART_ITEMS);
+  etx_obj_add_style(obj, styles->disabled, LV_PART_ITEMS | LV_STATE_DISABLED);
+  etx_obj_add_style(obj, styles->pressed, LV_PART_ITEMS | LV_STATE_PRESSED);
+
+  etx_solid_bg(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_ITEMS);
+  etx_bg_color(obj, COLOR_THEME_ACTIVE_INDEX, LV_PART_ITEMS | LV_STATE_CHECKED);
   etx_bg_color(obj, COLOR_THEME_FOCUS_INDEX, LV_PART_ITEMS | LV_STATE_EDITED);
+
+  etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX, LV_PART_ITEMS);
+  etx_txt_color(obj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_ITEMS | LV_STATE_EDITED);
 }
 
 static const lv_obj_class_t keyboard_class = {
@@ -71,19 +81,15 @@ static void keyboard_event_cb(lv_event_t* e)
 
 static void field_focus_leave(lv_event_t* e) { Keyboard::hide(false); }
 
-static void _assign_lv_group(lv_group_t* g)
-{
-  // associate it with all input devices
-  lv_indev_t* indev = lv_indev_get_next(NULL);
-  while (indev) {
-    lv_indev_set_group(indev, g);
-    indev = lv_indev_get_next(indev);
-  }
-}
-
 Keyboard::Keyboard(coord_t height) :
     NavWindow(MainWindow::instance(), {0, LCD_H - height, LCD_W, height})
 {
+#if defined(USE_HATS_AS_KEYS)
+  hasTwoPageKeys = true;
+#else
+  hasTwoPageKeys = keyIsSupported(KEY_PAGEUP);
+#endif
+
   lv_obj_set_parent(lvobj, lv_layer_top());  // the keyboard is always on top
 
   // use a separate group for the keyboard
@@ -108,6 +114,13 @@ Keyboard::Keyboard(coord_t height) :
 Keyboard::~Keyboard()
 {
   if (group) lv_group_del(group);
+}
+
+void Keyboard::deleteLater()
+{
+  if (!_deleted)
+    hide(false);
+  NavWindow::deleteLater();
 }
 
 void Keyboard::clearField(bool wasCancelled)
@@ -138,7 +151,7 @@ void Keyboard::clearField(bool wasCancelled)
     field = nullptr;
 
     if (fieldGroup) {
-      _assign_lv_group(fieldGroup);
+      assignLvGroup(fieldGroup, false);
       lv_group_set_editing(fieldGroup, false);
       fieldGroup = nullptr;
     }
@@ -147,7 +160,7 @@ void Keyboard::clearField(bool wasCancelled)
 
 void Keyboard::hide(bool wasCancelled)
 {
-  if (activeKeyboard) {
+  if (activeKeyboard  && !activeKeyboard->_deleted) {
     activeKeyboard->clearField(wasCancelled);
     lv_obj_add_flag(activeKeyboard->lvobj, LV_OBJ_FLAG_HIDDEN);
     activeKeyboard = nullptr;
@@ -179,7 +192,7 @@ void Keyboard::setField(FormField* newField)
       lv_obj_get_coords(obj, &coords);
 
       // place keyboard bellow the field with some margin
-      setTop(max(coords.y2 + 21, LCD_H - height()));
+      setTop(max((coord_t)coords.y2 + 21, LCD_H - height()));
 
       // save scroll position
       scroll_pos = lv_obj_get_scroll_y(fieldContainer->getLvObj());
@@ -189,7 +202,7 @@ void Keyboard::setField(FormField* newField)
 
       lv_keyboard_set_textarea(keyboard, obj);
       lv_obj_add_event_cb(obj, field_focus_leave, LV_EVENT_DEFOCUSED, nullptr);
-      _assign_lv_group(group);
+      assignLvGroup(group, false);
 
       field = newField;
       fieldGroup = (lv_group_t*)lv_obj_get_group(obj);

@@ -23,11 +23,12 @@
 
 #include "stm32_cmsis.h"
 #include <stdint.h>
+#include "hal/gpio.h"
 
 #define GPIO_UNDEF (0xffffffff)
 
 // #define GPIO_PIN(x, y) ((GPIOA_BASE + (x << 10)) | y)
-#define GPIO_PIN(x, y) ((intptr_t)x | y)
+#define GPIO_PIN(x, y) ((uintptr_t)x | y)
 
 // Generate GPIO mode bitfields
 //
@@ -72,3 +73,6 @@ enum {
   GPIO_PIN_SPEED_HIGH      = 0x02,
   GPIO_PIN_SPEED_VERY_HIGH = 0x03,
 };
+
+GPIO_TypeDef* gpio_get_port(gpio_t pin);
+uint32_t gpio_get_pin(gpio_t pin);

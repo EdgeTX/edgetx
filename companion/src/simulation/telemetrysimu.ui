@@ -10,11 +10,6 @@
     <height>597</height>
    </rect>
   </property>
-  <property name="font">
-   <font>
-    <pointsize>8</pointsize>
-   </font>
-  </property>
   <property name="windowTitle">
    <string>Telemetry Simulator</string>
   </property>
@@ -47,7 +42,7 @@
      </property>
      <property name="font">
       <font>
-       <pointsize>12</pointsize>
+       <bold>true</bold>
       </font>
      </property>
      <property name="toolTip">
@@ -82,16 +77,11 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="title">
       <string>Replay SD Log File</string>
      </property>
      <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+      <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignTop</set>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <property name="topMargin">
@@ -105,16 +95,11 @@
       </property>
       <item row="1" column="0">
        <widget class="QLabel" name="label_30">
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-         </font>
-        </property>
         <property name="text">
          <string>Replay rate</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignmentFlag::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -155,7 +140,7 @@
          <number>4</number>
         </property>
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
        </widget>
       </item>
@@ -167,7 +152,7 @@
         <item>
          <layout class="QGridLayout" name="gridLayout_4">
           <property name="sizeConstraint">
-           <enum>QLayout::SetMinimumSize</enum>
+           <enum>QLayout::SizeConstraint::SetMinimumSize</enum>
           </property>
           <item row="0" column="3">
            <widget class="QPushButton" name="stepForward">
@@ -181,7 +166,7 @@
              </size>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
+             <enum>Qt::FocusPolicy::StrongFocus</enum>
             </property>
             <property name="text">
              <string>|&gt;</string>
@@ -209,7 +194,7 @@
              </size>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
+             <enum>Qt::FocusPolicy::StrongFocus</enum>
             </property>
             <property name="text">
              <string>&lt;|</string>
@@ -243,7 +228,7 @@
              </size>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
+             <enum>Qt::FocusPolicy::StrongFocus</enum>
             </property>
             <property name="text">
              <string>&gt;</string>
@@ -277,7 +262,7 @@
              </size>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
+             <enum>Qt::FocusPolicy::StrongFocus</enum>
             </property>
             <property name="text">
              <string>&lt;-</string>
@@ -308,7 +293,7 @@
              </size>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
+             <enum>Qt::FocusPolicy::StrongFocus</enum>
             </property>
             <property name="text">
              <string>X</string>
@@ -332,26 +317,21 @@
            <bool>false</bool>
           </property>
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="positionLabel">
-          <property name="font">
-           <font>
-            <pointsize>8</pointsize>
-           </font>
-          </property>
           <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
+           <enum>Qt::LayoutDirection::LeftToRight</enum>
           </property>
           <property name="text">
-           <string>Row # 
+           <string>Row #
 Timestamp</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignCenter</set>
+           <set>Qt::AlignmentFlag::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -369,7 +349,7 @@ Timestamp</string>
          <string>1/5x</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -388,11 +368,6 @@ Timestamp</string>
       </item>
       <item row="0" column="1" colspan="4">
        <widget class="QLabel" name="logFileLabel">
-        <property name="font">
-         <font>
-          <pointsize>8</pointsize>
-         </font>
-        </property>
         <property name="text">
          <string>No Log File Currently Loaded</string>
         </property>
@@ -425,10 +400,10 @@ Timestamp</string>
         <item>
          <widget class="QFrame" name="frame">
           <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
+           <enum>QFrame::Shape::NoFrame</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
+           <enum>QFrame::Shadow::Plain</enum>
           </property>
           <property name="lineWidth">
            <number>0</number>
@@ -452,10 +427,10 @@ Timestamp</string>
               <bool>true</bool>
              </property>
              <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
+              <enum>QFrame::Shape::NoFrame</enum>
              </property>
              <property name="frameShadow">
-              <enum>QFrame::Plain</enum>
+              <enum>QFrame::Shadow::Plain</enum>
              </property>
              <property name="lineWidth">
               <number>0</number>
@@ -482,7 +457,7 @@ Timestamp</string>
                  <string>Internal Module</string>
                 </property>
                 <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                 </property>
                </widget>
               </item>
@@ -516,7 +491,7 @@ Timestamp</string>
            <item>
             <widget class="QScrollArea" name="internalScrollArea">
              <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
+              <enum>QFrame::Shape::NoFrame</enum>
              </property>
              <property name="widgetResizable">
               <bool>true</bool>
@@ -527,7 +502,7 @@ Timestamp</string>
                 <x>0</x>
                 <y>0</y>
                 <width>338</width>
-                <height>428</height>
+                <height>427</height>
                </rect>
               </property>
              </widget>
@@ -539,10 +514,10 @@ Timestamp</string>
         <item>
          <widget class="QFrame" name="frame_3">
           <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
+           <enum>QFrame::Shape::NoFrame</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Plain</enum>
+           <enum>QFrame::Shadow::Plain</enum>
           </property>
           <property name="lineWidth">
            <number>0</number>
@@ -563,10 +538,10 @@ Timestamp</string>
            <item>
             <widget class="QFrame" name="frame_4">
              <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
+              <enum>QFrame::Shape::NoFrame</enum>
              </property>
              <property name="frameShadow">
-              <enum>QFrame::Plain</enum>
+              <enum>QFrame::Shadow::Plain</enum>
              </property>
              <property name="lineWidth">
               <number>0</number>
@@ -590,7 +565,7 @@ Timestamp</string>
                  <string>External Module</string>
                 </property>
                 <property name="alignment">
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                 </property>
                </widget>
               </item>
@@ -624,7 +599,7 @@ Timestamp</string>
            <item>
             <widget class="QScrollArea" name="externalScrollArea">
              <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
+              <enum>QFrame::Shape::NoFrame</enum>
              </property>
              <property name="widgetResizable">
               <bool>true</bool>
@@ -635,7 +610,7 @@ Timestamp</string>
                 <x>0</x>
                 <y>0</y>
                 <width>337</width>
-                <height>428</height>
+                <height>427</height>
                </rect>
               </property>
              </widget>

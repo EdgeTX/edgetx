@@ -20,21 +20,15 @@
  */
 
 #include "simulatorinterface.h"
+#include "wasmsimulatorinterface.h"
 #include "customdebug.h"
 #include "version.h"
+#include "firmwares/eeprominterface.h"
 
 #include <QDebug>
 #include <QLibraryInfo>
 
-#if defined _MSC_VER || !defined __GNUC__
-  #include <windows.h>
-#endif
-
-#ifndef SIMULATOR_INTERFACE_LOADER_METHOD
-  #define SIMULATOR_INTERFACE_LOADER_DYNAMIC    1  // How to load simulator libraries: 1=dynamic load and unload; 0=load once (old way)
-#endif
-
-QMap<QString, QLibrary *> SimulatorLoader::registeredSimulators;
+QMap<QString, SimulatorFactory *> SimulatorLoader::registeredSimulators;
 
 QStringList SimulatorLoader::getAvailableSimulators()
 {
@@ -43,45 +37,40 @@ QStringList SimulatorLoader::getAvailableSimulators()
 
 int SimulatorLoader::registerSimulators(const QDir & dir)
 {
-  QStringList filters;
-#if defined(__APPLE__)
-  filters << "*-simulator.dylib";
-#elif defined(WIN32) || defined(__CYGWIN__)
-  filters << "*-simulator.dll";
-#else
-  filters << "*-simulator.so";
-#endif
-  registeredSimulators.clear();
+  QStringList wasmFilters;
+  wasmFilters << "edgetx-*-simulator.wasm";
 
-  qCDebug(simulatorInterfaceLoader) << "Searching for simulators in" << dir.path() << "matching pattern" << filters;
+  qCDebug(simulatorInterfaceLoader) << "Searching for WASM simulators in"
+                                    << dir.path();
 
-  foreach(QString filename, dir.entryList(filters, QDir::Files)) {
-    QLibrary * lib = new QLibrary( dir.path() + "/" + filename);
+  foreach (QString filename, dir.entryList(wasmFilters, QDir::Files)) {
+    // Extract board name: "edgetx-<name>-simulator.wasm"
+    QString simuName = filename;
+    simuName.remove(0, 7);  // remove "edgetx-"
+    simuName.truncate(simuName.lastIndexOf("-simulator"));
 
-    qCDebug(simulatorInterfaceLoader) << "Trying to register simulator in " << filename;
+    if (registeredSimulators.contains(simuName))
+      continue;
 
-    SimulatorFactory * factory;
-    RegisterSimulator registerFunc = (RegisterSimulator)lib->resolve("registerSimu");
+    QString wasmPath = dir.path() + "/" + filename;
 
-    if (registerFunc && (factory = registerFunc())) {
-      if (getAvailableSimulators().contains(factory->name()))
-        continue;
+    // Resolve board type from name
+    Board::Type boardType = Board::BOARD_UNKNOWN;
+    Firmware * fw = Firmware::getFirmwareForId(QString("edgetx-") + simuName);
+    if (fw)
+      boardType = fw->getBoard();
 
-      lib->setProperty("instances_used", 0);
-      registeredSimulators.insert(factory->name(), lib);
-      delete factory;
-#if SIMULATOR_INTERFACE_LOADER_DYNAMIC
-      lib->unload();
-#endif
-      qCDebug(simulatorInterfaceLoader) << "Registered" << registeredSimulators.lastKey() << "simulator in " << lib->fileName() << "and unloaded:" << !lib->isLoaded();
-    }
-    else {
-      qWarning() << "Library error" << lib->fileName() << lib->errorString();
-      delete lib;
-    }
+    auto * factory = new WasmSimulatorFactory(wasmPath, simuName, boardType);
+    registeredSimulators.insert(simuName, factory);
 
+    qCDebug(simulatorInterfaceLoader) << "Registered WASM simulator:"
+                                      << simuName;
   }
-  qCDebug(simulatorInterfaceLoader) << "Found libraries:" << (registeredSimulators.size() ? registeredSimulators.keys() : QStringList() << "none");
+
+  qCDebug(simulatorInterfaceLoader)
+      << "Found WASM modules:"
+      << (registeredSimulators.size() ? registeredSimulators.keys()
+                                      : QStringList() << "none");
   return registeredSimulators.size();
 }
 
@@ -93,12 +82,13 @@ void SimulatorLoader::registerSimulators()
   }
 
 #if defined(__APPLE__)
-  dir = QLibraryInfo::location(QLibraryInfo::PrefixPath) + "/Resources";
+  dir.setPath(QLibraryInfo::path(QLibraryInfo::PrefixPath) + "/Resources");
 #else
   if (QDir::isAbsolutePath(SIMULATOR_LIB_SEARCH_PATH)) {
     dir.setPath(SIMULATOR_LIB_SEARCH_PATH);
   } else {
-    dir.setPath(QCoreApplication::applicationDirPath() + "/" SIMULATOR_LIB_SEARCH_PATH);
+    dir.setPath(QCoreApplication::applicationDirPath() + "/"
+                SIMULATOR_LIB_SEARCH_PATH);
   }
 #endif
   registerSimulators(dir.absolutePath());
@@ -106,91 +96,49 @@ void SimulatorLoader::registerSimulators()
 
 void SimulatorLoader::unregisterSimulators()
 {
-  foreach(QLibrary * lib, registeredSimulators)
-    delete lib;
+  qDeleteAll(registeredSimulators);
+  registeredSimulators.clear();
 }
 
 QString SimulatorLoader::findSimulatorByName(const QString & name)
 {
   int pos;
-  QString ret;
   QString simuName = name;
 
-  while(1) {
-    qCDebug(simulatorInterfaceLoader) << "searching" << simuName << "simulator";
-    if (registeredSimulators.contains(simuName)) {
-      ret = simuName;
-      break;
-    }
+  // Strip "edgetx-" prefix if present (registered names don't have it)
+  if (simuName.startsWith("edgetx-"))
+    simuName.remove(0, 7);
+
+  while (1) {
+    qCDebug(simulatorInterfaceLoader) << "searching" << simuName
+                                      << "simulator";
+    if (registeredSimulators.contains(simuName))
+      return simuName;
     if ((pos = simuName.lastIndexOf('-')) <= 0)
       break;
     simuName = simuName.mid(0, pos);
-    if (simuName.count('-') == 0)
-      break;
   }
-  return ret;
+  return QString();
 }
 
 SimulatorInterface * SimulatorLoader::loadSimulator(const QString & name)
 {
-  SimulatorInterface * si = NULL;
-  QString libname = findSimulatorByName(name);
+  QString simuName = findSimulatorByName(name);
 
-  if (libname.isEmpty()) {
+  if (simuName.isEmpty()) {
     qWarning() << "Simulator" << name << "not found.";
-    return si;
+    return nullptr;
   }
 
-  QLibrary * lib = registeredSimulators.value(libname, NULL);
-  if (!lib) {
-    qWarning() << "Simulator library is NULL";
-    return si;
-  }
+  SimulatorInterface * si = registeredSimulators[simuName]->create();
+  if (si)
+    qCDebug(simulatorInterfaceLoader) << "Loaded simulator:" << simuName;
 
-  qCDebug(simulatorInterfaceLoader) << "Trying to load simulator in " << lib->fileName();
-
-  SimulatorFactory * factory;
-  RegisterSimulator registerFunc = (RegisterSimulator)lib->resolve("registerSimu");
-  if (registerFunc && (factory = registerFunc()) && (si = factory->create())) {
-    quint8 instance = lib->property("instances_used").toUInt();
-    lib->setProperty("instances_used", ++instance);
-    qCDebug(simulatorInterfaceLoader) << "Loaded" << factory->name() << "simulator instance" << instance;
-    delete factory;
-  }
-  else {
-    qWarning() << "Library error" << lib->fileName() << lib->errorString();
-  }
   return si;
 }
 
 bool SimulatorLoader::unloadSimulator(const QString & name)
 {
-  bool ret = false;
-#if SIMULATOR_INTERFACE_LOADER_DYNAMIC
-  QString simuName = findSimulatorByName(name);
-  if (simuName.isEmpty())
-    return ret;
-
-  QLibrary * lib = registeredSimulators.value(simuName, NULL);
-
-  if (lib && lib->isLoaded()) {
-    quint8 instance = lib->property("instances_used").toUInt();
-    lib->setProperty("instances_used", --instance);
-    if (!instance) {
-      ret = lib->unload();
-      qCDebug(simulatorInterfaceLoader) << "Unloading" << simuName << "(" << lib->fileName() << ")" << "result:" << ret;
-    }
-    else {
-      ret = true;
-      qCDebug(simulatorInterfaceLoader) << "Simulator" << simuName << "instances remaining:" << instance;
-    }
-  }
-  else {
-    qCDebug(simulatorInterfaceLoader) << "Simulator library for " << simuName << "already unloaded.";
-  }
-#else
-  qCDebug(simulatorInterfaceLoader) << "Keeping simulator library" << simuName << "loaded.";
-#endif
-
-  return ret;
+  Q_UNUSED(name);
+  return true;
 }

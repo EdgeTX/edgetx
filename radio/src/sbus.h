@@ -21,18 +21,24 @@
 
 #pragma once
 
+#include "hal/serial_driver.h"
+
 #define SBUS_BAUDRATE         100000
-#define SBUS_FRAME_SIZE       25
 
-// Setup SBUS AUX serial input
-void sbusSetAuxGetByte(void* ctx, int (*fct)(void*, uint8_t*));
+// The SBUS trainer receiver is a single consumer (trainerInput[]): only one
+// source can feed it at a time. Which one is decided by the trainer mode, so
+// the trainer owns the context and arms/disarms the IDLE callback itself.
 
-// SBUS AUX serial getter:
-//  if set, it will fetch data from the handler set
-//  with sbusSetAuxGetByte()
-int sbusAuxGetByte(uint8_t* byte);
+// Claim the SBUS trainer receiver for a serial port.
+// Returns false if the port cannot be used as SBUS trainer input.
+bool sbusTrainerAcquire(void* ctx, const etx_serial_driver_t* drv);
 
-// Setup general SBUS input source
-void sbusSetGetByte(int (*fct)(uint8_t*));
+// Release the SBUS trainer receiver (no-op if nothing is claimed)
+void sbusTrainerRelease();
 
-void processSbusInput();
+// Is a source currently feeding the SBUS trainer receiver?
+bool sbusTrainerActive();
+
+// Release the SBUS trainer receiver, but only if 'ctx' is the current owner.
+// Used when tearing down a serial port that may or may not be in use.
+void sbusTrainerReleaseCtx(void* ctx);

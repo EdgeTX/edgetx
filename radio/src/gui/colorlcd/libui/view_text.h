@@ -20,8 +20,11 @@
 
 #pragma once
 
-#include "ff.h"
 #include "page.h"
+#include "pagegroup.h"
+#include "gui_common.h"
+
+class TextViewer;
 
 class ViewTextWindow : public Page
 {
@@ -32,42 +35,34 @@ class ViewTextWindow : public Page
   FRESULT sdReadTextFileBlock(const uint32_t bufSize,
                               const uint32_t offset);
 
-  ~ViewTextWindow()
-  {
-    if (buffer) {
-      free(buffer);
-      buffer = nullptr;
-    }
-  }
-
   void onCancel() override;
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "ViewTextWindow"; };
 #endif
 
+  void delayedInit() override;
+
+#if defined(HARDWARE_KEYS)
+  void onPressPGUP() override;
+  void onPressPGDN() override;
+#endif
+
  protected:
-  std::string path;
-  std::string name;
-  std::string fullPath;
-  std::string extension;
+  TextViewer* textViewer = nullptr;
+};
 
-  lv_obj_t* lb;
+class ModelNotesPage : public PageGroupItem
+{
+ public:
+  ModelNotesPage(const PageDef& pageDef);
 
-  int offset = 0;
-  char* buffer = nullptr;
-  size_t bufSize = 0;
-  int fileLength = 0;
-  bool openFromEnd;
+  void build(Window* window) override;
 
-  void extractNameSansExt(void);
-  virtual void buildBody(Window* window);
+  void cleanup() override;
 
-  bool openFile();
-
-  void onEvent(event_t event) override;
-
-  static void on_draw(lv_event_t * e);
+ protected:
+  TextViewer* textViewer = nullptr;
 };
 
 void readModelNotes(bool fromMenu = false);

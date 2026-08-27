@@ -58,9 +58,8 @@ SourceNumRefEditor::SourceNumRefEditor(int & srcNumValue, QCheckBox * chkUseSour
   model(model),
   lock(false)
 {
-  if (chkUseSource) {
-    connect(chkUseSource, &QCheckBox::stateChanged, this, &SourceNumRefEditor::chkUseSourceChanged);
-  }
+  if (chkUseSource)
+    connect(chkUseSource, &QCheckBox::checkStateChanged, this, &SourceNumRefEditor::chkUseSourceChanged);
 
   if (sbxValue) {
     sbxValue->setMinimum(minValue);

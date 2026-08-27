@@ -24,6 +24,7 @@
 #include "channel_bar.h"
 #include "edgetx.h"
 #include "etx_lv_theme.h"
+#include "numberedit.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -36,12 +37,12 @@ class ChannelFailsafeBargraph : public Window
     etx_obj_add_style(lvobj, styles->border_thin, LV_PART_MAIN);
     etx_obj_add_style(lvobj, styles->border_color[COLOR_BLACK_INDEX], LV_PART_MAIN);
 
-    outputsBar = new OutputChannelBar(this, {0, 1, width() - 2, ChannelBar::BAR_HEIGHT},
+    outputsBar = new OutputChannelBar(this, {0, 1, width() - PAD_TABLE_H, ChannelBar::BAR_HEIGHT},
                                       channel, false, false);
     outputsBar->hide();
 
     failsafeBar = new ChannelBar(
-        this, {0, ChannelBar::BAR_HEIGHT + 3, width() - 2, ChannelBar::BAR_HEIGHT}, channel,
+        this, {0, ChannelBar::BAR_HEIGHT + PAD_THREE, width() - PAD_TABLE_H, ChannelBar::BAR_HEIGHT}, channel,
         [=] { return g_model.failsafeChannels[channel]; },
         COLOR_THEME_WARNING_INDEX);
     failsafeBar->hide();
@@ -94,7 +95,7 @@ class ChannelFailsafeEdit : public NumberEdit
 
  public:
   ChannelFailsafeEdit(Window* parent, uint8_t ch, int vmin, int vmax) :
-      NumberEdit(parent, rect_t{0, 0, NUM_W, 0}, vmin, vmax, nullptr), channel(ch)
+      NumberEdit(parent, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, vmin, vmax, nullptr), channel(ch)
   {
     setGetValueHandler(
         [=]() { return calcRESXto1000(g_model.failsafeChannels[ch]); });
@@ -150,8 +151,6 @@ class ChannelFailsafeEdit : public NumberEdit
     g_model.failsafeChannels[channel] = channelOutputs[channel];
     update();
   }
-
-  static LAYOUT_VAL(NUM_W, 70, 70)
 };
 
 class ChannelFSCombo : public Window

@@ -20,6 +20,8 @@
  */
 
 #include "edgetx.h"
+#include "hal/rgbleds.h"
+#include "boards/generic_stm32/rgb_leds.h"
 
 
 #define SLEEP_BITMAP_WIDTH             42
@@ -31,6 +33,8 @@ const unsigned char bmp_sleep[]  = {
 
 #if defined(RADIO_FAMILY_T20)
 constexpr uint8_t steps = NUM_FUNCTIONS_SWITCHES/2;
+#elif defined(RADIO_GX12)
+constexpr uint8_t steps = NUM_FUNCTIONS_SWITCHES - 2; //Exclude SA and SD
 #elif defined(FUNCTION_SWITCHES)
 constexpr uint8_t steps = NUM_FUNCTIONS_SWITCHES;
 #endif
@@ -52,7 +56,12 @@ void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
 
   for (uint8_t j = 0; j < steps; j++) {
     if (index2 > j) {
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+      fsLedRGB(j, 0xFFFFFF);
+      rgbLedColorApply();
+#else
       fsLedOn(j);
+#endif
 #if defined(RADIO_FAMILY_T20)
       fsLedOn(j + steps);
 #endif
@@ -88,6 +97,13 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
       steps);
 
   for (uint8_t j = 0; j < steps; j++) {
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+    fsLedRGB(j, 0);
+    if (steps - index2 > j) {
+        fsLedRGB(j, 0xFFFFFF);
+    }
+    rgbLedColorApply();
+#else
     fsLedOff(j);
 #if defined(RADIO_FAMILY_T20)
     fsLedOff(j + steps);
@@ -98,6 +114,7 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
       fsLedOn(j + steps);
 #endif
     }
+#endif
   }
 #endif
 

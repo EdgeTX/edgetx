@@ -56,6 +56,8 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
                         const stm32_adc_input_t* inputs,
                         const stm32_adc_gpio_t* ADC_GPIOs, uint8_t n_GPIO);
 
+void stm32_hal_adc_deinit(const stm32_adc_t* ADCs, uint8_t n_ADC);
+
 bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC,
                               const stm32_adc_input_t* inputs, uint8_t n_inputs);
 

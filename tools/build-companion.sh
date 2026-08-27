@@ -1,47 +1,44 @@
 #!/bin/bash
 
-# Stops on first error, echo on
-set -e
-set -x
-
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-. "$SCRIPT_DIR/build-common.sh" 
-
-if [ "$(uname)" = "Darwin" ]; then
-  num_cpus=$(sysctl -n hw.ncpu)
-  : "${JOBS:=$num_cpus}"
-else
-  JOBS=3
-fi
-
-while [ $# -gt 0 ]
-do
-  case "$1" in
-    --jobs=*)
-      JOBS="${1#*=}";;
-    -j*)
-      JOBS="${1#*j}";;
-    -*)
-      echo >&2 "usage: $0 [-j<jobs>|--jobs=<jobs>] SRCDIR OUTDIR"
-      exit 1;;
-    *)
-      break;;   # terminate while loop
-  esac
-  shift
-done
+. "$SCRIPT_DIR/build-common.sh"
 
 SRCDIR=$1
 OUTDIR=$2
 
-COMMON_OPTIONS="-DGVARS=YES -DHELI=YES -DLUA=YES -Wno-dev -DCMAKE_BUILD_TYPE=Release"
+if [[ -z ${SRCDIR} ]]; then
+  SRCDIR="$(pwd)"
+fi
+
+if [[ -z ${OUTDIR} ]]; then
+  OUTDIR="$(pwd)/output"
+fi
+
+if [[ ! -d "${OUTDIR}" ]]; then
+  mkdir -p "${OUTDIR}"
+fi
+
+# Determine parallel jobs
+determine_max_jobs
+
+QUIET_FLAGS=""
+if [[ "$CMAKE_GENERATOR" == "Ninja" ]]; then
+  QUIET_FLAGS="-- --quiet"
+else
+  # Assume Makefile generator for non-Ninja builds
+  COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_RULE_MESSAGES=OFF"
+fi
+
+COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_BUILD_TYPE=Release -DCMAKE_MESSAGE_LOG_LEVEL=WARNING -Wno-dev"
 if [ "$(uname)" = "Darwin" ]; then
-    COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='10.15'"
-elif [ "$(uname)" != "Linux" ]; then # Assume Windows and MSYS2
-    if [ "${MSYSTEM,,}" == "mingw32" ]; then # MSYS 32bit detected
-        COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL2_LIBRARY_PATH=/mingw32/bin/"
-    else # fallback to 64bit
-        COMMON_OPTIONS="${COMMON_OPTIONS} -DSDL2_LIBRARY_PATH=/mingw64/bin/"
-    fi
+  COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='11.0'"
+fi
+
+# find_package(... CONFIG) skips the lib/cmake/<Name> search pattern for prefixes that only
+# come from the CMAKE_PREFIX_PATH env var (not -D) - forward it so CI's source-built SDL3 is
+# actually found instead of silently missing from the bundle.
+if [[ -n "${CMAKE_PREFIX_PATH:-}" ]]; then
+  COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}"
 fi
 
 # Generate EDGETX_VERSION_SUFFIX if not already set
@@ -62,46 +59,90 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-rm -rf build
-mkdir build
-cd build
+rm -rf build && mkdir build && cd build || exit
 
-declare -a simulator_plugins=(x9lite x9lites
-                              x7 x7access
-                              t8 t12 t12max tx12 tx12mk2
-                              zorro commando8 boxer pocket mt12
-                              tlite tpro tprov2 tpros lr3pro t14
-                              x9d x9dp x9dp2019 x9e
-                              xlite xlites
-                              nv14 el18 pl18 pl18ev
-                              x10 x10express x12s
-                              t15 t16 t18 t20 t20v2 tx16s f16 v16)
+get_platform_config() {
+    local platform
+    platform=$(uname)
+    case "$platform" in
+        "Darwin")
+            PACKAGE_TARGET="package"
+            PACKAGE_FILES="*.dmg"
+            PACKAGE_NAME="macOS DMG"
+            PACKAGE_EMOJI="🍎"
+            ;;
+        "Linux")
+            PACKAGE_TARGET="package"
+            PACKAGE_FILES="*.AppImage"
+            PACKAGE_NAME="Linux AppImage"
+            PACKAGE_EMOJI="🐧"
+            ;;
+        *)
+            PACKAGE_TARGET="installer"
+            PACKAGE_FILES="companion/*.exe"
+            PACKAGE_NAME="Windows installer"
+            PACKAGE_EMOJI="🪟"
+            ;;
+    esac
+}
 
-for plugin in "${simulator_plugins[@]}"
-do
-    BUILD_OPTIONS="${COMMON_OPTIONS} "
+get_platform_config
 
-    echo "Building ${plugin}"
-    
-    if ! get_target_build_options "$plugin"; then
-        echo "Error: Failed to find a match for target '$plugin'"
-        exit 1
-    fi
+BUILD_OPTIONS="${COMMON_OPTIONS} -DEdgeTX_SUPERBUILD:BOOL=0 -DNATIVE_BUILD:BOOL=1"
+LOG_FILE="build-companion.log"
 
-    rm -f CMakeCache.txt native/CMakeCache.txt
-    cmake ${BUILD_OPTIONS} "${SRCDIR}"
-    cmake --build . --target native-configure
-    cmake --build native -j"${JOBS}" --target libsimulator
-done                              
-
-cmake --build . --target native-configure
-if [ "$(uname)" = "Darwin" ]; then
-    cmake --build native -j"${JOBS}" --target package
-    cp native/*.dmg "${OUTDIR}"
-elif [ "$(uname)" = "Linux" ]; then
-    cmake --build native -j"${JOBS}" --target package
-    cp native/*.AppImage "${OUTDIR}"
+if [[ -n "$GITHUB_ACTIONS" ]]; then
+    echo "::group::📦 Building $PACKAGE_NAME"
 else
-    cmake --build native --target installer
-    cp native/companion/*.exe "${OUTDIR}"
+    echo "📦 Building $PACKAGE_NAME"
+    echo "=========================================="
 fi
+
+clean_build() {
+    rm -f CMakeCache.txt native/CMakeCache.txt
+}
+
+clean_build && mkdir -p native/plugins
+
+# Copy WASM simulator modules if available
+if [[ -d "${SRCDIR}/wasm-modules" ]]; then
+  cp "${SRCDIR}"/wasm-modules/*.wasm native/plugins/ 2>/dev/null && \
+    echo "    🔌 Copied WASM modules to plugins/" || true
+fi
+
+error_status=0
+
+if ! cmake -B native -S "${SRCDIR}" --toolchain cmake/toolchain/native.cmake ${BUILD_OPTIONS} >> "$LOG_FILE" 2>&1; then
+    echo "    ❌ CMake configuration failed"
+    cat "$LOG_FILE"
+    error_status=1
+elif ! cmake_build_parallel native --target companion ${QUIET_FLAGS} >> "$LOG_FILE" 2>&1; then
+    echo "    ❌ Companion build failed"
+    cat "$LOG_FILE"
+    error_status=1
+elif ! cmake_build_parallel native --target ${PACKAGE_TARGET} >> "$LOG_FILE" 2>&1; then
+    echo "    ❌ Packaging failed"
+    cat "$LOG_FILE"
+    error_status=1
+else
+    PACKAGE_FILE=$(find native/ -path "native/${PACKAGE_FILES}" -type f | head -n1)
+    if [ -n "$PACKAGE_FILE" ] && cp "$PACKAGE_FILE" "${OUTDIR}" 2>/dev/null; then
+        echo "    ✅ Build completed successfully!"
+        echo "    📁 Package saved to: ${OUTDIR}"
+        echo "    📄 Copied: $(basename "$PACKAGE_FILE")"
+    else
+        echo "    ❌ Failed to copy package files to output directory"
+        echo "    📁 Directory Contents:"
+        echo "    ----------------------"
+        ls -la native/ || echo "native/ directory not found"
+        echo "Looking for files matching: $PACKAGE_FILES"
+        find native/ -path "native/${PACKAGE_FILES}" 2>/dev/null || echo "No matching files found"
+        error_status=1
+    fi
+fi
+
+if [[ -n "$GITHUB_ACTIONS" ]]; then
+    echo "::endgroup::"
+fi
+
+exit $error_status

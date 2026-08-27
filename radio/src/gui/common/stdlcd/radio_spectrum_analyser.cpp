@@ -20,6 +20,7 @@
  */
 
 #include "edgetx.h"
+#include "os/sleep.h"
 #include "timers_driver.h"
 
 extern uint8_t g_moduleIdx;
@@ -42,6 +43,7 @@ void menuRadioSpectrumAnalyser(event_t event)
   });
 
   if (menuEvent) {
+    moduleState[g_moduleIdx].mode = MODULE_MODE_NORMAL;
     lcdDrawCenteredText(LCD_H/2, STR_STOPPING);
     lcdRefresh();
 #if defined(PXX2)
@@ -49,7 +51,7 @@ void menuRadioSpectrumAnalyser(event_t event)
 #endif
     /* wait 1s to resume normal operation before leaving */
     watchdogSuspend(500 /*5s*/);
-    RTOS_WAIT_MS(1000);
+    sleep_ms(1000);
     return;
   }
 

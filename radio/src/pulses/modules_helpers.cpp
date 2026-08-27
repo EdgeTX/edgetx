@@ -30,7 +30,7 @@ bool isExternalAntennaEnabled()
     case ANTENNA_MODE_EXTERNAL:
       return true;
     case ANTENNA_MODE_PER_MODEL:
-      switch (g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode) {
+      switch (g_model.moduleData[INTERNAL_MODULE].antennaMode) {
         case ANTENNA_MODE_EXTERNAL:
         case ANTENNA_MODE_ASK:
           return globalData.externalAntennaEnabled;
@@ -66,10 +66,9 @@ int8_t maxModuleChannels_M8(uint8_t moduleIdx)
       return 8;  // always 16 channels in FCC / FLEX
     }
   } else if (isModuleMultimoduleDSM2(moduleIdx)) {
-    return 4;  // 12 channels
-  } else if (isModuleDSMP(moduleIdx) &&
-             (g_model.moduleData[moduleIdx].dsmp.flags != 0)) {
-    return g_model.moduleData[moduleIdx].channelsCount;
+    return 8;  // 16 channels with new MultiModule Firmware. Older firmware will still work up to 12ch.
+  } else if (isModuleDSMP(moduleIdx)) {
+    return 4; //  12 channels
   } else {
     return maxChannelsModules_M8[g_model.moduleData[moduleIdx].type];
   }
@@ -129,6 +128,9 @@ void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
   }
   else if (moduleData.type == MODULE_TYPE_FLYSKY_AFHDS3) {
     resetAfhds3Options(moduleIdx);
+  } 
+  else if (moduleData.type == MODULE_TYPE_LEMON_DSMP) {
+    restartModule(moduleIdx);  // Restart DSMP when switching to it (example PPM->DSMP)
   }
   else
     resetAccessAuthenticationCount();

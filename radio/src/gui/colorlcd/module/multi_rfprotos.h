@@ -21,7 +21,9 @@
 
 #pragma once
 
-#include "libopenui.h"
+#include "dialog.h"
+#include "pulses/modules_constants.h"
+#include "myeeprom.h"
 
 class MultiRfProtocols;
 

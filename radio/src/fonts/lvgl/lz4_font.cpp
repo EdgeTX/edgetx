@@ -49,6 +49,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define __IRAM
+#define LV_SKIP_DEFINES 1
 #include "../../gui/colorlcd/lv_conf.h"
 #define LV_CONF_SKIP 1
 #include "../../gui/colorlcd/lz4_fonts.h"
@@ -83,10 +85,12 @@ int main(int argc, char* argv[])
   // Calculate size of data to compress
   uncomp_size = sizeof(glyph_bitmap) + sizeof(glyph_dsc);
 
+#if !defined(NO_KERN)
   if (dsc->kern_classes) {
     uncomp_size += sizeof(kern_class_values) + sizeof(kern_left_class_mapping) +
                    sizeof(kern_right_class_mapping);
   }
+#endif
 
   for (int i = 0; i < dsc->cmap_num; i += 1) {
     if (dsc->cmaps[i].unicode_list)
@@ -112,10 +116,12 @@ int main(int argc, char* argv[])
   etx_font.kern_classes = dsc->kern_classes;
   etx_font.bitmap_format = dsc->bitmap_format;
 
+#if !defined(NO_KERN)
   if (dsc->kern_classes) {
     etx_font.left_class_cnt = kern_classes.left_class_cnt;
     etx_font.right_class_cnt = kern_classes.right_class_cnt;
   }
+#endif
 
   // Create custom cmap structure array
   etxFontCmap* etx_cmaps = nullptr;
@@ -170,6 +176,7 @@ int main(int argc, char* argv[])
 
   next += sizeof(glyph_bitmap);
 
+#if !defined(NO_KERN)
   // Copy kern_classes (optional)
   if (dsc->kern_classes) {
     memcpy(next, kern_class_values, sizeof(kern_class_values));
@@ -187,6 +194,7 @@ int main(int argc, char* argv[])
 
     next += sizeof(kern_right_class_mapping);
   }
+#endif
 
   // Allocate array and LZ4 compress data
   uint8_t* lz4_data = (uint8_t*)malloc(uncomp_size);
@@ -203,7 +211,7 @@ int main(int argc, char* argv[])
   fprintf(fp, "#include \"lz4_fonts.h\"\n\n");
 
   // Compressed data
-  fprintf(fp, "static const uint8_t lz4FontData[] ={\n");
+  fprintf(fp, "static const uint8_t lz4FontData[] __FLASH = {\n");
   for (i = 0; i < comp_size; i += 1) {
     fprintf(fp, "0x%02x,", lz4_data[i]);
     if ((i & 0x0F) == 0x0F) fprintf(fp, "\n");
@@ -213,7 +221,7 @@ int main(int argc, char* argv[])
 
   // Cmaps
   if (dsc->cmap_num > 0) {
-    fprintf(fp, "static const etxFontCmap cmaps[] = {\n");
+    fprintf(fp, "static const etxFontCmap cmaps[] __FLASH = {\n");
     for (int i = 0; i < dsc->cmap_num; i += 1) {
       fprintf(fp,
               "{ .range_start = %d, .range_length = %d, .glyph_id_start = %d, "
@@ -233,10 +241,9 @@ int main(int argc, char* argv[])
              sizeof(lv_font_fmt_txt_glyph_cache_t) +
              dsc->cmap_num * sizeof(lv_font_fmt_txt_cmap_t);
   if (dsc->kern_classes) size += sizeof(lv_font_fmt_txt_kern_classes_t);
-  fprintf(fp, "static uint8_t etxUncompBuf[%d] __SDRAMFONTS;\n\n", size);
 
   // Custom font structure
-  fprintf(fp, "const etxLz4Font %s = {\n", argv[1]);
+  fprintf(fp, "const etxLz4Font %s __FLASH = {\n", argv[1]+4);
   fprintf(fp, ".uncomp_size = %d,\n", uncomp_size);
   fprintf(fp, ".comp_size = %d,\n", comp_size);
   fprintf(fp, ".line_height = %d,\n", etx_font.line_height);
@@ -257,7 +264,6 @@ int main(int argc, char* argv[])
   fprintf(fp, ".right_class_mapping = %d,\n", etx_font.right_class_mapping);
   fprintf(fp, ".cmaps = cmaps,\n");
   fprintf(fp, ".compressed = lz4FontData,\n");
-  fprintf(fp, ".lvglFontBuf = etxUncompBuf,\n");
   fprintf(fp, ".lvglFontBufSize = %d,\n", size);
   fprintf(fp, "};\n");
 

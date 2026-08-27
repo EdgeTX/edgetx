@@ -20,10 +20,15 @@
  */
 
 #include "edgetx.h"
+#include "os/sleep.h"
 #include "timers_driver.h"
 #include "tasks/mixer_task.h"
 #include "mixes.h"
 #include "switches.h"
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+#include "hal/rgbleds.h"
+#endif
 
 #if defined(COLORLCD)
 #include "view_main.h"
@@ -72,12 +77,14 @@ void preModelLoad()
   }
 
   stopTrainer();
-#if defined(COLORLCD)
-  LayoutFactory::deleteCustomScreens();
+
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+  turnOffRGBLeds();
 #endif
 
-  if (needDelay)
-    RTOS_WAIT_MS(200);
+  if (needDelay) {
+    sleep_ms(200);
+  }
 }
 
 void postRadioSettingsLoad()
@@ -93,7 +100,7 @@ void postRadioSettingsLoad()
     setDefaultOwnerId();
   }
 #endif
-#if defined(PCBX12S)
+#if defined(PCBX12S) && defined(INTERNAL_GPS)
   // AUX2 is hardwired to AUX2 on X12S
   serialSetMode(SP_AUX2, UART_MODE_GPS);
 #endif
@@ -115,6 +122,13 @@ void postRadioSettingsLoad()
     if (serialGetMode(port_nr) == UART_MODE_DEBUG)
       serialSetMode(port_nr, UART_MODE_NONE);
   }
+#endif
+
+#if defined(COLORLCD)
+  // Ensure ON brightness >= OFF brightness
+  if ((BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright) < g_eeGeneral.blOffBright)
+    g_eeGeneral.backlightBright =
+        BACKLIGHT_LEVEL_MAX - g_eeGeneral.blOffBright;
 #endif
 }
 
@@ -159,25 +173,28 @@ static void sanitizeMixerLines()
 void postModelLoad(bool alarms)
 {
 #if defined(COLORLCD)
+  if (!g_model.hasScreenData(0))
+    LayoutFactory::loadDefaultLayout();
+
   if (g_model.topbarWidgetWidth[0] == 0) {
     // Set default width for top bar widgets
     for (int i = 0; i < MAX_TOPBAR_ZONES; i += 1)
       g_model.topbarWidgetWidth[i] = 1;
 
     // Load 'date time' widget if slot is empty
-    if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName[0] == 0) {
-      strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-1].widgetName, "Date Time", WIDGET_NAME_LEN);
+    if (!g_model.getTopbarData()->hasWidget(MAX_TOPBAR_ZONES-1)) {
+      g_model.getTopbarData()->setWidgetName(MAX_TOPBAR_ZONES-1, "Date Time");
       storageDirty(EE_MODEL);
     }
     // Load 'radio info' widget if slot is empty
-    if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName[0] == 0) {
-      strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-2].widgetName, "Radio Info", WIDGET_NAME_LEN);
+    if (!g_model.getTopbarData()->hasWidget(MAX_TOPBAR_ZONES-2)) {
+      g_model.getTopbarData()->setWidgetName(MAX_TOPBAR_ZONES-2, "Radio Info");
       storageDirty(EE_MODEL);
     }
 #if defined(INTERNAL_GPS)
     // Load 'internal gps' widget if slot is empty
-    if (g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName[0] == 0) {
-      strAppend(g_model.topbarData.zones[MAX_TOPBAR_ZONES-3].widgetName, "Internal GPS", WIDGET_NAME_LEN);
+    if (!g_model.getTopbarData()->hasWidget(MAX_TOPBAR_ZONES-3)) {
+      g_model.getTopbarData()->setWidgetName(MAX_TOPBAR_ZONES-3, "Internal GPS");
       storageDirty(EE_MODEL);
     }
 #endif
@@ -206,6 +223,14 @@ if(g_model.rssiSource) {
 
   storageDirty(EE_MODEL);  
 }
+#if defined(STM32F4) && defined(CROSSFIRE)
+  // Limit ext. CRSF speed to 3.75Mbps due to CRC errors at higher speeds
+  if(isModuleCrossfire(EXTERNAL_MODULE) && g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate == 4) {
+	TRACE("Downgrading external ELRS module baudrate");
+    g_model.moduleData[EXTERNAL_MODULE].crsf.telemetryBaudrate = 3;
+    storageDirty(EE_MODEL);
+  }
+#endif
 
 #if defined(PXX2)
   bool changed = false;
@@ -285,16 +310,21 @@ if(g_model.rssiSource) {
 
   referenceModelAudioFiles();
 
-#if defined(COLORLCD)
-  LayoutFactory::loadCustomScreens();
-  ViewMain::instance()->show(true);
-#else
+#if !defined(COLORLCD)
   LOAD_MODEL_BITMAP();
 #endif
 
   LUA_LOAD_MODEL_SCRIPTS();
 
   SEND_FAILSAFE_1S();
+
+  // Reset debug stats for the newly loaded model (after checkAll() warnings)
+  maxMixerDuration = 0;
+#if defined(LUA)
+  maxLuaInterval = 0;
+  maxLuaDuration = 0;
+  lastLuaTime = 0;  // avoids counting the load time as one huge interval spike
+#endif
 }
 
 void storageFlushCurrentModel()

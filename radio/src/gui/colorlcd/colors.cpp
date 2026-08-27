@@ -26,6 +26,7 @@
 #include <algorithm>
 
 const uint16_t defaultColors[] = {
+    // Theme
     RGB(0, 0, 0),        // PRIMARY1
     RGB(255, 255, 255),  // PRIMARY2
     RGB(12, 63, 102),    // PRIMARY3
@@ -37,14 +38,35 @@ const uint16_t defaultColors[] = {
     RGB(255, 222, 0),    // ACTIVE
     RGB(224, 0, 0),      // WARNING
     RGB(140, 140, 140),  // DISABLED
+    RGB(0, 0, 0),        // Quick Menu Background
+    RGB(255, 255, 255),  // Quick Menu Foreground
     RGB(170, 85, 0),     // CUSTOM
-    RGB(0, 0, 0),        // FIXED BLACK
-    RGB(255, 255, 255),  // FIXED WHITE
-    RGB(128, 128, 128),  // FIXED GREY
+    // Fixed
+    RGB(0x00, 0x00, 0x00), // BLACK
+    RGB(0xFF, 0xFF, 0xFF), // WHITE
+    RGB(0xEA, 0xEA, 0xEA), // LIGHTWHITE
+    RGB(0xC0, 0xC0, 0xC0), // LIGHTGREY
+    RGB(0x40, 0x40, 0x40), // DARKGREY
+    RGB(0x60, 0x60, 0x60), // GREY
+    RGB(0xFF, 0x00, 0x00), // RED
+    RGB(0xA0, 0x00, 0x00), // DARKRED
+    RGB(0xFF, 0x99, 0x99), // LIGHTRED
+    RGB(0x00, 0xFF, 0x00), // GREEN
+    RGB(0x00, 0xA0, 0x00), // DARKGREEN
+    RGB(0x00, 0xB4, 0x3C), // BRIGHTGREEN
+    RGB(0x00, 0x00, 0xFF), // BLUE
+    RGB(0x00, 0x00, 0xA0), // DARKBLUE
+    RGB(0x00, 0xFF, 0xFF), // CYAN
+    RGB(0xFF, 0xFF, 0x00), // YELLOW
+    RGB(0x9C, 0x6D, 0x20), // LIGHTBROWN
+    RGB(0x6A, 0x48, 0x10), // DARKBROWN
+    RGB(0xE5, 0x64, 0x1E), // ORANGE
+    RGB(0x80, 0x00, 0x80), // MAGENTA
 };
 
 // Needs to be initialised at compile time so widget color options work
 uint16_t lcdColorTable[] = {
+    // Theme
     RGB(0, 0, 0),        // PRIMARY1
     RGB(255, 255, 255),  // PRIMARY2
     RGB(12, 63, 102),    // PRIMARY3
@@ -56,20 +78,40 @@ uint16_t lcdColorTable[] = {
     RGB(255, 222, 0),    // ACTIVE
     RGB(224, 0, 0),      // WARNING
     RGB(140, 140, 140),  // DISABLED
+    RGB(0, 0, 0),        // Quick Menu Background
+    RGB(255, 255, 255),  // Quick Menu Foreground
     RGB(170, 85, 0),     // CUSTOM
-    RGB(0, 0, 0),        // FIXED BLACK
-    RGB(255, 255, 255),  // FIXED WHITE
-    RGB(128, 128, 128),  // FIXED GREY
+    // Fixed
+    RGB(0x00, 0x00, 0x00), // BLACK
+    RGB(0xFF, 0xFF, 0xFF), // WHITE
+    RGB(0xEA, 0xEA, 0xEA), // LIGHTWHITE
+    RGB(0xC0, 0xC0, 0xC0), // LIGHTGREY
+    RGB(0x40, 0x40, 0x40), // DARKGREY
+    RGB(0x60, 0x60, 0x60), // GREY
+    RGB(0xFF, 0x00, 0x00), // RED
+    RGB(0xA0, 0x00, 0x00), // DARKRED
+    RGB(0xFF, 0x99, 0x99), // LIGHTRED
+    RGB(0x00, 0xFF, 0x00), // GREEN
+    RGB(0x00, 0xA0, 0x00), // DARKGREEN
+    RGB(0x00, 0xB4, 0x3C), // BRIGHTGREEN
+    RGB(0x00, 0x00, 0xFF), // BLUE
+    RGB(0x00, 0x00, 0xA0), // DARKBLUE
+    RGB(0x00, 0xFF, 0xFF), // CYAN
+    RGB(0xFF, 0xFF, 0x00), // YELLOW
+    RGB(0x9C, 0x6D, 0x20), // LIGHTBROWN
+    RGB(0x6A, 0x48, 0x10), // DARKBROWN
+    RGB(0xE5, 0x64, 0x1E), // ORANGE
+    RGB(0xC0, 0x00, 0xC0), // MAGENTA
 };
 
 uint32_t HSVtoRGB(float H, float S, float V)
 {
-  if (H > 360 || H < 0 || S > 100 || S < 0 || V > 100 || V < 0) {
+  if (H > 360 || H < 0 || S > MAX_SATURATION || S < 0 || V > MAX_BRIGHTNESS || V < 0) {
     return 0;
   }
 
-  float s = S / 100;
-  float v = V / 100;
+  float s = S / MAX_SATURATION;
+  float v = V / MAX_BRIGHTNESS;
   float C = s * v;
   float X = C * (1 - abs(fmod(H / 60.0, 2) - 1));
   float m = v - C;
@@ -93,6 +135,39 @@ uint32_t HSVtoRGB(float H, float S, float V)
   int B = (b + m) * 255;
 
   return RGB(R, G, B);
+}
+
+uint32_t HSVtoRGB32(float H, float S, float V)
+{
+  if (H > 360 || H < 0 || S > MAX_SATURATION || S < 0 || V > MAX_BRIGHTNESS || V < 0) {
+    return 0;
+  }
+
+  float s = S / MAX_SATURATION;
+  float v = V / MAX_BRIGHTNESS;
+  float C = s * v;
+  float X = C * (1 - abs(fmod(H / 60.0, 2) - 1));
+  float m = v - C;
+  float r, g, b;
+
+  if (H >= 0 && H < 60) {
+    r = C, g = X, b = 0;
+  } else if (H >= 60 && H < 120) {
+    r = X, g = C, b = 0;
+  } else if (H >= 120 && H < 180) {
+    r = 0, g = C, b = X;
+  } else if (H >= 180 && H < 240) {
+    r = 0, g = X, b = C;
+  } else if (H >= 240 && H < 300) {
+    r = X, g = 0, b = C;
+  } else {
+    r = C, g = 0, b = X;
+  }
+  int R = (r + m) * 255;
+  int G = (g + m) * 255;
+  int B = (b + m) * 255;
+
+  return RGB32(R, G, B);
 }
 
 void RGBtoHSV(uint8_t R, uint8_t G, uint8_t B, float &fH, float &fS, float &fV)
@@ -131,17 +206,6 @@ void RGBtoHSV(uint8_t R, uint8_t G, uint8_t B, float &fH, float &fS, float &fV)
   }
 }
 
-// TODO: work out how to remove this function
-LcdColorIndex indexFromColor(uint32_t lcdFlags)
-{
-  uint16_t color = COLOR_VAL(lcdFlags);
-
-  for (uint8_t i = 0; i < TOTAL_COLOR_COUNT; i += 1)
-    if (lcdColorTable[i] == color) return (LcdColorIndex)i;
-
-  return CUSTOM_COLOR_INDEX;
-}
-
 // Return flags with RGB color value instead of indexed theme color
 LcdFlags colorToRGB(LcdFlags colorFlags)
 {
@@ -150,6 +214,19 @@ LcdFlags colorToRGB(LcdFlags colorFlags)
     return colorFlags;
 
   return (colorFlags & 0xFFFF) | COLOR(COLOR_VAL(colorFlags)) | RGB_FLAG;
+}
+
+uint32_t color32ToRGB(uint32_t color)
+{
+  // RGB or indexed color?
+  if (color & RGB888_FLAG)
+    return color;
+
+  color = COLOR_VAL(COLOR(color));
+  auto r = GET_RED(color);
+  auto g = GET_GREEN(color);
+  auto b = GET_BLUE(color);
+  return RGB32(r, g, b) | RGB888_FLAG;
 }
 
 /**

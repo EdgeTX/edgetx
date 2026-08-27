@@ -29,6 +29,19 @@
 coord_t scrollbar_X = DEFAULT_SCROLLBAR_X;
 #endif
 
+static uint8_t MENU_FIRST_LINE_EDIT(const uint8_t * horTab, uint8_t horTabMax)
+{
+  if (horTab) {
+    uint8_t result = 0;
+    while (result < horTabMax && horTab[result] >= HIDDEN_ROW)
+      ++result;
+    return result;
+  }
+  else {
+    return 0;
+  }
+}
+
 int checkIncDec(event_t event, int val, int i_min, int i_max,
                 unsigned int i_flags, IsValueAvailable isValueAvailable,
                 const CheckIncDecStops &stops)

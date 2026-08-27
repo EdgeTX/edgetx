@@ -31,6 +31,7 @@ static const StringTagMappingTable inputTypesLookupTable = {
     {std::to_string(Board::AIT_FLEX),    "FLEX"},
     {std::to_string(Board::AIT_VBAT),    "VBAT"},
     {std::to_string(Board::AIT_RTC_BAT), "RTC_BAT"},
+    {std::to_string(Board::AIT_LUX),     "LUX"},
     {std::to_string(Board::AIT_SWITCH),  "SWITCH"},
 };
 
@@ -50,7 +51,7 @@ static const StringTagMappingTable switchTypesLookupTable = {
     {std::to_string(Board::SWITCH_TOGGLE),        "TOGGLE"},
     {std::to_string(Board::SWITCH_2POS),          "2POS"},
     {std::to_string(Board::SWITCH_3POS),          "3POS"},
-    {std::to_string(Board::SWITCH_FUNC),          "FSWITCH"},
+    {std::to_string(Board::SWITCH_ADC),           "ADC"},
 };
 
 static const StringTagMappingTable stickNamesLookupTable = {
@@ -69,10 +70,12 @@ BoardJson::BoardJson(Board::Type board, QString hwdefn) :
   m_switches(new SwitchesTable),
   m_trims(new TrimsTable),
   m_keys(new KeysTable),
+  m_display({0, 0, 0, 0, 0, 0, 0, 0}),
+  m_cfs({0, 0}),
+  m_hardware({0, 0, 0}),
   m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0, 0}),
   m_switchCnt({0, 0, 0})
 {
-
 }
 
 BoardJson::~BoardJson()
@@ -89,7 +92,9 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
 {
   // TODO json files do not contain gyro defs
   // Radio cmake directive IMU is currently used
-  if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board)) {
+  if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board) ||
+      IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board) ||
+      IS_RADIOMASTER_TX16SMK3(board) || IS_FLYSKY_PA01(board)) {
     if (getInputIndex(inputs, "TILT_X", Board::LVT_TAG) < 0) {
       InputDefn defn;
       defn.type = AIT_FLEX;
@@ -117,6 +122,16 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
     }
   }
 
+  // Set default labels for LUX inputs if not provided by JSON
+  for (auto &defn : *inputs) {
+    if (defn.type == AIT_LUX) {
+      if (defn.name.empty())
+        defn.name = "Ambient light";
+      if (defn.shortName.empty())
+        defn.shortName = "Light";
+    }
+  }
+
   //  Flex switches are not listed in json file for these radios
   int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_MT12(board) ? 2 : 0;
 
@@ -136,6 +151,9 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
 const int BoardJson::getCapability(const Board::Capability capability) const
 {
   switch (capability) {
+    case Board::Air:
+      return !m_hardware.surface;
+
     case Board::FlexInputs:
       return (m_inputCnt.flexGyroAxes +
               m_inputCnt.flexJoystickAxes +
@@ -146,8 +164,14 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::FlexSwitches:
       return m_switchCnt.flex;
 
+    case Board::FunctionSwitchColors:
+      return m_cfs.rgb_led;
+
     case Board::FunctionSwitches:
       return m_switchCnt.func;
+
+    case Board::FunctionSwitchGroups:
+      return m_cfs.groups;
 
     case Board::GyroAxes:
       return m_inputCnt.flexGyroAxes;
@@ -155,8 +179,29 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::Gyros:
       return getCapability(Board::GyroAxes) / 2;
 
+    case Board::HasAudioMuteGPIO:
+      return m_hardware.has_audio_mute;
+
+    case Board::HasBacklightColor:
+      return m_display.backlight_color;
+
+    case Board::HasBlingLEDS:
+      return m_hardware.has_bling_leds;
+
+    case Board::HasColorLcd:
+      return m_display.color;
+
+    case Board::HasExternalModuleSupport:
+      return m_hardware.has_ext_module_support;
+
+    case Board::HasInternalModuleSupport:
+      return m_hardware.has_int_module_support;
+
     case Board::HasRTC:
       return m_inputCnt.rtcbat;
+
+    case Board::HasSDCard:
+      return true;
 
     case Board::HasVBat:
       return m_inputCnt.vbat;
@@ -167,8 +212,32 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::InputSwitches:
       return m_inputCnt.switches;
 
+    case Board::IsF4:
+      return m_hardware.cpu_type == "STM32F4";
+
+    case Board::IsH5:
+      return m_hardware.cpu_type == "STM32H5";
+
+    case Board::IsH7:
+      return m_hardware.cpu_type == "STM32H7";
+
+    case Board::JoystickAxes:
+      return m_inputCnt.flexJoystickAxes;
+
     case Board::Keys:
       return m_keys->size();
+
+    case Board::LcdDepth:
+      return m_display.depth;
+
+    case Board::LcdHeight:
+      return m_display.h;
+
+    case Board::LcdOLED:
+      return m_display.oled;
+
+    case Board::LcdWidth:
+      return m_display.w;
 
     case Board::MultiposPots:
       // assumes every input has potential to be one
@@ -193,11 +262,17 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::Sliders:
       return m_inputCnt.flexSliders;
 
+    case Board::SportMaxBaudRate:
+        return m_hardware.sport_max_baudrate;
+
     case Board::StandardSwitches:
       return m_switchCnt.std;
 
     case Board::Sticks:
       return m_inputCnt.sticks;
+
+    case Board::Surface:
+      return m_hardware.surface;
 
     case Board::Switches:
       return (m_switchCnt.std +
@@ -359,7 +434,7 @@ int BoardJson::getInputTypeOffset(const InputsTable * inputs, Board::AnalogInput
       return i;
   }
 
-  return 0;
+  return -1;
 }
 
 const Board::InputInfo BoardJson::getInputInfo(int index) const
@@ -433,6 +508,80 @@ int BoardJson::getNumericSuffix(const std::string str)
 
   if (!suffix.empty())
     return std::stoi(suffix);
+
+  return -1;
+}
+
+const int BoardJson::getCFSIndexForSwitch(int offset) const
+{
+  return getCFSIndexForSwitch(m_switches, offset);
+}
+
+// static
+int BoardJson::getCFSIndexForSwitch(const SwitchesTable * switches, int sw)
+{
+  if (sw < (int)switches->size() && switches->at(sw).isCustomSwitch)
+    return switches->at(sw).customSwitchIdx;
+
+  return -1;
+}
+
+const int BoardJson::getSwitchIndexForCFS(int offset) const
+{
+  return getSwitchIndexForCFS(m_switches, offset);
+}
+
+// static
+int BoardJson::getSwitchIndexForCFS(const SwitchesTable * switches, int cfsIdx)
+{
+  for (int i = 0; i < (int)switches->size(); i++) {
+    if (switches->at(i).isCustomSwitch && switches->at(i).customSwitchIdx == cfsIdx)
+      return i;
+  }
+
+  return -1;
+}
+
+const int BoardJson::getCFSOffsetForCFSIndex(int index) const
+{
+  return getCFSOffsetForCFSIndex(m_switches, index);
+}
+
+// static
+int BoardJson::getCFSOffsetForCFSIndex(const SwitchesTable * switches, const int index)
+{
+  int cnt = 0;
+
+  for (int i = 0; i < (int)switches->size(); i++) {
+    if (switches->at(i).isCustomSwitch) {
+      if (switches->at(i).customSwitchIdx == index)
+        return cnt;
+      else
+        cnt++;
+    }
+  }
+
+  return -1;
+}
+
+const int BoardJson::getSwitchIndexForCFSOffset(int offset) const
+{
+  return getSwitchIndexForCFSOffset(m_switches, offset);
+}
+
+// static
+int BoardJson::getSwitchIndexForCFSOffset(const SwitchesTable * switches, const int offset)
+{
+  int cnt = 0;
+
+  for (int i = 0; i < (int)switches->size(); i++) {
+    if (switches->at(i).isCustomSwitch) {
+      if (cnt == offset)
+        return i;
+      else
+        cnt++;
+    }
+  }
 
   return -1;
 }
@@ -531,7 +680,7 @@ int BoardJson::getSwitchTypeOffset(const SwitchesTable * switches, Board::Switch
       return i;
   }
 
-  return 0;
+  return -1;
 }
 
 const int BoardJson::getSwitchYamlIndex(const QString val, YamlLookupType ylt) const
@@ -629,7 +778,7 @@ const QString BoardJson::getTrimYamlName(int index, YamlLookupType ylt) const
 
 const bool BoardJson::isInputAvailable(int index) const
 {
-  return isInputAvailable(m_inputs->at(index));
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputAvailable(m_inputs->at(index)) : false;
 }
 
 // static
@@ -641,7 +790,7 @@ bool BoardJson::isInputAvailable(const InputDefn & defn)
 
 const bool BoardJson::isInputCalibrated(int index) const
 {
-  return isInputCalibrated(m_inputs->at(index));
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputCalibrated(m_inputs->at(index)) : false;
 }
 
 // static
@@ -652,7 +801,7 @@ bool BoardJson::isInputCalibrated(const InputDefn & defn)
 
 const bool BoardJson::isInputConfigurable(int index) const
 {
-  return isInputConfigurable(m_inputs->at(index));
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputConfigurable(m_inputs->at(index)) : false;
 }
 
 // static
@@ -663,7 +812,7 @@ bool BoardJson::isInputConfigurable(const InputDefn & defn)
 
 const bool BoardJson::isInputIgnored(int index) const
 {
-  return isInputIgnored(m_inputs->at(index));
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputIgnored(m_inputs->at(index)) : true;
 }
 
 // static
@@ -678,6 +827,11 @@ bool BoardJson::isInputFlex(const InputDefn & defn)
   return defn.type == Board::AIT_FLEX;
 }
 
+const bool BoardJson::isInputFlexGyroAxis(int index) const
+{
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputFlexGyroAxis(m_inputs->at(index)) : false;
+}
+
 // static
 bool BoardJson::isInputFlexGyroAxis(const InputDefn & defn)
 {
@@ -685,6 +839,11 @@ bool BoardJson::isInputFlexGyroAxis(const InputDefn & defn)
 
   return (defn.type == Board::AIT_FLEX && defn.tag.size() > 5 &&
           val[0] == 'T' && val[1] == 'I'  && val[2] == 'L' && val[3] == 'T' && val[4] == '_' && (val[5] == 'X' || val[5] == 'Y'));
+}
+
+const bool BoardJson::isInputFlexJoystickAxis(int index) const
+{
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputFlexJoystickAxis(m_inputs->at(index)) : false;
 }
 
 // static
@@ -698,7 +857,7 @@ bool BoardJson::isInputFlexJoystickAxis(const InputDefn & defn)
 
 const bool BoardJson::isInputFlexPot(int index) const
 {
-  return isInputFlexPot(m_inputs->at(index));
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputFlexPot(m_inputs->at(index)) : false;
 }
 
 // static
@@ -741,7 +900,7 @@ bool BoardJson::isInputRTCBat(const InputDefn & defn)
 
 const bool BoardJson::isInputStick(int index) const
 {
-  return isInputStick(m_inputs->at(index));
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputStick(m_inputs->at(index)) : false;
 }
 
 // static
@@ -752,7 +911,7 @@ bool BoardJson::isInputStick(const InputDefn & defn)
 
 const bool BoardJson::isInputSwitch(int index) const
 {
-  return isInputSwitch(m_inputs->at(index));
+  return (index >=0 && index < (int)m_inputs->size()) ? isInputSwitch(m_inputs->at(index)) : false;
 }
 
 // static
@@ -771,7 +930,7 @@ const bool BoardJson::isSwitchConfigurable(int index) const
 {
   if (index >= 0 && index < getCapability(Board::Switches)) {
     SwitchDefn &defn = m_switches->at(index);
-    if (isSwitchStd(defn))
+    if (isSwitchStd(defn) || isSwitchFunc(defn))
       return true;
 
     if (isSwitchFlex(defn)) {
@@ -792,7 +951,7 @@ bool BoardJson::isSwitchStd(const SwitchDefn & defn)
 
 const bool BoardJson::isSwitchFlex(int index) const
 {
-  return isSwitchFlex(m_switches->at(index));
+  return (index >=0 && index < (int)m_switches->size()) ? isSwitchFlex(m_switches->at(index)) : false;
 }
 
 // static
@@ -806,13 +965,13 @@ bool BoardJson::isSwitchFlex(const SwitchDefn & defn)
 
 const bool BoardJson::isSwitchFunc(int index) const
 {
-  return isSwitchFunc(m_switches->at(index));
+  return (index >=0 && index < (int)m_switches->size()) ? isSwitchFunc(m_switches->at(index)) : false;
 }
 
 // static
 bool BoardJson::isSwitchFunc(const SwitchDefn & defn)
 {
-  return defn.type == Board::SWITCH_FUNC;
+  return defn.customSwitchIdx >= 0;
 }
 
 bool BoardJson::loadDefinition()
@@ -821,7 +980,7 @@ bool BoardJson::loadDefinition()
   if (m_board == Board::BOARD_UNKNOWN)
     return true;
 
-  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims))
+  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs, m_hardware, m_hasKeyLockCombo))
     return false;
 
   afterLoadFixups(m_board, m_inputs, m_switches, m_keys, m_trims);
@@ -857,7 +1016,8 @@ bool BoardJson::loadDefinition()
 
 // static
 bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
-                         KeysTable * keys, TrimsTable * trims)
+                         KeysTable * keys, TrimsTable * trims, DisplayDefn & display, CustomSwitchesDefn & cfs,
+                         HardwareDefn & hardware, bool & hasKeyLockCombo)
 {
   if (board == Board::BOARD_UNKNOWN) {
     return false;
@@ -995,6 +1155,23 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
           sw.display.y = (unsigned int)d.at(1).toInt(0);
         }
 
+        if (!o.value("is_cfs").isUndefined())
+          sw.isCustomSwitch = o.value("is_cfs").toBool();
+
+        if (!o.value("cfs_idx").isUndefined())
+          sw.customSwitchIdx = o.value("cfs_idx").toInt();
+
+        // special handing for ADC
+        if (sw.type == Board::SWITCH_ADC) {
+          if (sw.dflt == Board::SWITCH_TOGGLE) {
+            // this could be 2 or 3 position toggle so play safe
+            // it therefore has an impact on configuring hardware, available switches, simulator widget, yaml encode and decode
+            sw.dflt = Board::SWITCH_3POS;
+          }
+          // make the same
+          sw.type = sw.dflt;
+        }
+
         switches->insert(switches->end(), sw);
 
 //        qDebug() << "tag:" << sw.tag.c_str() << "name:" << sw.name.c_str() << "type:" << sw.type << ">" << Boards::switchTypeToString(sw.type) <<
@@ -1027,6 +1204,9 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
     }
   }
 
+  hasKeyLockCombo = obj.value("key_lock_combo").isArray() &&
+                    obj.value("key_lock_combo").toArray().size() == 2;
+
   if (obj.value("trims").isArray()) {
     const QJsonArray &trms = obj.value("trims").toArray();
 
@@ -1046,6 +1226,46 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
 //        qDebug() << "name:" << t.name.c_str();
       }
     }
+  }
+
+  if (obj.value("display").isObject()) {
+    const QJsonObject &o = obj.value("display").toObject();
+
+    display.w = o.value("lcd_w").toInt();
+    display.h = o.value("lcd_h").toInt();
+    display.phys_w = o.value("lcd_phys_w").toInt();
+    display.phys_h = o.value("lcd_phys_h").toInt();
+    display.depth = o.value("lcd_depth").toInt();
+    display.color = display.depth == 16 ? 1 : 0;
+    display.oled = o.value("oled_screen").toBool();
+  }
+
+  if (obj.value("backlight").isObject()) {
+    const QJsonObject &o = obj.value("backlight").toObject();
+
+    display.backlight_color = o.value("has_backlight_color").toBool();
+  }
+
+  if (obj.value("leds").isObject()) {
+    const QJsonObject &o = obj.value("leds").toObject();
+
+    int cfs_led_strip_length = o.value("cfs_led_strip_length").toInt();
+    int cfs_leds_per_switch = o.value("cfs_leds_per_switch").toInt();
+    cfs.groups = cfs_leds_per_switch ? cfs_led_strip_length / (2 * cfs_leds_per_switch) : 0;
+    cfs.rgb_led = cfs.groups > 0;
+    hardware.has_bling_leds = o.value("bling_led_strip_length").toInt();
+  }
+
+  if (obj.value("hardware").isObject()) {
+    const QJsonObject &o = obj.value("hardware").toObject();
+
+    hardware.has_audio_mute = o.value("has_audio_mute").toBool();
+    hardware.has_ext_module_support = o.value("has_ext_module_support").toBool();
+    hardware.has_int_module_support = o.value("has_int_module_support").toBool();
+    hardware.sport_max_baudrate = o.value("sport_max_baudrate").toInt();
+    hardware.surface = o.value("surface").toBool();
+    hardware.cpu = o.value("cpu").toString().toStdString();
+    hardware.cpu_type = o.value("cpu_type").toString().toStdString();
   }
 
   delete json;
@@ -1087,5 +1307,17 @@ void BoardJson::setSwitchCounts(const SwitchesTable * switches, SwitchCounts & s
       switchCounts.flex++;
     else if (isSwitchFunc(swtch))
       switchCounts.func++;
+  }
+}
+
+const QString BoardJson::getCapabilityStr(const Board::Capability capability) const
+{
+  switch (capability) {
+    case Board::CPU:
+      return m_hardware.cpu.c_str();
+    case Board::CPUType:
+      return m_hardware.cpu_type.c_str();
+    default:
+      return QString();
   }
 }

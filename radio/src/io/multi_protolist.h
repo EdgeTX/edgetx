@@ -22,16 +22,12 @@
 #include "dataconstants.h"
 #include "edgetx_types.h"
 
+#include "os/timer.h"
+
 #include <functional>
 #include <string>
 #include <vector>
 #include <map>
-
-#if !defined(SIMU)
-// Forward declare FreeRTOS timer
-struct tmrTimerControl;
-typedef struct tmrTimerControl * TimerHandle_t;
-#endif
 
 class MultiRfProtocols
 {
@@ -51,9 +47,7 @@ class MultiRfProtocols
   MultiRfProtocols(unsigned int moduleIdx);
   void fillBuiltinProtos();
 
-#if !defined(SIMU)
-  static void timerCb(TimerHandle_t xTimer);
-#endif
+  static void timerCb(timer_handle_t* h);
   
  public:
 

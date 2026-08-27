@@ -203,11 +203,11 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
         case 0:
           if (sub==k && menuHorizontalPosition < 1 && CFN_SWITCH(cfn) == SWSRC_NONE) {
             CFN_ACTIVE(cfn) = 0; // Default is disabled
-            drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, CFN_SWITCH(cfn), attr | INVERS | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
+            drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, CFN_SWITCH(cfn), attr | INVERS | (functionsContext->isFunctionSwitchActive(k) ? BOLD : 0));
             if (active) CHECK_INCDEC_SWITCH(event, CFN_SWITCH(cfn), SWSRC_FIRST, SWSRC_LAST, eeFlags, isSwitchAvailableInCustomFunctions);
           }
           else {
-            drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, CFN_SWITCH(cfn), attr | ((functionsContext->activeSwitches & ((MASK_CFN_TYPE)1 << k)) ? BOLD : 0));
+            drawSwitch(MODEL_SPECIAL_FUNC_1ST_COLUMN, y, CFN_SWITCH(cfn), attr | (functionsContext->isFunctionSwitchActive(k) ? BOLD : 0));
             if (active || AUTOSWITCH_ENTER_LONG()) {
               if (event == EVT_KEY_LONG(KEY_ENTER))
                 killEvents(event);
@@ -234,7 +234,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           else {
             j = 5; // skip other fields
             if (sub==k && menuHorizontalPosition > 0) {
-              repeatLastCursorMove(event);
+              repeatLastCursorHorMove(event);
             }
           }
           break;
@@ -260,6 +260,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #if defined(GVARS)
           else if (func == FUNC_ADJUST_GVAR) {
+            if (validateSFGV(cfn)) storageDirty(eeFlags);
             maxParam = MAX_GVARS - 1;
             drawStringWithIndex(lcdNextPos + 2, y, STR_GV, CFN_GVAR_INDEX(cfn)+1, attr);
             if (active) CFN_GVAR_INDEX(cfn) = checkIncDec(event, CFN_GVAR_INDEX(cfn), 0, maxParam, eeFlags);
@@ -267,19 +268,27 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #endif // GVARS
           else if (func == FUNC_SET_TIMER) {
-            maxParam = MAX_TIMERS - 1;
-            lcdDrawTextAtIndex(lcdNextPos, y, STR_VFSWRESET, CFN_TIMER_INDEX(cfn), attr);
-            if (active) CFN_TIMER_INDEX(cfn) = checkIncDec(event, CFN_TIMER_INDEX(cfn), 0, maxParam, eeFlags, isTimerSourceAvailable);
+            if (timersSetupCount()> 0) {
+              maxParam = MAX_TIMERS - 1;
+              lcdDrawTextAtIndex(lcdNextPos, y, STR_VFSWRESET, CFN_TIMER_INDEX(cfn), attr);
+              if (active) CFN_TIMER_INDEX(cfn) = checkIncDec(event, CFN_TIMER_INDEX(cfn), 0, maxParam, eeFlags, isTimerSourceAvailable);
+            } else {
+              lcdDrawText(lcdNextPos + FW, y, STR_NO_TIMERS, 0);
+              if (attr)
+                repeatLastCursorHorMove(event);
+            }
             break;
           }
 #if defined(FUNCTION_SWITCHES)
           else if (func == FUNC_PUSH_CUST_SWITCH) {
-            maxParam = NUM_FUNCTIONS_SWITCHES - 1;
-            drawStringWithIndex(lcdNextPos +5, y, "SW", CFN_CS_INDEX(cfn) + 1, attr);
+            uint8_t sw = switchGetSwitchFromCustomIdx(CFN_CS_INDEX(cfn));
+            lcdDrawText(lcdNextPos + 5, y, switchGetDefaultName(sw), attr);
+            if (active) CFN_CS_INDEX(cfn) = switchGetCustomSwitchIdx(checkIncDec(event, sw, 0, switchGetMaxSwitches() - 1, eeFlags, switchIsCustomSwitch));
+            break;
           }
 #endif          
           else if (attr) {
-            repeatLastCursorMove(event);
+            repeatLastCursorHorMove(event);
           }
           if (active) CHECK_INCDEC_MODELVAR_ZERO(event, CFN_CH_INDEX(cfn), maxParam);
           break;
@@ -317,8 +326,12 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
           }
 #endif
           else if (func == FUNC_SET_TIMER) {
-            getMixSrcRange(MIXSRC_FIRST_TIMER, val_min, val_max);
-            drawTimer(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|LEFT, attr);
+            if (timersSetupCount() > 0) {
+              getMixSrcRange(MIXSRC_FIRST_TIMER, val_min, val_max);
+              drawTimer(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, val_displayed, attr|LEFT, attr);
+            } else if (attr) {
+              repeatLastCursorHorMove(event);
+            }
           }
 #if defined(AUDIO)
           else if (func == FUNC_PLAY_SOUND) {
@@ -326,6 +339,11 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             lcdDrawTextAtIndex(MODEL_SPECIAL_FUNC_3RD_COLUMN, y, STR_FUNCSOUNDS, val_displayed, attr);
           }
 #endif
+          else if (func == FUNC_SET_SCREEN) {
+            val_min = 0;
+            val_max = 4;
+            lcdDrawNumber(MODEL_SPECIAL_FUNC_3RD_COLUMN + 3*FW, y, val_displayed, attr|LEFT);
+          }
 #if defined(HAPTIC)
           else if (func == FUNC_HAPTIC) {
             val_max = 3;
@@ -338,7 +356,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               x = x - 5 * FW;
             else if (func == FUNC_PLAY_TRACK)
               x = x - 3 * FW;
-            else if (func == FUNC_BACKGND_MUSIC)
+            else if (func == FUNC_BACKGND_MUSIC || func == FUNC_RGB_LED)
               x = x - 2 * FW;
             if (ZEXIST(cfn->play.name))
               lcdDrawSizedText(x, y, cfn->play.name, sizeof(cfn->play.name), attr);
@@ -371,7 +389,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
             drawSource(MODEL_SPECIAL_FUNC_3RD_COLUMN - (val_displayed == 0 ? 0 : 2 * FW), y, val_displayed, attr);
             if (active) {
               INCDEC_SET_FLAG(eeFlags | INCDEC_SOURCE | INCDEC_SOURCE_INVERT);
-              INCDEC_ENABLE_CHECK(functionsContext == &globalFunctionsContext ? isSourceAvailableInGlobalFunctions : isSourceAvailable);
+              INCDEC_ENABLE_CHECK(isSourceAvailable);
             }
           }
           else if (func == FUNC_VOLUME) {
@@ -446,14 +464,15 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               s_editMode = !s_editMode;
               active = true;
               CFN_GVAR_MODE(cfn) += 1;
-              CFN_GVAR_MODE(cfn) &= 0x03;
+              if (CFN_GVAR_MODE(cfn) > FUNC_ADJUST_GVAR_INCDEC)
+                CFN_GVAR_MODE(cfn) = FUNC_ADJUST_GVAR_CONSTANT;
               val_displayed = 0;
             }
 #endif
           }
 #endif // GVARS
           else if (attr) {
-            repeatLastCursorMove(event);
+            repeatLastCursorHorMove(event);
           }
 #if defined(NAVIGATION_X7)
           if (active || event==EVT_KEY_LONG(KEY_ENTER)) {
@@ -482,7 +501,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
 
         case 4:
           if (HAS_REPEAT_PARAM(func)) {
-            if (func == FUNC_PLAY_SCRIPT) {
+            if (func == FUNC_PLAY_SCRIPT || func == FUNC_RGB_LED) {
               lcdDrawText(MODEL_SPECIAL_FUNC_4TH_COLUMN_ONOFF-3, y, (CFN_PLAY_REPEAT(cfn) == 0) ? "On" : "1x", attr);
               if (active) CFN_PLAY_REPEAT(cfn) = checkIncDec(event, CFN_PLAY_REPEAT(cfn), 0, 1, eeFlags);
             }
@@ -496,11 +515,15 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
               else {
                 lcdDrawNumber(MODEL_SPECIAL_FUNC_4TH_COLUMN+2+FW, y, CFN_PLAY_REPEAT(cfn)*CFN_PLAY_REPEAT_MUL, RIGHT | attr);
               }
-              if (active) CFN_PLAY_REPEAT(cfn) = checkIncDec(event, CFN_PLAY_REPEAT(cfn)==CFN_PLAY_REPEAT_NOSTART?-1:CFN_PLAY_REPEAT(cfn), -1, 60/CFN_PLAY_REPEAT_MUL, eeFlags);
+              if (active)
+                CFN_PLAY_REPEAT(cfn) = checkIncDec(event, CFN_PLAY_REPEAT(cfn)==CFN_PLAY_REPEAT_NOSTART?-1:CFN_PLAY_REPEAT(cfn),
+                                                   -1,
+                                                   (func == FUNC_SET_SCREEN ? 0 : 60/CFN_PLAY_REPEAT_MUL),
+                                                   eeFlags);
             }
           }
           else if (attr) {
-            repeatLastCursorMove(event);
+            repeatLastCursorHorMove(event);
           }
           break;
         

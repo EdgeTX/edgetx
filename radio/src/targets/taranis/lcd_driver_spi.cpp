@@ -35,9 +35,9 @@
   #include "edgetx.h"
 #endif
 
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
   #define LCD_CONTRAST_OFFSET            0
-#elif defined(RADIO_FAMILY_JUMPER_T12) || defined(MANUFACTURER_RADIOMASTER) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO) || defined(RADIO_T12MAX) || defined(RADIO_V12) || defined(RADIO_V14)
+#elif defined(RADIO_FAMILY_JUMPER_T12) || defined(MANUFACTURER_RADIOMASTER) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO) || defined(RADIO_T12MAX) || defined(RADIO_V14LCD)
   #define LCD_CONTRAST_OFFSET            -10
 #else
   #define LCD_CONTRAST_OFFSET            160
@@ -106,6 +106,14 @@ void lcdHardwareInit()
 
   NVIC_SetPriority(LCD_DMA_Stream_IRQn, 7);
   NVIC_EnableIRQ(LCD_DMA_Stream_IRQn);
+
+#if defined(OLED_VCC_CS)
+  gpio_init(OLED_VCC_CS, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+
+  // Coming from bootloader or EM, screen is already on
+  if (WAS_RESET_BY_WATCHDOG_OR_SOFTWARE())
+    gpio_set(OLED_VCC_CS);
+#endif
 }
 
 #if defined(SSD1309_LCD)
@@ -145,26 +153,17 @@ void lcdStart()
    lcdWriteCommand(0xA4);  // Disable Entire Display On
    lcdWriteCommand(0xA6);  // Set Normal Display (not inverted)
    lcdWriteCommand(0x2E);  // Deactivate scroll
+#if defined(OLED_VCC_CS)
+   delay_ms(100);
+   gpio_set(OLED_VCC_CS);
+#endif
 #else
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
   // T12 and TX12 have the screen inverted.
-  #if defined(RADIO_V12)
     lcdWriteCommand(0xe2); // (14) Soft reset
-    lcdWriteCommand(0xa0);  // Set seg
-    lcdWriteCommand(0xc8);  // Set com
-    lcdWriteCommand(0xf8);  // Set booster
-    lcdWriteCommand(0x00);  // 5x
-    lcdWriteCommand(0xa2); // Set bias=1/6
-    lcdWriteCommand(0x26);  // Set internal rb/ra=5.0
-    lcdWriteCommand(0x2f);  // All built-in power circuits on
-    lcdWriteCommand(0x81);  // Set contrast
-    lcdWriteCommand(0x1F);  // Set Vop
-    lcdWriteCommand(0xa6);  // Set display mode
-  #else  
-    lcdWriteCommand(0xe2); // (14) Soft reset
-#if defined(LCD_HORIZONTAL_INVERT)
+#if LCD_HORIZONTAL_INVERT
     lcdWriteCommand(0xa1); // Set seg
-#else 
+#else
     lcdWriteCommand(0xa0); // Set seg
 #endif
     lcdWriteCommand(0xc8); // Set com
@@ -177,9 +176,8 @@ void lcdStart()
     lcdWriteCommand(0x81); // Set contrast
     lcdWriteCommand(0x0A); // Set Vop
     lcdWriteCommand(0xa6); // Set display mode
-  #endif
 #else
-  #if defined(RADIO_V14)
+  #if defined(RADIO_V14LCD)
     lcdWriteCommand(0xe2); // (14) Soft reset
     lcdWriteCommand(0xa1); // Set seg
     lcdWriteCommand(0xc0);  // Set com
@@ -283,7 +281,7 @@ void lcdRefresh(bool wait)
 #else
     lcdWriteCommand(0x10); // Column addr 0
     lcdWriteCommand(0xB0 | y); // Page addr y
-#if !defined(LCD_VERTICAL_INVERT)
+#if !LCD_VERTICAL_INVERT
     lcdWriteCommand(0x04);
 #endif
 #endif
@@ -353,7 +351,12 @@ void lcdOff()
   to re-init LCD without any delay
   */
   lcdWriteCommand(0xAE); // LCD sleep
+#if defined(OLED_VCC_CS)
+  gpio_clear(OLED_VCC_CS);
+  delay_ms(100);
+#else
   delay_ms(3); // Wait for caps to drain
+#endif
 }
 
 void lcdReset()
@@ -436,7 +439,7 @@ void lcdSetRefVolt(uint8_t val)
   WAIT_FOR_DMA_END();
 #endif
 
-#if defined(RADIO_V12) || defined(RADIO_V14)
+#if defined(RADIO_V14LCD)
   lcdWriteCommand(0x81);                      // Set Vop
   lcdWriteCommand(val+LCD_CONTRAST_OFFSET+20);// 0-255
 #else

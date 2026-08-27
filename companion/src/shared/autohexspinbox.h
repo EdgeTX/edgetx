@@ -26,7 +26,7 @@
 #include <QSpinBox>
 #include <QString>
 
-class QRegExpValidator;
+class QRegularExpressionValidator;
 
 class AutoHexSpinBox : public QSpinBox, public AutoWidget
 {
@@ -39,6 +39,8 @@ class AutoHexSpinBox : public QSpinBox, public AutoWidget
     virtual ~AutoHexSpinBox();
 
     virtual void updateValue();
+    void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
+    void setBindText(std::function<QString()> fn) = delete;
 
     void setField(unsigned int & field, const unsigned int min = 0, const unsigned int max = AUTOHEXSPINBOX_MAX_VALUE, GenericPanel * panel = nullptr);
     void setField(unsigned int & field, GenericPanel * panel = nullptr);
@@ -57,6 +59,6 @@ class AutoHexSpinBox : public QSpinBox, public AutoWidget
 
   private:
     unsigned int *m_field;
-    QRegExpValidator *m_validator;
+    QRegularExpressionValidator *m_validator;
     unsigned int m_length;
 };

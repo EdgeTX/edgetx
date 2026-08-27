@@ -2,8 +2,9 @@
 project(generaledit)
 
 set(${PROJECT_NAME}_NAMES
-  calibration
   generaledit
+  generalfavorites
+  generalkeyshortcuts
   generaloptions
   generalsetup
   hardware
@@ -21,7 +22,7 @@ add_library(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
     ${CPN_COMMON_LIB}
-    Qt5::Multimedia
+    Qt::Multimedia
 )
 
 target_include_directories(${PROJECT_NAME}

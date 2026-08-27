@@ -73,14 +73,17 @@ class ModelListItem
 };
 
 
+#define MIME_HEADER_DATA_VERSION  2
+
 class ModelsListModel : public QAbstractItemModel
 {
     Q_OBJECT
 
   public:
     struct MimeHeaderData {
-      QUuid instanceId;
-      quint16 dataVersion;
+      QUuid instanceId{};
+      quint16 dataVersion{0};
+      Board::Type board{Board::BOARD_UNKNOWN};
     };
 
     ModelsListModel(RadioData * radioData, QObject *parent = nullptr);
@@ -115,17 +118,20 @@ class ModelsListModel : public QAbstractItemModel
     QMimeData * getHeaderMimeData(QMimeData * mimeData = nullptr) const;
     QMimeData * getFileMimeData(QMimeData * mimeData = nullptr) const;
     QUuid getMimeDataSourceId(const QMimeData * mimeData) const;
+    Board::Type getMimeDataBoard(const QMimeData * mimeData) const;
+
     bool hasSupportedMimeData(const QMimeData * mimeData) const;
     bool hasModelsMimeData(const QMimeData * mimeData) const;
     bool hasGeneralMimeData(const QMimeData * mimeData) const;
     bool hasHeaderMimeData(const QMimeData * mimeData) const;
     bool hasOwnMimeData(const QMimeData * mimeData) const;
     bool hasFileMimeData(const QMimeData * mimeData) const;
+    bool hasCompatibleBoardMimeData(const QMimeData * mimeData) const;
 
     static bool decodeFileData(const QMimeData * mimeData, QString * filedata);
     static bool decodeHeaderData(const QMimeData * mimeData, MimeHeaderData * header);
     static bool decodeMimeData(const QMimeData * mimeData, QVector<ModelData> * models = nullptr, GeneralSettings * gs = nullptr, bool * hasGenSet = nullptr);
-    static int countModelsInMimeData(const QMimeData * mimeData);
+    int countModelsInMimeData(const QMimeData * mimeData) const;
 
     QModelIndex getIndexForModel(const int modelIndex, QModelIndex parent = QModelIndex());
     int getModelIndex(const QModelIndex & index) const;

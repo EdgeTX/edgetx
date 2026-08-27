@@ -35,11 +35,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="minimum">
       <double>-99.000000000000000</double>
      </property>
@@ -55,11 +50,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="maximum">
       <double>13.199999999999999</double>
@@ -77,11 +67,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Fuel</string>
      </property>
@@ -89,11 +74,6 @@
    </item>
    <item row="7" column="1">
     <widget class="QCheckBox" name="enabled_rpm">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>RPM</string>
      </property>
@@ -107,11 +87,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>G</string>
      </property>
@@ -119,11 +94,6 @@
    </item>
    <item row="20" column="1">
     <widget class="QCheckBox" name="enabled_baro">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Baro</string>
      </property>
@@ -137,11 +107,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Tmp2</string>
      </property>
@@ -149,11 +114,6 @@
    </item>
    <item row="29" column="1">
     <widget class="QPushButton" name="button_gpsRunStop">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Run</string>
      </property>
@@ -166,11 +126,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>VSpd</string>
@@ -185,11 +140,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Hdg</string>
      </property>
@@ -197,11 +147,6 @@
    </item>
    <item row="13" column="2">
     <widget class="QLabel" name="label_tmp2_unit">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>°C</string>
      </property>
@@ -214,11 +159,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="minimum">
       <number>0</number>
@@ -239,11 +179,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>G</string>
      </property>
@@ -257,11 +192,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>V</string>
      </property>
@@ -269,11 +199,6 @@
    </item>
    <item row="34" column="1">
     <widget class="QDateTimeEdit" name="input_date">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="12" column="1">
@@ -283,11 +208,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="minimum">
       <number>0</number>
@@ -302,11 +222,6 @@
    </item>
    <item row="34" column="0">
     <widget class="QLabel" name="label_date">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Date</string>
      </property>
@@ -319,11 +234,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>m/s</string>
@@ -338,11 +248,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>RPM</string>
      </property>
@@ -356,11 +261,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>A2</string>
      </property>
@@ -373,11 +273,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="maximum">
       <number>255</number>
@@ -395,11 +290,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="minimum">
       <double>-99.000000000000000</double>
      </property>
@@ -416,11 +306,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>AccX</string>
      </property>
@@ -428,11 +313,6 @@
    </item>
    <item row="35" column="1">
     <widget class="QCheckBox" name="enabled_accel">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Accel</string>
      </property>
@@ -440,11 +320,6 @@
    </item>
    <item row="14" column="1">
     <widget class="QCheckBox" name="enabled_battery">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Batt</string>
      </property>
@@ -457,11 +332,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>GAlt</string>
@@ -476,11 +346,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>A1</string>
      </property>
@@ -488,11 +353,6 @@
    </item>
    <item row="11" column="1">
     <widget class="QCheckBox" name="enabled_temps">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Temp</string>
      </property>
@@ -505,11 +365,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>RSSI</string>
@@ -537,11 +392,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="maximum">
       <double>13.199999999999999</double>
      </property>
@@ -558,11 +408,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>VFAS</string>
      </property>
@@ -570,11 +415,6 @@
    </item>
    <item row="12" column="2">
     <widget class="QLabel" name="label_tmp1_unit">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>°C</string>
      </property>
@@ -587,11 +427,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>RPM</string>
@@ -606,11 +441,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Tmp1</string>
      </property>
@@ -624,11 +454,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>%</string>
      </property>
@@ -641,11 +466,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="decimals">
       <number>1</number>
@@ -663,11 +483,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Alt</string>
      </property>
@@ -681,11 +496,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>AccZ</string>
      </property>
@@ -693,11 +503,6 @@
    </item>
    <item row="32" column="2">
     <widget class="QLabel" name="label_hdg_unit">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Degrees</string>
      </property>
@@ -711,11 +516,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>m</string>
      </property>
@@ -723,11 +523,6 @@
    </item>
    <item row="6" column="1">
     <widget class="QSpinBox" name="input_tqly">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="value">
       <number>74</number>
      </property>
@@ -741,11 +536,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Curr</string>
      </property>
@@ -753,11 +543,6 @@
    </item>
    <item row="5" column="1">
     <widget class="QSpinBox" name="input_rqly">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="value">
       <number>98</number>
      </property>
@@ -765,11 +550,6 @@
    </item>
    <item row="9" column="1">
     <widget class="QCheckBox" name="enabled_fuel">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Fuel</string>
      </property>
@@ -777,11 +557,6 @@
    </item>
    <item row="21" column="1">
     <widget class="QDoubleSpinBox" name="input_vspd">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
     </widget>
    </item>
    <item row="16" column="2">
@@ -791,11 +566,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>A</string>
@@ -810,11 +580,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>m</string>
      </property>
@@ -827,11 +592,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="decimals">
       <number>1</number>
@@ -849,11 +609,6 @@
    </item>
    <item row="45" column="1">
     <widget class="QPushButton" name="button_loadTelemetryValues">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Load Telemetry Values</string>
      </property>
@@ -861,11 +616,6 @@
    </item>
    <item row="44" column="1">
     <widget class="QPushButton" name="button_saveTelemetryValues">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Save Telemetry Values</string>
      </property>
@@ -878,11 +628,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>GSpd</string>
@@ -897,11 +642,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="value">
       <double>31.000000000000000</double>
      </property>
@@ -914,11 +654,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="maximum">
       <double>49.640000000000001</double>
@@ -933,11 +668,6 @@
    </item>
    <item row="28" column="1">
     <widget class="QCheckBox" name="enabled_gps">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>GPS</string>
      </property>
@@ -950,11 +680,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>knots</string>
@@ -969,11 +694,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>Lat,Lon
 (dec.deg.)</string>
@@ -985,11 +705,6 @@
    </item>
    <item row="31" column="1">
     <widget class="QDoubleSpinBox" name="input_gspd">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="decimals">
       <number>1</number>
      </property>
@@ -1009,11 +724,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>G</string>
      </property>
@@ -1021,11 +731,6 @@
    </item>
    <item row="29" column="0">
     <widget class="QLabel" name="label_gps_sim">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>GPS Sim</string>
      </property>
@@ -1038,11 +743,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="text">
       <string>V</string>
@@ -1057,11 +757,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>GPS</string>
      </property>
@@ -1074,11 +769,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="maximum">
       <number>30000</number>
@@ -1099,11 +789,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>V</string>
      </property>
@@ -1111,11 +796,6 @@
    </item>
    <item row="30" column="1">
     <widget class="QLineEdit" name="input_gps">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>25.9973,-97.1572</string>
      </property>
@@ -1128,11 +808,6 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="minimum">
       <double>-99.000000000000000</double>
@@ -1150,11 +825,6 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>AccY</string>
      </property>
@@ -1167,11 +837,6 @@
        <horstretch>1</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
      </property>
      <property name="minimum">
       <number>0</number>
@@ -1186,11 +851,6 @@
    </item>
    <item row="4" column="1">
     <widget class="QSpinBox" name="input_trss">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="minimum">
       <number>0</number>
      </property>
@@ -1207,11 +867,6 @@
    </item>
    <item row="32" column="1">
     <widget class="QDoubleSpinBox" name="input_hdg">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="maximum">
       <double>360.000000000000000</double>
      </property>
@@ -1222,11 +877,6 @@
    </item>
    <item row="3" column="1">
     <widget class="QCheckBox" name="enabled_multi">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>MultiModule</string>
      </property>
@@ -1234,11 +884,6 @@
    </item>
    <item row="4" column="0">
     <widget class="QLabel" name="label_trss">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>TRSS</string>
      </property>
@@ -1246,11 +891,6 @@
    </item>
    <item row="5" column="0">
     <widget class="QLabel" name="label_rqly">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>RQly</string>
      </property>
@@ -1258,11 +898,6 @@
    </item>
    <item row="6" column="0">
     <widget class="QLabel" name="label_tqly">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>TQly</string>
      </property>
@@ -1270,11 +905,6 @@
    </item>
    <item row="4" column="2">
     <widget class="QLabel" name="label_trss_unit">
-     <property name="font">
-      <font>
-       <pointsize>8</pointsize>
-      </font>
-     </property>
      <property name="text">
       <string>dB</string>
      </property>

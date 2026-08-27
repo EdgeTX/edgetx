@@ -21,13 +21,14 @@
 
 #include "edgetx.h"
 #include "mlink.h"
+#include "sensor_names.h"
 
 struct MLinkSensor
 {
   const uint16_t id;
   const TelemetryUnit unit;
   const uint8_t precision;
-  const char * name;
+  const char* name;
 };
 
 // clang-format off

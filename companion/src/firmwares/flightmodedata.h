@@ -25,12 +25,15 @@
 #include "rawswitch.h"
 
 #include <QtCore>
+#include <QComboBox>
 
 class RadioDataConversionState;
+class AbstractStaticItemModel;
+class Firmware;
 
 #define FLIGHTMODE_NAME_LEN  10
-#define RENC_MAX_VALUE       1024
-#define RENC_MIN_VALUE       -RENC_MAX_VALUE
+
+constexpr char AIM_FLIGHTMODEDATA_GVARFM[]  {"flightmodedata.gvarfm"};
 
 class FlightModeData {
   Q_DECLARE_TR_FUNCTIONS(FlightModeData)
@@ -45,7 +48,6 @@ class FlightModeData {
     char name[FLIGHTMODE_NAME_LEN + 1];
     unsigned int fadeIn;
     unsigned int fadeOut;
-    int rotaryEncoders[CPN_MAX_ENCODERS];
     int gvars[CPN_MAX_GVARS];
 
     void convert(RadioDataConversionState & cstate);
@@ -53,8 +55,9 @@ class FlightModeData {
     bool isEmpty(int phaseIdx) const;
     QString nameToString(int phaseIdx) const;
     bool isGVarEmpty(int phaseIdx, int gvIdx) const;
-    bool isREncEmpty(int phaseIdx, int reIdx) const;
     int linkedFlightModeZero(int phaseIdx, int maxOwnValue) const;
     int linkedGVarFlightModeZero(int phaseIdx) const;
-    int linkedREncFlightModeZero(int phaseIdx) const;
+    static AbstractStaticItemModel * gvarModesItemModel(int excludeMode);
+    static QString modeAbbrev();
+    static QString modeName();
 };

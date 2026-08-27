@@ -20,17 +20,17 @@
  */
 
 #include "crossfire_settings.h"
+
 #include "edgetx.h"
-
+#include "getset_helpers.h"
 #include "mixer_scheduler.h"
-
 #include "telemetry/crossfire.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
                                      uint8_t moduleIdx) :
-    Window(parent, rect_t{}), md(&g_model.moduleData[moduleIdx])
+    Window(parent, rect_t{}), md(&g_model.moduleData[moduleIdx]), moduleIdx(moduleIdx)
 {
   FlexGridLayout grid(g);
   setFlexLayout();
@@ -39,7 +39,7 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
     auto line = newLine(grid);
     new StaticText(line, rect_t{}, STR_BAUDRATE);
     new Choice(
-        line, rect_t{}, STR_CRSF_BAUDRATE, 0, CROSSFIRE_MAX_INTERNAL_BAUDRATE,
+        line, rect_t{}, STR_CRSF_BAUDRATE, 0, CROSSFIRE_MAX_EXTERNAL_BAUDRATE,
         [=]() -> int {
           return CROSSFIRE_STORE_TO_INDEX(md->crsf.telemetryBaudrate);
         },
@@ -64,4 +64,37 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
     snprintf(msg, 64, "%d Hz", 1000000 / getMixerSchedulerRealPeriod(moduleIdx));
     return std::string(msg);
   });
+
+  auto armingLine = newLine(grid);
+  lblArmMode = new StaticText(armingLine, rect_t{}, STR_CRSF_ARMING_MODE);
+  auto box = new Window(armingLine, rect_t{});
+  box->padAll(PAD_TINY);
+  box->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
+  choArmMode = new Choice(box, rect_t{}, STR_CRSF_ARMING_MODES, 0, 1, GET_SET_DEFAULT(md->crsf.crsfArmingMode));
+  choArmSwitch = new SwitchChoice(box, rect_t{}, SWSRC_FIRST, SWSRC_LAST, GET_SET_DEFAULT(md->crsf.crsfArmingTrigger));
+  choArmSwitch->setAvailableHandler([=](int sw) { return isSwitchAvailableForArming(sw); });
+
+  update();
+}
+
+void CrossfireSettings::update() {
+    if(CRSF_ELRS_MIN_VER(moduleIdx, 4, 0)) {
+      lblArmMode->show();
+      choArmMode->show();
+
+      if(md->crsf.crsfArmingMode == ARMING_MODE_SWITCH)
+        choArmSwitch->show();
+      else
+        choArmSwitch->hide();
+    } else {
+      lblArmMode->hide();
+      choArmMode->hide();
+      choArmSwitch->hide();
+    }
+}
+
+void CrossfireSettings::checkEvents() {
+  update();
+
+  Window::checkEvents();
 }

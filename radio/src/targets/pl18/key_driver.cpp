@@ -28,8 +28,9 @@
 #include "delays_driver.h"
 #include "keys.h"
 
-/* The output bit-order has to be:
-   0  LHL  TR7L (Left equals down)
+/* The output bit-order has to be (D = L, U = R):
+           PL18/PL18EV    
+   0  LHL  TR7L
    1  LHR  TR7R
    2  LVD  TR5D
    3  LVU  TR5U
@@ -49,22 +50,22 @@
 
 enum PhysicalTrims
 {
-    TR7L = 0,
-    TR7R,
-    TR5D = 2,
-    TR5U,
-    TR6D = 4,
-    TR6U,
-    TR8L = 6,
-    TR8R,
-    TR1D = 8,
-    TR1U,
-    TR2D = 10,
-    TR2U,
-    TR3D = 12,
-    TR3U,
-    TR4D = 14,
-    TR4U,
+  TR7L = 0,
+  TR7R,
+  TR5D = 2,
+  TR5U,
+  TR6D = 4,
+  TR6U,
+  TR8L = 6,
+  TR8R,
+  TR1D = 8,
+  TR1U,
+  TR2D = 10,
+  TR2U,
+  TR3D = 12,
+  TR3U,
+  TR4D = 14,
+  TR4U,
 };
 
 void keysInit()
@@ -79,7 +80,7 @@ void keysInit()
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
   pinInit.Mode = LL_GPIO_MODE_INPUT;
-  pinInit.Pull = LL_GPIO_PULL_DOWN;
+  pinInit.Pull = LL_GPIO_PULL_NO;
 
   pinInit.Pin = KEYS_GPIOB_PINS;
   LL_GPIO_Init(GPIOB, &pinInit);
@@ -98,7 +99,7 @@ void keysInit()
 
   // Matrix outputs
   pinInit.Mode = LL_GPIO_MODE_OUTPUT;
-  pinInit.Pull = LL_GPIO_PULL_NO;
+  pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
 
   pinInit.Pin = KEYS_OUT_GPIOG_PINS;
   LL_GPIO_Init(GPIOG, &pinInit);
@@ -112,19 +113,6 @@ static uint32_t _readKeyMatrix()
     // This function avoids concurrent matrix agitation
 
     uint32_t result = 0;
-    /* Bit  0 - TR3 down
-     * Bit  1 - TR3 up
-     * Bit  2 - TR4 down
-     * Bit  3 - TR4 up
-     * Bit  4 - TR5 down
-     * Bit  5 - TR5 up
-     * Bit  6 - TR6 down
-     * Bit  7 - TR6 up
-     * Bit  8 - TR7 left
-     * Bit  9 - TR7 right
-     * Bit 10 - TR8 left
-     * Bit 11 - TR8 right
-     */
 
     volatile static struct
     {
@@ -144,7 +132,6 @@ static uint32_t _readKeyMatrix()
     LL_GPIO_ResetOutputPin(TRIMS_GPIO_OUT1, TRIMS_GPIO_OUT1_PIN);
     LL_GPIO_SetOutputPin(TRIMS_GPIO_OUT2, TRIMS_GPIO_OUT2_PIN);
     LL_GPIO_SetOutputPin(TRIMS_GPIO_OUT3, TRIMS_GPIO_OUT3_PIN);
-    LL_GPIO_SetOutputPin(TRIMS_GPIO_OUT4, TRIMS_GPIO_OUT4_PIN);
     delay_us(10);
     if (~TRIMS_GPIO_REG_IN1 & TRIMS_GPIO_PIN_IN1)
        result |= 1 << TR7L;

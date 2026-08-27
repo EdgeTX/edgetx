@@ -21,14 +21,14 @@
 
 #include "widgets_setup.h"
 
-#include "layer.h"
 #include "menu.h"
-#include "menu_screen.h"
 #include "myeeprom.h"
 #include "storage/storage.h"
 #include "etx_lv_theme.h"
 #include "view_main.h"
 #include "widget_settings.h"
+#include "pagegroup.h"
+#include "screen_setup.h"
 
 SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
                                            WidgetsContainer* container,
@@ -41,7 +41,7 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
       menu->addLine(STR_SELECT_WIDGET,
                     [=]() { addNewWidget(container, slotIndex); });
       auto widget = container->getWidget(slotIndex);
-      if (widget->getOptions() && widget->getOptions()->name)
+      if (widget->hasOptions())
         menu->addLine(STR_WIDGET_SETTINGS,
                       [=]() { new WidgetSettings(widget); });
       menu->addLine(STR_REMOVE_WIDGET,
@@ -56,13 +56,6 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
   etx_obj_add_style(lvobj, styles->border, LV_STATE_FOCUSED);
   etx_obj_add_style(lvobj, styles->border_color[COLOR_THEME_FOCUS_INDEX], LV_STATE_FOCUSED);
 
-  lv_style_init(&borderStyle);
-  lv_style_set_line_width(&borderStyle, 2);
-  lv_style_set_line_opa(&borderStyle, LV_OPA_COVER);
-  lv_style_set_line_dash_width(&borderStyle, 2);
-  lv_style_set_line_dash_gap(&borderStyle, 2);
-  lv_style_set_line_color(&borderStyle, makeLvColor(COLOR_THEME_SECONDARY2));
-
   borderPts[0] = {1, 1};
   borderPts[1] = {(lv_coord_t)(width() - 1), 1};
   borderPts[2] = {(lv_coord_t)(width() - 1), (lv_coord_t)(height() - 1)};
@@ -70,7 +63,8 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
   borderPts[4] = {1, 1};
 
   border = lv_line_create(lvobj);
-  lv_obj_add_style(border, &borderStyle, LV_PART_MAIN);
+  etx_obj_add_style(border, styles->border_dash_line, LV_PART_MAIN);
+  etx_obj_add_style(border, styles->line_color[COLOR_THEME_SECONDARY2_INDEX], LV_PART_MAIN);
   lv_line_set_points(border, borderPts, 5);
 
   setFocusState();
@@ -81,7 +75,6 @@ SetupWidgetsPageSlot::SetupWidgetsPageSlot(Window* parent, const rect_t& rect,
 void SetupWidgetsPageSlot::setFocusState()
 {
   if (hasFocus()) {
-    bringToTop();
     lv_obj_add_flag(border, LV_OBJ_FLAG_HIDDEN);
   } else {
     lv_obj_clear_flag(border, LV_OBJ_FLAG_HIDDEN);
@@ -103,7 +96,7 @@ void SetupWidgetsPageSlot::addNewWidget(WidgetsContainer* container,
     menu->addLine(factory->getDisplayName(), [=]() {
       container->createWidget(slotIndex, factory);
       auto widget = container->getWidget(slotIndex);
-      if (widget->getOptions() && widget->getOptions()->name)
+      if (widget->hasOptions())
         new WidgetSettings(widget);
     });
     if (cur && strcmp(cur, factory->getDisplayName()) == 0)
@@ -116,9 +109,9 @@ void SetupWidgetsPageSlot::addNewWidget(WidgetsContainer* container,
 }
 
 SetupWidgetsPage::SetupWidgetsPage(uint8_t customScreenIdx) :
-    Window(ViewMain::instance(), rect_t{}), customScreenIdx(customScreenIdx)
+    NavWindow(ViewMain::instance(), rect_t{}), customScreenIdx(customScreenIdx)
 {
-  Layer::push(this);
+  pushLayer();
 
   // attach this custom screen here so we can display it
   auto screen = customScreens[customScreenIdx];
@@ -151,12 +144,17 @@ void SetupWidgetsPage::onClicked()
   // block event forwarding (window is transparent)
 }
 
-void SetupWidgetsPage::onCancel() { deleteLater(); }
-
-void SetupWidgetsPage::deleteLater(bool detach, bool trash)
+void SetupWidgetsPage::onCancel()
 {
-  // restore screen setting tab on top
-  Layer::pop(this);
+  deleteLater();
+  QuickMenu::openPage((QMPage)(QM_UI_SCREEN1 + customScreenIdx));
+}
+
+void SetupWidgetsPage::deleteLater()
+{
+  if (_deleted) return;
+
+  Window::deleteLater();
 
   // and continue async deletion...
   auto screen = customScreens[customScreenIdx];
@@ -165,25 +163,6 @@ void SetupWidgetsPage::deleteLater(bool detach, bool trash)
     viewMain->setCurrentMainView(savedView);
     viewMain->showTopBarEdgeTxButton();
   }
-  Window::deleteLater(detach, trash);
-  new ScreenMenu(customScreenIdx + 1);
 
   storageDirty(EE_MODEL);
-}
-
-void SetupWidgetsPage::onEvent(event_t event)
-{
-#if defined(HARDWARE_KEYS)
-  if (event == EVT_KEY_FIRST(KEY_PAGEUP) ||
-      event == EVT_KEY_FIRST(KEY_PAGEDN) || event == EVT_KEY_FIRST(KEY_SYS) ||
-      event == EVT_KEY_FIRST(KEY_MODEL)) {
-    killEvents(event);
-  } else if (event == EVT_KEY_FIRST(KEY_TELE)) {
-    onCancel();
-  } else {
-    Window::onEvent(event);
-  }
-#else
-  Window::onEvent(event);
-#endif
 }

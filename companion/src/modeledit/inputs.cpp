@@ -391,41 +391,53 @@ void InputsPanel::expoAdd()
   gm_openExpo(index);
 }
 
+QAction * InputsPanel::addAct(const QString & icon, const QString & text, const char * slot, const QKeySequence & shortcut, bool enabled)
+{
+  QAction * newAction = new QAction(this);
+  newAction->setMenuRole(QAction::NoRole);
+  newAction->setText(text);
+  newAction->setIcon(CompanionIcon(icon));
+  newAction->setShortcut(shortcut);
+  newAction->setEnabled(enabled);
+  connect(newAction, SIGNAL(triggered()), this, slot);
+  return newAction;
+}
+
 void InputsPanel::expolistWidget_customContextMenuRequested(QPoint pos)
 {
   QPoint globalPos = ExposlistWidget->mapToGlobal(pos);
 
   const QClipboard *clipboard = QApplication::clipboard();
   const QMimeData *mimeData = clipboard->mimeData();
-  bool hasData = mimeData->hasFormat(MIMETYPE_EXPO);
+  bool hasClipData = mimeData->hasFormat(MIMETYPE_EXPO);
 
   selectedIdx = getIndexFromSelected();
   inputIdx = getInputIndexFromSelected();
 
   QMenu contextMenu;
   QMenu *contextMenuLines = contextMenu.addMenu(tr("Lines"));
-  contextMenuLines->addAction(CompanionIcon("add.png"), tr("&Add"), this, SLOT(expoAdd()), tr("Ctrl+A"));
-  contextMenuLines->addAction(CompanionIcon("edit.png"), tr("&Edit"), this, SLOT(expoOpen()), tr("Enter"));
+  contextMenuLines->addAction(addAct("add.png",           tr("&Add"),       SLOT(expoAdd()),          tr("Ctrl+A")));
+  contextMenuLines->addAction(addAct("edit.png",          tr("&Edit"),      SLOT(expoOpen()),         tr("Enter")));
   contextMenuLines->addSeparator();
-  contextMenuLines->addAction(CompanionIcon("clear.png"), tr("&Delete"), this, SLOT(exposDelete()), tr("Delete"));
-  contextMenuLines->addAction(CompanionIcon("copy.png"), tr("&Copy"), this, SLOT(exposCopy()), tr("Ctrl+C"));
-  contextMenuLines->addAction(CompanionIcon("cut.png"), tr("&Cut"), this, SLOT(exposCut()), tr("Ctrl+X"));
-  contextMenuLines->addAction(CompanionIcon("paste.png"), tr("&Paste"), this, SLOT(exposPaste()), tr("Ctrl+V"))->setEnabled(hasData);
-  contextMenuLines->addAction(CompanionIcon("duplicate.png"), tr("Du&plicate"), this, SLOT(exposDuplicate()), tr("Ctrl+U"));
+  contextMenuLines->addAction(addAct("clear.png",         tr("&Delete"),    SLOT(exposDelete()),      tr("Delete")));
+  contextMenuLines->addAction(addAct("copy.png",          tr("&Copy"),      SLOT(exposCopy()),        tr("Ctrl+C")));
+  contextMenuLines->addAction(addAct("cut.png",           tr("&Cut"),       SLOT(exposCut()),         tr("Ctrl+X")));
+  contextMenuLines->addAction(addAct("paste.png",         tr("&Paste"),     SLOT(exposPaste()),       tr("Ctrl+V"),     hasClipData));
+  contextMenuLines->addAction(addAct("duplicate.png",     tr("Du&plicate"), SLOT(exposDuplicate()),   tr("Ctrl+U")));
   contextMenuLines->addSeparator();
-  contextMenuLines->addAction(CompanionIcon("moveup.png"), tr("Move Up"), this, SLOT(moveExpoUp()), tr("Ctrl+Up"));
-  contextMenuLines->addAction(CompanionIcon("movedown.png"), tr("Move Down"), this, SLOT(moveExpoDown()), tr("Ctrl+Down"));
+  contextMenuLines->addAction(addAct("moveup.png",        tr("Move Up"),    SLOT(moveExpoUp()),       tr("Ctrl+Up")));
+  contextMenuLines->addAction(addAct("movedown.png",      tr("Move Down"),  SLOT(moveExpoDown()),     tr("Ctrl+Down")));
 
   QMenu *contextMenuInputs = contextMenu.addMenu(tr("Input"));
-  contextMenuInputs->addAction(CompanionIcon("arrow-right.png"), tr("Insert"), this, SLOT(cmInputInsert()))->setEnabled(cmInputInsertAllowed());
-  contextMenuInputs->addAction(CompanionIcon("arrow-left.png"), tr("Delete"), this, SLOT(cmInputDelete()));
-  contextMenuInputs->addAction(CompanionIcon("moveup.png"), tr("Move Up"), this, SLOT(cmInputMoveUp()))->setEnabled(cmInputMoveUpAllowed());
-  contextMenuInputs->addAction(CompanionIcon("movedown.png"), tr("Move Down"), this, SLOT(cmInputMoveDown()))->setEnabled(cmInputMoveDownAllowed());
+  contextMenuInputs->addAction(addAct("arrow-right.png",  tr("Insert"),     SLOT(cmInputInsert()),    0,                cmInputInsertAllowed()));
+  contextMenuInputs->addAction(addAct("arrow-left.png",   tr("Delete"),     SLOT(cmInputDelete()),    0));
+  contextMenuInputs->addAction(addAct("moveup.png",       tr("Move Up"),    SLOT(cmInputMoveUp()),    0,                cmInputMoveUpAllowed()));
+  contextMenuInputs->addAction(addAct("movedown.png",     tr("Move Down"),  SLOT(cmInputMoveDown()),  0,                cmInputMoveDownAllowed()));
   contextMenuInputs->addSeparator();
-  contextMenuInputs->addAction(CompanionIcon("clear.png"), tr("Clear"), this, SLOT(cmInputClear()))->setEnabled(isExpoIndex(selectedIdx));
+  contextMenuInputs->addAction(addAct("clear.png",        tr("Clear"),      SLOT(cmInputClear()),     0,                isExpoIndex(selectedIdx)));
 
   contextMenu.addSeparator();
-  contextMenu.addAction(CompanionIcon("clear.png"), tr("Clear All"), this, SLOT(clearExpos()));
+  contextMenu.addAction(addAct(       "clear.png",        tr("Clear All"),  SLOT(clearExpos())));
   contextMenu.addSeparator();
   contextMenu.addActions(ExposlistWidget->actions());
   contextMenu.exec(globalPos);
@@ -656,41 +668,15 @@ void InputsPanel::cmInputSwapData(int idx1, int idx2)
 {
   if (idx1 >= idx2 || (!model->hasExpos(idx1) && !model->hasExpos(idx2)))
     return;
-  //  save expos
-  int expoidx = -1;
-  QVector<ExpoData> edtmp;
-  int i;
-  for (i = 0; i < CPN_MAX_EXPOS; i++) {
+
+  for (int i = 0; i < CPN_MAX_EXPOS; i++) {
     ExpoData *ed = &model->expoData[i];
-    if ((int)ed->chn == idx1) {
-      edtmp << model->expoData[i];
-      if (expoidx < 0)
-        expoidx = i;
+    if (!ed->isEmpty()) {
+      if ((int)ed->chn == idx1)
+        ed->chn = idx2;
+      else if ((int)ed->chn == idx2)
+        ed->chn = idx1;
     }
-    else if ((int)ed->chn > idx1)
-      break;
-  }
-  //  move expos up
-  const int offset = i - expoidx;
-  int expocnt = 0;
-  for (int j = i; j < CPN_MAX_EXPOS; j++) {
-    ExpoData *ed = &model->expoData[j];
-    if ((int)ed->chn == idx2) {
-      ExpoData *dest = &model->expoData[j - offset];
-      memcpy(dest, &model->expoData[j], sizeof(ExpoData));
-      dest->chn = idx1;
-      expocnt++;
-    }
-    else if ((int)ed->chn > idx2)
-      break;
-  }
-  //  copy back saved expos
-  int cnt = 0;
-  foreach (ExpoData ed, edtmp) {
-    ExpoData *dest = &model->expoData[expoidx + expocnt + cnt];
-    memcpy(dest, &ed, sizeof(ExpoData));
-    dest->chn = idx2;
-    cnt++;
   }
 
   //  swap names
@@ -698,6 +684,7 @@ void InputsPanel::cmInputSwapData(int idx1, int idx2)
   strncpy(model->inputNames[idx2], model->inputNames[idx1], sizeof(model->inputNames[idx2]) - 1);
   strncpy(model->inputNames[idx1], tname->data(), sizeof(model->inputNames[idx1]) - 1);
 
+  model->sortInputs();
   model->updateAllReferences(ModelData::REF_UPD_TYPE_INPUT, ModelData::REF_UPD_ACT_SWAP, idx1, idx2);
   update();
   updateItemModels();

@@ -131,7 +131,7 @@ void MixersListWidget::dropEvent(QDropEvent * event)
     else {
       event->acceptProposedAction();
     }
-    dropMimeData(indexAt(event->pos()).row(), event->mimeData(), event->dropAction());
+    dropMimeData(indexAt(event->position().toPoint()).row(), event->mimeData(), event->dropAction());
   }
 }
 

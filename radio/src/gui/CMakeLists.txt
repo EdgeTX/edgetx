@@ -7,6 +7,7 @@ if(NOT GUI_DIR STREQUAL colorlcd)
     gui/navigation/common.cpp
     gui/navigation/navigation.cpp
     )
+  include_directories(gui gui/common/stdlcd)
 endif()
 
 set(SRC
