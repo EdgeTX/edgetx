@@ -254,6 +254,9 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 // S.Port update connector
 #define HAS_SPORT_UPDATE_CONNECTOR()    (false)
 
+// Internal CRSF module defaults to 1.87M
+#define DEFAULT_INT_CROSSFIRE_BR_IDX    3
+
 // Telemetry
  #define TELEMETRY_SET_INPUT             0
  #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOA, 9)

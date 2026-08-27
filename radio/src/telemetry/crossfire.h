@@ -166,6 +166,11 @@ const uint8_t CROSSFIRE_FRAME_PERIODS[] = {
         % DIM(CROSSFIRE_BAUDRATES)
 #endif
 
+// index into CROSSFIRE_BAUDRATES used for a factory-fresh internal module
+#if !defined(DEFAULT_INT_CROSSFIRE_BR_IDX)
+  #define DEFAULT_INT_CROSSFIRE_BR_IDX  2   // 921k
+#endif
+
 #if defined(CROSSFIRE)
 #define CRSF_ELRS_MIN_VER(moduleIdx, maj, min) \
         (crossfireModuleStatus[moduleIdx].isELRS \
