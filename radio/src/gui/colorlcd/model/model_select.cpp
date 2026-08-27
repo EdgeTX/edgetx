@@ -689,14 +689,8 @@ void ModelLabelsWindow::newLabel()
   new LabelDialog(tmpLabel, LABEL_LENGTH, STR_ENTER_LABEL, [=](std::string label) {
     int newlabindex = modelslabels.addLabel(label);
     if (newlabindex >= 0) {
-      std::set<uint32_t> newset;
-      newset.insert(newlabindex);
       auto labels = getLabels();
       lblselector->setNames(labels);
-      lblselector->setSelected(newset);
-      if (g_eeGeneral.labelSingleSelect)
-        lblselector->setActiveItem(newlabindex);
-      updateFilteredLabels(newset);
     }
   });
 }
@@ -894,8 +888,12 @@ void ModelLabelsWindow::buildBody(Window *window)
                 std::set<uint32_t> newset;
                 lblselector->setNames(labels);
                 lblselector->setSelected(newset);
-                if (g_eeGeneral.labelSingleSelect && selected == lblselector->getActiveItem())
-                  lblselector->setActiveItem(-1);
+                if (g_eeGeneral.labelSingleSelect) {
+                  if (selected == lblselector->getActiveItem())
+                    lblselector->setActiveItem(-1);
+                  else
+                    newset.insert(lblselector->getActiveItem());
+                }
                 mdlselector->clearButtons();
                 updateFilteredLabels(newset);
               });
