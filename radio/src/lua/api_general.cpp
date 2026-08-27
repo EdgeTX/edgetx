@@ -2906,15 +2906,20 @@ static int luaGetTrainerStatus(lua_State * L)
 
 #if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
 /*luadoc
-@function setRGBLedColor(id, rvalue, bvalue, cvalue)
+@function setRGBLedColor(id, rvalue, gvalue, bvalue)
 
-@param id: integer identifying a led in the led chain
+Set the color of a decorative ("bling") LED, or of an unused custom-function-switch LED.
 
-@param rvalue: interger, value of red channel
+@param id: integer LED index. 0 .. BLING_LED_STRIP_LENGTH-1 are decorative LEDs
+  (`LED_STRIP_LENGTH` is an alias for that count). Further indices address unused
+  custom function switch LEDs and are rejected if that switch is configured.
+  Use setCFSLedColor() to override a configured function-switch LED.
 
-@param gvalue: interger, value of green channel
+@param rvalue: integer, value of red channel
 
-@param bvalue: interger, value of blue channel
+@param gvalue: integer, value of green channel
+
+@param bvalue: integer, value of blue channel
 
 @retval: true if LED index is valid, false otherwise
 
@@ -3294,6 +3299,7 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( FUNC_BACKLIGHT, FUNC_BACKLIGHT )
   LROT_NUMENTRY( FUNC_SCREENSHOT, FUNC_SCREENSHOT )
   LROT_NUMENTRY( FUNC_RACING_MODE, FUNC_RACING_MODE )
+  LROT_NUMENTRY( FUNC_RGB_LED, FUNC_RGB_LED )
 #if defined(FUNCTION_SWITCHES)
   LROT_NUMENTRY( FUNC_PUSH_CUST_SWITCH, FUNC_PUSH_CUST_SWITCH )
 #endif
@@ -3353,7 +3359,12 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( PLAY_BACKGROUND, PLAY_BACKGROUND )
   LROT_NUMENTRY( TIMEHOUR, TIMEHOUR )
 #if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
-  LROT_NUMENTRY( LED_STRIP_LENGTH, BLING_LED_STRIP_LENGTH + CFS_LED_STRIP_LENGTH )
+  // LED_STRIP_LENGTH matches the Lua index space of setRGBLedColor() for
+  // decorative LEDs (index 0 is the first bling LED). CFS LEDs are separate
+  // and should be driven with setCFSLedColor().
+  LROT_NUMENTRY( LED_STRIP_LENGTH, BLING_LED_STRIP_LENGTH )
+  LROT_NUMENTRY( BLING_LED_STRIP_LENGTH, BLING_LED_STRIP_LENGTH )
+  LROT_NUMENTRY( CFS_LED_STRIP_LENGTH, CFS_LED_STRIP_LENGTH )
 #endif
   LROT_NUMENTRY( UNIT_RAW, UNIT_RAW )
   LROT_NUMENTRY( UNIT_VOLTS, UNIT_VOLTS )
