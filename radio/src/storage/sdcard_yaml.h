@@ -25,7 +25,7 @@ enum class ChecksumResult {Success, Failed, None};
 
 struct YamlParserCalls;
 
-constexpr uint8_t MODELIDX_STRLEN = sizeof(MODEL_FILENAME_PREFIX "00");
+constexpr uint8_t MODELIDX_STRLEN = sizeof(MODEL_FILENAME_PREFIX "000");
 
 const char * loadRadioSettingsYaml(bool checks);
 const char * writeModelYaml(const char* filename);
