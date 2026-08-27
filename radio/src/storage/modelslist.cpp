@@ -358,8 +358,8 @@ int ModelMap::addLabel(std::string lbl)
   if (lbl == STR_UNLABELEDMODEL) return -1;
 
   // Limit maximum label length, TODO... Truncate UTF8 Properly
-  lbl = lbl.substr(0, LABEL_LENGTH);
   removeYAMLChars(lbl);
+  lbl = lbl.substr(0, LABEL_LENGTH);
   if (lbl.size() == 0) return -1;
 
   // Add a new label if it doesn't already exist in the list
