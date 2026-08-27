@@ -7,7 +7,6 @@ option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
-option(INTERNAL_GPS "Support for internal GPS" ON)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
@@ -27,7 +26,6 @@ set(HARDWARE_EXTERNAL_MODULE YES)
 set(INTERNAL_MODULE_AFHDS3 NO)
 set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
-set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
 
 # IMU support
 set(IMU ON)
@@ -72,7 +70,7 @@ add_definitions(
   -DSTM32H750XBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
   -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
-  -DWS2812_MAX_LEDS=36
+  -DWS2812_MAX_LEDS=26
 )
 
 set(SDRAM ON)
@@ -91,13 +89,6 @@ endif()
 if(DISK_CACHE)
   set(SRC ${SRC} disk_cache.cpp)
   add_definitions(-DDISK_CACHE)
-endif()
-
-if(INTERNAL_GPS)
-  message("-- Internal GPS enabled")
-  add_definitions(-DINTERNAL_GPS)
-  set(SRC ${SRC} gps.cpp gps_nmea.cpp gps_ubx.cpp)
-  add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 endif()
 
 if(FUNCTION_SWITCHES_WITH_RGB)
