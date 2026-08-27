@@ -27,6 +27,8 @@
 #include "dataconstants.h"
 #include <string.h>
 
+#include "pulses/modules_helpers.h"
+
 bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 {
 #if !defined(SIMU)
