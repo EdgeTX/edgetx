@@ -93,7 +93,7 @@ I18N_PLAY_FUNCTION(pt, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
       PLAY_NUMBER(qr.quot, 0, 0);
       PUSH_NUMBER_PROMPT(PT_PROMPT_VIRGULA);
       if (mode == 2 && rem2) {
-	PLAY_NUMBER(qr.rem, 0, 0);
+        PLAY_NUMBER(qr.rem, 0, 0);
         PLAY_NUMBER(rem2, unit, 0);
       } else {
         PLAY_NUMBER(qr.rem, unit, 0);

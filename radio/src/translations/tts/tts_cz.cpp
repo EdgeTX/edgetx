@@ -85,9 +85,8 @@ I18N_PLAY_FUNCTION(cz, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
         PUSH_NUMBER_PROMPT(CZ_PROMPT_CELYCH);
       };
       PLAY_NUMBER(qr.rem, 0, FEMALE);
-      // TODO: make sure this is correct for CZ
       if (mode == 2 && rem2) {
-        PLAY_NUMBER(rem2, 0, 0);
+        PLAY_NUMBER(rem2, 0, FEMALE);
       }
       PUSH_UNIT_PROMPT(unit, 3);
       return;
