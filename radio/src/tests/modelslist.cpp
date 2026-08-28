@@ -198,8 +198,6 @@ static size_t modelFileSize(const char* modelFilename)
 // model file.
 TEST(ModelsList, WriteModelLabelsPreservesBodySize)
 {
-  ModelMap map;
-
   const char* fileA = "wml_test_a.yml";
   const char* fileB = "wml_test_b.yml";
 
@@ -219,8 +217,8 @@ TEST(ModelsList, WriteModelLabelsPreservesBodySize)
   ModelCell cellA(fileA);
   ModelCell cellB(fileB);
 
-  EXPECT_TRUE(map.writeModelLabels(&cellA, "NewLabel"));
-  EXPECT_TRUE(map.writeModelLabels(&cellB, "NewLabel"));
+  EXPECT_TRUE(cellA.writeModelLabels("NewLabel"));
+  EXPECT_TRUE(cellB.writeModelLabels("NewLabel"));
 
   size_t sizeA = modelFileSize(fileA);
   size_t sizeB = modelFileSize(fileB);
@@ -235,13 +233,12 @@ TEST(ModelsList, WriteModelLabelsPreservesBodySize)
 
 TEST(ModelsList, WriteModelLabelsFailsCleanlyWithoutHeader)
 {
-  ModelMap map;
   const char* file = "wml_test_noheader.yml";
 
   writeRawModelFile(file, "notheader:\n  foo: bar\n");
   ModelCell cell(file);
 
-  EXPECT_FALSE(map.writeModelLabels(&cell, "NewLabel"));
+  EXPECT_FALSE(cell.writeModelLabels("NewLabel"));
 
   std::filesystem::remove(simuFatfsGetRealPath(std::string(MODELS_PATH) + "/" + file));
 }

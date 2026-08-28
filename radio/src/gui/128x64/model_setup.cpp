@@ -2039,11 +2039,7 @@ void menuModelSetup(event_t event)
                 else if (event == EVT_KEY_LONG(KEY_ENTER)) {
                   killEvents(event);
                   uint8_t newVal = 0;
-#if defined(STORAGE_MODELSLIST)
-                  newVal = modelslist.findNextUnusedModelId(moduleIdx);
-#else
                   newVal = findNextUnusedModelId(g_eeGeneral.currModel, moduleIdx);
-#endif
                   if (newVal != g_model.header.modelId[moduleIdx]) {
                     modelHeaders[g_eeGeneral.currModel].modelId[moduleIdx] = g_model.header.modelId[moduleIdx] = newVal;
                     storageDirty(EE_MODEL);
