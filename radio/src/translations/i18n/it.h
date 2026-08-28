@@ -214,12 +214,12 @@
 #define TR_CSWSTAY                      "Edge"
 
 #define TR_SF_TRAINER                  "Maestro"
-#define TR_SF_INST_TRIM                "Inst. Trim"
+#define TR_SF_INST_TRIM                "Instant Trim"
 #define TR_SF_RESET                    "Azzera"
 #define TR_SF_SET_TIMER                "Set"
 #define TR_SF_VOLUME                   "Volume"
-#define TR_SF_FAILSAFE                 "SetFailsafe"
-#define TR_SF_RANGE_CHECK              "RangeCheck"
+#define TR_SF_FAILSAFE                 "Set Failsafe"
+#define TR_SF_RANGE_CHECK              "Range Check"
 #define TR_SF_MOD_BIND                 "BindModulo"
 #define TR_SF_RGBLEDS                  "Leds RGB"
 

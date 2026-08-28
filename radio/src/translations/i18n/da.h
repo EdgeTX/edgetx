@@ -216,7 +216,7 @@
 #define TR_CSWSTAY                     "Edge"
 
 #define TR_SF_TRAINER                  "Træner"
-#define TR_SF_INST_TRIM                "Inst. Trim"
+#define TR_SF_INST_TRIM                "Fast trim"
 #define TR_SF_RESET                    "Nulstil"
 #define TR_SF_SET_TIMER                "Sæt"
 #define TR_SF_VOLUME                   "Lydstyrke"
@@ -240,7 +240,7 @@
 #define TR_SF_SAFETY                   TR("Overs.", "Overskriv")
 
 #define TR_SF_SCREENSHOT               "Skærm klip"
-#define TR_SF_RACING_MODE              "Ræs tilstand"
+#define TR_SF_RACING_MODE              TR("Ræs til.", "Ræs tilstand")
 #define TR_SF_DISABLE_TOUCH            "Ikke berøringsaktiv"
 #define TR_SF_DISABLE_KEYS             "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP        TR("Sluk audio amp", "Sluk audio amplifier")
