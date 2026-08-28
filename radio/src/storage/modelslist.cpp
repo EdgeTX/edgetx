@@ -61,14 +61,6 @@ ModelCell::ModelCell(const char *fileName) : valid_rfData(false)
   modelFilename[sizeof(modelFilename) - 1] = '\0';
 }
 
-ModelCell::ModelCell(const char *fileName, uint8_t len) : valid_rfData(false)
-{
-  if (len > sizeof(modelFilename) - 1) len = sizeof(modelFilename) - 1;
-
-  memcpy(modelFilename, fileName, len);
-  modelFilename[len] = '\0';
-}
-
 void ModelCell::setModelName(char *name)
 {
   strncpy(modelName, name, LEN_MODEL_NAME);
@@ -80,26 +72,6 @@ void ModelCell::setModelName(char *name)
     tmp = (char *)memchr(modelName, '.', LEN_MODEL_NAME);
     if (tmp != nullptr) *tmp = 0;
   }
-}
-
-void ModelCell::setModelName(char *name, uint8_t len)
-{
-  if (len > LEN_MODEL_NAME - 1) len = LEN_MODEL_NAME - 1;
-
-  memcpy(modelName, name, len);
-  modelName[len] = '\0';
-
-  if (modelName[0] == '\0') {
-    char *tmp;
-    strncpy(modelName, modelFilename, LEN_MODEL_NAME);
-    tmp = (char *)memchr(modelName, '.', LEN_MODEL_NAME);
-    if (tmp != nullptr) *tmp = 0;
-  }
-}
-
-void ModelCell::setModelId(uint8_t moduleIdx, uint8_t id)
-{
-  modelId[moduleIdx] = id;
 }
 
 void ModelCell::setRfData(ModelHeader *header, ModuleData* modData)
@@ -170,41 +142,6 @@ ModelsVector ModelMap::getModelsByLabel(const std::string &lbl)
   for (auto it = begin(); it != end(); ++it) {
     if (it->first == index) rv.push_back(it->second);
   }
-  sortModelsBy(rv, _sortOrder);
-  return rv;
-}
-
-/**
- * @brief Returns all models that are in multiple labels (OR function)
- *
- * @param lbls Labels to search
- * @return ModelsVector aka vector<ModelCell*> of all models belonging to a
- * label
- */
-
-ModelsVector ModelMap::getModelsByLabels(const LabelsVector &lbls)
-{
-  bool addunlabeled = false;
-  // Build a list of the requested indexes
-  std::vector<int> idxvect;
-  for (const auto &lbl : lbls) {
-    if (lbl == STR_UNLABELEDMODEL) addunlabeled = true;
-    int index = getIndexByLabel(lbl);
-    if (index >= 0) idxvect.push_back(index);
-  }
-
-  ModelsVector rv;
-  for (auto it = begin(); it != end(); ++it) {
-    for (auto idx : idxvect) {
-      if (it->first == idx) rv.push_back(it->second);
-    }
-  }
-
-  if (addunlabeled) {
-    ModelsVector unlabeled = getUnlabeledModels();
-    rv.insert(rv.end(), unlabeled.begin(), unlabeled.end());
-  }
-
   sortModelsBy(rv, _sortOrder);
   return rv;
 }
@@ -1106,99 +1043,18 @@ bool ModelsList::loadYaml()
     f_closedir(&moddir);
   }
 
-  // Check if models.yml exists
-  // Any files found above that are not listed in the file will be moved into
-  // /MDOELS/UNUSED and removed from the discovered file hash list
-  char line[LEN_MODELS_IDX_LINE + 1];
-  FILINFO fno;
   FRESULT result;
-  bool foundInModels = f_stat(MODELSLIST_YAML_PATH, &fno) == FR_OK;
-  bool foundInRadio = f_stat(FALLBACK_MODELSLIST_YAML_PATH, &fno) == FR_OK;
-
-  if(foundInModels) { // Default to /Models copy
-    result = f_open(&file, MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
-  } else if (foundInRadio) {
-    result = f_open(&file, FALLBACK_MODELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
-  }
-  if((foundInModels || foundInRadio) && result == FR_OK) {
-    // Create /Models/Unused if it doesn't exist
-    bool moveRequired = false;
-    DIR unusedFolder;
-    FRESULT result = f_opendir(&unusedFolder, UNUSED_MODELS_PATH);
-    if (result != FR_OK) {
-      if (result == FR_NO_PATH) result = f_mkdir(UNUSED_MODELS_PATH);
-      if (result != FR_OK) {
-        TRACE("Unable to create unused models folder");
-        f_close(&file);
-        return false;
-      }
-    } else f_closedir(&unusedFolder);
-
-    YamlParser ymp;
-    std::vector<std::string> modfiles;
-    void *ctx = get_modelslist_iter(&modfiles);
-    ymp.init(get_modelslist_parser_calls(), ctx);
-    UINT bytes_read = 0;
-    while (f_read(&file, line, sizeof(line), &bytes_read) == FR_OK) {
-      if (bytes_read == 0) break;
-      if (f_eof(&file)) ymp.set_eof();
-      if (ymp.parse(line, bytes_read) != YamlParser::CONTINUE_PARSING) break;
-    }
-    f_close(&file);
-
-    // Loop through file hases, move any files found that don't exists to /unused
-    std::vector<filedat> newFileHash;
-    for(const auto &fhas: fileHashInfo) {
-      bool found = false;
-      for(const auto &file : modfiles) {
-        if (file == fhas.name) {
-          TRACE_LABELS("Found file %s in models.yml.. OK!", file);
-          found = true;
-          break;
-        }
-      }
-      if(!found) {
-        moveRequired = true;
-        TRACE_LABELS("Model %s not in models.yml, moving to /UNUSED", fhas.name.c_str());
-        // Move model into unused folder.
-        const char *warning = sdMoveFile(fhas.name.c_str(), MODELS_PATH, fhas.name.c_str(), UNUSED_MODELS_PATH);
-        if(warning)
-          POPUP_WARNING(warning);
-      } else {
-        newFileHash.push_back(fhas); // File exists, keep it
-      }
-    }
-
-    if(foundInRadio) {
-      const char *warning = sdMoveFile(MODELS_FILENAME, RADIO_PATH, MODELS_FILENAME ".old", UNUSED_MODELS_PATH);
-      if(warning)
-        POPUP_WARNING(warning);
-    }
-    if(foundInModels) { // Will overwrite the copy from /radio if both existed, do last
-      const char *warning = sdMoveFile(MODELS_FILENAME, MODELS_PATH, MODELS_FILENAME ".old", UNUSED_MODELS_PATH);
-      if(warning)
-        POPUP_WARNING(warning);
-    }
-    if(moveRequired) {
-      fileHashInfo = newFileHash; // Update the new file list
-      std::string s(STR_MODELS_MOVED);
-      s += "\n";
-      s += UNUSED_MODELS_PATH;
-      s += "\n";
-      s += STR_PRESS_ANY_KEY_TO_SKIP;
-      POPUP_WARNING(s.c_str());
-    }
-  }
 
 #if defined(DEBUG_TIMERS)
   DEBUG_TIMER_SAMPLE(debugTimerYamlScan);
-  TRACE("Lables: Time to scan models folder %luus",
+  TRACE("Labels: Time to scan models folder %luus",
         debugTimers[debugTimerYamlScan].getLast());
 #endif
 
   // Scan labels.yml
   result = f_open(&file, LABELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
   if (result == FR_OK) {
+    char line[32];
     YamlParser yp;
     void *ctx = get_labelslist_iter();
     yp.init(get_labelslist_parser_calls(), ctx);
@@ -1476,31 +1332,6 @@ bool ModelsList::removeModel(ModelCell *model)
   // Free memory
   delete(model);
 
-  return false;
-}
-
-/**
- * @brief Moves a model in the list for customization of order
- *
- * @param curindex Index of the model to move
- * @param toindex Destination index of the model
- * @return true Failure
- * @return false Success
- */
-
-bool ModelsList::moveModelTo(unsigned curindex, unsigned toindex)
-{
-  if (curindex == toindex || curindex >= size() || toindex >= size())
-    return true;
-
-  if (curindex < toindex) {  // Move forward
-    std::rotate(rend() - curindex - 1, rend() - curindex, rend() - toindex);
-  } else {  // Move back
-    std::rotate(begin() + curindex, begin() + curindex + 1,
-                begin() + toindex + 1);
-  }
-
-  modelslabels.setDirty();
   return false;
 }
 

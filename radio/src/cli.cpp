@@ -937,44 +937,6 @@ int cliTestMemorySpeed()
 }
 #endif
 
-#if defined(DEBUG_MODELSLIST)
-#include "modelslist.h"
-using std::list;
-
-int cliTestModelsList()
-{
-  ModelsList modList;
-  modList.load();
-
-  int count = 0;
-
-  cliSerialPrint("Starting fetching RF data 100x...");
-  const uint32_t start = time_get_ms();
-
-  const list<ModelsCategory *> &cats = modList.getCategories();
-  while (1) {
-    for (list<ModelsCategory *>::const_iterator cat_it = cats.begin();
-         cat_it != cats.end(); ++cat_it) {
-      for (ModelsCategory::iterator mod_it = (*cat_it)->begin();
-           mod_it != (*cat_it)->end(); mod_it++) {
-        if (!(*mod_it)->fetchRfData()) {
-          cliSerialPrint("Error while fetching RF data...");
-          return 0;
-        }
-
-        if (++count >= 100) goto done;
-      }
-    }
-  }
-
-done:
-  cliSerialPrint("Done fetching %ix RF data: %lu ms", count,
-              (time_get_ms() - start));
-
-  return 0;
-}
-#endif
-
 #endif  // #if defined(COLORLCD)
 
 #if defined(DEBUG)
@@ -992,11 +954,6 @@ int cliTest(const char ** argv)
 #if defined(DEBUG_RAM)
   else if (!strcmp(argv[1], "memspd")) {
     return cliTestMemorySpeed();
-  }
-#endif
-#if defined(DEBUG_MODELSLIST)
-  else if (!strcmp(argv[1], "modelslist")) {
-    return cliTestModelsList();
   }
 #endif
 #endif
