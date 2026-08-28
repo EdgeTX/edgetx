@@ -21,13 +21,12 @@
 
 #include "mixer_scheduler.h"
 #include "tasks/mixer_task.h"
+#include "edgetx.h"
 #include "hal/usb_driver.h"
 #include "os/sleep.h"
 
 #include "dataconstants.h"
 #include <string.h>
-
-#include "pulses/modules_helpers.h"
 
 bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 {
