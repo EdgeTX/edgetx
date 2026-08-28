@@ -114,7 +114,7 @@ void storageCheck(bool immediately)
   if (storageDirtyMsk & EE_LABELS) {
     if (retryLabelsCount < retryLimit) {
       TRACE("SD card write labels");
-      const char * error = modelslist.save();
+      const char * error = modelCellManager.save();
       if (error) {
         TRACE("writeLabels error=%s", error);
         retryLabelsCount += 1;
@@ -137,7 +137,7 @@ void storageCheck(bool immediately)
       TRACE("SD card write model settings");
       const char * error = writeModel();
 #if defined(STORAGE_MODELSLIST)
-      modelslist.updateCurrentModelCell();
+      modelCellManager.updateCurrentModelCell();
 #endif
       if (error) {
         TRACE("writeModel error=%s", error);
@@ -206,7 +206,7 @@ void storageReadAll()
 #if defined(STORAGE_MODELSLIST)
   // Wipe models list in case
   // it's being reloaded after USB connection
-  modelslist.clear();
+  modelCellManager.clear();
 #endif
 
   // Some radio defaults overriden by config loading:
@@ -245,7 +245,7 @@ void storageReadAll()
 
 #if defined(STORAGE_MODELSLIST)
   // and reload the list
-  modelslist.load();
+  modelCellManager.load();
 
   // Current model filename is empty...
   // Let's fix it!

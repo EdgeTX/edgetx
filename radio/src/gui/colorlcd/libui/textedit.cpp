@@ -74,10 +74,21 @@ class TextArea : public FormField
     cancelHandler = std::move(handler);
   }
 
+  void setExcludedChars(std::string& excludedChars) {
+    if (excludedChars.size() > 0) {
+      for (char c = ' '; c < '~'; c += 1) {
+        if (excludedChars.find(c) == std::string::npos)
+          allowedChars += c;
+      }
+      lv_textarea_set_accepted_chars(lvobj, allowedChars.c_str());
+    }
+  }
+
  protected:
   char* value;
   uint8_t length;
   std::function<void(void)> cancelHandler = nullptr;
+  std::string allowedChars;
 
   void trim()
   {
@@ -165,6 +176,8 @@ void TextEdit::openEdit()
       lv_group_focus_obj(lvobj);
       edit->hide();
     });
+    if (excludedChars.size() > 0)
+      edit->setExcludedChars(excludedChars);
   }
   edit->update();
   edit->show();

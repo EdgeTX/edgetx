@@ -409,7 +409,9 @@ void getModelNumberStr(uint8_t idx, char* model_idx)
 const char * writeModel()
 {
 #if defined(STORAGE_MODELSLIST)
-  return writeModelYaml(g_eeGeneral.currModelFilename);
+  auto rv = writeModelYaml(g_eeGeneral.currModelFilename);
+  modelCellManager.getCurrentModel()->updateFinfoHash();
+  return rv;
 #else
   char fname[MODELIDX_STRLEN + sizeof(YAML_EXT)];
   getModelNumberStr(g_eeGeneral.currModel, fname);

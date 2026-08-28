@@ -56,7 +56,7 @@ class ModelMapFsTest : public ::testing::Test
   void SetUp() override
   {
     scratchDir = fs::temp_directory_path() /
-                 fs::path("edgetx-gtest-modelslist-labels");
+                 fs::path("edgetx-gtest-modelCellManager-labels");
     std::error_code ec;
     fs::remove_all(scratchDir, ec);
     fs::create_directories(scratchDir / "MODELS", ec);
@@ -64,15 +64,13 @@ class ModelMapFsTest : public ::testing::Test
 
     simuFatfsSetPaths(scratchDir.string().c_str(), nullptr);
 
-    modelslist.clear();
-    modelslabels.clear();
+    modelCellManager.clear();
     memclear(&g_model, sizeof(g_model));
   }
 
   void TearDown() override
   {
-    modelslist.clear();
-    modelslabels.clear();
+    modelCellManager.clear();
 
     simuFatfsSetPaths(TESTS_PATH, nullptr);
 
@@ -117,20 +115,20 @@ TEST_F(ModelMapFsTest, RenamingLabelOnOtherModelLeavesActiveScreenDataUntouched)
   // Seed a second, non-active model on disk with a label and screen/topbar
   // data distinct from the active model's.
   writeFixtureModel("model0002.yml", "Foo", "OtherLayout", "OtherWidget");
-  ModelCell* other = modelslist.addModel("model0002.yml", false);
+  ModelCell* other = modelCellManager.addModel("model0002.yml", false);
   ASSERT_NE(other, nullptr);
-  ASSERT_FALSE(modelslabels.addLabelToModel("Foo", other, false));
+  ASSERT_FALSE(modelCellManager.addLabelToModel("Foo", other, false));
 
   // Now "load" the active model: register its cell and mark it current, and
   // set its screen/topbar data to its own values.
-  ModelCell* active = modelslist.addModel("model0001.yml", false);
+  ModelCell* active = modelCellManager.addModel("model0001.yml", false);
   ASSERT_NE(active, nullptr);
-  modelslist.setCurrentModel(active);
+  modelCellManager.setCurrentModel(active);
   g_model.getScreenData(0)->LayoutId = "ActiveLayout";
   g_model.getTopbarData()->zones[0].widgetName = "ActiveWidget";
 
   // Rename a label that only exists on the other, non-active model.
-  modelslabels.renameLabel("Foo", "Bar");
+  modelCellManager.renameLabel("Foo", "Bar");
 
   // The active model's screen/topbar data must be unaffected by editing an
   // unrelated model's labels.
@@ -151,18 +149,18 @@ TEST_F(ModelMapFsTest,
        AddingLabelToOtherModelWithFileUpdateLeavesActiveScreenDataUntouched)
 {
   writeFixtureModel("model0002.yml", "", "OtherLayout", "OtherWidget");
-  ModelCell* other = modelslist.addModel("model0002.yml", false);
+  ModelCell* other = modelCellManager.addModel("model0002.yml", false);
   ASSERT_NE(other, nullptr);
 
-  ModelCell* active = modelslist.addModel("model0001.yml", false);
+  ModelCell* active = modelCellManager.addModel("model0001.yml", false);
   ASSERT_NE(active, nullptr);
-  modelslist.setCurrentModel(active);
+  modelCellManager.setCurrentModel(active);
   g_model.getScreenData(0)->LayoutId = "ActiveLayout";
   g_model.getTopbarData()->zones[0].widgetName = "ActiveWidget";
 
   // update=true drives ModelMap::updateModelFile(), the second call site
   // that reads/writes a non-active model's file on disk.
-  EXPECT_FALSE(modelslabels.addLabelToModel("Baz", other, true));
+  EXPECT_FALSE(modelCellManager.addLabelToModel("Baz", other, true));
 
   EXPECT_STREQ(g_model.getScreenData(0)->LayoutId.c_str(), "ActiveLayout");
   EXPECT_STREQ(g_model.getTopbarData()->zones[0].widgetName.c_str(),

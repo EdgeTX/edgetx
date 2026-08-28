@@ -173,7 +173,8 @@ void ConfirmDialog::onCancel()
 //-----------------------------------------------------------------------------
 
 LabelDialog::LabelDialog(const char *label, int length, const char* title,
-            std::function<void(std::string)> _saveHandler) :
+            std::function<void(std::string)> _saveHandler,
+            const char* excludedChars) :
     ModalWindow(false), saveHandler(std::move(_saveHandler))
 {
   strncpy(this->label, label, std::min(length, MAX_LABEL_LENGTH));
@@ -197,7 +198,9 @@ LabelDialog::LabelDialog(const char *label, int length, const char* title,
   lv_obj_set_flex_align(box->getLvObj(), LV_FLEX_ALIGN_CENTER,
                         LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
 
-  new TextEdit(box, rect_t{0, 0, LV_PCT(100), 0}, this->label, length);
+  auto edit = new TextEdit(box, rect_t{0, 0, LV_PCT(100), 0}, this->label, length);
+  if (excludedChars)
+    edit->setExcludedCharacters(excludedChars);
 
   box = new Window(form, rect_t{});
   box->padAll(PAD_MEDIUM);
