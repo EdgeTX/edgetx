@@ -41,8 +41,9 @@ on:
     paths: *trigger-paths
   workflow_dispatch:
 
-# These jobs only ever report - they must never block a contributor who does not
-# have the local toolchain, so nothing here fails on drift.
+# These jobs fail on drift so it's visible on the PR, but none of them are
+# configured as required status checks - a contributor without the local
+# toolchain can still merge.
 permissions:
   contents: read
   pull-requests: read
