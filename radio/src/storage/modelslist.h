@@ -21,66 +21,25 @@
 
 #pragma once
 
-#include <stdint.h>
-
 #include <algorithm>
 #include <functional>
 #include <list>
-#include <map>
 #include <set>
 #include <string>
-#include <sstream>
 #include <vector>
 
 #include "sdcard.h"
 
-#include "dataconstants.h"
 #include "rtc.h"
 
 #define DEFAULT_MODEL_SORT NAME_ASC
 
+// Characters not (currently) allowed in labels
+constexpr const char* labelExcludedChars = "\\\":'-";
+
 struct ModelHeader;
 struct ModuleData;
 
-struct SimpleModuleData {
-  uint8_t type = 0;
-  uint8_t subType = 0;
-};
-
-typedef struct PACKED {
-  FSIZE_t fsize; /* File size */
-  WORD fdate;    /* Modified date */
-  WORD ftime;    /* Modified time */
-} FInfoH;
-
-#define FILE_HASH_LENGTH (sizeof(FInfoH) * 2)  // Hex string output
-
-class ModelCell
-{
- public:
-  char modelFilename[LEN_MODEL_FILENAME + 1] = "";
-  char modelName[LEN_MODEL_NAME + 1] = "";
-  char modelFinfoHash[FILE_HASH_LENGTH + 1] = "";
-#if LEN_BITMAP_NAME > 0
-  char modelBitmap[LEN_BITMAP_NAME + 1] = "";
-#endif
-  gtime_t lastOpened = 0;
-  bool _isDirty = true;
-
-  bool valid_rfData;
-  uint8_t modelId[NUM_MODULES] = {0, 0};
-  SimpleModuleData moduleData[NUM_MODULES];
-
-  explicit ModelCell(const char *fileName);
-
-  void setModelName(char *name);
-  void setRfData(ModelHeader *header, ModuleData* moduleData);
-
-  void setRfModuleData(uint8_t moduleIdx, ModuleData *modData);
-};
-
-typedef std::vector<std::string> LabelsVector;
-typedef std::vector<ModelCell *> ModelsVector;
 typedef enum {
   NO_SORT,
   NAME_ASC,
@@ -90,116 +49,98 @@ typedef enum {
   SORT_COUNT
 } ModelsSortBy;
 
-/**
- * @brief ModelMap is a multimap of all models and their cooresponding
- *        labels. Lables are referenced by index, stored in var labels
- */
+struct SimpleModuleData {
+  uint8_t type = 0;
+  uint8_t subType = 0;
+};
 
-class ModelMap : protected std::multimap<uint16_t, ModelCell *>
+// Must match start of the FILINFO struct
+typedef struct PACKED {
+  FSIZE_t fsize; /* File size */
+  WORD fdate;    /* Modified date */
+  WORD ftime;    /* Modified time */
+} FInfoH;
+
+#define FILE_HASH_LENGTH (sizeof(FInfoH) * 2)  // Hex string output
+
+typedef std::vector<std::string> LabelsVector;
+
+struct LabelsMap
 {
  public:
-  ModelsVector getUnlabeledModels();
-  ModelsVector getAllModels();
-  ModelsVector getModelsByLabel(const std::string &);
-  ModelsVector getModelsInLabels(const LabelsVector &lbls);
-  LabelsVector getLabelsByModel(ModelCell *);
-  std::map<std::string, bool> getSelectedLabels(ModelCell *);
-  bool isLabelSelected(const std::string &, ModelCell *);
+  LabelsMap() {}
+
+  void addLabel(uint8_t idx);
+  void removeLabel(uint8_t idx);
+  bool deleteLabel(uint8_t idx);
+  void moveLabelUp(uint8_t idx);
+  bool hasLabel(uint8_t idx);
   LabelsVector getLabels();
-  int addLabel(std::string lbl);
-  bool addLabelToModel(const std::string &, ModelCell *, bool update = false);
-  bool removeLabelFromModel(const std::string &label, ModelCell *,
-                            bool update = false);
-  bool removeLabel(
-      const std::string &,
-      std::function<void(const char *file, int progress)> progress = nullptr);
-  bool moveLabelTo(unsigned current, unsigned newind);
-  bool renameLabel(const std::string &from, std::string to,
-      std::function<void(const char *file, int progress)> progress = nullptr);
-  std::string getCurrentLabel() { return currentlabel; };
-  std::string getBulletLabelString(ModelCell *, const char *noresults = "");
-  void setDirty(bool save = false);
-  void resetDirty() { _isDirty = false; }
-  bool isDirty() { return _isDirty; }
-
-  // Currently selected labels in the GUI
-  void setFilteredLabels(std::set<uint32_t> filtlbls)
-  {
-    this->filtlbls = std::move(filtlbls);
-  }
-  void clearFilter() { filtlbls.clear(); }
-  void addFilteredLabel(const std::string &lbl);
-  bool isLabelFiltered(const std::string &lbl);
-  std::set<uint32_t> filteredLabels() { return filtlbls; }
-
-  void setSortOrder(ModelsSortBy sortby);
-  ModelsSortBy sortOrder() {return _sortOrder;}
-
-  static std::string toCSV(const LabelsVector &labels);
-  static LabelsVector fromCSV(const char *str);
-  static void escapeCSV(std::string &str);
-  static void unEscapeCSV(std::string &str);
-  static void removeYAMLChars(std::string &str);
-
-  void clear()
-  {
-    _isDirty = true;
-    labels.clear();
-    std::multimap<uint16_t, ModelCell *>::clear();
-  }
-
-  void updateModelCell(ModelCell *);
-  bool removeModels(ModelCell *);
-
-  bool writeModelLabels(ModelCell*, const char*);
 
  protected:
-  ModelsSortBy _sortOrder = DEFAULT_MODEL_SORT;
-  bool _isDirty = true;
-  std::set<uint32_t> filtlbls;
-  std::string currentlabel = "";
-
-  bool updateModelFile(ModelCell *);
-  void sortModelsBy(ModelsVector &mv, ModelsSortBy sortby);
-
-  int getIndexByLabel(const std::string &str)
-  {
-    auto a = std::find(labels.begin(), labels.end(), str);
-    return a == labels.end() ? -1 : a - labels.begin();
-  }
-
-  std::string getLabelByIndex(uint16_t index)
-  {
-    if (index < (uint16_t)labels.size())
-      return labels.at(index);
-    else
-      return std::string();
-  }
-
- private:
-  LabelsVector labels;  // Storage space for discovered labels
+  std::vector<uint16_t> labelMap;
 };
+
+class ModelCell
+{
+ public:
+  ModelCell(const char *fileName);
+
+  char modelFilename[LEN_MODEL_FILENAME + 1] = "";
+  char modelName[LEN_MODEL_NAME + 1] = "";
+  char modelFinfoHash[FILE_HASH_LENGTH + 1] = "";
+#if LEN_BITMAP_NAME > 0
+  char modelBitmap[LEN_BITMAP_NAME + 1] = "";
+#endif
+  gtime_t lastOpened = 0;
+  bool _isDirty = true;
+  bool valid_rfData = false;
+  uint8_t modelId[NUM_MODULES] = {0, 0};
+  SimpleModuleData moduleData[NUM_MODULES];
+
+  void setModelName(const char *name);
+  void setRfData(ModelHeader *header, ModuleData* moduleData);
+
+  void addLabel(uint8_t idx);
+  void removeLabel(uint8_t idx);
+  void deleteLabel(uint8_t idx);
+  void moveLabelUp(uint8_t idx);
+  bool hasLabel(uint8_t idx) { return labelsMap.hasLabel(idx); }
+  bool hasLabel(const std::string& label);
+
+  void updateModelFile();
+  void updateModelCell();
+  void updateFinfoHash();
+
+  void duplicateFrom(ModelCell* src);
+
+  bool writeModelLabels(const char*);
+
+  LabelsVector getLabels() { return labelsMap.getLabels(); }
+
+  std::string getBulletLabelString(const char *noresults = "");
+
+ protected:
+  LabelsMap labelsMap;
+};
+
+typedef std::vector<ModelCell *> ModelsVector;
 
 class ModelsList : public ModelsVector
 {
-  bool loaded;
-
-  ModelCell *currentModel;
-
-  void init();
-
  public:
   ModelsList();
   ~ModelsList();
 
   bool load();
-  const char *save(LabelsVector newOrder=LabelsVector());
+  const char *save();
   void clear();
 
   void setCurrentModel(ModelCell *cell);
   void updateCurrentModelCell();
 
-  ModelCell *getCurrentModel() const { return currentModel; }
+  ModelCell* getCurrentModel() const { return currentModel; }
+  ModelCell* getModel(const char* filename);
 
   ModelCell *addModel(const char *name, bool save = true, ModelCell *copyCell = nullptr);
   bool removeModel(ModelCell *model);
@@ -207,19 +148,43 @@ class ModelsList : public ModelsVector
   bool isModelIdUnique(uint8_t moduleIdx, char *warn_buf, size_t warn_buf_len);
   uint8_t findNextUnusedModelId(uint8_t moduleIdx);
 
-  typedef struct _filedat {
-    std::string name;
-    char hash[FILE_HASH_LENGTH + 1];
-    bool curmodel = false;
-    bool celladded = false;
-  } filedat;
-  std::vector<filedat> fileHashInfo;
+  void setSortOrder(ModelsSortBy sortby);
+  ModelsSortBy sortOrder() {return _sortOrder;}
+
+  void sortModelsBy(ModelsVector &mv, ModelsSortBy sortby);
+
+  ModelsVector getUnlabeledModels();
+  ModelsVector getAllModels();
+  ModelsVector getFilteredModelList(const LabelsVector &lbls);
+
+  int getIndexByLabel(const std::string &str);
+  std::string getLabelByIndex(uint16_t index);
+  const LabelsVector& getLabels() const { return labels; }
+
+  int addLabel(std::string lbl);
+  void removeLabel(const std::string &,
+      std::function<void(const char *file, int progress)> progress = nullptr);
+  void moveLabelUp(uint16_t idx);
+  void renameLabel(const std::string &from, const std::string& to,
+      std::function<void(const char *file, int progress)> progress = nullptr);
+
+  bool addLabelToModel(const std::string &, ModelCell *, bool update = true);
+  void addLabelsToModel(const char* labels, ModelCell* cell);
+  void removeLabelFromModel(const std::string &, ModelCell *);
+
+  void setFilteredLabels(std::set<uint32_t> filtlbls);
+  void clearFilter() { filtlbls.clear(); }
+  void addFilteredLabel(const std::string &lbl);
+  bool isLabelFiltered(const std::string &lbl);
+  std::set<uint32_t> filteredLabels() { return filtlbls; }
 
  protected:
-  FIL file;
+  ModelCell *currentModel = nullptr;
+  ModelsSortBy _sortOrder = DEFAULT_MODEL_SORT;
+  LabelsVector labels;  // Storage space for discovered labels
+  std::set<uint32_t> filtlbls;
 
   bool loadYaml();
 };
 
-extern ModelsList modelslist;
-extern ModelMap modelslabels;
+extern ModelsList modelCellManager;
