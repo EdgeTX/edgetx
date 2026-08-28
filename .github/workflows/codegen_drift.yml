@@ -151,7 +151,6 @@ jobs:
       - name: Check for drift
         uses: ./.github/actions/codegen_drift
         with:
-          just-version: ${{ env.JUST_VERSION }}
           recipe: cfn-sort
           paths: radio/src/cfn_sort.cpp
           label: Custom function sort order
@@ -175,7 +174,6 @@ jobs:
       - name: Check for drift
         uses: ./.github/actions/codegen_drift
         with:
-          just-version: ${{ env.JUST_VERSION }}
           recipe: gen-fonts
           paths: radio/src/fonts/lvgl
           label: LVGL fonts
@@ -199,7 +197,6 @@ jobs:
       - name: Check for drift
         uses: ./.github/actions/codegen_drift
         with:
-          just-version: ${{ env.JUST_VERSION }}
           recipe: gen-yaml
           paths: radio/src/storage/yaml
           label: YAML parsers
@@ -221,7 +218,6 @@ jobs:
       - name: Check for drift
         uses: ./.github/actions/codegen_drift
         with:
-          just-version: ${{ env.JUST_VERSION }}
           recipe: gen-radios
           paths: web/public/radios.json
           label: Web simulator radio list
@@ -243,7 +239,6 @@ jobs:
       - name: Check for drift
         uses: ./.github/actions/codegen_drift
         with:
-          just-version: ${{ env.JUST_VERSION }}
           recipe: gen-simstr
           paths: radio/src/translations/sim_string_list.h
           label: Simulator string list

@@ -13,24 +13,10 @@ inputs:
   label:
     description: 'Human readable name of the generated artefact'
     required: true
-  just-version:
-    description: 'Version of just to install'
-    default: '1.57.0'
 
 runs:
   using: "composite"
   steps:
-
-    - name: Install just
-      shell: bash
-      env:
-        JUST_VERSION: ${{ inputs.just-version }}
-      run: |
-        # The edgetx-dev image ships wget but not curl.
-        wget -qO- \
-          "https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
-          | tar xz -C /usr/local/bin just
-        just --version
 
     - name: Allow git to read the workspace
       shell: bash
