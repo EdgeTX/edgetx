@@ -49,7 +49,7 @@
 ** 'tointeger' (soft, LUA_FLOORN2I) is intentionally kept for API argument
 ** coercion so that EdgeTX API functions accept unrounded floats; do not
 ** switch this macro back to the soft conversion. */
-#define tointegerns(o,i) \
+#define tointegerexact(o,i) \
     (ttisinteger(o) ? (*(i) = ivalue(o), 1) : luaV_tointeger(o,i,0))
 
 #define intop(op,v1,v2) l_castU2S(l_castS2U(v1) op l_castS2U(v2))

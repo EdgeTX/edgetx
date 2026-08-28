@@ -201,8 +201,11 @@ TEST(Lua, Switches)
 TEST(Lua, testFloatIntegerEquality)
 {
   // 0.5 is not an integer, so it must not equal 0 (regression #7587)
+  // both directions asserted explicitly so the intent is obvious at a glance
   luaExecStr("if 0.5 == 0 then error('0.5 == 0') end");
+  luaExecStr("if not (0.5 ~= 0) then error('0.5 ~= 0') end");
   luaExecStr("if 0.50 == 0 then error('0.50 == 0') end");
+  luaExecStr("if not (0.50 ~= 0) then error('0.50 ~= 0') end");
   luaExecStr("if 0.50 == 0.0 then error('0.50 == 0.0') end");
   // ... even when the value comes from a variable, as in the reported issue
   luaExecStr("local v = 0.50; if v == 0 then error('v == 0') end");

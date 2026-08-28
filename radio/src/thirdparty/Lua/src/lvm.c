@@ -401,7 +401,7 @@ int luaV_equalobj (lua_State *L, const TValue *t1, const TValue *t2) {
       return 0;  /* only numbers can be equal with different variants */
     else {  /* two numbers with different variants */
       lua_Integer i1, i2;  /* compare them as integers */
-      return (tointegerns(t1, &i1) && tointegerns(t2, &i2) && i1 == i2);
+      return (tointegerexact(t1, &i1) && tointegerexact(t2, &i2) && i1 == i2);
     }
   }
   /* values have same type and same variant */
