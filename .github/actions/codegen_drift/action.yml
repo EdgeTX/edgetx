@@ -1,7 +1,9 @@
 name: 'Codegen drift check'
 description: >
-  Runs a Justfile codegen recipe and reports a warning - without failing the
-  build - when the committed output differs from what the recipe produces.
+  Runs a Justfile codegen recipe and fails the job when the committed output
+  differs from what the recipe produces. The job is deliberately not a
+  required status check, so drift is visible on the PR without blocking a
+  contributor who lacks the local toolchain from merging.
 
 inputs:
   recipe:
@@ -13,24 +15,10 @@ inputs:
   label:
     description: 'Human readable name of the generated artefact'
     required: true
-  just-version:
-    description: 'Version of just to install'
-    default: '1.57.0'
 
 runs:
   using: "composite"
   steps:
-
-    - name: Install just
-      shell: bash
-      env:
-        JUST_VERSION: ${{ inputs.just-version }}
-      run: |
-        # The edgetx-dev image ships wget but not curl.
-        wget -qO- \
-          "https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
-          | tar xz -C /usr/local/bin just
-        just --version
 
     - name: Allow git to read the workspace
       shell: bash
@@ -60,8 +48,9 @@ runs:
         RECIPE: ${{ inputs.recipe }}
         LABEL: ${{ inputs.label }}
       run: |
-        # Deliberately non-failing. Contributors without the local toolchain must
-        # not be blocked; this only surfaces that the committed files have drifted.
+        # This job is not a required status check (see description above), so
+        # failing here surfaces real drift on the PR without blocking a
+        # contributor who lacks the local toolchain from merging.
         # Word splitting on PATHS is intentional - it may hold several pathspecs.
         # shellcheck disable=SC2086
         changed=$(git status --porcelain -- ${PATHS})
@@ -70,13 +59,13 @@ runs:
           exit 0
         fi
 
-        echo "::warning::${LABEL} is out of date. Run 'just ${RECIPE}' and commit the result."
+        echo "::error::${LABEL} is out of date. Run 'just ${RECIPE}' and commit the result."
 
         # A full regeneration diff can run to megabytes (the fonts are the worst
         # case), so truncate well inside the 1 MiB step summary limit. Truncation
         # uses bash substring expansion rather than `head`: piping into `head`
         # would SIGPIPE the producer once it closed the pipe, and under `pipefail`
-        # that exits 141 - failing a step that must never fail.
+        # that would clobber the exit 1 below with a 141.
         # shellcheck disable=SC2086
         diff=$(git diff -- ${PATHS} || true)
         truncated="${diff:0:60000}"
@@ -85,7 +74,7 @@ runs:
         fi
 
         {
-          echo "### :warning: ${LABEL} is out of date"
+          echo "### :x: ${LABEL} is out of date"
           echo
           echo "The committed files differ from what \`just ${RECIPE}\` produces in"
           echo "\`ghcr.io/edgetx/edgetx-dev:latest\`. Run \`just ${RECIPE}\` and commit the result."
@@ -102,3 +91,5 @@ runs:
           echo
           echo "</details>"
         } >> "$GITHUB_STEP_SUMMARY"
+
+        exit 1
