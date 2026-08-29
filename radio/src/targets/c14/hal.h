@@ -22,6 +22,7 @@
 #pragma once
 
 #include "hal_settings.h"
+#include "hal_pwm_sticks.h"
 
 /*
 
@@ -66,11 +67,6 @@ UART5:  TELEMETRY_USART
 #define ROTARY_ENCODER_TIMER_IRQn       TIM17_IRQn
 #define ROTARY_ENCODER_TIMER_IRQHandler TIM17_IRQHandler
 
-#define ADC_GPIO_PIN_STICK_LH           LL_GPIO_PIN_1      // PA.01
-#define ADC_GPIO_PIN_STICK_LV           LL_GPIO_PIN_0      // PA.00
-#define ADC_GPIO_PIN_STICK_RV           LL_GPIO_PIN_3      // PA.03
-#define ADC_GPIO_PIN_STICK_RH           LL_GPIO_PIN_2      // PA.02
-
 #define ADC_VREF_PREC2                  329
 
 #define PWM_STICKS
@@ -81,7 +77,6 @@ UART5:  TELEMETRY_USART
 
 #define PWM_IRQHandler              TIM5_IRQHandler
 #define PWM_IRQn                    TIM5_IRQn
-#define PWM_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
 
 #define USE_EXTI9_5_IRQ // used for I2C port extender interrupt
 #define EXTI9_5_IRQ_Priority 5
