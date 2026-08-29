@@ -1658,7 +1658,7 @@ static int luaScreenshot(lua_State * L)
 }
 
 /*luadoc
-@function playHaptic(duration, pause [, flags])
+@function playHaptic(duration, pause [, flags [, intensity]])
 
 Generate haptic feedback
 
@@ -1670,7 +1670,11 @@ Generate haptic feedback
  * `0 or not present` play with normal priority
  * `PLAY_NOW` play immediately
 
-@status current Introduced in 2.2.0
+@param intensity (number) [optional] haptic motor strength, 0-100 (only
+effective on boards with PWM-driven haptic support); defaults to the user's
+configured haptic strength setting
+
+@status current Introduced in 2.2.0, intensity added in 3.0
 */
 static int luaPlayHaptic(lua_State * L)
 {
@@ -1678,7 +1682,12 @@ static int luaPlayHaptic(lua_State * L)
   int length = luaL_checkinteger(L, 1);
   int pause = luaL_checkinteger(L, 2);
   int flags = luaL_optinteger(L, 3, 0);
-  haptic.play(length, pause, flags);
+  int intensity = luaL_optinteger(L, 4, userHapticStrength);
+  if (intensity != userHapticStrength) {
+    if (intensity < 0) intensity = 0;
+    else if (intensity > 100) intensity = 100;
+  }
+  haptic.play(length, pause, flags, intensity);
 #else
   UNUSED(L);
 #endif

@@ -36,6 +36,8 @@ hapticQueue::hapticQueue()
   t_queueWidx = 0;
 
   hapticTick = 0;
+
+  intensity = userHapticStrength;
 }
 
 void hapticQueue::heartbeat()
@@ -46,7 +48,11 @@ void hapticQueue::heartbeat()
   if (buzzTimeLeft > 0) {
     buzzTimeLeft--; // time gets counted down
 #if defined(HAPTIC_PWM)
-    hapticOn(HAPTIC_STRENGTH() * 20);
+    if (intensity < userHapticStrength) {
+      hapticOn(intensity);
+    } else {
+      hapticOn(HAPTIC_STRENGTH() * 20);
+    }
 #else
     if (hapticTick-- > 0) {
       hapticOn();
@@ -65,6 +71,7 @@ void hapticQueue::heartbeat()
     else if (t_queueRidx != t_queueWidx) {
       buzzTimeLeft = queueHapticLength[t_queueRidx];
       buzzPause = queueHapticPause[t_queueRidx];
+      intensity = queueHapticIntensity[t_queueRidx];
       if (!queueHapticRepeat[t_queueRidx]--) {
         t_queueRidx = (t_queueRidx + 1) & (HAPTIC_QUEUE_LENGTH-1);
       }
@@ -73,13 +80,16 @@ void hapticQueue::heartbeat()
 #endif // defined(SIMU)
 }
 
-void hapticQueue::play(uint8_t tLen, uint8_t tPause, uint8_t tFlags)
+void hapticQueue::play(uint8_t tLen, uint8_t tPause, uint8_t tFlags, uint8_t tIntensity)
 {
-  tLen = getHapticLength(tLen);
+  if(tLen > 0){
+    tLen = getHapticLength(tLen);
+  }
 
   if ((tFlags & PLAY_NOW) || (!busy() && empty())) {
     buzzTimeLeft = tLen;
     buzzPause = tPause;
+    intensity = tIntensity;
     t_queueWidx = t_queueRidx;
   }
   else {
@@ -93,6 +103,7 @@ void hapticQueue::play(uint8_t tLen, uint8_t tPause, uint8_t tFlags)
       queueHapticLength[t_queueWidx] = tLen;
       queueHapticPause[t_queueWidx] = tPause;
       queueHapticRepeat[t_queueWidx] = tFlags-1;
+      queueHapticIntensity[t_queueWidx] = tIntensity;
       t_queueWidx = next_queueWidx;
     }
   }
