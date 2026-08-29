@@ -33,7 +33,7 @@ jobs:
           - x12s
           - x7access
           - x9dp2019
-          - x9e;x9e-hall
+          - x9e
           - mt12
           - nb4p
           - st16
