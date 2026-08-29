@@ -32,8 +32,8 @@ class hapticQueue
 
     hapticQueue();
 
-    // only difference between these two functions is that one does the
-    // interupt queue (Now) and the other queues for playing ASAP.
+    // The PLAY_NOW flag interrupts and plays immediately; otherwise this
+    // queues to play as soon as the current buzz finishes.
     void play(uint8_t tLen, uint8_t tPause, uint8_t tFlags=0, uint8_t tIntensity=userHapticStrength);
 
     inline bool busy() { return (buzzTimeLeft > 0); }
