@@ -57,26 +57,6 @@ UART5:  TELEMETRY_USART
 
  */
 
-
-#define KEYS_GPIO_REG_ENTER           GPIOC
-#define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_5
-#define KEYS_GPIO_REG_PAGEDN          GPIOA
-#define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_8
-#define KEYS_GPIO_REG_EXIT            GPIOG
-#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_14
-
-#define KEYS_GPIO_REG_SYS             GPIOC
-#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_4
-#define KEYS_GPIO_REG_PAGEUP          GPIOC
-#define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_13
-#define KEYS_GPIO_REG_MDL             GPIOA
-#define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_10
-
-#define KEYS_GPIO_REG_UP              GPIOG
-#define KEYS_GPIO_PIN_UP              LL_GPIO_PIN_2
-#define KEYS_GPIO_REG_DOWN            GPIOG
-#define KEYS_GPIO_PIN_DOWN            LL_GPIO_PIN_3
-
 // Rotary encoder simulated via KEY_UP (PG.02) and KEY_DOWN (PG.03) buttons
 #define ROTARY_ENCODER_NAVIGATION
 #define ROTARY_ENCODER_GPIO             GPIOG
@@ -86,110 +66,10 @@ UART5:  TELEMETRY_USART
 #define ROTARY_ENCODER_TIMER_IRQn       TIM17_IRQn
 #define ROTARY_ENCODER_TIMER_IRQHandler TIM17_IRQHandler
 
-// Direct switches
-#define SWITCHES_GPIO_REG_E             GPIOF
-#define SWITCHES_GPIO_PIN_E             LL_GPIO_PIN_8
-
-#define SWITCHES_GPIO_REG_F             GPIOF
-#define SWITCHES_GPIO_PIN_F             LL_GPIO_PIN_6
-
-// Trims
-#define TRIMS_GPIO_REG_LHL
-#define TRIMS_GPIO_PIN_LHL
-
-#define TRIMS_GPIO_REG_LHR
-#define TRIMS_GPIO_PIN_LHR
-
-#define TRIMS_GPIO_REG_LVD
-#define TRIMS_GPIO_PIN_LVD
-
-#define TRIMS_GPIO_REG_LVU
-#define TRIMS_GPIO_PIN_LVU
-
-#define TRIMS_GPIO_REG_RHL
-#define TRIMS_GPIO_PIN_RHL
-
-#define TRIMS_GPIO_REG_RHR
-#define TRIMS_GPIO_PIN_RHR
-
-#define TRIMS_GPIO_REG_RVD
-#define TRIMS_GPIO_PIN_RVD
-
-#define TRIMS_GPIO_REG_RVU
-#define TRIMS_GPIO_PIN_RVU
-
-
 #define ADC_GPIO_PIN_STICK_LH           LL_GPIO_PIN_1      // PA.01
 #define ADC_GPIO_PIN_STICK_LV           LL_GPIO_PIN_0      // PA.00
 #define ADC_GPIO_PIN_STICK_RV           LL_GPIO_PIN_3      // PA.03
 #define ADC_GPIO_PIN_STICK_RH           LL_GPIO_PIN_2      // PA.02
-
-#define ADC_GPIO_PIN_SWA                LL_GPIO_PIN_2      // PC.02
-#define ADC_GPIO_PIN_SWB                LL_GPIO_PIN_3      // PC.03
-#define ADC_GPIO_PIN_SWC                LL_GPIO_PIN_9      // PF.09
-#define ADC_GPIO_PIN_SWD                LL_GPIO_PIN_7      // PF.07
-
-//S1,S2
-#define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_6      // PA.06 VRA
-#define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_1      // PB.01 VRB
-//LS,LR
-#define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_0      // PB.00 VRC/LS
-#define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_7      // PA.07 VRD/RS
-
-#define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_1      // PC.01
-
-#define ADC_GPIOA_PINS                                                \
-  (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_SLIDER2 | ADC_GPIO_PIN_STICK_LH | \
-   ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_RV)
-
-#define ADC_GPIOB_PINS (ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_SLIDER1)
-
-#define ADC_GPIOC_PINS (ADC_GPIO_PIN_SWA | ADC_GPIO_PIN_SWB | ADC_GPIO_PIN_BATT)
-
-#define ADC_GPIOF_PINS \
-  (ADC_GPIO_PIN_SWC | ADC_GPIO_PIN_SWD  )
-
-#define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_14    // ADC12_INP14
-#define ADC_CHANNEL_STICK_LV            LL_ADC_CHANNEL_15    // ADC12_INP15
-#define ADC_CHANNEL_STICK_RV            LL_ADC_CHANNEL_16    // ADC12_INP16
-#define ADC_CHANNEL_STICK_RH            LL_ADC_CHANNEL_17    // ADC12_INP17
-
-// Each ADC cannot map more than 8 channels, otherwise it will cause problems
-#define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_3    // ADC12_INP3
-#define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_5    // ADC12_INP5
-#define ADC_CHANNEL_SLIDER1             LL_ADC_CHANNEL_9    // ADC12_INP9
-#define ADC_CHANNEL_SLIDER2             LL_ADC_CHANNEL_7    // ADC12_INP7
-
-// Analog switches
-#define ADC_CHANNEL_SWA                 LL_ADC_CHANNEL_0    // ADC3_INP0
-#define ADC_CHANNEL_SWB                 LL_ADC_CHANNEL_1    // ADC3_INP1
-#define ADC_CHANNEL_SWC                 LL_ADC_CHANNEL_2    // ADC3_INP2
-#define ADC_CHANNEL_SWD                 LL_ADC_CHANNEL_3    // ADC3_INP3
-
-#define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_11   // ADC123_INP11
-#define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC12_IN16
-
-#define ADC_MAIN                        ADC1
-#define ADC_DMA                         DMA2
-#define ADC_DMA_CHANNEL                 LL_DMAMUX1_REQ_ADC1
-#define ADC_DMA_STREAM                  LL_DMA_STREAM_4
-#define ADC_DMA_STREAM_IRQ              DMA2_Stream4_IRQn
-#define ADC_DMA_STREAM_IRQHandler       DMA2_Stream4_IRQHandler
-#define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_64CYCLES_5
-
-#define ADC_EXT                         ADC3
-#define ADC_EXT_CHANNELS                                                  \
-{                                                                         \
-  ADC_CHANNEL_SWA, ADC_CHANNEL_SWB, ADC_CHANNEL_SWC, ADC_CHANNEL_SWD,     \
-  ADC_CHANNEL_BATT, ADC_CHANNEL_RTC_BAT \
-}
-
-#define ADC_EXT_DMA                     DMA2
-#define ADC_EXT_DMA_CHANNEL             LL_DMAMUX1_REQ_ADC3
-#define ADC_EXT_DMA_STREAM              LL_DMA_STREAM_0
-#define ADC_EXT_DMA_STREAM_IRQ          DMA2_Stream0_IRQn
-#define ADC_EXT_DMA_STREAM_IRQHandler   DMA2_Stream0_IRQHandler
-#define ADC_EXT_SAMPTIME                LL_ADC_SAMPLINGTIME_64CYCLES_5
 
 #define ADC_VREF_PREC2                  329
 
@@ -202,11 +82,6 @@ UART5:  TELEMETRY_USART
 #define PWM_IRQHandler              TIM5_IRQHandler
 #define PWM_IRQn                    TIM5_IRQn
 #define PWM_GPIOA_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_STICK_LV)
-
-#define STICK_PWM_CHANNEL_LH          0
-#define STICK_PWM_CHANNEL_LV          1
-#define STICK_PWM_CHANNEL_RV          2
-#define STICK_PWM_CHANNEL_RH          3
 
 #define USE_EXTI9_5_IRQ // used for I2C port extender interrupt
 #define EXTI9_5_IRQ_Priority 5

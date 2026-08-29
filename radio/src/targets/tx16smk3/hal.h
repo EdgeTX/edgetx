@@ -74,59 +74,6 @@ USART6: INTMODULE_USART
 
 #include "hal_settings.h"
 
-// Keys
-#define KEYS_GPIO_REG_PAGEDN          GPIOA
-#define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_8  // PA.08
-#define KEYS_GPIO_REG_PAGEUP          GPIOG
-#define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_7  // PG.07
-#define KEYS_GPIO_REG_SYS             GPIOB
-#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_2  // PB.02
-#define KEYS_GPIO_REG_ENTER           GPIOG
-#define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_12 // PG.12
-#define KEYS_GPIO_REG_MDL             GPIOE
-#define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_3  // PE.03
-#define KEYS_GPIO_REG_EXIT            GPIOG
-#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_3  // PG.03
-#define KEYS_GPIO_REG_TELE            GPIOI
-#define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_15 // PI.15
-
-// Trims
-#define TRIMS_GPIO_REG_LHL
-#define TRIMS_GPIO_PIN_LHL
-
-#define TRIMS_GPIO_REG_LHR
-#define TRIMS_GPIO_PIN_LHR
-
-#define TRIMS_GPIO_REG_LVD
-#define TRIMS_GPIO_PIN_LVD
-
-#define TRIMS_GPIO_REG_LVU
-#define TRIMS_GPIO_PIN_LVU
-
-#define TRIMS_GPIO_REG_RHL
-#define TRIMS_GPIO_PIN_RHL
-
-#define TRIMS_GPIO_REG_RHR
-#define TRIMS_GPIO_PIN_RHR
-
-#define TRIMS_GPIO_REG_RVD
-#define TRIMS_GPIO_PIN_RVD
-
-#define TRIMS_GPIO_REG_RVU
-#define TRIMS_GPIO_PIN_RVU
-
-#define TRIMS_GPIO_REG_RSD
-#define TRIMS_GPIO_PIN_RSD
-
-#define TRIMS_GPIO_REG_RSU
-#define TRIMS_GPIO_PIN_RSU
-
-#define TRIMS_GPIO_REG_LSD          GPIOH
-#define TRIMS_GPIO_PIN_LSD          LL_GPIO_PIN_15
-
-#define TRIMS_GPIO_REG_LSU          GPIOH
-#define TRIMS_GPIO_PIN_LSU          LL_GPIO_PIN_13
-
 // Expanders
 #define IO_INT_GPIO GPIO_PIN(GPIOD, 3)
 #define IO_RESET_GPIO GPIO_PIN(GPIOG, 10)
@@ -135,76 +82,7 @@ USART6: INTMODULE_USART
 #define EXTI3_IRQ_Priority  9
 #endif
 
-// ADC
-#define ADC_GPIO_PIN_STICK_LH           LL_GPIO_PIN_6      // PA.06
-#define ADC_GPIO_PIN_STICK_LV           LL_GPIO_PIN_3      // PC.03
-#define ADC_GPIO_PIN_STICK_RV           LL_GPIO_PIN_4      // PC.04
-#define ADC_GPIO_PIN_STICK_RH           LL_GPIO_PIN_5      // PC.05
-
-#define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_1      // PC.01 POT1
-#define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_1      // PB.01 POT2
-#define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_3      // PH.03
-
-#define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_2      // PH.02 VRC/LS
-#define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_7      // PA.07 VRD/RS
-
-#define ADC_GPIO_PIN_LUX                LL_GPIO_PIN_0      // PB.00  Light Sensor
-
-#define ADC_GPIO_PIN_EXT1               LL_GPIO_PIN_5      // PA.05,ADC1_CH19
-#define ADC_GPIO_PIN_EXT2               LL_GPIO_PIN_5      // PH.05,ADC3_CH16
-
-#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_SLIDER2|ADC_GPIO_PIN_EXT1)
-#define ADC_GPIOB_PINS                  (ADC_GPIO_PIN_POT2 | ADC_GPIO_PIN_LUX)
-#define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_POT1)
-#define ADC_GPIOH_PINS                  (ADC_GPIO_PIN_BATT | ADC_GPIO_PIN_SLIDER1 | ADC_GPIO_PIN_EXT2)
-
-
-#define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_3    // ADC12_INP3
-#define ADC_CHANNEL_STICK_LV            LL_ADC_CHANNEL_13   // ADC12_INP13
-#define ADC_CHANNEL_STICK_RV            LL_ADC_CHANNEL_4    // ADC12_INP4
-#define ADC_CHANNEL_STICK_RH            LL_ADC_CHANNEL_8    // ADC12_INP8
-
-// Each ADC cannot map more than 8 channels, otherwise it will cause problems
-#define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_11   // ADC12_INP11
-#define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_5    // ADC12_INP5
-#define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_14   // ADC3_INP14
-#define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC3_INP17
-#define ADC_CHANNEL_SLIDER1             LL_ADC_CHANNEL_13   // ADC3_INP13
-#define ADC_CHANNEL_SLIDER2             LL_ADC_CHANNEL_7    // ADC12_INP7
-
-#define ADC_CHANNEL_LUX                 LL_ADC_CHANNEL_9    // ADC12_INP9    -> Light Sensor
-
-#define ADC_CHANNEL_EXT1                LL_ADC_CHANNEL_19   // ADC1_IN19
-#define ADC_CHANNEL_EXT2                LL_ADC_CHANNEL_16   // ADC3_IN16
-
-#define ADC_MAIN                        ADC1
-#define ADC_DMA                         DMA2
-#define ADC_DMA_CHANNEL                 LL_DMAMUX1_REQ_ADC1
-#define ADC_DMA_STREAM                  LL_DMA_STREAM_4
-#define ADC_DMA_STREAM_IRQ              DMA2_Stream4_IRQn
-#define ADC_DMA_STREAM_IRQHandler       DMA2_Stream4_IRQHandler
-#define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_8CYCLES_5
-
-#define ADC_EXT                         ADC3
-#define ADC_EXT_CHANNELS                { ADC_CHANNEL_SLIDER1, ADC_CHANNEL_BATT, ADC_CHANNEL_RTC_BAT, ADC_CHANNEL_EXT2 }
-#define ADC_EXT_DMA                     DMA2
-#define ADC_EXT_DMA_CHANNEL             LL_DMAMUX1_REQ_ADC3
-#define ADC_EXT_DMA_STREAM              LL_DMA_STREAM_0
-#define ADC_EXT_DMA_STREAM_IRQ          DMA2_Stream0_IRQn
-#define ADC_EXT_DMA_STREAM_IRQHandler   DMA2_Stream0_IRQHandler
-#define ADC_EXT_SAMPTIME                LL_ADC_SAMPLINGTIME_8CYCLES_5
-
 #define ADC_VREF_PREC2                  330
-
-#define ADC_DIRECTION {       	 \
-    0,-1,0,-1,  /* gimbals */    \
-    -1,-1,   	/* pots */       \
-    0,-1,     	/* sliders */    \
-    0,0,        /* ext */        \
-    0,	     	/* vbat */       \
-    0,       	/* rtc_bat */    \
-    0	     	/* lux sensor */ \
-  }
 
 #define USE_EXTI9_5_IRQ // used for I2C port extender interrupt
 #define EXTI9_5_IRQ_Priority 5
