@@ -23,6 +23,9 @@
 
 #define HAPTIC_QUEUE_LENGTH  4
 
+// sentinel: use HAPTIC_STRENGTH() setting instead of an explicit intensity
+constexpr uint8_t userHapticStrength = 255;
+
 class hapticQueue
 {
   public:
@@ -31,9 +34,11 @@ class hapticQueue
 
     // only difference between these two functions is that one does the
     // interupt queue (Now) and the other queues for playing ASAP.
-    void play(uint8_t tLen, uint8_t tPause, uint8_t tRepeat=0);
+    void play(uint8_t tLen, uint8_t tPause, uint8_t tFlags=0, uint8_t tIntensity=userHapticStrength);
 
     inline bool busy() { return (buzzTimeLeft > 0); }
+
+    inline uint8_t getIntensity() { return intensity; }
 
     void event(uint8_t e);
 
@@ -67,6 +72,7 @@ class hapticQueue
     uint8_t queueHapticLength[HAPTIC_QUEUE_LENGTH];
     uint8_t queueHapticPause[HAPTIC_QUEUE_LENGTH];
     uint8_t queueHapticRepeat[HAPTIC_QUEUE_LENGTH];
+    uint8_t queueHapticIntensity[HAPTIC_QUEUE_LENGTH];
 };
 
 extern hapticQueue haptic;
