@@ -132,6 +132,7 @@ set(HW_DESC_JSON ${FLAVOUR}.json)
 
 # Generate files from radio JSON
 AddHWGenTarget(${HW_DESC_JSON} hal_settings hal_settings.h)
+AddHWGenTarget(${HW_DESC_JSON} hal_pwm_sticks hal_pwm_sticks.h)
 
 AddHWGenTarget(${HW_DESC_JSON} hal_keys hal_keys.inc)
 AddHWGenTarget(${HW_DESC_JSON} hal_adc_inputs hal_adc_inputs.inc)
@@ -152,8 +153,8 @@ AddHWGenTarget(${HW_DESC_JSON} simu_switches simu_switches.inc)
 
 AddHWGenTarget(${HW_DESC_JSON} hal_keys_lock hal_keys_lock.h)
 
-add_dependencies(board hal_settings hal_keys hal_keys_lock hal_adc_inputs stm32_keys stm32_switches stm32_adc_inputs stm32_pwm_inputs yaml_inputs lua_inputs lua_mixsrc lua_keys)
-add_dependencies(board_bl hal_settings hal_keys stm32_keys)
+add_dependencies(board hal_settings hal_pwm_sticks hal_keys hal_keys_lock hal_adc_inputs stm32_keys stm32_switches stm32_adc_inputs stm32_pwm_inputs yaml_inputs lua_inputs lua_mixsrc lua_keys)
+add_dependencies(board_bl hal_settings hal_pwm_sticks hal_keys stm32_keys)
 
 
 include(hal/CMakeLists.txt)
@@ -607,7 +608,7 @@ if(NATIVE_BUILD)
     os/timer_native.cpp
   )
   add_dependencies(radiolib_native ${RADIO_DEPENDENCIES}
-    hal_settings hal_keys hal_keys_lock hal_adc_inputs
+    hal_settings hal_pwm_sticks hal_keys hal_keys_lock hal_adc_inputs
     yaml_inputs lua_inputs lua_mixsrc lua_keys)
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
