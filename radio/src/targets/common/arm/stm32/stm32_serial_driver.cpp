@@ -315,7 +315,8 @@ static void* stm32_serial_init(void* hw_def, const etx_serial_init* params)
 static void stm32_serial_deinit(void* ctx)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return;
+  // !st->sp: state already freed, make de-init idempotent
+  if (!st || !st->sp) return;
 
   stm32_usart_deinit(st->sp->usart);
   stm32_serial_free_state(st);

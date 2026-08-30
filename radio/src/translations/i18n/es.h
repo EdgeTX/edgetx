@@ -214,7 +214,7 @@
 #define TR_CSWSTAY             TR("Bord", "Borde")
 
 #define TR_SF_TRAINER                  "Entrenador"
-#define TR_SF_INST_TRIM                "Inst. Trim"
+#define TR_SF_INST_TRIM                "Instant Trim"
 #define TR_SF_RESET                    "Reset"
 #define TR_SF_SET_TIMER                "Ajuste"
 #define TR_SF_VOLUME                   "Volumen"
@@ -237,9 +237,9 @@
 #define TR_SF_TEST                     "Test"
 #define TR_SF_SAFETY                   "Seguro"
 
-#define TR_SF_SCREENSHOT      "Captura"
-#define TR_SF_RACING_MODE     "RacingMode"
-#define TR_SF_DISABLE_TOUCH   "No Touch"
+#define TR_SF_SCREENSHOT               "Captura"
+#define TR_SF_RACING_MODE              "Racing Mode"
+#define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_DISABLE_KEYS             "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
 #define TR_SF_SET_SCREEN      TR_BW_COL("Ajus. pantalla", "Set Main Screen")
@@ -932,6 +932,9 @@
 #define TR_GET_READY                   "Prepárate..."
 #define TR_SAVED                       "Guardado:"
 #define TR_SAVE_AS                     "Guardar como"
+#define TR_AUTO_TRIM                   "Auto-recorte"
+#define TR_TRIM_START                  "Recortar inicio"
+#define TR_TRIM_END                    "Recortar fin"
 #define TR_OPEN_ERROR                  "Error al abrir"
 #define TR_TURN_OFF_RECEIVER           "Apaga el receptor"
 #define TR_STOPPING                    "Parando..."

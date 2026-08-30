@@ -47,7 +47,6 @@ add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
 
 set(FLAVOUR v12)
-add_definitions(-DRADIO_V12)
 add_definitions(-DMANUFACTURER_HELLORADIOSKY)
 
 # defines existing internal modules

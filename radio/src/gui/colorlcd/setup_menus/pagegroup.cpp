@@ -193,7 +193,8 @@ void PageGroupHeaderBase::setTitle(const char* title)
 {
   if (titleLabel) {
 #if VERSION_MAJOR == 2
-    std::string s = replaceAll(title, "\n", " ");
+    std::string s(title);
+    strReplaceAll(s, "\n", " ");
     lv_label_set_text(titleLabel, s.c_str());
 #else
     lv_label_set_text(titleLabel, title);

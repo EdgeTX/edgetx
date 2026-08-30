@@ -173,7 +173,7 @@
   #define PWM_GPIO_AF                   GPIO_AF2
   #define PWM_IRQn                      TIM5_IRQn
   #define PWM_IRQHandler                TIM5_IRQHandler
-  #define PWM_GPIOA_PINS                (LL_GPIO_PIN_0 | LL_GPIO_PIN_1 | LL_GPIO_PIN_2 | LL_GPIO_PIN_3)
+  #include "hal_pwm_sticks.h"
 #elif defined(RADIO_TLITE) || defined(RADIO_LR3PRO)
   #define ADC_VREF_PREC2                330
 #elif defined(RADIO_T14)
@@ -883,6 +883,9 @@
 #if !defined(SOFTWARE_VOLUME)
   #define VOLUME_I2C_ADDRESS            0x2E
   #define VOLUME_I2C_BUS                I2C_Bus_1
+
+  #include <stdint.h>
+  int32_t getVolume();
 #endif
 
 #define I2C_B1_CLK_RATE                 400000

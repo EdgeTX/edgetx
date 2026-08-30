@@ -37,13 +37,9 @@
 #include "dataconstants.h"
 #include "rtc.h"
 
-// modelXXXXXXX.bin F,FF F,3F,FF\r\n
-#define LEN_MODELS_IDX_LINE \
-  (LEN_MODEL_FILENAME + sizeof(" F,FF F,3F,FF\r\n") - 1)
-
 #define DEFAULT_MODEL_SORT NAME_ASC
 
-struct ModelData;
+struct ModelHeader;
 struct ModuleData;
 
 struct SimpleModuleData {
@@ -76,23 +72,13 @@ class ModelCell
   SimpleModuleData moduleData[NUM_MODULES];
 
   explicit ModelCell(const char *fileName);
-  explicit ModelCell(const char *fileName, uint8_t len);
 
   void setModelName(char *name);
-  void setModelName(char *name, uint8_t len);
-  void setRfData(ModelData *model);
+  void setRfData(ModelHeader *header, ModuleData* moduleData);
 
-  void setModelId(uint8_t moduleIdx, uint8_t id);
   void setRfModuleData(uint8_t moduleIdx, ModuleData *modData);
-  bool fetchRfData();
 };
 
-typedef struct {
-  std::string icon;
-  // Anything else?
-} SLabelDetail;
-
-typedef std::vector<std::pair<uint16_t, ModelCell *>> ModelLabelsVector;
 typedef std::vector<std::string> LabelsVector;
 typedef std::vector<ModelCell *> ModelsVector;
 typedef enum {
@@ -115,7 +101,6 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
   ModelsVector getUnlabeledModels();
   ModelsVector getAllModels();
   ModelsVector getModelsByLabel(const std::string &);
-  ModelsVector getModelsByLabels(const LabelsVector &);
   ModelsVector getModelsInLabels(const LabelsVector &lbls);
   LabelsVector getLabelsByModel(ModelCell *);
   std::map<std::string, bool> getSelectedLabels(ModelCell *);
@@ -132,11 +117,6 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
   bool renameLabel(const std::string &from, std::string to,
       std::function<void(const char *file, int progress)> progress = nullptr);
   std::string getCurrentLabel() { return currentlabel; };
-  void setCurrentLabel(const std::string &lbl)
-  {
-    currentlabel = lbl;
-    setDirty();
-  }
   std::string getBulletLabelString(ModelCell *, const char *noresults = "");
   void setDirty(bool save = false);
   void resetDirty() { _isDirty = false; }
@@ -160,9 +140,6 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
   static void escapeCSV(std::string &str);
   static void unEscapeCSV(std::string &str);
   static void removeYAMLChars(std::string &str);
-  static void replace_all(std::string &str,
-                          const std::string &from,
-                          const std::string &to);
 
   void clear()
   {
@@ -173,6 +150,8 @@ class ModelMap : protected std::multimap<uint16_t, ModelCell *>
 
   void updateModelCell(ModelCell *);
   bool removeModels(ModelCell *);
+
+  bool writeModelLabels(ModelCell*, const char*);
 
  protected:
   ModelsSortBy _sortOrder = DEFAULT_MODEL_SORT;
@@ -222,14 +201,8 @@ class ModelsList : public ModelsVector
 
   ModelCell *getCurrentModel() const { return currentModel; }
 
-  unsigned int getModelsCount() const
-  {
-    return std::vector<ModelCell *>::size();
-  }
-
   ModelCell *addModel(const char *name, bool save = true, ModelCell *copyCell = nullptr);
   bool removeModel(ModelCell *model);
-  bool moveModelTo(unsigned curindex, unsigned toindex);
 
   bool isModelIdUnique(uint8_t moduleIdx, char *warn_buf, size_t warn_buf_len);
   uint8_t findNextUnusedModelId(uint8_t moduleIdx);
@@ -246,10 +219,7 @@ class ModelsList : public ModelsVector
   FIL file;
 
   bool loadYaml();
-  bool loadYamlDirScanner();
 };
-
-ModelLabelsVector getUniqueLabels();
 
 extern ModelsList modelslist;
 extern ModelMap modelslabels;

@@ -218,7 +218,7 @@
 #define TR_CSWSTAY                     "Edge"
 
 #define TR_SF_TRAINER                  "Écolage"
-#define TR_SF_INST_TRIM                "Inst. Trim"
+#define TR_SF_INST_TRIM                "Instant Trim"
 #define TR_SF_RESET                    "Remise à 0"
 #define TR_SF_SET_TIMER                "Déf."
 #define TR_SF_VOLUME                   "Volume"
@@ -936,6 +936,9 @@
 #define TR_GET_READY                   "Tenez-vous prêt..."
 #define TR_SAVED                       "Enregistré:"
 #define TR_SAVE_AS                     "Enregistrer sous"
+#define TR_AUTO_TRIM                   "Auto-rogner"
+#define TR_TRIM_START                  "Rogner début"
+#define TR_TRIM_END                    "Rogner fin"
 #define TR_OPEN_ERROR                  "Erreur ouverture"
 #define TR_TURN_OFF_RECEIVER           "Éteindre Récepteur."
 #define TR_STOPPING                    "Arrêt..."

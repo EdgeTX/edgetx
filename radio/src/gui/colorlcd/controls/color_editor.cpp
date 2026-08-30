@@ -66,21 +66,21 @@ class ColorBar : public FormField
 
   int valueToScreen(int val)
   {
-    auto h = height() - 4;  // exclude border
+    auto maxY = height() - PAD_BORDER * 2 - 1;  // exclude border
 
-    int scaledValue = (val * h + maxValue / 2) / maxValue;
+    int scaledValue = (val * maxY + maxValue / 2) / maxValue;
     return scaledValue;
   }
 
   uint32_t screenToValue(int pos)
   {
-    auto h = height() - 4;  // exclude border
+    auto maxY = height() - PAD_BORDER * 2 - 1;  // exclude border
 
     // range check
-    pos = min<int>(pos, h);
+    pos = min<int>(pos, maxY);
     pos = max<int>(pos, 0);
 
-    uint32_t scaledValue = ((pos * maxValue + h / 2) / h);
+    uint32_t scaledValue = ((pos * maxValue + maxY / 2) / maxY);
     return scaledValue;
   }
 
@@ -161,17 +161,23 @@ class ColorBar : public FormField
 
     auto area = dsc->draw_area;
     lv_point_t p1, p2;
-    int h = area->y2 - area->y1 - 4;
+    int h = area->y2 - area->y1 - PAD_BORDER * 2;
+    lv_coord_t x1 = area->x1 + PAD_BORDER;
+    lv_coord_t x2 = area->x2 + 1 - PAD_BORDER;
+    lv_coord_t y = area->y1 + PAD_BORDER;
 
     // draw background gradient
     for (int i = 0; i <= h; i += 1) {
-      p1.y = p2.y = i + area->y1 + 2;
-      if (i == 0 || i == h) {
-        p1.x = area->x1 + 3;
-        p2.x = area->x2 - 2;
+      p1.y = p2.y = i + y;
+      if (i < PAD_BORDER) {
+        p1.x = x1 + PAD_BORDER - i;
+        p2.x = x2 - PAD_BORDER + i;
+      } else if (i > h - PAD_BORDER) {
+        p1.x = x1 + PAD_BORDER - (h - i);
+        p2.x = x2 - PAD_BORDER + (h - i);
       } else {
-        p1.x = area->x1 + 2;
-        p2.x = area->x2 - 1;
+        p1.x = x1;
+        p2.x = x2;
       }
       auto c = bar->getRGB(bar->screenToValue(i));
       line_dsc.color = lv_color_make(GET_RED32(c), GET_GREEN32(c), GET_BLUE32(c));
@@ -184,7 +190,7 @@ class ColorBar : public FormField
     cursor_area.x2 = cursor_area.x1 + ColorEditor::CRSR_SZ - 1;
 
     auto pos = bar->valueToScreen(bar->value);
-    cursor_area.y1 = area->y1 + pos - PAD_THREE;
+    cursor_area.y1 = area->y1 + PAD_BORDER + pos - (ColorEditor::CRSR_SZ / 2);
     cursor_area.y2 = cursor_area.y1 + ColorEditor::CRSR_SZ - 1;
 
     lv_draw_rect_dsc_t cursor_dsc;
