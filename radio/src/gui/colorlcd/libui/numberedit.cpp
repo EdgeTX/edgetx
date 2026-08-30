@@ -35,11 +35,6 @@ class NumberArea : public FormField
   {
     setWindowFlag(NO_FOCUS);
 
-    if (parent->getTextFlags() & CENTERED)
-      etx_obj_add_style(lvobj, styles->text_align_center, LV_PART_MAIN);
-    else
-      etx_obj_add_style(lvobj, styles->text_align_right, LV_PART_MAIN);
-
     // Allow encoder acceleration
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
 

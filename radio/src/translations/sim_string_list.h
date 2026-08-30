@@ -236,6 +236,7 @@
 // Main Menu
 
 #if defined(PDM_CLOCK)
+#define STR_AUTO_TRIM currentLangStrings->STR_AUTO_TRIM
 #define STR_GET_READY currentLangStrings->STR_GET_READY
 #define STR_MIC_RECORDER currentLangStrings->STR_MIC_RECORDER
 #define STR_OPEN_ERROR currentLangStrings->STR_OPEN_ERROR
@@ -246,6 +247,8 @@
 #define STR_SAVED currentLangStrings->STR_SAVED
 #define STR_STARTING_IN currentLangStrings->STR_STARTING_IN
 #define STR_STOP currentLangStrings->STR_STOP
+#define STR_TRIM_END currentLangStrings->STR_TRIM_END
+#define STR_TRIM_START currentLangStrings->STR_TRIM_START
 #endif
 
 #else // !COLORLCD
@@ -926,13 +929,6 @@
 #define STR_SPECTRUM_ANALYSER_EXT currentLangStrings->STR_SPECTRUM_ANALYSER_EXT
 #define STR_SPECTRUM_ANALYSER_INT currentLangStrings->STR_SPECTRUM_ANALYSER_INT
 #define STR_SPLASHSCREEN currentLangStrings->STR_SPLASHSCREEN
-#define STR_ONE_LOG_PER_DAY currentLangStrings->STR_ONE_LOG_PER_DAY
-#define STR_KEY_LOCK_FMT currentLangStrings->STR_KEY_LOCK_FMT
-#define STR_KEYS_LOCKED currentLangStrings->STR_KEYS_LOCKED
-#define STR_KEYS_LOCKED_FMT currentLangStrings->STR_KEYS_LOCKED_FMT
-#define STR_KEYS_UNLOCKED currentLangStrings->STR_KEYS_UNLOCKED
-#define STR_TOUCH_ENABLED currentLangStrings->STR_TOUCH_ENABLED
-#define STR_TOUCH_DISABLED currentLangStrings->STR_TOUCH_DISABLED
 #define STR_SPORT_UPDATE_POWER_MODE currentLangStrings->STR_SPORT_UPDATE_POWER_MODE
 #define STR_SRC_BATT currentLangStrings->STR_SRC_BATT
 #define STR_SRC_GPS currentLangStrings->STR_SRC_GPS
@@ -991,6 +987,8 @@
 #define STR_TOO_MANY_LUA_SCRIPTS currentLangStrings->STR_TOO_MANY_LUA_SCRIPTS
 #define STR_TOP_BAR currentLangStrings->STR_TOP_BAR
 #define STR_TOPLCDTIMER currentLangStrings->STR_TOPLCDTIMER
+#define STR_TOUCH_DISABLED currentLangStrings->STR_TOUCH_DISABLED
+#define STR_TOUCH_ENABLED currentLangStrings->STR_TOUCH_ENABLED
 #define STR_TOUCH_PANEL currentLangStrings->STR_TOUCH_PANEL
 #define STR_TRAINER_SHUTDOWN_ALARM currentLangStrings->STR_TRAINER_SHUTDOWN_ALARM
 #define STR_TRAINER_STILL_CONNECTED currentLangStrings->STR_TRAINER_STILL_CONNECTED

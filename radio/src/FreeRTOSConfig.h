@@ -22,8 +22,14 @@
 #pragma once
 
 // Avoid using any other header file
+#if defined(__cplusplus)
+extern "C" {
+#endif
 #include <stdint.h>
 extern uint32_t SystemCoreClock;
+#if defined(__cplusplus)
+}
+#endif
 
 #define configUSE_PREEMPTION            1
 #define configUSE_IDLE_HOOK             0

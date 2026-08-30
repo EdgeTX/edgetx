@@ -216,13 +216,13 @@
 #define TR_CSWSTAY                     "Edge"
 
 #define TR_SF_TRAINER                  "Trenér"
-#define TR_SF_INST_TRIM                "Insta-Trim"
+#define TR_SF_INST_TRIM                "Instantní trim"
 #define TR_SF_RESET                    "Reset"
 #define TR_SF_SET_TIMER                "Změna"
 #define TR_SF_VOLUME                   "Hlasitost"
-#define TR_SF_FAILSAFE                 "Nastavit Failsafe"
+#define TR_SF_FAILSAFE                 "Nastavit failsafe"
 #define TR_SF_RANGE_CHECK              "Kontrola dosahu"
-#define TR_SF_MOD_BIND                 "ModuleBind"
+#define TR_SF_MOD_BIND                 "Modul bind"
 #define TR_SF_RGBLEDS                  "RGB světlo"
 
 #define TR_SOUND                       TR_BW_COL("\204\205Zvuk", "Hrát zvuk")
@@ -936,6 +936,9 @@
 #define TR_GET_READY                   "Připravit se..."
 #define TR_SAVED                       "Uloženo:"
 #define TR_SAVE_AS                     "Uložit jako"
+#define TR_AUTO_TRIM                   "Auto-trim"
+#define TR_TRIM_START                  "Trim start"
+#define TR_TRIM_END                    "Trim end"
 #define TR_OPEN_ERROR                  "Chyba otevření"
 #define TR_TURN_OFF_RECEIVER           "Vypněte přijímač"
 #define TR_STOPPING                    "Zastavuji..."

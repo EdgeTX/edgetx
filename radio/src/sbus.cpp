@@ -36,32 +36,16 @@
 
 #define SBUS_CH_CENTER 0x3E0
 
+// Current SBUS trainer input source. Only ever written from the main task
+// (see sbusTrainerAcquire() / sbusTrainerRelease()), only ever read from the
+// USART IRQ, hence no atomics: what makes this safe is the arm/disarm order.
 static const etx_serial_driver_t* _sbus_drv = nullptr;
 static void* _sbus_ctx = nullptr;
-static bool _sbus_aux_enabled = false;
 
 static void sbusProcessFrame(int16_t* pulses, uint8_t* sbus, uint32_t size);
 
-void sbusSetReceiveCtx(void* ctx, const etx_serial_driver_t* drv)
+static void sbusFrameReceived(void*)
 {
-  _sbus_ctx = ctx;
-  _sbus_drv = drv;
-}
-
-void sbusAuxFrameReceived(void*)
-{
-  if (!_sbus_aux_enabled) return;
-  sbusFrameReceived(nullptr);
-}
-
-void sbusAuxSetEnabled(bool enabled) { _sbus_aux_enabled = enabled; }
-
-void sbusFrameReceived(void*)
-{
-  if (!_sbus_drv || !_sbus_ctx || !_sbus_drv->copyRxBuffer ||
-      !_sbus_drv->getBufferedBytes)
-    return;
-
   if (_sbus_drv->getBufferedBytes(_sbus_ctx) != SBUS_FRAME_SIZE) {
     _sbus_drv->clearRxBuffer(_sbus_ctx);
     return;
@@ -73,6 +57,43 @@ void sbusFrameReceived(void*)
 
   sbusProcessFrame(trainerInput, frame, received);
 }
+
+bool sbusTrainerAcquire(void* ctx, const etx_serial_driver_t* drv)
+{
+  sbusTrainerRelease();
+
+  // sbusFrameReceived() relies on all of these being available
+  if (!ctx || !drv || !drv->getBufferedBytes || !drv->copyRxBuffer ||
+      !drv->clearRxBuffer || !drv->setIdleCb)
+    return false;
+
+  _sbus_ctx = ctx;
+  _sbus_drv = drv;
+
+  // Arm last: the IDLE IRQ may fire as soon as this returns
+  drv->setIdleCb(ctx, sbusFrameReceived, nullptr);
+  return true;
+}
+
+void sbusTrainerRelease()
+{
+  auto drv = _sbus_drv;
+  auto ctx = _sbus_ctx;
+  if (!drv || !ctx) return;
+
+  // Disarm first: no further callback can start once this returns
+  drv->setIdleCb(ctx, nullptr, nullptr);
+
+  _sbus_ctx = nullptr;
+  _sbus_drv = nullptr;
+}
+
+void sbusTrainerReleaseCtx(void* ctx)
+{
+  if (ctx && ctx == _sbus_ctx) sbusTrainerRelease();
+}
+
+bool sbusTrainerActive() { return _sbus_ctx != nullptr; }
 
 // Range for pulses (ppm input) is [-512:+512]
 static void sbusProcessFrame(int16_t* pulses, uint8_t* sbus, uint32_t size)

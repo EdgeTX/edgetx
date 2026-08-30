@@ -215,13 +215,13 @@
 #define TR_CSWSTAY             "Edge"
 
 #define TR_SF_TRAINER          "Trainer"
-#define TR_SF_INST_TRIM        "Inst. Trim"
+#define TR_SF_INST_TRIM        "Instant Trim"
 #define TR_SF_RESET            "Reset"
 #define TR_SF_SET_TIMER        "Set"
 #define TR_SF_VOLUME           "Volume"
-#define TR_SF_FAILSAFE         "SetFailsafe"
-#define TR_SF_RANGE_CHECK      "RangeCheck"
-#define TR_SF_MOD_BIND         "ModuleBind"
+#define TR_SF_FAILSAFE         "Set Failsafe"
+#define TR_SF_RANGE_CHECK      "Range Check"
+#define TR_SF_MOD_BIND         "Module Bind"
 #define TR_SF_RGBLEDS          "RGB leds"
 
 #define TR_SOUND               "Geluid"
@@ -238,12 +238,12 @@
 #define TR_SF_TEST             "Test"
 #define TR_SF_SAFETY           TR("Overr.","Override")
 
-#define TR_SF_SCREENSHOT      "Schermafdr"
-#define TR_SF_RACING_MODE     "RacingMode"
-#define TR_SF_DISABLE_TOUCH   "No Touch"
+#define TR_SF_SCREENSHOT               "Schermafdr"
+#define TR_SF_RACING_MODE              "Racing Mode"
+#define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_DISABLE_KEYS             "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Amp Off"
-#define TR_SF_SET_SCREEN      TR_BW_COL("Set Screen", "Set Main Screen")
+#define TR_SF_SET_SCREEN               TR_BW_COL("Set Screen", "Set Main Screen")
 #define TR_SF_PUSH_CUST_SWITCH         "Push CS"
 #define TR_SF_LCD_TO_VIDEO             "LCD to Video"
 
@@ -934,6 +934,9 @@
 #define TR_GET_READY                   "Maak je klaar..."
 #define TR_SAVED                       "Opgeslagen:"
 #define TR_SAVE_AS                     "Opslaan als"
+#define TR_AUTO_TRIM                   "Auto-trimmen"
+#define TR_TRIM_START                  "Begin trimmen"
+#define TR_TRIM_END                    "Einde trimmen"
 #define TR_OPEN_ERROR                  "Fout bij openen"
 #define TR_TURN_OFF_RECEIVER           "Turn off receiver"
 #define TR_STOPPING                    "Stopping..."

@@ -528,7 +528,13 @@ void stm32_usart_deinit(const stm32_usart_t* usart)
   }
 
   if ((int32_t)(usart->IRQn) >= 0) {
+    // An IRQ latched before (or in flight across) NVIC_DisableIRQ() would
+    // still be taken, and would then access a de-initialised, clock-gated
+    // peripheral. Barrier + clear pending closes that window.
     NVIC_DisableIRQ(usart->IRQn);
+    __DSB();
+    __ISB();
+    NVIC_ClearPendingIRQ(usart->IRQn);
   }
   LL_USART_DeInit(usart->USARTx);
   disable_usart_clock(usart->USARTx);

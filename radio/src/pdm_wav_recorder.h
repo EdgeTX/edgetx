@@ -43,8 +43,46 @@ class PdmWavRecorder
   // Called from the audio task every ~4 ms.
   static void audioTick();
 
-  // Trim leading/trailing silence in-place and patch the WAV header.
-  static FRESULT trimSilence(const char* path);
+  // The tap or ENT press that ends a take is audible at the end of it.
+  // finalise() locates that burst and cuts from its onset, rather than
+  // dropping a fixed slice that would eat speech on a prompt stop.
+
+  // Shortest take a trim is allowed to leave behind.
+  static constexpr uint32_t MIN_TAKE_MS = 200;
+
+  // What the press detector saw. Reported so the review screen can show it.
+  struct PressDiag {
+    uint32_t cutSamples;   // removed from the end as a press, 0 if none found
+    int32_t voiceLevel;    // level the burst had to beat
+    int32_t burstPeak;     // peak of the last loud event
+    uint32_t burstMs;      // how long that event ran
+  };
+
+  // Finish a take in one go, in two passes over the card: remove the stop
+  // press, high-pass, compensate CIC droop, normalise, fade the edges, patch
+  // the WAV header, and report the peak envelope (one 0..255 level per
+  // column), the final length and how much of the capture hit int16
+  // saturation (a high value means PDM_POST_GAIN_SHIFT is too hot).
+  // trimSilence additionally cuts leading and trailing silence; left to the
+  // Auto-trim button so the take is kept whole until asked otherwise.
+  static FRESULT finalise(const char* path, uint8_t* env, uint16_t cols,
+                          bool trimSilence, uint32_t* totalSamples = nullptr,
+                          uint32_t* clippedPermille = nullptr,
+                          PressDiag* diag = nullptr);
+
+  // Cut the take down to [from, to] in place, fading the new edges and
+  // refreshing the envelope. Pure sample surgery — no filtering or
+  // normalisation, so repeated trims never stack DSP on the same audio.
+  static FRESULT cut(const char* path, uint32_t from, uint32_t to,
+                     uint8_t* env, uint16_t cols,
+                     uint32_t* totalSamples = nullptr);
+
+  // Silence bounds of the file as it stands, for the auto-trim button.
+  static FRESULT silenceBounds(const char* path, uint32_t* from, uint32_t* to);
+
+  // Peak of everything written since the previous call, 0..255 of full scale.
+  // Feeds the live waveform; a lost update just costs one display column.
+  uint8_t takePeakLevel();
 
   bool isRecording() const { return recording; }
   uint32_t getSamplesWritten() const { return samplesWritten; }
@@ -62,6 +100,7 @@ class PdmWavRecorder
   volatile uint32_t samplesWritten = 0;
   uint32_t maxSamples = 0;  // 0 = open-ended
   volatile bool recording = false;
+  volatile uint16_t peakSinceRead = 0;
 };
 
 #endif  // PDM_CLOCK

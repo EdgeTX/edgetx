@@ -110,7 +110,6 @@ class CustomFunctionsPanel : public GenericPanel
     QComboBox * fswtchRepeat[CPN_MAX_SPECIAL_FUNCTIONS];
     QComboBox * fswtchGVmode[CPN_MAX_SPECIAL_FUNCTIONS];
     QMediaPlayer * mediaPlayer;
-    QAudioOutput * audioOutput;
 
     int selectedIndex;
     int fswCapability;

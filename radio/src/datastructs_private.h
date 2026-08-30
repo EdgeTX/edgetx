@@ -715,8 +715,9 @@ PACK(struct customSwitch {
 #endif
 
 PACK(struct PartialModel {
+  CUST_ATTR(semver,nullptr,w_semver);
   ModelHeader header;
-  TimerData timers[MAX_TIMERS];
+  ModuleData moduleData[NUM_MODULES];
 });
 
 /*
@@ -756,8 +757,10 @@ PACK(struct USBJoystickChData {
 });
 
 PACK(struct ModelData {
+  // Must match start of PartialModel
   CUST_ATTR(semver,nullptr,w_semver);
   ModelHeader header;
+
   TimerData timers[MAX_TIMERS];
   uint8_t   telemetryProtocol:3;
   uint8_t   thrTrim:1;            // Enable Throttle Trim

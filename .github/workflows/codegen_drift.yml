@@ -33,12 +33,17 @@ on:
       - 'fw.json'
       - 'web/scripts/gen-radios-json.js'
       - 'web/public/radios.json'
+      # simulator string list
+      - 'radio/src/translations/simstr.m4'
+      - 'radio/src/translations/string_list.h'
+      - 'radio/src/translations/sim_string_list.h'
   pull_request:
     paths: *trigger-paths
   workflow_dispatch:
 
-# These jobs only ever report - they must never block a contributor who does not
-# have the local toolchain, so nothing here fails on drift.
+# These jobs fail on drift so it's visible on the PR, but none of them are
+# configured as required status checks - a contributor without the local
+# toolchain can still merge.
 permissions:
   contents: read
   pull-requests: read
@@ -59,6 +64,7 @@ jobs:
       fonts: ${{ steps.filter.outputs.fonts }}
       yaml: ${{ steps.filter.outputs.yaml }}
       radios: ${{ steps.filter.outputs.radios }}
+      simstr: ${{ steps.filter.outputs.simstr }}
     steps:
       - name: Check out the repo
         uses: actions/checkout@v7
@@ -68,13 +74,14 @@ jobs:
           wget -qO- "https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
             | tar xz -C /usr/local/bin just
 
-      # A Justfile change cannot cause drift, but it can rename a recipe out
-      # from under the jobs below, so check they still resolve rather than
-      # regenerating everything.
-      - name: Check the recipes this workflow calls still resolve
+      # A Justfile change cannot cause drift, but it can break the file, and
+      # parsing validates every recipe rather than only the ones below. Fails
+      # here in seconds instead of in the container jobs; the list is derived,
+      # so adding a recipe needs no change.
+      - name: Validate the Justfile
         run: |
           just --list >/dev/null
-          for recipe in cfn-sort gen-fonts gen-yaml gen-radios; do
+          for recipe in $(just --summary); do
             just --show "${recipe}" >/dev/null
           done
 
@@ -120,6 +127,12 @@ jobs:
               - 'radio/src/boards/hw_defs/**'
               - 'web/scripts/gen-radios-json.js'
               - 'web/public/radios.json'
+            simstr:
+              - '.github/workflows/codegen_drift.yml'
+              - '.github/actions/codegen_drift/action.yml'
+              - 'radio/src/translations/simstr.m4'
+              - 'radio/src/translations/string_list.h'
+              - 'radio/src/translations/sim_string_list.h'
 
   cfn-sort:
     name: Custom function sort order
@@ -140,7 +153,6 @@ jobs:
       - name: Check for drift
         uses: ./.github/actions/codegen_drift
         with:
-          just-version: ${{ env.JUST_VERSION }}
           recipe: cfn-sort
           paths: radio/src/cfn_sort.cpp
           label: Custom function sort order
@@ -164,7 +176,6 @@ jobs:
       - name: Check for drift
         uses: ./.github/actions/codegen_drift
         with:
-          just-version: ${{ env.JUST_VERSION }}
           recipe: gen-fonts
           paths: radio/src/fonts/lvgl
           label: LVGL fonts
@@ -188,7 +199,6 @@ jobs:
       - name: Check for drift
         uses: ./.github/actions/codegen_drift
         with:
-          just-version: ${{ env.JUST_VERSION }}
           recipe: gen-yaml
           paths: radio/src/storage/yaml
           label: YAML parsers
@@ -210,7 +220,27 @@ jobs:
       - name: Check for drift
         uses: ./.github/actions/codegen_drift
         with:
-          just-version: ${{ env.JUST_VERSION }}
           recipe: gen-radios
           paths: web/public/radios.json
           label: Web simulator radio list
+
+  simstr:
+    name: Simulator string list
+    needs: changes
+    if: needs.changes.outputs.simstr == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:latest
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+
+      - name: Check for drift
+        uses: ./.github/actions/codegen_drift
+        with:
+          recipe: gen-simstr
+          paths: radio/src/translations/sim_string_list.h
+          label: Simulator string list

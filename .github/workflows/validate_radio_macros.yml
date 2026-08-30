@@ -1,0 +1,23 @@
+---
+name: Validate radio macros
+on:
+  push:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+  pull_request:
+  workflow_dispatch:
+
+# No 'paths' filter: any CMakeLists or source edit can orphan a macro, and #6437
+# touched neither hw_defs nor codegen. Pure stdlib, runs in about a second.
+
+jobs:
+  validate:
+    name: Radio macros
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+
+      - name: Check every referenced RADIO_* macro can be defined
+        run: python3 tools/check_radio_macros.py

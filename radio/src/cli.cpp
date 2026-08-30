@@ -937,44 +937,6 @@ int cliTestMemorySpeed()
 }
 #endif
 
-#if defined(DEBUG_MODELSLIST)
-#include "modelslist.h"
-using std::list;
-
-int cliTestModelsList()
-{
-  ModelsList modList;
-  modList.load();
-
-  int count = 0;
-
-  cliSerialPrint("Starting fetching RF data 100x...");
-  const uint32_t start = time_get_ms();
-
-  const list<ModelsCategory *> &cats = modList.getCategories();
-  while (1) {
-    for (list<ModelsCategory *>::const_iterator cat_it = cats.begin();
-         cat_it != cats.end(); ++cat_it) {
-      for (ModelsCategory::iterator mod_it = (*cat_it)->begin();
-           mod_it != (*cat_it)->end(); mod_it++) {
-        if (!(*mod_it)->fetchRfData()) {
-          cliSerialPrint("Error while fetching RF data...");
-          return 0;
-        }
-
-        if (++count >= 100) goto done;
-      }
-    }
-  }
-
-done:
-  cliSerialPrint("Done fetching %ix RF data: %lu ms", count,
-              (time_get_ms() - start));
-
-  return 0;
-}
-#endif
-
 #endif  // #if defined(COLORLCD)
 
 #if defined(DEBUG)
@@ -992,11 +954,6 @@ int cliTest(const char ** argv)
 #if defined(DEBUG_RAM)
   else if (!strcmp(argv[1], "memspd")) {
     return cliTestMemorySpeed();
-  }
-#endif
-#if defined(DEBUG_MODELSLIST)
-  else if (!strcmp(argv[1], "modelslist")) {
-    return cliTestModelsList();
   }
 #endif
 #endif
@@ -1233,7 +1190,7 @@ static void _sp_Tx(uint8_t* buf, uint32_t len)
   }
 }
 
-#if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
+#if defined(HARDWARE_INTERNAL_MODULE)
 static etx_module_state_t *spModuleState = nullptr;
 
 static void spModuleInit(int port_n, int baudrate)
@@ -1540,6 +1497,11 @@ int cliDisplay(const char ** argv)
     gettime(&utm);
     cliSerialPrint("rtc = %4d-%02d-%02d %02d:%02d:%02d.%02d0", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
   }
+#if defined(VOLUME_I2C_ADDRESS)
+  else if (!strcmp(argv[1], "volume")) {
+    cliSerialPrint("volume = %d", getVolume());
+  }
+#endif
   else if (!strcmp(argv[1], "uid")) {
     char str[LEN_CPU_UID+1];
     getCPUUniqueID(str);

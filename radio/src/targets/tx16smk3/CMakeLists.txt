@@ -68,7 +68,6 @@ add_definitions(-DUSB_CHARGE_CONTROL)
 add_definitions(-DLUMINOSITY_SENSOR)
 
 set(FLAVOUR tx16smk3)
-add_definitions(-DRADIO_TX16SMK3)
 add_definitions(-DMANUFACTURER_RADIOMASTER)
 
 # defines existing internal modules

@@ -211,8 +211,8 @@ LabelDialog::LabelDialog(const char *label, int length, const char* title,
   });
 
   new TextButton(box, rect_t{0, 0, 96, 0}, STR_SAVE, [=]() {
-    if (saveHandler != nullptr) saveHandler(this->label);
     deleteLater();
+    if (saveHandler != nullptr) saveHandler(this->label);
     return 0;
   });
 }

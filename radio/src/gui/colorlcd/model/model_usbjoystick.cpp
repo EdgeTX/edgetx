@@ -220,8 +220,7 @@ class USBChannelEditWindow : public Page
     buildBody(body);
   }
 
-  static LAYOUT_SIZE_SCALED(USBCH_EDIT_STATUS_BAR_WIDTH, 250, 160)
-  static LAYOUT_SIZE(USBCH_EDIT_RIGHT_MARGIN, 0, 3)
+  static LAYOUT_SIZE_SCALED(USBCH_EDIT_STATUS_BAR_WIDTH, 250, 120)
   static LAYOUT_SIZE(USBCH_COLS, 4, 2)
 
  protected:
@@ -277,8 +276,8 @@ class USBChannelEditWindow : public Page
 
     statusBar = new USBChannelEditStatusBar(
         window,
-        {window->getRect().w - USBCH_EDIT_STATUS_BAR_WIDTH -
-             USBCH_EDIT_RIGHT_MARGIN,
+        {window->getRect().w - USBCH_EDIT_STATUS_BAR_WIDTH - PAD_TINY -
+             PageGroup::PAGE_GROUP_BACK_BTN_XO,
          0, USBCH_EDIT_STATUS_BAR_WIDTH, EdgeTxStyles::MENU_HEADER_HEIGHT},
         channel);
   }

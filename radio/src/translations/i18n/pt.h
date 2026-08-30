@@ -219,7 +219,7 @@
 #define TR_SF_SET_TIMER                "Definir"
 #define TR_SF_VOLUME                   "Volume"
 #define TR_SF_FAILSAFE                 "DefFailsafe"
-#define TR_SF_RANGE_CHECK              "RangeCheck"
+#define TR_SF_RANGE_CHECK              "Range Check"
 #define TR_SF_MOD_BIND                 "BindMódulo"
 #define TR_SF_RGBLEDS                  "Leds RGB"
 
@@ -939,6 +939,9 @@
 #define TR_GET_READY                   "Prepare-se..."
 #define TR_SAVED                       "Guardado:"
 #define TR_SAVE_AS                     "Guardar como"
+#define TR_AUTO_TRIM                   "Auto-corte"
+#define TR_TRIM_START                  "Cortar início"
+#define TR_TRIM_END                    "Cortar fim"
 #define TR_OPEN_ERROR                  "Erro ao abrir"
 #define TR_TURN_OFF_RECEIVER           "Turn off receiver"
 #define TR_STOPPING                    "Stopping..."

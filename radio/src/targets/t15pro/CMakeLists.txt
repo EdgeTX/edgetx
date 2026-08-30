@@ -47,7 +47,7 @@ add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
 
 set(FLAVOUR t15pro)
-add_definitions(-DRADIO_T15PRO)
+add_definitions(-DMANUFACTURER_JUMPER)
 
 # defines existing internal modules
 set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")

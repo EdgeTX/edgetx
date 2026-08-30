@@ -452,18 +452,6 @@ int QuickMenu::pageIndex(QMPage page)
   return 0;
 }
 
-std::string replaceAll(std::string str, const std::string& from, const std::string& to)
-{
-    auto&& pos = str.find(from, size_t{});
-    while (pos != std::string::npos)
-    {
-        str.replace(pos, from.length(), to);
-        // easy to forget to add to.length()
-        pos = str.find(from, pos + to.length());
-    }
-    return str;
-}
-
 std::vector<std::string>& QuickMenu::menuPageNames(bool forFavorites)
 {
   static std::vector<std::string> qmPages;
@@ -484,7 +472,7 @@ std::vector<std::string>& QuickMenu::menuPageNames(bool forFavorites)
           s += STR_CURRENT_SCREEN;
         else
           s += STR_VAL(sub[j].title);
-        s = replaceAll(s, "\n", " ");
+        strReplaceAll(s, "\n", " ");
         qmPages.emplace_back(s);
       }
     }
