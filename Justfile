@@ -1,11 +1,12 @@
-# EdgeTX code generation helpers.
+# EdgeTX code generation and check helpers.
 #
-# These recipes wrap existing scripts that regenerate files COMMITTED to git.
-# After running one, review and commit the result.
+# The codegen recipes wrap existing scripts that regenerate files COMMITTED to
+# git. After running one, review and commit the result. The check recipes are
+# read-only and mirror what CI runs; they regenerate nothing.
 #
-# The codegen recipes run on the host and need the tools installed locally. The
-# docker- variants run the same scripts in the dev container instead, which
-# already has them. CI uses the host recipes, as its jobs run in that image.
+# Both run on the host and need the tools installed locally. The docker-
+# variants run the same scripts in the dev container instead, which already has
+# them. CI uses the host recipes, as its jobs run in that image.
 
 IMAGE := "ghcr.io/edgetx/edgetx-dev:latest"
 
@@ -54,6 +55,23 @@ gen-simstr:
 [group('codegen')]
 codegen: gen-fonts cfn-sort gen-yaml gen-radios gen-simstr
 
+# Needs: python3 only.
+[doc('Check every referenced RADIO_* macro can be defined')]
+[group('checks')]
+check-radio-macros:
+    python3 tools/check_radio_macros.py
+
+# Needs: the Python packages in radio/util/hw_defs/requirements.txt.
+[doc('Validate the hw_defs JSON and that every template renders for every board')]
+[group('checks')]
+check-hw-defs:
+    cd radio/util/hw_defs && python3 json_validator.py ../../src/boards/hw_defs
+    cd radio/util/hw_defs && python3 test_templates.py ../../src/boards/hw_defs
+
+[doc('Run the RADIO_* macro and hw_defs checks')]
+[group('checks')]
+check: check-radio-macros check-hw-defs
+
 [doc('Regenerate the LVGL fonts in the dev container')]
 [group('codegen (docker)')]
 docker-gen-fonts:
@@ -86,3 +104,10 @@ docker-gen-simstr:
 [doc('Regenerate everything in the dev container')]
 [group('codegen (docker)')]
 docker-codegen: docker-gen-fonts docker-cfn-sort docker-gen-yaml docker-gen-radios docker-gen-simstr
+
+[doc('Run the checks in the dev container')]
+[group('checks (docker)')]
+docker-check:
+    {{ _docker }} python3 tools/check_radio_macros.py
+    {{ _docker }} sh -c 'cd radio/util/hw_defs && python3 json_validator.py ../../src/boards/hw_defs'
+    {{ _docker }} sh -c 'cd radio/util/hw_defs && python3 test_templates.py ../../src/boards/hw_defs'

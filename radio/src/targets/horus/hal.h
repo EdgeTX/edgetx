@@ -62,7 +62,7 @@
 #elif defined(RADIO_V16)
   #define ADC_VREF_PREC2                330
 #elif defined(PCBX10)
-  #if defined(RADIO_X10) || defined(RADIO_X10E)
+  #if defined(RADIO_X10) || defined(RADIO_X10EXPRESS)
     #define PWM_STICKS
     #define PWM_TIMER                   TIM5
     #define PWM_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
