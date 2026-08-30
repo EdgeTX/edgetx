@@ -57,4 +57,9 @@ void audioSetVolume(uint8_t volume)
   write_i2c_volume(volumeScale[volume]);
 }
 
+int32_t getVolume()
+{
+  return read_i2c_volume();
+}
+
 #endif
