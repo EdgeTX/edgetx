@@ -34,6 +34,7 @@
 #include "os/task.h"
 #include "os/timer_native_impl.h"
 
+#include <clocale>
 #include <errno.h>
 #include <stdarg.h>
 #include <string>
@@ -90,6 +91,11 @@ uint32_t timersGetMsTick(void)
 
 void simuInit()
 {
+  // Force the C locale for numeric conversions (strtof/strtod, etc.),
+  // otherwise the simulator picks up the host locale (e.g. es_ES) which
+  // uses a comma as decimal separator and breaks Lua number parsing.
+  setlocale(LC_NUMERIC, "C");
+
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotencValue = 0;
 #endif
