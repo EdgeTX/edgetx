@@ -217,9 +217,9 @@ TIM17:  ROTARY_ENCODER_TIMER
 #define ADC_GPIO_PIN_POT2                LL_GPIO_PIN_1  // PB.01 POT2
 #define ADC_GPIO_PIN_BATT                LL_GPIO_PIN_3  // PH.03
 #define ADC_GPIO_PIN_SLIDER1             LL_GPIO_PIN_2  // PH.02 VRC/LS
-#define ADC_GPIO_PIN_SLIDER2             LL_GPIO_PIN_7  // PA.07 VRD/RS
+#define ADC_GPIO_PIN_SLIDER2             LL_GPIO_PIN_5  // PA.05 VRD/RS
 
-#define ADC_GPIO_PIN_EXT1                LL_GPIO_PIN_5  // PA.05, ADC1_CH19
+#define ADC_GPIO_PIN_EXT1                LL_GPIO_PIN_7  // PA.07, ADC12_CH7
 #define ADC_GPIO_PIN_EXT2                LL_GPIO_PIN_5  // PH.05, ADC3_CH16
 
 #define ADC_GPIOA_PINS                   (ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_SLIDER2 | ADC_GPIO_PIN_EXT1)
@@ -238,9 +238,9 @@ TIM17:  ROTARY_ENCODER_TIMER
 #define ADC_CHANNEL_BATT                 LL_ADC_CHANNEL_14  // ADC3_INP14
 #define ADC_CHANNEL_RTC_BAT              LL_ADC_CHANNEL_VBAT // ADC3_INP17
 #define ADC_CHANNEL_SLIDER1              LL_ADC_CHANNEL_13  // ADC3_INP13
-#define ADC_CHANNEL_SLIDER2              LL_ADC_CHANNEL_7  // ADC12_INP7
+#define ADC_CHANNEL_SLIDER2              LL_ADC_CHANNEL_19  // ADC1_IN19
 
-#define ADC_CHANNEL_EXT1                 LL_ADC_CHANNEL_19  // ADC1_IN19
+#define ADC_CHANNEL_EXT1                 LL_ADC_CHANNEL_7  // ADC12_INP7
 #define ADC_CHANNEL_EXT2                 LL_ADC_CHANNEL_16  // ADC3_IN16
 
 #define ADC_MAIN                         ADC1
