@@ -2756,6 +2756,9 @@
 #if !defined(SOFTWARE_VOLUME)
   #define VOLUME_I2C_ADDRESS            0x2E
   #define VOLUME_I2C_BUS                I2C_Bus_1
+
+  #include <stdint.h>
+  int32_t getVolume();
 #endif
 
 #define I2C_B1_CLK_RATE                 400000
