@@ -39,6 +39,10 @@
 #include "quick_menu_def.h"
 #endif
 
+#if !defined(BACKUP)
+#include <string>
+#endif
+
 #if defined(PCBTARANIS)
   #define N_TARANIS_FIELD(x)
   #define TARANIS_FIELD(x) x;
@@ -756,6 +760,28 @@ PACK(struct USBJoystickChData {
 #endif
 });
 
+// Key/Value data for Lua scripts
+enum UDType {
+  UD_INT,
+  UD_FLOAT,
+  UD_STRING,
+};
+struct UserData {
+#if defined(YAML_GENERATOR)
+  CUST_ATTR(key, r_userdata_key, w_userdata_key);
+  CUST_ATTR(type, r_userdata_type, w_userdata_type);
+  CUST_ATTR(value, r_userdata_value, w_userdata_value);
+#else
+#if !defined(BACKUP)
+  std::string key;
+  UDType type = UD_STRING;
+  std::string value;
+  UserData() = default;
+  UserData(const char* k, const char* v, UDType t) { key = k; value = v; type = t; }
+#endif
+#endif
+};
+
 PACK(struct ModelData {
   // Must match start of PartialModel
   CUST_ATTR(semver,nullptr,w_semver);
@@ -945,6 +971,25 @@ PACK(struct ModelData {
   bool cfsGroupAlwaysOn(uint8_t n) { return bfGet<uint8_t>(cfsGroupOn, n, 1); }
   void cfsSetGroupAlwaysOn(uint8_t n, bool v) { cfsGroupOn = bfSet<uint8_t>(cfsGroupOn, v, n, 1); }
 #endif
+
+#if defined(YAML_GENERATOR)
+  NOBACKUP(UserData userData[MAX_USER_DATA]) FUNC(userdata_is_active);
+#endif
+  bool hasUserData(int n);
+  UserData* getUserData(int n);
+  UserData* getUserData(const char* key);
+  // Used by the YAML reader: get (creating/resizing as needed) the entry
+  // at parsed array index n, in case of a sparse/non-contiguous index
+  // sequence (e.g. a hand-edited or Companion-generated model file).
+  UserData* getOrCreateUserData(int n);
+  bool setUserData(const char* key, const char* str);
+  // str may contain embedded NUL bytes.
+  bool setUserData(const char* key, const char* str, size_t len);
+  bool setUserData(const char* key, int32_t num);
+  bool setUserData(const char* key, float num);
+  void deleteUserData(const char* key);
+  void clearUserData();
+  int getUserDataCount();
 });
 
 /*

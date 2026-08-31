@@ -124,3 +124,107 @@ TEST_F(ModelYamlRoundTrip, OverlongNameTruncatesAndRoundTrips)
   ModelData m3 = roundTrip(m2, y2);
   EXPECT_EQ(m2.name.str(), m3.name.str());
 }
+
+// userData string values may contain embedded NUL bytes.
+TEST_F(ModelYamlRoundTrip, UserDataEmbeddedNulSurvivesRoundTrip)
+{
+  ModelData m;
+  m.clear();
+  m.used = true;
+  m.userData[0].key = "App|Key";
+  m.userData[0].type = 2;  // STRING
+  m.userData[0].value = std::string("emb") + '\0' + "X";
+  ASSERT_EQ(m.userData[0].value.size(), (size_t)5);
+
+  QByteArray y;
+  ModelData m2 = roundTrip(m, y);
+
+  EXPECT_EQ(m2.userData[0].key, m.userData[0].key);
+  ASSERT_EQ(m2.userData[0].value.size(), m.userData[0].value.size());
+  EXPECT_EQ(m2.userData[0].value, m.userData[0].value);
+}
+
+// Companion must also read a value written by the firmware's own writer,
+// which escapes non-printable bytes as \xHH - not just its own output.
+TEST_F(ModelYamlRoundTrip, UserDataParsesFirmwareEscapedEmbeddedNul)
+{
+  const QByteArray yaml =
+      "header:\n"
+      "  name: Tst\n"
+      "userData:\n"
+      "  \"0\":\n"
+      "    key: \"App|Key\"\n"
+      "    type: STRING\n"
+      "    value: \"emb\\x00X\"\n";
+
+  ModelData m;
+  m.clear();
+  ASSERT_TRUE(loadModelFromYaml(m, yaml));
+
+  EXPECT_EQ(m.userData[0].key, "App|Key");
+  const std::string expected = std::string("emb") + '\0' + "X";
+  ASSERT_EQ(m.userData[0].value.size(), expected.size());
+  EXPECT_EQ(m.userData[0].value, expected);
+}
+
+// Quotes and backslashes are both special-cased by the firmware's writer
+// (radio/src/storage/yaml/yaml_tree_walker.cpp), more likely to show up in
+// real user data than an embedded NUL (quoted text, Windows-style paths).
+TEST_F(ModelYamlRoundTrip, UserDataEscapesQuotesAndBackslashesRoundTrip)
+{
+  ModelData m;
+  m.clear();
+  m.used = true;
+  m.userData[0].key = "App|Key";
+  m.userData[0].type = 2;  // STRING
+  m.userData[0].value = "a\"b\\c";
+
+  QByteArray y;
+  ModelData m2 = roundTrip(m, y);
+
+  EXPECT_EQ(m2.userData[0].value, m.userData[0].value);
+}
+
+TEST_F(ModelYamlRoundTrip, UserDataParsesFirmwareEscapedQuotesAndBackslashes)
+{
+  const QByteArray yaml =
+      "header:\n"
+      "  name: Tst\n"
+      "userData:\n"
+      "  \"0\":\n"
+      "    key: \"App|Key\"\n"
+      "    type: STRING\n"
+      "    value: \"a\\x22b\\x5Cc\"\n";
+
+  ModelData m;
+  m.clear();
+  ASSERT_TRUE(loadModelFromYaml(m, yaml));
+
+  EXPECT_EQ(m.userData[0].value, "a\"b\\c");
+}
+
+// Multiple entries of different types survive a round trip together.
+TEST_F(ModelYamlRoundTrip, UserDataMixedTypesRoundTrip)
+{
+  ModelData m;
+  m.clear();
+  m.used = true;
+  m.userData[0].key = "App|Str";
+  m.userData[0].type = 2;  // STRING
+  m.userData[0].value = "hello";
+  m.userData[1].key = "App|Int";
+  m.userData[1].type = 0;  // INT
+  m.userData[1].value = "12345";
+  m.userData[2].key = "App|Float";
+  m.userData[2].type = 1;  // FLOAT
+  m.userData[2].value = "1.23456789";
+
+  QByteArray y;
+  ModelData m2 = roundTrip(m, y);
+
+  for (int i = 0; i < 3; i++) {
+    EXPECT_EQ(m2.userData[i].key, m.userData[i].key) << "entry " << i;
+    EXPECT_EQ(m2.userData[i].type, m.userData[i].type) << "entry " << i;
+    EXPECT_EQ(m2.userData[i].value, m.userData[i].value) << "entry " << i;
+  }
+}

@@ -2880,3 +2880,88 @@ bool isAlwaysActive(void* user, uint8_t* data, uint32_t bitoffs)
 {
   return true;
 }
+
+// Handle User Data save / load
+
+bool userdata_is_active(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  return g_model.hasUserData(tw->getElmts());
+}
+
+// val_len wraps for a true length > 255, but val is always NUL-terminated
+// at its real end, so strlen(val) recovers the true length whenever it's
+// >= val_len. Only a true length > 255 with an embedded NUL can still
+// truncate - a pre-existing limit of the shared uint8_t val_len param.
+static size_t userdata_val_len(const char* val, uint8_t val_len)
+{
+  size_t real_len = strlen(val);
+  return real_len > val_len ? real_len : val_len;
+}
+
+void r_userdata_key(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getOrCreateUserData(tw->getElmts(1));
+  if (ud) ud->key.assign(val, userdata_val_len(val, val_len));
+}
+
+bool w_userdata_key(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  if (!ud) return false;
+  return yaml_output_string(ud->key.c_str(), ud->key.size(), wf, opaque, true);
+}
+
+const struct YamlIdStr enum_UDType[] = {
+  { UD_INT, "INT" },
+  { UD_FLOAT, "FLOAT" },
+  { UD_STRING, "STRING" },
+  { 0, NULL  }
+};
+
+void r_userdata_type(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  if (ud) {
+    ud->type = (UDType)yaml_parse_enum(enum_UDType, val, val_len);
+  } else {
+    TRACE("Bad model YAML - userData 'type' defined before 'key'");
+  }
+}
+
+bool w_userdata_type(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  if (!ud) return false;
+  const char* s = yaml_output_enum(ud->type, enum_UDType);
+  return wf(opaque, s, strlen(s));
+}
+
+void r_userdata_value(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  if (ud) {
+    ud->value.assign(val, userdata_val_len(val, val_len));
+  } else {
+    TRACE("Bad model YAML - userData 'value' defined before 'key'");
+  }
+}
+
+bool w_userdata_value(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  if (!ud) return false;
+  return yaml_output_string(ud->value.c_str(), ud->value.size(), wf, opaque, true);
+}

@@ -51,6 +51,7 @@
 #define CPN_MAX_SCRIPT_OUTPUTS         6
 #define CPN_MAX_SPACEMOUSE             6
 #define CPN_MAX_INPUTS                 32 // v2.10 replaces CPN_MAX_ANALOGS - the value is abitary as radio ADC refactor is still a WIP
+#define CPN_MAX_USER_DATA              50
 
 // pre v2.10
 #define CPN_MAX_POTS                   8
