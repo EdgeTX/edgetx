@@ -1959,6 +1959,15 @@ consolidated pull request.
 
 ### Phase 7 — Scenario, fixture, and developer UX
 
+**Implementation status (2026-08-31):** implemented and locally verified on
+the consolidation branch. The pull request remains draft; maintainer review and
+post-push CI are still release gates.
+
+The dependency-free host implementation lives in `edgetx_ui/flow.py`. It keeps
+schema validation and step interpretation separate from `SimulatorSession`,
+validates the complete scenario before process launch, and records every
+session request/response without changing the v1 wire protocol.
+
 #### 7.1 Finalize strict flow schema
 
 Validate all steps before launch and reject unknown data.
@@ -1993,6 +2002,21 @@ step.
 
 Document build, run, protocol, output layout, unsupported targets, timeouts,
 Windows behavior, and cleanup.
+
+The checked-in TX16S template retains the three settings files contributed in
+#7337, migrated to the current settings schema and protected as CRLF on every
+platform because the validated settings checksum depends on those exact bytes.
+An empty SD-card tree is copied beside settings for every unique run.
+
+Recorded local evidence (2026-08-31):
+
+| Check | Result |
+|---|---|
+| Scenario tests | Q01–Q10 passed: strict/unknown/range rejection, capability discovery, fixture isolation, unique roots, hashes, failure diagnostics, documented smoke, and nonzero CLI failure |
+| Full host suite | 67/67 Python tests passed |
+| One-command smoke | Configure/build/run completed on Windows TX16S and exited zero |
+| Real flow | 11/11 actions passed, 36 protocol records were correlated, and clean stop returned process code 0 |
+| Evidence bundle | Verified PPM, independently decoded PNG, capture sidecar, protocol log, bounded stderr, manifest, fixture/flow hashes, and immutable source fixture |
 
 **Tests:** Q01–Q10.
 

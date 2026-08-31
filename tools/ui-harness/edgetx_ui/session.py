@@ -14,7 +14,7 @@ import time
 from collections import deque
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import BinaryIO, Deque, Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, BinaryIO, Deque, Dict, Mapping, Optional, Sequence, Tuple, Union
 
 from .protocol import (
     CAPABILITY_NAMES,
@@ -26,6 +26,7 @@ from .protocol import (
     NamedRange,
     MAX_RECORD_BYTES,
     ProtocolViolation,
+    PROTOCOL_VERSION,
     Response,
     Status,
     UINT64_MAX,
@@ -191,6 +192,7 @@ class SimulatorSession:
         self._stderr_closed = threading.Event()
         self._diagnostics = _BoundedDiagnostics()
         self._events: Deque[Event] = deque(maxlen=MAX_EVENTS)
+        self._protocol_records: list[Dict[str, Any]] = []
 
         self._state_lock = threading.RLock()
         self._request_lock = threading.Lock()
@@ -234,6 +236,13 @@ class SimulatorSession:
     def events(self) -> Tuple[Event, ...]:
         with self._state_lock:
             return tuple(self._events)
+
+    @property
+    def protocol_records(self) -> Tuple[Dict[str, Any], ...]:
+        """Return an ordered snapshot of sent requests and received messages."""
+
+        with self._state_lock:
+            return tuple(dict(record) for record in self._protocol_records)
 
     @property
     def startup_ping(self) -> Optional[Response]:
@@ -1060,6 +1069,18 @@ class SimulatorSession:
             except (TypeError, ValueError):
                 self._clear_pending(pending)
                 raise
+            with self._state_lock:
+                self._protocol_records.append(
+                    {
+                        "direction": "request",
+                        "message": {
+                            "version": PROTOCOL_VERSION,
+                            "id": request_id,
+                            "command": command,
+                            "args": list(arguments),
+                        },
+                    }
+                )
             try:
                 assert process.stdin is not None
                 process.stdin.write(record)
@@ -1220,6 +1241,13 @@ class SimulatorSession:
                     )
 
     def _route_message(self, message: Union[Response, Event]) -> None:
+        with self._state_lock:
+            self._protocol_records.append(
+                {
+                    "direction": "event" if isinstance(message, Event) else "response",
+                    "message": dict(message.raw),
+                }
+            )
         if isinstance(message, Event):
             with self._state_lock:
                 self._events.append(message)

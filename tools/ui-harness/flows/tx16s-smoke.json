@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "target": "tx16s",
+  "requires": [
+    "rotary",
+    "touch",
+    "switches",
+    "analog",
+    "telemetry",
+    "lua",
+    "capture"
+  ],
+  "steps": [
+    {
+      "action": "wait-ready",
+      "timeout_ms": 10000
+    },
+    {
+      "action": "press",
+      "key": "ENTER",
+      "hold_ms": 120
+    },
+    {
+      "action": "rotate",
+      "steps": 1
+    },
+    {
+      "action": "tap",
+      "x": 240,
+      "y": 136,
+      "hold_ms": 80
+    },
+    {
+      "action": "set-switch",
+      "name": "SA",
+      "position": 1
+    },
+    {
+      "action": "set-analog",
+      "name": "Ail",
+      "value": 2048
+    },
+    {
+      "action": "set-telemetry",
+      "id": 61696,
+      "sub_id": 0,
+      "instance": 1,
+      "value": 115,
+      "unit": 1,
+      "precision": 1,
+      "name": "RSSI"
+    },
+    {
+      "action": "reload-lua",
+      "timeout_ms": 10000
+    },
+    {
+      "action": "wait-next-frame",
+      "timeout_ms": 3000
+    },
+    {
+      "action": "capture",
+      "name": "home",
+      "format": "png",
+      "timeout_ms": 5000
+    },
+    {
+      "action": "release-all"
+    }
+  ]
+}

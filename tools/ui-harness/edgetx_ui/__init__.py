@@ -1,5 +1,14 @@
 """Dependency-free host client for EdgeTX simulator UI automation."""
 
+from .flow import (
+    FlowDefinition,
+    FlowError,
+    FlowExecutionError,
+    FlowRunResult,
+    FlowRunner,
+    FlowValidationError,
+    load_flow,
+)
 from .protocol import (
     CaptureArtifact,
     Event,
@@ -23,6 +32,12 @@ __all__ = [
     "CaptureBundle",
     "CommandFailed",
     "Event",
+    "FlowDefinition",
+    "FlowError",
+    "FlowExecutionError",
+    "FlowRunResult",
+    "FlowRunner",
+    "FlowValidationError",
     "FrameBarrier",
     "LuaReload",
     "ProcessExited",
@@ -32,4 +47,5 @@ __all__ = [
     "Response",
     "SessionError",
     "SimulatorSession",
+    "load_flow",
 ]

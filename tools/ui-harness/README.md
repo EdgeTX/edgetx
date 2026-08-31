@@ -1,12 +1,94 @@
 # EdgeTX simulator UI harness
 
 This directory contains the dependency-free host side of the native simulator
-automation protocol. The current foundation supports `ping`, `status`,
-`describe`, target-filtered key/rotary/touch input, real-LCD frame barriers,
-render-complete framebuffer capture, `release-all`, and `stop`. Declarative
-flows are added in a later phase of the consolidation plan; `describe`
-advertises only commands and capabilities that are usable in the current
-target build.
+automation protocol. It supports strict declarative flows, copied fixtures,
+target-filtered input and state injection, real-LCD frame barriers,
+render-complete framebuffer capture, Lua reload, restart, `release-all`, and
+clean process shutdown. `describe` advertises only commands and capabilities
+that are usable in the current target build.
+
+## One-command TX16S smoke
+
+From a compiler environment that can already build the native EdgeTX simulator,
+the following command configures, incrementally builds, runs the checked-in
+scenario, verifies its artifacts, and returns nonzero on any failure:
+
+```text
+python tools/ui-harness/edgetx-ui smoke --build-dir build/ui-harness/tx16s
+```
+
+On Windows, run it from an x64 Visual Studio developer shell with `SDL2_DIR`
+set to an SDL2 CMake package. On Linux, install the normal EdgeTX native build
+dependencies or run it in the official `ghcr.io/edgetx/edgetx-dev` image. The
+initial target is TX16S (`PCB=X10`, `PCBREV=TX16S`, 480x272 RGB565); other
+targets are rejected before launch until they have an explicit schema profile
+and fixture.
+
+To use an already-built simulator:
+
+```text
+python tools/ui-harness/edgetx-ui smoke build/native/radio/src/targets/simu/simu
+```
+
+Use `run-flow` for another schema-v1 JSON scenario:
+
+```text
+python tools/ui-harness/edgetx-ui run-flow path/to/flow.json path/to/simu
+```
+
+Every flow is completely validated before process launch. Unknown fields,
+duplicate JSON keys, unsupported actions or targets, out-of-range values, more
+than 1000 steps, unsafe artifact names, and missing capabilities are failures.
+Command and startup timeouts are positive and capped at 60 seconds.
+
+## Fixtures and output
+
+`tools/ui-harness/fixtures/tx16s` is an immutable template derived from the
+fixture contributed by Mateusz Urban (`onliner10`) in EdgeTX PR #7337 and
+migrated to the current settings schema. Each execution creates a unique tree:
+
+```text
+build/ui-harness/runs/tx16s-smoke-<unique>/
+  settings/                    # writable fixture copy
+  sdcard/                      # writable fixture copy
+  artifacts/checkpoints/
+    home.ppm
+    home.png
+    home.capture.json
+  manifest.json
+  protocol.jsonl
+  stderr.log
+```
+
+The manifest records the EdgeTX commit, host platform, Python version, target,
+LCD, fixture and flow hashes, all steps and protocol exchanges, termination
+state, artifact SHA-256 values, and the exact failed step. Simulator stderr is
+kept separately and bounded by the session client. PPM, PNG, metadata, protocol,
+and manifest output is UTF-8 or canonical binary data and is never written into
+the fixture template.
+
+Failed runs are intentionally preserved for diagnosis. Successful and failed
+run directories can be removed after their evidence is no longer needed; the
+harness never reuses or overwrites them. It always attempts protocol `stop`,
+then terminate and kill-and-wait if necessary, and releases owned inputs on
+composite-action failures.
+
+## Troubleshooting
+
+- `unsupported target`, LCD, command, or capability means the simulator build
+  does not match the flow; rebuild the TX16S native simulator.
+- `output root is not ready` means the artifacts directory was not accepted.
+- A request timeout poisons that session by design. Inspect `manifest.json`,
+  `protocol.jsonl`, and `stderr.log`; increase a schema timeout only when the
+  operation legitimately needs it.
+- Windows uses binary subprocess pipes and separate reader threads; no POSIX
+  `select` behavior is assumed. Ensure `SDL2.dll` is on `PATH` beside the
+  simulator or in the developer shell.
+- Checked-in fixture YAML is forced to CRLF because the current TX16S settings
+  checksum was produced by the simulator's Windows writer; Git preserves that
+  representation on Linux and Windows.
+
+## Session API
 
 Run a lifecycle probe with Python 3:
 
