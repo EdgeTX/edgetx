@@ -29,8 +29,11 @@ else
 fi
 
 COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_BUILD_TYPE=Release -DCMAKE_MESSAGE_LOG_LEVEL=WARNING -Wno-dev -DGVARS=YES -DHELI=YES -DLUA=YES"
+# Qt 6.9's frameworks are macOS 12, so the bundle cannot start below that anyway.
+# Exported as well as passed as -D: the superbuild's forwarding loop drops this one.
 if [ "$(uname)" = "Darwin" ]; then
-    COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='11.0'"
+    export MACOSX_DEPLOYMENT_TARGET='12.0'
+    COMMON_OPTIONS="${COMMON_OPTIONS} -DCMAKE_OSX_DEPLOYMENT_TARGET='12.0'"
 fi
 
 # find_package(... CONFIG) skips the lib/cmake/<Name> search pattern for prefixes that only
