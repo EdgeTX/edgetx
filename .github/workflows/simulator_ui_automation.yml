@@ -1,0 +1,41 @@
+---
+name: Simulator UI automation
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/simulator_ui_automation.yml'
+      - 'radio/src/targets/simu/automation_*'
+      - 'radio/src/tests/simu_automation_*'
+      - 'tools/ui-harness/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/simulator_ui_automation.yml'
+      - 'radio/src/targets/simu/automation_*'
+      - 'radio/src/tests/simu_automation_*'
+      - 'tools/ui-harness/**'
+
+permissions:
+  contents: read
+
+jobs:
+  host-tests:
+    name: Host tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+
+      - name: Compile Python sources
+        run: python -m compileall -q tools/ui-harness
+
+      - name: Run host and hardening tests
+        run: python -m unittest discover -s tools/ui-harness/tests -p "test_*.py" -v

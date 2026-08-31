@@ -8,8 +8,10 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <chrono>
 #include <cstdio>
 #include <cstring>
+#include <exception>
 #include <limits>
 #include <utility>
 
@@ -126,6 +128,7 @@ AutomationStdio::AutomationStdio(const TargetDescription& target) :
 AutomationStdio::~AutomationStdio()
 {
   capture.shutdown();
+  stopOutputWriter();
 #if defined(_WIN32)
   if (outputHandle != 0) {
     (void)CloseHandle(reinterpret_cast<HANDLE>(outputHandle));
@@ -359,8 +362,25 @@ bool AutomationStdio::start(std::string* error)
                         std::strerror(redirectError));
     return false;
   }
+
+  const int outputFlags = fcntl(outputFd, F_GETFL);
+  if (outputFlags == -1 ||
+      fcntl(outputFd, F_SETFL, outputFlags | O_NONBLOCK) == -1) {
+    const int flagError = errno;
+    (void)close(outputFd);
+    outputFd = -1;
+    if (restoreInputFlags) {
+      (void)fcntl(STDIN_FILENO, F_SETFL, originalInputFlags);
+      restoreInputFlags = false;
+    }
+    setError(error,
+             std::string("cannot make automation stdout non-blocking: ") +
+                 std::strerror(flagError));
+    return false;
+  }
 #endif
 
+  if (!startOutputWriter(error)) return false;
   started = true;
   return true;
 }
@@ -373,8 +393,18 @@ StdioPumpResult AutomationStdio::pump(std::string* error)
     return StdioPumpResult::Error;
   }
 
+  const StdioPumpResult writerResult = checkOutputWriter(error);
+  if (writerResult != StdioPumpResult::Continue) return writerResult;
+  if (stopAfterFlush) {
+    return outputFlushed() ? StdioPumpResult::StopRequested
+                           : StdioPumpResult::Continue;
+  }
+  if (outputBackpressured()) return StdioPumpResult::Continue;
+
   const StdioPumpResult completedResult = drainCompletedResponses(error);
   if (completedResult != StdioPumpResult::Continue) return completedResult;
+
+  if (outputBackpressured()) return StdioPumpResult::Continue;
 
   if (pendingEvents.empty() && !inputClosed) {
     char input[STDIO_READ_BUDGET];
@@ -393,7 +423,8 @@ StdioPumpResult AutomationStdio::pump(std::string* error)
   }
 
   std::size_t processed = 0;
-  while (!pendingEvents.empty() && processed < STDIO_RECORD_BUDGET) {
+  while (!pendingEvents.empty() && processed < STDIO_RECORD_BUDGET &&
+         !outputBackpressured()) {
     LineEvent event = std::move(pendingEvents.front());
     pendingEvents.pop_front();
     ++processed;
@@ -467,6 +498,10 @@ AutomationStdio::WriteResult AutomationStdio::writeOutput(
 {
   std::size_t offset = 0;
   while (offset < record.size()) {
+    {
+      std::lock_guard<std::mutex> lock(outputMutex);
+      if (outputStop) return WriteResult::Closed;
+    }
 #if defined(_WIN32)
     HANDLE output = reinterpret_cast<HANDLE>(outputHandle);
     const DWORD remaining = static_cast<DWORD>(record.size() - offset);
@@ -490,6 +525,14 @@ AutomationStdio::WriteResult AutomationStdio::writeOutput(
     }
     if (written < 0 && errno == EINTR) continue;
     if (written < 0 && errno == EPIPE) return WriteResult::Closed;
+    if (written < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+      std::unique_lock<std::mutex> lock(outputMutex);
+      if (outputStop) return WriteResult::Closed;
+      outputReady.wait_for(lock, std::chrono::milliseconds(1),
+                           [this]() { return outputStop; });
+      if (outputStop) return WriteResult::Closed;
+      continue;
+    }
 
     setError(error, std::string("cannot write automation stdout: ") +
                         std::strerror(errno));
@@ -497,6 +540,87 @@ AutomationStdio::WriteResult AutomationStdio::writeOutput(
 #endif
   }
   return WriteResult::Complete;
+}
+
+bool AutomationStdio::startOutputWriter(std::string* error)
+{
+  try {
+    outputThread = std::thread(&AutomationStdio::outputWriterLoop, this);
+  } catch (const std::exception& exception) {
+    setError(error, std::string("cannot start automation stdout writer: ") +
+                        exception.what());
+    return false;
+  }
+  return true;
+}
+
+void AutomationStdio::stopOutputWriter()
+{
+  {
+    std::lock_guard<std::mutex> lock(outputMutex);
+    outputStop = true;
+    outputQueue.clear();
+  }
+  outputReady.notify_all();
+#if defined(_WIN32)
+  if (outputThread.joinable()) {
+    (void)CancelSynchronousIo(
+        reinterpret_cast<HANDLE>(outputThread.native_handle()));
+  }
+#endif
+  if (outputThread.joinable()) outputThread.join();
+}
+
+void AutomationStdio::outputWriterLoop()
+{
+  while (true) {
+    std::string record;
+    {
+      std::unique_lock<std::mutex> lock(outputMutex);
+      outputReady.wait(lock,
+                       [this]() { return outputStop || !outputQueue.empty(); });
+      if (outputStop) return;
+      record = outputQueue.front();
+    }
+
+    std::string error;
+    const WriteResult result = writeOutput(record, &error);
+    {
+      std::lock_guard<std::mutex> lock(outputMutex);
+      if (outputStop) return;
+      if (result != WriteResult::Complete) {
+        outputResult = result;
+        outputError = std::move(error);
+        outputQueue.clear();
+        return;
+      }
+      outputQueue.pop_front();
+    }
+  }
+}
+
+StdioPumpResult AutomationStdio::checkOutputWriter(std::string* error) const
+{
+  std::lock_guard<std::mutex> lock(outputMutex);
+  if (outputResult == WriteResult::Closed) return StdioPumpResult::PeerClosed;
+  if (outputResult == WriteResult::Error) {
+    setError(error, outputError.empty() ? "automation stdout writer failed"
+                                        : outputError);
+    return StdioPumpResult::Error;
+  }
+  return StdioPumpResult::Continue;
+}
+
+bool AutomationStdio::outputBackpressured() const
+{
+  std::lock_guard<std::mutex> lock(outputMutex);
+  return outputQueue.size() >= STDIO_OUTPUT_HIGH_WATERMARK;
+}
+
+bool AutomationStdio::outputFlushed() const
+{
+  std::lock_guard<std::mutex> lock(outputMutex);
+  return outputQueue.empty();
 }
 
 void AutomationStdio::queueEvents(std::vector<LineEvent>&& events)
@@ -1282,9 +1406,9 @@ StdioPumpResult AutomationStdio::processStop(const Request& request,
 
   const StdioPumpResult writeResult =
       emitResponse(Response::success(request.id, epoch), error);
-  return writeResult == StdioPumpResult::Continue
-             ? StdioPumpResult::StopRequested
-             : writeResult;
+  if (writeResult != StdioPumpResult::Continue) return writeResult;
+  stopAfterFlush = true;
+  return StdioPumpResult::Continue;
 }
 
 StdioPumpResult AutomationStdio::drainCompletedResponses(std::string* error)
@@ -1502,9 +1626,22 @@ Response AutomationStdio::makeDescriptionResponse(RequestId id) const
 StdioPumpResult AutomationStdio::writeSerialized(const std::string& record,
                                                  std::string* error)
 {
-  const WriteResult result = writeOutput(record, error);
-  if (result == WriteResult::Closed) return StdioPumpResult::PeerClosed;
-  if (result == WriteResult::Error) return StdioPumpResult::Error;
+  {
+    std::lock_guard<std::mutex> lock(outputMutex);
+    if (outputResult == WriteResult::Closed) return StdioPumpResult::PeerClosed;
+    if (outputResult == WriteResult::Error) {
+      setError(error, outputError.empty() ? "automation stdout writer failed"
+                                          : outputError);
+      return StdioPumpResult::Error;
+    }
+    if (outputStop) return StdioPumpResult::PeerClosed;
+    if (outputQueue.size() >= STDIO_OUTPUT_QUEUE_CAPACITY) {
+      setError(error, "automation stdout queue capacity exceeded");
+      return StdioPumpResult::Error;
+    }
+    outputQueue.push_back(record);
+  }
+  outputReady.notify_one();
   return StdioPumpResult::Continue;
 }
 

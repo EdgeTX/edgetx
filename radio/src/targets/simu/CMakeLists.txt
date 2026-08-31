@@ -142,12 +142,12 @@ else()
     widgets.cpp
     knobs.cpp
     arg_parser.cpp
-    automation_protocol.cpp
     sdl_simu.cpp
   )
 
   if(NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     target_sources(simu PRIVATE
+      automation_protocol.cpp
       automation_capture.cpp
       automation_stdio.cpp
     )

@@ -6,11 +6,13 @@
 
 #pragma once
 
+#include <condition_variable>
 #include <cstddef>
 #include <cstdint>
 #include <deque>
 #include <mutex>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "automation_capture.h"
@@ -23,6 +25,8 @@ namespace automation
 
 constexpr std::size_t STDIO_READ_BUDGET = 4096;
 constexpr std::size_t STDIO_RECORD_BUDGET = 8;
+constexpr std::size_t STDIO_OUTPUT_HIGH_WATERMARK = 64;
+constexpr std::size_t STDIO_OUTPUT_QUEUE_CAPACITY = 128;
 
 enum class StdioPumpResult {
   Continue,
@@ -86,6 +90,12 @@ class AutomationStdio
   ReadResult readInput(char* bytes, std::size_t capacity,
                        std::size_t* bytesRead, std::string* error);
   WriteResult writeOutput(const std::string& record, std::string* error);
+  bool startOutputWriter(std::string* error);
+  void stopOutputWriter();
+  void outputWriterLoop();
+  StdioPumpResult checkOutputWriter(std::string* error) const;
+  bool outputBackpressured() const;
+  bool outputFlushed() const;
   void queueEvents(std::vector<LineEvent>&& events);
   StdioPumpResult processEvent(const LineEvent& event, std::string* error);
   StdioPumpResult processKey(const Request& request, bool pressed,
@@ -207,6 +217,15 @@ class AutomationStdio
   bool started = false;
   bool inputClosed = false;
   bool queueOverflowed = false;
+
+  mutable std::mutex outputMutex;
+  std::condition_variable outputReady;
+  std::deque<std::string> outputQueue;
+  std::thread outputThread;
+  WriteResult outputResult = WriteResult::Complete;
+  std::string outputError;
+  bool outputStop = false;
+  bool stopAfterFlush = false;
 
 #if defined(_WIN32)
   std::intptr_t inputHandle = 0;

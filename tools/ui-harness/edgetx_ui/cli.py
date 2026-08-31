@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Optional, Sequence
 
 from .flow import FlowExecutionError, FlowRunner, FlowValidationError, load_flow
+from .hardening import HardeningExecutionError, HardeningRunner
 from .session import SessionError, SimulatorSession
 
 
@@ -28,6 +29,33 @@ def build_parser() -> argparse.ArgumentParser:
     probe.add_argument("--timeout", type=float, default=5.0)
     probe.add_argument("simulator")
     probe.add_argument(
+        "simulator_args",
+        nargs=argparse.REMAINDER,
+        help="arguments passed to the simulator after an optional -- separator",
+    )
+
+    harden = subcommands.add_parser(
+        "harden", help="run reproducible TX16S lifecycle and visual hardening"
+    )
+    harden.add_argument(
+        "--fixture",
+        type=Path,
+        default=REPOSITORY_ROOT / "tools" / "ui-harness" / "fixtures" / "tx16s",
+    )
+    harden.add_argument(
+        "--runs",
+        type=Path,
+        default=REPOSITORY_ROOT / "build" / "ui-harness" / "hardening",
+    )
+    harden.add_argument("--report", type=Path)
+    harden.add_argument("--timeout", type=float, default=10.0)
+    harden.add_argument("--lifecycle-cycles", type=int, default=100)
+    harden.add_argument("--ping-count", type=int, default=10_000)
+    harden.add_argument("--lua-reloads", type=int, default=20)
+    harden.add_argument("--warm-restarts", type=int, default=20)
+    harden.add_argument("--captures", type=int, default=20)
+    harden.add_argument("simulator")
+    harden.add_argument(
         "simulator_args",
         nargs=argparse.REMAINDER,
         help="arguments passed to the simulator after an optional -- separator",
@@ -128,6 +156,52 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             )
             return 2
         except (FlowValidationError, OSError, ValueError) as error:
+            print(str(error), file=sys.stderr)
+            return 2
+
+    if args.command == "harden":
+        try:
+            result = HardeningRunner(
+                args.fixture,
+                args.runs,
+                args.simulator,
+                report_path=args.report,
+                simulator_args=simulator_args,
+                command_timeout=args.timeout,
+                lifecycle_cycles=args.lifecycle_cycles,
+                ping_count=args.ping_count,
+                lua_reloads=args.lua_reloads,
+                warm_restarts=args.warm_restarts,
+                capture_count=args.captures,
+            ).run()
+            print(
+                json.dumps(
+                    {
+                        "ok": True,
+                        "run": str(result.run_directory),
+                        "report": str(result.report),
+                    },
+                    indent=2,
+                    sort_keys=True,
+                )
+            )
+            return 0
+        except HardeningExecutionError as error:
+            print(
+                json.dumps(
+                    {
+                        "ok": False,
+                        "error": str(error),
+                        "run": str(error.result.run_directory),
+                        "report": str(error.result.report),
+                    },
+                    indent=2,
+                    sort_keys=True,
+                ),
+                file=sys.stderr,
+            )
+            return 2
+        except (OSError, RuntimeError, ValueError) as error:
             print(str(error), file=sys.stderr)
             return 2
 

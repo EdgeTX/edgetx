@@ -237,6 +237,8 @@ def phase4_response(
         if mode == "phase4-release-error":
             return fail("internal_error", "injected touch release failure")
         state["touch"] = False
+    elif command == "rotate":
+        state["visual_generation"] = int(state["visual_generation"]) + 1
     elif command == "release-all":
         state["keys"].clear()
         state["touch"] = False
@@ -304,7 +306,7 @@ def phase4_response(
         target = output_root.joinpath(*PurePosixPath(relative_path).parts)
         state["display_seq"] = int(state["display_seq"]) + 1
         rgb = b"\x20\x40\x60"
-        if "ENTER" in state["keys"]:
+        if "ENTER" in state["keys"] or state["visual_generation"]:
             rgb = b"\xe0\x30\x10"
         header = b"P6\n480 272\n255\n"
         with target.open("xb") as stream:
@@ -345,6 +347,7 @@ def main() -> int:
         "telemetry": [],
         "lua_generation": 0,
         "lua_state": "running",
+        "visual_generation": 0,
     }
     output_root = Path.cwd()
     if "--automation-output" in sys.argv:

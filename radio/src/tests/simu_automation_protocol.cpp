@@ -62,6 +62,26 @@ TEST(SimuAutomationLineBuffer, EnforcesLimitAndRecoversAfterNewline)
   EXPECT_LE(buffer.bufferedBytes(), 8u);
 }
 
+TEST(SimuAutomationLineBuffer, EnforcesProductionRecordBoundary)
+{
+  LineBuffer exactBuffer;
+  const std::string exact(MAX_RECORD_BYTES, 'x');
+  const std::string exactLine = exact + "\n";
+  const auto exactEvents = exactBuffer.feed(exactLine.data(), exactLine.size());
+  ASSERT_EQ(exactEvents.size(), 1u);
+  EXPECT_EQ(exactEvents[0].type, LineEventType::Record);
+  EXPECT_EQ(exactEvents[0].record.size(), MAX_RECORD_BYTES);
+
+  LineBuffer oversizedBuffer;
+  const std::string oversizedLine(MAX_RECORD_BYTES + 1, 'x');
+  const std::string terminatedOversized = oversizedLine + "\n";
+  const auto oversizedEvents = oversizedBuffer.feed(terminatedOversized.data(),
+                                                    terminatedOversized.size());
+  ASSERT_EQ(oversizedEvents.size(), 1u);
+  EXPECT_EQ(oversizedEvents[0].type, LineEventType::LineTooLong);
+  EXPECT_LE(oversizedBuffer.bufferedBytes(), MAX_RECORD_BYTES);
+}
+
 TEST(SimuAutomationLineBuffer, ReportsOnlyPartialOrOverflowAtEof)
 {
   LineBuffer empty;
@@ -219,6 +239,18 @@ TEST(SimuAutomationParser, AcceptsUtf8CapturePathAndAsciiTelemetryLabel)
   EXPECT_EQ(parser.parse(nonAscii).error.code, ErrorCode::InvalidArgument);
 }
 
+TEST(SimuAutomationParser, EnforcesCapturePathBoundary)
+{
+  ProtocolParser parser;
+  const std::string exactPath(MAX_CAPTURE_PATH_BYTES - 4, 'a');
+  EXPECT_EQ(parser.parse("v1 1 capture " + exactPath + ".ppm").status,
+            ParseStatus::Request);
+
+  const std::string oversizedPath(MAX_CAPTURE_PATH_BYTES - 3, 'a');
+  EXPECT_EQ(parser.parse("v1 2 capture " + oversizedPath + ".ppm").error.code,
+            ErrorCode::PathTooLong);
+}
+
 TEST(SimuAutomationResponse, SerializesSuccessAndEscapesEveryControlByte)
 {
   std::string successJson;
@@ -271,6 +303,32 @@ TEST(SimuAutomationResponse, FallsBackWithinResponseLimit)
   EXPECT_EQ(serializeResponse(Response::success(1, 1), &json, 4),
             SerializeResult::LimitTooSmall);
   EXPECT_TRUE(json.empty());
+}
+
+TEST(SimuAutomationResponse, EnforcesExactProductionResponseBoundary)
+{
+  std::string probe;
+  ASSERT_EQ(
+      serializeResponse(Response::failure(9, 3, ErrorCode::InternalError, ""),
+                        &probe, MAX_RESPONSE_BYTES * 2),
+      SerializeResult::Serialized);
+  ASSERT_LT(probe.size(), MAX_RESPONSE_BYTES);
+
+  const std::size_t exactMessageBytes = MAX_RESPONSE_BYTES - probe.size();
+  std::string json;
+  EXPECT_EQ(
+      serializeResponse(Response::failure(9, 3, ErrorCode::InternalError,
+                                          std::string(exactMessageBytes, 'x')),
+                        &json),
+      SerializeResult::Serialized);
+  EXPECT_EQ(json.size(), MAX_RESPONSE_BYTES);
+
+  EXPECT_EQ(serializeResponse(
+                Response::failure(10, 3, ErrorCode::InternalError,
+                                  std::string(exactMessageBytes + 1, 'x')),
+                &json),
+            SerializeResult::UsedSizeFallback);
+  EXPECT_LE(json.size(), MAX_RESPONSE_BYTES);
 }
 
 TEST(SimuAutomationResponse, SerializesBoundedStatusAndDescriptionResults)

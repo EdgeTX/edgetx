@@ -36,6 +36,32 @@ Use `run-flow` for another schema-v1 JSON scenario:
 python tools/ui-harness/edgetx-ui run-flow path/to/flow.json path/to/simu
 ```
 
+## TX16S hardening gate
+
+Phase 8 lifecycle and visual stress is available as one reproducible command.
+Options precede the simulator path; arguments after `--` are passed through to
+the simulator:
+
+```text
+python tools/ui-harness/edgetx-ui harden \
+  --runs build/ui-harness/hardening \
+  --report build/ui-harness/hardening/windows.json \
+  build/native/radio/src/targets/simu/simu
+```
+
+The contractual defaults are 100 fresh process start/stop cycles, 10,000
+correlated pings, 20 Lua reloads, 20 warm restarts, and 20 static captures.
+Use `--lifecycle-cycles`, `--ping-count`, `--lua-reloads`,
+`--warm-restarts`, and `--captures` only for a reduced local diagnostic run.
+
+Every process receives a unique writable copy of the TX16S fixture. The stable
+JSON report records process reaping, reader-thread shutdown, Lua generations,
+restart epochs and display sequences, stale-completion counters, canonical PPM
+and decoded-RGB SHA-256 values, fixture integrity, and leftover temporary
+artifacts. Any incomplete count, changing static capture, unchanged deliberate
+visual mutation, stale completion, modified fixture, temporary artifact, or
+unreaped child makes the command exit nonzero while preserving its evidence.
+
 Every flow is completely validated before process launch. Unknown fields,
 duplicate JSON keys, unsupported actions or targets, out-of-range values, more
 than 1000 steps, unsafe artifact names, and missing capabilities are failures.
