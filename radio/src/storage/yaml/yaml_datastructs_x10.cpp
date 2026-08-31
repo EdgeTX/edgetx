@@ -731,13 +731,13 @@ static const struct YamlNode union_anonymous_4_elmts[] = {
 };
 static const struct YamlNode struct_ModuleData[] = {
   YAML_IDX,
-  YAML_UNSIGNED_CUST( "type", 8, r_moduleType, w_moduleType ),
+  YAML_UNSIGNED_CUST( "type", 6, r_moduleType, w_moduleType ),
+  YAML_ENUM("antennaMode", 2, enum_AntennaModes, NULL),
   YAML_CUSTOM("subType",r_modSubtype,w_modSubtype),
   YAML_UNSIGNED( "channelsStart", 8 ),
   YAML_SIGNED_CUST( "channelsCount", 8, r_channelsCount, w_channelsCount ),
   YAML_ENUM("failsafeMode", 4, enum_FailsafeModes, NULL),
-  YAML_PADDING( 2 ),
-  YAML_ENUM("antennaMode", 2, enum_AntennaModes, NULL),
+  YAML_PADDING( 4 ),
   YAML_UNION("mod", 200, union_anonymous_4_elmts, select_mod_type),
   YAML_END
 };
