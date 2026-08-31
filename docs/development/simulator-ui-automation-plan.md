@@ -4,10 +4,11 @@
 
 **Phase 0 evidence:** [baseline and gate record](simulator-ui-automation-phase-0.md)
 
-**Current state (2026-08-17):** technical exit 0T passed. Contract review G0 is
-still open, but implementation may proceed in this draft. G0 is required before
-the pull request leaves draft or is merged, not before each implementation
-commit.
+**Current state (2026-08-31):** Phases 1–8 are implemented and the local Phase 8
+hardening matrix passes. Contract review G0 is still open, so this document
+remains a proposed contract and the pull request remains draft. G0 is required
+before the pull request leaves draft or is merged, not before implementation and
+verification commits.
 
 **Working rule:** keep one branch and one draft pull request, implement the
 smallest useful vertical pieces, preserve the best requirements from both source
@@ -1960,8 +1961,8 @@ consolidated pull request.
 ### Phase 7 — Scenario, fixture, and developer UX
 
 **Implementation status (2026-08-31):** implemented and locally verified on
-the consolidation branch. The pull request remains draft; maintainer review and
-post-push CI are still release gates.
+the consolidation branch. The Phase 7 head passed repository CI; the pull
+request remains draft because contract review G0 is still open.
 
 The dependency-free host implementation lives in `edgetx_ui/flow.py`. It keeps
 schema validation and step interpretation separate from `SimulatorSession`,
@@ -2025,6 +2026,17 @@ verified artifacts, and exits nonzero on any failed step.
 
 ### Phase 8 — Hardening, CI, and review readiness
 
+**Implementation status (2026-08-31):** technical implementation and the local
+hardening matrix are complete. The pull request remains draft. Phase 8.6 and the
+final exit remain externally blocked by contract review G0; repository CI for
+the Phase 8 head must also pass after push.
+
+The hardening runner is available as `edgetx-ui harden`. It creates an isolated
+fixture copy and unique artifact directory, runs the configured lifecycle,
+transport, Lua, restart, and capture loops, and writes one machine-readable JSON
+report. Any failed gate produces a nonzero exit code while retaining partial
+evidence and cleanup results.
+
 #### 8.1 Run native correctness matrix
 
 - pure parser/state unit tests on Linux and Windows;
@@ -2048,6 +2060,13 @@ verified artifacts, and exits nonzero on any failed step.
 The supported-client stress case must satisfy the performance budgets in
 section 6.8. If delayed stdout draining causes an iteration over 50 ms, Phase 8
 adds a bounded writer queue and reruns T13–T16 before review.
+
+Slow-reader testing showed that synchronous stdout writes could block the SDL
+loop. The native transport now owns a dedicated output writer thread with a
+bounded 128-record FIFO and a 64-record high-water mark. The SDL pump stops
+admitting work at that mark, observes writer failure without blocking, and uses
+cooperative flush-and-stop semantics. POSIX writes handle `EAGAIN`; Windows
+teardown cancels a blocked synchronous write before joining the writer.
 
 #### 8.3 Run lifecycle stress
 
@@ -2085,8 +2104,33 @@ adds a bounded writer queue and reruns T13–T16 before review.
 Replace future tense, record final deviations and rationale, and link test/CI
 evidence.
 
-**Exit:** all mandatory checks are green and the replacement is ready to leave
-draft.
+This step is intentionally not complete. Absence of an objection is not
+acceptance: the document remains proposed until G0 records an explicit review
+outcome. No implementation result may be used to bypass that gate.
+
+Recorded hardening evidence (2026-08-31):
+
+| Check | Result |
+|---|---|
+| Host correctness | 71/71 Python tests passed on Windows and 71/71 passed in the clean Linux container; Python byte-compilation and workflow YAML parsing also passed |
+| Native correctness | 173/173 radio tests passed with AddressSanitizer in the clean Linux container; exact 1,024-byte capture-path and 16-KiB request/response boundaries and their one-byte overflow cases are covered |
+| Real TX16S lifecycle | 100/100 process start/stop cycles reaped every child; the full run completed with no fixture mutation or temporary artifacts |
+| Real TX16S transport | 10,000/10,000 pings completed with correlated IDs; delayed stdout draining for 500 ms preserved 64 ordered responses, and the 64/65 boundary produced 64 correlated replies plus one `queue_full` event |
+| Real TX16S async lifecycle | 20/20 Lua reload generations and 20/20 warm restart epochs completed; no stale completion crossed an epoch |
+| Deterministic capture | 20/20 static PPM/RGB captures were byte-identical; a deliberate rotary mutation produced a different framebuffer |
+| WASM isolation | TX16S WASI artifact built successfully (5,233,532 bytes) and contained zero automation markers |
+| Physical firmware isolation | TX16S ARM firmware built successfully (1,612,948-byte BIN); BIN and ELF contained zero automation strings and the ELF contained zero automation symbols |
+| Build isolation | Emscripten excludes the protocol and native stdio/capture sources; the host test workflow covers Ubuntu and Windows without adding a root Python dependency project |
+
+The failed first visual-mutation attempt was retained as diagnostic evidence. A
+held Enter key did not visibly change the real TX16S framebuffer, so the gate
+was corrected to use a rotary mutation. The reduced verification and the full
+rerun then passed. This changes only the visual hardening action, not the wire
+protocol or product behavior.
+
+**Exit:** the technical local checks are green. The replacement is not ready to
+leave draft until repository CI for the Phase 8 head is green and G0 records an
+explicit contract-review outcome.
 
 ## 12. Test catalogue
 
@@ -2164,6 +2208,15 @@ draft.
 | Q04–Q06 | required capabilities, immutable fixture copy, unique run directory |
 | Q07–Q08 | manifest/protocol/artifact hashes and failed-step diagnostics |
 | Q09–Q10 | documented one-command smoke and nonzero failure exit |
+
+### 12.8 Hardening-runner tests
+
+| ID range | Coverage |
+|---|---|
+| R01 | 10,000 correlated requests and monotonic response IDs |
+| R02 | 20 Lua reload generations and 20 warm restart epochs without stale completions |
+| R03 | 20 identical static captures, deliberate visual change, fixture and artifact isolation |
+| R04 | complete machine-readable report, process reaping, cleanup gates, and nonzero failure exit |
 
 ## 13. Requirement traceability
 
@@ -2275,7 +2328,7 @@ final review unless preserving an author's imported commit is more important.
 | Protocol scope becomes a testing platform | Version 1 command list and non-goals | Defer adapters/goldens/multiple targets |
 | Windows works natively but Python fails | Binary reader threads, no pipe `select` | Windows lifecycle test in Phase 3 |
 | SDL loop stalls on input | Raw bounded reads and pump budget | Frame-time baseline and stress |
-| SDL loop stalls on output | Cooperative-reader invariant and slow-reader stress | Add response writer queue if latency budget fails |
+| SDL loop stalls on output | Bounded response writer queue, high-water admission control, and slow-reader stress | T13–T16 and the Phase 8 64/65 boundary probe pass |
 | Capture is stale | Newer `display_seq` and forced invalidation | C06–C09 |
 | LCD callback blocks firmware | Snapshot only; writer elsewhere | Static analysis and failure-injection test |
 | Capture writes outside run directory | Canonical relative containment | C01–C05 |
