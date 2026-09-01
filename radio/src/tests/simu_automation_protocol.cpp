@@ -6,11 +6,138 @@
 
 #include <gtest/gtest.h>
 
+#include <chrono>
+#include <cstdlib>
 #include <limits>
+#include <thread>
 
 #include "automation_protocol.h"
+#include "automation_stdio.h"
+
+#if !defined(_WIN32)
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#endif
 
 using namespace edgetx::automation;
+
+#if !defined(_WIN32)
+namespace
+{
+
+bool automationKeyDelivered = false;
+
+void observeAutomationKey(const std::string&, bool)
+{
+  automationKeyDelivered = true;
+}
+
+struct StdioChildResult {
+  int status = -1;
+  std::string output;
+};
+
+StdioChildResult runStdioChild(const std::string& input, bool expectStop,
+                               const std::string& outputRoot = std::string())
+{
+  int inputPipe[2] = {-1, -1};
+  int outputPipe[2] = {-1, -1};
+  if (pipe(inputPipe) != 0 || pipe(outputPipe) != 0) return {};
+
+  const pid_t child = fork();
+  if (child == 0) {
+    (void)close(inputPipe[1]);
+    (void)close(outputPipe[0]);
+    if (dup2(inputPipe[0], STDIN_FILENO) == -1 ||
+        dup2(outputPipe[1], STDOUT_FILENO) == -1) {
+      _exit(90);
+    }
+    (void)close(inputPipe[0]);
+    (void)close(outputPipe[1]);
+
+    int childStatus = 91;
+    {
+      TargetDescription target;
+      target.commands = {Command::Ping, Command::KeyDown, Command::SetSwitch,
+                         Command::Capture, Command::Restart, Command::Stop};
+      target.capabilities.capture = true;
+      target.capabilities.warmRestart = true;
+      target.keys = {"ENTER"};
+      target.switches = {{"SA", -1, 1}};
+      AutomationStdio automation(target);
+      AutomationInputHandlers handlers;
+      handlers.setKey = observeAutomationKey;
+      automation.setInputHandlers(handlers);
+
+      std::string error;
+      if (!automation.start(&error)) _exit(92);
+      if (!outputRoot.empty() &&
+          !automation.configureCapture(outputRoot, 1, 1, 16, &error)) {
+        _exit(89);
+      }
+      automation.onDisplayFrame(nullptr, 0);
+
+      const auto deadline =
+          std::chrono::steady_clock::now() + std::chrono::seconds(5);
+      while (std::chrono::steady_clock::now() < deadline) {
+        const StdioPumpResult result = automation.pump(&error);
+        if (result == StdioPumpResult::Error) _exit(93);
+        if (result == StdioPumpResult::RestartRequested) _exit(95);
+        if ((expectStop && result == StdioPumpResult::StopRequested) ||
+            (!expectStop && result == StdioPumpResult::PeerClosed)) {
+          childStatus = automationKeyDelivered ? 94 : 0;
+          break;
+        }
+        std::this_thread::yield();
+      }
+    }
+    _exit(childStatus);
+  }
+
+  (void)close(inputPipe[0]);
+  (void)close(outputPipe[1]);
+  if (child < 0) {
+    (void)close(inputPipe[1]);
+    (void)close(outputPipe[0]);
+    return {};
+  }
+
+  std::size_t offset = 0;
+  while (offset < input.size()) {
+    const ssize_t written =
+        write(inputPipe[1], input.data() + offset, input.size() - offset);
+    if (written <= 0) break;
+    offset += static_cast<std::size_t>(written);
+  }
+  (void)close(inputPipe[1]);
+
+  StdioChildResult result;
+  char bytes[4096];
+  while (true) {
+    const ssize_t received = read(outputPipe[0], bytes, sizeof(bytes));
+    if (received <= 0) break;
+    result.output.append(bytes, static_cast<std::size_t>(received));
+  }
+  (void)close(outputPipe[0]);
+  (void)waitpid(child, &result.status, 0);
+  return result;
+}
+
+std::size_t countSubstring(const std::string& value,
+                           const std::string& pattern)
+{
+  std::size_t count = 0;
+  std::size_t offset = 0;
+  while ((offset = value.find(pattern, offset)) != std::string::npos) {
+    ++count;
+    offset += pattern.size();
+  }
+  return count;
+}
+
+}  // namespace
+#endif
 
 TEST(SimuAutomationLineBuffer, AcceptsLfCrlfBlankAndMultipleRecords)
 {
@@ -47,12 +174,17 @@ TEST(SimuAutomationLineBuffer, PreservesUtf8AtEveryFeedSplit)
 TEST(SimuAutomationLineBuffer, EnforcesLimitAndRecoversAfterNewline)
 {
   LineBuffer buffer(8);
-  auto exact = buffer.feed("12345678\r\n", 10);
-  ASSERT_EQ(exact.size(), 1u);
-  EXPECT_EQ(exact[0].type, LineEventType::Record);
-  EXPECT_EQ(exact[0].record, "12345678");
+  auto exactLf = buffer.feed("1234567\n", 8);
+  ASSERT_EQ(exactLf.size(), 1u);
+  EXPECT_EQ(exactLf[0].type, LineEventType::Record);
+  EXPECT_EQ(exactLf[0].record, "1234567");
 
-  const std::string overflowAndRecovery = "123456789 ignored\nok\n";
+  auto exactCrlf = buffer.feed("123456\r\n", 8);
+  ASSERT_EQ(exactCrlf.size(), 1u);
+  EXPECT_EQ(exactCrlf[0].type, LineEventType::Record);
+  EXPECT_EQ(exactCrlf[0].record, "123456");
+
+  const std::string overflowAndRecovery = "12345678\nok\n";
   auto events =
       buffer.feed(overflowAndRecovery.data(), overflowAndRecovery.size());
   ASSERT_EQ(events.size(), 2u);
@@ -64,22 +196,31 @@ TEST(SimuAutomationLineBuffer, EnforcesLimitAndRecoversAfterNewline)
 
 TEST(SimuAutomationLineBuffer, EnforcesProductionRecordBoundary)
 {
-  LineBuffer exactBuffer;
-  const std::string exact(MAX_RECORD_BYTES, 'x');
-  const std::string exactLine = exact + "\n";
-  const auto exactEvents = exactBuffer.feed(exactLine.data(), exactLine.size());
-  ASSERT_EQ(exactEvents.size(), 1u);
-  EXPECT_EQ(exactEvents[0].type, LineEventType::Record);
-  EXPECT_EQ(exactEvents[0].record.size(), MAX_RECORD_BYTES);
+  struct BoundaryCase {
+    std::size_t payloadBytes;
+    const char* delimiter;
+    LineEventType expected;
+  };
+  const BoundaryCase cases[] = {
+      {MAX_RECORD_BYTES - 1, "\n", LineEventType::Record},
+      {MAX_RECORD_BYTES, "\n", LineEventType::LineTooLong},
+      {MAX_RECORD_BYTES - 2, "\r\n", LineEventType::Record},
+      {MAX_RECORD_BYTES - 1, "\r\n", LineEventType::LineTooLong},
+  };
 
-  LineBuffer oversizedBuffer;
-  const std::string oversizedLine(MAX_RECORD_BYTES + 1, 'x');
-  const std::string terminatedOversized = oversizedLine + "\n";
-  const auto oversizedEvents = oversizedBuffer.feed(terminatedOversized.data(),
-                                                    terminatedOversized.size());
-  ASSERT_EQ(oversizedEvents.size(), 1u);
-  EXPECT_EQ(oversizedEvents[0].type, LineEventType::LineTooLong);
-  EXPECT_LE(oversizedBuffer.bufferedBytes(), MAX_RECORD_BYTES);
+  for (const BoundaryCase& boundary : cases) {
+    LineBuffer buffer;
+    const std::string wire =
+        std::string(boundary.payloadBytes, 'x') + boundary.delimiter;
+    ASSERT_EQ(wire.size() <= MAX_RECORD_BYTES,
+              boundary.expected == LineEventType::Record);
+    const auto events = buffer.feed(wire.data(), wire.size());
+    ASSERT_EQ(events.size(), 1u);
+    EXPECT_EQ(events[0].type, boundary.expected)
+        << "payload=" << boundary.payloadBytes
+        << " delimiter=" << (boundary.delimiter[0] == '\r' ? "CRLF" : "LF");
+    EXPECT_LE(buffer.bufferedBytes(), MAX_RECORD_BYTES);
+  }
 }
 
 TEST(SimuAutomationLineBuffer, ReportsOnlyPartialOrOverflowAtEof)
@@ -202,6 +343,32 @@ TEST(SimuAutomationParser, EnforcesArityAndNumericRanges)
             ErrorCode::InvalidArgument);
   EXPECT_EQ(parser.parse("v1 13 set-telemetry 1 0 0 1 0 0 ABCDE").error.code,
             ErrorCode::InvalidArgument);
+
+  const ParseResult signedMinimum = parser.parse(
+      "v1 14 set-telemetry 1 0 0 -2147483648 0 0 MIN");
+  EXPECT_EQ(signedMinimum.status, ParseStatus::Request);
+  EXPECT_EQ(signedMinimum.request.arguments[3], "-2147483648");
+  const ParseResult signedMaximum = parser.parse(
+      "v1 15 set-telemetry 1 0 0 2147483647 0 0 MAX");
+  EXPECT_EQ(signedMaximum.status, ParseStatus::Request);
+  EXPECT_EQ(signedMaximum.request.arguments[3], "2147483647");
+  EXPECT_EQ(parser.parse(
+                       "v1 16 set-telemetry 1 0 0 -2147483649 0 0 LOW")
+                .error.code,
+            ErrorCode::OutOfRange);
+  EXPECT_EQ(parser.parse(
+                       "v1 17 set-telemetry 1 0 0 2147483648 0 0 HIGH")
+                .error.code,
+            ErrorCode::OutOfRange);
+}
+
+TEST(SimuAutomationParser, ReservesTheLfDelimiterFromTheWireLimit)
+{
+  ProtocolParser parser;
+  EXPECT_NE(parser.parse(std::string(MAX_RECORD_BYTES - 1, 'x')).error.code,
+            ErrorCode::LineTooLong);
+  EXPECT_EQ(parser.parse(std::string(MAX_RECORD_BYTES, 'x')).error.code,
+            ErrorCode::LineTooLong);
 }
 
 TEST(SimuAutomationParser, RejectsMalformedSeparatorsNulAndInvalidUtf8)
@@ -562,3 +729,69 @@ TEST(SimuAutomationSessionState, BoundsPendingQueue)
   EXPECT_EQ(id, 1u);
   EXPECT_EQ(state.queuedRequestCount(), MAX_PENDING_REQUESTS - 1);
 }
+
+#if !defined(_WIN32)
+TEST(SimuAutomationStdio, StopRejectsAlreadyReadRequestsWithoutExecutingThem)
+{
+  char rootTemplate[] = "/tmp/edgetx-stop-barrier-XXXXXX";
+  const char* root = mkdtemp(rootTemplate);
+  ASSERT_NE(root, nullptr);
+
+  std::string input =
+      "v1 1 stop\n"
+      "v1 2 ping\n"
+      "v1 3 capture should-not-exist.ppm\n"
+      "v1 4 restart\n"
+      "v1 5 key-down ENTER\n";
+  for (RequestId id = 6; id <= MAX_PENDING_REQUESTS; ++id)
+    input += "v1 " + std::to_string(id) + " ping\n";
+
+  const StdioChildResult child = runStdioChild(input, true, root);
+  const std::string artifact =
+      std::string(root) + "/should-not-exist.ppm";
+  const bool artifactExists = access(artifact.c_str(), F_OK) == 0;
+  const int cleanupResult = rmdir(root);
+
+  ASSERT_TRUE(WIFEXITED(child.status));
+  EXPECT_EQ(WEXITSTATUS(child.status), 0);
+  EXPECT_FALSE(artifactExists);
+  EXPECT_EQ(cleanupResult, 0);
+  for (RequestId id = 1; id <= MAX_PENDING_REQUESTS; ++id) {
+    EXPECT_EQ(countSubstring(child.output,
+                             "\"id\":" + std::to_string(id) + ","),
+              1u)
+        << "request " << id << " did not receive exactly one terminal";
+  }
+  EXPECT_NE(child.output.find("\"id\":1,\"ok\":true"), std::string::npos);
+  EXPECT_EQ(countSubstring(child.output, "\"ok\":false"),
+            MAX_PENDING_REQUESTS - 1);
+  EXPECT_EQ(countSubstring(child.output, "\"code\":\"session_stopping\""),
+            MAX_PENDING_REQUESTS - 1);
+}
+
+TEST(SimuAutomationStdio, FlushesFinalLineOverflowEventBeforePeerClose)
+{
+  const StdioChildResult child =
+      runStdioChild(std::string(MAX_RECORD_BYTES + 1, 'x'), false);
+
+  ASSERT_TRUE(WIFEXITED(child.status));
+  EXPECT_EQ(WEXITSTATUS(child.status), 0);
+  EXPECT_EQ(countSubstring(child.output, "\"code\":\"line_too_long\""), 1u);
+}
+
+TEST(SimuAutomationStdio, ParsesSignedInt32ExtremaWithoutOverflow)
+{
+  const StdioChildResult child = runStdioChild(
+      "v1 1 set-switch SA -2147483648\n"
+      "v1 2 set-switch SA 2147483647\n"
+      "v1 3 stop\n",
+      true);
+
+  ASSERT_TRUE(WIFEXITED(child.status));
+  EXPECT_EQ(WEXITSTATUS(child.status), 0);
+  EXPECT_NE(child.output.find("\"id\":1,\"ok\":false"), std::string::npos);
+  EXPECT_NE(child.output.find("\"id\":2,\"ok\":false"), std::string::npos);
+  EXPECT_EQ(countSubstring(child.output, "\"code\":\"out_of_range\""), 2u);
+  EXPECT_NE(child.output.find("\"id\":3,\"ok\":true"), std::string::npos);
+}
+#endif

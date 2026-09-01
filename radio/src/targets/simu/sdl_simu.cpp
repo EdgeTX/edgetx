@@ -83,7 +83,7 @@
 #include "edgetx.h"
 
 #include "arg_parser.h"
-#if !defined(__EMSCRIPTEN__)
+#if defined(SIMU_AUTOMATION)
 #include "automation_runtime.h"
 #include "automation_stdio.h"
 #endif
@@ -93,15 +93,15 @@
 static SDL_Window* window;
 static SDL_Renderer* renderer;
 static SDL_Texture* screen_frame_buffer;
-static constexpr std::int8_t AUTOMATION_SWITCH_DISABLED = 2;
 static std::array<int, MAX_SWITCHES> simu_switch_slider_positions{};
+#if defined(SIMU_AUTOMATION)
+static constexpr std::int8_t AUTOMATION_SWITCH_DISABLED = 2;
 static std::array<std::int8_t, MAX_SWITCHES> automation_switch_positions = [] {
   std::array<std::int8_t, MAX_SWITCHES> positions{};
   positions.fill(AUTOMATION_SWITCH_DISABLED);
   return positions;
 }();
 
-#if !defined(__EMSCRIPTEN__)
 static edgetx::automation::AutomationStdio* automation_stdio_instance = nullptr;
 
 struct AutomationKey {
@@ -556,12 +556,14 @@ static void draw_switches()
           simu_switch_slider_positions[i] = 0;
           ImGui::Dummy(sw_size);
         } else {
+#if defined(SIMU_AUTOMATION)
           if (automation_switch_positions[i] != AUTOMATION_SWITCH_DISABLED) {
             const std::int8_t position = automation_switch_positions[i];
             simu_switch_slider_positions[i] = position < 0    ? 0
                                                 : position == 0 ? 1
                                                                 : 2;
           }
+#endif
           ImGui::PushID(i);
           ImGui::VSliderInt("##sw", sw_size,
                             &simu_switch_slider_positions[i],
@@ -573,9 +575,12 @@ static void draw_switches()
           ImGui::PopID();
         }
         
+#if defined(SIMU_AUTOMATION)
         if (automation_switch_positions[i] != AUTOMATION_SWITCH_DISABLED) {
           simuSetSwitch(i, automation_switch_positions[i]);
-        } else if (IS_CONFIG_3POS(i)) {
+        } else
+#endif
+        if (IS_CONFIG_3POS(i)) {
           simuSetSwitch(i, simu_switch_slider_positions[i] == 0
                                ? -1
                                : simu_switch_slider_positions[i] == 1 ? 0 : 1);
@@ -935,12 +940,7 @@ int main(int argc, char* argv[])
     return 0;
   }
 
-#if defined(__EMSCRIPTEN__)
-  if (args.isAutomationStdio()) {
-    fprintf(stderr, "Error: stdio automation is native-simulator-only\n");
-    return 1;
-  }
-#else
+#if defined(SIMU_AUTOMATION)
   edgetx::automation::AutomationStdio automation_stdio;
   if (args.isAutomationStdio()) {
     SDL_LogSetOutputFunction(
@@ -1055,7 +1055,7 @@ int main(int argc, char* argv[])
   simuInit();
   simuFatfsSetPaths(args.getStoragePath().c_str(),
                     args.getSettingsPath().c_str());
-#if !defined(__EMSCRIPTEN__)
+#if defined(SIMU_AUTOMATION)
   if (args.isAutomationStdio()) {
     automation_stdio.setTargetDescription(
         automationTargetDescription(automation_stdio.captureConfigured()));
@@ -1067,8 +1067,12 @@ int main(int argc, char* argv[])
   // Automation must reach the periodic firmware loop without interactive
   // splash, calibration, or startup checks. Normal simulator runs keep the
   // existing startup behavior.
-  simuStart(!args.isAutomationStdio());
-#if !defined(__EMSCRIPTEN__)
+  bool runStartupChecks = true;
+#if defined(SIMU_AUTOMATION)
+  runStartupChecks = !args.isAutomationStdio();
+#endif
+  simuStart(runStartupChecks);
+#if defined(SIMU_AUTOMATION)
   if (args.isAutomationStdio()) automation_stdio.markRuntimeStarted();
 #endif
 
@@ -1089,6 +1093,7 @@ int main(int argc, char* argv[])
   do {
     Uint64 start_ts = SDL_GetPerformanceCounter();
 
+#if defined(SIMU_AUTOMATION)
     if (args.isAutomationStdio()) {
       std::string automation_error;
       const edgetx::automation::StdioPumpResult automation_result =
@@ -1120,6 +1125,7 @@ int main(int argc, char* argv[])
         break;
       }
     }
+#endif
 
     if (!handleEvents()) break;
 
@@ -1135,7 +1141,7 @@ int main(int argc, char* argv[])
 
   // App cleanup
   simuStop();
-#if !defined(__EMSCRIPTEN__)
+#if defined(SIMU_AUTOMATION)
   if (args.isAutomationStdio()) {
     automation_stdio_instance = nullptr;
     automation_stdio.markRuntimeStopped();
@@ -1161,7 +1167,7 @@ int main(int argc, char* argv[])
 
 uint16_t simuGetAnalog(uint8_t idx)
 {
-#if !defined(__EMSCRIPTEN__)
+#if defined(SIMU_AUTOMATION)
   std::uint16_t automationValue = 0;
   if (edgetx::automation::simuAutomationGetAnalogOverride(idx,
                                                            &automationValue)) {
@@ -1205,7 +1211,7 @@ uint16_t simuGetAnalog(uint8_t idx)
 void simuTrace(const char* text) {}
 void simuLcdNotify()
 {
-#if !defined(__EMSCRIPTEN__)
+#if defined(SIMU_AUTOMATION)
   if (automation_stdio_instance != nullptr)
     automation_stdio_instance->onDisplayFrame(
         reinterpret_cast<const std::uint16_t*>(simuLcdBuf),

@@ -98,6 +98,8 @@ class AutomationStdio
   bool outputFlushed() const;
   void queueEvents(std::vector<LineEvent>&& events);
   StdioPumpResult processEvent(const LineEvent& event, std::string* error);
+  StdioPumpResult rejectStoppingEvent(const LineEvent& event,
+                                      std::string* error);
   StdioPumpResult processKey(const Request& request, bool pressed,
                              std::string* error);
   StdioPumpResult processRotate(const Request& request, std::string* error);

@@ -556,6 +556,13 @@ std::vector<LineEvent> LineBuffer::feed(const char* bytes, std::size_t size)
     }
 
     if (byte == '\n') {
+      const std::size_t delimiterBytes = pendingCarriageReturn ? 2 : 1;
+      if (delimiterBytes > maxRecordBytes ||
+          buffer.size() > maxRecordBytes - delimiterBytes) {
+        events.push_back({LineEventType::LineTooLong, std::string()});
+        resetRecord();
+        continue;
+      }
       pendingCarriageReturn = false;
       events.push_back({LineEventType::Record, buffer});
       resetRecord();
@@ -601,7 +608,7 @@ bool LineBuffer::isDiscarding() const { return discarding; }
 ParseResult ProtocolParser::parse(const std::string& input)
 {
   if (input.empty()) return ParseResult();
-  if (input.size() > MAX_RECORD_BYTES)
+  if (input.size() >= MAX_RECORD_BYTES)
     return makeError(ErrorCode::LineTooLong, "record exceeds 16 KiB");
 
   std::string record = input;

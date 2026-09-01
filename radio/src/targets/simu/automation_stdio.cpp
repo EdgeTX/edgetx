@@ -57,8 +57,10 @@ std::int32_t parseValidatedSigned(const std::string& value)
   const bool negative = value[0] == '-';
   const std::size_t offset = negative ? 1 : 0;
   const std::uint64_t magnitude = parseValidatedUnsigned(value.substr(offset));
-  return negative ? -static_cast<std::int32_t>(magnitude)
-                  : static_cast<std::int32_t>(magnitude);
+  const std::int64_t parsed =
+      negative ? -static_cast<std::int64_t>(magnitude)
+               : static_cast<std::int64_t>(magnitude);
+  return static_cast<std::int32_t>(parsed);
 }
 
 Response captureResponse(const CaptureCompletion& completion)
@@ -395,18 +397,19 @@ StdioPumpResult AutomationStdio::pump(std::string* error)
 
   const StdioPumpResult writerResult = checkOutputWriter(error);
   if (writerResult != StdioPumpResult::Continue) return writerResult;
-  if (stopAfterFlush) {
+  if (stopAfterFlush && pendingEvents.empty())
     return outputFlushed() ? StdioPumpResult::StopRequested
                            : StdioPumpResult::Continue;
+  if (outputBackpressured()) return StdioPumpResult::Continue;
+
+  if (!stopAfterFlush) {
+    const StdioPumpResult completedResult = drainCompletedResponses(error);
+    if (completedResult != StdioPumpResult::Continue) return completedResult;
   }
-  if (outputBackpressured()) return StdioPumpResult::Continue;
-
-  const StdioPumpResult completedResult = drainCompletedResponses(error);
-  if (completedResult != StdioPumpResult::Continue) return completedResult;
 
   if (outputBackpressured()) return StdioPumpResult::Continue;
 
-  if (pendingEvents.empty() && !inputClosed) {
+  if (!stopAfterFlush && pendingEvents.empty() && !inputClosed) {
     char input[STDIO_READ_BUDGET];
     std::size_t bytesRead = 0;
     const ReadResult readResult =
@@ -415,8 +418,7 @@ StdioPumpResult AutomationStdio::pump(std::string* error)
       queueEvents(lineBuffer.feed(input, bytesRead));
     } else if (readResult == ReadResult::Closed) {
       inputClosed = true;
-      // A partial record cannot receive a response after the peer closes stdin.
-      (void)lineBuffer.finish();
+      queueEvents(lineBuffer.finish());
     } else if (readResult == ReadResult::Error) {
       return StdioPumpResult::Error;
     }
@@ -429,7 +431,9 @@ StdioPumpResult AutomationStdio::pump(std::string* error)
     pendingEvents.pop_front();
     ++processed;
 
-    const StdioPumpResult result = processEvent(event, error);
+    const StdioPumpResult result = stopAfterFlush
+                                       ? rejectStoppingEvent(event, error)
+                                       : processEvent(event, error);
     if (result != StdioPumpResult::Continue) return result;
   }
 
@@ -440,7 +444,15 @@ StdioPumpResult AutomationStdio::pump(std::string* error)
     if (result != StdioPumpResult::Continue) return result;
   }
 
-  if (inputClosed && pendingEvents.empty()) return StdioPumpResult::PeerClosed;
+  if (stopAfterFlush) {
+    return pendingEvents.empty() && outputFlushed()
+               ? StdioPumpResult::StopRequested
+               : StdioPumpResult::Continue;
+  }
+  if (inputClosed && pendingEvents.empty()) {
+    return outputFlushed() ? StdioPumpResult::PeerClosed
+                           : StdioPumpResult::Continue;
+  }
   return StdioPumpResult::Continue;
 }
 
@@ -734,8 +746,40 @@ StdioPumpResult AutomationStdio::processEvent(const LineEvent& event,
       error);
 }
 
+StdioPumpResult AutomationStdio::rejectStoppingEvent(const LineEvent& event,
+                                                     std::string* error)
+{
+  if (event.type == LineEventType::LineTooLong) {
+    {
+      std::lock_guard<std::mutex> lock(stateMutex);
+      incrementSaturating(&lineOverflowCount);
+    }
+    return emitEvent(ErrorCode::LineTooLong, "record exceeds 16 KiB", error);
+  }
+  if (event.type == LineEventType::PartialRecordAtEof)
+    return StdioPumpResult::Continue;
+
+  const ParseResult parsed = parser.parse(event.record);
+  if (parsed.status == ParseStatus::Ignored) return StdioPumpResult::Continue;
+  if (parsed.status == ParseStatus::Error) {
+    if (parsed.error.hasRequestId) {
+      return emitResponse(
+          Response::failure(parsed.error.requestId, currentEpoch(),
+                            parsed.error.code, parsed.error.message),
+          error);
+    }
+    return emitEvent(parsed.error.code, parsed.error.message, error);
+  }
+
+  return emitResponse(
+      Response::failure(parsed.request.id, currentEpoch(),
+                        ErrorCode::SessionStopping,
+                        "request rejected because the session is stopping"),
+      error);
+}
+
 StdioPumpResult AutomationStdio::processKey(const Request& request,
-                                            bool pressed, std::string* error)
+                                             bool pressed, std::string* error)
 {
   Response response;
   void (*handler)(const std::string&, bool) = nullptr;

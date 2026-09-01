@@ -45,6 +45,7 @@ add_executable(gtests-radio EXCLUDE_FROM_ALL
   ${TEST_SRC_FILES}
 )
 target_compile_options(gtests-radio PRIVATE ${SIMU_SRC_OPTIONS})
+target_compile_definitions(gtests-radio PRIVATE SIMU_AUTOMATION)
 
 target_link_libraries(gtests-radio gtests-radio-lib)
 message(STATUS "Added optional gtests target")

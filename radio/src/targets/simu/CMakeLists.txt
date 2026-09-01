@@ -145,6 +145,10 @@ else()
     sdl_simu.cpp
   )
 
+  if(SIMU_AUTOMATION_NATIVE)
+    target_compile_definitions(simu PRIVATE SIMU_AUTOMATION)
+  endif()
+
   if(NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     target_sources(simu PRIVATE
       automation_protocol.cpp

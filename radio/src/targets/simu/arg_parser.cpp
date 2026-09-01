@@ -5,12 +5,15 @@
 #include <cctype>
 #include <climits>
 #include <cstdarg>
+#if defined(SIMU_AUTOMATION)
 #include <filesystem>
+#endif
 
 ArgumentParser::ArgumentParser(const std::string &prog_name)
     : program_name(prog_name) {}
 
 bool ArgumentParser::parse(int argc, char *argv[]) {
+#if defined(SIMU_AUTOMATION)
   // Reserve stdout for protocol records as soon as automation is requested,
   // including parse failures that occur before the flag's position.
   for (int i = 1; i < argc; ++i) {
@@ -19,6 +22,7 @@ bool ArgumentParser::parse(int argc, char *argv[]) {
       break;
     }
   }
+#endif
 
   for (int i = 1; i < argc; ++i) {
     std::string arg = argv[i];
@@ -35,12 +39,14 @@ bool ArgumentParser::parse(int argc, char *argv[]) {
     } else if (arg == "--settings") {
       if (!getNextArg(argc, argv, i, settings_path, "settings"))
         return false;
+#if defined(SIMU_AUTOMATION)
     } else if (arg == "--automation-stdio") {
       // Already recorded by the pre-scan above.
     } else if (arg == "--automation-output") {
       if (!getNextArg(argc, argv, i, automation_output_path,
                       "automation-output"))
         return false;
+#endif
     } else if (arg == "-h" || arg == "--help") {
       help_requested = true;
       return true;
@@ -50,13 +56,20 @@ bool ArgumentParser::parse(int argc, char *argv[]) {
       return false;
     }
   }
+#if defined(SIMU_AUTOMATION)
   return validateAutomationOptions();
+#else
+  return true;
+#endif
 }
 
 void ArgumentParser::printUsage() const {
   printMessage("usage: %s [--width width] [--height height] [--storage path] "
-               "[--settings path] [--automation-stdio "
-               "--automation-output path] [-h | --help]\n",
+               "[--settings path] "
+#if defined(SIMU_AUTOMATION)
+               "[--automation-stdio --automation-output path] "
+#endif
+               "[-h | --help]\n",
                program_name.c_str());
 }
 
@@ -67,8 +80,10 @@ void ArgumentParser::printHelp() const {
   printMessage("  --height height           Set the height (integer)\n");
   printMessage("  --storage path            Set the storage path\n");
   printMessage("  --settings path           Set the settings path\n");
+#if defined(SIMU_AUTOMATION)
   printMessage("  --automation-stdio        Enable the stdio automation protocol\n");
   printMessage("  --automation-output path  Set the automation artifact root\n");
+#endif
   printMessage("  -h, --help                Show this help message\n");
 }
 
@@ -86,11 +101,13 @@ const std::string &ArgumentParser::getSettingsPath() const {
   return settings_path;
 }
 
+#if defined(SIMU_AUTOMATION)
 const std::string &ArgumentParser::getAutomationOutputPath() const {
   return automation_output_path;
 }
 
 bool ArgumentParser::isAutomationStdio() const { return automation_stdio; }
+#endif
 
 bool ArgumentParser::hasWidth() const { return width != -1; }
 
@@ -100,6 +117,7 @@ bool ArgumentParser::hasStoragePath() const { return !storage_path.empty(); }
 
 bool ArgumentParser::hasSettingsPath() const { return !settings_path.empty(); }
 
+#if defined(SIMU_AUTOMATION)
 bool ArgumentParser::hasAutomationOutputPath() const {
   return !automation_output_path.empty();
 }
@@ -125,11 +143,16 @@ bool ArgumentParser::validateAutomationOptions() {
   automation_output_path = output.string();
   return true;
 }
+#endif
 
 void ArgumentParser::printMessage(const char *format, ...) const {
   va_list arguments;
   va_start(arguments, format);
+#if defined(SIMU_AUTOMATION)
   vfprintf(automation_stdio ? stderr : stdout, format, arguments);
+#else
+  vfprintf(stdout, format, arguments);
+#endif
   va_end(arguments);
 }
 

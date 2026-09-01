@@ -12,6 +12,7 @@ namespace edgetx
 namespace automation
 {
 
+// Total wire size, including the LF or CRLF record delimiter.
 constexpr std::size_t MAX_RECORD_BYTES = 16 * 1024;
 constexpr std::size_t MAX_RESPONSE_BYTES = 16 * 1024;
 constexpr std::size_t MAX_CAPTURE_PATH_BYTES = 1024;

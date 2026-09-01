@@ -90,8 +90,7 @@ FirmwareCompletion processTelemetry(const FirmwareRequest& request)
     const TelemetrySensor& sensor = g_model.telemetrySensors[index];
     if (sensor.type == TELEM_TYPE_CUSTOM && sensor.id == request.telemetryId &&
         sensor.subId == request.telemetrySubId &&
-        (sensor.instance == request.telemetryInstance ||
-         g_model.ignoreSensorIds)) {
+        sensor.instance == request.telemetryInstance) {
       existingIndex = index;
       break;
     }
@@ -101,11 +100,14 @@ FirmwareCompletion processTelemetry(const FirmwareRequest& request)
   // command nondeterministic. Preserve the user's setting while allowing the
   // established telemetry path to allocate a sensor when needed.
   const bool discoverSensors = allowNewSensors;
+  const bool ignoreSensorIds = g_model.ignoreSensorIds;
   allowNewSensors = true;
+  g_model.ignoreSensorIds = false;
   int index = setTelemetryValue(
       PROTOCOL_TELEMETRY_LUA, request.telemetryId, request.telemetrySubId,
       request.telemetryInstance, request.telemetryValue, request.telemetryUnit,
       request.telemetryPrecision);
+  g_model.ignoreSensorIds = ignoreSensorIds;
   allowNewSensors = discoverSensors;
   if (index < 0 && existingIndex >= 0) index = existingIndex;
 
@@ -122,6 +124,9 @@ FirmwareCompletion processTelemetry(const FirmwareRequest& request)
     sensor.instance = request.telemetryInstance;
     sensor.init(request.telemetryName, request.telemetryUnit,
                 request.telemetryPrecision);
+    telemetryItems[index].setValue(sensor, request.telemetryValue,
+                                   request.telemetryUnit,
+                                   request.telemetryPrecision);
     storageDirty(EE_MODEL);
   }
   return completion;

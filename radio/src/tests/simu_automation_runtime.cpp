@@ -5,6 +5,7 @@
  */
 
 #include <cstring>
+#include <limits>
 
 #include "automation_runtime.h"
 #include "gtests.h"
@@ -104,7 +105,7 @@ TEST(SimuAutomationRuntime, TelemetryIgnoresInteractiveDiscoveryGate)
   request.id = 42;
   request.epoch = 3;
   request.telemetryId = 0xf101;
-  request.telemetryValue = -73;
+  request.telemetryValue = std::numeric_limits<std::int32_t>::min();
   request.telemetryUnit = UNIT_DBM;
   std::memcpy(request.telemetryName, "RSSI", TELEM_LABEL_LEN);
 
@@ -118,14 +119,62 @@ TEST(SimuAutomationRuntime, TelemetryIgnoresInteractiveDiscoveryGate)
   ASSERT_GE(completion.telemetryIndex, 0);
   EXPECT_FALSE(allowNewSensors);
   EXPECT_EQ(g_model.telemetrySensors[completion.telemetryIndex].id, 0xf101);
+  EXPECT_EQ(telemetryItems[completion.telemetryIndex].value,
+            std::numeric_limits<std::int32_t>::min());
 
   request.id += 1;
-  request.telemetryValue = -65;
+  request.telemetryValue = std::numeric_limits<std::int32_t>::max();
   ASSERT_TRUE(simuAutomationPostFirmwareRequest(request));
   simuAutomationBeforeUi();
   simuAutomationAfterUi();
   ASSERT_TRUE(simuAutomationTakeFirmwareCompletion(&completion));
   EXPECT_TRUE(completion.ok());
+  EXPECT_FALSE(allowNewSensors);
+  EXPECT_EQ(telemetryItems[completion.telemetryIndex].value,
+            std::numeric_limits<std::int32_t>::max());
+
+  simuAutomationRuntimeStop();
+}
+
+TEST(SimuAutomationRuntime, TelemetryUsesExactTupleWhenSensorIdsAreIgnored)
+{
+  MODEL_RESET();
+  TELEMETRY_RESET();
+  allowNewSensors = false;
+  g_model.ignoreSensorIds = true;
+
+  TelemetrySensor& original = g_model.telemetrySensors[0];
+  original.id = 0xf101;
+  original.subId = 0;
+  original.instance = 0;
+  original.init("OLD", UNIT_DBM, 0);
+  telemetryItems[0].setValue(original, -10, UNIT_DBM, 0);
+
+  simuAutomationRuntimeStart();
+
+  FirmwareRequest request;
+  request.operation = FirmwareOperation::Telemetry;
+  request.id = 43;
+  request.epoch = 4;
+  request.telemetryId = 0xf101;
+  request.telemetrySubId = 0;
+  request.telemetryInstance = 1;
+  request.telemetryValue = -73;
+  request.telemetryUnit = UNIT_DBM;
+  std::memcpy(request.telemetryName, "RSSI", TELEM_LABEL_LEN);
+
+  ASSERT_TRUE(simuAutomationPostFirmwareRequest(request));
+  simuAutomationBeforeUi();
+  simuAutomationAfterUi();
+
+  FirmwareCompletion completion;
+  ASSERT_TRUE(simuAutomationTakeFirmwareCompletion(&completion));
+  ASSERT_TRUE(completion.ok());
+  ASSERT_GT(completion.telemetryIndex, 0);
+  EXPECT_EQ(telemetryItems[0].value, -10);
+  EXPECT_EQ(g_model.telemetrySensors[completion.telemetryIndex].instance, 1);
+  EXPECT_EQ(telemetryItems[completion.telemetryIndex].value, -73);
+  EXPECT_TRUE(g_model.ignoreSensorIds);
   EXPECT_FALSE(allowNewSensors);
 
   simuAutomationRuntimeStop();

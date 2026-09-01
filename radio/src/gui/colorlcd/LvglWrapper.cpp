@@ -29,7 +29,7 @@
 #include "os/time.h"
 #include "view_main.h"
 
-#if defined(SIMU) && !defined(__wasm__)
+#if defined(SIMU_AUTOMATION)
 #include "targets/simu/automation_capture.h"
 #endif
 
@@ -374,7 +374,7 @@ void LvglWrapper::run()
   if (!updating) {
     // Normal UI loop - call lgvl timer handler
     updating = true;
-#if defined(SIMU) && !defined(__wasm__)
+#if defined(SIMU_AUTOMATION)
     if (edgetx::automation::consumeAutomationLcdInvalidation()) {
       lv_obj_invalidate(lv_scr_act());
     }
