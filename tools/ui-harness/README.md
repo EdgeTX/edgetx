@@ -1,11 +1,13 @@
 # EdgeTX simulator UI harness
 
-This directory contains the dependency-free host side of the native simulator
-automation protocol. It supports strict declarative flows, copied fixtures,
-target-filtered input and state injection, real-LCD frame barriers,
-render-complete framebuffer capture, Lua reload, restart, `release-all`, and
-clean process shutdown. `describe` advertises only commands and capabilities
-that are usable in the current target build.
+This directory contains the standard-library-only Python host side of the
+native simulator automation protocol. Use it to turn a manual simulator
+reproduction into a repeatable flow with inspectable artifacts. It supports
+strict declarative flows, copied fixtures, target-filtered input and state
+injection, real-LCD frame barriers, render-complete framebuffer capture, Lua
+reload, restart, `release-all`, and clean process shutdown. `describe`
+advertises only commands and capabilities that are usable in the current target
+build.
 
 ## One-command TX16S smoke
 
@@ -36,9 +38,12 @@ Use `run-flow` for another schema-v1 JSON scenario:
 python tools/ui-harness/edgetx-ui run-flow path/to/flow.json path/to/simu
 ```
 
+Use `tools/ui-harness/flows/tx16s-smoke.json` as the schema-v1 example.
+
 ## TX16S hardening gate
 
-Phase 8 lifecycle and visual stress is available as one reproducible command.
+Lifecycle, transport, and visual stress are available as one reproducible
+command.
 Options precede the simulator path; arguments after `--` are passed through to
 the simulator:
 
@@ -49,13 +54,12 @@ python tools/ui-harness/edgetx-ui harden \
   build/native/radio/src/targets/simu/simu
 ```
 
-The contractual defaults are 100 fresh process start/stop cycles, 10,000
+The defaults are 100 fresh process start/stop cycles, 10,000
 correlated pings, 20 Lua reloads, 20 warm restarts, and 20 static captures.
 Use `--lifecycle-cycles`, `--ping-count`, `--lua-reloads`,
 `--warm-restarts`, and `--captures` to tune a local or gate run. To keep reports
 and artifact sets bounded, lifecycle cycles, Lua reloads, warm restarts, and
-captures are capped at 1,000 each; pings are capped at 1,000,000 (including the
-100,000-exchange gate).
+captures are capped at 1,000 each; pings are capped at 1,000,000.
 
 `--report` is published with exclusive-create semantics and fails if the target
 already exists. Pass `--force` only when intentional replacement of that report
@@ -96,11 +100,14 @@ build/ui-harness/runs/tx16s-smoke-<unique>/
 ```
 
 The manifest records the EdgeTX commit, host platform, Python version, target,
-LCD, fixture and flow hashes, all steps and protocol exchanges, termination
-state, artifact SHA-256 values, and the exact failed step. Simulator stderr is
-kept separately and bounded by the session client. PPM, PNG, metadata, protocol,
-and manifest output is UTF-8 or canonical binary data and is never written into
-the fixture template.
+LCD, fixture and flow hashes, all steps, protocol evidence metadata,
+termination state, artifact SHA-256 values, and the exact failed step. All
+observed request/response records are streamed to `protocol.jsonl` and
+represented in the manifest by its relative path, record count, and SHA-256
+value. Simulator
+stderr is kept separately and bounded by the session client. PPM, PNG,
+metadata, protocol, and manifest output is UTF-8 or canonical binary data and
+is never written into the fixture template.
 
 The unique run root is trusted, session-owned state. Do not modify or replace
 its directories, symlinks, or Windows reparse points while a run is active.
