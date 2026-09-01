@@ -99,6 +99,8 @@ class ModelCell
   SimpleModuleData moduleData[NUM_MODULES];
 
   void setModelName(const char *name);
+  void setDefaultName();
+  void setUniqueName();
   void setRfData(ModelHeader *header, ModuleData* moduleData);
 
   void addLabel(uint8_t idx);
@@ -141,6 +143,7 @@ class ModelsList : public ModelsVector
 
   ModelCell* getCurrentModel() const { return currentModel; }
   ModelCell* getModel(const char* filename);
+  ModelCell* getModelWithName(const char* name);
 
   ModelCell *addModel(const char *name, bool save = true, ModelCell *copyCell = nullptr);
   bool removeModel(ModelCell *model);

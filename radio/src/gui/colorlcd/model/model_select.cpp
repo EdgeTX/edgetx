@@ -414,7 +414,7 @@ class ModelsPageBody : public Window
             auto new_model =
                 modelCellManager.addModel(duplicatedFilename, true, model);
             // delete model name so it becomes unique
-            new_model->setModelName("");
+            new_model->setUniqueName();
             new_model->updateModelFile();
             // Set new model as focused button
             focusedModel = new_model;
