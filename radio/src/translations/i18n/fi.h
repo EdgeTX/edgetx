@@ -701,6 +701,8 @@
 #define TR_REPEAT_AT_ZERO              "Repeat at Zero"
 #define TR_BATT_CALIB                  "Battery Calib"
 #define TR_VOLTAGE                     "Jännite"
+#define TR_MODULE_SENSOR_VOLTAGE       "Jännite"
+#define TR_MODULE_SENSOR_CURRENT       "Virta"
 #define TR_SELECT_MODEL                "Select Model"
 #define TR_SELECT_MODE                 "Select mode"
 #define TR_CREATE_MODEL                "Create Model"

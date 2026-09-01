@@ -710,6 +710,8 @@
 #define TR_REPEAT_AT_ZERO              "השהיית התראה"
 #define TR_BATT_CALIB                  TR("Batt. calib", "כיול מתח סוללה ידני")
 #define TR_VOLTAGE                     TR("Voltage", "Voltage source")
+#define TR_MODULE_SENSOR_VOLTAGE       "מתח"
+#define TR_MODULE_SENSOR_CURRENT       "זרם"
 #define TR_SELECT_MODEL                "בחירת מודל"
 #define TR_SELECT_MODE                 "בחירת מצב"
 #define TR_CREATE_MODEL                "יצירת מודל"

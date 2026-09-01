@@ -735,6 +735,8 @@
 #define TR_REPEAT_AT_ZERO               "제로에서 반복"
 #define TR_BATT_CALIB                   TR("배터리 보정", "배터리 전압 보정")
 #define TR_VOLTAGE                      TR("전압", "전압 소스")
+#define TR_MODULE_SENSOR_VOLTAGE       "전압"
+#define TR_MODULE_SENSOR_CURRENT       "전류"
 #define TR_SELECT_MODEL                 "모델 선택"
 #define TR_SELECT_MODE                  "모드 선택"
 #define TR_CREATE_MODEL                 "모델 생성"
