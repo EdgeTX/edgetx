@@ -147,6 +147,38 @@ TEST(SimuAutomationCapturePath, AcceptsContainedUtf8AndInternalSpaces)
             std::filesystem::canonical(output.path() / "nested folder"));
 }
 
+TEST(SimuAutomationCapturePath, RejectsInvalidUtf8WithoutThrowing)
+{
+  ScopedTempDirectory output;
+  AutomationCapture capture;
+  configureCapture(capture, output.path());
+
+  const std::array<std::string, 5> invalidSequences = {
+      std::string("\x80", 1),
+      std::string("\xc3", 1),
+      std::string("\xc0\xaf", 2),
+      std::string("\xed\xa0\x80", 3),
+      std::string("\xf4\x90\x80\x80", 4),
+  };
+  for (const std::string& sequence : invalidSequences) {
+    const std::string invalidPath = "invalid-" + sequence + ".ppm";
+    CaptureArtifactPath artifact;
+    artifact.relative = "sentinel";
+    artifact.finalPath = "sentinel-final";
+    artifact.temporaryPath = "sentinel-temporary";
+    CaptureOperationResult result;
+
+    EXPECT_NO_THROW(result =
+                        capture.validatePath(invalidPath, 1, 1, &artifact));
+    EXPECT_FALSE(result.ok);
+    EXPECT_EQ(result.errorCode, ErrorCode::InvalidUtf8);
+    EXPECT_EQ(artifact.relative, "sentinel");
+    EXPECT_EQ(artifact.finalPath, std::filesystem::path("sentinel-final"));
+    EXPECT_EQ(artifact.temporaryPath,
+              std::filesystem::path("sentinel-temporary"));
+  }
+}
+
 TEST(SimuAutomationCapturePath, RejectsUnsafeMissingAndExistingTargets)
 {
   ScopedTempDirectory output;

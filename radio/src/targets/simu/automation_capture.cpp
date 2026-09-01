@@ -12,6 +12,7 @@
 #include <cwctype>
 #include <exception>
 #include <limits>
+#include <stdexcept>
 #include <system_error>
 
 #if defined(_WIN32)
@@ -446,8 +447,21 @@ CaptureOperationResult AutomationCapture::validatePath(
     return CaptureOperationResult::failure(ErrorCode::UnsafePath,
                                            "capture path contains NUL");
   }
+  if (!isValidUtf8(relativePath)) {
+    return CaptureOperationResult::failure(ErrorCode::InvalidUtf8,
+                                           "capture path is not valid UTF-8");
+  }
 
-  const std::filesystem::path relative = std::filesystem::u8path(relativePath);
+  std::filesystem::path relative;
+  try {
+    relative = std::filesystem::u8path(relativePath);
+  } catch (const std::system_error&) {
+    return CaptureOperationResult::failure(
+        ErrorCode::InvalidUtf8, "capture path cannot be converted from UTF-8");
+  } catch (const std::range_error&) {
+    return CaptureOperationResult::failure(
+        ErrorCode::InvalidUtf8, "capture path cannot be converted from UTF-8");
+  }
   if (relative.empty() || relative.is_absolute() || relative.has_root_name() ||
       relative.has_root_directory() || relative.filename().empty()) {
     return CaptureOperationResult::failure(
