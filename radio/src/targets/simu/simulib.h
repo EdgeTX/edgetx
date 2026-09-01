@@ -191,6 +191,13 @@ void WASM_IMPORT(simuAuxSerialSetBaudrate)(uint8_t port_nr, uint32_t baudrate);
 void WASM_IMPORT(simuAuxSerialSendBuffer)(uint8_t port_nr, const uint8_t* data,
                                          uint32_t len);
 
+// Module serial bridge (firmware -> host).  module is 0 for internal, 1 for
+// external.  Called with the bytes the radio's RF module would receive on its
+// serial line -- CRSF frames, for a module running ExpressLRS.  The reverse
+// direction already exists as simuSendTelemetry() above.
+void WASM_IMPORT(simuModuleSendBuffer)(uint8_t module, const uint8_t* data,
+                                       uint32_t len);
+
 // -- Internal (not exported) --
 
 // Use instead of localtime()/mktime(): applies simuStart()'s utcOffset on WASM.
