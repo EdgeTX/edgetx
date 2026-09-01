@@ -499,17 +499,15 @@ PACK(struct PpmModule {
 });
 
 PACK(struct ModuleData {
-  uint8_t type ENUM(ModuleType) CUST(r_moduleType, w_moduleType);
+  // antennaMode stays unconditional as boards differing on EXTERNAL_ANTENNA share
+  // generated YAML descriptors.
+  uint8_t type:6 ENUM(ModuleType) CUST(r_moduleType, w_moduleType);
+  int8_t  antennaMode:2 ENUM(AntennaModes);
   CUST_ATTR(subType,r_modSubtype,w_modSubtype);
   uint8_t channelsStart;
   int8_t  channelsCount CUST(r_channelsCount,w_channelsCount); // 0=8 channels
   uint8_t failsafeMode:4 ENUM(FailsafeModes);  // only 3 bits used
-  #if defined(EXTERNAL_ANTENNA)
-  uint8_t subType:2 SKIP;
-  int8_t  antennaMode:2 ENUM(AntennaModes);
-  #else
   uint8_t subType:4 SKIP;
-  #endif
 
   union {
     uint8_t raw[PXX2_MAX_RECEIVERS_PER_MODULE * PXX2_LEN_RX_NAME + 1];
