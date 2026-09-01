@@ -109,9 +109,10 @@ if(_toonew)
     "Re-run with -DCOMPANION_VERIFY_BUNDLE=OFF to package anyway.")
 endif()
 
-message(STATUS
-  "Bundle verification: ${_checked} Mach-O files, no external references, "
-  "minimum macOS ${_max_minos}")
+# CPack discards message(STATUS) from install scripts, so echo via a subprocess - otherwise
+# the bundle's real macOS floor never reaches the packaging log.
+execute_process(COMMAND ${CMAKE_COMMAND} -E echo
+  "-- Bundle verification: ${_checked} Mach-O files, no external references, minimum macOS ${_max_minos}")
 
 # The bundle seal is a separate concern from the per-Mach-O signatures: dyld does not consult
 # CodeResources when loading, so a stale seal does not stop the app launching. It would matter
