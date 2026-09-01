@@ -1,0 +1,264 @@
+semver: 3.0.0
+header: 
+   name: "MODEL01"
+   bitmap: ""
+   labels: ""
+telemetryProtocol: 0
+thrTrim: 0
+noGlobalFunctions: 0
+displayTrims: 0
+ignoreSensorIds: 0
+trimInc: 0
+disableThrottleWarning: 0
+displayChecklist: 0
+extendedLimits: 0
+extendedTrims: 0
+throttleReversed: 0
+enableCustomThrottleWarning: 0
+disableTelemetryWarning: 0
+showInstanceIds: 0
+checklistInteractive: 0
+customThrottleWarningPosition: 0
+beepANACenter: 0
+mixData: 
+ -
+   destCh: 0
+   srcRaw: "I0"
+   carryTrim: 0
+   mixWarn: 0
+   mltpx: ADD
+   delayPrec: 0
+   speedPrec: 0
+   flightModes: 000000000
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 1
+   srcRaw: "I1"
+   carryTrim: 0
+   mixWarn: 0
+   mltpx: ADD
+   delayPrec: 0
+   speedPrec: 0
+   flightModes: 000000000
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 2
+   srcRaw: "I2"
+   carryTrim: 0
+   mixWarn: 0
+   mltpx: ADD
+   delayPrec: 0
+   speedPrec: 0
+   flightModes: 000000000
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+ -
+   destCh: 3
+   srcRaw: "I3"
+   carryTrim: 0
+   mixWarn: 0
+   mltpx: ADD
+   delayPrec: 0
+   speedPrec: 0
+   flightModes: 000000000
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   delayUp: 0
+   delayDown: 0
+   speedUp: 0
+   speedDown: 0
+   name: ""
+expoData: 
+ -
+   mode: 3
+   scale: 0
+   trimSource: 0
+   srcRaw: "Rud"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   curve: 
+      type: 1
+      value: 0
+   chn: 0
+   flightModes: 000000000
+   name: ""
+ -
+   mode: 3
+   scale: 0
+   trimSource: 0
+   srcRaw: "Ele"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   curve: 
+      type: 1
+      value: 0
+   chn: 1
+   flightModes: 000000000
+   name: ""
+ -
+   mode: 3
+   scale: 0
+   trimSource: 0
+   srcRaw: "Thr"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   curve: 
+      type: 1
+      value: 0
+   chn: 2
+   flightModes: 000000000
+   name: ""
+ -
+   mode: 3
+   scale: 0
+   trimSource: 0
+   srcRaw: "Ail"
+   weight: 100
+   offset: 0
+   swtch: "NONE"
+   curve: 
+      type: 1
+      value: 0
+   chn: 3
+   flightModes: 000000000
+   name: ""
+thrTraceSrc: Thr
+switchWarning: 
+   SA:
+      pos: up
+   SB:
+      pos: up
+   SC:
+      pos: up
+   SD:
+      pos: up
+   SE:
+      pos: up
+   SF:
+      pos: up
+   SG:
+      pos: up
+rssiSource: none
+rfAlarms: 
+   warning: 45
+   critical: 42
+thrTrimSw: 0
+potsWarnMode: WARN_OFF
+jitterFilter: GLOBAL
+inputNames: 
+   0:
+      val: "Rud"
+   1:
+      val: "Ele"
+   2:
+      val: "Thr"
+   3:
+      val: "Ail"
+potsWarnEnabled: 0
+screenData: 
+   0:
+      LayoutId: Layout2P1
+      layoutData: 
+         options: 
+            0:
+               type: Bool
+               value: 
+                  boolValue: 1
+            1:
+               type: Bool
+               value: 
+                  boolValue: 1
+            2:
+               type: Bool
+               value: 
+                  boolValue: 1
+            3:
+               type: Bool
+               value: 
+                  boolValue: 1
+            4:
+               type: Bool
+               value: 
+                  boolValue: 0
+topbarData: 
+   zones: 
+      3:
+         widgetName: Internal GPS
+         widgetData: 
+      4:
+         widgetName: Radio Info
+         widgetData: 
+            options: 
+               0:
+                  type: Color
+                  value: 
+                     color: 0xF04030
+               1:
+                  type: Color
+                  value: 
+                     color: 0xF8C000
+               2:
+                  type: Color
+                  value: 
+                     color: 0x48AC50
+      5:
+         widgetName: Date Time
+         widgetData: 
+            options: 
+               0:
+                  type: Color
+                  value: 
+                     color: COLIDX1
+topbarWidgetWidth: 
+   0:
+      val: 1
+   1:
+      val: 1
+   2:
+      val: 1
+   3:
+      val: 1
+   4:
+      val: 1
+   5:
+      val: 1
+view: 0
+modelRegistrationID: "-eC!U*U*"
+usbJoystickExtMode: 0
+usbJoystickIfMode: JOYSTICK
+usbJoystickCircularCut: 0
+radioThemesDisabled: GLOBAL
+radioGFDisabled: GLOBAL
+radioTrainerDisabled: GLOBAL
+modelHeliDisabled: GLOBAL
+modelFMDisabled: GLOBAL
+modelCurvesDisabled: GLOBAL
+modelGVDisabled: GLOBAL
+modelLSDisabled: GLOBAL
+modelSFDisabled: GLOBAL
+modelCustomScriptsDisabled: GLOBAL
+modelTelemetryDisabled: GLOBAL

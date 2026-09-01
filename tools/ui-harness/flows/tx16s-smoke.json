@@ -1,0 +1,16 @@
+{
+  "target": "tx16s",
+  "output": "build/ui-harness/screenshots/tx16s-smoke",
+  "steps": [
+    { "wait": { "ms": 1000 } },
+    { "press": { "key": "ENTER", "duration_ms": 120 } },
+    { "wait": { "ms": 2000 } },
+    { "screenshot": "home" },
+    { "press": { "key": "MODEL", "duration_ms": 120 } },
+    { "wait": { "ms": 500 } },
+    { "screenshot": "menu" },
+    { "press": { "key": "EXIT", "duration_ms": 120 } },
+    { "wait": { "ms": 500 } },
+    { "screenshot": "return-home" }
+  ]
+}
