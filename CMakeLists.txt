@@ -45,11 +45,22 @@ if(EdgeTX_SUPERBUILD)
       else()
         set(CACHE_VAR_TYPE :${CACHE_VAR_TYPE})
       endif()
-      list(APPEND CMAKE_ARGS "-D${CACHE_VAR}${CACHE_VAR_TYPE}=${${CACHE_VAR}}")
+      # Escape CMake's ';' so a multi-path value (CMAKE_PREFIX_PATH) stays one argument
+      # instead of splitting; LIST_SEPARATOR below restores it.
+      string(REPLACE ";" "|" CACHE_VAR_VALUE "${${CACHE_VAR}}")
+      list(APPEND CMAKE_ARGS "-D${CACHE_VAR}${CACHE_VAR_TYPE}=${CACHE_VAR_VALUE}")
     endif()
   endforeach()
   message("-- CMAKE_ARGS: ${CMAKE_ARGS}")
   message("-- CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+
+  # Darwin-Initialize.cmake rewrites CMAKE_OSX_DEPLOYMENT_TARGET's helpstring, so the loop
+  # above never forwards it - pass it explicitly or sub-builds get the SDK default (#7732).
+  set(EDGETX_EP_CACHE_ARGS)
+  if(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET)
+    list(APPEND EDGETX_EP_CACHE_ARGS
+      -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=${CMAKE_OSX_DEPLOYMENT_TARGET})
+  endif()
 
   # Add explicit targets for triggering cmake in the external projects
   set_property(DIRECTORY PROPERTY EP_STEP_TARGETS configure clean)
@@ -58,8 +69,10 @@ if(EdgeTX_SUPERBUILD)
   ExternalProject_Add(native
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
     BINARY_DIR ${CMAKE_BINARY_DIR}/native
+    LIST_SEPARATOR |
     CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
     CMAKE_CACHE_ARGS
+      ${EDGETX_EP_CACHE_ARGS}
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/native.cmake
       -DEdgeTX_SUPERBUILD:BOOL=0
       -DNATIVE_BUILD:BOOL=1
@@ -71,6 +84,7 @@ if(EdgeTX_SUPERBUILD)
   ExternalProject_Add(arm-none-eabi
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
     BINARY_DIR ${CMAKE_BINARY_DIR}/arm-none-eabi
+    LIST_SEPARATOR |
     CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
     CMAKE_CACHE_ARGS
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/arm-none-eabi.cmake
