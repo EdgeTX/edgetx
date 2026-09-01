@@ -170,7 +170,7 @@ def encode_request(
         tokens.append(argument)
 
     encoded = " ".join(tokens).encode("utf-8")
-    if len(encoded) > MAX_RECORD_BYTES:
+    if len(encoded) + 1 > MAX_RECORD_BYTES:
         raise ValueError("request record exceeds 16 KiB")
     return encoded + b"\n"
 
@@ -182,7 +182,7 @@ def parse_message(record: bytes) -> Message:
         raise TypeError("protocol record must be bytes")
     if not record:
         raise ProtocolViolation("protocol stdout emitted an empty record")
-    if len(record) > MAX_RECORD_BYTES:
+    if len(record) + 1 > MAX_RECORD_BYTES:
         raise ProtocolViolation("protocol response exceeds 16 KiB")
     if b"\r" in record or b"\n" in record:
         raise ProtocolViolation("protocol response contains an embedded newline")
@@ -193,7 +193,13 @@ def parse_message(record: bytes) -> Message:
         raise ProtocolViolation("protocol response is not valid UTF-8") from error
 
     try:
-        payload = json.loads(text, parse_constant=_reject_json_constant)
+        payload = json.loads(
+            text,
+            parse_constant=_reject_json_constant,
+            object_pairs_hook=_unique_json_object,
+        )
+    except ProtocolViolation:
+        raise
     except (ValueError, json.JSONDecodeError) as error:
         raise ProtocolViolation("protocol response is not valid JSON") from error
 
@@ -451,8 +457,16 @@ def _parse_response(payload: Dict[str, Any], epoch: int) -> Response:
     if not isinstance(ok, bool):
         raise ProtocolViolation("protocol response has an invalid ok field")
 
+    base_keys = {"version", "type", "id", "ok", "epoch"}
+    allowed = (base_keys, base_keys | {"result"}) if ok else (
+        base_keys | {"error"},
+    )
+    if set(payload) not in allowed:
+        expected = base_keys | ({"result"} if ok else {"error"})
+        _require_exact_keys(payload, expected, "protocol response")
+
     result = payload.get("result")
-    if result is not None and not isinstance(result, dict):
+    if "result" in payload and not isinstance(result, dict):
         raise ProtocolViolation("protocol response result must be an object")
 
     error_code: Optional[str] = None
@@ -464,6 +478,7 @@ def _parse_response(payload: Dict[str, Any], epoch: int) -> Response:
     else:
         if not isinstance(error, dict):
             raise ProtocolViolation("failed protocol response has no error object")
+        _require_exact_keys(error, {"code", "message"}, "protocol error")
         error_code = error.get("code")
         error_message = error.get("message")
         if not isinstance(error_code, str) or not error_code:
@@ -483,11 +498,15 @@ def _parse_response(payload: Dict[str, Any], epoch: int) -> Response:
 
 
 def _parse_event(payload: Dict[str, Any], epoch: int) -> Event:
+    _require_exact_keys(
+        payload, {"version", "type", "id", "epoch", "event"}, "protocol event"
+    )
     if payload.get("id", object()) is not None:
         raise ProtocolViolation("protocol event id must be null")
     event = payload.get("event")
     if not isinstance(event, dict):
         raise ProtocolViolation("protocol event has no event object")
+    _require_exact_keys(event, {"code", "message"}, "protocol event payload")
     code = event.get("code")
     message = event.get("message")
     if not isinstance(code, str) or not code:
@@ -507,6 +526,17 @@ def _is_uint64(value: object) -> bool:
 
 def _reject_json_constant(value: str) -> None:
     raise ValueError("non-standard JSON constant: " + value)
+
+
+def _unique_json_object(pairs: Sequence[Tuple[str, Any]]) -> Dict[str, Any]:
+    result: Dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ProtocolViolation(
+                "protocol response contains duplicate JSON key: " + key
+            )
+        result[key] = value
+    return result
 
 
 def _successful_result(response: Response, command: str) -> Dict[str, Any]:

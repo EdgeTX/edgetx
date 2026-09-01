@@ -103,6 +103,15 @@ class EncodeRequestTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     invalid_call()
 
+    def test_wire_limit_includes_the_newline_delimiter(self) -> None:
+        prefix = b"v1 1 capture "
+        exact_argument = "x" * (MAX_RECORD_BYTES - len(prefix) - 1)
+        encoded_request = encode_request(1, "capture", (exact_argument,))
+        self.assertEqual(len(encoded_request), MAX_RECORD_BYTES)
+
+        with self.assertRaisesRegex(ValueError, "16 KiB"):
+            encode_request(1, "capture", (exact_argument + "x",))
+
 
 class ParseMessageTests(unittest.TestCase):
     def test_parses_success_and_failure_responses(self) -> None:
@@ -153,6 +162,21 @@ class ParseMessageTests(unittest.TestCase):
         self.assertIsInstance(event, Event)
         self.assertEqual(event.code, "queue_full")
 
+    def test_rejects_null_result_when_result_member_is_present(self) -> None:
+        with self.assertRaisesRegex(ProtocolViolation, "result must be an object"):
+            parse_message(
+                encoded(
+                    {
+                        "version": 1,
+                        "type": "response",
+                        "id": 3,
+                        "ok": True,
+                        "epoch": 2,
+                        "result": None,
+                    }
+                )
+            )
+
     def test_rejects_malformed_or_ambiguous_messages(self) -> None:
         invalid_records = (
             b"\xff",
@@ -192,6 +216,65 @@ class ParseMessageTests(unittest.TestCase):
             with self.subTest(record=record):
                 with self.assertRaises(ProtocolViolation):
                     parse_message(record)
+
+    def test_rejects_duplicate_keys_at_every_json_depth(self) -> None:
+        records = (
+            b'{"version":1,"version":1,"type":"response","id":1,"ok":true,"epoch":0,"result":{}}',
+            b'{"version":1,"type":"response","id":1,"ok":true,"epoch":0,"result":{"value":1,"value":2}}',
+            b'{"version":1,"type":"response","id":1,"ok":false,"epoch":0,"error":{"code":"bad","code":"worse","message":"x"}}',
+            b'{"version":1,"type":"event","id":null,"epoch":0,"event":{"code":"bad","message":"x","message":"y"}}',
+        )
+        for record in records:
+            with self.subTest(record=record), self.assertRaises(ProtocolViolation):
+                parse_message(record)
+        with self.assertRaisesRegex(ProtocolViolation, "duplicate JSON key: version"):
+            parse_message(records[0])
+
+    def test_requires_exact_success_failure_and_event_schemas(self) -> None:
+        valid_success = {
+            "version": 1,
+            "type": "response",
+            "id": 1,
+            "ok": True,
+            "epoch": 0,
+            "result": {},
+        }
+        valid_failure = {
+            "version": 1,
+            "type": "response",
+            "id": 1,
+            "ok": False,
+            "epoch": 0,
+            "error": {"code": "bad", "message": "x"},
+        }
+        valid_event = {
+            "version": 1,
+            "type": "event",
+            "id": None,
+            "epoch": 0,
+            "event": {"code": "queue_full", "message": "x"},
+        }
+        invalid = (
+            valid_success | {"extra": 1},
+            valid_success | {"error": {"code": "bad", "message": "x"}},
+            valid_failure | {"result": {}},
+            valid_failure | {"error": {"code": "bad", "message": "x", "extra": 1}},
+            valid_event | {"ok": False},
+            valid_event | {"event": {"code": "queue_full", "message": "x", "extra": 1}},
+        )
+        for payload in invalid:
+            with self.subTest(payload=payload), self.assertRaises(ProtocolViolation):
+                parse_message(encoded(payload))
+
+    def test_response_wire_limit_reserves_the_newline_delimiter(self) -> None:
+        prefix = b'{"version":1,"type":"event","id":null,"epoch":0,"event":{"code":"x","message":"'
+        suffix = b'"}}'
+        exact = prefix + b"x" * (MAX_RECORD_BYTES - 1 - len(prefix) - len(suffix)) + suffix
+        self.assertEqual(len(exact) + 1, MAX_RECORD_BYTES)
+        self.assertIsInstance(parse_message(exact), Event)
+
+        with self.assertRaisesRegex(ProtocolViolation, "16 KiB"):
+            parse_message(exact[:-len(suffix)] + b"x" + suffix)
 
 
 class DiscoveryResultTests(unittest.TestCase):

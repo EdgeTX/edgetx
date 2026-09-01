@@ -188,6 +188,8 @@ def response(
         payload["result"] = status(mode, status_poll, state)
         if payload["result"]["phase"] != "ready":
             payload["epoch"] = 0
+    else:
+        payload["result"] = {}
     return payload
 
 
@@ -434,6 +436,15 @@ def main() -> int:
             response(request_id, command, mode, status_poll),
             fragmented=mode == "fragmented",
         )
+        if mode == "ready-no-read" and command == "status":
+            try:
+                import fcntl
+
+                fcntl.fcntl(0, fcntl.F_SETPIPE_SZ, 4096)
+            except (ImportError, AttributeError, OSError):
+                pass
+            time.sleep(60)
+            continue
         if mode == "exit-after-ping" and command == "ping":
             return 0
         if command == "stop":

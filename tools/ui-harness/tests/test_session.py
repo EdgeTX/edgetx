@@ -8,6 +8,7 @@ import tempfile
 import time
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 HARNESS_ROOT = Path(__file__).resolve().parents[1]
@@ -17,6 +18,7 @@ sys.path.insert(0, str(HARNESS_ROOT))
 
 from edgetx_ui.ppm import read_png  # noqa: E402
 from edgetx_ui.session import (  # noqa: E402
+    MAX_PROTOCOL_RECORDS,
     MAX_STDERR_BYTES,
     MAX_STDERR_LINES,
     CommandFailed,
@@ -27,6 +29,27 @@ from edgetx_ui.session import (  # noqa: E402
     SimulatorSession,
     StartupMismatch,
 )
+
+
+class _FailsSecondWrite:
+    def __init__(self, path: Path) -> None:
+        self.stream = path.open("wb")
+        self.calls = 0
+
+    def write(self, payload: bytes) -> int:
+        self.calls += 1
+        if self.calls == 2:
+            raise OSError("injected evidence sink failure")
+        return self.stream.write(payload)
+
+    def flush(self) -> None:
+        self.stream.flush()
+
+    def fileno(self) -> int:
+        return self.stream.fileno()
+
+    def close(self) -> None:
+        self.stream.close()
 
 
 class SimulatorSessionTests(unittest.TestCase):
@@ -54,6 +77,7 @@ class SimulatorSessionTests(unittest.TestCase):
     def assert_reaped(self, session: SimulatorSession) -> None:
         self.assertIsNotNone(session.returncode)
         self.assertFalse(session.reader_threads_alive)
+        self.assertFalse(session.writer_thread_alive)
 
     def test_fragmented_start_ping_stop_is_correlated_and_reaped(self) -> None:
         session = self.session("fragmented")
@@ -138,6 +162,97 @@ class SimulatorSessionTests(unittest.TestCase):
             session.start()
         self.assertLess(time.monotonic() - started, 2.0)
         self.assertIn(session.termination_stage, ("terminated", "killed"))
+        self.assert_reaped(session)
+
+    def test_stdin_backpressure_is_bounded_by_the_request_deadline(self) -> None:
+        session = self.session(
+            "ready-no-read",
+            request_timeout=0.2,
+            stop_timeout=0.2,
+            terminate_timeout=0.5,
+            kill_timeout=0.5,
+        )
+        try:
+            session.start(timeout=1.0)
+            started = time.monotonic()
+            with self.assertRaisesRegex(RequestTimeout, "writing request"):
+                session.request("ping", "x" * 12_000, timeout=0.2)
+            self.assertLess(time.monotonic() - started, 1.0)
+            self.assertIsNotNone(session.returncode)
+            self.assertFalse(session.writer_thread_alive)
+            self.assertFalse(session.reader_threads_alive)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_protocol_transcript_ring_is_bounded_and_sink_is_verifiable(
+        self,
+    ) -> None:
+        sink = self.output_root / "protocol-evidence.jsonl"
+        session = self.session("normal", protocol_sink=sink)
+        request_count = MAX_PROTOCOL_RECORDS // 2 + 32
+        try:
+            session.start()
+            for _ in range(request_count):
+                session.ping()
+            session.stop()
+        finally:
+            session.close()
+
+        evidence = sink.read_bytes()
+        lines = evidence.splitlines(keepends=True)
+        self.assertEqual(len(lines), session.protocol_record_count)
+        self.assertEqual(hashlib.sha256(evidence).hexdigest(), session.protocol_sha256)
+        self.assertEqual(len(session.protocol_records), MAX_PROTOCOL_RECORDS)
+        self.assertEqual(
+            session.protocol_records_dropped,
+            session.protocol_record_count - MAX_PROTOCOL_RECORDS,
+        )
+        for line in lines:
+            record = json.loads(line)
+            self.assertIn(record["direction"], ("request", "response", "event"))
+        self.assert_reaped(session)
+
+    def test_protocol_evidence_bounds_one_hundred_thousand_records(self) -> None:
+        sink = self.output_root / "protocol-100k.jsonl"
+        session = self.session("normal")
+        session._protocol_sink = sink.open("wb", buffering=64 * 1024)
+        for index in range(100_000):
+            session._record_protocol("event", {"index": index})
+        self.assertIsNone(session._close_protocol_sink())
+
+        digest = hashlib.sha256()
+        line_count = 0
+        with sink.open("rb") as stream:
+            for index, line in enumerate(stream):
+                digest.update(line)
+                record = json.loads(line)
+                self.assertEqual(record, {
+                    "direction": "event",
+                    "message": {"index": index},
+                })
+                line_count += 1
+        self.assertEqual(line_count, 100_000)
+        self.assertEqual(session.protocol_record_count, 100_000)
+        self.assertEqual(len(session.protocol_records), MAX_PROTOCOL_RECORDS)
+        self.assertEqual(
+            session.protocol_records_dropped, 100_000 - MAX_PROTOCOL_RECORDS
+        )
+        self.assertEqual(session.protocol_sha256, digest.hexdigest())
+
+    def test_protocol_sink_failure_wakes_the_pending_request(self) -> None:
+        session = self.session("normal")
+        try:
+            session.start()
+            session._protocol_sink = _FailsSecondWrite(
+                self.output_root / "failing-protocol.jsonl"
+            )
+            with self.assertRaisesRegex(
+                ProtocolFailure, "injected evidence sink failure"
+            ):
+                session.ping(timeout=0.5)
+        finally:
+            session.close()
         self.assert_reaped(session)
 
     def test_child_crash_reports_exit_and_recent_stderr(self) -> None:
@@ -776,6 +891,38 @@ class SimulatorSessionTests(unittest.TestCase):
         self.assertEqual(result.returncode, 2)
         self.assertEqual(result.stdout, "")
         self.assertIn("unsupported_command", result.stderr)
+
+    def test_cli_probe_closes_session_when_start_raises_base_exception(self) -> None:
+        from edgetx_ui import cli
+
+        class ProbeAbort(BaseException):
+            pass
+
+        class AbortingSession:
+            instance = None
+
+            def __init__(self, *args: object, **kwargs: object) -> None:
+                self.closed = False
+                type(self).instance = self
+
+            def start(self, **kwargs: object) -> object:
+                raise ProbeAbort("abort probe")
+
+            def close(self) -> None:
+                self.closed = True
+
+        with mock.patch.object(cli, "SimulatorSession", AbortingSession):
+            with self.assertRaises(ProbeAbort):
+                cli.main(
+                    [
+                        "probe",
+                        "--output",
+                        str(self.output_root),
+                        "fake-simulator",
+                    ]
+                )
+        assert AbortingSession.instance is not None
+        self.assertTrue(AbortingSession.instance.closed)
 
 
 if __name__ == "__main__":

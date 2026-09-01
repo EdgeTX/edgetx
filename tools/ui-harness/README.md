@@ -52,12 +52,21 @@ python tools/ui-harness/edgetx-ui harden \
 The contractual defaults are 100 fresh process start/stop cycles, 10,000
 correlated pings, 20 Lua reloads, 20 warm restarts, and 20 static captures.
 Use `--lifecycle-cycles`, `--ping-count`, `--lua-reloads`,
-`--warm-restarts`, and `--captures` only for a reduced local diagnostic run.
+`--warm-restarts`, and `--captures` to tune a local or gate run. To keep reports
+and artifact sets bounded, lifecycle cycles, Lua reloads, warm restarts, and
+captures are capped at 1,000 each; pings are capped at 1,000,000 (including the
+100,000-exchange gate).
+
+`--report` is published with exclusive-create semantics and fails if the target
+already exists. Pass `--force` only when intentional replacement of that report
+has been explicitly chosen; a publication failure still leaves diagnostic
+evidence inside the unique run directory.
 
 Every process receives a unique writable copy of the TX16S fixture. The stable
-JSON report records process reaping, reader-thread shutdown, Lua generations,
+JSON report records process reaping, reader/writer-thread shutdown, Lua generations,
 restart epochs and display sequences, stale-completion counters, canonical PPM
-and decoded-RGB SHA-256 values, fixture integrity, and leftover temporary
+and decoded-RGB SHA-256 values, fixture integrity, streaming protocol-evidence
+path/count/SHA-256 metadata, and leftover temporary
 artifacts. Any incomplete count, changing static capture, unchanged deliberate
 visual mutation, stale completion, modified fixture, temporary artifact, or
 unreaped child makes the command exit nonzero while preserving its evidence.
@@ -92,6 +101,11 @@ state, artifact SHA-256 values, and the exact failed step. Simulator stderr is
 kept separately and bounded by the session client. PPM, PNG, metadata, protocol,
 and manifest output is UTF-8 or canonical binary data and is never written into
 the fixture template.
+
+The unique run root is trusted, session-owned state. Do not modify or replace
+its directories, symlinks, or Windows reparse points while a run is active.
+Containment rejects unsafe protocol paths but is not an OS sandbox against a
+concurrent process running as the same user.
 
 Failed runs are intentionally preserved for diagnosis. Successful and failed
 run directories can be removed after their evidence is no longer needed; the

@@ -48,6 +48,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=REPOSITORY_ROOT / "build" / "ui-harness" / "hardening",
     )
     harden.add_argument("--report", type=Path)
+    harden.add_argument(
+        "--force",
+        action="store_true",
+        help="replace an existing --report path instead of failing",
+    )
     harden.add_argument("--timeout", type=float, default=10.0)
     harden.add_argument("--lifecycle-cycles", type=int, default=100)
     harden.add_argument("--ping-count", type=int, default=10_000)
@@ -166,6 +171,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 args.runs,
                 args.simulator,
                 report_path=args.report,
+                force_report=args.force,
                 simulator_args=simulator_args,
                 command_timeout=args.timeout,
                 lifecycle_cycles=args.lifecycle_cycles,
@@ -236,9 +242,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(json.dumps(payload, indent=2, sort_keys=True))
         return 0
     except (SessionError, ValueError) as error:
-        session.close()
         print(str(error), file=sys.stderr)
         return 2
+    finally:
+        session.close()
 
 
 def _build_tx16s_simulator(build_dir: Path) -> str:

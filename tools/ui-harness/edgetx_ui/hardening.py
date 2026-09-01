@@ -11,7 +11,7 @@ import subprocess
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from .ppm import digest_file, read_ppm
 from .session import SimulatorSession
@@ -22,6 +22,11 @@ DEFAULT_PING_COUNT = 10_000
 DEFAULT_LUA_RELOADS = 20
 DEFAULT_WARM_RESTARTS = 20
 DEFAULT_CAPTURE_COUNT = 20
+MAX_LIFECYCLE_CYCLES = 1_000
+MAX_PING_COUNT = 1_000_000
+MAX_LUA_RELOADS = 1_000
+MAX_WARM_RESTARTS = 1_000
+MAX_CAPTURE_COUNT = 1_000
 TX16S_LCD = (480, 272, 16)
 REQUIRED_CAPABILITIES = ("rotary", "touch", "lua", "capture", "warm_restart")
 
@@ -55,6 +60,7 @@ class HardeningRunner:
         executable: str,
         *,
         report_path: Optional[Path] = None,
+        force_report: bool = False,
         simulator_args: Sequence[str] = (),
         command_timeout: float = 10.0,
         lifecycle_cycles: int = DEFAULT_LIFECYCLE_CYCLES,
@@ -70,13 +76,20 @@ class HardeningRunner:
         self.runs_root = runs_root
         self.executable = _executable_path(executable)
         self.report_path = report_path
+        self.force_report = bool(force_report)
         self.simulator_args = tuple(str(value) for value in simulator_args)
         self.command_timeout = _positive_timeout(command_timeout)
-        self.lifecycle_cycles = _count(lifecycle_cycles, "lifecycle cycles")
-        self.ping_count = _count(ping_count, "ping count")
-        self.lua_reloads = _count(lua_reloads, "Lua reload count")
-        self.warm_restarts = _count(warm_restarts, "warm restart count")
-        self.capture_count = _count(capture_count, "capture count")
+        self.lifecycle_cycles = _count(
+            lifecycle_cycles, "lifecycle cycles", MAX_LIFECYCLE_CYCLES
+        )
+        self.ping_count = _count(ping_count, "ping count", MAX_PING_COUNT)
+        self.lua_reloads = _count(lua_reloads, "Lua reload count", MAX_LUA_RELOADS)
+        self.warm_restarts = _count(
+            warm_restarts, "warm restart count", MAX_WARM_RESTARTS
+        )
+        self.capture_count = _count(
+            capture_count, "capture count", MAX_CAPTURE_COUNT
+        )
         if not expected_target:
             raise ValueError("expected target must not be empty")
         self.expected_target = expected_target
@@ -90,6 +103,16 @@ class HardeningRunner:
         runs = self.runs_root.resolve(strict=True)
         if _is_below(runs, self.fixture_root):
             raise HardeningError("runs root must not be inside the fixture")
+        if self.report_path is not None:
+            requested_report = self.report_path.resolve()
+            if _is_below(requested_report, self.fixture_root):
+                raise HardeningError("hardening report must not be inside the fixture")
+            if requested_report.exists() and not requested_report.is_file():
+                raise HardeningError("hardening report path is not a file")
+            if requested_report.exists() and not self.force_report:
+                raise HardeningError(
+                    "hardening report already exists: " + str(requested_report)
+                )
         run_directory = Path(
             tempfile.mkdtemp(prefix="tx16s-hardening-", dir=str(runs))
         ).resolve(strict=True)
@@ -121,11 +144,18 @@ class HardeningRunner:
                 "python": platform.python_version(),
             },
             "fixture": {
-                "path": self.fixture_root.as_posix(),
+                "path": "<fixture>",
                 "sha256": source_hash,
                 "unchanged": False,
             },
-            "run_directory": run_directory.as_posix(),
+            "run_directory": "<run>",
+            "simulator": {
+                "command": _redact_command(
+                    (self.executable, *self.simulator_args),
+                    run_directory,
+                    self.fixture_root,
+                )
+            },
             "lifecycle": {"completed": 0, "cycles": []},
             "stress": {},
             "cleanup": {"temporary_paths": [], "no_temporaries": False},
@@ -135,10 +165,16 @@ class HardeningRunner:
 
         failure: Optional[BaseException] = None
         stage = "lifecycle"
+
+        def set_stage(value: str) -> None:
+            nonlocal stage
+            stage = value
+
         try:
             self._run_lifecycle(run_directory, report["lifecycle"])
-            stage = "public-api-stress"
-            self._run_public_api_stress(run_directory, report["stress"])
+            self._run_public_api_stress(
+                run_directory, report["stress"], set_stage=set_stage
+            )
         except BaseException as error:
             failure = error
             report["failure"] = {
@@ -147,26 +183,48 @@ class HardeningRunner:
                 "message": str(error),
             }
 
-        final_hash = _tree_hash(self.fixture_root)
-        report["fixture"]["unchanged"] = final_hash == source_hash
-        temporary_paths = _temporary_paths(run_directory)
-        report["cleanup"] = {
-            "temporary_paths": [
-                path.relative_to(run_directory).as_posix()
-                for path in temporary_paths
-            ],
-            "no_temporaries": not temporary_paths,
-        }
+        final_hash = source_hash
+        temporary_paths: List[Path] = []
+        try:
+            final_hash = _tree_hash(self.fixture_root)
+            report["fixture"]["unchanged"] = final_hash == source_hash
+            temporary_paths = _temporary_paths(run_directory)
+            report["cleanup"] = {
+                "temporary_paths": [
+                    path.relative_to(run_directory).as_posix()
+                    for path in temporary_paths
+                ],
+                "no_temporaries": not temporary_paths,
+            }
+        except BaseException as error:
+            if failure is None:
+                failure = error
+                report["failure"] = {
+                    "stage": "cleanup",
+                    "error_type": type(error).__name__,
+                    "message": str(error),
+                }
+            report["cleanup"] = {
+                "temporary_paths": [],
+                "no_temporaries": False,
+                "collection_error": {
+                    "error_type": type(error).__name__,
+                    "message": str(error),
+                },
+            }
         cycles = report["lifecycle"]["cycles"]
         stress_reap = report.get("stress", {}).get("reap", {})
         all_reaped = all(
-            item.get("returncode") is not None and not item.get("reader_threads_alive")
+            item.get("returncode") is not None
+            and not item.get("reader_threads_alive")
+            and not item.get("writer_thread_alive")
             for item in cycles
         ) and (
             not stress_reap
             or (
                 stress_reap.get("returncode") is not None
                 and not stress_reap.get("reader_threads_alive")
+                and not stress_reap.get("writer_thread_alive")
             )
         )
         report["reap"]["all_reaped"] = all_reaped
@@ -185,7 +243,38 @@ class HardeningRunner:
             }
 
         report["success"] = failure is None
-        _write_report(report_path, report)
+        report = _redact_strings(
+            report,
+            ((run_directory, "<run>"), (self.fixture_root, "<fixture>")),
+        )
+        try:
+            _write_report(report_path, report, force=self.force_report)
+        except BaseException as error:
+            prior_failure = report.get("failure")
+            report["success"] = False
+            report["failure"] = {
+                "stage": "report",
+                "error_type": type(error).__name__,
+                "message": str(error),
+            }
+            if prior_failure is not None:
+                report["failure"]["prior_failure"] = prior_failure
+            report = _redact_strings(
+                report,
+                ((run_directory, "<run>"), (self.fixture_root, "<fixture>")),
+            )
+            fallback_path = run_directory / "hardening-report-publication-failure.json"
+            try:
+                _write_report(fallback_path, report, force=False)
+            except BaseException as fallback_error:
+                raise HardeningError(
+                    "hardening report publication failed and fallback evidence "
+                    "could not be written: " + str(fallback_error)
+                ) from error
+            result = HardeningResult(run_directory, fallback_path, False)
+            raise HardeningExecutionError(
+                "hardening report publication failed: " + str(error), result
+            ) from error
         result = HardeningResult(run_directory, report_path, failure is None)
         if failure is not None:
             raise HardeningExecutionError(str(failure), result) from failure
@@ -219,12 +308,22 @@ class HardeningRunner:
                         "returncode": session.returncode,
                         "termination": session.termination_stage,
                         "reader_threads_alive": session.reader_threads_alive,
+                        "writer_thread_alive": getattr(
+                            session, "writer_thread_alive", False
+                        ),
+                        "protocol": _session_protocol_metadata(
+                            session, run_directory
+                        ),
                     }
                 )
             lifecycle["completed"] = index + 1
 
     def _run_public_api_stress(
-        self, run_directory: Path, payload: Dict[str, Any]
+        self,
+        run_directory: Path,
+        payload: Dict[str, Any],
+        *,
+        set_stage: Callable[[str], None],
     ) -> None:
         root = run_directory / "stress"
         root.mkdir()
@@ -262,6 +361,7 @@ class HardeningRunner:
         last_ping_id: Optional[int] = None
         try:
             session.start(timeout=self.command_timeout)
+            set_stage("ping")
             for index in range(self.ping_count):
                 response = session.ping(timeout=self.command_timeout)
                 if first_ping_id is None:
@@ -271,6 +371,7 @@ class HardeningRunner:
             payload["ping"]["first_id"] = first_ping_id
             payload["ping"]["last_id"] = last_ping_id
 
+            set_stage("lua")
             for index in range(self.lua_reloads):
                 result = session.reload_lua(timeout=self.command_timeout)
                 expected = index + 1
@@ -279,6 +380,7 @@ class HardeningRunner:
                 payload["lua"]["generations"].append(result.generation)
                 payload["lua"]["completed"] = expected
 
+            set_stage("restart")
             status = session.read_status(timeout=self.command_timeout)
             previous_epoch = status.epoch
             previous_sequence = status.display_sequence
@@ -302,6 +404,7 @@ class HardeningRunner:
                 )
                 payload["warm_restart"]["completed"] = index + 1
 
+            set_stage("capture")
             self._prepare_visual_state(session)
             baseline: Optional[str] = None
             for index in range(self.capture_count):
@@ -356,6 +459,7 @@ class HardeningRunner:
                 "display_sequence": final_status.display_sequence,
                 "stale_completion_count": final_status.stale_completion_count,
             }
+            set_stage("cleanup")
             session.stop(timeout=self.command_timeout)
         except BaseException:
             session.close()
@@ -367,7 +471,11 @@ class HardeningRunner:
                 "returncode": session.returncode,
                 "termination": session.termination_stage,
                 "reader_threads_alive": session.reader_threads_alive,
+                "writer_thread_alive": getattr(
+                    session, "writer_thread_alive", False
+                ),
             }
+            payload["protocol"] = _session_protocol_metadata(session, run_directory)
 
     @staticmethod
     def _prepare_visual_state(session: SimulatorSession) -> None:
@@ -412,6 +520,7 @@ class HardeningRunner:
             terminate_timeout=self.command_timeout,
             kill_timeout=self.command_timeout,
             reader_join_timeout=self.command_timeout,
+            protocol_sink=run / "protocol.jsonl",
             required_capabilities=required_capabilities,
             expected_target=self.expected_target,
             expected_lcd=self.expected_lcd,
@@ -472,6 +581,36 @@ def _tree_hash(root: Path) -> str:
     return digest.hexdigest()
 
 
+def _session_protocol_metadata(
+    session: Any, run_directory: Path
+) -> Dict[str, Any]:
+    sink_value = getattr(session, "protocol_sink_path", None)
+    if sink_value is None:
+        return {"available": False}
+    sink = Path(sink_value).resolve(strict=True)
+    try:
+        relative = sink.relative_to(run_directory).as_posix()
+    except ValueError as error:
+        raise HardeningError(
+            "protocol evidence escaped the hardening run directory"
+        ) from error
+    item = digest_file(sink)
+    expected_hash = getattr(session, "protocol_sha256", None)
+    expected_count = getattr(session, "protocol_record_count", None)
+    if expected_hash != item.sha256 or not isinstance(expected_count, int):
+        raise HardeningError("session protocol evidence metadata is inconsistent")
+    return {
+        "available": True,
+        "path": relative,
+        "bytes": item.byte_count,
+        "records": expected_count,
+        "sha256": expected_hash,
+        "diagnostic_records_dropped": int(
+            getattr(session, "protocol_records_dropped", 0)
+        ),
+    }
+
+
 def _temporary_paths(root: Path) -> List[Path]:
     return sorted(
         (
@@ -484,7 +623,9 @@ def _temporary_paths(root: Path) -> List[Path]:
     )
 
 
-def _write_report(path: Path, payload: Mapping[str, Any]) -> None:
+def _write_report(
+    path: Path, payload: Mapping[str, Any], *, force: bool = False
+) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     encoded = (
         json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
@@ -495,7 +636,16 @@ def _write_report(path: Path, payload: Mapping[str, Any]) -> None:
             stream.write(encoded)
             stream.flush()
             os.fsync(stream.fileno())
-        os.replace(temporary, path)
+        if force:
+            os.replace(temporary, path)
+        else:
+            try:
+                os.link(temporary, path)
+            except FileExistsError as error:
+                raise HardeningError(
+                    "hardening report already exists: " + str(path)
+                ) from error
+            temporary.unlink()
     finally:
         try:
             temporary.unlink()
@@ -515,15 +665,67 @@ def _git_commit(start: Path) -> str:
     return result.stdout.strip() if result.returncode == 0 else "unknown"
 
 
+def _redact_command(
+    command: Sequence[object], run_directory: Path, fixture_root: Path
+) -> List[str]:
+    normalized: List[str] = []
+    for index, value in enumerate(command):
+        text = str(value)
+        path = Path(text)
+        if index == 0:
+            normalized.append(
+                path.name
+                if path.is_absolute() or path.parent != Path(".")
+                else text
+            )
+            continue
+        try:
+            candidate = path.resolve(strict=False)
+        except OSError:
+            normalized.append(text)
+            continue
+        replacement: Optional[str] = None
+        for root, label in ((run_directory, "<run>"), (fixture_root, "<fixture>")):
+            try:
+                relative = candidate.relative_to(root)
+            except ValueError:
+                continue
+            suffix = relative.as_posix()
+            replacement = label + ("/" + suffix if suffix != "." else "")
+            break
+        if replacement is None and path.is_absolute():
+            replacement = "<absolute-path>/" + candidate.name
+        normalized.append(
+            replacement if replacement is not None else text.replace("\\", "/")
+        )
+    return normalized
+
+
+def _redact_strings(value: Any, roots: Sequence[Tuple[Path, str]]) -> Any:
+    if isinstance(value, str):
+        result = value
+        for root, label in roots:
+            result = result.replace(str(root), label)
+            result = result.replace(root.as_posix(), label)
+        return result
+    if isinstance(value, Mapping):
+        return {key: _redact_strings(item, roots) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_redact_strings(item, roots) for item in value]
+    return value
+
+
 def _positive_timeout(value: float) -> float:
     if not isinstance(value, (int, float)) or value <= 0 or value > 60:
         raise ValueError("command timeout must be in (0, 60]")
     return float(value)
 
 
-def _count(value: int, label: str) -> int:
+def _count(value: int, label: str, maximum: int) -> int:
     if isinstance(value, bool) or not isinstance(value, int) or value < 0:
         raise ValueError(label + " must be a non-negative integer")
+    if value > maximum:
+        raise ValueError(label + " must not exceed " + str(maximum))
     return value
 
 

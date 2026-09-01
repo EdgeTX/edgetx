@@ -24,6 +24,7 @@ from edgetx_ui.flow import (  # noqa: E402
     load_flow,
 )
 from edgetx_ui.protocol import Response  # noqa: E402
+from edgetx_ui.session import MAX_PROTOCOL_RECORDS  # noqa: E402
 
 
 def _response(request_id: int, command: str) -> Response:
@@ -46,6 +47,11 @@ class _FlowSession:
         self.output_root = Path(output_root)
         self.options = options
         self.protocol_records: list[dict[str, Any]] = []
+        self.protocol_sink_path = Path(options["protocol_sink"])
+        self._protocol_stream = self.protocol_sink_path.open("xb")
+        self._protocol_hash = hashlib.sha256()
+        self.protocol_record_count = 0
+        self.protocol_records_dropped = 0
         self.recent_stderr = "bounded fixture diagnostic"
         self.returncode = None
         self.termination_stage = "not-started"
@@ -57,6 +63,23 @@ class _FlowSession:
         self._next_id = 1
         type(self).instances.append(self)
 
+    @property
+    def protocol_sha256(self) -> str:
+        return self._protocol_hash.hexdigest()
+
+    def _record_protocol(self, record: dict[str, Any]) -> None:
+        encoded = (
+            json.dumps(record, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+            + "\n"
+        ).encode("utf-8")
+        if len(self.protocol_records) == MAX_PROTOCOL_RECORDS:
+            self.protocol_records.pop(0)
+            self.protocol_records_dropped += 1
+        self.protocol_records.append(record)
+        self._protocol_stream.write(encoded)
+        self._protocol_hash.update(encoded)
+        self.protocol_record_count += 1
+
     def _reply(self, command: str) -> Response:
         request_id = self._next_id
         self._next_id += 1
@@ -67,12 +90,8 @@ class _FlowSession:
             "args": [],
         }
         response = _response(request_id, command)
-        self.protocol_records.extend(
-            (
-                {"direction": "request", "message": request},
-                {"direction": "response", "message": response.raw},
-            )
-        )
+        self._record_protocol({"direction": "request", "message": request})
+        self._record_protocol({"direction": "response", "message": response.raw})
         return response
 
     def start(self, **options: Any) -> Response:
@@ -96,17 +115,32 @@ class _FlowSession:
             response = self._reply("stop")
             self.returncode = 0
             self.termination_stage = "graceful"
+            self._protocol_stream.close()
             return response
         return self._reply("stop")
 
     def close(self) -> None:
         self.returncode = 0
         self.termination_stage = "closed"
+        if not self._protocol_stream.closed:
+            self._protocol_stream.close()
 
 
 class _FailingFlowSession(_FlowSession):
     def release_all(self, **options: Any) -> Response:
-        raise RuntimeError("deliberate step failure")
+        raise RuntimeError("deliberate step failure at " + str(self.output_root))
+
+
+class _PreparationFailingFlowSession(_FlowSession):
+    def __init__(self, executable: str, output_root: Path, **options: Any) -> None:
+        raise RuntimeError("deliberate preparation failure")
+
+
+class _ChattyFlowSession(_FlowSession):
+    def start(self, **options: Any) -> Response:
+        for _ in range(MAX_PROTOCOL_RECORDS):
+            self._reply("ping")
+        return super().start(**options)
 
 
 class FlowScenarioTests(unittest.TestCase):
@@ -210,7 +244,8 @@ class FlowScenarioTests(unittest.TestCase):
         result = self.runner(self.write_flow(payload)).run()
         manifest = json.loads(result.manifest.read_text(encoding="utf-8"))
         self.assertTrue(manifest["success"])
-        self.assertGreater(len(manifest["protocol"]), 0)
+        self.assertGreater(manifest["protocol"]["records"], 0)
+        self.assertEqual(manifest["protocol"]["path"], "protocol.jsonl")
         paths = {item["path"]: item for item in manifest["artifacts"]}
         for required in (
             "protocol.jsonl",
@@ -225,6 +260,27 @@ class FlowScenarioTests(unittest.TestCase):
                 paths[required]["sha256"],
             )
 
+    def test_protocol_evidence_streams_without_embedding_records(self) -> None:
+        result = self.runner(
+            self.write_flow(self.minimal_payload()), _ChattyFlowSession
+        ).run()
+        manifest_bytes = result.manifest.read_bytes()
+        manifest = json.loads(manifest_bytes)
+        protocol = manifest["protocol"]
+        evidence = result.run_directory / protocol["path"]
+
+        self.assertEqual(protocol["records"], MAX_PROTOCOL_RECORDS * 2 + 6)
+        self.assertEqual(protocol["bytes"], evidence.stat().st_size)
+        self.assertEqual(
+            protocol["sha256"], hashlib.sha256(evidence.read_bytes()).hexdigest()
+        )
+        self.assertEqual(len(protocol["generations"]), 1)
+        self.assertGreater(
+            protocol["generations"][0]["diagnostic_records_dropped"], 0
+        )
+        self.assertNotIn(b'"direction": "request"', manifest_bytes)
+        self.assertLess(len(manifest_bytes), 64 * 1024)
+
     def test_q08_failed_step_and_bounded_stderr_survive_in_manifest(self) -> None:
         runner = self.runner(self.write_flow(self.minimal_payload()), _FailingFlowSession)
         with self.assertRaises(FlowExecutionError) as caught:
@@ -233,6 +289,7 @@ class FlowScenarioTests(unittest.TestCase):
         self.assertFalse(manifest["success"])
         self.assertEqual(manifest["failure"]["step"], 1)
         self.assertEqual(manifest["failure"]["action"], "release-all")
+        self.assertNotIn(self.root.as_posix(), json.dumps(manifest).replace("\\", "/"))
         self.assertIn("bounded fixture diagnostic", (caught.exception.result.run_directory / "stderr.log").read_text())
 
     def test_q09_checked_in_smoke_is_the_documented_phase7_contract(self) -> None:
@@ -261,6 +318,35 @@ class FlowScenarioTests(unittest.TestCase):
         payload = json.loads(stderr.getvalue())
         self.assertFalse(payload["ok"])
         self.assertTrue(Path(payload["manifest"]).is_file())
+
+    def test_preparation_failure_removes_the_incomplete_run_directory(self) -> None:
+        runner = self.runner(
+            self.write_flow(self.minimal_payload()), _PreparationFailingFlowSession
+        )
+        with self.assertRaisesRegex(RuntimeError, "preparation failure"):
+            runner.run()
+        self.assertEqual(list(self.runs.iterdir()), [])
+
+    def test_manifest_redacts_host_paths_and_normalizes_the_command(self) -> None:
+        result = FlowRunner(
+            load_flow(self.write_flow(self.minimal_payload())),
+            self.fixture,
+            self.runs,
+            "fixture-simulator",
+            simulator_args=("--flag", "phase6"),
+            session_factory=_FlowSession,
+        ).run()
+        text = result.manifest.read_text(encoding="utf-8")
+        manifest = json.loads(text)
+
+        self.assertNotIn(self.root.as_posix(), text.replace("\\", "/"))
+        self.assertEqual(manifest["flow"]["path"], "<flow>/flow.json")
+        self.assertEqual(manifest["fixture"]["path"], "<fixture>")
+        self.assertEqual(manifest["simulator"]["command"][0], "fixture-simulator")
+        self.assertIn("--flag", manifest["simulator"]["command"])
+        self.assertIn("phase6", manifest["simulator"]["command"])
+        self.assertIn("<run>/settings", manifest["simulator"]["command"])
+        self.assertIn("<run>/sdcard", manifest["simulator"]["command"])
 
 
 if __name__ == "__main__":

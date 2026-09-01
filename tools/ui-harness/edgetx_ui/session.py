@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 import os
 import queue
@@ -52,6 +54,7 @@ READ_CHUNK_BYTES = 4096
 MAX_STDERR_LINES = 200
 MAX_STDERR_BYTES = 256 * 1024
 MAX_EVENTS = 64
+MAX_PROTOCOL_RECORDS = 4096
 MAX_COMMAND_TIMEOUT = 60.0
 TELEMETRY_UNIT_MAX = 29
 TELEMETRY_LABEL_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,4}$")
@@ -64,6 +67,12 @@ class CaptureBundle:
     ppm: ArtifactDigest
     png: ArtifactDigest
     manifest: ArtifactDigest
+
+
+@dataclass(frozen=True)
+class _WriteWork:
+    record: bytes
+    completion: queue.Queue[Optional[SessionError]]
 
 
 class SessionError(RuntimeError):
@@ -157,6 +166,7 @@ class SimulatorSession:
         terminate_timeout: float = 2.0,
         kill_timeout: float = 2.0,
         reader_join_timeout: float = 2.0,
+        protocol_sink: Optional[Union[str, os.PathLike[str]]] = None,
         required_capabilities: Sequence[str] = (),
         expected_target: Optional[str] = None,
         expected_lcd: Optional[Tuple[int, int, int]] = None,
@@ -166,6 +176,9 @@ class SimulatorSession:
         self._simulator_args = tuple(os.fspath(value) for value in simulator_args)
         self._cwd = os.fspath(cwd) if cwd is not None else None
         self._env = dict(env) if env is not None else None
+        self._protocol_sink_path = (
+            Path(protocol_sink) if protocol_sink is not None else None
+        )
         self._request_timeout = _validated_timeout(request_timeout, "request")
         self._stop_timeout = _validated_timeout(stop_timeout, "stop")
         self._terminate_timeout = _validated_timeout(
@@ -188,11 +201,20 @@ class SimulatorSession:
         self._process: Optional[subprocess.Popen[bytes]] = None
         self._stdout_thread: Optional[threading.Thread] = None
         self._stderr_thread: Optional[threading.Thread] = None
+        self._writer_thread: Optional[threading.Thread] = None
+        self._writer_queue: "queue.Queue[object]" = queue.Queue(maxsize=1)
+        self._writer_stop = threading.Event()
+        self._writer_timed_out = False
         self._stdout_closed = threading.Event()
         self._stderr_closed = threading.Event()
         self._diagnostics = _BoundedDiagnostics()
         self._events: Deque[Event] = deque(maxlen=MAX_EVENTS)
-        self._protocol_records: list[Dict[str, Any]] = []
+        self._protocol_records: Deque[Dict[str, Any]] = deque(
+            maxlen=MAX_PROTOCOL_RECORDS
+        )
+        self._protocol_record_count = 0
+        self._protocol_sha256 = hashlib.sha256()
+        self._protocol_sink: Optional[BinaryIO] = None
 
         self._state_lock = threading.RLock()
         self._request_lock = threading.Lock()
@@ -239,10 +261,29 @@ class SimulatorSession:
 
     @property
     def protocol_records(self) -> Tuple[Dict[str, Any], ...]:
-        """Return an ordered snapshot of sent requests and received messages."""
+        """Return the bounded diagnostic tail of protocol traffic."""
 
         with self._state_lock:
             return tuple(dict(record) for record in self._protocol_records)
+
+    @property
+    def protocol_record_count(self) -> int:
+        with self._state_lock:
+            return self._protocol_record_count
+
+    @property
+    def protocol_sha256(self) -> str:
+        with self._state_lock:
+            return self._protocol_sha256.hexdigest()
+
+    @property
+    def protocol_records_dropped(self) -> int:
+        with self._state_lock:
+            return self._protocol_record_count - len(self._protocol_records)
+
+    @property
+    def protocol_sink_path(self) -> Optional[Path]:
+        return self._protocol_sink_path
 
     @property
     def startup_ping(self) -> Optional[Response]:
@@ -270,6 +311,10 @@ class SimulatorSession:
             thread is not None and thread.is_alive()
             for thread in (self._stdout_thread, self._stderr_thread)
         )
+
+    @property
+    def writer_thread_alive(self) -> bool:
+        return self._writer_thread is not None and self._writer_thread.is_alive()
 
     @property
     def fixture_run_directory(self) -> Optional[Path]:
@@ -306,6 +351,18 @@ class SimulatorSession:
             raise SessionError("automation output path is not a directory")
         self._output_root = resolved_output
 
+        if self._protocol_sink_path is not None:
+            sink_path = self._protocol_sink_path.resolve()
+            if not sink_path.parent.is_dir():
+                raise SessionError("protocol evidence parent directory does not exist")
+            try:
+                self._protocol_sink = sink_path.open("xb", buffering=64 * 1024)
+            except OSError as error:
+                raise SessionError(
+                    "cannot create protocol evidence sink: " + str(error)
+                ) from error
+            self._protocol_sink_path = sink_path
+
         try:
             process = subprocess.Popen(
                 list(self.command),
@@ -315,10 +372,11 @@ class SimulatorSession:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=False,
-                bufsize=-1,
+                bufsize=0,
                 shell=False,
             )
         except OSError as error:
+            self._close_protocol_sink()
             raise SessionError("cannot launch simulator: " + str(error)) from error
 
         with self._state_lock:
@@ -334,8 +392,18 @@ class SimulatorSession:
             name="edgetx-automation-stderr",
             daemon=True,
         )
-        self._stdout_thread.start()
-        self._stderr_thread.start()
+        self._writer_thread = threading.Thread(
+            target=self._write_stdin,
+            name="edgetx-automation-stdin",
+            daemon=True,
+        )
+        try:
+            self._stdout_thread.start()
+            self._stderr_thread.start()
+            self._writer_thread.start()
+        except BaseException:
+            self._shutdown(send_stop=False, raise_errors=False)
+            raise
 
         deadline = time.monotonic() + startup_timeout
         try:
@@ -354,9 +422,16 @@ class SimulatorSession:
             self._validate_description(self._description)
 
             while True:
-                self._status_response = self.request(
-                    "status", timeout=self._startup_remaining(deadline)
-                )
+                try:
+                    self._status_response = self.request(
+                        "status", timeout=self._startup_remaining(deadline)
+                    )
+                except RequestTimeout as error:
+                    raise RequestTimeout(
+                        self._message_with_context(
+                            "timed out waiting for first-frame readiness", None
+                        )
+                    ) from error
                 try:
                     self._status = decode_status(self._status_response)
                 except ProtocolViolation as error:
@@ -596,6 +671,11 @@ class SimulatorSession:
                 terminate_timeout=self._terminate_timeout,
                 kill_timeout=self._kill_timeout,
                 reader_join_timeout=self._reader_join_timeout,
+                protocol_sink=(
+                    run_directory / "protocol.jsonl"
+                    if self._protocol_sink_path is not None
+                    else None
+                ),
                 required_capabilities=self._required_capabilities,
                 expected_target=self._expected_target,
                 expected_lcd=self._expected_lcd,
@@ -1052,6 +1132,10 @@ class SimulatorSession:
             if timeout is None
             else _validated_timeout(timeout, "command")
         )
+        # One monotonic deadline covers serialization behind request_lock,
+        # queue admission, the complete pipe write/flush, and correlation of
+        # the terminal response. No stage receives a fresh timeout budget.
+        deadline = time.monotonic() + request_timeout
 
         with self._request_lock:
             pending: queue.Queue[_ResponseItem] = queue.Queue(maxsize=1)
@@ -1069,29 +1153,28 @@ class SimulatorSession:
             except (TypeError, ValueError):
                 self._clear_pending(pending)
                 raise
-            with self._state_lock:
-                self._protocol_records.append(
-                    {
-                        "direction": "request",
-                        "message": {
-                            "version": PROTOCOL_VERSION,
-                            "id": request_id,
-                            "command": command,
-                            "args": list(arguments),
-                        },
-                    }
-                )
             try:
-                assert process.stdin is not None
-                process.stdin.write(record)
-                process.stdin.flush()
-            except (BrokenPipeError, OSError, ValueError) as error:
+                self._record_protocol(
+                    "request",
+                    {
+                        "version": PROTOCOL_VERSION,
+                        "id": request_id,
+                        "command": command,
+                        "args": list(arguments),
+                    },
+                )
+                self._submit_write(record, request_id, deadline)
+            except SessionError as error:
                 self._clear_pending(pending)
-                raise self._process_error(
-                    "cannot write request " + str(request_id), request_id
-                ) from error
+                self._record_failure(error)
+                if self._writer_timed_out:
+                    # This path runs while request_lock is owned. An abortive
+                    # shutdown is safe because it never attempts a stop
+                    # request, and it guarantees the blocked writer and child
+                    # are gone before the timeout is exposed to the caller.
+                    self._shutdown(send_stop=False, raise_errors=False)
+                raise
 
-            deadline = time.monotonic() + request_timeout
             try:
                 response = self._wait_for_response(pending, request_id, deadline)
             except RequestTimeout as error:
@@ -1145,6 +1228,103 @@ class SimulatorSession:
         if self._pending_queue is not None:
             raise SessionError("another request is already pending")
         return process
+
+    def _submit_write(
+        self, record: bytes, request_id: int, deadline: float
+    ) -> None:
+        completion: "queue.Queue[Optional[SessionError]]" = queue.Queue(maxsize=1)
+        work = _WriteWork(record, completion)
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            self._writer_timed_out = True
+            raise RequestTimeout(
+                self._message_with_context(
+                    "timed out before request reached protocol stdin", request_id
+                )
+            )
+        try:
+            self._writer_queue.put(work, timeout=remaining)
+        except queue.Full as error:
+            self._writer_timed_out = True
+            raise RequestTimeout(
+                self._message_with_context(
+                    "timed out enqueueing request to protocol stdin", request_id
+                )
+            ) from error
+
+        while True:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                self._writer_timed_out = True
+                raise RequestTimeout(
+                    self._message_with_context(
+                        "timed out writing request to protocol stdin", request_id
+                    )
+                )
+            try:
+                result = completion.get(timeout=min(remaining, 0.05))
+            except queue.Empty:
+                process = self._process
+                if process is not None and process.poll() is not None:
+                    raise self._process_error(
+                        "simulator exited while writing", request_id
+                    )
+                continue
+            if result is not None:
+                raise self._with_context(result, request_id)
+            return
+
+    def _write_stdin(self) -> None:
+        while not self._writer_stop.is_set():
+            try:
+                item = self._writer_queue.get(timeout=0.05)
+            except queue.Empty:
+                continue
+            if not isinstance(item, _WriteWork):
+                return
+
+            error: Optional[SessionError] = None
+            process = self._process
+            try:
+                if process is None or process.stdin is None:
+                    raise OSError("protocol stdin is unavailable")
+                view = memoryview(item.record)
+                written = 0
+                while written < len(view):
+                    count = process.stdin.write(view[written:])
+                    if count is None or count <= 0:
+                        raise OSError("protocol stdin accepted no bytes")
+                    written += count
+                process.stdin.flush()
+            except (BrokenPipeError, OSError, ValueError) as caught:
+                error = ProcessExited("cannot write protocol stdin: " + str(caught))
+            try:
+                item.completion.put_nowait(error)
+            except queue.Full:
+                pass
+
+    def _record_protocol(self, direction: str, message: Mapping[str, Any]) -> None:
+        record = {"direction": direction, "message": dict(message)}
+        encoded = (
+            json.dumps(
+                record,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            + "\n"
+        ).encode("utf-8")
+        with self._state_lock:
+            self._protocol_records.append(record)
+            self._protocol_record_count += 1
+            self._protocol_sha256.update(encoded)
+            if self._protocol_sink is not None:
+                try:
+                    self._protocol_sink.write(encoded)
+                except OSError as error:
+                    raise ProtocolFailure(
+                        "cannot write protocol evidence sink: " + str(error)
+                    ) from error
 
     def _wait_for_response(
         self,
@@ -1241,13 +1421,9 @@ class SimulatorSession:
                     )
 
     def _route_message(self, message: Union[Response, Event]) -> None:
-        with self._state_lock:
-            self._protocol_records.append(
-                {
-                    "direction": "event" if isinstance(message, Event) else "response",
-                    "message": dict(message.raw),
-                }
-            )
+        self._record_protocol(
+            "event" if isinstance(message, Event) else "response", message.raw
+        )
         if isinstance(message, Event):
             with self._state_lock:
                 self._events.append(message)
@@ -1373,16 +1549,11 @@ class SimulatorSession:
 
             with self._state_lock:
                 self._closing = True
-            if process.stdin is not None:
-                try:
-                    process.stdin.close()
-                except OSError:
-                    pass
 
-            try:
-                process.wait(timeout=self._stop_timeout)
-                self._termination_stage = "graceful"
-            except subprocess.TimeoutExpired:
+            # A timed-out pipe write can hold the stdin object's I/O lock.
+            # Terminate the child first so its read handle closes and releases
+            # the sole writer worker before this thread closes the Python pipe.
+            if self._writer_timed_out and process.poll() is None:
                 try:
                     process.terminate()
                 except OSError as error:
@@ -1408,13 +1579,57 @@ class SimulatorSession:
                         primary_error = primary_error or SessionError(
                             "simulator did not exit after kill"
                         )
+            else:
+                if process.stdin is not None:
+                    try:
+                        process.stdin.close()
+                    except OSError:
+                        pass
 
-            self._close_reader_pipes(process)
-            threads_alive = self._join_reader_threads()
+                try:
+                    process.wait(timeout=self._stop_timeout)
+                    self._termination_stage = "graceful"
+                except subprocess.TimeoutExpired:
+                    try:
+                        process.terminate()
+                    except OSError as error:
+                        if process.poll() is None:
+                            primary_error = primary_error or SessionError(
+                                "cannot terminate simulator: " + str(error)
+                            )
+                    try:
+                        process.wait(timeout=self._terminate_timeout)
+                        self._termination_stage = "terminated"
+                    except subprocess.TimeoutExpired:
+                        try:
+                            process.kill()
+                        except OSError as error:
+                            if process.poll() is None:
+                                primary_error = primary_error or SessionError(
+                                    "cannot kill simulator: " + str(error)
+                                )
+                        try:
+                            process.wait(timeout=self._kill_timeout)
+                            self._termination_stage = "killed"
+                        except subprocess.TimeoutExpired:
+                            primary_error = primary_error or SessionError(
+                                "simulator did not exit after kill"
+                            )
+
+            self._writer_stop.set()
+            try:
+                self._writer_queue.put_nowait(None)
+            except queue.Full:
+                pass
+            self._close_process_pipes(process)
+            threads_alive = self._join_io_threads()
             if threads_alive:
                 primary_error = primary_error or SessionError(
-                    "simulator reader threads did not stop"
+                    "simulator I/O threads did not stop"
                 )
+            sink_error = self._close_protocol_sink()
+            if sink_error is not None:
+                primary_error = primary_error or sink_error
 
             with self._state_lock:
                 self._closed = True
@@ -1426,19 +1641,40 @@ class SimulatorSession:
             return self._stop_response
 
     @staticmethod
-    def _close_reader_pipes(process: subprocess.Popen[bytes]) -> None:
-        for stream in (process.stdout, process.stderr):
+    def _close_process_pipes(process: subprocess.Popen[bytes]) -> None:
+        for stream in (process.stdin, process.stdout, process.stderr):
             if stream is not None:
                 try:
                     stream.close()
                 except OSError:
                     pass
 
-    def _join_reader_threads(self) -> bool:
-        for thread in (self._stdout_thread, self._stderr_thread):
-            if thread is not None:
+    def _join_io_threads(self) -> bool:
+        for thread in (
+            self._writer_thread,
+            self._stdout_thread,
+            self._stderr_thread,
+        ):
+            if thread is not None and thread.ident is not None:
                 thread.join(timeout=self._reader_join_timeout)
-        return self.reader_threads_alive
+        return self.writer_thread_alive or self.reader_threads_alive
+
+    def _close_protocol_sink(self) -> Optional[SessionError]:
+        sink = self._protocol_sink
+        self._protocol_sink = None
+        if sink is None:
+            return None
+        try:
+            sink.flush()
+            os.fsync(sink.fileno())
+            sink.close()
+        except OSError as error:
+            try:
+                sink.close()
+            except OSError:
+                pass
+            return SessionError("cannot finalize protocol evidence sink: " + str(error))
+        return None
 
     def _process_error(
         self, prefix: str, request_id: Optional[int]

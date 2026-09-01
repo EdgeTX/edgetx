@@ -180,33 +180,45 @@ class FlowRunner:
         run_directory = Path(
             tempfile.mkdtemp(prefix=self.flow.source.stem + "-", dir=str(runs))
         ).resolve(strict=True)
-        settings = run_directory / "settings"
-        sdcard = run_directory / "sdcard"
-        artifacts = run_directory / "artifacts"
-        checkpoints = artifacts / "checkpoints"
-        shutil.copytree(self.fixture_root / "settings", settings, symlinks=False)
-        shutil.copytree(self.fixture_root / "sdcard", sdcard, symlinks=False)
-        checkpoints.mkdir(parents=True)
+        try:
+            settings = run_directory / "settings"
+            sdcard = run_directory / "sdcard"
+            artifacts = run_directory / "artifacts"
+            checkpoints = artifacts / "checkpoints"
+            shutil.copytree(self.fixture_root / "settings", settings, symlinks=False)
+            shutil.copytree(self.fixture_root / "sdcard", sdcard, symlinks=False)
+            checkpoints.mkdir(parents=True)
 
-        args = _replace_simulator_path(self.simulator_args, "--settings", settings)
-        args = _replace_simulator_path(args, "--storage", sdcard)
-        session = self.session_factory(
-            self.executable,
-            artifacts,
-            simulator_args=args,
-            cwd=run_directory,
-            request_timeout=self.command_timeout,
-            stop_timeout=self.command_timeout,
-            terminate_timeout=self.command_timeout,
-            kill_timeout=self.command_timeout,
-            required_capabilities=self.flow.requires,
-            expected_target=self.flow.target,
-            expected_lcd=TARGET_SPECS[self.flow.target].lcd,
-        )
+            args = _replace_simulator_path(self.simulator_args, "--settings", settings)
+            args = _replace_simulator_path(args, "--storage", sdcard)
+            first_protocol_sink = run_directory / "protocol-generation-001.jsonl"
+            session = self.session_factory(
+                self.executable,
+                artifacts,
+                simulator_args=args,
+                cwd=run_directory,
+                request_timeout=self.command_timeout,
+                stop_timeout=self.command_timeout,
+                terminate_timeout=self.command_timeout,
+                kill_timeout=self.command_timeout,
+                protocol_sink=first_protocol_sink,
+                required_capabilities=self.flow.requires,
+                expected_target=self.flow.target,
+                expected_lcd=TARGET_SPECS[self.flow.target].lcd,
+            )
+        except BaseException as preparation_error:
+            try:
+                shutil.rmtree(run_directory)
+            except BaseException as cleanup_error:
+                raise FlowError(
+                    "flow preparation failed and its incomplete run could not be removed: "
+                    + str(cleanup_error)
+                ) from preparation_error
+            raise
         started_at = _utc_now()
         started_monotonic = time.monotonic()
         step_records: List[Dict[str, Any]] = []
-        retired_protocol: List[Dict[str, Any]] = []
+        protocol_generations: List[Dict[str, Any]] = []
         retired_stderr: List[str] = []
         failure: Optional[Dict[str, Any]] = None
         caught: Optional[BaseException] = None
@@ -229,11 +241,16 @@ class FlowRunner:
                             run_directory / "restarts",
                             timeout=step["timeout_ms"] / 1000.0,
                         )
-                        retired_protocol.extend(previous.protocol_records)
+                        protocol_generations.append(
+                            _protocol_generation(previous, run_directory)
+                        )
                         if previous.recent_stderr:
                             retired_stderr.append(previous.recent_stderr)
                         result = {
-                            "run_directory": str(session.fixture_run_directory)
+                            "run_directory": _redact_path(
+                                session.fixture_run_directory,
+                                ((run_directory, "<run>"),),
+                            )
                         }
                     else:
                         result = self._execute_step(session, step)
@@ -270,14 +287,10 @@ class FlowRunner:
                 else:
                     session.close()
 
-        protocol_records = retired_protocol + list(
-            getattr(session, "protocol_records", ())
-        )
+        protocol_generations.append(_protocol_generation(session, run_directory))
         protocol_path = run_directory / "protocol.jsonl"
-        protocol_path.write_text(
-            "".join(_canonical_json(record) + "\n" for record in protocol_records),
-            encoding="utf-8",
-            newline="\n",
+        protocol_evidence = _consolidate_protocol(
+            protocol_generations, protocol_path, run_directory
         )
         stderr_path = run_directory / "stderr.log"
         current_stderr = getattr(session, "recent_stderr", "")
@@ -304,13 +317,13 @@ class FlowRunner:
             "schema_version": 1,
             "success": caught is None,
             "flow": {
-                "path": self.flow.source.as_posix(),
+                "path": "<flow>/" + self.flow.source.name,
                 "sha256": self.flow.sha256,
                 "target": self.flow.target,
                 "requires": list(self.flow.requires),
             },
             "fixture": {
-                "path": self.fixture_root.as_posix(),
+                "path": "<fixture>",
                 "sha256": source_hash,
                 "unchanged": final_source_hash == source_hash,
             },
@@ -320,8 +333,10 @@ class FlowRunner:
                 "python": platform.python_version(),
             },
             "simulator": {
-                "command": list(
-                    getattr(session, "command", (self.executable, *args))
+                "command": _redact_command(
+                    getattr(session, "command", (self.executable, *args)),
+                    run_directory,
+                    self.fixture_root,
                 ),
                 "returncode": getattr(session, "returncode", None),
                 "termination": getattr(session, "termination_stage", "unknown"),
@@ -332,10 +347,14 @@ class FlowRunner:
             "ended_at": _utc_now(),
             "elapsed_ms": round((time.monotonic() - started_monotonic) * 1000.0, 3),
             "steps": step_records,
-            "protocol": protocol_records,
+            "protocol": protocol_evidence,
             "artifacts": artifact_digests,
             "failure": failure,
         }
+        manifest_payload = _redact_strings(
+            manifest_payload,
+            ((run_directory, "<run>"), (self.fixture_root, "<fixture>")),
+        )
         manifest_path = run_directory / "manifest.json"
         manifest_path.write_text(
             json.dumps(manifest_payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
@@ -598,6 +617,77 @@ def _tree_hash(root: Path) -> str:
     return digest.hexdigest()
 
 
+def _protocol_generation(session: Any, run_directory: Path) -> Dict[str, Any]:
+    sink_value = getattr(session, "protocol_sink_path", None)
+    if sink_value is None:
+        raise FlowError("session did not expose its streaming protocol evidence")
+    sink = Path(sink_value).resolve(strict=True)
+    try:
+        relative = sink.relative_to(run_directory).as_posix()
+    except ValueError as error:
+        raise FlowError("protocol evidence escaped the flow run directory") from error
+    item = digest_file(sink)
+    expected_hash = getattr(session, "protocol_sha256", None)
+    expected_count = getattr(session, "protocol_record_count", None)
+    if expected_hash != item.sha256 or not isinstance(expected_count, int):
+        raise FlowError("session protocol evidence metadata is inconsistent")
+    return {
+        "_source": sink,
+        "path": relative,
+        "records": expected_count,
+        "sha256": expected_hash,
+        "diagnostic_records_dropped": int(
+            getattr(session, "protocol_records_dropped", 0)
+        ),
+    }
+
+
+def _consolidate_protocol(
+    generations: Sequence[Mapping[str, Any]], destination: Path, run_directory: Path
+) -> Dict[str, Any]:
+    digest = hashlib.sha256()
+    byte_count = 0
+    record_count = 0
+    public_generations: List[Dict[str, Any]] = []
+    with destination.open("xb") as output:
+        for index, generation in enumerate(generations, start=1):
+            source = Path(generation["_source"])
+            generation_digest = hashlib.sha256()
+            generation_records = 0
+            with source.open("rb") as stream:
+                for chunk in iter(lambda: stream.read(64 * 1024), b""):
+                    output.write(chunk)
+                    digest.update(chunk)
+                    generation_digest.update(chunk)
+                    byte_count += len(chunk)
+                    generation_records += chunk.count(b"\n")
+            if generation_records != generation["records"]:
+                raise FlowError("protocol evidence record count is inconsistent")
+            if generation_digest.hexdigest() != generation["sha256"]:
+                raise FlowError("protocol evidence digest is inconsistent")
+            record_count += generation_records
+            public_generations.append(
+                {
+                    "generation": index,
+                    "path": generation["path"],
+                    "records": generation_records,
+                    "sha256": generation["sha256"],
+                    "diagnostic_records_dropped": generation[
+                        "diagnostic_records_dropped"
+                    ],
+                }
+            )
+        output.flush()
+        os.fsync(output.fileno())
+    return {
+        "path": destination.relative_to(run_directory).as_posix(),
+        "bytes": byte_count,
+        "records": record_count,
+        "sha256": digest.hexdigest(),
+        "generations": public_generations,
+    }
+
+
 def _artifact_digests(run_directory: Path, artifacts: Path) -> List[Dict[str, Any]]:
     paths = [run_directory / "protocol.jsonl", run_directory / "stderr.log"]
     paths.extend(
@@ -652,6 +742,67 @@ def _json_value(value: Any) -> Any:
 
 def _canonical_json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def _redact_command(
+    command: Sequence[object], run_directory: Path, fixture_root: Path
+) -> List[str]:
+    normalized: List[str] = []
+    for index, value in enumerate(command):
+        text = str(value)
+        if index == 0:
+            path = Path(text)
+            normalized.append(
+                path.name
+                if path.is_absolute() or path.parent != Path(".")
+                else text
+            )
+            continue
+        normalized.append(
+            _redact_path(
+                text,
+                ((run_directory, "<run>"), (fixture_root, "<fixture>")),
+                redact_other_absolute=True,
+            )
+        )
+    return normalized
+
+
+def _redact_path(
+    value: object,
+    roots: Sequence[Tuple[Path, str]],
+    *,
+    redact_other_absolute: bool = False,
+) -> str:
+    path = Path(value)
+    try:
+        candidate = path.resolve(strict=False)
+    except OSError:
+        return str(value)
+    for root, label in roots:
+        try:
+            relative = candidate.relative_to(root)
+        except ValueError:
+            continue
+        suffix = relative.as_posix()
+        return label + ("/" + suffix if suffix != "." else "")
+    if redact_other_absolute and path.is_absolute():
+        return "<absolute-path>/" + candidate.name
+    return str(value).replace("\\", "/")
+
+
+def _redact_strings(value: Any, roots: Sequence[Tuple[Path, str]]) -> Any:
+    if isinstance(value, str):
+        result = value
+        for root, label in roots:
+            result = result.replace(str(root), label)
+            result = result.replace(root.as_posix(), label)
+        return result
+    if isinstance(value, Mapping):
+        return {key: _redact_strings(item, roots) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_redact_strings(item, roots) for item in value]
+    return value
 
 
 def _git_commit(start: Path) -> str:

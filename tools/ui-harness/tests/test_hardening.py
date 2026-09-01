@@ -5,14 +5,27 @@ import json
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
+from typing import Any
 
 
 HARNESS_ROOT = Path(__file__).resolve().parents[1]
 FAKE_SIMULATOR = Path(__file__).with_name("fake_simulator.py")
 sys.path.insert(0, str(HARNESS_ROOT))
 
-from edgetx_ui.hardening import HardeningRunner  # noqa: E402
+from edgetx_ui.hardening import (  # noqa: E402
+    HardeningError,
+    HardeningExecutionError,
+    HardeningRunner,
+    MAX_CAPTURE_COUNT,
+    MAX_LIFECYCLE_CYCLES,
+    MAX_LUA_RELOADS,
+    MAX_PING_COUNT,
+    MAX_WARM_RESTARTS,
+)
+import edgetx_ui.hardening as hardening_module  # noqa: E402
+from edgetx_ui.cli import build_parser  # noqa: E402
 from edgetx_ui.session import SimulatorSession  # noqa: E402
 
 
@@ -149,6 +162,21 @@ class Phase8HardeningTests(unittest.TestCase):
         self.assertTrue(report["stress"]["visual"]["changed_differs"])
         self.assertTrue(report["cleanup"]["no_temporaries"])
         self.assertTrue(report["reap"]["all_reaped"])
+        for cycle in report["lifecycle"]["cycles"]:
+            self.assertFalse(cycle["writer_thread_alive"])
+            evidence = cycle["protocol"]
+            self.assertTrue(evidence["available"])
+            self.assertGreater(evidence["records"], 0)
+            protocol = result.run_directory / evidence["path"]
+            self.assertEqual(
+                hashlib.sha256(protocol.read_bytes()).hexdigest(),
+                evidence["sha256"],
+            )
+        stress_evidence = report["stress"]["protocol"]
+        self.assertTrue(stress_evidence["available"])
+        self.assertGreater(stress_evidence["records"], 0)
+        self.assertNotIn("direction", stress_evidence)
+        self.assertFalse(report["stress"]["reap"]["writer_thread_alive"])
         self.assertTrue(report["fixture"]["unchanged"])
         self.assertEqual(
             hashlib.sha256(
@@ -156,6 +184,307 @@ class Phase8HardeningTests(unittest.TestCase):
             ).hexdigest(),
             fixture_before,
         )
+
+    def fixture(self) -> Path:
+        fixture = self.output_root / "failure-fixture"
+        (fixture / "settings").mkdir(parents=True)
+        (fixture / "sdcard").mkdir()
+        return fixture
+
+    def test_failure_contract_preserves_report_and_cleanup_evidence(self) -> None:
+        fixture = self.fixture()
+        report_path = self.output_root / "failure-report.json"
+        runner = HardeningRunner(
+            fixture,
+            self.output_root / "failure-runs",
+            sys.executable,
+            report_path=report_path,
+            simulator_args=(str(FAKE_SIMULATOR), "command-error"),
+            lifecycle_cycles=1,
+            ping_count=0,
+            lua_reloads=0,
+            warm_restarts=0,
+            capture_count=0,
+            expected_target="test-target",
+        )
+
+        with self.assertRaises(HardeningExecutionError) as caught:
+            runner.run()
+        payload = json.loads(caught.exception.result.report.read_text(encoding="utf-8"))
+        self.assertFalse(payload["success"])
+        self.assertEqual(payload["failure"]["stage"], "lifecycle")
+        self.assertEqual(payload["lifecycle"]["completed"], 0)
+        self.assertEqual(len(payload["lifecycle"]["cycles"]), 1)
+        self.assertTrue(payload["reap"]["all_reaped"])
+        self.assertTrue(payload["fixture"]["unchanged"])
+        self.assertTrue(payload["cleanup"]["no_temporaries"])
+
+    def test_failure_contract_captures_base_exception_and_reap_state(self) -> None:
+        class DeliberateAbort(BaseException):
+            pass
+
+        class AbortingSession:
+            def __init__(self, *args: object, **kwargs: object) -> None:
+                self.process = None
+                self.returncode = None
+                self.termination_stage = "not-started"
+                self.reader_threads_alive = False
+                self.cwd = Path(kwargs["cwd"])
+
+            def start(self, **kwargs: object) -> None:
+                raise DeliberateAbort("deliberate base exception at " + str(self.cwd))
+
+            def close(self) -> None:
+                self.returncode = -1
+                self.termination_stage = "closed"
+
+        fixture = self.fixture()
+        runner = HardeningRunner(
+            fixture,
+            self.output_root / "base-exception-runs",
+            "fixture-simulator",
+            lifecycle_cycles=1,
+            ping_count=0,
+            lua_reloads=0,
+            warm_restarts=0,
+            capture_count=0,
+            expected_target="test-target",
+            session_factory=AbortingSession,
+        )
+        with self.assertRaises(HardeningExecutionError) as caught:
+            runner.run()
+        payload = json.loads(caught.exception.result.report.read_text(encoding="utf-8"))
+        self.assertEqual(payload["failure"]["error_type"], "DeliberateAbort")
+        self.assertEqual(payload["failure"]["stage"], "lifecycle")
+        self.assertEqual(payload["lifecycle"]["cycles"][0]["returncode"], -1)
+        self.assertTrue(payload["reap"]["all_reaped"])
+        self.assertNotIn(
+            self.output_root.as_posix(),
+            json.dumps(payload).replace("\\", "/"),
+        )
+
+    def test_failure_contract_identifies_each_public_api_stage(self) -> None:
+        fixture = self.fixture()
+
+        class InjectedFailureSession:
+            def __init__(
+                self, failure_method: str, *args: object, **kwargs: object
+            ) -> None:
+                self._failure_method = failure_method
+                self._session = SimulatorSession(*args, **kwargs)
+
+            def __getattr__(self, name: str) -> Any:
+                value = getattr(self._session, name)
+                if name != self._failure_method:
+                    return value
+
+                def fail(*args: object, **kwargs: object) -> None:
+                    raise RuntimeError("injected failure in " + name)
+
+                return fail
+
+        stages = (
+            ("ping", "ping"),
+            ("reload_lua", "lua"),
+            ("restart", "restart"),
+            ("capture_ppm", "capture"),
+            ("stop", "cleanup"),
+        )
+        for failure_method, expected_stage in stages:
+            with self.subTest(stage=expected_stage):
+                def factory(
+                    *args: object,
+                    _method: str = failure_method,
+                    **kwargs: object,
+                ) -> InjectedFailureSession:
+                    return InjectedFailureSession(_method, *args, **kwargs)
+
+                runner = HardeningRunner(
+                    fixture,
+                    self.output_root / (expected_stage + "-failure-runs"),
+                    sys.executable,
+                    simulator_args=(str(FAKE_SIMULATOR), "phase6"),
+                    lifecycle_cycles=0,
+                    ping_count=1,
+                    lua_reloads=1,
+                    warm_restarts=1,
+                    capture_count=1,
+                    expected_target="test-target",
+                    session_factory=factory,
+                )
+                with self.assertRaises(HardeningExecutionError) as caught:
+                    runner.run()
+                payload = json.loads(
+                    caught.exception.result.report.read_text(encoding="utf-8")
+                )
+                self.assertEqual(payload["failure"]["stage"], expected_stage)
+                self.assertTrue(payload["fixture"]["unchanged"])
+                self.assertTrue(payload["cleanup"]["no_temporaries"])
+                self.assertTrue(payload["reap"]["all_reaped"])
+                self.assertIsNotNone(payload["stress"]["reap"]["returncode"])
+
+    def test_cleanup_evidence_collection_failure_is_reported(self) -> None:
+        fixture = self.fixture()
+        runner = HardeningRunner(
+            fixture,
+            self.output_root / "cleanup-collection-runs",
+            sys.executable,
+            simulator_args=(str(FAKE_SIMULATOR), "phase6"),
+            lifecycle_cycles=0,
+            ping_count=0,
+            lua_reloads=0,
+            warm_restarts=0,
+            capture_count=0,
+            expected_target="test-target",
+        )
+        with mock.patch.object(
+            hardening_module,
+            "_temporary_paths",
+            side_effect=OSError("cleanup evidence unavailable"),
+        ):
+            with self.assertRaises(HardeningExecutionError) as caught:
+                runner.run()
+        payload = json.loads(caught.exception.result.report.read_text(encoding="utf-8"))
+        self.assertEqual(payload["failure"]["stage"], "cleanup")
+        self.assertFalse(payload["cleanup"]["no_temporaries"])
+        self.assertEqual(
+            payload["cleanup"]["collection_error"]["error_type"], "OSError"
+        )
+        self.assertTrue(payload["fixture"]["unchanged"])
+        self.assertTrue(payload["reap"]["all_reaped"])
+
+    def test_report_publication_failure_preserves_fallback_evidence(self) -> None:
+        fixture = self.fixture()
+        requested = self.output_root / "unpublished-report.json"
+        runner = HardeningRunner(
+            fixture,
+            self.output_root / "publication-failure-runs",
+            sys.executable,
+            report_path=requested,
+            simulator_args=(str(FAKE_SIMULATOR), "phase6"),
+            lifecycle_cycles=0,
+            ping_count=0,
+            lua_reloads=0,
+            warm_restarts=0,
+            capture_count=0,
+            expected_target="test-target",
+        )
+        original_write = hardening_module._write_report
+
+        def fail_requested(
+            path: Path, payload: object, *, force: bool = False
+        ) -> None:
+            if path == requested.resolve():
+                raise OSError("publication deliberately unavailable")
+            original_write(path, payload, force=force)
+
+        with mock.patch.object(
+            hardening_module, "_write_report", side_effect=fail_requested
+        ):
+            with self.assertRaises(HardeningExecutionError) as caught:
+                runner.run()
+        self.assertFalse(requested.exists())
+        self.assertNotEqual(caught.exception.result.report, requested)
+        payload = json.loads(caught.exception.result.report.read_text(encoding="utf-8"))
+        self.assertEqual(payload["failure"]["stage"], "report")
+        self.assertTrue(payload["fixture"]["unchanged"])
+        self.assertTrue(payload["cleanup"]["no_temporaries"])
+        self.assertTrue(payload["reap"]["all_reaped"])
+
+    def test_report_is_exclusive_by_default_and_force_is_explicit(self) -> None:
+        fixture = self.fixture()
+        report_path = self.output_root / "exclusive.json"
+        report_path.write_text("keep\n", encoding="utf-8")
+
+        options: dict[str, Any] = {
+            "report_path": report_path,
+            "simulator_args": (str(FAKE_SIMULATOR), "phase6"),
+            "lifecycle_cycles": 0,
+            "ping_count": 0,
+            "lua_reloads": 0,
+            "warm_restarts": 0,
+            "capture_count": 0,
+            "expected_target": "test-target",
+        }
+        with self.assertRaisesRegex(HardeningError, "already exists"):
+            HardeningRunner(
+                fixture, self.output_root / "exclusive-runs", sys.executable, **options
+            ).run()
+        self.assertEqual(report_path.read_text(encoding="utf-8"), "keep\n")
+
+        result = HardeningRunner(
+            fixture,
+            self.output_root / "exclusive-runs",
+            sys.executable,
+            force_report=True,
+            **options,
+        ).run()
+        self.assertTrue(result.success)
+        self.assertTrue(json.loads(report_path.read_text(encoding="utf-8"))["success"])
+
+        with self.assertRaisesRegex(HardeningError, "inside the fixture"):
+            HardeningRunner(
+                fixture,
+                self.output_root / "fixture-report-runs",
+                sys.executable,
+                report_path=fixture / "report.json",
+                force_report=True,
+                lifecycle_cycles=0,
+                ping_count=0,
+                lua_reloads=0,
+                warm_restarts=0,
+                capture_count=0,
+                expected_target="test-target",
+            ).run()
+
+    def test_cli_force_flag_is_explicit_and_disabled_by_default(self) -> None:
+        parser = build_parser()
+        normal = parser.parse_args(["harden", "fixture-simulator"])
+        forced = parser.parse_args(["harden", "--force", "fixture-simulator"])
+        self.assertFalse(normal.force)
+        self.assertTrue(forced.force)
+
+    def test_runner_rejects_each_count_one_above_its_documented_limit(self) -> None:
+        fixture = self.fixture()
+        limits = (
+            ("lifecycle_cycles", MAX_LIFECYCLE_CYCLES),
+            ("ping_count", MAX_PING_COUNT),
+            ("lua_reloads", MAX_LUA_RELOADS),
+            ("warm_restarts", MAX_WARM_RESTARTS),
+            ("capture_count", MAX_CAPTURE_COUNT),
+        )
+        for argument, maximum in limits:
+            with self.subTest(argument=argument):
+                with self.assertRaisesRegex(ValueError, "must not exceed"):
+                    HardeningRunner(
+                        fixture,
+                        self.output_root / (argument + "-runs"),
+                        sys.executable,
+                        **{argument: maximum + 1},
+                    )
+
+    def test_report_redacts_machine_specific_paths_and_command(self) -> None:
+        fixture = self.fixture()
+        result = HardeningRunner(
+            fixture,
+            self.output_root / "redaction-runs",
+            sys.executable,
+            simulator_args=(str(FAKE_SIMULATOR), "phase6"),
+            lifecycle_cycles=0,
+            ping_count=0,
+            lua_reloads=0,
+            warm_restarts=0,
+            capture_count=0,
+            expected_target="test-target",
+        ).run()
+        text = result.report.read_text(encoding="utf-8")
+        payload = json.loads(text)
+
+        self.assertNotIn(self.output_root.as_posix(), text.replace("\\", "/"))
+        self.assertEqual(payload["fixture"]["path"], "<fixture>")
+        self.assertEqual(payload["run_directory"], "<run>")
+        self.assertEqual(payload["simulator"]["command"][0], Path(sys.executable).name)
+        self.assertIn("phase6", payload["simulator"]["command"])
 
 
 if __name__ == "__main__":
