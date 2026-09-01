@@ -249,16 +249,7 @@ void ModelCell::setModelName(const char *name)
   if (name && name[0]) {
     strAppend(modelName, name, LEN_MODEL_NAME);
   } else {
-    // Reset name back to default 'MODELxx' where 'xx' is the model number
-    // from the file name
-    int idx = -1;
-    sscanf(modelFilename, "model%d", &idx);
-    if (idx > 0)
-      sprintf(modelName, "MODEL%02d" MODEL_FILENAME_SUFFIX, idx);
-    else
-      strAppend(modelName, modelFilename, LEN_MODEL_NAME);
-    char* tmp = (char *)strrchr(modelName, '.');
-    if (tmp != nullptr) *tmp = 0;
+    setDefaultName();
   }
 }
 
@@ -277,6 +268,41 @@ void ModelCell::setRfData(ModelHeader *header, ModuleData* modData)
           i, moduleData[i].type, moduleData[i].subType, modelId[i]);
   }
   valid_rfData = true;
+}
+
+void ModelCell::setUniqueName()
+{
+  // Generate a new unique name from the current name
+  char s[LEN_MODEL_NAME + 1];
+  strAppend(s, modelName, LEN_MODEL_NAME);
+  int endPos = strlen(s);
+  bool truncate = endPos > LEN_MODEL_NAME - 3;
+  if (truncate) endPos -= 3;
+  for (int i = 1; i < 99; i += 1) {
+    if (i == 10 && truncate) endPos -= 1;
+    sprintf(s + endPos, "(%d)", i);
+    if (modelCellManager.getModelWithName(s) == nullptr) {
+      strAppend(modelName, s);
+      return;
+    }
+  }
+
+  // Fallback
+  setDefaultName();
+}
+
+void ModelCell::setDefaultName()
+{
+  // Reset name back to default 'MODELxx' where 'xx' is the model number
+  // from the file name
+  int idx = -1;
+  sscanf(modelFilename, "model%d", &idx);
+  if (idx > 0)
+    sprintf(modelName, "MODEL%02d" MODEL_FILENAME_SUFFIX, idx);
+  else
+    strAppend(modelName, modelFilename, LEN_MODEL_NAME);
+  char* tmp = (char *)strrchr(modelName, '.');
+  if (tmp != nullptr) *tmp = 0;
 }
 
 void ModelCell::duplicateFrom(ModelCell* src)
@@ -1036,6 +1062,21 @@ ModelCell* ModelsList::getModel(const char* filename)
 {
   for (auto model : *this)
     if (strncmp(model->modelFilename, filename, LEN_MODEL_FILENAME) == 0)
+      return model;
+  return nullptr;
+}
+
+/**
+ * @brief Finds a ModelCell by model name
+ *
+ * @param filename Model file name
+ * @return ModelCell pointer if found, else null
+ */
+
+ModelCell* ModelsList::getModelWithName(const char* name)
+{
+  for (auto model : *this)
+    if (strncmp(model->modelName, name, LEN_MODEL_NAME) == 0)
       return model;
   return nullptr;
 }
