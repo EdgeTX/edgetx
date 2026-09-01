@@ -233,6 +233,8 @@ The first accepted implementation will not:
 - add a general telemetry simulator;
 - support concurrent automation clients;
 - guarantee hostile-client resistance;
+- defend an automation output root that another process concurrently replaces
+  or rewires through symlinks/reparse points;
 - support every color and monochrome target;
 - alter Companion or WASM behavior;
 - change native-test defaults; or
@@ -429,8 +431,8 @@ automation files:
    owned storage. It signals the capture worker and returns.
 
 All four hooks are no-ops without an active runtime automation session. They
-are compiled under `#if defined(SIMU) && !defined(__wasm__)` and the existing
-native simulator CMake boundary, not by a new user-visible product option.
+are compiled under the single `SIMU_AUTOMATION` native-simulator CMake boundary,
+not by a new user-visible product option.
 
 ## 6. Protocol version 1
 
@@ -720,7 +722,10 @@ At startup the simulator canonicalizes `--automation-output`. A capture path:
 
 The simulator never creates arbitrary parent directories and never overwrites a
 capture. The host creates a unique run root, so this does not inconvenience
-normal flows.
+normal flows. That run root is trusted session-owned state: no other process may
+modify, replace, or reparse it while the simulator is running. Path containment
+rejects accidental escape and unsafe client input; it is not a sandbox boundary
+against a concurrent process running as the same OS user.
 
 ### 7.2 Capture sequence
 
@@ -1052,8 +1057,8 @@ rename is acceptable, but the following boundaries are mandatory:
 - `automation_bridge` is added to native simulator objects only when
   `NOT WASI`, so `main.cpp`, `LvglWrapper.cpp`, and tests resolve the four
   SIMU-only bridge hooks.
-- Hook call sites use `#if defined(SIMU) && !defined(__wasm__)`, preventing an
-  unresolved bridge or behavior change in firmware and WASM builds.
+- Hook call sites use `#if defined(SIMU_AUTOMATION)`, preventing an unresolved
+  bridge or behavior change in firmware, WASI, and Emscripten builds.
 - Nothing is added to physical firmware targets.
 - Nothing is added to `wasi-module`.
 - No new FetchContent dependency is introduced.
@@ -1345,7 +1350,8 @@ or zombie on Linux and Windows.
 ### Phase 4 — Core input and display barriers
 
 **Implementation status:** implemented and locally verified on the single
-consolidation branch; maintainer review and CI remain pending.
+consolidation branch. Maintainer review remains pending; current-head GitHub
+Actions checks passed at the final-audit checkpoint.
 Phase 4 deliberately excludes capture, switches, analog inputs, telemetry, Lua,
 restart, and scenario files. Capture is now implemented by Phase 5; the other
 features remain in Phases 6–7.
@@ -1526,8 +1532,9 @@ simulator-side duration command was introduced.
 ### Phase 5 — Render-complete capture
 
 **Implementation status (2026-08-18):** implemented and locally verified on
-the consolidation branch. Focused native and Python suites and the real Windows
-TX16S simulator pass; maintainer review and post-push CI remain pending.
+the consolidation branch. Focused native and Python suites, the real Windows
+TX16S simulator, and current-head GitHub Actions checks pass; maintainer review
+remains pending.
 
 Phase 5 is intentionally one narrow feature: a `capture` request returns only
 after a fresh firmware framebuffer has been published as a complete,
@@ -1591,6 +1598,12 @@ Before reserving the asynchronous slot, `capture` must:
 The host creates parent directories. The simulator neither creates arbitrary
 parents nor silently normalizes an unsafe name. Path failures are terminal and
 must not arm invalidation or consume the asynchronous slot.
+
+The configured root and its descendants are private to the active harness run
+and must not be changed concurrently by another process. Descriptor-relative
+containment against a hostile same-user filesystem actor is outside protocol
+v1's threat model; callers needing that boundary must provide an OS sandbox or a
+private filesystem namespace.
 
 #### 5.2 Static-screen invalidation handoff
 
@@ -2120,7 +2133,7 @@ Recorded hardening evidence (2026-08-31):
 | Deterministic capture | 20/20 static PPM/RGB captures were byte-identical; a deliberate rotary mutation produced a different framebuffer |
 | WASM isolation | TX16S WASI artifact built successfully (5,233,532 bytes) and contained zero automation markers |
 | Physical firmware isolation | TX16S ARM firmware built successfully (1,612,948-byte BIN); BIN and ELF contained zero automation strings and the ELF contained zero automation symbols |
-| Build isolation | Emscripten excludes the protocol and native stdio/capture sources; the host test workflow covers Ubuntu and Windows without adding a root Python dependency project |
+| Build isolation | `SIMU_AUTOMATION` excludes the complete automation surface from firmware, WASI, and Emscripten source builds; the host test workflow covers Ubuntu and Windows without adding a root Python dependency project |
 
 The failed first visual-mutation attempt was retained as diagnostic evidence. A
 held Enter key did not visibly change the real TX16S framebuffer, so the gate
