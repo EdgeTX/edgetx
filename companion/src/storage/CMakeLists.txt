@@ -6,7 +6,7 @@ set(${PROJECT_NAME}_NAMES
   appdata
   firmwareinterface
   storage
-  labeled
+  tree
   sdcard
   etx
   yaml
