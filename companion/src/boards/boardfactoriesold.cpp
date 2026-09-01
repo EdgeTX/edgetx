@@ -27,7 +27,7 @@ BoardFactories::BoardFactories() :
   m_default(nullptr)
 {
   if (registerBoard(Board::BOARD_UNKNOWN, ""))
-    m_default = board(Board::BOARD_UNKNOWN);
+    m_default = instance(Board::BOARD_UNKNOWN);
 }
 
 BoardFactories::~BoardFactories()
@@ -35,31 +35,34 @@ BoardFactories::~BoardFactories()
   unregisterBoardFactories();
 }
 
-Boards* BoardFactories::board(const Board::Type & board) const
+BoardJson* BoardFactories::instance(Board::Type board) const
 {
   for (auto *registeredFactory : registeredBoardFactories) {
-    if (registeredFactory->board()->boardType() == board)
-      return registeredFactory->board();
+    if (registeredFactory->instance()->board() == board)
+      return registeredFactory->instance();
   }
 
   return m_default;
 }
 
-Boards* BoardFactories::board(const QString & hwdefn) const
+BoardJson* BoardFactories::instance(QString hwdefn) const
 {
   for (auto *registeredFactory : registeredBoardFactories) {
-    if (registeredFactory->board()->hwdefn() == hwdefn)
-      return registeredFactory->board();
+    if (registeredFactory->instance()->hwdefn() == hwdefn)
+      return registeredFactory->instance();
   }
 
   return m_default;
 }
 
 //  Registering firmware triggers registering the associated board
-bool BoardFactories::registerBoard(const Board::Type & board, const QString & hwdefn)
+bool BoardFactories::registerBoard(Board::Type board, QString hwdefn)
 {
+  if (board < Board::BOARD_UNKNOWN || board >= Board::BOARD_TYPE_COUNT)
+    return false;
+
   if (m_default || board != Board::BOARD_UNKNOWN) {
-    Boards* regboard = Boards(board, hwdefn);
+    BoardJson* regboard = instance(board);
 
     if (regboard->board() == board) {
       if (regboard->hwdefn() == hwdefn) {
@@ -75,7 +78,7 @@ bool BoardFactories::registerBoard(const Board::Type & board, const QString & hw
   }
 
   BoardFactory *bf = new BoardFactory(board, hwdefn);
-  if (bf->board()->loadDefinition()) {
+  if (bf->instance()->loadDefinition()) {
     if (registerBoardFactory(bf)) {
       qDebug() << "Registered board:" << (board != Board::BOARD_UNKNOWN ? Boards::getBoardName(board) : "UNKNOWN (default)");
       return true;

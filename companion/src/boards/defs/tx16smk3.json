@@ -1,5 +1,7 @@
 {
-  "basedOn": [ "default", "radiomaster" ],
+  "basedOn": [
+    "radiomaster"
+  ],
   "id": "tx16smk3",
   "name": "TX16S Mark 3"
 }

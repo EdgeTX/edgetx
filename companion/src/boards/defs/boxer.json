@@ -1,5 +1,7 @@
 {
-  "basedOn": [ "default", "radiomaster" ],
+  "basedOn": [
+    "radiomaster"
+  ],
   "id": "boxer",
   "name": "Boxer"
 }
