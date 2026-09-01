@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "capabilities.h"
+#include "capability.h"
 #include "boards.h"
 #include "constants.h"
 #include "helpers_json.h"

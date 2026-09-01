@@ -1098,9 +1098,9 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
 
           if (!o.value("default").isUndefined()) {
             std::string dflt = o.value("default").toString().toStdString();
-            if (defn.type == AIT_FLEX) {
+            if (defn.type == Board::AIT_FLEX) {
               int idx = DataHelpers::getStringTagMappingIndex(flexTypesLookupTable, dflt.c_str());
-              defn.flexType = (FlexType)(idx < 0 ? FLEX_NONE : idx);
+              defn.flexType = (FlexType)(idx < 0 ? Board::FLEX_NONE : idx);
             }
           }
 

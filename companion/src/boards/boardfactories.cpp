@@ -56,28 +56,29 @@ Boards* BoardFactories::board(const QString & hwdefn) const
 }
 
 //  Registering firmware triggers registering the associated board
-bool BoardFactories::registerBoard(const Board::Type & board, const QString & hwdefn)
+bool BoardFactories::registerBoard(const Board::Type & boardType, const QString & hwdefn)
 {
-  if (m_default || board != Board::BOARD_UNKNOWN) {
-    Boards* regboard = Boards(board, hwdefn);
+  if (m_default || boardType != Board::BOARD_UNKNOWN) {
+    Boards* regboard = board(boardType);
 
-    if (regboard->board() == board) {
+    if (regboard->boardType() == boardType) {
       if (regboard->hwdefn() == hwdefn) {
         //qDebug() << "Warning - Board" << Boards::getBoardName(regboard->board()) << "already registered";
         return true;
       }
       else {
-        qDebug() << "Error - Board" << Boards::getBoardName(regboard->board()) << "already registered with"
+        qDebug() << "Error - Board" << Boards::getBoardName(regboard->boardType()) << "already registered with"
                  << regboard->hwdefn() << "hwdefn!";
         return false;
       }
     }
   }
 
-  BoardFactory *bf = new BoardFactory(board, hwdefn);
+  BoardFactory *bf = new BoardFactory(boardType, hwdefn);
+
   if (bf->board()->loadDefinition()) {
     if (registerBoardFactory(bf)) {
-      qDebug() << "Registered board:" << (board != Board::BOARD_UNKNOWN ? Boards::getBoardName(board) : "UNKNOWN (default)");
+      qDebug() << "Registered board:" << (boardType != Board::BOARD_UNKNOWN ? bf->board()->name() : "UNKNOWN (default)");
       return true;
     }
     else
