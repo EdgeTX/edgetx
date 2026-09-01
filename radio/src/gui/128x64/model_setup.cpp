@@ -2452,8 +2452,10 @@ void menuModelSetup(event_t event)
 #if defined(AFHDS3) && defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS:
 #endif
-#if (defined(MULTIMODULE) | defined(DSMP) | defined(AFHDS3)) && defined(HARDWARE_EXTERNAL_MODULE)
+#if defined(DSMP) && defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_STATUS:
+#endif
+#if defined(MULTIMODULE) || defined(AFHDS3) || defined(DSMP)
       {
         // MultiModule & LemonDSMP & AFHDS3 Status
         lcdDrawTextIndented(y, STR_MODULE_STATUS);

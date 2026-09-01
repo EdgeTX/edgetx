@@ -124,10 +124,10 @@ void pulsesRestartModuleUnsafe(uint8_t module)
 {
   if (module >= MAX_MODULES)
     return;
-  
+
   auto mod_drv = pulsesGetModuleDriver(module);
   if (!mod_drv->drv) return;
-  
+
   auto drv = mod_drv->drv;
   drv->deinit(mod_drv->ctx);
   mod_drv->ctx = drv->init(module);
@@ -351,7 +351,7 @@ uint8_t getRequiredProtocol(uint8_t module)
     case MODULE_TYPE_LEMON_DSMP:
       protocol = PROTOCOL_CHANNELS_DSMP;
       break;
-      
+
     default:
       protocol = PROTOCOL_CHANNELS_NONE;
       break;
@@ -390,7 +390,7 @@ static void _init_module(uint8_t module, const etx_proto_driver_t* drv)
   // board specific hook
   if (_on_module_init)
     _on_module_init(module, drv);
-  
+
   // power ON
   modulePortSetPower(module, true);
   TRACE("Module #%d init succeeded", module);
@@ -408,7 +408,7 @@ static void _deinit_module(uint8_t module)
   auto drv = mod->drv;
   if (_on_module_deinit)
     _on_module_deinit(module, drv);
-  
+
   // de-init
   auto ctx = mod->ctx;
   drv->deinit(ctx);
@@ -486,7 +486,7 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
       break;
 #endif
 
-#if defined(DSM2)
+#if defined(DSMP)
     case PROTOCOL_CHANNELS_DSMP:
       _init_module(module, &DSMPDriver);
       break;
@@ -548,7 +548,7 @@ void pulsesSendNextFrame(uint8_t module)
 
     if (_handle_async_restart(module))
       return;
-    
+
     pulsesEnableModule(module, protocol);
     moduleState[module].protocol = protocol;
     return;
