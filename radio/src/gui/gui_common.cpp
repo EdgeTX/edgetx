@@ -650,7 +650,8 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
     case FUNC_DISABLE_AUDIO_AMP:
       return false;
 #endif
-#if !defined(LED_STRIP_LENGTH)
+#if !defined(BLING_LED_STRIP_LENGTH) || (BLING_LED_STRIP_LENGTH == 0)
+    // No 'bling' leds to drive
     case FUNC_RGB_LED:
       return false;
 #endif

@@ -2913,11 +2913,12 @@ static int luaGetTrainerStatus(lua_State * L)
   #define CFS_LED_STRIP_LENGTH 0
 #endif
 
-#if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
+#if (BLING_LED_STRIP_LENGTH > 0)
 /*luadoc
 @function setRGBLedColor(id, rvalue, bvalue, cvalue)
 
-@param id: integer identifying a led in the led chain
+@param id: integer identifying a 'bling' led, 0 .. LED_STRIP_LENGTH-1.
+ Custom function switch leds are not reachable, use setCFSLedColor instead.
 
 @param rvalue: interger, value of red channel
 
@@ -2934,7 +2935,7 @@ static int luaSetRgbLedColor(lua_State * L)
 {
   uint8_t id = luaL_checkunsigned(L, 1);
 
-  if (id >= (BLING_LED_STRIP_LENGTH + CFS_LED_STRIP_LENGTH)) {
+  if (id >= BLING_LED_STRIP_LENGTH) {
     lua_pushboolean(L, false);
     return 1;
   }
@@ -2943,24 +2944,7 @@ static int luaSetRgbLedColor(lua_State * L)
   uint8_t g = luaL_checkunsigned(L, 3);
   uint8_t b = luaL_checkunsigned(L, 4);
 
-#if CFS_LED_STRIP_LENGTH > 0
-#if BLING_LED_STRIP_LENGTH > 0
-  if (id < BLING_LED_STRIP_LENGTH) {
-    rgbSetLedColor(id + BLING_LED_STRIP_START, r, g, b);
-    lua_pushboolean(L, true);
-    return 1;
-  }
-  id -= BLING_LED_STRIP_LENGTH;
-#endif
-  uint8_t swIdx = switchGetSwitchFromCustomIdx(id / CFS_LEDS_PER_SWITCH);
-  if (g_model.getSwitchType(swIdx) != SWITCH_NONE) {
-    lua_pushboolean(L, false);
-    return 1;
-  }
-  rgbSetLedColor(id + CFS_LED_STRIP_START, r, g, b);
-#else
   rgbSetLedColor(id + BLING_LED_STRIP_START, r, g, b);
-#endif
 
   lua_pushboolean(L, true);
   return 1;
@@ -3203,8 +3187,10 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( getSourceIndex, luaGetSourceIndex )
   LROT_FUNCENTRY( getSourceName, luaGetSourceName )
   LROT_FUNCENTRY( sources, luaSources )
-#if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
+#if (BLING_LED_STRIP_LENGTH > 0)
   LROT_FUNCENTRY( setRGBLedColor, luaSetRgbLedColor )
+#endif
+#if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
   LROT_FUNCENTRY( applyRGBLedColors, luaApplyRGBLedColors )
 #endif
 #if (CFS_LED_STRIP_LENGTH > 0)
@@ -3362,7 +3348,10 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( PLAY_BACKGROUND, PLAY_BACKGROUND )
   LROT_NUMENTRY( TIMEHOUR, TIMEHOUR )
 #if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
-  LROT_NUMENTRY( LED_STRIP_LENGTH, BLING_LED_STRIP_LENGTH + CFS_LED_STRIP_LENGTH )
+  // Number of 'bling' LEDs, ie. the range setRGBLedColor() accepts. CFS LEDs
+  // are not part of it, they are driven by setCFSLedColor(). Kept defined,
+  // as 0, on radios that only have CFS LEDs.
+  LROT_NUMENTRY( LED_STRIP_LENGTH, BLING_LED_STRIP_LENGTH )
 #endif
   LROT_NUMENTRY( UNIT_RAW, UNIT_RAW )
   LROT_NUMENTRY( UNIT_VOLTS, UNIT_VOLTS )
