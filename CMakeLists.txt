@@ -61,6 +61,7 @@ if(EdgeTX_SUPERBUILD)
   ExternalProject_Add(native
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
     BINARY_DIR ${CMAKE_BINARY_DIR}/native
+    LIST_SEPARATOR |
     CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
     CMAKE_CACHE_ARGS
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/native.cmake
@@ -75,6 +76,7 @@ if(EdgeTX_SUPERBUILD)
   ExternalProject_Add(arm-none-eabi
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
     BINARY_DIR ${CMAKE_BINARY_DIR}/arm-none-eabi
+    LIST_SEPARATOR |
     CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
     CMAKE_CACHE_ARGS
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/arm-none-eabi.cmake
