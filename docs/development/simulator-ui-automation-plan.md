@@ -1,16 +1,16 @@
 # Unified Simulator UI Automation Plan
 
-**Status:** Proposed implementation contract for collaborative review
+**Status:** Implemented contract ready for maintainer review
 
 **Phase 0 evidence:** [baseline and gate record](simulator-ui-automation-phase-0.md)
 
-**Current state (2026-08-31):** Phases 1–8 are implemented and the local Phase 8
-hardening matrix passes. Contract review G0 is still open, so this document
-remains a proposed contract and the pull request remains draft. G0 is required
-before the pull request leaves draft or is merged, not before implementation and
-verification commits.
+**Current state (2026-09-01):** Phases 1–8 and the final audit remediation are
+implemented, and the expanded local validation matrix passes. The pull request
+is ready for formal maintainer review. Contract review G0 remains required
+before merge; ready-for-review status is the mechanism for requesting that
+review, not a claim that G0 has already passed.
 
-**Working rule:** keep one branch and one draft pull request, implement the
+**Working rule:** keep one branch and one pull request, implement the
 smallest useful vertical pieces, preserve the best requirements from both source
 pull requests, and invite both authors to review before merge.
 
@@ -64,7 +64,7 @@ The implementation will deliberately exclude:
 - direct mutation of Lua, telemetry, or LVGL state from the SDL thread.
 
 The intended result is one initiative, one protocol, and one implementation
-draft with reviewable phase commits. Split it only if maintainers explicitly
+pull request with reviewable phase commits. Split it only if maintainers explicitly
 request a smaller review surface; never create parallel control APIs.
 
 ## 2. Evidence and current integration seams
@@ -646,8 +646,7 @@ Stable codes are machine-consumable. Messages are diagnostic and may improve.
 The reference host begins stdout/stderr readers before sending `ping` and sends
 one command at a time. This satisfies D16 for normal operation. Hardening tests
 must pause the reader deliberately; if the SDL loop exceeds the agreed latency
-budget, a bounded response-writer queue becomes mandatory before non-draft
-review.
+budget, a bounded response-writer queue becomes mandatory before formal review.
 
 Performance budgets use paired runs from the same implementation commit,
 machine, toolchain, build type, target, fixture, window state, and power mode.
@@ -1155,7 +1154,7 @@ The dated Phase 0 baseline and gate record is maintained in
 [`simulator-ui-automation-phase-0.md`](simulator-ui-automation-phase-0.md).
 
 **Exit:** 0T passes before Phase 1 implementation begins. G0 passes before this
-pull request leaves draft or is merged. Original PRs remain open until the
+pull request is merged. Original PRs remain open until the
 replacement demonstrates the retained behavior and their authors have had a
 reasonable opportunity to review it.
 
@@ -1973,9 +1972,9 @@ consolidated pull request.
 
 ### Phase 7 — Scenario, fixture, and developer UX
 
-**Implementation status (2026-08-31):** implemented and locally verified on
-the consolidation branch. The Phase 7 head passed repository CI; the pull
-request remains draft because contract review G0 is still open.
+**Implementation status (2026-09-01):** implemented and locally verified on
+the consolidation branch. The Phase 7 head passed repository CI, and the
+remediated pull request is ready for formal review; G0 remains a merge gate.
 
 The dependency-free host implementation lives in `edgetx_ui/flow.py`. It keeps
 schema validation and step interpretation separate from `SimulatorSession`,
@@ -2039,10 +2038,10 @@ verified artifacts, and exits nonzero on any failed step.
 
 ### Phase 8 — Hardening, CI, and review readiness
 
-**Implementation status (2026-08-31):** technical implementation and the local
-hardening matrix are complete. The pull request remains draft. Phase 8.6 and the
-final exit remain externally blocked by contract review G0; repository CI for
-the Phase 8 head must also pass after push.
+**Implementation status (2026-09-01):** technical implementation, audit
+remediation, and the expanded local hardening matrix are complete. The pull
+request is ready for maintainer review. Phase 8.6 and final merge remain gated
+by contract review G0 and repository CI for the pushed remediation head.
 
 The hardening runner is available as `edgetx-ui harden`. It creates an isolated
 fixture copy and unique artifact directory, runs the configured lifecycle,
@@ -2141,9 +2140,9 @@ was corrected to use a rotary mutation. The reduced verification and the full
 rerun then passed. This changes only the visual hardening action, not the wire
 protocol or product behavior.
 
-**Exit:** the technical local checks are green. The replacement is not ready to
-leave draft until repository CI for the Phase 8 head is green and G0 records an
-explicit contract-review outcome.
+**Exit:** the technical local checks are green and the replacement may request
+formal review. It must not merge until repository CI for the remediation head
+is green and G0 records an explicit contract-review outcome.
 
 ## 12. Test catalogue
 
@@ -2253,7 +2252,7 @@ explicit contract-review outcome.
 
 ## 14. Final acceptance criteria
 
-The implementation may leave draft only when all of the following are true:
+The implementation may be merged only when all of the following are true:
 
 - one protocol and one runtime activation path exist;
 - maintainers have reviewed or accepted the consolidation direction;
@@ -2290,13 +2289,14 @@ The implementation may leave draft only when all of the following are true:
 
 ### 15.1 Pull-request structure
 
-1. Use this branch and this draft pull request for the consolidated plan and
+1. Use this branch and this pull request for the consolidated plan and
    implementation; do not create a second replacement branch or a branch per
    phase.
 2. Keep commits small and reviewable, using the phase order as guidance rather
    than as bureaucracy.
 3. Keep the pull request in draft while the contract and implementation evolve;
-   require contributor/maintainer review before marking it ready or merging it.
+   mark it ready to request formal review once the local technical gates pass,
+   and require contributor/maintainer acceptance before merging it.
 4. Use disposable local build directories or container clones for matrix work,
    not additional remote branches.
 5. Split at a phase boundary only when a maintainer explicitly requests it;
@@ -2336,7 +2336,7 @@ final review unless preserving an author's imported commit is more important.
 
 | Risk | Control | Decision gate |
 |---|---|---|
-| A third PR increases confusion | One draft, cross-links, one decision table | Do not mark ready or merge until direction is reviewed |
+| A third PR increases confusion | One PR, cross-links, one decision table | Do not merge until direction is reviewed |
 | Contribution appears appropriated | Provenance table and author invitation | Review attribution before importing code |
 | Protocol scope becomes a testing platform | Version 1 command list and non-goals | Defer adapters/goldens/multiple targets |
 | Windows works natively but Python fails | Binary reader threads, no pipe `select` | Windows lifecycle test in Phase 3 |
@@ -2353,7 +2353,7 @@ final review unless preserving an author's imported commit is more important.
 | Async operation replies twice | Single owner state machine | S01–S12 |
 | Late completion crosses restart | Epoch-tagged mailbox/completion | L05–L12 |
 | Firmware size changes | Native-only build boundaries | Representative size comparison |
-| Large patch becomes unreviewable | Phase commits in one implementation draft | Split only when a maintainer explicitly requests it |
+| Large patch becomes unreviewable | Phase commits in one implementation PR | Split only when a maintainer explicitly requests it |
 
 ## 17. Rollback and recovery
 
