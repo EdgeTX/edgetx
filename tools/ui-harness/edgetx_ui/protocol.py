@@ -14,6 +14,7 @@ UINT64_MAX = (1 << 64) - 1
 
 _COMMAND_PATTERN = re.compile(r"^[a-z][a-z0-9-]*$")
 _TARGET_PATTERN = re.compile(r"^[A-Za-z0-9_.+-]+$")
+_REMAINDER_ARGUMENT_COMMANDS = frozenset(("capture",))
 
 CAPABILITY_NAMES = (
     "rotary",
@@ -158,6 +159,8 @@ def encode_request(
         raise ValueError("request id must be in 1..UINT64_MAX")
     if not isinstance(command, str) or not _COMMAND_PATTERN.fullmatch(command):
         raise ValueError("command must be a canonical lowercase ASCII token")
+    if command in _REMAINDER_ARGUMENT_COMMANDS and len(arguments) > 1:
+        raise ValueError("capture accepts at most one remainder argument")
 
     tokens = ["v1", str(request_id), command]
     for argument in arguments:
@@ -167,6 +170,10 @@ def encode_request(
             raise ValueError("request arguments cannot contain NUL, CR, or LF")
         if argument != argument.strip(" "):
             raise ValueError("request arguments cannot start or end with spaces")
+        if " " in argument and command not in _REMAINDER_ARGUMENT_COMMANDS:
+            raise ValueError(
+                "only remainder arguments may contain internal spaces"
+            )
         tokens.append(argument)
 
     encoded = " ".join(tokens).encode("utf-8")

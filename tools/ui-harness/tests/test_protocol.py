@@ -82,11 +82,28 @@ class EncodeRequestTests(unittest.TestCase):
     def test_encodes_exact_ping_record(self) -> None:
         self.assertEqual(encode_request(1, "ping"), b"v1 1 ping\n")
 
-    def test_preserves_internal_spaces_in_final_argument(self) -> None:
+    def test_preserves_internal_spaces_in_capture_remainder(self) -> None:
+        self.assertEqual(encode_request(8, "capture"), b"v1 8 capture\n")
         self.assertEqual(
-            encode_request(9, "capture", ("checkpoints/home screen.ppm",)),
-            b"v1 9 capture checkpoints/home screen.ppm\n",
+            encode_request(9, "capture", ("checkpoints/home  screen.ppm",)),
+            b"v1 9 capture checkpoints/home  screen.ppm\n",
         )
+
+    def test_rejects_ambiguous_argument_boundaries(self) -> None:
+        invalid_calls = (
+            lambda: encode_request(1, "key-down", ("ENTER extra",)),
+            lambda: encode_request(1, "set-switch", ("SA extra", "1")),
+            lambda: encode_request(
+                1, "set-telemetry", ("1", "0", "0", "1", "0", "0 RSSI")
+            ),
+            lambda: encode_request(
+                1, "capture", ("checkpoints/home", "screen.ppm")
+            ),
+        )
+        for invalid_call in invalid_calls:
+            with self.subTest(call=invalid_call):
+                with self.assertRaises(ValueError):
+                    invalid_call()
 
     def test_rejects_ambiguous_or_oversized_fields(self) -> None:
         invalid_calls = (

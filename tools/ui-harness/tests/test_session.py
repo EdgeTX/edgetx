@@ -274,7 +274,7 @@ class SimulatorSessionTests(unittest.TestCase):
         try:
             session.start()
             with self.assertRaises(ValueError):
-                session.request("capture", "bad\npath")
+                session.request("key-down", "ENTER extra")
             ping = session.ping()
             self.assertEqual(ping.id, 5)
         finally:
@@ -487,13 +487,13 @@ class SimulatorSessionTests(unittest.TestCase):
         session = self.session("phase5")
         try:
             session.start()
-            artifact = session.capture_ppm("check points/home screen.ppm")
+            artifact = session.capture_ppm("check points/home  screen.ppm")
 
-            self.assertEqual(artifact.path, "check points/home screen.ppm")
+            self.assertEqual(artifact.path, "check points/home  screen.ppm")
             self.assertEqual(artifact.display_sequence, 2)
             self.assertEqual((artifact.width, artifact.height), (480, 272))
             self.assertEqual(artifact.depth, 16)
-            capture_path = self.output_root / "check points" / "home screen.ppm"
+            capture_path = self.output_root / "check points" / "home  screen.ppm"
             self.assertEqual(capture_path.stat().st_size, artifact.byte_count)
             self.assertTrue(
                 capture_path.read_bytes().startswith(b"P6\n480 272\n255\n")
