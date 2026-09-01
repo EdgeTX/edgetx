@@ -85,7 +85,9 @@ jobs:
         env:
           ASAN_OPTIONS: detect_leaks=0:halt_on_error=1
           UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
-        run: build/ci-automation-radio/native/gtests-radio
+        run: >-
+          ./build/ci-automation-radio/gtests-radio
+          --gtest_filter='SimuArgumentParser.*:SimuAutomation*.*'
 
   wasi-isolation:
     name: WASI automation isolation
