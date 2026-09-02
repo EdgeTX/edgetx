@@ -7,13 +7,14 @@ This folder contains the source for the EdgeTX developer documentation site, bui
 Install the required packages from the repo root. Using [`uv`](https://docs.astral.sh/uv/getting-started/installation/) is recommended:
 
 ```bash
-uv pip install -r docs-requirements.txt
+uv sync --extra docs
+source .venv/bin/activate
 ```
 
 Or with plain pip:
 
 ```bash
-pip install -r docs-requirements.txt
+pip install ".[docs]"
 ```
 
 [`mike`](https://github.com/jimporter/mike) is included as a dependency — it manages versioned deployments of the site (e.g. publishing a new release). You won't need it for local editing or preview.

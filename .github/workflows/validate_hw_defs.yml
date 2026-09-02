@@ -29,7 +29,7 @@ jobs:
 
       - name: Install Python dependencies
         working-directory: .
-        run: uv venv && uv pip install -r requirements.txt
+        run: uv venv && uv pip install .
 
       - name: Check Python script syntax
         run: uv run python3 -m py_compile *.py

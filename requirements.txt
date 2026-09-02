@@ -1,8 +1,0 @@
-asciitree
-clang
-jinja2
-lz4
-pillow
-pydantic
-pyelftools
-typing_extensions
