@@ -160,8 +160,8 @@ USBD_ClassTypeDef USBD_HID =
 #if defined(USBJ_EX) && defined(RADIO_TX16SMK3)
   USBD_HID_EP0_RxReady, /* EP0_RxReady */
 #else
-  NULL,                  /* EP0_RxReady */
-#endif             /* EP0_RxReady */
+  NULL,              /* EP0_RxReady */
+#endif
   USBD_HID_DataIn,   /* DataIn */
   NULL,              /* DataOut */
   NULL,              /* SOF */
@@ -299,6 +299,9 @@ static uint8_t HIDInEpAdd = HID_EPIN_ADDR;
 static uint8_t USBD_HID_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx)
 {
   UNUSED(cfgidx);
+#if defined(USBJ_EX) && defined(RADIO_TX16SMK3)
+  HID_PC_FeatureReportPending = 0U;
+#endif
 #if defined(USBJ_EX)
   uint16_t hid_in_pkt_size = usbReportSize();
 #else

@@ -28,7 +28,11 @@
 
 #include <cmath>
 
+#if defined(RADIO_TX16SMK3)
 #define MAX_HID_REPORTDESC 192
+#else
+#define MAX_HID_REPORTDESC 160
+#endif
 #define MAX_HID_REPORT 80
 
 uint8_t* _hidReportDesc = nullptr;
