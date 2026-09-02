@@ -3,7 +3,6 @@ project(boards)
 
 set(${PROJECT_NAME}_NAMES
   boardfactories
-  boardjson
   boards
 )
 

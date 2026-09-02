@@ -376,46 +376,45 @@ class Boards : public JsonBase
     };
 
     struct Battery {
-      int min;
-      int max;
-      int warn;
+      int min   = 0;
+      int max   = 0;
+      int warn  = 0;
     };
 
     struct Contrast {
-      int min;
-      int max;
+      int min = 0;
+      int max = 0;
     };
 
     struct InternalModules {
-      QList<int> supported;
-      int dflt;
+      std::vector<int> supported = {};
+      int dflt = -1;
     };
 
     // values from bddefn not available from hwdefn
     struct BoardDefn {
-      QString name;
-      QString id;
-      QString manufacturer;
+      std::string name = "unknown";
+      std::string id = "unknown";
+      std::string manufacturer = "unknown";
       Battery battery;
-      int backlightLevelMin;
-      bool auxSerialMode;
-      bool aux2SerialMode;
-      bool bluetooth;
-      bool externalAntenna;
-      bool hardwareAntennaSwitch;
-      bool imu;
-      bool internalGPS;
-      bool softwareSerialPower;
-      bool switchableJack;
-      bool trainerModuleCPPM;
-      bool trainerModuleSBUS;
-      bool vcpSerialMode;
+      int backlightLevelMin = 0;
+      bool auxSerialMode = false;
+      bool aux2SerialMode = false;
+      bool bluetooth = false;
+      bool externalAntenna = false;
+      bool hardwareAntennaSwitch = false;
+      bool imu = false;
+      bool internalGPS = false;
+      bool softwareSerialPower = false;
+      bool switchableJack = false;
+      std::string trainerModule = "";  // cppm or sbus
+      bool vcpSerialMode = false;
       Contrast contrast;
-      int maxVolume;
-      bool pwrButtonPress;
-      bool rotaryEncoderNavigation;
+      int maxVolume = 0;
+      bool pwrButtonPress = true;
+      bool rotaryEncoderNavigation = true;
       InternalModules internalModules;
-      int defaultExternalModuleSize;
+      std::string defaultExternalModuleSize = ""; // std, small, both
 
       // TODO are these still relevant?
       int fourCC;
@@ -431,8 +430,8 @@ class Boards : public JsonBase
     const Board::Type id() const { return m_id; }
     const QString hwdefn() const { return m_hwdefn; }
     const QString dbdefn() const { return m_bddefn; }
-    const QString name() const { return m_hwextra->name; }
-    const QString manufacturer() const { return m_hwextra->manufacturer; }
+    const QString name() const { return m_hwextra->name.c_str(); }
+    const QString manufacturer() const { return m_hwextra->manufacturer.c_str(); }
 
     bool loadDefinition();
 
@@ -461,6 +460,7 @@ class Boards : public JsonBase
     const int getInputTypeOffset(Board::AnalogInputType type);
     const int getInputYamlIndex(const QString val, YamlLookupType ylt) const;
     const QString getInputYamlName(int index, YamlLookupType ylt) const;
+    const int getInputsCalibrated() const;
 
     const bool isInputAvailable(int index) const;
     const bool isInputCalibrated(int index) const;
@@ -505,74 +505,75 @@ class Boards : public JsonBase
     static int getCapability(const Board::Type & id, const Capability capability);
     static QString getCapabilityStr(const Board::Type & id, const Capability capability);
     static QString getAxisName(int index);
-    static bool isBoardCompatible(Board::Type id1, Board::Type id2);
-    static QString getBoardName(Board::Type id);
+    static bool isBoardCompatible(const Board::Type & id1, const Board::Type & id2);
+    static QString getBoardName(const Board::Type & id);
     static QString switchTypeToString(int value);
     static AbstractStaticItemModel * switchTypeItemModel();
     static AbstractStaticItemModel * intModuleTypeItemModel();
-    static QList<int> getSupportedInternalModules(Board::Type id);
-    static int getDefaultInternalModules(Board::Type id);
-    static int getDefaultExternalModuleSize(Board::Type id);
+    static QList<int> getSupportedInternalModules(const Board::Type & id);
+    static int getDefaultInternalModules(const Board::Type & id);
+    static int getDefaultExternalModuleSize(const Board::Type & id);
     static void getBattRange(const Board::Type & id, int & vmin, int & vmax, unsigned int & vwarn);
     static QString externalModuleSizeToString(int value);
+    static int externalModuleStringToSize(QString value);
     static AbstractStaticItemModel * externalModuleSizeItemModel();
 
-    //static BoardJson* getBoardJson(Board::Type id = Board::BOARD_UNKNOWN);
+    //static BoardJson* getBoardJson(const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getFlashSize(const Board::Type & id);
+    static int getInputsCalibrated(const Board::Type & id = Board::BOARD_UNKNOWN);
 
-    static int getInputsCalibrated(Board::Type id = Board::BOARD_UNKNOWN);
+    static Board::InputInfo getInputInfo(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getInputIndex(QString val, Board::LookupValueType lvt, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static QString getInputName(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getInputExtIndex(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getInputPotIndex(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getInputSliderIndex(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static QString getInputTag(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getInputTagOffset(QString tag, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getInputThrottleIndex(const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getInputTypeOffset(Board::AnalogInputType type, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getInputYamlIndex(QString val, int ylt, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static QString getInputYamlName(int index, int ylt, const Board::Type & id = Board::BOARD_UNKNOWN);
 
-    static Board::InputInfo getInputInfo(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getInputIndex(QString val, Board::LookupValueType lvt, Board::Type id = Board::BOARD_UNKNOWN);
-    static QString getInputName(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getInputExtIndex(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getInputPotIndex(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getInputSliderIndex(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static QString getInputTag(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getInputTagOffset(QString tag, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getInputThrottleIndex(Board::Type id = Board::BOARD_UNKNOWN);
-    static int getInputTypeOffset(Board::AnalogInputType type, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getInputYamlIndex(QString val, int ylt, Board::Type id = Board::BOARD_UNKNOWN);
-    static QString getInputYamlName(int index, int ylt, Board::Type id = Board::BOARD_UNKNOWN);
+    static Board::KeyInfo getKeyInfo(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getKeyIndex(QString key, const Board::Type & id = Board::BOARD_UNKNOWN);
 
-    static Board::KeyInfo getKeyInfo(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getKeyIndex(QString key, Board::Type id = Board::BOARD_UNKNOWN);
+    static Board::SwitchInfo getSwitchInfo(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getSwitchIndex(QString val, Board::LookupValueType lvt, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getCFSIndexForSwitch(int swIdx, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getSwitchIndexForCFS(int cfsIdx, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getSwitchIndexForCFSOffset(int offset, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getCFSOffsetForCFSIndex(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static QString getSwitchName(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static QString getSwitchTag(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getSwitchTagNum(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getSwitchTypeOffset(Board::SwitchType type, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static int getSwitchYamlIndex(QString val, int ylt, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static QString getSwitchYamlName(int index, int ylt, const Board::Type & id = Board::BOARD_UNKNOWN);
 
-    static Board::SwitchInfo getSwitchInfo(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getSwitchIndex(QString val, Board::LookupValueType lvt, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getCFSIndexForSwitch(int swIdx, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getSwitchIndexForCFS(int cfsIdx, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getSwitchIndexForCFSOffset(int offset, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getCFSOffsetForCFSIndex(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static QString getSwitchName(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static QString getSwitchTag(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getSwitchTagNum(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getSwitchTypeOffset(Board::SwitchType type, Board::Type id = Board::BOARD_UNKNOWN);
-    static int getSwitchYamlIndex(QString val, int ylt, Board::Type id = Board::BOARD_UNKNOWN);
-    static QString getSwitchYamlName(int index, int ylt, Board::Type id = Board::BOARD_UNKNOWN);
+    static int getTrimYamlIndex(QString val, int ylt, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static QString getTrimYamlName(int index, int ylt, const Board::Type & id = Board::BOARD_UNKNOWN);
 
-    static int getTrimYamlIndex(QString val, int ylt, Board::Type id = Board::BOARD_UNKNOWN);
-    static QString getTrimYamlName(int index, int ylt, Board::Type id = Board::BOARD_UNKNOWN);
+    static bool isInputAvailable(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static bool isInputCalibrated(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static bool isInputConfigurable(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static bool isInputGyroAxis(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static bool isInputIgnored(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static bool isInputPot(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static bool isInputStick(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
 
-    static bool isInputAvailable(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static bool isInputCalibrated(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static bool isInputConfigurable(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static bool isInputGyroAxis(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static bool isInputIgnored(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static bool isInputPot(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static bool isInputStick(int index, Board::Type id = Board::BOARD_UNKNOWN);
-
-    static bool isSwitchConfigurable(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static bool isSwitchFlex(int index, Board::Type id = Board::BOARD_UNKNOWN);
-    static bool isSwitchFunc(int index, Board::Type id = Board::BOARD_UNKNOWN);
+    static bool isSwitchConfigurable(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static bool isSwitchFlex(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static bool isSwitchFunc(int index, const Board::Type & id = Board::BOARD_UNKNOWN);
 
     static QString flexTypeToString(int value);
     static AbstractStaticItemModel * flexTypeItemModel();
 
-    static std::string getLegacyAnalogMappedInputTag(const char * legacytag, Board::Type id = Board::BOARD_UNKNOWN);
-    static QString getRadioModeString(Board::Type id = Board::BOARD_UNKNOWN);
+    static std::string getLegacyAnalogMappedInputTag(const char * legacytag, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static QString getRadioModeString(const Board::Type & id = Board::BOARD_UNKNOWN);
 
-    static bool isAir(Board::Type id = Board::BOARD_UNKNOWN);
-    static bool isSurface(Board::Type id = Board::BOARD_UNKNOWN);
+    static bool isAir(const Board::Type & id = Board::BOARD_UNKNOWN);
+    static bool isSurface(const Board::Type & id = Board::BOARD_UNKNOWN);
 
     // temporary until Boards refactored
     static Board::Type getBoardForHwDefn(const QString & hwdefn);
@@ -624,10 +625,10 @@ class Boards : public JsonBase
     const StringTagMappingTable rawSwitchTypesLookupTable;
     const StringTagMappingTable rawSourceSpecialTypesLookupTable;
 
-    static bool loadFile(Board::Type id, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
+    static bool loadFile(const Board::Type & id, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
                          KeysTable * keys, TrimsTable * trims, DisplayDefn * lcd, CustomSwitchesDefn * cfs,
                          HardwareDefn * hardware, BoardDefn * hwextra, bool & hasKeyLockCombo);
-    static void afterLoadFixups(Board::Type id, InputsTable * inputs, SwitchesTable * switches,
+    static void afterLoadFixups(const Board::Type & id, InputsTable * inputs, SwitchesTable * switches,
                                 KeysTable * keys, TrimsTable * trims);
 
     static int getInputsCalibrated(const InputsTable * inputs);

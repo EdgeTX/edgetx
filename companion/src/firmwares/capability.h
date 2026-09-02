@@ -57,7 +57,7 @@ enum Capability {
   HasVario,
   HasVarioSink,
   Heli,
-  Inputs,
+  //Inputs, duplicate in boards
   InputsName,
   InputsLength,
   IsLandscape,

@@ -115,7 +115,6 @@ Boards::Boards(const Board::Type & board, const QString & hwdefn, const QString 
   m_hwextra(new BoardDefn),
   m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0, 0}),
   m_switchCnt({0, 0, 0}),
-  legacyTrimSourcesLookupTable(legacyTrimSourcesLut),
   trimSwitchesLookupTable(trimSwitchesLut),
   rawSwitchTypesLookupTable(RawSwitch::getRawSwitchTypesLookupTable()),
   rawSourceSpecialTypesLookupTable(RawSource::getSpecialTypesLookupTable())
@@ -173,10 +172,10 @@ int Boards::getCapability(const Board::Type & id, const Capability capability)
       return board->m_hwextra->switchableJack;
 
     case Capability::HasTrainerModuleCPPM:
-      return board->m_hwextra->trainerModuleCPPM;
+      return board->m_hwextra->trainerModule == "cppm";
 
     case Capability::HasTrainerModuleSBUS:
-      return board->m_hwextra->trainerModuleSBUS;
+      return board->m_hwextra->trainerModule == "sbus";
 
     case Capability::HasVCPSerialMode:
       return board->m_hwextra->vcpSerialMode;
@@ -347,6 +346,12 @@ QString Boards::getCapabilityStr(const Board::Type & id, const Capability capabi
   }
 }
 
+// static
+int Boards::getFlashSize(const Board::Type & id)
+{
+  getBoard(id)->getFlashSize();
+}
+
 QString Boards::getAxisName(int index)
 {
   const QString axes[] = {
@@ -363,14 +368,14 @@ QString Boards::getAxisName(int index)
     return CPN_STR_UNKNOWN_ITEM;
 }
 
-bool Boards::isBoardCompatible(Board::Type board1, Board::Type board2)
+bool Boards::isBoardCompatible(const Board::Type & id1, const Board::Type & id2)
 {
-  return (getBoard(board1)->getFourCC() == getBoard(board2)->getFourCC());
+  return (getBoard(id1)->getFourCC() == getBoard(id2)->getFourCC());
 }
 
-QString Boards::getBoardName(Board::Type board)
+QString Boards::getBoardName(const Board::Type & id)
 {
-  return getBoard(board)->name();
+  return getBoard(id)->name();
 }
 
 //  static
@@ -411,108 +416,18 @@ AbstractStaticItemModel * Boards::switchTypeItemModel()
   return mdl;
 }
 
-QList<int> Boards::getSupportedInternalModules(Board::Type board)
+QList<int> Boards::getSupportedInternalModules(const Board::Type & id)
 {
-  QList<int> modules;
-  modules.append((int)MODULE_TYPE_NONE);
-  if (IS_TARANIS_X9DP_2019(board) || IS_TARANIS_X7_ACCESS(board)) {
-    modules.append((int)MODULE_TYPE_ISRM_PXX2);
-  } else if (IS_FLYSKY_NV14(board)) {
-    modules.append((int)MODULE_TYPE_FLYSKY_AFHDS2A);
-  } else if (IS_FLYSKY_EL18(board)) {
-    modules.append((int)MODULE_TYPE_FLYSKY_AFHDS3);
-    modules.append((int)MODULE_TYPE_CROSSFIRE);
-  } else if (IS_RADIOMASTER_MT12(board)) {
-    modules.append((int)MODULE_TYPE_CROSSFIRE);
-    modules.append((int)MODULE_TYPE_MULTIMODULE);
-  } else if (IS_FAMILY_HORUS_OR_T16(board) || IS_FAMILY_T12(board) ||
-             (IS_TARANIS_SMALL(board) && IS_ACCESS_RADIO(board))) {
-    modules.append((int)MODULE_TYPE_XJT_PXX1);
-    modules.append((int)MODULE_TYPE_ISRM_PXX2);
-    modules.append((int)MODULE_TYPE_CROSSFIRE);
-    modules.append((int)MODULE_TYPE_MULTIMODULE);
-  } else if (IS_TARANIS(board)) {
-    modules.append((int)MODULE_TYPE_XJT_PXX1);
-  }
+  QList<int> modules = getBoard(id)->m_hwextra->internalModules.supported;
+  modules.insert((int)MODULE_TYPE_NONE);
+
 
   return modules;
 }
 
-int Boards::getDefaultInternalModules(Board::Type board)
+int Boards::getDefaultInternalModules(const Board::Type & id)
 {
-  switch(board) {
-  case BOARD_TARANIS_X7:
-  case BOARD_TARANIS_X9D:
-  case BOARD_TARANIS_X9DP:
-  case BOARD_TARANIS_X9E:
-  case BOARD_HORUS_X12S:
-  case BOARD_X10:
-  case BOARD_TARANIS_XLITE:
-    return (int)MODULE_TYPE_XJT_PXX1;
-
-  case BOARD_TARANIS_X7_ACCESS:
-  case BOARD_TARANIS_X9DP_2019:
-  case BOARD_X10_EXPRESS:
-  case BOARD_TARANIS_XLITES:
-  case BOARD_TARANIS_X9LITE:
-  case BOARD_TARANIS_X9LITES:
-    return (int)MODULE_TYPE_ISRM_PXX2;
-
-  case BOARD_JUMPER_T12:
-  case BOARD_JUMPER_T16:
-  case BOARD_RADIOMASTER_TX16S:
-  case BOARD_JUMPER_T18:
-  case BOARD_RADIOMASTER_TX12:
-  case BOARD_RADIOMASTER_T8:
-  case BOARD_JUMPER_TLITE:
-  case BOARD_JUMPER_TLITE_F4:
-  case BOARD_JUMPER_TPRO:
-  case BOARD_JUMPER_TPROV2:
-  case BOARD_FLYSKY_PL18:
-  case BOARD_FLYSKY_PL18EV:
-  case BOARD_FLYSKY_NB4P:
-    return (int)MODULE_TYPE_MULTIMODULE;
-
-  case BOARD_BETAFPV_LR3PRO:
-  case BOARD_FATFISH_F16:
-  case BOARD_HELLORADIOSKY_V12:
-  case BOARD_HELLORADIOSKY_V14:
-  case BOARD_HELLORADIOSKY_V14LCD:
-  case BOARD_HELLORADIOSKY_V16:
-  case BOARD_RADIOMASTER_TX15:
-  case BOARD_RADIOMASTER_GX15:
-  case BOARD_RADIOMASTER_TX16SMK3:
-  case BOARD_IFLIGHT_COMMANDO8:
-  case BOARD_IFLIGHT_COMMANDO14:
-  case BOARD_JUMPER_BUMBLEBEE:
-  case BOARD_JUMPER_T12MAX:
-  case BOARD_JUMPER_T14:
-  case BOARD_JUMPER_T15:
-  case BOARD_JUMPER_T15PRO:
-  case BOARD_JUMPER_T22:
-  case BOARD_JUMPER_T20:
-  case BOARD_JUMPER_TPROS:
-  case BOARD_JUMPER_T20V2:
-  case BOARD_RADIOMASTER_BOXER:
-  case BOARD_RADIOMASTER_GX12:
-  case BOARD_RADIOMASTER_MT12:
-  case BOARD_RADIOMASTER_POCKET:
-  case BOARD_RADIOMASTER_TX12_MK2:
-  case BOARD_RADIOMASTER_ZORRO:
-    return (int)MODULE_TYPE_CROSSFIRE;
-
-  case BOARD_FLYSKY_NV14:
-    return (int)MODULE_TYPE_FLYSKY_AFHDS2A;
-
-  case BOARD_FLYSKY_EL18:
-  case BOARD_FLYSKY_PL18U:
-  case BOARD_FLYSKY_PA01: // ANT
-  case BOARD_FLYSKY_ST16: // ANT
-    return (int)MODULE_TYPE_FLYSKY_AFHDS3;
-
-  default:
-    return (int)MODULE_TYPE_NONE;
-  }
+  getBoard(id)->m_hwextra->internalModules.dflt;
 }
 
 #define BR(min, max, warn) vmin = min - 90; vmax = max - 120; vwarn = warn;
@@ -526,32 +441,12 @@ void Boards::getBattRange(const Board::Type & boardType, int & vmin, int & vmax,
 }
 
 // static
-int Boards::getDefaultExternalModuleSize(Board::Type board)
+int Boards::getDefaultExternalModuleSize(const Board::Type & id)
 {
-  if (!getCapability(board, HasExternalModuleSupport))
+  if (!getCapability(id, Capability::HasExternalModuleSupport))
     return Board::EXTMODSIZE_NONE;
 
-  if (getCapability(board, HasColorLcd)) {
-    if (IS_FLYSKY_EL18(board))
-      return Board::EXTMODSIZE_BOTH;
-    else if (IS_HELLORADIOSKY_V12(board))
-      return Board::EXTMODSIZE_SMALL;
-    else
-      return Board::EXTMODSIZE_STD;
-  }
-
-  if (IS_TARANIS_X9LITE(board)     ||
-      IS_RADIOMASTER_ZORRO(board)  ||
-      IS_RADIOMASTER_MT12(board)   ||
-      IS_RADIOMASTER_POCKET(board) ||
-      IS_JUMPER_TLITE(board)       ||
-      IS_JUMPER_TPRO(board)        ||
-      IS_JUMPER_T20(board)         ||
-      IS_JUMPER_BUMBLEBEE(board)  ||
-      IS_BETAFPV_LR3PRO(board))
-    return Board::EXTMODSIZE_SMALL;
-
-  return Board::EXTMODSIZE_STD;
+  return externalModuleStringToSize(getBoard(id)->m_hwextra->defaultExternalModuleSize.c_str());
 }
 
 //  static
@@ -569,6 +464,17 @@ QString Boards::externalModuleSizeToString(int value)
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
+}
+
+//  static
+int Boards::externalModuleStringToSize(QString value)
+{
+  for (int i = 0; i < Board::EXTMODSIZE_COUNT; i++) {
+    if (externalModuleSizeToString(i).toLower() == value)
+      return i;
+  }
+
+  return -1;
 }
 
 //  static
@@ -625,24 +531,24 @@ AbstractStaticItemModel * Boards::flexTypeItemModel()
   return mdl;
 }
 
-Boards* Boards::getBoard(const Board::Type & boardType)
+Boards* Boards::getBoard(const Board::Type & id)
 {
-  return gBoardFactories->board(boardType == Board::BOARD_UNKNOWN ? getCurrentBoard() : boardType);
+  return gBoardFactories->board(id == Board::BOARD_UNKNOWN ? getCurrentBoard() : id);
 }
 
-QString Boards::getRadioModeString(Board::Type board)
+QString Boards::getRadioModeString(const Board::Type & id)
 {
-  return getCapability(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : board, Capability::Air) ? tr("Flight") : tr("Drive");
+  return getCapability(id == Board::BOARD_UNKNOWN ? getCurrentBoard() : id, Capability::Air) ? tr("Flight") : tr("Drive");
 }
 
-bool Boards::isAir(Board::Type board)
+bool Boards::isAir(const Board::Type & id)
 {
-  return getCapability(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : board, Capability::Air);
+  return getCapability(id == Board::BOARD_UNKNOWN ? getCurrentBoard() : id, Capability::Air);
 }
 
-bool Boards::isSurface(Board::Type board)
+bool Boards::isSurface(const Board::Type & id)
 {
-  return getCapability(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : board, Capability::Surface);
+  return getCapability(id == Board::BOARD_UNKNOWN ? getCurrentBoard() : id, Capability::Surface);
 }
 
 // temporary until boards refactored
@@ -1380,7 +1286,7 @@ bool Boards::loadDefinition()
 }
 
 // static
-bool Boards::loadFile(Board::Type id, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
+bool Boards::loadFile(const Board::Type & id, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
                          KeysTable * keys, TrimsTable * trims, DisplayDefn * display, CustomSwitchesDefn * cfs,
                          HardwareDefn * hardware, BoardDefn * hwextra, bool & hasKeyLockCombo)
 {
