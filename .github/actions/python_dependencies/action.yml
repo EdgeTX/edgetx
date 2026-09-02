@@ -1,4 +1,4 @@
-name: 'Setup WASI SDK'
+name: 'Python Dependencies'
 inputs:
   python-version:
     description: 'Python version'
@@ -8,11 +8,15 @@ runs:
   using: "composite"
   steps:
 
-    - uses: actions/setup-python@v7
+    - name: Install uv
+      uses: astral-sh/setup-uv@v10.0.1
       with:
         python-version: ${{ inputs.python-version }}
-        cache: 'pip' # caching pip dependencies
-        cache-dependency-path: pyproject.toml
+        enable-cache: true
+        cache-dependency-glob: pyproject.toml
 
-    - run: python3 -m pip install .
+    - name: Install Python dependencies
       shell: bash
+      run: |
+        uv sync
+        echo "$PWD/.venv/bin" >> "$GITHUB_PATH"
