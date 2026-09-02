@@ -575,7 +575,7 @@ class Slope
   {
     if (angle < 0) angle += 360;
     if (angle > 360) angle %= 360;
-    float radians = float(angle) * (M_PI / 180.0f);
+    float radians = float(angle) * ((float)M_PI / 180.0f);
     if (angle == 0) {
       left = false;
       value = 100000;
