@@ -276,7 +276,13 @@ FlashWriteRes firmwareWriteBlock(uint32_t* progress)
   firmwareWritten += sizeof(Block_buffer);
   *progress = (100 * firmwareWritten) / firmwareSize;
 
-  readFirmwareFile();
+  // a read error or a short file must not be reported as success
+  if (readFirmwareFile() != FR_OK) {
+    return FW_ERROR;
+  }
+  if (BlockCount == 0 && firmwareWritten < firmwareSize) {
+    return FW_ERROR;
+  }
   if (BlockCount == 0 || firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
     return FW_DONE;
   }
