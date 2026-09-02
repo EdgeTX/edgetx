@@ -1,13 +1,16 @@
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(PXX1 "PXX1 protocol support" ON)
-option(PXX2 "PXX2 protocol support" OFF)
+option(PXX2 "PXX2 protocol support" ON)
 option(AFHDS3 "AFHDS3 TX Module" ON)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
+option(BLUETOOTH "FrSky BT module support" OFF)
 option(INTERNAL_GPS "Support for internal GPS" ON)
+option(KCX_BTAUDIO "KCX_BTAUDIO audio emitter installed" OFF)
+option(STICK_DEAD_ZONE "Enable sticks dead zone" OFF)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
@@ -26,15 +29,25 @@ set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(HARDWARE_EXTERNAL_MODULE YES)
 set(INTERNAL_MODULE_AFHDS3 NO)
 set(ROTARY_ENCODER YES)
-set(FUNCTION_SWITCHES_WITH_RGB YES)
+set(FUNCTION_SWITCHES YES)
+set(FUNCTION_SWITCHES_RGB_LEDS YES)
 set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
 set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
 
-#option(STICKS_DEAD_ZONE "Enable sticks dead zone" YES)
+# BT and serial gimbal share same UART
+if(BLUETOOTH)
+  set(AUX2_SERIAL OFF)
+  set(KCX_BTAUDIO OFF)
+elseif(KCX_BTAUDIO)
+  set(AUX2_SERIAL OFF)
+else()
+  set(AUX2_SERIAL ON)
+endif()
 
 # IMU support
 set(IMU ON)
 add_definitions(-DIMU_ICM4207C)
+add_definitions(-DIMU_SC7U22)
 
 # for size report script
 set(CPU_TYPE_FULL STM32H750xB)
@@ -51,10 +64,10 @@ add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
+add_definitions(-DUSB_CHARGE_CONTROL)
 add_definitions(-DLUMINOSITY_SENSOR)
 
 set(FLAVOUR tx16smk3)
-add_definitions(-DRADIO_TX16SMK3)
 add_definitions(-DMANUFACTURER_RADIOMASTER)
 
 # defines existing internal modules
@@ -71,14 +84,12 @@ set(SOFTWARE_KEYBOARD ON)
 set(FUNCTION_SWITCHES ON)
 set(USB_CHARGER YES)
 set(AUX_SERIAL YES)
-set(AUX2_SERIAL YES)
 
 add_definitions(
   -DSTM32H750XBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
-  -DCOLORLCD -DLIBOPENUI
   -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
-  -DWS2812_MAX_LEDS=26
+  -DRGBLEDS_MAX_LEDS=26
 )
 
 set(SDRAM ON)
@@ -87,7 +98,7 @@ add_definitions(-DAUDIO -DVOICE -DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 
-if(STICKS_DEAD_ZONE)
+if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 
@@ -100,10 +111,14 @@ if(DISK_CACHE)
   add_definitions(-DDISK_CACHE)
 endif()
 
-if(FUNCTION_SWITCHES_WITH_RGB)
-  set(FUNCTION_SWITCHES YES)
-  add_definitions(-DFUNCTION_SWITCHES)
+if(FUNCTION_SWITCHES_RGB_LEDS)
+  set(RGB_LEDS YES)
   add_definitions(-DFUNCTION_SWITCHES_RGB_LEDS)
+  add_definitions(-DRGB_LEDS_900NS)
+endif()
+
+if(RGB_LEDS)
+  add_definitions(-DRGB_LEDS)
 endif()
 
 if(FUNCTION_SWITCHES)
@@ -168,10 +183,11 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${BOARD_SRC_DIR}/tp_gt911.cpp
   ${BOARD_SRC_DIR}/audio_driver.cpp
+  ${BOARD_SRC_DIR}/pdm_software_driver.cpp
   ${BOARD_SRC_DIR}/luminosity_sensor.cpp
-  drivers/icm42607C.cpp
-  drivers/imu_filter.cpp
   drivers/tas2505.cpp
+  drivers/icm42607C.cpp
+  drivers/sc7u22.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp
@@ -180,11 +196,15 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_qspi.cpp
   targets/common/arm/stm32/stm32_i2s.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
-  targets/common/arm/stm32/stm32_ws2812.cpp
+  targets/common/arm/stm32/stm32_rgbleds.cpp
   targets/common/arm/stm32/trainer_driver.cpp
 )
 add_dependencies(board board_lib)
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
+
+if(BLUETOOTH)
+  target_sources(board PRIVATE targets/common/arm/stm32/bluetooth_driver.cpp)
+endif()
 
 include_directories(${RADIO_SRC_DIR}/fonts/colorlcd gui/${GUI_DIR} gui/${GUI_DIR}/layouts)
 
@@ -206,6 +226,13 @@ if (MULTIMODULE)
   set(SRC ${SRC}
     io/multi_protolist.cpp
     )
+endif()
+
+if(KCX_BTAUDIO)
+  set(SRC ${SRC}
+    drivers/kcx_btaudio.cpp
+  )
+  add_definitions(-DKCX_BTAUDIO)
 endif()
 
 # Make malloc() thread-safe

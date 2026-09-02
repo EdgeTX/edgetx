@@ -31,7 +31,6 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
   functions(model ? model->customFn : generalSettings.customFn),
   mediaPlayerCurrent(-1),
   mediaPlayer(nullptr),
-  audioOutput(new QAudioOutput()),
   modelsUpdateCnt(0)
 {
   lock = true;
@@ -75,38 +74,32 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
                                                          "RawSource GVars");
   connectItemModelEvents(tabFilterFactory->getItemModel(rawSourceGVarsId));
 
-  if (!firmware->getCapability(VoicesAsNumbers)) {
-    tracksSet = getFilesSet(getSoundsPath(generalSettings), QStringList() << "*.wav" << "*.WAV", firmware->getCapability(VoicesMaxLength));
-    for (int i = 0; i < fswCapability; i++) {
-      if (functions[i].func == FuncPlayPrompt || functions[i].func == FuncBackgroundMusic) {
-        QString temp = functions[i].paramarm;
-        if (!temp.isEmpty()) {
-          tracksSet.insert(temp);
-        }
+  tracksSet = getFilesSet(getSoundsPath(generalSettings), QStringList() << "*.wav" << "*.WAV", firmware->getCapability(VoicesMaxLength));
+  for (int i = 0; i < fswCapability; i++) {
+    if (functions[i].func == FuncPlayPrompt || functions[i].func == FuncBackgroundMusic) {
+      QString temp = functions[i].paramarm;
+      if (!temp.isEmpty()) {
+        tracksSet.insert(temp);
       }
     }
   }
 
-  if (IS_STM32(firmware->getBoard())) {
-    scriptsSet = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/FUNCTIONS", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
-    for (int i = 0; i < fswCapability; i++) {
-      if (functions[i].func == FuncPlayScript) {
-        QString temp = functions[i].paramarm;
-        if (!temp.isEmpty()) {
-          scriptsSet.insert(temp);
-        }
+  scriptsSet = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/FUNCTIONS", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
+  for (int i = 0; i < fswCapability; i++) {
+    if (functions[i].func == FuncPlayScript) {
+      QString temp = functions[i].paramarm;
+      if (!temp.isEmpty()) {
+        scriptsSet.insert(temp);
       }
     }
   }
 
-  if (IS_STM32(firmware->getBoard())) {
-    scriptsSet = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/RGBLED", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
-    for (int i = 0; i < fswCapability; i++) {
-      if (functions[i].func == FuncRGBLed) {
-        QString temp = functions[i].paramarm;
-        if (!temp.isEmpty()) {
-          scriptsSet.insert(temp);
-        }
+  scriptsSetRGB = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/RGBLED", QStringList() << "*.lua", firmware->getCapability(VoicesMaxLength));
+  for (int i = 0; i < fswCapability; i++) {
+    if (functions[i].func == FuncRGBLed) {
+      QString temp = functions[i].paramarm;
+      if (!temp.isEmpty()) {
+        scriptsSetRGB.insert(temp);
       }
     }
   }
@@ -270,15 +263,10 @@ bool CustomFunctionsPanel::playSound(int index)
     if (!QDir(path).exists())
       return false;  // unlikely
 
-    if (firmware->getCapability(VoicesAsNumbers)) {  // AVR
-      path.append(QString("/%1.wav").arg(int(fswtchParam[index]->value()), 4, 10, QChar('0')));
-    }
-    else {
-      QString lang(generalSettings.ttsLanguage);
-      if (lang.isEmpty())
-        lang = "en";
-      path.append(QString("/SOUNDS/%1/%2.wav").arg(lang).arg(fswtchParamArmT[index]->currentText()));
-    }
+    QString lang(generalSettings.ttsLanguage);
+    if (lang.isEmpty())
+      lang = "en";
+    path.append(QString("/SOUNDS/%1/%2.wav").arg(lang).arg(fswtchParamArmT[index]->currentText()));
   }
 
   if (!QFileInfo::exists(path) || !QFileInfo(path).isReadable()) {
@@ -290,7 +278,7 @@ bool CustomFunctionsPanel::playSound(int index)
     stopSound(mediaPlayerCurrent);
 
   mediaPlayer = new QMediaPlayer(this);
-  mediaPlayer->setAudioOutput(audioOutput);
+  mediaPlayer->setAudioOutput(new QAudioOutput(mediaPlayer));
 
   if (functions[index].func == FuncPlaySound)
     mediaPlayer->setSource(QUrl(path.prepend("qrc")));
@@ -488,7 +476,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool changed)
       populateFuncParamCB(fswtchParamT[i], func, cfn.param);
       widgetsMask |= CUSTOM_FUNCTION_SOURCE_PARAM;
     }
-    else if (func == FuncPlaySound || func == FuncPlayHaptic || func == FuncPlayValue || func == FuncPlayPrompt || func == FuncPlayBoth || func == FuncBackgroundMusic || func == FuncSetScreen) {
+    else if (func == FuncPlaySound || func == FuncPlayHaptic || func == FuncPlayValue || func == FuncPlayPrompt || func == FuncBackgroundMusic || func == FuncSetScreen) {
       if (func != FuncBackgroundMusic) {
         if (changed)
           cfn.repeatParam = fswtchRepeat[i]->currentData().toInt();
@@ -502,49 +490,14 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool changed)
         populateFuncParamCB(fswtchParamT[i], func, cfn.param);
         widgetsMask |= CUSTOM_FUNCTION_SOURCE_PARAM | CUSTOM_FUNCTION_REPEAT;
       }
-      else if (func == FuncPlayPrompt || func == FuncPlayBoth) {
-        if (firmware->getCapability(VoicesAsNumbers)) {
-          fswtchParam[i]->setDecimals(0);
-          fswtchParam[i]->setSingleStep(1);
-          fswtchParam[i]->setMinimum(0);
-          if (func == FuncPlayPrompt) {
-            widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM | CUSTOM_FUNCTION_REPEAT | CUSTOM_FUNCTION_GV_TOOGLE;
-          }
-          else {
-            widgetsMask |= CUSTOM_FUNCTION_NUMERIC_PARAM | CUSTOM_FUNCTION_REPEAT;
-            fswtchParamGV[i]->setChecked(false);
-          }
-          fswtchParam[i]->setMaximum(func == FuncPlayBoth ? 254 : 255);
-          if (changed) {
-            if (fswtchParamGV[i]->isChecked()) {
-              fswtchParam[i]->setMinimum(1);
-              cfn.param = std::min(fswtchParam[i]->value(), 5.0) + (fswtchParamGV[i]->isChecked() ? 250 : 0);
-            }
-            else {
-              cfn.param = fswtchParam[i]->value();
-            }
-          }
-          if (cfn.param > 250 && (func != FuncPlayBoth)) {
-            fswtchParamGV[i]->setChecked(true);
-            fswtchParam[i]->setValue(cfn.param - 250);
-            fswtchParam[i]->setMaximum(5);
-          }
-          else {
-            fswtchParamGV[i]->setChecked(false);
-            fswtchParam[i]->setValue(cfn.param);
-          }
-          if (cfn.param < 251)
-            widgetsMask |= CUSTOM_FUNCTION_PLAY;
+      else if (func == FuncPlayPrompt) {
+        widgetsMask |= CUSTOM_FUNCTION_FILE_PARAM;
+        if (changed) {
+          Helpers::getFileComboBoxValue(fswtchParamArmT[i], cfn.paramarm, firmware->getCapability(VoicesMaxLength));
         }
-        else {
-          widgetsMask |= CUSTOM_FUNCTION_FILE_PARAM;
-          if (changed) {
-            Helpers::getFileComboBoxValue(fswtchParamArmT[i], cfn.paramarm, firmware->getCapability(VoicesMaxLength));
-          }
-          Helpers::populateFileComboBox(fswtchParamArmT[i], tracksSet, cfn.paramarm);
-          if (fswtchParamArmT[i]->currentText() != CPN_STR_NONE_ITEM) {
-            widgetsMask |= CUSTOM_FUNCTION_PLAY;
-          }
+        Helpers::populateFileComboBox(fswtchParamArmT[i], tracksSet, cfn.paramarm);
+        if (fswtchParamArmT[i]->currentText() != CPN_STR_NONE_ITEM) {
+          widgetsMask |= CUSTOM_FUNCTION_PLAY;
         }
       }
       else if (func == FuncBackgroundMusic) {
@@ -599,7 +552,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool changed)
         Helpers::getFileComboBoxValue(fswtchParamArmT[i], cfn.paramarm, 8);
         cfn.repeatParam = fswtchRepeat[i]->currentData().toInt();
       }
-      Helpers::populateFileComboBox(fswtchParamArmT[i], scriptsSet, cfn.paramarm);
+      Helpers::populateFileComboBox(fswtchParamArmT[i], func == FuncPlayScript ? scriptsSet : scriptsSetRGB, cfn.paramarm);
       fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatLuaId));
       fswtchRepeat[i]->setCurrentIndex(fswtchRepeat[i]->findData(cfn.repeatParam));
     }

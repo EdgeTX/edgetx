@@ -175,6 +175,9 @@ static void _wait_ms(uint32_t delay_ms)
 
 static uint8_t vs1053b_write_cmd(uint8_t address, uint16_t data)
 {
+  // ensure chip is ready before sending command
+  vs1053b_wait_dreq(100);
+
   stm32_spi_set_max_baudrate(_instance->spi, SPI_LOW_SPEED);
   XDCS_HIGH();
 
@@ -203,7 +206,8 @@ static void vs1053b_hard_reset()
   _reset_high();
 
   // datasheet says 1.8ms at default clock speed
-  vs1053b_wait_dreq(3000);
+  vs1053b_wait_dreq(5000);
+  _wait_ms(20);
 }
 
 static uint32_t vs1053b_send_data(const uint8_t * buffer, uint32_t size)
@@ -324,7 +328,7 @@ void vs1053b_init(const vs1053b_t* dev)
   vs1053b_update_volume();
 
   vs1053b_write_cmd(SPI_CLOCKF, 0x9800);
-  vs1053b_wait_dreq(1000);
+  vs1053b_wait_dreq(5000);
 
   stm32_spi_set_max_baudrate(_instance->spi, SPI_HIGH_SPEED);
   vs1053b_send_riff_header();

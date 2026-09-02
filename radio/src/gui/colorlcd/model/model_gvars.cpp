@@ -489,11 +489,10 @@ class GVarEditWindow : public Page
             line, rect_t{}, [=] { return fmData->gvars[index] <= GVAR_MAX; },
             [=](uint8_t checked) {
               fmData->gvars[index] = checked ? 0 : GVAR_MAX + 1;
+              SET_DIRTY();
               setProperties(flightMode);
             });
-        lv_obj_set_style_grid_cell_x_align(cb->getLvObj(), LV_GRID_ALIGN_END,
-                                           0);
-        lv_obj_invalidate(cb->getLvObj());
+        lv_obj_set_style_grid_cell_x_align(cb->getLvObj(), LV_GRID_ALIGN_END, 0);
       } else {
         grid.nextCell();
       }
@@ -553,10 +552,15 @@ void ModelGVarsPage::build(Window* window)
         editWindow->setCloseHandler([=]() { rebuild(window); });
       });
       menu->addLine(STR_CLEAR, [=]() {
-        for (auto& flightMode : g_model.flightModeData) {
+        for (auto& flightMode : g_model.flightModeData)
           flightMode.gvars[index] = 0;
-        }
-        storageDirty(EE_MODEL);
+        SET_DIRTY();
+      });
+      menu->addLine(STR_SF_RESET, [=]() {
+        for (auto& flightMode : g_model.flightModeData)
+          flightMode.gvars[index] = GVAR_MAX + 1;
+        g_model.flightModeData[0].gvars[index] = 0;
+        SET_DIRTY();
       });
       return 0;
     });

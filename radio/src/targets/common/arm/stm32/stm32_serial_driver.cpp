@@ -281,12 +281,22 @@ static void* stm32_serial_init(void* hw_def, const etx_serial_init* params)
     if (sp->tx_buffer.length > 0) {
       st->callbacks.on_send = _on_send_fifo;
     }
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
+    if (params->polarity & ETX_Pol_Inverted)
+      stm32_usart_tx_inversion(usart, true);
+#endif
+
   }
 
   if (params->direction & ETX_Dir_RX) {
 
     auto rx_buf = sp->rx_buffer.buffer;
     auto buf_len = sp->rx_buffer.length;
+
+#if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
+    if (params->polarity & ETX_Pol_Inverted)
+      stm32_usart_rx_inversion(usart, true);
+#endif
 
     if (usart->rxDMA) {
       stm32_usart_init_rx_dma(usart, rx_buf, buf_len);
@@ -305,7 +315,8 @@ static void* stm32_serial_init(void* hw_def, const etx_serial_init* params)
 static void stm32_serial_deinit(void* ctx)
 {
   auto st = (stm32_serial_state*)ctx;
-  if (!st) return;
+  // !st->sp: state already freed, make de-init idempotent
+  if (!st || !st->sp) return;
 
   stm32_usart_deinit(st->sp->usart);
   stm32_serial_free_state(st);

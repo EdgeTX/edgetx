@@ -81,6 +81,45 @@ static int8_t _usbJoystickDpadChannel = -1;
     uint8_t system; // remaining battery capacity
   }
 */
+/*
+  Classic mode uses the pre-2.11 (v2.10.6) report layout: 24 buttons and
+  8 axes, 19 bytes total, no battery field. Consoles with strict HID
+  parsing (e.g. PS4 + Liftoff, EdgeTX/edgetx#6320) stop recognizing the
+  radio when the report deviates from this layout, so it must stay
+  byte-identical.
+*/
+static const uint8_t HID_JOYSTICK_ClassicReportDesc[] =
+{
+    0x05, 0x01,                    //     USAGE_PAGE (Generic Desktop)
+    0x09, 0x05,                    //     USAGE (Game Pad)
+    0xa1, 0x01,                    //     COLLECTION (Application)
+    0xa1, 0x00,                    //       COLLECTION (Physical)
+    0x05, 0x09,                    //         USAGE_PAGE (Button)
+    0x19, 0x01,                    //         USAGE_MINIMUM (Button 1)
+    0x29, 0x18,                    //         USAGE_MAXIMUM (Button 24)
+    0x15, 0x00,                    //         LOGICAL_MINIMUM (0)
+    0x25, 0x01,                    //         LOGICAL_MAXIMUM (1)
+    0x95, 0x18,                    //         REPORT_COUNT (24)
+    0x75, 0x01,                    //         REPORT_SIZE (1)
+    0x81, 0x02,                    //         INPUT (Data,Var,Abs)
+    0x05, 0x01,                    //         USAGE_PAGE (Generic Desktop)
+    0x09, 0x30,                    //         USAGE (X)
+    0x09, 0x31,                    //         USAGE (Y)
+    0x09, 0x32,                    //         USAGE (Z)
+    0x09, 0x33,                    //         USAGE (Rx)
+    0x09, 0x34,                    //         USAGE (Ry)
+    0x09, 0x35,                    //         USAGE (Rz)
+    0x09, 0x36,                    //         USAGE (Slider)
+    0x09, 0x37,                    //         USAGE (Dial)
+    0x16, 0x00, 0x00,              //         LOGICAL_MINIMUM (0)
+    0x26, 0xFF, 0x07,              //         LOGICAL_MAXIMUM (2047)
+    0x75, 0x10,                    //         REPORT_SIZE (16)
+    0x95, 0x08,                    //         REPORT_COUNT (8)
+    0x81, 0x02,                    //         INPUT (Data,Var,Abs)
+    0xc0,                          //       END_COLLECTION
+    0xc0                           //     END_COLLECTION
+};
+
 static const uint8_t HID_JOYSTICK_ReportDesc[] =
 {
     0x05, 0x01,                    //     USAGE_PAGE (Generic Desktop)
@@ -210,10 +249,10 @@ int setupUSBJoystick()
 
   if (!usbJoystickExtMode()) {
     // Classic USB Joystick report description
-    memcpy(_hidReportDesc, HID_JOYSTICK_ReportDesc,
-           sizeof(HID_JOYSTICK_ReportDesc));
-    _hidReportDescSize = sizeof(HID_JOYSTICK_ReportDesc);
-    _hidReportSize = 20;
+    memcpy(_hidReportDesc, HID_JOYSTICK_ClassicReportDesc,
+           sizeof(HID_JOYSTICK_ClassicReportDesc));
+    _hidReportDescSize = sizeof(HID_JOYSTICK_ClassicReportDesc);
+    _hidReportSize = 19;
 
   } else {
     // Init data only required for advanced mode
@@ -575,14 +614,11 @@ void usbClassicStateUpdate()
   // analog values
   // uint8_t * p = HID_Buffer + 1;
   for (int i = 0; i < 8; ++i) {
-    int16_t value = limit<int16_t>(0, channelOutputs[i] + 1024, 2048);
+    int16_t value = limit<int16_t>(0, channelOutputs[i] + 1024, 2047);
 
     _hidReport[i * 2 + 3] = static_cast<uint8_t>(value & 0xFF);
-    _hidReport[i * 2 + 4] = static_cast<uint8_t>(value >> 8);
+    _hidReport[i * 2 + 4] = static_cast<uint8_t>((value >> 8) & 0x07);
   }
-
-  // battery values
-  setBatteryBits(8 * 2 + 3);
 }
 
 static void setBtnBits(uint8_t ix, uint8_t value, uint8_t size)

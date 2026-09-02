@@ -25,6 +25,9 @@
 #include "edgetx_types.h"
 
 #include "hal/key_driver.h"
+#if !defined(BOOT)
+#include "hal_keys_lock.h"
+#endif
 
 constexpr event_t EVT_REFRESH =        0x1000;
 constexpr event_t EVT_ENTRY =          0x1001;
@@ -116,11 +119,6 @@ constexpr bool IS_KEY_EVENT(event_t event)
   return (event & 0xF000) == 0;  // fired when key is released (short or long), but only if the event was not killed
 }
 
-// constexpr bool IS_TRIM_EVENT(event_t event)
-// {
-//   return (IS_KEY_EVENT(event) && EVT_KEY_MASK(event) >= TRM_BASE);
-// }
-
 inline bool IS_KEY_FIRST(event_t evt)
 {
   return (evt & _MSK_KEY_FLAGS) == _MSK_KEY_FIRST;
@@ -134,11 +132,6 @@ inline bool IS_KEY_REPT(event_t evt)
 inline bool IS_KEY_LONG(event_t evt)
 {
   return (evt & _MSK_KEY_FLAGS) == _MSK_KEY_LONG;
-}
-
-inline bool IS_KEY_BREAK(event_t evt)
-{
-  return (evt & _MSK_KEY_FLAGS) == _MSK_KEY_BREAK;
 }
 
 inline bool IS_KEY_EVT(event_t evt, uint8_t key)
@@ -193,8 +186,22 @@ void killTrimEvents(event_t event);
 bool keysGetState(uint8_t key);
 uint8_t keysGetTrimState(uint8_t trim);
 
-bool keysPollingCycle();
+// Activity flags returned by keysPollingCycle(). Trims are reported
+// separately so they can be treated as controls, not keys, for backlight.
+enum {
+  KEY_ACTIVITY_KEYS  = 0x01,
+  KEY_ACTIVITY_TRIMS = 0x02,
+};
+
+uint8_t keysPollingCycle();
 bool rotaryEncoderPollingCycle();
+
+// Holding the per-target combo (KEYS_LOCK_KEY1 + KEYS_LOCK_KEY2 from hal.h)
+// for KEY_LONG_DELAY toggles the key lock. While locked, key events are
+// suppressed; trims/sticks/switches still work.
+bool areKeysLocked();
+bool consumeKeysLockToggleEvent();
+void setKeyLockedState(bool);
 
 #if defined(USE_HATS_AS_KEYS)
 void setHatsAsKeys(bool val);

@@ -26,9 +26,9 @@
 #include "translations/i18n/en.h"
 
 // Static string
-#define STR(x) static const char EN_STR_##x[] = TR_##x;
+#define STR(x) static const char EN_STR_##x[] __FLASH = TR_##x;
 // Static string array
-#define STRARRAY(x) static const char* const EN_STR_##x[] = { TR_##x };
+#define STRARRAY(x) static const char* const EN_STR_##x[] __FLASH = { TR_##x };
 
 #include "translations/string_list.h"
 
@@ -40,6 +40,6 @@
 // Static string array
 #define STRARRAY(x) EN_STR_##x,
 
-const LangStrings enLangStrings = {
+const LangStrings enLangStrings __FLASH = {
 #include "translations/string_list.h"
 };

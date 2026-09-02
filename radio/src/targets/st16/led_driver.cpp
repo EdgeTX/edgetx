@@ -35,6 +35,7 @@ void fsLedRGB(uint8_t index, uint32_t color)
   index = (index * 2) + CFS_LED_STRIP_START;
   rgbSetLedColor(index, GET_RED(color), GET_GREEN(color),GET_BLUE(color));
   rgbSetLedColor(index+1, GET_RED(color), GET_GREEN(color),GET_BLUE(color));
+  rgbLedColorApply();
 }
 
 uint32_t fsGetLedRGB(uint8_t index)

@@ -63,10 +63,12 @@ namespace Board {
     BOARD_JUMPER_T14,
     BOARD_JUMPER_T15,
     BOARD_JUMPER_T15PRO,
+    BOARD_JUMPER_T22,
     BOARD_JUMPER_T16,
     BOARD_RADIOMASTER_TX16S,
     BOARD_RADIOMASTER_TX16SMK3,
     BOARD_RADIOMASTER_TX15,
+    BOARD_RADIOMASTER_GX15,
     BOARD_JUMPER_T18,
     BOARD_JUMPER_T20,
     BOARD_RADIOMASTER_TX12,
@@ -97,6 +99,9 @@ namespace Board {
     BOARD_HELLORADIOSKY_V16,
     BOARD_RADIOMASTER_MT12,
     BOARD_HELLORADIOSKY_V14,
+    BOARD_HELLORADIOSKY_V14LCD,
+    BOARD_IFLIGHT_COMMANDO14,
+    BOARD_HELLORADIOSKY_V12,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -212,6 +217,9 @@ namespace Board {
 
   enum Capability {
     Air,
+    BacklightLevelMin,
+    CPU,
+    CPUType,
     FlexInputs,
     FlexSwitches,
     FunctionSwitchColors,
@@ -220,20 +228,32 @@ namespace Board {
     GyroAxes,
     Gyros,
     HasAudioMuteGPIO,
+    HasAuxSerialMode,
+    HasAux2SerialMode,
     HasBacklightColor,
+    HasBlingLEDS,
+    HasBluetooth,
     HasColorLcd,
+    HasExternalAntenna,
     HasExternalModuleSupport,
+    HasHardwareAntennaSwitch,
     HasIMU,
+    HasInternalGPS,
     HasInternalModuleSupport,
     HasIntModuleHeartbeatGPIO,
-    HasBlingLEDS,
     HasRTC,
     HasSDCard,
+    HasSoftwareSerialPower,
+    HasSwitchableJack,
     HasTrainerModuleCPPM,
     HasTrainerModuleSBUS,
     HasVBat,
+    HasVCPSerialMode,
     Inputs,
     InputSwitches,
+    IsF4,
+    IsH5,
+    IsH7,
     JoystickAxes,
     Joysticks,
     Keys,
@@ -241,12 +261,17 @@ namespace Board {
     LcdHeight,
     LcdOLED,
     LcdWidth,
+    MaxContrast,
+    MaxVolume,
+    MinContrast,
     MultiposPots,
     MultiposPotsPositions,
     NumFunctionSwitchesPositions,
     NumTrims,
     NumTrimSwitches,
     Pots,
+    PwrButtonPress,
+    RotaryEncoderNavigation,
     Sliders,
     SportMaxBaudRate,
     StandardSwitches,
@@ -290,6 +315,7 @@ namespace Board {
     AIT_FLEX,
     AIT_VBAT,
     AIT_RTC_BAT,
+    AIT_LUX,
     AIT_SWITCH,
   };
 
@@ -389,12 +415,14 @@ class Boards
     const int getEEpromSize() const { return getEEpromSize(m_boardType); }
     const int getFlashSize() const { return getFlashSize(m_boardType); }
     const int getCapability(Board::Capability capability) const { return getCapability(m_boardType, capability); }
+    const QString getCapabilityStr(Board::Capability capability) const { return getCapabilityStr(m_boardType, capability); }
     const bool isBoardCompatible(Board::Type board2) const { return isBoardCompatible(m_boardType, board2); }
 
     static uint32_t getFourCC(Board::Type board);
     static int getEEpromSize(Board::Type board);
     static int getFlashSize(Board::Type board);
     static int getCapability(Board::Type board, Board::Capability capability);
+    static QString getCapabilityStr(Board::Type board, Board::Capability capability);
     static QString getAxisName(int index);
     static bool isBoardCompatible(Board::Type board1, Board::Type board2);
     static QString getBoardName(Board::Type board);
@@ -469,6 +497,8 @@ class Boards
     static bool isAir(Board::Type board = Board::BOARD_UNKNOWN);
     static bool isSurface(Board::Type board = Board::BOARD_UNKNOWN);
 
+    static void tests();
+
   private:
 
     Board::Type m_boardType = Board::BOARD_UNKNOWN;
@@ -540,6 +570,11 @@ inline bool IS_JUMPER_T15PRO(Board::Type board)
   return board == Board::BOARD_JUMPER_T15PRO;
 }
 
+inline bool IS_JUMPER_T22(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T22;
+}
+
 inline bool IS_JUMPER_T16(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T16;
@@ -578,6 +613,11 @@ inline bool IS_RADIOMASTER_TX16SMK3(Board::Type board)
 inline bool IS_RADIOMASTER_TX15(Board::Type board)
 {
   return board == Board::BOARD_RADIOMASTER_TX15;
+}
+
+inline bool IS_RADIOMASTER_GX15(Board::Type board)
+{
+  return board == Board::BOARD_RADIOMASTER_GX15;
 }
 
 inline bool IS_RADIOMASTER_TX12(Board::Type board)
@@ -625,9 +665,19 @@ inline bool IS_FATFISH_F16(Board::Type board)
   return board == Board::BOARD_FATFISH_F16;
 }
 
+inline bool IS_HELLORADIOSKY_V12(Board::Type board)
+{
+  return board == Board::BOARD_HELLORADIOSKY_V12;
+}
+
 inline bool IS_HELLORADIOSKY_V14(Board::Type board)
 {
   return board == Board::BOARD_HELLORADIOSKY_V14;
+}
+
+inline bool IS_HELLORADIOSKY_V14LCD(Board::Type board)
+{
+  return board == Board::BOARD_HELLORADIOSKY_V14LCD;
 }
 
 inline bool IS_HELLORADIOSKY_V16(Board::Type board)
@@ -638,11 +688,14 @@ inline bool IS_HELLORADIOSKY_V16(Board::Type board)
 inline bool IS_FAMILY_T16(Board::Type board)
 {
   return board == Board::BOARD_FATFISH_F16 ||
+         board == Board::BOARD_HELLORADIOSKY_V12 ||
          board == Board::BOARD_HELLORADIOSKY_V16 ||
          board == Board::BOARD_JUMPER_T15 ||
+         board == Board::BOARD_JUMPER_T15PRO ||
          board == Board::BOARD_JUMPER_T16 ||
          board == Board::BOARD_JUMPER_T18 ||
          board == Board::BOARD_RADIOMASTER_TX15 ||
+         board == Board::BOARD_RADIOMASTER_GX15 ||
          board == Board::BOARD_RADIOMASTER_TX16S ||
          board == Board::BOARD_RADIOMASTER_TX16SMK3;
 }
@@ -651,6 +704,7 @@ inline bool IS_FAMILY_T12(Board::Type board)
 {
   return board == Board::BOARD_BETAFPV_LR3PRO ||
          board == Board::BOARD_HELLORADIOSKY_V14 ||
+         board == Board::BOARD_HELLORADIOSKY_V14LCD ||
          board == Board::BOARD_IFLIGHT_COMMANDO8 ||
          board == Board::BOARD_JUMPER_BUMBLEBEE ||
          board == Board::BOARD_JUMPER_T12 ||
@@ -683,6 +737,11 @@ inline bool IS_FLYSKY_EL18(Board::Type board)
   return (board == Board::BOARD_FLYSKY_EL18);
 }
 
+inline bool IS_FLYSKY_NB4P(Board::Type board)
+{
+  return (board == Board::BOARD_FLYSKY_NB4P);
+}
+
 inline bool IS_FLYSKY_PA01(Board::Type board)
 {
   return (board == Board::BOARD_FLYSKY_PA01);
@@ -706,6 +765,11 @@ inline bool IS_FLYSKY_PL18U(Board::Type board)
 inline bool IS_FLYSKY_ST16(Board::Type board)
 {
   return (board == Board::BOARD_FLYSKY_ST16);
+}
+
+inline bool IS_IFLIGHT_C14(Board::Type board)
+{
+  return (board == Board::BOARD_IFLIGHT_COMMANDO14);
 }
 
 inline bool IS_FAMILY_PL18(Board::Type board)
@@ -792,23 +856,9 @@ inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
 {
   return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) ||
     IS_FLYSKY_NV14(board)/*generally*/ || IS_FLYSKY_EL18(board)/*generally*/
-    || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)/*generally*/ || IS_FLYSKY_PA01(board)/*generally*/;
-}
-
-inline bool IS_HORUS_OR_TARANIS(Board::Type board)
-{
-  return IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board);
-}
-
-inline bool IS_STM32(Board::Type board)
-{
-  return IS_TARANIS(board) || IS_FAMILY_HORUS_OR_T16(board) ||
-    IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board);
-}
-
-inline bool IS_ARM(Board::Type board)
-{
-  return IS_STM32(board);
+    || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)/*generally*/ ||
+    IS_FLYSKY_PA01(board)/*generally*/ || IS_FLYSKY_NB4P(board)/*generally*/ ||
+    IS_IFLIGHT_C14(board)/*generally*/;
 }
 
 inline bool HAS_LARGE_LCD(Board::Type board)
@@ -816,10 +866,6 @@ inline bool HAS_LARGE_LCD(Board::Type board)
   return IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X9(board);
 }
 
-inline bool HAS_EXTERNAL_ANTENNA(Board::Type board)
-{
-  return (IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) || (IS_TARANIS_XLITE(board) && !IS_TARANIS_XLITES(board)));
-}
 
 inline bool IS_TARANIS_X9DP_2019(Board::Type board)
 {
@@ -837,27 +883,4 @@ inline bool IS_ACCESS_RADIO(Board::Type board, const QString & id)
 {
   return IS_ACCESS_RADIO(board) ||
          (IS_FAMILY_HORUS_OR_T16(board) && id.contains("internalaccess"));
-}
-
-inline bool HAS_EEPROM_YAML(Board::Type board)
-{
-  return IS_FAMILY_HORUS_OR_T16(board);
-}
-
-inline bool IS_STM32H5(Board::Type board)
-{
-  return false;
-}
-
-inline bool IS_STM32H7(Board::Type board)
-{
-  return IS_FLYSKY_PA01(board) ||
-         IS_FLYSKY_ST16(board) ||
-         IS_JUMPER_T15PRO(board) ||
-         IS_RADIOMASTER_TX15(board);
-}
-
-inline bool IS_STM32F2F4(Board::Type board)
-{
-  return (!IS_STM32H5(board) && !IS_STM32H7(board));
 }

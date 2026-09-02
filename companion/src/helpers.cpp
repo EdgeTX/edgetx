@@ -42,6 +42,9 @@
 #include <QRegularExpression>
 #include <QProcess>
 #include <QtGlobal>
+#include <QFile>
+
+QString gAppTempPath;
 
 using namespace Helpers;
 
@@ -365,6 +368,34 @@ QString Helpers::concatPath(QString & str1, const QString & str2, bool onlyonese
   return (str1 % ((!str1.endsWith("/") || !onlyonesep) ? "/" : "") % str2);
 }
 
+QString Helpers::getImagesCacheDir()
+{
+  if (gAppTempPath.isEmpty())
+    return QString();
+
+  return QDir(gAppTempPath).filePath("IMAGES");
+}
+
+QString Helpers::getImagePath(const QString & filename)
+{
+  if (filename.isEmpty())
+    return QString();
+
+  QString srcpath(Helpers::getImagesCacheDir() % "/" % filename);
+
+  if (srcpath.isEmpty() || !QFileInfo::exists(srcpath) || QFileInfo(srcpath).isDir()) {
+    srcpath = g.currentProfile().sdPath() % "/IMAGES/" % filename;
+
+    if (!QFileInfo::exists(srcpath) || QFileInfo(srcpath).isDir()) {
+      qDebug() << filename << "not found in image cache or sd path.";
+      srcpath = "";
+    }
+  }
+
+  return srcpath;
+}
+
+
 #ifdef __APPLE__
 // Flag when simulator is running
 static bool simulatorRunning = false;
@@ -538,6 +569,67 @@ QSet<QString> getFilesSet(const QString &path, const QStringList &filter, int ma
       }
     }
   }
+  return result;
+}
+
+// based on /src/repos/edgetx/edgetx/radio/src/gui/colorlcd/radio/radio_tools.cpp
+// loadLuaTools()
+QStringList getListLuaTools()
+{
+  const QString tdir = g.profile[g.id()].sdPath() + "/SCRIPTS/TOOLS";
+  QStringList result;
+  QDir dir(tdir);
+
+  if (dir.exists()) {
+    foreach (QString name, dir.entryList(QStringList() << "*.lua",
+             QDir::Files | QDir::AllDirs | QDir::NoDotAndDotDot | QDir::NoSymLinks)) {
+      QString path = tdir % "/" % name;
+      QFileInfo fi(path);
+      bool inFolder = fi.isDir();
+
+      QString toolname;
+
+      if (inFolder) {
+        // check if .lua with same name exists - skip folder to avoid duplicate entries
+        if (QFileInfo::exists(path % ".lua"))
+          continue;
+        // Default name is folder name
+        toolname = QDir(path).dirName();
+        // must have main.lua
+        path.append("/main.lua");
+        if (!QFileInfo::exists(path))
+          continue;
+      } else {
+        // Default name is file name
+        toolname = QFileInfo(path).completeBaseName();
+      }
+
+      // look for tool name in lua file to override default name
+      QFile file(path);
+
+      if (file.open(QFile::ReadOnly)) {
+        QByteArray ba = file.read(1024);
+        file.close();
+
+        if (ba.size() > 0) {
+          QByteArrayView view("TNS|");
+          int startpos = ba.indexOf(view);
+
+          if (startpos > -1) {
+            view = "|TNE";
+            int endpos = ba.indexOf(view, startpos + 1);
+
+            if (endpos > -1) {
+              toolname = ba.mid(startpos + 4, endpos - (startpos + 4)).data();
+            }
+          }
+        }
+      }
+
+      result.append(toolname);
+    }
+  }
+
   return result;
 }
 

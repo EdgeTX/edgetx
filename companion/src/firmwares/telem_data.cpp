@@ -61,9 +61,11 @@ void FrSkyData::clear()
   varioCenterMin = 0;    // if increment in 0.2m/s = 3.0m/s max
   varioCenterMax = 0;
   varioMax = 0;
+  varioCenterSilent = false;
   mAhPersistent = 0;
   storedMah = 0;
   fasOffset = 0;
+  ignoreSensorIds = false;
   for (int i=0; i<4; i++)
     screens[i].clear();
   varioSource = 0;

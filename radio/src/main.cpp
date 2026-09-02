@@ -55,7 +55,6 @@ bool hpDetected = false;
 
 uint8_t currentBacklightBright = 0;
 uint8_t requiredBacklightBright = 0;
-uint8_t mainRequestFlags = 0;
 
 static bool _usbDisabled = false;
 
@@ -171,10 +170,18 @@ void handleUsbConnection()
     TRACE("USB unplugged");
     closeUsbMenu();
     _pluggedUsb = false;
+#if defined(USB_CHARGE_CONTROL)
+    usbChargerEnableCharge(true);
+#endif
   } else if (!_pluggedUsb && usbPlugged()) {
     TRACE("USB plugged");
     _pluggedUsb = true;
     _usbDisabled = false;
+#if defined(USB_CHARGE_CONTROL)
+    // Apply on plug, not on usbStart(): the mode popup can sit open for a long
+    // time and the radio would charge until a mode is picked
+    usbChargerEnableCharge(!g_eeGeneral.usbChargeDisabled);
+#endif
   }
 
   if (!_usbDisabled && !usbStarted() && usbPlugged()) {
@@ -282,6 +289,57 @@ void checkHatsAsKeys()
 }
 #endif
 
+#if !defined(COLORLCD)
+// Tick count at which to clear our key-lock message. 0 = no message active.
+static tmr10ms_t s_keysLockMsgUntil = 0;
+static const char* s_keysLockMsg = nullptr;
+static const char* s_keysLockInfo = nullptr;
+#endif
+
+void checkKeysLock()
+{
+  if (consumeKeysLockToggleEvent()) {
+    audioKeyPress();
+    const char* lockedMsg = STR_KEYS_LOCKED;
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+    static char lockedBuf[45];
+    const char* k1 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY1);
+    const char* k2 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY2);
+    snprintf(lockedBuf, sizeof(lockedBuf), STR_KEYS_LOCKED_FMT,
+             k1 ? k1 : "?", k2 ? k2 : "?");
+    lockedMsg = lockedBuf;
+#endif
+#if defined(COLORLCD)
+    POPUP_BUBBLE(areKeysLocked() ? lockedMsg : STR_KEYS_UNLOCKED, 1500);
+#else
+    // Can't use a modal POPUP_INFORMATION: keys may be locked, so the user
+    // couldn't dismiss it. Keep our own deadline and re-arm POPUP_WAIT every
+    // tick below — that survives other code clearing warningText (e.g. the
+    // GVAR display in view_main.cpp).
+    s_keysLockMsg = areKeysLocked() ? STR_KEYS_LOCKED : STR_KEYS_UNLOCKED;
+    s_keysLockInfo = areKeysLocked() ? lockedMsg : nullptr;
+    s_keysLockMsgUntil = get_tmr10ms() + 150;
+#endif
+  }
+
+#if !defined(COLORLCD)
+  if (s_keysLockMsgUntil) {
+    if ((int32_t)(get_tmr10ms() - s_keysLockMsgUntil) >= 0) {
+      s_keysLockMsgUntil = 0;
+      // Only clear if our message is still the active one; another popup
+      // may have replaced it in the meantime.
+      if (warningText == s_keysLockMsg) CLEAR_POPUP();
+      s_keysLockMsg = nullptr;
+      s_keysLockInfo = nullptr;
+    } else {
+      // Keep the popup fresh every tick — another path (GVAR, etc.) may
+      // have cleared warningText; just re-arm it.
+      POPUP_WAIT(s_keysLockMsg, s_keysLockInfo);
+    }
+  }
+#endif
+}
+
 void checkStorageUpdate()
 {
 #if defined(RTC_BACKUP_RAM) && !defined(SIMU)
@@ -354,11 +412,12 @@ void periodicTick()
 }
 
 #if defined(GUI) && defined(COLORLCD)
+static LAYOUT_VAL_SCALED(GV_POPUP_WIDTH, 200)
+
 void guiMain(event_t evt)
 {
 #if defined(LUA)
   uint32_t t0 = get_tmr10ms();
-  static uint32_t lastLuaTime = 0;
   uint16_t interval = (lastLuaTime == 0 ? 0 : (t0 - lastLuaTime));
   lastLuaTime = t0;
   if (interval > maxLuaInterval) {
@@ -377,24 +436,6 @@ void guiMain(event_t evt)
   }
 #endif
 
-  bool mainViewRequested = (mainRequestFlags & (1u << REQUEST_MAIN_VIEW));
-  if (mainViewRequested) {
-    auto viewMain = ViewMain::instance();
-    if (g_model.view < viewMain->getMainViewsCount()) {
-      viewMain->setCurrentMainView(g_model.view);
-      storageDirty(EE_MODEL);
-    } else {
-      g_model.view = viewMain->getCurrentMainView();
-    }
-    mainRequestFlags &= ~(1u << REQUEST_MAIN_VIEW);
-  }
-
-  bool screenshotRequested = (mainRequestFlags & (1u << REQUEST_SCREENSHOT));
-  if (screenshotRequested) {
-    writeScreenshot();
-    mainRequestFlags &= ~(1u << REQUEST_SCREENSHOT);
-  }
-
   // For color screens show a popup deferred from another task
   show_ui_popup();
   // Show GVAR popup
@@ -405,7 +446,7 @@ void guiMain(event_t evt)
     p = strAppend(p, g_model.gvars[gvarLastChanged].name, LEN_GVAR_NAME);
     p = strAppend(p, " = ", 3);
     p = strAppendSigned(p, GVAR_VALUE(gvarLastChanged, getGVarFlightMode(mixerCurrentFlightMode, gvarLastChanged)));
-    POPUP_BUBBLE(s, gvarDisplayTimer * 10, 200);
+    POPUP_BUBBLE(s, gvarDisplayTimer * 10, GV_POPUP_WIDTH);
     gvarDisplayTimer = 0;
   }
 }
@@ -443,7 +484,6 @@ void guiMain(event_t evt)
 #if defined(LUA)
   // TODO better lua stopwatch
   uint32_t t0 = get_tmr10ms();
-  static uint32_t lastLuaTime = 0;
   uint16_t interval = (lastLuaTime == 0 ? 0 : (t0 - lastLuaTime));
   lastLuaTime = t0;
   if (interval > maxLuaInterval) {
@@ -505,11 +545,6 @@ void guiMain(event_t evt)
   }
 
   if (refreshNeeded) lcdRefresh();
-
-  if (mainRequestFlags & (1u << REQUEST_SCREENSHOT)) {
-    writeScreenshot();
-    mainRequestFlags &= ~(1u << REQUEST_SCREENSHOT);
-  }
 }
 #endif
 
@@ -537,17 +572,13 @@ void perMain()
   periodicTick();
   DEBUG_TIMER_STOP(debugTimerPerMain1);
 
-  if (mainRequestFlags & (1u << REQUEST_FLIGHT_RESET)) {
-    TRACE("Executing requested Flight Reset");
-    flightReset();
-    mainRequestFlags &= ~(1u << REQUEST_FLIGHT_RESET);
-  }
-
   checkBacklight();
 
 #if defined(USE_HATS_AS_KEYS)
   checkHatsAsKeys();
 #endif
+
+  checkKeysLock();
 
 #if defined(COLORLCD)
   MainWindow::instance()->run();
@@ -597,6 +628,11 @@ void perMain()
 #if defined(KEYS_GPIO_REG_BIND) && defined(BIND_KEY)
   bindButtonHandler(evt);
 #endif
+
+  if (radioGFEnabled())
+    evalUIFunctions(g_eeGeneral.customFn, globalFunctionsContext);
+  if (modelSFEnabled())
+    evalUIFunctions(g_model.customFn, modelFunctionsContext);
 
 #if defined(GUI)
   DEBUG_TIMER_START(debugTimerGuiMain);

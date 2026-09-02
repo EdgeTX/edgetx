@@ -232,6 +232,20 @@ int main(int argc, char *argv[])
   registerOpenTxFirmwares();
   SimulatorLoader::registerSimulators();
 
+  QTemporaryDir tempDir(QDir::tempPath() % "/etx-cpn-XXXXXX");
+
+  if (!tempDir.isValid()) {
+    qDebug() << "Unable to create application temporary directory";
+    gAppTempPath.clear();
+  } else {
+    gAppTempPath = tempDir.path();
+
+    if (!QDir(gAppTempPath).mkdir("IMAGES"))
+      qDebug() << "Unable to create images cache directory:" << Helpers::getImagesCacheDir();
+    else
+      qDebug() << "Created images cache directory:" << Helpers::getImagesCacheDir();
+  }
+
   Profile & profile = g.currentProfile();
   if (profile.fwType().isEmpty()){
     profile.fwType(Firmware::getDefaultVariant()->getId());

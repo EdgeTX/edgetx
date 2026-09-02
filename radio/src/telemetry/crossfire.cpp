@@ -24,6 +24,7 @@
 #include "math.h"
 
 #include "trainer.h"
+#include "sensor_names.h"
 
 // clang-format off
 #define CS(id,subId,name,unit,precision) {id,subId,unit,precision,name}
@@ -37,47 +38,48 @@ struct CrossfireSensor {
   const uint8_t subId;
   const TelemetryUnit unit;
   const uint8_t precision;
-  STR_TYP name;
+  const char* name;
 };
 
 const CrossfireSensor crossfireSensors[] = {
-  CS(LINK_ID,        0, STR_DEF(STR_SENSOR_RX_RSSI1),      UNIT_DB,                0),
-  CS(LINK_ID,        1, STR_DEF(STR_SENSOR_RX_RSSI2),      UNIT_DB,                0),
-  CS(LINK_ID,        2, STR_DEF(STR_SENSOR_RX_QUALITY),    UNIT_PERCENT,           0),
-  CS(LINK_ID,        3, STR_DEF(STR_SENSOR_RX_SNR),        UNIT_DB,                0),
-  CS(LINK_ID,        4, STR_DEF(STR_SENSOR_ANTENNA),       UNIT_RAW,               0),
-  CS(LINK_ID,        5, STR_DEF(STR_SENSOR_RF_MODE),       UNIT_RAW,               0),
-  CS(LINK_ID,        6, STR_DEF(STR_SENSOR_TX_POWER),      UNIT_MILLIWATTS,        0),
-  CS(LINK_ID,        7, STR_DEF(STR_SENSOR_TX_RSSI),       UNIT_DB,                0),
-  CS(LINK_ID,        8, STR_DEF(STR_SENSOR_TX_QUALITY),    UNIT_PERCENT,           0),
-  CS(LINK_ID,        9, STR_DEF(STR_SENSOR_TX_SNR),        UNIT_DB,                0),
-  CS(LINK_RX_ID,     0, STR_DEF(STR_SENSOR_RX_RSSI_PERC),  UNIT_PERCENT,           0),
-  CS(LINK_RX_ID,     1, STR_DEF(STR_SENSOR_RX_RF_POWER),   UNIT_DBM,               0),
-  CS(LINK_TX_ID,     0, STR_DEF(STR_SENSOR_TX_RSSI_PERC),  UNIT_PERCENT,           0),
-  CS(LINK_TX_ID,     1, STR_DEF(STR_SENSOR_TX_POWER),      UNIT_DBM,               0),
-  CS(LINK_TX_ID,     2, STR_DEF(STR_SENSOR_TX_FPS),        UNIT_HERTZ,             0),
-  CS(BATTERY_ID,     0, STR_DEF(STR_SENSOR_BATT),          UNIT_VOLTS,             1),
-  CS(BATTERY_ID,     1, STR_DEF(STR_SENSOR_CURR),          UNIT_AMPS,              1),
-  CS(BATTERY_ID,     2, STR_DEF(STR_SENSOR_CAPACITY),      UNIT_MAH,               0),
-  CS(BATTERY_ID,     3, STR_DEF(STR_SENSOR_BATT_PERCENT),  UNIT_PERCENT,           0),
-  CS(GPS_ID,         0, STR_DEF(STR_SENSOR_GPS),           UNIT_GPS_LATITUDE,      0),
-  CS(GPS_ID,         0, STR_DEF(STR_SENSOR_GPS),           UNIT_GPS_LONGITUDE,     0),
-  CS(GPS_ID,         2, STR_DEF(STR_SENSOR_GSPD),          UNIT_KMH,               1),
-  CS(GPS_ID,         3, STR_DEF(STR_SENSOR_HDG),           UNIT_DEGREE,            2),
-  CS(GPS_ID,         4, STR_DEF(STR_SENSOR_GPSALT),        UNIT_METERS,            0),
-  CS(GPS_ID,         5, STR_DEF(STR_SENSOR_SATELLITES),    UNIT_RAW,               0),
-  CS(ATTITUDE_ID,    0, STR_DEF(STR_SENSOR_PITCH),         UNIT_RADIANS,           3),
-  CS(ATTITUDE_ID,    1, STR_DEF(STR_SENSOR_ROLL),          UNIT_RADIANS,           3),
-  CS(ATTITUDE_ID,    2, STR_DEF(STR_SENSOR_YAW),           UNIT_RADIANS,           3),
-  CS(FLIGHT_MODE_ID, 0, STR_DEF(STR_SENSOR_FLIGHT_MODE),   UNIT_TEXT,              0),
-  CS(CF_VARIO_ID,    0, STR_DEF(STR_SENSOR_VSPD),          UNIT_METERS_PER_SECOND, 2),
-  CS(BARO_ALT_ID,    0, STR_DEF(STR_SENSOR_ALT),           UNIT_METERS,            2),
-  CS(AIRSPEED_ID,    0, STR_DEF(STR_SENSOR_ASPD),          UNIT_KMH,               1),
-  CS(CF_RPM_ID,      0, STR_DEF(STR_SENSOR_RPM),           UNIT_RPMS,              0),
-  CS(TEMP_ID,        0, STR_DEF(STR_SENSOR_TEMP),          UNIT_DEGREE,            1),
-  CS(CELLS_ID,       0, STR_DEF(STR_SENSOR_CELLS),         UNIT_CELLS,             2),
-  CS(VOLT_ARRAY_ID,  0, STR_DEF(STR_SENSOR_VOLT),          UNIT_VOLTS,             2),
-  CS(0,              0, STR_DEF(STR_UNKNOWN),              UNIT_RAW,               0),
+  CS(LINK_ID,        0, STR_SENSOR_RX_RSSI1,      UNIT_DBM,               0),
+  CS(LINK_ID,        1, STR_SENSOR_RX_RSSI2,      UNIT_DBM,               0),
+  CS(LINK_ID,        2, STR_SENSOR_RX_QUALITY,    UNIT_PERCENT,           0),
+  CS(LINK_ID,        3, STR_SENSOR_RX_SNR,        UNIT_DB,                0),
+  CS(LINK_ID,        4, STR_SENSOR_ANTENNA,       UNIT_RAW,               0),
+  CS(LINK_ID,        5, STR_SENSOR_RF_MODE,       UNIT_RAW,               0),
+  CS(LINK_ID,        6, STR_SENSOR_TX_POWER,      UNIT_MILLIWATTS,        0),
+  CS(LINK_ID,        7, STR_SENSOR_TX_RSSI,       UNIT_DBM,               0),
+  CS(LINK_ID,        8, STR_SENSOR_TX_QUALITY,    UNIT_PERCENT,           0),
+  CS(LINK_ID,        9, STR_SENSOR_TX_SNR,        UNIT_DB,                0),
+  CS(LINK_RX_ID,     0, STR_SENSOR_RX_RSSI_PERC,  UNIT_PERCENT,           0),
+  CS(LINK_RX_ID,     1, STR_SENSOR_RX_RF_POWER,   UNIT_DBM,               0),
+  CS(LINK_TX_ID,     0, STR_SENSOR_TX_RSSI_PERC,  UNIT_PERCENT,           0),
+  CS(LINK_TX_ID,     1, STR_SENSOR_TX_POWER,      UNIT_DBM,               0),
+  CS(LINK_TX_ID,     2, STR_SENSOR_TX_FPS,        UNIT_HERTZ,             0),
+  CS(BATTERY_ID,     0, STR_SENSOR_BATT,          UNIT_VOLTS,             1),
+  CS(BATTERY_ID,     1, STR_SENSOR_CURR,          UNIT_AMPS,              1),
+  CS(BATTERY_ID,     2, STR_SENSOR_CAPACITY,      UNIT_MAH,               0),
+  CS(BATTERY_ID,     3, STR_SENSOR_BATT_PERCENT,  UNIT_PERCENT,           0),
+  CS(GPS_ID,         0, STR_SENSOR_GPS,           UNIT_GPS_LATITUDE,      0),
+  CS(GPS_ID,         0, STR_SENSOR_GPS,           UNIT_GPS_LONGITUDE,     0),
+  CS(GPS_ID,         2, STR_SENSOR_GSPD,          UNIT_KMH,               1),
+  CS(GPS_ID,         3, STR_SENSOR_HDG,           UNIT_DEGREE,            2),
+  CS(GPS_ID,         4, STR_SENSOR_GPSALT,        UNIT_METERS,            0),
+  CS(GPS_ID,         5, STR_SENSOR_SATELLITES,    UNIT_RAW,               0),
+  CS(GPS_TIME_ID,    0, STR_SENSOR_GPSDATETIME,   UNIT_DATETIME,          0),
+  CS(ATTITUDE_ID,    0, STR_SENSOR_PITCH,         UNIT_RADIANS,           3),
+  CS(ATTITUDE_ID,    1, STR_SENSOR_ROLL,          UNIT_RADIANS,           3),
+  CS(ATTITUDE_ID,    2, STR_SENSOR_YAW,           UNIT_RADIANS,           3),
+  CS(FLIGHT_MODE_ID, 0, STR_SENSOR_FLIGHT_MODE,   UNIT_TEXT,              0),
+  CS(CF_VARIO_ID,    0, STR_SENSOR_VSPD,          UNIT_METERS_PER_SECOND, 2),
+  CS(BARO_ALT_ID,    0, STR_SENSOR_ALT,           UNIT_METERS,            2),
+  CS(AIRSPEED_ID,    0, STR_SENSOR_ASPD,          UNIT_KMH,               1),
+  CS(CF_RPM_ID,      0, STR_SENSOR_RPM,           UNIT_RPMS,              0),
+  CS(TEMP_ID,        0, STR_SENSOR_TEMP,          UNIT_DEGREE,            1),
+  CS(CELLS_ID,       0, STR_SENSOR_CELLS,         UNIT_CELLS,             2),
+  CS(VOLT_ARRAY_ID,  0, STR_SENSOR_VOLT,          UNIT_VOLTS,             2),
+  CS(0,              0, STR_SENSOR_UNKNOWN,       UNIT_RAW,               0),
 };
 // clang-format on
 
@@ -95,6 +97,8 @@ const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
     return crossfireSensors[BATT_VOLTAGE_INDEX + subId];
   else if (id == GPS_ID)
     return crossfireSensors[GPS_LATITUDE_INDEX + subId];
+  else if (id == GPS_TIME_ID)
+    return crossfireSensors[GPS_TIME_INDEX];
   else if (id == CF_VARIO_ID)
     return crossfireSensors[VERTICAL_SPEED_INDEX];
   else if (id == ATTITUDE_ID)
@@ -170,6 +174,30 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
       processCrossfireTelemetryValue(GPS_SATELLITES_INDEX,
         getCrossfireTelemetryValue(17, rxBuffer, 1, false));
       break;
+
+    case GPS_TIME_ID:
+    {
+      // Payload: year (2B BE), month, day, hour, min, sec, millisecond (2B BE)
+      const CrossfireSensor & sensor = crossfireSensors[GPS_TIME_INDEX];
+      value = getCrossfireTelemetryValue(3, rxBuffer, 2, false);
+      uint8_t year = (uint8_t)((uint16_t)value - 2000);
+      uint8_t month  = rxBuffer[5];
+      uint8_t day    = rxBuffer[6];
+      uint8_t hour   = rxBuffer[7];
+      uint8_t minute = rxBuffer[8];
+      uint8_t sec    = rxBuffer[9];
+      // Date record: low byte non-zero (acts as date/time discriminator)
+      uint32_t dateVal = ((uint32_t)year << 24) | ((uint32_t)month << 16)
+                       | ((uint32_t)day << 8) | 0xFF;
+      setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id, 0, sensor.subId,
+                        (int32_t)dateVal, UNIT_DATETIME, 0);
+      // Time record: low byte zero
+      uint32_t timeVal = ((uint32_t)hour << 24) | ((uint32_t)minute << 16)
+                       | ((uint32_t)sec << 8);
+      setTelemetryValue(PROTOCOL_TELEMETRY_CROSSFIRE, sensor.id, 0, sensor.subId,
+                        (int32_t)timeVal, UNIT_DATETIME, 0);
+      break;
+    }
 
     case BARO_ALT_ID:
       value = getCrossfireTelemetryValue(3, rxBuffer, 2, false);
@@ -267,6 +295,9 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                                                   1000, 2000, 250, 50};
           value =
               ((unsigned)value < DIM(power_values) ? power_values[value] : 0);
+        } else if (i == RX_ANTENNA_INDEX &&
+                   crossfireModuleStatus[module].isELRS) {
+          value += 1;  // 0 = Antenna 1, 1 = Antenna 2
         }
         processCrossfireTelemetryValue(i, value);
         if (i == RX_QUALITY_INDEX) {
@@ -409,7 +440,7 @@ void crossfireSetDefault(int index, uint16_t id, uint8_t subId)
   if (unit == UNIT_GPS_LATITUDE || unit == UNIT_GPS_LONGITUDE)
     unit = UNIT_GPS;
   uint8_t prec = min<uint8_t>(2, sensor.precision);
-  telemetrySensor.init(STR_VAL(sensor.name), unit, prec);
+  telemetrySensor.init(sensor.name, unit, prec);
   if (id == LINK_ID) {
     telemetrySensor.logs = true;
   }

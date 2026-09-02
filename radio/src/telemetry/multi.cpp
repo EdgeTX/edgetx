@@ -54,7 +54,8 @@ enum MultiPacketTypes : uint8_t
   HottTelemetry,
   MLinkTelemetry,
   ConfigTelemetry,
-  MultiProtoDef
+  MultiProtoDef,
+  RLinkTelemetry = 18,
 };
 
 enum MultiBufferState : uint8_t
@@ -160,28 +161,14 @@ static void processMultiScannerPacket(const uint8_t *data, const uint8_t moduleI
     for (uint8_t channel = 0; channel <5; channel++) {
       uint8_t power = max<int>(0,(data[channel+1] - 34) >> 1); // remove everything below -120dB
 
-#if LCD_W == 480
-      coord_t x = cur_channel*2;
-      if (x < LCD_W) {
-        reusableBuffer.spectrumAnalyser.bars[x] = power;
-        if (x + 1 < LCD_W) {
-          reusableBuffer.spectrumAnalyser.bars[x + 1] = power;
-        }
-        if (power > reusableBuffer.spectrumAnalyser.max[x]) {
-          reusableBuffer.spectrumAnalyser.max[x] = power;
-          if (x + 1 < LCD_W) {
-            reusableBuffer.spectrumAnalyser.max[x + 1] = power;
-          }
-        }
-        if (power > reusableBuffer.spectrumAnalyser.peak[x]) {
-          reusableBuffer.spectrumAnalyser.peak[x] = power;
-          if (x + 1 < LCD_W) {
-            reusableBuffer.spectrumAnalyser.peak[x + 1] = power;
-          }
-        }
-#elif LCD_W == 212
-      coord_t x = cur_channel;
-      if (x < LCD_W) {
+      // Spread the (MULTI_SCANNER_MAX_CHANNEL + 1) channels across the full
+      // chart width so the spectrum fills the screen on any LCD size.
+      coord_t x_start =
+          ((coord_t)cur_channel * LCD_W) / (MULTI_SCANNER_MAX_CHANNEL + 1);
+      coord_t x_end = ((coord_t)(cur_channel + 1) * LCD_W) /
+                      (MULTI_SCANNER_MAX_CHANNEL + 1);
+      if (x_end <= x_start) x_end = x_start + 1;
+      for (coord_t x = x_start; x < x_end && x < LCD_W; x++) {
         reusableBuffer.spectrumAnalyser.bars[x] = power;
         if (power > reusableBuffer.spectrumAnalyser.max[x]) {
           reusableBuffer.spectrumAnalyser.max[x] = power;
@@ -189,17 +176,6 @@ static void processMultiScannerPacket(const uint8_t *data, const uint8_t moduleI
         if (power > reusableBuffer.spectrumAnalyser.peak[x]) {
           reusableBuffer.spectrumAnalyser.peak[x] = power;
         }
-#else
-      coord_t x = cur_channel / 2 + 1;
-      if (x < LCD_W) {
-        reusableBuffer.spectrumAnalyser.bars[x] = power;
-        if (power > reusableBuffer.spectrumAnalyser.max[x]) {
-          reusableBuffer.spectrumAnalyser.max[x] = power;
-        }
-        if (power > reusableBuffer.spectrumAnalyser.peak[x]) {
-          reusableBuffer.spectrumAnalyser.peak[x] = power;
-        }
-#endif
       }
       if (++cur_channel > MULTI_SCANNER_MAX_CHANNEL)
         cur_channel = 0;
@@ -331,6 +307,17 @@ static void processConfigPacket(const uint8_t * packet, uint8_t len)
       Multi_Buffer[12] = (packet[0] >> 4);                       //Save the page number
     }
     memcpy(&Multi_Buffer[13 + (packet[0] & 0x0F) * 20], &packet[1], 20); // Store the received page in the buffer
+  }
+}
+
+static void processRLinkPacket(const uint8_t * packet, uint8_t len)
+{
+  // Multi_Buffer[0..3] == "RLnk" / Lua script is running
+  // Multi_Buffer[14]   == 0 RX buffer can be written / >0 Lua has not consumed it
+  // Multi_Buffer[15..] == payload from receiver
+  if (Multi_Buffer && memcmp(Multi_Buffer, "RLnk", 4) == 0 && Multi_Buffer[14] == 0 && len < 32) {
+    memcpy(&Multi_Buffer[15], packet, len);
+    Multi_Buffer[14] = len;
   }
 }
 #endif
@@ -477,6 +464,10 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
         processConfigPacket(data, len);
       else
         TRACE("[MP] Received Config telemetry len %d < 20", len);
+      break;
+
+    case RLinkTelemetry:
+      processRLinkPacket(data, len);
       break;
 #endif
 

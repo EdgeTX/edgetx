@@ -126,7 +126,6 @@ class FunctionSwitchesBase : public Page
   void addQRCode();
 
  protected:
-  BitmapBuffer* qrcode = nullptr;
   StaticText* startupHeader = nullptr;
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
   Messaging previewMsg;

@@ -79,20 +79,12 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
 
   connect(offsetEditor, &SourceNumRefEditor::resized, this, [=] () { shrink(); });
 
-  curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels,
-                                                           firmware->getCapability(HasMixerExpo) ? 0 : FilteredItemModel::PositiveFilter);
+  curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels, 0);
 
   curveGroup = new CurveReferenceUIManager(ui->cboCurveType, ui->chkCurveUseSource, ui->sbCurveValue, ui->cboCurveSource, ui->cboCurveFunc,
                                            ui->imgCurve, md->curve, model, sharedItemModels, curveRefFilteredItemModels, esMdl, this);
 
   connect(curveGroup, &CurveReferenceUIManager::resized, this, [=] () { shrink(); });
-
-  ui->MixDR_CB->setChecked(md->noExpo == 0);
-
-  if (!firmware->getCapability(HasNoExpo)) {
-    ui->MixDR_CB->hide();
-    ui->label_MixDR->hide();
-  }
 
   if (index == 0 || model.mixData[index - 1].destCh != mixdata->destCh) {
     ui->mltpxCB->hide();
@@ -182,7 +174,6 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
   connect(ui->mixerName, SIGNAL(editingFinished()), this, SLOT(valuesChanged()));
   connect(ui->sourceCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
   connect(ui->trimCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
-  connect(ui->MixDR_CB, SIGNAL(toggled(bool)), this, SLOT(valuesChanged()));
   connect(ui->switchesCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
   connect(ui->warningCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
   connect(ui->mltpxCB, SIGNAL(currentIndexChanged(int)), this, SLOT(valuesChanged()));
@@ -227,13 +218,7 @@ void MixerDialog::valuesChanged()
   if (!lock) {
     lock = true;
     md->srcRaw  = RawSource(ui->sourceCB->itemData(ui->sourceCB->currentIndex()).toInt());
-    if (firmware->getCapability(HasNoExpo)) {
-      bool drVisible = (md->srcRaw.type == SOURCE_TYPE_INPUT && md->srcRaw.index < CPN_MAX_STICKS);
-      ui->MixDR_CB->setEnabled(drVisible);
-      ui->label_MixDR->setEnabled(drVisible);
-    }
     md->carryTrim = -(ui->trimCB->currentIndex() - 1);
-    md->noExpo    = ui->MixDR_CB->checkState() ? 0 : 1;
     md->swtch     = RawSwitch(ui->switchesCB->itemData(ui->switchesCB->currentIndex()).toInt());
     md->mixWarn   = ui->warningCB->currentIndex();
     md->mltpx     = (MltpxValue)ui->mltpxCB->currentIndex();

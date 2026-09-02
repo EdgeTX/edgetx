@@ -20,8 +20,9 @@
  */
 
 #include "os/sleep.h"
+#include "os/time.h"
 #if !defined(SIMU)
-#include "stm32_ws2812.h"
+#include "stm32_rgbleds.h"
 #include "boards/generic_stm32/rgb_leds.h"
 #include "stm32_hal.h"
 #include "stm32_hal_ll.h"
@@ -54,11 +55,13 @@
 #endif
 
 #if defined(COLORLCD)
+  #include "layout.h"
   #include "radio_calibration.h"
-  #include "view_text.h"
-  #include "theme_manager.h"
-  #include "switch_warn_dialog.h"
   #include "startup_shutdown.h"
+  #include "switch_warn_dialog.h"
+  #include "theme_manager.h"
+  #include "view_main.h"
+  #include "view_text.h"
 #endif
 
 #if defined(CROSSFIRE)
@@ -206,8 +209,13 @@ void per10ms()
   }
 #endif
 
-  if (keysPollingCycle()) {
+  uint8_t keyActivity = keysPollingCycle();
+  if (keyActivity & KEY_ACTIVITY_KEYS) {
     inactivityTimerReset(ActivitySource::Keys);
+  }
+  if (keyActivity & KEY_ACTIVITY_TRIMS) {
+    // Trims are controls, not keys, for backlight purposes
+    inactivityTimerReset(ActivitySource::MainControls);
   }
 
 #if defined(FUNCTION_SWITCHES)
@@ -408,9 +416,13 @@ void generalDefault()
   g_eeGeneral.pwrOffSpeed = 2;
 #endif
 
+#if defined(RADIO_C14)
+  g_eeGeneral.rotEncMode = ROTARY_ENCODER_MODE_INVERT_BOTH;
+#endif
+
 #if defined(MANUFACTURER_RADIOMASTER)
   g_eeGeneral.audioMuteEnable = 1;
-#if defined(RADIO_TX15)
+#if defined(RADIO_TX15) || defined(RADIO_GX15)
   g_eeGeneral.backlightBright = 50; // Screen looks off if not set high enough
 #endif
 #endif
@@ -480,6 +492,16 @@ int8_t getMovedSource(uint8_t min)
     }
   }
 
+  static int16_t trimStates[MAX_TRIMS];
+  if (result == 0) {
+    for (uint8_t i = 0; i < MAX_TRIMS; i++) {
+      if (abs(getTrimValue(mixerCurrentFlightMode, i) - trimStates[i]) > 0) {
+        result = MIXSRC_FIRST_TRIM + i;
+        break;
+      }
+    }
+  }
+
   static int16_t sourcesStates[MAX_ANALOG_INPUTS];
   if (result == 0) {
     for (uint8_t i = 0; i < MAX_ANALOG_INPUTS; i++) {
@@ -503,9 +525,11 @@ int8_t getMovedSource(uint8_t min)
   if (result || recent) {
     memcpy(inputsStates, anas, sizeof(inputsStates));
     memcpy(sourcesStates, calibratedAnalogs, sizeof(sourcesStates));
+	for (uint8_t i = 0; i < MAX_TRIMS; i++) trimStates[i] = getTrimValue(mixerCurrentFlightMode, i);
   }
 
   s_move_last_time = get_tmr10ms();
+
   return result;
 }
 #endif
@@ -583,35 +607,36 @@ getvalue_t convert16bitsTelemValue(source_t channel, ls_telemetry_value_t value)
 
 ls_telemetry_value_t maxTelemValue(source_t channel)
 {
-  return 30000;
+  return MIXSRC_MAX_VALUE;
 }
 
 void calcBacklightValue(int16_t source)
 {
   getvalue_t raw = getValue(source);
 #if defined(COLORLCD)
-  requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright + 
+  requiredBacklightBright = BACKLIGHT_LEVEL_MAX - (g_eeGeneral.blOffBright +
       ((1024 + raw) * ((BACKLIGHT_LEVEL_MAX - g_eeGeneral.backlightBright) - g_eeGeneral.blOffBright) / 2048));
-#elif defined(OLED_SCREEN)
+#elif OLED_SCREEN
   requiredBacklightBright = (raw + 1024) * 254 / 2048;
 #else
   requiredBacklightBright = (1024 - raw) * 100 / 2048;
 #endif
 }
 
-#define VOLUME_HYSTERESIS 10            // how much must a input value change to actually be considered for new volume setting
-getvalue_t requiredSpeakerVolumeRawLast = 1024 + 1; //initial value must be outside normal range
+#define VOLUME_SOURCE_DEADZONE 10       // how much must a input value change to actually be considered for new volume setting
 
 void calcVolumeValue(int16_t source)
 {
-  getvalue_t raw = getValue(source);
-  // only set volume if input changed more than hysteresis
-  if (abs(requiredSpeakerVolumeRawLast - raw) > VOLUME_HYSTERESIS) {
-    requiredSpeakerVolumeRawLast = raw;
+  int32_t shifted = 1024 + getValue(source);
+  int32_t v;
+  if (shifted < VOLUME_SOURCE_DEADZONE) {
+    v = 0;
+  } else {
+    v = 1 + ((shifted - VOLUME_SOURCE_DEADZONE) * (VOLUME_LEVEL_MAX - 1)) /
+            (2048 - VOLUME_SOURCE_DEADZONE);
+    if (v > VOLUME_LEVEL_MAX) v = VOLUME_LEVEL_MAX;
   }
-  requiredSpeakerVolume =
-      ((1024 + requiredSpeakerVolumeRawLast) * VOLUME_LEVEL_MAX) /
-      2048;
+  requiredSpeakerVolume = (int16_t)v;
 }
 
 void checkBacklight()
@@ -711,7 +736,7 @@ static void checkFailsafe()
 void checkAll(bool isBootCheck)
 {
   checkSDfreeStorage();
-  
+
   // we don't check the throttle stick if the radio is not calibrated
   if (g_eeGeneral.chkSum == evalChkSum()) {
     checkThrottleStick();
@@ -778,7 +803,7 @@ void checkAll(bool isBootCheck)
   }
 #endif
 
-#if defined(EXTERNAL_ANTENNA) && defined(INTERNAL_MODULE_PXX1)
+#if defined(EXTERNAL_ANTENNA)
   checkExternalAntenna();
 #endif
 
@@ -969,7 +994,8 @@ void alert(const char * title, const char * msg , uint8_t sound)
 void checkTrims()
 {
   event_t event = getTrimEvent();
-  if (event && !IS_KEY_BREAK(event)) {
+  // Only use press and repeat trim events
+  if (event && (IS_KEY_FIRST(event) || IS_KEY_REPT(event))) {
     int8_t k = EVT_KEY_MASK(event);
     uint8_t idx = inputMappingConvertMode(uint8_t(k / 2));
     uint8_t phase;
@@ -1130,7 +1156,11 @@ void edgeTxClose(uint8_t shutdown)
 
   if (shutdown) {
     pulsesStop();
+#if !defined(SIMU)
+    // Audio task has been stopped so this will not play
+    // when closing the simulator
     AUDIO_BYE();
+#endif
     // TODO needed? telemetryEnd();
 #if defined(HAPTIC)
     hapticOff();
@@ -1149,7 +1179,12 @@ void edgeTxClose(uint8_t shutdown)
 
   storageCheck(true);
 
+  uint32_t bye_start = time_get_ms();
   while (IS_PLAYING(ID_PLAY_PROMPT_BASE + AU_BYE)) {
+    if (time_get_ms() - bye_start > 5000/*5s*/) {
+      TRACE("shutdown: bye audio timeout");
+      break;
+    }
     sleep_ms(10);
   }
 
@@ -1159,6 +1194,8 @@ void edgeTxClose(uint8_t shutdown)
   cancelShutdownAnimation();  // To prevent simulator crash
   MainWindow::instance()->shutdown();
 #if defined(LUA)
+  extern void unloadLuaTools();
+  unloadLuaTools();
   luaUnregisterWidgets();
 #endif
 #endif
@@ -1169,7 +1206,7 @@ void edgeTxClose(uint8_t shutdown)
 
   sdDone();
 
-#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+#if defined(RGB_LEDS)
   turnOffRGBLeds();
 #endif
 }
@@ -1193,6 +1230,8 @@ void edgeTxResume()
   //TODO: needs to go into storageReadAll()
   TRACE("reloading theme");
   ThemePersistance::instance()->loadDefaultTheme();
+  LayoutFactory::loadCustomScreens();
+  ViewMain::instance()->show();
 #endif
 
   referenceSystemAudioFiles();
@@ -1222,8 +1261,7 @@ void instantTrim()
         if (stick == expo->srcRaw - MIXSRC_FIRST_STICK) {
           if (expo->trimSource < 0) {
             // only default trims will be taken into account
-            addTrim = false;
-            break;
+            continue;
           }
           auto newDelta = anas[expo->chn] - anas_0[expo->chn];
           if (addTrim && delta != newDelta) {
@@ -1315,6 +1353,18 @@ uint32_t pwrDelayTime(int delay)
   static uint8_t vals[] = { 0, 5, 10, 20, 30 };
   return vals[pwrDelayFromYaml(delay)] * 10;
 }
+
+// On radios requiring a two-button chord as accidental-activation
+// protection, only the chord itself should start/continue the on/off delay
+// countdown; a single button held alone must not.
+inline bool pwrDelayHoldActive()
+{
+#if defined(PWR_BUTTON_DUAL)
+  return pwrForcePressed();
+#else
+  return pwrPressed();
+#endif
+}
 #endif
 
 #if defined(STARTUP_ANIMATION)
@@ -1332,7 +1382,7 @@ void runStartupAnimation()
   tmr10ms_t duration = 0;
   bool isPowerOn = false;
 
-  while (pwrPressed()) {
+  while (pwrDelayHoldActive()) {
     duration = get_tmr10ms() - start;
     if (duration < PWR_PRESS_DURATION_MIN()) {
       drawStartupAnimation(duration, PWR_PRESS_DURATION_MIN());
@@ -1526,7 +1576,7 @@ void edgeTxInit()
 
 #if defined(AUDIO)
   currentSpeakerVolume = requiredSpeakerVolume =
-      g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
+      limit<int>(0, g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX);
 #if !defined(SOFTWARE_VOLUME)
   audioSetVolume(currentSpeakerVolume);
 #endif
@@ -1564,6 +1614,10 @@ void edgeTxInit()
     }
 #endif // defined(GUI)
 
+#if defined(COLORLCD)
+    LayoutFactory::loadCustomScreens();
+#endif
+
 #if defined(BLUETOOTH_PROBE)
     extern volatile uint8_t btChipPresent;
     auto oldBtMode = g_eeGeneral.bluetoothMode;
@@ -1575,7 +1629,7 @@ void edgeTxInit()
 #endif
 
 #if defined(TEST_BUILD_WARNING)
-    ALERT(STR_TEST_WARNING, TR_TEST_NOTSAFE, AU_ERROR);
+    ALERT(STR_TEST_WARNING, STR_TEST_NOTSAFE, AU_ERROR);
 #endif
 
 #if defined(FUNCTION_SWITCHES)
@@ -1692,11 +1746,15 @@ int pwrDelayToYaml(int delay)
 
 inline uint32_t PWR_PRESS_SHUTDOWN_DELAY()
 {
-  // Instant off when both power button are pressed
+#if defined(PWR_BUTTON_MANAGED)
+  return 0;
+#else
+#if !defined(PWR_BUTTON_DUAL)
   if (pwrForcePressed())
     return 0;
-
+#endif
   return pwrDelayTime(g_eeGeneral.pwrOffSpeed);
+#endif
 }
 
 uint32_t pwr_press_time = 0;
@@ -1745,14 +1803,40 @@ uint32_t pwrCheck()
   static uint8_t pwr_check_state = PWR_CHECK_ON;
 
   bool inactivityShutdown = pwrOffDueToInactivity();
-  
+
   if (pwr_check_state == PWR_CHECK_OFF) {
     return e_power_off;
   }
-  else if (pwrPressed() || inactivityShutdown) {
+
+#if defined(PWR_BUTTON_MANAGED)
+  if (pwrPressed()) {
+    bool needConfirm =
+        (TELEMETRY_STREAMING() && !g_eeGeneral.disableRssiPoweroffAlarm) ||
+        (usbPlugged() && getSelectedUsbMode() != USB_UNSELECTED_MODE) ||
+        (isTrainerConnected() && !g_eeGeneral.disableTrainerPoweroffAlarm);
+    if (!needConfirm) {
+#if defined(HAPTIC)
+      if (!g_eeGeneral.disablePwrOnOffHaptic &&
+          (g_eeGeneral.hapticMode != e_mode_quiet))
+        haptic.play(15, 3, PLAY_NOW);
+#endif
+      pwr_check_state = PWR_CHECK_OFF;
+      return e_power_off;
+    }
+  }
+#endif
+
+  if (pwrDelayHoldActive() || inactivityShutdown) {
     if (!inactivityShutdown)
       inactivityTimerReset(ActivitySource::Keys);
-
+#if defined(PWR_BUTTON_DUAL_KEY1)
+    if (!inactivityShutdown) {
+      killEvents(PWR_BUTTON_DUAL_KEY1);
+#if defined(PWR_BUTTON_DUAL_KEY2)
+      killEvents(PWR_BUTTON_DUAL_KEY2);
+#endif
+    }
+#endif
     if (TELEMETRY_STREAMING()) {
       message = STR_MODEL_STILL_POWERED;
     }
@@ -1998,7 +2082,7 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
   }
 #if defined(LUA_INPUTS)
   else if (asrc >= MIXSRC_FIRST_LUA && asrc <= MIXSRC_LAST_LUA) {
-    valMax = 30000;
+    valMax = MIXSRC_MAX_VALUE;
     valMin = -valMax;
   }
 #endif
@@ -2041,7 +2125,7 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
       *flags |= TIMEHOUR;
   }
   else {
-    valMax = 30000;
+    valMax = MIXSRC_MAX_VALUE;
     valMin = -valMax;
   }
 }
@@ -2061,15 +2145,18 @@ bool validateLSV2Range(LogicalSwitchData* cs, int16_t& v2_min, int16_t& v2_max, 
       // min < 0 && max >= 0
       v2_min = 0;
     }
-  } else if (cs->func == LS_FUNC_DIFFEGREATER) {
-    // delta range (min - max) .. (max - min)
-    int16_t v = v2_min - v2_max;
-    v2_max = v2_max - v2_min;
-    v2_min = v;
-  } else if (cs->func == LS_FUNC_ADIFFEGREATER) {
-    // abs delta range 0 .. (max - min)
-    v2_max = v2_max - v2_min;
-    v2_min = 0;
+  } else {
+    uint16_t v = v2_max - v2_min;
+    if (v > MIXSRC_MAX_VALUE) v = MIXSRC_MAX_VALUE;
+    if (cs->func == LS_FUNC_DIFFEGREATER) {
+      // delta range (min - max) .. (max - min)
+      v2_max = v;
+      v2_min = -v;
+    } else if (cs->func == LS_FUNC_ADIFFEGREATER) {
+      // abs delta range 0 .. (max - min)
+      v2_max = v;
+      v2_min = 0;
+    }
   }
 
   bool rv = false;

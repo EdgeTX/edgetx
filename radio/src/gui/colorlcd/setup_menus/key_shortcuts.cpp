@@ -26,6 +26,9 @@
 #include "edgetx.h"
 #include "getset_helpers.h"
 #include "pagegroup.h"
+#include "qmpagechoice.h"
+#include "radio_tools.h"
+#include "toggleswitch.h"
 
 #define SET_DIRTY() storageDirty(EE_GENERAL)
 
@@ -46,30 +49,56 @@ void QMKeyShortcutsPage::addKey(event_t event, std::vector<std::string> qmPages,
     event = keyMapping(event);
 
     setupLine(nm, [=](Window* parent, coord_t x, coord_t y) {
-          auto c = new Choice(
-              parent, {LCD_W / 4, y, LCD_W * 2 / 3, 0}, qmPages, QM_NONE, QM_TOOLS_DEBUG,
-              GET_DEFAULT(g_eeGeneral.getKeyShortcut(event)),
+          auto c = new QMPageChoice(
+              parent, {LCD_W / 4, y, LCD_W * 2 / 3, 0}, qmPages, QM_NONE, qmPages.size() - 1,
+              [=]() -> int {
+                auto pg = g_eeGeneral.getKeyShortcut(event);
+                if (pg < QM_APP)
+                  return pg;
+                std::string nm = g_eeGeneral.getKeyToolName(event);
+                int idx = getLuaToolId(nm);
+                if (idx >= 0)
+                  return pg + idx;
+                return QM_NONE;
+              },
               [=](int32_t newValue) {
-                g_eeGeneral.setKeyShortcut(event, (QMPage)newValue);
+                if (newValue < QM_APP) {
+                  g_eeGeneral.setKeyShortcut(event, (QMPage)newValue);
+                  g_eeGeneral.setKeyToolName(event, "");
+                } else {
+                  g_eeGeneral.setKeyShortcut(event, QM_APP);
+                  g_eeGeneral.setKeyToolName(event, getLuaTool(newValue - QM_APP)->label);
+                }
                 SET_DIRTY();
               }, STR_KEY_SHORTCUTS);
 
-          c->setPopupWidth(LCD_W * 3 / 4);
           c->setAvailableHandler(
-              [=](int newValue) {
-                if (newValue == QM_NONE) return true;
-                if (g_eeGeneral.hasKeyShortcut((QMPage)newValue))
+              [=](int pg) {
+                if (pg == QM_NONE) return true;
+                if (g_eeGeneral.hasKeyShortcut((QMPage)pg, event))
                   return false;
-                return newValue <= QM_UI_SCREEN1 || newValue > QM_UI_ADD_PG; }
+                return pg <= QM_UI_SCREEN1 || pg > QM_UI_ADD_PG; }
               );
         });
   }
 }
 
 QMKeyShortcutsPage::QMKeyShortcutsPage():
-        SubPage(ICON_RADIO, STR_MAIN_MENU_RADIO_SETTINGS, STR_KEY_SHORTCUTS, true)
+        SubPage(ICON_RADIO, STR_MAIN_RADIO_SETTINGS, STR_KEY_SHORTCUTS, true)
 {
-  std::vector<std::string> qmPages = QuickMenu::menuPageNames(false);
+  auto qmPages = QuickMenu::menuPageNames(false);
+
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  static char keyLockLabel[45];
+  const char* k1 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY1);
+  const char* k2 = keysGetLabel((EnumKeys)KEYS_LOCK_KEY2);
+  snprintf(keyLockLabel, sizeof(keyLockLabel), STR_KEY_LOCK_FMT,
+           k1 ? k1 : "?", k2 ? k2 : "?");
+  setupLine(keyLockLabel, [=](Window* parent, coord_t x, coord_t y) {
+    new ToggleSwitch(parent, {x, y, 0, 0},
+                     GET_SET_DEFAULT(g_eeGeneral.keyLockEnabled));
+  });
+#endif
 
   setupLine(STR_SHORT_PRESS, nullptr);
   addKey(EVT_KEY_BREAK(KEY_SYS), qmPages, "SYS");

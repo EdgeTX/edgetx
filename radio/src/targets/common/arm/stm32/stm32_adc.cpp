@@ -40,7 +40,7 @@
   #define OVERSAMPLING 4
 #endif
 
-#define SAMPLING_TIMEOUT_US 200
+#define SAMPLING_TIMEOUT_US 500
 
 // Please note that we use the same prio for DMA TC and ADC IRQs
 // to avoid issues with preemption between these 2
@@ -541,6 +541,16 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
   return true;
 }
 
+void stm32_hal_adc_deinit(const stm32_adc_t* ADCs, uint8_t n_ADC)
+{
+  const stm32_adc_t* adc = ADCs;
+
+  while (n_ADC > 0) {
+    LL_ADC_Disable(adc->ADCx);
+    adc++; n_ADC--;
+  }
+}
+
 #if defined(STM32H7RS)
 
 static inline DMA_Channel_TypeDef* _dma_get_stream(DMA_TypeDef *DMAx, uint32_t Channel)
@@ -567,7 +577,11 @@ static inline DMA_Stream_TypeDef* _dma_get_stream(DMA_TypeDef *DMAx, uint32_t St
 #define DMA_Stream0_IT_MASK     (uint32_t)(DMA_LISR_FEIF0 | DMA_LISR_DMEIF0 | \
                                            DMA_LISR_TEIF0 | DMA_LISR_HTIF0 | \
                                            DMA_LISR_TCIF0)
-  
+
+#define DMA_Stream3_IT_MASK     (uint32_t)(DMA_LISR_FEIF3 | DMA_LISR_DMEIF3 | \
+                                           DMA_LISR_TEIF3 | DMA_LISR_HTIF3 | \
+                                           DMA_LISR_TCIF3)
+
 #define DMA_Stream4_IT_MASK     (uint32_t)(DMA_HISR_FEIF4 | DMA_HISR_DMEIF4 | \
                                            DMA_HISR_TEIF4 | DMA_HISR_HTIF4 | \
                                            DMA_HISR_TCIF4)
@@ -582,7 +596,9 @@ static void adc_dma_clear_flags(DMA_TypeDef* DMAx, uint32_t stream)
   if (stream == LL_DMA_STREAM_4) {
     /* Reset interrupt pending bits for DMA2 Stream4 */
     WRITE_REG(DMAx->HIFCR, DMA_Stream4_IT_MASK);
-
+  } else if (stream == LL_DMA_STREAM_3) {
+    /* Reset interrupt pending bits for DMA2 Stream3 (ADC2 on F4) */
+    WRITE_REG(DMAx->LIFCR, DMA_Stream3_IT_MASK);
   } else if (stream == LL_DMA_STREAM_0) {
     /* Reset interrupt pending bits for DMA2 Stream0 */
     WRITE_REG(DMAx->LIFCR, DMA_Stream0_IT_MASK);

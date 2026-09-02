@@ -19,19 +19,23 @@
  * GNU General Public License for more details.
  */
 
-#include "simpgmspace.h"
+#include "simulib.h"
 
 #if !defined(SIMU_DISKIO)
 
 #include "ff.h"
-#include "sdcard.h"
 
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <memory>
+#include <optional>
+#include <set>
 #include <string>
+#include <vector>
+
+#include <string.h>
 
 namespace fs = std::filesystem;
 
@@ -46,17 +50,6 @@ static fs::path simuSettingsDirectory;
 
 // current simulater path
 static fs::path simuCurrentPath;
-
-static bool lower_case_equal(unsigned char c1, unsigned char c2)
-{
-  return std::tolower(c1) == std::tolower(c2);
-}
-
-static bool starts_with(const std::string& str, const std::string& prefix)
-{
-  if (str.length() < prefix.length()) return false;
-  return std::equal(prefix.begin(), prefix.end(), str.begin(), lower_case_equal);
-}
 
 static std::string to_lower(const std::string& s)
 {
@@ -76,12 +69,6 @@ static ftime_type systime_to_ftime(sysclock::time_point systime)
 {
   return std::chrono::time_point_cast<ftime_type::duration>(
       systime - sysclock::now() + ftime_type::clock::now());
-}
-
-static bool redirectToSettingsDirectory(const fs::path& p)
-{
-  if (simuSettingsDirectory.empty()) return false;
-  return starts_with(p.generic_string(), MODELS_PATH) || starts_with(p.generic_string(), RADIO_PATH);
 }
 
 static fs::path resolveCaseInsensitivePath(
@@ -131,24 +118,43 @@ static fs::path resolveCaseInsensitivePath(
   return current;
 }
 
-static std::string convertToSimuPath(const fs::path& path)
+static fs::path makeAbsolute(const fs::path& path)
 {
-  fs::path p{path};
-  fs::path basePath;
+  return path.is_relative() ? simuCurrentPath / path : path;
+}
 
-  if (p.is_relative()) {
-    p = simuCurrentPath / p;
+static fs::path resolveInBase(const fs::path& base, const fs::path& virtualPath)
+{
+  return resolveCaseInsensitivePath(
+      base, virtualPath.lexically_relative(virtualPath.root_path()));
+}
+
+// Resolve for read: try settingsPath first, fall back to sdPath
+static std::string resolveForRead(const fs::path& path)
+{
+  fs::path p = makeAbsolute(path);
+
+  if (!simuSettingsDirectory.empty()) {
+    auto resolved = resolveInBase(simuSettingsDirectory, p);
+    std::error_code ec;
+    if (fs::exists(resolved, ec) && !ec) {
+      return resolved.string();
+    }
   }
 
-  if (redirectToSettingsDirectory(p)) {
-    basePath = simuSettingsDirectory;
-    p = p.lexically_relative(p.root_path());
-  } else {
-    basePath = simuSdDirectory;
-    p = p.lexically_relative(p.root_path());
+  return resolveInBase(simuSdDirectory, p).string();
+}
+
+// Resolve for write: always use settingsPath if available
+static std::string resolveForWrite(const fs::path& path)
+{
+  fs::path p = makeAbsolute(path);
+
+  if (!simuSettingsDirectory.empty()) {
+    return resolveInBase(simuSettingsDirectory, p).string();
   }
 
-  return resolveCaseInsensitivePath(basePath, p).string();
+  return resolveInBase(simuSdDirectory, p).string();
 }
 
 void simuFatfsSetPaths(const char* sdPath, const char* settingsPath)
@@ -170,7 +176,7 @@ std::string simuFatfsGetCurrentPath() { return simuCurrentPath.string(); }
 
 std::string simuFatfsGetRealPath(const std::string &p)
 {
-  return convertToSimuPath(p);
+  return resolveForRead(p);
 }
 
 FRESULT file_stat(const std::string& realPath, FILINFO* fno)
@@ -200,22 +206,17 @@ FRESULT file_stat(const std::string& realPath, FILINFO* fno)
     // Get last write time
     auto ftime = fs::last_write_time(fsPath, ec);
     if (!ec) {
-      try {
-        auto systime = ftime_to_systime(ftime);
-        auto time_t_val = std::chrono::system_clock::to_time_t(systime);
-        struct tm* ltime = localtime(&time_t_val);
+      auto systime = ftime_to_systime(ftime);
+      auto time_t_val = std::chrono::system_clock::to_time_t(systime);
+      struct tm ltime;
 
-        if (ltime) {
-          // Convert to FatFs format
-          fno->fdate = ((ltime->tm_year - 80) << 9) |
-                       ((ltime->tm_mon + 1) << 5) | ltime->tm_mday;
-          fno->ftime = (ltime->tm_hour << 11) | (ltime->tm_min << 5) |
-                       (ltime->tm_sec / 2);
-        } else {
-          fno->fdate = 0;
-          fno->ftime = 0;
-        }
-      } catch (...) {
+      if (simuLocalTime(time_t_val, &ltime)) {
+        // Convert to FatFs format
+        fno->fdate = ((ltime.tm_year - 80) << 9) | ((ltime.tm_mon + 1) << 5) |
+                     ltime.tm_mday;
+        fno->ftime =
+            (ltime.tm_hour << 11) | (ltime.tm_min << 5) | (ltime.tm_sec / 2);
+      } else {
         fno->fdate = 0;
         fno->ftime = 0;
       }
@@ -230,7 +231,7 @@ FRESULT file_stat(const std::string& realPath, FILINFO* fno)
 
 FRESULT f_stat(const TCHAR* name, FILINFO* fno)
 {
-  std::string realPath = convertToSimuPath(name);
+  std::string realPath = resolveForRead(name);
   return file_stat(realPath, fno);
 }
 
@@ -253,26 +254,47 @@ struct _simu_FIL {
 
 FRESULT f_open(FIL* fil, const TCHAR* name, BYTE flag)
 {
-  std::string realPath = convertToSimuPath(name);
   fil->obj.fs = nullptr;
   fil->fptr = 0;
 
   std::ios::openmode mode = std::ios::binary;
+  std::string realPath;
 
   if (flag & FA_WRITE) {
+    realPath = resolveForWrite(name);
     mode |= std::ios::out | std::ios::in;
+
+    // Ensure parent directories exist in settingsPath,
+    // but only if they exist in the overlay (either layer)
+    std::error_code ec;
+    fs::path virtualParent = makeAbsolute(fs::path{name}).parent_path();
+    std::string readParent = resolveForRead(virtualParent);
+    if (fs::is_directory(readParent, ec) && !ec) {
+      fs::path parentPath = fs::path(realPath).parent_path();
+      if (!parentPath.empty()) {
+        fs::create_directories(parentPath, ec);
+      }
+    }
+
     if (flag & FA_CREATE_ALWAYS) {
       mode |= std::ios::trunc;
     } else {
-      // For append mode, we need to check if file exists
-      std::error_code ec;
       if (fs::exists(realPath, ec) && !ec) {
         mode |= std::ios::ate;  // Open at end
       } else {
-        mode |= std::ios::trunc;  // Create new file
+        // Copy-on-write: if the file exists in sdPath, copy it to
+        // settingsPath so appends start from the original content
+        std::string readPath = resolveForRead(name);
+        if (fs::exists(readPath, ec) && !ec) {
+          fs::copy_file(readPath, realPath, ec);
+          mode |= std::ios::ate;
+        } else {
+          mode |= std::ios::trunc;  // Create new file
+        }
       }
     }
   } else {
+    realPath = resolveForRead(name);
     mode |= std::ios::in;
 
     std::error_code ec;
@@ -286,16 +308,12 @@ FRESULT f_open(FIL* fil, const TCHAR* name, BYTE flag)
     }
   }
 
-  try {
-    auto simuFil = new _simu_FIL(realPath, mode);
-    if (simuFil->stream->is_open()) {
-      fil->obj.fs = reinterpret_cast<FATFS*>(simuFil);
-      return FR_OK;
-    } else {
-      delete simuFil;
-      return FR_INVALID_NAME;
-    }
-  } catch (...) {
+  auto simuFil = new _simu_FIL(realPath, mode);
+  if (simuFil->stream->is_open()) {
+    fil->obj.fs = reinterpret_cast<FATFS*>(simuFil);
+    return FR_OK;
+  } else {
+    delete simuFil;
     return FR_INVALID_NAME;
   }
 }
@@ -378,15 +396,10 @@ UINT f_size(FIL* fil)
 
 FRESULT f_chdir(const TCHAR *name)
 {
-  fs::path p = {name};
-  // TRACE("f_chdir(%s)", name);
-
-  if (p.is_relative()) {
-    p = simuCurrentPath / p;
-  }
+  fs::path p = makeAbsolute(fs::path{name});
 
   std::error_code ec;
-  auto realPath = convertToSimuPath(p);
+  auto realPath = resolveForRead(p);
 
   if (fs::exists(realPath, ec) && !ec) {
     simuCurrentPath = p;
@@ -397,68 +410,60 @@ FRESULT f_chdir(const TCHAR *name)
 }
 
 struct _simu_DIR {
-  std::string name;
-  fs::directory_iterator iter;
-  fs::directory_iterator end_iter;
+  std::vector<fs::path> entries;
+  size_t index = 0;
 
-  _simu_DIR(const std::string& dirName) : name(dirName)
+  void collectEntries(const std::string& dir, std::set<std::string>& seen)
   {
     std::error_code ec;
-    iter = fs::directory_iterator(dirName, ec);
-    if (ec) {
-      iter = end_iter;  // Set to end if error
-    }
-    skipDotEntries(); // TODO: check if necessary
-  }
-
- private:
-  void skipDotEntries()
-  {
-    while (iter != end_iter) {
-      std::string filename = iter->path().filename().string();
-      if (filename != "." && filename != "..") {
-        break;
+    if (!fs::is_directory(dir, ec) || ec) return;
+    for (const auto& entry : fs::directory_iterator(dir, ec)) {
+      if (ec) break;
+      std::string nameLower = to_lower(entry.path().filename().string());
+      if (seen.insert(nameLower).second) {
+        entries.push_back(entry.path());
       }
-      std::error_code ec;
-      ++iter;
     }
   }
 
- public:
-  bool hasNext() const { return iter != end_iter; }
+  bool hasNext() const { return index < entries.size(); }
 
-  fs::directory_entry getNext()
+  std::optional<fs::path> getNext()
   {
-    if (iter == end_iter) {
-      throw std::runtime_error("No more entries");
-    }
-
-    auto current = *iter;
-    std::error_code ec;
-    ++iter;
-    skipDotEntries();
-
-    return current;
+    if (index >= entries.size()) return std::nullopt;
+    return entries[index++];
   }
 };
 
 FRESULT f_opendir(DIR* rep, const TCHAR* name)
 {
-  std::string path = convertToSimuPath(name);
+  fs::path p = makeAbsolute(fs::path{name});
+  fs::path relative = p.lexically_relative(p.root_path());
 
   std::error_code ec;
-  if (!fs::is_directory(path, ec) || ec) {
+  std::string settingsDir, sdDir;
+  bool settingsExists = false, sdExists = false;
+
+  if (!simuSettingsDirectory.empty()) {
+    settingsDir = resolveCaseInsensitivePath(simuSettingsDirectory, relative).string();
+    settingsExists = fs::is_directory(settingsDir, ec) && !ec;
+  }
+  sdDir = resolveCaseInsensitivePath(simuSdDirectory, relative).string();
+  sdExists = fs::is_directory(sdDir, ec) && !ec;
+
+  if (!settingsExists && !sdExists) {
     rep->obj.fs = nullptr;
     return FR_NO_PATH;
   }
 
-  try {
-    rep->obj.fs = reinterpret_cast<FATFS*>(new _simu_DIR(path));
-    return FR_OK;
-  } catch (...) {
-    rep->obj.fs = nullptr;
-    return FR_NO_PATH;
-  }
+  auto sd = new _simu_DIR();
+  std::set<std::string> seen;
+  // Settings entries take priority (added first)
+  if (settingsExists) sd->collectEntries(settingsDir, seen);
+  if (sdExists) sd->collectEntries(sdDir, seen);
+
+  rep->obj.fs = reinterpret_cast<FATFS*>(sd);
+  return FR_OK;
 }
 
 FRESULT f_closedir(DIR* rep)
@@ -479,24 +484,24 @@ FRESULT f_readdir(DIR* rep, FILINFO* fil)
     return FR_NO_FILE;
   }
 
-  try {
-    auto entry = sd->getNext();
-
-    if (fil != nullptr) {
-      memset(fil->fname, 0, FF_MAX_LFN);
-
-      std::string filename = entry.path().filename().string();
-      size_t copyLen = std::min(filename.length(), size_t(FF_MAX_LFN - 1));
-      strncpy(fil->fname, filename.c_str(), copyLen);
-
-      std::string fullPath = entry.path().string();
-      return file_stat(fullPath, fil);
-    }
-
-    return FR_OK;
-  } catch (...) {
+  auto maybe_path = sd->getNext();
+  if (!maybe_path.has_value()) {
     return FR_NO_FILE;
   }
+
+  auto entryPath = maybe_path.value();
+  if (fil != nullptr) {
+    memset(fil->fname, 0, FF_MAX_LFN);
+
+    std::string filename = entryPath.filename().string();
+    size_t copyLen = std::min(filename.length(), (size_t)(FF_MAX_LFN - 1));
+    strncpy(fil->fname, filename.c_str(), copyLen);
+
+    std::string fullPath = entryPath.string();
+    return file_stat(fullPath, fil);
+  }
+
+  return FR_OK;
 }
 
 FRESULT f_mkfs(const TCHAR* path, BYTE opt, DWORD au, void* work, UINT len)
@@ -506,8 +511,19 @@ FRESULT f_mkfs(const TCHAR* path, BYTE opt, DWORD au, void* work, UINT len)
 
 FRESULT f_mkdir(const TCHAR* name)
 {
-  std::string path = convertToSimuPath(name);
+  std::string path = resolveForWrite(name);
   std::error_code ec;
+
+  // Create parent directories in settingsPath if they exist in the overlay
+  fs::path virtualParent = makeAbsolute(fs::path{name}).parent_path();
+  std::string readParent = resolveForRead(virtualParent);
+  if (!fs::is_directory(readParent, ec) || ec) {
+    return FR_NO_PATH;
+  }
+  fs::path parentPath = fs::path(path).parent_path();
+  if (!parentPath.empty()) {
+    fs::create_directories(parentPath, ec);
+  }
 
   bool created = fs::create_directory(path, ec);
   if (ec) return FR_INVALID_NAME;
@@ -517,7 +533,7 @@ FRESULT f_mkdir(const TCHAR* name)
 
 FRESULT f_unlink(const TCHAR * name)
 {
-  std::string path = convertToSimuPath(name);
+  std::string path = resolveForWrite(name);
   std::error_code ec;
 
   bool removed = fs::remove(path, ec);
@@ -528,8 +544,8 @@ FRESULT f_unlink(const TCHAR * name)
 
 FRESULT f_rename(const TCHAR *oldname, const TCHAR *newname)
 {
-  std::string old = convertToSimuPath(oldname);
-  std::string path = convertToSimuPath(newname);
+  std::string old = resolveForWrite(oldname);
+  std::string path = resolveForWrite(newname);
   std::error_code ec;
 
   fs::rename(old.c_str(), path.c_str(), ec);
@@ -544,7 +560,7 @@ FRESULT f_utime(const TCHAR* path, const FILINFO* fno)
         return FR_INVALID_PARAMETER;
     }
 
-    std::string realPath = convertToSimuPath(path);
+    std::string realPath = resolveForWrite(path);
     
     // Convert FatFs time to tm structure
     struct tm ltime = {};
@@ -556,7 +572,7 @@ FRESULT f_utime(const TCHAR* path, const FILINFO* fno)
     ltime.tm_sec = (fno->ftime & 0x1F) * 2;
     ltime.tm_isdst = -1;
 
-    time_t timestamp = mktime(&ltime);
+    time_t timestamp = simuLocalTimeToEpoch(&ltime);
     if (timestamp == -1) {
         return FR_INVALID_PARAMETER;
     }
@@ -592,6 +608,21 @@ FRESULT f_getcwd(TCHAR *path, UINT sz_path)
   }
 
   strncpy(path, p_str.c_str(), sz_path + 1);
+  return FR_OK;
+}
+
+FRESULT f_truncate(FIL* fil)
+{
+  if (fil && fil->obj.fs) {
+    _simu_FIL* sf = reinterpret_cast<_simu_FIL*>(fil->obj.fs);
+    if (sf->stream && sf->stream->is_open()) {
+      sf->stream->flush();
+      if (!sf->stream->good()) return FR_DISK_ERR;
+      std::error_code ec;
+      fs::resize_file(sf->filepath, fil->fptr, ec);
+      if (ec) return FR_DISK_ERR;
+    }
+  }
   return FR_OK;
 }
 

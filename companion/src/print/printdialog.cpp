@@ -37,7 +37,7 @@ PrintDialog::PrintDialog(QWidget *parent, Firmware * firmware, GeneralSettings &
 {
   ui->setupUi(this);
   setWindowIcon(CompanionIcon("print.png"));
-  setWindowTitle(model.name);
+  setWindowTitle(model.name.toQString());
   multiModelPrinter.setModel(0, &model, &generalSettings);
   ui->textEdit->setHtml(multiModelPrinter.print(ui->textEdit->document()));
   if (!printfilename.isEmpty()) {

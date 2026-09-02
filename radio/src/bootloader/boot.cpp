@@ -23,17 +23,11 @@
 
 #include "hal/usb_driver.h"
 #include "hal/abnormal_reboot.h"
-#include "hal/rotary_encoder.h"
 
 #include "board.h"
 #include "debug.h"
 
 #include "timers_driver.h"
-
-#if defined(BLUETOOTH)
-  #include "bluetooth_driver.h"
-  #include "stm32_serial_driver.h"
-#endif
 
 #if defined(DEBUG_SEGGER_RTT)
   #include "thirdparty/Segger/SEGGER/SEGGER_RTT.h"
@@ -107,26 +101,12 @@ void bootloaderInitApp()
 #endif
   }
 
-  // TODO: move all this into board specifics
   pwrOn();
-
-#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
-  rotaryEncoderInit();
-#endif
-
   __enable_irq();
 
   TRACE("\nBootloader started :)");
 
-  // TODO: move BT into board specifics
-#if defined(BLUETOOTH)
-  // we shutdown the bluetooth module now to be sure it will be detected on
-  // firmware start
-  bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, false);
-#endif
-
   timersInit();
-
   usbInit();
   boardBLInit();
 }

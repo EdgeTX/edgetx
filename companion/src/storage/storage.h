@@ -22,6 +22,8 @@
 #pragma once
 
 #include "radiodata.h"
+#include "progressdialog.h"
+#include "progresswidget.h"
 
 #include <QtCore>
 #include <QString>
@@ -46,7 +48,8 @@ class StorageFormat
     StorageFormat(const QString & filename, uint8_t version=0):
       filename(filename),
       version(version),
-      board(Board::BOARD_UNKNOWN)
+      board(Board::BOARD_UNKNOWN),
+      _progress(nullptr)
     {
     }
     virtual ~StorageFormat() {}
@@ -54,6 +57,8 @@ class StorageFormat
     virtual bool load(GeneralSettings & generalSettings) { return false; }
     virtual bool write(RadioData & radioData) = 0;
     virtual bool writeModel(const RadioData & radioData, const int modelIndex) { return false; }
+
+    void setProgress(ProgressWidget * progress) { _progress = progress; }
 
     QString error() {
       return _error;
@@ -83,11 +88,21 @@ class StorageFormat
       _warning = warning;
     }
 
+    void statusMsg(const QString & text, const int & type = QtInfoMsg,
+                   const bool richText = false, const bool updateLast = false);
+    void fatalMsg(const QString & text, const bool richText = false);
+    void progressSetInfoAndMsg(const QString & text, const int & type = QtInfoMsg, const bool richText = false);
+    void progressSetInfo(const QString & msg);
+    void progressSetLock(const bool lock);
+    void progressSetMaximum(const int max);
+    void progressSetValue(const int val);
+
     QString filename;
     uint8_t version;
     QString _error;
     QString _warning;
     Board::Type board;
+    ProgressWidget * _progress;
 };
 
 class StorageFactory

@@ -27,11 +27,6 @@
 #include "edgetx_helpers.h"
 #include "touch.h"
 #include "switches.h"
-
-#if defined(SIMU)
-#include "targets/simu/simpgmspace.h"
-#endif
-
 #include "board.h"
 
 #if !defined(SIMU)
@@ -156,12 +151,19 @@ void memswap(void * a, void * b, uint8_t size);
 
 struct CustomFunctionsContext {
   MASK_FUNC_TYPE activeFunctions;
+  MASK_FUNC_TYPE activeUIFunctions;
   MASK_CFN_TYPE  activeSwitches;
+  MASK_CFN_TYPE  activeUISwitches;
   tmr10ms_t lastFunctionTime[MAX_SPECIAL_FUNCTIONS];
 
   inline bool isFunctionActive(uint8_t func)
   {
-    return activeFunctions & ((MASK_FUNC_TYPE)1 << func);
+    return (activeFunctions | activeUIFunctions) & ((MASK_FUNC_TYPE)1 << func);
+  }
+
+  inline bool isFunctionSwitchActive(uint8_t functionIdx)
+  {
+    return (activeSwitches | activeUISwitches) & ((MASK_CFN_TYPE)1 << functionIdx);
   }
 
   void reset()
@@ -426,7 +428,6 @@ inline bool isMixActive(uint8_t mix)
 enum FunctionsActive {
   FUNCTION_TRAINER_STICK1,
   FUNCTION_TRAINER_CHANNELS = FUNCTION_TRAINER_STICK1 + MAX_STICKS,
-  FUNCTION_INSTANT_TRIM,
   FUNCTION_VARIO,
   FUNCTION_LOGS,
   FUNCTION_BACKGND_MUSIC,
@@ -436,6 +437,7 @@ enum FunctionsActive {
   FUNCTION_DISABLE_TOUCH,
   FUNCTION_DISABLE_AUDIO_AMP,
   FUNCTION_VOLUME,
+  FUNCTION_DISABLE_KEYS,
 };
 
 #define VARIO_FREQUENCY_ZERO   700/*Hz*/
@@ -450,6 +452,7 @@ inline bool isFunctionActive(uint8_t func)
   return globalFunctionsContext.isFunctionActive(func) || modelFunctionsContext.isFunctionActive(func);
 }
 void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext);
+void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext);
 inline void customFunctionsReset()
 {
   globalFunctionsContext.reset();
@@ -466,6 +469,7 @@ extern Functions cfn_sorted[];
 #define PLAY_REPEAT(x)            (x)                 /* Range 0 to 15 */
 #define PLAY_NOW                  0x10
 #define PLAY_BACKGROUND           0x20
+#define PLAY_PURE                 0x40                /* distortion-free sine */
 
 enum AUDIO_SOUNDS {
   AUDIO_HELLO,
@@ -572,7 +576,7 @@ constexpr uint8_t OPENTX_START_NO_SPLASH = 0x01;
 constexpr uint8_t OPENTX_START_NO_CALIBRATION = 0x02;
 constexpr uint8_t OPENTX_START_NO_CHECKS = 0x04;
 
-#if defined(STATUS_LEDS)
+#if STATUS_LEDS
   #define LED_ERROR_BEGIN()            ledRed()
   // Green "ready to use" if available, unless overridden by user or mfg preference
 #if !defined(POWER_LED_BLUE) && (defined(LED_GREEN_GPIO) || defined(LED_STRIP_GPIO))
@@ -606,21 +610,44 @@ constexpr uint8_t TEXT_FILENAME_MAXLEN = 40;
 // Re-useable byte array to save having multiple buffers
 union ReusableBuffer
 {
-  struct {
 #if !defined(COLORLCD)
+  struct {
     char menu_bss[POPUP_MENU_MAX_LINES][MENU_LINE_LENGTH];
     char mainname[45]; // because reused for SD backup / restore, max backup filename 44 chars: "/MODELS/MODEL0134353-2014-06-19-04-51-27.bin"
-#elif !defined(COLORLCD)
-    char mainname[LEN_MODEL_NAME];
-#endif
   } modelsel;
 
   struct {
+    char filename[TEXT_FILENAME_MAXLEN];
+    char lines[NUM_BODY_LINES][LCD_COLS + 1];
+    int linesCount;
+    bool checklistComplete;
+    bool pushMenu;
+  } viewText;
+
+  struct {
+    int8_t preset;
+  } curveEdit;
+
+  struct {
+    int8_t antennaMode;
+  } radioHardware;
+
+  struct {
+    uint8_t stickMode;
+#if defined(ROTARY_ENCODER_NAVIGATION)
+    uint8_t rotaryEncoderMode;
+#endif
+  } generalSettings;
+#endif
+
+  struct {
     char msg[64];
+#if !defined(COLORLCD)
     uint8_t r9mPower;
     int8_t antennaMode;
     uint8_t previousType;
     uint8_t newType;
+#endif
 #if defined(PXX2)
     BindInformation bindInformation;
     PXX2ModuleSetup pxx2;
@@ -651,29 +678,23 @@ union ReusableBuffer
   } calib;
 
   struct {
-#if defined(NUM_BODY_LINES)
+#if !defined(COLORLCD)
     char lines[NUM_BODY_LINES][SD_SCREEN_FILE_LENGTH+1+1]; // the last char is used to store the flags (directory) of the line
-#endif
-    uint32_t available;
     uint16_t offset;
     uint16_t count;
     char originalName[SD_SCREEN_FILE_LENGTH+1];
+#endif
 #if defined(PXX2)
     OtaUpdateInformation otaUpdateInformation;
-    char otaReceiverVersion[64];  // Large enough for TR_CURRENT_VERSION string plus version number
+    char otaReceiverVersion[64];  // Large enough for STR_CURRENT_VERSION string plus version number
 #endif
   } sdManager;
-
-  struct
-  {
-    char id[27];
-  } version;
 
 #if defined(PXX2)
   PXX2HardwareAndSettings hardwareAndSettings; // radio_version
 #endif
 
-#if defined(NUM_BODY_LINES)
+#if !defined(COLORLCD)
   #define TOOL_NAME_MAX_LEN (LCD_W / FW)
   #define TOOL_PATH_MAX_LEN 40
   struct scriptInfo{
@@ -686,29 +707,15 @@ union ReusableBuffer
 #endif
 
   struct {
-#if defined(NUM_BODY_LINES)
+#if !defined(COLORLCD)
     scriptInfo script[NUM_BODY_LINES];
     uint8_t oldOffset;
+    uint8_t linesCount;
 #endif
 #if defined(PXX2)
     ModuleInformation modules[NUM_MODULES];
 #endif
-    char msg[64];
-#if !defined(COLORLCD)
-    uint8_t linesCount;
-#endif
   } radioTools;
-
-  struct {
-    int8_t antennaMode;
-  } radioHardware;
-
-  struct {
-    uint8_t stickMode;
-#if defined(ROTARY_ENCODER_NAVIGATION)
-    uint8_t rotaryEncoderMode;
-#endif
-  } generalSettings;
 
   struct {
     uint8_t bars[LCD_W];
@@ -745,28 +752,8 @@ union ReusableBuffer
   } powerMeter;
 
   struct {
-    int8_t preset;
-  } curveEdit;
-
-#if !defined(COLORLCD)
-  struct {
-    char filename[TEXT_FILENAME_MAXLEN];
-    char lines[NUM_BODY_LINES][LCD_COLS + 1];
-    int linesCount;
-    bool checklistComplete;
-    bool pushMenu;
-  } viewText;
-#endif
-
-  struct {
     uint8_t maxNameLen;
   } modelFailsafe;
-
-  struct {
-#if defined(PXX2)
-    ModuleInformation internalModule;
-#endif
-  } viewMain;
 };
 
 extern ReusableBuffer reusableBuffer;

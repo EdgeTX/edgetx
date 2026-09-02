@@ -23,7 +23,6 @@
 #include "stm32_gpio.h"
 #include "stm32_i2c_driver.h"
 #include "stm32_hal.h"
-#include "stm32_ws2812.h"
 #include "stm32_spi.h"
 
 #include "flash_driver.h"
@@ -47,6 +46,7 @@
 #include "sdcard.h"
 #include "debug.h"
 #include "keys.h"
+#include "gyro.h"
 
 #include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
@@ -58,17 +58,10 @@
 // common ADC driver
 extern const etx_hal_adc_driver_t _adc_driver;
 
-// RGB LED timer
-extern const stm32_pulse_timer_t _led_timer;
-
-
 static void led_strip_off()
 {
-  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    ws2812_set_color(i, 0, 0, 0);
-  }
-  ws2812_update(&_led_timer);
- }
+  rgbLedClearAll();
+}
 
 void INTERNAL_MODULE_ON()
 {
@@ -107,6 +100,10 @@ void boardBLPreJump()
 
 void boardBLInit()
 {
+#if defined(ROTARY_ENCODER_NAVIGATION)
+  rotaryEncoderInit();
+#endif
+
   ExtFLASH_Init();
   SDRAM_Init();
 
@@ -130,7 +127,11 @@ void boardInit()
   delaysInit();
   timersInit();
 
-  gpio_set(LED_BLUE_GPIO);
+#if !defined(POWER_LED_BLUE)
+  ledBlue();
+#else
+  ledGreen();
+#endif
 
   ExtFLASH_InitRuntime();
 

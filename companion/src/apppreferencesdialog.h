@@ -80,8 +80,11 @@ class AppPreferencesDialog : public QDialog
 #endif
 
     void on_btnRadioColor_clicked();
+    void on_chkSimBtnClickedUseOSTheme_stateChanged();
+    void on_btnSimBtnClickedColor_clicked();
     void onBackupPathEditingFinished();
     void onProfileBackupPathEditingFinished();
+    void on_chkUseSavedSettingsProfile_stateChanged();
 
   private:
     void initSettings();

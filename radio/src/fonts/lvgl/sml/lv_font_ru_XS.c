@@ -194,5 +194,5 @@ const etxLz4Font lv_font_ru_XS __FLASH = {
 .right_class_mapping = 4106,
 .cmaps = cmaps,
 .compressed = lz4FontData,
-.lvglFontBufSize = 4403,
+.lvglFontBufSize = 4411,
 };

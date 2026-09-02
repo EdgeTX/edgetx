@@ -86,6 +86,7 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_SET_SCREEN, "SET_SCREEN"  },
   {  FUNC_DISABLE_AUDIO_AMP, "DISABLE_AUDIO_AMP"  },
   {  FUNC_RGB_LED, "RGB_LED"  },
+  {  FUNC_DISABLE_KEYS, "DISABLE_KEYS"  },
   {  FUNC_TEST, "TEST"  },
   {  0, NULL  }
 };
@@ -141,6 +142,7 @@ const struct YamlIdStr enum_QMPage[] = {
   {  QM_TOOLS_LS_MON, "TOOLS_LS_MON"  },
   {  QM_TOOLS_STATS, "TOOLS_STATS"  },
   {  QM_TOOLS_DEBUG, "TOOLS_DEBUG"  },
+  {  QM_APP, "APP"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_TimerModes[] = {
@@ -332,9 +334,16 @@ static const struct YamlNode struct_switchDef[] = {
   YAML_PADDING( 5 ),
   YAML_END
 };
-static const struct YamlNode struct_QuickMenuPage[] = {
+static const struct YamlNode struct_KeyShortcut[] = {
   YAML_IDX,
-  YAML_ENUM("shortcut", 8, enum_QMPage, NULL),
+  YAML_CUSTOM("shortcut",r_keyShortcut,w_keyShortcut),
+  YAML_PADDING( 8 ),
+  YAML_END
+};
+static const struct YamlNode struct_QMFavorite[] = {
+  YAML_IDX,
+  YAML_CUSTOM("shortcut",r_qmFavorite,w_qmFavorite),
+  YAML_PADDING( 8 ),
   YAML_END
 };
 static const struct YamlNode struct_RadioData[] = {
@@ -426,6 +435,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_PADDING( 3 ),
   YAML_SIGNED( "imuMax", 8 ),
   YAML_SIGNED( "imuOffset", 8 ),
+  YAML_UNSIGNED( "imuInvert", 8 ),
   YAML_STRING("selectedTheme", 26),
   YAML_SIGNED_CUST( "backlightSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
   YAML_SIGNED( "radioGFDisabled", 1 ),
@@ -442,15 +452,17 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_SIGNED( "disableTrainerPoweroffAlarm", 1 ),
   YAML_SIGNED( "disablePwrOnOffHaptic", 1 ),
   YAML_UNSIGNED( "modelQuickSelect", 1 ),
+  YAML_UNSIGNED( "oneLogPerDay", 1 ),
+  YAML_UNSIGNED( "keyLockEnabled", 1 ),
   YAML_UNSIGNED( "labelSingleSelect", 1 ),
   YAML_UNSIGNED( "labelMultiMode", 1 ),
   YAML_UNSIGNED( "favMultiMode", 1 ),
   YAML_UNSIGNED( "modelSelectLayout", 2 ),
   YAML_UNSIGNED( "radioThemesDisabled", 1 ),
-  YAML_PADDING( 1 ),
+  YAML_PADDING( 7 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
-  YAML_ARRAY("keyShortcuts", 8, 6, struct_QuickMenuPage, NULL),
-  YAML_ARRAY("qmFavorites", 8, 12, struct_QuickMenuPage, NULL),
+  YAML_ARRAY("keyShortcuts", 8, 6, struct_KeyShortcut, NULL),
+  YAML_ARRAY("qmFavorites", 8, 12, struct_QMFavorite, NULL),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {
@@ -646,7 +658,7 @@ static const struct YamlNode struct_anonymous_6[] = {
   YAML_PADDING( 2 ),
   YAML_UNSIGNED( "receiverTelemetryOff", 1 ),
   YAML_UNSIGNED( "receiverHigherChannels", 1 ),
-  YAML_SIGNED( "antennaMode", 2 ),
+  YAML_PADDING( 2 ),
   YAML_PADDING( 8 ),
   YAML_END
 };
@@ -719,7 +731,8 @@ static const struct YamlNode union_anonymous_4_elmts[] = {
 };
 static const struct YamlNode struct_ModuleData[] = {
   YAML_IDX,
-  YAML_UNSIGNED_CUST( "type", 8, r_moduleType, w_moduleType ),
+  YAML_UNSIGNED_CUST( "type", 6, r_moduleType, w_moduleType ),
+  YAML_ENUM("antennaMode", 2, enum_AntennaModes, NULL),
   YAML_CUSTOM("subType",r_modSubtype,w_modSubtype),
   YAML_UNSIGNED( "channelsStart", 8 ),
   YAML_SIGNED_CUST( "channelsCount", 8, r_channelsCount, w_channelsCount ),
@@ -965,8 +978,9 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_END
 };
 static const struct YamlNode struct_PartialModel[] = {
+  YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_STRUCT("header", 1048, struct_ModelHeader, NULL),
-  YAML_ARRAY("timers", 136, 3, struct_TimerData, NULL),
+  YAML_ARRAY("moduleData", 232, 2, struct_ModuleData, NULL),
   YAML_END
 };
 

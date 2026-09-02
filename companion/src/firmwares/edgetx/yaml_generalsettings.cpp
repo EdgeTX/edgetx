@@ -178,6 +178,7 @@ static const YamlLookupTable QMPageLut = {
   {  GeneralSettings::QM_TOOLS_LS_MON, "TOOLS_LS_MON" },
   {  GeneralSettings::QM_TOOLS_STATS, "TOOLS_STATS" },
   {  GeneralSettings::QM_TOOLS_DEBUG, "TOOLS_DEBUG" },
+  {  GeneralSettings::QM_APP, "APP" },
 };
 
 YamlTelemetryBaudrate::YamlTelemetryBaudrate(
@@ -253,6 +254,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["disableRssiPoweroffAlarm"] = (int)rhs.disableRssiPoweroffAlarm;
   node["disableTrainerPoweroffAlarm"] = (int)rhs.disableTrainerPoweroffAlarm;
   node["USBMode"] = rhs.usbMode;
+  node["usbChargeDisabled"] = (int)rhs.usbChargeDisabled;
   node["hatsMode"] = hatsModeLut << rhs.hatsMode;
   node["stickDeadZone"] = rhs.stickDeadZone;
   node["jackMode"] = rhs.jackMode;
@@ -364,6 +366,7 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   if (Boards::getCapability(board, Board::HasIMU)) {
     node["imuMax"] = rhs.imuMax;
     node["imuOffset"] = rhs.imuOffset;
+    node["imuInvert"] = (rhs.imuInvertX ? 1 : 0) | (rhs.imuInvertY ? 2 : 0);
   }
 
   // OneBit sampling (X9D only?)
@@ -393,12 +396,29 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 
   if (hasColorLcd) {
     for (int i = 0; i < MAX_KEYSHORTCUTS; i += 1)
-      if (rhs.keyShortcuts[i] != GeneralSettings::QM_NONE)
-        node["keyShortcuts"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.keyShortcuts[i];
+      if (rhs.keyShortcuts[i] != GeneralSettings::QM_NONE) {
+        if (rhs.keyShortcuts[i] != GeneralSettings::QM_APP) {
+          node["keyShortcuts"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.keyShortcuts[i];
+        } else {
+          std::string s("APP,");
+          s += rhs.keyShortcutTools[i];
+          node["keyShortcuts"][std::to_string(i)]["shortcut"] = s;
+        }
+      }
     for (int i = 0; i < MAX_QMFAVOURITES; i += 1)
-      if (rhs.qmFavorites[i] != GeneralSettings::QM_NONE)
-        node["qmFavorites"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.qmFavorites[i];
+      if (rhs.qmFavorites[i] != GeneralSettings::QM_NONE) {
+        if (rhs.qmFavorites[i] != GeneralSettings::QM_APP) {
+          node["qmFavorites"][std::to_string(i)]["shortcut"] = QMPageLut << rhs.qmFavorites[i];
+        } else {
+          std::string s("APP,");
+          s += rhs.qmFavoritesTools[i];
+          node["qmFavorites"][std::to_string(i)]["shortcut"] = s;
+        }
+      }
   }
+
+  node["oneLogPerDay"] = (int)rhs.oneLogPerDay;
+  node["keyLockEnabled"] = (int)rhs.keyLockEnabled;
 
   return node;
 }
@@ -523,6 +543,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["disableRssiPoweroffAlarm"] >> rhs.disableRssiPoweroffAlarm;
   node["disableTrainerPoweroffAlarm"] >> rhs.disableTrainerPoweroffAlarm;
   node["USBMode"] >> rhs.usbMode;
+  node["usbChargeDisabled"] >> rhs.usbChargeDisabled;
   node["hatsMode"] >> hatsModeLut >> rhs.hatsMode;
   node["stickDeadZone"] >> rhs.stickDeadZone;
   node["jackMode"] >> rhs.jackMode;
@@ -638,8 +659,11 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   // the GeneralSettings struct is initialised to hardware definition defaults which is fine for new settings
   // however when parsing saved settings set all inputs to None and override with parsed values
   // thus any inputs not parsed will be None rather than the default
+  // exceptions:
+  //   preserve those hardware defaults never written to yaml
   for (int i = 0; i < CPN_MAX_INPUTS; i++) {
-    rhs.inputConfig[i].flexType = (Board::FlexType)Board::FLEX_NONE;
+    if (Boards::isInputConfigurable(i))
+      rhs.inputConfig[i].flexType = (Board::FlexType)Board::FLEX_NONE;
   }
 
   if (node["sticksConfig"]) {
@@ -694,6 +718,10 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   node["imuMax"] >> rhs.imuMax;
   node["imuOffset"] >> rhs.imuOffset;
+  int imuInvert = 0;
+  node["imuInvert"] >> imuInvert;
+  rhs.imuInvertX = imuInvert & 0x1;
+  rhs.imuInvertY = imuInvert & 0x2;
 
   // OneBit sampling (X9D only?)
   node["uartSampleMode"] >> rhs.uartSampleMode;
@@ -723,14 +751,39 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   node["favMultiMode"] >> rhs.favMultiMode;
 
   if (node["keyShortcuts"]) {
-    for (int i = 0; i < MAX_KEYSHORTCUTS; i += 1)
-      node["keyShortcuts"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.keyShortcuts[i];
+    for (int i = 0; i < MAX_KEYSHORTCUTS; i += 1) {
+      std::string val = node["keyShortcuts"][std::to_string(i)]["shortcut"].as<std::string>();
+      if (rhs.keyShortcutTools[i]) delete rhs.keyShortcutTools[i];
+      if (val.substr(0, 4) == "APP,") {
+        rhs.keyShortcuts[i] = GeneralSettings::QM_APP;
+        rhs.keyShortcutTools[i] = new char[val.size() - 3];
+        strncpy(rhs.keyShortcutTools[i], val.substr(4).c_str(), val.size() - 4);
+        rhs.keyShortcutTools[i][val.size() - 4] = 0;
+      } else {
+        node["keyShortcuts"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.keyShortcuts[i];
+        rhs.keyShortcutTools[i] = nullptr;
+      }
+    }
   }
   if (node["qmFavorites"]) {
     for (int i = 0; i < MAX_QMFAVOURITES; i += 1)
-      if (node["qmFavorites"][std::to_string(i)])
+      if (node["qmFavorites"][std::to_string(i)]) {
+        std::string val = node["qmFavorites"][std::to_string(i)]["shortcut"].as<std::string>();
+      if (rhs.qmFavoritesTools[i]) delete rhs.qmFavoritesTools[i];
+      if (val.substr(0, 4) == "APP,") {
+        rhs.qmFavorites[i] = GeneralSettings::QM_APP;
+        rhs.qmFavoritesTools[i] = new char[val.size() - 3];
+        strncpy(rhs.qmFavoritesTools[i], val.substr(4).c_str(), val.size() - 4);
+        rhs.qmFavoritesTools[i][val.size() - 4] = 0;
+      } else {
         node["qmFavorites"][std::to_string(i)]["shortcut"] >> QMPageLut >> rhs.qmFavorites[i];
+        rhs.qmFavoritesTools[i] = nullptr;
+      }
+    }
   }
+
+  node["oneLogPerDay"] >> rhs.oneLogPerDay;
+  node["keyLockEnabled"] >> rhs.keyLockEnabled;
 
   //  override critical settings after import
   //  TODO: for consistency move up call stack to use existing eeprom and profile conversions

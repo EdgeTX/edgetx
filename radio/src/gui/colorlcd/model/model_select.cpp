@@ -140,7 +140,6 @@ class ModelButton : public Button
             return true;
           }
         }
-        showNoImgMsg();
       }
 
       return false;
@@ -257,10 +256,12 @@ class ModelsPageBody : public Window
 
       // Long Press Handler for Models
       button->setLongPressHandler([=]() -> uint8_t {
-        button->setFocused();
-        focusedModel = model;
+        if (model != focusedModel) {
+          button->setFocused();
+          focusedModel = model;
+        }
         openMenu();
-        return 0;
+        return model == modelslist.getCurrentModel();
       });
     }
 
@@ -272,10 +273,15 @@ class ModelsPageBody : public Window
     }
   }
 
-  void reload()
+  void clearButtons()
   {
     modelButtons.clear();
     clear();
+  }
+
+  void reload()
+  {
+    clearButtons();
     update();
   }
 
@@ -365,8 +371,24 @@ class ModelsPageBody : public Window
       memcpy(g_eeGeneral.currModelFilename, model->modelFilename,
              LEN_MODEL_FILENAME);
 
+      // Pause widget refresh
+      MainWindow::instance()->enableWidgetRefresh(false);
+
+      // Delete old main view layout and top bar widgets: loadModel() can
+      // re-enter the UI refresh loop (throttle / switch warnings spin
+      // MainWindow::run()) while g_model is being reset, and a surviving
+      // widget would then read torn-down persistent data.
+      LayoutFactory::deleteCustomScreens();
+      LayoutFactory::deleteTopBarWidgets();
+
       loadModel(g_eeGeneral.currModelFilename, true);
       modelslist.setCurrentModel(model);
+
+      // Load new main view layout
+      LayoutFactory::loadCustomScreens();
+
+      // Enable widget refresh
+      MainWindow::instance()->enableWidgetRefresh(true);
 
       storageDirty(EE_GENERAL);
       storageCheck(true);
@@ -535,26 +557,13 @@ ModelLabelsWindow::ModelLabelsWindow() : Page(ICON_MODEL_SELECT, PAD_ZERO, true)
 }
 
 #if defined(HARDWARE_KEYS)
-void ModelLabelsWindow::onLongPressSYS()
+void ModelLabelsWindow::doKeyShortcut(event_t event)
 {
-  onCancel();
-  Page::onLongPressSYS();
+  QMPage pg = g_eeGeneral.getKeyShortcut(event);
+  if (pg != QM_MANAGE_MODELS)
+    Page::doKeyShortcut(event);
 }
-void ModelLabelsWindow::onPressMDL()
-{
-  onCancel();
-  Page::onPressMDL();
-}
-void ModelLabelsWindow::onPressTELE()
-{
-  onCancel();
-  Page::onPressTELE();
-}
-void ModelLabelsWindow::onLongPressTELE()
-{
-  onCancel();
-  Page::onLongPressTELE();
-}
+
 void ModelLabelsWindow::onPressPG(bool isNext)
 {
   int rowcount = lblselector->getRowCount();
@@ -622,7 +631,9 @@ void ModelLabelsWindow::newModel()
       snprintf(path, LEN_BUFFER, "%s/%s", TEMPLATES_PATH, folder.c_str());
 
       // Read model template
-      loadModelTemplate((name + YAML_EXT).c_str(), path);
+      LayoutFactory::deleteCustomScreens();
+      LayoutFactory::deleteTopBarWidgets();
+      loadModel((name + YAML_EXT).c_str(), false, path);
       storageFlushCurrentModel();
       storageCheck(true);
 
@@ -637,7 +648,12 @@ void ModelLabelsWindow::newModel()
         luaExecStandalone(path);
       }
 #endif
+    } else {
+      LayoutFactory::loadDefaultLayout();
     }
+
+    // Main view layout
+    LayoutFactory::loadCustomScreens();
   });
 }
 
@@ -647,14 +663,8 @@ void ModelLabelsWindow::newLabel()
   new LabelDialog(tmpLabel, LABEL_LENGTH, STR_ENTER_LABEL, [=](std::string label) {
     int newlabindex = modelslabels.addLabel(label);
     if (newlabindex >= 0) {
-      std::set<uint32_t> newset;
-      newset.insert(newlabindex);
       auto labels = getLabels();
       lblselector->setNames(labels);
-      lblselector->setSelected(newset);
-      if (g_eeGeneral.labelSingleSelect)
-        lblselector->setActiveItem(newlabindex);
-      updateFilteredLabels(newset);
     }
   });
 }
@@ -830,6 +840,7 @@ void ModelLabelsWindow::buildBody(Window *window)
                   });
               auto labels = getLabels();
               lblselector->setNames(labels);
+              mdlselector->clearButtons();
               updateFilteredLabels(modelslabels.filteredLabels(), false);
             }
           });
@@ -852,8 +863,13 @@ void ModelLabelsWindow::buildBody(Window *window)
                 std::set<uint32_t> newset;
                 lblselector->setNames(labels);
                 lblselector->setSelected(newset);
-                if (g_eeGeneral.labelSingleSelect && selected == lblselector->getActiveItem())
-                  lblselector->setActiveItem(-1);
+                if (g_eeGeneral.labelSingleSelect) {
+                  if (selected == lblselector->getActiveItem())
+                    lblselector->setActiveItem(-1);
+                  else
+                    newset.insert(lblselector->getActiveItem());
+                }
+                mdlselector->clearButtons();
                 updateFilteredLabels(newset);
               });
           return 0;
@@ -943,6 +959,6 @@ void ModelLabelsWindow::setTitle()
   title2 += ": ";
   title2 += modelName;
 
-  header->setTitle(STR_MANAGE_MODELS);
+  header->setTitle(STR_MAIN_MENU_MANAGE_MODELS);
   header->setTitle2(title2);
 }

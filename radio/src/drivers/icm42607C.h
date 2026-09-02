@@ -1,5 +1,5 @@
 /*
-* Copyright (C) EdgeTX
+ * Copyright (C) EdgeTX
  *
  * Based on code named
  *   opentx - https://github.com/opentx/opentx
@@ -20,13 +20,18 @@
  */
 
 /*
- WARNING: while this ICM42607C belong to the ICM426xx familly, it is NOT compatible
-                  with code for generic ICM4267XX. All register have different addresses
+ WARNING: While this ICM42607C belong to the ICM426xx familly, it is NOT
+          compatible with code for generic ICM4267XX. All registers have
+          different addresses.
 */
 
 #pragma once
 
-#define ICM426xx_I2C_ADDR           0x68
+#include "hal/imu.h"
+
+#define ICM426xx_I2C_BASE_ADDR           0x68
+
+extern const etx_imu_driver_t imu_icm42607_driver;
 
 // Register addresses
 #define WHO_AM_I_REG          0x75
@@ -57,14 +62,3 @@
 #define INT_SOURCE1_REG       0x2C
 #define INT_CONFIG_REG        0x06
 #define INT_STATUS2_REG       0x3B
-
-typedef struct {
-  float fTemperatureDegC; //°C
-  float fAccX, fAccY, fAccZ; // m/s^2
-  float fGyroXradps, fGyroYradps, fGyroZradps; // rad/s
-} sIMUoutput;
-
-extern sIMUoutput IMUoutput;
-
-int gyroInit(void);
-int gyroRead(unsigned char*);

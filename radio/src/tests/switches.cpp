@@ -428,3 +428,45 @@ TEST(FlexSwitches, getSwitch)
   EXPECT_FALSE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 1));
   EXPECT_TRUE(getSwitch(SWSRC_FIRST_SWITCH + sw_idx * 3 + 2));
 }
+
+#if defined(FUNCTION_SWITCHES)
+TEST(FunctionSwitches, holdIsNotRepeatedToggle)
+{
+  MODEL_RESET();
+  setModelDefaults();
+  switchInit();
+
+  for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
+    if (!switchIsCustomSwitch(i)) continue;
+    // Toggle type with no group, so a phantom "switch moved" event
+    // flips the logical state and is observable
+    g_model.cfsSetType(i, SWITCH_TOGGLE);
+    g_model.cfsSetGroup(i, 0);
+    simuSetSwitch(i, -1);
+  }
+
+  setFSStartupPosition();
+  evalFunctionSwitches();  // sync previous state with all switches released
+
+  for (uint8_t i = 0; i < switchGetMaxSwitches(); i++) {
+    if (!switchIsCustomSwitch(i)) continue;
+
+    bool released = g_model.cfsState(i);
+    simuSetSwitch(i, 1);
+    evalFunctionSwitches();
+    bool pressed = g_model.cfsState(i);
+    EXPECT_NE(released, pressed) << "press did not toggle switch index " << (int)i;
+
+    // holding the switch must not generate further toggles
+    evalFunctionSwitches();
+    EXPECT_EQ(pressed, g_model.cfsState(i))
+        << "hold re-toggled switch index " << (int)i;
+    evalFunctionSwitches();
+    EXPECT_EQ(pressed, g_model.cfsState(i))
+        << "hold re-toggled switch index " << (int)i;
+
+    simuSetSwitch(i, -1);
+    evalFunctionSwitches();
+  }
+}
+#endif

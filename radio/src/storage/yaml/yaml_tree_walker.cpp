@@ -181,6 +181,11 @@ static bool yaml_output_attr(void* user, uint8_t* ptr, uint32_t bit_ofs,
             break;
           case YDT_ENUM:
             p_out = yaml_output_enum(i, node->u._enum.choices);
+            if (!p_out) {
+              // Field holds a signed enum value (e.g. AntennaModes)
+              p_out = yaml_output_enum(yaml_to_signed(i, node->size),
+                                        node->u._enum.choices);
+            }
             break;
 
           case YDT_ARRAY:

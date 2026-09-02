@@ -50,8 +50,10 @@
 #include <malloc.h>
 #include <new>
 #include <stdarg.h>
+#include <string.h>
 
 #include "lua/lua_states.h"
+#include "pdm_wav_recorder.h"
 
 #define CLI_COMMAND_MAX_ARGS           8
 #define CLI_COMMAND_MAX_LEN            256
@@ -251,7 +253,7 @@ int cliBeep(const char ** argv)
   int freq = BEEP_DEFAULT_FREQ;
   int duration = 100;
   if (toInt(argv, 1, &freq) >= 0 && toInt(argv, 2, &duration) >= 0) {
-    audioQueue.playTone(freq, duration, 20, PLAY_NOW);
+    audioQueue.playTone(freq, duration, 20, PLAY_NOW | PLAY_PURE);
   }
   return 0;
 }
@@ -261,6 +263,69 @@ int cliPlay(const char ** argv)
   audioQueue.playFile(argv[1], PLAY_NOW);
   return 0;
 }
+
+#if defined(PDM_CLOCK)
+// Record from the PDM microphone to a 16-bit mono WAV file. The actual
+// capture + resampling + WAV I/O lives in PdmWavRecorder so the same
+// pipeline is reused by the GUI recorder tool.
+int cliRecord(const char ** argv)
+{
+  if (!argv[1] || !argv[1][0]) {
+    cliSerialPrint("%s: missing filename", argv[0]);
+    return 0;
+  }
+
+  int seconds = 5;
+  if (argv[2] && argv[2][0]) {
+    if (toInt(argv, 2, &seconds) == 0 || seconds <= 0 || seconds > 600) {
+      cliSerialPrint("%s: Invalid duration \"%s\"", argv[0], argv[2]);
+      return 0;
+    }
+  }
+
+  char pathBuf[64];
+  const char* path = argv[1];
+  const size_t nameLen = strlen(argv[1]);
+  const bool hasExt =
+      nameLen >= 4 && strcasecmp(argv[1] + nameLen - 4, ".wav") == 0;
+  if (!hasExt) {
+    if (nameLen + 5 > sizeof(pathBuf)) {
+      cliSerialPrint("%s: path too long", argv[0]);
+      return 0;
+    }
+    memcpy(pathBuf, argv[1], nameLen);
+    memcpy(pathBuf + nameLen, ".wav", 5);
+    path = pathBuf;
+  }
+
+  const uint32_t totalSamples = PdmWavRecorder::DST_RATE * (uint32_t)seconds;
+  // Capture only runs while needed — bring the hardware up for this command.
+  pdmStart();
+  PdmWavRecorder rec;
+  FRESULT res = rec.start(path, (uint32_t)seconds);
+  if (res != FR_OK) {
+    pdmStop();
+    cliSerialPrint("%s: cannot open \"%s\" (err %u)", argv[0], path,
+                   (unsigned)res);
+    return 0;
+  }
+
+  cliSerialPrint("Recording %d s (%u samples @ %u Hz) to %s",
+                 seconds, (unsigned)totalSamples,
+                 (unsigned)PdmWavRecorder::DST_RATE, path);
+
+  while (rec.isRecording() && rec.getSamplesWritten() < totalSamples) {
+    sleep_ms(50);
+  }
+
+  rec.stop();
+  pdmStop();
+  cliSerialPrint("Recorded %u samples (%u bytes)",
+                 (unsigned)rec.getSamplesWritten(),
+                 (unsigned)rec.getBytesWritten());
+  return 0;
+}
+#endif // PDM_CLOCK
 
 int cliLs(const char ** argv)
 {
@@ -872,44 +937,6 @@ int cliTestMemorySpeed()
 }
 #endif
 
-#if defined(DEBUG_MODELSLIST)
-#include "modelslist.h"
-using std::list;
-
-int cliTestModelsList()
-{
-  ModelsList modList;
-  modList.load();
-
-  int count = 0;
-
-  cliSerialPrint("Starting fetching RF data 100x...");
-  const uint32_t start = time_get_ms();
-
-  const list<ModelsCategory *> &cats = modList.getCategories();
-  while (1) {
-    for (list<ModelsCategory *>::const_iterator cat_it = cats.begin();
-         cat_it != cats.end(); ++cat_it) {
-      for (ModelsCategory::iterator mod_it = (*cat_it)->begin();
-           mod_it != (*cat_it)->end(); mod_it++) {
-        if (!(*mod_it)->fetchRfData()) {
-          cliSerialPrint("Error while fetching RF data...");
-          return 0;
-        }
-
-        if (++count >= 100) goto done;
-      }
-    }
-  }
-
-done:
-  cliSerialPrint("Done fetching %ix RF data: %lu ms", count,
-              (time_get_ms() - start));
-
-  return 0;
-}
-#endif
-
 #endif  // #if defined(COLORLCD)
 
 #if defined(DEBUG)
@@ -927,11 +954,6 @@ int cliTest(const char ** argv)
 #if defined(DEBUG_RAM)
   else if (!strcmp(argv[1], "memspd")) {
     return cliTestMemorySpeed();
-  }
-#endif
-#if defined(DEBUG_MODELSLIST)
-  else if (!strcmp(argv[1], "modelslist")) {
-    return cliTestModelsList();
   }
 #endif
 #endif
@@ -1168,7 +1190,7 @@ static void _sp_Tx(uint8_t* buf, uint32_t len)
   }
 }
 
-#if defined(HARDWARE_INTERNAL_MODULE) || defined(HARDWARE_EXTERNAL_MODULE)
+#if defined(HARDWARE_INTERNAL_MODULE)
 static etx_module_state_t *spModuleState = nullptr;
 
 static void spModuleInit(int port_n, int baudrate)
@@ -1266,7 +1288,7 @@ int cliSerialPassthrough(const char **argv)
     // TODO:
     //  - external module (S.PORT?)
     default:
-      cliSerialPrint("%s: invalid port # '%i'", port_n);
+      cliSerialPrint("%s: invalid port # '%i'", argv[0], port_n);
       return -1;
     }
   } else if (!strcmp("gimbals", port_type)) {
@@ -1279,11 +1301,11 @@ int cliSerialPassthrough(const char **argv)
     initCB = spGimbalInit;
     deinitCB = spGimbalDeInit;
 #else
-    cliSerialPrint("%s: serial gimbals not supported");
+    cliSerialPrint("%s: serial gimbals not supported", argv[0]);
     return -1;
 #endif
   } else {
-    cliSerialPrint("%s: invalid port type '%s'", port_type);
+    cliSerialPrint("%s: invalid port type '%s'", argv[0], port_type);
     return -1;
   }
 
@@ -1442,7 +1464,7 @@ int cliDisplay(const char ** argv)
 
   if (!strcmp(argv[1], "keys")) {
     for (int i = 0; i <= MAX_KEYS; i++) {
-      if (keysGetSupported() & (1 << i)) {
+      if (keyIsSupported((EnumKeys)i)) {
         cliSerialPrint("[Key %s] = %s",
                        keysGetLabel((EnumKeys)i),
                        keysGetState(i) ? "on" : "off");
@@ -1475,6 +1497,11 @@ int cliDisplay(const char ** argv)
     gettime(&utm);
     cliSerialPrint("rtc = %4d-%02d-%02d %02d:%02d:%02d.%02d0", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
   }
+#if defined(VOLUME_I2C_ADDRESS)
+  else if (!strcmp(argv[1], "volume")) {
+    cliSerialPrint("volume = %d", getVolume());
+  }
+#endif
   else if (!strcmp(argv[1], "uid")) {
     char str[LEN_CPU_UID+1];
     getCPUUniqueID(str);
@@ -1787,6 +1814,9 @@ const CliCommand cliCommands[] = {
   { "readsd", cliReadSD, "<start sector> <sectors count> <read buffer size (sectors)>" },
   { "testsd", cliTestSD, "" },
   { "play", cliPlay, "<filename>" },
+#if defined(PDM_CLOCK)
+  { "rec", cliRecord, "<filename> [<seconds>]" },
+#endif
   { "reboot", cliReboot, "[wdt]" },
   { "set", cliSet, "<what> <value>" },
 #if defined(ENABLE_SERIAL_PASSTHROUGH)

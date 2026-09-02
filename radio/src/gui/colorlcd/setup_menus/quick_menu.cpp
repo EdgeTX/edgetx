@@ -26,6 +26,7 @@
 #include "mainwindow.h"
 #include "model_select.h"
 #include "quick_menu_group.h"
+#include "radio_tools.h"
 #include "screen_setup.h"
 #include "theme_manager.h"
 #include "view_channels.h"
@@ -145,7 +146,14 @@ class QuickSubMenu
     subMenu = new QuickMenuGroup(parent);
 
     for (int i = 0; mainDef->subMenuItems[i].icon < EDGETX_ICONS_COUNT; i += 1) {
-      subMenu->addButton(mainDef->subMenuItems[i].icon, STR_VAL(mainDef->subMenuItems[i].qmTitle),
+      auto pg = mainDef->subMenuItems[i].qmPage;
+      const char* title;
+      if (pg < QM_APP) {
+        title = STR_VAL(mainDef->subMenuItems[i].qmTitle);
+      } else {
+        title = getLuaTool(pg - QM_APP)->label.c_str();
+      }
+      subMenu->addButton(mainDef->subMenuItems[i].icon, title,
           std::bind(&QuickSubMenu::onPress, this, i),
           mainDef->subMenuItems[i].enabled,
           [=](bool focus) { if (focus) QuickMenu::setCurrentPage(mainDef->subMenuItems[i].qmPage, mainDef->icon); });
@@ -161,7 +169,7 @@ class QuickSubMenu
     if (mainDef->subMenuItems[n].pageAction == PAGE_CREATE) {
       quickMenu->getTopMenu()->clearFocus();
       int pgIdx = getPageNumber(n);
-      if (quickMenu->getPageGroup() && quickMenu->getPageGroup()->hasSubMenu(mainDef->subMenuItems[n].qmPage)) {
+      if (quickMenu->getPageGroup() && quickMenu->isInMenu(quickMenu->getPageGroup()->getIcon()) && quickMenu->getPageGroup()->hasSubMenu(mainDef->subMenuItems[n].qmPage)) {
         quickMenu->onSelect(false);
         quickMenu->getPageGroup()->setCurrentTab(pgIdx);
       } else {
@@ -220,6 +228,8 @@ class QuickSubMenu
 //-----------------------------------------------------------------------------
 
 QuickMenu* QuickMenu::instance = nullptr;
+QMPage QuickMenu::curPage = QM_NONE;
+EdgeTxIcon QuickMenu::curIcon = EDGETX_ICONS_COUNT;
 
 void QuickMenu::openQuickMenu()
 {
@@ -279,7 +289,7 @@ QuickMenu::QuickMenu() :
   for (int i = 0; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if (qmTopItems[i].pageAction == QM_ACTION) {
       mainMenu->addButton(qmTopItems[i].icon, STR_VAL(qmTopItems[i].qmTitle),
-                  [=]() { onSelect(true); qmTopItems[i].action(); }, qmTopItems[i].enabled);
+                  [=]() { topMenuAction(i); }, qmTopItems[i].enabled);
 #if VERSION_MAJOR > 2
     } else {
       auto sub = new QuickSubMenu(box, this, &qmTopItems[i]);
@@ -310,6 +320,22 @@ void QuickMenu::openQM(PageGroupBase* newPageGroup, QMPage newCurPage)
 #if VERSION_MAJOR > 2
   for (size_t i = 0; i < subMenus.size(); i += 1)
     subMenus[i]->doLayout();
+
+  // If opening from Favorites check that page is still in Favorites list
+  // Handle case where Favorites was edited and Radio Settings was removed
+  // from Favorites list
+  if (newPageGroup && (newPageGroup->getIcon() == ICON_QM_FAVORITES)) {
+    bool hasPage = false;
+    for (int i = 0; favoritesMenuItems[i].icon != EDGETX_ICONS_COUNT; i += 1)
+      if (favoritesMenuItems[i].qmPage == curPage) {
+        hasPage = true;
+        break;
+      }
+    if (!hasPage) {
+      newPageGroup = nullptr;
+      curPage = QM_NONE;
+    }
+  }
 #endif
 
   show();
@@ -329,8 +355,12 @@ void QuickMenu::openQM(PageGroupBase* newPageGroup, QMPage newCurPage)
       setFocus(curPage);
     } else {
 #if VERSION_MAJOR > 2
-      if (curPage == QM_MANAGE_MODELS)
-        mainMenu->setCurrent(favoritesMenuItems[0].icon == EDGETX_ICONS_COUNT ? 0 : 1);
+      for (int i = 0; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
+        if (qmTopItems[i].qmPage == curPage && qmTopItems[i].pageAction == QM_ACTION) {
+          mainMenu->setCurrent(i);
+          break;
+        }
+      }
 #endif
       focusMainMenu();
     }
@@ -343,26 +373,30 @@ void QuickMenu::selected()
     instance->onSelect(true);
 }
 
+void QuickMenu::topMenuAction(int n)
+{
+  selected();
+  setCurrentPage(qmTopItems[n].qmPage, qmTopItems[n].icon);
+  qmTopItems[n].action();
+}
+
 void QuickMenu::openPage(QMPage page)
 {
   for (int i = FIRST_SEARCH_IDX; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if (qmTopItems[i].pageAction == QM_ACTION) {
       if (qmTopItems[i].qmPage == page) {
-        QuickMenu::selected();
-        setCurrentPage(page, qmTopItems[i].icon);
-        qmTopItems[i].action();
+        topMenuAction(i);
         return;
-        }
+      }
     } else {
       const PageDef* sub = qmTopItems[i].subMenuItems;
       for (int j = 0, k = 0; sub[j].icon != EDGETX_ICONS_COUNT; j += 1) {
         if (sub[j].qmPage == page) {
+          selected();
+          setCurrentPage(page, qmTopItems[i].icon);
           if (sub[j].pageAction == PAGE_ACTION) {
-            QuickMenu::selected();
-            setCurrentPage(page, qmTopItems[i].icon);
             sub[j].action();
           } else {
-            QuickMenu::selected();
             auto pg = new PageGroup(qmTopItems[i].icon, STR_VAL(qmTopItems[i].title), sub);
             pg->setCurrentTab(k);
             return;
@@ -418,22 +452,11 @@ int QuickMenu::pageIndex(QMPage page)
   return 0;
 }
 
-std::string replaceAll(std::string str, const std::string& from, const std::string& to)
+std::vector<std::string>& QuickMenu::menuPageNames(bool forFavorites)
 {
-    auto&& pos = str.find(from, size_t{});
-    while (pos != std::string::npos)
-    {
-        str.replace(pos, from.length(), to);
-        // easy to forget to add to.length()
-        pos = str.find(from, pos + to.length());
-    }
-    return str;
-}
+  static std::vector<std::string> qmPages;
 
-std::vector<std::string> QuickMenu::menuPageNames(bool forFavorites)
-{
-  std::vector<std::string> qmPages;
-
+  qmPages.clear();
   qmPages.emplace_back(STR_NONE);
   qmPages.emplace_back(STR_OPEN_QUICK_MENU);
 
@@ -449,11 +472,15 @@ std::vector<std::string> QuickMenu::menuPageNames(bool forFavorites)
           s += STR_CURRENT_SCREEN;
         else
           s += STR_VAL(sub[j].title);
-        s = replaceAll(s, "\n", " ");
+        strReplaceAll(s, "\n", " ");
         qmPages.emplace_back(s);
       }
     }
   }
+
+#if defined(LUA)
+  getLuaToolNames(qmPages);
+#endif
 
   return qmPages;
 }
@@ -467,12 +494,12 @@ void QuickMenu::resetFavorites()
 
 void QuickMenu::updateFavorites()
 {
+  loadLuaTools();
+
   int f = 0;
   for (int i = 0; i < MAX_QM_FAVORITES; i += 1) {
-    if (g_eeGeneral.qmFavorites[i].shortcut != QM_NONE) {
-      setupFavorite((QMPage)g_eeGeneral.qmFavorites[i].shortcut, f);
+    if (setupFavorite(i, f))
       f += 1;
-    }
   }
   favoritesMenuItems[f].icon = EDGETX_ICONS_COUNT;
 
@@ -480,9 +507,30 @@ void QuickMenu::updateFavorites()
     subMenus[0]->clearSubMenu();
 }
 
-void QuickMenu::setupFavorite(QMPage page, int f)
+bool QuickMenu::setupFavorite(int favIdx, int favBtn)
 {
-  PageDef& fav = favoritesMenuItems[f];
+  auto page = g_eeGeneral.qmFavorites[favIdx].shortcut;
+  PageDef& fav = favoritesMenuItems[favBtn];
+
+  if (page == QM_NONE)
+    return false;
+
+  if (page == QM_APP) {
+    std::string nm = g_eeGeneral.getFavoriteToolName(favIdx);
+    int idx = getLuaToolId(nm);
+    if (idx >= 0) {
+      fav.icon = ICON_TOOLS_APPS;
+      fav.qmTitle = nullptr;  // retreived on use (no translation strings)
+      fav.title = nullptr;    // retrieved on use (no translation strings)
+      fav.pageAction = PAGE_ACTION;
+      fav.qmPage = (QMPage)(page + idx);
+      fav.create = nullptr;
+      fav.enabled = nullptr;
+      fav.action = [=]() { runLuaTool(nm); };
+      return true;
+    }
+    return false;
+  }
 
   for (int i = FIRST_SEARCH_IDX; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if (qmTopItems[i].pageAction == QM_ACTION) {
@@ -495,7 +543,7 @@ void QuickMenu::setupFavorite(QMPage page, int f)
           fav.create = nullptr;
           fav.enabled = nullptr;
           fav.action = qmTopItems[i].action;
-        return;
+        return true;
         }
     } else {
       const PageDef* sub = qmTopItems[i].subMenuItems;
@@ -509,20 +557,20 @@ void QuickMenu::setupFavorite(QMPage page, int f)
           fav.create = sub[j].create;
           fav.enabled = sub[j].enabled;
           fav.action = sub[j].action;
-          return;
+          return true;
         }
       }
     }
   }
+
+  return false;
 }
 #endif
 
 void QuickMenu::setCurrentPage(QMPage newPage, EdgeTxIcon newIcon)
 {
-  if (instance) {
-    instance->curPage = newPage;
-    instance->curIcon = newIcon;
-  }
+  curPage = newPage;
+  curIcon = newIcon;
 }
 
 void QuickMenu::focusMainMenu()
@@ -580,26 +628,24 @@ void QuickMenu::enableSubMenu()
 void QuickMenu::doKeyShortcut(event_t event)
 {
   QMPage pg = g_eeGeneral.getKeyShortcut(event);
-  if (pg == QM_OPEN_QUICK_MENU) {
+  if (pg == QM_APP) {
+    closeQM();
+    runLuaTool(g_eeGeneral.getKeyToolName(event));
+  } else if (pg == QM_OPEN_QUICK_MENU) {
     closeQM();
   } else {
     onSelect(true);
     QuickMenu::openPage(pg);
   }
 }
-void QuickMenu::onPressSYS() { doKeyShortcut(EVT_KEY_BREAK(KEY_SYS)); }
-void QuickMenu::onLongPressSYS() { doKeyShortcut(EVT_KEY_LONG(KEY_SYS)); }
-void QuickMenu::onPressMDL() { doKeyShortcut(EVT_KEY_BREAK(KEY_MODEL)); }
-void QuickMenu::onLongPressMDL() { doKeyShortcut(EVT_KEY_LONG(KEY_MODEL)); }
-void QuickMenu::onPressTELE() { doKeyShortcut(EVT_KEY_BREAK(KEY_TELE)); }
-void QuickMenu::onLongPressTELE() { doKeyShortcut(EVT_KEY_LONG(KEY_TELE)); }
+
 void QuickMenu::onLongPressRTN() { closeQM(); }
 
 void QuickMenu::afterPG()
 {
   auto b = mainMenu->getFocusedButton();
   if (b) {
-#if VERSION_MAJOR > 3
+#if VERSION_MAJOR > 2
     for(auto sub : subMenus) {
       if (sub->isSubMenu(b)) {
         sub->activate();

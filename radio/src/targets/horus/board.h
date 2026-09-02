@@ -185,10 +185,6 @@ uint32_t pwrPressedDuration();
 void usbChargerInit();
 bool usbChargerLed();
 
-#if defined(RADIO_V16)
-  uint16_t getSixPosAnalogValue(uint16_t adcValue);
-#endif
-
 // Led driver
 void ledInit();
 void ledOff();
@@ -215,7 +211,7 @@ void lcdCopy(void * dest, void * src);
 #define BACKLIGHT_FORCED_ON     BACKLIGHT_LEVEL_MAX + 1
 #if defined(PCBX12S)
 #define BACKLIGHT_LEVEL_MIN   5
-#elif defined(RADIO_FAMILY_T16) || defined(RADIO_X10E)
+#elif defined(RADIO_FAMILY_T16) || defined(RADIO_X10EXPRESS)
 #define BACKLIGHT_LEVEL_MIN   1
 #else
 #define BACKLIGHT_LEVEL_MIN   46

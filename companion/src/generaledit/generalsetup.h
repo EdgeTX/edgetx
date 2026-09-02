@@ -44,7 +44,6 @@ class GeneralSetupPanel : public GeneralPanel
     void on_rssiPowerOffWarnChkB_stateChanged(int);
     void on_trainerPowerOffWarnChkB_stateChanged(int);
     void on_gpsFormatCB_currentIndexChanged(int index);
-    void on_displayTypeCB_currentIndexChanged(int index);
     void on_BLBright_SB_editingFinished();
     void on_OFFBright_SB_editingFinished();
     void on_brightCtrl_CB_currentIndexChanged(int index);
@@ -57,22 +56,20 @@ class GeneralSetupPanel : public GeneralPanel
     void on_timezoneLE_textEdited(const QString &text);
     void on_adjustRTC_stateChanged(int);
     void on_hapticStrength_valueChanged();
-    void on_soundModeCB_currentIndexChanged(int index);
     void on_beeperlenCB_currentIndexChanged(int index);
     void on_volume_SL_valueChanged();
     void on_hapticmodeCB_currentIndexChanged(int index);
     void on_hapticLengthCB_currentIndexChanged(int index);
     void on_backlightswCB_currentIndexChanged(int index);
     void on_usbModeCB_currentIndexChanged(int index);
+    void on_usbChargeChkB_stateChanged(int);
     void on_jackModeCB_currentIndexChanged(int index);
     void on_backlightColor_SL_valueChanged();
     void on_mavbaud_CB_currentIndexChanged(int index);
     void on_voiceLang_CB_currentIndexChanged(int index);
     void on_textLang_CB_currentIndexChanged(int index);
-    void stickReverseEdited();
     void on_switchesDelay_valueChanged(int);
     void on_blAlarm_ChkB_stateChanged();
-    void unlockSwitchEdited();
     void on_beepVolume_SL_valueChanged();
     void on_bgVolume_SL_valueChanged();
     void on_varioVolume_SL_valueChanged();
@@ -106,6 +103,8 @@ class GeneralSetupPanel : public GeneralPanel
     void on_favMultiMode_CB_currentIndexChanged(int);
 
     void on_pwrOffIfInactiveSB_editingFinished();
+    void on_chkOneLogPerDay_stateChanged(int);
+    void on_chkKeyLockEnabled_stateChanged(int);
 
   private:
     Ui::GeneralSetup *ui;

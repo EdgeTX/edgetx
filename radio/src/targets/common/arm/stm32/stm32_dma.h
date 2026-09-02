@@ -46,6 +46,18 @@ inline static bool stm32_dma_check_ht_flag(DMA_TypeDef* DMAx, uint32_t DMA_Strea
   return true;
 }
 
+// A stream cannot be re-enabled while any of its event flags is still set
+inline static void stm32_dma_clear_flags(DMA_TypeDef* DMAx, uint32_t DMA_Stream)
+{
+  LL_DMA_ClearFlag_TC(DMAx, DMA_Stream);
+  LL_DMA_ClearFlag_HT(DMAx, DMA_Stream);
+  LL_DMA_ClearFlag_DTE(DMAx, DMA_Stream);
+  LL_DMA_ClearFlag_ULE(DMAx, DMA_Stream);
+  LL_DMA_ClearFlag_USE(DMAx, DMA_Stream);
+  LL_DMA_ClearFlag_SUSP(DMAx, DMA_Stream);
+  LL_DMA_ClearFlag_TO(DMAx, DMA_Stream);
+}
+
 #else // STM32H7RS
 
 inline static bool stm32_dma_check_tc_flag(DMA_TypeDef* DMAx, uint32_t DMA_Stream)
@@ -126,6 +138,20 @@ inline static bool stm32_dma_check_ht_flag(DMA_TypeDef* DMAx, uint32_t DMA_Strea
   }
 
   return true;
+}
+
+// FEIF | DMEIF | TEIF | HTIF | TCIF of one stream, in LIFCR (0-3) / HIFCR (4-7).
+// A stream cannot be re-enabled while any of its event flags is still set.
+inline static void stm32_dma_clear_flags(DMA_TypeDef* DMAx, uint32_t DMA_Stream)
+{
+  static const uint8_t _flag_pos[] = {0, 6, 16, 22};
+  uint32_t mask = 0x3DUL << _flag_pos[DMA_Stream & 0x3];
+
+  if (DMA_Stream <= LL_DMA_STREAM_3) {
+    DMAx->LIFCR = mask;
+  } else {
+    DMAx->HIFCR = mask;
+  }
 }
 
 #endif // !STM32H7RS

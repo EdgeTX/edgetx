@@ -81,74 +81,6 @@ static uint32_t _fs_gimbal_lastReadTick;
 static uint32_t _fs_gimbal_readTick;
 static uint32_t _fs_gimbal_sync_period;
 
-static int _fs_get_byte(uint8_t* data)
-{
-  return STM32SerialDriver.getByte(_fs_usart_ctx, data);
-}
-
-static void _fs_parse(STRUCT_HALL *hallBuffer, unsigned char ch)
-{
-  switch (hallBuffer->status) {
-    case GET_START:
-      if (FLYSKY_HALL_PROTOLO_HEAD == ch) {
-        hallBuffer->head = FLYSKY_HALL_PROTOLO_HEAD;
-        hallBuffer->status = GET_ID;
-        hallBuffer->msg_OK = 0;
-      }
-      break;
-
-    case GET_ID:
-      hallBuffer->hallID.ID = ch;
-      hallBuffer->status = GET_LENGTH;
-      break;
-
-    case GET_LENGTH:
-      hallBuffer->length = ch;
-      hallBuffer->dataIndex = 0;
-      hallBuffer->status = GET_DATA;
-      if(hallBuffer->length > HALLSTICK_BUFF_SIZE - 5) { // buffer size - header size (1 byte header + 1 byte ID + 1 byte length + 2 bytes CRC = 5 bytes)
-        hallBuffer->status = GET_START;
-      } else if (0 == hallBuffer->length) {
-        hallBuffer->status = GET_CHECKSUM;
-        hallBuffer->checkSum = 0;
-      }
-      break;
-
-    case GET_DATA:
-      hallBuffer->data[hallBuffer->dataIndex++] = ch;
-      if (hallBuffer->dataIndex >= hallBuffer->length) {
-        hallBuffer->checkSum = 0;
-        hallBuffer->dataIndex = 0;
-        hallBuffer->status = GET_STATE;
-      }
-      break;
-
-    case GET_STATE:
-      hallBuffer->checkSum = 0;
-      hallBuffer->dataIndex = 0;
-      hallBuffer->status = GET_CHECKSUM;
-      // fall through!
-
-    case GET_CHECKSUM:
-      hallBuffer->checkSum |= ch << ((hallBuffer->dataIndex++) * 8);
-      if (hallBuffer->dataIndex >= 2) {
-        hallBuffer->dataIndex = 0;
-        hallBuffer->status = CHECKSUM;
-        // fall through!
-      } else {
-        break;
-      }
-
-    case CHECKSUM:
-      if (hallBuffer->checkSum ==
-          crc16(CRC_1021, &hallBuffer->head, hallBuffer->length + 3, 0xffff)) {
-        hallBuffer->msg_OK = 1;
-      }
-      hallBuffer->status = GET_START;
-      break;
-  }
-}
-
 void _fs_send_cmd(uint8_t id, uint8_t payload)
 {
   if (!_fs_gimbal_cmd_finished) {
@@ -187,44 +119,81 @@ void _fs_cmd_start_read()
   _fs_send_cmd(0xc1, 0x00);
 }
 
+static void _fs_handle_msg(STRUCT_HALL* hallBuffer)
+{
+  uint8_t length = hallBuffer->length;
+  if (length == 0) return;
+
+  hallBuffer->stickState = hallBuffer->data[length - 1];
+
+  switch (hallBuffer->hallID.hall_Id.receiverID) {
+    case TRANSFER_DIR_TXMCU:
+    case TRANSFER_DIR_RFMODULE: {
+      int16_t* p_values = (int16_t*)hallBuffer->data;
+      if (hallBuffer->hallID.hall_Id.packetID == FLYSKY_PACKET_CHANNEL_ID) {
+        if (length < 4 * 2) break;  // 4 channels of int16_t
+        _fs_gimbal_cmd_finished = true;
+        uint16_t* adcValues = getAnalogValues();
+        for (uint8_t i = 0; i < 4; i++) {
+          adcValues[i] = FLYSKY_OFFSET_VALUE - p_values[i];
+        }
+      } else if (hallBuffer->hallID.hall_Id.packetID == FLYSKY_PACKET_VERSION_ID) {
+        if (length < 8 * 2) break;  // version words read at p_values[6] and [7]
+        _fs_gimbal_cmd_finished = true;
+        uint16_t minorVersion = p_values[6];
+        uint16_t majorVersion = p_values[7];
+        if (majorVersion == 2 && minorVersion >= 1) {
+          _fs_gimbal_version = GIMBAL_V2;
+        }
+      } else if (hallBuffer->hallID.hall_Id.packetID == FLYSKY_PACKET_MODE_ID) {
+        _fs_gimbal_cmd_finished = true;
+        _fs_gimbal_mode = _fs_gimbal_mode_change;
+        TRACE("Flysky Gimbal: Mode changed successfully, mode = %d", _fs_gimbal_mode);
+      }
+    } break;
+  }
+  _fs_gimbal_detected = true;
+}
+
 static void flysky_gimbal_loop(void*)
 {
-  uint8_t byte;
+  // The idle callback fires once the line goes idle, i.e. after a complete frame
+  // has landed in the DMA ring buffer. Copy it out in one shot and parse the
+  // frame(s) directly, instead of feeding a byte-at-a-time state machine.
+  //
+  // Frame layout: [HEAD][ID][LENGTH][DATA x LENGTH][CRC_lo][CRC_hi]
+  uint8_t buffer[HALLSTICK_BUFF_SIZE];
 
-  while (_fs_get_byte(&byte)) {
-    HallProtocol.index++;
+  int len = STM32SerialDriver.copyRxBuffer(_fs_usart_ctx, buffer, sizeof(buffer));
 
-    _fs_parse(&HallProtocol, byte);
-    if (HallProtocol.msg_OK) {
-      HallProtocol.msg_OK = 0;
-      HallProtocol.stickState = HallProtocol.data[HallProtocol.length - 1];
-
-      switch (HallProtocol.hallID.hall_Id.receiverID) {
-        case TRANSFER_DIR_TXMCU:
-        case TRANSFER_DIR_RFMODULE:
-          int16_t* p_values = (int16_t*)HallProtocol.data;
-          if (HallProtocol.hallID.hall_Id.packetID == FLYSKY_PACKET_CHANNEL_ID) {
-            _fs_gimbal_cmd_finished = true;
-            uint16_t* adcValues = getAnalogValues();
-            for (uint8_t i = 0; i < 4; i++) {
-              adcValues[i] = FLYSKY_OFFSET_VALUE - p_values[i];
-            }
-          } else if (HallProtocol.hallID.hall_Id.packetID == FLYSKY_PACKET_VERSION_ID) {
-            _fs_gimbal_cmd_finished = true;
-            uint16_t minorVersion = p_values[6];
-            uint16_t majorVersion = p_values[7];
-            if (majorVersion == 2 && minorVersion >= 1) {
-              _fs_gimbal_version = GIMBAL_V2;
-            }
-          } else if (HallProtocol.hallID.hall_Id.packetID == FLYSKY_PACKET_MODE_ID) {
-            _fs_gimbal_cmd_finished = true;
-            _fs_gimbal_mode = _fs_gimbal_mode_change;
-            TRACE("Flysky Gimbal: Mode changed successfully, mode = %d", _fs_gimbal_mode);
-          }
-          break;
-      }
-      _fs_gimbal_detected = true;
+  int idx = 0;
+  while (idx + 5 <= len) {  // smallest possible frame: HEAD + ID + LENGTH + CRC
+    uint8_t* frame = &buffer[idx];
+    if (frame[0] != FLYSKY_HALL_PROTOLO_HEAD) {
+      idx++;  // resync on header
+      continue;
     }
+
+    uint8_t length = frame[2];
+    if (length == 0 || length > HALLSTICK_BUFF_SIZE - 5) {
+      idx++;  // bogus length: skip this header and resync
+      continue;
+    }
+    if (idx + length + 5 > len) {
+      break;  // frame not fully present in this batch
+    }
+
+    uint16_t checkSum = frame[3 + length] | (frame[4 + length] << 8);
+    if (checkSum == crc16(CRC_1021, frame, length + 3, 0xffff)) {
+      HallProtocol.hallID.ID = frame[1];
+      HallProtocol.length = length;
+      memcpy(HallProtocol.data, &frame[3], length);
+      _fs_handle_msg(&HallProtocol);
+      idx += length + 5;
+      continue;
+    }
+
+    idx++;  // CRC mismatch: length is unverified, resync byte-by-byte
   }
 }
 

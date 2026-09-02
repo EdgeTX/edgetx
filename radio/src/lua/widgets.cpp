@@ -103,8 +103,8 @@ void luaLoadWidgetCallback(const char* filename)
   TRACE("luaLoadWidgetCallback()");
   const char * name=NULL;
 
-  int optionDefinitionsReference = LUA_REFNIL, createFunction = 0, updateFunction = 0,
-      refreshFunction = 0, backgroundFunction = 0, translateFunction = 0;
+  int optionDefinitionsReference = LUA_REFNIL, createFunction = LUA_REFNIL, updateFunction = LUA_REFNIL,
+      refreshFunction = LUA_REFNIL, backgroundFunction = LUA_REFNIL, translateFunction = LUA_REFNIL;
   bool lvglLayout = false;
 
   luaL_checktype(lsWidgets, -1, LUA_TTABLE);
@@ -143,7 +143,7 @@ void luaLoadWidgetCallback(const char* filename)
     }
   }
 
-  if (name && createFunction) {
+  if (name && createFunction != LUA_REFNIL) {
     WidgetOption * options = LuaWidgetFactory::parseOptionDefinitions(optionDefinitionsReference);
     if (options) {
       new LuaWidgetFactory(strdup(name), options, optionDefinitionsReference,

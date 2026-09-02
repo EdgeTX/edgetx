@@ -44,7 +44,7 @@ static inline bool get_mute_pin(void)
   bool enabled = gpio_read(AUDIO_MUTE_GPIO) ? 1 : 0;
 #if defined(INVERTED_MUTE_PIN)
   enabled = !enabled;
-#endif  
+#endif
   return enabled;
 }
 
@@ -102,6 +102,11 @@ void audioUnmute()
 static uint16_t _dma_buffer[DMA_BUFFER_LEN] __DMA_NO_CACHE;
 
 static volatile uint32_t _dma_buffer_offset = 0;
+static volatile uint8_t _empty_dma_halves = 0;
+
+// Require sustained silence before stopping DMA to avoid start/stop thrashing
+// when the producer briefly lags behind the consumer.
+constexpr uint8_t DMA_EMPTY_HALVES_STOP_THRESHOLD = 6;
 
 static inline uint32_t _calc_offset(uint8_t tc)
 {
@@ -140,6 +145,12 @@ static void dac_dma_init()
 {
   stm32_dma_enable_clock(AUDIO_DMA);
 
+  // _dma_buffer lives in a NOLOAD section, so it holds random SRAM contents at
+  // power-on. Prime it with silence so the DAC never clocks out garbage (heard
+  // as a crackle) on the very first transfer.
+  for (unsigned i = 0; i < DMA_BUFFER_LEN; i++)
+    _dma_buffer[i] = AUDIO_DATA_SILENCE;
+
   LL_DMA_DeInit(AUDIO_DMA, AUDIO_DMA_Stream);
 
   LL_DMA_InitTypeDef dmaInit;
@@ -166,16 +177,38 @@ static void dac_dma_init()
   NVIC_SetPriority(AUDIO_DMA_Stream_IRQn, 7);
 }
 
+static inline void dac_clear_dma_flags()
+{
+  // Drain stale half/complete flags so a new transfer starts from a clean state.
+  stm32_dma_check_ht_flag(AUDIO_DMA, AUDIO_DMA_Stream);
+  stm32_dma_check_tc_flag(AUDIO_DMA, AUDIO_DMA_Stream);
+}
+
 static void dac_close_dma_xfer()
 {
   LL_DMA_DisableIT_TC(AUDIO_DMA, AUDIO_DMA_Stream);
   LL_DMA_DisableIT_HT(AUDIO_DMA, AUDIO_DMA_Stream);
-  // TODO: reset flags
   LL_DMA_DisableStream(AUDIO_DMA, AUDIO_DMA_Stream);
+
+  // Wait until DMA EN bit is actually cleared by hardware.
+  uint32_t timeout = 1000;
+  while (LL_DMA_IsEnabledStream(AUDIO_DMA, AUDIO_DMA_Stream) && timeout--) {
+    __NOP();
+  }
+
+  dac_clear_dma_flags();
 }
 
 static void dac_start_dma()
 {
+  // re-arm from the start of the buffer: a mid-transfer stop leaves NDTR and the
+  // memory address partway, which desyncs the HT/TC half tracking
+  LL_DMA_DisableStream(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_SetMemoryAddress(AUDIO_DMA, AUDIO_DMA_Stream, (uintptr_t)_dma_buffer);
+  LL_DMA_SetDataLength(AUDIO_DMA, AUDIO_DMA_Stream, DMA_BUFFER_LEN);
+
+  dac_clear_dma_flags();
+
   // enable DMA stream and transfer complete interrupt
   LL_DMA_EnableIT_HT(AUDIO_DMA, AUDIO_DMA_Stream);
   LL_DMA_EnableIT_TC(AUDIO_DMA, AUDIO_DMA_Stream);
@@ -192,6 +225,11 @@ void audioConsumeCurrentBuffer()
 {
   if (!LL_DMA_IsEnabledStream(AUDIO_DMA, AUDIO_DMA_Stream)) {
     if (!audio_update_dma_buffer(0)) {
+      _empty_dma_halves = 0;
+      // prime the second half as well so the first full DMA cycle plays valid
+      // data and the half tracking starts aligned (ignore the result: if no
+      // more data is available it is filled with silence)
+      audio_update_dma_buffer(1);
 #if defined(AUDIO_MUTE_GPIO)
       audioUnmute();
 #endif
@@ -206,16 +244,29 @@ void audioConsumeCurrentBuffer()
 
 extern "C" void AUDIO_DMA_Stream_IRQHandler()
 {
-  bool stopDMA = false;
+  bool hasData = false;
   if(stm32_dma_check_ht_flag(AUDIO_DMA, AUDIO_DMA_Stream)) {
-    stopDMA = audio_update_dma_buffer(0);
+    if (audio_update_dma_buffer(0)) {
+      if (_empty_dma_halves < 0xFF) _empty_dma_halves++;
+    } else {
+      hasData = true;
+    }
   }
 
   if(stm32_dma_check_tc_flag(AUDIO_DMA, AUDIO_DMA_Stream)) {
-    stopDMA |= audio_update_dma_buffer(1);
+    if (audio_update_dma_buffer(1)) {
+      if (_empty_dma_halves < 0xFF) _empty_dma_halves++;
+    } else {
+      hasData = true;
+    }
   }
 
-  if(stopDMA) {
+  if (hasData) {
+    _empty_dma_halves = 0;
+  }
+
+  if(_empty_dma_halves >= DMA_EMPTY_HALVES_STOP_THRESHOLD) {
+    _empty_dma_halves = 0;
     dac_close_dma_xfer();
   }
 }

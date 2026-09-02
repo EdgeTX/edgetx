@@ -39,7 +39,7 @@
 #endif
 
 #define NAKED __attribute__((naked))
-#define BOOTSTRAP __attribute__((section(".bootstrap")))
+#define BOOTSTRAP __attribute__((section(".bootstrap"), used))
 
 // Linker script symbols
 extern uint32_t _sisr_vector;
@@ -170,7 +170,7 @@ NAKED BOOTSTRAP void naked_copy()
   );
 }
 
-void init_hooks()
+__attribute__((used)) void init_hooks()
 {
   extern uint32_t __init_hook_array_start;
   extern uint32_t __init_hook_array_end;

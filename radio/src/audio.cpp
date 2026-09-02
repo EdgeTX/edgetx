@@ -64,6 +64,43 @@ const int16_t sineValues[] =
     15967, 15977, 15985, 15991, 15996, 15999, 16000,
 };
 
+#if defined(CLI)
+// Distortion-free first-quadrant sine LUT (16000 * sin(i * (PI/2)/256)),
+// selected on demand for a clean reference tone (CLI "beep"). The default
+// sineValues[] above keeps its historical harmonics, which sound better for
+// the vario and general beeps. Only built when the CLI is enabled, so the
+// flash-constrained (no-CLI) targets don't pay for a table they never use.
+const int16_t pureSineValues[] =
+{
+    0, 98, 196, 295, 393, 491, 589, 687, 785, 883,
+    981, 1079, 1177, 1275, 1373, 1471, 1568, 1666, 1764, 1861,
+    1959, 2056, 2153, 2251, 2348, 2445, 2542, 2639, 2735, 2832,
+    2929, 3025, 3121, 3218, 3314, 3410, 3506, 3601, 3697, 3792,
+    3888, 3983, 4078, 4173, 4267, 4362, 4456, 4551, 4645, 4738,
+    4832, 4926, 5019, 5112, 5205, 5298, 5390, 5483, 5575, 5667,
+    5758, 5850, 5941, 6032, 6123, 6214, 6304, 6394, 6484, 6573,
+    6663, 6752, 6841, 6930, 7018, 7106, 7194, 7281, 7369, 7456,
+    7542, 7629, 7715, 7801, 7886, 7972, 8057, 8141, 8226, 8310,
+    8393, 8477, 8560, 8643, 8725, 8807, 8889, 8971, 9052, 9132,
+    9213, 9293, 9373, 9452, 9531, 9610, 9688, 9766, 9844, 9921,
+    9998, 10074, 10150, 10226, 10301, 10376, 10451, 10525, 10599, 10672,
+    10745, 10817, 10890, 10961, 11033, 11104, 11174, 11244, 11314, 11383,
+    11452, 11520, 11588, 11655, 11722, 11789, 11855, 11921, 11986, 12051,
+    12115, 12179, 12243, 12306, 12368, 12430, 12492, 12553, 12614, 12674,
+    12733, 12793, 12851, 12910, 12967, 13025, 13081, 13138, 13193, 13249,
+    13304, 13358, 13412, 13465, 13518, 13570, 13622, 13673, 13724, 13774,
+    13824, 13873, 13921, 13970, 14017, 14064, 14111, 14157, 14202, 14247,
+    14292, 14335, 14379, 14422, 14464, 14506, 14547, 14587, 14627, 14667,
+    14706, 14744, 14782, 14819, 14856, 14892, 14928, 14963, 14997, 15031,
+    15065, 15097, 15130, 15161, 15192, 15223, 15253, 15282, 15311, 15339,
+    15367, 15394, 15420, 15446, 15472, 15496, 15521, 15544, 15567, 15589,
+    15611, 15632, 15653, 15673, 15693, 15711, 15730, 15747, 15764, 15781,
+    15797, 15812, 15827, 15841, 15854, 15867, 15880, 15891, 15903, 15913,
+    15923, 15932, 15941, 15949, 15957, 15964, 15970, 15976, 15981, 15985,
+    15989, 15992, 15995, 15997, 15999, 16000, 16000,
+};
+#endif // CLI
+
 #define SINE_INDEX_Q1 256
 #define SINE_INDEX_Q2 512
 #define SINE_INDEX_Q3 768
@@ -554,17 +591,23 @@ int ToneContext::mixBuffer(AudioBuffer * buffer, int volume, unsigned int fade)
       points = (float(end) - toneIdx) / state.step;
     }
 
+#if defined(CLI)
+    const int16_t * sine = fragment.tone.pure ? pureSineValues : sineValues;
+#else
+    const int16_t * sine = sineValues;
+#endif
+
     for (int i=0; i<points; i++) {
       int16_t sineIdx = ((int)toneIdx) % MAX_SINE_INDEX;
       int16_t sineVal;
       if (sineIdx <= SINE_INDEX_Q1)
-        sineVal = sineValues[sineIdx];
+        sineVal = sine[sineIdx];
       else if (sineIdx <= SINE_INDEX_Q2)
-        sineVal = sineValues[SINE_INDEX_Q2 - sineIdx];
+        sineVal = sine[SINE_INDEX_Q2 - sineIdx];
       else if (sineIdx <= SINE_INDEX_Q3)
-        sineVal = -sineValues[sineIdx - SINE_INDEX_Q2];
+        sineVal = -sine[sineIdx - SINE_INDEX_Q2];
       else
-        sineVal = -sineValues[MAX_SINE_INDEX - sineIdx];
+        sineVal = -sine[MAX_SINE_INDEX - sineIdx];
       int16_t sample = sineVal * state.volume;
       mixSample(&buffer->data[i], sample, fade);
       toneIdx += state.step;
@@ -714,14 +757,15 @@ void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t f
     freq += g_eeGeneral.speakerPitch * 15;
     len = getToneLength(len);
 
+    bool pure = flags & PLAY_PURE;
     if (flags & PLAY_NOW) {
       if (priorityContext.isFree()) {
         priorityContext.clear();
-        priorityContext.setFragment(freq, len, pause, flags & 0x0f, freqIncr, false, fragmentVolume);
+        priorityContext.setFragment(freq, len, pause, flags & 0x0f, freqIncr, false, fragmentVolume, pure);
       }
     }
     else {
-      fragmentsFifo.push(AudioFragment(freq, len, pause, flags & 0x0f, freqIncr, false, fragmentVolume));
+      fragmentsFifo.push(AudioFragment(freq, len, pause, flags & 0x0f, freqIncr, false, fragmentVolume, pure));
     }
   }
 
@@ -730,13 +774,6 @@ void AudioQueue::playTone(uint16_t freq, uint16_t len, uint16_t pause, uint8_t f
 
 void AudioQueue::playFile(const char * filename, uint8_t flags, uint8_t id, int8_t fragmentVolume)
 {
-#if defined(SIMU)
-  TRACE("playFile(\"%s\", flags=%x, id=%d fragmentVolume=%d ee_general=%d)", filename, flags, id, fragmentVolume, g_eeGeneral.wavVolume);
-  if (strlen(filename) > AUDIO_FILENAME_MAXLEN) {
-    TRACE("file name too long! maximum length is %d characters", AUDIO_FILENAME_MAXLEN);
-  }
-#endif
-
   if (!sdMounted())
     return;
 

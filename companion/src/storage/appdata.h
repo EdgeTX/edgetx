@@ -41,7 +41,7 @@
 
 //! CPN_SETTINGS_REVISION is used to track settings changes independently of EdgeTX version. It should be reset to zero whenever settings are migrated to new COMPANY or PRODUCT.
 //! \note !! Increment this value if properties are removed or refactored. It will trigger a conversion/cleanup of any stored settings. \sa AppData::convertSettings()
-#define CPN_SETTINGS_REVISION       2 // Note: bumped for fix during 2.8 RCs
+#define CPN_SETTINGS_REVISION       3 // Note: bumped for changes during 3.0 dev
 
 //! CPN_SETTINGS_VERSION is used for settings data version tracking.
 #define CPN_SETTINGS_VERSION        ((VERSION_NUMBER << 8) | CPN_SETTINGS_REVISION)
@@ -345,9 +345,9 @@ class JStickData: public CompStoreObj
 
   protected:
     explicit JStickData();
-    void setIndex(int idx) { index = idx; }
+    void setIndex(int idx) { index = idx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
     inline QString propertyGroup() const override { return QStringLiteral("JsCalibration"); }
-    inline QString settingsPath()  const override { return QString("%1/%2/").arg(propertyGroup()).arg(index); }
+    inline QString settingsPath()  const override { return QString("%1/stick%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
     friend class NamedJSData;
 
@@ -375,9 +375,9 @@ class JButtonData: public CompStoreObj
 
   protected:
     explicit JButtonData();
-    void setIndex(int idx) { index = idx; }
-    inline QString propertyGroup() const override { return QStringLiteral("JsButton"); }
-    inline QString settingsPath()  const override { return QString("%1/%2/").arg(propertyGroup()).arg(index); }
+    void setIndex(int idx) { index = idx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
+    inline QString propertyGroup() const override { return QStringLiteral("JsButtons"); }
+    inline QString settingsPath()  const override { return QString("%1/button%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
     friend class NamedJSData;
 
@@ -396,9 +396,9 @@ class NamedJStickData: public CompStoreObj
 
   protected:
     explicit NamedJStickData();
-    void setIndex(int idx, int nmIdx) { index = idx; namedIdx = nmIdx; }
-    inline QString propertyGroup() const override { return QStringLiteral("NamedJSData/%1").arg(namedIdx); }
-    inline QString settingsPath()  const override { return QString("%1/JsCalibration/%2/").arg(propertyGroup()).arg(index); }
+    void setIndexes(int idx, int nmIdx) { index = idx; namedIdx = nmIdx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
+    inline QString propertyGroup() const override { return QStringLiteral("NamedJSData/name%1").arg(namedIdx); }
+    inline QString settingsPath()  const override { return QString("%1/stick%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
     friend class NamedJSData;
 
@@ -422,9 +422,9 @@ class NamedJButtonData: public CompStoreObj
 
   protected:
     explicit NamedJButtonData();
-    void setIndex(int idx, int nmIdx) { index = idx; namedIdx = nmIdx; }
-    inline QString propertyGroup() const override { return QStringLiteral("NamedJSData/%1").arg(namedIdx); }
-    inline QString settingsPath()  const override { return QString("%1/JsButton/%2/").arg(propertyGroup()).arg(index); }
+    void setIndexes(int idx, int nmIdx) { index = idx; namedIdx = nmIdx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
+    inline QString propertyGroup() const override { return QStringLiteral("NamedJSData/name%1").arg(namedIdx); }
+    inline QString settingsPath()  const override { return QString("%1/button%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
     friend class NamedJSData;
 
@@ -443,9 +443,9 @@ class NamedJSData: public CompStoreObj
 
   protected:
     explicit NamedJSData();
-    void setIndex(int idx) { index = idx; }
+    void setIndex(int idx) { index = idx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
     inline QString propertyGroup() const override { return QStringLiteral("NamedJSData"); }
-    inline QString settingsPath()  const override { return QString("%1/%2/").arg(propertyGroup()).arg(index); }
+    inline QString settingsPath()  const override { return QString("%1/name%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
 
   public:
@@ -459,6 +459,36 @@ class NamedJSData: public CompStoreObj
     int index;
 };
 
+//! \brief ComponentReleaseData class stores release properties related to each updateable component.
+class ComponentReleaseData: public CompStoreObj
+{
+  Q_OBJECT
+  public:
+    ComponentReleaseData & operator=(const ComponentReleaseData & rhs);
+
+  protected:
+    explicit ComponentReleaseData();
+    void setIndexes(int profileIdx, int idx)
+    {
+      profileIndex = profileIdx;
+      index = idx;
+      CompStoreObj::addObjectMapping(propertyGroup(), this);
+    }
+    inline QString propertyGroup() const override { return QString("Profiles/profile%1").arg(profileIndex); }
+    inline QString settingsPath()  const override { return QString("%1/component%2/").arg(propertyGroup()).arg(index); }
+    friend class Profile;
+    friend class AppData;
+
+  private:
+    PROPERTYSTRD(      date,       "")
+    PROPERTY    (bool, prerelease, false)
+    PROPERTYSTRD(      release,    "unknown")
+    PROPERTY    (int,  releaseId,  0)
+    PROPERTYSTRD(      version,    "0")
+
+    int profileIndex;
+    int index;
+};
 
 //! \brief Profile class stores properties related to each Radio Profile.
 //! \todo TODO: Remove or refactor stored radio settings system (#4583)
@@ -468,6 +498,10 @@ class Profile: public CompStoreObj
   public:
     Profile & operator=(const Profile & rhs);
     QString getVariantFromType() const { return fwType().section("-", 1, 1); }
+    ComponentReleaseData & getCompRelease(int index);
+    const ComponentReleaseData & getCompRelease(int index) const;
+
+    ComponentReleaseData compRelease[MAX_COMPONENTS];
 
   public slots:
     bool existsOnDisk();
@@ -475,7 +509,8 @@ class Profile: public CompStoreObj
   protected:
     explicit Profile();
     explicit Profile(const Profile & rhs);
-    void setIndex(int idx) { index = idx; }
+
+    void setIndex(int idx) { index = idx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
     inline QString propertyGroup() const override { return QStringLiteral("Profiles"); }
     inline QString settingsPath()  const override { return QString("%1/profile%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
@@ -504,6 +539,8 @@ class Profile: public CompStoreObj
     PROPERTY(bool, telemSimPauseOnHide,     true)
     PROPERTY(bool, telemSimResetRssiOnStop, false)
     PROPERTY(QColor, radioSimCaseColor, QColor(Qt::black))
+    PROPERTY(bool,   simBtnClickedUseOSTheme, true)
+    PROPERTY(QColor, simBtnClickedColor, QColor(Qt::red))
 
     // General settings
     PROPERTYQBA(generalSettings)
@@ -527,9 +564,7 @@ class ComponentAssetData: public CompStoreObj
 
   protected:
     explicit ComponentAssetData();
-    void setCompIndex(int idx) { compIndex = idx; }
-    void setIndex(int idx) { index = idx; }
-    void setIndexes(int compIdx, int idx) { compIndex = compIdx; index = idx; }
+    void setIndexes(int compIdx, int idx) { compIndex = compIdx; index = idx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
     inline QString propertyGroup() const override { return QString("Components/component%1").arg(compIndex); }
     inline QString settingsPath()  const override { return QString("%1/asset%2/").arg(propertyGroup()).arg(index); }
     friend class ComponentData;
@@ -564,7 +599,6 @@ class ComponentData: public CompStoreObj
     };
     Q_ENUM(ReleaseChannel)
 
-    void releaseClear();
     static QStringList releaseChannelsList() { return { tr("Releases"), tr("Pre-release"), tr("Nightly") } ; }
 
     inline ReleaseChannel boundedReleaseChannel() const {
@@ -581,7 +615,7 @@ class ComponentData: public CompStoreObj
 
   protected:
     explicit ComponentData();
-    void setIndex(int idx) { index = idx; }
+    void setIndex(int idx) { index = idx; CompStoreObj::addObjectMapping(propertyGroup(), this);}
     inline QString propertyGroup() const override { return QStringLiteral("Components"); }
     inline QString settingsPath()  const override { return QString("%1/component%2/").arg(propertyGroup()).arg(index); }
     friend class AppData;
@@ -589,11 +623,6 @@ class ComponentData: public CompStoreObj
   private:
     PROPERTY    (bool,           checkForUpdate,  false)
     PROPERTY    (ReleaseChannel, releaseChannel,  RELEASE_CHANNEL_STABLE)
-    PROPERTYSTRD(                release,         "unknown")
-    PROPERTY    (int,            releaseId,       0)
-    PROPERTY    (bool,           prerelease,      false)
-    PROPERTYSTRD(                version,         "0")
-    PROPERTYSTRD(                date,            "")
 
     int index;
 
@@ -692,6 +721,8 @@ class AppData: public CompStoreObj
     bool importSettings(QSettings * fromSettings);
     bool exportSettings(QSettings * toSettings, bool clearDestination = true);
     bool exportSettingsToFile(const QString & expFile, QString & resultMsg);
+
+    const QString settingsVersionToDisplay(const unsigned int ver);
 
     Profile    profile[MAX_PROFILES];
     JStickData joystick[MAX_JS_AXES];

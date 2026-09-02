@@ -30,7 +30,16 @@
 LAYOUT_VAL_SCALED(SCALE_HEIGHT, 15)
 constexpr coord_t SPECTRUM_HEIGHT = LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT -
                                     SCALE_HEIGHT -
-                                    EdgeTxStyles::UI_ELEMENT_HEIGHT;
+                                    EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_OUTLINE * 2;
+
+// Empirical full-scale value of bars/max/peak samples. Used to map sample
+// values to chart pixels so bars fill the available height on any LCD.
+constexpr uint8_t SPECTRUM_FULL_SCALE = 90;
+
+static inline coord_t scaleSample(uint16_t value)
+{
+  return (value * SPECTRUM_HEIGHT) / SPECTRUM_FULL_SCALE;
+}
 
 template <uint8_t CNT>
 coord_t getAverage(const uint8_t* value)
@@ -39,16 +48,14 @@ coord_t getAverage(const uint8_t* value)
   for (uint8_t i = 0; i < CNT; i++) {
     sum += value[i];
   }
-  if (SPECTRUM_HEIGHT > 300) sum = sum * 2;
-  return sum / CNT;
+  return scaleSample(sum / CNT);
 }
 
 template <>
 coord_t getAverage<4>(const uint8_t* value)
 {
   uint16_t sum = value[0] + value[1] + value[2] + value[3];
-  if (SPECTRUM_HEIGHT > 300) sum = sum * 2;
-  return sum / 4;
+  return scaleSample(sum / 4);
 }
 
 class SpectrumFooterWindow : public Window
@@ -57,7 +64,7 @@ class SpectrumFooterWindow : public Window
   SpectrumFooterWindow(Window* parent, const rect_t& rect, int moduleIdx) :
       Window(parent, rect)
   {
-    padAll(PAD_ZERO);
+    padAll(PAD_OUTLINE);
 
     if (isModuleMultimodule(moduleIdx)) {
       char label[16];
@@ -66,7 +73,7 @@ class SpectrumFooterWindow : public Window
       sprintf(label, "T: %dMHz",
               int(reusableBuffer.spectrumAnalyser.freq / 1000000));
       (new StaticText(
-           this, rect_t{PAD_TINY, 0, FLD_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+           this, rect_t{0, 0, FLD_W, 0},
            label))
           ->padTop(PAD_MEDIUM);
 
@@ -75,13 +82,13 @@ class SpectrumFooterWindow : public Window
               int(reusableBuffer.spectrumAnalyser.span / 1000000));
       (new StaticText(
            this,
-           rect_t{PAD_TINY + FLD_W, 0, FLD_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+           rect_t{FLD_W + PAD_OUTLINE, 0, FLD_W, 0},
            label))
           ->padTop(PAD_MEDIUM);
     } else {
       // Frequency
       auto freq = new NumberEdit(
-          this, rect_t{PAD_TINY, 0, FLD_W, 0},
+          this, rect_t{0, 0, FLD_W, 0},
           reusableBuffer.spectrumAnalyser.freqMin,
           reusableBuffer.spectrumAnalyser.freqMax,
           GET_DEFAULT(reusableBuffer.spectrumAnalyser.freq / 1000000),
@@ -91,7 +98,7 @@ class SpectrumFooterWindow : public Window
 
       // Span
       auto span = new NumberEdit(
-          this, rect_t{PAD_TINY + FLD_W, 0, FLD_W, 0}, 1,
+          this, rect_t{FLD_W + PAD_OUTLINE, 0, FLD_W, 0}, 1,
           reusableBuffer.spectrumAnalyser.spanMax,
           GET_DEFAULT(reusableBuffer.spectrumAnalyser.span / 1000000),
           SET_VALUE(reusableBuffer.spectrumAnalyser.span, newValue * 1000000));
@@ -102,8 +109,7 @@ class SpectrumFooterWindow : public Window
     // Tracker
     auto tracker = new NumberEdit(
         this,
-        rect_t{(PAD_TINY + FLD_W) * 2, 0, FLD_W,
-               EdgeTxStyles::UI_ELEMENT_HEIGHT},
+        rect_t{(FLD_W + PAD_OUTLINE) * 2, 0, FLD_W, 0},
         (reusableBuffer.spectrumAnalyser.freq -
          reusableBuffer.spectrumAnalyser.span / 2) /
             1000000,
@@ -117,7 +123,7 @@ class SpectrumFooterWindow : public Window
     tracker->setDefault(reusableBuffer.spectrumAnalyser.freqDefault);
   }
 
-  static constexpr coord_t FLD_W = (LCD_W - PAD_TINY * 4) / 3;
+  static constexpr coord_t FLD_W = (LCD_W - PAD_OUTLINE * 4) / 3;
 };
 
 class SpectrumScaleWindow : public Window
@@ -167,11 +173,6 @@ class SpectrumWindow : public Window
  public:
   SpectrumWindow(Window* parent, const rect_t& rect) : Window(parent, rect)
   {
-    lv_style_init(&style);
-    lv_style_set_line_width(&style, PAD_THREE);
-    lv_style_set_line_opa(&style, LV_OPA_COVER);
-    lv_style_set_line_color(&style, makeLvColor(COLOR_THEME_ACTIVE));
-
     lv_coord_t w = width() - 1;
     for (int i = 0; i < SPECTRUM_HEIGHT / LINE_SPACE; i += 1) {
       lv_coord_t y = height() - LINE_SPACE - (i * LINE_SPACE);
@@ -195,7 +196,8 @@ class SpectrumWindow : public Window
       maxLines[i] = line;
 
       line = lv_line_create(lvobj);
-      lv_obj_add_style(line, &style, LV_PART_MAIN);
+      etx_obj_add_style(line, styles->graph_line, LV_PART_MAIN);
+      etx_obj_add_style(line, styles->line_color[COLOR_THEME_ACTIVE_INDEX], LV_PART_MAIN);
       barLines[i] = line;
 
       line = lv_line_create(lvobj);
@@ -238,19 +240,17 @@ class SpectrumWindow : public Window
       lv_coord_t yv =
           SCALE_TOP - 1 -
           limit<int>(0,
-                     getAverage<step>(&reusableBuffer.spectrumAnalyser.bars[x])
-                         << 1,
+                     getAverage<step>(&reusableBuffer.spectrumAnalyser.bars[x]),
                      SCALE_TOP);
       lv_coord_t max_yv =
           SCALE_TOP - 1 -
           limit<int>(
-              0, getAverage<step>(&reusableBuffer.spectrumAnalyser.max[x]) << 1,
+              0, getAverage<step>(&reusableBuffer.spectrumAnalyser.max[x]),
               SCALE_TOP);
       lv_coord_t peak_yv =
           SCALE_TOP - 1 -
           limit<int>(0,
-                     getAverage<step>(&reusableBuffer.spectrumAnalyser.peak[x])
-                         << 1,
+                     getAverage<step>(&reusableBuffer.spectrumAnalyser.peak[x]),
                      SCALE_TOP);
 
       maxPts[i] = {x, max_yv};
@@ -305,7 +305,6 @@ class SpectrumWindow : public Window
  protected:
   static LAYOUT_VAL_SCALED(LINE_SPACE, 40) static LAYOUT_VAL_SCALED(WARN_YO, 20)
 
-      lv_style_t style;
   lv_point_t maxPts[2 * LCD_W / 4];
   lv_point_t barPts[2 * LCD_W / 4];
   lv_point_t peakPts[2 * LCD_W / 4];
@@ -346,7 +345,7 @@ void RadioSpectrumAnalyser::buildBody(Window* window)
   new SpectrumScaleWindow(window, {0, SPECTRUM_HEIGHT, LCD_W, SCALE_HEIGHT});
   new SpectrumFooterWindow(window,
                            {0, SPECTRUM_HEIGHT + SCALE_HEIGHT, LCD_W,
-                            EdgeTxStyles::UI_ELEMENT_HEIGHT},
+                            EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE * 2},
                            moduleIdx);
 }
 

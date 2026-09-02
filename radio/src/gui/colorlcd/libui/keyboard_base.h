@@ -36,6 +36,7 @@ class Keyboard : public NavWindow
  protected:
   static Keyboard *activeKeyboard;
 
+  bool hasTwoPageKeys;
   lv_group_t* group = nullptr;
   lv_obj_t* keyboard = nullptr;
 
@@ -46,4 +47,5 @@ class Keyboard : public NavWindow
 
   void setField(FormField* newField);
   bool attachKeyboard();
+  void deleteLater() override;
 };

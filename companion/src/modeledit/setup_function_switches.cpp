@@ -296,6 +296,10 @@ void FunctionSwitchesPanel::on_configCurrentIndexChanged(int index)
         if ((config == Board::SWITCH_NOT_AVAILABLE) || model->getFuncSwitchAlwaysOnGroupForSwitch(sw))
           model->setFuncSwitchGroup(sw, 0);
       }
+      if (config == Board::SWITCH_GLOBAL) {
+        model->setFuncSwitchStart(sw, ModelData::FUNC_SWITCH_START_OFF);
+        model->setFuncSwitchGroup(sw, 0);
+      }
       update();
       emit modified();
       emit updateDataModels();

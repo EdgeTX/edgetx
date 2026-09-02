@@ -11,14 +11,29 @@ set(TESTS_BUILD_PATH ${CMAKE_CURRENT_BINARY_DIR})
 configure_file(${RADIO_SRC_DIR}/tests/location.h.in ${CMAKE_CURRENT_BINARY_DIR}/location.h @ONLY)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_DEBUG} -O0 -fsanitize=address")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -O0 ${WARNING_FLAGS} -fsanitize=address")
+# AppleClang >=17 ASan hangs at startup on recent macOS (e.g. "Tahoe").
+set(TESTS_ASAN_DEFAULT ON)
+if(APPLE AND CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND
+   CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 17.0)
+  message(WARNING "Disabling ASan for gtests-radio: AppleClang "
+    "${CMAKE_CXX_COMPILER_VERSION} is known to hang at startup on this "
+    "platform. Pass -DTESTS_ASAN=ON to force it back on, e.g. with a "
+    "non-Apple clang.")
+  set(TESTS_ASAN_DEFAULT OFF)
+endif()
+option(TESTS_ASAN "Enable AddressSanitizer for gtests-radio" ${TESTS_ASAN_DEFAULT})
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS_DEBUG} -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -O0 ${WARNING_FLAGS}")
+if(TESTS_ASAN)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+endif()
 
 file(GLOB TEST_SRC_FILES ${RADIO_SRC_DIR}/tests/*.cpp
   CONFIGURE_DEPENDS "${RADIO_SRC_DIR}/tests/*.cpp")
 
 set(TEST_SRC_FILES ${TEST_SRC_FILES}
-  ${CMAKE_CURRENT_SOURCE_DIR}/location.h
   ${SIMU_SRC}
 )
 

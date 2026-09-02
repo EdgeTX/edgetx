@@ -304,14 +304,12 @@ void menuRadioSdManager(event_t _event)
 
   switch (_event) {
 
-#if defined(KEYS_GPIO_REG_MENU)
     case EVT_KEY_LONG(KEY_MENU):
       if (SD_CARD_PRESENT() && s_editMode == 0) {
         POPUP_MENU_ADD_ITEM(STR_SD_INFO);
         POPUP_MENU_START(onSdManagerMenu);
       }
       break;
-#endif
 
     case EVT_KEY_BREAK(KEY_EXIT):
       REFRESH_FILES();
@@ -605,7 +603,7 @@ void menuRadioSdManager(event_t _event)
     if (ext && isExtensionMatching(ext, BITMAPS_EXT)) {
       if (lastPos != menuVerticalPosition) {
         if (!lcdLoadBitmap(modelBitmap, reusableBuffer.sdManager.lines[index], MODEL_BITMAP_WIDTH, MODEL_BITMAP_HEIGHT)) {
-          memcpy(modelBitmap, logo_taranis, MODEL_BITMAP_SIZE);
+          loadLogoBitmap(modelBitmap);
         }
       }
       lcdDrawBitmap(22*FW+2, 2*FH+FH/2, modelBitmap);

@@ -33,7 +33,8 @@ ProgressWidget::ProgressWidget(QWidget *parent) :
   QWidget(parent),
   ui(new Ui::ProgressWidget),
   m_forceOpen(false),
-  m_hasDetails(false)
+  m_hasDetails(false),
+  m_logLevel(QtInfoMsg)
 {
   ui->setupUi(this);
   ui->info->hide();
@@ -52,6 +53,7 @@ ProgressWidget::ProgressWidget(QWidget *parent) :
   newFont.setPointSize(9);
 #endif
   ui->textEdit->setFont(newFont);
+  QTimer::singleShot(0, [this]() { this->refresh(); });
 }
 
 ProgressWidget::~ProgressWidget()
@@ -67,6 +69,7 @@ void ProgressWidget::stop()
 void ProgressWidget::clearDetails() const
 {
   ui->textEdit->clear();
+  QCoreApplication::processEvents();
 }
 
 void ProgressWidget::forceOpen()
@@ -74,17 +77,20 @@ void ProgressWidget::forceOpen()
   m_forceOpen = true;
   ui->checkBox->hide();
   toggleDetails();
+  QCoreApplication::processEvents();
 }
 
 void ProgressWidget::setInfo(const QString &text)
 {
   ui->info->show();
   ui->info->setText(text);
+  QCoreApplication::processEvents();
 }
 
 void ProgressWidget::setMaximum(int value)
 {
   ui->progressBar->setMaximum(value);
+  QCoreApplication::processEvents();
 }
 
 int ProgressWidget::maximum()
@@ -95,6 +101,7 @@ int ProgressWidget::maximum()
 void ProgressWidget::setValue(int value)
 {
   ui->progressBar->setValue(value);
+  QCoreApplication::processEvents();
 }
 
 void ProgressWidget::addText(const QString &text, const bool richText, const bool updateLast)
@@ -143,6 +150,15 @@ void ProgressWidget::addHtml(const QString & text, const bool updateLast)
 
 void ProgressWidget::addMessage(const QString & text, const int & type, const bool richText, const bool updateLast)
 {
+  // The allowed predicate only lets QtInfoMsg through when m_logLevel is QtDebugMsg or QtInfoMsg;
+  // when m_logLevel is QtWarningMsg, QtCriticalMsg, or QtFatalMsg, QtInfoMsg is always filtered out
+  const bool allowed = (m_logLevel == QtDebugMsg) ||
+                       (m_logLevel == QtInfoMsg && type > QtDebugMsg) ||
+                       (type < QtInfoMsg && type >= m_logLevel);
+
+  if (!allowed)
+    return;
+
   QString color;
   switch (type) {
     case QtDebugMsg:
@@ -171,6 +187,8 @@ void ProgressWidget::addMessage(const QString & text, const int & type, const bo
   else {
     addHtml(QString("<font color=%1>").arg(color) % text % "</font><br>", updateLast);
   }
+
+  QCoreApplication::processEvents();
 }
 
 QString ProgressWidget::getText() const
@@ -233,6 +251,7 @@ void ProgressWidget::refresh()
   ui->info->update();
   ui->progressBar->update();
   ui->textEdit->update();
+  QCoreApplication::processEvents();
 }
 
 void ProgressWidget::updateInfoAndMessages(const QString & text, const int & type, const bool richText)

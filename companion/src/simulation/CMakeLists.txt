@@ -22,6 +22,7 @@ set(${PROJECT_NAME}_NAMES
   serialportsdialog
   hostserialconnector
   simulateduiwidgetGeneric
+  wasmsimulatorinterface
 )
 
 if(TARGET SDL2::SDL2)
@@ -54,10 +55,13 @@ add_library(${PROJECT_NAME}
   ${${PROJECT_NAME}_SRCS}
 )
 
+include(FetchWamr)
+
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
     ${CPN_COMMON_LIB}
     Qt::Svg
+    vmlib
 )
 
 if(TARGET SDL2::SDL2)

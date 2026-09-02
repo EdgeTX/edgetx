@@ -106,7 +106,8 @@ class Widget : public ButtonBase
   virtual bool enableFullScreenRE() const { return true; }
 
   // Called when the widget options have changed
-  virtual void update();
+  virtual void updateWithoutRefresh() { update(); }
+  virtual void update() {}
 
   // Called at regular time interval if the widget is hidden or off screen
   virtual void background() {}
@@ -128,8 +129,6 @@ class Widget : public ButtonBase
   bool fullscreen = false;
   bool closeFS = false;
   lv_obj_t* focusBorder = nullptr;
-  lv_style_t borderStyle;
-  lv_point_t borderPts[5];
 
   void onCancel() override;
   bool onLongPress() override;
@@ -156,6 +155,7 @@ class WidgetFactory
 
   const WidgetOption* getDefaultOptions() const { return options; }
   virtual const void parseOptionDefaults() const {}
+  virtual const void checkOptions(int screenNum, int zoneNum) const {}
 
   const char* getDisplayName() const
   {

@@ -21,7 +21,6 @@
  
 #include "stm32_adc.h"
 #include "stm32_gpio.h"
-#include "stm32_ws2812.h"
 #include "stm32_spi.h"
 
 #include "hal/adc_driver.h"
@@ -139,15 +138,9 @@ void delay_self(int count)
 }
 
 #if defined(LED_STRIP_GPIO)
-// Common LED driver
-extern const stm32_pulse_timer_t _led_timer;
-
 void ledStripOff()
 {
-  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    ws2812_set_color(i, 0, 0, 0);
-  }
-  ws2812_update(&_led_timer);
+  rgbLedClearAll();
 }
 #endif
 
@@ -181,12 +174,15 @@ void boardBLPreJump()
 {
   SDRAM_Init();
 #if defined(RADIO_NB4P)
-  LL_ADC_Disable(ADC_MAIN);
+  _adc_driver.deinit();
 #endif
 }
 
 void boardBLInit()
 {
+#if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
+  rotaryEncoderInit();
+#endif
   SDRAM_Init();
 }
 
@@ -256,6 +252,7 @@ void boardInit()
         if ((now - press_start) > POWER_ON_DELAY) {
           break;
         }
+        delay_ms(10);
       } else if (!isChargerActive()) {
         boardOff();
       } else {

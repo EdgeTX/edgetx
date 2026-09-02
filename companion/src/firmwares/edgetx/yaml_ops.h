@@ -25,6 +25,7 @@
 #include "helpers.h"
 #include "boards.h"
 #include "semanticversion.h"
+#include "boundedstring.h"
 
 #include <algorithm>
 #include <QString>
@@ -97,6 +98,17 @@ void operator >> (const YAML::Node& node, char (&value)[N])
   }
 }
 
+// Mirrors the char[] reader above: a scalar is assigned and truncated to the
+// field capacity. BoundedString<N> truncates to N bytes, matching the legacy
+// char[N+1] field (which keeps N usable bytes plus the NUL).
+template <size_t N>
+void operator >> (const YAML::Node& node, BoundedString<N>& value)
+{
+  if (node && node.IsScalar()) {
+    value = node.as<std::string>();
+  }
+}
+
 template <typename T, size_t N>
 void operator>>(const YAML::Node& node, T (&value)[N])
 {
@@ -127,9 +139,23 @@ void operator>>(const YAML::Node& node, T (&value)[N])
 }
 
 void YamlValidateName(char *input, Board::Type board);
+QString YamlValidateName(const QString &input, Board::Type board);
 void YamlValidateLabel(QString &input);
 
 namespace YAML {
+
+// Encode/decode for BoundedString<N> so `node["x"] = field` and `node.as<>()`
+// behave like the legacy char[] fields. Decode truncates to the capacity.
+template <size_t N>
+struct convert<BoundedString<N>> {
+  static Node encode(const BoundedString<N>& rhs) { return Node(rhs.str()); }
+  static bool decode(const Node& node, BoundedString<N>& rhs)
+  {
+    if (node && node.IsScalar())
+      rhs = node.as<std::string>();
+    return true;
+  }
+};
 
 std::string LookupValue(const YamlLookupTable& lut, const int& value);
 Node operator << (const YamlLookupTable& lut, const int& value);

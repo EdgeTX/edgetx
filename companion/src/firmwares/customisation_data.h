@@ -191,4 +191,5 @@ class RadioLayout
     };
 
     static void init(const std::string layoutId, CustomScreens & customScreens);
+    static int topBarZones();
 };

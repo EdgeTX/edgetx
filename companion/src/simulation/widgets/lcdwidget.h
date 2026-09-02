@@ -26,15 +26,16 @@
 #include <QPainter>
 #include <QClipboard>
 #include <QDir>
-#include <QElapsedTimer>
 #include <QMutex>
 #include <QMutexLocker>
 #include <QMouseEvent>
+#include <QTimer>
 #include <AppDebugMessageHandler>
 
 #include "appdata.h"
 
-#define LCD_WIDGET_REFRESH_PERIOD    16  // [ms] 16 = 62.5fps
+#define LCD_WIDGET_REFRESH_PERIOD    10  // [ms] 10 = 100fps cap (color is
+                                         // firmware-limited to ~20fps anyway)
 
 class LcdWidget : public QWidget
 {
@@ -50,6 +51,8 @@ class LcdWidget : public QWidget
       bgDefaultColor(QColor(148, 156, 149)),
       fgDefaultColor(QColor(0, 0, 0))
   {
+    frameTimer.setInterval(LCD_WIDGET_REFRESH_PERIOD);
+    connect(&frameTimer, &QTimer::timeout, this, &LcdWidget::onFrameTick);
   }
 
   ~LcdWidget()
@@ -84,8 +87,10 @@ class LcdWidget : public QWidget
   QColor bgDefaultColor;
   QColor fgDefaultColor;
   QMutex lcdMtx;
-  QElapsedTimer redrawTimer;
+  QTimer frameTimer;
+  bool dirty = false;
 
+  void onFrameTick();
   void doPaint(QPainter &p);
 
   void paintEvent(QPaintEvent *) override;

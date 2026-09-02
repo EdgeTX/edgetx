@@ -20,7 +20,7 @@
  */
 
 #include "audio.h"
-#include "simuaudio.h"
+#include "simulib.h"
 
 #if defined(AUDIO_HP_DETECT_PIN)
 bool audioHeadphoneDetect()
@@ -51,14 +51,24 @@ int simuAudioGetVolume()
 #endif
 }
 
-void simuQueueAudio(const uint8_t* data, uint32_t len);
-
 void audioConsumeCurrentBuffer()
 {
   auto& fifo = audioQueue.buffersFifo;
   while(true) {
     auto nextBuffer = fifo.getNextFilledBuffer();
     if (!nextBuffer) return;
+
+#if !defined(SOFTWARE_VOLUME)
+    // Simulate the hardware volume chip: scale samples in place.
+    int volume = simuAudioGetVolume();
+    if (volume < VOLUME_LEVEL_MAX) {
+      auto* buf = const_cast<AudioBuffer*>(nextBuffer);
+      for (uint16_t i = 0; i < buf->size; ++i) {
+        buf->data[i] = (audio_data_t)(
+            ((int32_t)buf->data[i] * volume) / VOLUME_LEVEL_MAX);
+      }
+    }
+#endif
 
     auto data = (const uint8_t*)nextBuffer->data;
     uint32_t len = nextBuffer->size * sizeof(audio_data_t);

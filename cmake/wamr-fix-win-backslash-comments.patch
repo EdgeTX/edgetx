@@ -1,0 +1,29 @@
+diff --git a/core/shared/platform/windows/win_file.c b/core/shared/platform/windows/win_file.c
+index 55ea77a..df67705 100644
+--- a/core/shared/platform/windows/win_file.c
++++ b/core/shared/platform/windows/win_file.c
+@@ -1295,13 +1295,13 @@ os_readlinkat(os_file_handle handle, const char *path, char *buf,
+ 
+         if (wbufsize >= 4 && wbuf[0] == L'\\' && wbuf[1] == L'?'
+             && wbuf[2] == L'?' && wbuf[3] == L'\\') {
+-            // Starts with \??\ 
++            // Has \??\ prefix
+             if (wbufsize >= 6
+                 && ((wbuf[4] >= L'A' && wbuf[4] <= L'Z')
+                     || (wbuf[4] >= L'a' && wbuf[4] <= L'z'))
+                 && wbuf[5] == L':' && (wbufsize == 6 || wbuf[6] == L'\\'))
+                 {
+-                    // \??\<drive>:\ 
++                    // \??\<drive>:\ path
+                     wbuf += 4;
+                     wbufsize -= 4;
+                 }
+@@ -1310,7 +1310,7 @@ os_readlinkat(os_file_handle handle, const char *path, char *buf,
+                          && (wbuf[6] == L'C' || wbuf[6] == L'c')
+                          && wbuf[7] == L'\\')
+                 {
+-                    // \??\UNC\<server>\<share>\ - make sure the final path looks like \\<server>\<share>\ 
++                    // \??\UNC\<server>\<share>\ - make sure the final path looks like \\<server>\<share>\ path
+                     wbuf += 6;
+                     wbuf[0] = L'\\';
+                     wbufsize -= 6;

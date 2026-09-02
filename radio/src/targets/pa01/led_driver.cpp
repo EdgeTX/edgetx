@@ -22,7 +22,6 @@
 #include "hal/gpio.h"
 #include "hal/rgbleds.h"
 #include "stm32_gpio.h"
-#include "stm32_ws2812.h"
 
 #include "boards/generic_stm32/rgb_leds.h"
 #include "board.h"
@@ -36,32 +35,37 @@ uint8_t ledMapping[] = {4, 6, 0, 2};
 
 void fsLedRGB(uint8_t index, uint32_t color)
 {
-  ws2812_set_color(ledMapping[index], GET_RED(color),
+  rgbSetLedColor(ledMapping[index], GET_RED(color),
      GET_GREEN(color),GET_BLUE(color));
-  ws2812_set_color(ledMapping[index]+1, GET_RED(color),
+  rgbSetLedColor(ledMapping[index]+1, GET_RED(color),
      GET_GREEN(color),GET_BLUE(color));
+  rgbLedColorApply();
 }
 
 void ledOff()
 {
-  ws2812_set_color(8, 0, 0, 0);
-  ws2812_set_color(9, 0, 0, 0);
+  rgbSetLedColor(8, 0, 0, 0);
+  rgbSetLedColor(9, 0, 0, 0);
+  rgbLedColorApply();
 }
 
 void ledRed()
 {
-  ws2812_set_color(8, 20, 0, 0);
-  ws2812_set_color(9, 20, 0, 0);
+  rgbSetLedColor(8, 20, 0, 0);
+  rgbSetLedColor(9, 20, 0, 0);
+  rgbLedColorApply();
 }
 
 void ledGreen()
 {
-  ws2812_set_color(8, 0, 20, 0);
-  ws2812_set_color(9, 0, 20, 0);
+  rgbSetLedColor(8, 0, 20, 0);
+  rgbSetLedColor(9, 0, 20, 0);
+  rgbLedColorApply();
 }
 
 void ledBlue()
 {
-  ws2812_set_color(8, 0, 0, 20);
-  ws2812_set_color(9, 0, 0, 20);
+  rgbSetLedColor(8, 0, 0, 20);
+  rgbSetLedColor(9, 0, 0, 20);
+  rgbLedColorApply();
 }

@@ -28,11 +28,15 @@
 #include "delays_driver.h"
 #include "keys.h"
 
-#if !defined(BOOT)
-  #include "hal/adc_driver.h"
+#include "hal/adc_driver.h"
+
+#if defined(BOOT)
+  #include "stm32_adc.h"
+  #include "boards/generic_stm32/analog_inputs.h"
 #endif
 
-#define BOOTLOADER_KEYS                 0x42
+#define BOOTLOADER_KEYS 0x42
+#define ADC_KEYS_INDEX 4
 
 /* The output bit-order has to be:
    0  LHL  STD (Left equals down)
@@ -47,92 +51,51 @@ enum PhysicalTrims
     STU,
     THD = 2,
     THU,
-/*    TR2L = 4,
+/*
+    TR2L = 4,
     TR2R,
     TR2D = 8,
-    TR2U,*/
+    TR2U,
+*/
 };
 
 void keysInit()
 {
 #if defined(BOOT)
-  LL_GPIO_InitTypeDef pinInit;
-  LL_GPIO_StructInit(&pinInit);
-  
-  pinInit.Pin = ADC_GPIO_PIN_RAW1;
-  pinInit.Mode = LL_GPIO_MODE_ANALOG;
-  pinInit.Pull = LL_GPIO_PULL_NO;
-  stm32_gpio_enable_clock(ADC_GPIO_RAW1);
-  LL_GPIO_Init(ADC_GPIO_RAW1, &pinInit);
-
-  // Init ADC clock
-  uint32_t adc_idx = (((uint32_t) ADC_MAIN) - ADC1_BASE) / 0x100UL;
-  uint32_t adc_msk = RCC_APB2ENR_ADC1EN << adc_idx;
-  LL_APB2_GRP1_EnableClock(adc_msk);
-
-  // Init common to all ADCs
-  LL_ADC_CommonInitTypeDef commonInit;
-  LL_ADC_CommonStructInit(&commonInit);
-
-  commonInit.CommonClock = LL_ADC_CLOCK_SYNC_PCLK_DIV4;
-  LL_ADC_CommonInit(__LL_ADC_COMMON_INSTANCE(ADC_MAIN), &commonInit);
-
-  // ADC must be disabled for the functions used here
-  LL_ADC_Disable(ADC_MAIN);
-
-  LL_ADC_InitTypeDef adcInit;
-  LL_ADC_StructInit(&adcInit);
-  adcInit.SequencersScanMode = LL_ADC_SEQ_SCAN_DISABLE;
-  adcInit.DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;
-  adcInit.Resolution = LL_ADC_RESOLUTION_12B;
-  LL_ADC_Init(ADC_MAIN, &adcInit);
-
-  LL_ADC_REG_InitTypeDef adcRegInit;
-  LL_ADC_REG_StructInit(&adcRegInit);
-  adcRegInit.TriggerSource = LL_ADC_REG_TRIG_SOFTWARE;
-  adcRegInit.ContinuousMode = LL_ADC_REG_CONV_SINGLE;
-  LL_ADC_REG_Init(ADC_MAIN, &adcRegInit);
-
-  // Enable ADC
-  LL_ADC_Enable(ADC_MAIN);
+  _adc_driver.init();
 #endif
 }
 
 #if defined(BOOT)
-uint16_t _adcRead()
+static uint16_t _adc_values[MAX_ADC_INPUTS];
+
+uint16_t* getAnalogValues() { return _adc_values; }
+
+static uint16_t _adcRead(uint8_t index)
 {
-  // Configure ADC channel
-  LL_ADC_REG_SetSequencerRanks(ADC_MAIN, LL_ADC_REG_RANK_1, ADC_CHANNEL_RAW1);
-  LL_ADC_SetChannelSamplingTime(ADC_MAIN, ADC_CHANNEL_RAW1, LL_ADC_SAMPLINGTIME_3CYCLES);
-
-  // Start ADC conversion
-  LL_ADC_REG_StartConversionSWStart(ADC_MAIN);
-
-  // Wait until ADC conversion is complete
-  while (!LL_ADC_IsActiveFlag_EOCS(ADC_MAIN));
-
-  // Read ADC converted value
-  return LL_ADC_REG_ReadConversionData12(ADC_MAIN);
+  if (!_adc_driver.start_conversion()) {
+    return ADC_MAX_VALUE / 2;
+  }
+  _adc_driver.wait_completion();
+  return _adc_values[4];
 }
 #endif
 
 uint32_t readKeys()
 {
+  uint16_t value;
   uint32_t result = 0;
 
 #if defined(BOOT)
-  uint16_t value = _adcRead();
-  if (value >= 3584)
-    result |= 1 << KEY_EXIT;
-  else if (value < 512)
-    result |= 1 << KEY_ENTER;
+  value = _adcRead(ADC_KEYS_INDEX);
 #else
-  uint16_t value = getAnalogValue(4);
+  value = getAnalogValue(ADC_KEYS_INDEX);
+#endif
+
   if (value >= 3584)
     result |= 1 << KEY_EXIT;
   else if (value < 512)
     result |= 1 << KEY_ENTER;
-#endif
 
   return result;
 }
@@ -142,12 +105,12 @@ uint32_t readTrims()
   uint32_t result = 0;
 
 #if defined(BOOT)
-  uint16_t value = _adcRead();
+  uint16_t value = _adcRead(ADC_KEYS_INDEX);
   if (value >= 1536 && value < 2560)
     result = BOOTLOADER_KEYS;
 #else
-  uint16_t tr1Val = getAnalogValue(6);
-  uint16_t tr2Val = getAnalogValue(7);
+  uint16_t tr1Val = getAnalogValue(6); // TODO: define constant
+  uint16_t tr2Val = getAnalogValue(7); // TODO: define constant
   if (tr1Val < 500)        // Physical TR1 Left
 //    result |= 1 << TR1L;
     ;

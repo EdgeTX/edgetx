@@ -276,6 +276,8 @@ class GeneralSettings {
       QM_TOOLS_LS_MON,
       QM_TOOLS_STATS,
       QM_TOOLS_DEBUG,
+      // Lua stand alone script
+      QM_APP,
       QM_COUNT,
     };
 
@@ -302,7 +304,6 @@ class GeneralSettings {
     unsigned int contrast;
     unsigned int vBatWarn;
     int txVoltageCalibration;
-    int txCurrentCalibration;
     int vBatMin;
     int vBatMax;
     int backlightMode;
@@ -317,6 +318,7 @@ class GeneralSettings {
     bool disableRssiPoweroffAlarm;
     bool disableTrainerPoweroffAlarm;
     unsigned int usbMode;
+    bool usbChargeDisabled;
     unsigned int hatsMode;
     unsigned int stickDeadZone;
     unsigned int jackMode;
@@ -326,7 +328,6 @@ class GeneralSettings {
     int timezone;
     int timezoneMinutes;
     bool adjustRTC;
-    bool optrexDisplay;
     unsigned int inactivityTimer;
     unsigned int internalModuleBaudrate;
     bool minuteBeep;
@@ -339,10 +340,8 @@ class GeneralSettings {
     int PPM_Multiplier;
     int hapticLength;
     unsigned int reNavigation;
-    unsigned int stickReverse;
     unsigned int speakerPitch;
     int hapticStrength;
-    unsigned int speakerMode;
     char ownerName[OWNER_NAME_LEN + 1];
     int beeperLength;
     unsigned int gpsFormat;
@@ -376,7 +375,6 @@ class GeneralSettings {
     int varioRepeat;
     int backgroundVolume;
     unsigned int mavbaud;
-    unsigned int switchUnlockStates;
     unsigned int serialPort[SP_COUNT];
     bool serialPower[SP_COUNT];
     int antennaMode;
@@ -387,6 +385,8 @@ class GeneralSettings {
     char registrationId[REGISTRATION_ID_LEN + 1];
     int imuMax;
     int imuOffset;
+    bool imuInvertX;
+    bool imuInvertY;
     int uartSampleMode;
 
     int pwrOnSpeed;
@@ -456,7 +456,11 @@ class GeneralSettings {
     SwitchConfig switchConfig[CPN_MAX_SWITCHES];
 
     unsigned int keyShortcuts[MAX_KEYSHORTCUTS];
+    char* keyShortcutTools[MAX_KEYSHORTCUTS];
     unsigned int qmFavorites[MAX_QMFAVOURITES];
+    char* qmFavoritesTools[MAX_QMFAVOURITES];
+    bool oneLogPerDay;
+    bool keyLockEnabled;
 
     void switchConfigClear();
 

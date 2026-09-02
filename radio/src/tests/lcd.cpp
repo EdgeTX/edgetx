@@ -25,7 +25,7 @@
 #include <gtest/gtest.h>
 
 #if !defined(COLORLCD)
-#include "simpgmspace.h"
+#include "simulib.h"
 #include "simulcd.h"
 
 #include "common/stdlcd/draw_functions.h"

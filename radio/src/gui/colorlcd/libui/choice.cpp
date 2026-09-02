@@ -150,6 +150,7 @@ void Choice::addValue(const char* value)
 
 void Choice::setValues(std::vector<std::string> values)
 {
+  this->values.clear();
   this->values = std::move(values);
   currentValue = INT_MAX; // Force update
   update();

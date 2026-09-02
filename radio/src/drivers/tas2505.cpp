@@ -131,10 +131,11 @@ int tas2505_init(tas2505_t* dev)
 // adjust this value for a volume level just above the silence
 // values is attenuation in dB, higher value - less volume
 // max value is 126
-#define VOLUME_MIN_DB     60
+#define VOLUME_MIN_DB     45
 
 void tas2505_set_volume(tas2505_t* dev, uint8_t volume, bool headphone_mode = false)
 {
+  TRACE("Set volume: %d, headphone_mode: %d", volume, headphone_mode);
   if (volume > VOLUME_LEVEL_MAX) {
     volume = VOLUME_LEVEL_MAX;
   }

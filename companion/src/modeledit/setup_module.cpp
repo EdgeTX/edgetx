@@ -73,19 +73,13 @@ ModulePanel::ModulePanel(QWidget * parent, ModelData & model, ModuleData & modul
   ui->label_module->setText(ModuleData::indexToString(moduleIdx, firmware));
   if (isTrainerModule(moduleIdx)) {
     ui->formLayout_col1->setSpacing(0);
-    if (!IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-      ui->label_trainerMode->hide();
-      ui->trainerMode->hide();
-    }
-    else {
-      updateTrainerModeItemModel();
-      ui->trainerMode->setField(model.trainerMode);
-      connect(ui->trainerMode, &AutoComboBox::currentDataChanged, this, [=] () {
-        update();
-        emit updateItemModels();
-        emit modified();
-      });
-    }
+    updateTrainerModeItemModel();
+    ui->trainerMode->setField(model.trainerMode);
+    connect(ui->trainerMode, &AutoComboBox::currentDataChanged, this, [=] () {
+      update();
+      emit updateItemModels();
+      emit modified();
+    });
   }
   else {
     ui->label_trainerMode->hide();
@@ -337,7 +331,7 @@ void ModulePanel::update()
         if (isInternalModule(moduleIdx) &&
             (protocol==PULSES_PXX_XJT_X16 ||
              protocol==PULSES_PXX_XJT_D8 || protocol==PULSES_PXX_XJT_LR12) &&
-            HAS_EXTERNAL_ANTENNA(board) && generalSettings.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
+            Boards::getCapability(board, Board::HasExternalAntenna) && generalSettings.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
           mask |= MASK_ANTENNA;
         if (protocol == PULSES_ACCESS_ISRM && module.channelsCount == 8)
           mask |= MASK_RF_RACING_MODE;
@@ -359,6 +353,10 @@ void ModulePanel::update()
           mask |= MASK_CSRF_ARMING_TRIGGER;
           ui->crsfArmingTrigger->setCurrentIndex(ui->crsfArmingTrigger->findData(RawSwitch(module.crsf.crsfArmingTrigger).toValue()));
         }
+        if (isInternalModule(moduleIdx) &&
+            Boards::getCapability(board, Board::HasHardwareAntennaSwitch) &&
+            generalSettings.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
+          mask |= MASK_ANTENNA;
         break;
       case PULSES_GHOST:
         mask |= MASK_CHANNELS_RANGE | MASK_GHOST | MASK_BAUDRATE;
@@ -419,10 +417,8 @@ void ModulePanel::update()
     if (protocol != PULSES_MULTIMODULE && module.hasFailsafes(firmware))
       mask |= MASK_FAILSAFES;
   }
-  else if (IS_HORUS_OR_TARANIS(board)) {
-    if (model->trainerMode == TRAINER_MODE_SLAVE_JACK) {
+  else if (model->trainerMode == TRAINER_MODE_SLAVE_JACK) {
       mask |= MASK_PPM_FIELDS | MASK_SBUSPPM_FIELDS | MASK_CHANNELS_RANGE | MASK_CHANNELS_COUNT;
-    }
   }
   else if (model->trainerMode != TRAINER_MODE_MASTER_JACK) {
     mask |= MASK_PPM_FIELDS | MASK_CHANNELS_RANGE | MASK_CHANNELS_COUNT;
@@ -451,8 +447,8 @@ void ModulePanel::update()
   ui->channelsCount->setEnabled(mask & MASK_CHANNELS_COUNT);
   ui->channelsCount->setMaximum(module.getMaxChannelCount());
   ui->channelsCount->setValue(module.channelsCount);
-  ui->channelsCount->setSingleStep(firmware->getCapability(HasPPMStart) ? 1 : 2);
-  
+  ui->channelsCount->setSingleStep(1);
+
   // CRSF
   ui->label_crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);
   ui->crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);
@@ -475,9 +471,9 @@ void ModulePanel::update()
   ui->ppmFrameLength->setValue(22.5 + ((double)module.ppm.frameLength) * 0.5);
 
   if (mask & MASK_ANTENNA) {
-    if (module.pxx.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
-      module.pxx.antennaMode = GeneralSettings::ANTENNA_MODE_INTERNAL;
-    ui->antennaMode->setField(module.pxx.antennaMode, this);
+    if (module.antennaMode == GeneralSettings::ANTENNA_MODE_PER_MODEL)
+      module.antennaMode = GeneralSettings::ANTENNA_MODE_INTERNAL;
+    ui->antennaMode->setField(module.antennaMode, this);
     ui->antennaLabel->show();
     ui->antennaMode->show();
   }
@@ -1111,6 +1107,5 @@ void ModulePanel::updateTrainerModeItemModel()
 
     trainerModeItemModel = new FilteredItemModel(model->trainerModeItemModel(generalSettings, firmware));
     ui->trainerMode->setModel(trainerModeItemModel);
-    ui->trainerMode->updateValue();
   }
 }

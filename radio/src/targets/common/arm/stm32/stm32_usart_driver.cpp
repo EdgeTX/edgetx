@@ -528,7 +528,13 @@ void stm32_usart_deinit(const stm32_usart_t* usart)
   }
 
   if ((int32_t)(usart->IRQn) >= 0) {
+    // An IRQ latched before (or in flight across) NVIC_DisableIRQ() would
+    // still be taken, and would then access a de-initialised, clock-gated
+    // peripheral. Barrier + clear pending closes that window.
     NVIC_DisableIRQ(usart->IRQn);
+    __DSB();
+    __ISB();
+    NVIC_ClearPendingIRQ(usart->IRQn);
   }
   LL_USART_DeInit(usart->USARTx);
   disable_usart_clock(usart->USARTx);
@@ -595,6 +601,12 @@ void stm32_usart_send_buffer(const stm32_usart_t* usart, const uint8_t * data, u
     dmaInit.MemoryOrM2MDstIncMode = LL_DMA_MEMORY_INCREMENT;
     dmaInit.NbData = size;
     dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;  // TODO: make it configurable
+
+    // Prefetch the frame into the DMA FIFO instead of fetching one byte per
+    // USART request (direct mode), so bus contention from another stream on the
+    // same controller (e.g. SDIO) cannot starve a byte and corrupt the frame.
+    dmaInit.FIFOMode = LL_DMA_FIFOMODE_ENABLE;
+    dmaInit.FIFOThreshold = LL_DMA_FIFOTHRESHOLD_FULL;
 
     LL_DMA_Init(usart->txDMA, usart->txDMA_Stream, &dmaInit);
 

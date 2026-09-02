@@ -207,13 +207,13 @@ enum MenuModelSetupItems {
 #define MODEL_SETUP_3RD_COLUMN        (MODEL_SETUP_2ND_COLUMN+6*FW)
 #define MODEL_SETUP_SET_FAILSAFE_OFS  10*FW-2
 
-PACK(struct ExpandState {
+PACK(struct ModelSetupExpandState {
   uint8_t preflight:1;
   uint8_t throttle:1;
   uint8_t viewOpt:1;
 });
 
-static struct ExpandState expandState;
+static struct ModelSetupExpandState expandState;
 
 static uint8_t PREFLIGHT_ROW(uint8_t value) { return expandState.preflight ? value : HIDDEN_ROW; }
 
@@ -1211,11 +1211,11 @@ void menuModelSetup(event_t event)
                        MODULE_SUBTYPE_R9M_EU) {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_EU_WARN_LINE1);
                 SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
-                                 strlen(TR_MODULE_PROTOCOL_WARN_LINE2), 0);
+                                 strlen(STR_MODULE_PROTOCOL_WARN_LINE2), 0);
               } else {
                 POPUP_WARNING(STR_MODULE_PROTOCOL_FCC_WARN_LINE1);
                 SET_WARNING_INFO(STR_MODULE_PROTOCOL_WARN_LINE2,
-                                 strlen(TR_MODULE_PROTOCOL_WARN_LINE2), 0);
+                                 strlen(STR_MODULE_PROTOCOL_WARN_LINE2), 0);
               }
 #endif
             }
@@ -1878,7 +1878,7 @@ void menuModelSetup(event_t event)
     case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_MODE:
       lcdDrawTextIndented(y, STR_TYPE);
       lcdDrawText(MODEL_SETUP_2ND_COLUMN, y,
-          g_model.moduleData[EXTERNAL_MODULE].afhds3.telemetry ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY : TR_AFHDS3_ONE_TO_MANY);
+          g_model.moduleData[EXTERNAL_MODULE].afhds3.telemetry ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY : STR_AFHDS3_ONE_TO_MANY);
       break;
     case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_POWER_STATUS:
     {

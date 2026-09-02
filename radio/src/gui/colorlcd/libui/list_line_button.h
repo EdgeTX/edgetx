@@ -111,6 +111,7 @@ class InputMixGroupBase : public Window
 
   mixsrc_t getMixSrc() { return idx; }
   size_t getLineCount() { return lines.size(); }
+  int getLineNumber(uint8_t idx);
 
   virtual void adjustHeight();
   void addLine(InputMixButtonBase* line);

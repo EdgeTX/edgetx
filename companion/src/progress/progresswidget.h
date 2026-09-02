@@ -57,6 +57,7 @@ class ProgressWidget : public QWidget
     void refresh();
     void updateInfoAndMessages(const QString & text, const int & type = QtInfoMsg, const bool richText = false);
     void updateLastMessage(const QString & text, const int & type = QtInfoMsg, const bool richText = false);
+    void setLoggingLevel(const int & level = QtInfoMsg) { m_logLevel = level; }
 
   signals:
     void detailsToggled();
@@ -72,4 +73,5 @@ class ProgressWidget : public QWidget
     Ui::ProgressWidget *ui;
     bool m_forceOpen;
     bool m_hasDetails;
+    int m_logLevel;
 };

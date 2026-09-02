@@ -33,6 +33,8 @@ const unsigned char bmp_sleep[]  = {
 
 #if defined(RADIO_FAMILY_T20)
 constexpr uint8_t steps = NUM_FUNCTIONS_SWITCHES/2;
+#elif defined(RADIO_GX12)
+constexpr uint8_t steps = NUM_FUNCTIONS_SWITCHES - 2; //Exclude SA and SD
 #elif defined(FUNCTION_SWITCHES)
 constexpr uint8_t steps = NUM_FUNCTIONS_SWITCHES;
 #endif
@@ -58,10 +60,10 @@ void drawStartupAnimation(uint32_t duration, uint32_t totalDuration)
       fsLedRGB(j, 0xFFFFFF);
       rgbLedColorApply();
 #else
-      setFSLedON(j);
+      fsLedOn(j);
 #endif
 #if defined(RADIO_FAMILY_T20)
-      setFSLedON(j + steps);
+      fsLedOn(j + steps);
 #endif
     }
   }
@@ -95,16 +97,24 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
       steps);
 
   for (uint8_t j = 0; j < steps; j++) {
-    setFSLedOFF(j);
+#if defined(FUNCTION_SWITCHES_RGB_LEDS)
+    fsLedRGB(j, 0);
+    if (steps - index2 > j) {
+        fsLedRGB(j, 0xFFFFFF);
+    }
+    rgbLedColorApply();
+#else
+    fsLedOff(j);
 #if defined(RADIO_FAMILY_T20)
-    setFSLedOFF(j + steps);
+    fsLedOff(j + steps);
 #endif
     if (steps - index2 > j) {
-      setFSLedON(j);
+      fsLedOn(j);
 #if defined(RADIO_FAMILY_T20)
-      setFSLedON(j + steps);
+      fsLedOn(j + steps);
 #endif
     }
+#endif
   }
 #endif
 

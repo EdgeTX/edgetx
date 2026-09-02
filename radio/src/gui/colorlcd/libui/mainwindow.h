@@ -56,8 +56,7 @@ class MainWindow: public Window
   void blockUntilClose(bool checkPwr, std::function<bool(void)> closeCondition, bool isError = false);
 
  protected:
-  lv_obj_t* background = nullptr;
-  const BitmapBuffer *backgroundBitmap = nullptr;
+  BitmapBuffer *backgroundBitmap = nullptr;
   bool widgetRefreshEnable = true;
 
   static MainWindow * _instance;

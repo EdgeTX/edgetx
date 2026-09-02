@@ -43,7 +43,7 @@ EdgeTX is the cutting edge of OpenTX. It is the place where innovative ideas and
 
 - Sound Packs:  [Info](https://github.com/EdgeTX/edgetx-sdcard-sounds) - [Downloads](https://github.com/EdgeTX/edgetx-sdcard-sounds/releases)
 
-- [Development Wiki](https://github.com/EdgeTX/edgetx/wiki) - [Docker Build Environment](https://github.com/EdgeTX/build-edgetx)
+- [Developer Documentation](https://edgetx.org/edgetx/latest/) - [Docker Build Environment](https://github.com/EdgeTX/build-edgetx)
 
 
 ## Acknowledgements

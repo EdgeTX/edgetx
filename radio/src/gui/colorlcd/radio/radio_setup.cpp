@@ -783,6 +783,13 @@ const static SetupLineDef manageModelsSetupLines[] = {
 
 const static SetupLineDef setupLines[] = {
   {
+    // Have only one log per day
+    STR_DEF(STR_ONE_LOG_PER_DAY),
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_eeGeneral.oneLogPerDay));
+    }
+  },
+  {
     // Splash screen
     STR_DEF(STR_SPLASHSCREEN),
     [](Window* parent, coord_t x, coord_t y) {
@@ -802,7 +809,7 @@ const static SetupLineDef setupLines[] = {
       new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_INVERTED(g_eeGeneral.dontPlayHello));
     }
   },
-#if defined(PWR_BUTTON_PRESS)
+#if defined(PWR_BUTTON_PRESS) && !defined(PWR_BUTTON_MANAGED)
   {
     // Pwr Off Delay
     STR_DEF(STR_PWR_OFF_DELAY),
@@ -816,7 +823,8 @@ const static SetupLineDef setupLines[] = {
           });
     }
   },
-
+#endif
+#if defined(PWR_BUTTON_PRESS)
   // Pwr Off If Inactive
   {
     STR_DEF(STR_PWR_AUTO_OFF),
@@ -958,6 +966,23 @@ const static SetupLineDef setupLines[] = {
                 GET_SET_DEFAULT(g_eeGeneral.USBMode));
     }
   },
+#if defined(USB_CHARGE_CONTROL)
+  {
+    // Charge while radio on
+    STR_DEF(STR_USB_CHARGE),
+    [](Window* parent, coord_t x, coord_t y) {
+      new ToggleSwitch(parent, {x, y, 0, 0},
+                       GET_INVERTED(g_eeGeneral.usbChargeDisabled),
+                       [](uint8_t newValue) {
+                         g_eeGeneral.usbChargeDisabled = !newValue;
+                         SET_DIRTY();
+                         // take effect now, not only on the next plug
+                         if (usbPlugged())
+                           usbChargerEnableCharge(!g_eeGeneral.usbChargeDisabled);
+                       });
+    }
+  },
+#endif
 #if defined(ROTARY_ENCODER_NAVIGATION) && !defined(USE_HATS_AS_KEYS)
   {
     STR_DEF(STR_ROTARY_ENC_MODE),
@@ -1039,19 +1064,19 @@ static bool hasShortcutKeys()
 
 const static PageButtonDef radioSetupButtons[] = {
 #if defined(AUDIO)
-  {STR_DEF(STR_SOUND_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_SOUND_LABEL, soundPageSetupLines); }},
+  {STR_DEF(STR_SOUND_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_SOUND_LABEL, soundPageSetupLines); }},
 #endif
 #if defined(VARIO)
-  {STR_DEF(STR_VARIO), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_VARIO, varioPageSetupLines); }},
+  {STR_DEF(STR_VARIO), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_VARIO, varioPageSetupLines); }},
 #endif
 #if defined(HAPTIC)
-  {STR_DEF(STR_HAPTIC_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_HAPTIC_LABEL, hapticPageSetupLines); }},
+  {STR_DEF(STR_HAPTIC_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_HAPTIC_LABEL, hapticPageSetupLines); }},
 #endif
-  {STR_DEF(STR_ALARMS_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ALARMS_LABEL, alarmsPageSetupLines); }},
-  {STR_DEF(STR_BACKLIGHT_LABEL), []() { (new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_BACKLIGHT_LABEL, backlightSetupLines))->useFlexLayout(); }},
-  {STR_DEF(STR_GPS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines); }},
-  {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines); }},
-  {STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_MENU_RADIO_SETTINGS, STR_MANAGE_MODELS, manageModelsSetupLines); }},
+  {STR_DEF(STR_ALARMS_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_ALARMS_LABEL, alarmsPageSetupLines); }},
+  {STR_DEF(STR_BACKLIGHT_LABEL), []() { (new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_BACKLIGHT_LABEL, backlightSetupLines))->useFlexLayout(); }},
+  {STR_DEF(STR_GPS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines); }},
+  {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines); }},
+  {STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_MAIN_MENU_MANAGE_MODELS, manageModelsSetupLines); }},
 #if VERSION_MAJOR > 2
   {STR_DEF(STR_KEY_SHORTCUTS), []() { new QMKeyShortcutsPage(); }, nullptr, []() { return hasShortcutKeys(); }},
   {STR_DEF(STR_QUICK_MENU_FAVORITES), []() { new QMFavoritesPage(); }, nullptr},
@@ -1061,16 +1086,14 @@ const static PageButtonDef radioSetupButtons[] = {
 
 void RadioSetupPage::build(Window* window)
 {
-  coord_t y = 0;
-  Window * w;
+  window->setFlexLayout(LV_FLEX_FLOW_COLUMN, padding);
+  window->padBottom(PAD_LARGE);
 
   // Date & time picker including labels
-  w = new DateTimeWindow(window, {0, y, LCD_W - padding * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_TINY * 2 + PAD_MEDIUM});
-  y += w->height() + padding;
+  new DateTimeWindow(window, {0, 0, LCD_W - padding * 2, EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 + PAD_TINY * 2 + PAD_MEDIUM});
 
   // Sub-pages
-  w = new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, radioSetupButtons, BTN_H);
-  y += w->height() + padding;
+  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, BTN_COLS, radioSetupButtons, BTN_H);
 
-  SetupLine::showLines(window, y, SubPage::EDT_X, padding, setupLines);
+  SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines);
 }

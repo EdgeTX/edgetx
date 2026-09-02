@@ -199,10 +199,7 @@ void ScreenSetupPage::build(Window* window)
           // Remove this screen from the model
           g_model.removeScreenLayout(customScreenIndex);
 
-          // Delete all custom screens
-          LayoutFactory::deleteCustomScreens();
-
-          // ... and reload
+          // Delete and reload custom screens
           LayoutFactory::loadCustomScreens();
 
           // adjust index if last screen deleted
@@ -320,7 +317,8 @@ ScreenAddPage::ScreenAddPage(const PageDef& pageDef) : PageGroupItem(pageDef)
 
 void ScreenAddPage::build(Window* window)
 {
-  std::string s = replaceAll(STR_QM_ADD_SCREEN, "\n", " ");
+  std::string s(STR_QM_ADD_SCREEN);
+  strReplaceAll(s, "\n", " ");
 
   new TextButton(window,
                  rect_t{LCD_W / 2 - ADD_TXT_W / 2, window->height() / 2 - EdgeTxStyles::UI_ELEMENT_HEIGHT, ADD_TXT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},

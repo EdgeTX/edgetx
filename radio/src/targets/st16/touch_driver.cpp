@@ -25,6 +25,8 @@
 #include "stm32_gpio_driver.h"
 #include "stm32_exti_driver.h"
 
+#include "hal/i2c_driver.h"
+
 #include "hal.h"
 #include "timers_driver.h"
 #include "delays_driver.h"
@@ -109,15 +111,62 @@ static tmr10ms_t downTime = 0;
 static tmr10ms_t tapTime = 0;
 static short tapCount = 0;
 
-// static void _touch_exti_isr(void)
-// {
-//   touchEventOccured = true;
-// }
+static void _touch_exti_isr(void)
+{
+  touchEventOccured = true;
+}
 
-static void _touch_exti_stop(void) {}
-static void _touch_exti_config(void) {}
-static void _touch_gpio_config(void) {}
-static void _touch_reset() {}
+static void _touch_exti_stop(void) {
+  stm32_exti_disable(TOUCH_INT_EXTI_Line);
+}
+
+static void _touch_exti_config(void) {
+  __HAL_RCC_SYSCFG_CLK_ENABLE();
+  LL_SYSCFG_SetEXTISource(TOUCH_INT_EXTI_Port, TOUCH_INT_EXTI_SysCfgLine);
+
+  stm32_exti_enable(TOUCH_INT_EXTI_Line,
+                    LL_EXTI_TRIGGER_FALLING,
+                    _touch_exti_isr);
+}
+
+static void _touch_gpio_config(void) {
+  LL_GPIO_InitTypeDef gpioInit;
+  LL_GPIO_StructInit(&gpioInit);
+
+  // Enable clocks for the GPIO ports used by touch
+  stm32_gpio_enable_clock(TOUCH_RST_GPIO);
+  stm32_gpio_enable_clock(TOUCH_INT_GPIO);
+
+  // Configure RST as output, push-pull
+  gpioInit.Mode = LL_GPIO_MODE_OUTPUT;
+  gpioInit.Speed = LL_GPIO_SPEED_FREQ_LOW;
+  gpioInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  gpioInit.Pull = LL_GPIO_PULL_NO;
+  gpioInit.Pin = TOUCH_RST_GPIO_PIN;
+  LL_GPIO_Init(TOUCH_RST_GPIO, &gpioInit);
+  LL_GPIO_SetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
+
+  // Configure INT as input with pull-up (10k external pull-up also present)
+  gpioInit.Pin = TOUCH_INT_GPIO_PIN;
+  gpioInit.Mode = LL_GPIO_MODE_INPUT;
+  gpioInit.Pull = LL_GPIO_PULL_UP;
+  gpioInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
+  LL_GPIO_Init(TOUCH_INT_GPIO, &gpioInit);
+  LL_GPIO_SetOutputPin(TOUCH_INT_GPIO, TOUCH_INT_GPIO_PIN);
+
+  // Init I2C bus used by touch (use platform i2c wrapper)
+  if (i2c_init(TOUCH_I2C_BUS) < 0) {
+    TRACE("Touch I2C Init ERROR: i2c_init failed");
+  }
+}
+
+static void _touch_reset() {
+  LL_GPIO_ResetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
+  delay_ms(10);
+  LL_GPIO_SetOutputPin(TOUCH_RST_GPIO, TOUCH_RST_GPIO_PIN);
+  delay_ms(300);
+}
+
 
 static int _i2c_read(uint8_t addr, uint32_t reg, uint8_t regSize, uint8_t* data, uint16_t len, uint32_t timeout, bool forceLong = false)
 {
@@ -177,8 +226,6 @@ static bool ft6236TouchRead(uint16_t * X, uint16_t * Y)
 
 static bool ft6236HasTouchEvent()
 {
-  touchEventOccured = true;
-  return true;
   return touchEventOccured;
 }
 
@@ -280,9 +327,8 @@ static bool cst836uTouchRead(uint16_t * X, uint16_t * Y)
 static bool cst836uHasTouchEvent()
 {
   static bool lastHasTouch = false;
-  touchEventOccured = true;
   bool ret = touchEventOccured;
-  if (ret||1) {
+  if (ret) {
     uint8_t data;
     _i2c_readMultipleRetry(TOUCH_CST836U_I2C_ADDRESS, TOUCH_CST836U_TOUCH_NUM_REG, 1, &data, sizeof(data), true);
     uint8_t hasTouch = data;

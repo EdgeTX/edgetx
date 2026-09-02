@@ -1,6 +1,5 @@
-option(DISK_CACHE "Enable SD card disk cache" ON)
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
-option(STICK_DEAD_ZONE "Enable sticks dead zone" YES)
+option(STICK_DEAD_ZONE "Enable sticks dead zone" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
 option(AFHDS3 "AFHDS3 TX Module" ON)
@@ -8,6 +7,7 @@ option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger
 option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(USE_RTC_CLOCK "RTC Clock" ON)
+option(PREFER_SDIO "Prefer SDIO Storage" ON)
 
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32F4)
@@ -40,13 +40,13 @@ set(PCB_RF_BAUD 921600 CACHE STRING "INTERNAL_MODULE_BAUDRATE: ${RF_BAUD_RATE}")
 set_property(CACHE PCB_RF_BAUD PROPERTY STRINGS ${RF_BAUD_RATE})
 
 add_definitions(-DPCBPL18 -DPCBFLYSKY)
+add_definitions(-DMANUFACTURER_FLYSKY)
 add_definitions(-DBATTERY_CHARGE)
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 
 if(PCBREV STREQUAL PL18U)
   set(FLAVOUR pl18u)
-  add_definitions(-DRADIO_PL18U)
-  set(DISK_CACHE ON)
+  set(HAS_SDIO ON)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
   set(LED_STRIP ON)
@@ -58,8 +58,8 @@ if(PCBREV STREQUAL PL18U)
   set(DEFAULT_INTERNAL_MODULE FLYSKY_AFHDS3 CACHE STRING "Default internal module")
 elseif (PCBREV STREQUAL EL18)
     set(FLAVOUR el18)
-    add_definitions(-DRADIO_EL18 -DRADIO_NV14_FAMILY -DUSE_HATS_AS_KEYS)
-    set(DISK_CACHE ON)
+    add_definitions(-DRADIO_NV14_FAMILY -DUSE_HATS_AS_KEYS)
+    set(HAS_SDIO ON)
     set(FLYSKY_GIMBAL ON)
     set(USE_VS1053B ON)
     set(AFHDS3 ON)
@@ -69,9 +69,9 @@ elseif (PCBREV STREQUAL EL18)
     set(DEFAULT_INTERNAL_MODULE FLYSKY_AFHDS3 CACHE STRING "Default internal module")
 elseif(PCBREV STREQUAL NV14)
     set(FLAVOUR nv14)
-    add_definitions(-DRADIO_NV14 -DRADIO_NV14_FAMILY)
+    add_definitions(-DRADIO_NV14_FAMILY)
     add_definitions(-DUSE_HATS_AS_KEYS -DAFHDS2_BAUDRATE=${PCB_RF_BAUD})
-    set(DISK_CACHE ON)
+    set(HAS_SDIO ON)
     set(FLYSKY_GIMBAL ON)
     set(USE_VS1053B ON)
     set(AFHDS2 ON)
@@ -82,7 +82,6 @@ elseif(PCBREV STREQUAL NV14)
     set(DEFAULT_INTERNAL_MODULE FLYSKY_AFHDS2A CACHE STRING "Default internal module")
 elseif(PCBREV STREQUAL NB4P)
   set(FLAVOUR nb4p)
-  add_definitions(-DRADIO_NB4P -DSPI_FLASH)
   set(ROTARY_ENCODER YES)
   set(LED_STRIP ON)
   set(AFHDS3 ON)
@@ -93,7 +92,7 @@ elseif(PCBREV STREQUAL NB4P)
   set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
 elseif(PCBREV STREQUAL PL18EV)
   set(FLAVOUR pl18ev)
-  add_definitions(-DRADIO_PL18EV -DSPI_FLASH -DUSE_HATS_AS_KEYS)
+  add_definitions(-DUSE_HATS_AS_KEYS)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
   set(LED_STRIP ON)
@@ -101,7 +100,7 @@ elseif(PCBREV STREQUAL PL18EV)
   set(KEY_DRIVER key_driver.cpp)
 else()
   set(FLAVOUR pl18)
-  add_definitions(-DRADIO_PL18 -DSPI_FLASH -DUSE_HATS_AS_KEYS)
+  add_definitions(-DUSE_HATS_AS_KEYS)
   set(WIRELESS_CHARGER YES)
   set(FLYSKY_GIMBAL ON)
   set(LED_STRIP ON)
@@ -135,6 +134,12 @@ set(SDRAM ON)
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DCROSSFIRE_NATIVE)
 add_definitions(-DHARDWARE_EXTERNAL_MODULE)
+
+if(PREFER_SDIO)
+  if(HAS_SDIO)
+    set(STORAGE_USE_SDIO ON)
+  endif()
+endif()
 
 if(INTERNAL_GPS)
   add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
@@ -187,11 +192,15 @@ if(ROTARY_ENCODER)
   )
 endif()
 
-if(DISK_CACHE)
+if(STORAGE_USE_SDIO)
   set(BOARD_COMMON_SRC ${BOARD_COMMON_SRC}
     disk_cache.cpp
   )
   add_definitions(-DDISK_CACHE)
+  add_definitions(-DSTORAGE_USE_SDIO)
+else()
+  add_definitions(-DSPI_FLASH)
+  add_definitions(-DSTORAGE_USE_SPI_FLASH)
 endif()
 
 # Bootloader board library
@@ -201,6 +210,13 @@ add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/sdram_driver.cpp
 )
 add_dependencies(board_bl ${BITMAPS_TARGET})
+
+if(PCBREV STREQUAL NB4P)
+  target_sources(board_bl PUBLIC
+    boards/generic_stm32/analog_inputs.cpp
+  )
+endif()
+
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 
 # Firmware board library
@@ -218,7 +234,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/trainer_driver.cpp
   targets/common/arm/stm32/spi_flash.cpp
   targets/common/arm/stm32/diskio_spi_flash.cpp
-  drivers/frftl.cpp  
+  drivers/frftl.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
@@ -227,6 +243,7 @@ if(PCBREV STREQUAL NB4P)
 endif()
 
 if(USE_VS1053B)
+  add_definitions(-DUSE_VS1053B)
   target_sources(board PRIVATE targets/common/arm/stm32/vs1053b.cpp)
 else()
   target_sources(board PRIVATE targets/common/arm/stm32/audio_dac_driver.cpp)
@@ -235,7 +252,7 @@ endif()
 
 if(LED_STRIP)
   target_sources(board PRIVATE ${TARGET_SRC_DIR}/led_driver.cpp)
-  target_sources(board PRIVATE targets/common/arm/stm32/stm32_ws2812.cpp)
+  target_sources(board PRIVATE targets/common/arm/stm32/stm32_rgbleds.cpp)
 endif()
 
 

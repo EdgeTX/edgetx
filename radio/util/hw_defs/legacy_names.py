@@ -196,6 +196,73 @@ LEGACY_NAMES = [
         }
     },
     {
+        "targets": {"gx15"},
+        "inputs": {
+            "LH": {
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
+            },
+            "LV": {
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
+            },
+            "RV": {
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
+            },
+            "RH": {
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
+            },
+            "P1": {
+                "yaml": "S1",
+                "lua": "s1",
+                "label": "S1",
+                "short_label": "1",
+                "description": "Potentiometer S1"
+            },
+            "P2": {
+                "yaml": "S2",
+                "lua": "s2",
+                "label": "S2",
+                "short_label": "2",
+                "description": "Potentiometer S2"
+            },
+            "SL1": {
+                "yaml": "LS",
+                "lua": "ls",
+                "label": "LS",
+                "short_label": "L",
+                "description": "Left slider"
+            },
+            "SL2": {
+                "yaml": "RS",
+                "lua": "rs",
+                "label": "RS",
+                "short_label": "R",
+                "description": "Right slider"
+            },
+            "EXT1": {
+                "yaml": "EXT1",
+                "lua": "ext1",
+                "label": "EXT1",
+                "short_label": "E1",
+                "description": "Ext 1"
+            },
+            "EXT2": {
+                "yaml": "EXT2",
+                "lua": "ext2",
+                "label": "EXT2",
+                "short_label": "E2",
+                "description": "Ext 2"
+            }
+        }
+    },
+    {
         "targets": {"x12s"},
         "inputs": {
             "LH": {
@@ -551,7 +618,7 @@ LEGACY_NAMES = [
             "lr3pro",
             "nv14", "el18",
             "t8", "t12",
-            "tlite", "tlitef4", "tpro", "tprov2", "tpros", "bumblebee",
+            "tlite", "tpro", "tprov2", "tpros", "bumblebee",
             "tx12", "tx12mk2",
             "x7", "x7access",
             "xlite", "xlites",
@@ -776,7 +843,46 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"v12", "v14"},
+        "targets": {"v12"},
+        "inputs": {
+            "LH": {
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
+            },
+            "LV": {
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
+            },
+            "RV": {
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
+            },
+            "RH": {
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
+            },
+            "P1": {
+                "yaml": "POT1",
+                "lua": "s1",
+                "label": "P1",
+                "short_label": "1",
+                "description": "Potentiometer 1"
+            },
+            "P2": {
+                "yaml": "POT2",
+                "lua": "s2",
+                "label": "P2",
+                "short_label": "2",
+                "description": "Potentiometer 2"
+            }
+        }
+    },
+    {
+        "targets": {"v14", "v14lcd"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",
@@ -822,7 +928,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"t20","t20v2"},
+        "targets": {"t20","t20v2", "t22"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",
@@ -1013,7 +1119,7 @@ LEGACY_NAMES = [
         },
     },
     {
-        "targets": {"st16"},
+        "targets": {"st16","c14"},
         "inputs": {
             "LH": {"yaml": "Rud", "lua": "rud", "description": "Rudder"},
             "LV": {"yaml": "Ele", "lua": "ele", "description": "Elevator"},

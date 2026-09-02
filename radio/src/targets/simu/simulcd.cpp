@@ -21,6 +21,7 @@
 
 #include "lcd.h"
 #include "simulcd.h"
+#include "simulib.h"
 #include "rtos.h"
 #include <string.h>
 #include <utility>
@@ -41,17 +42,18 @@ void lcdInit() {}
 
 void lcdRefresh()
 {
-  // Mark screen dirty for async refresh
-  simuLcdRefresh = true;
-
   memcpy(simuLcdBuf, displayBuf, DISPLAY_BUFFER_SIZE * sizeof(pixel_t));
+
+  // Mark screen dirty and notify host for async refresh
+  simuLcdRefresh = true;
+  simuLcdNotify();
 }
 
 #else
 
 #include <lvgl/lvgl.h>
 
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
 static pixel_t _LCD_BUF1[DISPLAY_BUFFER_SIZE] __SDRAM;
 static pixel_t _LCD_BUF2[DISPLAY_BUFFER_SIZE] __SDRAM;
 
@@ -96,14 +98,15 @@ pixel_t* simuLcdBuf = nullptr;
 
 static void simuRefreshLcd(lv_disp_drv_t * disp_drv, uint16_t *buffer, const rect_t& copy_area)
 {
-#if !defined(LCD_VERTICAL_INVERT) // rename into "Use direct mode" ???
+#if !LCD_VERTICAL_INVERT // rename into "Use direct mode" ???
   // Direct mode: driver flush is called on final LVGL flush
 
   // simply set LVGL's buffer as our current frame buffer
   simuLcdBuf = buffer;
 
-  // Trigger async refresh
+  // Trigger async refresh and notify host
   simuLcdRefresh = true;
+  simuLcdNotify();
 
 #else
   _copy_area(simuLcdBackBuf, buffer, copy_area);
@@ -118,8 +121,9 @@ static void simuRefreshLcd(lv_disp_drv_t * disp_drv, uint16_t *buffer, const rec
       simuLcdBackBuf = _LCD_BUF2;
     }
 
-    // Trigger async refresh
+    // Trigger async refresh and notify host
     simuLcdRefresh = true;
+    simuLcdNotify();
 
     // Copy refreshed & rotated areas into new back buffer
     uint16_t* src = simuLcdBuf;
@@ -158,7 +162,7 @@ void lcdSetInitalFrameBuffer(void*) {}
 
 void lcdInit()
 {
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
   memset(_LCD_BUF1, 0, sizeof(_LCD_BUF1));
   memset(_LCD_BUF2, 0, sizeof(_LCD_BUF2));
 #endif

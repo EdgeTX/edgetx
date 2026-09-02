@@ -83,46 +83,23 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     else {
       ui->imagePreview->setFixedSize(QSize(64, 32));
     }
+
     QStringList items;
     items.append("");
-    QString path = g.profile[g.id()].sdPath();
-    path.append("/IMAGES/");
-    QDir qd(path);
-    if (qd.exists()) {
-      QStringList filters = firmware->getCapabilityStr(ModelImageFilters).split("|");
-      foreach ( QString file, qd.entryList(filters, QDir::Files) ) {
-        QFileInfo fi(file);
-        QString temp;
-        if (firmware->getCapability(ModelImageKeepExtn))
-          temp = fi.fileName();
-        else
-          temp = fi.completeBaseName();
-        if (!items.contains(temp) && temp.length() <= firmware->getCapability(ModelImageNameLen))
-          items.append(temp);
-      }
-    }
-    if (!items.contains(model.bitmap)) {
+    loadImageList(items, Helpers::getImagesCacheDir());
+    loadImageList(items, g.currentProfile().sdPath() % "/IMAGES/");
+
+    if (!items.contains(model.bitmap))
       items.append(model.bitmap);
-    }
+
     items.sort(Qt::CaseInsensitive);
+
     foreach (QString file, items) {
       ui->image->addItem(file);
+
       if (file == model.bitmap) {
         ui->image->setCurrentIndex(ui->image->count() - 1);
-        if (!file.isEmpty()) {
-          QString fileName = path;
-          fileName.append(model.bitmap);
-          if (!firmware->getCapability(ModelImageKeepExtn)) {
-            QString extn = firmware->getCapabilityStr(ModelImageFilters);
-            if (extn.size() > 0)
-              extn.remove(0, 1);  //  remove *
-            fileName.append(extn);
-          }
-          QImage image(fileName);
-          if (!image.isNull()) {
-            ui->imagePreview->setPixmap(QPixmap::fromImage(image.scaled(ui->imagePreview->size())));
-          }
-        }
+        loadImagePreview();
       }
     }
   }
@@ -178,18 +155,8 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   ui->throttleSource->setModel(panelFilteredModels->getItemModel(FIM_THRSOURCE));
   ui->throttleSource->setField(model.thrTraceSrc, this);
 
-  if (!firmware->getCapability(HasDisplayText)) {
-    ui->displayText->hide();
-    ui->editChecklist->hide();
-  }
-
   if (!firmware->getCapability(GlobalFunctions)) {
     ui->gfEnabled->hide();
-  }
-
-  if (!firmware->getCapability(HasADCJitterFilter))
-  {
-    ui->jitterFilter->hide();
   }
 
   // Beep Center checkboxes
@@ -207,12 +174,10 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     ui->centerBeepLayout->addWidget(checkbox, 0, i + 1);
     connect(checkbox, SIGNAL(toggled(bool)), this, SLOT(onBeepCenterToggled(bool)));
     centerBeepCheckboxes << checkbox;
-    if (IS_HORUS_OR_TARANIS(board)) {
-      if (!(generalSettings.isInputAvailable(i) &&
-            (generalSettings.isInputStick(i) || (generalSettings.isInputPot(i) && !generalSettings.isInputMultiPosPot(i)) ||
-             generalSettings.isInputSlider(i))))
-        checkbox->hide();
-    }
+    if (!(generalSettings.isInputAvailable(i) &&
+          (generalSettings.isInputStick(i) || (generalSettings.isInputPot(i) && !generalSettings.isInputMultiPosPot(i)) ||
+            generalSettings.isInputSlider(i))))
+      checkbox->hide();
     QWidget::setTabOrder(prevFocus, checkbox);
     prevFocus = checkbox;
   }
@@ -258,7 +223,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   // Pot warnings
   prevFocus = ui->potWarningMode;
 
-  if (IS_HORUS_OR_TARANIS(board) && ttlInputs > 0) {
+  if (ttlInputs > 0) {
     for (int i = ttlSticks; i < ttlInputs; i++) {
       RawSource src(SOURCE_TYPE_INPUT, i + 1);
       QCheckBox * cb = new QCheckBox(this);
@@ -392,9 +357,9 @@ void SetupPanel::on_throttleTrimSwitch_currentIndexChanged(int index)
 
 void SetupPanel::on_name_editingFinished()
 {
-  if (QString(model->name) != ui->name->text()) {
+  if (model->name.toQString() != ui->name->text()) {
     int length = ui->name->maxLength();
-    strncpy(model->name, ui->name->text().toLatin1(), length);
+    model->name = ui->name->text().left(length).toLatin1().constData();
     emit modified();
   }
 }
@@ -404,25 +369,7 @@ void SetupPanel::on_image_currentIndexChanged(int index)
   if (!lock) {
     memset(model->bitmap, 0, CPN_MAX_BITMAP_LEN);
     strncpy(model->bitmap, ui->image->currentText().toLatin1(), CPN_MAX_BITMAP_LEN);
-    if (model->bitmap[0] != '\0') {
-      QString path = g.profile[g.id()].sdPath();
-      path.append("/IMAGES/");
-      path.append(model->bitmap);
-      if (!firmware->getCapability(ModelImageKeepExtn)) {
-        QString extn = firmware->getCapabilityStr(ModelImageFilters);
-        if (extn.size() > 0)
-          extn.remove(0, 1);  //  remove *
-        path.append(extn);
-      }
-      QImage image(path);
-      if (!image.isNull())
-        ui->imagePreview->setPixmap(QPixmap::fromImage(image.scaled(ui->imagePreview->size())));
-      else
-        ui->imagePreview->clear();
-    }
-    else {
-      ui->imagePreview->clear();
-    }
+    loadImagePreview();
     emit modified();
   }
 }
@@ -463,7 +410,7 @@ void SetupPanel::populateThrottleTrimSwitchCB()
 
 void SetupPanel::update()
 {
-  ui->name->setText(model->name);
+  ui->name->setText(model->name.toQString());
   ui->throttleReverse->setChecked(model->throttleReversed);
   ui->throttleSource->updateValue();
   populateThrottleTrimSwitchCB();
@@ -481,10 +428,7 @@ void SetupPanel::update()
 
   updateBeepCenter();
   updateStartupSwitches();
-
-  if (IS_HORUS_OR_TARANIS(firmware->getBoard())) {
-    updatePotWarnings();
-  }
+  updatePotWarnings();
 
   for (int i = 0; i < CPN_MAX_MODULES + 1; i++) {
     if (modules[i]) {
@@ -843,4 +787,39 @@ void SetupPanel::onFunctionSwitchesUpdateItemModels()
 {
   updateStartupSwitches();
   sharedItemModels->update(AbstractItemModel::IMUE_FunctionSwitches);
+}
+
+void SetupPanel::loadImageList(QStringList &list, const QString & path)
+{
+  QDir d(path);
+  const int maxnamelen = firmware->getCapability(ModelImageNameLen);
+  const bool keepextn = firmware->getCapability(ModelImageKeepExtn);
+
+  if (d.exists()) {
+    QStringList filters = firmware->getCapabilityStr(ModelImageFilters).split("|");
+
+    foreach ( QString file, d.entryList(filters, QDir::Files) ) {
+      QFileInfo fi(file);
+      QString temp = keepextn ? fi.fileName() : fi.completeBaseName();
+
+      if (!list.contains(temp) && temp.length() <= maxnamelen)
+        list.append(temp);
+    }
+  }
+}
+
+void SetupPanel::loadImagePreview()
+{
+  if (!model->isBitmapEmpty()) {
+    QImage image;
+    QString filename(model->getImageFilename());
+    QString path(Helpers::getImagePath(filename));
+
+    if (!path.isEmpty() && image.load(path))
+      ui->imagePreview->setPixmap(QPixmap::fromImage(image.scaled(ui->imagePreview->size())));
+    else
+      ui->imagePreview->clear();
+
+  } else
+    ui->imagePreview->clear();
 }

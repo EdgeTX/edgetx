@@ -40,6 +40,7 @@
 #include "sdcard.h"
 #include "touch.h"
 #include "debug.h"
+#include "gyro.h"
 
 #include "timers_driver.h"
 #include "tp_gt911.h"

@@ -513,8 +513,8 @@ static int luaLcdDrawGauge(lua_State *L)
 #else
   lcdDrawRect(x, y, w, h, 0xff, flags);
 #endif
-  uint8_t len = limit((uint8_t)1, uint8_t(w*num/den), uint8_t(w));
-  lcdDrawSolidFilledRect(x+1, y+1, len, h-2, flags);
+  uint8_t len = limit((uint8_t)0, uint8_t(((w-2)*num + den/2) / den), uint8_t(w-2));
+  if (len > 0) lcdDrawSolidFilledRect(x+1, y+1, len, h-2, flags);
   return 0;
 }
 

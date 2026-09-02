@@ -173,13 +173,10 @@ void Window::eventHandler(lv_event_t *e)
 
   switch (code) {
     case LV_EVENT_SCROLL: {
-      lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
-      lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
-      if (scrollHandler) scrollHandler(scroll_x, scroll_y);
-
       // exclude pointer based scrolling (only focus scrolling)
       if (!lv_obj_is_scrolling(target) && ((windowFlags & NO_FORCED_SCROLL) == 0)) {
         lv_point_t *p = (lv_point_t *)lv_event_get_param(e);
+        lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
         lv_coord_t scroll_bottom = lv_obj_get_scroll_bottom(target);
 
         TRACE("SCROLL[x=%d;y=%d;top=%d;bottom=%d]", p->x, p->y, scroll_y,
@@ -187,12 +184,17 @@ void Window::eventHandler(lv_event_t *e)
 
         // Force scroll to top or bottom when near either edge.
         // Only applies when using rotary encoder or keys.
-        if (scroll_y <= 45 && p->y > 0) {
+        if (scroll_y <= EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 && p->y > 0) {
           lv_obj_scroll_by(target, 0, scroll_y, LV_ANIM_OFF);
-        } else if (scroll_bottom <= 16 && p->y < 0) {
+        } else if (scroll_bottom <= EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 && p->y < 0) {
           lv_obj_scroll_by(target, 0, -scroll_bottom, LV_ANIM_OFF);
         }
       }
+
+      lv_coord_t scroll_x = lv_obj_get_scroll_x(target);
+      lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
+      if (scrollHandler) scrollHandler(scroll_x, scroll_y);
+
     } break;
     case LV_EVENT_CLICKED:
       if (!_longPressed) {
@@ -637,6 +639,15 @@ NavWindow::NavWindow(Window *parent, const rect_t &rect,
   setWindowFlag(OPAQUE);
 }
 
+#if defined(HARDWARE_KEYS)
+void NavWindow::onPressSYS() { doKeyShortcut(EVT_KEY_BREAK(KEY_SYS)); }
+void NavWindow::onLongPressSYS() { doKeyShortcut(EVT_KEY_LONG(KEY_SYS)); }
+void NavWindow::onPressMDL() { doKeyShortcut(EVT_KEY_BREAK(KEY_MODEL)); }
+void NavWindow::onLongPressMDL() { doKeyShortcut(EVT_KEY_LONG(KEY_MODEL)); }
+void NavWindow::onPressTELE() { doKeyShortcut(EVT_KEY_BREAK(KEY_TELE)); }
+void NavWindow::onLongPressTELE() { doKeyShortcut(EVT_KEY_LONG(KEY_TELE)); }
+#endif
+
 //-----------------------------------------------------------------------------
 
 class SetupTextButton : public TextButton
@@ -659,45 +670,18 @@ class SetupTextButton : public TextButton
  protected:
 };
 
-SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
-                                   PaddingSize padding, const PageButtonDef* pages, coord_t btnHeight) :
+SetupButtonGroup::SetupButtonGroup(Window* parent, const rect_t& rect, int cols,
+                                   const PageButtonDef* pages, coord_t btnHeight) :
     Window(parent, rect)
 {
-  padAll(padding);
+  padAll(PAD_OUTLINE);
+  setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_SMALL);
+  lv_obj_set_flex_align(lvobj, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_EVENLY, LV_FLEX_ALIGN_SPACE_EVENLY);
 
-  coord_t buttonWidth = (width() - PAD_SMALL * (cols + 1) - PAD_TINY * 2) / cols;
+  coord_t buttonWidth = (width() - PAD_SMALL * (cols + 1) - PAD_OUTLINE * 2) / cols;
 
-  int size = 0;
-  for (; pages[size].title; size += 1);
-
-  int rows = (size + cols - 1) / cols;
-  int height = rows * btnHeight + (rows - 1) * PAD_MEDIUM + PAD_TINY * 2;
-  if (title) {
-    height += EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY;
-  }
-  setHeight(height);
-
-  if (title)
-    new Subtitle(this, title);
-
-  int n = 0;
-  int remaining = size;
-  coord_t yo = title ? EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY : 0;
-  coord_t xw = buttonWidth + PAD_SMALL;
-  coord_t xo = (width() - (cols * xw - PAD_SMALL)) / 2;
-  coord_t x, y;
-  for (int p = 0; p < size; p += 1) {
-    if (remaining < cols && (n % cols == 0)) {
-      coord_t space = ((cols - remaining) * xw) / (remaining + 1);
-      xw += space;
-      xo += space;
-    }
-    x = xo + (n % cols) * xw;
-    y = yo + (n / cols) * (btnHeight + PAD_MEDIUM);
-
-    new SetupTextButton(this, {x, y, buttonWidth, btnHeight}, pages[p]);
-    n += 1;
-    remaining -= 1;
+  for (int p = 0; pages[p].title; p += 1) {
+    new SetupTextButton(this, {0, 0, buttonWidth, btnHeight}, pages[p]);
   }
 }
 

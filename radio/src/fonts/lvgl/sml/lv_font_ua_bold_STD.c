@@ -230,5 +230,5 @@ const etxLz4Font lv_font_ua_bold_STD __FLASH = {
 .right_class_mapping = 4759,
 .cmaps = cmaps,
 .compressed = lz4FontData,
-.lvglFontBufSize = 5056,
+.lvglFontBufSize = 5064,
 };

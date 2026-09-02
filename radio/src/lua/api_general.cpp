@@ -1658,7 +1658,7 @@ static int luaScreenshot(lua_State * L)
 }
 
 /*luadoc
-@function playHaptic(duration, pause [, flags])
+@function playHaptic(duration, pause [, flags [, intensity]])
 
 Generate haptic feedback
 
@@ -1670,7 +1670,11 @@ Generate haptic feedback
  * `0 or not present` play with normal priority
  * `PLAY_NOW` play immediately
 
-@status current Introduced in 2.2.0
+@param intensity (number) [optional] haptic motor strength, 0-100 (only
+effective on boards with PWM-driven haptic support); defaults to the user's
+configured haptic strength setting
+
+@status current Introduced in 2.2.0, intensity added in 3.0
 */
 static int luaPlayHaptic(lua_State * L)
 {
@@ -1678,7 +1682,12 @@ static int luaPlayHaptic(lua_State * L)
   int length = luaL_checkinteger(L, 1);
   int pause = luaL_checkinteger(L, 2);
   int flags = luaL_optinteger(L, 3, 0);
-  haptic.play(length, pause, flags);
+  int intensity = luaL_optinteger(L, 4, userHapticStrength);
+  if (intensity != userHapticStrength) {
+    if (intensity < 0) intensity = 0;
+    else if (intensity > 100) intensity = 100;
+  }
+  haptic.play(length, pause, flags, intensity);
 #else
   UNUSED(L);
 #endif
@@ -1697,12 +1706,13 @@ Stops key state machine. See [Key Events](../key_events.md) for the detailed des
 */
 static int luaKillEvents(lua_State * L)
 {
-#if defined(KEYS_GPIO_REG_MENU)
-  #define IS_MASKABLE(key)                                      \
-    ((key) != KEY_EXIT && (key) != KEY_ENTER &&                 \
-     ((scriptInternalData[0].reference == SCRIPT_STANDALONE) || \
-      (key) != KEY_PAGEDN))
+#if !defined(COLORLCD)
+  #define IS_STANDALONE() (scriptInternalData[0].reference == SCRIPT_STANDALONE)
+  #define IS_MASKABLE(key)                      \
+    ((key) != KEY_EXIT && (key) != KEY_ENTER && \
+     (!keyIsSupported(KEY_MENU) || (IS_STANDALONE() || ((key) != KEY_PAGEDN))))
 #else
+  #define IS_STANDALONE() (false)
   #define IS_MASKABLE(key) ((key) != KEY_EXIT && (key) != KEY_ENTER)
 #endif
 
@@ -1714,6 +1724,9 @@ static int luaKillEvents(lua_State * L)
     luaEmptyEventBuffer();
    }
   return 0;
+
+#undef IS_MASKABLE
+#undef IS_STANDALONE
 }
 
 #if LCD_DEPTH > 1 && !defined(COLORLCD)
@@ -2893,6 +2906,7 @@ static int luaGetTrainerStatus(lua_State * L)
 
 // To simplify code below
 #if !defined(BLING_LED_STRIP_LENGTH)
+  #define BLING_LED_STRIP_START 0
   #define BLING_LED_STRIP_LENGTH 0
 #endif
 #if !defined(CFS_LED_STRIP_LENGTH)
@@ -2930,18 +2944,20 @@ static int luaSetRgbLedColor(lua_State * L)
   uint8_t b = luaL_checkunsigned(L, 4);
 
 #if CFS_LED_STRIP_LENGTH > 0
-  if (id >= BLING_LED_STRIP_LENGTH) {
-    id -= BLING_LED_STRIP_LENGTH;
-    uint8_t swIdx = switchGetSwitchFromCustomIdx(id / CFS_LEDS_PER_SWITCH);
-    if (g_model.getSwitchType(swIdx) == SWITCH_NONE) {
-      rgbSetLedColor(id + CFS_LED_STRIP_START, r, g, b);
-    } else {
-      lua_pushboolean(L, false);
-      return 1;
-    }
-  } else {
+#if BLING_LED_STRIP_LENGTH > 0
+  if (id < BLING_LED_STRIP_LENGTH) {
     rgbSetLedColor(id + BLING_LED_STRIP_START, r, g, b);
+    lua_pushboolean(L, true);
+    return 1;
   }
+  id -= BLING_LED_STRIP_LENGTH;
+#endif
+  uint8_t swIdx = switchGetSwitchFromCustomIdx(id / CFS_LEDS_PER_SWITCH);
+  if (g_model.getSwitchType(swIdx) != SWITCH_NONE) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+  rgbSetLedColor(id + CFS_LED_STRIP_START, r, g, b);
 #else
   rgbSetLedColor(id + BLING_LED_STRIP_START, r, g, b);
 #endif
@@ -3061,7 +3077,7 @@ static int luaSetIMU_X(lua_State* const L)
     return 1;
   }
 
-  gyro.setIMU_X(offset, range);
+  gyroSetIMU_X(offset, range);
 #endif
   lua_pushboolean(L, true);
   return 1;
@@ -3092,7 +3108,7 @@ static int luaSetIMU_Y(lua_State* const L)
     return 1;
   }
 
-  gyro.setIMU_Y(offset, range);
+  gyroSetIMU_Y(offset, range);
 #endif
   lua_pushboolean(L, true);
   return 1;
@@ -3205,6 +3221,7 @@ LROT_BEGIN(etxcst, NULL, 0)
 #if defined(COLORLCD)
   LROT_NUMENTRY( STDSIZE, FONT(STD) )
   LROT_NUMENTRY( XXLSIZE, FONT(XXL) )
+  LROT_NUMENTRY( XLSIZE, FONT(LXL) )
   LROT_NUMENTRY( DBLSIZE, FONT(XL) )
   LROT_NUMENTRY( MIDSIZE, FONT(L) )
   LROT_NUMENTRY( SMLSIZE, FONT(XS) )
@@ -3290,6 +3307,9 @@ LROT_BEGIN(etxcst, NULL, 0)
   LROT_NUMENTRY( FUNC_PUSH_CUST_SWITCH, FUNC_PUSH_CUST_SWITCH )
 #endif
   LROT_NUMENTRY( FUNC_SET_SCREEN, FUNC_SET_SCREEN )
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  LROT_NUMENTRY( FUNC_DISABLE_KEYS, FUNC_DISABLE_KEYS )
+#endif
 #if defined(COLORLCD)
   LROT_NUMENTRY( FUNC_DISABLE_TOUCH, FUNC_DISABLE_TOUCH )
 

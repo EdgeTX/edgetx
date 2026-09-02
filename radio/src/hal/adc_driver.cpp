@@ -242,11 +242,6 @@ void adcCalibStore()
 uint16_t getAnalogValue(uint8_t index)
 {
   if (index >= MAX_ANALOG_INPUTS) return 0;
-#if defined(SIXPOS_SWITCH_INDEX) && !defined(SIMU)
-  if (index == SIXPOS_SWITCH_INDEX)
-    return getSixPosAnalogValue(adcValues[index]);
-  else
-#endif
   return adcValues[index];
 }
 
@@ -366,8 +361,6 @@ static uint32_t apply_low_pass_filter(uint32_t v, uint32_t v_prev,
 
 static uint32_t apply_calibration(const CalibData* calib, uint32_t v)
 {
-  // Simu uses normed inputs
-#if !defined(SIMU)
   // Apply calibration relative to mid-point
   int32_t s = v - 2 * calib->mid;
   s = s * (int32_t)RESX /
@@ -383,10 +376,7 @@ static uint32_t apply_calibration(const CalibData* calib, uint32_t v)
     s = 4 * RESX;
   }
 
-  v = s;
-#endif
-
-  return v;
+  return s;
 }
 
 static uint32_t apply_multipos(const StepsCalibData* calib, uint32_t v)
@@ -406,6 +396,24 @@ static uint32_t apply_multipos(const StepsCalibData* calib, uint32_t v)
 
   return ANAFILT_MAX;
 }
+
+#if defined(SIMU)
+// In simulation, assume equally spaced positions across full ADC range
+static uint32_t apply_multipos_simu(uint32_t v)
+{
+  constexpr uint32_t ALPHA_MULT = JITTER_ALPHA * ANALOG_MULTIPLIER;
+  constexpr uint32_t ANAFILT_MAX = 2 * RESX * ALPHA_MULT;
+  constexpr uint32_t N = XPOTS_MULTIPOS_COUNT;
+  constexpr uint32_t COUNT = N - 1;
+
+  uint32_t pos = v * N / (ANAFILT_MAX + 1);
+  if (pos > COUNT) pos = COUNT;
+
+  return (pos < COUNT)
+    ? (pos * (ANAFILT_MAX + ALPHA_MULT)) / COUNT
+    : ANAFILT_MAX;
+}
+#endif
 
 void getADC()
 {
@@ -435,14 +443,17 @@ void getADC()
     bool is_flex_input = (x >= pot_offset) && (x < pot_offset + max_pots);
     bool is_multipos = is_flex_input && IS_POT_MULTIPOS(x - pot_offset);
 
-    // 1st: apply calibration
     uint32_t v = getAnalogValue(x);
 
+#if !defined(SIMU)
+    // Apply hardware calibration (not needed in simulation:
+    // the host already provides normalized ADC-range values)
     if (x < max_calib_analogs && !is_multipos) {
       v = apply_calibration(&g_eeGeneral.calib[x], v);
     }
+#endif
 
-    // 2nd: apply inversion
+    // Apply inversion
     if (x < pot_offset && getStickInversion(inputMappingConvertMode(x))) {
       v = 4 * RESX - v;
     }
@@ -451,14 +462,18 @@ void getADC()
       v = 4 * RESX - v;
     }
 
-    // 3rd: apply filtering
+    // Apply filtering
     s_anaFilt[x] = apply_low_pass_filter(v, s_anaFilt[x], x < max_mains);
 
     if (is_multipos) {
+#if defined(SIMU)
+      s_anaFilt[x] = apply_multipos_simu(s_anaFilt[x]);
+#else
       const auto* calib = (const StepsCalibData*)&g_eeGeneral.calib[x];
       if (IS_MULTIPOS_CALIBRATED(calib)) {
         s_anaFilt[x] = apply_multipos(calib, s_anaFilt[x]);
       }
+#endif
     }
 
 #if defined(JITTER_MEASURE)
@@ -534,7 +549,8 @@ int adcGetInputIdx(const char* input, uint8_t len)
 
   do {
     for (uint8_t i = 0; i < _hal_adc_inputs[type].n_inputs; i++, idx++) {
-      if (!strncmp(_hal_adc_inputs[type].inputs[i].name, input, len))
+      const char* input_name = _hal_adc_inputs[type].inputs[i].name;
+      if (strlen(input_name) == len && !strncmp(input_name, input, len))
         return idx;
     }
   } while (++type < ADC_INPUT_ALL);

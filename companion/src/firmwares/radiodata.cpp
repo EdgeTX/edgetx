@@ -34,14 +34,14 @@ void RadioData::setCurrentModel(unsigned int index)
 {
   generalSettings.currModelIndex = index;
   if (index < models.size()) {
-    strcpy(generalSettings.currModelFilename, models[index].filename);
+    strcpy(generalSettings.currModelFilename, models[index].filename.c_str());
   }
 }
 
 void RadioData::fixModelFilename(unsigned int index)
 {
   ModelData & model = models[index];
-  QString filename(model.filename);
+  QString filename = model.filename.toQString();
   const bool hasSDCard = Boards::getCapability(getCurrentFirmware()->getBoard(), Board::HasSDCard);
   bool ok = hasSDCard ? filename.endsWith(".yml") : filename.endsWith(".bin");
   if (ok) {
@@ -51,14 +51,14 @@ void RadioData::fixModelFilename(unsigned int index)
   }
   if (ok) {
     for (unsigned i=0; i<index; i++) {
-      if (strcmp(models[i].filename, model.filename) == 0) {
+      if (models[i].filename == model.filename) {
         ok = false;
         break;
       }
     }
   }
   if (!ok) {
-    sprintf(model.filename, "model%d.%s", index + 1, hasSDCard ? "yml" : "bin");
+    model.filename = QString::asprintf("model%d.%s", index + 1, hasSDCard ? "yml" : "bin");
   }
 }
 
@@ -72,14 +72,14 @@ void RadioData::fixModelFilenames()
 
 QString RadioData::getNextModelFilename()
 {
-  char filename[sizeof(ModelData::filename)];
   int8_t index = 0;
   bool found = true;
+  QString filename;
   while (found) {
-    sprintf(filename, "model%d.yml", ++index);
+    filename = QString::asprintf("model%d.yml", ++index);
     found = false;
     for (unsigned int i = 0; i < models.size(); i++) {
-      if (strcmp(filename, models[i].filename) == 0) {
+      if (models[i].filename == filename.toStdString()) {
         found = true;
         break;
       }
@@ -135,12 +135,12 @@ bool RadioData::deleteLabel(QString label)
 
   // Remove labels in the models
   for(auto& model : models) {
-    QStringList modelLabels = fromCSV(QString::fromLatin1(model.labels));
+    QStringList modelLabels = fromCSV(QString::fromLatin1(model.labels.c_str()));
     if (modelLabels.indexOf(label) >= 0) {
       deleted = true;
       modelLabels.removeAll(label);
     }
-    strcpy(model.labels, toCSV(modelLabels).toLatin1().data());
+    model.labels = toCSV(modelLabels).toLatin1().constData();
   }
 
   // Remove the label from the global list
@@ -171,8 +171,8 @@ bool RadioData::renameLabel(QString from, QString to)
 
   // Check that rename is possible (Rename won't cause too long of a string)
   for(auto& model : models) {
-    if (RadioData::fromCSV(model.labels).indexOf(from) != -1) {
-      if ((int)strlen(model.labels) + lengthdiff > (int)sizeof(model.labels) - 1) {
+    if (RadioData::fromCSV(model.labels.toQString()).indexOf(from) != -1) {
+      if ((int)model.labels.size() + lengthdiff > (int)model.labels.capacity()) {
         success = false;
         throw std::length_error(model.name);
         break;
@@ -181,13 +181,13 @@ bool RadioData::renameLabel(QString from, QString to)
   }
   if (success) {
     for(auto& model : models) {
-      QStringList modelLabels = QString(model.labels).split(',', Qt::SkipEmptyParts);
+      QStringList modelLabels = model.labels.toQString().split(',', Qt::SkipEmptyParts);
       int ind = modelLabels.indexOf(csvFrom);
       if (ind != -1) {
         modelLabels.replace(ind, csvTo);
         QString outputcsv = QString(modelLabels.join(','));
-        if (outputcsv.toLatin1().size() < (int)sizeof(model.labels)) {
-          strcpy(model.labels, outputcsv.toLatin1().data());
+        if (outputcsv.toLatin1().size() <= (int)model.labels.capacity()) {
+          model.labels = outputcsv.toLatin1().constData();
         } else { // Shouldn't ever get here, from check above
           success = false;
           throw std::length_error(model.name);
@@ -228,13 +228,13 @@ bool RadioData::addLabelToModel(int index, QString label)
   if ((unsigned int)index >= models.size()) return false;
   label = escapeCSV(label);
 
-  char *modelLabelCsv = models[index].labels;
+  auto & modelLabelCsv = models[index].labels;
   // Make sure it will fit
-  if (strlen(modelLabelCsv) + label.size() + 1 < sizeof(models[index].labels)-1) {
-    QStringList modelLabels = QString::fromLatin1(modelLabelCsv).split(',', Qt::SkipEmptyParts);
+  if (modelLabelCsv.size() + (size_t)label.size() + 1 < modelLabelCsv.capacity()) {
+    QStringList modelLabels = QString::fromLatin1(modelLabelCsv.c_str()).split(',', Qt::SkipEmptyParts);
     if (modelLabels.indexOf(label) == -1) {
       modelLabels.append(label);
-      strcpy(models[index].labels, QString(modelLabels.join(',')).toLatin1().data());
+      modelLabelCsv = QString(modelLabels.join(',')).toLatin1().constData();
       return true;
     }
   }
@@ -246,10 +246,10 @@ bool RadioData::removeLabelFromModel(int index, QString label)
 {
   if ((unsigned int)index >= models.size()) return false;
 
-  QStringList lbls = fromCSV(QString::fromLatin1(models[index].labels));
+  QStringList lbls = fromCSV(QString::fromLatin1(models[index].labels.c_str()));
   if (lbls.indexOf(label) >= 0) {
     lbls.removeAll(label);
-    strcpy(models[index].labels, toCSV(lbls).toLatin1().data());
+    models[index].labels = toCSV(lbls).toLatin1().constData();
     return true;
   }
   return false;
@@ -258,7 +258,7 @@ bool RadioData::removeLabelFromModel(int index, QString label)
 void RadioData::addLabelsFromModels()
 {
   for(const auto &model: models) {
-    QStringList labels = QString(model.labels).split(',', Qt::SkipEmptyParts);
+    QStringList labels = model.labels.toQString().split(',', Qt::SkipEmptyParts);
     foreach(QString label, labels) {
       addLabel(label);
     }
@@ -357,4 +357,19 @@ int RadioData::invalidModels()
     cnt += model.isValid() ? 0 : 1;
 
   return cnt;
+}
+
+QStringList RadioData::modelErrorsList()
+{
+  QStringList ret;
+
+  for(auto &model: models) {
+    if (!model.isValid()) {
+      ret.append("");
+      ret.append(model.name.toQString());
+      ret.append(model.errorsList());
+    }
+  }
+
+  return ret;
 }

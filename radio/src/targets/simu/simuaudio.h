@@ -21,9 +21,6 @@
 
 #pragma once
 
-#include <stdint.h>
-
 bool simuAudioInit();
 void simuAudioDeInit();
-void simuQueueAudio(const uint8_t* data, uint32_t len);
 int simuAudioGetVolume();

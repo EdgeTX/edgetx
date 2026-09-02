@@ -23,7 +23,7 @@
 
 #include "modeledit.h"
 #include "eeprominterface.h"
-#include "filtereditemmodels.h"
+#include "itemmodeleventhandler.h"
 
 constexpr char FIM_TIMERSWITCH[] {"Timer Switch"};
 constexpr char MIMETYPE_TIMER[]  {"application/x-companion-timer"};
@@ -44,15 +44,6 @@ class TimerPanel : public ModelPanel
     virtual void update();
     QWidget * getLastFocus();
 
-  public slots:
-    void onNameChanged();
-    void onModeChanged(int index);
-
-  private slots:
-    void onItemModelAboutToBeUpdated();
-    void onItemModelUpdateComplete();
-    void onCountdownBeepChanged(int index);
-
   signals:
     void nameChanged();
     void modeChanged();
@@ -60,6 +51,5 @@ class TimerPanel : public ModelPanel
   private:
     TimerData & timer;
     Ui::Timer * ui;
-    void connectItemModelEvents(const FilteredItemModel * itemModel);
-    int modelsUpdateCnt;
+    ItemModelEventHandler *imEventHandler;
 };

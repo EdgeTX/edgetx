@@ -92,6 +92,7 @@ bool GeneralSettings::isInputAvailable(int index) const
   const InputConfig &config = inputConfig[index];
 
   return (config.type == Board::AIT_STICK ||
+          config.type == Board::AIT_LUX ||
           (config.type == Board::AIT_FLEX && config.flexType != Board::FLEX_NONE));
 }
 
@@ -124,10 +125,11 @@ bool GeneralSettings::isInputPot(int index) const
   if (isInputAvailable(index)) {
     const InputConfig &config = inputConfig[index];
 
-    return (config.type == Board::AIT_FLEX &&
+    return (config.type == Board::AIT_LUX ||
+            (config.type == Board::AIT_FLEX &&
            (config.flexType == Board::FLEX_POT ||
             config.flexType == Board::FLEX_POT_CENTER ||
-            config.flexType == Board::FLEX_MULTIPOS));
+            config.flexType == Board::FLEX_MULTIPOS)));
   }
 
   return false;
@@ -213,6 +215,8 @@ void GeneralSettings::init()
     strcpy(bluetoothName, "st16");
   else if (IS_RADIOMASTER_TX15(board))
     strcpy(bluetoothName, "tx15");
+  else if (IS_RADIOMASTER_GX15(board))
+    strcpy(bluetoothName, "gx15");
   else if (IS_RADIOMASTER_TX16SMK3(board))
     strcpy(bluetoothName, "tx16smk3");
   else if (IS_FAMILY_HORUS_OR_T16(board))
@@ -227,12 +231,14 @@ void GeneralSettings::init()
   backlightOffBright = IS_FAMILY_HORUS_OR_T16(board) ? 20 : 0;
 
   backgroundVolume = 1;
-  speakerVolume = 12;
+  speakerVolume = 0;
   wavVolume = 2;
 
   hatsMode = HATSMODE_SWITCHABLE;
   inactivityTimer = 10;
   internalModule = g.profile[g.sessionId()].defaultInternalModule();
+  stickMode = g.profile[g.sessionId()].defaultMode();
+  templateSetup = g.profile[g.sessionId()].channelOrder();
 
   QString lang = getCurrentFirmware()->getLanguage();
   if (lang.size() > 1) {
@@ -426,7 +432,8 @@ void GeneralSettings::convert(RadioDataConversionState & cstate)
   }
 
   if (IS_TARANIS(cstate.toType)) {
-    contrast = qBound<int>(getCurrentFirmware()->getCapability(MinContrast), contrast, getCurrentFirmware()->getCapability(MaxContrast));
+    contrast = qBound<int>(Boards::getCapability(cstate.toType, Board::MinContrast),
+               contrast, Boards::getCapability(cstate.toType, Board::MaxContrast));
   }
 
   // TODO: Would be nice at this point to have GUI pause and ask the user to set up any custom hardware they have on the destination radio.
@@ -1060,6 +1067,9 @@ QString GeneralSettings::quickMenuToString(int value, bool keys)
       return tr("Tools - Statistics");
     case QM_TOOLS_DEBUG:
       return tr("Tools - Debug");
+    // Lua stand alone script
+    case QM_APP:
+      return tr("App");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }

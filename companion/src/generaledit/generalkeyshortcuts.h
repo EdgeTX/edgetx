@@ -22,6 +22,7 @@
 #pragma once
 
 #include "generaledit.h"
+#include "autocombobox.h"
 
 class ExclusiveComboGroup;
 class QGridLayout;
@@ -34,17 +35,28 @@ class GeneralKeysPanel : public GeneralPanel
     GeneralKeysPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware);
     virtual ~GeneralKeysPanel();
 
+  private slots:
+    void on_shortcutChanged();
+    void on_shortcutToolChanged();
+
   private:
     Board::Type board;
     QGridLayout *grid;
     QList<QWidget *> *params;
     int row;
     int col;
+    bool lock;
     ExclusiveComboGroup *cboQMGrp;
+    QList<AutoComboBox *> *cboShortcuts;
+    QList<AutoComboBox *> *cboShortcutTools;
+    QList<QString *> *strKeyShortcutTools;
 
     void addLabel(QString text);
     void addLine();
     void addParams();
     void addSection(QString text);
     void initComboQMGroup();
+    void setToolName(int index);
+    void update();
+    void updateRow(const int index);
 };

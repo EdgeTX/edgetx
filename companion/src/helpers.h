@@ -34,6 +34,7 @@
 #include <QComboBox>
 
 extern const QColor colors[CPN_MAX_CURVES];
+extern QString gAppTempPath;
 
 #define TMR_NUM_OPTION  (TMRMODE_COUNT+2*9+2*getCurrentFirmware()->getCapability(LogicalSwitches)-1)
 
@@ -118,6 +119,8 @@ namespace Helpers
   QString concatPath(const QString & str1, const QString & str2, bool onlyonesep = true);
   QString concatPath(const QString & str1, QString & str2, bool onlyonesep = true);
   QString concatPath(QString & str1, const QString & str2, bool onlyonesep = true);
+  QString getImagesCacheDir();
+  QString getImagePath(const QString & filename);
 }  // namespace Helpers
 
 // TODO : move globals to Helpers namespace
@@ -142,6 +145,7 @@ bool isTempFileName(const QString & fileName);
 
 QString getSoundsPath(const GeneralSettings &generalSettings);
 QSet<QString> getFilesSet(const QString &path, const QStringList &filter, int maxLen);
+QStringList getListLuaTools();
 
 
 class QTimeS : public QTime
@@ -267,3 +271,11 @@ class StatusDialog: public QDialog
   private:
     QLabel *msg;
 };
+
+template <typename T>
+T rangeCheck(T value, T min, T max, T defaultValue) {
+  if (value < min || value > max) {
+      return defaultValue;
+  }
+  return value;
+}

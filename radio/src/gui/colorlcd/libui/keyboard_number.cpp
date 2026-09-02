@@ -21,7 +21,7 @@
 #include "numberedit.h"
 #include "keys.h"
 
-constexpr coord_t KEYBOARD_HEIGHT = 90;
+LAYOUT_VAL_SCALED(KEYBOARD_HEIGHT, 90);
 NumberKeyboard* NumberKeyboard::_instance = nullptr;
 
 static const char* const number_kb_map[] = {"<<",  "-",   "+",   ">>",  "\n",
@@ -72,76 +72,54 @@ void NumberKeyboard::handleEvent(const char* btn)
 
 void NumberKeyboard::decLarge()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_BACKWARD);
+  field->onEvent(EVT_VIRTUAL_KEY_BACKWARD);
 }
 
 void NumberKeyboard::decSmall()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_MINUS);
+  field->onEvent(EVT_VIRTUAL_KEY_MINUS);
 }
 
 void NumberKeyboard::incSmall()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_PLUS);
+  field->onEvent(EVT_VIRTUAL_KEY_PLUS);
 }
 
 void NumberKeyboard::incLarge()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_FORWARD);
+  field->onEvent(EVT_VIRTUAL_KEY_FORWARD);
 }
 
 void NumberKeyboard::setMIN()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_MIN);
+  field->onEvent(EVT_VIRTUAL_KEY_MIN);
 }
 
 void NumberKeyboard::setMAX()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_MAX);
+  field->onEvent(EVT_VIRTUAL_KEY_MAX);
 }
 
 void NumberKeyboard::setDEF()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_DEFAULT);
+  field->onEvent(EVT_VIRTUAL_KEY_DEFAULT);
 }
 
 void NumberKeyboard::changeSign()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_SIGN);
+  field->onEvent(EVT_VIRTUAL_KEY_SIGN);
 }
 
 #if defined(HARDWARE_KEYS)
 
-#if (defined(KEYS_GPIO_REG_PAGEUP) || defined(USE_HATS_AS_KEYS)) && \
-    !defined(PCBX12S)
-// Radios with both PGUP and PGDN buttons except X12S
-void NumberKeyboard::onPressSYS() { decLarge(); }
+void NumberKeyboard::onPressSYS() { if (hasTwoPageKeys) decLarge(); else decSmall(); }
 void NumberKeyboard::onLongPressSYS() { setMIN(); }
 void NumberKeyboard::onPressMDL() { incLarge(); }
-void NumberKeyboard::onLongPressMDL() { setMAX(); }
-void NumberKeyboard::onPressTELE() { changeSign(); }
-void NumberKeyboard::onLongPressTELE() { setDEF(); }
-void NumberKeyboard::onPressPGUP() { decSmall(); }
-void NumberKeyboard::onPressPGDN() { incSmall(); }
-void NumberKeyboard::onLongPressPGUP() {}
-void NumberKeyboard::onLongPressPGDN() {}
-#else
-// Radios witb only a single PGUP/DN button or X12S
-void NumberKeyboard::onPressSYS() { decSmall(); }
-void NumberKeyboard::onLongPressSYS() { setMIN(); }
-void NumberKeyboard::onPressMDL() { incLarge(); }
-void NumberKeyboard::onLongPressMDL() { changeSign(); }
-void NumberKeyboard::onPressTELE() { incSmall(); }
-void NumberKeyboard::onLongPressTELE() { setMAX(); }
-#if defined(PCBX12S)
-void NumberKeyboard::onPressPGUP() { decLarge(); }
-#else
-void NumberKeyboard::onPressPGUP() { setDEF(); }
-#endif
-void NumberKeyboard::onPressPGDN() { decLarge(); }
-void NumberKeyboard::onLongPressPGUP() { setDEF(); }
-void NumberKeyboard::onLongPressPGDN() { setDEF(); }
-#endif
+void NumberKeyboard::onLongPressMDL() { if (hasTwoPageKeys) setMAX(); else changeSign(); }
+void NumberKeyboard::onPressTELE() { if (hasTwoPageKeys) changeSign(); else incSmall(); }
+void NumberKeyboard::onLongPressTELE() { if (hasTwoPageKeys) setDEF(); else setMAX(); }
+void NumberKeyboard::onPressPGUP() { if (hasTwoPageKeys) decSmall(); else setDEF(); }
+void NumberKeyboard::onPressPGDN() { if (hasTwoPageKeys) incSmall(); else decLarge(); }
 
 #endif
 

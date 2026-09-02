@@ -136,14 +136,14 @@ AbstractStaticItemModel * GVarData::unitItemModel()
 QDataStream &operator<<(QDataStream &out, const GVarData &data) {
   QByteArray name(data.name);
   name.resize(sizeof(data.name));
-  out << name << data.min << data.max << data.prec << data.unit;
+  out << name << data.min << data.max << data.popup << data.prec << data.unit;
   return out;
 }
 
 QDataStream &operator>>(QDataStream &in, GVarData &data) {
   QByteArray name;
   name.resize(sizeof(data.name));
-  in >> name >> data.min  >> data.max >> data.prec >> data.unit;
+  in >> name >> data.min  >> data.max >> data.popup >> data.prec >> data.unit;
   memcpy(data.name, name.constData(), sizeof(data.name));
   return in;
 }

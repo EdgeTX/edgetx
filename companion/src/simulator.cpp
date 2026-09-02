@@ -45,6 +45,7 @@
 #include "translations.h"
 #include "version.h"
 #include "boardfactories.h"
+#include "helpers.h"
 
 using namespace Simulator;
 
@@ -312,14 +313,14 @@ int main(int argc, char *argv[])
   if (cliResult == CommandLineExitErr)
     return finish(1);
 
-  // TODO : defaults should be set in Profile::init()
-  if (simOptions.firmwareId.isEmpty()) {
+  // Always use profile's firmware type and SD path as authoritative source —
+  // the copies in simulatorOptions can become stale.
+  if (!g.profile[profileId].fwType().isEmpty())
     simOptions.firmwareId = g.profile[profileId].fwType();
-  }
 
   if (simOptions.dataFolder.isEmpty())
     simOptions.dataFolder = g.eepromDir();
-  if (simOptions.sdPath.isEmpty())
+  if (!g.profile[profileId].sdPath().isEmpty())
     simOptions.sdPath = g.profile[profileId].sdPath();
 
   // DO NOT use saved simulatorId as could be changed in later releases
@@ -366,6 +367,23 @@ int main(int argc, char *argv[])
   // Set global firmware environment
   Firmware::setCurrentVariant(Firmware::getFirmwareForId(simOptions.firmwareId));
   //qDebug() << "current firmware:" << getCurrentFirmware()->getId();
+
+  QTemporaryDir tempDir(QDir::tempPath() % "/etx-cpn-XXXXXX");
+
+  if (!tempDir.isValid()) {
+    qDebug() << "Unable to create application temporary directory";
+    gAppTempPath.clear();
+    return finish(1);
+  } else {
+    gAppTempPath = tempDir.path();
+
+    if (!QDir(gAppTempPath).mkdir("IMAGES")) {
+      qDebug() << "Unable to create images cache directory:" << Helpers::getImagesCacheDir();
+      return finish(1);
+    }
+  }
+
+  qDebug() << "Created images cache directory:" << Helpers::getImagesCacheDir();
 
   int result = 0;
   SimulatorMainWindow * mainWindow = new SimulatorMainWindow(nullptr, simOptions.simulatorId, (simOptions.flags ? simOptions.flags : SIMULATOR_FLAGS_STANDALONE));

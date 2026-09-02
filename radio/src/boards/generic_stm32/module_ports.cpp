@@ -193,8 +193,8 @@ static void _extmod_init_inverter()
 static const stm32_usart_t sbus_trainer_USART = {
   .USARTx = TRAINER_MODULE_SBUS_USART,
   .rxGPIO = TRAINER_MODULE_SBUS_GPIO,
-  .IRQn = (IRQn_Type)-1,
-  .IRQ_Prio = 0,
+  .IRQn = TRAINER_MODULE_SBUS_USART_IRQn,
+  .IRQ_Prio = 6,
   .txDMA = nullptr,
   .txDMA_Stream = 0,
   .txDMA_Channel = 0,
@@ -207,6 +207,7 @@ DEFINE_STM32_SERIAL_PORT(SbusTrainer, sbus_trainer_USART, 32, 0);
 
 #endif
 
+#if defined(EXTMODULE_TIMER)
 static stm32_pulse_dma_tc_cb_t _ext_timer_DMA_TC_Callback;
 
 static const stm32_pulse_timer_t extmoduleTimer = {
@@ -250,6 +251,7 @@ extern "C" void EXTMODULE_TIMER_IRQHandler()
 }
 
 DEFINE_STM32_SOFTSERIAL_PORT(ExternalModule, extmoduleTimer);
+#endif // EXTMODULE_TIMER
 
 #if defined(TRAINER_MODULE_CPPM_TIMER)
 
@@ -489,6 +491,7 @@ static const etx_module_port_t _external_ports[] = {
 #endif
   },
 #endif
+#if defined(EXTMODULE_TIMER)
   // Timer output on PPM
   {
     .port = ETX_MOD_PORT_TIMER,
@@ -515,6 +518,7 @@ static const etx_module_port_t _external_ports[] = {
     .set_inverted = nullptr,
 #endif
   },
+#endif // EXTMODULE_TIMER
 #if !defined(EXTMODULE_USART) && defined(TRAINER_MODULE_SBUS_USART)
   // RX on HEARTBEAT
   {
@@ -600,7 +604,7 @@ const etx_module_t _sport_module = {
 
 #endif // SPORT_UPDATE_PWR_GPIO
 
-#if !defined(RADIO_X10E)
+#if !defined(RADIO_X10EXPRESS)
 uint32_t __pxx1_get_inverter_comp() { return 1; }
 #endif
 

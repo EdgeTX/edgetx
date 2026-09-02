@@ -55,7 +55,6 @@ class MixData {
     unsigned int speedUp;
     unsigned int speedDown;
     int  carryTrim;
-    bool noExpo;
     MltpxValue mltpx;
     unsigned int mixWarn;
     unsigned int flightModes;       // -5=!FP4, 0=normal, 5=FP4

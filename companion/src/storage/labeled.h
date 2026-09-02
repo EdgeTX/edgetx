@@ -46,7 +46,9 @@ class LabelsStorageFormat : public StorageFormat
 
   protected:
     virtual bool loadFile(QByteArray & fileData, const QString & fileName, bool optional = false) = 0;
+    virtual bool loadImageFile(const QString & fileName, bool optional = false) = 0;
     virtual bool writeFile(const QByteArray & fileData, const QString & fileName) = 0;
+    virtual bool writeImageFile(const QString & fileName) = 0;
     virtual bool getFileList(std::list<std::string>& filelist) = 0;
     virtual bool deleteFile(const QString & fileName) = 0;
 

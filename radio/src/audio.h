@@ -133,13 +133,15 @@ struct Tone {
   uint16_t pause;
   int8_t   freqIncr;
   uint8_t  reset;
+  uint8_t  pure;    // use the distortion-free sine LUT (e.g. CLI "beep")
   Tone() {};
-  Tone(uint16_t freq, uint16_t duration, uint16_t pause, int8_t freqIncr, bool reset):
+  Tone(uint16_t freq, uint16_t duration, uint16_t pause, int8_t freqIncr, bool reset, bool pure):
     freq(freq),
     duration(duration),
     pause(pause),
     freqIncr(freqIncr),
-    reset(reset)
+    reset(reset),
+    pure(pure)
   {};
 };
 
@@ -155,12 +157,12 @@ struct AudioFragment {
 
   AudioFragment() { clear(); };
 
-  AudioFragment(uint16_t freq, uint16_t duration, uint16_t pause, uint8_t repeat, int8_t freqIncr, bool reset, int8_t fragmentVolume, uint8_t id=0 ):
+  AudioFragment(uint16_t freq, uint16_t duration, uint16_t pause, uint8_t repeat, int8_t freqIncr, bool reset, int8_t fragmentVolume, bool pure=false, uint8_t id=0 ):
     type(FRAGMENT_TONE),
     id(id),
     repeat(repeat),
     fragmentVolume(fragmentVolume),
-    tone(freq, duration, pause, freqIncr, reset)
+    tone(freq, duration, pause, freqIncr, reset, pure)
   {};
 
   AudioFragment(const char * filename, uint8_t repeat, int8_t fragmentVolume, uint8_t id = 0):
@@ -197,9 +199,9 @@ class ToneContext {
 
     int mixBuffer(AudioBuffer *buffer, int volume, unsigned int fade);
 
-    void setFragment(uint16_t freq, uint16_t duration, uint16_t pause, uint8_t repeat, int8_t freqIncr, bool reset, int8_t fragmentVolume, uint8_t id = 0)
+    void setFragment(uint16_t freq, uint16_t duration, uint16_t pause, uint8_t repeat, int8_t freqIncr, bool reset, int8_t fragmentVolume, bool pure = false, uint8_t id = 0)
     {
-      fragment = AudioFragment(freq, duration, pause, repeat, freqIncr, reset, fragmentVolume, id);
+      fragment = AudioFragment(freq, duration, pause, repeat, freqIncr, reset, fragmentVolume, pure, id);
     }
 
   private:

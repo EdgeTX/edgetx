@@ -236,12 +236,13 @@ class NavWindow : public Window
   bool isNavWindow() override { return true; }
 
 #if defined(HARDWARE_KEYS)
-  virtual void onPressSYS() {}
-  virtual void onLongPressSYS() {}
-  virtual void onPressMDL() {}
-  virtual void onLongPressMDL() {}
-  virtual void onPressTELE() {}
-  virtual void onLongPressTELE() {}
+  virtual void doKeyShortcut(event_t event) {}
+  virtual void onPressSYS();
+  virtual void onLongPressSYS();
+  virtual void onPressMDL();
+  virtual void onLongPressMDL();
+  virtual void onPressTELE();
+  virtual void onLongPressTELE();
   virtual void onPressPGUP() {}
   virtual void onPressPGDN() {}
   virtual void onLongPressPGUP() {}
@@ -266,8 +267,8 @@ struct PageButtonDef {
 class SetupButtonGroup : public Window
 {
  public:
-  SetupButtonGroup(Window* parent, const rect_t& rect, const char* title, int cols,
-                   PaddingSize padding, const PageButtonDef* pages, coord_t btnHeight = EdgeTxStyles::UI_ELEMENT_HEIGHT);
+  SetupButtonGroup(Window* parent, const rect_t& rect, int cols,
+                   const PageButtonDef* pages, coord_t btnHeight = EdgeTxStyles::UI_ELEMENT_HEIGHT);
 
  protected:
 };

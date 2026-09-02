@@ -21,7 +21,7 @@
 
 #include "bsp_io.h"
 
-#include "stm32_ws2812.h"
+#include "stm32_rgbleds.h"
 #include "stm32_switch_driver.h"
 #include "stm32_i2c_driver.h"
 #include "hal/switch_driver.h"
@@ -220,6 +220,12 @@ static SwitchHwPos _get_switch_pos(uint8_t idx)
     } else if (!hi && lo) {
       pos = SWITCH_HW_DOWN;
     }
+  }
+
+  if (def->inverted) {
+    pos = pos == SWITCH_HW_UP   ? SWITCH_HW_DOWN
+        : pos == SWITCH_HW_DOWN ? SWITCH_HW_UP
+                                : pos;
   }
 
   return pos;

@@ -40,6 +40,7 @@
 
 extern uint8_t modelBitmap[MODEL_BITMAP_SIZE];
 bool loadModelBitmap(char * name, uint8_t * bitmap);
+void loadLogoBitmap(uint8_t* bitmap);
 
 void drawColumnHeader(const char * const * headers, uint8_t index);
 

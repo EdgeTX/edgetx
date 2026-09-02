@@ -21,14 +21,10 @@
 
 #include "edgetx.h"
 #include "switches.h"
+#include "tasks/mixer_task.h"
 
 #include "hal/audio_driver.h"
-
-#include "boards/generic_stm32/rgb_leds.h"
-
-#if defined(COLORLCD)
-void setRequestedMainView(uint8_t view);
-#endif
+#include "os/time.h"
 
 #if defined(VIDEO_SWITCH)
 #include "videoswitch_driver.h"
@@ -37,8 +33,8 @@ void switchToRadio() {};
 void switchToVideo() {};
 #endif
 #endif
-CustomFunctionsContext modelFunctionsContext = { 0 };
 
+CustomFunctionsContext modelFunctionsContext = { 0 };
 CustomFunctionsContext globalFunctionsContext = { 0 };
 
 #if defined(DEBUG)
@@ -138,8 +134,20 @@ bool isRepeatDelayElapsed(const CustomFunctionData * functions, CustomFunctionsC
   const CustomFunctionData * cfn = &functions[index];
   tmr10ms_t tmr10ms = get_tmr10ms();
   int8_t repeatParam = CFN_PLAY_REPEAT(cfn);
-  if (!IS_SILENCE_PERIOD_ELAPSED() && repeatParam == CFN_PLAY_REPEAT_NOSTART) {
-    functionsContext.lastFunctionTime[index] = tmr10ms;
+
+  // hold prompts during startup: silence window is the floor, extended while permanent Lua scripts load
+  bool startupBusy = !IS_SILENCE_PERIOD_ELAPSED();
+#if defined(LUA)
+  if (luaState >= INTERPRETER_RELOAD_PERMANENT_SCRIPTS && luaState < INTERPRETER_RUNNING)
+    startupBusy = true;
+#endif
+
+  if (startupBusy) {
+    if (repeatParam == CFN_PLAY_REPEAT_NOSTART) {
+      functionsContext.lastFunctionTime[index] = tmr10ms;  // '!1x': suppress at startup
+    } else {
+      return false;  // defer until startup settles, don't stamp
+    }
   }
   if (!functionsContext.lastFunctionTime[index] || (repeatParam && repeatParam!=CFN_PLAY_REPEAT_NOSTART && (signed)(tmr10ms-functionsContext.lastFunctionTime[index])>=100*repeatParam)) {
     functionsContext.lastFunctionTime[index] = tmr10ms;
@@ -150,10 +158,26 @@ bool isRepeatDelayElapsed(const CustomFunctionData * functions, CustomFunctionsC
   }
 }
 
+static bool isUIFunction(uint16_t f, int16_t p)
+{
+  return f == FUNC_LOGS || f == FUNC_SET_SCREEN || f == FUNC_SCREENSHOT || f == FUNC_BACKLIGHT
+#if defined(AUDIO)
+          || f == FUNC_VOLUME
+#endif
+#if defined(HARDWARE_TOUCH)
+          || f == FUNC_DISABLE_TOUCH
+#endif
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+          || f == FUNC_DISABLE_KEYS
+#endif
+          || (f == FUNC_RESET && p == FUNC_RESET_FLIGHT);
+}
+
 void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
 {
-  MASK_FUNC_TYPE newActiveFunctions  = 0;
+  MASK_FUNC_TYPE newActiveFunctions = 0;
   MASK_CFN_TYPE  newActiveSwitches = 0;
+
 #if defined(FUNCTION_SWITCHES)
   g_model.cfsResetSFState();
 #endif
@@ -179,11 +203,14 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 
   for (uint8_t i=0; i<MAX_SPECIAL_FUNCTIONS; i++) {
     CustomFunctionData * cfn = &functions[i];
+    // Skip functions evaluated in UI task
+    if (isUIFunction(CFN_FUNC(cfn), CFN_PARAM(cfn))) {
+      continue;
+    }
     swsrc_t swtch = CFN_SWITCH(cfn);
     if (swtch) {
-      MASK_CFN_TYPE switch_mask = ((MASK_CFN_TYPE)1 << i);
-
       bool active = getSwitch(swtch, IS_PLAY_FUNC(CFN_FUNC(cfn)) ? GETSWITCH_MIDPOS_DELAY : 0);
+      // Handle case where function is disabled while active
       if (CFN_ACTIVE(cfn) == 0)
         active = false;
 
@@ -198,7 +225,8 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
           case FUNC_TRAINER: {
             uint8_t param = CFN_CH_INDEX(cfn);
             if (param == 0)
-              newActiveFunctions |= 0x0F;
+              for (int i = 0; i < MAX_STICKS; i += 1)
+                newActiveFunctions |= (1u << i);
             else if (param <= MAX_STICKS)
               newActiveFunctions |= (1 << (param - 1));
             else if (param == MAX_STICKS + 1)
@@ -207,9 +235,9 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
           }
 
           case FUNC_INSTANT_TRIM:
-            newActiveFunctions |= (1u << FUNCTION_INSTANT_TRIM);
-            if (!isFunctionActive(FUNCTION_INSTANT_TRIM)) {
-              if (IS_INSTANT_TRIM_ALLOWED()) {
+            if (IS_INSTANT_TRIM_ALLOWED()) {
+              // Use 'repeat' property to ensure single activation (repeat defaults to 1x)
+              if (isRepeatDelayElapsed(functions, functionsContext, i)) {
                 instantTrim();
               }
             }
@@ -223,18 +251,11 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
                 timerReset(CFN_PARAM(cfn));
                 break;
               case FUNC_RESET_FLIGHT:
-                if (!(functionsContext.activeSwitches & switch_mask)) {
-                  mainRequestFlags |=
-                      (1 << REQUEST_FLIGHT_RESET);  // on systems with threads
-                                                    // flightReset() must not be
-                                                    // called from the mixers
-                                                    // thread!
-                }
+                // Handled in evalUIFunctions()
                 break;
               case FUNC_RESET_TELEMETRY:
                 telemetryReset();
                 break;
-
               case FUNC_RESET_TRIMS: {
                 for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
                   setTrimValue(mixerCurrentFlightMode, i, 0);
@@ -282,7 +303,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
                                                     CFN_PARAM(cfn))),
                        mixerCurrentFlightMode);
             } else if (CFN_GVAR_MODE(cfn) == FUNC_ADJUST_GVAR_INCDEC) {
-              if (!(functionsContext.activeSwitches & switch_mask)) {
+              if (!functionsContext.isFunctionSwitchActive(i)) {
                 SET_GVAR(CFN_GVAR_INDEX(cfn),
                          limit<int16_t>(MODEL_GVAR_MIN(CFN_GVAR_INDEX(cfn)),
                                         GVAR_VALUE(CFN_GVAR_INDEX(cfn),
@@ -312,14 +333,6 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
                         mixerCurrentFlightMode);
             }
             break;
-#endif
-
-#if defined(AUDIO)
-          case FUNC_VOLUME: {
-            newActiveFunctions |= (1u << FUNCTION_VOLUME);
-            calcVolumeValue(CFN_PARAM(cfn));
-            break;
-          }
 #endif
 
           case FUNC_PLAY_SOUND:
@@ -368,21 +381,14 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             break;
 #endif
 
-          case FUNC_LOGS:
-            if (CFN_PARAM(cfn)) {
-              newActiveFunctions |= (1u << FUNCTION_LOGS);
-              logDelay100ms = CFN_PARAM(
-                  cfn);  // logging period is 0..25.5s in 100ms increments
-            }
-            break;
-
 #if defined(FUNCTION_SWITCHES)
           case FUNC_PUSH_CUST_SWITCH:
             if (CFN_PARAM(cfn)) {   // Duration is set
               if (! CFN_VAL2(cfn) ) { // Duration not started yet
-                CFN_VAL2(cfn) = timersGetMsTick() + CFN_PARAM(cfn) * 100;
+                CFN_VAL2(cfn) = time_get_ms() + CFN_PARAM(cfn) * 100;
                 g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
-              } else if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn) ) {  // Still within push duration
+              }
+              else if (time_get_ms() < (uint32_t)CFN_VAL2(cfn) ) {  // Still within push duration
                 g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
               }
             } else { // No duration set
@@ -391,24 +397,6 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             break;
 #endif
 
-          case FUNC_BACKLIGHT: {
-            newActiveFunctions |= (1u << FUNCTION_BACKLIGHT);
-            if (!CFN_PARAM(cfn)) {  // When no source is set, backlight works
-                                    // like original backlight and turn on
-                                    // regardless of backlight settings
-              requiredBacklightBright = BACKLIGHT_FORCED_ON;
-            } else {
-              calcBacklightValue(CFN_PARAM(cfn));
-            }
-            break;
-          }
-
-          case FUNC_SCREENSHOT:
-            if (!(functionsContext.activeSwitches & switch_mask)) {
-              mainRequestFlags |= (1u << REQUEST_SCREENSHOT);
-            }
-            break;
-
 #if defined(PXX2)
           case FUNC_RACING_MODE:
             if (isRacingModeEnabled()) {
@@ -416,35 +404,20 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             }
             break;
 #endif
-#if defined(HARDWARE_TOUCH)
-          case FUNC_DISABLE_TOUCH:
-            newActiveFunctions |= (1u << FUNCTION_DISABLE_TOUCH);
-            break;
-#endif
+
 #if defined(AUDIO_MUTE_GPIO)
           case FUNC_DISABLE_AUDIO_AMP:
             newActiveFunctions |= (1u << FUNCTION_DISABLE_AUDIO_AMP);
             break;
 #endif
-          case FUNC_SET_SCREEN:
-            if (isRepeatDelayElapsed(functions, functionsContext, i)) {
-              TRACE("SET VIEW %d", (CFN_PARAM(cfn)));
-#if defined(COLORLCD)
-              int8_t screenNumber = max(0, CFN_PARAM(cfn) - 1);
-              setRequestedMainView(screenNumber);
-              mainRequestFlags |= (1u << REQUEST_MAIN_VIEW);
-#else
-              extern void showTelemScreen(uint8_t index);
-              showTelemScreen(CFN_PARAM(cfn));
-#endif
-            }
-            break;
+
 #if defined(VIDEO_SWITCH)
           case FUNC_LCD_TO_VIDEO:
             switchToVideo();
             videoEnabled = true;
             break;
 #endif
+
 #if defined(DEBUG)
           case FUNC_TEST:
             testFunc();
@@ -452,12 +425,12 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 #endif
         }
 
-        newActiveSwitches |= switch_mask;
+        newActiveSwitches |= ((MASK_CFN_TYPE)1 << i);
       } else {
 #if defined(FUNCTION_SWITCHES)
         if (CFN_FUNC(cfn) == FUNC_PUSH_CUST_SWITCH) {
           // Handling duration after function is active
-          if (timersGetMsTick() < (uint32_t)CFN_VAL2(cfn)) {
+          if (time_get_ms() < (uint32_t)CFN_VAL2(cfn)) {
             g_model.cfsSetSFState(CFN_CS_INDEX(cfn), 1);
           }
           else {
@@ -467,7 +440,7 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 #endif
         functionsContext.lastFunctionTime[i] = 0;
 #if defined(DANGEROUS_MODULE_FUNCTIONS)
-        if (functionsContext.activeSwitches & switch_mask) {
+        if (functionsContext.isFunctionSwitchActive(i)) {
           switch (CFN_FUNC(cfn)) {
             case FUNC_RANGECHECK:
             case FUNC_BIND:
@@ -492,6 +465,135 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 
   functionsContext.activeSwitches   = newActiveSwitches;
   functionsContext.activeFunctions  = newActiveFunctions;
+}
+
+void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
+{
+  MASK_FUNC_TYPE newActiveFunctions = 0;
+  MASK_CFN_TYPE  newActiveSwitches = 0;
+
+  for (uint8_t i=0; i<MAX_SPECIAL_FUNCTIONS; i++) {
+    CustomFunctionData * cfn = &functions[i];
+    // Skip functions evaluated in mixer task
+    if (!isUIFunction(CFN_FUNC(cfn), CFN_PARAM(cfn))) {
+      continue;
+    }
+    swsrc_t swtch = CFN_SWITCH(cfn);
+    if (swtch) {
+
+      bool active = getSwitch(swtch, 0);
+      // Handle case where function is disabled while active
+      if (CFN_ACTIVE(cfn) == 0)
+        active = false;
+
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+      // 'No Keys' function checks both switch states
+      if (CFN_FUNC(cfn) == FUNC_DISABLE_KEYS) {
+        if (active != isFunctionActive(FUNCTION_DISABLE_KEYS))
+          setKeyLockedState(active);
+        if (active)
+          newActiveFunctions |= (1u << FUNCTION_DISABLE_KEYS);
+      }
+#endif
+
+#if defined(HARDWARE_TOUCH)
+      if (CFN_FUNC(cfn) == FUNC_DISABLE_TOUCH) {
+        if (active != isFunctionActive(FUNCTION_DISABLE_TOUCH))
+          POPUP_BUBBLE(active ? STR_TOUCH_DISABLED : STR_TOUCH_ENABLED, 1500, DEFAULT_BUBBLE_WIDTH, DEFAULT_BUBBLE_Y-BUBBLE_HEIGHT);
+        if (active)
+          newActiveFunctions |= (1u << FUNCTION_DISABLE_TOUCH);
+      }
+#endif
+
+      if (active) {
+        switch (CFN_FUNC(cfn)) {
+          case FUNC_LOGS:
+            if (CFN_PARAM(cfn)) {
+              newActiveFunctions |= (1u << FUNCTION_LOGS);
+              logDelay100ms = CFN_PARAM(cfn);  // logging period is 0..25.5s in 100ms increments
+            }
+            break;
+
+          case FUNC_SET_SCREEN:
+            if (isRepeatDelayElapsed(functions, functionsContext, i)) {
+#if defined(COLORLCD)
+              extern void setRequestedMainView(uint8_t view);
+              setRequestedMainView(max(0, CFN_PARAM(cfn) - 1));
+#else
+              extern void showTelemScreen(uint8_t index);
+              showTelemScreen(CFN_PARAM(cfn));
+#endif
+            }
+            break;
+
+          case FUNC_SCREENSHOT:
+            // Use 'repeat' property to ensure single activation (repeat defaults to 1x)
+            if (isRepeatDelayElapsed(functions, functionsContext, i)) {
+              writeScreenshot();
+            }
+            break;
+
+          case FUNC_RESET:
+            if (CFN_PARAM(cfn) == FUNC_RESET_FLIGHT) {
+              // Use 'repeat' property to ensure single activation (repeat defaults to 1x)
+              if (isRepeatDelayElapsed(functions, functionsContext, i)) {
+                flightReset();
+              }
+            }
+            break;
+
+          case FUNC_BACKLIGHT: {
+            newActiveFunctions |= (1u << FUNCTION_BACKLIGHT);
+            if (!CFN_PARAM(cfn)) {  // When no source is set, backlight works
+                                    // like original backlight and turn on
+                                    // regardless of backlight settings
+              requiredBacklightBright = BACKLIGHT_FORCED_ON;
+            } else {
+              calcBacklightValue(CFN_PARAM(cfn));
+            }
+            break;
+          }
+
+#if defined(AUDIO)
+          case FUNC_VOLUME: {
+            newActiveFunctions |= (1u << FUNCTION_VOLUME);
+            calcVolumeValue(CFN_PARAM(cfn));
+            break;
+          }
+#endif
+
+          default:
+            break;
+        }
+
+        newActiveSwitches |= ((MASK_CFN_TYPE)1 << i);
+      } else {
+        functionsContext.lastFunctionTime[i] = 0;
+      }
+    }
+  }
+
+  functionsContext.activeUIFunctions  = newActiveFunctions;
+  functionsContext.activeUISwitches   = newActiveSwitches;
+
+  if (!isFunctionActive(FUNCTION_BACKLIGHT)) {
+    if (g_eeGeneral.backlightSrc && mixerTaskRunning()) {
+      calcBacklightValue(g_eeGeneral.backlightSrc);
+    } else {
+      requiredBacklightBright = g_eeGeneral.getBrightness();
+    }
+  }
+
+#if defined(AUDIO)
+  if (!isFunctionActive(FUNCTION_VOLUME)) {
+    if (g_eeGeneral.volumeSrc && mixerTaskRunning()) {
+      calcVolumeValue(g_eeGeneral.volumeSrc);
+    } else {
+      requiredSpeakerVolume =
+          limit<int>(0, g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF, VOLUME_LEVEL_MAX);
+    }
+  }
+#endif
 }
 
 const char* funcGetLabel(uint8_t func)
@@ -546,7 +648,7 @@ const char* funcGetLabel(uint8_t func)
   case FUNC_LOGS:
     return STR_SF_LOGS;
   case FUNC_BACKLIGHT:
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
     return STR_BRIGHTNESS;
 #else
     return STR_SF_BACKLIGHT;
@@ -558,6 +660,10 @@ const char* funcGetLabel(uint8_t func)
 #if defined(COLORLCD)
   case FUNC_DISABLE_TOUCH:
     return STR_SF_DISABLE_TOUCH;
+#endif
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  case FUNC_DISABLE_KEYS:
+    return STR_SF_DISABLE_KEYS;
 #endif
   case FUNC_SET_SCREEN:
     return STR_SF_SET_SCREEN;

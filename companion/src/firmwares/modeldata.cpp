@@ -50,11 +50,11 @@ ModelData & ModelData::operator=(const ModelData & src)
 
 void ModelData::copy(const ModelData & src)
 {
-  memcpy(&semver, &src.semver, sizeof(semver));
+  semver = src.semver;
   used = src.used;
-  memcpy(&name, &src.name, sizeof(name));
-  memcpy(&filename, &src.filename, sizeof(filename));
-  memcpy(&labels, &src.labels, sizeof(labels));
+  name = src.name;
+  filename = src.filename;
+  labels = src.labels;
   modelIndex = src.modelIndex;
   modelUpdated = src.modelUpdated;
   modelErrors = src.modelErrors;
@@ -230,11 +230,11 @@ void ModelData::clear()
   // memset(reinterpret_cast<void *>(this), 0, sizeof(ModelData));
   // as struct contains complex data types eg std::string
 
-  memset(&semver, 0, sizeof(semver));
+  semver.clear();
   used = false;
-  memset(&name, 0, sizeof(name));
-  memset(&filename, 0, sizeof(filename));
-  memset(&labels, 0, sizeof(labels));
+  name.clear();
+  filename.clear();
+  labels.clear();
   modelIndex = -1;  // an invalid index, this is managed by the TreeView data model
   modelUpdated = false;
   modelErrors = false;
@@ -308,11 +308,17 @@ void ModelData::clear()
     sensorData[i].clear();
 
   toplcdTimer = 0;
-  RadioLayout::init("Layout2P1", customScreens);
-  topBarData.clear();
+
+  if (Boards::getCapability(getCurrentBoard(), Board::HasColorLcd)) {
+    RadioLayout::init("Layout2P1", customScreens);
+    initTopBar();
+  } else {
+    customScreens.clear();
+    topBarData.clear();
+  }
 
   for (int i = 0; i < MAX_TOPBAR_ZONES; i++)
-    topbarWidgetWidth[i] = 0;
+    topbarWidgetWidth[i] = 1;
 
   view = 0;
   memset(&registrationId, 0, sizeof(registrationId));
@@ -413,10 +419,12 @@ void ModelData::setDefaultValues(unsigned int id, const GeneralSettings & settin
 {
   clear();
   used = true;
-  sprintf(name, "MODEL%02d", id + 1);
+  name = QString::asprintf("MODEL%02d", id + 1);
+
   for (int i = 0; i < CPN_MAX_MODULES; i++) {
     moduleData[i].modelId = id + 1;
   }
+
   setDefaultMixes(settings);
   setDefaultFunctionSwitches(Boards::getCapability(getCurrentFirmware()->getBoard(), Board::FunctionSwitches));
 }
@@ -531,10 +539,7 @@ ModelData ModelData::removeGlobalVars()
 
 int ModelData::getChannelsMax(bool forceExtendedLimits) const
 {
-  if (forceExtendedLimits || extendedLimits)
-    return IS_HORUS_OR_TARANIS(getCurrentBoard()) ? 150 : 125;
-  else
-    return 100;
+  return (forceExtendedLimits || extendedLimits) ?  150 : 100;
 }
 
 bool ModelData::isFunctionSwitchPositionAvailable(int swIndex, int swPos, const GeneralSettings * const gs) const
@@ -548,7 +553,7 @@ bool ModelData::isFunctionSwitchPositionAvailable(int swIndex, int swPos, const 
   if (fs == Board::SWITCH_GLOBAL)
     return gs->switchConfig[swIndex].type != Board::SWITCH_NOT_AVAILABLE;
 
-  return true;
+  return fs != Board::SWITCH_NOT_AVAILABLE;
 }
 
 bool ModelData::isFunctionSwitchSourceAllowed(int index) const
@@ -587,7 +592,7 @@ void ModelData::convert(RadioDataConversionState & cstate)
 {
   // Here we can add explicit conversions when moving from one board to another
 
-  QString origin = QString(name);
+  QString origin = name.toQString();
   if (origin.isEmpty())
     origin = QString::number(cstate.modelIdx+1);
   cstate.setOrigin(tr("Model: ") % origin);
@@ -936,37 +941,36 @@ int ModelData::updateReference()
     //s1.report("Heli");
   }
 
-  if (fw->getCapability(Telemetry)) {
-    updateTelemetryRef(frsky.voltsSource);
-    updateTelemetryRef(frsky.altitudeSource);
-    updateTelemetryRef(frsky.currentSource);
-    updateTelemetryRef(frsky.varioSource);
-    for (int i = 0; i < fw->getCapability(TelemetryCustomScreens); i++) {
-      switch(frsky.screens[i].type) {
-        case TELEMETRY_SCREEN_BARS:
-          for (int j = 0; j < fw->getCapability(TelemetryCustomScreensBars); j++) {
-            FrSkyBarData *fbd = &frsky.screens[i].body.bars[j];
-            updateSourceRef(fbd->source);
-            if (!fbd->source.isSet()) {
-              fbd->barMin = 0;
-              fbd->barMax = 0;
-            }
+  updateTelemetryRef(frsky.voltsSource);
+  updateTelemetryRef(frsky.altitudeSource);
+  updateTelemetryRef(frsky.currentSource);
+  updateTelemetryRef(frsky.varioSource);
+
+  for (int i = 0; i < fw->getCapability(TelemetryCustomScreens); i++) {
+    switch(frsky.screens[i].type) {
+      case TELEMETRY_SCREEN_BARS:
+        for (int j = 0; j < fw->getCapability(TelemetryCustomScreensBars); j++) {
+          FrSkyBarData *fbd = &frsky.screens[i].body.bars[j];
+          updateSourceRef(fbd->source);
+          if (!fbd->source.isSet()) {
+            fbd->barMin = 0;
+            fbd->barMax = 0;
           }
-          break;
-        case TELEMETRY_SCREEN_NUMBERS:
-          for (int j = 0; j < fw->getCapability(TelemetryCustomScreensLines); j++) {
-            FrSkyLineData *fld = &frsky.screens[i].body.lines[j];
-            for (int k = 0; k < fw->getCapability(TelemetryCustomScreensFieldsPerLine); k++) {
-              updateSourceRef(fld->source[k]);
-            }
+        }
+        break;
+      case TELEMETRY_SCREEN_NUMBERS:
+        for (int j = 0; j < fw->getCapability(TelemetryCustomScreensLines); j++) {
+          FrSkyLineData *fld = &frsky.screens[i].body.lines[j];
+          for (int k = 0; k < fw->getCapability(TelemetryCustomScreensFieldsPerLine); k++) {
+            updateSourceRef(fld->source[k]);
           }
-          break;
-        default:
-          break;
-      }
+        }
+        break;
+      default:
+        break;
     }
-    //s1.report("Telemetry");
   }
+  //s1.report("Telemetry");
 
   for (int i = 0; i < CPN_MAX_SENSORS; i++) {
     SensorData *sd = &sensorData[i];
@@ -2124,7 +2128,7 @@ void ModelData::validate()
 
 QStringList ModelData::errorsList()
 {
-  QStringList list;
+  QStringList list { "" };
 
   for (int i = 0; i < CPN_MAX_INPUTS; i++) {
     if (!expoData[i].isEmpty() && expoData[i].srcRaw == SOURCE_TYPE_NONE)
@@ -2176,7 +2180,7 @@ const Board::SwitchType ModelData::getSwitchType(int sw, const GeneralSettings &
 
 QString ModelData::getChecklistFilename() const
 {
-  return QString(name).replace(" ", "_").append(".txt").toLower();
+  return name.toQString().replace(" ", "_").append(".txt").toLower();
 }
 
 void ModelData::gvarClear(const int index, bool updateRefs)
@@ -2308,4 +2312,64 @@ void ModelData::updateSourceNumRef(int & value)
     if (srcnum.isSource())
       updateSourceIntRef(value);
   }
+}
+
+void ModelData::initTopBar()
+{
+  topBarData.clear();
+  int zones = RadioLayout::topBarZones();
+
+  if (zones - 1 >= 0) {
+    ZonePersistentData & zone = topBarData.zones[zones - 1];
+    zone.widgetName = "Date Time";
+  }
+
+  if (zones - 2 >= 0) {
+    ZonePersistentData & zone = topBarData.zones[zones - 2];
+    zone.widgetName = "Radio Info";
+  }
+
+  if (zones - 3 >= 0 && Boards::getCapability(getCurrentBoard(), Board::HasInternalGPS)) {
+    ZonePersistentData & zone = topBarData.zones[zones - 3];
+    zone.widgetName = "Internal GPS";
+  }
+}
+
+QString ModelData::getImageFilename() const
+{
+  if (!isBitmapEmpty()) {
+    QString extn;
+
+    if (!getCurrentFirmware()->getCapability(ModelImageKeepExtn))
+      extn = "." % getDefaultImageFileExtn();
+
+    return QString(bitmap).append(extn);
+  } else {
+    return QString();
+  }
+}
+
+QString ModelData::getImageFileExtn() const
+{
+  if (getCurrentFirmware()->getCapability(ModelImageKeepExtn)) {
+    QStringList strl = QString(bitmap).split(".");
+    return strl.count() > 1 ? strl.at(strl.count() - 1) : "";
+  } else {
+    return getDefaultImageFileExtn();
+  }
+}
+
+QString ModelData::getDefaultImageFileExtn()
+{
+  QString ret;
+
+  if (!getCurrentFirmware()->getCapability(ModelImageKeepExtn))
+    ret = getCurrentFirmware()->getCapabilityStr(ModelImageFilters).replace("*.", "");
+
+  return ret;
+}
+
+bool ModelData::isBitmapEmpty() const
+{
+  return bitmap[0] == '\0';
 }

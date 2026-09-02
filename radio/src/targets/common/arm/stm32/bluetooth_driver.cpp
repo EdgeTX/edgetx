@@ -24,13 +24,10 @@
 
 #include "stm32_hal_ll.h"
 #include "stm32_gpio.h"
+#include "stm32_serial_driver.h"
 
 #include "board.h"
 #include "debug.h"
-
-#if !defined(BOOT)
-
-#include "stm32_serial_driver.h"
 
 #define BT_USART_IRQ_PRIORITY 6
 
@@ -54,9 +51,7 @@ DEFINE_STM32_SERIAL_PORT(BTModule, btUSART, BT_RX_FIFO_SIZE, BT_TX_FIFO_SIZE);
 volatile uint8_t btChipPresent = 0;
 #endif
 
-// const etx_serial_driver_t* _bt_usart_drv = nullptr;
 void* _bt_usart_ctx = nullptr;
-#endif
 
 void bluetoothInit(uint32_t baudrate, bool enable)
 {
@@ -67,7 +62,6 @@ void bluetoothInit(uint32_t baudrate, bool enable)
   gpio_init(BT_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 
-#if !defined(BOOT)
   etx_serial_init cfg = {
     .baudrate = baudrate,
     .encoding = ETX_Encoding_8N1,
@@ -81,7 +75,6 @@ void bluetoothInit(uint32_t baudrate, bool enable)
   } else {
     STM32SerialDriver.setBaudrate(_bt_usart_ctx, baudrate);
   }
-#endif
 
 #if defined(BT_EN_GPIO)
   gpio_write(BT_EN_GPIO, !enable);
@@ -91,7 +84,6 @@ void bluetoothInit(uint32_t baudrate, bool enable)
 #endif
 }
 
-#if !defined(BOOT)
 void bluetoothDisable()
 {
 #if defined(BT_EN_GPIO)
@@ -123,7 +115,6 @@ uint8_t bluetoothIsWriting(void)
 {
   if (!_bt_usart_ctx)
     return false;
-  
+
   return !STM32SerialDriver.txCompleted(_bt_usart_ctx);
 }
-#endif // !BOOT

@@ -1,0 +1,233 @@
+{
+  "adc_inputs": {
+    "adcs": [
+      {
+        "name": "MAIN",
+        "adc": "ADC1",
+        "dma": "DMA2",
+        "dma_channel": "LL_DMA_CHANNEL_0",
+        "dma_stream": "LL_DMA_STREAM_4",
+        "dma_stream_irq": "DMA2_Stream4_IRQn",
+        "dma_stream_irq_handler": "DMA2_Stream4_IRQHandler",
+        "sample_time": "LL_ADC_SAMPLINGTIME_28CYCLES"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "ST",
+        "type": "STICK",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_2",
+        "channel": "LL_ADC_CHANNEL_2"
+      },
+      {
+        "name": "TH",
+        "type": "STICK",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_3",
+        "channel": "LL_ADC_CHANNEL_3"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "adc": "MAIN",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_2",
+        "channel": "LL_ADC_CHANNEL_12",
+        "label": "VR1L",
+        "short_label": "1",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_7",
+        "channel": "LL_ADC_CHANNEL_7",
+        "label": "VR1R",
+        "short_label": "2",
+        "default": "POT"
+      },
+      {
+        "name": "RAW1",
+        "type": "RAW",
+        "adc": "MAIN",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_1",
+        "channel": "LL_ADC_CHANNEL_11"
+      },
+      {
+        "name": "RAW2",
+        "type": "RAW",
+        "adc": "MAIN",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_0",
+        "channel": "LL_ADC_CHANNEL_10"
+      },
+      {
+        "name": "RAW3",
+        "type": "RAW",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_6",
+        "channel": "LL_ADC_CHANNEL_6"
+      },
+      {
+        "name": "RAW4",
+        "type": "RAW",
+        "adc": "MAIN",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_4",
+        "channel": "LL_ADC_CHANNEL_14"
+      },
+      {
+        "name": "VBAT",
+        "type": "VBAT",
+        "adc": "MAIN",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_5",
+        "channel": "LL_ADC_CHANNEL_15"
+      },
+      {
+        "name": "RTC_BAT",
+        "type": "RTC_BAT",
+        "adc": "MAIN",
+        "gpio": null,
+        "pin": null,
+        "channel": "LL_ADC_CHANNEL_VBAT"
+      }
+    ]
+  },
+  "switches": [
+    {
+      "name": "SA",
+      "type": "2POS",
+      "flags": 0,
+      "inverted": false,
+      "default": "TOGGLE",
+      "display": null,
+      "is_cfs": false
+    },
+    {
+      "name": "SB",
+      "type": "2POS",
+      "flags": 0,
+      "inverted": false,
+      "default": "TOGGLE",
+      "display": null,
+      "is_cfs": false
+    }
+  ],
+  "keys": [
+    {
+      "gpio": null,
+      "pin": null,
+      "active_low": true,
+      "key": "KEY_EXIT",
+      "name": "EXIT",
+      "label": "EXIT"
+    },
+    {
+      "gpio": null,
+      "pin": null,
+      "active_low": true,
+      "key": "KEY_ENTER",
+      "name": "ENTER",
+      "label": "Enter"
+    }
+  ],
+  "trims": [
+    {
+      "name": "T1"
+    },
+    {
+      "name": "T2"
+    }
+  ],
+  "display": {
+    "lcd_w": 320,
+    "lcd_h": 480,
+    "lcd_phys_w": 320,
+    "lcd_phys_h": 480,
+    "lcd_depth": 16,
+    "ltdc_irq_prio": 4,
+    "dma_screen_irq_prio": 6
+  },
+  "backlight": {
+    "backlight_gpio": "GPIO_PIN(GPIOA, 15)",
+    "backlight_timer": "TIM2",
+    "backlight_gpio_af": "GPIO_AF1",
+    "backlight_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)"
+  },
+  "leds": {
+    "led_strip_length": 4,
+    "bling_led_strip_start": 0,
+    "bling_led_strip_length": 4,
+    "led_strip_gpio": "GPIO_PIN(GPIOH, 12)",
+    "led_strip_gpio_af": "LL_GPIO_AF_2",
+    "led_strip_timer": "TIM5",
+    "led_strip_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "led_strip_timer_channel": "LL_TIM_CHANNEL_CH3",
+    "led_strip_timer_dma": "DMA1",
+    "led_strip_timer_dma_channel": "LL_DMA_CHANNEL_6",
+    "led_strip_timer_dma_stream": "LL_DMA_STREAM_0",
+    "led_strip_timer_dma_irqn": "DMA1_Stream0_IRQn",
+    "led_strip_timer_dma_irqhandler": "DMA1_Stream0_IRQHandler",
+    "led_strip_refresh_period": 50,
+    "status_leds": true
+  },
+  "hardware": {
+    "has_audio_mute": true,
+    "has_ext_module_support": true,
+    "has_int_module_support": true,
+    "sport_max_baudrate": 400000,
+    "cpu": "STM32F429xI",
+    "cpu_type": "STM32F4"
+  },
+  "timers": {
+    "cpu_freq": 168000000,
+    "peri1_frequency": 42000000,
+    "peri2_frequency": 84000000,
+    "timer_mult_apb1": 2,
+    "timer_mult_apb2": 2,
+    "ms_timer": "TIM14",
+    "ms_timer_irqn": "TIM8_TRG_COM_TIM14_IRQn",
+    "ms_timer_irqhandler": "TIM8_TRG_COM_TIM14_IRQHandler",
+    "mixer_scheduler_timer": "TIM12",
+    "mixer_scheduler_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "mixer_scheduler_timer_irqn": "TIM8_BRK_TIM12_IRQn",
+    "mixer_scheduler_timer_irqhandler": "TIM8_BRK_TIM12_IRQHandler"
+  },
+  "rotenc": {
+    "rotary_encoder_gpio": "GPIOH",
+    "rotary_encoder_gpio_pin_a": "LL_GPIO_PIN_11",
+    "rotary_encoder_gpio_pin_b": "LL_GPIO_PIN_10",
+    "rotary_encoder_position": "((ROTARY_ENCODER_GPIO->IDR >> 10) & 0x03)",
+    "rotary_encoder_exti_line1": "LL_EXTI_LINE_11",
+    "rotary_encoder_exti_line2": "LL_EXTI_LINE_10",
+    "exti": [
+      {
+        "irq": "EXTI15_10_IRQ",
+        "priority": 5
+      }
+    ],
+    "rotary_encoder_exti_port": "LL_SYSCFG_EXTI_PORTH",
+    "rotary_encoder_exti_sys_line1": "LL_SYSCFG_EXTI_LINE11",
+    "rotary_encoder_exti_sys_line2": "LL_SYSCFG_EXTI_LINE10",
+    "rotary_encoder_timer": "TIM13",
+    "rotary_encoder_timer_irqn": "TIM8_UP_TIM13_IRQn",
+    "rotary_encoder_timer_irqhandler": "TIM8_UP_TIM13_IRQHandler"
+  },
+  "haptic": {
+    "haptic_pwm": true,
+    "haptic_gpio": "GPIO_PIN(GPIOB, 0)",
+    "haptic_gpio_timer": "TIM1",
+    "haptic_gpio_af": "GPIO_AF1",
+    "haptic_timer_output_enable": "TIM_CCER_CC2NE",
+    "haptic_timer_mode": "TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE",
+    "haptic_timer_compare_value": "HAPTIC_GPIO_TIMER->CCR2"
+  }
+}

@@ -18,7 +18,7 @@ BOOTLOADER_SIZE = 0x10000;
 MAIN_STACK_SIZE = 8192;
 
 /* Generate a link error if heap and stack don't fit into RAM */
-MIN_HEAP_SIZE = 4096k;      /* required amount of heap  */
+MIN_HEAP_SIZE = 1024k;      /* minimum size of heap - all unused SDRAM will be used regardless of this setting */
 
 /* Specify the memory areas */
 MEMORY

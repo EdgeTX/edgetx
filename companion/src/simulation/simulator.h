@@ -155,7 +155,7 @@ struct SimulatorOptions
         if (o.m_version >= 3)
           in >> o.simulatorId;
         if (o.m_version >= 4)
-          in >> o.simulatorId;
+          in >> o.flags;
       }
       else {
         qWarning() << "Error loading SimulatorOptions, saved version not valid:" << o.m_version << "Expected <=" << SIMULATOR_OPTIONS_VERSION;

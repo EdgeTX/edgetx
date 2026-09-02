@@ -487,7 +487,7 @@ void ModelFlightModesPage::build(Window* form)
 
     btn->setPressHandler([=]() {
       (new FlightModeEdit(i))->setCloseHandler([=]() { btn->refresh(); });
-      return 0;
+      return btn->isActive();
     });
   }
 

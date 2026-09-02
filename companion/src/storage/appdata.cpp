@@ -80,7 +80,7 @@ void CompStoreObj::removeGroupIfEmpty(const QString &group) const
   m_settings.endGroup();
 }
 
-//static void dumpMetadata(QObject *obj) {
+// static void dumpMetadata(QObject *obj) {
 //  for (int i = obj->metaObject()->propertyOffset() /* 0 */, e = obj->metaObject()->propertyCount(); i < e; ++i)
 //    qDebug() << obj->metaObject()->property(i).name() << "=" << obj->metaObject()->property(i).read(obj);
 //  for (int i = obj->metaObject()->methodOffset() /* 0 */, e = obj->metaObject()->methodCount(); i < e; ++i) {
@@ -88,7 +88,7 @@ void CompStoreObj::removeGroupIfEmpty(const QString &group) const
 //    qDebug().noquote() << (a == 0 ? "  private" : a == 1 ? "protected" : "   public") << (t == 1 ? "signal:" : t == 2 ? "slot:  " : ":      ")
 //                       << obj->metaObject()->method(i).typeName() << obj->metaObject()->method(i).methodSignature();
 //  }
-//}
+// }
 
 // static methods
 
@@ -205,7 +205,8 @@ const QString CompStoreObj::propertyKeyName(CompStoreObj * obj, const QString & 
 QPair<QString, QString> CompStoreObj::splitGroupedPath(const QString & path)
 {
   const QStringList list = path.split('/');
-  const QString grp = list.size() > 1 ? list.first() : QStringLiteral("General");  // "General" is the default (no-name) group, used by AppData top-level settings.
+  // grp is propertyGroup() thus why size minus 2
+  const QString grp = list.size() > 1 ? list.mid(0, list.size() - 2).join("/") : QStringLiteral("General");  // "General" is the default (no-name) group, used by AppData top-level settings.
   return QPair<QString, QString>(grp, list.last());
 }
 
@@ -230,7 +231,7 @@ const QHash<QString, QHash<QString, QString> > & CompStoreObj::keyToNameMap()
       it.next();
       QHash<QString, QString> grpMap;
       CompStoreObj * obj = it.value();
-      //dumpMetadata(obj);
+      // dumpMetadata(obj);
       for (int i = obj->metaObject()->propertyOffset(), e = obj->metaObject()->propertyCount(); i < e; ++i) {
         const QString name = QString(obj->metaObject()->property(i).name());
         const QString key = propertyKeyName(obj, name);
@@ -238,7 +239,7 @@ const QHash<QString, QHash<QString, QString> > & CompStoreObj::keyToNameMap()
           grpMap.insert(key, name);
       }
       map.insert(it.key(), grpMap);
-      //qDebug() << it.key() << grpMap;
+      // qDebug() << it.key() << grpMap;
     }
   }
   return map;
@@ -249,7 +250,6 @@ const QHash<QString, QHash<QString, QString> > & CompStoreObj::keyToNameMap()
 
 JStickData::JStickData() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 bool JStickData::existsOnDisk()
@@ -259,7 +259,6 @@ bool JStickData::existsOnDisk()
 
 JButtonData::JButtonData() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 bool JButtonData::existsOnDisk()
@@ -269,7 +268,6 @@ bool JButtonData::existsOnDisk()
 
 NamedJStickData::NamedJStickData() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 bool NamedJStickData::existsOnDisk()
@@ -279,7 +277,6 @@ bool NamedJStickData::existsOnDisk()
 
 NamedJButtonData::NamedJButtonData() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 bool NamedJButtonData::existsOnDisk()
@@ -289,7 +286,6 @@ bool NamedJButtonData::existsOnDisk()
 
 NamedJSData::NamedJSData() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 bool NamedJSData::existsOnDisk()
@@ -297,12 +293,30 @@ bool NamedJSData::existsOnDisk()
   return (m_settings.value(settingsPath() % jsName(), -1).toInt() > -1);
 }
 
+// ** ComponentReleaseData class********************
+
+ComponentReleaseData::ComponentReleaseData() : CompStoreObj(), index(-1)
+{
+}
+
+// The default copy operator can not be used since the index variable would be destroyed
+ComponentReleaseData & ComponentReleaseData::operator= (const ComponentReleaseData & rhs)
+{
+  for (int i = metaObject()->propertyOffset(), e = metaObject()->propertyCount(); i < e; ++i) {
+    const QMetaProperty & prop = metaObject()->property(i);
+    if (!prop.isValid() || !prop.isWritable()) {
+      qWarning() << "Could not copy property" << QString(prop.name()) << "isValid:" << prop.isValid() << "isWritable:" << prop.isWritable();
+      continue;
+    }
+    prop.write(this, prop.read(&rhs));
+  }
+  return *this;
+}
 
 // ** Profile class********************
 
 Profile::Profile() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 Profile::Profile(const Profile & rhs) : CompStoreObj(), index(-1)
@@ -321,6 +335,11 @@ Profile & Profile::operator= (const Profile & rhs)
     }
     prop.write(this, prop.read(&rhs));
   }
+
+  for (int i = 0; i < MAX_COMPONENTS; i++) {
+    compRelease[i] = rhs.compRelease[i];
+  }
+
   return *this;
 }
 
@@ -329,11 +348,26 @@ bool Profile::existsOnDisk()
   return m_settings.contains(settingsPath() % "Name");
 }
 
+ComponentReleaseData & Profile::getCompRelease(int index)
+{
+  if (index > -1 && index < MAX_COMPONENTS)
+    return compRelease[index];
+
+  return compRelease[0];
+}
+
+const ComponentReleaseData & Profile::getCompRelease(int index) const
+{
+  if (index > -1 && index < MAX_COMPONENTS)
+    return compRelease[index];
+
+  return compRelease[0];
+}
+
 // ** ComponentAssetData class********************
 
 ComponentAssetData::ComponentAssetData() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
 }
 
 // The default copy operator can not be used since the index variable would be destroyed
@@ -359,7 +393,7 @@ bool ComponentAssetData::existsOnDisk()
 
 ComponentData::ComponentData() : CompStoreObj(), index(-1)
 {
-  CompStoreObj::addObjectMapping(propertyGroup(), this);
+  qRegisterMetaType<ComponentData::ReleaseChannel>("ComponentData::ReleaseChannel");
 }
 
 // The default copy operator can not be used since the index variable would be destroyed
@@ -379,15 +413,6 @@ ComponentData & ComponentData::operator= (const ComponentData & rhs)
 bool ComponentData::existsOnDisk()
 {
   return (m_settings.contains(settingsPath() % "name"));
-}
-
-void ComponentData::releaseClear()
-{
-  releaseReset();
-  releaseIdReset();
-  prereleaseReset();
-  dateReset();
-  versionReset();
 }
 
 ComponentAssetData & ComponentData::getAsset(int index)
@@ -417,6 +442,10 @@ AppData::AppData() :
   CompStoreObj(),
   m_sessionId(0)
 {
+  qRegisterMetaType<AppData::NewModelAction>("AppData::NewModelAction");
+  qRegisterMetaType<AppData::UpdateCheckFreq>("AppData::UpdateCheckFreq");
+  qRegisterMetaType<AppData::SimuGenericKeysPos>("AppData::SimuGenericKeysPos");
+
   CompStoreObj::addObjectMapping(propertyGroup(), this);
 
   firstUse = !hasCurrentSettings();
@@ -426,25 +455,35 @@ AppData::AppData() :
     qWarning() << "Could not create settings backup path" << CPN_SETTINGS_BACKUP_DIR;
 
   // Configure the profiles
-  for (int i = 0; i < MAX_PROFILES; i++)
+  for (int i = 0; i < MAX_PROFILES; i++) {
     profile[i].setIndex(i);
+
+    for (int j = 0; j < MAX_COMPONENTS; j++) {
+      profile[i].compRelease[j].setIndexes(i, j);
+    }
+  }
 
   // Configure the joysticks
   for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].setIndex(i);
+
   for (int i = 0; i < MAX_JS_BUTTONS; i++)
     jsButton[i].setIndex(i);
+
   for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     namedJS[i].setIndex(i);
-    for (int a = 0; a < MAX_JS_AXES; a += 1)
-      namedJS[i].joystick[a].setIndex(a, i);
-    for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
-      namedJS[i].jsButton[b].setIndex(b, i);
+
+    for (int j = 0; j < MAX_JS_AXES; j++)
+      namedJS[i].joystick[j].setIndexes(j, i);
+
+    for (int j = 0; j < MAX_JS_BUTTONS; j++)
+      namedJS[i].jsButton[j].setIndexes(j, i);
   }
 
   // Configure the updates
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].setIndex(i);
+
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
       component[i].asset[j].setIndexes(i, j);
     }
@@ -454,29 +493,32 @@ AppData::AppData() :
 void AppData::saveNamedJS(int i)
 {
   namedJS[i].jsName(currentProfile().jsName());
-  for (int a = 0; a < MAX_JS_AXES; a += 1) {
-    namedJS[i].joystick[a].stick_axe(joystick[a].stick_axe());
-    namedJS[i].joystick[a].stick_max(joystick[a].stick_max());
-    namedJS[i].joystick[a].stick_med(joystick[a].stick_med());
-    namedJS[i].joystick[a].stick_min(joystick[a].stick_min());
-    namedJS[i].joystick[a].stick_min(joystick[a].stick_min());
+
+  for (int j = 0; j < MAX_JS_AXES; j++) {
+    namedJS[i].joystick[j].stick_axe(joystick[j].stick_axe());
+    namedJS[i].joystick[j].stick_max(joystick[j].stick_max());
+    namedJS[i].joystick[j].stick_med(joystick[j].stick_med());
+    namedJS[i].joystick[j].stick_min(joystick[j].stick_min());
+    namedJS[i].joystick[j].stick_inv(joystick[j].stick_inv());
   }
-  for (int b = 0; b < MAX_JS_BUTTONS; b += 1) {
-    namedJS[i].jsButton[b].button_idx(jsButton[b].button_idx());
+
+  for (int j = 0; j < MAX_JS_BUTTONS; j++) {
+    namedJS[i].jsButton[j].button_idx(jsButton[j].button_idx());
   }
+
   namedJS[i].jsLastUsed(time(NULL));
 }
 
 void AppData::saveNamedJS()
 {
-  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i += 1) {
+  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     if (namedJS[i].jsName() == currentProfile().jsName()) {
       saveNamedJS(i);
       return;
     }
   }
 
-  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i += 1) {
+  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     if (namedJS[i].jsName() == "") {
       saveNamedJS(i);
       return;
@@ -485,7 +527,7 @@ void AppData::saveNamedJS()
 
   unsigned int oldestTime = namedJS[0].jsLastUsed();
   int oldestN = 0;
-  for (int i = 1; i < MAX_NAMED_JOYSTICKS; i += 1) {
+  for (int i = 1; i < MAX_NAMED_JOYSTICKS; i++) {
     if (namedJS[i].jsLastUsed() < oldestTime) {
       oldestTime = namedJS[i].jsLastUsed();
       oldestN = i;
@@ -496,22 +538,24 @@ void AppData::saveNamedJS()
 
 void AppData::loadNamedJS(int i)
 {
-  for (int a = 0; a < MAX_JS_AXES; a += 1) {
-    joystick[a].stick_axe(namedJS[i].joystick[a].stick_axe());
-    joystick[a].stick_max(namedJS[i].joystick[a].stick_max());
-    joystick[a].stick_med(namedJS[i].joystick[a].stick_med());
-    joystick[a].stick_min(namedJS[i].joystick[a].stick_min());
-    joystick[a].stick_min(namedJS[i].joystick[a].stick_min());
+  for (int j = 0; j < MAX_JS_AXES; j++) {
+    joystick[j].stick_axe(namedJS[i].joystick[j].stick_axe());
+    joystick[j].stick_max(namedJS[i].joystick[j].stick_max());
+    joystick[j].stick_med(namedJS[i].joystick[j].stick_med());
+    joystick[j].stick_min(namedJS[i].joystick[j].stick_min());
+    joystick[j].stick_inv(namedJS[i].joystick[j].stick_inv());
   }
-  for (int b = 0; b < MAX_JS_BUTTONS; b += 1) {
-    jsButton[b].button_idx(namedJS[i].jsButton[b].button_idx());
+
+  for (int j = 0; j < MAX_JS_BUTTONS; j++) {
+    jsButton[j].button_idx(namedJS[i].jsButton[j].button_idx());
   }
+
   namedJS[i].jsLastUsed(time(NULL));
 }
 
 void AppData::loadNamedJS()
 {
-  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i += 1) {
+  for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     if (namedJS[i].jsName() == currentProfile().jsName()) {
       loadNamedJS(i);
       return;
@@ -519,15 +563,11 @@ void AppData::loadNamedJS()
   }
 }
 
-static QString fmtHex(quint32 num)
-{
-  return QString::number(num, 16).toUpper();
-}
-
 void AppData::init()
 {
   qInfo().noquote() << "Settings init with" << m_settings.organizationName() << m_settings.applicationName()
-                    << "Saved version:"   << fmtHex(m_settings.value(SETTINGS_VERSION_KEY).toUInt()) << "Current version:" << fmtHex(CPN_SETTINGS_VERSION);
+                    << "Saved version:" << settingsVersionToDisplay(m_settings.value(SETTINGS_VERSION_KEY).toUInt())
+                    << "Current version:" << settingsVersionToDisplay(CPN_SETTINGS_VERSION);
 
   // This connection doesn't work in the constructor because AppData is created before QApplication. Globals suck like that. Compensate by using Qt::UniqueConnection because init() may be called multiple times within app lifetime.
   connect(this, &AppData::idChanged, this, static_cast<void (AppData::*)(int)>(&AppData::sessionId), Qt::UniqueConnection);
@@ -543,23 +583,35 @@ void AppData::initAll()
   // Initialize all variables. Use default values if no saved settings.
   CompStoreObj::initAllProperties(this);
   // Initialize the profiles
-  for (int i = 0; i < MAX_PROFILES; i++)
+  for (int i = 0; i < MAX_PROFILES; i++) {
     profile[i].init();
+
+    for (int j = 0; j < MAX_COMPONENTS; j++) {
+      profile[i].compRelease[j].init();
+    }
+  }
+
   // Initialize the joysticks
   for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].init();
+
   for (int i = 0; i < MAX_JS_BUTTONS; i++)
     jsButton[i].init();
+
   for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     namedJS[i].init();
-    for (int a = 0; a < MAX_JS_AXES; a += 1)
-      namedJS[i].joystick[a].init();
-    for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
-      namedJS[i].jsButton[b].init();
+
+    for (int j = 0; j < MAX_JS_AXES; j++)
+      namedJS[i].joystick[j].init();
+
+    for (int j = 0; j < MAX_JS_BUTTONS; j++)
+      namedJS[i].jsButton[j].init();
   }
+
   // Initialize the updates
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].init();
+
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
       component[i].asset[j].init();
     }
@@ -570,46 +622,73 @@ void AppData::resetAllSettings()
 {
   resetAll();
   fwRev.resetAll();
-  for (int i = 0; i < MAX_PROFILES; i++)
+
+  for (int i = 0; i < MAX_PROFILES; i++) {
     profile[i].resetAll();
+
+    for (int j = 0; j < MAX_COMPONENTS; j++) {
+      profile[i].compRelease[j].resetAll();
+    }
+  }
+
   for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].resetAll();
+
   for (int i = 0; i < MAX_JS_BUTTONS; i++)
     jsButton[i].resetAll();
+
   for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     namedJS[i].resetAll();
-    for (int a = 0; a < MAX_JS_AXES; a += 1)
-      namedJS[i].joystick[a].resetAll();
-    for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
-      namedJS[i].jsButton[b].resetAll();
+
+    for (int j = 0; j < MAX_JS_AXES; j++)
+      namedJS[i].joystick[j].resetAll();
+
+    for (int j = 0; j < MAX_JS_BUTTONS; j++)
+      namedJS[i].jsButton[j].resetAll();
   }
+
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].resetAll();
+
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++) {
       component[i].asset[j].resetAll();
     }
   }
+
   firstUse = true;
 }
 
 void AppData::storeAllSettings()
 {
   storeAll();
-  for (int i = 0; i < MAX_PROFILES; i++)
+
+  for (int i = 0; i < MAX_PROFILES; i++) {
     profile[i].storeAll();
+
+    for (int j = 0; j < MAX_COMPONENTS; j++) {
+      profile[i].compRelease[j].storeAll();
+    }
+  }
+
   for (int i = 0; i < MAX_JS_AXES; i++)
     joystick[i].storeAll();
+
   for (int i = 0; i < MAX_JS_BUTTONS; i++)
     jsButton[i].storeAll();
+
   for (int i = 0; i < MAX_NAMED_JOYSTICKS; i++) {
     namedJS[i].storeAll();
-    for (int a = 0; a < MAX_JS_AXES; a += 1)
-      namedJS[i].joystick[a].storeAll();
-    for (int b = 0; b < MAX_JS_BUTTONS; b += 1)
-      namedJS[i].jsButton[b].storeAll();
+
+    for (int j = 0; j < MAX_JS_AXES; j++)
+      namedJS[i].joystick[j].storeAll();
+
+    for (int j = 0; j < MAX_JS_BUTTONS; j++)
+      namedJS[i].jsButton[j].storeAll();
   }
+
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].storeAll();
+
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++)
       component[i].asset[j].storeAll();
   }
@@ -647,10 +726,12 @@ const Profile & AppData::getProfile(int index) const
 QMap<int, QString> AppData::getActiveProfiles() const
 {
   QMap<int, QString> active;
+
   for (int i=0; i<MAX_PROFILES; i++) {
     if (g.profile[i].existsOnDisk())
       active.insert(i, g.profile[i].name());
   }
+
   return active;
 }
 
@@ -658,9 +739,11 @@ void AppData::moveCurrentProfileToTop()
 {
   if (g.sortProfiles() && m_sessionId > 0) {
     Profile tmpProfile(g.profile[m_sessionId]);
-    for (int i = m_sessionId; i > 0; i -= 1) {
+
+    for (int i = m_sessionId; i > 0; i--) {
       g.profile[i] = g.profile[i - 1];
     }
+
     g.profile[0] = tmpProfile;
     id(0);
   }
@@ -669,10 +752,14 @@ void AppData::moveCurrentProfileToTop()
 void AppData::convertSettings(QSettings & settings)
 {
   quint32 savedVer = settings.value(SETTINGS_VERSION_KEY, 0).toUInt();
+
   if (savedVer == CPN_SETTINGS_VERSION)
     return;
+
   if (savedVer > CPN_SETTINGS_VERSION) {
-    qWarning().noquote() << "Saved settings version is newer than current, skipping conversions. Saved:" << fmtHex(savedVer) << "Current:" << fmtHex(CPN_SETTINGS_VERSION);
+    qWarning().noquote() << "Saved settings version is newer than current, skipping conversions. Saved:"
+      << settingsVersionToDisplay(savedVer) << "Current:"
+      << settingsVersionToDisplay(CPN_SETTINGS_VERSION);
     return;
   }
 
@@ -683,8 +770,9 @@ void AppData::convertSettings(QSettings & settings)
   const bool removeUnused = (savedMajMin < currMajMin);
 
   qInfo().noquote().nospace() << "Converting settings " << settings.applicationName()
-                              << " from v" << fmtHex(savedVer) << " (" << fmtHex(savedMajMin) << ") to v"
-                              <<  fmtHex(CPN_SETTINGS_VERSION) << " (" << fmtHex(currMajMin)  << "). Removing unused: " << removeUnused;
+                              << " from " << settingsVersionToDisplay(savedVer)
+                              << " to " << settingsVersionToDisplay(CPN_SETTINGS_VERSION)
+                              << ". Removing unused: " << removeUnused;
 
   // firmwares renamed from opentx-* to edgetx-* at 2.6
   if (savedMajMin <= 0x207) {        // Note: change merged post 2.6 rc 1 and version bumped to 2.7 the Nightly users also require upgrade
@@ -721,11 +809,133 @@ void AppData::convertSettings(QSettings & settings)
   }
 
   if (savedMajMin < 0x300) {
-    //  3.0  CloudBuild copy filter changed to cater for uf2
+    // CloudBuild copy filter changed to cater for uf2
     qInfo().noquote() << "Deleting CloudBuild settings to force refresh";
-    static const QString path = QStringLiteral("Components/component6");
+    QString path = QStringLiteral("Components/component6");
     if (settings.contains(path))
       settings.remove(path);
+
+    // Joystick settings paths changed to fix export issue
+    qInfo().noquote() << "Reorganising joystick settings";
+/*
+     Old structure TODO THIS IS NOT CORRECT SO FIX IT
+    -------------
+    JsCalibration
+      |_<n>
+          |_<data>
+    JsButton
+      |_<n>
+          |_<data>
+    NamedJSData
+      |_<n>
+        |_<data>
+        |_JsCalibration
+            |_<n>
+              |_<data>
+        |_JsButton
+            |_<n>
+              |_<data>
+
+    New structure
+    -------------
+    JsCalibration
+      |_stick<n>
+          |_<data>
+    JsButtons
+      |_button<n>
+          |_<data>
+    NamedJsData
+      |_name<n>
+        |_<data>
+        |_stick<n>
+            |_<data>
+        |_button<n>
+            |_<data>
+ */
+    QString oldpath = "JsCalibration/%1/%2";
+    QString newpath = "JsCalibration/stick%1/%2";
+    QStringList keys = { "stick_axe", "stick_min", "stick_med", "stick_max", "stick_inv" };
+
+    for (int i = 0; i < MAX_JS_AXES; i++) {
+      for (int k = 0; k < keys.size(); k++) {
+        const QString opath = oldpath.arg(i).arg(keys.at(k));
+        const QString npath = newpath.arg(i).arg(keys.at(k));
+
+        if (settings.contains(opath)) {
+          settings.setValue(npath, settings.value(opath));
+          settings.remove(opath);
+          qInfo().noquote() << "Moved " << opath << " to " << npath;
+        }
+      }
+    }
+
+    oldpath = "JsButton/%1/%2";
+    newpath = "JsButtons/button%1/%2";
+    keys = { "button_idx" };
+
+    for (int i = 0; i < MAX_JS_BUTTONS; i++) {
+      for (int k = 0; k < keys.size(); k++) {
+        const QString opath = oldpath.arg(i).arg(keys.at(k));
+        const QString npath = newpath.arg(i).arg(keys.at(k));
+
+        if (settings.contains(opath)) {
+          settings.setValue(npath, settings.value(opath));
+          settings.remove(opath);
+          qInfo().noquote() << "Moved " << opath << " to " << npath;
+        }
+      }
+    }
+
+    for (int j = 0; j < MAX_NAMED_JOYSTICKS; j++) {
+      oldpath = "NamedJSData/%1/%2";
+      newpath = "NamedJSData/name%1/%2";
+      keys = { "jsName", "jsLastUsed" };
+
+      for (int k = 0; k < keys.size(); k++) {
+        const QString opath = oldpath.arg(j).arg(keys.at(k));
+        const QString npath = newpath.arg(j).arg(keys.at(k));
+
+        if (settings.contains(opath)) {
+          settings.setValue(npath, settings.value(opath));
+          settings.remove(opath);
+          qInfo().noquote() << "Moved " << opath << " to " << npath;
+        }
+      }
+
+      oldpath = "NamedJSData/%1/JsCalibration/%2/%3";
+      newpath = "NamedJSData/name%1/stick%2/%3";
+      keys = { "stick_axe", "stick_min", "stick_med", "stick_max", "stick_inv" };
+
+      for (int i = 0; i < MAX_JS_AXES; i++) {
+        for (int k = 0; k < keys.size(); k++) {
+          const QString opath = oldpath.arg(j).arg(i).arg(keys.at(k));
+          const QString npath = newpath.arg(j).arg(i).arg(keys.at(k));
+
+          if (settings.contains(opath)) {
+            settings.setValue(npath, settings.value(opath));
+            settings.remove(opath);
+            qInfo().noquote() << "Moved " << opath << " to " << npath;
+          }
+        }
+      }
+
+      oldpath = "NamedJSData/%1/JsButton/%2/%3";
+      newpath = "NamedJSData/name%1/button%2/%3";
+      keys = { "button_idx" };
+
+      for (int i = 0; i < MAX_JS_BUTTONS; i++) {
+        for (int k = 0; k < keys.size(); k++) {
+          const QString opath = oldpath.arg(j).arg(i).arg(keys.at(k));
+          const QString npath = newpath.arg(j).arg(i).arg(keys.at(k));
+
+          if (settings.contains(opath)) {
+            settings.setValue(npath, settings.value(opath));
+            settings.remove(opath);
+            qInfo().noquote() << "Moved " << opath << " to " << npath;
+          }
+        }
+      }
+    }
   }
 
   if (removeUnused)
@@ -738,25 +948,33 @@ void AppData::convertSettings(QSettings & settings)
 void AppData::clearUnusedSettings(QSettings & settings)
 {
   // Go through and clean up anything that doesn't exist or is set to default value.
+  qInfo().noquote() << "Tidy settings by removing redundant and default settings";
+
   foreach (const QString & key, settings.allKeys()) {
     if (key == ".")  // special Windows registry key, don't delete it
       continue;
     const QVariant newVal = settings.value(key);
     // Remove key if property does not exist or is the default value.
-    if (!newVal.isValid() || !CompStoreObj::propertyPathIsValidNonDefault(key, newVal))
+    if (!newVal.isValid() || !CompStoreObj::propertyPathIsValidNonDefault(key, newVal)) {
       settings.remove(key);
+      qInfo().noquote() << "Removed key " << key;
+    }
   }
 }
 
 bool AppData::findPreviousVersionSettings(QString * version) const
 {
-  int vmaj = VERSION_MAJOR;
-  int vmin = VERSION_MINOR - 1;  // make sure we do not try to import from ourselves otherwise settings WILL get corrupted
+  // make sure we do not try to import from ourselves otherwise settings WILL get corrupted
+  const int vmax = 30; //abitary maximum minor version
+  int vmaj = VERSION_MINOR > 1 ? VERSION_MAJOR : VERSION_MAJOR - 1;
+  int vmin = VERSION_MINOR > 1 ? VERSION_MINOR - 1 : vmax;
+
+  // qDebug() << "Search start version:" << vmaj << vmin;
 
   for (;(vmaj << 8 | vmin) >= (2 << 8 | 4);) {  // 2.4 earliest EdgeTX version
     const QString ver = QString("%1.%2").arg(vmaj).arg(vmin);
     const QString prod = QString("Companion %1").arg(ver);
-    qDebug() << "Searching for previous version" << ver;
+    // qDebug() << "Searching for previous version" << ver;
     QSettings settings(COMPANY, prod);
     if (settings.contains(SETTINGS_VERSION_KEY)) {
       *version = ver;
@@ -768,7 +986,7 @@ bool AppData::findPreviousVersionSettings(QString * version) const
 
     --vmin;
     if (vmin < 0) {
-      vmin = 30;  //  abitary maximum minor version for earlier major versions
+      vmin = vmax;
       --vmaj;
     }
   }
@@ -829,14 +1047,17 @@ bool AppData::exportSettings(QSettings * toSettings, bool clearDestination)
     return false;
 
   m_settings.sync();
+
   if (clearDestination)
     toSettings->clear();
+
   foreach (const QString & key, m_settings.allKeys()) {
     const QVariant newVal = m_settings.value(key);
+    qDebug() << key << newVal;
     // Skip export if property does not exist or is the default value.
     if (newVal.isValid() && CompStoreObj::propertyPathIsValidNonDefault(key, newVal))
       toSettings->setValue(key, newVal);
-    //else qDebug() << "SKIPPING:" << key << newVal;
+    else qDebug() << "SKIPPING:" << key << newVal;
   }
   // Write the version and timestamp to export file -- they will NOT be imported, but may be useful for converting future imports.
   toSettings->setValue(SETTINGS_VERSION_KEY, m_settings.value(SETTINGS_VERSION_KEY));
@@ -853,7 +1074,9 @@ bool AppData::exportSettingsToFile(const QString & expFile, QString & resultMsg)
     resultMsg = tr("Application Settings have been saved to\n %1").arg(expFile);
     return true;
   }
+
   resultMsg = tr("Could not save Application Settings to file \"%1\"").arg(expFile) % " ";
+
   if (toSettings.status() == QSettings::AccessError)
     resultMsg.append(tr("because the file could not be saved (check access permissions)."));
   else
@@ -865,6 +1088,7 @@ ComponentData & AppData::getComponent(int index)
 {
   if (index > -1 && index < MAX_COMPONENTS)
     return component[index];
+
   return component[0];
 }
 
@@ -872,6 +1096,7 @@ const ComponentData & AppData::getComponent(int index) const
 {
   if (index > -1 && index < MAX_COMPONENTS)
     return component[index];
+
   return component[0];
 }
 
@@ -888,7 +1113,23 @@ void AppData::resetUpdatesSettings()
 
   for (int i = 0; i < MAX_COMPONENTS; i++) {
     component[i].resetAll();
+
     for (int j = 0; j < MAX_COMPONENT_ASSETS; j++)
       component[i].asset[j].resetAll();
   }
+
+  for (int i = 0; i < MAX_PROFILES; i++) {
+    for (int j = 0; j < MAX_COMPONENTS; j++) {
+      profile[i].compRelease[j].resetAll();
+    }
+  }
+}
+
+const QString AppData::settingsVersionToDisplay(const unsigned int ver)
+{
+  return QString("v%1.%2.%3.%4")
+                .arg(ver >> 24)
+                .arg((ver >> 16) & ((1U << 8) - 1))
+                .arg((ver >> 8) & ((1U << 8) - 1))
+                .arg(ver & ((1U << 8) - 1));
 }

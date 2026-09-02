@@ -51,10 +51,6 @@ class ChannelValue : public Window
 
     padAll(PAD_ZERO);
 
-    lv_style_init(&style);
-    lv_style_set_width(&style, lv_pct(100));
-    lv_style_set_height(&style, lv_pct(100));
-
     bar = lv_obj_create(lvobj);
     lv_obj_set_style_bg_opa(bar, LV_OPA_COVER, LV_PART_MAIN);
     lv_obj_clear_flag(bar, LV_OBJ_FLAG_CLICKABLE);
@@ -64,7 +60,7 @@ class ChannelValue : public Window
     valueLabel = etx_label_create(lvobj, FONT_XS_INDEX);
     etx_obj_add_style(valueLabel, styles->text_align_right, LV_PART_MAIN);
     etx_txt_color_from_flags(valueLabel, txtColor);
-    lv_obj_add_style(valueLabel, &style, LV_PART_MAIN);
+    lv_obj_set_width(valueLabel, LV_PCT(100));
     lv_label_set_text(valueLabel, "");
 
     chanLabel = etx_label_create(lvobj, FONT_XS_INDEX);
@@ -103,8 +99,9 @@ class ChannelValue : public Window
 
     int16_t value = channelOutputs[channel];
 
-    if (value != lastValue) {
+    if (value != lastValue || lastExtendedLimits != g_model.extendedLimits) {
       lastValue = value;
+      lastExtendedLimits = g_model.extendedLimits;
 
       std::string s;
       if (g_eeGeneral.ppmunit == PPM_US)
@@ -150,8 +147,8 @@ class ChannelValue : public Window
   int16_t lastValue = OUTPUT_INVALID_VALUE;
   int16_t lastScaledValue = OUTPUT_INVALID_VALUE;
   std::string lastText;
+  bool lastExtendedLimits = false;
   bool chanHasName = false;
-  lv_style_t style;
   lv_obj_t* valueLabel = nullptr;
   lv_obj_t* chanLabel = nullptr;
   lv_point_t divPoints[2];
@@ -168,9 +165,6 @@ class OutputsWidget : public Widget
   {
     padAll(PAD_ZERO);
 
-    lv_style_init(&style);
-    lv_obj_add_style(lvobj, &style, LV_PART_MAIN);
-
     etx_obj_add_style(lvobj, styles->bg_opacity_transparent, LV_PART_MAIN);
     etx_obj_add_style(lvobj, styles->bg_opacity_cover,
                       LV_PART_MAIN | ETX_STATE_BG_FILL);
@@ -182,11 +176,11 @@ class OutputsWidget : public Widget
   {
     auto widgetData = getPersistentData();
 
-    // get background color from options[2]
-    etx_bg_color_from_flags(lvobj, widgetData->options[2].value.unsignedValue);
+    // get background color from options[3]
+    etx_bg_color_from_flags(lvobj, widgetData->options[3].value.unsignedValue);
 
-    // Set background opacity from options[1]
-    if (widgetData->options[1].value.boolValue)
+    // Set background opacity from options[2]
+    if (widgetData->options[2].value.boolValue)
       lv_obj_add_state(lvobj, ETX_STATE_BG_FILL);
     else
       lv_obj_clear_state(lvobj, ETX_STATE_BG_FILL);
@@ -197,14 +191,16 @@ class OutputsWidget : public Widget
     bool changed = false;
 
     // Colors
-    LcdFlags f = widgetData->options[3].value.unsignedValue;
+    LcdFlags f = widgetData->options[4].value.unsignedValue;
     if (f != txtColor) { txtColor = f; changed = true; }
-    f = widgetData->options[4].value.unsignedValue;
+    f = widgetData->options[5].value.unsignedValue;
     if (f != barColor) { barColor = f; changed = true; }
 
     // Setup channels
     uint8_t chan = widgetData->options[0].value.unsignedValue;
-    if (chan != firstChan) { firstChan= chan; changed = true; }
+    if (chan != firstChan) { firstChan = chan; changed = true; }
+    chan = widgetData->options[1].value.unsignedValue;
+    if (chan != lastChan) { lastChan = chan; changed = true; }
 
     // Get size
     if (width() != lastWidth) { lastWidth = width(); changed = true; }
@@ -218,8 +214,8 @@ class OutputsWidget : public Widget
       clear();
       coord_t colWidth = lastWidth / cols;
       uint8_t chan = firstChan;
-      for (uint8_t c = 0; c < cols && chan <= MAX_OUTPUT_CHANNELS; c += 1) {
-        for (uint8_t r = 0; r < rows && chan <= MAX_OUTPUT_CHANNELS;
+      for (uint8_t c = 0; c < cols && chan <= lastChan; c += 1) {
+        for (uint8_t r = 0; r < rows && chan <= lastChan;
              r += 1, chan += 1) {
           new ChannelValue(this, c, r, colWidth, chan - 1, txtColor, barColor);
         }
@@ -238,11 +234,11 @@ class OutputsWidget : public Widget
   coord_t lastWidth = -1;
   coord_t lastHeight = -1;
   uint8_t firstChan = 255;
+  uint8_t lastChan = 255;
   uint8_t cols = 0;
   uint8_t rows = 0;
   LcdFlags txtColor = 0;
   LcdFlags barColor = 0;
-  lv_style_t style;
 
   static LAYOUT_VAL_SCALED(SHOW_MIN_W, 100)
   static LAYOUT_VAL_SCALED(SHOW_MIN_H, 20)
@@ -250,13 +246,48 @@ class OutputsWidget : public Widget
 };
 
 const WidgetOption OutputsWidget::options[] = {
-    {STR_FIRST_CHANNEL, WidgetOption::Integer, {1}, {1}, {32}},
+    {STR_FIRST_CHANNEL, WidgetOption::Integer, {1}, {1}, {MAX_OUTPUT_CHANNELS}},
+    {STR_LAST_CHANNEL, WidgetOption::Integer, {MAX_OUTPUT_CHANNELS}, {1}, {MAX_OUTPUT_CHANNELS}},
     {STR_FILL_BACKGROUND, WidgetOption::Bool, false},
     {STR_BG_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY3_INDEX)},
     {STR_TEXT_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_PRIMARY1_INDEX)},
     {STR_COLOR, WidgetOption::Color, COLOR2FLAGS(COLOR_THEME_SECONDARY1_INDEX)},
     {nullptr, WidgetOption::Bool}};
 
-BaseWidgetFactory<OutputsWidget> outputsWidget("Outputs",
+// Note: Must be a template class otherwise the linker will discard the 'outputsWidget' object
+template <class T>
+class OutputsWidgetFactory : public WidgetFactory
+{
+ public:
+  OutputsWidgetFactory(const char* name, const WidgetOption* options,
+                    const char* displayName = nullptr) :
+      WidgetFactory(name, options, displayName)
+  {
+  }
+
+  Widget* createNew(Window* parent, const rect_t& rect,
+                 int screenNum, int zoneNum) const override
+  {
+    return new T(this, parent, rect, screenNum, zoneNum);
+  }
+
+  // Fix the options loaded from the model file to account for
+  // addition of the 'last channel' option
+  const void checkOptions(int screenNum, int zoneNum) const override
+  {
+    auto widgetData = g_model.getWidgetData(screenNum, zoneNum);
+    if (widgetData && widgetData->options.size() >= 2 &&
+        widgetData->options.size() < 6 &&
+        widgetData->options[1].type == WOV_Bool) {
+      WidgetOptionValueTyped v;
+      v.type = WOV_Signed;
+      v.value.signedValue = MAX_OUTPUT_CHANNELS;
+      widgetData->options.insert(widgetData->options.begin() + 1, v);
+      storageDirty(EE_MODEL);
+    }
+  }
+};
+
+OutputsWidgetFactory<OutputsWidget> outputsWidget("Outputs",
                                                OutputsWidget::options,
                                                STR_WIDGET_OUTPUTS);

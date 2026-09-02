@@ -284,25 +284,22 @@ StaticBitmap::StaticBitmap(Window* parent, const rect_t& rect,
 void StaticBitmap::setSource(const char *filename)
 {
   if (filename) {
-    if (img) delete img;
+    clearSource();
     img = BitmapBuffer::loadBitmap(filename, BMP_ARGB4444);
     if (img) {
       img->resizeToLVGL(width(), height());
-      if (canvas) lv_obj_del(canvas);
-      canvas = lv_canvas_create(lvobj);
-      lv_obj_center(canvas);
-      lv_canvas_set_buffer(canvas, img->getData(), img->width(), img->height(),
-                          LV_IMG_CF_TRUE_COLOR_ALPHA);
+      img->addCanvas(this, LV_IMG_CF_TRUE_COLOR_ALPHA);
     }
   }
 }
 
 void StaticBitmap::clearSource()
 {
-  if (img) delete img;
+  if (img) {
+    img->removeCanvas();
+    delete img;
+  }
   img = nullptr;
-  if (canvas) lv_obj_del(canvas);
-  canvas = nullptr;
 }
 
 StaticBitmap::~StaticBitmap()
@@ -312,7 +309,7 @@ StaticBitmap::~StaticBitmap()
 
 bool StaticBitmap::hasImage() const
 {
-  return img && canvas;
+  return img;
 }
 
 //-----------------------------------------------------------------------------

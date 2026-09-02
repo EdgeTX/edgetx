@@ -24,6 +24,7 @@
 #include "definitions.h"
 #include "dataconstants.h"
 
+#if defined(FUNCTION_SWITCHES)
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 static bool hasLedOverride[NUM_FUNCTIONS_SWITCHES] = { false };
 static RGBLedColor ledOverride[NUM_FUNCTIONS_SWITCHES];
@@ -99,6 +100,7 @@ bool getFSLedState(uint8_t index) {
   return fsLedState(index);
 }
 #endif
+#endif  // FUNCTION_SWITCHES
 
 void turnOffRGBLeds()
 {

@@ -1,13 +1,15 @@
 
 class Misc:
 
-    def __init__(self, has_audio_mute, has_bling_leds, has_ext_module_support, has_int_module_support, sport_max_baudrate, surface):
+    def __init__(self, has_audio_mute, has_bling_leds, has_ext_module_support, has_int_module_support, sport_max_baudrate, surface, cpu, cpu_type):
         self.has_audio_mute = has_audio_mute
         self.has_bling_leds = has_bling_leds
         self.has_ext_module_support = has_ext_module_support
         self.has_int_module_support = has_int_module_support
         self.sport_max_baudrate = sport_max_baudrate
         self.surface = surface
+        self.cpu = cpu
+        self.cpu_type = cpu_type
 
 def parse_misc(hw_defs):
 
@@ -41,4 +43,14 @@ def parse_misc(hw_defs):
     else:
       has_int_module_support = 1
 
-    return Misc(has_audio_mute, has_bling_leds, has_ext_module_support, has_int_module_support, sport_max_baudrate, surface)
+    if f'CPU_TYPE_FULL' in hw_defs:
+      cpu = hw_defs[f'CPU_TYPE_FULL']
+    else:
+      cpu = f'Unknown'
+
+    if f'CPU_TYPE' in hw_defs:
+      cpu_type = hw_defs[f'CPU_TYPE']
+    else:
+      cpu_type = f'Unknown'
+
+    return Misc(has_audio_mute, has_bling_leds, has_ext_module_support, has_int_module_support, sport_max_baudrate, surface, cpu, cpu_type)

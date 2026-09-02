@@ -210,7 +210,7 @@ void SimulatorStartupDialog::loadRadioProfile(int id)
 
   *m_options = g.profile[id].simulatorOptions();
 
-  if (m_options->firmwareId.isEmpty() && !g.profile[id].fwType().isEmpty())
+  if (!g.profile[id].fwType().isEmpty())
     m_options->firmwareId = g.profile[id].fwType();
 
   m_options->firmwareId = findRadioId(m_options->firmwareId);
@@ -222,11 +222,11 @@ void SimulatorStartupDialog::loadRadioProfile(int id)
   setGlobalFirmware(m_options->firmwareId);
 
   //  always refresh as linked simulatorId as could change over time
-  m_options->simulatorId = getCurrentFirmware()->getSimulatorId();
+  m_options->simulatorId = SimulatorLoader::findSimulatorByName(getCurrentFirmware()->getSimulatorId());
 
   m_simProxy->setFilterFixedString(m_options->simulatorId);
 
-  i = ui->cbSimulator->findText(findRadioId(m_options->simulatorId), Qt::MatchContains);
+  i = ui->cbSimulator->findText(m_options->simulatorId, Qt::MatchContains);
   if (i > -1)
     ui->cbSimulator->setCurrentIndex(i);
 
@@ -293,11 +293,11 @@ void SimulatorStartupDialog::onRadioTypeChanged(int index)
   setGlobalFirmware(id);
 
   //  always refresh as linked simulatorId as could change over time
-  id = getCurrentFirmware()->getSimulatorId();
+  id = SimulatorLoader::findSimulatorByName(getCurrentFirmware()->getSimulatorId());
 
   m_simProxy->setFilterFixedString(id);
 
-  const int i = ui->cbSimulator->findText(findRadioId(id), Qt::MatchContains);
+  const int i = ui->cbSimulator->findText(id, Qt::MatchContains);
   if (i > -1)
     ui->cbSimulator->setCurrentIndex(i);
 }
@@ -305,8 +305,8 @@ void SimulatorStartupDialog::onRadioTypeChanged(int index)
 void SimulatorStartupDialog::onDataFileSelect(bool)
 {
   QString filter = SIMU_FILES_FILTER;
-  QString file = QFileDialog::getSaveFileName(this, tr("Select a data file"), ui->dataFile->text(),
-                                              filter, NULL, QFileDialog::DontConfirmOverwrite);
+  QString file = QFileDialog::getOpenFileName(this, tr("Select a data file"), ui->dataFile->text(),
+                                              filter);
   if (!file.isEmpty()) {
     ui->dataFile->setText(file);
     ui->optFile->setChecked(true);

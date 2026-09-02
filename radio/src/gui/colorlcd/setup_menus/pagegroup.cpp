@@ -26,6 +26,7 @@
 #include "mainwindow.h"
 #include "model_select.h"
 #include "os/time.h"
+#include "radio_tools.h"
 #include "screen_setup.h"
 #include "theme_manager.h"
 #include "topbar.h"
@@ -192,7 +193,8 @@ void PageGroupHeaderBase::setTitle(const char* title)
 {
   if (titleLabel) {
 #if VERSION_MAJOR == 2
-    std::string s = replaceAll(title, "\n", " ");
+    std::string s(title);
+    strReplaceAll(s, "\n", " ");
     lv_label_set_text(titleLabel, s.c_str());
 #else
     lv_label_set_text(titleLabel, title);
@@ -393,7 +395,10 @@ void PageGroupBase::setCurrentTab(unsigned index)
 void PageGroupBase::doKeyShortcut(event_t event)
 {
   QMPage pg = g_eeGeneral.getKeyShortcut(event);
-  if (pg == QM_OPEN_QUICK_MENU) {
+  if (pg == QM_APP) {
+    onCancel();
+    runLuaTool(g_eeGeneral.getKeyToolName(event));
+  } else if (pg == QM_OPEN_QUICK_MENU) {
     QuickMenu::openQuickMenu();
   } else {
     if (QuickMenu::subMenuIcon(pg) == icon) {
@@ -404,12 +409,6 @@ void PageGroupBase::doKeyShortcut(event_t event)
     }
   }
 }
-void PageGroupBase::onPressSYS() { doKeyShortcut(EVT_KEY_BREAK(KEY_SYS)); }
-void PageGroupBase::onLongPressSYS() { doKeyShortcut(EVT_KEY_LONG(KEY_SYS)); }
-void PageGroupBase::onPressMDL() { doKeyShortcut(EVT_KEY_BREAK(KEY_MODEL)); }
-void PageGroupBase::onLongPressMDL() { doKeyShortcut(EVT_KEY_LONG(KEY_MODEL)); }
-void PageGroupBase::onPressTELE() { doKeyShortcut(EVT_KEY_BREAK(KEY_TELE)); }
-void PageGroupBase::onLongPressTELE() { doKeyShortcut(EVT_KEY_LONG(KEY_TELE)); }
 
 void PageGroupBase::onPressPGUP() { header->prevTab(); }
 void PageGroupBase::onPressPGDN() { header->nextTab(); }

@@ -23,7 +23,6 @@
 #include "stm32_gpio.h"
 #include "stm32_i2c_driver.h"
 #include "stm32_hal.h"
-#include "stm32_ws2812.h"
 #include "stm32_spi.h"
 
 #include "flash_driver.h"
@@ -49,26 +48,45 @@
 #include "sdcard.h"
 #include "debug.h"
 #include "keys.h"
+#include "gyro.h"
 
 #include "flysky_gimbal_driver.h"
 #include "timers_driver.h"
 
 #include "touch_driver.h"
 
+#if defined(IMU_ICM4207C)
+#include "drivers/icm42607C.h"
+#endif
+#if defined(IMU_SC7U22)
+#include "drivers/sc7u22.h"
+#endif
+
+
 #include <string.h>
 
 // common ADC driver
 extern const etx_hal_adc_driver_t _adc_driver;
 
-// RGB LED timer
-extern const stm32_pulse_timer_t _led_timer;
+static const etx_imu_t _imu_candidates[] = {
+#if defined(IMU_ICM4207C)
+  { &imu_icm42607_driver, IMU_I2C_BUS, ICM426xx_I2C_BASE_ADDR },
+  { &imu_icm42607_driver, IMU_I2C_BUS, ICM426xx_I2C_BASE_ADDR + 1 },
+#endif
+#if defined(IMU_SC7U22)
+  { &imu_sc7u22_driver, IMU_I2C_BUS, SC7U22_I2C_BASE_ADDR },
+  { &imu_sc7u22_driver, IMU_I2C_BUS, SC7U22_I2C_BASE_ADDR + 1 },
+#endif
+};
+
+static void gyroInit()
+{
+  gyroStart(imuDetect(_imu_candidates, DIM(_imu_candidates)));
+}
 
 static void led_strip_off()
 {
-  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
-    ws2812_set_color(i, 0, 0, 0);
-  }
-  ws2812_update(&_led_timer);
+  rgbLedClearAll();
 }
 
 void INTERNAL_MODULE_ON()
@@ -117,6 +135,10 @@ void boardBLPreJump()
 
 void boardBLInit()
 {
+#if defined(ROTARY_ENCODER_NAVIGATION)
+  rotaryEncoderInit();
+#endif
+
   ExtFLASH_Init();
   SDRAM_Init();
 
@@ -145,7 +167,11 @@ void boardInit()
   timersInit();
 
   usbChargerInit();
-  gpio_set(LED_BLUE_GPIO);
+#if !defined(POWER_LED_BLUE)
+  ledBlue();
+#else
+  ledGreen();
+#endif
 
   ExtFLASH_InitRuntime();
 
@@ -178,6 +204,8 @@ void boardInit()
 
   // RTC must be initialized before rambackupRestore() is called
   rtcInit();
+
+  gyroInit();
 }
 
 extern void rtcDisableBackupReg();

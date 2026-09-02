@@ -24,6 +24,7 @@
 #include "bitmaps.h"
 #include "button.h"
 #include "static.h"
+#include "quick_menu.h"
 #include "quick_menu_def.h"
 
 static void etx_quick_button_constructor(const lv_obj_class_t* class_p,
@@ -43,8 +44,8 @@ static const lv_obj_class_t etx_quick_button_class = {
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
-    .width_def = QuickMenuGroup::QM_BUTTON_WIDTH,
-    .height_def = QuickMenuGroup::QM_BUTTON_HEIGHT,
+    .width_def = QuickMenu::QM_BUTTON_WIDTH,
+    .height_def = QuickMenu::QM_BUTTON_HEIGHT,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_TRUE,
     .instance_size = sizeof(lv_btn_t),
@@ -64,13 +65,13 @@ class QuickMenuButton : public ButtonBase
       ButtonBase(parent, {}, pressHandler, etx_quick_button_create),
       visibleHandler(std::move(visibleHandler))
   {
-    iconPtr = new StaticIcon(this, (QuickMenuGroup::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL, icon, COLOR_THEME_QM_FG_INDEX);
+    iconPtr = new StaticIcon(this, (QuickMenu::QM_BUTTON_WIDTH - QuickMenuGroup::QM_ICON_SIZE) / 2, PAD_SMALL, icon, COLOR_THEME_QM_FG_INDEX);
 #if VERSION_MAJOR > 2
     etx_obj_add_style(iconPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
 #endif
     etx_img_color(iconPtr->getLvObj(), COLOR_THEME_QM_BG_INDEX, LV_STATE_USER_1);
 
-    textPtr = new StaticText(this, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenuGroup::QM_BUTTON_WIDTH - 1, 0},
+    textPtr = new StaticText(this, {0, QuickMenuGroup::QM_ICON_SIZE + PAD_TINY * 2, QuickMenu::QM_BUTTON_WIDTH - 1, 0},
                    title, COLOR_THEME_QM_FG_INDEX, CENTERED | FONT(XS));
 #if VERSION_MAJOR > 2
     etx_obj_add_style(textPtr->getLvObj(), styles->qmdisabled, LV_PART_MAIN | LV_STATE_DISABLED);
@@ -160,6 +161,8 @@ ButtonBase* QuickMenuGroup::addButton(EdgeTxIcon icon, const char* title,
     if (focusHandler)
       focusHandler(focus);
   });
+  if (curBtn == nullptr)
+    curBtn = b;
   return b;
 }
 
@@ -186,6 +189,9 @@ void QuickMenuGroup::deleteLater()
 
 void QuickMenuGroup::setFocus()
 {
+  if (!curBtn && btns.size() > 0)
+    curBtn = btns[0];
+
   if (curBtn) {
     lv_event_send(curBtn->getLvObj(), LV_EVENT_FOCUSED, nullptr);
     lv_group_focus_obj(curBtn->getLvObj());
@@ -236,8 +242,8 @@ void QuickMenuGroup::doLayout(int cols)
   int n = 0;
   for (size_t i = 0; i < btns.size(); i += 1) {
     if (((QuickMenuButton*)btns[i])->isVisible()) {
-      coord_t x = (n % cols) * (QM_BUTTON_WIDTH + PAD_MEDIUM);
-      coord_t y = (n / cols) * (QM_BUTTON_HEIGHT + PAD_MEDIUM);
+      coord_t x = (n % cols) * (QuickMenu::QM_BUTTON_WIDTH + QuickMenu::QM_HPAD);
+      coord_t y = (n / cols) * (QuickMenu::QM_BUTTON_HEIGHT + QuickMenu::QM_VPAD);
       lv_obj_set_pos(btns[i]->getLvObj(), x, y);
       n += 1;
     }

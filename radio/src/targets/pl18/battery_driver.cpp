@@ -61,6 +61,7 @@
 #endif
 #define WCHARGER_LOW_CURRENT_DELAY_CNT       6000
 #define WCHARGER_HIGH_CURRENT_DELAY_CNT      24000
+#define CHARGER_DETECTION_TIMEOUT            40    // 400ms
 
 typedef struct
 {
@@ -298,14 +299,16 @@ uint16_t get_battery_charge_state()
 bool isChargerActive()
 {  
 #if defined(WIRELESS_CHARGER)
-  while (!(uCharger.isChargerDetectionReady && wCharger.isChargerDetectionReady))
+  uint16_t timeout = CHARGER_DETECTION_TIMEOUT;
+  while (!(uCharger.isChargerDetectionReady && wCharger.isChargerDetectionReady) && timeout--)
   {
     get_battery_charge_state();
     delay_ms(10);
   }
   return uCharger.hasCharger || wCharger.hasCharger;
 #else
-  while (!uCharger.isChargerDetectionReady)
+  uint16_t timeout = CHARGER_DETECTION_TIMEOUT;
+  while (!uCharger.isChargerDetectionReady && timeout--)
   {
     get_battery_charge_state();
     delay_ms(10);
@@ -443,9 +446,11 @@ void drawChargingInfo(uint16_t chargeState) {
 
 void battery_charge_end()
 {
-  chargeWindow->clear();
-  delete chargeWindow;
-  chargeWindow = nullptr;
+  if (chargeWindow) {
+    chargeWindow->clear();
+    delete chargeWindow;
+    chargeWindow = nullptr;
+  }
 }
 
 #define CHARGE_INFO_DURATION 5000 // ms

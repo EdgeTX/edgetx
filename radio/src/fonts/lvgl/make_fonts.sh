@@ -219,42 +219,6 @@ function make_font_lz4() {
   compress_font "${dir}/lv_font_${name}_${sfx}" "${no_kern}"
 }
 
-function make_font_w_extra_sym() {
-  local name=$1
-  local latin_ttf=$2
-  local ttf=$3
-  local size=$4
-  local sfx=$5
-  local dir=$6
-  local chars=$7
-  local no_kern=$8
-
-  echo "Creating font with extra symbols: ${name}_${sfx} (size: ${size})"
-  
-  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
-               --font "../${ttf}" -r "${chars}" \
-               --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
-  compress_font "${dir}/lv_font_${name}_${sfx}" "${no_kern}"
-}
-
-function make_font_no_sym() {
-  local name=$1
-  local latin_ttf=$2
-  local ttf=$3
-  local size=$4
-  local sfx=$5
-  local dir=$6
-  local chars=$7
-  local no_kern=$8
-
-  echo "Creating font without symbols: ${name}_${sfx} (size: ${size})"
-  
-  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
-               --font "../${ttf}" -r "${chars}" \
-               --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
-  compress_font "${dir}/lv_font_${name}_${sfx}" "${no_kern}"
-}
-
 function make_en_font_set() {
   local name=$1
 
@@ -304,24 +268,24 @@ function make_font_set() {
   make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 13 "XS" "std" "${chars}" "${no_kern}"
   make_font "${name}" "${LATIN_FONT}" "${ttf_normal}" 16 "STD" "std" "${chars}"
   make_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 16 "STD" "std" "${chars}" "${no_kern}"
-  make_font_w_extra_sym "${name}" "${LATIN_FONT}" "${ttf_normal}" 24 "L" "std" "${chars}" "${no_kern}"
-  make_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 32 "XL" "std" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 24 "L" "std" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 32 "XL" "std" "${chars}" "${no_kern}"
 
   # Small LCD fonts (320x240)
   make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 8 "XXS" "sml" "${chars}" "${no_kern}"
   make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 10 "XS" "sml" "${chars}" "${no_kern}"
   make_font "${name}" "${LATIN_FONT}" "${ttf_normal}" 13 "STD" "sml" "${chars}"
   make_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 13 "STD" "sml" "${chars}" "${no_kern}"
-  make_font_w_extra_sym "${name}" "${LATIN_FONT}" "${ttf_normal}" 19 "L" "sml" "${chars}" "${no_kern}"
-  make_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 25 "XL" "sml" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 19 "L" "sml" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 25 "XL" "sml" "${chars}" "${no_kern}"
 
   # Large LCD fonts (800x480)
   make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 12 "XXS" "lrg" "${chars}" "${no_kern}"
   make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 18 "XS" "lrg" "${chars}" "${no_kern}"
   make_font "${name}" "${LATIN_FONT}" "${ttf_normal}" 22 "STD" "lrg" "${chars}"
   make_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 22 "STD" "lrg" "${chars}" "${no_kern}"
-  make_font_w_extra_sym "${name}" "${LATIN_FONT}" "${ttf_normal}" 33 "L" "lrg" "${chars}" "${no_kern}"
-  make_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 44 "XL" "lrg" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 33 "L" "lrg" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 44 "XL" "lrg" "${chars}" "${no_kern}"
 }
 
 # Main execution starts here
@@ -341,7 +305,13 @@ main() {
     make_bootloader_font "bl" "Roboto/Roboto-Regular-BL.ttf" 14 "sml" # 320x240
     make_bootloader_font "bl" "Roboto/Roboto-Regular-BL.ttf" 24 "lrg" # 800x480
 
-    # XXL fonts (no translation chars)
+    # LXL fonts (no translation chars) - twice size of L, bold
+    # echo "Generating LXL fonts..."
+    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 48 "LXL" "std"
+    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 38 "LXL" "sml"
+    make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 66 "LXL" "lrg"
+
+    # XXL fonts (no translation chars) - twice size of XL, bold
     # echo "Generating XXL fonts..."
     make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 64 "XXL" "std"
     make_font_no_sym_no_trans "en_bold" "${LATIN_FONT_BOLD}" 50 "XXL" "sml"

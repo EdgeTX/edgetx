@@ -21,13 +21,13 @@
 
 #include "stm32_hal_ll.h"
 #include "stm32_gpio.h"
-#include "stm32_ws2812.h"
 
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
 #include "hal/module_port.h"
 #include "hal/abnormal_reboot.h"
+#include "hal/rotary_encoder.h"
 #include "hal/usb_driver.h"
 #include "hal/gpio.h"
 #include "hal/rgbleds.h"
@@ -48,6 +48,28 @@
 #if defined(FLYSKY_GIMBAL)
   #include "flysky_gimbal_driver.h"
 #endif
+
+#if defined(BOOT)
+
+#if defined(BLUETOOTH)
+void boardBLEarlyInit()
+{
+  // Disable the BT module so it will be detected on firmware start
+#if defined(BT_EN_GPIO)
+  gpio_init(BT_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_write(BT_EN_GPIO, 1);
+#endif
+}
+#endif
+
+#if defined(ROTARY_ENCODER_NAVIGATION)
+void boardBLInit()
+{
+  rotaryEncoderInit();
+}
+#endif
+
+#endif // BOOT
 
 #if !defined(BOOT)
   #include "edgetx.h"
@@ -72,44 +94,6 @@ HardwareOptions hardwareOptions;
 #include "storage/storage.h"
 #endif
 
-#if defined(SIXPOS_SWITCH_INDEX)
-uint8_t lastADCState = 0;
-uint8_t sixPosState = 0;
-bool dirty = true;
-uint16_t getSixPosAnalogValue(uint16_t adcValue)
-{
-  uint8_t currentADCState = 0;
-  if (adcValue > 3800)
-    currentADCState = 6;
-  else if (adcValue > 3100)
-    currentADCState = 5;
-  else if (adcValue > 2300)
-    currentADCState = 4;
-  else if (adcValue > 1500)
-    currentADCState = 3;
-  else if (adcValue > 1000)
-    currentADCState = 2;
-  else if (adcValue > 400)
-    currentADCState = 1;
-  if (lastADCState != currentADCState) {
-    lastADCState = currentADCState;
-  } else if (lastADCState != 0 && lastADCState - 1 != sixPosState) {
-    sixPosState = lastADCState - 1;
-    dirty = true;
-  }
-  if (dirty) {
-    for (uint8_t i = 0; i < 6; i++) {
-      if (i == sixPosState)
-        ws2812_set_color(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-      else
-        ws2812_set_color(i, 0, 0, 0);
-    }
-    rgbLedColorApply();
-  }
-  return (4096/5)*(sixPosState);
-}
-#endif
-
 #if defined(SALED_PWR_GPIO)
 void SALEDpwrInit()
 {
@@ -122,6 +106,21 @@ void SDLEDpwrInit()
 {
   gpio_init(SDLED_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   SDLED_PWR_ON();
+}
+#endif
+
+#if defined(IMU) && defined(IMU_I2C_BUS) && defined(IMU_I2C_BUS)
+#include "drivers/lsm6ds.h"
+#include "stm32_i2c_driver.h"
+
+#define HAS_IMU
+
+static void gyroInit()
+{
+  const etx_imu_t candidates[] = {
+    { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
+  };
+  gyroStart(imuDetect(candidates, DIM(candidates)));
 }
 #endif
 
@@ -164,7 +163,7 @@ void boardInit()
   pwrInit();
   boardInitModulePorts();
 
-#if defined(STATUS_LEDS)
+#if STATUS_LEDS
   ledInit();
 #if !defined(POWER_LED_BLUE)
   ledBlue();
@@ -202,7 +201,7 @@ void boardInit()
       if (getBatteryVoltage() >= 780) setFSLedON(3);
       if (getBatteryVoltage() >= 820) setFSLedON(4);
       if (getBatteryVoltage() >= 842) setFSLedON(5);
-#elif defined(STATUS_LEDS)
+#elif STATUS_LEDS
       // Use Status LED to indicate battery charge level instead
       if (getBatteryVoltage() <= 660) ledRed();         // low discharge
       else if (getBatteryVoltage() <= 842) ledBlue();   // charging
@@ -277,6 +276,10 @@ void boardInit()
 #if defined(RADIO_GX12)
   gpio_init(HALL_SYNC, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
+
+#if defined(HAS_IMU)
+  gyroInit();
+#endif
 }
 #endif
 
@@ -287,7 +290,7 @@ void boardOff()
   rgbLedClearAll();
 #endif
 
-#if defined(STATUS_LEDS) && !defined(BOOT)
+#if STATUS_LEDS && !defined(BOOT)
   ledOff();
 #endif
 

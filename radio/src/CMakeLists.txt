@@ -1,7 +1,7 @@
 include(CMakeForceCompiler)
 include(Bitmaps)
 
-set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15 TX16SMK3)
+set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15 GX15 TX16SMK3 T22 V12)
 set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 set(TTS_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 
@@ -34,7 +34,6 @@ option(SIMU_LUA_COMPILER "Pre-compile and save Lua scripts in simulator." ON)
 option(FAS_PROTOTYPE "Support of old FAS prototypes (different resistors)" OFF)
 option(RAS "RAS (SWR) enabled" ON)
 option(TEMPLATES "Model templates menu" OFF)
-option(TRACE_SIMPGMSPACE "Turn on traces in simpgmspace.cpp" ON)
 option(TRACE_LUA_INTERNALS "Turn on traces for Lua internals" OFF)
 option(TRACE_AUDIO "Traces audio enabled" OFF)
 option(DEBUG_SEGGER_RTT "Debug output to Segger RTT" OFF)
@@ -60,6 +59,7 @@ else()
   option(USBJ_EX "Enable USB Joystick Extension" ON)
 endif()
 option(AUDIO "Enable audio" ON)
+option(EXFAT "Enable exFAT filesystem support in FatFs" OFF)
 
 if(NATIVE_BUILD)
   option(ALL_LANGUAGES "Enable runtime language selection" ON)
@@ -95,12 +95,20 @@ elseif(PCB STREQUAL T15PRO)
   include(targets/t15pro/CMakeLists.txt)
 elseif(PCB STREQUAL ST16)
   include(targets/st16/CMakeLists.txt)
+  elseif(PCB STREQUAL C14)
+  include(targets/c14/CMakeLists.txt)
 elseif(PCB STREQUAL PA01)
   include(targets/pa01/CMakeLists.txt)
+elseif(PCB STREQUAL V12)
+  include(targets/v12/CMakeLists.txt)
 elseif(PCB STREQUAL TX15)
   include(targets/tx15/CMakeLists.txt)
+elseif(PCB STREQUAL GX15)
+  include(targets/gx15/CMakeLists.txt)
 elseif(PCB STREQUAL TX16SMK3)
     include(targets/tx16smk3/CMakeLists.txt)
+elseif(PCB STREQUAL T22)
+  include(targets/t22/CMakeLists.txt)
 elseif(PCB STREQUAL STM32H7S78_DK)
   include(targets/stm32h7s78-dk/CMakeLists.txt)
 elseif(PCB STREQUAL X9E OR PCB STREQUAL X9D+ OR PCB STREQUAL X9D OR PCB STREQUAL X7 OR PCB STREQUAL X9LITE OR PCB STREQUAL X9LITES OR PCB STREQUAL XLITE OR PCB STREQUAL XLITES)
@@ -109,11 +117,45 @@ else()
   message(FATAL_ERROR "Unknown PCB '${PCB}'")
 endif()
 
-set(HW_DESC_JSON ${FLAVOUR}.json)
-AddHardwareDefTarget(${HW_DESC_JSON})
+# Add RADIO_xxx definition
+string(TOUPPER ${FLAVOUR} RADIO_NAME)
+string(REPLACE "+" "P" RADIO_NAME ${RADIO_NAME})
+string(CONCAT RADIO_NAME "RADIO_" ${RADIO_NAME})
+add_definitions(-D${RADIO_NAME})
+set(${RADIO_NAME} YES)
 
-# enable generating JSON definition separately for debugging
-add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON} ${HW_DESC_JSON}.h)
+add_definitions(
+  -DCPU_TYPE=${CPU_TYPE} -DCPU_TYPE_FULL=${CPU_TYPE_FULL}
+)
+
+set(HW_DESC_JSON ${FLAVOUR}.json)
+
+# Generate files from radio JSON
+AddHWGenTarget(${HW_DESC_JSON} hal_settings hal_settings.h)
+AddHWGenTarget(${HW_DESC_JSON} hal_pwm_sticks hal_pwm_sticks.h)
+
+AddHWGenTarget(${HW_DESC_JSON} hal_keys hal_keys.inc)
+AddHWGenTarget(${HW_DESC_JSON} hal_adc_inputs hal_adc_inputs.inc)
+
+AddHWGenTarget(${HW_DESC_JSON} yaml_inputs yaml_inputs.inc)
+
+AddHWGenTarget(${HW_DESC_JSON} lua_inputs lua_inputs.inc)
+AddHWGenTarget(${HW_DESC_JSON} lua_mixsrc lua_mixsrc.inc)
+AddHWGenTarget(${HW_DESC_JSON} lua_keys lua_keys.inc)
+
+AddHWGenTarget(${HW_DESC_JSON} stm32_keys stm32_keys.inc)
+AddHWGenTarget(${HW_DESC_JSON} stm32_switches stm32_switches.inc)
+AddHWGenTarget(${HW_DESC_JSON} stm32_adc_inputs stm32_adc_inputs.inc)
+AddHWGenTarget(${HW_DESC_JSON} stm32_pwm_inputs stm32_pwm_inputs.inc)
+
+AddHWGenTarget(${HW_DESC_JSON} simu_keys simu_keys.inc)
+AddHWGenTarget(${HW_DESC_JSON} simu_switches simu_switches.inc)
+
+AddHWGenTarget(${HW_DESC_JSON} hal_keys_lock hal_keys_lock.h)
+
+add_dependencies(board hal_settings hal_pwm_sticks hal_keys hal_keys_lock hal_adc_inputs stm32_keys stm32_switches stm32_adc_inputs stm32_pwm_inputs yaml_inputs lua_inputs lua_mixsrc lua_keys)
+add_dependencies(board_bl hal_settings hal_pwm_sticks hal_keys stm32_keys)
+
 
 include(hal/CMakeLists.txt)
 
@@ -140,6 +182,11 @@ endif()
 if(ARCH STREQUAL ARM)
   include(targets/common/arm/CMakeLists.txt)
 endif()
+
+# Generate hardware definitions from hal.h
+# Must be after all add_definitions() so the preprocessor sees all flags
+AddHardwareDefTarget(${HW_DESC_JSON})
+add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
 
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
 
@@ -181,7 +228,7 @@ if(STORAGE_MODELSLIST)
   add_definitions(-DSTORAGE_MODELSLIST)
 endif()
 
-if(RTC_BACKUP_RAM)
+if(RTC_BACKUP_RAM AND NOT WASI)
   add_definitions(-DRTC_BACKUP_RAM)
 
   GenerateDataCopy(datastructs_private.h datacopy.inc)
@@ -453,6 +500,7 @@ set(SRC
   serial.cpp
   audio.cpp
   model_audio.cpp
+  pdm_wav_recorder.cpp
   sbus.cpp
   input_mapping.cpp
   inactivity_timer.cpp
@@ -559,11 +607,16 @@ if(NATIVE_BUILD)
     os/time_native.cpp
     os/timer_native.cpp
   )
-  add_dependencies(radiolib_native ${RADIO_DEPENDENCIES})
+  add_dependencies(radiolib_native ${RADIO_DEPENDENCIES}
+    hal_settings hal_pwm_sticks hal_keys hal_keys_lock hal_adc_inputs
+    yaml_inputs lua_inputs lua_mixsrc lua_keys)
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
   add_subdirectory(targets/simu)
-  add_subdirectory(tests)
+
+  if(NOT WASI)
+    add_subdirectory(tests)
+  endif()
 endif()
 
 set(SRC ${SRC} ${FIRMWARE_SRC})
@@ -582,6 +635,8 @@ if(NOT USE_UNSUPPORTED_TOOLCHAIN AND NOT CMAKE_CXX_COMPILER_VERSION VERSION_EQUA
   message("CPP Compiler: ${CMAKE_CXX_COMPILER}, version ${CMAKE_CXX_COMPILER_VERSION}")
   message(FATAL_ERROR "Only Arm GNU Toolchain version 14.2.rel1 is supported!!")
 endif()
+
+enable_language(ASM)
 
 set(CMAKE_C_FLAGS "${FIRMWARE_C_FLAGS}")
 set(CMAKE_C_FLAGS_DEBUG "${FIRMWARE_C_FLAGS_DEBUG}")
@@ -655,6 +710,12 @@ if(DEBUG)
 endif()
 
 set(LINKER_SCRIPT firmware.ld)
+
+if(USE_FW_LTO)
+  message("-- Use LTO to compile firmware")
+  target_compile_options(firmware PRIVATE -flto)
+  target_link_options(firmware PRIVATE -Wl,-u,SystemCoreClockUpdate)
+endif()
 
 target_link_options(firmware PRIVATE
   -lm -T${LINKER_DIR}/${LINKER_SCRIPT}
@@ -783,5 +844,3 @@ if(CPU_FAMILY STREQUAL STM32)
 endif()
 
 PrintTargetReport("firmware")
-
-AddHardwareDefTarget(hardware_defs ${RADIO_DIRECTORY}/src/targets/hw_defs/${FLAVOUR}.json)

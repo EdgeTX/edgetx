@@ -85,7 +85,7 @@ void rotaryEncoderCheck()
   };
 #endif
 
-  uint8_t pins = ROTARY_ENCODER_POSITION();
+  uint8_t pins = ROTARY_ENCODER_POSITION;
 
   // No change - do nothing
   if (pins == lastPins) {
@@ -230,7 +230,7 @@ void rotaryEncoderInit()
   NVIC_SetPriority(ROTARY_ENCODER_TIMER_IRQn, 7);
 
   // Get initial position
-  lastPins = ROTARY_ENCODER_POSITION();
+  lastPins = ROTARY_ENCODER_POSITION;
   skipUntilDetent = !ON_DETENT(lastPins);
 }
 

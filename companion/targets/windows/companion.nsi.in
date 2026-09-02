@@ -19,7 +19,7 @@
   OutFile "companion-windows-@VERSION@.exe"
 
   ;Default installation folder
-  InstallDir "$PROGRAMFILES\@PROJECT_NAME@\Companion @VERSION_FAMILY@"
+  InstallDir "$PROGRAMFILES64\@PROJECT_NAME@\Companion @VERSION_FAMILY@"
 
   ;Get installation folder from registry if available
   InstallDirRegKey HKCU "Software\@PROJECT_NAME@\Companion @VERSION_FAMILY@" ""

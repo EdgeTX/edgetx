@@ -128,6 +128,8 @@ if(NOT NATIVE_BUILD)
       ${STM32_DRIVER_DIR}/stm32_i2c_driver.cpp
   )
 
+  add_dependencies(stm32_drivers hal_settings hal_pwm_sticks)
+
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_drivers>)
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_drivers_w_dbg_fw>)
 
@@ -137,7 +139,7 @@ endif()
 
 if(IMU)
   add_definitions(-DIMU)
-  set(SRC ${SRC} gyro.cpp)
+  set(SRC ${SRC} gyro.cpp hal/imu.cpp)
 endif()
 
 if(AUX_SERIAL OR AUX2_SERIAL)

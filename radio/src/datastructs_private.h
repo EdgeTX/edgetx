@@ -284,7 +284,7 @@ PACK(struct TimerData {
   uint32_t minuteBeep:1;
   uint32_t persistent:2;
   int32_t  countdownStart:2;
-  uint8_t  showElapsed:1; 
+  uint8_t  showElapsed:1;
   uint8_t  extraHaptic:1;
   uint8_t  spare:6 SKIP;
   NOBACKUP(char name[LEN_TIMER_NAME]);
@@ -499,7 +499,10 @@ PACK(struct PpmModule {
 });
 
 PACK(struct ModuleData {
-  uint8_t type ENUM(ModuleType) CUST(r_moduleType, w_moduleType);
+  // antennaMode stays unconditional as boards differing on EXTERNAL_ANTENNA share
+  // generated YAML descriptors.
+  uint8_t type:6 ENUM(ModuleType) CUST(r_moduleType, w_moduleType);
+  int8_t  antennaMode:2 ENUM(AntennaModes);
   CUST_ATTR(subType,r_modSubtype,w_modSubtype);
   uint8_t channelsStart;
   int8_t  channelsCount CUST(r_channelsCount,w_channelsCount); // 0=8 channels
@@ -525,8 +528,8 @@ PACK(struct ModuleData {
       uint8_t spare1:2 SKIP;
       uint8_t receiverTelemetryOff:1;     // false = receiver telem enabled
       uint8_t receiverHigherChannels:1;  // false = pwm out 1-8, true 9-16
-      int8_t antennaMode:2;
-      uint8_t spare2 SKIP;
+      uint8_t spare2:2 SKIP;
+      uint8_t spare3 SKIP;
     } pxx);
     NOBACKUP(struct {
       uint8_t spare1:6 SKIP;
@@ -629,7 +632,7 @@ static_assert(sizeof(potwarnen_t) * 8 >= MAX_POTS,
   #define TOPBAR_DATA
 #endif
 
-#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBPL18) || defined(PCBST16)
+#if defined(PCBHORUS) || defined(PCBTARANIS) || defined(PCBPL18) || defined(PCBST16) || defined(PCBC14)
   #define SCRIPT_DATA \
     NOBACKUP(ScriptData scriptsData[MAX_SCRIPTS]);
 #else
@@ -710,8 +713,9 @@ PACK(struct customSwitch {
 #endif
 
 PACK(struct PartialModel {
+  CUST_ATTR(semver,nullptr,w_semver);
   ModelHeader header;
-  TimerData timers[MAX_TIMERS];
+  ModuleData moduleData[NUM_MODULES];
 });
 
 /*
@@ -751,8 +755,10 @@ PACK(struct USBJoystickChData {
 });
 
 PACK(struct ModelData {
+  // Must match start of PartialModel
   CUST_ATTR(semver,nullptr,w_semver);
   ModelHeader header;
+
   TimerData timers[MAX_TIMERS];
   uint8_t   telemetryProtocol:3;
   uint8_t   thrTrim:1;            // Enable Throttle Trim
@@ -880,7 +886,7 @@ PACK(struct ModelData {
   NOBACKUP(uint8_t usbJoystickIfMode:3 ENUM(USBJoystickIfMode));
   NOBACKUP(uint8_t usbJoystickCircularCut:4);
   NOBACKUP(USBJoystickChData usbJoystickCh[USBJ_MAX_JOYSTICK_CHANNELS]);
-  
+
   // Radio level tabs control (model settings)
 #if defined(COLORLCD)
   uint8_t radioThemesDisabled:2 ENUM(ModelOverridableEnable);
@@ -1002,8 +1008,13 @@ PACK(struct switchDef {
 #if defined(COLORLCD)
 #define MAX_KEY_SHORTCUTS 6
 #define MAX_QM_FAVORITES 12
-PACK(struct QuickMenuPage {
-  uint8_t shortcut ENUM(QMPage);
+PACK(struct KeyShortcut {
+  CUST_ATTR(shortcut, r_keyShortcut, w_keyShortcut);
+  uint8_t shortcut ENUM(QMPage) SKIP;
+});
+PACK(struct QMFavorite {
+  CUST_ATTR(shortcut, r_qmFavorite, w_qmFavorite);
+  uint8_t shortcut ENUM(QMPage) SKIP;
 });
 #endif
 
@@ -1123,6 +1134,7 @@ PACK(struct RadioData {
 #if defined(IMU)
   NOBACKUP(int8_t imuMax);
   NOBACKUP(int8_t imuOffset);
+  NOBACKUP(uint8_t imuInvert);  // user inversion, default off; XORed with hal.h IMU_INVERT_X/Y at apply time (bit0=X, bit1=Y)
 #endif
 
 #if defined(COLORLCD)
@@ -1148,6 +1160,8 @@ PACK(struct RadioData {
   NOBACKUP(int16_t disablePwrOnOffHaptic:1);
 
   NOBACKUP(uint8_t modelQuickSelect:1);
+  NOBACKUP(uint8_t oneLogPerDay:1);
+  NOBACKUP(uint8_t keyLockEnabled:1);
 
 #if defined(COLORLCD)
   NOBACKUP(uint8_t labelSingleSelect:1);  // 0 = multi-select, 1 = single select labels
@@ -1156,24 +1170,31 @@ PACK(struct RadioData {
   // Radio level tabs control (global settings)
   NOBACKUP(uint8_t modelSelectLayout:2);
   NOBACKUP(uint8_t radioThemesDisabled:1);
-  NOBACKUP(uint8_t spare:1 SKIP);
-#elif LCD_W == 128
-  uint8_t invertLCD:1;          // Invert B&W LCD display
+#if defined(USB_CHARGE_CONTROL)
+  // 0 = charge while USB active (default), 1 = hold the charger off while USB
+  // is plugged in SD/Joystick/VCP mode
+  NOBACKUP(uint8_t usbChargeDisabled:1);
   NOBACKUP(uint8_t spare:6 SKIP);
 #else
   NOBACKUP(uint8_t spare:7 SKIP);
+#endif
+#elif LCD_W == 128
+  uint8_t invertLCD:1;          // Invert B&W LCD display
+  NOBACKUP(uint8_t spare:4 SKIP);
+#else
+  NOBACKUP(uint8_t spare:5 SKIP);
 #endif
 
   NOBACKUP(uint8_t pwrOffIfInactive);
 
 #if defined(COLORLCD)
-  NOBACKUP(QuickMenuPage keyShortcuts[MAX_KEY_SHORTCUTS]);
-  NOBACKUP(QuickMenuPage qmFavorites[MAX_QM_FAVORITES]);
+  NOBACKUP(KeyShortcut keyShortcuts[MAX_KEY_SHORTCUTS]);
+  NOBACKUP(QMFavorite qmFavorites[MAX_QM_FAVORITES]);
 #endif
 
   NOBACKUP(uint8_t getBrightness() const
   {
-#if defined(OLED_SCREEN)
+#if OLED_SCREEN
     return contrast;
 #else
     return backlightBright;
@@ -1199,11 +1220,17 @@ PACK(struct RadioData {
 #endif
 #endif
 
-#if defined(COLORLCD)
+#if defined(COLORLCD) && !defined(BACKUP)
+  int getKeyShortcutNum(event_t event);
+  event_t getKeyShortcutEvent(int n);
   QMPage getKeyShortcut(event_t event);
-  bool hasKeyShortcut(QMPage shortcut);
+  bool hasKeyShortcut(QMPage shortcut, event_t event);
   void setKeyShortcut(event_t event, QMPage shortcut);
   void defaultKeyShortcuts();
+  void setKeyToolName(event_t event, const std::string name);
+  const std::string getKeyToolName(event_t event);
+  void setFavoriteToolName(int fav, const std::string name);
+  const std::string getFavoriteToolName(int fav);
 #endif
 });
 

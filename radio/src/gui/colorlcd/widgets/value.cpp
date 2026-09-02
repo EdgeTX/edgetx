@@ -26,6 +26,8 @@
 #define ETX_STATE_TELEM_STALE LV_STATE_USER_2
 #define ETX_STATE_LARGE_FONT LV_STATE_USER_3
 
+#define STR_V (STR_VTELEMUNIT[1])
+
 class ValueWidget : public Widget
 {
  public:
@@ -133,13 +135,12 @@ class ValueWidget : public Widget
       // Set value text
       if (field == MIXSRC_TX_VOLTAGE) {
         valueTxt =
-            getSourceCustomValueString(field, getValue(field), valueFlags);
+            getSourceCustomValueString(field, newValue, valueFlags);
         valueTxt += STR_V;
       } else if (field == MIXSRC_TX_TIME) {
-        int32_t tme = getValue(MIXSRC_TX_TIME);
         TimerOptions timerOptions;
         timerOptions.options = SHOW_TIME;
-        valueTxt = getTimerString(tme, timerOptions);
+        valueTxt = getTimerString(newValue, timerOptions);
       } else if (field >= MIXSRC_FIRST_TIMER && field <= MIXSRC_LAST_TIMER) {
         TimerState& timerState = timersStates[field - MIXSRC_FIRST_TIMER];
         TimerOptions timerOptions;
@@ -149,16 +150,16 @@ class ValueWidget : public Widget
         std::string getSensorCustomValue(uint8_t sensor, int32_t value,
                                          LcdFlags flags);
         valueTxt = getSensorCustomValue((field - MIXSRC_FIRST_TELEM) / 3,
-                                        getValue(field), valueFlags);
+                                        newValue, valueFlags);
 #if defined(LUA_INPUTS)
       }
       else if (field >= MIXSRC_FIRST_LUA && field <= MIXSRC_LAST_LUA) {
         valueTxt =
-            getSourceCustomValueString(field, calcRESXto1000(getValue(field)), valueFlags | PREC1);
+            getSourceCustomValueString(field, calcRESXto1000(newValue), valueFlags | PREC1);
 #endif
       } else {
         valueTxt =
-            getSourceCustomValueString(field, getValue(field), valueFlags);
+            getSourceCustomValueString(field, newValue, valueFlags);
       }
 
       lv_label_set_text(value, valueTxt.c_str());

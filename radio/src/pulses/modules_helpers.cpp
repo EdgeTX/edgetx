@@ -30,7 +30,7 @@ bool isExternalAntennaEnabled()
     case ANTENNA_MODE_EXTERNAL:
       return true;
     case ANTENNA_MODE_PER_MODEL:
-      switch (g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode) {
+      switch (g_model.moduleData[INTERNAL_MODULE].antennaMode) {
         case ANTENNA_MODE_EXTERNAL:
         case ANTENNA_MODE_ASK:
           return globalData.externalAntennaEnabled;
@@ -66,7 +66,7 @@ int8_t maxModuleChannels_M8(uint8_t moduleIdx)
       return 8;  // always 16 channels in FCC / FLEX
     }
   } else if (isModuleMultimoduleDSM2(moduleIdx)) {
-    return 4;  // 12 channels
+    return 8;  // 16 channels with new MultiModule Firmware. Older firmware will still work up to 12ch.
   } else if (isModuleDSMP(moduleIdx)) {
     return 4; //  12 channels
   } else {

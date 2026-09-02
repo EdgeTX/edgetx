@@ -26,7 +26,8 @@ set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(HARDWARE_EXTERNAL_MODULE YES)
 set(INTERNAL_MODULE_AFHDS3 YES)
 set(ROTARY_ENCODER YES)
-set(FUNCTION_SWITCHES_WITH_RGB YES)
+set(FUNCTION_SWITCHES YES)
+set(FUNCTION_SWITCHES_RGB_LEDS YES)
 
 # IMU support
 set(IMU ON)
@@ -47,7 +48,7 @@ add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 
 set(FLAVOUR st16)
-add_definitions(-DRADIO_ST16)
+add_definitions(-DMANUFACTURER_FLYSKY)
 
 # Defines internal modules for PL18 via UART7
 # set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
@@ -68,7 +69,7 @@ add_definitions(
   -DSTM32H750IBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
   -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
-  -DWS2812_MAX_LEDS=24
+  -DRGBLEDS_MAX_LEDS=24
 )
 
 set(SDRAM ON)
@@ -93,10 +94,13 @@ if(DISK_CACHE)
   add_definitions(-DDISK_CACHE)
 endif()
 
-if(FUNCTION_SWITCHES_WITH_RGB)
-  set(FUNCTION_SWITCHES YES)
-  add_definitions(-DFUNCTION_SWITCHES)
+if(FUNCTION_SWITCHES_RGB_LEDS)
+  set(RGB_LEDS YES)
   add_definitions(-DFUNCTION_SWITCHES_RGB_LEDS)
+endif()
+
+if(RGB_LEDS)
+  add_definitions(-DRGB_LEDS)
 endif()
 
 if(FUNCTION_SWITCHES)
@@ -150,7 +154,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${TARGET_SRC_DIR}/touch_driver.cpp
   ${TARGET_SRC_DIR}/battery_driver.cpp  
   targets/common/arm/stm32/heartbeat_driver.cpp
-  targets/common/arm/stm32/lsm6ds_driver.cpp
+  drivers/lsm6ds.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
@@ -158,7 +162,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_qspi.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
   targets/common/arm/stm32/vs1053b.cpp
-  targets/common/arm/stm32/stm32_ws2812.cpp
+  targets/common/arm/stm32/stm32_rgbleds.cpp
   targets/common/arm/stm32/trainer_driver.cpp
 )
 add_dependencies(board board_lib)

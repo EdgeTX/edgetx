@@ -146,7 +146,7 @@ void TrainerModuleWindow::update()
 
 TrainerPage::TrainerPage() : Page(ICON_MODEL_SETUP)
 {
-  header->setTitle(STR_MAIN_MENU_MODEL_SETTINGS);
+  header->setTitle(STR_MAIN_MODEL_SETTINGS);
   header->setTitle2(STR_TRAINER);
 
   body->setFlexLayout();

@@ -98,6 +98,7 @@ set(GUI_SRC
   radio/radio_trainer.cpp
   radio/radio_version.cpp
   radio/radio_gps_tool.cpp
+  radio/radio_mic_recorder.cpp
   )
 
 macro(add_gui_src src)
@@ -161,8 +162,8 @@ if(MULTIMODULE)
   add_gui_src(module/multi_rfprotos.cpp)
 endif()
 
-if(INTERNAL_MODULE_PXX1)
-  add_gui_src(module/pxx1_settings.cpp)
+if(INTERNAL_MODULE_PXX1 OR EXTERNAL_ANTENNA)
+  add_gui_src(module/ext_antenna_settings.cpp)
 endif()
 
 if(PXX2)
@@ -181,8 +182,6 @@ endif()
 if(USBJ_EX)
   add_gui_src(model/model_usbjoystick.cpp)
 endif()
-
-set(SRC ${SRC} storage/modelslist.cpp)
 
 option(UI_PERF_MONITOR "Draw frame rate and CPU usage" OFF)
 if(UI_PERF_MONITOR)

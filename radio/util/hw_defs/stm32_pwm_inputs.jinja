@@ -3,7 +3,7 @@
 //   This file has been generated from the target's JSON hardware description
 //
 
-{% set pwm_inputs = adc_inputs.inputs | selectattr('pwm_channel', 'defined') | list %}
+{% set pwm_inputs = adc_inputs.inputs | selectattr('type', '==', 'STICK') | selectattr('pwm_channel', 'ne', none) | list %}
 static const stick_pwm_input_t _PWM_inputs[] = {
 {% for input in pwm_inputs %}
   {

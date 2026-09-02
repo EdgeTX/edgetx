@@ -72,9 +72,9 @@ class OpenTxFirmware: public Firmware
 
     virtual QString getFirmwareUrl() override { return ""; }  //  depreciated;
 
-    virtual int getCapability(Capability) override;
+    virtual int getCapability(::Capability) override;
 
-    virtual QString getCapabilityStr(Capability) override;
+    virtual QString getCapabilityStr(::Capability) override;
 
     virtual QString getAnalogInputName(unsigned int index) override
     {

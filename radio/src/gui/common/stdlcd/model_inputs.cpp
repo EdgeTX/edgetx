@@ -141,6 +141,12 @@ void deleteExpo(uint8_t idx)
   storageDirty(EE_MODEL);
 }
 
+void onDeleteExpoConfirm(const char * result)
+{
+  if (result == STR_OK)
+    deleteExpo(s_currIdx);
+}
+
 void onExposMenu(const char * result)
 {
   uint8_t chn = expoAddress(s_currIdx)->chn + 1;
@@ -163,7 +169,7 @@ void onExposMenu(const char * result)
     s_copySrcRow = menuVerticalPosition;
   }
   else if (result == STR_DELETE) {
-    deleteExpo(s_currIdx);
+    POPUP_CONFIRMATION(STR_DELETE_INPUT_LINE, onDeleteExpoConfirm);
   }
 }
 

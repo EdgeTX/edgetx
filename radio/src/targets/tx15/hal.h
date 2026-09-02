@@ -29,7 +29,7 @@ SDMMC uses own DMA controler
 DMA1
 Stream0:  LED_STRIP_TIMER_DMA_STREAM
 Stream1:  INTMODULE_DMA_STREAM
-Stream2:  FLYSKY_HALL_DMA_Stream_RX
+Stream2:  FLYSKY_HALL_DMA_Stream_RX (FLYSKY_GIMBAL) / PDM_CAPTURE_DMA_STREAM (!FLYSKY_GIMBAL)
 Stream3:  TELEMETRY_DMA_Stream_RX
 Stream4:  I2S_DMA_Stream
 Stream5:  INTMODULE_RX_DMA_STREAM
@@ -55,126 +55,17 @@ TIM7:
 TIM8:	TRAINER_TIMER
 TIM12:	MIXER_SCHEDULER_TIMER
 TIM14:	MS_TIMER
-TIM15:  PDM
+TIM15:
 TIM16:
 TIM17:	ROTARY_ENCODER_TIMER
+
+SAI1_Block_A: PDM_CLOCK (1 MHz bit-clock output on SAI1_CK1 / PE5, !FLYSKY_GIMBAL only)
  */
 
 #ifndef _HAL_H_
 #define _HAL_H_
 
-#define CPU_FREQ                480000000
-
-#define PERI1_FREQUENCY         120000000
-#define PERI2_FREQUENCY         120000000
-#define TIMER_MULT_APB1         2
-#define TIMER_MULT_APB2         2
-
-// Keys
-#define KEYS_GPIO_REG_PAGEDN          GPIOA
-#define KEYS_GPIO_PIN_PAGEDN          LL_GPIO_PIN_8  // PA.08
-#define KEYS_GPIO_REG_PAGEUP          GPIOG
-#define KEYS_GPIO_PIN_PAGEUP          LL_GPIO_PIN_7  // PG.07
-#define KEYS_GPIO_REG_SYS             GPIOB
-#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_2  // PB.02
-#define KEYS_GPIO_REG_ENTER           GPIOG
-#define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_12 // PG.12
-#define KEYS_GPIO_REG_MDL             GPIOE
-#define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_3  // PE.03
-#define KEYS_GPIO_REG_EXIT            GPIOG
-#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_3  // PG.03
-#define KEYS_GPIO_REG_TELE            GPIOG
-#define KEYS_GPIO_PIN_TELE            LL_GPIO_PIN_2  // PG.02
-
-// Trims
-#define TRIMS_GPIO_REG_LHL
-#define TRIMS_GPIO_PIN_LHL
-
-#define TRIMS_GPIO_REG_LHR
-#define TRIMS_GPIO_PIN_LHR
-
-#define TRIMS_GPIO_REG_LVD
-#define TRIMS_GPIO_PIN_LVD
-
-#define TRIMS_GPIO_REG_LVU
-#define TRIMS_GPIO_PIN_LVU
-
-#define TRIMS_GPIO_REG_RHL
-#define TRIMS_GPIO_PIN_RHL
-
-#define TRIMS_GPIO_REG_RHR
-#define TRIMS_GPIO_PIN_RHR
-
-#define TRIMS_GPIO_REG_RVD
-#define TRIMS_GPIO_PIN_RVD
-
-#define TRIMS_GPIO_REG_RVU
-#define TRIMS_GPIO_PIN_RVU
-
-
-// function switches
-//SW1
-#define SWITCHES_GPIO_REG_G
-#define SWITCHES_GPIO_PIN_G           PCA95XX_P0
-#define SWITCHES_G_CFS_IDX            0
-#define FUNCTION_SWITCH_1             SG
-//SW2
-#define SWITCHES_GPIO_REG_H
-#define SWITCHES_GPIO_PIN_H           PCA95XX_P1
-#define SWITCHES_H_CFS_IDX            1
-#define FUNCTION_SWITCH_2             SH
-//SW3
-#define SWITCHES_GPIO_REG_I
-#define SWITCHES_GPIO_PIN_I           PCA95XX_P2
-#define SWITCHES_I_CFS_IDX            2
-#define FUNCTION_SWITCH_3             SI
-//SW4
-#define SWITCHES_GPIO_REG_J
-#define SWITCHES_GPIO_PIN_J           PCA95XX_P3
-#define SWITCHES_J_CFS_IDX            3
-#define FUNCTION_SWITCH_4             SJ
-//SW5
-#define SWITCHES_GPIO_REG_K
-#define SWITCHES_GPIO_PIN_K           PCA95XX_P4
-#define SWITCHES_K_CFS_IDX            4
-#define FUNCTION_SWITCH_5             SK
-//SW6
-#define SWITCHES_GPIO_REG_L
-#define SWITCHES_GPIO_PIN_L           PCA95XX_P5
-#define SWITCHES_L_CFS_IDX            5
-#define FUNCTION_SWITCH_6             SL
-
-// Extender Switches
-#define SWITCHES_A_3POS
-#define SWITCHES_GPIO_REG_A_H
-#define SWITCHES_GPIO_PIN_A_H         PCA95XX_P15
-#define SWITCHES_GPIO_REG_A_L
-#define SWITCHES_GPIO_PIN_A_L         PCA95XX_P14
-#define SWITCHES_B_3POS
-#define SWITCHES_GPIO_REG_B_H
-#define SWITCHES_GPIO_PIN_B_H         PCA95XX_P13
-#define SWITCHES_GPIO_REG_B_L
-#define SWITCHES_GPIO_PIN_B_L         PCA95XX_P12
-#define SWITCHES_C_3POS
-#define SWITCHES_GPIO_REG_C_H
-#define SWITCHES_GPIO_PIN_C_H         PCA95XX_P11
-#define SWITCHES_GPIO_REG_C_L
-#define SWITCHES_GPIO_PIN_C_L         PCA95XX_P10
-#define SWITCHES_D_3POS
-#define SWITCHES_GPIO_REG_D_H
-#define SWITCHES_GPIO_PIN_D_H         PCA95XX_P7
-#define SWITCHES_GPIO_REG_D_L
-#define SWITCHES_GPIO_PIN_D_L         PCA95XX_P6
-#define SWITCHES_E_3POS
-#define SWITCHES_GPIO_REG_E_H
-#define SWITCHES_GPIO_PIN_E_H         PCA95XX_P17
-#define SWITCHES_GPIO_REG_E_L
-#define SWITCHES_GPIO_PIN_E_L         PCA95XX_P16
-#define SWITCHES_F_3POS
-#define SWITCHES_GPIO_REG_F_H
-#define SWITCHES_GPIO_PIN_F_H         PCA95XX_P4
-#define SWITCHES_GPIO_REG_F_L
-#define SWITCHES_GPIO_PIN_F_L         PCA95XX_P5
+#include "hal_settings.h"
 
 // Expanders
 #define IO_INT_GPIO GPIO_PIN(GPIOD, 3)
@@ -185,55 +76,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #endif
 
 // ADC
-#define ADC_GPIO_PIN_STICK_LH           LL_GPIO_PIN_6      // PA.06
-#define ADC_GPIO_PIN_STICK_LV           LL_GPIO_PIN_3      // PC.03
-#define ADC_GPIO_PIN_STICK_RV           LL_GPIO_PIN_4      // PC.04
-#define ADC_GPIO_PIN_STICK_RH           LL_GPIO_PIN_5      // PC.05
-
-#define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_1      // PC.01 POT1
-#define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_1      // PB.01 POT2
-#define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_3      // PH.03
-
-#define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_LH)
-#define ADC_GPIOB_PINS                  (ADC_GPIO_PIN_POT2)
-#define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_POT1)
-#define ADC_GPIOH_PINS                  (ADC_GPIO_PIN_BATT)
-
-
-#define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_3    // ADC12_INP3
-#define ADC_CHANNEL_STICK_LV            LL_ADC_CHANNEL_13   // ADC12_INP13
-#define ADC_CHANNEL_STICK_RV            LL_ADC_CHANNEL_4    // ADC12_INP4
-#define ADC_CHANNEL_STICK_RH            LL_ADC_CHANNEL_8    // ADC12_INP8
-
-// Each ADC cannot map more than 8 channels, otherwise it will cause problems
-#define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_11   // ADC12_INP11
-#define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_5    // ADC12_INP5
-#define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_14   // ADC3_INP14
-#define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC3_INP17
-
-#define ADC_MAIN                        ADC1
-#define ADC_DMA                         DMA2
-#define ADC_DMA_CHANNEL                 LL_DMAMUX1_REQ_ADC1
-#define ADC_DMA_STREAM                  LL_DMA_STREAM_4
-#define ADC_DMA_STREAM_IRQ              DMA2_Stream4_IRQn
-#define ADC_DMA_STREAM_IRQHandler       DMA2_Stream4_IRQHandler
-#define ADC_SAMPTIME                    LL_ADC_SAMPLINGTIME_8CYCLES_5
-
-#define ADC_EXT                         ADC3
-#define ADC_EXT_CHANNELS                { ADC_CHANNEL_BATT , ADC_CHANNEL_RTC_BAT }
-#define ADC_EXT_DMA                     DMA2
-#define ADC_EXT_DMA_CHANNEL             LL_DMAMUX1_REQ_ADC3
-#define ADC_EXT_DMA_STREAM              LL_DMA_STREAM_0
-#define ADC_EXT_DMA_STREAM_IRQ          DMA2_Stream0_IRQn
-#define ADC_EXT_DMA_STREAM_IRQHandler   DMA2_Stream0_IRQHandler
-#define ADC_EXT_SAMPTIME                LL_ADC_SAMPLINGTIME_8CYCLES_5
-
 #define ADC_VREF_PREC2                  330
-
-#define ADC_DIRECTION {       	 \
-    0,-1,0,-1,  /* gimbals */    \
-    -1,-1   	/* pots */       \
-  }
 
 #define USE_EXTI9_5_IRQ // used for I2C port extender interrupt
 #define EXTI9_5_IRQ_Priority 5
@@ -252,19 +95,19 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define HAS_SPORT_UPDATE_CONNECTOR()    (false)
 
 // Telemetry
- #define TELEMETRY_SET_INPUT             0
- #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOA, 9)
- #define TELEMETRY_RX_GPIO               GPIO_UNDEF
- #define TELEMETRY_USART                 USART1
- #define TELEMETRY_USART_IRQn            USART1_IRQn
- #define TELEMETRY_DMA                   DMA1
- #define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_7
- #define TELEMETRY_DMA_Channel_TX        LL_DMAMUX1_REQ_USART1_TX
- #define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream7_IRQn
- #define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream7_IRQHandler
- #define TELEMETRY_DMA_Stream_RX         LL_DMA_STREAM_3
- #define TELEMETRY_DMA_Channel_RX        LL_DMAMUX1_REQ_USART1_RX
- #define TELEMETRY_USART_IRQHandler      USART1_IRQHandler
+#define TELEMETRY_SET_INPUT             0
+#define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOA, 9)
+#define TELEMETRY_RX_GPIO               GPIO_UNDEF
+#define TELEMETRY_USART                 USART1
+#define TELEMETRY_USART_IRQn            USART1_IRQn
+#define TELEMETRY_DMA                   DMA1
+#define TELEMETRY_DMA_Stream_TX         LL_DMA_STREAM_7
+#define TELEMETRY_DMA_Channel_TX        LL_DMAMUX1_REQ_USART1_TX
+#define TELEMETRY_DMA_TX_Stream_IRQ     DMA1_Stream7_IRQn
+#define TELEMETRY_DMA_TX_IRQHandler     DMA1_Stream7_IRQHandler
+#define TELEMETRY_DMA_Stream_RX         LL_DMA_STREAM_3
+#define TELEMETRY_DMA_Channel_RX        LL_DMAMUX1_REQ_USART1_RX
+#define TELEMETRY_USART_IRQHandler      USART1_IRQHandler
 
 // Software IRQ (Prio 5 -> FreeRTOS compatible)
 #define TELEMETRY_USE_CUSTOM_EXTI
@@ -288,21 +131,11 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define LCD_SPI_MOSI_GPIO               GPIOI
 #define LCD_SPI_MOSI_GPIO_PIN           LL_GPIO_PIN_9
 
-#define LTDC_IRQ_PRIO                   4
-#define DMA_SCREEN_IRQ_PRIO             6
-
 #define LCD_RESET_GPIO                  GPIOJ
 #define LCD_RESET_GPIO_PIN              LL_GPIO_PIN_12
 
 #define LCD_TE_GPIO                     GPIOI
 #define LCD_TE_GPIO_PIN                 LL_GPIO_PIN_4
-
-// Backlight
-#define BACKLIGHT_GPIO                  GPIO_PIN(GPIOA, 10) // TIM1_CH3
-#define BACKLIGHT_TIMER                 TIM1
-#define BACKLIGHT_TIMER_CHANNEL			LL_TIM_CHANNEL_CH3
-#define BACKLIGHT_GPIO_AF               GPIO_AF1
-#define BACKLIGHT_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // QSPI Flash
 #define QSPI_CLK_GPIO                   GPIO_PIN(GPIOF, 10)
@@ -349,11 +182,31 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define AUDIO_SPI                       SPI2
 #define AUDIO_RESET_PIN                 GPIO_PIN(GPIOH, 10)
 #define AUDIO_HP_DETECT_PIN             GPIO_PIN(GPIOA, 5)
-#define I2S_DMA                   		DMA1
-#define I2S_DMA_Stream            		LL_DMA_STREAM_4
-#define I2S_DMA_Stream_Request    		LL_DMAMUX1_REQ_SPI2_TX
-#define I2S_DMA_Stream_IRQn       		DMA1_Stream4_IRQn
-#define I2S_DMA_Stream_IRQHandler 		DMA1_Stream4_IRQHandler
+#undef VOLUME_LEVEL_MAX
+#define VOLUME_LEVEL_MAX                20
+#define I2S_DMA                         DMA1
+#define I2S_DMA_Stream                  LL_DMA_STREAM_4
+#define I2S_DMA_Stream_Request          LL_DMAMUX1_REQ_SPI2_TX
+#define I2S_DMA_Stream_IRQn             DMA1_Stream4_IRQn
+#define I2S_DMA_Stream_IRQHandler       DMA1_Stream4_IRQHandler
+
+// MEMS PDM microphone — not available when FLYSKY_GIMBAL is enabled
+#if !defined(FLYSKY_GIMBAL)
+  #define PDM_CLOCK                     GPIO_PIN(GPIOE, 5)
+  #define PDM_CLOCK_GPIO_AF             LL_GPIO_AF_6
+  #define PDM_SAI_BLOCK                 SAI1_Block_A
+  #define PDM_SAI_KER_FREQ              48000000  // PLL1Q (see system_clock.c)
+  #define PDM_CLOCK_FREQ                1600000   // 1.6 MHz → MCKDIV=30, R=100 → 16 kHz PCM direct
+  #define PDM_DATA                      GPIO_PIN(GPIOE, 4)
+  #define PDM_DATA_GPIO_PORT            GPIOE
+  #define PDM_DATA_GPIO_PIN             4
+  #define PDM_DATA_IDR_MASK             (1U << PDM_DATA_GPIO_PIN)
+  #define PDM_CAPTURE_DMA               DMA1
+  #define PDM_CAPTURE_DMA_STREAM        LL_DMA_STREAM_2
+  #define PDM_CAPTURE_DMA_REQUEST       LL_DMAMUX1_REQ_TIM15_UP
+  #define PDM_CAPTURE_TIMER             TIM15
+  #define PDM_CAPTURE_TIMER_FREQ        (PERI2_FREQUENCY * TIMER_MULT_APB2)
+#endif
 
 
 // I2C Bus
@@ -362,41 +215,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define I2C_B1_SCL_GPIO                 GPIO_PIN(GPIOD, 12) // PD.12
 #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B1_CLK_RATE                 400000
-
-// Haptic: TIM3_CH2
-#define HAPTIC_PWM
-#define HAPTIC_GPIO                     GPIO_PIN(GPIOC, 7)
-#define HAPTIC_GPIO_TIMER               TIM3
-#define HAPTIC_GPIO_AF                  GPIO_AF2
-#define HAPTIC_TIMER_OUTPUT_ENABLE      TIM_CCER_CC2E | TIM_CCER_CC2NE;
-#define HAPTIC_TIMER_MODE               TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE
-#define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
-
-// LED Strip
-#define LED_STRIP_LENGTH                  26  // 6POS + 2 rings of 10
-#define BLING_LED_STRIP_START             6
-#define BLING_LED_STRIP_LENGTH            20
-#define CFS_LED_STRIP_START               0
-#define CFS_LED_STRIP_LENGTH              6
-#define CFS_LEDS_PER_SWITCH               1
-#define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 0)  // PA.00 / TIM2_CH1
-#define LED_STRIP_GPIO_AF                 LL_GPIO_AF_1         // TIM1/2/16/17
-#define LED_STRIP_TIMER                   TIM2
-#define LED_STRIP_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH1
-#define LED_STRIP_TIMER_DMA               DMA1
-#define LED_STRIP_TIMER_DMA_CHANNEL       LL_DMAMUX1_REQ_TIM2_UP
-#define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_STREAM_0
-#define LED_STRIP_TIMER_DMA_IRQn          DMA1_Stream0_IRQn
-#define LED_STRIP_TIMER_DMA_IRQHandler    DMA1_Stream0_IRQHandler
-#define LED_STRIP_REFRESH_PERIOD          50 //ms
-
-#define STATUS_LEDS
-#define GPIO_LED_GPIO_ON                  gpio_set
-#define GPIO_LED_GPIO_OFF                 gpio_clear
-#define LED_RED_GPIO                      GPIO_PIN(GPIOI, 8)   // PI.08
-#define LED_GREEN_GPIO                    GPIO_PIN(GPIOI, 11)  // PI.11
-#define LED_BLUE_GPIO                     GPIO_PIN(GPIOI, 10)  // PI.10
 
 // Internal Module
 #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOB, 13) // PB.13
@@ -530,69 +348,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define USE_EXTI2_IRQ
 #define EXTI2_IRQ_Priority  9
 #endif
-
-// IMU
-#define IMU_I2C_BUS                     I2C_Bus_1
-#define IMU_I2C_ADDRESS                 0x6A
-#define IMU_INT_GPIO	                GPIO_PIN(GPIOG, 13) // PG.13
-// IMU_INT_EXTI IRQ
-#if !defined(USE_EXTI15_10_IRQ)
-  #define USE_EXTI15_10_IRQ
-  #define EXTI15_10_IRQ_Priority       6
-#endif
-
-
-//ROTARY emulation for trims as buttons
-#define ROTARY_ENCODER_NAVIGATION
-// Rotary Encoder
-#define ROTARY_ENCODER_INVERTED
-#define ROTARY_ENCODER_GPIO_A           GPIOI
-#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_7
-#define ROTARY_ENCODER_GPIO_B           GPIOJ
-#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_8
-#define ROTARY_ENCODER_POSITION()       (((ROTARY_ENCODER_GPIO_A->IDR >> 7) & 0x01)|((ROTARY_ENCODER_GPIO_B->IDR >> 7) & 0x02))
-#define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_7
-#define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_8
-#if !defined(USE_EXTI7_IRQ)
-  #define USE_EXTI7_IRQ
-  #define EXTI7_IRQ_Priority 5
-#endif
-#if !defined(USE_EXTI8_IRQ)
-  #define USE_EXTI8_IRQ
-  #define EXTI8_IRQ_Priority 5
-#endif
-#define ROTARY_ENCODER_EXTI_PORT_A      LL_SYSCFG_EXTI_PORTI
-#define ROTARY_ENCODER_EXTI_PORT_B      LL_SYSCFG_EXTI_PORTJ
-#define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE7
-#define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE8
-#define ROTARY_ENCODER_TIMER            TIM17
-#define ROTARY_ENCODER_TIMER_IRQn       TIM17_IRQn
-#define ROTARY_ENCODER_TIMER_IRQHandler TIM17_IRQHandler
-
-// Millisecond timer
-#define MS_TIMER                        TIM14
-#define MS_TIMER_IRQn                   TIM8_TRG_COM_TIM14_IRQn
-#define MS_TIMER_IRQHandler             TIM8_TRG_COM_TIM14_IRQHandler
-
-// Mixer scheduler timer
-#define MIXER_SCHEDULER_TIMER                TIM12
-#define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define MIXER_SCHEDULER_TIMER_IRQn           TIM8_BRK_TIM12_IRQn
-#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM8_BRK_TIM12_IRQHandler
-
-#define LANDSCAPE_LCD true
-#define PORTRAIT_LCD false
-#define LANDSCAPE_LCD_SML false
-#define LANDSCAPE_LCD_STD true
-#define LANDSCAPE_LCD_LRG false
-
-#define LCD_W                           480
-#define LCD_H                           320
-
-#define LCD_PHYS_W                      LCD_H
-#define LCD_PHYS_H                      LCD_W
-
-#define LCD_DEPTH                       16
 
 #define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
 

@@ -106,17 +106,20 @@ class ThrottleCurveWindow : public Window
   void checkEvents() override
   {
     Window::checkEvents();
-    if (previousTraceWr != s_traceWr) {
-      previousTraceWr = s_traceWr;
+    // Copy current value as mixer may update it
+    uint16_t traceWr = s_traceWr;
+    if (previousTraceWr != traceWr) {
+      previousTraceWr = traceWr;
 
       graphSize = 0;
-      uint16_t traceRd = s_traceWr > width() ? s_traceWr - width() : 0;
-      for (lv_coord_t x = 0; x < width() && traceRd < s_traceWr;
-           x += 1, traceRd += 1) {
-        uint8_t h = s_traceBuf[traceRd % width()];
+      uint16_t traceRd = traceWr > width() ? traceWr % width() : 0;
+      for (lv_coord_t x = 0; x < width() && traceRd < traceWr; x += 1) {
+        uint8_t h = s_traceBuf[traceRd];
         lv_coord_t y = height() - PAD_THREE - CV_SCALE * h;
         graph[x] = {x, y};
         graphSize += 1;
+        traceRd += 1;
+        if (traceRd >= width()) traceRd = 0;
       }
       lv_line_set_points(line, graph, graphSize);
     }
@@ -126,7 +129,7 @@ class ThrottleCurveWindow : public Window
   unsigned previousTraceWr = 0;
   lv_point_t graph[MAXTRACE];
   lv_point_t axis[3];
-  lv_point_t ticks[MAXTRACE * 2 / 6];
+  lv_point_t ticks[((MAXTRACE + 3) / 6) * 2];
   lv_obj_t* line = nullptr;
   int16_t graphSize = 0;
 };

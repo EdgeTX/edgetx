@@ -185,6 +185,7 @@ const static PageButtonDef debugButtons[] = {
 void RadioHardwarePage::build(Window* window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_TINY);
+  window->padBottom(PAD_LARGE);
 
   SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines);
 
@@ -209,8 +210,10 @@ void RadioHardwarePage::build(Window* window)
   new SerialConfigWindow(window, grid);
 
   // Calibration
-  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_INPUTS, BTN_COLS, PAD_ZERO, calibrationButtons);
+  new Subtitle(window, STR_INPUTS);
+  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, BTN_COLS, calibrationButtons);
 
   // Debugs
-  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, STR_DEBUG, FS_BTN_COLS, PAD_ZERO, debugButtons);
+  new Subtitle(window, STR_DEBUG);
+  new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, FS_BTN_COLS, debugButtons);
 }

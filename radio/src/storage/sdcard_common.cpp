@@ -27,6 +27,10 @@
 
 #include "hal/abnormal_reboot.h"
 
+#if defined(SIMU)
+extern bool simuCreateDefaultSettings;
+#endif
+
 #if defined(COLORLCD)
   #include "layout.h"
   #include "theme_manager.h"
@@ -40,7 +44,22 @@ void getModelPath(char * path, const char * filename, const char* pathName)
   strcpy(&path[len + 1], filename);
 }
 
-void storageEraseAll(bool warn)
+static void forceSave()
+{
+  storageDirty(EE_GENERAL);
+  storageDirty(EE_MODEL);
+  storageCheck(true);
+}
+
+static void storageFormat()
+{
+  sdCheckAndCreateDirectory(RADIO_PATH);
+  sdCheckAndCreateDirectory(MODELS_PATH);
+  generalDefault();
+  setModelDefaults();
+}
+
+static void storageEraseAll()
 {
   TRACE("storageEraseAll");
 
@@ -56,24 +75,11 @@ void storageEraseAll(bool warn)
   g_eeGeneral.blOffBright = 20;
 #endif
 
-  if (warn) {
-    ALERT(STR_STORAGE_WARNING, STR_BAD_RADIO_DATA, AU_BAD_RADIODATA);
-  }
-
+  ALERT(STR_STORAGE_WARNING, STR_BAD_RADIO_DATA, AU_BAD_RADIODATA);
   RAISE_ALERT(STR_STORAGE_WARNING, STR_STORAGE_FORMAT, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
 
   storageFormat();
-  storageDirty(EE_GENERAL);
-  storageDirty(EE_MODEL);
-  storageCheck(true);
-}
-
-void storageFormat()
-{
-  sdCheckAndCreateDirectory(RADIO_PATH);
-  sdCheckAndCreateDirectory(MODELS_PATH);
-  generalDefault();
-  setModelDefaults();
+  forceSave();
 }
 
 void storageCheck(bool immediately)
@@ -162,26 +168,20 @@ const char * createModel()
   if (index > 0) {
     setModelDefaults(index);
     memcpy(g_eeGeneral.currModelFilename, filename, sizeof(g_eeGeneral.currModelFilename));
-
-    storageDirty(EE_GENERAL);
-    storageDirty(EE_MODEL);
-    storageCheck(true);
-#if defined(COLORLCD)
-    // Default layout loaded when setting model defaults - neeed to remove it.
-    LayoutFactory::deleteCustomScreens(true);
-#endif
+    forceSave();
   }
+
   postModelLoad(false);
 
   return g_eeGeneral.currModelFilename;
 }
 #endif
 
-const char* loadModel(char* filename, bool alarms)
+const char* loadModel(const char* filename, bool alarms, const char* filePath)
 {
   preModelLoad();
 
-  const char* error = readModel(filename, (uint8_t*)&g_model, sizeof(g_model));
+  const char* error = readModel(filename, (uint8_t*)&g_model, sizeof(g_model), filePath);
   if (error) {
     TRACE("loadModel error=%s", error);
 
@@ -191,32 +191,10 @@ const char* loadModel(char* filename, bool alarms)
     applyDefaultTemplate();
 
     storageCheck(true);
-    postModelLoad(false);
-    return error;
   }
 
-  postModelLoad(alarms);
-  return nullptr;
-}
-
-const char* loadModelTemplate(const char* fileName, const char* filePath)
-{
-  preModelLoad();
-  // Assuming that the template is located in current working directory
-  const char* error = readModel(fileName, (uint8_t*)&g_model, sizeof(g_model), filePath);
-  if (error) {
-    TRACE("loadModel error=%s", error);
-    // just get some clean memory state in "g_model" so the mixer can run safely
-    memset(&g_model, 0, sizeof(g_model));
-    applyDefaultTemplate();
-
-    storageCheck(true);
-    postModelLoad(false);
-    return error;
-  }
-
-  postModelLoad(false);
-  return nullptr;
+  postModelLoad(error ? false : alarms);
+  return error;
 }
 
 void storageReadAll()
@@ -236,7 +214,17 @@ void storageReadAll()
   g_eeGeneral.modelCustomScriptsDisabled = true;
   
   if (loadRadioSettings() != nullptr) {
-    storageEraseAll(true);
+#if defined(SIMU)
+    if (simuCreateDefaultSettings) {
+      // Web simulator first run: silently create defaults without
+      // STORAGE WARNING alert or calibration screen.
+      simuCreateDefaultSettings = false;
+      storageFormat();
+      g_eeGeneral.chkSum = evalChkSum();
+      forceSave();
+    } else
+#endif
+    storageEraseAll();
   }
 #if !defined(STORAGE_MODELSLIST)
   else {
@@ -288,4 +276,3 @@ void checkModelIdUnique(uint8_t index, uint8_t module)
   //TODO
 }
 #endif
-

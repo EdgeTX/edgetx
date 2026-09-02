@@ -75,11 +75,7 @@ class ModelLabelsWindow : public Page
   void moveLabel(int selected, int direction);
 
 #if defined(HARDWARE_KEYS)
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override {}
-  void onPressTELE() override;
-  void onLongPressTELE() override;
+  void doKeyShortcut(event_t event) override;
   void onPressPG(bool isNext);
   void onPressPGUP() override;
   void onPressPGDN() override;

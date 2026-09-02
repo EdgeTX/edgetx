@@ -161,7 +161,7 @@ enum MenuModelSetupItems {
 #endif
   ITEM_MODEL_SETUP_INTERNAL_MODULE_DISABLE_MAPPING,
 #endif
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
   ITEM_MODEL_SETUP_INTERNAL_MODULE_ANTENNA,
 #endif
   ITEM_MODEL_SETUP_INTERNAL_MODULE_POWER,
@@ -262,14 +262,14 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_LINES_COUNT
 };
 
-PACK(struct ExpandState {
+PACK(struct ModelSetupExpandState {
   uint8_t preflight:1;
   uint8_t throttle:1;
   uint8_t viewOpt:1;
   uint8_t functionSwitches:1;
 });
 
-static struct ExpandState expandState;
+static struct ModelSetupExpandState expandState;
 
 static uint8_t PREFLIGHT_ROW(uint8_t value) { return expandState.preflight ? value : HIDDEN_ROW; }
 
@@ -407,18 +407,25 @@ inline uint8_t TIMER_ROW(uint8_t timer, uint8_t value)
 #define TRAINER_BLUETOOTH_S_ROW        (bluetooth.distantAddr[0] == '\0' ? HIDDEN_ROW : LABEL())
 #define IF_BT_TRAINER_ON(x)            (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER ? (uint8_t)(x) : HIDDEN_ROW)
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-#define EXTERNAL_ANTENNA_ROW             ((isModuleXJT(INTERNAL_MODULE) && g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) ? (uint8_t)0 : HIDDEN_ROW),
+#if defined(EXTERNAL_ANTENNA)
+#if defined(INTMODULE_ANTSEL_GPIO)
+#define EXTERNAL_ANTENNA_ROW  ((g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) ? (uint8_t)0 : HIDDEN_ROW),
+#else
+#define EXTERNAL_ANTENNA_ROW  ((isModuleXJT(INTERNAL_MODULE) && g_eeGeneral.antennaMode == ANTENNA_MODE_PER_MODEL) ? (uint8_t)0 : HIDDEN_ROW),
+#endif
 void onModelAntennaSwitchConfirm(const char * result)
 {
   if (result == STR_OK) {
     // Switch to external antenna confirmation
-    g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode = ANTENNA_MODE_EXTERNAL;
-    globalData.externalAntennaEnabled = true;
+    g_model.moduleData[INTERNAL_MODULE].antennaMode = ANTENNA_MODE_EXTERNAL;
     storageDirty(EE_MODEL);
+    // Consent already obtained above; mark enabled so checkExternalAntenna()
+    // applies the GPIO instead of asking again.
+    globalData.externalAntennaEnabled = true;
+    checkExternalAntenna();
   }
   else {
-    reusableBuffer.moduleSetup.antennaMode = g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode;
+    reusableBuffer.moduleSetup.antennaMode = g_model.moduleData[INTERNAL_MODULE].antennaMode;
   }
 }
 #else
@@ -885,8 +892,8 @@ void menuModelSetup(event_t event)
     reusableBuffer.moduleSetup.newType = g_model.moduleData[EXTERNAL_MODULE].type;
 #endif
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
-    reusableBuffer.moduleSetup.antennaMode = g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode;
+#if defined(EXTERNAL_ANTENNA)
+    reusableBuffer.moduleSetup.antennaMode = g_model.moduleData[INTERNAL_MODULE].antennaMode;
 #endif
   }
 
@@ -1254,8 +1261,8 @@ void menuModelSetup(event_t event)
       case ITEM_MODEL_SETUP_SWITCHES_WARNING1:
         {
           uint8_t switchWarningsCount = getSwitchWarningsCount();
-          // Fix for case when there is only one switch that can trigger a warning (MT12)
-          if (switchWarningsCount == 1 && menuHorizontalPosition >= 1)
+          // Fix for case when there is only one switch that can trigger a warning (MT12).
+          if (attr && switchWarningsCount == 1 && menuHorizontalPosition >= 1)
             menuHorizontalPosition = 0;
           horzpos_t l_posHorz = menuHorizontalPosition;
 
@@ -1735,9 +1742,9 @@ void menuModelSetup(event_t event)
         }
         break;
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_MODE:
-        lcdDrawTextIndented(y, TR_TELEMETRY_TYPE);
+        lcdDrawTextIndented(y, STR_TELEMETRY_TYPE);
         lcdDrawText(MODEL_SETUP_2ND_COLUMN, y,
-            g_model.moduleData[EXTERNAL_MODULE].afhds3.telemetry ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY : TR_AFHDS3_ONE_TO_MANY);
+            g_model.moduleData[EXTERNAL_MODULE].afhds3.telemetry ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY : STR_AFHDS3_ONE_TO_MANY);
         break;
 #endif
 
@@ -2187,19 +2194,19 @@ void menuModelSetup(event_t event)
       }
       break;
 
-#if defined(INTERNAL_MODULE_PXX1) && defined(EXTERNAL_ANTENNA)
+#if defined(EXTERNAL_ANTENNA)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_ANTENNA:
         reusableBuffer.moduleSetup.antennaMode = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_ANTENNA, STR_ANTENNA_MODES,
                                                             reusableBuffer.moduleSetup.antennaMode == ANTENNA_MODE_PER_MODEL ? ANTENNA_MODE_INTERNAL : reusableBuffer.moduleSetup.antennaMode,
                                                             ANTENNA_MODE_INTERNAL, ANTENNA_MODE_EXTERNAL, attr, event, INDENT_WIDTH,
                                                             [](int value) { return value != ANTENNA_MODE_PER_MODEL; });
-        if (event && !s_editMode && reusableBuffer.moduleSetup.antennaMode != g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode) {
+        if (event && !s_editMode && reusableBuffer.moduleSetup.antennaMode != g_model.moduleData[INTERNAL_MODULE].antennaMode) {
           if (reusableBuffer.moduleSetup.antennaMode == ANTENNA_MODE_EXTERNAL && !isExternalAntennaEnabled()) {
             POPUP_CONFIRMATION(STR_ANTENNACONFIRM1, onModelAntennaSwitchConfirm);
             SET_WARNING_INFO(STR_ANTENNACONFIRM2, strlen(STR_ANTENNACONFIRM2), 0);
           }
           else {
-            g_model.moduleData[INTERNAL_MODULE].pxx.antennaMode = reusableBuffer.moduleSetup.antennaMode;
+            g_model.moduleData[INTERNAL_MODULE].antennaMode = reusableBuffer.moduleSetup.antennaMode;
             checkExternalAntenna();
           }
         }

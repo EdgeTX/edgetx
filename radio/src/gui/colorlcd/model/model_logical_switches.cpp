@@ -434,7 +434,6 @@ class LogicalSwitchButton : public ListLineButton
     }
 
     // CSW params - V2
-    strcat(s, " ");
     switch (lsFamily) {
       case LS_FAMILY_BOOL:
       case LS_FAMILY_STICKY:
@@ -620,7 +619,7 @@ void ModelLogicalSwitchesPage::build(Window* window)
           storageDirty(EE_MODEL);
           rebuild(window);
         });
-        return 0;
+        return button->isActive();
       });
 
       if (focusIndex == i) {

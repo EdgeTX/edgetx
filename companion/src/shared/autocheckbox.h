@@ -34,6 +34,7 @@ class AutoCheckBox : public QCheckBox, public AutoWidget
     virtual ~AutoCheckBox();
 
     virtual void updateValue() override;
+    void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
 
     void setField(bool & field, GenericPanel * panel = nullptr, bool invert = false);
     void setInvert(bool invert);
@@ -43,6 +44,9 @@ class AutoCheckBox : public QCheckBox, public AutoWidget
 
   protected slots:
     void onToggled(bool checked);
+
+  protected:
+    virtual void setAutoText(QString text) override;
 
   private:
     bool *m_field;

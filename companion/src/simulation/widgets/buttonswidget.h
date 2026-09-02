@@ -23,6 +23,7 @@
 
 #include "radiouiaction.h"
 #include "radiokeywidget.h"
+#include "appdata.h"
 
 #include <QWidget>
 #include <QtGui>
@@ -69,22 +70,12 @@ class ButtonsWidget : public QWidget
       connect(pushbtn, &QPushButton::pressed, rkw, &RadioKeyWidget::press);
       connect(pushbtn, &QPushButton::released, rkw, &RadioKeyWidget::release);
 
-      if (action) {
+      if (action && !g.currentProfile().simBtnClickedUseOSTheme()) {
         // blink push button on click or matching key(s) press
-        connect(action, static_cast<void (RadioUiAction::*)(void)>(&RadioUiAction::pushed), [this, pushbtn] (void) {
-                //  TODO: use a palette colors
-                //        set to default -> blink -> default
-                QString csssave = pushbtn->styleSheet();
-                QString blnkcol = "background-color: rgb(239, 41, 41)";
-                // pressing the same key in rapid seccession can affect the order of the events see TODO
-                if (csssave != blnkcol) {
-                  pushbtn->setStyleSheet(blnkcol);
-                  QTimer * tim = new QTimer(this);
-                  tim->setSingleShot(true);
-                  connect(tim, &QTimer::timeout, [pushbtn, csssave]() { pushbtn->setStyleSheet(csssave); });
-                  tim->start(300);
-                }
-        });
+        pushbtn->setStyleSheet(QString(
+          "QPushButton:pressed {background-color: %1; border-style: inset;}")
+          .arg(QVariant(g.currentProfile().simBtnClickedColor()).toString())
+        );
       }
 
       return rkw;

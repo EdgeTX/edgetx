@@ -25,12 +25,11 @@
 #include "layout.h"
 #include "LvglWrapper.h"
 #include "etx_lv_theme.h"
-#include "os/sleep.h"
-#include "sdcard.h"
 #include "view_main.h"
 
-// timers_driver.h
-uint32_t timersGetMsTick();
+#include "os/sleep.h"
+#include "os/time.h"
+#include "sdcard.h"
 
 MainWindow* MainWindow::_instance = nullptr;
 
@@ -45,9 +44,6 @@ MainWindow::MainWindow() : Window(nullptr, {0, 0, LCD_W, LCD_H})
   setWindowFlag(OPAQUE);
 
   etx_solid_bg(lvobj);
-
-  background = lv_canvas_create(lvobj);
-  lv_obj_center(background);
 }
 
 void MainWindow::emptyTrash()
@@ -63,7 +59,7 @@ void MainWindow::run(bool trash)
   LvglWrapper::instance()->run();
 
 #if defined(DEBUG_WINDOWS)
-  auto start = timersGetMsTick();
+  auto start = time_get_ms();
 #endif
 
   if (widgetRefreshEnable)
@@ -85,7 +81,7 @@ void MainWindow::run(bool trash)
     emptyTrash();
 
 #if defined(DEBUG_WINDOWS)
-  auto delta = timersGetMsTick() - start;
+  auto delta = time_get_ms() - start;
   if (delta > 10) {
     TRACE_WINDOWS("MainWindow::run took %dms", delta);
   }
@@ -106,9 +102,7 @@ void MainWindow::shutdown()
   clear();
   emptyTrash();
 
-  // Re-add background canvas
-  background = lv_canvas_create(lvobj);
-  lv_obj_center(background);
+  backgroundBitmap = nullptr;
 }
 
 bool MainWindow::setBackgroundImage(std::string& fileName)
@@ -116,14 +110,16 @@ bool MainWindow::setBackgroundImage(std::string& fileName)
   if (fileName.empty()) return false;
 
   // ensure you delete old bitmap
-  if (backgroundBitmap != nullptr) delete backgroundBitmap;
+  if (backgroundBitmap != nullptr) {
+    backgroundBitmap->removeCanvas();
+    delete backgroundBitmap;
+  }
 
   // Try to load bitmap.
   backgroundBitmap = BitmapBuffer::loadBitmap(fileName.c_str(), BMP_RGB565);
 
   if (backgroundBitmap) {
-    lv_canvas_set_buffer(background, backgroundBitmap->getData(), backgroundBitmap->width(),
-                         backgroundBitmap->height(), LV_IMG_CF_TRUE_COLOR);
+    lv_obj_move_background(backgroundBitmap->addCanvas(this));
     return true;
   }
 

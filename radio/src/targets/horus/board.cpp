@@ -23,7 +23,6 @@
 #include "stm32_hal_ll.h"
 #include "stm32_gpio.h"
 #include "stm32_spi.h"
-#include "stm32_ws2812.h"
 #include "vs1053b.h"
 
 #include "hal/adc_driver.h"
@@ -53,15 +52,50 @@
   #include "csd203_sensor.h"
 #endif
 
+#if defined(IMU) && defined(IMU_I2C_BUS) && \
+    (defined(IMU_I2C_ADDRESS) || defined(IMU_ICM42627) || \
+     defined(IMU_SC7U22) || defined(IMU_LSM6DS33))
+  #define HAS_IMU
+  #include "gyro.h"
+  #include "stm32_i2c_driver.h"
+  #if defined(IMU_ICM42627)
+  #include "drivers/icm42627.h"
+  #endif
+  #if defined(IMU_SC7U22)
+  #include "drivers/sc7u22.h"
+  #endif
+  #if defined(IMU_LSM6DS33) || \
+      (!defined(IMU_ICM42627) && !defined(IMU_SC7U22) && defined(IMU_I2C_ADDRESS))
+  #include "drivers/lsm6ds.h"
+  #endif
+#endif
+
 HardwareOptions hardwareOptions;
 bool boardBacklightOn = false;
 
+#if defined(VIDEO_SWITCH) || (defined(BLUETOOTH) && defined(BOOT))
+
 #if defined(VIDEO_SWITCH)
 #include "videoswitch_driver.h"
+#endif
 
 void boardBLEarlyInit()
 {
+#if defined(VIDEO_SWITCH)
   videoSwitchInit();
+#endif
+
+#if defined(BLUETOOTH)
+  // Disable the BT module so it will be detected on firmware start
+#if defined(BT_EN_GPIO)
+  gpio_init(BT_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_write(BT_EN_GPIO, 1);
+#endif
+#if defined(BT_PWR_GPIO)
+  gpio_init(BT_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(BT_PWR_GPIO);
+#endif
+#endif
 }
 #endif
 
@@ -74,6 +108,7 @@ void boardBLPreJump()
 
 void boardBLInit()
 {
+  rotaryEncoderInit();
   SDRAM_Init();
 }
 
@@ -111,43 +146,27 @@ void audioInit()
 }
 #endif
 
-#if defined(SIXPOS_SWITCH_INDEX)
-uint8_t lastADCState = 0;
-uint8_t sixPosState = 0;
-bool dirty = true;
-uint16_t getSixPosAnalogValue(uint16_t adcValue)
+#if defined(HAS_IMU)
+static const etx_imu_t _imu_candidates[] = {
+#if defined(IMU_ICM42627)
+  { &imu_icm42627_driver, IMU_I2C_BUS, ICM42627_I2C_BASE_ADDR },
+  { &imu_icm42627_driver, IMU_I2C_BUS, ICM42627_I2C_BASE_ADDR + 1 },
+#endif
+#if defined(IMU_SC7U22)
+  { &imu_sc7u22_driver, IMU_I2C_BUS, SC7U22_I2C_BASE_ADDR },
+  { &imu_sc7u22_driver, IMU_I2C_BUS, SC7U22_I2C_BASE_ADDR + 1 },
+#endif
+#if defined(IMU_LSM6DS33) || \
+    (!defined(IMU_ICM42627) && !defined(IMU_SC7U22) && defined(IMU_I2C_ADDRESS))
+  { &imu_lsm6ds_driver, IMU_I2C_BUS, IMU_I2C_ADDRESS },
+#endif
+};
+
+static void gyroInit()
 {
-  uint8_t currentADCState = 0;
-  if (adcValue > 3800)
-    currentADCState = 6;
-  else if (adcValue > 3100)
-    currentADCState = 5;
-  else if (adcValue > 2300)
-    currentADCState = 4;
-  else if (adcValue > 1500)
-    currentADCState = 3;
-  else if (adcValue > 1000)
-    currentADCState = 2;
-  else if (adcValue > 400)
-    currentADCState = 1;
-  if (lastADCState != currentADCState) {
-    lastADCState = currentADCState;
-  } else if (lastADCState != 0 && lastADCState - 1 != sixPosState) {
-    sixPosState = lastADCState - 1;
-    dirty = true;
-  }
-  if (dirty) {
-    for (uint8_t i = 0; i < 6; i++) {
-      if (i == sixPosState) {
-        ws2812_set_color(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-      } else {
-        ws2812_set_color(i, 0, 0, 0);
-      }
-    }
-    rgbLedColorApply();
-  }
-  return (4096/5)*(sixPosState);
+  gyroStart(imuDetect(_imu_candidates, DIM(_imu_candidates)));
 }
+
 #endif
 
 void boardInit()
@@ -246,6 +265,10 @@ void boardInit()
   ledGreen();
   #endif
 #endif
+
+#if defined(HAS_IMU)
+  gyroInit();
+#endif
 }
 #endif
 
@@ -258,7 +281,7 @@ void boardOff()
   rgbLedClearAll();
 #endif
 
-#if defined(STATUS_LEDS) && !defined(BOOT)
+#if STATUS_LEDS && !defined(BOOT)
   ledOff();
 #endif
   backlightEnable(0);

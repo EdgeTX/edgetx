@@ -112,10 +112,8 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
   addTab(new CustomFunctionsPanel(this, &model, generalSettings, firmware, sharedItemModels), tr("Special Functions"));
   s1.report("Special Functions");
 
-  if (firmware->getCapability(Telemetry)) {
-    addTab(new TelemetryPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Telemetry"));
-    s1.report("Telemetry");
-  }
+  addTab(new TelemetryPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Telemetry"));
+  s1.report("Telemetry");
 
   if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
     addTab(new ColorCustomScreensPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Custom Screens"));
@@ -170,5 +168,12 @@ void ModelEdit::onTabIndexChanged(int index)
 
 void ModelEdit::launchSimulation()
 {
+  if (!radioData.models[modelId].isValid()) {
+    QMessageBox::critical(this, tr("Simulate Model"),
+      tr("Operation aborted: model has errors that may affect simulation.\n%1")
+      .arg(radioData.models[modelId].errorsList().join("\n")));
+    return;
+  }
+
   startSimulation(this, radioData, modelId);
 }

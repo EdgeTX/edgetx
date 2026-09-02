@@ -19,6 +19,8 @@
  * GNU General Public License for more details.
  */
 
+#include <cstring>
+
 #include "stm32_i2c_driver.h"
 #include "stm32_gpio.h"
 #include "stm32_hal_ll.h"
@@ -30,7 +32,7 @@
 #endif
 #include "debug.h"
 
-#define MAX_I2C_DEVICES 2
+#define MAX_I2C_DEVICES 4
 
 struct stm32_i2c_device {
   I2C_HandleTypeDef handle;
@@ -546,7 +548,9 @@ int stm32_i2c_deinit(uint8_t bus)
   if (!h) return -1;  
 
   if (HAL_I2C_DeInit(h) != HAL_OK) return -1;
-  
+
+  memset(&h->Init, 0, sizeof(h->Init));
+
   if (i2c_disable_clock(h->Instance) < 0) {
     TRACE("I2C ERROR: HAL_I2C_MspDeInit() I2C misconfiguration");
     return -1;

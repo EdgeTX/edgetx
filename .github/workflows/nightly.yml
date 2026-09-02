@@ -20,7 +20,7 @@ jobs:
           - pl18;pl18ev;pl18u
           - pa01
           - t12max
-          - t15;t16;t18
+          - t15;t16;t18;t22
           - zorro;pocket;mt12;commando8
           - tprov2;tpros;bumblebee
           - t20;t20v2;t14
@@ -28,24 +28,26 @@ jobs:
           - tx16s
           - tx16smk3
           - f16
-          - v16
+          - v14;v14lcd;v16
           - x10;x10express
           - x12s
           - x7access
           - x9dp2019
-          - x9e;x9e-hall
+          - x9e
           - mt12
           - nb4p
           - st16
-          - tx15
+          - c14
+          - tx15;gx15
           - t15pro
+          - v12
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
         - ${{ github.workspace }}:/src
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           submodules: recursive
 
@@ -57,7 +59,7 @@ jobs:
         run: ./tools/build-gh.sh
 
       - name: Package firmware ${{ matrix.target }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: edgetx-firmware-nightly-${{ matrix.target }}
           path: |
@@ -76,12 +78,12 @@ jobs:
       contents: write
     steps:
       - name: Check out the repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0  # Need full history for changelog
 
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: edgetx-firmware-nightly-*
           path: edgetx-firmware-nightly
@@ -91,94 +93,21 @@ jobs:
         run: |
           echo "release_filename=edgetx-firmware-nightly-${GITHUB_SHA::8}.zip" >> $GITHUB_ENV
           echo "build_date=$(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_ENV
+          echo "old_nightly_sha=$(git rev-parse nightly)" >> $GITHUB_ENV
 
       - name: Zip release file
         uses: montudor/action-zip@v1
         with:
           args: zip -qq -j -r ${{ env.release_filename }} ./edgetx-firmware-nightly
 
-      - name: Build Changelog
-        id: build_changelog
-        uses: mikepenz/release-changelog-builder-action@v6
+      - name: Generate changelog
+        id: changelog
+        uses: orhun/git-cliff-action@v4
         with:
-          mode: "HYBRID"
-          configurationJson: |
-            {
-              "categories": [
-                {
-                  "title": "## 🖥️ Black & White Radio Changes",
-                  "labels": ["scope:bw"]
-                },
-                {
-                  "title": "## 🎨 Color Radio Changes",
-                  "labels": ["scope:color"]
-                },
-                {
-                  "title": "## 🎮 Firmware (All Radios Generally)",
-                  "labels": ["scope:firmware", "scope:fw"]
-                },
-                {
-                  "title": "## 💻 Companion Software Changes",
-                  "labels": ["scope:cpn", "companion"]
-                },
-                {
-                  "title": "## 🚀 Features",
-                  "labels": ["feat", "enhancement ✨"]
-                },
-                {
-                  "title": "## 🐛 Fixes",
-                  "labels": ["fix", "bugfix", "bug 🪲", "bug/regression ↩️"]
-                },
-                {
-                  "title": "## 🧹 Chores",
-                  "labels": ["chore", "house keeping 🧹"]
-                },
-                {
-                  "title": "## 🔧 CI/CD",
-                  "labels": ["ci", "ci/cd 🔧"]
-                },
-                {
-                  "title": "## 🧪 Tests",
-                  "labels": ["scope:test", "test", "unit tests 🧪"]
-                },
-                {
-                  "title": "## 📝 Documentation",
-                  "labels": ["scope:docs", "docs", "documentation 📝"]
-                },
-                {
-                  "title": "## 🔨 Refactoring",
-                  "labels": ["refactor"]
-                },
-                {
-                  "title": "## 🎨 Style",
-                  "labels": ["style"]
-                },
-                {
-                  "title": "## 📦 Other",
-                  "labels": []
-                }
-              ],
-              "template": "#{{CHANGELOG}}",
-              "pr_template": "- #{{TITLE}} (##{{NUMBER}})",
-              "commit_template": "- #{{TITLE}} (#{{MERGE_SHA}})",
-              "empty_template": "- No changes",
-              "label_extractor": [
-                {
-                  "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([^)]+\\))?(!)?:",
-                  "on_property": "title",
-                  "target": "$1"
-                },
-                {
-                  "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)\\(([^)]+)\\)",
-                  "on_property": "title",
-                  "target": "scope:$2"
-                }
-              ]
-            }
-          toTag: HEAD
-          fromTag: nightly
+          config: cliff.toml
+          args: --verbose --strip all nightly..HEAD
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OUTPUT: CHANGELOG.md
 
       - name: Update nightly tag
         run: |
@@ -195,7 +124,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy nightly release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: nightly
           prerelease: true
@@ -213,6 +142,9 @@ jobs:
 
             ## Changes since last nightly build
 
-            ${{ steps.build_changelog.outputs.changelog }}
+            ${{ steps.changelog.outputs.content }}
+
+            ---
+            **Full Diff:** https://github.com/${{ github.repository }}/compare/${{ env.old_nightly_sha }}...${{ github.sha }}
           files: |
             ${{ env.release_filename }}

@@ -330,7 +330,8 @@ FunctionSwitchesBase::FunctionSwitchesBase(EdgeTxIcon icon, const char* title) :
   new StaticText(box, {FunctionSwitch::NM_X + PAD_OUTLINE, 0, FunctionSwitch::NM_W, 0}, STR_NAME, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
   new StaticText(box, {FunctionSwitch::TP_X + PAD_OUTLINE, 0, FunctionSwitch::TP_W, 0}, STR_SWITCH_TYPE,
                  COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
-  new StaticText(box, {FunctionSwitch::GR_X + PAD_OUTLINE, 0, FunctionSwitch::GR_W, 0}, STR_GROUP, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
+  if (icon == ICON_MODEL_SETUP)
+    new StaticText(box, {FunctionSwitch::GR_X + PAD_OUTLINE, 0, FunctionSwitch::GR_W, 0}, STR_GROUP, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
   startupHeader = new StaticText(box, {FunctionSwitch::ST_X + PAD_OUTLINE, 0, FunctionSwitch::ST_W, 0}, STR_SWITCH_STARTUP,
                  COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
 #if defined(FUNCTION_SWITCHES_RGB_LEDS) && !NARROW_LAYOUT
@@ -364,7 +365,7 @@ void FunctionSwitchesBase::checkEvents()
 
 //-----------------------------------------------------------------------------
 
-ModelFunctionSwitches::ModelFunctionSwitches() : FunctionSwitchesBase(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS)
+ModelFunctionSwitches::ModelFunctionSwitches() : FunctionSwitchesBase(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS)
 {
   for (uint8_t i = 0; i < switchGetMaxSwitches(); i += 1) {
     if (switchIsCustomSwitch(i))

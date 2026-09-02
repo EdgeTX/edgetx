@@ -35,6 +35,9 @@
 #include "luminosity_sensor.h"
 #endif
 
+#if defined(RADIO_GX12)
+#include "targets/taranis/gx12/bsp_io.h"
+#endif
 #define DELAY_POS_MARGIN   3
 
 uint8_t s_mixer_first_run_done = false;
@@ -383,10 +386,10 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
 
 #if defined(IMU)
   else if (i == MIXSRC_TILT_X) {
-    return gyro.scaledX();
+    return gyroScaledX();
   }
   else if (i == MIXSRC_TILT_Y) {
-    return gyro.scaledY();
+    return gyroScaledY();
   }
 #endif
 
@@ -1144,6 +1147,11 @@ void evalMixes(uint8_t tick10ms)
   static uint16_t delta = 0;
   static uint16_t flightModesFade = 0;
 
+#if defined(RADIO_GX12)
+  // see #6159
+  _poll_switches();
+#endif
+
   uint8_t fm = getFlightMode();
 
   if (lastFlightMode != fm) {
@@ -1192,7 +1200,6 @@ void evalMixes(uint8_t tick10ms)
         weight += fp_act[p];
       }
     }
-    assert(weight);
     mixerCurrentFlightMode = fm;
   }
   else {
@@ -1221,24 +1228,6 @@ void evalMixes(uint8_t tick10ms)
       }
     }
 #endif
-
-#if defined(AUDIO)
-    if (!isFunctionActive(FUNCTION_VOLUME)) {
-      if (g_eeGeneral.volumeSrc) {
-        calcVolumeValue(g_eeGeneral.volumeSrc);
-      } else {
-        requiredSpeakerVolume = g_eeGeneral.speakerVolume + VOLUME_LEVEL_DEF;
-      }
-    }
-#endif
-
-    if (!isFunctionActive(FUNCTION_BACKLIGHT)) {
-      if (g_eeGeneral.backlightSrc) {
-        calcBacklightValue(g_eeGeneral.backlightSrc);
-      } else {
-        requiredBacklightBright = g_eeGeneral.getBrightness();
-      }
-    }  
   }
 
   //========== LIMITS ===============

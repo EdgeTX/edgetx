@@ -465,16 +465,16 @@ const static PageButtonDef modelSetupButtons[] = {
   {STR_DEF(STR_TIMER_3), []() { new TimerWindow(2); }, []() { return g_model.timers[2].mode > 0; }},
 
   {STR_DEF(STR_PREFLIGHT), []() { new PreflightChecks(); }},
-  {STR_DEF(STR_TRIMS), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_TRIMS, trimsSetupLines); }},
-  {STR_DEF(STR_THROTTLE_LABEL), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_THROTTLE_LABEL, throttleParamsSetupLines); }},
-  {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines); }},
+  {STR_DEF(STR_TRIMS), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS, STR_TRIMS, trimsSetupLines); }},
+  {STR_DEF(STR_THROTTLE_LABEL), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS, STR_THROTTLE_LABEL, throttleParamsSetupLines); }},
+  {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines); }},
 #if defined(USBJ_EX)
   {STR_DEF(STR_USBJOYSTICK_LABEL), []() { new ModelUSBJoystickPage(); }},
 #endif
 #if defined(FUNCTION_SWITCHES)
   {STR_DEF(STR_FUNCTION_SWITCHES), []() { new ModelFunctionSwitches(); }},
 #endif
-  {STR_DEF(STR_MENU_OTHER), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MENU_MODEL_SETTINGS, STR_MENU_OTHER, otherPageSetupLines); }},
+  {STR_DEF(STR_MENU_OTHER), []() { new SubPage(ICON_MODEL_SETUP, STR_MAIN_MODEL_SETTINGS, STR_MENU_OTHER, otherPageSetupLines); }},
 #if defined(HELI)
   {STR_DEF(STR_MENUHELISETUP), []() { return new ModelHeliPage(); }, nullptr, modelHeliEnabled},
 #endif
@@ -483,7 +483,9 @@ const static PageButtonDef modelSetupButtons[] = {
 
 void ModelSetupPage::build(Window * window)
 {
+  window->padBottom(PAD_LARGE);
+
   coord_t y = SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines);
 
-  new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, nullptr, BTN_COLS, PAD_TINY, modelSetupButtons, BTN_H);
+  new SetupButtonGroup(window, {0, y, LCD_W - padding * 2, 0}, BTN_COLS, modelSetupButtons, BTN_H);
 }

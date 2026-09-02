@@ -154,7 +154,6 @@ class MainWindow : public QMainWindow
 
     bool readSettingsFromRadio(const QString & filename);
     bool readFirmwareFromRadio(const QString & filename);
-    bool readSettingsFromSDPath(const QString & filename);
 
     bool checkProfileRadioExists(int profId);
 

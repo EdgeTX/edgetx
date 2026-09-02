@@ -68,4 +68,6 @@ enum QMPage {
   QM_TOOLS_LS_MON,
   QM_TOOLS_STATS,
   QM_TOOLS_DEBUG,
+  // Key shortcut & Favorites APP
+  QM_APP,
 };

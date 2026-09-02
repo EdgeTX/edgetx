@@ -34,6 +34,7 @@
 #define CPN_MAX_CHNOUT                 32 // number of real output channels
 #define CPN_MAX_LOGICAL_SWITCHES       64 // number of custom switches
 #define CPN_MAX_SPECIAL_FUNCTIONS      64 // number of functions assigned to switches
+#define CPN_MAX_MODELS                 60 // B&W
 #define CPN_MAX_MODULES                2
 #define CPN_MAX_STICKS                 Board::STICK_AXIS_COUNT
 #define CPN_MAX_TRIMS                  Board::TRIM_AXIS_COUNT
@@ -43,8 +44,11 @@
 #define CPN_MAX_SWITCHES_STD           20
 #define CPN_MAX_SWITCHES               (CPN_MAX_SWITCHES_STD + CPN_MAX_SWITCHES_FLEX + CPN_MAX_SWITCHES_FUNCTION)
 #define CPN_MAX_SENSORS                99
-#define CPN_MAX_SCRIPTS                9
-#define CPN_MAX_SCRIPT_INPUTS          10
+#define CPN_MAX_SCRIPTS                9  // Max for Color LCD
+#define CPN_LEN_SCRIPT_FILENAME        6
+#define CPN_LEN_SCRIPT_NAME            6
+#define CPN_MAX_SCRIPT_INPUTS          6
+#define CPN_MAX_SCRIPT_OUTPUTS         6
 #define CPN_MAX_SPACEMOUSE             6
 #define CPN_MAX_INPUTS                 32 // v2.10 replaces CPN_MAX_ANALOGS - the value is abitary as radio ADC refactor is still a WIP
 
@@ -73,7 +77,6 @@
 #define EEPROM_FILES_FILTER            CPN_STR_RAD_MOD_SETTINGS % " " % CPN_STR_FILES % " (*.etx *.yml);;" % ETX_FILES_FILTER % YML_FILES_FILTER
 #define FIRMWARE_FILES_FILTER          "Firmware " % CPN_STR_FILES % " (*.bin *.uf2);;" % BIN_FILES_FILTER % UF2_FILES_FILTER
 #define EXTERNAL_EEPROM_FILES_FILTER   "EEPROM " % CPN_STR_FILES % " (*.bin);;" % BIN_FILES_FILTER
-#define EEPE_EEPROM_FILE_HEADER        "EEPE EEPROM FILE"
 #define SIMU_FILES_FILTER              ETX_FILES_FILTER
 
 #define CPN_STR_APP_SETTINGS           QCoreApplication::translate("Companion", "Application Settings")

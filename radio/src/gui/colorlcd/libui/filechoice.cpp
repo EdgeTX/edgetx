@@ -98,8 +98,7 @@ FileChoice::FileChoice(Window *parent, const rect_t &rect, const std::string fol
                        std::function<std::string()> getValue,
                        std::function<void(std::string)> setValue,
                        bool stripExtension, const char *title) :
-    Choice(
-        parent, rect, 0, 0, [=]() { return selectedIdx; },
+    Choice(parent, rect, 0, 0, nullptr,
         [=](int val) { setValue(getString(val)); selectedIdx = val; }, title, CHOICE_TYPE_FOLDER),
     folder(std::move(folder)),
     extension(std::move(extension)),
@@ -107,6 +106,8 @@ FileChoice::FileChoice(Window *parent, const rect_t &rect, const std::string fol
     getValue(std::move(getValue)),
     stripExtension(stripExtension)
 {
+  // getValue function set here to ensure selectedIdx is set before use
+  setGetValueHandler([=]() { return selectedIdx; });
   update();
 }
 

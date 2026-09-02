@@ -283,5 +283,5 @@ const etxLz4Font lv_font_ru_bold_STD __FLASH = {
 .right_class_mapping = 6283,
 .cmaps = cmaps,
 .compressed = lz4FontData,
-.lvglFontBufSize = 6580,
+.lvglFontBufSize = 6588,
 };

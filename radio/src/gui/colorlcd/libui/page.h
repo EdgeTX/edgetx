@@ -65,12 +65,7 @@ class Page : public NavWindow
   NavWindow* navWindow();
 
 #if defined(HARDWARE_KEYS)
-  void onPressSYS() override;
-  void onLongPressSYS() override;
-  void onPressMDL() override;
-  void onLongPressMDL() override;
-  void onPressTELE() override;
-  void onLongPressTELE() override;
+  void doKeyShortcut(event_t event) override;
   void onLongPressRTN() override;
 #endif
 };

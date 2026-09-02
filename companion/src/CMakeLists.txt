@@ -1,4 +1,5 @@
 set(SIMULATOR_INSTALL_PREFIX "" CACHE STRING "Alternative simulator library search path")
+set(SIMULATOR_WASM_DIR "" CACHE PATH "Directory containing .wasm simulator modules to bundle")
 
 set(COMPANION_NAME "companion")
 set(SIMULATOR_NAME "simulator")
@@ -133,7 +134,8 @@ else()
 endif()
 
 ############# Import radio hardware definitions ###############
-set(HWDEFS_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../radio/src")
+
+set(HWDEFS_DIR "${CMAKE_SOURCE_DIR}/radio/src/boards/hw_defs")
 set(HWDEFS_TMPL "${COMPANION_SRC_DIRECTORY}/hwdefs.qrc.in")
 set(HWDEFS_PHDR "HWDEF_JSON_LIST")
 set(HWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/hwdefs.qrc")
@@ -284,25 +286,22 @@ target_link_libraries(${SIMULATOR_NAME} PRIVATE
   ${SDL2_LIBRARIES}
 )
 
+# Copy WASM simulator modules next to executables for local dev
+if(SIMULATOR_WASM_DIR)
+  foreach(_target ${COMPANION_NAME} ${SIMULATOR_NAME})
+    add_custom_command(TARGET ${_target} POST_BUILD
+      COMMAND ${CMAKE_COMMAND}
+        -DSRC_DIR=${SIMULATOR_WASM_DIR}
+        -DDST_DIR=$<TARGET_FILE_DIR:${_target}>
+        -P ${CMAKE_SOURCE_DIR}/cmake/CopyWasmModules.cmake
+      COMMENT "Copying WASM simulator modules to ${_target} output"
+    )
+  endforeach()
+endif()
+
 add_subdirectory(tests)
 
 ############# Install ####################
-
-# the current flavour is not automatically added if build in the current cmake iteration, so always
-# add its library name to be sure
-string(TOLOWER ${PCB} FLAVOUR)
-
-if(PCBREV)
-  if(PCB STREQUAL X7 AND PCBREV STREQUAL ACCESS)
-    set(FLAVOUR x7access)
-  elseif(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
-    set(FLAVOUR x9d+2019)
-  elseif(PCB STREQUAL X10 AND PCBREV STREQUAL EXPRESS)
-    set(FLAVOUR x10express)
-  else()
-    string(TOLOWER ${PCBREV} FLAVOUR)
-  endif()
-endif(PCBREV)
 
 set(COMPANION_TARGETS_DIR_ROOT "${COMPANION_SRC_DIRECTORY}/../targets")
 
@@ -414,8 +413,8 @@ elseif(WIN32)
   endif(OPENSSL_FOUND)
 
   if(TARGET SDL2::SDL2)
-    install(FILES $<TARGET_FILE:SDL2::SDL2>
-            DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
+    install(IMPORTED_RUNTIME_ARTIFACTS SDL2::SDL2
+            RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR})
   endif()
 
   include(FindMSVCRedist)
@@ -429,23 +428,23 @@ elseif(APPLE)
   # Qt + Cmake + Mac is poorly documented. A lot of this is guesswork
   # and trial and error. Do not hesitate to fix it for the better
   set(COMPANION_DISPLAY_NAME "EdgeTX Companion")
-  set_target_properties(${COMPANION_NAME} PROPERTIES
-      MACOSX_RPATH TRUE
-      MACOSX_BUNDLE TRUE
-      MACOSX_BUNDLE_BUNDLE_NAME "${COMPANION_DISPLAY_NAME}"
-      MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_DIR}/MacOSXBundleInfo.plist.in
-
-      INSTALL_RPATH "@executable_path/../Frameworks"
-      BUILD_WITH_INSTALL_RPATH TRUE
-  )
-
   # This the name that the user will see in the generated DMG and what the application
   # will be called under /Applications. We include the version string to make installing
   # different versions side-by-side
   set(COMPANION_OSX_APP_BUNDLE_NAME "${COMPANION_DISPLAY_NAME} ${VERSION_FAMILY}")
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "org.edgetx.companion")
 
-  set(companion_app_dir "companion.app")
+  set_target_properties(${COMPANION_NAME} PROPERTIES
+      OUTPUT_NAME "${COMPANION_OSX_APP_BUNDLE_NAME}"
+      MACOSX_RPATH TRUE
+      MACOSX_BUNDLE TRUE
+      MACOSX_BUNDLE_BUNDLE_NAME "${COMPANION_DISPLAY_NAME}"
+      MACOSX_BUNDLE_INFO_PLIST ${COMPANION_TARGETS_DIR}/MacOSXBundleInfo.plist.in
+      INSTALL_RPATH "@executable_path/../Frameworks"
+      BUILD_WITH_INSTALL_RPATH TRUE
+  )
+
+  set(companion_app_dir "${COMPANION_OSX_APP_BUNDLE_NAME}.app")
   set(companion_res_dir "${companion_app_dir}/Contents/Resources")
 
   # Only Companion is distributed for macOS
@@ -472,7 +471,7 @@ elseif(APPLE)
   )
 
   install(FILES ${MAC_ICON_FILE}
-          DESTINATION ${companion_res_dir}
+          DESTINATION "${companion_res_dir}"
           COMPONENT Runtime)
 endif()
 
@@ -560,7 +559,7 @@ elseif(APPLE)
     OUTPUT_SCRIPT qt_deploy_companion
     CONTENT "
       qt_deploy_runtime_dependencies(
-        EXECUTABLE ${companion_app_dir}
+        EXECUTABLE \"${companion_app_dir}\"
         NO_TRANSLATIONS
         NO_COMPILER_RUNTIME
         GENERATE_QT_CONF
@@ -571,7 +570,144 @@ elseif(APPLE)
   # Run macdeployqt
   install(SCRIPT ${qt_deploy_companion} COMPONENT Runtime)
 
-  # Fix Code Signing and rename bundle
+  option(COMPANION_VERIFY_BUNDLE
+         "Fail the install if the macOS bundle references libraries outside itself" ON)
+  set(COMPANION_VERIFY_BUNDLE_ALLOW "" CACHE STRING
+      "Regex of absolute library paths the bundle verification may ignore")
+
+  # Bundle SDL2 (copy the real dylib; IMPORTED_RUNTIME_ARTIFACTS keeps
+  # Homebrew symlinks and breaks the app inside a .dmg). Homebrew's
+  # sdl2-compat also loads SDL3 from @loader_path/libSDL3.dylib at runtime.
+  set(_bundle_expects_sdl3 FALSE)
+  set(_bundled_sdl2 FALSE)
+  if(TARGET SDL2::SDL2)
+    get_target_property(_sdl2_location SDL2::SDL2 IMPORTED_LOCATION)
+    if(NOT _sdl2_location)
+      get_target_property(_sdl2_location SDL2::SDL2 IMPORTED_LOCATION_RELEASE)
+    endif()
+    if(_sdl2_location AND _sdl2_location MATCHES "\\.framework(/|$)")
+      # Genuine upstream SDL2.framework (a manual framework install): no SDL3 dlopen
+      # shim to worry about, and IMPORTED_RUNTIME_ARTIFACTS copies frameworks
+      # correctly — it's only the dylib case below whose symlinks it mangles.
+      # CI no longer takes this path; setup-sdl.sh builds sdl2-compat + SDL3 instead.
+      message(STATUS "Bundling SDL2 framework: ${_sdl2_location}")
+      install(IMPORTED_RUNTIME_ARTIFACTS SDL2::SDL2
+              FRAMEWORK DESTINATION "${companion_app_dir}/Contents/Frameworks"
+              LIBRARY   DESTINATION "${companion_app_dir}/Contents/Frameworks"
+              COMPONENT Runtime)
+      set(_bundled_sdl2 TRUE)
+    elseif(_sdl2_location)
+      message(STATUS "Bundling SDL2 library: ${_sdl2_location}")
+      set(_bundled_sdl2 TRUE)
+      get_filename_component(_sdl2_real "${_sdl2_location}" REALPATH)
+      get_filename_component(_sdl2_name "${_sdl2_location}" NAME)
+      install(FILES "${_sdl2_real}"
+              DESTINATION "${companion_app_dir}/Contents/Frameworks"
+              RENAME "${_sdl2_name}"
+              COMPONENT Runtime)
+
+      set(_sdl3_real "")
+      find_package(SDL3 CONFIG QUIET)
+      if(TARGET SDL3::SDL3-shared)
+        get_target_property(_sdl3_location SDL3::SDL3-shared IMPORTED_LOCATION_RELEASE)
+        if(NOT _sdl3_location)
+          get_target_property(_sdl3_location SDL3::SDL3-shared IMPORTED_LOCATION)
+        endif()
+        if(_sdl3_location)
+          get_filename_component(_sdl3_real "${_sdl3_location}" REALPATH)
+        endif()
+      endif()
+      if(NOT _sdl3_real)
+        set(_sdl3_hints "")
+        # SDL3 usually lives right next to SDL2 (setup-sdl.sh installs both to one prefix) -
+        # check there before falling back to Homebrew heuristics.
+        get_filename_component(_sdl2_libdir "${_sdl2_location}" DIRECTORY)
+        list(APPEND _sdl3_hints "${_sdl2_libdir}")
+        if(DEFINED ENV{HOMEBREW_PREFIX})
+          list(APPEND _sdl3_hints
+            "$ENV{HOMEBREW_PREFIX}/opt/sdl3/lib"
+            "$ENV{HOMEBREW_PREFIX}/lib")
+        endif()
+        find_program(_brew_EXECUTABLE brew)
+        if(_brew_EXECUTABLE)
+          execute_process(
+            COMMAND "${_brew_EXECUTABLE}" --prefix sdl3
+            OUTPUT_VARIABLE _brew_sdl3_prefix
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_QUIET
+            RESULT_VARIABLE _brew_sdl3_result
+          )
+          if(_brew_sdl3_result EQUAL 0 AND _brew_sdl3_prefix)
+            list(APPEND _sdl3_hints "${_brew_sdl3_prefix}/lib")
+          endif()
+        endif()
+        find_library(_sdl3_library
+          NAMES SDL3.0 SDL3
+          HINTS ${_sdl3_hints}
+          NO_DEFAULT_PATH
+        )
+        if(NOT _sdl3_library)
+          find_library(_sdl3_library NAMES SDL3.0 SDL3)
+        endif()
+        if(_sdl3_library)
+          get_filename_component(_sdl3_real "${_sdl3_library}" REALPATH)
+        endif()
+      endif()
+      if(_sdl3_real)
+        install(FILES "${_sdl3_real}"
+                DESTINATION "${companion_app_dir}/Contents/Frameworks"
+                RENAME "libSDL3.dylib"
+                COMPONENT Runtime)
+        set(_bundle_expects_sdl3 TRUE)
+      else()
+        message(FATAL_ERROR
+          "SDL3 not found, but the bundled SDL2 (${_sdl2_location}) is sdl2-compat, which "
+          "dlopens libSDL3.dylib at runtime - Companion would not start without it. Install "
+          "SDL3, or point CMAKE_PREFIX_PATH/HOMEBREW_PREFIX at a prefix that has it.")
+      endif()
+
+      install(CODE "
+        set(_fw \"\${CMAKE_INSTALL_PREFIX}/${companion_app_dir}/Contents/Frameworks\")
+        execute_process(
+          COMMAND install_name_tool -id \"@executable_path/../Frameworks/${_sdl2_name}\" \"\${_fw}/${_sdl2_name}\"
+          RESULT_VARIABLE _sdl2_id_result
+          ERROR_VARIABLE _sdl2_id_error
+        )
+        if(NOT _sdl2_id_result EQUAL 0)
+          message(FATAL_ERROR \"install_name_tool failed for ${_sdl2_name}: \${_sdl2_id_error}\")
+        endif()
+        if(EXISTS \"\${_fw}/libSDL3.dylib\")
+          execute_process(
+            COMMAND install_name_tool -id \"@executable_path/../Frameworks/libSDL3.dylib\" \"\${_fw}/libSDL3.dylib\"
+            RESULT_VARIABLE _sdl3_id_result
+            ERROR_VARIABLE _sdl3_id_error
+          )
+          if(NOT _sdl3_id_result EQUAL 0)
+            message(FATAL_ERROR \"install_name_tool failed for libSDL3.dylib: \${_sdl3_id_error}\")
+          endif()
+        endif()
+      " COMPONENT Runtime)
+    else()
+      message(WARNING "SDL2::SDL2 has no IMPORTED_LOCATION; SDL2 will not be bundled")
+    endif()
+
+    # Point the executable at the SDL copies bundled above. qt_deploy_runtime_dependencies
+    # ran before they existed, and install_name_tool -id only fixes each dylib's own id, so
+    # nothing else guarantees this. Runs for both the framework and dylib branches, and must
+    # stay ahead of the re-sign below so the signature covers the rewritten load commands.
+    # Skipped when nothing was bundled - rewriting to Frameworks would then point the
+    # executable at files that are not there.
+    if(_bundled_sdl2)
+      configure_file(
+        "${COMPANION_TARGETS_DIR}/bundle_sdl_fixup.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/bundle_sdl_fixup.cmake"
+        @ONLY
+      )
+      install(SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/bundle_sdl_fixup.cmake" COMPONENT Runtime)
+    endif()
+  endif()
+
+  # Re-sign bundle after all contents are installed
   install(CODE "
       set(app_dir \"\${CMAKE_INSTALL_PREFIX}/${companion_app_dir}\")
       execute_process(COMMAND \${CMAKE_COMMAND} -E echo \"Re-signing: \${app_dir}\")
@@ -579,8 +715,18 @@ elseif(APPLE)
         COMMAND codesign --remove-signature \${app_dir}
         COMMAND codesign --force --deep -s - \${app_dir}
       )
-      file(RENAME \"\${app_dir}\" \"\${CMAKE_INSTALL_PREFIX}/${COMPANION_OSX_APP_BUNDLE_NAME}.app\")
   " COMPONENT Runtime)
+
+  # Last gate: a bundle that still points at /opt/homebrew or a build-machine Qt prefix
+  # starts on the machine that built it and nowhere else. Fail here rather than ship it.
+  if(COMPANION_VERIFY_BUNDLE)
+    configure_file(
+      "${COMPANION_TARGETS_DIR}/bundle_verify.cmake.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/bundle_verify.cmake"
+      @ONLY
+    )
+    install(SCRIPT "${CMAKE_CURRENT_BINARY_DIR}/bundle_verify.cmake" COMPONENT Runtime)
+  endif()
 
 else()
   # Detect architecture for linuxdeploy AppImage
@@ -642,4 +788,3 @@ else()
 endif()
 
 include(CPack)
-

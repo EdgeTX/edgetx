@@ -21,9 +21,17 @@
 
 #pragma once
 
+#include <functional>
+
+#include <QWidget>
+#include <QString>
+#include <QList>
+#include <QAbstractItemModel>
+
 class GenericPanel;
 
-// Note: cannot be a Qt object otherwise it will create a compiler ambiguity in the inheriting class
+// Base class for all Auto name prefixed widgets
+// Note: ths class cannot be a Qt object as it will trigger a compile time ambiguity in the inheriting class
 class AutoWidget
 {
   friend class GenericPanel;
@@ -32,17 +40,51 @@ class AutoWidget
     explicit AutoWidget();
     ~AutoWidget();
 
+    // buddy Auto widgets have their bindings mirroring the parent
+    // example buddies are AutoLabel and AutoComboBox
+    void addBuddyWidget(AutoWidget * wgt);
+    void addBuddyWidgets(QList<AutoWidget *> wgts);
+    void clearBuddyWidget(AutoWidget * wgt);
+    void clearBuddyWidgets();
+
+    // mark those unsupported by the base Qt widget as deleted in the child widget
+    // these are not marked as virtual to support deletion
+    void setBindEnabled(std::function<bool()> pred);
+    void setBindModel(std::function<QAbstractItemModel*()> fn);
+    void setBindPostChanged(std::function<void()> fn);
+    void setBindText(std::function<QString()> fn);
+    void setBindVisible(std::function<bool()> pred);
+
   protected:
+    virtual void setAutoModel(QAbstractItemModel * model) {};
+    virtual void setAutoText(QString text) {};
+
     virtual void updateValue() = 0;
 
+    void applyBindings();
+    void clearBindEnabled();
+    void clearBindVisible();
+    void clearBuddyBinds(AutoWidget * wgt);
     bool lock();
+    bool panelLock();
+    void runPostChanged();
+    void setAutoEnabled(bool enabled);
+    void setAutoVisible(bool visible);
     void setLock(bool lock);
     void setPanel(GenericPanel * panel);
 
-    void dataChanged();
-    bool panelLock();
 
   private:
     GenericPanel *m_panel;
     bool m_lock;
+
+    QList<AutoWidget *> m_buddyWidgets;
+
+    std::function<bool()> m_enabled;
+    std::function<QAbstractItemModel*()> m_model;
+    std::function<QString()> m_text;
+    std::function<bool()> m_visible;
+    std::function<void()> m_postChanged;
+
+    void dataChanged();
 };

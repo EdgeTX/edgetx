@@ -36,8 +36,7 @@ LogicalSwitchesPanel::LogicalSwitchesPanel(QWidget * parent, ModelData & model, 
                                                  RawSwitch::LogicalSwitchesContext);
   connectItemModelEvents(rawSwitchFilteredModel);
 
-  const int srcGroups = firmware->getCapability(GvarsInCS) ? 0 : (RawSource::AllSourceGroups & ~RawSource::GVarsGroup);
-  rawSourceFilteredModel = new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource), srcGroups);
+  rawSourceFilteredModel = new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource));
   connectItemModelEvents(rawSourceFilteredModel);
 
   lsCapability = firmware->getCapability(LogicalSwitches);

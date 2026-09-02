@@ -35,11 +35,6 @@ class NumberArea : public FormField
   {
     setWindowFlag(NO_FOCUS);
 
-    if (parent->getTextFlags() & CENTERED)
-      etx_obj_add_style(lvobj, styles->text_align_center, LV_PART_MAIN);
-    else
-      etx_obj_add_style(lvobj, styles->text_align_right, LV_PART_MAIN);
-
     // Allow encoder acceleration
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
 
@@ -243,6 +238,7 @@ void NumberEdit::openEdit()
         lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)});
     edit->setChangeHandler([=]() {
       update();
+      if (onEdited) onEdited(currentValue);
       if (edit->hasFocus())
         lv_group_focus_obj(lvobj);
       edit->hide();
@@ -298,4 +294,16 @@ void NumberEdit::setValue(int value)
   }
   updateDisplay();
   if (edit) edit->update();
+}
+
+void NumberEdit::checkEvents()
+{
+  if (_getValue) {
+    int newValue = _getValue();
+    if (newValue != currentValue) {
+      currentValue = newValue;
+      updateDisplay();
+    }
+  }
+  TextButton::checkEvents();
 }
