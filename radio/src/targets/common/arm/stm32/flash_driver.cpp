@@ -85,7 +85,9 @@ static uint32_t stm32_flash_get_sector_size(uint32_t sector)
   return 128 * 1024;
 }
 
-#define FLASH_TIMEOUT_MS 15000
+// twice the datasheet maximum for a 128 KB sector erase at x32 parallelism
+// (2 s, DS9405 Table 48); the driver never issues a bank or mass erase
+#define FLASH_TIMEOUT_MS 4000
 
 #if defined(FLASH_FLAG_RDERR)
   #define _FLASH_FLAG_RDERR FLASH_FLAG_RDERR
