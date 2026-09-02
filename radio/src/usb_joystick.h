@@ -111,6 +111,7 @@ extern "C" {
 #endif
 struct usbReport_t usbReportDesc();
 uint8_t usbReportSize();
+void usbHidFeatureReportReceived(const uint8_t* data, uint16_t len);
 #ifdef __cplusplus
 }
 #endif

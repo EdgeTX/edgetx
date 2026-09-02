@@ -26,6 +26,15 @@
 #include "usb_joystick.h"
 #endif
 
+#if defined(USBJ_EX) && defined(RADIO_TX16SMK3)
+#define HID_PC_FEEDBACK_REPORT_SIZE 8U
+#define HID_PC_FEEDBACK_SET_REPORT 0x09U
+#define HID_PC_FEEDBACK_REPORT_VALUE 0x0300U
+
+static uint8_t HID_PC_FeatureReport[HID_PC_FEEDBACK_REPORT_SIZE];
+static uint8_t HID_PC_FeatureReportPending;
+#endif
+
 /** @addtogroup STM32_USB_DEVICE_LIBRARY
   * @{
   */
@@ -68,6 +77,9 @@
 static uint8_t USBD_HID_Init(USBD_HandleTypeDef *pdev, uint8_t cfgidx);
 static uint8_t USBD_HID_DeInit(USBD_HandleTypeDef *pdev, uint8_t cfgidx);
 static uint8_t USBD_HID_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req);
+#if defined(USBJ_EX) && defined(RADIO_TX16SMK3)
+static uint8_t USBD_HID_EP0_RxReady(USBD_HandleTypeDef *pdev);
+#endif
 static uint8_t USBD_HID_DataIn(USBD_HandleTypeDef *pdev, uint8_t epnum);
 #ifndef USE_USBD_COMPOSITE
 static uint8_t *USBD_HID_GetFSCfgDesc(uint16_t *length);
@@ -145,7 +157,11 @@ USBD_ClassTypeDef USBD_HID =
   USBD_HID_DeInit,
   USBD_HID_Setup,
   NULL,              /* EP0_TxSent */
-  NULL,              /* EP0_RxReady */
+#if defined(USBJ_EX) && defined(RADIO_TX16SMK3)
+  USBD_HID_EP0_RxReady, /* EP0_RxReady */
+#else
+  NULL,                  /* EP0_RxReady */
+#endif             /* EP0_RxReady */
   USBD_HID_DataIn,   /* DataIn */
   NULL,              /* DataOut */
   NULL,              /* SOF */
@@ -390,6 +406,21 @@ static uint8_t USBD_HID_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *re
           (void)USBD_CtlSendData(pdev, (uint8_t *)&hhid->IdleState, 1U);
           break;
 
+#if defined(USBJ_EX) && defined(RADIO_TX16SMK3)
+    case HID_PC_FEEDBACK_SET_REPORT:
+      if ((req->wValue != HID_PC_FEEDBACK_REPORT_VALUE) ||
+          (req->wLength != HID_PC_FEEDBACK_REPORT_SIZE)) {
+        USBD_CtlError(pdev, req);
+        ret = USBD_FAIL;
+        break;
+      }
+
+      HID_PC_FeatureReportPending = 1U;
+      (void)USBD_CtlPrepareRx(
+          pdev, HID_PC_FeatureReport, HID_PC_FEEDBACK_REPORT_SIZE);
+      break;
+#endif
+
         default:
           USBD_CtlError(pdev, req);
           ret = USBD_FAIL;
@@ -613,6 +644,19 @@ static uint8_t *USBD_HID_GetOtherSpeedCfgDesc(uint16_t *length)
   return USBD_HID_GetFSCfgDesc(length);
 }
 #endif /* USE_USBD_COMPOSITE  */
+
+#if defined(USBJ_EX) && defined(RADIO_TX16SMK3)
+static uint8_t USBD_HID_EP0_RxReady(USBD_HandleTypeDef *pdev)
+{
+  if (HID_PC_FeatureReportPending != 0U) {
+    usbHidFeatureReportReceived(
+        HID_PC_FeatureReport, HID_PC_FEEDBACK_REPORT_SIZE);
+    HID_PC_FeatureReportPending = 0U;
+  }
+
+  return (uint8_t)USBD_OK;
+}
+#endif
 
 /**
   * @brief  USBD_HID_DataIn

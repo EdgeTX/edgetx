@@ -28,7 +28,7 @@
 
 #include <cmath>
 
-#define MAX_HID_REPORTDESC 160
+#define MAX_HID_REPORTDESC 192
 #define MAX_HID_REPORT 80
 
 uint8_t* _hidReportDesc = nullptr;
@@ -159,6 +159,18 @@ static const uint8_t HID_JOYSTICK_ReportDesc[] =
     0x81, 0x02,                    //       INPUT (Data,Var,Abs)
     0xc0                           //     END_COLLECTION
 };
+
+#if defined(RADIO_TX16SMK3)
+static const uint8_t HID_PC_FEEDBACK_ReportDesc[] = {
+  0x06, 0x00, 0xff,  // USAGE_PAGE (Vendor Defined 0xff00)
+  0x09, 0x01,        // USAGE (1)
+  0x15, 0x00,        //   LOGICAL_MINIMUM (0)
+  0x26, 0xff, 0x00,  //   LOGICAL_MAXIMUM (255)
+  0x75, 0x08,        //   REPORT_SIZE (8)
+  0x95, 0x08,        //   REPORT_COUNT (8)
+  0xb1, 0x02,        //   FEATURE (Data,Var,Abs)
+};
+#endif
 // clang-format on
 
 // clang-format off
@@ -509,7 +521,12 @@ int setupUSBJoystick()
       _hidReportDescSize += sizeof(HID_JOYSTICK_DpadDesc);
       _hidReportSize += 1;
     }
-
+#if defined(RADIO_TX16SMK3)
+    memcpy(_hidReportDesc + _hidReportDescSize,
+           HID_PC_FEEDBACK_ReportDesc,
+           sizeof(HID_PC_FEEDBACK_ReportDesc));
+    _hidReportDescSize += sizeof(HID_PC_FEEDBACK_ReportDesc);
+#endif
     // END_COLLECTION
     _hidReportDesc[_hidReportDescSize++] = 0xc0;
 
