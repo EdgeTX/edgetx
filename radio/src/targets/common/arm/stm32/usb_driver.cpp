@@ -39,6 +39,7 @@ extern "C" {
 
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
+#include "timers_driver.h"
 
 #include "stm32_gpio.h"
 
@@ -80,6 +81,8 @@ static constexpr uint16_t PC_FEEDBACK_REPORT_SIZE = 8;
 static volatile uint8_t pcFeedbackReport[PC_FEEDBACK_REPORT_SIZE];
 static volatile bool pcFeedbackReportPending = false;
 static bool pcFeedbackOverrideActive = false;
+static constexpr tmr10ms_t PC_FEEDBACK_TIMEOUT_10MS = 500;
+static tmr10ms_t pcFeedbackLastActivity = 0;
 
 extern "C" void usbHidFeatureReportReceived(const uint8_t* data, uint16_t len)
 {
@@ -99,7 +102,16 @@ void usbProcessPcFeedback()
       pcFeedbackOverrideActive = false;
     }
     pcFeedbackReportPending = false;
+    pcFeedbackLastActivity = 0;
     return;
+  }
+
+  if (pcFeedbackOverrideActive &&
+      (tmr10ms_t)(get_tmr10ms() - pcFeedbackLastActivity) >=
+          PC_FEEDBACK_TIMEOUT_10MS) {
+    rgbClearBlingOverride();
+    pcFeedbackOverrideActive = false;
+    pcFeedbackLastActivity = 0;
   }
 
   if (!pcFeedbackReportPending) return;
@@ -122,6 +134,7 @@ void usbProcessPcFeedback()
   constexpr uint8_t PROTOCOL_VERSION = 1;
   constexpr uint8_t COMMAND_SET_COLOR = 1;
   constexpr uint8_t COMMAND_RELEASE = 2;
+  constexpr uint8_t COMMAND_KEEPALIVE = 3;
   constexpr uint8_t TARGET_GIMBAL_RINGS = 0;
 
   if (report[0] != PROTOCOL_VERSION ||
@@ -132,12 +145,22 @@ void usbProcessPcFeedback()
   switch (report[1]) {
     case COMMAND_SET_COLOR:
       rgbSetBlingOverride(report[3], report[4], report[5]);
+      pcFeedbackLastActivity = get_tmr10ms();
       pcFeedbackOverrideActive = true;
       break;
 
     case COMMAND_RELEASE:
-      rgbClearBlingOverride();
-      pcFeedbackOverrideActive = false;
+      if (pcFeedbackOverrideActive) {
+        rgbClearBlingOverride();
+        pcFeedbackOverrideActive = false;
+      }
+      pcFeedbackLastActivity = 0;
+      break;
+
+    case COMMAND_KEEPALIVE:
+      if (pcFeedbackOverrideActive) {
+        pcFeedbackLastActivity = get_tmr10ms();
+      }
       break;
   }
 }
