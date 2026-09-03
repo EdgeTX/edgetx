@@ -11,7 +11,6 @@
         "dev": false
       }
     },
-
     {
       "name": "firmware",
       "hidden": true,
@@ -23,7 +22,6 @@
         "NATIVE_BUILD": false
       }
     },
-
     {
       "name": "native",
       "hidden": true,
@@ -35,7 +33,6 @@
         "NATIVE_BUILD": true
       }
     },
-
     {
       "name": "companion",
       "displayName": "Companion",

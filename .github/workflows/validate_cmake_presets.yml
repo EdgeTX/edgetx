@@ -32,8 +32,8 @@ jobs:
       - name: Validate against CMake's presets schema
         run: |
           cmake --version
-          schema="$(dirname "$(dirname "$(command -v cmake)")")"/share/cmake-*/Help/manual/presets/schema.json
-          uvx check-jsonschema --schemafile "$schema" CMakePresets.json
+          CMAKE_PREFIX="$(dirname "$(dirname "$(command -v cmake)")")"
+          uvx check-jsonschema --schemafile "$CMAKE_PREFIX"/share/cmake-*/Help/manual/presets/schema.json CMakePresets.json
 
       - name: Check formatting (prettier)
         run: npx --yes prettier@3.9.6 --check CMakePresets.json
