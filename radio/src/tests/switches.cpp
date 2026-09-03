@@ -40,17 +40,14 @@ void setLogicalSwitch(int index, uint16_t _func, int16_t _v1, int16_t _v2, int16
 #define SWSRC_SW1 (SWSRC_FIRST_LOGICAL_SWITCH)
 #define SWSRC_SW2 (SWSRC_FIRST_LOGICAL_SWITCH + 1)
 
-#if defined(PCBTARANIS)
 TEST(getSwitch, OldTypeStickyCSW)
 {
   RADIO_RESET();
   MODEL_RESET();
   MIXER_RESET();
 
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS)
-      break;
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;  // no 3-pos switch on this target
   int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
 
   setLogicalSwitch(0, LS_FUNC_AND, swPos, SWSRC_NONE);
@@ -79,7 +76,76 @@ TEST(getSwitch, OldTypeStickyCSW)
   EXPECT_FALSE(getSwitch(SWSRC_SW1));
   EXPECT_FALSE(getSwitch(SWSRC_SW2));
 }
-#endif
+
+// Tick logical switches for N cycles.
+static void tickLogicalSwitches(int n)
+{
+  for (int i = 0; i < n; i++) {
+    logicalSwitchesTimerTick();
+    evalLogicalSwitches();
+  }
+}
+
+// Sticky LS latches at startup when the set-condition is already satisfied.
+// After logicalSwitchesReset(), lastValue starts at its CS_LAST_VALUE_INIT
+// sentinel, so the first logicalSwitchesTimerTick() sees a 0->1 edge on the
+// set-condition and latches immediately.
+TEST(getSwitch, StickyLatchesAtStartupWhenSetConditionTrue)
+{
+  RADIO_RESET();
+  MODEL_RESET();
+  MIXER_RESET();
+
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;  // no 3-pos switch on this target
+  int swUp = (sw * 3) + SWSRC_FIRST_SWITCH;
+  int swDn = swUp + 2;
+
+  // Pre-set the switch to the "set" position BEFORE creating the LS
+  simuSetSwitch(sw, -1);
+
+  setLogicalSwitch(0, LS_FUNC_STICKY, swUp, swDn);
+
+  // Simulate power-on
+  logicalSwitchesReset();
+
+  // After reset + tick, the set-condition is already true so sticky latches
+  tickLogicalSwitches(10);
+  EXPECT_TRUE(getSwitch(SWSRC_SW1))
+      << "Sticky latches at startup when set-condition is already true";
+
+  // Reset via the reset-condition (swDn)
+  simuSetSwitch(sw, 1);
+  tickLogicalSwitches(5);
+  EXPECT_FALSE(getSwitch(SWSRC_SW1)) << "Reset condition should unlatch sticky";
+}
+
+// Sticky LS stays false at startup when the set-condition is NOT satisfied.
+TEST(getSwitch, StickyFalseAtStartupWhenSetConditionFalse)
+{
+  RADIO_RESET();
+  MODEL_RESET();
+  MIXER_RESET();
+
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;  // no 3-pos switch on this target
+  int swUp = (sw * 3) + SWSRC_FIRST_SWITCH;
+  int swDn = swUp + 2;
+
+  // Switch in mid position - set-condition is false
+  simuSetSwitch(sw, 0);
+
+  setLogicalSwitch(0, LS_FUNC_STICKY, swUp, swDn);
+
+  logicalSwitchesReset();
+  tickLogicalSwitches(10);
+  EXPECT_FALSE(getSwitch(SWSRC_SW1)) << "Sticky should not latch when condition is false";
+
+  // Now trigger a rising edge -> should latch
+  simuSetSwitch(sw, -1);
+  tickLogicalSwitches(5);
+  EXPECT_TRUE(getSwitch(SWSRC_SW1)) << "Sticky should latch on rising edge";
+}
 
 TEST(getSwitch, nullSW)
 {
@@ -88,7 +154,6 @@ TEST(getSwitch, nullSW)
 }
 
 
-#if defined(PCBTARANIS)
 TEST(getSwitch, inputWithTrim)
 {
   MODEL_RESET();
@@ -107,7 +172,6 @@ TEST(getSwitch, inputWithTrim)
   evalLogicalSwitches();
   EXPECT_TRUE(getSwitch(SWSRC_SW1));
 }
-#endif
 
 TEST(evalLogicalSwitches, playFile)
 {
@@ -143,13 +207,9 @@ TEST(evalLogicalSwitches, playFile)
 
 TEST(getSwitch, edgeInstant)
 {
-  int sw1, sw2;
-  for (sw1 = 0; sw1 < switchGetMaxAllSwitches(); sw1 += 1)
-    if (g_model.getSwitchType(sw1) == SWITCH_3POS)
-      break;
-  for (sw2 = sw1 + 1; sw2 < switchGetMaxAllSwitches(); sw2 += 1)
-    if (g_model.getSwitchType(sw2) == SWITCH_3POS)
-      break;
+  int sw1 = findHwSwitch(SWITCH_3POS);
+  int sw2 = findHwSwitch(SWITCH_3POS, sw1);
+  if (sw1 < 0 || sw2 < 0) return;  // needs two distinct 3-pos switches
   int sw1Pos = (sw1 * 3) + SWSRC_FIRST_SWITCH;
   int sw2Pos = (sw2 * 3) + SWSRC_FIRST_SWITCH;
   
@@ -265,13 +325,9 @@ TEST(getSwitch, edgeInstant)
 
 TEST(getSwitch, edgeRelease)
 {
-  int sw1, sw2;
-  for (sw1 = 0; sw1 < switchGetMaxAllSwitches(); sw1 += 1)
-    if (g_model.getSwitchType(sw1) == SWITCH_3POS)
-      break;
-  for (sw2 = sw1 + 1; sw2 < switchGetMaxAllSwitches(); sw2 += 1)
-    if (g_model.getSwitchType(sw2) == SWITCH_3POS)
-      break;
+  int sw1 = findHwSwitch(SWITCH_3POS);
+  int sw2 = findHwSwitch(SWITCH_3POS, sw1);
+  if (sw1 < 0 || sw2 < 0) return;  // needs two distinct 3-pos switches
   int sw1Pos = (sw1 * 3) + SWSRC_FIRST_SWITCH;
   int sw2Pos = (sw2 * 3) + SWSRC_FIRST_SWITCH;
   
