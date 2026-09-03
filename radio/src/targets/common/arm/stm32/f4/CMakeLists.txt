@@ -85,6 +85,7 @@ add_library(cmsis INTERFACE)
 
 target_sources(cmsis INTERFACE
   targets/common/arm/stm32/system_init.c
+  targets/common/arm/stm32/bank2_fence.c
   targets/common/arm/stm32/cortex_m_isr.c
   targets/common/arm/stm32/f4/system_clock.c
   targets/common/arm/stm32/f4/system_stm32f4xx.c
