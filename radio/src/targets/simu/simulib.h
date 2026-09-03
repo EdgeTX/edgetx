@@ -154,6 +154,41 @@ int32_t  WASM_EXPORT(simuGetGVar)(uint8_t gv, uint8_t fm);
 void WASM_EXPORT(simuAuxSerialReceive)(uint8_t port_nr, const uint8_t* data,
                                        uint32_t len);
 
+// Boot: true once edgeTxInit() has finished, the Lua interpreter is running
+// and the GUI loop is cycling, i.e. the UI is drawn and accepts input.
+// Reset by simuStart()/simuStop().
+bool WASM_EXPORT(simuIsBootComplete)();
+
+// UI tree: JSON snapshot of the live LVGL object tree (color LCD only).
+//
+// The snapshot is built on the GUI task between two LVGL cycles so it never
+// races UI code. Protocol:
+//   simuUiTreeRequest(flags);             // false on B&W targets (no LVGL UI)
+//   poll simuUiTreeReady() until true;  // served within one GUI cycle (~50ms)
+//   read simuUiTreeSize() bytes at simuUiTreeData()  (NUL-terminated UTF-8)
+// The data stays valid until the next simuUiTreeRequest(); issue one
+// request at a time.
+//
+// Document: {"meta":{lvgl,tick,flags,focus?,editing?}, ...root node}.
+// The root is a pseudo node of type "root" whose children are the LVGL
+// layers ("layer": "screen" | "top" | "sys"). Every node has
+//   id (lv_obj_t address), type (lvgl/EdgeTX class: obj, window, label, btn,
+//   textarea, keyboard, btnmatrix, checkbox, switch, slider, bar, arc, table,
+//   img, canvas, line, tileview, tile), x, y, w, h (absolute pixels),
+//   children (only when non-empty),
+// boolean attributes only when true: visible, hidden, clickable, scrollable,
+//   checkable, floating, focused, focus_key, edited, checked, pressed,
+//   disabled, scrolled,
+// scroll {x,y} when scrolled, and type-specific data: text (+cursor,
+// password), value/min/max, buttons/selected/selected_text, textarea/mode
+// (keyboard), rows/cols/row/col/cells (table), src (img), tile (tileview).
+#define SIMU_UI_TREE_SKIP_HIDDEN  (1u << 0)  // omit hidden subtrees
+#define SIMU_UI_TREE_STYLES       (1u << 1)  // add resolved style per node
+bool        WASM_EXPORT(simuUiTreeRequest)(uint32_t flags);
+bool        WASM_EXPORT(simuUiTreeReady)();
+const char* WASM_EXPORT(simuUiTreeData)();
+uint32_t    WASM_EXPORT(simuUiTreeSize)();
+
 // -- WASM imports (provided by host) --
 
 // simuGetAnalog: return ADC-range value for input at index idx.
@@ -191,6 +226,13 @@ void WASM_IMPORT(simuAuxSerialSetBaudrate)(uint8_t port_nr, uint32_t baudrate);
 void WASM_IMPORT(simuAuxSerialSendBuffer)(uint8_t port_nr, const uint8_t* data,
                                          uint32_t len);
 
+// Boot tracking: the menus task sets simuInitDone after edgeTxInit(); the
+// GUI loop (simuGuiHook) or the B&W LCD refresh then latches simuBootComplete
+// via simuCheckBootComplete() once the Lua interpreter is running too.
+extern bool simuInitDone;
+extern bool simuBootComplete;
+void simuCheckBootComplete();
+
 // -- Internal (not exported) --
 
 // Use instead of localtime()/mktime(): applies simuStart()'s utcOffset on WASM.
@@ -198,6 +240,11 @@ bool simuLocalTime(time_t t, struct tm* result);
 time_t simuLocalTimeToEpoch(struct tm* tm);
 
 void simuMain();
+
+// Called by the GUI task at the end of every LVGL cycle (LvglWrapper::run):
+// latches boot completion and serves UI tree requests (simuUiTreePoll).
+void simuGuiHook();
+void simuUiTreePoll();
 std::string simuFatfsGetCurrentPath();
 std::string simuFatfsGetRealPath(const std::string& p);
 

@@ -76,7 +76,18 @@ export interface SimulatorExports {
   simuGetNumCustomSwitches: () => number;
   simuGetCustomSwitchState: (idx: number) => number;
   simuGetCustomSwitchColor: (idx: number) => number;
+
+  simuIsBootComplete: () => number;
+
+  simuUiTreeRequest: (flags: number) => number;
+  simuUiTreeReady: () => number;
+  simuUiTreeData: () => number;
+  simuUiTreeSize: () => number;
 }
+
+/** Flags for {@link WasmRunner.getUiTree} (simuUiTreeRequest). */
+export const UI_TREE_SKIP_HIDDEN = 1 << 0;
+export const UI_TREE_STYLES = 1 << 1;
 
 export type TraceCallback = (text: string) => void;
 export type AudioCallback = (samples: Int16Array) => void;
@@ -419,6 +430,33 @@ export class WasmRunner {
     }
     // 'not-equal' means the value already changed — frame is ready
     return true;
+  }
+
+  /** True once the firmware finished booting and the UI accepts input. */
+  isBootComplete(): boolean {
+    const ex = this._exports;
+    return !!ex && ex.simuIsBootComplete() !== 0;
+  }
+
+  /**
+   * Snapshot the LVGL widget tree as a JSON string (color LCD radios only).
+   * The firmware builds the snapshot on its GUI task; this polls until it is
+   * ready. Returns null on B&W radios or when the snapshot times out.
+   */
+  async getUiTree(flags = 0, timeoutMs = 2000): Promise<string | null> {
+    const ex = this._exports;
+    if (!ex || !ex.simuUiTreeRequest(flags)) return null;
+
+    const deadline = performance.now() + timeoutMs;
+    while (!ex.simuUiTreeReady()) {
+      if (performance.now() > deadline) return null;
+      await new Promise((r) => setTimeout(r, 5));
+    }
+
+    const ptr = ex.simuUiTreeData();
+    const size = ex.simuUiTreeSize();
+    const view = new Uint8Array(ex.memory.buffer, ptr, size);
+    return new TextDecoder('utf-8').decode(view.slice());
   }
 
   /** Copy LCD framebuffer from WASM memory into a host-side Uint8Array */
