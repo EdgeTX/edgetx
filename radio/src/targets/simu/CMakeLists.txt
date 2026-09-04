@@ -5,6 +5,15 @@ if(NOT SIMU_TARGET)
   return()
 endif()
 
+# Widget Studio dev hooks (simu target only, never release firmware):
+#   - simu Lua module (api_simu.cpp), gated by WIDGET_STUDIO
+#   - deterministic PNG LCD capture (simuCaptureArm / simuLcdNotify)
+#   - analog override + --pipe steering channel (sdl_simu.cpp)
+option(WIDGET_STUDIO "Widget Studio dev hooks" OFF)
+if(WIDGET_STUDIO)
+  message(STATUS "Widget Studio dev hooks: ON (simu target only)")
+endif()
+
 if(MINGW)
   # struct packing breaks on MinGW w/out -mno-ms-bitfields:
   #   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52991
@@ -56,6 +65,28 @@ get_property(SIMU_SRC_OPTIONS
 
 target_compile_options(simu_drivers PRIVATE ${SIMU_SRC_OPTIONS})
 set_property(TARGET simu_drivers PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+if(WIDGET_STUDIO AND NOT WASI)
+  # Compile the Lua module and simulator state only when explicitly enabled.
+  # The PNG backend remains in the interactive simu target below so
+  # gtests-radio and wasi-module never pull in another stb implementation.
+  target_sources(radiolib_native PRIVATE
+    ${RADIO_SRC_DIR}/lua/api_simu.cpp
+  )
+
+  # Limit WIDGET_STUDIO to the sources that implement the hooks. This keeps
+  # the default simulator's preprocessor surface and rebuild footprint intact.
+  set_property(SOURCE
+    ${RADIO_SRC_DIR}/lua/api_simu.cpp
+    ${RADIO_SRC_DIR}/gui/colorlcd/LvglWrapper.cpp
+    ${RADIO_SRC_DIR}/thirdparty/Lua/src/linit.c
+    TARGET_DIRECTORY radiolib_native
+    APPEND PROPERTY COMPILE_DEFINITIONS WIDGET_STUDIO
+  )
+  set_property(SOURCE simulib.cpp
+    APPEND PROPERTY COMPILE_DEFINITIONS WIDGET_STUDIO
+  )
+endif()
 
 if(SIMU_AUX)
   target_compile_definitions(simu_drivers PRIVATE -DSIMU_COM_PORT=${SIMU_COM_PORT})
@@ -135,6 +166,20 @@ else()
   )
 
   target_compile_options(simu PUBLIC -DSIMU)
+
+  if(WIDGET_STUDIO)
+    # The SDL main loop (sdl_simu.cpp) owns the --pipe steering channel and
+    # the reset-request consumption; it lives in the simu executable target.
+    # simu_capture.cpp (the stb_image_write PNG encoder) is here rather than
+    # in simu_drivers for the same reason - see the comment above.
+    target_sources(simu PRIVATE simu_capture.cpp)
+    set_property(SOURCE
+      arg_parser.cpp
+      sdl_simu.cpp
+      simu_capture.cpp
+      APPEND PROPERTY COMPILE_DEFINITIONS WIDGET_STUDIO
+    )
+  endif()
 
   add_png_target(image_assets "assets/images/*.png")
   add_dependencies(simu image_assets)
