@@ -1432,11 +1432,17 @@ void printAudioVars()
     }
   }
 
-  cliSerialPrint("FragmentFifo:  ridx: %d, widx: %d",
-              audioQueue.fragmentsFifo.ridx, audioQueue.fragmentsFifo.widx);
-  cliSerialPrint("audioQueue:  readIdx: %d, writeIdx: %d, full: %d",
-              audioQueue.buffersFifo.readIdx, audioQueue.buffersFifo.writeIdx,
-              audioQueue.buffersFifo.bufferFull);
+  cliSerialPrint("FragmentFifo:  ridx: %d (slot %d), widx: %d (slot %d)",
+              audioQueue.fragmentsFifo.ridx,
+              audioQueue.fragmentsFifo.slot(audioQueue.fragmentsFifo.ridx),
+              audioQueue.fragmentsFifo.widx,
+              audioQueue.fragmentsFifo.slot(audioQueue.fragmentsFifo.widx));
+  cliSerialPrint("audioQueue:  readIdx: %d (slot %d), writeIdx: %d (slot %d), full: %d",
+              audioQueue.buffersFifo.readIdx,
+              audioQueue.buffersFifo.slot(audioQueue.buffersFifo.readIdx),
+              audioQueue.buffersFifo.writeIdx,
+              audioQueue.buffersFifo.slot(audioQueue.buffersFifo.writeIdx),
+              audioQueue.buffersFifo.full());
 
   cliSerialPrint("normalContext: %u",
               (uint32_t)audioQueue.normalContext.fragment.type);
