@@ -58,8 +58,8 @@ class ModelLabelsWindow : public Page
 
   LabelsVector getLabels()
   {
-    auto labels = modelslabels.getLabels();
-    if (modelslabels.getUnlabeledModels().size() > 0)
+    auto labels = modelCellManager.getLabels();
+    if (modelCellManager.getUnlabeledModels().size() > 0)
       labels.emplace_back(STR_UNLABELEDMODEL);
     return labels;
   }

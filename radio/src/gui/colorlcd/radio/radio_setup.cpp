@@ -743,7 +743,7 @@ const static SetupLineDef manageModelsSetupLines[] = {
                 GET_DEFAULT(g_eeGeneral.labelSingleSelect),
                 [=](int newValue) {
                   g_eeGeneral.labelSingleSelect = newValue;
-                  modelslabels.clearFilter();
+                  modelCellManager.clearFilter();
                   Messaging::send(Messaging::REFRESH);
                   SET_DIRTY();
                 });
