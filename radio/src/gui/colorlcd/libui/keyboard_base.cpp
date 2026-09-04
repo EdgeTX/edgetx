@@ -68,6 +68,7 @@ static void keyboard_event_cb(lv_event_t* e)
 {
   auto code = lv_event_get_code(e);
   if (code == LV_EVENT_READY) {
+    // "OK" checkmark: commit and close (keep the text)
     Keyboard::hide(false);
   } else if (code == LV_EVENT_CANCEL) {
     Keyboard::hide(true);
@@ -75,6 +76,17 @@ static void keyboard_event_cb(lv_event_t* e)
     int32_t c = *((int32_t*)lv_event_get_param(e));
     if (c == LV_KEY_ESC) {
       Keyboard::hide(false);
+    }
+  } else if (code == LV_EVENT_VALUE_CHANGED) {
+    // The "Enter" key of a one-line field only notifies the text area, not
+    // the keyboard object, so it would otherwise do nothing. Detect it here
+    // and route it as a distinct commit-and-submit action.
+    lv_obj_t* kb = lv_event_get_target(e);
+    uint16_t id = lv_btnmatrix_get_selected_btn(kb);
+    const char* txt = lv_btnmatrix_get_btn_text(kb, id);
+    if (txt && (strcmp(txt, LV_SYMBOL_NEW_LINE) == 0 || strcmp(txt, "Enter") == 0)) {
+      auto* kbd = (Keyboard*)lv_event_get_user_data(e);
+      if (kbd) kbd->enterField();
     }
   }
 }
@@ -148,6 +160,8 @@ void Keyboard::clearField(bool wasCancelled)
     if (!wasCancelled)
       field->setEditMode(false);
     field->changeEnd();
+    // "Enter" key: fire the field's submit action after the value is committed
+    if (enterPressed) field->onEnter();
     field = nullptr;
 
     if (fieldGroup) {
@@ -156,6 +170,7 @@ void Keyboard::clearField(bool wasCancelled)
       fieldGroup = nullptr;
     }
   }
+  enterPressed = false;
 }
 
 void Keyboard::hide(bool wasCancelled)
@@ -165,6 +180,12 @@ void Keyboard::hide(bool wasCancelled)
     lv_obj_add_flag(activeKeyboard->lvobj, LV_OBJ_FLAG_HIDDEN);
     activeKeyboard = nullptr;
   }
+}
+
+void Keyboard::enterField()
+{
+  enterPressed = true;
+  hide(false);
 }
 
 bool Keyboard::attachKeyboard()

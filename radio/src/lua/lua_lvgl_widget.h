@@ -806,8 +806,10 @@ class LvglWidgetTextEdit : public LvglWidgetObject
   LvglParamFuncOrString txt = { .function = LUA_REFNIL, .txt = ""};
   char value[MAX_TEXT_EDIT_LEN + 1];
   int maxLen = DEFAULT_TEXT_EDIT_LEN;
+  std::string placeholder = "---";
 
   int setFunction = LUA_REFNIL;
+  int enterFunction = LUA_REFNIL;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
