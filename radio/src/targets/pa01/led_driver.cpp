@@ -69,3 +69,31 @@ void ledBlue()
   rgbSetLedColor(9, 0, 0, 20);
   rgbLedColorApply();
 }
+
+void ledYellow()
+{
+  rgbSetLedColor(8, 20, 20, 0);
+  rgbSetLedColor(9, 20, 20, 0);
+  rgbLedColorApply();
+}
+
+void ledMagenta()
+{
+  rgbSetLedColor(8, 20, 0, 20);
+  rgbSetLedColor(9, 20, 0, 20);
+  rgbLedColorApply();
+}
+
+void ledCyan()
+{
+  rgbSetLedColor(8, 0, 20, 20);
+  rgbSetLedColor(9, 0, 20, 20);
+  rgbLedColorApply();
+}
+
+void ledWhite()
+{
+  rgbSetLedColor(8, 20, 20, 20);
+  rgbSetLedColor(9, 20, 20, 20);
+  rgbLedColorApply();
+}
