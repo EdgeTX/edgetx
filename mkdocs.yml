@@ -94,6 +94,7 @@ nav:
     - Code Generation: development/code-generation.md
     - Control Inputs: development/control-inputs.md
     - External Module Protocols: development/external-module-protocols.md
+    - Simulator UI Automation: development/simulator-ui-automation.md
     - YAML Parser/Generator: development/yaml-parser-generator.md
     - Mixer Synchronisation: development/mixer-synchronisation.md
 

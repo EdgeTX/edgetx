@@ -28,12 +28,17 @@
 #include <imgui_impl_sdlrenderer2.h>
 
 #include <algorithm>
+#include <array>
+#include <cstdint>
+#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <limits>
 #include <regex>
 #include <string>
 
+#include "analogs.h"
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
 #include "hal/switch_driver.h"
@@ -66,6 +71,7 @@
 #include "display.h"
 
 #include "simuaudio.h"
+#include "simulcd.h"
 #include "simulib.h"
 
 #include "hal/key_driver.h"
@@ -77,12 +83,235 @@
 #include "edgetx.h"
 
 #include "arg_parser.h"
+#if defined(SIMU_AUTOMATION)
+#include "automation_runtime.h"
+#include "automation_stdio.h"
+#endif
 
 #define TIMER_INTERVAL 10 // 10ms
 
 static SDL_Window* window;
 static SDL_Renderer* renderer;
 static SDL_Texture* screen_frame_buffer;
+static std::array<int, MAX_SWITCHES> simu_switch_slider_positions{};
+#if defined(SIMU_AUTOMATION)
+static constexpr std::int8_t AUTOMATION_SWITCH_DISABLED = 2;
+static std::array<std::int8_t, MAX_SWITCHES> automation_switch_positions = [] {
+  std::array<std::int8_t, MAX_SWITCHES> positions{};
+  positions.fill(AUTOMATION_SWITCH_DISABLED);
+  return positions;
+}();
+
+static edgetx::automation::AutomationStdio* automation_stdio_instance = nullptr;
+
+struct AutomationKey {
+  const char* name;
+  EnumKeys key;
+};
+
+static constexpr AutomationKey AUTOMATION_KEYS[] = {
+    {"MENU", KEY_MENU},     {"EXIT", KEY_EXIT},     {"ENTER", KEY_ENTER},
+    {"PAGEUP", KEY_PAGEUP}, {"PAGEDN", KEY_PAGEDN}, {"UP", KEY_UP},
+    {"DOWN", KEY_DOWN},     {"LEFT", KEY_LEFT},     {"RIGHT", KEY_RIGHT},
+    {"PLUS", KEY_PLUS},     {"MINUS", KEY_MINUS},   {"MODEL", KEY_MODEL},
+    {"TELE", KEY_TELE},     {"SYS", KEY_SYS},       {"SHIFT", KEY_SHIFT},
+    {"BIND", KEY_BIND},
+};
+
+static void automationSetKey(const std::string& name, bool pressed)
+{
+  for (const AutomationKey& key : AUTOMATION_KEYS) {
+    if (name == key.name) {
+      simuSetKey(static_cast<std::uint8_t>(key.key), pressed);
+      return;
+    }
+  }
+}
+
+static int automationAnalogIndex(const std::string& name)
+{
+  const std::uint8_t types[] = {ADC_INPUT_MAIN, ADC_INPUT_FLEX};
+  for (const std::uint8_t type : types) {
+    const std::uint8_t count = adcGetMaxInputs(type);
+    const std::uint8_t offset = adcGetInputOffset(type);
+    for (std::uint8_t index = 0; index < count; ++index) {
+      const char* canonical = analogGetCanonicalName(type, index);
+      if (canonical != nullptr && name == canonical) return offset + index;
+    }
+  }
+  return -1;
+}
+
+static bool automationSetSwitch(const std::string& name, std::int8_t position)
+{
+  for (std::uint8_t index = 0; index < switchGetMaxSwitches(); ++index) {
+    const char* canonical = switchGetDefaultName(index);
+    if (canonical == nullptr || name != canonical ||
+        switchIsCustomSwitch(index))
+      continue;
+
+    const SwitchConfig config = switchGetDefaultConfig(index);
+    if (config == SWITCH_NONE || (position == 0 && config != SWITCH_3POS)) {
+      return false;
+    }
+    automation_switch_positions[index] = position;
+    simu_switch_slider_positions[index] = position < 0    ? 0
+                                          : position == 0 ? 1
+                                                          : 2;
+    simuSetSwitch(index, position);
+    return true;
+  }
+  return false;
+}
+
+static void automationResetSwitches()
+{
+  automation_switch_positions.fill(AUTOMATION_SWITCH_DISABLED);
+  simu_switch_slider_positions.fill(0);
+  for (std::uint8_t index = 0; index < switchGetMaxSwitches(); ++index) {
+    if (!switchIsCustomSwitch(index) &&
+        switchGetDefaultConfig(index) != SWITCH_NONE) {
+      simuSetSwitch(index, -1);
+    }
+  }
+}
+
+static bool automationSetAnalog(const std::string& name, std::uint16_t value)
+{
+  const int index = automationAnalogIndex(name);
+  return index >= 0 && edgetx::automation::simuAutomationSetAnalogOverride(
+                           static_cast<std::size_t>(index), value);
+}
+
+static bool automationClearAnalog(const std::string& name)
+{
+  const int index = automationAnalogIndex(name);
+  return index >= 0 && edgetx::automation::simuAutomationClearAnalogOverride(
+                           static_cast<std::size_t>(index));
+}
+
+static void automationClearAnalogs()
+{
+  edgetx::automation::simuAutomationClearAnalogOverrides();
+}
+
+#if defined(ROTARY_ENCODER_NAVIGATION)
+static void automationRotate(std::int32_t steps)
+{
+  simuRotaryEncoderEvent(steps);
+}
+#endif
+
+#if defined(HARDWARE_TOUCH)
+static void automationTouchPosition(std::uint16_t x, std::uint16_t y)
+{
+  static_assert(LCD_W <= (std::numeric_limits<std::int16_t>::max)() &&
+                    LCD_H <= (std::numeric_limits<std::int16_t>::max)(),
+                "automation touch coordinates must fit simuTouchDown");
+  simuTouchDown(static_cast<std::int16_t>(x), static_cast<std::int16_t>(y));
+}
+
+static void automationTouchUp() { simuTouchUp(); }
+#endif
+
+static edgetx::automation::TargetDescription automationTargetDescription(
+    bool captureAvailable)
+{
+  edgetx::automation::TargetDescription target;
+  target.flavour = FLAVOUR;
+  target.lcdWidth = static_cast<std::uint16_t>(LCD_W);
+  target.lcdHeight = static_cast<std::uint16_t>(LCD_H);
+  target.lcdDepth = static_cast<std::uint8_t>(LCD_DEPTH);
+  target.commands = {edgetx::automation::Command::Ping,
+                     edgetx::automation::Command::Status,
+                     edgetx::automation::Command::Describe};
+  for (const AutomationKey& key : AUTOMATION_KEYS) {
+    if (keyIsSupported(key.key)) target.keys.emplace_back(key.name);
+  }
+  for (std::uint8_t index = 0; index < switchGetMaxSwitches(); ++index) {
+    if (switchIsCustomSwitch(index)) continue;
+    const SwitchConfig config = switchGetDefaultConfig(index);
+    const char* name = switchGetDefaultName(index);
+    if (name == nullptr || (config != SWITCH_TOGGLE && config != SWITCH_2POS &&
+                            config != SWITCH_3POS)) {
+      continue;
+    }
+    target.switches.push_back({name, -1, 1});
+  }
+  if (!target.switches.empty()) {
+    target.capabilities.switches = true;
+    target.commands.push_back(edgetx::automation::Command::SetSwitch);
+  }
+  const std::uint8_t analogTypes[] = {ADC_INPUT_MAIN, ADC_INPUT_FLEX};
+  for (const std::uint8_t type : analogTypes) {
+    for (std::uint8_t index = 0; index < adcGetMaxInputs(type); ++index) {
+      const char* name = analogGetCanonicalName(type, index);
+      if (name != nullptr && name[0] != '\0')
+        target.analogs.push_back({name, 0, 4096});
+    }
+  }
+  if (!target.analogs.empty()) {
+    target.capabilities.analog = true;
+    target.commands.push_back(edgetx::automation::Command::SetAnalog);
+    target.commands.push_back(edgetx::automation::Command::ClearAnalog);
+  }
+  target.capabilities.telemetry = true;
+  target.commands.push_back(edgetx::automation::Command::SetTelemetry);
+#if defined(LUA)
+  target.capabilities.lua = true;
+  target.commands.push_back(edgetx::automation::Command::ReloadLua);
+#endif
+  if (!target.keys.empty()) {
+    target.commands.push_back(edgetx::automation::Command::KeyDown);
+    target.commands.push_back(edgetx::automation::Command::KeyUp);
+  }
+#if defined(ROTARY_ENCODER_NAVIGATION)
+  target.capabilities.rotary = true;
+  target.commands.push_back(edgetx::automation::Command::Rotate);
+#endif
+#if defined(HARDWARE_TOUCH)
+  target.capabilities.touch = true;
+  target.commands.push_back(edgetx::automation::Command::TouchDown);
+  target.commands.push_back(edgetx::automation::Command::TouchMove);
+  target.commands.push_back(edgetx::automation::Command::TouchUp);
+#endif
+  target.commands.push_back(edgetx::automation::Command::WaitFrame);
+  if (captureAvailable) {
+    target.capabilities.capture = true;
+    target.commands.push_back(edgetx::automation::Command::Capture);
+  }
+  target.capabilities.warmRestart = true;
+  target.commands.push_back(edgetx::automation::Command::Restart);
+  if (!target.keys.empty() || target.capabilities.touch ||
+      target.capabilities.analog)
+    target.commands.push_back(edgetx::automation::Command::ReleaseAll);
+  target.commands.push_back(edgetx::automation::Command::Stop);
+  // Capability flags describe commands that are usable through this protocol
+  // build, not merely hardware that the radio target happens to contain.
+  target.outputRootReady = true;
+  return target;
+}
+
+static edgetx::automation::AutomationInputHandlers automationInputHandlers()
+{
+  edgetx::automation::AutomationInputHandlers handlers;
+  handlers.setKey = automationSetKey;
+  handlers.setSwitch = automationSetSwitch;
+  handlers.setAnalog = automationSetAnalog;
+  handlers.clearAnalog = automationClearAnalog;
+  handlers.clearAllAnalogs = automationClearAnalogs;
+  handlers.resetSwitches = automationResetSwitches;
+#if defined(ROTARY_ENCODER_NAVIGATION)
+  handlers.rotate = automationRotate;
+#endif
+#if defined(HARDWARE_TOUCH)
+  handlers.touchDown = automationTouchPosition;
+  handlers.touchMove = automationTouchPosition;
+  handlers.touchUp = automationTouchUp;
+#endif
+  return handlers;
+}
+#endif
 
 static GimbalState stick_left = {{0.5f, 0.5f}, false};
 static GimbalState stick_right = {{0.5f, 0.5f}, false};
@@ -312,8 +541,6 @@ static void draw_switches()
 
   ImGui::PushID("switches");
   {
-    static int switches[MAX_SWITCHES] = {0};
-
     ImGui::BeginGroup();
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(spacing, spacing));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
@@ -326,12 +553,21 @@ static void draw_switches()
       if (!switchIsCustomSwitch(i)) {
         if (++sw_idx >= MAX_SWITCHES / 2) sw_idx = 0;
         if (!SWITCH_EXISTS(i)) {
-          switches[i] = 0;
+          simu_switch_slider_positions[i] = 0;
           ImGui::Dummy(sw_size);
         } else {
+#if defined(SIMU_AUTOMATION)
+          if (automation_switch_positions[i] != AUTOMATION_SWITCH_DISABLED) {
+            const std::int8_t position = automation_switch_positions[i];
+            simu_switch_slider_positions[i] = position < 0    ? 0
+                                                : position == 0 ? 1
+                                                                : 2;
+          }
+#endif
           ImGui::PushID(i);
           ImGui::VSliderInt("##sw", sw_size,
-                            &switches[i], IS_CONFIG_3POS(i) ? 2 : 1,
+                            &simu_switch_slider_positions[i],
+                            IS_CONFIG_3POS(i) ? 2 : 1,
                             0, "", ImGuiSliderFlags_NoInput);
           if (ImGui::IsItemActive() || ImGui::IsItemHovered()) {
             ImGui::SetTooltip("%s", switchGetDefaultName(i));
@@ -339,10 +575,17 @@ static void draw_switches()
           ImGui::PopID();
         }
         
+#if defined(SIMU_AUTOMATION)
+        if (automation_switch_positions[i] != AUTOMATION_SWITCH_DISABLED) {
+          simuSetSwitch(i, automation_switch_positions[i]);
+        } else
+#endif
         if (IS_CONFIG_3POS(i)) {
-          simuSetSwitch(i, switches[i] == 0 ? -1 : switches[i] == 1 ? 0 : 1);
+          simuSetSwitch(i, simu_switch_slider_positions[i] == 0
+                               ? -1
+                               : simu_switch_slider_positions[i] == 1 ? 0 : 1);
         } else {
-          simuSetSwitch(i, switches[i] == 0 ? -1 : 1);
+          simuSetSwitch(i, simu_switch_slider_positions[i] == 0 ? -1 : 1);
         }
       }
     }
@@ -697,6 +940,30 @@ int main(int argc, char* argv[])
     return 0;
   }
 
+#if defined(SIMU_AUTOMATION)
+  edgetx::automation::AutomationStdio automation_stdio;
+  if (args.isAutomationStdio()) {
+    SDL_LogSetOutputFunction(
+        [](void*, int, SDL_LogPriority, const char* message) {
+          fprintf(stderr, "%s\n", message);
+        },
+        nullptr);
+
+    std::string automation_error;
+    if (!automation_stdio.start(&automation_error)) {
+      fprintf(stderr, "Error: %s\n", automation_error.c_str());
+      return 1;
+    }
+    if (!automation_stdio.configureCapture(
+            args.getAutomationOutputPath(), static_cast<std::uint16_t>(LCD_W),
+            static_cast<std::uint16_t>(LCD_H),
+            static_cast<std::uint8_t>(LCD_DEPTH), &automation_error)) {
+      fprintf(stderr, "Error: %s\n", automation_error.c_str());
+      return 1;
+    }
+  }
+#endif
+
   int window_height = 600;
   if (args.hasHeight()) {
     window_height = args.getHeight();
@@ -709,12 +976,12 @@ int main(int argc, char* argv[])
 
   // Setup SDL
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) != 0) {
-    printf("Error: %s\n", SDL_GetError());
+    fprintf(stderr, "Error: %s\n", SDL_GetError());
     return -1;
   }
 
   simuAudioInit();
-  
+
   // From 2.0.18: Enable native IME.
 #ifdef SDL_HINT_IME_SHOW_UI
   SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
@@ -788,7 +1055,26 @@ int main(int argc, char* argv[])
   simuInit();
   simuFatfsSetPaths(args.getStoragePath().c_str(),
                     args.getSettingsPath().c_str());
-  simuStart();
+#if defined(SIMU_AUTOMATION)
+  if (args.isAutomationStdio()) {
+    automation_stdio.setTargetDescription(
+        automationTargetDescription(automation_stdio.captureConfigured()));
+    automation_stdio.setInputHandlers(automationInputHandlers());
+    automationResetSwitches();
+    automation_stdio_instance = &automation_stdio;
+  }
+#endif
+  // Automation must reach the periodic firmware loop without interactive
+  // splash, calibration, or startup checks. Normal simulator runs keep the
+  // existing startup behavior.
+  bool runStartupChecks = true;
+#if defined(SIMU_AUTOMATION)
+  runStartupChecks = !args.isAutomationStdio();
+#endif
+  simuStart(runStartupChecks);
+#if defined(SIMU_AUTOMATION)
+  if (args.isAutomationStdio()) automation_stdio.markRuntimeStarted();
+#endif
 
   // Main loop
   SDL_SetEventFilter([](void*, SDL_Event* event){
@@ -800,11 +1086,47 @@ int main(int argc, char* argv[])
     return 1;
   }, NULL);
 
+  int exit_code = 0;
 #if defined(__EMSCRIPTEN__)
   emscripten_set_main_loop([]() { handleEvents(); }, 0, true);
 #else
   do {
     Uint64 start_ts = SDL_GetPerformanceCounter();
+
+#if defined(SIMU_AUTOMATION)
+    if (args.isAutomationStdio()) {
+      std::string automation_error;
+      const edgetx::automation::StdioPumpResult automation_result =
+          automation_stdio.pump(&automation_error);
+      if (automation_result == edgetx::automation::StdioPumpResult::Error) {
+        fprintf(stderr, "Automation error: %s\n", automation_error.c_str());
+        exit_code = 1;
+        break;
+      }
+      if (automation_result ==
+          edgetx::automation::StdioPumpResult::RestartRequested) {
+        simuStop();
+        if (!automation_stdio.prepareRuntimeRestart(&automation_error)) {
+          fprintf(stderr, "Automation restart error: %s\n",
+                  automation_error.c_str());
+          exit_code = 1;
+          break;
+        }
+        simuStart(false);
+        if (!simuIsRunning()) {
+          fprintf(stderr, "Automation restart error: simulator did not start\n");
+          exit_code = 1;
+          break;
+        }
+        automation_stdio.markRuntimeRestarted();
+        continue;
+      }
+      if (automation_result != edgetx::automation::StdioPumpResult::Continue) {
+        break;
+      }
+    }
+#endif
+
     if (!handleEvents()) break;
 
     Uint64 end_ts = SDL_GetPerformanceCounter();
@@ -819,6 +1141,12 @@ int main(int argc, char* argv[])
 
   // App cleanup
   simuStop();
+#if defined(SIMU_AUTOMATION)
+  if (args.isAutomationStdio()) {
+    automation_stdio_instance = nullptr;
+    automation_stdio.markRuntimeStopped();
+  }
+#endif
 
   // Cleanup
   ImGui_ImplSDLRenderer2_Shutdown();
@@ -833,12 +1161,20 @@ int main(int argc, char* argv[])
 #endif
   SDL_CloseAudio();
   SDL_Quit();
-  
-  return 0;
+
+  return exit_code;
 }
 
 uint16_t simuGetAnalog(uint8_t idx)
 {
+#if defined(SIMU_AUTOMATION)
+  std::uint16_t automationValue = 0;
+  if (edgetx::automation::simuAutomationGetAnalogOverride(idx,
+                                                           &automationValue)) {
+    return automationValue;
+  }
+#endif
+
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   if (idx < max_sticks) {
     switch(idx) {
@@ -873,4 +1209,12 @@ uint16_t simuGetAnalog(uint8_t idx)
 }
 
 void simuTrace(const char* text) {}
-void simuLcdNotify() {}
+void simuLcdNotify()
+{
+#if defined(SIMU_AUTOMATION)
+  if (automation_stdio_instance != nullptr)
+    automation_stdio_instance->onDisplayFrame(
+        reinterpret_cast<const std::uint16_t*>(simuLcdBuf),
+        LCD_DEPTH == 16 ? static_cast<std::size_t>(DISPLAY_BUFFER_SIZE) : 0);
+#endif
+}
