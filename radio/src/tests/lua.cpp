@@ -238,6 +238,35 @@ TEST(Lua, testFloatIntegerEquality)
   luaExecStr("if math.type(0.5 * 2) ~= 'float' then error('0.5 * 2') end");
 }
 
+TEST(Lua, TouchEnabled)
+{
+#if defined(HARDWARE_TOUCH)
+  const bool previousBacklightState = boardBacklightOn;
+  globalFunctionsContext.reset();
+  modelFunctionsContext.reset();
+  boardBacklightOn = true;
+
+  luaExecStr("assert(getTouchEnabled() == true)");
+
+  modelFunctionsContext.activeFunctions =
+      (MASK_FUNC_TYPE)1 << FUNCTION_DISABLE_TOUCH;
+  luaExecStr("assert(getTouchEnabled() == false)");
+
+  modelFunctionsContext.reset();
+  globalFunctionsContext.activeFunctions =
+      (MASK_FUNC_TYPE)1 << FUNCTION_DISABLE_TOUCH;
+  luaExecStr("assert(getTouchEnabled() == false)");
+
+  globalFunctionsContext.reset();
+  boardBacklightOn = false;
+  luaExecStr("assert(getTouchEnabled() == false)");
+
+  boardBacklightOn = previousBacklightState;
+#else
+  luaExecStr("assert(getTouchEnabled() == nil)");
+#endif
+}
+
 TEST(Lua, testLegacyNames)
 {
   MODEL_RESET();

@@ -1790,6 +1790,31 @@ static int luaGetGeneralSettings(lua_State * L)
 }
 
 /*luadoc
+@function getTouchEnabled()
+
+Return whether the firmware currently accepts touch input.
+
+This reflects the two firmware gates used by the touch input path: the
+backlight must be on and the Disable touch special function must be inactive.
+
+@retval boolean `true` when touch input is enabled, `false` when it is disabled
+@retval nil the radio has no touch screen
+
+@status current Introduced in 3.0.0
+*/
+static int luaGetTouchEnabled(lua_State * L)
+{
+#if defined(HARDWARE_TOUCH)
+  const bool enabled =
+      isBacklightEnabled() && !isFunctionActive(FUNCTION_DISABLE_TOUCH);
+  lua_pushboolean(L, enabled);
+#else
+  lua_pushnil(L);
+#endif
+  return 1;
+}
+
+/*luadoc
 @function getGlobalTimer()
 
 Returns radio timers
@@ -3130,6 +3155,7 @@ LROT_BEGIN(etxlib, NULL, 0)
 #endif
   LROT_FUNCENTRY( getVersion, luaGetVersion )
   LROT_FUNCENTRY( getGeneralSettings, luaGetGeneralSettings )
+  LROT_FUNCENTRY( getTouchEnabled, luaGetTouchEnabled )
   LROT_FUNCENTRY( getGlobalTimer, luaGetGlobalTimer )
   LROT_FUNCENTRY( getRotEncSpeed, luaGetRotEncSpeed )
   LROT_FUNCENTRY( getRotEncMode, luaGetRotEncMode )
