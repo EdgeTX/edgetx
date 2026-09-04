@@ -31,7 +31,7 @@
 
 #if defined(__APPLE__)
   #define OS_SUPPORTED_INSTALLER
-  #define OS_FILEPATTERN           "edgetx-cpn-osx"
+  #define OS_FILEPATTERN           "edgetx-cpn-macos"
   #define OS_INSTALLER_EXTN        "*.dmg"
   #define OS_INSTALL_QUESTION      QCoreApplication::translate("UpdateCompanion", "Would you like to open the disk image to install the new version of Companion?")
 #elif defined(_WIN64)
