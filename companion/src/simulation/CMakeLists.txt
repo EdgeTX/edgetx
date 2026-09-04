@@ -20,6 +20,8 @@ set(${PROJECT_NAME}_NAMES
   widgets/radiowidget
   widgets/virtualjoystickwidget
   serialportsdialog
+  hostserialbackend_serialport
+  hostserialbackend_localsocket
   hostserialconnector
   simulateduiwidgetGeneric
   wasmsimulatorinterface
@@ -36,6 +38,7 @@ AddHeadersSources()
 
 set(${PROJECT_NAME}_HDRS
   ${${PROJECT_NAME}_HDRS}
+  hostserialbackend.h
   radiouiaction.h
   widgets/buttonswidget.h
   widgets/radiofaderwidget.h
