@@ -33,13 +33,23 @@ class AutoLineEdit: public QLineEdit, public AutoWidget
     explicit AutoLineEdit(QWidget * parent = nullptr, bool updateOnChange = false);
     virtual ~AutoLineEdit();
 
+
     virtual void updateValue() override;
+    virtual void setText(const QString & text);
+    virtual QString text() const;
+
     void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
 
-    void setField(char * field, int len, GenericPanel * panel = nullptr);
-    void setField(QString & field, int len = 0, GenericPanel * panel = nullptr);
+    void setField(char * field, int len, AbstractPanel * panel = nullptr);
+    void setField(QString & field, int len = 0, AbstractPanel * panel = nullptr);
 
-  signals:
+    void setLength(int len);
+    void setEditSignal(bool onChange);
+    // use for widget not bound to a memory address
+    void setValue(QString text, AbstractPanel * panel, int len = 0);
+    void setValue(QString text);
+
+    signals:
     void currentDataChanged();
 
   protected slots:
@@ -51,6 +61,7 @@ class AutoLineEdit: public QLineEdit, public AutoWidget
   private:
     char *m_charField;
     QString *m_strField;
+    QString m_value;
 
-    void setFieldInit(int len, GenericPanel * panel);
+    void setFieldInit(int len, AbstractPanel * panel);
 };

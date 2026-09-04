@@ -23,8 +23,9 @@
 
 AutoSpinBox::AutoSpinBox(QWidget * parent):
   QSpinBox(parent),
-  AutoWidget(),
-  m_field(nullptr)
+  AutoWidget(parent),
+  m_field(nullptr),
+  m_value(0)
 {
   connect(this, QOverload<int>::of(&QSpinBox::valueChanged), this, &AutoSpinBox::onValueChanged);
 }
@@ -33,40 +34,57 @@ AutoSpinBox::~AutoSpinBox()
 {
 }
 
-void AutoSpinBox::setField(int & field, GenericPanel * panel)
+void AutoSpinBox::setField(int & field, AbstractPanel * panel)
 {
   m_field = &field;
   setFieldInit(panel);
 }
 
-void AutoSpinBox::setField(unsigned int & field, GenericPanel * panel)
+void AutoSpinBox::setField(unsigned int & field, AbstractPanel * panel)
 {
   m_field = (int *)&field;
   setFieldInit(panel);
 }
 
-void AutoSpinBox::setFieldInit(GenericPanel * panel)
+void AutoSpinBox::setFieldInit(AbstractPanel * panel)
 {
   setPanel(panel);
   updateValue();
 }
 
+void AutoSpinBox::setValue(int val, AbstractPanel * panel)
+{
+  m_value = val;
+  setFieldInit(panel);
+}
+
+void AutoSpinBox::setValue(int val)
+{
+  m_value = val;
+  updateValue();
+}
+
 void AutoSpinBox::updateValue()
 {
-  if (m_field) {
-    setLock(true);
-    setValue(*m_field);
-    setLock(false);
-  }
+  setLock(true);
+
+  if (m_field)
+    QSpinBox::setValue(*m_field);
+  else
+    QSpinBox::setValue(m_value);
+
+  setLock(false);
 }
 
 void AutoSpinBox::onValueChanged(int value)
 {
-  if (m_field && !lock()) {
-    if (*m_field != value) {
+  if (!lock()) {
+    if (m_field && *m_field != value)
       *m_field = value;
-      emit currentDataChanged(value);
-      runPostChanged();
-    }
+    else if (m_value != value)
+      m_value = value;
+
+    emit currentDataChanged(value);
+    runPostChanged();
   }
 }

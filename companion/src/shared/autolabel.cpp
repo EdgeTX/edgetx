@@ -23,26 +23,27 @@
 
 #include <QFontMetrics>
 
-AutoLabel::AutoLabel(QWidget * parent):
+AutoLabel::AutoLabel(QWidget * parent, const QString & text) :
   QLabel(parent),
-  AutoWidget(),
+  AutoWidget(parent),
   m_charField(NULL),
   m_strField(nullptr)
 {
+  setText(text);
 }
 
 AutoLabel::~AutoLabel()
 {
 }
 
-void AutoLabel::setField(char * field, GenericPanel * panel)
+void AutoLabel::setField(char * field, AbstractPanel * panel)
 {
   m_charField = field;
   setPanel(panel);
   updateValue();
 }
 
-void AutoLabel::setField(QString & field, GenericPanel * panel)
+void AutoLabel::setField(QString & field, AbstractPanel * panel)
 {
   m_strField = &field;
   setPanel(panel);
