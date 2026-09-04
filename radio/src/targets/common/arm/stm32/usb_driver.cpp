@@ -39,6 +39,7 @@ extern "C" {
 
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
+#include "timers_driver.h"
 
 #include "stm32_gpio.h"
 
@@ -46,6 +47,10 @@ extern "C" {
 #include "hal/usb_driver.h"
 
 #include "hal.h"
+
+#if defined(RADIO_TX16SMK3) && !defined(BOOT)
+#include "boards/generic_stm32/rgb_leds.h"
+#endif
 #include "debug.h"
 
 #if defined(USE_USB_HS)
@@ -70,6 +75,96 @@ static bool usbDriverStarted = false;
 static usbMode selectedUsbMode = DEFAULT_USB_MODE;
 
 USBD_HandleTypeDef hUsbDevice;
+
+#if defined(RADIO_TX16SMK3) && !defined(BOOT)
+static constexpr uint16_t PC_FEEDBACK_REPORT_SIZE = 8;
+static volatile uint8_t pcFeedbackReport[PC_FEEDBACK_REPORT_SIZE];
+static volatile bool pcFeedbackReportPending = false;
+static bool pcFeedbackOverrideActive = false;
+static constexpr tmr10ms_t PC_FEEDBACK_TIMEOUT_10MS = 500;
+static tmr10ms_t pcFeedbackLastActivity = 0;
+
+extern "C" void usbHidFeatureReportReceived(const uint8_t* data, uint16_t len)
+{
+  if (data == nullptr || len != PC_FEEDBACK_REPORT_SIZE) return;
+
+  for (uint16_t i = 0; i < PC_FEEDBACK_REPORT_SIZE; ++i) {
+    pcFeedbackReport[i] = data[i];
+  }
+  pcFeedbackReportPending = true;
+}
+
+void usbProcessPcFeedback()
+{
+  if (!usbPluggedInJoystickMode()) {
+    if (pcFeedbackOverrideActive) {
+      rgbClearBlingOverride();
+      pcFeedbackOverrideActive = false;
+    }
+    pcFeedbackReportPending = false;
+    pcFeedbackLastActivity = 0;
+    return;
+  }
+
+  if (pcFeedbackOverrideActive &&
+      (tmr10ms_t)(get_tmr10ms() - pcFeedbackLastActivity) >=
+          PC_FEEDBACK_TIMEOUT_10MS) {
+    rgbClearBlingOverride();
+    pcFeedbackOverrideActive = false;
+    pcFeedbackLastActivity = 0;
+  }
+
+  if (!pcFeedbackReportPending) return;
+
+  uint8_t report[PC_FEEDBACK_REPORT_SIZE];
+  uint32_t primask = __get_PRIMASK();
+  __disable_irq();
+
+  if (!pcFeedbackReportPending) {
+    __set_PRIMASK(primask);
+    return;
+  }
+
+  for (uint16_t i = 0; i < PC_FEEDBACK_REPORT_SIZE; ++i) {
+    report[i] = pcFeedbackReport[i];
+  }
+  pcFeedbackReportPending = false;
+  __set_PRIMASK(primask);
+
+  constexpr uint8_t PROTOCOL_VERSION = 1;
+  constexpr uint8_t COMMAND_SET_COLOR = 1;
+  constexpr uint8_t COMMAND_RELEASE = 2;
+  constexpr uint8_t COMMAND_KEEPALIVE = 3;
+  constexpr uint8_t TARGET_GIMBAL_RINGS = 0;
+
+  if (report[0] != PROTOCOL_VERSION ||
+      report[2] != TARGET_GIMBAL_RINGS) {
+    return;
+  }
+
+  switch (report[1]) {
+    case COMMAND_SET_COLOR:
+      rgbSetBlingOverride(report[3], report[4], report[5]);
+      pcFeedbackLastActivity = get_tmr10ms();
+      pcFeedbackOverrideActive = true;
+      break;
+
+    case COMMAND_RELEASE:
+      if (pcFeedbackOverrideActive) {
+        rgbClearBlingOverride();
+        pcFeedbackOverrideActive = false;
+      }
+      pcFeedbackLastActivity = 0;
+      break;
+
+    case COMMAND_KEEPALIVE:
+      if (pcFeedbackOverrideActive) {
+        pcFeedbackLastActivity = get_tmr10ms();
+      }
+      break;
+  }
+}
+#endif
 
 int getSelectedUsbMode()
 {
