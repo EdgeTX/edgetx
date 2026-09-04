@@ -41,6 +41,7 @@ jobs:
           - tx15;gx15
           - t15pro
           - v12
+          - dro1
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
