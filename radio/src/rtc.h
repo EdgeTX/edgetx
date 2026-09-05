@@ -55,6 +55,23 @@ void rtcSetTime(const struct gtm * tm);
 gtime_t gmktime (struct gtm *tm);
 uint8_t rtcAdjust(uint16_t year, uint8_t mon, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec);
 
+// Driver interface, rtcSetTime() wraps rtcDriverSetTime()
+void rtcDriverSetTime(const struct gtm * tm);
+void rtcGetTime(struct gtm * tm);
+
+// Smooth calibration, one unit is one clock pulse out of 2^20 (~0.954 ppm)
+#define RTC_CALIB_UNITS_PER_SECOND  1048576
+#define RTC_CALIB_UNIT_MAX          512
+#define RTC_CALIB_UNIT_MIN          (-511)
+
+int32_t rtcGetCalibration();
+void rtcSetCalibration(int32_t units);
+int32_t rtcCalibrationPpm10(int32_t units);
+
+// Time of the last known good setting, 0 when unknown
+gtime_t rtcGetCalibrationRef();
+void rtcSetCalibrationRef(gtime_t t);
+
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {
 #endif

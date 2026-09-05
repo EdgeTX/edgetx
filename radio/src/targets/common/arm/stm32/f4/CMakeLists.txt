@@ -41,6 +41,7 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_rcc.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_rcc_ex.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_rtc.c
+    ${STM32CUBE_DIR}/Src/stm32f4xx_hal_rtc_ex.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_i2c.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_i2c_ex.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_sd.c

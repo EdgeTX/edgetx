@@ -1496,6 +1496,10 @@ int cliDisplay(const char ** argv)
     struct gtm utm;
     gettime(&utm);
     cliSerialPrint("rtc = %4d-%02d-%02d %02d:%02d:%02d.%02d0", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
+    int32_t units = rtcGetCalibration();
+    cliSerialPrint("rtc calibration = %d units (%d ppm x10), reference = %u",
+                   (int)units, (int)rtcCalibrationPpm10(units),
+                   (unsigned)rtcGetCalibrationRef());
   }
 #if defined(VOLUME_I2C_ADDRESS)
   else if (!strcmp(argv[1], "volume")) {

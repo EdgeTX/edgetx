@@ -22,8 +22,6 @@
 #include <limits.h>
 #include "edgetx.h"
 
-extern void rtcdriver_settime(struct gtm * t);
-
 #define LEAP_SECONDS_POSSIBLE 0
 
 /* Shift A right by B bits portably, by dividing A by 2**B and
@@ -445,8 +443,6 @@ void gettime(struct gtm * tm)
   filltm(&g_rtcTime, tm); // create a struct tm date/time structure from global unix time stamp
 }
 
-void rtcGetTime(struct gtm * t);
-
 #define RTC_ADJUST_PERIOD      60   // how often RTC is checked for accuracy [seconds]
 #define RTC_ADJUST_TRESHOLD    20   // how much clock must differ before adjustment is made [seconds]
 /*
@@ -492,6 +488,104 @@ uint8_t rtcAdjust(uint16_t year, uint8_t mon, uint8_t day, uint8_t hour, uint8_t
     }
   }
   return 0;
+}
+
+// Crystal drift measured between two clock settings, compensated by the RTC
+// smooth calibration hardware. Reference kept in the RTC backup domain.
+
+#define RTC_CALIB_MIN_ELAPSED   SECS_PER_DAY              // no reliable measurement below that
+#define RTC_CALIB_MAX_ELAPSED   (10 * 365 * SECS_PER_DAY) // nonsense reference
+#define RTC_CALIB_MIN_ERROR     4                         // [s] below that it is input noise
+#define RTC_CALIB_SET_ACCURACY  2                         // [s] hand setting accuracy
+#define RTC_CALIB_MAX_PPM       200                       // beyond any crystal: clock was set
+#define RTC_CALIB_TZ_STEP       900                       // [s] time zone granularity
+#define RTC_CALIB_TZ_BAND       60                        // [s] tolerance around it
+#define RTC_CALIB_MIN_YEAR      101                       // 2001, RTC resets to 2000
+#define RTC_CALIB_SESSION_GAP   (5 * 60 * 100)            // [10ms] same edit session
+
+// Sampled before the clock got changed
+static bool rtcCalibSession = false;
+static tmr10ms_t rtcCalibLastSet = 0;
+static gtime_t rtcCalibSessionRef = 0;
+static gtime_t rtcCalibSessionRtc = 0;
+static int32_t rtcCalibSessionUnits = 0;
+static bool rtcCalibSessionValid = false;
+
+int32_t rtcCalibrationPpm10(int32_t units)
+{
+  return (int32_t)(((int64_t)units * 10000000) / RTC_CALIB_UNITS_PER_SECOND);
+}
+
+static void rtcCalibrationStart()
+{
+  struct gtm before = {};
+  rtcGetTime(&before);
+
+  rtcCalibSessionValid = (before.tm_year >= RTC_CALIB_MIN_YEAR);
+  rtcCalibSessionRtc = rtcCalibSessionValid ? gmktime(&before) : 0;
+  rtcCalibSessionRef = rtcGetCalibrationRef();
+  rtcCalibSessionUnits = rtcGetCalibration();
+  rtcCalibSession = true;
+}
+
+// Recomputed from the calibration in use at session start, so that successive
+// edits converge instead of piling up
+static void rtcCalibrationUpdate(gtime_t newTime)
+{
+  // Initial setting, or clock that lost power
+  if (rtcCalibSessionRef == 0 || !rtcCalibSessionValid) return;
+
+  gtime_t elapsed = newTime - rtcCalibSessionRef;
+  if (elapsed < (gtime_t)RTC_CALIB_MIN_ELAPSED || elapsed > (gtime_t)RTC_CALIB_MAX_ELAPSED) return;
+
+  gtime_t error = rtcCalibSessionRtc - newTime; // > 0 when the clock runs fast
+  int64_t absError = (error < 0) ? -(int64_t)error : (int64_t)error;
+
+  // Too small to tell from input noise
+  if (absError < RTC_CALIB_MIN_ERROR) return;
+
+  // Faster than any crystal: the clock was moved
+  if (absError * 1000000 > (int64_t)elapsed * RTC_CALIB_MAX_PPM) return;
+
+  // A whole time zone step is a time zone or DST change
+  if (absError >= RTC_CALIB_TZ_STEP - RTC_CALIB_TZ_BAND) {
+    int64_t rem = absError % RTC_CALIB_TZ_STEP;
+    if (rem <= RTC_CALIB_TZ_BAND || rem >= RTC_CALIB_TZ_STEP - RTC_CALIB_TZ_BAND) return;
+  }
+
+  // Do not over correct on a short measurement
+  absError -= RTC_CALIB_SET_ACCURACY;
+
+  int32_t delta = (int32_t)((absError * RTC_CALIB_UNITS_PER_SECOND + elapsed / 2) / elapsed);
+  if (error < 0) delta = -delta;
+
+  int32_t units = rtcCalibSessionUnits - delta;
+  if (units > RTC_CALIB_UNIT_MAX) units = RTC_CALIB_UNIT_MAX;
+  if (units < RTC_CALIB_UNIT_MIN) units = RTC_CALIB_UNIT_MIN;
+
+  rtcSetCalibration(units);
+
+  TRACE("RTC drift %d s over %d s, calibration %d -> %d units (%d -> %d ppm x10)",
+        (int)error, (int)elapsed, (int)rtcCalibSessionUnits, (int)units,
+        (int)rtcCalibrationPpm10(rtcCalibSessionUnits),
+        (int)rtcCalibrationPpm10(units));
+}
+
+void rtcSetTime(const struct gtm * t)
+{
+  struct gtm tm = *t;
+  gtime_t newTime = gmktime(&tm);
+
+  tmr10ms_t now = get_tmr10ms();
+  if (!rtcCalibSession || (now - rtcCalibLastSet) > RTC_CALIB_SESSION_GAP) {
+    rtcCalibrationStart();
+  }
+  rtcCalibLastSet = now;
+
+  rtcDriverSetTime(t);
+
+  rtcCalibrationUpdate(newTime);
+  rtcSetCalibrationRef(newTime);
 }
 
 bool rtcIsValid()

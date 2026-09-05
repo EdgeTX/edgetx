@@ -447,9 +447,14 @@ void rtcGetTime(struct gtm * t)
 {
 }
 
-void rtcSetTime(const struct gtm * t)
+void rtcDriverSetTime(const struct gtm * t)
 {
 }
+
+int32_t rtcGetCalibration() { return 0; }
+void rtcSetCalibration(int32_t units) { (void)units; }
+gtime_t rtcGetCalibrationRef() { return 0; }
+void rtcSetCalibrationRef(gtime_t t) { (void)t; }
 
 #if defined(PCBTARANIS)
 void sdPoll10ms() {}
