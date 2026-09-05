@@ -26,17 +26,11 @@
 #include "sliders.h"
 #include "view_main_decoration.h"
 #include "hw_inputs.h"
+#include <math.h>
 
 #include <memory>
 
 uint8_t menuCalibrationState;
-
-static const uint8_t stick_pointer[] __FLASH = {
-#include "bmp_radio_stick_pointer.lbm"
-};
-static const uint8_t stick_background[] __FLASH = {
-#include "bmp_radio_stick_background.lbm"
-};
 
 class StickCalibrationWindow : public Window
 {
@@ -45,26 +39,89 @@ class StickCalibrationWindow : public Window
                          uint8_t stickY) :
       Window(parent, rect), stickX(stickX), stickY(stickY)
   {
-    new StaticLZ4Image(this, 0, 0, (LZ4Bitmap *)stick_background);
-    calibStick = new StaticLZ4Image(this, 0, 0, (LZ4Bitmap *)stick_pointer);
+    lv_obj_t* bg = lv_obj_create(lvobj);
+    etx_obj_add_style(bg, styles->rounded, LV_PART_MAIN);
+    etx_obj_add_style(bg, styles->border, LV_PART_MAIN);
+    etx_obj_add_style(bg, styles->border_color[COLOR_BLACK_INDEX], LV_PART_MAIN);
+    lv_obj_set_size(bg, CAL_SIZ + PAD_BORDER * 2, CAL_SIZ + PAD_BORDER * 2);
+    lv_obj_add_flag(bg, LV_OBJ_FLAG_OVERFLOW_VISIBLE);
+
+    axis[0] = {PAD_SMALL, CAL_SIZ / 2};
+    axis[1] = {CAL_SIZ - PAD_SMALL, CAL_SIZ / 2};
+    addLine(bg, COLOR_GREY_INDEX, &axis[0]);
+
+    axis[2] = {CAL_SIZ / 2, PAD_SMALL};
+    axis[3] = {CAL_SIZ / 2, CAL_SIZ - PAD_SMALL};
+    addLine(bg, COLOR_GREY_INDEX, &axis[2]);
+
+    lv_obj_t* bgCircle = lv_obj_create(bg);
+    etx_obj_add_style(bgCircle, styles->circle, LV_PART_MAIN);
+    etx_obj_add_style(bgCircle, styles->border, LV_PART_MAIN);
+    etx_obj_add_style(bgCircle, styles->border_color[COLOR_GREY_INDEX], LV_PART_MAIN);
+    lv_obj_set_style_border_width(bgCircle, CIRC_W, LV_PART_MAIN);
+    lv_obj_set_size(bgCircle, CAL_SIZ - PAD_TINY * 2, CAL_SIZ - PAD_TINY * 2);
+    lv_obj_set_pos(bgCircle, PAD_TINY, PAD_TINY);
+
+    for (int i = 0; i < MKR_CNT; i += 1) {
+      float angle = (i * 360.0f / MKR_CNT) / 180.0f * M_PI;
+      float x = cos(angle);
+      float y = sin(angle);
+      float r1 = (CAL_SIZ - PAD_SMALL) / 2;
+      float r2 = r1 - CIRC_W;
+      mkr[i * 2] = {(lv_coord_t)(x * r1) + CAL_SIZ / 2, (lv_coord_t)(y * r1) + CAL_SIZ / 2};
+      mkr[i * 2 + 1] = {(lv_coord_t)(x * r2) + CAL_SIZ / 2, (lv_coord_t)(y * r2) + CAL_SIZ / 2};
+      addLine(bg, COLOR_WHITE_INDEX, &mkr[i * 2]);
+    }
+
+    calibShadow = lv_obj_create(bg);
+    etx_solid_bg(calibShadow, COLOR_BLACK_INDEX);
+    etx_obj_add_style(calibShadow, styles->circle, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(calibShadow, LV_OPA_50, LV_PART_MAIN);
+    lv_obj_set_size(calibShadow, CAL_PTR_W, CAL_PTR_W);
+
+    calibStick = lv_obj_create(bg);
+    etx_solid_bg(calibStick, COLOR_WHITE_INDEX);
+    etx_obj_add_style(calibStick, styles->circle, LV_PART_MAIN);
+    etx_obj_add_style(calibStick, styles->border, LV_PART_MAIN);
+    etx_obj_add_style(calibStick, styles->border_color[COLOR_RED_INDEX], LV_PART_MAIN);
+    lv_obj_set_style_border_width(calibStick, PAD_SMALL, LV_PART_MAIN);
+    lv_obj_set_size(calibStick, CAL_PTR_W, CAL_PTR_W);
+
     checkEvents();
+  }
+
+  void addLine(lv_obj_t* parent, LcdColorIndex color, lv_point_t* points)
+  {
+    lv_obj_t* lin = lv_line_create(parent);
+    etx_obj_add_style(lin, styles->line_color[color], LV_PART_MAIN);
+    lv_obj_set_style_line_opa(lin, LV_OPA_COVER, LV_PART_MAIN);
+    lv_obj_set_style_line_width(lin, 2, LV_PART_MAIN);
+    lv_line_set_points(lin, points, 2);
   }
 
   void checkEvents() override
   {
     int32_t x = calibratedAnalogs[stickX];
     int32_t y = calibratedAnalogs[stickY];
-    coord_t dx = width() / 2 - CAL_CTR + (CAL_SIZ / 2 * x) / RESX;
-    coord_t dy = height() / 2 - CAL_CTR - (CAL_SIZ / 2 * y) / RESX;
-    lv_obj_set_pos(calibStick->getLvObj(), dx, dy);
+    coord_t w = (CAL_SIZ - CAL_PTR_W) / 2;
+    coord_t h = (CAL_SIZ - CAL_PTR_W) / 2;
+    coord_t dx = w + (w * x) / RESX;
+    coord_t dy = h - (h * y) / RESX;
+    lv_obj_set_pos(calibStick, dx, dy);
+    lv_obj_set_pos(calibShadow, dx + 1, dy + 1);
   }
 
-  static LAYOUT_VAL_SCALED(CAL_CTR, 9)
-  static LAYOUT_VAL_SCALED(CAL_SIZ, 68)
+  static LAYOUT_VAL_SCALED_EVEN(CAL_PTR_W, 18);
+  static LAYOUT_VAL_SCALED_EVEN(CAL_SIZ, 120)
+  static LAYOUT_VAL_SCALED_EVEN(CIRC_W, 10)
+  static constexpr int MKR_CNT = 24;
 
  protected:
   uint8_t stickX, stickY;
-  StaticLZ4Image *calibStick = nullptr;
+  lv_obj_t* calibStick = nullptr;
+  lv_obj_t* calibShadow = nullptr;
+  lv_point_t axis[4];
+  lv_point_t mkr[MKR_CNT * 2];
 };
 
 RadioCalibrationPage::RadioCalibrationPage() :
@@ -89,21 +146,15 @@ void RadioCalibrationPage::buildBody(Window *window)
 
   // The two sticks
 
-  LZ4Bitmap *bg = (LZ4Bitmap *)stick_background;
+  coord_t w = StickCalibrationWindow::CAL_SIZ + PAD_BORDER * 2;
+  coord_t x = (window->width() - w * 2) / 3;
+  coord_t y = (window->height() - w) / 2;
 
-  new StickCalibrationWindow(
-      window,
-      {window->width() / 3 - bg->width / 2,
-       window->height() / 2 - bg->height / 2, bg->width, bg->height},
-      0, 1);
+  new StickCalibrationWindow(window, {x, y, w, w}, 0, 1);
 
   auto max_sticks = adcGetMaxInputs(ADC_INPUT_MAIN);
   if (max_sticks > 2) {
-    new StickCalibrationWindow(
-        window,
-        {window->width() * 2 / 3 - bg->width / 2,
-         window->height() / 2 - bg->height / 2, bg->width, bg->height},
-        3, 2);
+    new StickCalibrationWindow(window, {x * 2 + w, y, w, w}, 3, 2);
   }
 
   new ViewMainDecoration(window, true);
