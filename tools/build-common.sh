@@ -176,6 +176,9 @@ get_target_build_options() {
         pa01)
             BUILD_OPTIONS+="-DPCB=PA01"
             ;;
+        h17)
+            BUILD_OPTIONS+="-DPCB=H17"
+            ;;
         *)
             echo "Unknown target: $target_name"
             return 1

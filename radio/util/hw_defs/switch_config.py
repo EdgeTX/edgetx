@@ -437,6 +437,18 @@ SWITCH_CONFIG = {
         "SQ": {"default": "2POS"},
         "SR": {"default": "2POS"},
     },
+    "h17": {
+        "SA": {"default": "2POS"},
+        "SB": {"default": "3POS"},
+        "SC": {"default": "3POS"},
+        "SD": {"default": "2POS"},
+        "SE": {"default": "3POS"},
+        "SF": {"default": "2POS"},
+        "SG": {"default": "TOGGLE"},
+        "SH": {"default": "TOGGLE"},
+        "SI": {"default": "2POS"},
+        "SJ": {"default": "2POS"},
+    },
     "tx15": {
         "SA": {"default": "3POS"},
         "SB": {"default": "3POS"},

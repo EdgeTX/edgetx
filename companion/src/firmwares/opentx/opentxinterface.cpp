@@ -334,7 +334,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
               IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_TX12(board) || IS_RADIOMASTER_TX12_MK2(board) ||
               IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX15(board) || IS_JUMPER_T15PRO(board) ||
               IS_FLYSKY_PA01(board) || IS_FLYSKY_ST16(board) ||
-              IS_RADIOMASTER_TX16SMK3(board) || IS_JUMPER_T22(board)) || IS_RADIOMASTER_GX15(board);
+              IS_RADIOMASTER_TX16SMK3(board) || IS_JUMPER_T22(board)) || IS_RADIOMASTER_GX15(board) ||
+             IS_SENDUWING_H17(board);
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
     case HasIntModuleMulti:
@@ -350,7 +351,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board) ||
              IS_IFLIGHT_COMMANDO8(board) || IS_RADIOMASTER_BOXER(board) ||
              IS_RADIOMASTER_POCKET(board) || IS_JUMPER_T20(board) ||
-             IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_TX15(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T22(board);
+             IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_TX15(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T22(board) ||
+             IS_SENDUWING_H17(board);
     case HasIntModuleFlySky:
       return  id.contains("afhds2a") || id.contains("afhds3") ||
               IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board);
@@ -908,6 +910,12 @@ void registerOpenTxFirmwares()
   addOpenTxFontOptions(firmware);
   registerOpenTxFirmware(firmware);
   addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
+
+  /* Senduwing H17 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("h17"), Firmware::tr("Senduwing H17"), BOARD_SENDUWING_H17);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+  registerOpenTxFirmware(firmware);
 
   Firmware::sortRegisteredFirmwares();
   Firmware::setDefaultVariant(Firmware::getFirmwareForFlavour("tx16s"));

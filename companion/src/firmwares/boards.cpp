@@ -173,6 +173,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4E78746F;
     case BOARD_IFLIGHT_COMMANDO14:
       return 0x4F78746F;
+    case BOARD_SENDUWING_H17:
+      return 0x5078746F;
     default:
       return 0;
   }
@@ -241,6 +243,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_HELLORADIOSKY_V12:
     case BOARD_HELLORADIOSKY_V16:
     case BOARD_IFLIGHT_COMMANDO14:
+    case BOARD_SENDUWING_H17:
       return 0;
     default:
       return 0;
@@ -309,6 +312,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_HELLORADIOSKY_V12: // 8MB SDRAM
     case BOARD_HELLORADIOSKY_V16:
     case BOARD_IFLIGHT_COMMANDO14:
+    case BOARD_SENDUWING_H17: // 8MB SDRAM
       return FSIZE_2MB;
     case BOARD_UNKNOWN:
       return FSIZE_MAX;
@@ -755,6 +759,8 @@ QString Boards::getBoardName(Board::Type board)
       return "iFlight Commando 8";
     case BOARD_IFLIGHT_COMMANDO14:
       return "iFlight Commando 14";
+    case BOARD_SENDUWING_H17:
+      return "Senduwing H17";
     case BOARD_FATFISH_F16:
       return "Fatfish F16";
     case BOARD_HELLORADIOSKY_V12:
@@ -881,6 +887,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_RADIOMASTER_TX16SMK3:
   case BOARD_IFLIGHT_COMMANDO8:
   case BOARD_IFLIGHT_COMMANDO14:
+  case BOARD_SENDUWING_H17:
   case BOARD_JUMPER_BUMBLEBEE:
   case BOARD_JUMPER_T12MAX:
   case BOARD_JUMPER_T14:
@@ -979,6 +986,9 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
     case BOARD_FLYSKY_ST16:
     case BOARD_FLYSKY_PA01:
       BR(70, 86, 80)
+      break;
+    case BOARD_SENDUWING_H17:
+      BR(70, 86, 74)
       break;
     case BOARD_IFLIGHT_COMMANDO8:
       BR(30, 42, 32)
