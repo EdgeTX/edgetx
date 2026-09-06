@@ -75,10 +75,8 @@ TEST_F(SpecialFunctionsTest, FlightReset)
 #if defined(GVARS)
 TEST_F(SpecialFunctionsTest, GvarsInc)
 {
-  int sw;
-  for (sw = 0; sw < switchGetMaxAllSwitches(); sw += 1)
-    if (g_model.getSwitchType(sw) == SWITCH_3POS)
-      break;
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
   int swPos = (sw * 3) + SWSRC_FIRST_SWITCH;
 
   simuSetSwitch(sw, 0);    // SA-

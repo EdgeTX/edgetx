@@ -95,25 +95,27 @@ I18N_PLAY_FUNCTION(es, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
     PUSH_NUMBER_PROMPT(ES_PROMPT_MENO);
     number = -number;
   }
-
-
   int8_t mode = MODE(att);
   if (mode > 0) {
+    uint8_t rem2 = 0;
     if (mode == 2) {
-      number /= 10;
+      div_t qr2 = div((int)number, 10);
+      number = qr2.quot;
+      rem2 = qr2.rem;
     }
     div_t qr = div((int)number, 10);
-    if (qr.rem > 0) {
+    if (qr.rem || (mode == 2 && rem2)) {
       PLAY_NUMBER(qr.quot, 0, 0);
       PUSH_NUMBER_PROMPT(ES_PROMPT_VIRGOLA);
-      if (mode==2 && qr.rem < 10)
-        PUSH_NUMBER_PROMPT(ES_PROMPT_ZERO);
-      PLAY_NUMBER(qr.rem, unit, 0);
+      PLAY_NUMBER(qr.rem, 0, 0);
+      if (mode == 2 && rem2) {
+        PLAY_NUMBER(rem2, 0, 0);
+      }
+      number = -1;
     }
     else {
-      PLAY_NUMBER(qr.quot, unit, 0);
+      number = qr.quot;
     }
-    return;
   }
 
   if (number >= 1000) {

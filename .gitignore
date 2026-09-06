@@ -20,10 +20,15 @@ CMakeUserPresets.json
 .DS_Store
 _deps
 _wasi_sdk_fetch
-*.pyc
 
 # MkDocs
 /site/
+
+# Python (uv / pip)
+.venv/
+*.egg-info/
+__pycache__/
+*.pyc
 
 output/
 *.dmg
