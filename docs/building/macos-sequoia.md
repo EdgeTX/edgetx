@@ -74,7 +74,7 @@ Since Python 3.11+, macOS uses an externally managed Python environment. Create 
 ```bash
 uv venv --python 3.14
 source .venv/bin/activate
-uv pip install -r requirements.txt
+uv pip install .
 ```
 
 Activate the virtual environment in every new terminal session before building:
@@ -101,7 +101,7 @@ cmake -DPCB=X10 -DPCBREV=TX16S \
 | Variable | Purpose |
 |----------|---------|
 | `CMAKE_PREFIX_PATH` | Path to your Qt installation (`$QTDIR`) |
-| `CMAKE_OSX_DEPLOYMENT_TARGET` | Minimum macOS version for Companion. `14.0` (Sonoma) is a convenient local-dev default; release builds (CI) target `11.0` for broader compatibility — pass `-DCMAKE_OSX_DEPLOYMENT_TARGET=11.0` if you want a build matching what CI ships. If omitted entirely, no `-mmacosx-version-min` flag is passed and clang targets whatever OS version your Mac is running |
+| `CMAKE_OSX_DEPLOYMENT_TARGET` | Minimum macOS version for Companion. `14.0` (Sonoma) is a convenient local-dev default; release builds (CI) target `12.0` for broader compatibility — pass `-DCMAKE_OSX_DEPLOYMENT_TARGET=12.0` if you want a build matching what CI ships. If omitted entirely, no `-mmacosx-version-min` flag is passed and clang targets whatever OS version your Mac is running |
 | `ARM_TOOLCHAIN_DIR` | Path to ARM GCC binaries. Must end with `/` |
 
 ## Build firmware

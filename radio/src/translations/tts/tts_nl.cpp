@@ -52,17 +52,21 @@ I18N_PLAY_FUNCTION(nl, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
     PUSH_NUMBER_PROMPT(NL_PROMPT_MINUS);
     number = -number;
   }
-
-
   int8_t mode = MODE(att);
   if (mode > 0) {
+    uint8_t rem2 = 0;
     if (mode == 2) {
-      number /= 10;
+      div_t qr2 = div((int)number, 10);
+      number = qr2.quot;
+      rem2 = qr2.rem;
     }
     div_t qr = div((int)number, 10);
-    if (qr.rem) {
+    if (qr.rem || (mode == 2 && rem2)) {
       PLAY_NUMBER(qr.quot, 0, 0);
       PUSH_NUMBER_PROMPT(NL_PROMPT_POINT_BASE + qr.rem);
+      if (mode == 2 && rem2) {
+        PLAY_NUMBER(rem2, 0, 0);
+      }
       number = -1;
     }
     else {
@@ -132,4 +136,3 @@ I18N_PLAY_FUNCTION(nl, playDuration, int seconds PLAY_DURATION_ATT)
 }
 
 LANGUAGE_PACK_DECLARE(nl, STR_VOICE_DUTCH);
-

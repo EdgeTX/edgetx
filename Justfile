@@ -61,7 +61,7 @@ codegen: gen-fonts cfn-sort gen-yaml gen-radios gen-simstr
 check-radio-macros:
     python3 tools/check_radio_macros.py
 
-# Needs: the Python packages in radio/util/hw_defs/requirements.txt.
+# Needs: the Python packages in pyproject.toml (uv pip install . / pip install .).
 [doc('Validate the hw_defs JSON and that every template renders for every board')]
 [group('checks')]
 check-hw-defs:

@@ -39,6 +39,7 @@
 
 #include "firmwares/eeprominterface.h"
 #include "firmwares/edgetx/edgetxinterface.h"
+#include "firmwares/edgetx/yaml_moduledata.h"
 
 namespace {
 
@@ -123,4 +124,55 @@ TEST_F(ModelYamlRoundTrip, OverlongNameTruncatesAndRoundTrips)
   QByteArray y2;
   ModelData m3 = roundTrip(m2, y2);
   EXPECT_EQ(m2.name.str(), m3.name.str());
+}
+
+// A module written by a radio that emitted antennaMode must decode. The field is
+// a string enum firmware side; read as a raw int, yaml-cpp throws
+// TypedBadConversion and the whole model fails to open.
+TEST_F(ModelYamlRoundTrip, RadioWrittenAntennaModeDecodes)
+{
+  YAML::Node node = YAML::Load(
+      "type: TYPE_MULTIMODULE\n"
+      "subType: 6,7\n"
+      "channelsStart: 0\n"
+      "channelsCount: 16\n"
+      "failsafeMode: NOT_SET\n"
+      "antennaMode: MODE_PER_MODEL\n");
+
+  ModuleData md;
+  bool threw = false;
+  std::string err;
+  try {
+    node >> md;
+  } catch (const std::exception& e) {
+    threw = true;
+    err = e.what();
+  } catch (...) {
+    threw = true;
+    err = "non-std exception";
+  }
+
+  ASSERT_FALSE(threw) << "decoding threw: " << err;
+  EXPECT_EQ(md.subType, 7u) << "subType lost alongside antennaMode";
+}
+
+// The fixture selects tx16s, which has no external antenna. Such radios parse
+// antennaMode over the top two bits of subType, so writing the key back would
+// change the sub-protocol on load.
+TEST_F(ModelYamlRoundTrip, AntennaModeNotWrittenWithoutExternalAntenna)
+{
+  ASSERT_FALSE(Boards::getCapability(getCurrentBoard(), Board::HasExternalAntenna))
+      << "fixture board is expected to have no external antenna";
+
+  ModelData m;
+  m.clear();
+  m.used = true;
+  // only modules with a protocol are serialised at all
+  m.moduleData[1].protocol = PULSES_MULTIMODULE;
+  m.moduleData[1].antennaMode = GeneralSettings::ANTENNA_MODE_EXTERNAL;
+
+  QByteArray y;
+  writeModelToYaml(m, y);
+  ASSERT_TRUE(y.contains("moduleData")) << "module was not serialised";
+  EXPECT_FALSE(y.contains("antennaMode"));
 }

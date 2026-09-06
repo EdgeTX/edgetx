@@ -6005,7 +6005,7 @@
     ]
   },
   {
-    "name": "RadioMaster TX16S",
+    "name": "RadioMaster TX16S / TX16S Mark II",
     "wasm": "edgetx-tx16s-simulator.wasm",
     "display": {
       "w": 480,

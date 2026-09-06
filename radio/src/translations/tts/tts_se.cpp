@@ -30,7 +30,7 @@ enum SwedishPrompts {
   SE_PROMPT_MINUS = SE_PROMPT_NUMBERS_BASE+111,
   SE_PROMPT_POINT = SE_PROMPT_NUMBERS_BASE+112,
   SE_PROMPT_UNITS_BASE = 113,
-  SE_PROMPT_POINT_BASE = 165, //.0 - .9
+  SE_PROMPT_POINT_BASE = 167, //.0 - .9
 };
 
 
@@ -50,17 +50,21 @@ I18N_PLAY_FUNCTION(se, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
     PUSH_NUMBER_PROMPT(SE_PROMPT_MINUS);
     number = -number;
   }
-
-
   int8_t mode = MODE(att);
   if (mode > 0) {
+    uint8_t rem2 = 0;
     if (mode == 2) {
-      number /= 10;
+      div_t qr2 = div((int)number, 10);
+      number = qr2.quot;
+      rem2 = qr2.rem;
     }
     div_t qr = div((int)number, 10);
-    if (qr.rem) {
+    if (qr.rem || (mode == 2 && rem2)) {
       PLAY_NUMBER(qr.quot, 0, 0);
       PUSH_NUMBER_PROMPT(SE_PROMPT_POINT_BASE + qr.rem);
+      if (mode == 2 && rem2) {
+        PLAY_NUMBER(rem2, 0, 0);
+      }
       number = -1;
     }
     else {
@@ -125,4 +129,3 @@ I18N_PLAY_FUNCTION(se, playDuration, int seconds PLAY_DURATION_ATT)
 }
 
 LANGUAGE_PACK_DECLARE(se, STR_VOICE_SWEDISH);
-

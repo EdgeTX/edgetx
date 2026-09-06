@@ -13,9 +13,9 @@
     },
     {
       "name": "firmware",
+      "hidden": true,
       "inherits": "default",
-      "displayName": "Firmware",
-      "binaryDir": "build/fw",
+      "binaryDir": "build/${presetName}",
       "toolchainFile": "cmake/toolchain/arm-none-eabi.cmake",
       "cacheVariables": {
         "EdgeTX_SUPERBUILD": false,
@@ -23,10 +23,10 @@
       }
     },
     {
-      "name": "companion",
+      "name": "native",
+      "hidden": true,
       "inherits": "default",
-      "displayName": "Companion",
-      "binaryDir": "build/companion",
+      "binaryDir": "build/${presetName}",
       "toolchainFile": "cmake/toolchain/native.cmake",
       "cacheVariables": {
         "EdgeTX_SUPERBUILD": false,
@@ -34,49 +34,337 @@
       }
     },
     {
+      "name": "companion",
+      "displayName": "Companion",
+      "inherits": "native",
+      "binaryDir": "build/companion"
+    },
+    {
       "name": "simu",
-      "inherits": "default",
-      "displayName": "SDL Simu",
-      "binaryDir": "build/simu",
-      "toolchainFile": "cmake/toolchain/native.cmake",
-      "cacheVariables": {
-        "EdgeTX_SUPERBUILD": false,
-        "NATIVE_BUILD": true
-      }
+      "displayName": "SDL Simulator",
+      "inherits": "native",
+      "binaryDir": "build/simu"
+    },
+
+    {
+      "name": "f16",
+      "displayName": "Fatfish F16",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X10", "PCBREV": "F16" }
+    },
+
+    {
+      "name": "el18",
+      "displayName": "FlySky EL18",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "PL18", "PCBREV": "EL18" }
+    },
+    {
+      "name": "nb4p",
+      "displayName": "FlySky NB4+",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "PL18", "PCBREV": "NB4P" }
+    },
+    {
+      "name": "nv14",
+      "displayName": "FlySky NV14",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "PL18", "PCBREV": "NV14" }
+    },
+    {
+      "name": "pa01",
+      "displayName": "FlySky PA01",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "PA01" }
+    },
+    {
+      "name": "pl18",
+      "displayName": "FlySky PL18",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "PL18" }
+    },
+    {
+      "name": "pl18ev",
+      "displayName": "FlySky PL18EV",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "PL18", "PCBREV": "PL18EV" }
+    },
+    {
+      "name": "pl18u",
+      "displayName": "FlySky PL18U",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "PL18", "PCBREV": "PL18U" }
+    },
+    {
+      "name": "st16",
+      "displayName": "FlySky ST16",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "ST16" }
+    },
+
+    {
+      "name": "x10",
+      "displayName": "FrSky X10",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X10" }
+    },
+    {
+      "name": "x10express",
+      "displayName": "FrSky Horus X10 Express",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X10", "PCBREV": "EXPRESS", "PXX1": "YES" }
+    },
+    {
+      "name": "x12s",
+      "displayName": "FrSky X12S",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X12S" }
+    },
+    {
+      "name": "x7",
+      "displayName": "FrSky QX7",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7" }
+    },
+    {
+      "name": "x7access",
+      "displayName": "FrSky QX7 Access",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "ACCESS", "PXX1": "YES" }
+    },
+    {
+      "name": "x9dp",
+      "displayName": "FrSky X9D+",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X9D+" }
+    },
+    {
+      "name": "x9dp2019",
+      "displayName": "FrSky X9D+ 2019",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X9D+", "PCBREV": "2019" }
+    },
+    {
+      "name": "x9e",
+      "displayName": "FrSky X9E",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X9E" }
+    },
+    {
+      "name": "xlite",
+      "displayName": "FrSky X-Lite",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "XLITE" }
+    },
+
+    {
+      "name": "v12",
+      "displayName": "HelloRadioSky V12",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "V12" }
+    },
+    {
+      "name": "v14",
+      "displayName": "HelloRadioSky V14",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "V14" }
+    },
+    {
+      "name": "v14lcd",
+      "displayName": "HelloRadioSky V14LCD",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "V14LCD" }
+    },
+    {
+      "name": "v16",
+      "displayName": "HelloRadioSky V16",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X10", "PCBREV": "V16" }
+    },
+
+    {
+      "name": "commando8",
+      "displayName": "iFlight Commando 8",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "COMMANDO8" }
+    },
+    {
+      "name": "c14",
+      "displayName": "iFlight Commando 14",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "C14" }
+    },
+
+    {
+      "name": "bumblebee",
+      "displayName": "Jumper Bumblebee",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "BUMBLEBEE" }
+    },
+    {
+      "name": "t12max",
+      "displayName": "Jumper T12 MAX",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "T12MAX" }
+    },
+    {
+      "name": "t14",
+      "displayName": "Jumper T14",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "T14" }
+    },
+    {
+      "name": "t15",
+      "displayName": "Jumper T15",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X10", "PCBREV": "T15", "INTERNAL_MODULE_CRSF": "ON" }
+    },
+    {
+      "name": "t15pro",
+      "displayName": "Jumper T15 Pro",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "T15PRO" }
+    },
+    {
+      "name": "t16",
+      "displayName": "Jumper T16",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X10", "PCBREV": "T16", "INTERNAL_MODULE_MULTI": "ON" }
+    },
+    {
+      "name": "t18",
+      "displayName": "Jumper T18",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X10", "PCBREV": "T18" }
+    },
+    {
+      "name": "t20",
+      "displayName": "Jumper T20",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "T20" }
+    },
+    {
+      "name": "t20v2",
+      "displayName": "Jumper T20 V2",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "T20V2" }
+    },
+    {
+      "name": "t22",
+      "displayName": "Jumper T22",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "T22" }
+    },
+    {
+      "name": "tpro",
+      "displayName": "Jumper T-Pro",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "TPRO" }
+    },
+    {
+      "name": "tpros",
+      "displayName": "Jumper T-Pro S",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "TPROS" }
+    },
+    {
+      "name": "tprov2",
+      "displayName": "Jumper T-Pro V2",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "TPROV2" }
+    },
+
+    {
+      "name": "boxer",
+      "displayName": "RadioMaster Boxer",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "BOXER" }
+    },
+    {
+      "name": "gx12",
+      "displayName": "RadioMaster GX12",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "GX12" }
+    },
+    {
+      "name": "gx15",
+      "displayName": "RadioMaster GX15",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "GX15" }
+    },
+    {
+      "name": "mt12",
+      "displayName": "RadioMaster MT12",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "MT12" }
+    },
+    {
+      "name": "pocket",
+      "displayName": "RadioMaster Pocket",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "POCKET" }
+    },
+    {
+      "name": "tx12",
+      "displayName": "RadioMaster TX12",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "TX12" }
+    },
+    {
+      "name": "tx12mk2",
+      "displayName": "RadioMaster TX12 MK2",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "TX12MK2" }
+    },
+    {
+      "name": "tx15",
+      "displayName": "RadioMaster TX15",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "TX15" }
+    },
+    {
+      "name": "tx16s",
+      "displayName": "RadioMaster TX16S",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X10", "PCBREV": "TX16S" }
+    },
+    {
+      "name": "tx16smk3",
+      "displayName": "RadioMaster TX16S MK3",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "TX16SMK3" }
+    },
+    {
+      "name": "zorro",
+      "displayName": "RadioMaster Zorro",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "X7", "PCBREV": "ZORRO" }
     }
   ],
   "buildPresets": [
     {
       "name": "firmware",
-      "displayName": "Firmware",
-      "configurePreset": "firmware",
-      "targets": [
-        "firmware"
-      ]
+      "hidden": true,
+      "configurePreset": "tx16s",
+      "targets": ["firmware"]
     },
     {
       "name": "companion",
       "displayName": "Companion",
       "configurePreset": "companion",
-      "targets": [
-        "companion"
-      ]
+      "targets": ["companion"]
     },
     {
       "name": "simu",
-      "displayName": "SDL Simu",
+      "displayName": "SDL Simulator",
       "configurePreset": "simu",
-      "targets": [
-        "simu"
-      ]
+      "targets": ["simu"]
     },
     {
       "name": "tests-radio",
       "displayName": "Radio Tests",
       "configurePreset": "simu",
-      "targets": [
-        "tests-radio"
-      ]
+      "targets": ["tests-radio"]
     }
   ]
 }

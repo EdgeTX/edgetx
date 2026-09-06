@@ -63,21 +63,25 @@ I18N_PLAY_FUNCTION(sk, playNumber, getvalue_t number, uint8_t unit, uint8_t att)
     PUSH_NUMBER_PROMPT(SK_PROMPT_MINUS);
     number = -number;
   }
-
-
   int8_t mode = MODE(att);
   if (mode > 0) {
+    uint8_t rem2 = 0;
     if (mode == 2) {
-      number /= 10;
+      div_t qr2 = div((int)number, 10);
+      number = qr2.quot;
+      rem2 = qr2.rem;
     }
     div_t qr = div((int)number, 10);
-    if (qr.rem) {
+    if (qr.rem || (mode == 2 && rem2)) {
       PLAY_NUMBER(qr.quot, 0, ZENSKY);
       if (qr.quot == 0)
         PUSH_NUMBER_PROMPT(SK_PROMPT_CELA);
       else
         SK_PUSH_UNIT_PROMPT(SK_PROMPT_CELA, qr.quot);
       PLAY_NUMBER(qr.rem, 0, ZENSKY);
+      if (mode == 2 && rem2) {
+        PLAY_NUMBER(rem2, 0, 0);
+      }
       PUSH_NUMBER_PROMPT(SK_PROMPT_UNITS_BASE+((unit-1)*4)+3);
       return;
     }
@@ -185,4 +189,3 @@ I18N_PLAY_FUNCTION(sk, playDuration, int seconds PLAY_DURATION_ATT)
 }
 
 LANGUAGE_PACK_DECLARE(sk, STR_VOICE_SLOVAK);
-

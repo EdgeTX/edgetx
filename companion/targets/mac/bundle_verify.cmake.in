@@ -27,7 +27,10 @@ endif()
 file(GLOB_RECURSE _candidates "${_app}/Contents/*")
 
 set(_offenders "")
+set(_toonew "")
 set(_checked 0)
+set(_max_minos "0.0")
+set(_target_minos "@CMAKE_OSX_DEPLOYMENT_TARGET@")
 foreach(_file IN LISTS _candidates)
   if(IS_SYMLINK "${_file}" OR IS_DIRECTORY "${_file}")
     continue()
@@ -44,6 +47,30 @@ foreach(_file IN LISTS _candidates)
     continue()
   endif()
   math(EXPR _checked "${_checked} + 1")
+
+  # macOS refuses to launch an app stamped above the running system - that is how 2.12.3
+  # became "requires macOS 15.0 or later" (issue #7732).
+  execute_process(
+    COMMAND otool -l "${_file}"
+    OUTPUT_VARIABLE _otool_l_out
+    ERROR_QUIET
+    RESULT_VARIABLE _otool_l_res
+  )
+  # MATCHALL, not MATCHES: a universal binary reports one minos per slice and any of them
+  # can be the one that is wrong.
+  if(_otool_l_res EQUAL 0)
+    string(REGEX MATCHALL "minos [0-9]+(\.[0-9]+)+" _minos_all "${_otool_l_out}")
+    foreach(_entry IN LISTS _minos_all)
+      string(REPLACE "minos " "" _minos "${_entry}")
+      if(_minos VERSION_GREATER _max_minos)
+        set(_max_minos "${_minos}")
+      endif()
+      if(_target_minos AND _minos VERSION_GREATER _target_minos)
+        file(RELATIVE_PATH _rel "${_app}" "${_file}")
+        list(APPEND _toonew "${_rel}: minos ${_minos}")
+      endif()
+    endforeach()
+  endif()
 
   string(REPLACE "\n" ";" _lines "${_otool_out}")
   foreach(_line IN LISTS _lines)
@@ -77,7 +104,20 @@ if(_offenders)
     "Re-run with -DCOMPANION_VERIFY_BUNDLE=OFF to package anyway.")
 endif()
 
-message(STATUS "Bundle verification: ${_checked} Mach-O files, no external references")
+if(_toonew)
+  list(REMOVE_DUPLICATES _toonew)
+  string(REPLACE ";" "\n  " _report "${_toonew}")
+  message(FATAL_ERROR
+    "Bundle contains Mach-O files built for a newer macOS than the deployment target "
+    "(${_target_minos}) - macOS refuses to launch an app stamped above the running "
+    "system:\n  ${_report}\n"
+    "Re-run with -DCOMPANION_VERIFY_BUNDLE=OFF to package anyway.")
+endif()
+
+# CPack discards message(STATUS) from install scripts, so echo via a subprocess - otherwise
+# the bundle's real macOS floor never reaches the packaging log.
+execute_process(COMMAND ${CMAKE_COMMAND} -E echo
+  "-- Bundle verification: ${_checked} Mach-O files, no external references, minimum macOS ${_max_minos}")
 
 # The bundle seal is a separate concern from the per-Mach-O signatures: dyld does not consult
 # CodeResources when loading, so a stale seal does not stop the app launching. It would matter
