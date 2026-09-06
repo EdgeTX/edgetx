@@ -231,6 +231,7 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
 
 void NumberEdit::openEdit()
 {
+  if (onEditStart) onEditStart();
   if (edit == nullptr) {
     edit = new NumberArea(
         this,
