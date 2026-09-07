@@ -237,8 +237,17 @@ extern OutputTelemetryBuffer outputTelemetryBuffer __DMA_NO_CACHE;
 #define LUA_TELEMETRY_INPUT_FIFO_SIZE  256
 typedef Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE> TelemetryQueue;
 extern TelemetryQueue* luaInputTelemetryFifo;
+
+// Create the lock protecting the queue list. Must be called before the
+// scheduler is started.
+void telemetryQueuesInit();
+
 void registerTelemetryQueue(TelemetryQueue*);
-void deregisterTelemetryQueue(TelemetryQueue*);
+
+// Unregister and delete in one go: the producer runs in the timer task and
+// would otherwise be able to write into a queue that has just been freed.
+void destroyTelemetryQueue(TelemetryQueue*);
+
 void pushTelemetryDataToQueues(uint8_t* data, int length);
 #endif
 

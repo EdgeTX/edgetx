@@ -168,6 +168,10 @@ void tasksStart()
 {
   mutex_create(&audioMutex);
 
+#if defined(LUA)
+  telemetryQueuesInit();
+#endif
+
 #if defined(CLI) && !defined(SIMU)
   cliStart();
 #endif
