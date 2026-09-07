@@ -46,6 +46,7 @@ void lcdRefresh()
 
   // Mark screen dirty and notify host for async refresh
   simuLcdRefresh = true;
+  simuCheckBootComplete();
   simuLcdNotify();
 }
 
