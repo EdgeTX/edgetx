@@ -37,7 +37,7 @@ RfScanDialog::RfScanDialog(MultiRfProtocols* protos,
 
 void RfScanDialog::showProgress()
 {
-  updateProgress((int)(protos->getProgress() * 100.0));
+  updateProgress((int)(protos->getProgress() * 100.0f));
 }
 
 void RfScanDialog::checkEvents()

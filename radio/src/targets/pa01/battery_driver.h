@@ -45,7 +45,7 @@ enum PowerLevel {
   POWER_LEVEL_FULL,
 };
 
-#define BAT_VOL_FACTOR              (1.038)
+#define BAT_VOL_FACTOR              (1.038f)
 
 extern void battery_charge_init();
 extern void handle_battery_charge(uint32_t last_press_time);

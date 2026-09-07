@@ -136,7 +136,7 @@ static int math_fmod (lua_State *L) {
     lua_Number m, a=luaL_checknumber(L, 1), b=luaL_checknumber(L, 2);
     if (b==0) luaL_error(L,"modulo by zero");
     m = a/b;
-    lua_pushnumber(L, a - b*(m > 0.0 ? floor(m) : ceil(m)));
+    lua_pushnumber(L, a - b*(m > 0.0f ? l_mathop(floor)(m) : l_mathop(ceil)(m)));
   }
   return 1;
 }
@@ -241,16 +241,26 @@ static int math_max (lua_State *L) {
 }
 
 /*
-** This function uses 'double' (instead of 'lua_Number') to ensure that
-** all bits from 'l_rand' can be represented, and that 'RANDMAX + 1.0'
-** will keep full precision (ensuring that 'r' is always less than 1.0.)
+** Float-only math.random() — no double-precision arithmetic.
+**
+** math.random(): returns float in [0,1) by constructing an IEEE 754
+** float directly from random bits (uniform over 2^24 values).
+**
+** math.random(low,up): returns integer in [low,up] using integer-only
+** scaling with rejection to avoid modulo bias.
 */
 static int math_random (lua_State *L) {
   lua_Integer low, up;
-  double r = (double)l_rand() * (1.0 / ((double)L_RANDMAX + 1.0));
   switch (lua_gettop(L)) {  /* check number of arguments */
-    case 0: {  /* no arguments */
-      lua_pushnumber(L, (lua_Number)r);  /* Number between 0 and 1 */
+    case 0: {  /* no arguments: float in [0, 1) */
+      /* Take top 24 bits from l_rand(), place into float mantissa.
+       * IEEE 754 float: [sign=0][exp=0x3F800000 (1.0)][mantissa=random]
+       * This gives a uniform value in [1.0, 2.0), then subtract 1.0. */
+      lua_Unsigned bits = (lua_Unsigned)l_rand();
+      bits = (bits >> (31 - 23)) & 0x7FFFFF;  /* top 23 random bits */
+      union { float f; lua_Unsigned u; } conv;
+      conv.u = 0x3F800000u | bits;  /* 1.0f + random fraction */
+      lua_pushnumber(L, conv.f - 1.0f);
       return 1;
     }
     case 1: {  /* only upper limit */
@@ -269,8 +279,21 @@ static int math_random (lua_State *L) {
   luaL_argcheck(L, low <= up, 1, "interval is empty");
   luaL_argcheck(L, low >= 0 || up <= LUA_MAXINTEGER + low, 1,
                    "interval too large");
-  r *= (double)(up - low) + 1.0;
-  lua_pushinteger(L, (lua_Integer)r + low);
+  {
+    /* Integer-only uniform random in [0, range] */
+    lua_Unsigned range = (lua_Unsigned)(up - low);
+    if (range == 0) {
+      lua_pushinteger(L, low);
+    } else {
+      /* Rejection sampling to avoid modulo bias */
+      lua_Unsigned limit = ((lua_Unsigned)L_RANDMAX / (range + 1)) * (range + 1);
+      lua_Unsigned r;
+      do {
+        r = (lua_Unsigned)l_rand();
+      } while (r >= limit);
+      lua_pushinteger(L, (lua_Integer)(r % (range + 1)) + low);
+    }
+  }
   return 1;
 }
 

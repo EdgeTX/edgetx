@@ -184,9 +184,9 @@ std::string MultiRfProtocols::getLastProtoLabel() const
 float MultiRfProtocols::getProgress() const
 {
   constexpr float WAIT_TIME_RATIO = 0.7; // wait time accounts for 70%
-  constexpr float PROTOS_RATIO = 1.0 - WAIT_TIME_RATIO;
-  
-  if (scanState == ScanStop)  return 0.0;
+  constexpr float PROTOS_RATIO = 1.0f - WAIT_TIME_RATIO;
+
+  if (scanState == ScanStop)  return 0.0f;
   if (scanState == ScanBegin) {
     float t = (float)(time_get_ms() - scanStart) / (float)MULTI_PROTOLIST_START_TIMEOUT;
     return t * WAIT_TIME_RATIO;
