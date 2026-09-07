@@ -1648,16 +1648,21 @@ static int luaModelSetGlobalVariable(lua_State *L)
 }
 
 /*luadoc
-@name model.getGlobalVariableDetails(index)
+@function model.getGlobalVariableDetails(index)
 
-@description Returns details about a Global Variable, but not values
+Returns details about a Global Variable, but not values
 
-@syntax val = model.getGlobalVariableDetails(index)
-@arg index required integer
-@argdesc zero based global variable index, use 0 for GV1, 8 for GV9
-@return table
-@returndesc table with keys - name (string), min (int), max, prec, unit and popup (bool) - if exists
-@apistat 2.11.0 introduced
+@param index (number) zero based global variable index, use 0 for GV1, 8 for GV9
+
+@retval table details of the global variable:
+ * `name` (string) global variable name
+ * `min` (number) minimum value
+ * `max` (number) maximum value
+ * `prec` (number) precision
+ * `unit` (number) unit
+ * `popup` (boolean) show popup - if exists
+
+@status current Introduced in 2.11.0
 */
 static int luaModelGetGlobalVariableDetails(lua_State *L)
 {
@@ -1677,17 +1682,17 @@ static int luaModelGetGlobalVariableDetails(lua_State *L)
 }
 
 /*luadoc
-@name model.setGlobalVariableDetails(index, params)
+@function model.setGlobalVariableDetails(index, params)
 
-@description Sets details about a Global Variable, but not values
+Sets details about a Global Variable, but not values
 
-@arg index required integer
-@argdesc zero based global variable index, use 0 for GV1, 8 for GV9
-@arg table params
-@argdesc see model.getGlobalVariableDetails(index) return format for table format.
-@return none
-@apistat 2.11.0 introduced
+@param index (number) zero based global variable index, use 0 for GV1, 8 for GV9
 
+@param params (table) see model.getGlobalVariableDetails(index) return format for table format
+
+@retval none
+
+@status current Introduced in 2.11.0
 */
 static int luaModelSetGlobalVariableDetails(lua_State *L)
 {
