@@ -625,7 +625,7 @@ The list of valid sources is available:
  * `id`   (number) field identifier
  * `name` (string) field name
  * `desc` (string) field description
- * `unit` (number) unit identifier [Full list](../appendix/units.html)
+ * `unit` (number) unit identifier, see the Units reference for the full list
 
 @retval nil the requested field was not found
 
@@ -1505,7 +1505,7 @@ Play a numerical value (text to speech)
 
 @param value (number) number to play. Value is interpreted as integer.
 
-@param unit (number) unit identifier [Full list]((../appendix/units.html))
+@param unit (number) unit identifier, see the Units reference for the full list
 
 @param attributes (unsigned number) possible values:
  * `0 or not present` plays integral part of the number (for a number 123 it plays 123)
@@ -2001,7 +2001,7 @@ static int luaDefaultStick(lua_State * L)
 
 @param value fed to the sensor
 
-@param unit unit of the sensor [Full list](../../appendix/units.html)
+@param unit unit of the sensor, see the Units reference for the full list
 
 @param precision the precision of the sensor
  * `0 or not present` no decimal precision.
