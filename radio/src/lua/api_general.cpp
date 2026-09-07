@@ -1206,13 +1206,19 @@ static int luaCrossfireTelemetryPush(lua_State* L)
 
   if (lua_gettop(L) == 0) {
     lua_pushboolean(L, outputTelemetryBuffer.isAvailable());
-  } else if (lua_gettop(L) > TELEMETRY_OUTPUT_BUFFER_SIZE) {
-    lua_pushboolean(L, false);
-    return 1;
   } else if (outputTelemetryBuffer.isAvailable()) {
     uint8_t command = luaL_checkinteger(L, 1);
     luaL_checktype(L, 2, LUA_TTABLE);
-    uint8_t length = luaL_len(L, 2);
+    lua_Integer payloadLen = luaL_len(L, 2);
+
+    // ADDRESS + LENGTH + COMMAND + payload + CRC (2 bytes for COMMAND_ID)
+    lua_Integer frameLen = 3 + payloadLen + (command == COMMAND_ID ? 2 : 1);
+    if (payloadLen < 0 || frameLen > TELEMETRY_OUTPUT_BUFFER_SIZE) {
+      lua_pushboolean(L, false);
+      return 1;
+    }
+
+    uint8_t length = (uint8_t)payloadLen;
 
     outputTelemetryBuffer.pushByte(MODULE_ADDRESS);
 
@@ -1232,6 +1238,7 @@ static int luaCrossfireTelemetryPush(lua_State* L)
     for (int i = 0; i < length; i++) {
       lua_rawgeti(L, 2, i + 1);
       outputTelemetryBuffer.pushByte(luaL_checkinteger(L, -1));
+      lua_pop(L, 1);
     }
 
     // CRC
