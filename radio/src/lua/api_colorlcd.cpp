@@ -98,7 +98,7 @@ Draw a single pixel at (x,y) position
 
 @param y (positive number) y position
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @notice Taranis has an LCD display width of 212 pixels and height of 64 pixels.
 Position (0,0) is at top left. Y axis is negative, top line is 0,
@@ -230,7 +230,7 @@ Draw a text beginning at (x,y)
 
 @param text (string) text to display
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html) for drawing flags and colors, and [Appendix](../../part_vii_-_appendix/fonts.md) for available characters in each font set.
+@param flags (optional) please see the Lcd functions overview for drawing flags and colors, and the Appendix for available characters in each font set.
 
 @param inversColor (optional with the INVERS flag) overrides the inverse text color for INVERS
 
@@ -251,7 +251,7 @@ Get the width and height of a text string drawn with flags
 
 @param text (string)
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @retval w,h (integers) width and height of the text
 
@@ -279,7 +279,7 @@ Draw text inside rectangle (x,y,w,h) with line breaks
 
 @param text (string) text to display
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html) for drawing flags and colors, and [Appendix](../../part_vii_-_appendix/fonts.md) for available characters in each font set. RIGHT, CENTER and VCENTER are not implemented.
+@param flags (optional) please see the Lcd functions overview for drawing flags and colors, and the Appendix for available characters in each font set. RIGHT, CENTER and VCENTER are not implemented.
 
 @retval x,y (integers) point where text drawing ended
 
@@ -344,7 +344,7 @@ Display a value formatted as time at (x,y)
 
 @param value (number) time in seconds
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @param inversColor (optional with INVERS flag) overrides the inverse text color for INVERS
 
@@ -371,7 +371,7 @@ Display a number at (x,y)
 
 @param value (number) value to display
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @param inversColor (optional with INVERS flag) overrides the inverse text color for INVERS
 
@@ -397,7 +397,7 @@ Display a telemetry value at (x,y)
 @param source can be a source identifier (number) or a source name (string).
 See getValue()
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @status current Introduced in 2.0.6, changed in 2.1.0 (only telemetry sources are valid)
 */
@@ -438,7 +438,7 @@ Draw a text representation of switch at (x,y)
 @param switch (number) number of switch to display, negative number
 displays negated switch
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html), only SMLSIZE, BLINK and INVERS.
+@param flags (optional) please see the Lcd functions overview, only SMLSIZE, BLINK and INVERS.
 
 @status current Introduced in 2.0.0
 */
@@ -466,7 +466,7 @@ Displays the name of the corresponding input as defined by the source at (x,y)
 
 @param source (number) source index
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @status current Introduced in 2.0.0
 */
@@ -716,7 +716,7 @@ Displays a bitmap pattern at (x,y)
 
 @param x,y (positive numbers) starting coordinates
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @notice Only available on radios with color display
 
@@ -753,7 +753,7 @@ Displays a bitmap pattern pie at (x,y)
 
 @param endAngle End angle
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @notice Only available on radios with color display
 
@@ -790,7 +790,7 @@ Draw a rectangle from top left corner (x,y) of specified width and height
 
 @param h (number) height in pixels
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @param t (number) thickness in pixels, defaults to 1 (only on radios with color display)
 
@@ -828,7 +828,7 @@ Draw a solid rectangle from top left corner (x,y) of specified width and height
 
 @param h (number) height in pixels
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @param opacity (number) opacity defaults to 0 (only on radios with color display)
 
@@ -865,7 +865,7 @@ Invert a rectangle zone from top left corner (x,y) of specified width and height
 
 @param h (number) height in pixels
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @notice Only available on radios with color display
 
@@ -904,7 +904,7 @@ Draw a simple gauge that is filled based upon fill value
 
 @param maxfill (number) total value of fill
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @status current Introduced in 2.0.0, changed in 2.2.0
 */
@@ -932,7 +932,7 @@ static int luaLcdDrawGauge(lua_State *L)
 /*luadoc
 @function lcd.setColor(colorIndex, color)
 
-Change an indexed color (theme colors and CUSTOM_COLOR). Please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html#color-constants)
+Change an indexed color (theme colors and CUSTOM_COLOR). Please see the Lcd functions overview for indexed color constants
 
 Please notice that changing theme colors affects not only other Lua widgets, but the entire radio interface.
 
@@ -957,7 +957,7 @@ static int luaLcdSetColor(lua_State *L)
 
 Get the color value from flags
 
-@param flags (flags) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (flags) please see the Lcd functions overview
 
 @retval color (flag) only the RGB565 color value of the input
 
@@ -1024,7 +1024,7 @@ Draw a circle at (x, y) of specified radius
 
 @param r (number) radius in pixels
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @notice Only available on radios with color display
 
@@ -1055,7 +1055,7 @@ Draw a filled circle at (x, y) of specified radius
 
 @param r (number) radius in pixels
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @notice Only available on radios with color display
 
@@ -1084,7 +1084,7 @@ Draw a triangle
 
 @param x1,y1,x2,y2,x3,y3 (positive numbers) coordinates of the three vertices
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @notice Only available on radios with color display
 
@@ -1118,7 +1118,7 @@ Draw a filled triangle
 
 @param x1,y1,x2,y2,x3,y3 (positive numbers) coordinates of the three vertices
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @notice Only available on radios with color display
 
@@ -1154,7 +1154,7 @@ Draw an arc
 
 @param start,end (positive numbers) start and end of the arc
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @notice Only available on radios with color display
 
@@ -1190,7 +1190,7 @@ Draw a pie slice
 
 @param start,end (positive numbers) start and end of the pie slice
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @notice Only available on radios with color display
 
@@ -1226,7 +1226,7 @@ Draw an arc
 
 @param start,end (positive numbers) start and end of the annulus
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @notice Only available on radios with color display
 
@@ -1260,9 +1260,9 @@ Draw a line only inside a rectangle
 
 @param xmin,xmax,ymin,ymax (positive numbers) the limits of the rectangle inside which the line is drawn
 
-@param pattern (FORCE, ERASE, DOTTED) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param pattern (FORCE, ERASE, DOTTED) please see the Lcd functions overview
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @notice Only available on radios with color display
 
@@ -1372,7 +1372,7 @@ Draw a rectangle in perspective
 
 @param xmin,xmax,ymin,ymax (positive numbers) the limits of the rectangle
 
-@param flags (optional) please see [Lcd functions overview](../lcd-functions-less-than-greater-than-luadoc-begin-lcd/lcd_functions-overview.html)
+@param flags (optional) please see the Lcd functions overview
 
 @notice Only available on radios with color display
 
