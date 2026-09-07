@@ -806,7 +806,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @retval table LVGL object
 
-  @notice `w` and `h` are required -- `lvgl.PERCENT_SIZE` does not work for images, unlike most other objects.
+  @notice `w` and `h` are required.
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
@@ -853,6 +853,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
   LROT_FUNCENTRY(button, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextButton(); }, true); })
@@ -898,6 +899,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
   LROT_FUNCENTRY(toggle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetToggleSwitch(); }, true); })
@@ -918,6 +920,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
   LROT_FUNCENTRY(textEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextEdit(); }, true); })
@@ -992,6 +995,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
   LROT_FUNCENTRY(slider, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSlider(); }, true); })
@@ -1015,6 +1019,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
   LROT_FUNCENTRY(verticalSlider, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetVerticalSlider(); }, true); })
@@ -1070,7 +1075,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @param params (table):
    @commonparams lvgl_object
-   * `get` (function) called when the picker opens, to get the currently selected color, defaults to nil
+   * `get` (function) called once when the object is created, to get the initial color, defaults to nil
    * `set` (function) called when the user picks a color; passed the selected color value, defaults to nil
 
   @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
@@ -1159,7 +1164,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param params (table):
    @commonparams lvgl_object
    * `title` (string) text displayed in the popup's header, defaults to an empty string
-   * `get` (function) called on every refresh cycle to keep the displayed value in sync, to get the currently selected filename; must return a string, defaults to nil
+   * `get` (function) called when the popup is opened, and after the selection changes, to get the currently selected filename; must return a string, defaults to nil
    * `set` (function) called when the user picks a file; passed the selected filename (without path), defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
    * `folder` (string) SD card folder to browse for files, defaults to nil
@@ -1219,6 +1224,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+
   @status current Introduced in 2.11.0, title function support added in 2.11.6, floating added in 2.11.6
   */
   LROT_FUNCENTRY(setting, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSetting(); }, true); })
@@ -1231,7 +1237,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `title` (string or function) title text in the header; function support added in 2.11.4, defaults to an empty string
    * `subtitle` (string or function) sub-title text in the header; function support added in 2.11.4, defaults to an empty string
    * `icon` (string) full path to a 30x30 grey-scale mask image for the back button icon (white = transparent, black = opaque); defaults to the EdgeTX logo icon
-   * `back` (function) called when the top-left header button is tapped or RTN is pressed; if `backButton` is not set this is the only header button, defaults to nil
+   * `back` (function) called when RTN is pressed, or when the back button is tapped -- the top-left header button if `backButton` is not set, otherwise a second button on the top-right, defaults to nil
    * `menu` (function) called when the top-left header button is tapped, but only if `backButton` is set to true -- in that case `back` moves to a second button on the top-right, defaults to nil
    * `prevButton` (table) adds a prev navigation button; table has a `press` function and optional `active` function (added in 2.11.4), defaults to nil
    * `nextButton` (table) adds a next navigation button; table has a `press` function and optional `active` function (added in 2.11.4), defaults to nil
