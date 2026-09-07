@@ -604,15 +604,9 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(isFullScreen, luaLvglIsFullscreen)
   LROT_FUNCENTRY(exitFullScreen, luaLvglExitFullscreen)
   LROT_FUNCENTRY(getContext, luaLvglGetContext)
-  // Objects - widgets and standalone scripts
   /*luadoc
-  @function lvgl.label([parent, ]params)
+  @common lvgl_object
 
-  Display a text label.
-
-  @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
-
-  @param params (table):
    * `x` (number) position relative to the top-left of the parent
    * `y` (number) position relative to the top-left of the parent
    * `w` (number) width
@@ -622,6 +616,17 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
    * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+  */
+  // Objects - widgets and standalone scripts
+  /*luadoc
+  @function lvgl.label([parent, ]params)
+
+  Display a text label.
+
+  @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
+
+  @param params (table):
+   @commonparams lvgl_object
    * `text` (string or function) text to display, defaults to an empty string
    * `font` (font value or function) sets the font size, e.g. `MIDSIZE`, `DBLSIZE`; defaults to `STDSIZE`
    * `align` (text alignment value or function) sets the text justification, e.g. `RIGHT`, `VCENTER`; defaults to `LEFT`. `RIGHT`/`CENTER` require `w` to be set. `LEFT`/`RIGHT`/`CENTER` align text horizontally within the label's bounding box `(x,y,w,h)`; `VCENTER`/`VTOP`/`VBOTTOM` align the label's bounding box vertically within the parent object
@@ -639,15 +644,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `thickness` (number) width of the border line, defaults to 1
    * `filled` (boolean or function) if true the rectangle is filled with `color`, defaults to false (function support added in 2.11.4)
    * `rounded` (number) if greater than 0, rounds the corners with this radius; must be >= `thickness` if set, defaults to 0
@@ -670,15 +667,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   `w` sets the length of the line; `h` sets its thickness.
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `rounded` (boolean) if true the line's end caps are rounded, defaults to false
    * `opacity` (number or function) opacity from 0 (transparent) to 255 (opaque), defaults to 255
    * `dashGap` (number) gap size for dashed lines, defaults to 0
@@ -699,15 +688,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   `h` sets the length of the line; `w` sets its thickness.
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `rounded` (boolean) if true the line's end caps are rounded, defaults to false
    * `opacity` (number or function) opacity from 0 (transparent) to 255 (opaque), defaults to 255
    * `dashGap` (number) gap size for dashed lines, defaults to 0
@@ -728,15 +709,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   `x`, `y`, `w`, and `h` are not used.
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `rounded` (boolean) if true the line's end caps are rounded, defaults to false
    * `thickness` (number) thickness of each line segment, defaults to 1
    * `opacity` (number or function) opacity from 0 (transparent) to 255 (opaque), defaults to 255
@@ -757,15 +730,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   `x`, `y`, `w`, and `h` are not used.
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `opacity` (number or function) opacity from 0 (transparent) to 255 (opaque), defaults to 255
    * `pts` (table or function) table of exactly three points, each a `{x, y}` pair, defaults to nil
 
@@ -786,15 +751,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   `w`, `h`, and `size` should not be used with `lvgl.circle` -- use `radius` instead.
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `thickness` (number) width of the border line, defaults to 1
    * `filled` (boolean) if true the circle is filled with `color`, defaults to false
    * `radius` (number or function) radius of the circle, defaults to 0
@@ -815,15 +772,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   `w`, `h`, and `size` should not be used with `lvgl.arc` -- use `radius` instead.
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `thickness` (number) width of the arc's line, defaults to 1
    * `radius` (number or function) radius of the arc, defaults to 0
    * `startAngle` (number or function) starting angle in degrees (0-360), 0 is 3 o'clock, defaults to 0
@@ -848,15 +797,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `file` (string) full path to the image file on the SD card, defaults to an empty string
    * `fill` (boolean) if true the image is scaled to completely fill the frame (may be cropped); if false it is scaled to fit entirely within the frame (may have empty borders), defaults to false
 
@@ -875,15 +816,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   `w` and `h` should be set to the same value for a QR code.
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `data` (string) URL or other content to encode, defaults to an empty string
    * `bgColor` (color) background color for the QR code image, defaults to `COLOR_THEME_SECONDARY3`
 
@@ -901,15 +834,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `text` (string or function) text displayed in the button, defaults to an empty string
    * `press` (function) called when the user taps the button, after releasing ENTER or the screen; may optionally return a non-zero integer to display the button in the checked state, defaults to nil
    * `longpress` (function) called on a long tap; may optionally return a non-zero integer to display the button in the checked state, defaults to nil
@@ -933,15 +858,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `text` (string or function) text displayed in the button, defaults to an empty string
    * `press` (function) called immediately when the user first taps the button or presses ENTER, defaults to nil
    * `release` (function) called when the user releases ENTER or stops touching the screen, defaults to nil
@@ -966,15 +883,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `get` (function) called to get the current state; must return a boolean or number (0/false = off, 1/true = on), defaults to nil
    * `set` (function) called when the user interacts with the switch; passed a single number, 0 = off, 1 = on, defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
@@ -992,15 +901,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `value` (string or function) text to edit; if a function, the text can be changed by both script and user, defaults to an empty string
    * `length` (number) maximum editable text length, 1 to 128, defaults to 32
    * `set` (function) called when the user edits the text; passed the new string content, defaults to nil
@@ -1019,15 +920,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `get` (function) called to get the current value to display, defaults to nil
    * `set` (function) called for every change to the number while editing; passed the new value, defaults to nil
    * `edited` (function) called after the user finishes editing; passed the final value (added in 2.11.5), defaults to nil
@@ -1051,15 +944,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `title` (string) text displayed in the popup menu's header, defaults to an empty string
    * `values` (table) simple table of option strings shown in the popup; can be changed via `lvgl.set()` since 2.11.6, defaults to an empty list
    * `get` (function) called when the popup is opened, to get the index of the currently selected option (1..number of values), defaults to nil
@@ -1086,15 +971,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   `w` sets the size of the slider; `h` is not used.
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `min` (number) minimum value at the left end of the range, defaults to 0
    * `max` (number) maximum value at the right end of the range, defaults to 100
    * `get` (function) called to get the current knob value; should return a value between `min` and `max` inclusive, defaults to nil
@@ -1116,15 +993,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   `h` sets the size of the slider; `w` is not used.
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `min` (number) minimum value at the bottom end of the range, defaults to 0
    * `max` (number) maximum value at the top end of the range, defaults to 100
    * `get` (function) called to get the current knob value; should return a value between `min` and `max` inclusive, defaults to nil
@@ -1144,15 +1013,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `get` (function) called when the popup opens, to get the currently selected font, defaults to nil
    * `set` (function) called when the user taps a font in the popup; passed the selected font value, defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
@@ -1173,15 +1034,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `get` (function) called when the popup opens, to get the currently selected alignment, defaults to nil
    * `set` (function) called when the user taps an alignment in the popup; passed the selected alignment value, defaults to nil
 
@@ -1201,15 +1054,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `get` (function) called when the picker opens, to get the currently selected color, defaults to nil
    * `set` (function) called when the user picks a color; passed the selected color value, defaults to nil
 
@@ -1229,15 +1074,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `get` (function) called when the popup opens, to get the currently selected timer, defaults to nil
    * `set` (function) called when the user taps a timer in the popup; passed the selected timer value, defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
@@ -1258,15 +1095,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `get` (function) called when the popup opens, to get the currently selected switch, defaults to nil
    * `set` (function) called when the user picks a switch; passed the selected switch value, defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
@@ -1287,15 +1116,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `get` (function) called when the popup opens, to get the currently selected source, defaults to nil
    * `set` (function) called when the user picks a source; passed the selected source value, defaults to nil
    * `filter` (number) controls which source types the user can pick; combine `lvgl.SRC_xxx` constants to build a custom filter, defaults to `lvgl.SRC_ALL`
@@ -1316,15 +1137,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `title` (string) text displayed in the popup's header, defaults to an empty string
    * `get` (function) called when the popup opens, to get the currently selected filename; must return a string, defaults to nil
    * `set` (function) called when the user picks a file; passed the selected filename (without path), defaults to nil
@@ -1351,15 +1164,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `flexFlow` (lvgl.FLOW_COLUMN or lvgl.FLOW_ROW) enables flex layout for this box, not used by default
    * `flexPad` (number) padding between rows/columns when flex layout is used; recommend using `lvgl.PAD_xxx` values, defaults to `PAD_OUTLINE`
    * `scrollBar` (boolean) enables/disables scroll bars, defaults to true
@@ -1387,15 +1192,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
 
   @param params (table):
-   * `x` (number) position relative to the top-left of the parent
-   * `y` (number) position relative to the top-left of the parent
-   * `w` (number) width
-   * `h` (number) height
-   * `color` (color or function) primary color for the object
-   * `pos` (function) dynamic position callback returning `x, y`
-   * `size` (function) dynamic size callback returning `w, h`
-   * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.11.6, defaults to false
+   @commonparams lvgl_object
    * `title` (string or function) text displayed on the left; function support added in 2.11.6, defaults to an empty string
 
   @retval table LVGL object
