@@ -7,6 +7,8 @@ option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
+option(BLUETOOTH "FrSky BT module support" OFF)
+option(INTERNAL_GPS "Support for internal GPS" ON)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
@@ -25,8 +27,15 @@ set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(HARDWARE_EXTERNAL_MODULE YES)
 set(INTERNAL_MODULE_AFHDS3 NO)
 set(ROTARY_ENCODER YES)
+set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
 
 #option(STICK_DEAD_ZONE "Enable sticks dead zone" YES)
+
+if(BLUETOOTH)
+  set(AUX2_SERIAL OFF)
+else()
+  set(AUX2_SERIAL ON)
+endif()
 
 # for size report script
 set(CPU_TYPE_FULL STM32H750xB)
@@ -71,6 +80,7 @@ set(SDRAM ON)
 add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DRTCLOCK)
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
+add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 
 if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
@@ -83,6 +93,13 @@ endif()
 if(DISK_CACHE)
   set(SRC ${SRC} disk_cache.cpp)
   add_definitions(-DDISK_CACHE)
+endif()
+
+if(INTERNAL_GPS)
+  message("-- Internal GPS enabled")
+  add_definitions(-DINTERNAL_GPS)
+  add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
+  set(SRC ${SRC} gps.cpp gps_nmea.cpp gps_ubx.cpp)
 endif()
 
 set(AFHDS3 ON)
@@ -143,6 +160,10 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
 )
 add_dependencies(board board_lib)
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
+
+if(BLUETOOTH)
+  target_sources(board PRIVATE targets/common/arm/stm32/bluetooth_driver.cpp)
+endif()
 
 include_directories(${RADIO_SRC_DIR}/fonts/colorlcd gui/${GUI_DIR} gui/${GUI_DIR}/layouts)
 
