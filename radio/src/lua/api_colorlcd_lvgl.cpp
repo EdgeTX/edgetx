@@ -458,7 +458,7 @@ Build a complex UI in a single operation from a table of object definitions.
 @param parent (object) optional LVGL object to attach the built objects to; if omitted they attach to the top-level script window
 
 @param params (table) a table of tables, each defining one LVGL object:
- * `type` (string or type constant) mandatory, selects the kind of object to create, e.g. `"rectangle"` or `lvgl.RECTANGLE`
+ * `type` (string or type constant) mandatory, selects the kind of object to create, e.g. `"rectangle"` or `lvgl.RECTANGLE`; named type constants (e.g. `lvgl.RECTANGLE`) added in 2.12.0, string names work in all versions
  * `name` (string) optional name used to look up this object in the returned table, defaults to an empty string
  * `children` (table) optional nested table of the same shape, to create child objects
  * any other key accepted by the constructor function for the chosen `type`
@@ -468,7 +468,7 @@ Build a complex UI in a single operation from a table of object definitions.
 @notice Objects can be nested via `children`, another table of tables using the same shape as the top-level `params`.
 @notice Very large or deeply nested tables may fail to compile to `.luac` -- if a script works from `.lua` but fails from `.luac`, split the call into multiple smaller `lvgl.build()` calls.
 
-@status current Introduced in 2.11.0
+@status current Introduced in 2.11.0, named type constants added in 2.12.0
 */
 static int luaLvglBuild(lua_State *L)
 {
@@ -621,14 +621,14 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `text` (string or function) text to display, defaults to an empty string
    * `font` (font value or function) sets the font size, e.g. `MIDSIZE`, `DBLSIZE`; defaults to `STDSIZE`
    * `align` (text alignment value or function) sets the text justification, e.g. `RIGHT`, `VCENTER`; defaults to `LEFT`. `RIGHT`/`CENTER` require `w` to be set. `LEFT`/`RIGHT`/`CENTER` align text horizontally within the label's bounding box `(x,y,w,h)`; `VCENTER`/`VTOP`/`VBOTTOM` align the label's bounding box vertically within the parent object
 
   @retval table LVGL object
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(label, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetLabel(); }); })
   /*luadoc
@@ -647,7 +647,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `thickness` (number) width of the border line, defaults to 1
    * `filled` (boolean or function) if true the rectangle is filled with `color`, defaults to false (function support added in 2.11.4)
    * `rounded` (number) if greater than 0, rounds the corners with this radius; must be >= `thickness` if set, defaults to 0
@@ -657,7 +657,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @notice When used in a stand alone tool script, the rectangle automatically adds scroll bars if any child objects are placed outside its boundaries. For widgets, child objects outside the bounds are clipped instead.
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, filled function support added in 2.11.4, floating added in 2.12.0
   */
   LROT_FUNCENTRY(rectangle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetRectangle(); }); })
   /*luadoc
@@ -678,7 +678,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `rounded` (boolean) if true the line's end caps are rounded, defaults to false
    * `opacity` (number or function) opacity from 0 (transparent) to 255 (opaque), defaults to 255
    * `dashGap` (number) gap size for dashed lines, defaults to 0
@@ -686,7 +686,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @retval table LVGL object
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(hline, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetHLine(); }); })
   /*luadoc
@@ -707,7 +707,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `rounded` (boolean) if true the line's end caps are rounded, defaults to false
    * `opacity` (number or function) opacity from 0 (transparent) to 255 (opaque), defaults to 255
    * `dashGap` (number) gap size for dashed lines, defaults to 0
@@ -715,7 +715,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @retval table LVGL object
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(vline, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetVLine(); }); })
   /*luadoc
@@ -736,7 +736,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `rounded` (boolean) if true the line's end caps are rounded, defaults to false
    * `thickness` (number) thickness of each line segment, defaults to 1
    * `opacity` (number or function) opacity from 0 (transparent) to 255 (opaque), defaults to 255
@@ -744,7 +744,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @retval table LVGL object
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(line, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetLine(); }); })
   /*luadoc
@@ -765,7 +765,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `opacity` (number or function) opacity from 0 (transparent) to 255 (opaque), defaults to 255
    * `pts` (table or function) table of exactly three points, each a `{x, y}` pair, defaults to nil
 
@@ -773,7 +773,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @notice Unlike the line-drawing objects, LVGL has no built-in triangle primitive. The drawing method used is simple and does not anti-alias.
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(triangle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTriangle(); }); })
   /*luadoc
@@ -794,7 +794,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `thickness` (number) width of the border line, defaults to 1
    * `filled` (boolean) if true the circle is filled with `color`, defaults to false
    * `radius` (number or function) radius of the circle, defaults to 0
@@ -802,7 +802,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @retval table LVGL object
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(circle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetCircle(); }); })
   /*luadoc
@@ -823,7 +823,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `thickness` (number) width of the arc's line, defaults to 1
    * `radius` (number or function) radius of the arc, defaults to 0
    * `startAngle` (number or function) starting angle in degrees (0-360), 0 is 3 o'clock, defaults to 0
@@ -837,7 +837,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @retval table LVGL object
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(arc, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetArc(); }); })
   /*luadoc
@@ -856,13 +856,13 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `file` (string) full path to the image file on the SD card, defaults to an empty string
    * `fill` (boolean) if true the image is scaled to completely fill the frame (may be cropped); if false it is scaled to fit entirely within the frame (may have empty borders), defaults to false
 
   @retval table LVGL object
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(image, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetImage(); }); })
   /*luadoc
@@ -883,13 +883,13 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `data` (string) URL or other content to encode, defaults to an empty string
    * `bgColor` (color) background color for the QR code image, defaults to `COLOR_THEME_SECONDARY3`
 
   @retval table LVGL object
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(qrcode, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetQRCode(); }); })
   // Objects - standalone scripts and full screen widgets only
@@ -909,7 +909,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `text` (string or function) text displayed in the button, defaults to an empty string
    * `press` (function) called when the user taps the button, after releasing ENTER or the screen; may optionally return a non-zero integer to display the button in the checked state, defaults to nil
    * `longpress` (function) called on a long tap; may optionally return a non-zero integer to display the button in the checked state, defaults to nil
@@ -922,7 +922,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @retval table LVGL object
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(button, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextButton(); }, true); })
   /*luadoc
@@ -941,7 +941,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `text` (string or function) text displayed in the button, defaults to an empty string
    * `press` (function) called immediately when the user first taps the button or presses ENTER, defaults to nil
    * `release` (function) called when the user releases ENTER or stops touching the screen, defaults to nil
@@ -955,7 +955,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @notice Unlike `lvgl.button`, `press` fires immediately on tap/press rather than on release. The button shows the checked state until ENTER is released or the screen is no longer touched.
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(momentaryButton, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetMomentaryButton(); }, true); })
   /*luadoc
@@ -974,14 +974,14 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `get` (function) called to get the current state; must return a boolean or number (0/false = off, 1/true = on), defaults to nil
    * `set` (function) called when the user interacts with the switch; passed a single number, 0 = off, 1 = on, defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
 
   @retval table LVGL object
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(toggle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetToggleSwitch(); }, true); })
   /*luadoc
@@ -1000,7 +1000,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `value` (string or function) text to edit; if a function, the text can be changed by both script and user, defaults to an empty string
    * `length` (number) maximum editable text length, 1 to 128, defaults to 32
    * `set` (function) called when the user edits the text; passed the new string content, defaults to nil
@@ -1008,7 +1008,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @retval table LVGL object
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(textEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextEdit(); }, true); })
   /*luadoc
@@ -1027,7 +1027,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `get` (function) called to get the current value to display, defaults to nil
    * `set` (function) called for every change to the number while editing; passed the new value, defaults to nil
    * `edited` (function) called after the user finishes editing; passed the final value (added in 2.11.5), defaults to nil
@@ -1040,7 +1040,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @notice Use `set` to react to every change during editing, or `edited` to only react to the final value once editing is complete.
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, edited added in 2.11.5, floating added in 2.12.0
   */
   LROT_FUNCENTRY(numberEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetNumberEdit(); }, true); })
   /*luadoc
@@ -1059,7 +1059,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `title` (string) text displayed in the popup menu's header, defaults to an empty string
    * `values` (table) simple table of option strings shown in the popup; can be changed via `lvgl.set()` since 2.11.6, defaults to an empty list
    * `get` (function) called when the popup is opened, to get the index of the currently selected option (1..number of values), defaults to nil
@@ -1073,7 +1073,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @notice The popup closes and `set` is called when the user selects an item.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, values updatable via lvgl.set() added in 2.11.6, floating added in 2.12.0
   */
   LROT_FUNCENTRY(choice, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetChoice(); }, true); })
   /*luadoc
@@ -1094,7 +1094,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `min` (number) minimum value at the left end of the range, defaults to 0
    * `max` (number) maximum value at the right end of the range, defaults to 100
    * `get` (function) called to get the current knob value; should return a value between `min` and `max` inclusive, defaults to nil
@@ -1103,7 +1103,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @retval table LVGL object
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(slider, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSlider(); }, true); })
   /*luadoc
@@ -1124,7 +1124,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `min` (number) minimum value at the bottom end of the range, defaults to 0
    * `max` (number) maximum value at the top end of the range, defaults to 100
    * `get` (function) called to get the current knob value; should return a value between `min` and `max` inclusive, defaults to nil
@@ -1133,7 +1133,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @retval table LVGL object
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(verticalSlider, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetVerticalSlider(); }, true); })
   /*luadoc
@@ -1152,7 +1152,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `get` (function) called when the popup opens, to get the currently selected font, defaults to nil
    * `set` (function) called when the user taps a font in the popup; passed the selected font value, defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
@@ -1162,7 +1162,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @notice The popup closes and `set` is called when the user selects an item.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(font, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetFontPicker(); }, true); })
   /*luadoc
@@ -1181,7 +1181,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `get` (function) called when the popup opens, to get the currently selected alignment, defaults to nil
    * `set` (function) called when the user taps an alignment in the popup; passed the selected alignment value, defaults to nil
 
@@ -1190,7 +1190,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @notice The popup closes and `set` is called when the user selects an item.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(align, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetAlignPicker(); }, true); })
   /*luadoc
@@ -1209,7 +1209,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `get` (function) called when the picker opens, to get the currently selected color, defaults to nil
    * `set` (function) called when the user picks a color; passed the selected color value, defaults to nil
 
@@ -1218,7 +1218,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @notice The popup closes and `set` is called when the user selects a color.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(color, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetColorPicker(); }, true); })
   /*luadoc
@@ -1237,7 +1237,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `get` (function) called when the popup opens, to get the currently selected timer, defaults to nil
    * `set` (function) called when the user taps a timer in the popup; passed the selected timer value, defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
@@ -1247,7 +1247,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @notice The popup closes and `set` is called when the user selects an item.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(timer, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTimerPicker(); }, true); })
   /*luadoc
@@ -1266,7 +1266,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `get` (function) called when the popup opens, to get the currently selected switch, defaults to nil
    * `set` (function) called when the user picks a switch; passed the selected switch value, defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
@@ -1276,7 +1276,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @notice The popup closes and `set` is called when the user selects an item.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(switch, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSwitchPicker(); }, true); })
   /*luadoc
@@ -1295,7 +1295,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `get` (function) called when the popup opens, to get the currently selected source, defaults to nil
    * `set` (function) called when the user picks a source; passed the selected source value, defaults to nil
    * `filter` (number) controls which source types the user can pick; combine `lvgl.SRC_xxx` constants to build a custom filter, defaults to `lvgl.SRC_ALL`
@@ -1305,7 +1305,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @notice The popup closes and `set` is called when the user selects an item.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(source, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSourcePicker(); }, true); })
   /*luadoc
@@ -1324,7 +1324,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `title` (string) text displayed in the popup's header, defaults to an empty string
    * `get` (function) called when the popup opens, to get the currently selected filename; must return a string, defaults to nil
    * `set` (function) called when the user picks a file; passed the selected filename (without path), defaults to nil
@@ -1339,7 +1339,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @notice The popup closes and `set` is called when the user picks a file.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, floating added in 2.12.0
   */
   LROT_FUNCENTRY(file, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetFilePicker(); }, true); })
   // Containers
@@ -1359,7 +1359,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `flexFlow` (lvgl.FLOW_COLUMN or lvgl.FLOW_ROW) enables flex layout for this box, not used by default
    * `flexPad` (number) padding between rows/columns when flex layout is used; recommend using `lvgl.PAD_xxx` values, defaults to `PAD_OUTLINE`
    * `scrollBar` (boolean) enables/disables scroll bars, defaults to true
@@ -1374,8 +1374,9 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @notice The box is a helper for managing screen layouts.
   @notice When adding controls such as button/toggle/textEdit, leave enough space around them for the focus outline.
   @notice In a stand alone tool script, the box automatically adds scroll bars if child objects fall outside its boundaries; for widgets, out-of-bounds children are clipped instead.
+  @notice `scrollBar`, `scrollDir`, `scrolled`, and `scrollTo` were added in 2.12.0.
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, align added in 2.11.4, borderPad added in 2.11.5, floating added in 2.12.0, scrollBar/scrollDir/scrolled/scrollTo added in 2.12.0
   */
   LROT_FUNCENTRY(box, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetBox(); }); })
   /*luadoc
@@ -1394,12 +1395,12 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `pos` (function) dynamic position callback returning `x, y`
    * `size` (function) dynamic size callback returning `w, h`
    * `visible` (function) dynamic visibility callback
-   * `floating` (boolean) keep the object fixed inside a scrollable container, defaults to false
+   * `floating` (boolean) keep the object fixed inside a scrollable container, added in 2.12.0, defaults to false
    * `title` (string or function) text displayed on the left; function support added in 2.11.6, defaults to an empty string
 
   @retval table LVGL object
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, title function support added in 2.11.6, floating added in 2.12.0
   */
   LROT_FUNCENTRY(setting, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSetting(); }, true); })
   /*luadoc
@@ -1429,8 +1430,9 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @notice The common object settings (x, y, w, h, color, etc.) are not used by `lvgl.page` -- only the settings listed above apply.
   @notice The page automatically adds scroll bars if child objects fall outside its boundaries.
+  @notice `scrollBar`, `scrollDir`, `scrolled`, and `scrollTo` were added in 2.12.0.
 
-  @status current Introduced in 2.11.0
+  @status current Introduced in 2.11.0, title/subtitle function support, menu, prevButton, nextButton, align, and backButton added in 2.11.4, borderPad added in 2.11.5, scrollBar/scrollDir/scrolled/scrollTo added in 2.12.0
   */
   LROT_FUNCENTRY(page, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetPage(); }, true); })
   /*luadoc
