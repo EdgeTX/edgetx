@@ -516,6 +516,13 @@ int32_t rtcCalibrationPpm10(int32_t units)
   return (int32_t)(((int64_t)units * 10000000) / RTC_CALIB_UNITS_PER_SECOND);
 }
 
+int32_t rtcCalibrationUnits(int32_t ppm)
+{
+  int64_t v = (int64_t)ppm * RTC_CALIB_UNITS_PER_SECOND;
+  v += (v < 0) ? -500000 : 500000;
+  return (int32_t)(v / 1000000);
+}
+
 static void rtcCalibrationStart()
 {
   struct gtm before = {};
@@ -569,6 +576,16 @@ static void rtcCalibrationUpdate(gtime_t newTime)
         (int)error, (int)elapsed, (int)rtcCalibSessionUnits, (int)units,
         (int)rtcCalibrationPpm10(rtcCalibSessionUnits),
         (int)rtcCalibrationPpm10(units));
+}
+
+// Clears the hardware trim and the stored reference, so the next two settings
+// start a fresh measurement
+void rtcResetCalibration()
+{
+  rtcSetCalibration(0);
+  rtcClearCalibrationRef();
+  rtcCalibSession = false;
+  rtcCalibLastSet = 0;
 }
 
 void rtcSetTime(const struct gtm * t)
