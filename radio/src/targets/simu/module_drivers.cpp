@@ -24,6 +24,7 @@
 #include "hal/module_port.h"
 #include "dataconstants.h"
 #include "debug.h"
+#include "simulib.h"
 
 void intmoduleStop() {}
 void intmoduleFifoError() {}
@@ -90,6 +91,43 @@ static bool txCompleted(void*) { return true; }
 static void waitForTxCompleted(void*) {}
 static int getByte(void*,uint8_t*) { return -1; }
 
+// Internal module serial: the same stub as below, except that what the
+// firmware transmits is handed to the host instead of being dropped.  Without
+// this a simulator build has no way to observe the module's side of the link
+// at all, so anything that talks to the module -- the ExpressLRS Lua tool, for
+// one -- waits forever for a reply nobody could have heard it ask for.
+static void intmoduleSendByte(void*, uint8_t b)
+{
+  simuModuleSendBuffer(0, &b, 1);
+}
+
+static void intmoduleSendBuffer(void*, const uint8_t* data, uint32_t len)
+{
+  simuModuleSendBuffer(0, data, len);
+}
+
+const etx_serial_driver_t _intmoduleSerialDriver = {
+    .init = init,
+    .deinit = deinit,
+    .sendByte = intmoduleSendByte,
+    .sendBuffer = intmoduleSendBuffer,
+    .txCompleted = txCompleted,
+    .waitForTxCompleted = waitForTxCompleted,
+    .enableRx = nullptr,
+    .getByte = getByte,
+    .getLastByte = nullptr,
+    .getBufferedBytes = nullptr,
+    .copyRxBuffer = nullptr,
+    .clearRxBuffer = nullptr,
+    .getBaudrate = nullptr,
+    .setBaudrate = nullptr,
+    .setPolarity = nullptr,
+    .setHWOption = nullptr,
+    .setReceiveCb = nullptr,
+    .setIdleCb = nullptr,
+    .setBaudrateCb = nullptr,
+};
+
 const etx_serial_driver_t _fakeSerialDriver = {
     .init = init,
     .deinit = deinit,
@@ -139,7 +177,7 @@ const etx_module_port_t _internal_ports[] = {
     .port = ETX_MOD_PORT_UART,
     .type = ETX_MOD_TYPE_SERIAL,
     .dir_flags = ETX_MOD_DIR_TX_RX | ETX_MOD_FULL_DUPLEX,
-    .drv = { .serial = &_fakeSerialDriver },
+    .drv = { .serial = &_intmoduleSerialDriver },
     .hw_def = nullptr,
   },
 #else // INTMODULE_USART
@@ -147,7 +185,7 @@ const etx_module_port_t _internal_ports[] = {
     .port = ETX_MOD_PORT_SOFT_INV,
     .type = ETX_MOD_TYPE_SERIAL,
     .dir_flags = ETX_MOD_DIR_TX,
-    .drv = { .serial = &_fakeSerialDriver },
+    .drv = { .serial = &_intmoduleSerialDriver },
     .hw_def = nullptr,
   },
 #endif
