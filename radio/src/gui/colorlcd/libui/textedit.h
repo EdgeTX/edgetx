@@ -36,11 +36,15 @@ class TextEdit : public TextButton
   void preview(bool edited, char* text, uint8_t length);
   void update();
 
+  // text shown when the value is empty (default "---")
+  void setPlaceholder(const char* p);
+
  protected:
   std::function<void(void)> updateHandler = nullptr;
   TextArea* edit = nullptr;
   char* text;
   uint8_t length;
+  std::string placeholder = "---";
 
   void openEdit();
 };
