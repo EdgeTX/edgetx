@@ -1331,19 +1331,17 @@ static int luaGhostTelemetryPush(lua_State * L)
   if (lua_gettop(L) == 0) {
     lua_pushboolean(L, outputTelemetryBuffer.isAvailable());
   }
-  else if (lua_gettop(L) > TELEMETRY_OUTPUT_BUFFER_SIZE ) {
-    lua_pushboolean(L, false);
-    return 1;
-  }
   else if (outputTelemetryBuffer.isAvailable()) {
     uint8_t type = luaL_checkinteger(L, 1);
     luaL_checktype(L, 2, LUA_TTABLE);
-    uint8_t length = luaL_len(L, 2);              // payload length
+    lua_Integer payloadLen = luaL_len(L, 2);      // payload length
 
-    if( length > 10 ) {                           // max 10B payload
+    if (payloadLen < 0 || payloadLen > 10) {      // max 10B payload
       lua_pushboolean(L, false);
       return 1;
     }
+
+    uint8_t length = (uint8_t)payloadLen;
 
     // Ghost frames are fixed 14B:
     // address(1B) + len (1B) + type(1B) + payload(10B) + crc(1B)
@@ -1353,6 +1351,7 @@ static int luaGhostTelemetryPush(lua_State * L)
     for (; i < length; i++) {                     // data, max 10B
       lua_rawgeti(L, 2, i + 1);
       outputTelemetryBuffer.pushByte(luaL_checkinteger(L, -1));
+      lua_pop(L, 1);
     }
     for (; i < 10; i++) {                         // fill zeroes to frame size
       outputTelemetryBuffer.pushByte(0);
