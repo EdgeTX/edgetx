@@ -31,12 +31,12 @@
 #include <list>
 #include <string>
 
-class LabelsStorageFormat : public StorageFormat
+class TreeStorageFormat : public StorageFormat
 {
-  Q_DECLARE_TR_FUNCTIONS(LabelsStorageFormat)
+  Q_DECLARE_TR_FUNCTIONS(TreeStorageFormat)
 
   public:
-    LabelsStorageFormat(const QString & filename):
+    TreeStorageFormat(const QString & filename):
       StorageFormat(filename)
     {
     }
