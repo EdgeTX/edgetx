@@ -144,6 +144,7 @@
 #define TR_AUX_SERIAL_MODES_9          "Debug"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "External module"
+#define TR_AUX_SERIAL_MODES_12         "CRSF Trainer"
 #define TR_SWTYPES_1                   "None"
 #define TR_SWTYPES_2                   "Toggle"
 #define TR_SWTYPES_3                   "2POS"

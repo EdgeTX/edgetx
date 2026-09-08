@@ -147,6 +147,7 @@
 #define TR_AUX_SERIAL_MODES_9          "Отлад"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "Внеш модуль"
+#define TR_AUX_SERIAL_MODES_12         "CRSF Trainer"
 #define TR_SWTYPES_1                   "Нет"
 #define TR_SWTYPES_2                   "тумбл"
 #define TR_SWTYPES_3                   "2Х-поз пер"

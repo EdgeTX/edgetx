@@ -572,6 +572,16 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
     return false;
 #endif
 
+  // CRSF trainer input is driven from a receive callback, which only the USB
+  // CDC driver provides today (the STM32 USART driver has no setReceiveCb).
+  if (mode == UART_MODE_CRSF_TRAINER) {
+#if defined(USB_SERIAL) && defined(CROSSFIRE)
+    if (port_nr != SP_VCP) return false;
+#else
+    return false;
+#endif
+  }
+
   auto p = serialGetModePort(mode);
   if (p >= 0 && p != port_nr) return false;
   return true;
@@ -1243,6 +1253,10 @@ bool isTrainerModeAvailable(int mode)
 #if !defined(CROSSFIRE)
     return false;
 #else
+    // CRSF trainer frames can also arrive on a serial port instead of a
+    // module's telemetry stream, in which case no module has to be enabled.
+    if (serialGetModePort(UART_MODE_CRSF_TRAINER) >= 0) return true;
+
     if ((!IS_INTERNAL_MODULE_ENABLED() && !IS_EXTERNAL_MODULE_ENABLED()) ||
          (!(isModuleELRS(INTERNAL_MODULE) && CRSF_ELRS_MIN_VER(INTERNAL_MODULE, 4, 0)) &&
           !(isModuleELRS(EXTERNAL_MODULE) && CRSF_ELRS_MIN_VER(EXTERNAL_MODULE, 4, 0))))

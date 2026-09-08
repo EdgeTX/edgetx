@@ -144,6 +144,7 @@
 #define TR_AUX_SERIAL_MODES_9          "デバッグ"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "外部モジュール"
+#define TR_AUX_SERIAL_MODES_12         "CRSF Trainer"
 #define TR_SWTYPES_1                   "なし"
 #define TR_SWTYPES_2                   "トグル"
 #define TR_SWTYPES_3                   "2POS"
