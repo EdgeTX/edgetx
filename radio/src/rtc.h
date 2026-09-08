@@ -67,10 +67,15 @@ void rtcGetTime(struct gtm * tm);
 int32_t rtcGetCalibration();
 void rtcSetCalibration(int32_t units);
 int32_t rtcCalibrationPpm10(int32_t units);
+int32_t rtcCalibrationUnits(int32_t ppm);
 
 // Time of the last known good setting, 0 when unknown
 gtime_t rtcGetCalibrationRef();
 void rtcSetCalibrationRef(gtime_t t);
+void rtcClearCalibrationRef();
+
+// Back to a factory-fresh state, as if the backup domain had been lost
+void rtcResetCalibration();
 
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {

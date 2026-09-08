@@ -1102,6 +1102,23 @@ int cliSet(const char **argv)
       return -1;
     }
   }
+#if defined(DEBUG)
+  else if (!strcmp(argv[1], "rtccal")) {
+    int ppm = 0;
+    if (!strcmp(argv[2], "reset")) {
+      rtcResetCalibration();
+    } else if (toInt(argv, 2, &ppm) > 0) {
+      rtcSetCalibration(rtcCalibrationUnits(ppm));
+    } else {
+      cliSerialPrint("%s: expected \"reset\" or a ppm value", argv[0]);
+      return -1;
+    }
+    int32_t units = rtcGetCalibration();
+    cliSerialPrint("rtc calibration = %d units (%d ppm x10), reference = %u",
+                   (int)units, (int)rtcCalibrationPpm10(units),
+                   (unsigned)rtcGetCalibrationRef());
+  }
+#endif
 #if !defined(SOFTWARE_VOLUME) && defined(AUDIO)
   else if (!strcmp(argv[1], "volume")) {
     int level = 0;

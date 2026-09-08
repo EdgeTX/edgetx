@@ -98,12 +98,19 @@ void rtcSetCalibrationRef(gtime_t t)
   HAL_RTCEx_BKUPWrite(&rtc, RTC_CALIB_BKP_MAGIC_REG, RTC_CALIB_BKP_MAGIC);
 }
 
+void rtcClearCalibrationRef()
+{
+  HAL_RTCEx_BKUPWrite(&rtc, RTC_CALIB_BKP_MAGIC_REG, 0);
+  HAL_RTCEx_BKUPWrite(&rtc, RTC_CALIB_BKP_REF_REG, 0);
+}
+
 #else // no smooth calibration hardware
 
 int32_t rtcGetCalibration() { return 0; }
 void rtcSetCalibration(int32_t units) { (void)units; }
 gtime_t rtcGetCalibrationRef() { return 0; }
 void rtcSetCalibrationRef(gtime_t t) { (void)t; }
+void rtcClearCalibrationRef() {}
 
 #endif
 
