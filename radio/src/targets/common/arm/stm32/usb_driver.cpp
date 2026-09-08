@@ -162,6 +162,11 @@ void usbInit()
 extern void usbInitLUNs();
 extern USBD_HandleTypeDef hUsbDevice;
 extern "C" USBD_StorageTypeDef USBD_Storage_Interface_fops;
+#if defined(DIAG_BANK2_FENCE) && !defined(BOOT)
+extern "C" void bank2FenceEnable(void);
+extern "C" void bank2FenceDisable(void);
+#endif
+
 extern USBD_CDC_ItfTypeDef USBD_Interface_fops;
 extern USBD_DFU_MediaTypeDef USBD_DFU_MEDIA_fops;
 
@@ -211,11 +216,19 @@ void usbStart()
 
   if (USBD_Start(&hUsbDevice) == USBD_OK) {
     usbDriverStarted = true;
+#if defined(DIAG_BANK2_FENCE) && !defined(BOOT)
+    // Validation builds: trap any flash bank 2 access for the whole
+    // USB session (PA12 errata, EdgeTX#5899)
+    bank2FenceEnable();
+#endif
   }
 }
 
 void usbStop()
 {
+#if defined(DIAG_BANK2_FENCE) && !defined(BOOT)
+  bank2FenceDisable();
+#endif
   usbDriverStarted = false;
   USBD_DeInit(&hUsbDevice);
 }
@@ -265,6 +278,12 @@ void usbJoystickRestart()
 */
 void usbJoystickUpdate()
 {
+  // Do not touch the report buffer while the previous transfer is
+  // still in flight (DMA reads it), and do not hammer the endpoint
+  // at mixer rate when the host has not polled yet (EdgeTX#5899)
+  if (!USBD_HID_IsReady(&hUsbDevice))
+    return;
+
 #if !defined(USBJ_EX)
    static uint8_t HID_Buffer[HID_IN_PACKET];
 
