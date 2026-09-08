@@ -116,6 +116,8 @@ if (PCB STREQUAL X10)
     set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
     set(AUX2_SERIAL OFF)
     set(CSD203_SENSOR ON)
+    set(USB_CHARGER YES)
+    set(V16_CHARGE_UI ON)
     set(FLYSKY_GIMBAL ON)
     add_definitions(-DIMU_ICM42627)
     add_definitions(-DIMU_SC7U22)
@@ -348,6 +350,11 @@ set(FIRMWARE_SRC
 
 if (MULTIMODULE)
   add_definitions(-DMULTI_PROTOLIST)
+endif()
+
+if(V16_CHARGE_UI)
+  add_definitions(-DV16_CHARGE_UI)
+  set(SRC ${SRC} ${TARGET_SRC_DIR}/charge_ui.cpp)
 endif()
 
 set(SRC ${SRC}

@@ -21,6 +21,20 @@
 
 #pragma once
 
+#include <stdint.h>
+
 void IICcsd203init(void);
 void initCSD203(void);
 void readCSD203(void);
+
+// CSD203_ExtSensorCFG: device supply battery
+uint16_t getBatteryVoltage();           // 10mV steps
+int16_t getExtModuleCurrent();          // mA
+
+// CSD203_MainSensorCFG: 2S pack mid-cell tap / system consumption
+uint16_t getBatteryMidVoltage();        // 10mV steps
+int16_t getSystemCurrent();             // mA
+
+// CSD203_InSensorCFG: external RF module supply / internal RF module
+uint16_t getExtModuleVoltage();         // 10mV steps
+int16_t getIntModuleCurrent();          // mA

@@ -700,6 +700,8 @@
 #define TR_REPEAT_AT_ZERO      "Powtórz przy Zerze"
 #define TR_BATT_CALIB          "Kalib:Baterii"
 #define TR_VOLTAGE             TR ("Napięcie","Źródło Napięcia")
+#define TR_MODULE_SENSOR_VOLTAGE       "Napięcie"
+#define TR_MODULE_SENSOR_CURRENT       "Prąd"
 #define TR_SELECT_MODEL        "Wybór modelu"
 #define TR_SELECT_MODE         "Wybierz tryb"
 #define TR_CREATE_MODEL        "Nowy model"
