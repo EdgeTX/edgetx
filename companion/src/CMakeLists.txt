@@ -221,11 +221,9 @@ include_directories(${maxLibQt_SOURCE_DIR}/widgets)
 set(companion_NAMES
   apppreferencesdialog
   helpers_html
-  labels
   logsdialog
   mainwindow
   mdichild
-  modelslist
   profilechooser
   dialogs/filesyncdialog
   )
