@@ -95,9 +95,9 @@ void luaPushDateTime(lua_State * L, uint32_t year, uint32_t mon, uint32_t day,
 @param path (string) path to the object
 
 @retval table object info, table elements:
-* 'size' (number) file size
-* 'attrib' (number) file attribute flags
-* 'time' (table) table with last time modified date and times, table elements:
+* `size` (number) file size
+* `attrib` (number) file attribute flags
+* `time` (table) table with last time modified date and times, table elements:
   * `year` (number) year
   * `mon` (number) month
   * `day` (number) day of month

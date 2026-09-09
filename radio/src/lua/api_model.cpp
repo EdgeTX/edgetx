@@ -613,9 +613,9 @@ Return input data for given input and line number
  * `curveType` (number) curve type (function, expo, custom curve)
  * `curveValue` (number) curve index
  * `carryTrim` deprecated, please use trimSource instead. WARNING: carryTrim was getting negative values (carryTrim = - trimSource)
- * 'trimSource' (number) a positive number representing trim source
- * 'side' (number) input side (positive, negative or all)
- * 'flightModes' (number) bit-mask of active flight modes
+ * `trimSource` (number) a positive number representing trim source
+ * `side` (number) input side (positive, negative or all)
+ * `flightModes` (number) bit-mask of active flight modes
 
 @status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11, broken carryTrim replaced by trimSource in 2.8.1, scale added in 2.10, side added in 2.11
 */
@@ -1803,12 +1803,12 @@ Get heli swash parameters
 @retval table with heli swash parameters:
 * `type` (number) 0=---, 1=120, 2=120X, 3=140, 4=90
 * `value` (number) swash ring value (normally 0)
-* 'collectiveSource' (number) source index
-* 'aileronSource' (number) source index
-* 'elevatorSource' (number) source index
-* 'collectiveWeight'(value) -100 to 100
-* 'aileronWeight' (value) -100 to 100
-* 'elevatorWeight' (value) -100 to 100
+* `collectiveSource` (number) source index
+* `aileronSource` (number) source index
+* `elevatorSource` (number) source index
+* `collectiveWeight`(value) -100 to 100
+* `aileronWeight` (value) -100 to 100
+* `elevatorWeight` (value) -100 to 100
 
  @status current Introduced in 2.8.0
 */
