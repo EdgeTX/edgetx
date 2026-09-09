@@ -87,6 +87,22 @@ static uint32_t stm32_flash_get_sector_size(uint32_t sector)
 
 #define FLASH_TIMEOUT_MS 15000
 
+#if defined(FLASH_FLAG_RDERR)
+  #define _FLASH_FLAG_RDERR FLASH_FLAG_RDERR
+#else
+  #define _FLASH_FLAG_RDERR 0U
+#endif
+
+// Error flags are sticky and survive a reset, so one left over by whatever
+// wrote the flash before us (DFU, a previous firmware) would abort the very
+// next erase/program. Clear them before starting an operation.
+static void flash_drv_clear_errors()
+{
+  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
+                         FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR |
+                         FLASH_FLAG_PGSERR | _FLASH_FLAG_RDERR);
+}
+
 static bool flash_drv_wait_last_op()
 {
   CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
@@ -188,6 +204,7 @@ static int stm32_flash_erase_sector(uint32_t address)
   __DSB();
 
   stm32_flash_unlock();
+  flash_drv_clear_errors();
 
   if (sector > 11) sector += 4;
 
@@ -263,6 +280,7 @@ static int stm32_flash_program(uint32_t address, void* data, uint32_t len)
   __disable_irq();
   __DSB();
   stm32_flash_unlock();
+  flash_drv_clear_errors();
 
   while (address < end_addr) {
     CLEAR_BIT(FLASH->CR, FLASH_CR_PSIZE);
@@ -271,12 +289,14 @@ static int stm32_flash_program(uint32_t address, void* data, uint32_t len)
 
     *(__IO uint32_t*)address = *p_data;
 
-    if (!flash_drv_wait_last_op()) {
+    // PG must be cleared even on failure, or the next erase sees PG+SER
+    bool ok = flash_drv_wait_last_op();
+    CLEAR_BIT(FLASH->CR, FLASH_CR_PG);
+
+    if (!ok) {
       ret = -1;
       break;
     }
-
-    CLEAR_BIT(FLASH->CR, FLASH_CR_PG);
 
     address += sizeof(uint32_t);
     p_data++;
