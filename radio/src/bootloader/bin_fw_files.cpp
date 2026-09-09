@@ -53,13 +53,14 @@ static FWFileInfo  fwFiles[MAX_FW_FILES];
 static uint8_t     Block_buffer[BLOCK_LEN];
 static UINT        BlockCount;
 
-static void flashWriteBlock()
+static bool flashWriteBlock()
 {
   // TODO: use some board provided driver instead
   uint32_t blockOffset = 0;
 #if !defined(SIMU)
   while (BlockCount) {
-    flashWrite((uint32_t *)firmwareAddress, (uint32_t *)&Block_buffer[blockOffset]);
+    if (!flashWrite((uint32_t *)firmwareAddress, (uint32_t *)&Block_buffer[blockOffset]))
+      return false;
     blockOffset += FLASH_PAGESIZE;
     firmwareAddress += FLASH_PAGESIZE;
     if (BlockCount > FLASH_PAGESIZE) {
@@ -70,6 +71,7 @@ static void flashWriteBlock()
     }
   }
 #endif // SIMU
+  return true;
 }
 
 void sdInit(void)
@@ -267,17 +269,18 @@ void firmwareInitWrite(uint32_t index)
   firmwareWritten = 0;
 }
 
-bool firmwareWriteBlock(uint32_t* progress)
+FlashWriteRes firmwareWriteBlock(uint32_t* progress)
 {
-  flashWriteBlock();
+  if (!flashWriteBlock()) return FW_ERROR;
+
   firmwareWritten += sizeof(Block_buffer);
   *progress = (100 * firmwareWritten) / firmwareSize;
 
   readFirmwareFile();
   if (BlockCount == 0 || firmwareWritten >= FLASHSIZE - BOOTLOADER_SIZE) {
-    return true;
+    return FW_DONE;
   }
 
-  return false;
+  return FW_IN_PROGRESS;
 }
 
