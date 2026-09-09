@@ -341,16 +341,20 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
     lcd.drawText(USB_TXT_X, y + USB_PLG_TXT_YO, TR_BL_USB_CONNECTED, USB_TXT_ALIGN | BL_FOREGROUND);
   }
   else if (st == ST_FILE_LIST || st == ST_DIR_CHECK || st == ST_FLASH_CHECK ||
-           st == ST_FLASHING || st == ST_FLASH_DONE) {
+           st == ST_FLASHING || st == ST_FLASH_DONE || st == ST_FLASH_ERROR) {
 
     bootloaderDrawTitle(LV_SYMBOL_SD_CARD " /FIRMWARE");
 
-    if (st == ST_FLASHING || st == ST_FLASH_DONE) {
+    if (st == ST_FLASHING || st == ST_FLASH_DONE || st == ST_FLASH_ERROR) {
       LcdFlags color = BL_RED;
 
       if (st == ST_FLASH_DONE) {
         color = BL_GREEN;
         opt = 100;  // Completed > 100%
+      } else if (st == ST_FLASH_ERROR) {
+        // the bar stays where the write gave up
+        lcd.drawText(LCD_W / 2, (LCD_H - PROGRESS_H) / 2 - EdgeTxStyles::STD_FONT_HEIGHT,
+                     LV_SYMBOL_CLOSE " " TR_BL_WRITING_FAILED, CENTERED | BL_FOREGROUND);
       }
 
       lcd.drawRect(PROGRESS_X, (LCD_H - PROGRESS_H) / 2, PROGRESS_W, PROGRESS_H, LINE_H, SOLID, BL_SELECTED);
@@ -404,6 +408,9 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char* str)
       }
       else if (st == ST_FLASH_DONE) {
         pos = lcd.drawText(FOOTER_X1, LCD_H - FOOTER_Y1, LV_SYMBOL_CHARGE " " TR_BL_WRITING_COMPL, FOOTER_ALIGN1 | BL_FOREGROUND);
+      }
+      else if (st == ST_FLASH_ERROR) {
+        pos = lcd.drawText(FOOTER_X1, LCD_H - FOOTER_Y1, LV_SYMBOL_CHARGE " " TR_BL_RETRY_OR_DFU, FOOTER_ALIGN1 | BL_FOREGROUND);
       }
     }
 #if LANDSCAPE

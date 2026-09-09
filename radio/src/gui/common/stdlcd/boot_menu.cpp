@@ -130,6 +130,10 @@ void bootloaderDrawScreen(BootloaderState st, int opt, const char *str)
   else if (st == ST_FLASH_DONE) {
     lcdDrawCenteredText(4 * FH, TR_BL_WRITING_COMPL);
   }
+  else if (st == ST_FLASH_ERROR) {
+    lcdDrawCenteredText(4 * FH, TR_BL_WRITING_FAILED);
+    lcdDrawCenteredText(6 * FH, TR_BL_RETRY_OR_DFU);
+  }
 }
 
 uint32_t bootloaderGetMenuItemCount(int baseCount)
