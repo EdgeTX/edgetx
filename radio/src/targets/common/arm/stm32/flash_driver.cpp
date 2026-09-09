@@ -353,17 +353,18 @@ const etx_flash_driver_t stm32_flash_driver = {
 void unlockFlash() { stm32_flash_unlock(); }
 void lockFlash() { stm32_flash_lock(); }
 
-void flashWrite(uint32_t* address, const uint32_t* buffer)
+bool flashWrite(uint32_t* address, const uint32_t* buffer)
 {
   // check first if the address is on a sector boundary
   uint32_t sector = stm32_flash_get_sector((uintptr_t)address);
   uint32_t bank = stm32_flash_get_bank((uintptr_t)address);
 
   if ((uintptr_t)address == _flash_sector_address(sector, bank)) {
-    if (stm32_flash_erase_sector((uintptr_t)address) < 0) return;
+    if (stm32_flash_erase_sector((uintptr_t)address) < 0) return false;
   }
 
-  stm32_flash_program((uintptr_t)address, (uint8_t*)buffer, FLASH_PAGESIZE);
+  return stm32_flash_program((uintptr_t)address, (uint8_t*)buffer,
+                             FLASH_PAGESIZE) == 0;
 }
 
 // TODO: move this somewhere else, as it depends on firmware layout
