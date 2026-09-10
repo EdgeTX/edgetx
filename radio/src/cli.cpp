@@ -1096,6 +1096,20 @@ int cliSet(const char **argv)
       // update local timestamp and get wday calculated
       g_rtcTime = gmktime(&t);
       rtcSetTime(&t);
+#if defined(DEBUG)
+      const struct RtcCalibReport * rep = rtcGetCalibrationReport();
+      if (rep->elapsed != 0) {
+        int32_t ppm10 = 0;
+        if (rep->elapsed > 0)
+          ppm10 = (int32_t)(((int64_t)rep->error * 10000000) / rep->elapsed);
+        cliSerialPrint("rtc drift = %d s over %d s (%d ppm x10)", (int)rep->error,
+                    (int)rep->elapsed, (int)ppm10);
+      }
+      int32_t units = rtcGetCalibration();
+      cliSerialPrint("rtc calibration: %s (now %d units, %d ppm x10)",
+                  rtcCalibrationResultText(rep->result), (int)units,
+                  (int)rtcCalibrationPpm10(units));
+#endif
     } else {
       cliSerialPrint("%s: Invalid arguments \"%s\" \"%s\"", argv[0], argv[1],
                   argv[2]);

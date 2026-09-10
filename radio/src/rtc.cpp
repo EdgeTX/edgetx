@@ -535,29 +535,69 @@ static void rtcCalibrationStart()
   rtcCalibSession = true;
 }
 
+#if defined(DEBUG)
+static RtcCalibReport rtcCalibReport = {};
+
+const struct RtcCalibReport * rtcGetCalibrationReport()
+{
+  return &rtcCalibReport;
+}
+
+const char * rtcCalibrationResultText(uint8_t result)
+{
+  switch (result) {
+    case RTC_CALIB_APPLIED:       return "applied";
+    case RTC_CALIB_NO_REF:        return "no reference yet, this setting becomes one";
+    case RTC_CALIB_CLOCK_INVALID: return "previous clock invalid, RTC had lost power";
+    case RTC_CALIB_REF_AHEAD:     return "reference is in the future";
+    case RTC_CALIB_TOO_SOON:      return "less than a day since the reference";
+    case RTC_CALIB_REF_TOO_OLD:   return "reference older than 10 years";
+    case RTC_CALIB_TOO_SMALL:     return "drift under 4 s, indistinguishable from input noise";
+    case RTC_CALIB_TOO_LARGE:     return "over 200 ppm, clock assumed moved on purpose";
+    case RTC_CALIB_TIME_ZONE:     return "near a 15 min step, assumed time zone or DST change";
+    default:                      return "unknown";
+  }
+}
+#endif
+
 // Recomputed from the calibration in use at session start, so that successive
 // edits converge instead of piling up
-static void rtcCalibrationUpdate(gtime_t newTime)
+static uint8_t rtcCalibrationUpdate(gtime_t newTime)
 {
+#if defined(DEBUG)
+  rtcCalibReport.elapsed = 0;
+  rtcCalibReport.error = 0;
+#endif
+
   // Initial setting, or clock that lost power
-  if (rtcCalibSessionRef == 0 || !rtcCalibSessionValid) return;
+  if (rtcCalibSessionRef == 0) return RTC_CALIB_NO_REF;
+  if (!rtcCalibSessionValid) return RTC_CALIB_CLOCK_INVALID;
 
   gtime_t elapsed = newTime - rtcCalibSessionRef;
-  if (elapsed < (gtime_t)RTC_CALIB_MIN_ELAPSED || elapsed > (gtime_t)RTC_CALIB_MAX_ELAPSED) return;
-
   gtime_t error = rtcCalibSessionRtc - newTime; // > 0 when the clock runs fast
+
+#if defined(DEBUG)
+  rtcCalibReport.elapsed = elapsed;
+  rtcCalibReport.error = error;
+#endif
+
+  if (elapsed < 0) return RTC_CALIB_REF_AHEAD;
+  if (elapsed < (gtime_t)RTC_CALIB_MIN_ELAPSED) return RTC_CALIB_TOO_SOON;
+  if (elapsed > (gtime_t)RTC_CALIB_MAX_ELAPSED) return RTC_CALIB_REF_TOO_OLD;
+
   int64_t absError = (error < 0) ? -(int64_t)error : (int64_t)error;
 
   // Too small to tell from input noise
-  if (absError < RTC_CALIB_MIN_ERROR) return;
+  if (absError < RTC_CALIB_MIN_ERROR) return RTC_CALIB_TOO_SMALL;
 
   // Faster than any crystal: the clock was moved
-  if (absError * 1000000 > (int64_t)elapsed * RTC_CALIB_MAX_PPM) return;
+  if (absError * 1000000 > (int64_t)elapsed * RTC_CALIB_MAX_PPM) return RTC_CALIB_TOO_LARGE;
 
   // A whole time zone step is a time zone or DST change
   if (absError >= RTC_CALIB_TZ_STEP - RTC_CALIB_TZ_BAND) {
     int64_t rem = absError % RTC_CALIB_TZ_STEP;
-    if (rem <= RTC_CALIB_TZ_BAND || rem >= RTC_CALIB_TZ_STEP - RTC_CALIB_TZ_BAND) return;
+    if (rem <= RTC_CALIB_TZ_BAND || rem >= RTC_CALIB_TZ_STEP - RTC_CALIB_TZ_BAND)
+      return RTC_CALIB_TIME_ZONE;
   }
 
   // Do not over correct on a short measurement
@@ -576,6 +616,8 @@ static void rtcCalibrationUpdate(gtime_t newTime)
         (int)error, (int)elapsed, (int)rtcCalibSessionUnits, (int)units,
         (int)rtcCalibrationPpm10(rtcCalibSessionUnits),
         (int)rtcCalibrationPpm10(units));
+
+  return RTC_CALIB_APPLIED;
 }
 
 // Clears the hardware trim and the stored reference, so the next two settings
@@ -601,7 +643,11 @@ void rtcSetTime(const struct gtm * t)
 
   rtcDriverSetTime(t);
 
+#if defined(DEBUG)
+  rtcCalibReport.result = rtcCalibrationUpdate(newTime);
+#else
   rtcCalibrationUpdate(newTime);
+#endif
   rtcSetCalibrationRef(newTime);
 }
 
