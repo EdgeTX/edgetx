@@ -52,12 +52,15 @@ extern uint8_t g_ms100; // global to allow time set function to reset to zero
 bool rtcIsValid();
 void rtcInit();
 void rtcSetTime(const struct gtm * tm);
+// Host timed the second boundary itself, ms is how far into it the true time was
+void rtcSetTimeAt(const struct gtm * tm, uint16_t ms);
 gtime_t gmktime (struct gtm *tm);
 uint8_t rtcAdjust(uint16_t year, uint8_t mon, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec);
 
 // Driver interface, rtcSetTime() wraps rtcDriverSetTime()
 void rtcDriverSetTime(const struct gtm * tm);
 void rtcGetTime(struct gtm * tm);
+uint16_t rtcGetTimeMs(struct gtm * tm);   // fills tm, returns 0..999 within that second
 
 // Smooth calibration, one unit is one clock pulse out of 2^20 (~0.954 ppm)
 #define RTC_CALIB_UNITS_PER_SECOND  1048576
@@ -86,7 +89,7 @@ enum {
 struct RtcCalibReport {
   uint8_t result;
   gtime_t elapsed;
-  gtime_t error;
+  int32_t errorMs;   // clamped, > 0 when the clock runs fast
 };
 
 const struct RtcCalibReport * rtcGetCalibrationReport();

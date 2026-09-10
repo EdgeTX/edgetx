@@ -248,6 +248,40 @@ int toInt(const char ** argv, int index, int * val)
   return result;
 }
 
+// "30" -> 30 s, "30.52" -> 30 s 520 ms
+static int toSeconds(const char ** argv, int index, int * sec, int * ms)
+{
+  const char * s = argv[index];
+  if (s == nullptr || *s == '\0') return 0;
+
+  char * endptr = nullptr;
+  long v = strtol(s, &endptr, 10);
+  if (endptr == s || v < 0 || v > 59) {
+    cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], s);
+    return -1;
+  }
+  *sec = (int)v;
+  *ms = 0;
+  if (*endptr == '\0') return 1;
+  if (*endptr != '.') {
+    cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], s);
+    return -1;
+  }
+
+  int scale = 100;
+  for (const char * p = endptr + 1; *p; p++) {
+    if (*p < '0' || *p > '9') {
+      cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], s);
+      return -1;
+    }
+    if (scale) {
+      *ms += (*p - '0') * scale;
+      scale /= 10;
+    }
+  }
+  return 2;
+}
+
 int cliBeep(const char ** argv)
 {
   int freq = BEEP_DEFAULT_FREQ;
@@ -1083,10 +1117,11 @@ int cliSet(const char **argv)
 {
   if (!strcmp(argv[1], "rtc")) {
     struct gtm t;
-    int year, month, day, hour, minute, second;
+    int year, month, day, hour, minute, second, ms = 0;
+    int secOk = toSeconds(argv, 7, &second, &ms);
     if (toInt(argv, 2, &year) > 0 && toInt(argv, 3, &month) > 0 &&
         toInt(argv, 4, &day) > 0 && toInt(argv, 5, &hour) > 0 &&
-        toInt(argv, 6, &minute) > 0 && toInt(argv, 7, &second) > 0) {
+        toInt(argv, 6, &minute) > 0 && secOk > 0) {
       t.tm_year = year - TM_YEAR_BASE;
       t.tm_mon = month - 1;
       t.tm_mday = day;
@@ -1095,14 +1130,15 @@ int cliSet(const char **argv)
       t.tm_sec = second;
       // update local timestamp and get wday calculated
       g_rtcTime = gmktime(&t);
-      rtcSetTime(&t);
+      // the CLI is driven by a host, the menu is where someone sets it by hand
+      rtcSetTimeAt(&t, (uint16_t)ms);
 #if defined(DEBUG)
       const struct RtcCalibReport * rep = rtcGetCalibrationReport();
       if (rep->elapsed != 0) {
         int32_t ppm10 = 0;
         if (rep->elapsed > 0)
-          ppm10 = (int32_t)(((int64_t)rep->error * 10000000) / rep->elapsed);
-        cliSerialPrint("rtc drift = %d s over %d s (%d ppm x10)", (int)rep->error,
+          ppm10 = (int32_t)(((int64_t)rep->errorMs * 10000) / rep->elapsed);
+        cliSerialPrint("rtc drift = %d ms over %d s (%d ppm x10)", (int)rep->errorMs,
                     (int)rep->elapsed, (int)ppm10);
       }
       int32_t units = rtcGetCalibration();
@@ -1525,8 +1561,18 @@ int cliDisplay(const char ** argv)
   }
   else if (!strcmp(argv[1], "rtc")) {
     struct gtm utm;
+    uint8_t sw100 = g_ms100;
     gettime(&utm);
-    cliSerialPrint("rtc = %4d-%02d-%02d %02d:%02d:%02d.%02d0", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
+    cliSerialPrint("rtc = %4d-%02d-%02d %02d:%02d:%02d.%02d0", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, sw100);
+
+    // gettime() reports the software clock, which free runs on the system tick
+    struct gtm htm = {};
+    uint16_t hwMs = rtcGetTimeMs(&htm);
+    cliSerialPrint("rtc hw = %4d-%02d-%02d %02d:%02d:%02d.%03d", htm.tm_year+TM_YEAR_BASE,
+                   htm.tm_mon+1, htm.tm_mday, htm.tm_hour, htm.tm_min, htm.tm_sec, (int)hwMs);
+    int32_t skew = (int32_t)(((int64_t)gmktime(&utm) - gmktime(&htm)) * 1000
+                             + (int32_t)sw100 * 10 - hwMs);
+    cliSerialPrint("rtc software clock offset = %d ms", (int)skew);
     int32_t units = rtcGetCalibration();
     cliSerialPrint("rtc calibration = %d units (%d ppm x10), reference = %u",
                    (int)units, (int)rtcCalibrationPpm10(units),

@@ -41,7 +41,9 @@ void rtcDriverSetTime(const struct gtm * t)
   HAL_RTC_SetDate(&rtc, &RTC_DateStruct, RTC_FORMAT_BIN);
 }
 
-void rtcGetTime(struct gtm * t)
+// SSR must be read before TR, and TR before DR, or the shadow registers stay
+// frozen. HAL does that within one call, so seconds and sub-seconds match.
+uint16_t rtcGetTimeMs(struct gtm * t)
 {
   RTC_TimeTypeDef RTC_TimeStruct;
   RTC_DateTypeDef RTC_DateStruct;
@@ -55,6 +57,16 @@ void rtcGetTime(struct gtm * t)
   t->tm_year = RTC_DateStruct.Year + 100; // STM32 year is two decimals only (so base is currently 2000), gtm is based on number of years since 1900
   t->tm_mon  = RTC_DateStruct.Month - 1;
   t->tm_mday = RTC_DateStruct.Date;
+
+  // SSR counts down over PREDIV_S+1 steps, 1/256 s each with the usual setup
+  uint32_t fraction = RTC_TimeStruct.SecondFraction;
+  if (fraction == 0 || RTC_TimeStruct.SubSeconds > fraction) return 0;
+  return (uint16_t)(((fraction - RTC_TimeStruct.SubSeconds) * 1000) / (fraction + 1));
+}
+
+void rtcGetTime(struct gtm * t)
+{
+  rtcGetTimeMs(t);
 }
 
 #if defined(RTC_CALR_CALM) && !defined(BOOT)

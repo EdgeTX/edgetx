@@ -447,6 +447,12 @@ void rtcGetTime(struct gtm * t)
 {
 }
 
+uint16_t rtcGetTimeMs(struct gtm * t)
+{
+  rtcGetTime(t);
+  return 0;
+}
+
 void rtcDriverSetTime(const struct gtm * t)
 {
 }
