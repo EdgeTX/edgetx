@@ -26,8 +26,8 @@ BoardFactories* gBoardFactories = nullptr;
 BoardFactories::BoardFactories() :
   m_default(nullptr)
 {
-  if (registerBoard(Board::BOARD_UNKNOWN, ""))
-    m_default = board(Board::BOARD_UNKNOWN);
+  if (registerBoard(Board::BOARD_UNKNOWN, "", ""))
+    m_default = boardForId(Board::BOARD_UNKNOWN);
 }
 
 BoardFactories::~BoardFactories()
@@ -35,17 +35,7 @@ BoardFactories::~BoardFactories()
   unregisterBoardFactories();
 }
 
-Boards* BoardFactories::board(const Board::Type & board) const
-{
-  for (auto *registeredFactory : registeredBoardFactories) {
-    if (registeredFactory->board()->boardType() == board)
-      return registeredFactory->board();
-  }
-
-  return m_default;
-}
-
-Boards* BoardFactories::board(const QString & hwdefn) const
+Boards * BoardFactories::boardForHwDefn(const QString & hwdefn) const
 {
   for (auto *registeredFactory : registeredBoardFactories) {
     if (registeredFactory->board()->hwdefn() == hwdefn)
@@ -55,30 +45,40 @@ Boards* BoardFactories::board(const QString & hwdefn) const
   return m_default;
 }
 
-//  Registering firmware triggers registering the associated board
-bool BoardFactories::registerBoard(const Board::Type & boardType, const QString & hwdefn)
+Boards * BoardFactories::boardForId(const Board::Type & id) const
 {
-  if (m_default || boardType != Board::BOARD_UNKNOWN) {
-    Boards* regboard = board(boardType);
+  for (auto *registeredFactory : registeredBoardFactories) {
+    if (registeredFactory->board()->boardType() == id)
+      return registeredFactory->board();
+  }
 
-    if (regboard->boardType() == boardType) {
+  return m_default;
+}
+
+//  Registering firmware triggers registering the associated board
+bool BoardFactories::registerBoard(const Board::Type & id, const QString & hwdefn, const QString & bddefn)
+{
+  if (m_default || id != Board::BOARD_UNKNOWN) {
+    Boards* regboard = boardForId(id);
+
+    if (regboard->id() == id) {
       if (regboard->hwdefn() == hwdefn) {
         //qDebug() << "Warning - Board" << Boards::getBoardName(regboard->board()) << "already registered";
         return true;
       }
       else {
-        qDebug() << "Error - Board" << Boards::getBoardName(regboard->boardType()) << "already registered with"
+        qDebug() << "Error - Board" << Boards::getBoardName(regboard->id()) << "already registered with"
                  << regboard->hwdefn() << "hwdefn!";
         return false;
       }
     }
   }
 
-  BoardFactory *bf = new BoardFactory(boardType, hwdefn);
+  BoardFactory *bf = new BoardFactory(id, hwdefn, bddefn);
 
   if (bf->board()->loadDefinition()) {
     if (registerBoardFactory(bf)) {
-      qDebug() << "Registered board:" << (boardType != Board::BOARD_UNKNOWN ? bf->board()->name() : "UNKNOWN (default)");
+      qDebug() << "Registered board:" << (id != Board::BOARD_UNKNOWN ? bf->board()->name() : "UNKNOWN (default)");
       return true;
     }
     else

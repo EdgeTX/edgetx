@@ -207,9 +207,9 @@ void SimulatedUIWidget::setLcd(LcdWidget * lcd)
 {
   m_lcd = lcd;
 
-  auto width = Boards::getCapability(m_board, Board::LcdWidth);
-  auto height = Boards::getCapability(m_board, Board::LcdHeight);
-  auto depth = Boards::getCapability(m_board, Board::LcdDepth);
+  auto width = Boards::getCapability(m_board, Capability::LcdWidth);
+  auto height = Boards::getCapability(m_board, Capability::LcdHeight);
+  auto depth = Boards::getCapability(m_board, Capability::LcdDepth);
   m_lcd->setData(width, height, depth);
 
   if (!m_backlightColors.size())
@@ -311,7 +311,7 @@ static const QList<RadioKeyDefinition> radioKeyDefinitions = {
 
 void SimulatedUIWidget::addScrollActions()
 {
-  if (g.simuScrollButtons() || !Boards::getCapability(m_board, Board::RotaryEncoderNavigation))
+  if (g.simuScrollButtons() || !Boards::getCapability(m_board, Capability::RotaryEncoderNavigation))
     return;
 
   const RadioKeyDefinition *updefn = getRadioKeyDefinition(KEY_SCRLUP);
@@ -392,7 +392,7 @@ void SimulatedUIWidget::addPushButtons(ButtonsWidget * leftButtons, ButtonsWidge
     rightButtons->setFixedSize(0, 0);
   }
 
-  for (int i = 0; i < Boards::getCapability(m_board, Board::Keys); i++) {
+  for (int i = 0; i < Boards::getCapability(m_board, Capability::Keys); i++) {
     Board::KeyInfo info = Boards::getKeyInfo(i, m_board);
     int idx = strKeyToInt(info.key);
     //qDebug() << "key:" << info.key.c_str() << info.name.c_str() << info.label.c_str() << idx;
@@ -402,7 +402,7 @@ void SimulatedUIWidget::addPushButtons(ButtonsWidget * leftButtons, ButtonsWidge
       qDebug() << "Unknown key:" << info.key.c_str() << info.name.c_str() << info.label.c_str();
   }
 
-  if (g.simuScrollButtons() && Boards::getCapability(m_board, Board::RotaryEncoderNavigation)) {
+  if (g.simuScrollButtons() && Boards::getCapability(m_board, Capability::RotaryEncoderNavigation)) {
       addPushButton(KEY_SCRLUP, tr("Scrl Up"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
       addPushButton(KEY_SCRLDN, tr("Scrl Dn"), leftButtons, leftButtonsGrid, rightButtons, rightButtonsGrid);
       connectScrollActions();

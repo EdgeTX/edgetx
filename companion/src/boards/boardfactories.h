@@ -26,12 +26,12 @@
 class BoardFactory
 {
   public:
-    explicit BoardFactory(const Board::Type & board, const QString & hwdefn) :
-      m_board(new Boards(board, hwdefn)) {}
+    explicit BoardFactory(const Board::Type & id, const QString & hwdefn, const QString & bddefn) :
+      m_board(new Boards(id, hwdefn, bddefn)) {}
 
     virtual ~BoardFactory() {}
 
-    Boards* board() const { return m_board; }
+    Boards * board() const { return m_board; }
 
   private:
     Boards *m_board;
@@ -43,10 +43,10 @@ class BoardFactories
     explicit BoardFactories();
     virtual ~BoardFactories();
 
-    Boards* board(const Board::Type & board) const;
-    Boards* board(const QString & hwdefn) const;
+    Boards * boardForId(const Board::Type & id) const;
+    Boards * boardForHwDefn(const QString & hwdefn) const;
 
-    bool registerBoard(const Board::Type & board, const QString & hwdefn);
+    bool registerBoard(const Board::Type & board, const QString & hwdefn, const QString & hwdefn);
     bool registerBoardFactory(BoardFactory * factory);
     void unregisterBoardFactories();
 

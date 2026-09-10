@@ -176,6 +176,8 @@ class Firmware : public JsonBase
     // ========================
     // until Boards refactored
     Board::Type getBoard() const { return Boards::getBoardForHwDefn(m_defn.hwdefn); }
+    Board::Type getBoardId() const { return Boards::getBoardForHwDefn(m_defn.hwdefn); }
+    Boards* getBoardInstance() const { return m_board; }
     // ========================
 
     // ========================
@@ -208,6 +210,7 @@ class Firmware : public JsonBase
     FirmwareDefn m_defn;
     bool m_loaded;
     bool m_valid;
+    Boards * m_board;
 
     inline static Firmware * m_current = nullptr;
     inline static Firmware * m_default = nullptr;
@@ -241,4 +244,6 @@ inline Firmware * getCurrentFirmware() { return Firmware::getCurrent(); }
 
 // before Boards refactored
 inline Board::Type getCurrentBoard() { return Firmware::getCurrent()->getBoard(); }
+inline Board::Type getCurrentBoardId() { return Firmware::getCurrent()->getBoardId(); }
+inline Boards* getCurrentBoardInstance() { return Firmware::getCurrent()->getBoardInstance(); }
 

@@ -78,10 +78,10 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
   connect(radioUiWidget, &SimulatedUIWidget::customStyleRequest, this, &SimulatorWidget::setUiAreaStyle);
   connect(radioUiWidget, &SimulatedUIWidget::resizeRequest, radioUiWidget, &SimulatedUIWidget::shrink);
 
-  vJoyLeft = new VirtualJoystickWidget(this, 'L', Boards::getCapability(m_board, Board::Surface) ? false : true);
+  vJoyLeft = new VirtualJoystickWidget(this, 'L', Boards::getCapability(m_board, Board::Capability) ? false : true);
   ui->leftStickLayout->addWidget(vJoyLeft);
 
-  vJoyRight = new VirtualJoystickWidget(this, 'R', (Boards::getCapability(m_board, Board::Surface) ||
+  vJoyRight = new VirtualJoystickWidget(this, 'R', (Boards::getCapability(m_board, Capability::Surface) ||
                                                     m_board == Board::BOARD_TARANIS_XLITE ||
                                                     m_board == Board::BOARD_TARANIS_XLITES ? false : true));  // TODO: maybe remove trims for both joysticks and add a cross in the middle?
   ui->rightStickLayout->addWidget(vJoyRight);
@@ -244,7 +244,7 @@ bool SimulatorWidget::setRadioData(RadioData * radioData)
   saveTempRadioData = (flags & SIMULATOR_FLAGS_STANDALONE);
 
   // All radios use SD card data path from 2.6.0 on
-  bool hasSdCard = Boards::getCapability(m_board, Board::HasSDCard);
+  bool hasSdCard = Boards::getCapability(m_board, Capability::HasSDCard);
   if (hasSdCard)
     ret = useTempDataPath(true);
 
@@ -505,11 +505,11 @@ void SimulatorWidget::setupRadioWidgets()
 {
   QString wname;
   int i, midpos;
-  const int ttlSticks = Boards::getCapability(m_board, Board::Sticks);
-  const int ttlSwitches = Boards::getCapability(m_board, Board::Switches);
-  const int ttlInputs = Boards::getCapability(m_board, Board::Inputs);
-  const int stickTrims = Boards::getCapability(m_board, Board::Air) ? ttlSticks : 0;
-  const int extraTrims = Boards::getCapability(m_board, Board::NumTrims) - stickTrims;
+  const int ttlSticks = Boards::getCapability(m_board, Capability::Sticks);
+  const int ttlSwitches = Boards::getCapability(m_board, Capability::Switches);
+  const int ttlInputs = Boards::getCapability(m_board, Capability::Inputs);
+  const int stickTrims = Boards::getCapability(m_board, Capability::Air) ? ttlSticks : 0;
+  const int extraTrims = Boards::getCapability(m_board, Capability::NumTrims) - stickTrims;
 
   // First clear out any existing widgets.
   foreach (RadioWidget * rw, m_radioWidgets) {
@@ -536,7 +536,7 @@ void SimulatorWidget::setupRadioWidgets()
 
   // Now set up new widgets.
 
-  if (!Boards::getCapability(m_board, Board::FunctionSwitches)) {
+  if (!Boards::getCapability(m_board, Capability::FunctionSwitches)) {
     ui->radioWidgetsCS->hide();
   }
 

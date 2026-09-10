@@ -298,7 +298,10 @@ class GeneralSettings {
 
     char semver[8 + 1];
     unsigned int version;
-    unsigned int variant;
+    // should be a std::string but that breaks stuff
+    // size arbitary for testing poc
+    // yaml is a string equates to flavour
+    char variant[50 + 1];
     unsigned int currModelIndex;
     char currModelFilename[CURR_MODEL_FILENAME_LEN + 1];
     unsigned int contrast;
