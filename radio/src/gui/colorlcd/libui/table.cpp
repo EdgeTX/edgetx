@@ -197,7 +197,7 @@ void TableField::setColumnWidth(uint16_t col, coord_t w)
 void TableField::select(uint16_t row, uint16_t col, bool force)
 {
   lv_table_t* table = (lv_table_t*)lvobj;
-  if (!force && table->row_act == row && table->col_act == row) return;
+  if (!force && table->row_act == row && table->col_act == col) return;
 
   if (row >= table->row_cnt || col >= table->col_cnt) {
     table->col_act = LV_TABLE_CELL_NONE;
@@ -214,6 +214,8 @@ void TableField::select(uint16_t row, uint16_t col, bool force)
 void TableField::adjustScroll()
 {
   lv_table_t* table = (lv_table_t*)lvobj;
+
+  if (table->row_act >= table->row_cnt) return;
 
   // only vertical scroll for now
   lv_coord_t h_before = 0;
