@@ -69,6 +69,30 @@ void rtcSetCalibration(int32_t units);
 int32_t rtcCalibrationPpm10(int32_t units);
 int32_t rtcCalibrationUnits(int32_t ppm);
 
+// Why the last clock setting did or did not move the calibration
+enum {
+  RTC_CALIB_APPLIED,
+  RTC_CALIB_NO_REF,
+  RTC_CALIB_CLOCK_INVALID,
+  RTC_CALIB_REF_AHEAD,
+  RTC_CALIB_TOO_SOON,
+  RTC_CALIB_REF_TOO_OLD,
+  RTC_CALIB_TOO_SMALL,
+  RTC_CALIB_TOO_LARGE,
+  RTC_CALIB_TIME_ZONE,
+};
+
+#if defined(DEBUG)
+struct RtcCalibReport {
+  uint8_t result;
+  gtime_t elapsed;
+  gtime_t error;
+};
+
+const struct RtcCalibReport * rtcGetCalibrationReport();
+const char * rtcCalibrationResultText(uint8_t result);
+#endif
+
 // Time of the last known good setting, 0 when unknown
 gtime_t rtcGetCalibrationRef();
 void rtcSetCalibrationRef(gtime_t t);
