@@ -438,13 +438,13 @@ class Boards : public JsonBase
     const int getInputIndex(const QString val, Board::LookupValueType lvt) const;
     const Board::InputInfo getInputInfo(int index) const;
     const QString getInputName(int index) const;
-    const int getInputExtIndex(int index);
-    const int getInputPotIndex(int index);
-    const int getInputSliderIndex(int index);
+    const int getInputExtIndex(int index) const;
+    const int getInputPotIndex(int index) const;
+    const int getInputSliderIndex(int index) const;
     const QString getInputTag(int index) const;
-    const int getInputTagOffset(QString tag);
-    const int getInputThrottleIndex();
-    const int getInputTypeOffset(Board::AnalogInputType type);
+    const int getInputTagOffset(QString tag) const;
+    const int getInputThrottleIndex() const;
+    const int getInputTypeOffset(Board::AnalogInputType type) const;
     const int getInputYamlIndex(const QString val, YamlLookupType ylt) const;
     const QString getInputYamlName(int index, YamlLookupType ylt) const;
     const int getInputsCalibrated() const;
@@ -453,12 +453,18 @@ class Boards : public JsonBase
     const bool isInputCalibrated(int index) const;
     const bool isInputConfigurable(int index) const;
     const bool isInputIgnored(int index) const;
+    const bool isInputFlex(int index) const;
     const bool isInputFlexGyroAxis(int index) const;
     const bool isInputFlexJoystickAxis(int index) const;
     const bool isInputFlexPot(int index) const;
     const bool isInputFlexSwitch(int index) const;
     const bool isInputStick(int index) const;
     const bool isInputSwitch(int index) const;
+    const bool isInputFlexPotMultipos(int index) const;
+    const bool isInputFlexSlider(int index) const;
+    const bool isInputFlexSwitch(int index) const;
+    const bool isInputRTCBat(int index) const;
+    const bool isInputVBat(int index) const;
 
     const Board::KeyInfo getKeyInfo(int index) const;
     const int getKeyIndex(const QString key) const;
@@ -473,7 +479,7 @@ class Boards : public JsonBase
     const QString getSwitchName(int index) const;
     const QString getSwitchTag(int index) const;
     const int getSwitchTagNum(int index) const;
-    const int getSwitchTypeOffset(Board::SwitchType type);
+    const int getSwitchTypeOffset(Board::SwitchType type) const;
     const int getSwitchYamlIndex(const QString val, YamlLookupType ylt) const;
     const QString getSwitchYamlName(int index, YamlLookupType ylt) const;
 

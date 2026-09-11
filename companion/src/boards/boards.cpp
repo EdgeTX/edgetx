@@ -308,7 +308,7 @@ int Boards::getCapability(const Capability capability) const
       return getCapability(Capability::Switches) * 3;
 
     default:
-      qWarning() << "Warning: no value returned for:" << capability;
+      qWarning() << "Warning: unknown capability:" << capability << "returned 0";
       return 0;
   }
 }
@@ -498,13 +498,7 @@ const QString Boards::radioModeString() const
   return getCapability(Capability::Air) ? tr("Flight") : tr("Drive");
 }
 
-const int Boards::getInputIndex(const QString val, Board::LookupValueType lvt) const
-{
-  return getInputIndex(m_inputs, val, lvt);
-}
-
-// static
-int Boards::getInputIndex(const InputsTable * inputs, QString val, Board::LookupValueType lvt)
+const int Boards::getInputIndex(QString val, Board::LookupValueType lvt) const
 {
   for (int i = 0; i < (int)m_inputs.size(); i++) {
     if ((lvt == Board::LVT_TAG && m_inputs.at(i).tag.c_str() == val) ||
@@ -517,39 +511,30 @@ int Boards::getInputIndex(const InputsTable * inputs, QString val, Board::Lookup
 
 const QString Boards::getInputName(int index) const
 {
-  return getInputName(m_inputs, index);
-}
-
-// static
-QString Boards::getInputName(const InputsTable * inputs, int index)
-{
-  if (index > -1 && index < (int)m_inputs.size())
+  try {
     return m_inputs.at(index).name.c_str();
-
-  return CPN_STR_UNKNOWN_ITEM;
+  } catch (const std::out_of_range& e) {
+    return CPN_STR_UNKNOWN_ITEM;
+  }
 }
 
 const QString Boards::getInputTag(int index) const
 {
-  return getInputTag(m_inputs, index);
-}
-
-// static
-QString Boards::getInputTag(const InputsTable * inputs, int index)
-{
-  if (index > -1 && index < (int)m_inputs.size())
+  try {
     return m_inputs.at(index).tag.c_str();
-
-  return CPN_STR_UNKNOWN_ITEM;
+  } catch (const std::out_of_range& e) {
+    return CPN_STR_UNKNOWN_ITEM;
+  }
 }
 
 const int Boards::getInputYamlIndex(const QString val, YamlLookupType ylt) const
 {
   for (int i = 0; i < (int)m_inputs.size(); i++) {
     Board::LookupValueType type = (ylt == YLT_CONFIG ? m_inputs.at(i).cfgYaml : m_inputs.at(i).refYaml);
-    QString tmp = (type == Board::LVT_NAME ? getInputName(m_inputs, i) : getInputTag(m_inputs, i));
+    QString tmp = (type == Board::LVT_NAME ? getInputName(i) : getInputTag(i));
+
     if (val == tmp)
-      return getInputIndex(m_inputs, val, type);
+      return getInputIndex(val, type);
   }
 
   return -1;
@@ -557,40 +542,28 @@ const int Boards::getInputYamlIndex(const QString val, YamlLookupType ylt) const
 
 const QString Boards::getInputYamlName(int index, YamlLookupType ylt) const
 {
-  if (index > -1 && index < (int)m_inputs.size()) {
-    if (ylt == YLT_CONFIG)
-      return m_inputs.at(index).cfgYaml == Board::LVT_NAME ? getInputName(m_inputs, index) : getInputTag(m_inputs, index);
-    else
-      return m_inputs.at(index).refYaml == Board::LVT_NAME ? getInputName(m_inputs, index) : getInputTag(m_inputs, index);
+  try {
+    return ((ylt == YLT_CONFIG && m_inputs.at(index).cfgYaml == Board::LVT_NAME) ||
+            m_inputs.at(index).refYaml == Board::LVT_NAME) ?
+            getInputName(index) :
+            getInputTag(index);
+  } catch (const std::out_of_range& e) {
+    return CPN_STR_UNKNOWN_ITEM;
   }
-
-  return CPN_STR_UNKNOWN_ITEM;
 }
 
 const int Boards::getInputsCalibrated() const
 {
-  return getInputsCalibrated(m_inputs);
-}
-
-// static
-int Boards::getInputsCalibrated(const InputsTable * inputs)
-{
   unsigned int cnt = 0;
 
-  for (const auto &defn : *inputs) {
-    if (isInputCalibrated(defn)) cnt++;
+  for (int i = 0; i < m_inputs.size(); i++) {
+     cnt += (int)isInputCalibrated(i);
   }
 
   return cnt;
 }
 
-const int Boards::getInputTagOffset(QString tag)
-{
-  return getInputTagOffset(m_inputs, tag);
-}
-
-// static
-int Boards::getInputTagOffset(const InputsTable * inputs, QString tag)
+const int Boards::getInputTagOffset(QString tag) const
 {
   for (int i = 0; i < (int)m_inputs.size(); i++) {
     if (tag == m_inputs.at(i).tag.c_str())
@@ -600,45 +573,39 @@ int Boards::getInputTagOffset(const InputsTable * inputs, QString tag)
   return -1;
 }
 
-const int Boards::getInputExtIndex(int index)
+const int Boards::getInputExtIndex(int index) const
 {
   if (getCapability(Capability::Pots) > 0)
-    return getInputTagOffset(m_inputs, QString("EXT%1").arg(index));
+    return getInputTagOffset(QString("EXT%1").arg(index));
 
   return -1;
 }
 
-const int Boards::getInputPotIndex(int index)
+const int Boards::getInputPotIndex(int index) const
 {
   if (getCapability(Capability::Pots) > 0)
-    return getInputTagOffset(m_inputs, QString("P%1").arg(index));
+    return getInputTagOffset(QString("P%1").arg(index));
 
   return -1;
 }
 
-const int Boards::getInputSliderIndex(int index)
+const int Boards::getInputSliderIndex(int index) const
 {
   if (getCapability(Capability::Sliders) > 0)
-    return getInputTagOffset(m_inputs, QString("SL%1").arg(index));
+    return getInputTagOffset(QString("SL%1").arg(index));
 
   return -1;
 }
 
-const int Boards::getInputThrottleIndex()
+const int Boards::getInputThrottleIndex() const
 {
   if (getCapability(Capability::Sticks) > 0)
-    return getInputTagOffset(m_inputs, Boards::getCapability(m_id, Capability::Air) ? "RV" : "TH");
+    return getInputTagOffset(Boards::getCapability(Capability::Air) ? "RV" : "TH");
 
   return -1;
 }
 
-const int Boards::getInputTypeOffset(Board::AnalogInputType type)
-{
-  return getInputTypeOffset(m_inputs, type);
-}
-
-// static
-int Boards::getInputTypeOffset(const InputsTable * inputs, Board::AnalogInputType type)
+const int Boards::getInputTypeOffset(Board::AnalogInputType type) const
 {
   for (int i = 0; i < (int)m_inputs.size(); i++) {
     if (type == m_inputs.at(i).type)
@@ -650,15 +617,9 @@ int Boards::getInputTypeOffset(const InputsTable * inputs, Board::AnalogInputTyp
 
 const Board::InputInfo Boards::getInputInfo(int index) const
 {
-  return getInputInfo(m_inputs, index);
-}
-
-// static
-Board::InputInfo Boards::getInputInfo(const InputsTable * inputs, int index)
-{
   Board::InputInfo info;
 
-  if (index >= 0 && index < (int)m_inputs.size()) {
+  try {
     InputDefn defn = m_inputs.at(index);
     info.type = defn.type;
     info.tag = defn.tag;
@@ -666,21 +627,16 @@ Board::InputInfo Boards::getInputInfo(const InputsTable * inputs, int index)
     info.shortName = defn.shortName;
     info.flexType = defn.flexType;
     info.inverted = defn.inverted;
+  } catch (const std::out_of_range& e) {
   }
 
   return info;
 }
 
-const int Boards::getKeyIndex(const QString key) const
+const int Boards::getKeyIndex(QString key) const
 {
-  return getKeyIndex(m_keys, key);
-}
-
-// static
-int Boards::getKeyIndex(const KeysTable * keys, QString key)
-{
-  for (int i = 0; i < (int)keys->size(); i++) {
-    if (keys->at(i).key.c_str() == key)
+  for (int i = 0; i < (int)m_keys.size(); i++) {
+    if (m_keys.at(i).key.c_str() == key)
       return i;
   }
 
@@ -689,19 +645,14 @@ int Boards::getKeyIndex(const KeysTable * keys, QString key)
 
 const Board::KeyInfo Boards::getKeyInfo(int index) const
 {
-  return getKeyInfo(m_keys, index);
-}
-
-// static
-Board::KeyInfo Boards::getKeyInfo(const KeysTable * keys, int index)
-{
   Board::KeyInfo info;
 
-  if (index >= 0 && index < (int)keys->size()) {
-    KeyDefn defn = keys->at(index);
+  try {
+    KeyDefn defn = m_keys.at(index);
     info.name = defn.name;
     info.key = defn.key;
     info.label = defn.label;
+  } catch (const std::out_of_range& e) {
   }
 
   return info;
@@ -725,15 +676,11 @@ int Boards::getNumericSuffix(const std::string str)
 
 const int Boards::getCFSIndexForSwitch(int swIdx) const
 {
-  if (swIdx >= 0 && swIdx < (int)m_switches.size() && m_switches.at(swIdx).isCustomSwitch)
-    return m_switches.at(swIdx).customSwitchIdx;
-
+  try {
+    return m_switches.at(swIdx).isCustomSwitch ? m_switches.at(swIdx).customSwitchIdx : -1;
+  } catch (const std::out_of_range& e) {
   return -1;
-}
-
-const int Boards::getSwitchIndexForCFS(int offset) const
-{
-  return getSwitchIndexForCFS(m_switches, offset);
+  }
 }
 
 const int Boards::getSwitchIndexForCFS(int cfsIdx) const
@@ -746,13 +693,7 @@ const int Boards::getSwitchIndexForCFS(int cfsIdx) const
   return -1;
 }
 
-const int Boards::getCFSOffsetForCFSIndex(int index) const
-{
-  return getCFSOffsetForCFSIndex(m_switches, index);
-}
-
-// static
-int Boards::getCFSOffsetForCFSIndex(const SwitchesTable * switches, const int index)
+const int Boards::getCFSOffsetForCFSIndex(const int index) const
 {
   int cnt = 0;
 
@@ -768,13 +709,7 @@ int Boards::getCFSOffsetForCFSIndex(const SwitchesTable * switches, const int in
   return -1;
 }
 
-const int Boards::getSwitchIndexForCFSOffset(int offset) const
-{
-  return getSwitchIndexForCFSOffset(m_switches, offset);
-}
-
-// static
-int Boards::getSwitchIndexForCFSOffset(const SwitchesTable * switches, const int offset)
+const int Boards::getSwitchIndexForCFSOffset(const int offset) const
 {
   int cnt = 0;
 
@@ -790,13 +725,7 @@ int Boards::getSwitchIndexForCFSOffset(const SwitchesTable * switches, const int
   return -1;
 }
 
-const int Boards::getSwitchIndex(const QString val, Board::LookupValueType lvt) const
-{
-  return getSwitchIndex(m_switches, val, lvt);
-}
-
-// static
-int Boards::getSwitchIndex(const SwitchesTable * switches, QString val, Board::LookupValueType lvt)
+const int Boards::getSwitchIndex(QString val, Board::LookupValueType lvt) const
 {
   for (int i = 0; i < (int)m_switches.size(); i++) {
     if ((lvt == Board::LVT_TAG && m_switches.at(i).tag.c_str() == val) ||
@@ -809,21 +738,16 @@ int Boards::getSwitchIndex(const SwitchesTable * switches, QString val, Board::L
 
 const Board::SwitchInfo Boards::getSwitchInfo(int index) const
 {
-  return getSwitchInfo(m_switches, index);
-}
-
-// static
-Board::SwitchInfo Boards::getSwitchInfo(const SwitchesTable * switches, int index)
-{
   Board::SwitchInfo info;
 
-  if (index >= 0 && index < (int)m_switches.size()) {
+  try {
     SwitchDefn defn = m_switches.at(index);
     info.type = defn.type;
     info.tag = defn.tag;
     info.name = defn.name;
     info.dflt = defn.dflt;
     info.inverted = defn.inverted;
+  } catch (const std::out_of_range& e) {
   }
 
   return info;
@@ -831,53 +755,32 @@ Board::SwitchInfo Boards::getSwitchInfo(const SwitchesTable * switches, int inde
 
 const QString Boards::getSwitchName(int index) const
 {
-  return getSwitchName(m_switches, index);
-}
-
-// static
-QString Boards::getSwitchName(const SwitchesTable * switches, int index)
-{
-  if (index > -1 && index < (int)m_switches.size())
+  try {
     return m_switches.at(index).name.c_str();
-
+  } catch (const std::out_of_range& e) {
   return CPN_STR_UNKNOWN_ITEM;
+  }
 }
 
 const QString Boards::getSwitchTag(int index) const
 {
-  return getSwitchTag(m_switches, index);
-}
-
-// static
-QString Boards::getSwitchTag(const SwitchesTable * switches, int index)
-{
-  if (index > -1 && index < (int)m_switches.size())
+  try {
     return m_switches.at(index).tag.c_str();
-
-  return CPN_STR_UNKNOWN_ITEM;
+  } catch (const std::out_of_range& e) {
+    return CPN_STR_UNKNOWN_ITEM;
+  }
 }
 
 const int Boards::getSwitchTagNum(int index) const
 {
-  return getSwitchTagNum(m_switches, index);
-}
-
-// static
-int Boards::getSwitchTagNum(const SwitchesTable * switches, int index)
-{
-  if (index > -1 && index < (int)m_switches.size())
+  try {
     return getNumericSuffix(m_switches.at(index).tag.c_str());
-
-  return -1;
+  } catch (const std::out_of_range& e) {
+    return -1;
+  }
 }
 
-const int Boards::getSwitchTypeOffset(Board::SwitchType type)
-{
-  return getSwitchTypeOffset(m_switches, type);
-}
-
-// static
-int Boards::getSwitchTypeOffset(const SwitchesTable * switches, Board::SwitchType type)
+const int Boards::getSwitchTypeOffset(Board::SwitchType type) const
 {
   for (int i = 0; i < (int)m_switches.size(); i++) {
     if (type == m_switches.at(i).type)
@@ -890,10 +793,10 @@ int Boards::getSwitchTypeOffset(const SwitchesTable * switches, Board::SwitchTyp
 const int Boards::getSwitchYamlIndex(const QString val, YamlLookupType ylt) const
 {
   for (int i = 0; i < (int)m_switches.size(); i++) {
-    Board::LookupValueType type = (ylt == YLT_CONFIG ? m_m_switches.at(i).cfgYaml : m_m_switches.at(i).refYaml);
-    QString tmp = (type == Board::LVT_NAME ? getSwitchName(m_switches, i) : getSwitchTag(m_switches, i));
+    Board::LookupValueType type = (ylt == YLT_CONFIG ? m_switches.at(i).cfgYaml : m_switches.at(i).refYaml);
+    QString tmp = (type == Board::LVT_NAME ? getSwitchName(i) : getSwitchTag(i));
     if (val == tmp)
-      return getSwitchIndex(m_switches, val, type);
+      return getSwitchIndex(val, type);
   }
 
   return -1;
@@ -901,27 +804,21 @@ const int Boards::getSwitchYamlIndex(const QString val, YamlLookupType ylt) cons
 
 const QString Boards::getSwitchYamlName(int index, YamlLookupType ylt) const
 {
-  if (index > -1 && index < (int)m_switches.size()) {
-    if (ylt == YLT_CONFIG)
-      return m_switches.at(index).cfgYaml == Board::LVT_NAME ? getSwitchName(m_switches, index) : getSwitchTag(m_switches, index);
-    else
-      return m_switches.at(index).refYaml == Board::LVT_NAME ? getSwitchName(m_switches, index) : getSwitchTag(m_switches, index);
+  try {
+  return ((ylt == YLT_CONFIG && m_switches.at(index).cfgYaml == Board::LVT_NAME) ||
+          m_switches.at(index).refYaml == Board::LVT_NAME) ?
+          getSwitchName(index) :
+          getSwitchTag(index);
+  } catch (const std::out_of_range& e) {
+    return CPN_STR_UNKNOWN_ITEM;
   }
-
-  return CPN_STR_UNKNOWN_ITEM;
 }
 
-const int Boards::getTrimIndex(const QString val, Board::LookupValueType lvt) const
+const int Boards::getTrimIndex(QString val, Board::LookupValueType lvt) const
 {
-  return getTrimIndex(m_trims, val, lvt);
-}
-
-// static
-int Boards::getTrimIndex(const TrimsTable * trims, QString val, Board::LookupValueType lvt)
-{
-  for (int i = 0; i < (int)trims->size(); i++) {
-    if ((lvt == Board::LVT_TAG && trims->at(i).tag.c_str() == val) ||
-        (lvt == Board::LVT_NAME && trims->at(i).name.c_str() == val))
+  for (int i = 0; i < (int)m_trims.size(); i++) {
+    if ((lvt == Board::LVT_TAG && m_trims.at(i).tag.c_str() == val) ||
+        (lvt == Board::LVT_NAME && m_trims.at(i).name.c_str() == val))
       return i;
   }
 
@@ -930,39 +827,29 @@ int Boards::getTrimIndex(const TrimsTable * trims, QString val, Board::LookupVal
 
 const QString Boards::getTrimName(int index) const
 {
-  return getTrimName(m_trims, index);
-}
-
-// static
-QString Boards::getTrimName(const TrimsTable * trims, int index)
-{
-  if (index > -1 && index < (int)trims->size())
-    return trims->at(index).name.c_str();
-
-  return CPN_STR_UNKNOWN_ITEM;
+  try {
+    return m_trims.at(index).name.c_str();
+  } catch (const std::out_of_range& e) {
+    return CPN_STR_UNKNOWN_ITEM;
+  }
 }
 
 const QString Boards::getTrimTag(int index) const
 {
-  return getTrimTag(m_trims, index);
-}
-
-// static
-QString Boards::getTrimTag(const TrimsTable * trims, int index)
-{
-  if (index > -1 && index < (int)trims->size())
-    return trims->at(index).tag.c_str();
-
-  return CPN_STR_UNKNOWN_ITEM;
+  try {
+    return m_trims.at(index).tag.c_str();
+  } catch (const std::out_of_range& e) {
+    return CPN_STR_UNKNOWN_ITEM;
+  }
 }
 
 const int Boards::getTrimYamlIndex(const QString val, YamlLookupType ylt) const
 {
-  for (int i = 0; i < (int)m_trims->size(); i++) {
-    Board::LookupValueType type = (ylt == YLT_CONFIG ? m_trims->at(i).cfgYaml : m_trims->at(i).refYaml);
-    QString tmp = (type == Board::LVT_NAME ? getTrimName(m_trims, i) : getTrimTag(m_trims, i));
+  for (int i = 0; i < (int)m_trims.size(); i++) {
+    Board::LookupValueType type = (ylt == YLT_CONFIG ? m_trims.at(i).cfgYaml : m_trims.at(i).refYaml);
+    QString tmp = (type == Board::LVT_NAME ? getTrimName(i) : getTrimTag(i));
     if (val == tmp)
-      return getTrimIndex(m_trims, val, type);
+      return getTrimIndex(val, type);
   }
 
   return -1;
@@ -970,164 +857,154 @@ const int Boards::getTrimYamlIndex(const QString val, YamlLookupType ylt) const
 
 const QString Boards::getTrimYamlName(int index, YamlLookupType ylt) const
 {
-  if (index > -1 && index < (int)m_trims->size()) {
-    if (ylt == YLT_CONFIG)
-      return m_trims->at(index).cfgYaml == Board::LVT_NAME ? getTrimName(m_trims, index) : getTrimTag(m_trims, index);
-    else
-      return m_trims->at(index).refYaml == Board::LVT_NAME ? getTrimName(m_trims, index) : getTrimTag(m_trims, index);
+  try {
+    return ((ylt == YLT_CONFIG && m_trims.at(index).cfgYaml == Board::LVT_NAME) ||
+            m_trims.at(index).refYaml == Board::LVT_NAME) ?
+            getTrimName(index) :
+            getTrimTag(index);
+  } catch (const std::out_of_range& e) {
+    return CPN_STR_UNKNOWN_ITEM;
   }
-
-  return CPN_STR_UNKNOWN_ITEM;
 }
 
 const bool Boards::isInputAvailable(int index) const
 {
-  return (index >=0 && index < (int)m_inputs.size()) ? isInputAvailable(m_inputs.at(index)) : false;
-}
-
-// static
-bool Boards::isInputAvailable(const InputDefn & defn)
-{
-  return (defn.type == Board::AIT_STICK ||
-          (defn.type == Board::AIT_FLEX && defn.flexType != Board::FLEX_NONE && !isInputFlexJoystickAxis(defn)));
+  try {
+    return (m_inputs.at(index).type == Board::AIT_STICK ||
+           (m_inputs.at(index).type == Board::AIT_FLEX &&
+            m_inputs.at(index).flexType != Board::FLEX_NONE &&
+            !isInputFlexJoystickAxis(index)));
+  } catch (const std::out_of_range& e) {
+    return CPN_STR_UNKNOWN_ITEM;
+  }
 }
 
 const bool Boards::isInputCalibrated(int index) const
 {
-  return (index >=0 && index < (int)m_inputs.size()) ? isInputCalibrated(m_inputs.at(index)) : false;
-}
-
-// static
-bool Boards::isInputCalibrated(const InputDefn & defn)
-{
-  return (isInputStick(defn) || isInputFlexPot(defn) || isInputFlexSlider(defn));
+  return (isInputStick(index) || isInputFlexPot(index) || isInputFlexSlider(index));
 }
 
 const bool Boards::isInputConfigurable(int index) const
 {
-  return (index >=0 && index < (int)m_inputs.size()) ? isInputConfigurable(m_inputs.at(index)) : false;
-}
-
-// static
-bool Boards::isInputConfigurable(const InputDefn & defn)
-{
-  return (isInputStick(defn) || isInputFlexPot(defn) || isInputFlexSlider(defn));
+  return (isInputStick(index) || isInputFlexPot(index) || isInputFlexSlider(index));
 }
 
 const bool Boards::isInputIgnored(int index) const
 {
-  return (index >=0 && index < (int)m_inputs.size()) ? isInputIgnored(m_inputs.at(index)) : true;
+  return (isInputFlexJoystickAxis(index) || isInputSwitch(index));
 }
 
-// static
-bool Boards::isInputIgnored(const InputDefn & defn)
+const bool Boards::isInputFlex(int index) const
 {
-  return (isInputFlexJoystickAxis(defn) || isInputSwitch(defn));
-}
-
-// static
-bool Boards::isInputFlex(const InputDefn & defn)
-{
-  return defn.type == Board::AIT_FLEX;
+  try {
+    return m_inputs.at(index).type == Board::AIT_FLEX;
+  } catch (const std::out_of_range& e) {
+    return false;
+  }
 }
 
 const bool Boards::isInputFlexGyroAxis(int index) const
 {
-  return (index >=0 && index < (int)m_inputs.size()) ? isInputFlexGyroAxis(m_inputs.at(index)) : false;
-}
+  try {
+    const char* val = m_inputs.at(index).tag.data();
 
-// static
-bool Boards::isInputFlexGyroAxis(const InputDefn & defn)
-{
-  const char* val = defn.tag.data();
-
-  return (defn.type == Board::AIT_FLEX && defn.tag.size() > 5 &&
-          val[0] == 'T' && val[1] == 'I'  && val[2] == 'L' && val[3] == 'T' && val[4] == '_' && (val[5] == 'X' || val[5] == 'Y'));
+    return (m_inputs.at(index).type == Board::AIT_FLEX && m_inputs.at(index).tag.size() > 5 &&
+            val[0] == 'T' && val[1] == 'I'  && val[2] == 'L' && val[3] == 'T' && val[4] == '_' && (val[5] == 'X' || val[5] == 'Y'));
+  } catch (const std::out_of_range& e) {
+    return false;
+  }
 }
 
 const bool Boards::isInputFlexJoystickAxis(int index) const
 {
-  return (index >=0 && index < (int)m_inputs.size()) ? isInputFlexJoystickAxis(m_inputs.at(index)) : false;
-}
+  try {
+    const char* val = m_inputs.at(index).tag.data();
 
-// static
-bool Boards::isInputFlexJoystickAxis(const InputDefn & defn)
-{
-  const char* val = defn.tag.data();
-
-  return (defn.type == Board::AIT_FLEX && defn.tag.size() > 2 &&
-          val[0] == 'J' && val[1] == 'S' && (val[2] == 'x' || val[2] == 'y'));
+    return (m_inputs.at(index).type == Board::AIT_FLEX && m_inputs.at(index).tag.size() > 2 &&
+            val[0] == 'J' && val[1] == 'S' && (val[2] == 'x' || val[2] == 'y'));
+  } catch (const std::out_of_range& e) {
+    return false;
+  }
 }
 
 const bool Boards::isInputFlexPot(int index) const
 {
-  return (index >=0 && index < (int)m_inputs.size()) ? isInputFlexPot(m_inputs.at(index)) : false;
+  try {
+    const char* val = m_inputs.at(index).tag.data();
+    size_t len = m_inputs.at(index).tag.size();
+
+    return (m_inputs.at(index).type == Board::AIT_FLEX &&
+            ((len > 1 && val[0] == 'P' && val[1] >= '0' && val[1] <= '9') ||
+              (len > 3 && val[0] == 'E' && val[1] == 'X' && val[2] == 'T' && val[3] >= '0' && val[3] <= '9')));
+  } catch (const std::out_of_range& e) {
+    return false;
+  }
 }
 
-// static
-bool Boards::isInputFlexPot(const InputDefn & defn)
+const bool Boards::isInputFlexPotMultipos(int index) const
 {
-  const char* val = defn.tag.data();
-  size_t len = defn.tag.size();
-
-  return (defn.type == Board::AIT_FLEX &&
-          ((len > 1 && val[0] == 'P' && val[1] >= '0' && val[1] <= '9') ||
-           (len > 3 && val[0] == 'E' && val[1] == 'X' && val[2] == 'T' && val[3] >= '0' && val[3] <= '9')));
+  try {
+    return m_inputs.at(index).type == Board::AIT_FLEX && m_inputs.at(index).flexType == Board::FLEX_MULTIPOS;
+  } catch (const std::out_of_range& e) {
+    return false;
+  }
 }
 
-// static
-bool Boards::isInputFlexPotMultipos(const InputDefn & defn)
+const bool Boards::isInputFlexSlider(int index) const
 {
-  return defn.type == Board::AIT_FLEX && defn.flexType == Board::FLEX_MULTIPOS;
+  try {
+    const char* val = m_inputs.at(index).tag.data();
+
+    return (m_inputs.at(index).type == Board::AIT_FLEX && m_inputs.at(index).tag.size() > 2 &&
+            val[0] == 'S' && val[1] == 'L' && val[2] >= '0' && val[2] <= '9');
+  } catch (const std::out_of_range& e) {
+    return false;
+  }
 }
 
-// static
-bool Boards::isInputFlexSlider(const InputDefn & defn)
+const bool Boards::isInputFlexSwitch(int index) const
 {
-  const char* val = defn.tag.data();
-
-  return (defn.type == Board::AIT_FLEX && defn.tag.size() > 2 &&
-          val[0] == 'S' && val[1] == 'L' && val[2] >= '0' && val[2] <= '9');
+  try {
+    return m_inputs.at(index).type == Board::AIT_FLEX && m_inputs.at(index).flexType == Board::FLEX_SWITCH;
+  } catch (const std::out_of_range& e) {
+    return false;
+  }
 }
 
-// static
-bool Boards::isInputFlexSwitch(const InputDefn & defn)
+const bool Boards::isInputRTCBat(int index) const
 {
-  return defn.type == Board::AIT_FLEX && defn.flexType == Board::FLEX_SWITCH;
-}
-
-// static
-bool Boards::isInputRTCBat(const InputDefn & defn)
-{
-  return defn.type == Board::AIT_RTC_BAT;
+  try {
+    return m_inputs.at(index).type == Board::AIT_RTC_BAT;
+  } catch (const std::out_of_range& e) {
+    return false;
+  }
 }
 
 const bool Boards::isInputStick(int index) const
 {
-  return (index >=0 && index < (int)m_inputs.size()) ? isInputStick(m_inputs.at(index)) : false;
-}
-
-// static
-bool Boards::isInputStick(const InputDefn & defn)
-{
-  return defn.type == Board::AIT_STICK;
+  try {
+    return m_inputs.at(index).type == Board::AIT_STICK;
+  } catch (const std::out_of_range& e) {
+    return false;
+  }
 }
 
 const bool Boards::isInputSwitch(int index) const
 {
-  return (index >=0 && index < (int)m_inputs.size()) ? isInputSwitch(m_inputs.at(index)) : false;
+  try {
+    return m_inputs.at(index).type == Board::AIT_SWITCH;
+  } catch (const std::out_of_range& e) {
+    return false;
+  }
 }
 
-// static
-bool Boards::isInputSwitch(const InputDefn & defn)
+const bool Boards::isInputVBat(int index) const
 {
-  return defn.type == Board::AIT_SWITCH;
-}
-
-// static
-bool Boards::isInputVBat(const InputDefn & defn)
-{
-  return defn.type == Board::AIT_VBAT;
+  try {
+    return m_inputs.at(index).type == Board::AIT_VBAT;
+  } catch (const std::out_of_range& e) {
+    return false;
+  }
 }
 
 const bool Boards::isSwitchConfigurable(int index) const
