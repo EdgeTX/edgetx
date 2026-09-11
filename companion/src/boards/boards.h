@@ -412,8 +412,6 @@ class Boards : public JsonBase
       bool rotaryEncoderNavigation      = true;
       InternalModules internalModules;
       std::string defaultExternalModuleSize = ""; // std, small, both
-
-      // TODO are these still relevant?
       int fourCC                        = 0;
       int eepromSize                    = 0;
       int flashSize                     = 0;
@@ -430,7 +428,7 @@ class Boards : public JsonBase
     const QString name() const { return m_hardware.name.c_str(); }
     const QString manufacturer() const { return m_hardware.manufacturer.c_str(); }
 
-    bool loadDefinition();
+    bool loadDefinitions();
 
     int getCapability(const Capability capability) const;
     QString getCapabilityStr(const Capability capability) const;
@@ -462,7 +460,6 @@ class Boards : public JsonBase
     const bool isInputSwitch(int index) const;
     const bool isInputFlexPotMultipos(int index) const;
     const bool isInputFlexSlider(int index) const;
-    const bool isInputFlexSwitch(int index) const;
     const bool isInputRTCBat(int index) const;
     const bool isInputVBat(int index) const;
 
@@ -492,6 +489,7 @@ class Boards : public JsonBase
     const bool isSwitchConfigurable(int index) const;
     const bool isSwitchFlex(int index) const;
     const bool isSwitchFunc(int index) const;
+    const bool isSwitchStd(int index) const;
 
     void batteryRange(int & vmin, int & vmax, unsigned int & vwarn) const;
     const int defaultInternalModule() const;
@@ -505,13 +503,14 @@ class Boards : public JsonBase
     static AbstractStaticItemModel * intModuleTypeItemModel();
 
     static QString externalModuleSizeToString(int value);
-    static int externalModuleStringToSize(QString value);
+    static int externalModuleStringToSize(const QString & value);
     static AbstractStaticItemModel * externalModuleSizeItemModel();
 
     static QString flexTypeToString(int value);
     static AbstractStaticItemModel * flexTypeItemModel();
 
-    static QString Boards::getAxisName(int index);
+    static int getFlashSize() { return getCurrentFirmwareBoard()->getCapability(Capability::FlashSize); }
+    static QString getAxisName(int index);
     static int getNumericSuffix(const std::string str);
 
     static std::string getLegacyAnalogMappedInputTag(const char * legacytag, const Board::Type & id = Board::BOARD_UNKNOWN);
@@ -557,7 +556,8 @@ class Boards : public JsonBase
     const StringTagMappingTable rawSwitchTypesLookupTable;
     const StringTagMappingTable rawSourceSpecialTypesLookupTable;
 
-    bool loadFile(const Board::Type & id, QString defn);
+    bool loadDefinition(const QString & path);
+    bool loadFile(const QJsonDocument * doc);
     void afterLoadFixups();
 
     void setInputCounts();
@@ -569,5 +569,5 @@ class Boards : public JsonBase
 };
 
 // Helpers
-Boards * getBoardForHwDefn(const QString & hwdefn) { return gBoardFactories->boardForHwDefn(hwdefn); }
-Boards * getBoardForId(const Board::Type & id) { return gBoardFactories->boardForId(id); }
+Boards * getBoardForHwDefn(const QString & hwdefn);
+Boards * getBoardForId(const Board::Type & id);

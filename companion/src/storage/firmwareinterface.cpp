@@ -31,7 +31,7 @@
 #define DATE_MARK   "DATE"
 #define TIME_MARK   "TIME"
 #define EEPR_MARK   "EEPR"
-#define FSIZE_MAX   Boards::getFlashSize(Board::BOARD_UNKNOWN)
+#define FSIZE_MAX   Boards::getFlashSize()
 
 #define UF2_HEADER_SIZE                 32
 #define UF2_BLOCK_SIZE                  512

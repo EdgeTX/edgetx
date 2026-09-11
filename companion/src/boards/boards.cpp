@@ -43,6 +43,9 @@
 #define FSIZE_2MB                      (2048*1024)
 #define FSIZE_MAX                      FSIZE_2MB
 
+constexpr char BDDEFNSDIR[] { ":/bddefs" };
+constexpr char HWDEFNSDIR[] { ":/hwdefs" };
+
 static const StringTagMappingTable trimSwitchesLut = {
     {std::to_string(Board::TRIM_SW_LH_DEC), "TrimRudLeft"},
     {std::to_string(Board::TRIM_SW_LH_INC), "TrimRudRight"},
@@ -100,6 +103,16 @@ static const StringTagMappingTable stickNamesLookupTable = {
     {QCoreApplication::translate("Boards", "TH").toStdString(),  "TH"},  // surface
 };
 
+Boards * getBoardForHwDefn(const QString & hwdefn)
+{
+  return gBoardFactories->boardForHwDefn(hwdefn);
+}
+
+Boards * getBoardForId(const Board::Type & id)
+{
+  return gBoardFactories->boardForId(id);
+}
+
 Boards::Boards(const Board::Type & board, const QString & hwdefn, const QString & bddefn) :
   JsonBase(),
   m_id(board),
@@ -115,6 +128,73 @@ Boards::Boards(const Board::Type & board, const QString & hwdefn, const QString 
 
 Boards::~Boards()
 {
+}
+
+void Boards::afterLoadFixups()
+{
+  // TODO put in bddefn file !!!!!!
+  // TODO json files do not contain gyro defs
+  // Radio cmake directive IMU is currently used
+  if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board) ||
+      IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board) ||
+      IS_RADIOMASTER_TX16SMK3(board) || IS_FLYSKY_PA01(board)) {
+    if (getInputIndex(inputs, "TILT_X", Board::LVT_TAG) < 0) {
+      InputDefn defn;
+      defn.type = AIT_FLEX;
+      defn.tag = "TILT_X";
+      defn.name = "Tltx";
+      defn.shortName = "X";
+      defn.flexType = FLEX_AXIS_X;
+      defn.inverted = false;
+      defn.cfgYaml = Board::LVT_TAG;
+      defn.refYaml = Board::LVT_TAG;  //  non-default
+      inputs->insert(inputs->end(), defn);
+    }
+
+    if (getInputIndex(inputs, "TILT_Y", Board::LVT_TAG) < 0) {
+      InputDefn defn;
+      defn.type = AIT_FLEX;
+      defn.tag = "TILT_Y";
+      defn.name = "Tlty";
+      defn.shortName = "Y";
+      defn.flexType = FLEX_AXIS_Y;
+      defn.inverted = false;
+      defn.cfgYaml = Board::LVT_TAG;
+      defn.refYaml = Board::LVT_TAG;  //  non-default
+      inputs->insert(inputs->end(), defn);
+    }
+  }
+
+  // Set default labels for LUX inputs if not provided by JSON
+  for (auto &defn : m_inputs) {
+    if (defn.type == AIT_LUX) {
+      if (defn.name.empty())
+        defn.name = "Ambient light";
+      if (defn.shortName.empty())
+        defn.shortName = "Light";
+    }
+  }
+
+  // TODO put in dbdefn file
+  //  Flex switches are not listed in json file for these radios
+  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_MT12(board) ? 2 : 0;
+
+  for (int i = 1; i <= count; i++) {
+    QString tag = QString("FL%1").arg(i);
+    if (getSwitchIndex(switches, tag, Board::LVT_TAG) < 0) {
+      SwitchDefn defn;
+      defn.tag = tag.toStdString();
+      defn.name = defn.tag;
+      switches->insert(switches->end(), defn);
+    }
+  }
+
+  // json files do not normally specify stick labels so load legacy labels
+  for (int i = 0; i < getCapability(Capability::Sticks); i++) {
+    if (m_inputs.at(i).name.empty())
+      m_inputs.at(i).name = DataHelpers::getStringTagMappingName(stickNamesLookupTable, m_inputs.at(i).tag.c_str());
+  }
+
 }
 
 int Boards::getCapability(const Capability capability) const
@@ -429,7 +509,7 @@ QString Boards::externalModuleSizeToString(int value)
 }
 
 //  static
-int Boards::externalModuleStringToSize(QString value)
+int Boards::externalModuleStringToSize(const QString & value)
 {
   for (int i = 0; i < Board::EXTMODSIZE_COUNT; i++) {
     if (externalModuleSizeToString(i).toLower() == value)
@@ -1009,73 +1089,84 @@ const bool Boards::isInputVBat(int index) const
 
 const bool Boards::isSwitchConfigurable(int index) const
 {
-  if (index >= 0 && index < getCapability(Capability::Switches)) {
-    SwitchDefn &defn = m_switches.at(index);
-    if (isSwitchStd(defn) || isSwitchFunc(defn))
-      return true;
-
-    if (isSwitchFlex(defn)) {
-      int sfx = getNumericSuffix(defn.tag);
-      if (sfx > 0 && sfx <= getCapability(Capability::FlexSwitches))
+  try {
+    if (index >= 0 && index < getCapability(Capability::Switches)) {
+      if (isSwitchStd(index) || isSwitchFunc(index))
         return true;
+
+      if (isSwitchFlex(index)) {
+        int sfx = getNumericSuffix(m_switches.at(index).tag);
+        if (sfx > 0 && sfx <= getCapability(Capability::FlexSwitches))
+          return true;
+      }
     }
+  } catch (const std::out_of_range& e) {
   }
 
   return false;
 }
 
-// static
-bool Boards::isSwitchStd(const SwitchDefn & defn)
+const bool Boards::isSwitchStd(int index) const
 {
-  return !(isSwitchFlex(defn) || isSwitchFunc(defn));
+  return !(isSwitchFlex(index) || isSwitchFunc(index));
 }
 
 const bool Boards::isSwitchFlex(int index) const
 {
-  return (index >=0 && index < (int)m_switches.size()) ? isSwitchFlex(m_switches.at(index)) : false;
-}
+  try {
+    const char* val = m_switches.at(index).tag.data();
 
-// static
-bool Boards::isSwitchFlex(const SwitchDefn & defn)
-{
-  const char* val = defn.tag.data();
-
-  return (defn.tag.size() > 2 &&
-          val[0] == 'F' && val[1] == 'L' && val[2] >= '0' && val[2] <= '9');
+    return (m_switches.at(index).tag.size() > 2 &&
+            val[0] == 'F' && val[1] == 'L' && val[2] >= '0' && val[2] <= '9');
+  } catch (const std::out_of_range& e) {
+    return false;
+  }
 }
 
 const bool Boards::isSwitchFunc(int index) const
 {
-  return (index >=0 && index < (int)m_switches.size()) ? isSwitchFunc(m_switches.at(index)) : false;
+  try {
+    return m_switches.at(index).customSwitchIdx >= 0;
+  } catch (const std::out_of_range& e) {
+    return false;
+  }
 }
 
-// static
-bool Boards::isSwitchFunc(const SwitchDefn & defn)
+bool Boards::loadDefinition(const QString & path)
 {
-  return defn.customSwitchIdx >= 0;
+  bool res = false;
+  QJsonDocument *doc = new QJsonDocument();
+
+  if (load(doc, path))
+    res = loadFile(doc);
+
+  delete doc;
+  return res;
 }
 
-bool Boards::loadDefinition()
+bool Boards::loadDefinitions()
 {
   // safety net for BoardFactory::instance
   if (m_id == Board::BOARD_UNKNOWN)
     return true;
 
-  if (!loadFile(m_id, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs, m_hardware, m_hwextra, m_hasKeyLockCombo))
+  // required because of the way the Firmware class is used
+  if (m_hwdefn.isEmpty()) {
     return false;
-
-  afterLoadFixups(m_id, m_inputs, m_switches, m_keys, m_trims);
-
-  setInputCounts(m_inputs, m_inputCnt);
-  setSwitchCounts(m_switches, m_switchCnt);
-
-  // json files do not normally specify stick labels so load legacy labels
-  for (int i = 0; i < getCapability(Capability::Sticks); i++) {
-    if (m_inputs.at(i).name.empty())
-      m_inputs.at(i).name = DataHelpers::getStringTagMappingName(stickNamesLookupTable, m_inputs.at(i).tag.c_str());
   }
 
-  qDebug() << "Board:" << Boards::getBoardName(m_id) <<
+  bool res = loadDefinition(QString("%1/%2.json").arg(HWDEFNSDIR).arg(m_hwdefn));
+
+  if (res) {
+    if (!loadDefinition(QString("%1/%2.json").arg(BDDEFNSDIR).arg(m_bddefn)))
+      return false;
+  }
+
+  afterLoadFixups();
+  setInputCounts();
+  setSwitchCounts();
+
+  qDebug() << "Board:" << name() <<
               "inputs:" << getCapability(Capability::Inputs) <<
               "sticks:" << getCapability(Capability::Sticks) <<
               "pots:" << getCapability(Capability::Pots) <<
@@ -1095,56 +1186,9 @@ bool Boards::loadDefinition()
   return true;
 }
 
-// static
-bool Boards::loadFile(const Board::Type & id, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
-                         KeysTable * keys, TrimsTable * trims, DisplayDefn * display, CustomSwitchesDefn * cfs,
-                         HardwareDefn * hardware, BoardDefn * hwextra, bool & hasKeyLockCombo)
+bool Boards::loadFile(const QJsonDocument * doc)
 {
-  if (id == Board::BOARD_UNKNOWN) {
-    return false;
-  }
-
-  // required because of the way the Firmware class is used
-  if (hwdefn.isEmpty()) {
-    return false;
-  }
-
-  QString path = QString(":/hwdefs/%1.json").arg(hwdefn);
-  QFile file(path);
-
-  if (!file.exists()) {
-    QMessageBox::critical(nullptr, tr("Load Board Hardware Definition"),
-                          tr("Board: %1\nError: Unable to load file %2").arg(Boards::getBoardName(id)).arg(path));
-    return false;
-  }
-
-  if (!file.open(QIODevice::ReadOnly)) {
-    QMessageBox::critical(nullptr, tr("Load Board Hardware Definition"),
-                          tr("Board: %1\nError: Unable to open file %2").arg(Boards::getBoardName(id)).arg(path));
-    return false;
-  }
-
-  QByteArray buffer = file.readAll();
-  file.close();
-
-  if (buffer.isEmpty()) {
-    QMessageBox::critical(nullptr, tr("Load Board Hardware Definition"),
-                          tr("Board: %1\nError: Unable to read file %2").arg(Boards::getBoardName(id)).arg(path));
-    return false;
-  }
-
-  QJsonParseError res;
-  QJsonDocument *json = new QJsonDocument();
-  *json = QJsonDocument::fromJson(buffer, &res);
-
-  if (res.error || json->isNull() || !json->isObject()) {
-    QMessageBox::critical(nullptr, tr("Load Board Hardware Definition"),
-                          tr("Board: %1\nError: %2 is not a valid json formatted file.\nError code: %3\nError description: %4").arg(Boards::getBoardName(id)).arg(path).arg(res.error).arg(res.errorString()));
-    delete json;
-    return false;
-  }
-
-  const QJsonObject &obj = json->object();
+  const QJsonObject &obj = doc->object();
 
   if (obj.value("adc_inputs").isObject()) {
     const QJsonObject &adcinputs = obj.value("adc_inputs").toObject();
@@ -1278,15 +1322,15 @@ bool Boards::loadFile(const Board::Type & id, QString hwdefn, InputsTable * inpu
           k.tag = k.name;
         }
 
-        keys->insert(keys->end(), k);
+        m_keys.insert(m_keys.end(), k);
 
 //        qDebug() << "name:" << k.name.c_str() << "key:" << k.key.c_str() << "label:" << k.label.c_str();
       }
     }
   }
 
-  hasKeyLockCombo = obj.value("key_lock_combo").isArray() &&
-                    obj.value("key_lock_combo").toArray().size() == 2;
+  m_hasKeyLockCombo = obj.value("key_lock_combo").isArray() &&
+                      obj.value("key_lock_combo").toArray().size() == 2;
 
   if (obj.value("trims").isArray()) {
     const QJsonArray &trms = obj.value("trims").toArray();
@@ -1302,7 +1346,7 @@ bool Boards::loadFile(const Board::Type & id, QString hwdefn, InputsTable * inpu
           t.tag = t.name;
         }
 
-        trims->insert(trims->end(), t);
+        m_trims.insert(m_trims.end(), t);
 
 //        qDebug() << "name:" << t.name.c_str();
       }
@@ -1312,19 +1356,19 @@ bool Boards::loadFile(const Board::Type & id, QString hwdefn, InputsTable * inpu
   if (obj.value("display").isObject()) {
     const QJsonObject &o = obj.value("display").toObject();
 
-    display->w = o.value("lcd_w").toInt();
-    display->h = o.value("lcd_h").toInt();
-    display->phys_w = o.value("lcd_phys_w").toInt();
-    display->phys_h = o.value("lcd_phys_h").toInt();
-    display->depth = o.value("lcd_depth").toInt();
-    display->color = display->depth == 16 ? 1 : 0;
-    display->oled = o.value("oled_screen").toBool();
+    m_display.w = o.value("lcd_w").toInt();
+    m_display.h = o.value("lcd_h").toInt();
+    m_display.phys_w = o.value("lcd_phys_w").toInt();
+    m_display.phys_h = o.value("lcd_phys_h").toInt();
+    m_display.depth = o.value("lcd_depth").toInt();
+    m_display.color = m_display.depth == 16 ? 1 : 0;
+    m_display.oled = o.value("oled_screen").toBool();
   }
 
   if (obj.value("backlight").isObject()) {
     const QJsonObject &o = obj.value("backlight").toObject();
 
-    display->backlight_color = o.value("has_backlight_color").toBool();
+    m_display.backlight_color = o.value("has_backlight_color").toBool();
   }
 
   if (obj.value("leds").isObject()) {
@@ -1332,29 +1376,28 @@ bool Boards::loadFile(const Board::Type & id, QString hwdefn, InputsTable * inpu
 
     int cfs_led_strip_length = o.value("cfs_led_strip_length").toInt();
     int cfs_leds_per_switch = o.value("cfs_leds_per_switch").toInt();
-    cfs->groups = cfs_leds_per_switch ? cfs_led_strip_length / (2 * cfs_leds_per_switch) : 0;
-    cfs->rgb_led = cfs->groups > 0;
-    hardware->has_bling_leds = o.value("bling_led_strip_length").toInt();
+    m_cfs.groups = cfs_leds_per_switch ? cfs_led_strip_length / (2 * cfs_leds_per_switch) : 0;
+    m_cfs.rgb_led = m_cfs.groups > 0;
+    m_hardware.has_bling_leds = o.value("bling_led_strip_length").toInt();
   }
 
   if (obj.value("hardware").isObject()) {
     const QJsonObject &o = obj.value("hardware").toObject();
 
-    hardware->has_audio_mute = o.value("has_audio_mute").toBool();
-    hardware->has_ext_module_support = o.value("has_ext_module_support").toBool();
-    hardware->has_int_module_support = o.value("has_int_module_support").toBool();
-    hardware->sport_max_baudrate = o.value("sport_max_baudrate").toInt();
-    hardware->surface = o.value("surface").toBool();
-    hardware->cpu = o.value("cpu").toString().toStdString();
-    hardware->cpu_type = o.value("cpu_type").toString().toStdString();
+    m_hardware.has_audio_mute = o.value("has_audio_mute").toBool();
+    m_hardware.has_ext_module_support = o.value("has_ext_module_support").toBool();
+    m_hardware.has_int_module_support = o.value("has_int_module_support").toBool();
+    m_hardware.sport_max_baudrate = o.value("sport_max_baudrate").toInt();
+    m_hardware.surface = o.value("surface").toBool();
+    m_hardware.cpu = o.value("cpu").toString().toStdString();
+    m_hardware.cpu_type = o.value("cpu_type").toString().toStdString();
   }
 
   delete json;
   return true;
 }
 
-// static
-void Boards::setInputCounts(const InputsTable * inputs, InputCounts & inputCounts)
+void Boards::setInputCounts()
 {
   for (const auto &defn : *inputs) {
     if (isInputStick(defn))
@@ -1378,8 +1421,7 @@ void Boards::setInputCounts(const InputsTable * inputs, InputCounts & inputCount
   }
 }
 
-// static
-void Boards::setSwitchCounts(const SwitchesTable * switches, SwitchCounts & switchCounts)
+void Boards::setSwitchCounts()
 {
   for (const auto &swtch : *switches) {
     if (isSwitchStd(swtch))

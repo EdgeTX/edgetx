@@ -148,6 +148,7 @@ class Firmware : public JsonBase
     const QString id() const { return m_id; } // do not use m_defn.id as it does not have edgetx- prefix
     const QString name() const { return m_defn.name; }
     const QString simuid() const { return m_defn.simuId; }
+    Boards * board() const { return m_board; }
 
     int getCapability(Capability value) const;
     QString getCapabilityStr(Capability value) const;
@@ -175,8 +176,8 @@ class Firmware : public JsonBase
 
     // ========================
     // until Boards refactored
-    Board::Type getBoard() const { return Boards::getBoardForHwDefn(m_defn.hwdefn); }
-    Board::Type getBoardId() const { return Boards::getBoardForHwDefn(m_defn.hwdefn); }
+    Board::Type getBoard() const { return getBoardForHwDefn(m_defn.hwdefn)->id(); }
+    Board::Type getBoardId() const { return getBoardForHwDefn(m_defn.hwdefn)->id(); }
     Boards* getBoardInstance() const { return m_board; }
     // ========================
 
@@ -210,7 +211,7 @@ class Firmware : public JsonBase
     FirmwareDefn m_defn;
     bool m_loaded;
     bool m_valid;
-    Boards * m_board;
+    Boards *m_board;
 
     inline static Firmware * m_current = nullptr;
     inline static Firmware * m_default = nullptr;
@@ -238,12 +239,10 @@ class Firmware : public JsonBase
 };
 
 inline Firmware * getCurrentFirmware() { return Firmware::getCurrent(); }
-
-// after Boards refactored
-// inline QString getCurrentBoard() { return Firmware::board(); }
+inline Boards * getCurrentFirmwareBoard() { return getCurrentFirmware()->board(); }
 
 // before Boards refactored
-inline Board::Type getCurrentBoard() { return Firmware::getCurrent()->getBoard(); }
-inline Board::Type getCurrentBoardId() { return Firmware::getCurrent()->getBoardId(); }
-inline Boards* getCurrentBoardInstance() { return Firmware::getCurrent()->getBoardInstance(); }
+Board::Type getCurrentBoard() { return Firmware::getCurrent()->getBoard(); }
+Board::Type getCurrentBoardId() { return Firmware::getCurrent()->getBoardId(); }
+Boards* getCurrentBoardInstance() { return Firmware::getCurrent()->getBoardInstance(); }
 
