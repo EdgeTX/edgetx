@@ -36,13 +36,6 @@
 
 #if ( DUMBORC_EXTCHANNEL_ENABLED )
 
-#if ( LOG_ENABLED && DUMBORC_EXTCHANNEL_LOG_ENABLED )
-# include "debug.h"
-# define DUMBORC_EXTCHANNEL_LOG_INFO(...)    TRACE(__VA_ARGS__)
-#else
-# define DUMBORC_EXTCHANNEL_LOG_INFO(...)
-#endif    /* ( LOG_ENABLED && DUMBORC_EXTCHANNEL_LOG_ENABLED ) */
-
 
 
 /* LJS : Dumborc extchannel PIN_[0:31] define. */
@@ -94,6 +87,12 @@ int dumborc_extchannel_init(void);
  *          [0 : succeed ; !0 : failed]
  */
 int dumborc_extchannel_uninit(void);
+
+
+/**
+ * [dumborc_extchannel_handle (dumborc_extchannel handle)]
+ */
+void dumborc_extchannel_handle(void);
 
 
 /**

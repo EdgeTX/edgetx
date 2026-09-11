@@ -35,14 +35,7 @@
 #include "hal/gpio.h"
 #include "stm32_gpio.h"
 #include "stm32_switch_driver.h"
-
-#if ( CPU_TYPE == STM32F2 )
-#include "core_cm3.h"
-#elif ( CPU_TYPE == STM32F4 )
-#include "core_cm4.h"
-#else
-#include "core_cm7.h"
-#endif
+#include "delays_driver.h"
 
 #include "os/time.h"
 #include "os/task.h"
@@ -57,38 +50,26 @@
   (sizeof(__TARGET__) / sizeof((__TARGET__)[0]))
 
 
-#define DUMBORC_EXTCHANNEL_TIMER_INIT()                                 \
-  do {                                                                  \
-    if ( (((CoreDebug->DEMCR) & CoreDebug_DEMCR_TRCENA_Msk) == 0) &&    \
-         (((DWT->CTRL) & DWT_CTRL_CYCCNTENA_Msk) == 0) ) {              \
-      (CoreDebug->DEMCR) |= CoreDebug_DEMCR_TRCENA_Msk;                 \
-      (DWT->CYCCNT) = 0UL;                                              \
-      (DWT->CTRL) |= DWT_CTRL_CYCCNTENA_Msk;                            \
-    }                                                                   \
-  } while ( 0 )
+#define DUMBORC_EXTCHANNEL_CPU_FREQ_HZ    (CPU_FREQ)
 
-#define DUMBORC_EXTCHANNEL_TIMER_UNINIT()                               \
-  do {                                                                  \
-    if ( (((CoreDebug->DEMCR) & CoreDebug_DEMCR_TRCENA_Msk) != 0) &&    \
-         (((DWT->CTRL) & DWT_CTRL_CYCCNTENA_Msk) != 0) ) {              \
-      (DWT->CTRL) &= (~DWT_CTRL_CYCCNTENA_Msk);                         \
-      (DWT->CYCCNT) = 0UL;                                              \
-      (CoreDebug->DEMCR) &= (~CoreDebug_DEMCR_TRCENA_Msk);              \
-    }                                                                   \
-  } while ( 0 )
+#define DUMBORC_EXTCHANNEL_DELAY_US_TO_TICK(__TIME_US__)                \
+  ((uint32_t)((__TIME_US__) * ((DUMBORC_EXTCHANNEL_CPU_FREQ_HZ) / 1000000UL)))
 
-#define DUMBORC_EXTCHANNEL_TIMER_GET_TICK()                             \
-  ((uint32_t)(DWT->CYCCNT))
-
-#define DUMBORC_EXTCHANNEL_TIMER_US_TO_TICK(__TIME_US__)                \
-  ((uint32_t)((__TIME_US__) * ((CPU_FREQ) / 1000000UL)))
-
-#define DUMBORC_EXTCHANNEL_TIMER_TICK_TO_US(__TIME_TICK__)              \
-  ((uint32_t)((__TIME_TICK__) / ((CPU_FREQ) / 1000000UL)))
+#define DUMBORC_EXTCHANNEL_DELAY_TICK_TO_US(__TIME_TICK__)              \
+  ((uint32_t)((__TIME_TICK__) / ((DUMBORC_EXTCHANNEL_CPU_FREQ_HZ) / 1000000UL)))
 
 
-#define DUMBORC_EXTCHANNEL_I2C_GPIO_SDA    GPIO_PIN(GPIOA , 13)
-#define DUMBORC_EXTCHANNEL_I2C_GPIO_SCL    GPIO_PIN(GPIOA , 14)
+#define DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_SDA    GPIOA
+#define DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_SCL    GPIOA
+#define DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_SDA     13
+#define DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_SCL     14
+
+#define DUMBORC_EXTCHANNEL_I2C_GPIO_SDA           \
+  GPIO_PIN(DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_SDA , \
+           DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_SDA)
+#define DUMBORC_EXTCHANNEL_I2C_GPIO_SCL           \
+  GPIO_PIN(DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_SCL , \
+           DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_SCL)
 
 #define DUMBORC_EXTCHANNEL_I2C_GPIO_SET_0(__GPIO__)    \
   gpio_clear(__GPIO__)
@@ -103,7 +84,7 @@
 
 
 #define DUMBORC_EXTCHANNEL_TASK_STACK_SIZE    (64)
-#define DUMBORC_EXTCHANNEL_TASK_PRIO          CLI_TASK_PRIO
+#define DUMBORC_EXTCHANNEL_TASK_PRIO          (CLI_TASK_PRIO)
 
 
 
@@ -120,6 +101,21 @@ static uint32_t s_dumborc_extchannel_task_status = 0;
 
 
 /* LJS : Software I2C BEGIN >>> */
+static void i_dumborc_extchannel_delay_init(void)
+{
+  delaysInit();
+}
+
+static void i_dumborc_extchannel_delay_uninit(void)
+{
+  return;
+}
+
+static uint32_t i_dumborc_extchannel_delay_get_tick(void)
+{
+  return ticksNow();
+}
+
 #pragma GCC push_options
 #pragma GCC optimize("O0")
 static void i_dumborc_extchannel_delay_us(uint32_t const time_us)
@@ -127,9 +123,30 @@ static void i_dumborc_extchannel_delay_us(uint32_t const time_us)
   uint32_t val_tick , val_tick_dt;
 
 
-  val_tick = DUMBORC_EXTCHANNEL_TIMER_GET_TICK();
-  val_tick_dt = DUMBORC_EXTCHANNEL_TIMER_US_TO_TICK(time_us);
-  while ( (DUMBORC_EXTCHANNEL_TIMER_GET_TICK() - val_tick) < val_tick_dt );
+  val_tick = i_dumborc_extchannel_delay_get_tick();
+  val_tick_dt = DUMBORC_EXTCHANNEL_DELAY_US_TO_TICK(time_us);
+  while ( (i_dumborc_extchannel_delay_get_tick() - val_tick) < val_tick_dt );
+}
+
+static int i_dumborc_extchannel_delay_check(void)
+{
+  uint32_t val , val_tick;
+
+
+  /* LJS : Get timer current tick  */
+  val_tick = i_dumborc_extchannel_delay_get_tick();
+  /* LJS : Simulate a 2us delay! */
+  val = (2 * ((DUMBORC_EXTCHANNEL_CPU_FREQ_HZ) / 1000000UL));
+  while ( val-- > 0 ) {
+    __NOP();
+  }
+  /* LJS : Check the change in timer tick  */
+  if ( i_dumborc_extchannel_delay_get_tick() == val_tick ) {
+    /* LJS : Timer hasn't started! (-1)  */
+    return -1;
+  }
+
+  return 0;
 }
 #pragma GCC pop_options
 
@@ -401,69 +418,44 @@ static int i_dumborc_extchannel_i2c_bus_write(\
 /* LJS : Software I2C END <<< */
 
 
+/* LJS : Dumborc_extchannel handle task BEGIN <<< */
 static void i_dumborc_extchannel_task_cb(void)
 {
-  static const uint8_t buf_cfg[][3] = {\
-    {0x02 , 0xFF , 0xFF} , \
-    {0x04 , 0x00 , 0x00} , \
-    {0x06 , 0xFF , 0xFF} , \
-  };
-  int ret;
-  uint32_t i;
-  uint8_t reg;
-
-
   for ( ; ; ) {
     while ( !s_dumborc_extchannel_task_status ) {
       sleep_ms(1);
     }
 
-    /* LJS : PROCESS BEGIN >>> */
-    if ( s_dumborc_extchannel_i2c_req_cnt <= 0 ) {
-      /* LJS : First-time use requires initializing the configuration */
-      for ( i = 0 , ret = 0 ; \
-            i < DUMBORC_EXTCHANNEL_COUNT_OF(buf_cfg) ; \
-            ++i ) {
-        ret |= i_dumborc_extchannel_i2c_bus_write(\
-                 DUMBORC_EXTCHANNEL_I2C_ADDR_A , \
-                 buf_cfg[i] , sizeof(buf_cfg[0]));
-        ret |= i_dumborc_extchannel_i2c_bus_write(\
-                 DUMBORC_EXTCHANNEL_I2C_ADDR_B , \
-                 buf_cfg[i] , sizeof(buf_cfg[0]));
-      }
-    }
-
-    for ( i = 0 , ret = 0 ; \
-          i < (DUMBORC_EXTCHANNEL_COUNT_OF(\
-                 s_dumborc_extchannel_i2c_req_buf_reg[0]) >> 1) ; \
-          ++i ) {
-      if ( (i >= 1) && \
-           ((s_dumborc_extchannel_i2c_req_cnt % 10) != 0) ) {
-        /* LJS : Execute every 10 times! (Slow refresh 'reg[2:7]') */
-        break;
-      }
-      reg = (i << 1);
-      ret |= i_dumborc_extchannel_i2c_bus_read(\
-               DUMBORC_EXTCHANNEL_I2C_ADDR_A , \
-               &reg , sizeof(reg) , \
-               &(s_dumborc_extchannel_i2c_req_buf_reg[0][reg]) , 2);
-      ret |= i_dumborc_extchannel_i2c_bus_read(\
-               DUMBORC_EXTCHANNEL_I2C_ADDR_B , \
-               &reg , sizeof(reg) , \
-               &(s_dumborc_extchannel_i2c_req_buf_reg[1][reg]) , 2);
-    }
-    s_dumborc_extchannel_i2c_req_pins_status = \
-      ( (((uint32_t)(s_dumborc_extchannel_i2c_req_buf_reg[0][0])) <<  0) | \
-        (((uint32_t)(s_dumborc_extchannel_i2c_req_buf_reg[0][1])) <<  8) | \
-        (((uint32_t)(s_dumborc_extchannel_i2c_req_buf_reg[1][0])) << 16) | \
-        (((uint32_t)(s_dumborc_extchannel_i2c_req_buf_reg[1][1])) << 24) );
-
-    ++s_dumborc_extchannel_i2c_req_cnt;
-    /* LJS : PROCESS END <<< */
+    dumborc_extchannel_handle();
 
     sleep_ms(100);
   }
 }
+
+static int i_dumborc_extchannel_task_init(void)
+{
+  if ( (s_dumborc_extchannel_task_id._stack_size) <= 0 ) {
+    /* LJS : Task (static_task) create. */
+    task_create(&s_dumborc_extchannel_task_id , \
+                  i_dumborc_extchannel_task_cb , \
+                  "DR_EC:P" , \
+                  s_dumborc_extchannel_task_stack , \
+                  DUMBORC_EXTCHANNEL_TASK_STACK_SIZE , \
+                  DUMBORC_EXTCHANNEL_TASK_PRIO);
+    if ( (s_dumborc_extchannel_task_id._stack_size) <= 0 ) {
+      /* LJS : Task hasn't create! (-1)  */
+      return -1;
+    }
+  }
+
+  return 0;
+}
+
+static int i_dumborc_extchannel_task_uninit(void)
+{
+  return 0;
+}
+/* LJS : Dumborc_extchannel handle task END <<< */
 
 
 static void i_dumborc_extchannel_para_reset(void)
@@ -471,7 +463,7 @@ static void i_dumborc_extchannel_para_reset(void)
   memset(s_dumborc_extchannel_i2c_req_buf_reg , 0x00 , \
          sizeof(s_dumborc_extchannel_i2c_req_buf_reg));
   s_dumborc_extchannel_i2c_clk_cycle_tick_div3 = \
-    DUMBORC_EXTCHANNEL_TIMER_US_TO_TICK(1);
+    DUMBORC_EXTCHANNEL_DELAY_US_TO_TICK(1);
   s_dumborc_extchannel_i2c_req_cnt = 0;
   s_dumborc_extchannel_i2c_req_pins_status = 0;
   s_dumborc_extchannel_task_status = 0;
@@ -488,48 +480,24 @@ static void i_dumborc_extchannel_para_reset(void)
  * @return  [error code (int)]
  *          [0 : succeed ; !0 : failed]
  */
-#pragma GCC push_options
-#pragma GCC optimize("O0")
 int dumborc_extchannel_init(void)
 {
-  uint32_t val , val_tick;
-
-
-  DUMBORC_EXTCHANNEL_TIMER_INIT();
+  i_dumborc_extchannel_delay_init();
   i_dumborc_extchannel_para_reset();
   i_dumborc_extchannel_i2c_gpio_init();
 
-  /* LJS : Get timer current tick  */
-  val_tick = DUMBORC_EXTCHANNEL_TIMER_GET_TICK();
-  /**
-   * LJS : Do __NOP '(2 * ((CPU_FREQ) / 1000000UL))' times, 
-   *       Simulate a 2us delay!
-   */
-  for ( val = 0 ; val < (2 * ((CPU_FREQ) / 1000000UL)) ; ++val ) {
-    __NOP();
-  }
-  /* LJS : Check the change in timer tick  */
-  if ( DUMBORC_EXTCHANNEL_TIMER_GET_TICK() == val_tick ) {
+  if ( i_dumborc_extchannel_delay_check() < 0 ) {
     /* LJS : Timer hasn't started! (-1)  */
     return -1;
   }
 
-  if ( (s_dumborc_extchannel_task_id._stack_size) <= 0 ) {
-    task_create(&s_dumborc_extchannel_task_id , \
-                  i_dumborc_extchannel_task_cb , \
-                  "DR_EC:P" , \
-                  s_dumborc_extchannel_task_stack , \
-                  DUMBORC_EXTCHANNEL_TASK_STACK_SIZE , \
-                  DUMBORC_EXTCHANNEL_TASK_PRIO);
-    if ( (s_dumborc_extchannel_task_id._stack_size) <= 0 ) {
-      /* LJS : Task hasn't create! (-2)  */
-      return -2;
-    }
+  if ( i_dumborc_extchannel_task_init() < 0 ) {
+    /* LJS : Task hasn't init! (-2)  */
+    return -2;
   }
 
   return 0;
 }
-#pragma GCC pop_options
 
 /**
  * [dumborc_extchannel_uninit (dumborc_extchannel uninit)]
@@ -540,9 +508,78 @@ int dumborc_extchannel_uninit(void)
 {
   i_dumborc_extchannel_i2c_gpio_uninit();
   i_dumborc_extchannel_para_reset();
-  DUMBORC_EXTCHANNEL_TIMER_UNINIT();
+  i_dumborc_extchannel_delay_uninit();
+
+  if ( i_dumborc_extchannel_task_uninit() < 0 ) {
+    /* LJS : Task hasn't uninit! (-1)  */
+    return -1;
+  }
 
   return 0;
+}
+
+
+/**
+ * [dumborc_extchannel_handle (dumborc_extchannel handle)]
+ */
+void dumborc_extchannel_handle(void)
+{
+  static const uint8_t buf_cfg[][3] = {\
+    {0x02 , 0xFF , 0xFF} , \
+    {0x04 , 0x00 , 0x00} , \
+    {0x06 , 0xFF , 0xFF} , \
+  };
+  int ret;
+  uint32_t i;
+  uint8_t reg;
+
+
+  if ( !s_dumborc_extchannel_task_status ) {
+    return;
+  }
+
+  /* LJS : PROCESS BEGIN >>> */
+  if ( s_dumborc_extchannel_i2c_req_cnt <= 0 ) {
+    /* LJS : First-time use requires initializing the configuration */
+    for ( i = 0 , ret = 0 ; \
+          i < DUMBORC_EXTCHANNEL_COUNT_OF(buf_cfg) ; \
+          ++i ) {
+      ret |= i_dumborc_extchannel_i2c_bus_write(\
+               DUMBORC_EXTCHANNEL_I2C_ADDR_A , \
+               buf_cfg[i] , sizeof(buf_cfg[0]));
+      ret |= i_dumborc_extchannel_i2c_bus_write(\
+               DUMBORC_EXTCHANNEL_I2C_ADDR_B , \
+               buf_cfg[i] , sizeof(buf_cfg[0]));
+    }
+  }
+
+  for ( i = 0 , ret = 0 ; \
+        i < (DUMBORC_EXTCHANNEL_COUNT_OF(\
+               s_dumborc_extchannel_i2c_req_buf_reg[0]) >> 1) ; \
+        ++i ) {
+    if ( (i >= 1) && \
+         ((s_dumborc_extchannel_i2c_req_cnt % 10) != 0) ) {
+      /* LJS : Execute every 10 times! (Slow refresh 'reg[2:7]') */
+      break;
+    }
+    reg = (i << 1);
+    ret |= i_dumborc_extchannel_i2c_bus_read(\
+             DUMBORC_EXTCHANNEL_I2C_ADDR_A , \
+             &reg , sizeof(reg) , \
+             &(s_dumborc_extchannel_i2c_req_buf_reg[0][reg]) , 2);
+    ret |= i_dumborc_extchannel_i2c_bus_read(\
+             DUMBORC_EXTCHANNEL_I2C_ADDR_B , \
+             &reg , sizeof(reg) , \
+             &(s_dumborc_extchannel_i2c_req_buf_reg[1][reg]) , 2);
+  }
+  s_dumborc_extchannel_i2c_req_pins_status = \
+    ( (((uint32_t)(s_dumborc_extchannel_i2c_req_buf_reg[0][0])) <<  0) | \
+      (((uint32_t)(s_dumborc_extchannel_i2c_req_buf_reg[0][1])) <<  8) | \
+      (((uint32_t)(s_dumborc_extchannel_i2c_req_buf_reg[1][0])) << 16) | \
+      (((uint32_t)(s_dumborc_extchannel_i2c_req_buf_reg[1][1])) << 24) );
+
+  ++s_dumborc_extchannel_i2c_req_cnt;
+  /* LJS : PROCESS END <<< */
 }
 
 
