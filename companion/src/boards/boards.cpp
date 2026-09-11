@@ -130,73 +130,6 @@ Boards::~Boards()
 {
 }
 
-void Boards::afterLoadFixups()
-{
-  // TODO put in bddefn file !!!!!!
-  // TODO json files do not contain gyro defs
-  // Radio cmake directive IMU is currently used
-  if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board) ||
-      IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board) ||
-      IS_RADIOMASTER_TX16SMK3(board) || IS_FLYSKY_PA01(board)) {
-    if (getInputIndex(inputs, "TILT_X", Board::LVT_TAG) < 0) {
-      InputDefn defn;
-      defn.type = AIT_FLEX;
-      defn.tag = "TILT_X";
-      defn.name = "Tltx";
-      defn.shortName = "X";
-      defn.flexType = FLEX_AXIS_X;
-      defn.inverted = false;
-      defn.cfgYaml = Board::LVT_TAG;
-      defn.refYaml = Board::LVT_TAG;  //  non-default
-      inputs->insert(inputs->end(), defn);
-    }
-
-    if (getInputIndex(inputs, "TILT_Y", Board::LVT_TAG) < 0) {
-      InputDefn defn;
-      defn.type = AIT_FLEX;
-      defn.tag = "TILT_Y";
-      defn.name = "Tlty";
-      defn.shortName = "Y";
-      defn.flexType = FLEX_AXIS_Y;
-      defn.inverted = false;
-      defn.cfgYaml = Board::LVT_TAG;
-      defn.refYaml = Board::LVT_TAG;  //  non-default
-      inputs->insert(inputs->end(), defn);
-    }
-  }
-
-  // Set default labels for LUX inputs if not provided by JSON
-  for (auto &defn : m_inputs) {
-    if (defn.type == AIT_LUX) {
-      if (defn.name.empty())
-        defn.name = "Ambient light";
-      if (defn.shortName.empty())
-        defn.shortName = "Light";
-    }
-  }
-
-  // TODO put in dbdefn file
-  //  Flex switches are not listed in json file for these radios
-  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_MT12(board) ? 2 : 0;
-
-  for (int i = 1; i <= count; i++) {
-    QString tag = QString("FL%1").arg(i);
-    if (getSwitchIndex(switches, tag, Board::LVT_TAG) < 0) {
-      SwitchDefn defn;
-      defn.tag = tag.toStdString();
-      defn.name = defn.tag;
-      switches->insert(switches->end(), defn);
-    }
-  }
-
-  // json files do not normally specify stick labels so load legacy labels
-  for (int i = 0; i < getCapability(Capability::Sticks); i++) {
-    if (m_inputs.at(i).name.empty())
-      m_inputs.at(i).name = DataHelpers::getStringTagMappingName(stickNamesLookupTable, m_inputs.at(i).tag.c_str());
-  }
-
-}
-
 int Boards::getCapability(const Capability capability) const
 {
   // TODO investigate usage of any that should be covered in Boards::getCapability or are no longer required
@@ -476,7 +409,7 @@ const int Boards::defaultInternalModule() const
 
 #define BR(min, max, warn) vmin = min - 90; vmax = max - 120; vwarn = warn;
 
-void Boards::batteryRange(int & vmin, int & vmax, unsigned int & vwarn) const
+void Boards::getBatteryRange(int & vmin, int & vmax, unsigned int & vwarn) const
 {
   vmin = m_hardware.battery.min;
   vmax = m_hardware.battery.max;
@@ -1132,19 +1065,7 @@ const bool Boards::isSwitchFunc(int index) const
   }
 }
 
-bool Boards::loadDefinition(const QString & path)
-{
-  bool res = false;
-  QJsonDocument *doc = new QJsonDocument();
-
-  if (load(doc, path))
-    res = loadFile(doc);
-
-  delete doc;
-  return res;
-}
-
-bool Boards::loadDefinitions()
+bool Boards::loadDefinition()
 {
   // safety net for BoardFactory::instance
   if (m_id == Board::BOARD_UNKNOWN)
@@ -1155,18 +1076,24 @@ bool Boards::loadDefinitions()
     return false;
   }
 
-  bool res = loadDefinition(QString("%1/%2.json").arg(HWDEFNSDIR).arg(m_hwdefn));
-
-  if (res) {
-    if (!loadDefinition(QString("%1/%2.json").arg(BDDEFNSDIR).arg(m_bddefn)))
+  // load default.json first and allow subsequent file values to override
+  // this avoids having to include default in basedOn tree
+  if (loadDefinition(QString("%1/%2.json").arg(HWDEFNSDIR).arg("default"))) {
+    if (loadDefinition(QString("%1/%2.json").arg(HWDEFNSDIR).arg(m_hwdefn))) {
+      if (loadDefinition(QString("%1/%2.json").arg(BDDEFNSDIR).arg(m_bddefn))) {
+        qDebug() << "Definition loaded:" << m_id;
+      } else
+        return false;
+    } else
       return false;
-  }
+  } else
+    return false;
 
-  afterLoadFixups();
+  postLoadFixups();
   setInputCounts();
   setSwitchCounts();
 
-  qDebug() << "Board:" << name() <<
+  qDebug() << "Board:" << getName() <<
               "inputs:" << getCapability(Capability::Inputs) <<
               "sticks:" << getCapability(Capability::Sticks) <<
               "pots:" << getCapability(Capability::Pots) <<
@@ -1186,9 +1113,84 @@ bool Boards::loadDefinitions()
   return true;
 }
 
-bool Boards::loadFile(const QJsonDocument * doc)
+bool Boards::loadDefinition(const QString & path)
 {
-  const QJsonObject &obj = doc->object();
+  bool success = true;
+  QJsonDocument *doc = new QJsonDocument();
+  QJsonObject o;
+  QStringList depends;
+
+  if (load(doc, path)) {
+    if (doc->isObject()) {
+      o = doc->object();
+
+      // hwdefs are flat so not used
+      if (isArray(o,"basedOn")) {
+        QJsonArray a = o.value("basedOn").toArray();
+
+        for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
+          if ((*it).isString()) {
+            QString p = QString("%1/%2.json").arg(QFileInfo(path).path()).arg((*it).toString());
+
+            if (!depends.contains(p)) {
+              depends.append(p);
+
+              if (!loadDefinition(p))
+                success = false;
+            } else {
+              qCritical() << "ERROR: circular dependency chain detected";
+              success = false;
+            }
+          }
+        }
+      }
+    }
+  } else {
+    success = false;
+  }
+
+  if (!success) {
+    qCritical() << "CRITICAL: Load definition" << path << "unsuccessful";
+    delete doc;
+    return false;
+  }
+
+  qDebug() << "loading values from:" << path;
+
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    qDebug() << "key:" << it.key() << "value:" << it.value();
+
+    if (it.key() == "hidden" || it.key() == "basedOn")
+      continue;
+
+    if (it.key() == "adc_inputs")
+      loadADCInputs(it);
+    else if (it.key() == "switches")
+      loadSwitches(it);
+    else if (it.key() == "trims")
+      loadTrims(it);
+    else if (it.key() == "keys")
+      loadKeys(it);
+    else if (it.key() == "display")
+      loadDisplay(it);
+    else if (it.key() == "hardware")
+      loadHardware(it);
+    else if (it.key() == "leds")
+      loadLEDS(it);
+    else if (it.key() == "backlight")
+      loadBackLight(it);
+    else if (it.key() == "key_lock_combo")
+      m_hasKeyLockCombo = obj.value("key_lock_combo").isArray() &&
+                          obj.value("key_lock_combo").toArray().size() == 2;
+    else
+      qWarning() << "Warning: No rule to process - path:" << path << "name:" << it.key() << "value:" << it.value();
+  }
+
+  delete doc;
+}
+
+void Boards::loadADCInputs(QJsonObject::const_iterator & it)
+{
 
   if (obj.value("adc_inputs").isObject()) {
     const QJsonObject &adcinputs = obj.value("adc_inputs").toObject();
@@ -1241,7 +1243,10 @@ bool Boards::loadFile(const QJsonDocument * doc)
       }
     }
   }
+}
 
+void Boards::loadSwitches(QJsonObject::const_iterator & it)
+{
   if (obj.value("switches").isArray()) {
     const QJsonArray &swtchs = obj.value("switches").toArray();
 
@@ -1305,7 +1310,10 @@ bool Boards::loadFile(const QJsonDocument * doc)
       }
     }
   }
+}
 
+void Boards::loadKeys(QJsonObject::const_iterator & it)
+{
   if (obj.value("keys").isArray()) {
     const QJsonArray &kys = obj.value("keys").toArray();
 
@@ -1328,10 +1336,10 @@ bool Boards::loadFile(const QJsonDocument * doc)
       }
     }
   }
+}
 
-  m_hasKeyLockCombo = obj.value("key_lock_combo").isArray() &&
-                      obj.value("key_lock_combo").toArray().size() == 2;
-
+void Boards::loadTrims(QJsonObject::const_iterator & it)
+{
   if (obj.value("trims").isArray()) {
     const QJsonArray &trms = obj.value("trims").toArray();
 
@@ -1352,7 +1360,10 @@ bool Boards::loadFile(const QJsonDocument * doc)
       }
     }
   }
+}
 
+void Boards::loadDisplay(QJsonObject::const_iterator & it)
+{
   if (obj.value("display").isObject()) {
     const QJsonObject &o = obj.value("display").toObject();
 
@@ -1364,13 +1375,19 @@ bool Boards::loadFile(const QJsonDocument * doc)
     m_display.color = m_display.depth == 16 ? 1 : 0;
     m_display.oled = o.value("oled_screen").toBool();
   }
+}
 
+void Boards::loadBackLight(QJsonObject::const_iterator & it)
+{
   if (obj.value("backlight").isObject()) {
     const QJsonObject &o = obj.value("backlight").toObject();
 
     m_display.backlight_color = o.value("has_backlight_color").toBool();
   }
+}
 
+void Boards::loadLEDS(QJsonObject::const_iterator & it)
+{
   if (obj.value("leds").isObject()) {
     const QJsonObject &o = obj.value("leds").toObject();
 
@@ -1380,21 +1397,108 @@ bool Boards::loadFile(const QJsonDocument * doc)
     m_cfs.rgb_led = m_cfs.groups > 0;
     m_hardware.has_bling_leds = o.value("bling_led_strip_length").toInt();
   }
+}
 
-  if (obj.value("hardware").isObject()) {
-    const QJsonObject &o = obj.value("hardware").toObject();
+void Boards::loadHardware(QJsonObject::const_iterator & oit)
+{
+  if (oit->isObject()) {
+    QJsonObject o = oit->toObject();
 
-    m_hardware.has_audio_mute = o.value("has_audio_mute").toBool();
-    m_hardware.has_ext_module_support = o.value("has_ext_module_support").toBool();
-    m_hardware.has_int_module_support = o.value("has_int_module_support").toBool();
-    m_hardware.sport_max_baudrate = o.value("sport_max_baudrate").toInt();
-    m_hardware.surface = o.value("surface").toBool();
-    m_hardware.cpu = o.value("cpu").toString().toStdString();
-    m_hardware.cpu_type = o.value("cpu_type").toString().toStdString();
+    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      if (it.key() == "has_audio_mute")
+        m_hardware.has_audio_mute = getValueBool(o, it.key(), m_hardware.has_audio_mute);
+
+      else if (it.key() == "has_ext_module_support")
+        m_hardware.has_ext_module_support = getValueBool(o, it.key(), m_hardware.has_ext_module_support);
+
+      else if (it.key() == "has_int_module_support")
+        m_hardware.has_int_module_support = getValueBool(o, it.key(), m_hardware.has_int_module_support);
+
+      else if (it.key() == "sport_max_baudrate")
+        m_hardware.sport_max_baudrate = getValueInt(o, it.key(), m_hardware.sport_max_baudrate, 999999);
+
+      else if (it.key() == "surface")
+        m_hardware.surface = getValueBool(o, it.key(), m_hardware.surface);
+
+      else if (it.key() == "cpu")
+        m_hardware.cpu = getValueStdString(o, it.key(), m_hardware.cpu);
+
+      else if (it.key() == "cpu_type")
+        m_hardware.cpu_type = getValueStdString(o, it.key(), m_hardware.cpu_type);
+
+      else
+        qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+    }
+  } else
+        qWarning() << "Warning: hardware is not an object";
+
+}
+
+void Boards::postLoadFixups()
+{
+  // TODO put in bddefn file !!!!!!
+  // TODO json files do not contain gyro defs
+  // Radio cmake directive IMU is currently used
+  if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board) ||
+      IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board) ||
+      IS_RADIOMASTER_TX16SMK3(board) || IS_FLYSKY_PA01(board)) {
+    if (getInputIndex(inputs, "TILT_X", Board::LVT_TAG) < 0) {
+      InputDefn defn;
+      defn.type = AIT_FLEX;
+      defn.tag = "TILT_X";
+      defn.name = "Tltx";
+      defn.shortName = "X";
+      defn.flexType = FLEX_AXIS_X;
+      defn.inverted = false;
+      defn.cfgYaml = Board::LVT_TAG;
+      defn.refYaml = Board::LVT_TAG;  //  non-default
+      inputs->insert(inputs->end(), defn);
+    }
+
+    if (getInputIndex(inputs, "TILT_Y", Board::LVT_TAG) < 0) {
+      InputDefn defn;
+      defn.type = AIT_FLEX;
+      defn.tag = "TILT_Y";
+      defn.name = "Tlty";
+      defn.shortName = "Y";
+      defn.flexType = FLEX_AXIS_Y;
+      defn.inverted = false;
+      defn.cfgYaml = Board::LVT_TAG;
+      defn.refYaml = Board::LVT_TAG;  //  non-default
+      inputs->insert(inputs->end(), defn);
+    }
   }
 
-  delete json;
-  return true;
+  // Set default labels for LUX inputs if not provided by JSON
+  for (auto &defn : m_inputs) {
+    if (defn.type == AIT_LUX) {
+      if (defn.name.empty())
+        defn.name = "Ambient light";
+      if (defn.shortName.empty())
+        defn.shortName = "Light";
+    }
+  }
+
+  // TODO put in dbdefn file
+  //  Flex switches are not listed in json file for these radios
+  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_MT12(board) ? 2 : 0;
+
+  for (int i = 1; i <= count; i++) {
+    QString tag = QString("FL%1").arg(i);
+    if (getSwitchIndex(switches, tag, Board::LVT_TAG) < 0) {
+      SwitchDefn defn;
+      defn.tag = tag.toStdString();
+      defn.name = defn.tag;
+      switches->insert(switches->end(), defn);
+    }
+  }
+
+  // json files do not normally specify stick labels so load legacy labels
+  for (int i = 0; i < getCapability(Capability::Sticks); i++) {
+    if (m_inputs.at(i).name.empty())
+      m_inputs.at(i).name = DataHelpers::getStringTagMappingName(stickNamesLookupTable, m_inputs.at(i).tag.c_str());
+  }
+
 }
 
 void Boards::setInputCounts()

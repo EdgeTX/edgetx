@@ -422,17 +422,16 @@ class Boards : public JsonBase
     explicit Boards(const Board::Type & id, const QString & hwdefn, const QString & bddefn);
     virtual ~Boards() {}
 
-    const Board::Type id() const { return m_id; }
-    const QString hwdefn() const { return m_hwdefn; }
-    const QString dbdefn() const { return m_bddefn; }
-    const QString name() const { return m_hardware.name.c_str(); }
-    const QString manufacturer() const { return m_hardware.manufacturer.c_str(); }
+    const Board::Type getId() const { return m_id; }
+    const QString getManufacturer() const { return m_hardware.manufacturer.c_str(); }
+    const QString getName() const { return m_hardware.name.c_str(); }
 
-    bool loadDefinitions();
+    void getBatteryRange(int & vmin, int & vmax, unsigned int & vwarn) const;
 
     int getCapability(const Capability capability) const;
     QString getCapabilityStr(const Capability capability) const;
 
+    // inputs
     const int getInputIndex(const QString val, Board::LookupValueType lvt) const;
     const Board::InputInfo getInputInfo(int index) const;
     const QString getInputName(int index) const;
@@ -463,10 +462,12 @@ class Boards : public JsonBase
     const bool isInputRTCBat(int index) const;
     const bool isInputVBat(int index) const;
 
+    // keys
     const Board::KeyInfo getKeyInfo(int index) const;
     const int getKeyIndex(const QString key) const;
     bool hasKeyLockCombo() const { return m_hasKeyLockCombo; }
 
+    // switches
     const int getSwitchIndex(const QString val, Board::LookupValueType lvt) const;
     const int getCFSIndexForSwitch(int sw) const;
     const int getSwitchIndexForCFS(int customSwitchIdx) const;
@@ -480,39 +481,37 @@ class Boards : public JsonBase
     const int getSwitchYamlIndex(const QString val, YamlLookupType ylt) const;
     const QString getSwitchYamlName(int index, YamlLookupType ylt) const;
 
+    const bool isSwitchConfigurable(int index) const;
+    const bool isSwitchFlex(int index) const;
+    const bool isSwitchFunc(int index) const;
+    const bool isSwitchStd(int index) const;
+
+    // trims
     const int getTrimIndex(const QString val, Board::LookupValueType lvt) const;
     const QString getTrimName(int index) const;
     const QString getTrimTag(int index) const;
     const int getTrimYamlIndex(const QString val, YamlLookupType ylt) const;
     const QString getTrimYamlName(int index, YamlLookupType ylt) const;
 
-    const bool isSwitchConfigurable(int index) const;
-    const bool isSwitchFlex(int index) const;
-    const bool isSwitchFunc(int index) const;
-    const bool isSwitchStd(int index) const;
-
-    void batteryRange(int & vmin, int & vmax, unsigned int & vwarn) const;
+    // misc
     const int defaultInternalModule() const;
     const int defaultExternalModuleSize() const;
-    const QString radioModeString() const;
     const QList<int> supportedInternalModules() const;
 
-    static QString switchTypeToString(int value);
-    static AbstractStaticItemModel * switchTypeItemModel();
+    bool loadDefinitions();
+    const QString radioModeString() const;
 
-    static AbstractStaticItemModel * intModuleTypeItemModel();
-
-    static QString externalModuleSizeToString(int value);
-    static int externalModuleStringToSize(const QString & value);
+    // static
     static AbstractStaticItemModel * externalModuleSizeItemModel();
-
-    static QString flexTypeToString(int value);
     static AbstractStaticItemModel * flexTypeItemModel();
+    static AbstractStaticItemModel * intModuleTypeItemModel();
+    static AbstractStaticItemModel * switchTypeItemModel();
 
     static int getFlashSize() { return getCurrentFirmwareBoard()->getCapability(Capability::FlashSize); }
     static QString getAxisName(int index);
     static int getNumericSuffix(const std::string str);
 
+    // deprecated
     static std::string getLegacyAnalogMappedInputTag(const char * legacytag, const Board::Type & id = Board::BOARD_UNKNOWN);
 
   private:
@@ -556,9 +555,19 @@ class Boards : public JsonBase
     const StringTagMappingTable rawSwitchTypesLookupTable;
     const StringTagMappingTable rawSourceSpecialTypesLookupTable;
 
+    bool loadDefinition();
     bool loadDefinition(const QString & path);
-    bool loadFile(const QJsonDocument * doc);
-    void afterLoadFixups();
+
+    void loadADCInputs(QJsonObject::const_iterator & it);
+    void loadBackLight(QJsonObject::const_iterator & it);
+    void loadDisplay(QJsonObject::const_iterator & it);
+    void loadHardware(QJsonObject::const_iterator & it);
+    void loadKeys(QJsonObject::const_iterator & it);
+    void loadLEDS(QJsonObject::const_iterator & it);
+    void loadSwitches(QJsonObject::const_iterator & it);
+    void loadTrims(QJsonObject::const_iterator & it);
+
+    void postLoadFixups();
 
     void setInputCounts();
     void setSwitchCounts();
@@ -566,6 +575,11 @@ class Boards : public JsonBase
     STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitch);
     STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchType);
     STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialType);
+
+    static QString externalModuleSizeToString(int value);
+    static int externalModuleStringToSize(const QString & value);
+    static QString flexTypeToString(int value);
+    static QString switchTypeToString(int value);
 };
 
 // Helpers

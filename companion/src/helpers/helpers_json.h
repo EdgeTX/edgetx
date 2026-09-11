@@ -25,6 +25,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+#include <string>
+
 class JsonBase {
 
   Q_DECLARE_TR_FUNCTIONS(JsonBase)
@@ -41,6 +43,8 @@ class JsonBase {
                                    const bool dflt = false);
     static const int getValueInt(const QJsonObject & obj, const QString & name,
                                  const int dflt = 0, const int max = 99, const int min = 0);
+    static const std::string getValueStdString(const QJsonObject & obj, const QString & name,
+                                               const std::string & dflt);
     static const QString getValueString(const QJsonObject & obj, const QString & name,
                                         const QString & dflt = QString());
 

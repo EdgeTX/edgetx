@@ -49,8 +49,15 @@ const int JsonBase::getValueInt(const QJsonObject & obj, const QString & name,
           obj.value(name).toInt() : dflt;
 }
 
+const std::string JsonBase::getValueStdString(const QJsonObject & obj, const QString & name,
+                                              const std::string & dflt)
+{
+  return !obj.value(name).isUndefined() && obj.value(name).isString() ?
+          obj.value(name).toString() : dflt;
+}
+
 const QString JsonBase::getValueString(const QJsonObject & obj, const QString & name,
-                                           const QString & dflt)
+                                       const QString & dflt)
 {
   return !obj.value(name).isUndefined() && obj.value(name).isString() ?
           obj.value(name).toString() : dflt;
