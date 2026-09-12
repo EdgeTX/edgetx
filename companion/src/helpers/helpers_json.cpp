@@ -26,41 +26,62 @@
 #include <QMessageBox>
 
 const QVariant JsonBase::getValue(const QJsonObject & obj, const QString & name,
-                                      const QVariant & dflt)
+                                  const QVariant & dflt)
 {
-  return !obj.value(name).isUndefined() && obj.value(name).isBool() ?
-          obj.value(name).toBool() : dflt;
+  bool isvalid = !obj.value(name).isUndefined();
+
+  if (!isvalid)
+    qWarning() << "Warning: name:" << name << "not found";
+
+  return isvalid ? obj.value(name).toVariant() : dflt;
 }
 
 const bool JsonBase::getValueBool(const QJsonObject & obj, const QString & name,
-                                      const bool dflt)
+                                  const bool dflt)
 {
-  return !obj.value(name).isUndefined() && obj.value(name).isBool() ?
-          obj.value(name).toBool() : dflt;
+  bool isvalid = (!obj.value(name).isUndefined() && obj.value(name).isBool());
+
+  if (!isvalid)
+    qWarning() << "Warning: name:" << name << "not found and/or value type not a boolean";
+
+  return isvalid ? obj.value(name).toBool() : dflt;
 }
 
 const int JsonBase::getValueInt(const QJsonObject & obj, const QString & name,
-                                    const int dflt, const int max, const int min)
+                                const int dflt, const int max, const int min)
 {
-  if (min > max) qWarning() << "Warning: range check ignored as min:" << min << "exceeds max:" << max;
+  bool isvalid = (!obj.value(name).isUndefined() && obj.value(name).isDouble());
+  int value = isvalid ? obj.value(name).toInt() : 0;
 
-  return !obj.value(name).isUndefined() && obj.value(name).isDouble() &&
-          (min > max ? obj.value(name).toInt() >= min && obj.value(name).toInt() <= max : true) ?
-          obj.value(name).toInt() : dflt;
+  if (!isvalid)
+    qWarning() << "Warning: name:" << name << "not found and/or value type not an integer";
+
+  if (min > max)
+    qWarning() << "Warning: range check ignored for:" << name << "as min:" << min << "exceeds max:" << max;
+
+  return (isvalid && (min < max ? value >= min && value <= max : true)) ? value : dflt;
 }
 
 const std::string JsonBase::getValueStdString(const QJsonObject & obj, const QString & name,
                                               const std::string & dflt)
 {
-  return !obj.value(name).isUndefined() && obj.value(name).isString() ?
-          obj.value(name).toString() : dflt;
+  bool isvalid = (!obj.value(name).isUndefined() && obj.value(name).isString());
+
+  if (!isvalid)
+    qWarning() << "Warning: name:" << name << "not found and/or value type not a string";
+
+  return isvalid ? obj.value(name).toString().toStdString() : dflt;
 }
 
 const QString JsonBase::getValueString(const QJsonObject & obj, const QString & name,
                                        const QString & dflt)
 {
-  return !obj.value(name).isUndefined() && obj.value(name).isString() ?
-          obj.value(name).toString() : dflt;
+  bool isvalid = (!obj.value(name).isUndefined() && obj.value(name).isString());
+
+  if (!isvalid)
+    qWarning() << "Warning: name:" << name << "not found and/or value type not a string";
+
+  return isvalid ? obj.value(name).toString() : dflt;
 }
 
 const bool JsonBase::isArray(const QJsonObject & obj, const QString & name)

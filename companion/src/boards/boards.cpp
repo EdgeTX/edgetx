@@ -1165,23 +1165,31 @@ bool Boards::loadDefinition(const QString & path)
 
     if (it.key() == "adc_inputs")
       loadADCInputs(it);
+
     else if (it.key() == "switches")
       loadSwitches(it);
+
     else if (it.key() == "trims")
       loadTrims(it);
+
     else if (it.key() == "keys")
       loadKeys(it);
+
     else if (it.key() == "display")
       loadDisplay(it);
+
     else if (it.key() == "hardware")
       loadHardware(it);
+
     else if (it.key() == "leds")
       loadLEDS(it);
+
     else if (it.key() == "backlight")
-      loadBackLight(it);
+      m_display.backlight_color = getValueBool(o, it.key());
+
     else if (it.key() == "key_lock_combo")
-      m_hasKeyLockCombo = obj.value("key_lock_combo").isArray() &&
-                          obj.value("key_lock_combo").toArray().size() == 2;
+      m_hasKeyLockCombo = (it->isArray() && it->toArray().size() == 2 ? true : m_hasKeyLockCombo);
+
     else
       qWarning() << "Warning: No rule to process - path:" << path << "name:" << it.key() << "value:" << it.value();
   }
@@ -1189,107 +1197,113 @@ bool Boards::loadDefinition(const QString & path)
   delete doc;
 }
 
-void Boards::loadADCInputs(QJsonObject::const_iterator & it)
+void Boards::loadADCInputs(QJsonObject::const_iterator & oit)
 {
+  if (oit->isArray()) {
+    const QJsonArray &a = oit->toArray();
 
-  if (obj.value("adc_inputs").isObject()) {
-    const QJsonObject &adcinputs = obj.value("adc_inputs").toObject();
+    for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
+      if (it->isObject()) {
+        const QJsonObject &o = it->toObject();
+        InputDefn defn;
 
-    if (adcinputs.value("inputs").isArray()) {
-      const QJsonArray &in = adcinputs.value("inputs").toArray();
+        for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+          //qDebug() << "key:" << it.key() << "value:" << it.value();
+          if (it.key() == "name")
+            defn.name = getValueStdString(o, it.key(), defn.name);
 
-      for (const QJsonValue &input : in)
-      {
-        if (input.isObject()) {
-          const QJsonObject &o = input.toObject();
-          InputDefn defn;
-
-          if (!o.value("name").isUndefined())
-            defn.tag = o.value("name").toString().toStdString();
-
-          if (!o.value("type").isUndefined()) {
-            std::string type = o.value("type").toString().toStdString();
+          else if (it.key() == "type") {
+            std::string type = getValueStdString(o, it.key());
             defn.type = (Board::AnalogInputType)DataHelpers::getStringTagMappingIndex(inputTypesLookupTable, type.c_str());
             if (defn.type == Board::AIT_STICK)
               defn.refYaml = Board::LVT_NAME;
           }
 
-          if (!o.value("inverted").isUndefined())
-            defn.inverted = o.value("inverted").toBool();
+          else if (it.key() == "inverted")
+            defn.inverted = getValueBool(o, it.key(), defn.inverted);
 
-          if (!o.value("label").isUndefined())
-            defn.name = o.value("label").toString().toStdString();
+          else if (it.key() == "label")
+            defn.name = getValueStdString(o, it.key(), defn.name);
 
-          if (!o.value("short_label").isUndefined())
-            defn.shortName = o.value("short_label").toString().toStdString();
+          else if (it.key() == "short_label")
+            defn.shortName = getValueStdString(o, it.key(), defn.shortName);
 
-          if (!o.value("default").isUndefined()) {
-            std::string dflt = o.value("default").toString().toStdString();
+          else if (it.key() == "default") {
+            std::string dflt = getValueStdString(o, it.key());
+
             if (defn.type == Board::AIT_FLEX) {
               int idx = DataHelpers::getStringTagMappingIndex(flexTypesLookupTable, dflt.c_str());
               defn.flexType = (Board::FlexType)(idx < 0 ? Board::FLEX_NONE : idx);
             }
           }
 
-          m_inputs.insert(m_inputs.end(), defn);
-
-//          qDebug() << "name:" << defn.name.c_str() <<
-//                      "type:" << defn.stype.c_str() << ">" <<
-//                      DataHelpers::getStringNameMappingTag(inputTypesLookupTable, std::to_string(defn.type).c_str()).c_str() <<
-//                      "label:" << defn.label.c_str() << "short:" << defn.shortLabel.c_str() << "inverted:" << defn.inverted <<
-//                      "dflt:" << defn.dflt.c_str() << ">" <<
-//                      DataHelpers::getStringNameMappingTag(flexTypesLookupTable, std::to_string(defn.flexType).c_str()).c_str();
+          else
+            qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
         }
-      }
+
+        m_inputs.insert(m_inputs.end(), defn);
+      } else
+        qWarning() << "Warning: adc_input is not an object" << *it;
     }
-  }
+  } else
+        qWarning() << "Warning: adc_inputs is not an array" << *oit;
 }
 
-void Boards::loadSwitches(QJsonObject::const_iterator & it)
+void Boards::loadSwitches(QJsonObject::const_iterator & oit)
 {
-  if (obj.value("switches").isArray()) {
-    const QJsonArray &swtchs = obj.value("switches").toArray();
+  if (oit->isArray()) {
+    const QJsonArray &a = oit->toArray();
 
-    for (const QJsonValue &swtch : swtchs)
-    {
-      if (swtch.isObject()) {
-        const QJsonObject &o = swtch.toObject();
+    for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
+      if (it->isObject()) {
+        const QJsonObject &o = it->toObject();
         SwitchDefn sw;
 
-        if (!o.value("name").isUndefined()) {
-          sw.name = o.value("name").toString().toStdString();
-          sw.tag = sw.name;
+        for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+          //qDebug() << "key:" << it.key() << "value:" << it.value();
+          if (it.key() == "name")
+            sw.name = getValueStdString(o, it.key(), sw.name);
+
+          else if (it.key() == "type") {
+            std::string type = getValueStdString(o, it.key());
+            int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable, type.c_str());
+            sw.type = idx < 0 ? Board::SWITCH_NOT_AVAILABLE : (Board::SwitchType)idx;
+          }
+
+          else if (it.key() == "flags")
+            sw.flags = o.value("flags").toInt();
+
+          else if (it.key() == "inverted")
+            sw.inverted = getValueBool(o, it.key());
+
+          else if (it.key() == "default") {
+            std::string dflt = getValueStdString(o, it.key());
+            int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable, dflt.c_str());
+            sw.dflt = idx < 0 ? Board::SWITCH_NOT_AVAILABLE : (Board::SwitchType)idx;
+          }
+
+          else if (it.key() == "display") {
+            if (it->isArray()) {
+              const QJsonArray &d = it->toArray();
+
+              if (d.size() >= 2) {
+                if (d.at(0).isDouble())
+                  sw.display.x = (unsigned int)d.at(0).toInt(0);
+                if (d.at(1).isDouble())
+                  sw.display.y = (unsigned int)d.at(1).toInt(0);
+              }
+            }
+          }
+
+          else if (it.key() == "is_cfs")
+            sw.isCustomSwitch = getValueBool(o, it.key(), sw.isCustomSwitch);
+
+          else if (it.key() == "cfs_idx")
+            sw.customSwitchIdx = getValueBool(o, it.key(), sw.customSwitchIdx);
+
+          else
+            qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
         }
-
-        if (!o.value("type").isUndefined()) {
-          std::string type = o.value("type").toString().toStdString();
-          int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable, type.c_str());
-          sw.type = idx < 0 ? Board::SWITCH_NOT_AVAILABLE : (Board::SwitchType)idx;
-        }
-
-        if (!o.value("flags").isUndefined())
-          sw.flags = o.value("flags").toInt();
-
-        if (!o.value("inverted").isUndefined())
-          sw.inverted = o.value("inverted").toBool();
-
-        if (!o.value("default").isUndefined()) {
-          std::string dflt = o.value("default").toString().toStdString();
-          int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable, dflt.c_str());
-          sw.dflt = idx < 0 ? Board::SWITCH_NOT_AVAILABLE : (Board::SwitchType)idx;
-        }
-
-        if (o.value("display").isArray()) {
-          const QJsonArray &d = obj.value("display").toArray();
-          sw.display.x = (unsigned int)d.at(0).toInt(0);
-          sw.display.y = (unsigned int)d.at(1).toInt(0);
-        }
-
-        if (!o.value("is_cfs").isUndefined())
-          sw.isCustomSwitch = o.value("is_cfs").toBool();
-
-        if (!o.value("cfs_idx").isUndefined())
-          sw.customSwitchIdx = o.value("cfs_idx").toInt();
 
         // special handing for ADC
         if (sw.type == Board::SWITCH_ADC) {
@@ -1302,109 +1316,149 @@ void Boards::loadSwitches(QJsonObject::const_iterator & it)
           sw.type = sw.dflt;
         }
 
+        sw.tag = sw.name;
         m_switches.insert(m_switches.end(), sw);
-
-//        qDebug() << "tag:" << sw.tag.c_str() << "name:" << sw.name.c_str() << "type:" << sw.type << ">" << Boards::switchTypeToString(sw.type) <<
-//                    "flags:" << sw.flags << "default:" << sw.dflt << ">" << Boards::switchTypeToString(sw.dflt) <<
-//                    "inverted:" << sw.inverted << "display:" << QString("%1").arg(sw.display.x) << "," << QString("%1").arg(sw.display.y);
-      }
+      } else
+        qWarning() << "Warning: switch is not an object" << *it;
     }
-  }
+  } else
+        qWarning() << "Warning: switches is not an array" << *oit;
 }
 
-void Boards::loadKeys(QJsonObject::const_iterator & it)
+void Boards::loadKeys(QJsonObject::const_iterator & oit)
 {
-  if (obj.value("keys").isArray()) {
-    const QJsonArray &kys = obj.value("keys").toArray();
+  if (oit->isArray()) {
+    const QJsonArray &a = oit->toArray();
 
-    for (const QJsonValue &key : kys)
-    {
-      if (key.isObject()) {
-        const QJsonObject &o = key.toObject();
+    for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
+      if (it->isObject()) {
+        const QJsonObject &o = it->toObject();
         KeyDefn k;
 
-        if (!o.value("name").isUndefined()) {
-          k.name = o.value("name").toString().toStdString();
-          k.key = o.value("key").toString().toStdString();
-          k.label = o.value("label").toString().toStdString();
-          k.tag = k.name;
+        for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+          //qDebug() << "key:" << it.key() << "value:" << it.value();
+          if (it.key() == "name")
+            k.name = getValueStdString(o, it.key(), k.name);
+
+          else if (it.key() == "key")
+            k.key = getValueStdString(o, it.key(), k.key);
+
+          else if (it.key() == "label")
+            k.label = getValueStdString(o, it.key(), k.label);
+
+          else
+            qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
         }
 
+        k.tag = k.name;
         m_keys.insert(m_keys.end(), k);
-
-//        qDebug() << "name:" << k.name.c_str() << "key:" << k.key.c_str() << "label:" << k.label.c_str();
-      }
+      } else
+        qWarning() << "Warning: key is not an object" << *it;
     }
-  }
+  } else
+        qWarning() << "Warning: keys is not an array" << *oit;
 }
 
-void Boards::loadTrims(QJsonObject::const_iterator & it)
+void Boards::loadTrims(QJsonObject::const_iterator & oit)
 {
-  if (obj.value("trims").isArray()) {
-    const QJsonArray &trms = obj.value("trims").toArray();
+  if (oit->isArray()) {
+    const QJsonArray &a = oit->toArray();
 
-    for (const QJsonValue &trm : trms)
-    {
-      if (trm.isObject()) {
-        const QJsonObject &o = trm.toObject();
+    for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
+      if (it->isObject()) {
+        const QJsonObject &o = it->toObject();
         TrimDefn t;
 
-        if (!o.value("name").isUndefined()) {
-          t.name = o.value("name").toString().toStdString();
-          t.tag = t.name;
+        for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+          //qDebug() << "key:" << it.key() << "value:" << it.value();
+          if (it.key() == "name")
+            t.name = getValueStdString(o, it.key(), t.name);
+
+          else
+            qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
         }
 
+        t.tag = t.name;
         m_trims.insert(m_trims.end(), t);
-
-//        qDebug() << "name:" << t.name.c_str();
-      }
+      } else
+        qWarning() << "Warning: trim is not an object" << *it;
     }
-  }
+  } else
+        qWarning() << "Warning: trims is not an array" << *oit;
 }
 
 void Boards::loadDisplay(QJsonObject::const_iterator & it)
 {
-  if (obj.value("display").isObject()) {
-    const QJsonObject &o = obj.value("display").toObject();
+  if (it->isObject()) {
+    const QJsonObject &o = it->toObject();
 
-    m_display.w = o.value("lcd_w").toInt();
-    m_display.h = o.value("lcd_h").toInt();
-    m_display.phys_w = o.value("lcd_phys_w").toInt();
-    m_display.phys_h = o.value("lcd_phys_h").toInt();
-    m_display.depth = o.value("lcd_depth").toInt();
+    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      //qDebug() << "key:" << it.key() << "value:" << it.value();
+      if (it.key() == "lcd_depth")
+        m_display.depth = getValueInt(o, it.key(), m_display.depth);
+
+      else if (it.key() == "lcd_h")
+        m_display.h = getValueInt(o, it.key(), m_display.h);
+
+      else if (it.key() == "lcd_w")
+        m_display.w = getValueInt(o, it.key(), m_display.w);
+
+      else if (it.key() == "lcd_phys_h")
+        m_display.phys_h = getValueInt(o, it.key(), m_display.phys_h);
+
+      else if (it.key() == "lcd_phys_w")
+        m_display.phys_w = getValueInt(o, it.key(), m_display.phys_w);
+
+      else if (it.key() == "oled_screen")
+        m_display.oled = getValueBool(o, it.key(), m_display.oled);
+
+      else
+        qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+    }
+
     m_display.color = m_display.depth == 16 ? 1 : 0;
-    m_display.oled = o.value("oled_screen").toBool();
-  }
-}
 
-void Boards::loadBackLight(QJsonObject::const_iterator & it)
-{
-  if (obj.value("backlight").isObject()) {
-    const QJsonObject &o = obj.value("backlight").toObject();
-
-    m_display.backlight_color = o.value("has_backlight_color").toBool();
-  }
+  } else
+        qWarning() << "Warning: display is not an object" << *it;
 }
 
 void Boards::loadLEDS(QJsonObject::const_iterator & it)
 {
-  if (obj.value("leds").isObject()) {
-    const QJsonObject &o = obj.value("leds").toObject();
+  if (it->isObject()) {
+    const QJsonObject &o = it->toObject();
 
-    int cfs_led_strip_length = o.value("cfs_led_strip_length").toInt();
-    int cfs_leds_per_switch = o.value("cfs_leds_per_switch").toInt();
-    m_cfs.groups = cfs_leds_per_switch ? cfs_led_strip_length / (2 * cfs_leds_per_switch) : 0;
-    m_cfs.rgb_led = m_cfs.groups > 0;
-    m_hardware.has_bling_leds = o.value("bling_led_strip_length").toInt();
-  }
-}
-
-void Boards::loadHardware(QJsonObject::const_iterator & oit)
-{
-  if (oit->isObject()) {
-    QJsonObject o = oit->toObject();
+    int cfs_led_strip_length = 0;
+    int cfs_leds_per_switch = 0;
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      //qDebug() << "key:" << it.key() << "value:" << it.value();
+      if (it.key() == "bling_led_strip_length")
+        m_hardware.has_bling_leds = getValueInt(o, it.key(), m_hardware.has_bling_leds);
+
+      else if (it.key() == "cfs_leds_per_switch")
+        cfs_leds_per_switch = getValueInt(o, it.key(), 0);
+
+      else if (it.key() == "cfs_led_strip_length")
+        cfs_led_strip_length = getValueInt(o, it.key(), 0);
+
+      else
+        qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+    }
+
+    m_cfs.groups = cfs_leds_per_switch ? cfs_led_strip_length / (2 * cfs_leds_per_switch) : 0;
+    m_cfs.rgb_led = m_cfs.groups > 0;
+
+  } else
+        qWarning() << "Warning: leds is not an object" << *it;
+}
+
+void Boards::loadHardware(QJsonObject::const_iterator & it)
+{
+  if (it->isObject()) {
+    const QJsonObject &o = it->toObject();
+
+    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      //qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "has_audio_mute")
         m_hardware.has_audio_mute = getValueBool(o, it.key(), m_hardware.has_audio_mute);
 
@@ -1430,8 +1484,7 @@ void Boards::loadHardware(QJsonObject::const_iterator & oit)
         qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
     }
   } else
-        qWarning() << "Warning: hardware is not an object";
-
+        qWarning() << "Warning: hardware is not an object" << *it;
 }
 
 void Boards::postLoadFixups()
@@ -1503,36 +1556,36 @@ void Boards::postLoadFixups()
 
 void Boards::setInputCounts()
 {
-  for (const auto &defn : *inputs) {
-    if (isInputStick(defn))
-      inputCounts.sticks++;
-    else if (isInputFlexPot(defn))
-      inputCounts.flexPots++;
-    else if (isInputFlexSlider(defn))
-      inputCounts.flexSliders++;
-    else if (isInputFlexGyroAxis(defn))
-      inputCounts.flexGyroAxes++;
-    else if (isInputFlexJoystickAxis(defn))
-      inputCounts.flexJoystickAxes++;
-    else if (isInputFlexSwitch(defn))
-      inputCounts.flexSwitches++;
-    else if (isInputRTCBat(defn))
-      inputCounts.rtcbat++;
-    else if (isInputVBat(defn))
-      inputCounts.vbat++;
-    else if (isInputSwitch(defn))
-      inputCounts.switches++;
+  for (int i = 0; i < m_inputs.size(); i++) {
+    if (isInputStick(i))
+      m_inputCnt.sticks++;
+    else if (isInputFlexPot(i))
+      m_inputCnt.flexPots++;
+    else if (isInputFlexSlider(i))
+      m_inputCnt.flexSliders++;
+    else if (isInputFlexGyroAxis(i))
+      m_inputCnt.flexGyroAxes++;
+    else if (isInputFlexJoystickAxis(i))
+      m_inputCnt.flexJoystickAxes++;
+    else if (isInputFlexSwitch(i))
+      m_inputCnt.flexSwitches++;
+    else if (isInputRTCBat(i))
+      m_inputCnt.rtcbat++;
+    else if (isInputVBat(i))
+      m_inputCnt.vbat++;
+    else if (isInputSwitch(i))
+      m_inputCnt.switches++;
   }
 }
 
 void Boards::setSwitchCounts()
 {
-  for (const auto &swtch : *switches) {
-    if (isSwitchStd(swtch))
-      switchCounts.std++;
-    else if (isSwitchFlex(swtch))
-      switchCounts.flex++;
-    else if (isSwitchFunc(swtch))
-      switchCounts.func++;
+  for (int i = 0; i < m_switches.size(); i++) {
+    if (isSwitchStd(i))
+      m_switchCnt.std++;
+    else if (isSwitchFlex(i))
+      m_switchCnt.flex++;
+    else if (isSwitchFunc(i))
+      m_switchCnt.func++;
   }
 }

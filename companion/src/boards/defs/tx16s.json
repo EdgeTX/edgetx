@@ -1,0 +1,15 @@
+{
+  "basedOn": [
+    "radiomaster"
+  ],
+  "id": "tx16s",
+  "name": "TX16S",
+  "switches": [
+    {
+
+    },
+    {
+
+    }
+  ]
+}

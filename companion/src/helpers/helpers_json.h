@@ -42,9 +42,9 @@ class JsonBase {
     static const bool getValueBool(const QJsonObject & obj, const QString & name,
                                    const bool dflt = false);
     static const int getValueInt(const QJsonObject & obj, const QString & name,
-                                 const int dflt = 0, const int max = 99, const int min = 0);
+                                 const int dflt = 0, const int max = 999999, const int min = 0);
     static const std::string getValueStdString(const QJsonObject & obj, const QString & name,
-                                               const std::string & dflt);
+                                               const std::string & dflt = std::string());
     static const QString getValueString(const QJsonObject & obj, const QString & name,
                                         const QString & dflt = QString());
 
