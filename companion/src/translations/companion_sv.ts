@@ -3582,7 +3582,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="641"/>
         <source>HelloRadioSky V12</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="648"/>
@@ -3592,7 +3592,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="655"/>
         <source>HelloRadioSky V14LCD</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="662"/>
@@ -3602,12 +3602,12 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="669"/>
         <source>iFlight Commando 8</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="679"/>
         <source>iFlight Commando 14</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="706"/>
@@ -3647,7 +3647,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="773"/>
         <source>Jumper T22</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="801"/>
@@ -3875,7 +3875,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="882"/>
         <source>Radiomaster GX15</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="897"/>
@@ -5866,7 +5866,7 @@ Are you sure?</source>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1230"/>
         <source>Charge while radio on</source>
-        <translation type="unfinished"></translation>
+        <translation>Ladda när radion är på</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1349"/>
@@ -5937,7 +5937,7 @@ Are you sure?</source>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="2551"/>
         <source>Key lock</source>
-        <translation type="unfinished"></translation>
+        <translation>Knapplås</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1049"/>
@@ -6430,18 +6430,18 @@ Acceptabla värden är 3 - 12 volt</translation>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="279"/>
         <source>Brightness</source>
-        <translation type="unfinished"></translation>
+        <translation>Ljusstyrka</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="283"/>
         <source>Flash display on alarm</source>
-        <translation type="unfinished"></translation>
+        <translation>Blinka skärmen vid alarm</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="672"/>
         <location filename="../generaledit/generalsetup.cpp" line="673"/>
         <source>Not available on this radio (no key combo defined)</source>
-        <translation type="unfinished"></translation>
+        <translation>Inte tillgängligt på denna radio (ingen knappkombo definierad)</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="720"/>
@@ -6613,17 +6613,17 @@ att fungera. Detta går inte att ändra från radion.
     <message>
         <location filename="../generaledit/hardware.cpp" line="111"/>
         <source>IMU</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="116"/>
         <source>X</source>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="122"/>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="132"/>
@@ -8817,13 +8817,15 @@ Vill du spara ändringarna?</translation>
         <location filename="../mdichild.cpp" line="1304"/>
         <source>Operation aborted: %1 models have errors that may affect simulation.
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbetning avbruten: %1 modeller har fel som kan påverka simuleringen.
+%2</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1319"/>
         <source>Operation aborted: selected model has errors that may affect simulation.
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbetning avbruten: vald modell har fel som kan påverka simuleringen.
+%1</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1345"/>
@@ -8859,7 +8861,8 @@ Vill du spara ändringarna?</translation>
         <location filename="../mdichild.cpp" line="1583"/>
         <source>Operation aborted as %1 models have significant errors that may affect model operation.
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbetning avbruten, då %1 modeller har betydande fel som kan påverka förfarandet.
+%2</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1981"/>
@@ -8874,12 +8877,12 @@ Vill du spara ändringarna?</translation>
     <message>
         <location filename="../mdichild.cpp" line="2000"/>
         <source>Double click to display errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Dubbelklicka för att visa felen</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="2002"/>
         <source>Models Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Modellstatus</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="2014"/>
@@ -9787,13 +9790,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modeledit/modeledit.cpp" line="174"/>
         <source>Simulate Model</source>
-        <translation type="unfinished">Simulera modell</translation>
+        <translation>Simulera modell</translation>
     </message>
     <message>
         <location filename="../modeledit/modeledit.cpp" line="175"/>
         <source>Operation aborted: model has errors that may affect simulation.
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbetning avbruten: modellen har fel som kan påverka simuleringen.
+%1</translation>
     </message>
     <message>
         <location filename="../modeledit/modeledit.ui" line="51"/>
