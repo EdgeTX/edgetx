@@ -156,6 +156,79 @@ rect_t ViewMainDecoration::getWidgetsZone(bool showTopBar) const
   return rect_t{x, y, w, h};
 }
 
+#if defined(MAIN_VIEW_FLEX_SLOTS)
+
+// Explicit slot -> flex input map, for targets whose flex order differs
+enum {
+  SLOT_BOTTOM_LEFT = 0,
+  SLOT_BOTTOM_CENTER,
+  SLOT_BOTTOM_RIGHT,
+  SLOT_LEFT,
+  SLOT_RIGHT,
+  SLOT_LEFT_2,
+  SLOT_RIGHT_2,
+  SLOT_COUNT
+};
+
+static const int8_t _flex_slots[SLOT_COUNT] = MAIN_VIEW_FLEX_SLOTS;
+
+static int slotPot(uint8_t slot)
+{
+  int pot = _flex_slots[slot];
+  if (pot < 0 || pot >= adcGetMaxInputs(ADC_INPUT_FLEX)) return -1;
+  return IS_POT_AVAILABLE(pot) ? pot : -1;
+}
+
+void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br)
+{
+  int pot;
+
+  if ((pot = slotPot(SLOT_BOTTOM_LEFT)) >= 0)
+    sliders[pot] = new MainViewHorizontalSlider(bl, pot);
+
+  if ((pot = slotPot(SLOT_BOTTOM_CENTER)) >= 0) {
+    if (IS_POT_MULTIPOS(pot)) {
+      has6POS = true;
+      sliders[pot] = new MainView6POS(bc, pot);
+    } else {
+      sliders[pot] = new MainViewHorizontalSlider(bc, pot);
+    }
+  }
+
+  if ((pot = slotPot(SLOT_BOTTOM_RIGHT)) >= 0)
+    sliders[pot] = new MainViewHorizontalSlider(br, pot);
+
+  int left = slotPot(SLOT_LEFT);
+  int right = slotPot(SLOT_RIGHT);
+  int left2 = slotPot(SLOT_LEFT_2);
+  int right2 = slotPot(SLOT_RIGHT_2);
+
+  if (left >= 0 || right >= 0 || left2 >= 0 || right2 >= 0) {
+    hasVerticalSliders = true;
+
+    auto leftPots = layoutBox(ml, LV_ALIGN_LEFT_MID, LV_FLEX_FLOW_COLUMN);
+    leftPots->setHeight(MainViewSlider::VERTICAL_SLIDERS_HEIGHT);
+
+    auto rightPots = layoutBox(mr, LV_ALIGN_RIGHT_MID, LV_FLEX_FLOW_COLUMN);
+    rightPots->setHeight(MainViewSlider::VERTICAL_SLIDERS_HEIGHT);
+
+    coord_t lsh = (left2 >= 0) ? MainViewSlider::VERTICAL_SLIDERS_HEIGHT / 2 : MainViewSlider::VERTICAL_SLIDERS_HEIGHT;
+    coord_t rsh = (right2 >= 0) ? MainViewSlider::VERTICAL_SLIDERS_HEIGHT / 2 : MainViewSlider::VERTICAL_SLIDERS_HEIGHT;
+
+    for (auto p : {left, left2}) {
+      if (p >= 0)
+        sliders[p] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, lsh}, p);
+    }
+
+    for (auto p : {right, right2}) {
+      if (p >= 0)
+        sliders[p] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, rsh}, p);
+    }
+  }
+}
+
+#else
+
 void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Window* bc, Window* br)
 {
   int pot = 0;
@@ -237,6 +310,8 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
     }
   }
 }
+
+#endif // MAIN_VIEW_FLEX_SLOTS
 
 void ViewMainDecoration::createTrims(Window* ml, Window* mr, Window* bl, Window* br)
 {

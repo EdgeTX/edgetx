@@ -438,6 +438,7 @@ void generalDefault()
   uint8_t defaultCalib[] = DEFAULT_6POS_CALIB;
   StepsCalibData* calib = (StepsCalibData*)&g_eeGeneral.calib[DEFAULT_6POS_IDX];
 
+  calib->count = XPOTS_MULTIPOS_COUNT - 1;
   for (int i = 0; i < 5; i++) {
     calib->steps[i] = defaultCalib[i];
   }
