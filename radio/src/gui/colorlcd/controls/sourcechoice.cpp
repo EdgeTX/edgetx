@@ -181,7 +181,7 @@ void SourceChoice::openMenu()
 #if defined(AUTOSOURCE)
   menu->setWaitHandler([=]() {
     int16_t val = getMovedSource(vmin);
-    if (val) {
+    if (val && (!isValueAvailable || isValueAvailable(val))) {
       tb->resetFilter();
       menu->select(getIndexFromValue(val));
     }
@@ -190,7 +190,7 @@ void SourceChoice::openMenu()
       swsrc_t swtch = abs(getMovedSwitch());
       if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
         val = switchToMix(swtch);
-        if (val && (val >= vmin) && (val <= vmax)) {
+        if (val && (val >= vmin) && (val <= vmax) && (!isValueAvailable || isValueAvailable(val))) {
           tb->resetFilter();
           menu->select(getIndexFromValue(val));
         }

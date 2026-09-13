@@ -50,6 +50,7 @@ jobs:
           - t22
           - c14
           - v12
+          - h17
           - dro1
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
@@ -99,6 +100,7 @@ jobs:
           - t22
           - c14
           - v12
+          - h17
           - dro1
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest

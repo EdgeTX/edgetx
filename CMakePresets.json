@@ -339,6 +339,12 @@
       "displayName": "RadioMaster Zorro",
       "inherits": "firmware",
       "cacheVariables": { "PCB": "X7", "PCBREV": "ZORRO" }
+    },
+    {
+      "name": "h17",
+      "displayName": "Senduwing H17",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "H17" }
     }
   ],
   "buildPresets": [
