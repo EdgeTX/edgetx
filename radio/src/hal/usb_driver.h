@@ -66,6 +66,9 @@ extern const etx_serial_port_t UsbSerialPort;
 void usbJoystickRestart();
 #endif
 void usbJoystickUpdate();
+#if defined(STM32) && defined(USBJ_EX) && defined(RADIO_TX16SMK3)
+void usbProcessPcFeedback();
+#endif
 
 // USB DFU
 int usbRegisterDFUMedia(const void* dfu_media);

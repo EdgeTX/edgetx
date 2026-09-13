@@ -38,6 +38,11 @@ void rgbLedClearAll();
 bool rgbGetState(uint8_t led);
 void rgbLedColorApply();
 
+#if defined(BLING_LED_STRIP_LENGTH) && (BLING_LED_STRIP_LENGTH > 0)
+void rgbSetBlingOverride(uint8_t r, uint8_t g, uint8_t b);
+void rgbClearBlingOverride();
+#endif
+
 // Weak hook invoked by the LED refresh timer task before publishing the
 // next frame. Boards that drive system LEDs (e.g. the 6POS position
 // indicator) implement this to update their LEDs in the timer task

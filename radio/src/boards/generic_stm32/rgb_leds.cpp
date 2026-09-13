@@ -43,6 +43,11 @@ static uint8_t _led_colors[RGBLEDS_BYTES_PER_LED * LED_STRIP_LENGTH];
 // Read only inside _flush_and_update() when a new frame has been published.
 static uint8_t _back_colors[RGBLEDS_BYTES_PER_LED * LED_STRIP_LENGTH];
 
+#if defined(BLING_LED_STRIP_LENGTH) && (BLING_LED_STRIP_LENGTH > 0)
+static constexpr uint32_t BLING_OVERRIDE_ACTIVE = 0x01000000u;
+static volatile uint32_t _bling_override = 0;
+#endif
+
 // Seqlock-style publish using a single counter:
 //   - LSB set (odd)  → menu task is mid-batch, back buffer not consistent
 //   - LSB clear (even) → frame is published; back buffer is stable
@@ -82,6 +87,19 @@ static void _flush_and_update()
     // Skip if mid-batch (odd) or already consumed.
     if ((seq & 1u) == 0u && seq != _consumed_seq) {
       memcpy(_led_colors, _back_colors, sizeof(_led_colors));
+#if defined(BLING_LED_STRIP_LENGTH) && (BLING_LED_STRIP_LENGTH > 0)
+      uint32_t override = _bling_override;
+      if ((override & BLING_OVERRIDE_ACTIVE) != 0u) {
+        uint8_t r = (override >> 16) & 0xffu;
+        uint8_t g = (override >> 8) & 0xffu;
+        uint8_t b = override & 0xffu;
+
+        for (uint8_t led = BLING_LED_STRIP_START;
+             led < BLING_LED_STRIP_START + BLING_LED_STRIP_LENGTH; ++led) {
+          rgbleds_set_color_in_buf(_led_colors, led, r, g, b);
+        }
+      }
+#endif
       _consumed_seq = seq;
     }
     rgbleds_update(&_led_timer);
@@ -159,6 +177,23 @@ bool rgbGetState(uint8_t led)
 {
   return rgbleds_get_state_in_buf(_back_colors, led);
 }
+
+#if defined(BLING_LED_STRIP_LENGTH) && (BLING_LED_STRIP_LENGTH > 0)
+void rgbSetBlingOverride(uint8_t r, uint8_t g, uint8_t b)
+{
+  _bling_override =
+      BLING_OVERRIDE_ACTIVE | (uint32_t(r) << 16) | (uint32_t(g) << 8) | b;
+  _begin_batch();
+  rgbLedColorApply();
+}
+
+void rgbClearBlingOverride()
+{
+  _bling_override = 0;
+  _begin_batch();
+  rgbLedColorApply();
+}
+#endif
 
 void rgbLedColorApply()
 {

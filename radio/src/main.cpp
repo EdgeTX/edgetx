@@ -564,6 +564,10 @@ void perMain()
 
   handleUsbConnection();
 
+#if defined(STM32) && defined(USBJ_EX) && defined(RADIO_TX16SMK3)
+  usbProcessPcFeedback();
+#endif
+
 #if defined(SHARED_DSC_HEADPHONE_JACK)
   handleJackConnection();
 #endif
