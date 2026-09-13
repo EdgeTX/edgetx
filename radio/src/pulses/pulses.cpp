@@ -486,7 +486,7 @@ static void pulsesEnableModule(uint8_t module, uint8_t protocol)
       break;
 #endif
 
-#if defined(DSM2)
+#if defined(DSMP)
     case PROTOCOL_CHANNELS_DSMP:
       _init_module(module, &DSMPDriver);
       break;
