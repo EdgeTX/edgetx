@@ -155,10 +155,10 @@ class Firmware
 
     virtual ~Firmware() { }
 
-    inline const Firmware * getFirmwareBase() const
-    {
-      return base ? base : this;
-    }
+    // const
+    inline const Firmware * getFirmwareBase() const { return base ? base : this; }
+
+    inline const bool isBase() const { return base ? false : true; }
 
     virtual Firmware * getFirmwareVariant(const QString & id) { return NULL; }
 
@@ -186,6 +186,16 @@ class Firmware
     }
 
     QString getName() const
+    {
+      return Boards::getManufacturer(board) % " " % name;
+    }
+
+    QString getFullName() const
+    {
+      return getName();
+    }
+
+    QString getShortName() const
     {
       return name;
     }

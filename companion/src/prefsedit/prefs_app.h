@@ -1,0 +1,70 @@
+/*
+ * Copyright (C) EdgeTX
+ *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
+#pragma once
+
+#include "prefs_edit.h"
+
+namespace Ui {
+  class PrefsApp;
+}
+
+class PrefsAppPanel : public PrefsPanel
+{
+    Q_OBJECT
+
+  public:
+    PrefsAppPanel(QWidget * parent, Firmware * fw, Board::Type & bd, Profile & prof);
+    virtual ~PrefsAppPanel();
+
+    virtual void save() override;
+    virtual void update() override;
+
+  private:
+    Ui::PrefsApp * ui;
+
+    AutoCheckBox *chkSplash;
+    AutoCheckBox *chkProfPrmpt;
+    AutoSpinBox  *sbxRecentFiles;
+    AutoComboBox *cboModelNew;
+    AutoCheckBox *chkModelDelete;
+    AutoCheckBox *chkProfileTop;
+    AutoCheckBox *chkBackupFirmware;
+    AutoCheckBox *chkUseSavedSettings;
+    AutoCheckBox *chkConfirmDeleteWrite;
+    AutoLineEdit *leModelsPath;
+    AutoLineEdit *leBackupsPath;
+    AutoLineEdit *leLogsPath;
+    AutoCheckBox *chkLogApp;
+    AutoCheckBox *chkLogFW;
+    AutoComboBox *cboLogLevel;
+    AutoCheckBox *chkLogVerbose;
+    AutoLineEdit *leGoogleExe;
+    AutoComboBox *cboSplashLibraries;
+    AutoLineEdit *leSplashUserPath;
+
+    void sectionFolders();
+    void sectionGeneral();
+    void sectionGoogleEarth();
+    void sectionLogging();
+    void sectionRadioProfiles();
+    void sectionSplashScreens();
+};

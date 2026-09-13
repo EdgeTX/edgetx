@@ -38,9 +38,12 @@ class AutoSlider : public QSlider, public AutoWidget
     void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
     void setBindText(std::function<QString()> fn) = delete;
 
-    void setField(int & field, int min, int max, GenericPanel * panel = nullptr);
-    void setField(unsigned int & field, int min, int max, GenericPanel * panel = nullptr);
+    void setField(int & field, int min, int max, AbstractPanel * panel = nullptr);
+    void setField(unsigned int & field, int min, int max, AbstractPanel * panel = nullptr);
     void setTick(int interval, QSlider::TickPosition position);
+    // use for widget not bound to a memory address
+    void setValue(int val, int min, int max, AbstractPanel * panel);
+    void setValue(int val);
 
   signals:
     void currentDataChanged(int value);
@@ -49,8 +52,9 @@ class AutoSlider : public QSlider, public AutoWidget
     void onValueChanged(int value);
 
   private:
-    int *m_field = nullptr;
+    int *m_field;
+    int m_value;
 
     void init();
-    void setFieldInit(int min, int max, GenericPanel * panel);
+    void setFieldInit(int min, int max, AbstractPanel * panel);
 };
