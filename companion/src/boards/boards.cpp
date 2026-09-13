@@ -43,9 +43,6 @@
 #define FSIZE_2MB                      (2048*1024)
 #define FSIZE_MAX                      FSIZE_2MB
 
-constexpr char BDDEFNSDIR[] { ":/bddefs" };
-constexpr char HWDEFNSDIR[] { ":/hwdefs" };
-
 static const StringTagMappingTable trimSwitchesLut = {
     {std::to_string(Board::TRIM_SW_LH_DEC), "TrimRudLeft"},
     {std::to_string(Board::TRIM_SW_LH_INC), "TrimRudRight"},
@@ -113,17 +110,39 @@ Boards * getBoardForId(const Board::Type & id)
   return gBoardFactories->boardForId(id);
 }
 
-Boards::Boards(const Board::Type & board, const QString & hwdefn, const QString & bddefn) :
+Boards::Boards(const Board::Type & id, const QString & hwdefn, const bool isSupported) :
   JsonBase(),
-  m_id(board),
+  m_id(id),
   m_hwdefn(hwdefn),
-  m_bddefn(bddefn),
+  m_name("unknown"),
+  m_manufacturer("unknown"),
+  m_loaded(false),
+  m_valid(true),
   m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0, 0}),
   m_switchCnt({0, 0, 0}),
   trimSwitchesLookupTable(trimSwitchesLut),
   rawSwitchTypesLookupTable(RawSwitch::getRawSwitchTypesLookupTable()),
   rawSourceSpecialTypesLookupTable(RawSource::getSpecialTypesLookupTable())
 {
+  QJsonDocument *doc = new QJsonDocument();
+
+  if (load(doc, hwdefn)) {
+    QJsonObject obj = doc->object();
+    // ignore intermediate definitions
+    if (!getValue(obj, "hidden", false).toBool()) {
+      m_id = getValueString(obj, "id", "unknown");
+      m_name = getValue(obj, "name", "unknown").toString();
+
+      if (m_id == "unknown") {
+        m_valid = false;
+        qCritical() << "Error - file:" << hwdefn << "does not contain an id";
+      }
+    } else {
+      qDebug() << "ignoring" << hwdefn;
+    }
+  }
+
+  delete doc;
 }
 
 Boards::~Boards()
@@ -1067,6 +1086,9 @@ const bool Boards::isSwitchFunc(int index) const
 
 bool Boards::loadDefinition()
 {
+  if (m_loaded)
+    return true;
+
   // safety net for BoardFactory::instance
   if (m_id == Board::BOARD_UNKNOWN)
     return true;
@@ -1078,9 +1100,9 @@ bool Boards::loadDefinition()
 
   // load default.json first and allow subsequent file values to override
   // this avoids having to include default in basedOn tree
-  if (loadDefinition(QString("%1/%2.json").arg(HWDEFNSDIR).arg("default"))) {
+  if (loadDefinition(QString("%1/%2.json").arg(BDDEFNSDIR).arg("default"))) {
     if (loadDefinition(QString("%1/%2.json").arg(HWDEFNSDIR).arg(m_hwdefn))) {
-      if (loadDefinition(QString("%1/%2.json").arg(BDDEFNSDIR).arg(m_bddefn))) {
+      if (loadDefinition(QString("%1/%2.json").arg(BDDEFNSDIR).arg(m_hwdefn))) {
         qDebug() << "Definition loaded:" << m_id;
       } else
         return false;
@@ -1090,6 +1112,7 @@ bool Boards::loadDefinition()
     return false;
 
   postLoadFixups();
+
   setInputCounts();
   setSwitchCounts();
 
@@ -1110,6 +1133,7 @@ bool Boards::loadDefinition()
               "rtcbat:" << getCapability(Capability::HasRTC) <<
               "vbat:" << getCapability(Capability::HasVBat);
 
+  m_loaded = true;
   return true;
 }
 
@@ -1145,9 +1169,8 @@ bool Boards::loadDefinition(const QString & path)
         }
       }
     }
-  } else {
+  } else
     success = false;
-  }
 
   if (!success) {
     qCritical() << "CRITICAL: Load definition" << path << "unsuccessful";
@@ -1160,10 +1183,11 @@ bool Boards::loadDefinition(const QString & path)
   for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
     qDebug() << "key:" << it.key() << "value:" << it.value();
 
-    if (it.key() == "hidden" || it.key() == "basedOn")
+    if (it.key() == "hidden" || it.key() == "basedOn" ||
+        it.key() == "timers" || it.key() == "haptic")
       continue;
 
-    if (it.key() == "adc_inputs")
+    else if (it.key() == "adc_inputs")
       loadADCInputs(it);
 
     else if (it.key() == "switches")
@@ -1185,10 +1209,13 @@ bool Boards::loadDefinition(const QString & path)
       loadLEDS(it);
 
     else if (it.key() == "backlight")
-      m_display.backlight_color = getValueBool(it);
+      m_display.backlight_color = getValueBool(it, m_display.backlight_color);
 
     else if (it.key() == "key_lock_combo")
-      m_hasKeyLockCombo = (it->isArray() && it->toArray().size() == 2 ? true : m_hasKeyLockCombo);
+      m_hardware.hasKeyLockCombo = (it->isArray() && it->toArray().size() == 2 ? true : m_hardware.hasKeyLockCombo);
+
+    else if (it.key() == "manufacturer")
+      m_manufacturer = getValueString(it, m_manufacturer);
 
     else
       qWarning() << "Warning: No rule to process - path:" << path << "name:" << it.key() << "value:" << it.value();
@@ -1517,9 +1544,9 @@ void Boards::postLoadFixups()
   }
 
   // json files do not normally specify stick labels so load legacy labels
-  for (int i = 0; i < getCapability(Capability::Sticks); i++) {
-    if (m_inputs.at(i).name.empty())
-      m_inputs.at(i).name = DataHelpers::getStringTagMappingName(stickNamesLookupTable, m_inputs.at(i).tag.c_str());
+  for (auto &defn : m_inputs) {
+    if (defn.type == Board::AIT_STICK && defn.name.empty())
+      defn.name = DataHelpers::getStringTagMappingName(stickNamesLookupTable, defn.tag.c_str());
   }
 }
 

@@ -36,6 +36,9 @@ class AbstractStaticItemModel;
 class SemanticVersion;
 class GeneralSettings;
 
+constexpr char BDDEFNSDIR[] { ":/bddefs" };
+constexpr char HWDEFNSDIR[] { ":/hwdefs" };
+
 // identiying names of static abstract item models
 constexpr char AIM_BOARDS_POT_TYPE[]        {"boards.pottype"};
 constexpr char AIM_BOARDS_SLIDER_TYPE[]     {"boards.slidertype"};
@@ -389,10 +392,8 @@ class Boards : public JsonBase
       int surface                       = 0;
       std::string cpu                   = "";
       std::string cpu_type              = "";
+      bool hasKeyLockCombo              = false;
       // these sourced from bddefn
-      std::string name                  = "unknown";
-      std::string id                    = "unknown";
-      std::string manufacturer          = "unknown";
       Battery battery;
       int backlightLevelMin             = 0;
       bool auxSerialMode                = false;
@@ -419,12 +420,14 @@ class Boards : public JsonBase
 
     typedef std::vector<TrimDefn> TrimsTable;
 
-    explicit Boards(const Board::Type & id, const QString & hwdefn, const QString & bddefn);
+    explicit Boards(const Board::Type & id, const QString & hwdefn, const bool isSupported = true);
+    explicit Boards(const Board::Type & id);
     virtual ~Boards() {}
 
     const Board::Type getId() const { return m_id; }
     const QString getManufacturer() const { return m_hardware.manufacturer.c_str(); }
     const QString getName() const { return m_hardware.name.c_str(); }
+    const QString getHwDefn() const { return m_hwdefn; }
 
     void getBatteryRange(int & vmin, int & vmax, unsigned int & vwarn) const;
 
@@ -500,6 +503,7 @@ class Boards : public JsonBase
 
     bool loadDefinitions();
     const QString radioModeString() const;
+    const bool isLoaded() { return m_loaded; }
 
     // static
     static AbstractStaticItemModel * externalModuleSizeItemModel();
@@ -518,7 +522,10 @@ class Boards : public JsonBase
 
     QString m_id;
     QString m_hwdefn;
-    QString m_bddefn;
+    QString m_name;
+    QString m_manufacturer;
+    bool m_loaded;
+    bool m_valid;
 
     InputsTable m_inputs;
     SwitchesTable m_switches;
@@ -527,7 +534,6 @@ class Boards : public JsonBase
     DisplayDefn m_display;
     CustomSwitchesDefn m_cfs;
     HardwareDefn m_hardware;
-    bool m_hasKeyLockCombo = false;
 
     struct InputCounts {
       unsigned int flexGyroAxes;

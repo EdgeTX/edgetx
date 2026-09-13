@@ -26,8 +26,7 @@
 class BoardFactory
 {
   public:
-    explicit BoardFactory(const Board::Type & id, const QString & hwdefn, const QString & bddefn) :
-      m_board(new Boards(id, hwdefn, bddefn)) {}
+    explicit BoardFactory(const Board::Type & id, const QString & hwdefn, const bool isSupported = true);
 
     virtual ~BoardFactory() {}
 
@@ -46,7 +45,8 @@ class BoardFactories
     Boards * boardForId(const Board::Type & id) const;
     Boards * boardForHwDefn(const QString & hwdefn) const;
 
-    bool registerBoard(const Board::Type & board, const QString & hwdefn, const QString & hwdefn);
+    void registerAllBoards();
+    bool registerBoard(const Board::Type & board, const QString & hwdefn, const bool isSupported = true);
     bool registerBoardFactory(BoardFactory * factory);
     void unregisterBoardFactories();
 

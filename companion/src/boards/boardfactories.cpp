@@ -23,11 +23,16 @@
 
 BoardFactories* gBoardFactories = nullptr;
 
-BoardFactories::BoardFactories() :
+BoardFactory::BoardFactory(const Board::Type & id, const QString & hwdefn, const bool isSupported) :
+  m_board(new Boards(id, hwdefn, isSupported))
+{
+
+}
+
+  BoardFactories::BoardFactories() :
   m_default(nullptr)
 {
-  if (registerBoard(Board::BOARD_UNKNOWN, "", ""))
-    m_default = boardForId(Board::BOARD_UNKNOWN);
+  registerAllBoards();
 }
 
 BoardFactories::~BoardFactories()
@@ -38,8 +43,13 @@ BoardFactories::~BoardFactories()
 Boards * BoardFactories::boardForHwDefn(const QString & hwdefn) const
 {
   for (auto *registeredFactory : registeredBoardFactories) {
-    if (registeredFactory->board()->hwdefn() == hwdefn)
-      return registeredFactory->board();
+    auto board = registeredFactory->board();
+    if (board->getHwDefn() == hwdefn) {
+      if (!board->isLoaded())
+        board->loadDefinitions();
+
+      return board;
+    }
   }
 
   return m_default;
@@ -48,37 +58,42 @@ Boards * BoardFactories::boardForHwDefn(const QString & hwdefn) const
 Boards * BoardFactories::boardForId(const Board::Type & id) const
 {
   for (auto *registeredFactory : registeredBoardFactories) {
-    if (registeredFactory->board()->id() == id)
-      return registeredFactory->board();
+    auto board = registeredFactory->board();
+    if (board->getId() == id) {
+      if (!board->isLoaded())
+        board->loadDefinitions();
+
+      return board;
+    }
   }
 
   return m_default;
 }
 
 //  Registering firmware triggers registering the associated board
-bool BoardFactories::registerBoard(const Board::Type & id, const QString & hwdefn, const QString & bddefn)
+bool BoardFactories::registerBoard(const Board::Type & id, const QString & hwdefn, const bool isSupported)
 {
   if (m_default || id != Board::BOARD_UNKNOWN) {
     Boards* regboard = boardForId(id);
 
-    if (regboard->id() == id) {
-      if (regboard->hwdefn() == hwdefn) {
+    if (regboard->getId() == id) {
+      if (regboard->getHwDefn() == hwdefn) {
         //qDebug() << "Warning - Board" << Boards::getBoardName(regboard->board()) << "already registered";
         return true;
       }
       else {
-        qDebug() << "Error - Board" << regboard->name() << "already registered with"
-                 << regboard->hwdefn() << "hwdefn!";
+        qDebug() << "Error - Board" << regboard->getName() << "already registered with"
+                 << regboard->getHwDefn() << "hwdefn!";
         return false;
       }
     }
   }
 
-  BoardFactory *bf = new BoardFactory(id, hwdefn, bddefn);
+  BoardFactory *bf = new BoardFactory(id, hwdefn, isSupported);
 
   if (bf->board()->loadDefinitions()) {
     if (registerBoardFactory(bf)) {
-      qDebug() << "Registered board:" << (id != Board::BOARD_UNKNOWN ? bf->board()->name() : "UNKNOWN (default)");
+      qDebug() << "Registered board:" << (id != Board::BOARD_UNKNOWN ? bf->board()->getName() : "UNKNOWN (default)");
       return true;
     }
     else
@@ -88,6 +103,32 @@ bool BoardFactories::registerBoard(const Board::Type & id, const QString & hwdef
     delete bf;
 
   return false;
+}
+
+void BoardFactories::registerAllBoards()
+{
+  QStringList filters = { "*.json" };
+
+  QDirIterator it(QString("%1/").arg(HWDEFNSDIR), filters, QDir::Files);
+
+  while (it.hasNext()) {
+    QString path = it.next();
+    //qDebug() << "found file:" << path;
+    QJsonDocument *doc = new QJsonDocument();
+
+    if (Boards::load(doc, path)) {
+      QJsonObject obj = doc->object();
+      // ignore intermediate definitions
+      if (!Boards::getValueBool(obj, "hidden", false)) {
+        QString id = Boards::getValueString(obj, "id", QFileInfo(path).baseName());
+        registerBoard(id, path, Boards::getValueBool(obj, "supported", true));
+      } else {
+        //qDebug() << "ignoring file:" << path;
+      }
+    }
+
+    delete doc;
+  }
 }
 
 bool BoardFactories::registerBoardFactory(BoardFactory * factory)

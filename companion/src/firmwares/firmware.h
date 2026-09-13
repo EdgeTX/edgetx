@@ -142,7 +142,6 @@ class Firmware : public JsonBase
     explicit Firmware(const QString & id, const QString & path, const bool isSupported = true);
     virtual ~ Firmware() {}
 
-    const QString bddefn() const { return m_defn.bddefn; }
     const QString dwnldid() const { return m_defn.dwnldId; }
     const QString hwdefn() const { return m_defn.hwdefn; }
     const QString id() const { return m_id; } // do not use m_defn.id as it does not have edgetx- prefix
