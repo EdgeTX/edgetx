@@ -23,10 +23,8 @@
 #include "yaml_parser.h"
 
 #include "debug.h"
-
+#include "strhelpers.h"
 #include "storage/modelslist.h"
-
-#include <cstring>
 
 #if defined(_WIN32) || defined(_WIN64)
 #define strcasecmp _stricmp
@@ -39,23 +37,21 @@
 #define TRACE_LABELS_YAML(...)
 #endif
 
-using std::list;
-
 struct labelslist_iter
 {
-    enum SectionType {
-      SEC_Unknown=0,
-      SEC_Labels=1,
-      SEC_Models=2,
-      SEC_Sort=3,
-    };
+  enum SectionType {
+    SEC_Unknown=0,
+    SEC_Labels=1,
+    SEC_Models=2,
+    SEC_Sort=3,
+  };
 
-    ModelCell   *curmodel;
-    bool        modeldatavalid; // Used to determine if reading yaml values is necessary
-    uint8_t     level;
-    uint8_t     section;
-    char        current_attr[LABELS_LENGTH+1]; // set after find_node()
-    char        current_label[LABELS_LENGTH+1]; // set after find_node()
+  ModelCell   *curmodel;
+  bool        modeldatavalid; // Used to determine if reading yaml values is necessary
+  uint8_t     level;
+  uint8_t     section;
+  char        current_attr[LABELS_LENGTH+1]; // set after find_node()
+  char        current_label[LABELS_LENGTH+1]; // set after find_node()
 };
 
 static labelslist_iter __labelslist_iter_inst;
@@ -132,28 +128,11 @@ static bool find_node(void* ctx, const char* buf, uint8_t len)
 
     // Model List
     if(mi->level == 1 && mi->section == labelslist_iter::SEC_Models)  {
-      bool found=false;
-      for(auto &filehash : modelslist.fileHashInfo) {
-        if(filehash.name == mi->current_attr) {
-          TRACE_LABELS_YAML("  Model %s has a real file, creating a modelcell", mi->current_attr);
-          if(filehash.celladded) {
-            TRACE_LABELS_YAML("    Duplicate found labels.yml model cell %s already added", mi->current_attr);
-            break;
-          }
-          ModelCell *model = new ModelCell(mi->current_attr);
-          strcpy(model->modelFinfoHash, filehash.hash);
-          modelslist.push_back(model);
-          filehash.celladded = true;
-          if(filehash.curmodel == true)
-            modelslist.setCurrentModel(model);
-          mi->curmodel = model;
-          mi->modeldatavalid = false;
-          mi->curmodel->_isDirty = true;
-          found = true;
-          break;
-        }
-      }
-      if(!found) {
+      auto model = modelCellManager.getModel(mi->current_attr);
+      if (model) {
+        mi->curmodel = model;
+        mi->modeldatavalid = false;
+      } else {
         mi->curmodel = NULL;
         TRACE_LABELS_YAML("File does not exist in /MODELS");
       }
@@ -162,9 +141,8 @@ static bool find_node(void* ctx, const char* buf, uint8_t len)
     // Labels List
     if(mi->level == 1 && mi->section == labelslist_iter::SEC_Labels)  {
       TRACE_LABELS_YAML("Label Found -- %s", mi->current_attr);
-      modelslabels.addLabel(mi->current_attr);
-      strncpy(mi->current_label,mi->current_attr, LABELS_LENGTH);
-      mi->current_label[LABELS_LENGTH] = '\0';
+      modelCellManager.addLabel(mi->current_attr);
+      strAppend(mi->current_label, mi->current_attr, LABELS_LENGTH);
     }
 
     return true;
@@ -194,14 +172,10 @@ static void set_attr(void* ctx, const char* buf, uint16_t len)
         mi->curmodel->_isDirty = false;
       } else {
         TRACE_LABELS_YAML("FILE HASH Does not Match, Open model and rebuild modelcell");
-        mi->modeldatavalid = false;
-        mi->curmodel->_isDirty = true;
       }
     }
 
     // Last Opened
-    // Hack: Always load this as the hash value is (currently) not in synch with the saved model file
-    // TODO: Ensure stored hash is up to date.
     if (!strcasecmp(mi->current_attr, "lastopen")) {
         mi->curmodel->lastOpened = (gtime_t)strtol(value, NULL, 0);
         TRACE_LABELS_YAML(" Last Opened %lu", value);
@@ -223,11 +197,7 @@ static void set_attr(void* ctx, const char* buf, uint16_t len)
 
       // Model Labels
       } else if(!strcasecmp(mi->current_attr, "labels")) {
-        LabelsVector labels = ModelMap::fromCSV(value);
-        for(const auto &lbl : labels ) {
-          modelslabels.addLabelToModel(lbl,mi->curmodel);
-          TRACE_LABELS_YAML("  Adding the label - %s", lbl.c_str());
-        }
+        modelCellManager.addLabelsToModel(value, mi->curmodel);
 
       // RF Module Data
       } else {
@@ -257,18 +227,15 @@ static void set_attr(void* ctx, const char* buf, uint16_t len)
 
   // Label Section
   } else if(mi->level == 2 && mi->section == labelslist_iter::SEC_Labels) {
-    if(!strcasecmp(mi->current_attr, "icon")) {
-      TRACE_LABELS_YAML(" Label Icon - %s", value);
-      // TODO - Check icon exists, or ignore it.
-    } else if(!strcasecmp(mi->current_attr, "selected")) {
+    if(!strcasecmp(mi->current_attr, "selected")) {
       TRACE("FOUND %s Label is selected", mi->current_label);
-      modelslabels.addFilteredLabel(mi->current_label);
+      modelCellManager.addFilteredLabel(mi->current_label);
     }
 
   // Sort Order
   } else if (mi->level == 0 && mi->section == labelslist_iter::SEC_Sort)  {
     TRACE_LABELS_YAML(" Sort Order Found -- %s", value);
-    modelslabels.setSortOrder((ModelsSortBy)strtol(value,NULL,10));
+    modelCellManager.setSortOrder((ModelsSortBy)strtol(value,NULL,10));
   }
 }
 

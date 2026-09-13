@@ -119,8 +119,8 @@ class NumberEdit : public TextButton
   std::string prefix;
   std::string suffix;
   std::string zeroText;
-  std::function<std::string(int)> displayFunction;
-  std::function<bool(int)> isValueAvailable;
+  std::function<std::string(int)> displayFunction = nullptr;
+  std::function<bool(int)> isValueAvailable = nullptr;
 
   std::string getDisplayVal();
 
