@@ -58,3 +58,35 @@ void ledBlue()
   }
   rgbLedColorApply();
 }
+
+void ledYellow()
+{
+  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
+    rgbSetLedColor(i, 50, 50, 0);
+  }
+  rgbLedColorApply();
+}
+
+void ledMagenta()
+{
+  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
+    rgbSetLedColor(i, 50, 0, 50);
+  }
+  rgbLedColorApply();
+}
+
+void ledCyan()
+{
+  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
+    rgbSetLedColor(i, 0, 50, 50);
+  }
+  rgbLedColorApply();
+}
+
+void ledWhite()
+{
+  for (uint8_t i = 0; i < LED_STRIP_LENGTH; i++) {
+    rgbSetLedColor(i, 50, 50, 50);
+  }
+  rgbLedColorApply();
+}

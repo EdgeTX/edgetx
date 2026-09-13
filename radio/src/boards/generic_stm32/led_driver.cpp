@@ -115,31 +115,57 @@ __weak void ledOff()
 #endif
 }
 
-__weak void ledRed()
+static void ledRgb(bool red, bool green, bool blue)
 {
   ledOff();
 #if defined(LED_RED_GPIO)
-  GPIO_LED_GPIO_ON(LED_RED_GPIO);
+  if (red) GPIO_LED_GPIO_ON(LED_RED_GPIO);
 #endif
 #if defined(LED_RED2_GPIO)
-  GPIO_LED_GPIO_ON(LED_RED2_GPIO);
+  if (red) GPIO_LED_GPIO_ON(LED_RED2_GPIO);
 #endif
+#if defined(LED_GREEN_GPIO)
+  if (green) GPIO_LED_GPIO_ON(LED_GREEN_GPIO);
+#endif
+#if defined(LED_BLUE_GPIO)
+  if (blue) GPIO_LED_GPIO_ON(LED_BLUE_GPIO);
+#endif
+
+}
+
+__weak void ledRed()
+{
+  ledRgb(true, false, false);
 }
 
 __weak void ledGreen()
 {
-  ledOff();
-#if defined(LED_GREEN_GPIO)
-  GPIO_LED_GPIO_ON(LED_GREEN_GPIO);
-#endif
+  ledRgb(false, true, false);
 }
 
 __weak void ledBlue()
 {
-  ledOff();
-#if defined(LED_BLUE_GPIO)
-  GPIO_LED_GPIO_ON(LED_BLUE_GPIO);
-#endif
+  ledRgb(false, false, true);
+}
+
+__weak void ledYellow()
+{
+  ledRgb(true, true, false);
+}
+
+__weak void ledMagenta()
+{
+  ledRgb(true, false, true);
+}
+
+__weak void ledCyan()
+{
+  ledRgb(false, true, true);
+}
+
+__weak void ledWhite()
+{
+  ledRgb(true, true, true);
 }
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
