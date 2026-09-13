@@ -241,6 +241,7 @@ declare -a simulator_plugins=(
     nv14 el18 pl18 pl18ev pl18u st16 pa01
     f16 v12 v14 v14lcd v16
     c14
+    h17
 )
 
 get_platform_config

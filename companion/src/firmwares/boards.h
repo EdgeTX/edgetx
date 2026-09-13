@@ -102,6 +102,7 @@ namespace Board {
     BOARD_HELLORADIOSKY_V14,
     BOARD_HELLORADIOSKY_V14LCD,
     BOARD_IFLIGHT_COMMANDO14,
+    BOARD_SENDUWING_H17,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -514,6 +515,11 @@ inline bool IS_IFLIGHT_C14(Board::Type board)
   return board == Board::BOARD_IFLIGHT_COMMANDO14;
 }
 
+inline bool IS_SENDUWING_H17(Board::Type board)
+{
+  return (board == Board::BOARD_SENDUWING_H17);
+}
+
 inline bool IS_JUMPER_T12(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T12;
@@ -835,7 +841,7 @@ inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
   return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) ||
     IS_FLYSKY_NV14(board)/*generally*/ || IS_FLYSKY_EL18(board)/*generally*/
     || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)/*generally*/ || IS_FLYSKY_PA01(board)/*generally*/
-    || IS_IFLIGHT_C14(board);
+    || IS_IFLIGHT_C14(board) || IS_SENDUWING_H17(board)/*generally*/;
 }
 
 inline bool IS_HORUS_OR_TARANIS(Board::Type board)

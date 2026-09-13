@@ -89,6 +89,29 @@ void audioUnmute()
 }
 #endif
 
+// DAC output channel; a board on DAC1_OUT2 (PA5) sets AUDIO_DAC_CH 2 in hal.h
+#ifndef AUDIO_DAC_CH
+  #define AUDIO_DAC_CH 1
+#endif
+
+#define _AUDIO_DAC_CAT(a, b)  a##b
+#define _AUDIO_DAC_XCAT(a, b) _AUDIO_DAC_CAT(a, b)
+
+#define AUDIO_DAC_CHANNEL        _AUDIO_DAC_XCAT(LL_DAC_CHANNEL_, AUDIO_DAC_CH)
+#define AUDIO_DAC_DHR12L         _AUDIO_DAC_XCAT(DHR12L, AUDIO_DAC_CH)
+#define AUDIO_DAC_CR_EN          _AUDIO_DAC_XCAT(DAC_CR_EN, AUDIO_DAC_CH)
+#define AUDIO_DAC_CR_TEN         _AUDIO_DAC_XCAT(DAC_CR_TEN, AUDIO_DAC_CH)
+#define AUDIO_DAC_CR_DMAEN       _AUDIO_DAC_XCAT(DAC_CR_DMAEN, AUDIO_DAC_CH)
+#define AUDIO_DAC_SR_DMAUDR      _AUDIO_DAC_XCAT(DAC_SR_DMAUDR, AUDIO_DAC_CH)
+#define AUDIO_DAC_CLEAR_DMAUDR() _AUDIO_DAC_XCAT(LL_DAC_ClearFlag_DMAUDR, AUDIO_DAC_CH)(AUDIO_DAC)
+
+// Channel-2 control/trigger bits sit 16 bits above the channel-1 ones
+#if AUDIO_DAC_CH == 2
+  #define AUDIO_DAC_TRIGGER (DAC_TRIGGER << 16)
+#else
+  #define AUDIO_DAC_TRIGGER DAC_TRIGGER
+#endif
+
 #if defined(STM32H5) || defined(STM32H7) || defined(STM32H7RS)
 
 #define DAC_TRIGGER LL_DAC_TRIG_EXT_TIM6_TRGO
@@ -165,7 +188,7 @@ static void dac_dma_init()
   dmaInit.MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_HALFWORD;
   dmaInit.PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_HALFWORD;
   dmaInit.PeriphOrM2MSrcAddress = LL_DAC_DMA_GetRegAddr(
-      DAC1, LL_DAC_CHANNEL_1, LL_DAC_DMA_REG_DATA_12BITS_LEFT_ALIGNED);
+      AUDIO_DAC, AUDIO_DAC_CHANNEL, LL_DAC_DMA_REG_DATA_12BITS_LEFT_ALIGNED);
   dmaInit.MemoryOrM2MDstAddress = (uintptr_t)_dma_buffer;
   dmaInit.NbData = DMA_BUFFER_LEN;
 #elif defined(STM32H7RS)
@@ -215,10 +238,10 @@ static void dac_start_dma()
   LL_DMA_EnableStream(AUDIO_DMA, AUDIO_DMA_Stream);
 
   // clear underrun flag
-  LL_DAC_ClearFlag_DMAUDR1(AUDIO_DAC);
+  AUDIO_DAC_CLEAR_DMAUDR();
 
   // enable DAC
-  AUDIO_DAC->CR |= DAC_CR_EN1 | DAC_CR_DMAEN1;
+  AUDIO_DAC->CR |= AUDIO_DAC_CR_EN | AUDIO_DAC_CR_DMAEN;
 }
 
 void audioConsumeCurrentBuffer()
@@ -412,14 +435,14 @@ static void dac_periph_init()
   gpio_init_analog(AUDIO_OUTPUT_GPIO);
 
   // set data registre to silence
-  AUDIO_DAC->DHR12L1 = AUDIO_DATA_SILENCE;
+  AUDIO_DAC->AUDIO_DAC_DHR12L = AUDIO_DATA_SILENCE;
 
   // clear underrun flag
-  AUDIO_DAC->SR = DAC_SR_DMAUDR1;
+  AUDIO_DAC->SR = AUDIO_DAC_SR_DMAUDR;
 
   // use TIM6 TRGO as trigger
-  // enable DAC & channel 1 trigger
-  AUDIO_DAC->CR = DAC_CR_TEN1 | DAC_CR_EN1 | DAC_TRIGGER;
+  // enable DAC & channel trigger
+  AUDIO_DAC->CR = AUDIO_DAC_CR_TEN | AUDIO_DAC_CR_EN | AUDIO_DAC_TRIGGER;
 }
 
 // Configure DAC0

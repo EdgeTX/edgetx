@@ -154,6 +154,15 @@ POT_CONFIG = {
         "SL1": {"default": "SLIDER"},
         "SL2": {"default": "SLIDER"}
     },
+    "h17": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "MULTIPOS"},
+        "P3": {"default": "POT"},
+        "SL1": {"default": "POT"},
+        "SL2": {"default": "POT"},
+        "EXT1": {"default": "NONE"},
+        "EXT2": {"default": "NONE"}
+    },
     "tx15": {
         "P1": {"default": "POT"},
         "P2": {"default": "POT"},
