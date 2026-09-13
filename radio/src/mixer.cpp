@@ -716,13 +716,13 @@ int getSourceTrimOrigin(int source)
 
 int getSourceTrimValue(int source, int stickValue=0)
 {
-  auto origin = getSourceTrimOrigin(source);
+  int rv = 0;
+  auto origin = getSourceTrimOrigin(abs(source));
   if (origin >= 0) {
-    return getStickTrimValue(origin, stickValue);
+    rv = getStickTrimValue(origin, stickValue);
+    if (source < 0) rv = -rv;
   }
-  else {
-    return 0;
-  }
+  return rv;
 }
 
 constexpr bitfield_channels_t all_channels_dirty = (bitfield_channels_t)-1;
@@ -978,7 +978,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       if (applyOffsetAndCurve) {
         bool applyTrims = !(mode & e_perout_mode_notrims);
         if (!applyTrims && g_model.thrTrim) {
-          auto origin = getSourceTrimOrigin(srcRaw);
+          auto origin = getSourceTrimOrigin(srcRawAbs);
           if (origin == g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM) {
             applyTrims = true;
           }
