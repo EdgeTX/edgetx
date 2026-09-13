@@ -202,7 +202,13 @@ const char * const audioFilenames[] = {
   "mixwarn3",
   "timovr1",
   "timovr2",
+#if defined(VOICE_CONTROL_SENSOR)
+  "timovr3",
+  "helloradio",
+  "okay"
+#else
   "timovr3"
+#endif
 };
 
 constexpr unsigned int MAX_SWITCH_POSITIONS =
