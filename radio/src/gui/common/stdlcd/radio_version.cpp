@@ -165,7 +165,7 @@ if (event == EVT_ENTRY) {
       if (isModuleCrossfire(module)) {
         char statusText[64] = "";
         sprintf(statusText, "%d Hz"/* %" PRIu32" Err"*/,
-                1000000 / getMixerSchedulerPeriod()/*, UINT32_C(telemetryErrors)*/);
+                1000000 / getMixerSchedulerRealPeriod(module)/*, UINT32_C(telemetryErrors)*/);
         lcdDrawText(COLUMN2_X, y, statusText);
         y += FH;
         lcdDrawText(INDENT_WIDTH, y, crossfireModuleStatus[module].name);
