@@ -152,6 +152,7 @@ void applyDefaultTemplate()
   LayoutFactory::deleteCustomScreens();
   LayoutFactory::deleteTopBarWidgets();
 #endif
+  g_model.clearUserData();
 
   // enable switch warnings
   bool sw1found = false;

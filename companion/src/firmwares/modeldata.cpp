@@ -127,6 +127,11 @@ void ModelData::copy(const ModelData & src)
   checklistData = src.checklistData;
   updRefList = nullptr;
   memset(&updRefInfo, 0, sizeof(updRefInfo));
+  for (int i = 0; i < CPN_MAX_USER_DATA; i += 1) {
+    userData[i].type = src.userData[i].type;
+    userData[i].key = src.userData[i].key;
+    userData[i].value = src.userData[i].value;
+  }
 }
 
 ExpoData * ModelData::insertInput(const int idx)
@@ -356,6 +361,9 @@ void ModelData::clear()
 
   updRefList = nullptr;
   memset(&updRefInfo, 0, sizeof(updRefInfo));
+
+  for (int i = 0; i < CPN_MAX_USER_DATA; i += 1)
+    userData[i].clear();
 }
 
 bool ModelData::isEmpty() const
