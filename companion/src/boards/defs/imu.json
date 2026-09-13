@@ -1,0 +1,20 @@
+{
+  "adc_inputs": {
+    "inputs": [
+      {
+        "name": "TILT_X",
+        "type": "FLEX",
+        "label": "Tltx",
+        "short_label": "X",
+        "default": "AXIS_X"
+      },
+      {
+        "name": "TILT_Y",
+        "type": "FLEX",
+        "label": "Tlty",
+        "short_label": "Y",
+        "default": "AXIS_Y"
+      }
+    ]
+  }
+}

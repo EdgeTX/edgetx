@@ -107,9 +107,6 @@ int Firmware::getCapability(Capability value) const
   // this contains edgetx-<firmware id>[-option[-option]...]-<language>
   QStringList opts = g.currentProfile().fwType().split("-");
 
-  // TODO until Boards refactor
-  Board::Type board = Boards::getBoardForHwDefn(m_defn.hwdefn);
-
   switch (value) {
     case Capability::ChannelsName:
       return m_defn.outputs.nameLen;
@@ -140,7 +137,7 @@ int Firmware::getCapability(Capability value) const
     case Capability::HasFailsafe:
       return m_defn.failsafeChans;
     case Capability::HasFlySkyGimbals:
-      return opts.contains("flyskygimbals");  // || Boards::getCapability(board, Boards::HasFlyskyGimbals); TODO Need a solution
+      return opts.contains("flyskygimbals") || m_board->getCapability(Capability::HasFlySkyGimbals);
     case Capability::HasMixerNames:
       return m_defn.mixes.nameLen;
     case Capability::HasModelImage:
@@ -150,11 +147,11 @@ int Firmware::getCapability(Capability value) const
     case Capability::HasModelsList:
       return m_defn.modelsList;
     case Capability::HasVario:
-      return Boards::isAir(board);
+      return getCapability(Capability::Air);
     case Capability::HasVarioSink:
-      return Boards::isAir(board);
+      return getCapability(Capability::Air);
     case Capability::Heli:
-      return !(opts.contains("noheli") || Boards::getCapability(board, Board::Surface));
+      return !(opts.contains("noheli") || getCapability(Capability::Surface));
     case Capability::Inputs:
       return m_defn.inputs.cnt;
     case Capability::InputsName:
@@ -230,7 +227,7 @@ int Firmware::getCapability(Capability value) const
       return getCapability(Capability::Inputs);
 
     default:
-      return 0;
+      m_board->getCapability(value);
   }
 }
 
@@ -344,25 +341,25 @@ bool Firmware::loadDefinition(const QString & path)
       continue;
 
     if (it.key() == "id")
-      m_defn.id = getValueString(o, it.key());
+      m_defn.id = getValueString(it);
     else if (it.key() == "name")
-      m_defn.name = getValueString(o, it.key());
+      m_defn.name = getValueString(it);
     else if (it.key() == "board")
-      m_defn.bddefn = getValueString(o, it.key());
+      m_defn.bddefn = getValueString(it);
     else if (it.key() == "dwnldId")
-      m_defn.dwnldId = getValueString(o, it.key());
+      m_defn.dwnldId = getValueString(it);
     else if (it.key() == "simulatorId")
-      m_defn.simuId = getValueString(o, it.key());
+      m_defn.simuId = getValueString(it);
     else if (it.key() == "hwm_defnId")
-      m_defn.hwdefn = getValueString(o, it.key());
+      m_defn.hwdefn = getValueString(it);
     else if (it.key() == "categories")
-      m_defn.categories = getValueBool(o, it.key(), m_defn.categories);
+      m_defn.categories = getValueBool(it, m_defn.categories);
     else if (it.key() == "gvars")
       loadGroup(it, m_defn.gvars, CPN_MAX_GVARS, 3);
     else if (it.key() == "inputs")
       loadGroup(it, m_defn.inputs, CPN_MAX_INPUTS, 3);
     else if (it.key() == "keyShortcuts")
-      m_defn.keyShortcuts = getValueInt(o, it.key());
+      m_defn.keyShortcuts = getValueInt(it);
     else if (it.key() == "logicalSW")
       loadGroup(it, m_defn.logicalSW, CPN_MAX_LOGICAL_SWITCHES, 3);
     else if (it.key() == "luaScripts")
@@ -370,9 +367,9 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "modelImage")
       loadModelImage(it);
     else if (it.key() == "modelNameLen")
-      m_defn.modelNameLen = getValueInt(o, it.key());
+      m_defn.modelNameLen = getValueInt(it);
     else if (it.key() == "modelSlots")
-      m_defn.modelSlots = getValueInt(o, it.key());
+      m_defn.modelSlots = getValueInt(it);
     else if (it.key() == "modes")
       loadGroup(it, m_defn.modes, CPN_MAX_FLIGHT_MODES, 3);
     else if (it.key() == "mixes")
@@ -380,7 +377,7 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "outputs")
       loadOutputs(it);
     else if (it.key() == "quickMenuFavs")
-      m_defn.quickMenuFavs = getValueInt(o, it.key());
+      m_defn.quickMenuFavs = getValueInt(it);
     else if (it.key() == "sensors")
       loadGroup(it, m_defn.sensors, CPN_MAX_SENSORS, 3);
     else if (it.key() == "timers")
@@ -403,11 +400,11 @@ void Firmware::loadCurves(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "cnt")
-        crv.cnt = getValueInt(o, it.key(), crv.cnt, CPN_MAX_CURVES);
+        crv.cnt = getValueInt(it, crv.cnt, CPN_MAX_CURVES);
       else if (it.key() == "nameLen")
-        crv.nameLen = getValueInt(o, it.key(), crv.nameLen, 5);
+        crv.nameLen = getValueInt(it, crv.nameLen, 5);
       else if (it.key() == "points")
-        crv.points = getValueInt(o, it.key(), crv.points, 512);
+        crv.points = getValueInt(it, crv.points, 512);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -424,9 +421,9 @@ void Firmware::loadGroup(QJsonObject::const_iterator & grpit, BaseGrp & grp,
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "cnt")
-        grp.cnt = getValueInt(o, it.key(), grp.cnt, cntMax, cntMin);
+        grp.cnt = getValueInt(it, grp.cnt, cntMax, cntMin);
       else if (it.key() == "nameLen")
-        grp.nameLen = getValueInt(o, it.key(), grp.nameLen, nameLenMax, nameLenMin);
+        grp.nameLen = getValueInt(it, grp.nameLen, nameLenMax, nameLenMin);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -442,11 +439,11 @@ void Firmware::loadLuaScripts(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "cnt")
-        lua.cnt = getValueInt(o, it.key(), lua.cnt, CPN_MAX_SCRIPTS);
+        lua.cnt = getValueInt(it, lua.cnt, CPN_MAX_SCRIPTS);
       else if (it.key() == "inputs")
-        lua.inputs = getValueInt(o, it.key(), lua.inputs, CPN_MAX_SCRIPT_INPUTS);
+        lua.inputs = getValueInt(it, lua.inputs, CPN_MAX_SCRIPT_INPUTS);
       else if (it.key() == "outputs")
-        lua.outputs = getValueInt(o, it.key(), lua.outputs, CPN_MAX_SCRIPT_OUTPUTS);
+        lua.outputs = getValueInt(it, lua.outputs, CPN_MAX_SCRIPT_OUTPUTS);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -462,13 +459,13 @@ void Firmware::loadModelImage(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "filters")
-        mi.filters = getValueString(o, it.key(), mi.filters);
+        mi.filters = getValueString(it, mi.filters);
       else if (it.key() == "image")
-        mi.image = getValueBool(o, it.key(), mi.image);
+        mi.image = getValueBool(it, mi.image);
       else if (it.key() == "keepExtn")
-        mi.keepExtn = getValueBool(o, it.key(), mi.keepExtn);
+        mi.keepExtn = getValueBool(it, mi.keepExtn);
       else if (it.key() == "nameLen")
-        mi.nameLen = getValueInt(o, it.key(), mi.nameLen, 14);
+        mi.nameLen = getValueInt(it, mi.nameLen, 14);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -532,13 +529,13 @@ void Firmware::loadOutputs(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "cnt")
-        out.cnt = getValueInt(o, it.key(), out.cnt, CPN_MAX_CHNOUT);
+        out.cnt = getValueInt(it, out.cnt, CPN_MAX_CHNOUT);
       else if (it.key() == "nameLen")
-        out.nameLen = getValueInt(o, it.key(), out.nameLen, 6);
+        out.nameLen = getValueInt(it, out.nameLen, 6);
       else if (it.key() == "ppmCenter")
-        out.ppmCenter = getValueInt(o, it.key(), out.ppmCenter, 512);
+        out.ppmCenter = getValueInt(it, out.ppmCenter, 512);
       else if (it.key() == "ppmFrameLen")
-        out.ppmFrameLen = getValueInt(o, it.key(), out.ppmFrameLen, 40);
+        out.ppmFrameLen = getValueInt(it, out.ppmFrameLen, 40);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -554,13 +551,13 @@ void Firmware::loadTeleCstmScrns(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "cnt")
-        tele.cnt = getValueInt(o, it.key(), tele.cnt, 3);
+        tele.cnt = getValueInt(it, tele.cnt, 3);
       else if (it.key() == "bars")
-        tele.bars = getValueInt(o, it.key(), tele.bars, 4);
+        tele.bars = getValueInt(it, tele.bars, 4);
       else if (it.key() == "perLine")
-        tele.perLine = getValueInt(o, it.key(), tele.perLine, 3);
+        tele.perLine = getValueInt(it, tele.perLine, 3);
       else if (it.key() == "lines")
-        tele.lines = getValueInt(o, it.key(), tele.lines, 4);
+        tele.lines = getValueInt(it, tele.lines, 4);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }

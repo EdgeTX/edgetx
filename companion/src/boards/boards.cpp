@@ -1185,7 +1185,7 @@ bool Boards::loadDefinition(const QString & path)
       loadLEDS(it);
 
     else if (it.key() == "backlight")
-      m_display.backlight_color = getValueBool(o, it.key());
+      m_display.backlight_color = getValueBool(it);
 
     else if (it.key() == "key_lock_combo")
       m_hasKeyLockCombo = (it->isArray() && it->toArray().size() == 2 ? true : m_hasKeyLockCombo);
@@ -1199,6 +1199,23 @@ bool Boards::loadDefinition(const QString & path)
 
 void Boards::loadADCInputs(QJsonObject::const_iterator & oit)
 {
+  if (oit->isObject()) {
+    const QJsonObject &o = oit->toObject();
+
+    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      if (it.key() == "acds")
+        continue;
+      else if (it.key() == "inputs")
+        loadInputs(it);
+      else
+        qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+    }
+  } else
+        qWarning() << "Warning: adc_inputs is not an object" << *oit;
+}
+
+void Boards::loadInputs(QJsonObject::const_iterator & oit)
+{
   if (oit->isArray()) {
     const QJsonArray &a = oit->toArray();
 
@@ -1210,26 +1227,26 @@ void Boards::loadADCInputs(QJsonObject::const_iterator & oit)
         for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
           //qDebug() << "key:" << it.key() << "value:" << it.value();
           if (it.key() == "name")
-            defn.name = getValueStdString(o, it.key(), defn.name);
+            defn.name = getValueStdString(it, defn.name);
 
           else if (it.key() == "type") {
-            std::string type = getValueStdString(o, it.key());
+            std::string type = getValueStdString(it);
             defn.type = (Board::AnalogInputType)DataHelpers::getStringTagMappingIndex(inputTypesLookupTable, type.c_str());
             if (defn.type == Board::AIT_STICK)
               defn.refYaml = Board::LVT_NAME;
           }
 
           else if (it.key() == "inverted")
-            defn.inverted = getValueBool(o, it.key(), defn.inverted);
+            defn.inverted = getValueBool(it, defn.inverted);
 
           else if (it.key() == "label")
-            defn.name = getValueStdString(o, it.key(), defn.name);
+            defn.name = getValueStdString(it, defn.name);
 
           else if (it.key() == "short_label")
-            defn.shortName = getValueStdString(o, it.key(), defn.shortName);
+            defn.shortName = getValueStdString(it, defn.shortName);
 
           else if (it.key() == "default") {
-            std::string dflt = getValueStdString(o, it.key());
+            std::string dflt = getValueStdString(it);
 
             if (defn.type == Board::AIT_FLEX) {
               int idx = DataHelpers::getStringTagMappingIndex(flexTypesLookupTable, dflt.c_str());
@@ -1243,10 +1260,10 @@ void Boards::loadADCInputs(QJsonObject::const_iterator & oit)
 
         m_inputs.insert(m_inputs.end(), defn);
       } else
-        qWarning() << "Warning: adc_input is not an object" << *it;
+        qWarning() << "Warning: input is not an object" << *it;
     }
   } else
-        qWarning() << "Warning: adc_inputs is not an array" << *oit;
+        qWarning() << "Warning: inputs is not an array" << *oit;
 }
 
 void Boards::loadSwitches(QJsonObject::const_iterator & oit)
@@ -1262,10 +1279,10 @@ void Boards::loadSwitches(QJsonObject::const_iterator & oit)
         for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
           //qDebug() << "key:" << it.key() << "value:" << it.value();
           if (it.key() == "name")
-            sw.name = getValueStdString(o, it.key(), sw.name);
+            sw.name = getValueStdString(it, sw.name);
 
           else if (it.key() == "type") {
-            std::string type = getValueStdString(o, it.key());
+            std::string type = getValueStdString(it);
             int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable, type.c_str());
             sw.type = idx < 0 ? Board::SWITCH_NOT_AVAILABLE : (Board::SwitchType)idx;
           }
@@ -1274,10 +1291,10 @@ void Boards::loadSwitches(QJsonObject::const_iterator & oit)
             sw.flags = o.value("flags").toInt();
 
           else if (it.key() == "inverted")
-            sw.inverted = getValueBool(o, it.key());
+            sw.inverted = getValueBool(it);
 
           else if (it.key() == "default") {
-            std::string dflt = getValueStdString(o, it.key());
+            std::string dflt = getValueStdString(it);
             int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable, dflt.c_str());
             sw.dflt = idx < 0 ? Board::SWITCH_NOT_AVAILABLE : (Board::SwitchType)idx;
           }
@@ -1296,10 +1313,10 @@ void Boards::loadSwitches(QJsonObject::const_iterator & oit)
           }
 
           else if (it.key() == "is_cfs")
-            sw.isCustomSwitch = getValueBool(o, it.key(), sw.isCustomSwitch);
+            sw.isCustomSwitch = getValueBool(it, sw.isCustomSwitch);
 
           else if (it.key() == "cfs_idx")
-            sw.customSwitchIdx = getValueBool(o, it.key(), sw.customSwitchIdx);
+            sw.customSwitchIdx = getValueBool(it, sw.customSwitchIdx);
 
           else
             qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
@@ -1338,13 +1355,13 @@ void Boards::loadKeys(QJsonObject::const_iterator & oit)
         for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
           //qDebug() << "key:" << it.key() << "value:" << it.value();
           if (it.key() == "name")
-            k.name = getValueStdString(o, it.key(), k.name);
+            k.name = getValueStdString(it, k.name);
 
           else if (it.key() == "key")
-            k.key = getValueStdString(o, it.key(), k.key);
+            k.key = getValueStdString(it, k.key);
 
           else if (it.key() == "label")
-            k.label = getValueStdString(o, it.key(), k.label);
+            k.label = getValueStdString(it, k.label);
 
           else
             qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
@@ -1372,7 +1389,7 @@ void Boards::loadTrims(QJsonObject::const_iterator & oit)
         for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
           //qDebug() << "key:" << it.key() << "value:" << it.value();
           if (it.key() == "name")
-            t.name = getValueStdString(o, it.key(), t.name);
+            t.name = getValueStdString(it, t.name);
 
           else
             qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
@@ -1395,22 +1412,22 @@ void Boards::loadDisplay(QJsonObject::const_iterator & it)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       //qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "lcd_depth")
-        m_display.depth = getValueInt(o, it.key(), m_display.depth);
+        m_display.depth = getValueInt(it, m_display.depth);
 
       else if (it.key() == "lcd_h")
-        m_display.h = getValueInt(o, it.key(), m_display.h);
+        m_display.h = getValueInt(it, m_display.h);
 
       else if (it.key() == "lcd_w")
-        m_display.w = getValueInt(o, it.key(), m_display.w);
+        m_display.w = getValueInt(it, m_display.w);
 
       else if (it.key() == "lcd_phys_h")
-        m_display.phys_h = getValueInt(o, it.key(), m_display.phys_h);
+        m_display.phys_h = getValueInt(it, m_display.phys_h);
 
       else if (it.key() == "lcd_phys_w")
-        m_display.phys_w = getValueInt(o, it.key(), m_display.phys_w);
+        m_display.phys_w = getValueInt(it, m_display.phys_w);
 
       else if (it.key() == "oled_screen")
-        m_display.oled = getValueBool(o, it.key(), m_display.oled);
+        m_display.oled = getValueBool(it, m_display.oled);
 
       else
         qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
@@ -1433,13 +1450,13 @@ void Boards::loadLEDS(QJsonObject::const_iterator & it)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       //qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "bling_led_strip_length")
-        m_hardware.has_bling_leds = getValueInt(o, it.key(), m_hardware.has_bling_leds);
+        m_hardware.has_bling_leds = getValueInt(it, m_hardware.has_bling_leds);
 
       else if (it.key() == "cfs_leds_per_switch")
-        cfs_leds_per_switch = getValueInt(o, it.key(), 0);
+        cfs_leds_per_switch = getValueInt(it, 0);
 
       else if (it.key() == "cfs_led_strip_length")
-        cfs_led_strip_length = getValueInt(o, it.key(), 0);
+        cfs_led_strip_length = getValueInt(it, 0);
 
       else
         qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
@@ -1460,25 +1477,25 @@ void Boards::loadHardware(QJsonObject::const_iterator & it)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       //qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "has_audio_mute")
-        m_hardware.has_audio_mute = getValueBool(o, it.key(), m_hardware.has_audio_mute);
+        m_hardware.has_audio_mute = getValueBool(it, m_hardware.has_audio_mute);
 
       else if (it.key() == "has_ext_module_support")
-        m_hardware.has_ext_module_support = getValueBool(o, it.key(), m_hardware.has_ext_module_support);
+        m_hardware.has_ext_module_support = getValueBool(it, m_hardware.has_ext_module_support);
 
       else if (it.key() == "has_int_module_support")
-        m_hardware.has_int_module_support = getValueBool(o, it.key(), m_hardware.has_int_module_support);
+        m_hardware.has_int_module_support = getValueBool(it, m_hardware.has_int_module_support);
 
       else if (it.key() == "sport_max_baudrate")
-        m_hardware.sport_max_baudrate = getValueInt(o, it.key(), m_hardware.sport_max_baudrate, 999999);
+        m_hardware.sport_max_baudrate = getValueInt(it, m_hardware.sport_max_baudrate, 999999);
 
       else if (it.key() == "surface")
-        m_hardware.surface = getValueBool(o, it.key(), m_hardware.surface);
+        m_hardware.surface = getValueBool(it, m_hardware.surface);
 
       else if (it.key() == "cpu")
-        m_hardware.cpu = getValueStdString(o, it.key(), m_hardware.cpu);
+        m_hardware.cpu = getValueStdString(it, m_hardware.cpu);
 
       else if (it.key() == "cpu_type")
-        m_hardware.cpu_type = getValueStdString(o, it.key(), m_hardware.cpu_type);
+        m_hardware.cpu_type = getValueStdString(it, m_hardware.cpu_type);
 
       else
         qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
@@ -1489,60 +1506,13 @@ void Boards::loadHardware(QJsonObject::const_iterator & it)
 
 void Boards::postLoadFixups()
 {
-  // TODO put in bddefn file !!!!!!
-  // TODO json files do not contain gyro defs
-  // Radio cmake directive IMU is currently used
-  if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board) ||
-      IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board) ||
-      IS_RADIOMASTER_TX16SMK3(board) || IS_FLYSKY_PA01(board)) {
-    if (getInputIndex(inputs, "TILT_X", Board::LVT_TAG) < 0) {
-      InputDefn defn;
-      defn.type = AIT_FLEX;
-      defn.tag = "TILT_X";
-      defn.name = "Tltx";
-      defn.shortName = "X";
-      defn.flexType = FLEX_AXIS_X;
-      defn.inverted = false;
-      defn.cfgYaml = Board::LVT_TAG;
-      defn.refYaml = Board::LVT_TAG;  //  non-default
-      inputs->insert(inputs->end(), defn);
-    }
-
-    if (getInputIndex(inputs, "TILT_Y", Board::LVT_TAG) < 0) {
-      InputDefn defn;
-      defn.type = AIT_FLEX;
-      defn.tag = "TILT_Y";
-      defn.name = "Tlty";
-      defn.shortName = "Y";
-      defn.flexType = FLEX_AXIS_Y;
-      defn.inverted = false;
-      defn.cfgYaml = Board::LVT_TAG;
-      defn.refYaml = Board::LVT_TAG;  //  non-default
-      inputs->insert(inputs->end(), defn);
-    }
-  }
-
   // Set default labels for LUX inputs if not provided by JSON
   for (auto &defn : m_inputs) {
-    if (defn.type == AIT_LUX) {
+    if (defn.type == Board::AIT_LUX) {
       if (defn.name.empty())
         defn.name = "Ambient light";
       if (defn.shortName.empty())
         defn.shortName = "Light";
-    }
-  }
-
-  // TODO put in dbdefn file
-  //  Flex switches are not listed in json file for these radios
-  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_MT12(board) ? 2 : 0;
-
-  for (int i = 1; i <= count; i++) {
-    QString tag = QString("FL%1").arg(i);
-    if (getSwitchIndex(switches, tag, Board::LVT_TAG) < 0) {
-      SwitchDefn defn;
-      defn.tag = tag.toStdString();
-      defn.name = defn.tag;
-      switches->insert(switches->end(), defn);
     }
   }
 
@@ -1551,7 +1521,6 @@ void Boards::postLoadFixups()
     if (m_inputs.at(i).name.empty())
       m_inputs.at(i).name = DataHelpers::getStringTagMappingName(stickNamesLookupTable, m_inputs.at(i).tag.c_str());
   }
-
 }
 
 void Boards::setInputCounts()

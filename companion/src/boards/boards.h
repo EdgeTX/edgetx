@@ -559,6 +559,7 @@ class Boards : public JsonBase
     bool loadDefinition(const QString & path);
 
     void loadADCInputs(QJsonObject::const_iterator & it);
+    void loadInputs(QJsonObject::const_iterator & it);
     void loadDisplay(QJsonObject::const_iterator & it);
     void loadHardware(QJsonObject::const_iterator & it);
     void loadKeys(QJsonObject::const_iterator & it);

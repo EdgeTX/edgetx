@@ -1,6 +1,7 @@
 {
   "basedOn": [
-    "tx16s"
+    "tx16s",
+    "imu"
   ],
   "id": "tx16smk3",
   "name": "TX16S Mark 3"

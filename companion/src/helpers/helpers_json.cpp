@@ -36,6 +36,16 @@ const QVariant JsonBase::getValue(const QJsonObject & obj, const QString & name,
   return isvalid ? obj.value(name).toVariant() : dflt;
 }
 
+const bool JsonBase::getValueBool(const QJsonObject::const_iterator & it, const bool dflt)
+{
+  bool isvalid = it.value().isBool();
+
+  if (!isvalid)
+    qWarning() << "Warning: value type not a boolean";
+
+  return isvalid ? it.value().toBool() : dflt;
+}
+
 const bool JsonBase::getValueBool(const QJsonObject & obj, const QString & name,
                                   const bool dflt)
 {
@@ -45,6 +55,21 @@ const bool JsonBase::getValueBool(const QJsonObject & obj, const QString & name,
     qWarning() << "Warning: name:" << name << "not found and/or value type not a boolean";
 
   return isvalid ? obj.value(name).toBool() : dflt;
+}
+
+const int JsonBase::getValueInt(const QJsonObject::const_iterator & it,
+                                const int dflt, const int max, const int min)
+{
+  bool isvalid = it.value().isDouble();
+  int value = isvalid ? it.value().toInt() : 0;
+
+  if (!isvalid)
+    qWarning() << "Warning: value type not an integer";
+
+  if (min > max)
+    qWarning() << "Warning: range check ignored as min:" << min << "exceeds max:" << max;
+
+  return (isvalid && (min < max ? value >= min && value <= max : true)) ? value : dflt;
 }
 
 const int JsonBase::getValueInt(const QJsonObject & obj, const QString & name,
@@ -62,6 +87,17 @@ const int JsonBase::getValueInt(const QJsonObject & obj, const QString & name,
   return (isvalid && (min < max ? value >= min && value <= max : true)) ? value : dflt;
 }
 
+const std::string JsonBase::getValueStdString(const QJsonObject::const_iterator & it,
+                                              const std::string & dflt)
+{
+  bool isvalid = it.value().isString();
+
+  if (!isvalid)
+    qWarning() << "Warning: value type not a string";
+
+  return isvalid ? it.value().toString().toStdString() : dflt;
+}
+
 const std::string JsonBase::getValueStdString(const QJsonObject & obj, const QString & name,
                                               const std::string & dflt)
 {
@@ -71,6 +107,17 @@ const std::string JsonBase::getValueStdString(const QJsonObject & obj, const QSt
     qWarning() << "Warning: name:" << name << "not found and/or value type not a string";
 
   return isvalid ? obj.value(name).toString().toStdString() : dflt;
+}
+
+const QString JsonBase::getValueString(const QJsonObject::const_iterator & it,
+                                       const QString & dflt)
+{
+  bool isvalid = it.value().isString();
+
+  if (!isvalid)
+    qWarning() << "Warning: value type not a string";
+
+  return isvalid ? it.value().toString() : dflt;
 }
 
 const QString JsonBase::getValueString(const QJsonObject & obj, const QString & name,

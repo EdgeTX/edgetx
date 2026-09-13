@@ -176,8 +176,8 @@ class Firmware : public JsonBase
 
     // ========================
     // until Boards refactored
-    Board::Type getBoard() const { return getBoardForHwDefn(m_defn.hwdefn)->id(); }
-    Board::Type getBoardId() const { return getBoardForHwDefn(m_defn.hwdefn)->id(); }
+    Board::Type getBoard() const { return getBoardForHwDefn(m_defn.hwdefn)->getId(); }
+    Board::Type getBoardId() const { return getBoardForHwDefn(m_defn.hwdefn)->getId(); }
     Boards* getBoardInstance() const { return m_board; }
     // ========================
 
