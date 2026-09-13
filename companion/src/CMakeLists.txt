@@ -207,6 +207,7 @@ add_subdirectory(generaledit)
 add_subdirectory(modeledit)
 add_subdirectory(print)
 add_subdirectory(progress)
+add_subdirectory(prefsedit)
 add_subdirectory(shared)
 add_subdirectory(simulation)
 add_subdirectory(storage)
@@ -219,7 +220,6 @@ add_subdirectory(wizard)
 include_directories(${maxLibQt_SOURCE_DIR}/widgets)
 
 set(companion_NAMES
-  apppreferencesdialog
   helpers_html
   labels
   logsdialog
@@ -268,6 +268,7 @@ target_link_libraries(${COMPANION_NAME} PRIVATE
   flash
   wizard
   print
+  prefsedit
 )
 
 PrintTargetReport("${COMPANION_NAME}")

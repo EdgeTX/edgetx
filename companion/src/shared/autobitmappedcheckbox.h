@@ -36,8 +36,8 @@ class AutoBitMappedCheckBox : public QCheckBox, public AutoWidget
     virtual void updateValue() override;
     void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
 
-    void setField(int & field, GenericPanel * panel = nullptr, bool invert = false);
-    void setField(unsigned int & field, GenericPanel * panel = nullptr, bool invert = false);
+    void setField(int & field, AbstractPanel * panel = nullptr, bool invert = false);
+    void setField(unsigned int & field, AbstractPanel * panel = nullptr, bool invert = false);
     void setInvert(bool invert);
     void setBits(const unsigned int numBits = 1, const unsigned int offsetBits = 0, const unsigned int index = 0,
                  const unsigned int indexBits = 1);

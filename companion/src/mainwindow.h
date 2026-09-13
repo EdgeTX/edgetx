@@ -104,9 +104,9 @@ class MainWindow : public QMainWindow
     void copyProfile();
     void deleteProfile(const int pid);
     void deleteCurrentProfile();
-    void editAppSettings();
-    void exportAppSettings();
-    void importAppSettings();
+    void editPreferences();
+    void exportPreferences();
+    void importPreferences();
     void autoClose();
     void chooseProfile();
     void autoCheckForUpdates();
@@ -199,7 +199,7 @@ class MainWindow : public QMainWindow
     QAction *closeAct;
     QAction *recentFilesAct;
     QAction *exitAct;
-    QAction *editAppSettingsAct;
+    QAction *editPreferencesAct;
     QAction *updatesAct;
     QAction *manualChkForUpdAct;
     QAction *sdsyncAct;
@@ -219,8 +219,8 @@ class MainWindow : public QMainWindow
     QAction *createProfileAct;
     QAction *copyProfileAct;
     QAction *deleteProfileAct;
-    QAction *exportAppSettingsAct;
-    QAction *importAppSettingsAct;
+    QAction *exportPreferencesAct;
+    QAction *importPreferencesAct;
     QAction *tabbedWindowsAct;
     QAction *tileWindowsAct;
     QAction *cascadeWindowsAct;

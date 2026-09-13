@@ -30,14 +30,14 @@ class AutoLabel: public QLabel, public AutoWidget
   Q_OBJECT
 
   public:
-    explicit AutoLabel(QWidget * parent = nullptr);
+    explicit AutoLabel(QWidget * parent = nullptr, const QString & text = QString());
     virtual ~AutoLabel();
 
     virtual void updateValue() override;
     void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
 
-    void setField(char * field, GenericPanel * panel = nullptr);
-    void setField(QString & field, GenericPanel * panel = nullptr);
+    void setField(char * field, AbstractPanel * panel = nullptr);
+    void setField(QString & field, AbstractPanel * panel = nullptr);
     void setWidth(int numChars);
 
   protected:

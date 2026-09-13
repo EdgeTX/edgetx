@@ -28,7 +28,7 @@ AutoBitsetCheckBox::AutoBitsetCheckBox(QWidget * parent) :
 
 AutoBitsetCheckBox::AutoBitsetCheckBox(const QString & text, QWidget * parent) :
   QCheckBox(text, parent),
-  AutoWidget()
+  AutoWidget(parent)
 {
   init();
 }

@@ -418,6 +418,7 @@ class Boards
     const QString getCapabilityStr(Board::Capability capability) const { return getCapabilityStr(m_boardType, capability); }
     const bool isBoardCompatible(Board::Type board2) const { return isBoardCompatible(m_boardType, board2); }
 
+    static QString getManufacturer(Board::Type board);
     static uint32_t getFourCC(Board::Type board);
     static int getEEpromSize(Board::Type board);
     static int getFlashSize(Board::Type board);

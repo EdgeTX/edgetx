@@ -37,8 +37,11 @@ class AutoSpinBox : public QSpinBox, public AutoWidget
     void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
     void setBindText(std::function<QString()> fn) = delete;
 
-    void setField(int & field, GenericPanel * panel = nullptr);
-    void setField(unsigned int & field, GenericPanel * panel = nullptr);
+    void setField(int & field, AbstractPanel * panel = nullptr);
+    void setField(unsigned int & field, AbstractPanel * panel = nullptr);
+    // use for widget not bound to a memory address
+    void setValue(int val, AbstractPanel * panel);
+    void setValue(int val);
 
   signals:
     void currentDataChanged(int value);
@@ -48,6 +51,7 @@ class AutoSpinBox : public QSpinBox, public AutoWidget
 
   private:
     int *m_field;
+    int m_value;
 
-    void setFieldInit(GenericPanel * panel);
+    void setFieldInit(AbstractPanel * panel);
 };

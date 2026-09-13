@@ -44,12 +44,15 @@
 #include <QPropertyAnimation>
 
 AutoCollapsibleSection::AutoCollapsibleSection(QWidget * parent) :
-  QWidget(parent)
+  QWidget(parent),
+  AutoWidget(parent),
+  fnResize(nullptr)
 {
   toggleButton = new QToolButton(this);
   headerLine = new QFrame(this);
   toggleAnimation = new QParallelAnimationGroup(this);
   contentArea = new QScrollArea(this);
+  contentAreaLayout = new QGridLayout();
   mainLayout = new QGridLayout(this);
 
   toggleButton->setStyleSheet("QToolButton {border: none;}");
@@ -64,6 +67,7 @@ AutoCollapsibleSection::AutoCollapsibleSection(QWidget * parent) :
   headerLine->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
 
   contentArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+  contentArea->setFrameStyle(QFrame::NoFrame);
 
   // start out collapsed
   contentArea->setMaximumHeight(0);
@@ -84,12 +88,40 @@ AutoCollapsibleSection::AutoCollapsibleSection(QWidget * parent) :
   setLayout(mainLayout);
 
   connect(toggleButton, &QToolButton::toggled, this, &AutoCollapsibleSection::toggle);
-  connect(toggleAnimation, &QParallelAnimationGroup::finished, [this] () { emit resized(); });
+  connect(toggleAnimation, &QParallelAnimationGroup::finished, [this] ()
+  {
+    if (fnResize) fnResize();
+    emit resized();
+  });
+}
+
+QGridLayout * AutoCollapsibleSection::start(const QString & title)
+{
+  setTitle(title);
+  return contentAreaLayout;
+}
+
+void AutoCollapsibleSection::finish(int springRow, int springCol, std::function<void()> fnResize, bool expand)
+{
+  if (springRow >= 0 && springCol >= 0) {
+    QSpacerItem * spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum );
+    contentAreaLayout->addItem(spacer, springRow, springCol);
+  }
+
+  // attach after constructed for better sizing
+  setContentLayout(*contentAreaLayout);
+  setBindResize(fnResize);
+  toggleButton->setChecked(expand);
 }
 
 void AutoCollapsibleSection::setAnimationDuration(const int duration)
 {
   animationDuration = duration;
+}
+
+void AutoCollapsibleSection::setBindResize(std::function<void()> fn)
+{
+  fnResize = std::move(fn);
 }
 
 void AutoCollapsibleSection::setContentLayout(QLayout & contentLayout)
