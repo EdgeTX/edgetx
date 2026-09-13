@@ -85,6 +85,55 @@ static uint32_t stm32_flash_get_sector_size(uint32_t sector)
   return 128 * 1024;
 }
 
+#define FLASH_TIMEOUT_MS 15000
+
+static bool flash_drv_wait_last_op()
+{
+  CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+  DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+
+  uint32_t start = DWT->CYCCNT;
+  uint32_t timeout_cycles =
+      (uint32_t)(FLASH_TIMEOUT_MS * (SystemCoreClock / 1000UL));
+
+  while (__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY)) {
+    if ((DWT->CYCCNT - start) > timeout_cycles) {
+      __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_WRPERR |
+                             FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR |
+                             FLASH_FLAG_PGSERR);
+      return false;
+    }
+  }
+
+  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP);
+
+  if (__HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR |
+                           FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR)) {
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR |
+                           FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR |
+                           FLASH_FLAG_EOP);
+    return false;
+  }
+
+  return true;
+}
+
+static void flash_drv_flush_caches()
+{
+  if (FLASH->ACR & FLASH_ACR_ICEN) {
+    FLASH->ACR &= ~FLASH_ACR_ICEN;
+    FLASH->ACR |= FLASH_ACR_ICRST;
+    FLASH->ACR &= ~FLASH_ACR_ICRST;
+    FLASH->ACR |= FLASH_ACR_ICEN;
+  }
+  if (FLASH->ACR & FLASH_ACR_DCEN) {
+    FLASH->ACR &= ~FLASH_ACR_DCEN;
+    FLASH->ACR |= FLASH_ACR_DCRST;
+    FLASH->ACR &= ~FLASH_ACR_DCRST;
+    FLASH->ACR |= FLASH_ACR_DCEN;
+  }
+}
+
 #elif defined(STM32H7) || defined(STM32H7RS)
 
 static uint32_t stm32_flash_get_sector(uint32_t address)
@@ -129,6 +178,40 @@ static inline void stm32_flash_lock() { HAL_FLASH_Lock(); }
 
 static int stm32_flash_erase_sector(uint32_t address)
 {
+  int ret = 0;
+
+#if defined(STM32F2) || defined(STM32F4)
+
+  uint32_t sector = stm32_flash_get_sector(address);
+
+  __disable_irq();
+  __DSB();
+
+  stm32_flash_unlock();
+
+  if (sector > 11) sector += 4;
+
+  CLEAR_BIT(FLASH->CR, FLASH_CR_PSIZE);
+  FLASH->CR |= FLASH_PSIZE_WORD;
+  CLEAR_BIT(FLASH->CR, FLASH_CR_SNB);
+  FLASH->CR |= FLASH_CR_SER | (sector << FLASH_CR_SNB_Pos);
+  FLASH->CR |= FLASH_CR_STRT;
+
+  if (!flash_drv_wait_last_op()) {
+    ret = -1;
+  }
+
+  CLEAR_BIT(FLASH->CR, FLASH_CR_SER | FLASH_CR_SNB);
+
+  __DSB();
+  __enable_irq();
+
+  flash_drv_flush_caches();
+
+  stm32_flash_lock();
+
+#else
+
   FLASH_EraseInitTypeDef eraseInit;
   eraseInit.TypeErase = FLASH_TYPEERASE_SECTORS;
   eraseInit.Sector = stm32_flash_get_sector(address);
@@ -142,15 +225,19 @@ static int stm32_flash_erase_sector(uint32_t address)
   eraseInit.VoltageRange = FLASH_VOLTAGE_RANGE_3;
 #endif
 
-  int ret = 0;
   uint32_t sector_errors = 0;
 
+  __disable_irq();
   stm32_flash_unlock();
   if (HAL_FLASHEx_Erase(&eraseInit, &sector_errors) != HAL_OK) {
     ret = -1;
   }
 
   stm32_flash_lock();
+  __enable_irq();
+
+#endif
+
   return ret;
 }
 
@@ -162,18 +249,49 @@ static int stm32_flash_erase_sector(uint32_t address)
   #define FLASH_PROG_WORDS 4UL
   #define _FLASH_PROGRAM(address, p_data) \
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_QUADWORD, address, (uintptr_t)p_data)
-#else
-  #define FLASH_PROG_WORDS 1UL
-  #define _FLASH_PROGRAM(address, p_data) \
-    HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, *p_data)
 #endif
 
 static int stm32_flash_program(uint32_t address, void* data, uint32_t len)
 {
+  int ret = 0;
+
+#if defined(STM32F2) || defined(STM32F4)
+
   uint32_t* p_data = (uint32_t*)data;
   uint32_t end_addr = address + len;
 
-  int ret = 0;
+  __disable_irq();
+  __DSB();
+  stm32_flash_unlock();
+
+  while (address < end_addr) {
+    CLEAR_BIT(FLASH->CR, FLASH_CR_PSIZE);
+    FLASH->CR |= FLASH_PSIZE_WORD;
+    FLASH->CR |= FLASH_CR_PG;
+
+    *(__IO uint32_t*)address = *p_data;
+
+    if (!flash_drv_wait_last_op()) {
+      ret = -1;
+      break;
+    }
+
+    CLEAR_BIT(FLASH->CR, FLASH_CR_PG);
+
+    address += sizeof(uint32_t);
+    p_data++;
+  }
+
+  __DSB();
+  __enable_irq();
+  stm32_flash_lock();
+
+#else
+
+  uint32_t* p_data = (uint32_t*)data;
+  uint32_t end_addr = address + len;
+
+  __disable_irq();
   stm32_flash_unlock();
   while (address < end_addr) {
     if (_FLASH_PROGRAM(address, p_data) != HAL_OK) {
@@ -186,6 +304,10 @@ static int stm32_flash_program(uint32_t address, void* data, uint32_t len)
   }
 
   stm32_flash_lock();
+  __enable_irq();
+
+#endif
+
   return ret;
 }
 
