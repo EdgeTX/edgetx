@@ -1,5 +1,6 @@
 {
     "targets": [
+        ["DumboRC DRO1", "dro1-"],
         ["Fatfish F16","f16-"],
         ["Flysky EL18", "el18-"],
         ["Flysky NB4+", "nb4p-"],
