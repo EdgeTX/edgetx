@@ -563,13 +563,13 @@
 #define TR_BLOFFBRIGHTNESS             "Aus-Helligkeit"
 #define TR_KEYS_BACKLIGHT              "Tastenbeleucht."
 #define TR_BLCOLOR                     "Farbe"
-#define TR_ONE_LOG_PER_DAY             "One log per day"
-#define TR_KEY_LOCK_FMT                "Key lock (%s+%s hold)"
-#define TR_KEYS_LOCKED                 "Keys locked"
-#define TR_KEYS_LOCKED_FMT             TR_BW_COL("%s+%s to unlock", "Keys locked (%s+%s to unlock)")
-#define TR_KEYS_UNLOCKED               "Keys unlocked"
-#define TR_TOUCH_ENABLED               "Touch screen enabled"
-#define TR_TOUCH_DISABLED              "Touch screen disabled"
+#define TR_ONE_LOG_PER_DAY             "1 Log pro Tag"
+#define TR_KEY_LOCK_FMT                "Tastensperre (%s+%s halten)"
+#define TR_KEYS_LOCKED                 "Tasten gesperrt"
+#define TR_KEYS_LOCKED_FMT             TR_BW_COL("%s+%s zum Entsperren", "Tasten gesperrt (%s+%s zum Entsperren)")
+#define TR_KEYS_UNLOCKED               "Tasten entsperrt"
+#define TR_TOUCH_ENABLED               "Touchscreen aktiviert"
+#define TR_TOUCH_DISABLED              "Touchscreen deaktiviert"
 #define TR_SPLASHSCREEN                TR("Startbild Ein", "Startbild Anzeigedauer")
 #define TR_PLAY_HELLO                  "Startton abspielen"
 #define TR_PWR_ON_DELAY                TR("PWR EIN Verzög.", "Einschaltverzögerung")
