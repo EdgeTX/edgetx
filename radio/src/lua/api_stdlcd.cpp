@@ -595,6 +595,7 @@ static int luaLcdDrawCombobox(lua_State *L)
       lua_rawgeti(L, 4, i+1);
       const char * item = luaL_checkstring(L, -1);
       lcdDrawText(x+2, y+2+9*i, item, 0);
+      lua_pop(L, 1);
     }
     lcdDrawFilledRect(x+1, y+1+9*idx, w-11, 9);
     lcdDrawFilledRect(x+w-10, y, 10, 11, SOLID, ERASE);
@@ -606,6 +607,7 @@ static int luaLcdDrawCombobox(lua_State *L)
     lua_rawgeti(L, 4, idx+1);
     const char * item = luaL_checkstring(L, -1);
     lcdDrawText(x+2, y+2, item, INVERS);
+    lua_pop(L, 1);
   }
   else {
     lcdDrawFilledRect(x, y, w, 11, SOLID, ERASE);
@@ -614,6 +616,7 @@ static int luaLcdDrawCombobox(lua_State *L)
     lua_rawgeti(L, 4, idx+1);
     const char * item = luaL_checkstring(L, -1);
     lcdDrawText(x+2, y+2, item, 0);
+    lua_pop(L, 1);
   }
 
   lcdDrawSolidHorizontalLine(x+w-8, y+3, 6);
