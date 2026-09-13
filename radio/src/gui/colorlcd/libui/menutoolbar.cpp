@@ -93,11 +93,9 @@ MenuToolbar::~MenuToolbar() { lv_group_del(group); }
 
 void MenuToolbar::resetFilter()
 {
-  if (lv_group_get_focused(group) != lvobj) {
-    lv_group_focus_obj(lvobj);
-    choice->fillMenu(menu);
-    menu->setTitle(choice->getTitle());
-  }
+  // Nothing to do if no filter is active
+  if (allBtn && !allBtn->checked())
+    lv_event_send(allBtn->getLvObj(), LV_EVENT_CLICKED, nullptr);
 }
 
 void MenuToolbar::nextFilter()

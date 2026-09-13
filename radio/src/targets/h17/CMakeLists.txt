@@ -4,80 +4,83 @@ option(PXX2 "PXX2 protocol support" ON)
 option(AFHDS3 "AFHDS3 TX Module" ON)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(GHOST "Ghost TX Module" ON)
-option(MODULE_SIZE_STD "Standard size TX Module" OFF)
-option(MODULE_SIZE_SML "Small size TX Module" ON)
+option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
-option(STICK_DEAD_ZONE "Enable sticks dead zone" YES)
+option(BLUETOOTH "FrSky BT module support" OFF)
+option(INTERNAL_GPS "Support for internal GPS" ON)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32H7)
-set(HSE_VALUE 12000000)
+set(HSE_VALUE 48000000)
 set(SDCARD YES)
 set(STORAGE_MODELSLIST YES)
 set(HAPTIC YES)
 set(GUI_DIR colorlcd)
-set(BITMAPS_DIR 320x240)
-set(TARGET_DIR pa01)
+set(BITMAPS_DIR 480x272)
+set(TARGET_DIR h17)
 set(RTC_BACKUP_RAM YES)
 set(PPM_LIMITS_SYMETRICAL YES)
 set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(HARDWARE_EXTERNAL_MODULE YES)
-set(INTERNAL_MODULE_AFHDS3 YES)
+set(INTERNAL_MODULE_AFHDS3 NO)
 set(ROTARY_ENCODER YES)
-set(FUNCTION_SWITCHES YES)
-set(FUNCTION_SWITCHES_RGB_LEDS YES)
+set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
 
-# IMU support
-set(IMU ON)
+#option(STICK_DEAD_ZONE "Enable sticks dead zone" YES)
+
+if(BLUETOOTH)
+  set(AUX2_SERIAL OFF)
+else()
+  set(AUX2_SERIAL ON)
+endif()
 
 # for size report script
 set(CPU_TYPE_FULL STM32H750xB)
 set(TARGET_LINKER_DIR stm32h750_sdram)
-set(TARGET_EXTRAM_START 0xC0000000)
+set(TARGET_EXTRAM_START 0xD0000000)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM1=8192")
 set(FIRMWARE_STRIP_BOOTLOADER YES)
 
-add_definitions(-DPCBPA01 -DPCBHORUS -DPCBFLYSKY)
-add_definitions(-DBATTERY_CHARGE)
+add_definitions(-DPCBH17 -DPCBHORUS)
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 
-set(FLAVOUR pa01)
-add_definitions(-DMANUFACTURER_FLYSKY)
+set(FLAVOUR h17)
+add_definitions(-DRADIO_H17)
+add_definitions(-DMANUFACTURER_SENDUWING)
 
-# Defines internal modules for PL18 via UART7
-set(INTERNAL_MODULES AFHDS3;CRSF CACHE STRING "Internal modules")
+# defines existing internal modules
+set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
 set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
 
-set(BITMAPS_TARGET bm320_bitmaps)
+set(BITMAPS_TARGET bm480_bitmaps)
 set(FONTS_TARGET x12_fonts)
 set(LCD_DRIVER lcd_driver.cpp)
 set(HARDWARE_TOUCH YES)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
 set(SOFTWARE_KEYBOARD ON)
-set(FLYSKY_GIMBAL ON)
-set(FUNCTION_SWITCHES ON)
-
+set(FLYSKY_GIMBAL OFF)
+set(AUX_SERIAL YES)
+set(AUX2_SERIAL YES)
 
 add_definitions(
-  -DSTM32H750ZBTx -DSTM32H750xx
+  -DSTM32H750XBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
-  -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
-  -DRGBLEDS_MAX_LEDS=24
+  -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
 )
 
 set(SDRAM ON)
 
 add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DRTCLOCK)
-add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
+add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 
 if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
@@ -92,18 +95,11 @@ if(DISK_CACHE)
   add_definitions(-DDISK_CACHE)
 endif()
 
-if(FUNCTION_SWITCHES_RGB_LEDS)
-  set(RGB_LEDS YES)
-  add_definitions(-DFUNCTION_SWITCHES_RGB_LEDS)
-  add_definitions(-DRGB_LEDS_900NS)
-endif()
-
-if(RGB_LEDS)
-  add_definitions(-DRGB_LEDS)
-endif()
-
-if(FUNCTION_SWITCHES)
-add_definitions(-DFUNCTION_SWITCHES)
+if(INTERNAL_GPS)
+  message("-- Internal GPS enabled")
+  add_definitions(-DINTERNAL_GPS)
+  add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
+  set(SRC ${SRC} gps.cpp gps_nmea.cpp gps_ubx.cpp)
 endif()
 
 set(AFHDS3 ON)
@@ -112,16 +108,19 @@ set(AFHDS3 ON)
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
 set(CLI ON CACHE BOOL "Enable CLI")
 
+set(BOARD senduwing-h750)
+set(BOARD_SRC_DIR boards/${BOARD})
+include_directories(boards/${BOARD})
+
 set(TARGET_SRC_DIR targets/${TARGET_DIR})
 
 set(BOARD_COMMON_SRC
-  ${TARGET_SRC_DIR}/board.cpp
-  ${TARGET_SRC_DIR}/bsp_io.cpp
-  ${TARGET_SRC_DIR}/key_driver.cpp
-  ${TARGET_SRC_DIR}/lcd_driver.cpp
-  ${TARGET_SRC_DIR}/backlight_driver.cpp
-  ${TARGET_SRC_DIR}/haptic_driver.cpp
-  ${TARGET_SRC_DIR}/extflash_driver.cpp
+  ${BOARD_SRC_DIR}/board.cpp
+  ${BOARD_SRC_DIR}/key_driver.cpp
+  ${BOARD_SRC_DIR}/lcd_driver.cpp
+  ${BOARD_SRC_DIR}/backlight_driver.cpp
+  ${BOARD_SRC_DIR}/haptic_driver.cpp
+  ${BOARD_SRC_DIR}/extflash_driver.cpp
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/dma2d.cpp
@@ -130,13 +129,12 @@ set(BOARD_COMMON_SRC
   targets/common/arm/stm32/rotary_encoder_driver.cpp
   targets/common/arm/stm32/rtc_driver.cpp
   targets/common/arm/stm32/watchdog_driver.cpp
-  drivers/aw9523b.cpp
 )
 
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${TARGET_SRC_DIR}/sdram_driver.cpp
+  ${BOARD_SRC_DIR}/sdram_driver.cpp
   ${RADIO_SRC_DIR}/gui/colorlcd/boot_menu.cpp
   targets/common/arm/stm32/stm32_qspi.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
@@ -144,27 +142,28 @@ add_library(board_bl OBJECT EXCLUDE_FROM_ALL
 add_dependencies(board_bl minimal_board_lib)
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 
-set(CMSIS_SRC ${TARGET_SRC_DIR}/system_clock.c)
+set(CMSIS_SRC ${BOARD_SRC_DIR}/system_clock.c)
 
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${TARGET_SRC_DIR}/led_driver.cpp
-  ${TARGET_SRC_DIR}/battery_driver.cpp
+  ${BOARD_SRC_DIR}/tp_gt911.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
-  drivers/lsm6ds.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
   targets/common/arm/stm32/stm32_softserial_driver.cpp
   targets/common/arm/stm32/stm32_qspi.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
-  targets/common/arm/stm32/stm32_rgbleds.cpp
   targets/common/arm/stm32/trainer_driver.cpp
 )
 add_dependencies(board board_lib)
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
+
+if(BLUETOOTH)
+  target_sources(board PRIVATE targets/common/arm/stm32/bluetooth_driver.cpp)
+endif()
 
 include_directories(${RADIO_SRC_DIR}/fonts/colorlcd gui/${GUI_DIR} gui/${GUI_DIR}/layouts)
 

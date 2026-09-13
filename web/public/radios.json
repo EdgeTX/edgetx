@@ -6535,5 +6535,181 @@
         "side": "R"
       }
     ]
+  },
+  {
+    "name": "Senduwing H17",
+    "wasm": "edgetx-h17-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "S3",
+        "default": "POT"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S4",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "6POS",
+        "default": "MULTIPOS"
+      },
+      {
+        "name": "EXT1",
+        "type": "FLEX",
+        "label": "EXT1",
+        "default": "NONE"
+      },
+      {
+        "name": "EXT2",
+        "type": "FLEX",
+        "label": "EXT2",
+        "default": "NONE"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SG",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SH",
+        "type": "2POS",
+        "default": "TOGGLE"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
   }
 ]

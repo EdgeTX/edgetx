@@ -170,6 +170,9 @@ get_target_build_options() {
         pa01)
             BUILD_OPTIONS+="-DPCB=PA01"
             ;;
+        h17)
+            BUILD_OPTIONS+="-DPCB=H17"
+            ;;
         dro1)
             BUILD_OPTIONS+="-DPCB=X10 -DPCBREV=DRO1"
             ;;
