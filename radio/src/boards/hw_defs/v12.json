@@ -2,7 +2,7 @@
   "identity": {
     "manufacturer": "HelloRadioSky",
     "model": "V12",
-    "usb_manufacturer": "HELLO",
+    "usb_manufacturer": "HRSky",
     "usb_product": "V12"
   },
   "adc_inputs": {

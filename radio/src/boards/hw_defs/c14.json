@@ -2,7 +2,7 @@
   "identity": {
     "manufacturer": "iFlight",
     "model": "Commando 14",
-    "usb_manufacturer": "IFlight",
+    "usb_manufacturer": "iFlight",
     "usb_product": "C14"
   },
   "adc_inputs": {

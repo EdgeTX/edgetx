@@ -3,7 +3,7 @@
     "manufacturer": "RadioMaster",
     "model": "Zorro",
     "usb_manufacturer": "RM_TX",
-    "usb_product": "RM Zorro"
+    "usb_product": "Zorro"
   },
   "adc_inputs": {
     "adcs": [

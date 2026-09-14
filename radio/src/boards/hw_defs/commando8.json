@@ -2,8 +2,8 @@
   "identity": {
     "manufacturer": "iFlight",
     "model": "Commando 8",
-    "usb_manufacturer": "iFlight-",
-    "usb_product": "Commando"
+    "usb_manufacturer": "iFlight",
+    "usb_product": "C8"
   },
   "adc_inputs": {
     "adcs": [
