@@ -37,35 +37,27 @@ class ChannelFailsafeBargraph : public Window
     etx_obj_add_style(lvobj, styles->border_thin, LV_PART_MAIN);
     etx_obj_add_style(lvobj, styles->border_color[COLOR_BLACK_INDEX], LV_PART_MAIN);
 
-    outputsBar = new OutputChannelBar(this, {0, 1, width() - PAD_TABLE_H, ChannelBar::BAR_HEIGHT},
-                                      channel, false, false);
-    outputsBar->hide();
+    new OutputChannelBar(this, {0, 1, width() - 2, ChannelBar::BAR_HEIGHT},
+                         channel, false, false);
 
-    failsafeBar = new ChannelBar(
-        this, {0, ChannelBar::BAR_HEIGHT + PAD_THREE, width() - PAD_TABLE_H, ChannelBar::BAR_HEIGHT}, channel,
+    new ChannelBar(
+        this, {0, ChannelBar::BAR_HEIGHT + PAD_THREE, width() - 2, ChannelBar::BAR_HEIGHT}, channel,
         [=] { return g_model.failsafeChannels[channel]; },
         COLOR_THEME_WARNING_INDEX);
-    failsafeBar->hide();
-  }
 
-  void checkEvents() override
-  {
-    Window::checkEvents();
-
-    outputsBar->show(
-        g_model.failsafeChannels[channel] != FAILSAFE_CHANNEL_HOLD &&
-        g_model.failsafeChannels[channel] != FAILSAFE_CHANNEL_NOPULSE);
-
-    failsafeBar->show(
-        g_model.failsafeChannels[channel] != FAILSAFE_CHANNEL_HOLD &&
-        g_model.failsafeChannels[channel] != FAILSAFE_CHANNEL_NOPULSE);
+    hide();
   }
 
  protected:
   uint8_t channel;
 
-  OutputChannelBar* outputsBar = nullptr;
-  ChannelBar* failsafeBar = nullptr;
+  void checkEvents() override
+  {
+    Window::checkEvents();
+
+    show(g_model.failsafeChannels[channel] != FAILSAFE_CHANNEL_HOLD &&
+         g_model.failsafeChannels[channel] != FAILSAFE_CHANNEL_NOPULSE);
+  }
 };
 
 class ChannelFailsafeEdit : public NumberEdit
@@ -95,10 +87,19 @@ class ChannelFailsafeEdit : public NumberEdit
 
  public:
   ChannelFailsafeEdit(Window* parent, uint8_t ch, int vmin, int vmax) :
-      NumberEdit(parent, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, vmin, vmax, nullptr), channel(ch)
+      NumberEdit(parent, rect_t{0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, vmin, vmax,
+                [=]() {
+                  return calcRESXto1000(g_model.failsafeChannels[ch]);
+                },
+                [=](int newValue) {
+                  auto value = g_model.failsafeChannels[channel];
+                  if (value != FAILSAFE_CHANNEL_HOLD && value != FAILSAFE_CHANNEL_NOPULSE) {
+                    g_model.failsafeChannels[channel] = calc1000toRESX(newValue);
+                    SET_DIRTY();
+                  }
+                }),
+      channel(ch)
   {
-    setGetValueHandler(
-        [=]() { return calcRESXto1000(g_model.failsafeChannels[ch]); });
     setDisplayHandler([=](int) -> std::string { return getString(); });
     update();
   }
@@ -106,49 +107,31 @@ class ChannelFailsafeEdit : public NumberEdit
   void update() override
   {
     auto value = g_model.failsafeChannels[channel];
-    if (value != FAILSAFE_CHANNEL_HOLD && value != FAILSAFE_CHANNEL_NOPULSE) {
-      setSetValueHandler([=](int value) {
-        g_model.failsafeChannels[channel] = calc1000toRESX(value);
-        SET_DIRTY();
-      });
-      enable();
-    } else {
-      // disable setter to avoid overwritting the value limited by vmin/vmax
-      setSetValueHandler(nullptr);
+    if (value == FAILSAFE_CHANNEL_HOLD || value == FAILSAFE_CHANNEL_NOPULSE)
       disable();
-    }
-    SET_DIRTY();
+    else
+      enable();
     NumberEdit::update();
-  }
-
-  void setHold()
-  {
-    g_model.failsafeChannels[channel] = FAILSAFE_CHANNEL_HOLD;
-    update();
-  }
-
-  void setNoPulse()
-  {
-    g_model.failsafeChannels[channel] = FAILSAFE_CHANNEL_NOPULSE;
-    update();
   }
 
   void toggle()
   {
-    auto value = &(g_model.failsafeChannels[channel]);
-    if (*value == FAILSAFE_CHANNEL_HOLD) {
-      *value = FAILSAFE_CHANNEL_NOPULSE;
-    } else if (*value == FAILSAFE_CHANNEL_NOPULSE) {
-      *value = 0;
+    int16_t& value = g_model.failsafeChannels[channel];
+    if (value == FAILSAFE_CHANNEL_HOLD) {
+      value = FAILSAFE_CHANNEL_NOPULSE;
+    } else if (value == FAILSAFE_CHANNEL_NOPULSE) {
+      value = 0;
     } else {
-      *value = FAILSAFE_CHANNEL_HOLD;
+      value = FAILSAFE_CHANNEL_HOLD;
     }
+    SET_DIRTY();
     update();
   }
 
   void copyChannel()
   {
     g_model.failsafeChannels[channel] = channelOutputs[channel];
+    SET_DIRTY();
     update();
   }
 };
@@ -181,18 +164,15 @@ class ChannelFSCombo : public Window
   }
 
   void update() { edit->update(); }
+
+ protected:
+  Messaging refreshMsg;
 };
 
 static const lv_coord_t line_col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(5),
                                           LV_GRID_FR(3), LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t line_row_dsc[] = {LV_GRID_CONTENT,
                                           LV_GRID_TEMPLATE_LAST};
-
-static void set_failsafe(lv_event_t* e)
-{
-  auto combo = (ChannelFSCombo*)lv_event_get_user_data(e);
-  if (combo) combo->update();
-}
 
 FailSafePage::FailSafePage(uint8_t moduleIdx) : Page(ICON_STATS_ANALOGS)
 {
@@ -202,14 +182,13 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) : Page(ICON_STATS_ANALOGS)
 
   FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_ZERO);
 
-  auto btn = new TextButton(body, rect_t{0, 0, LV_PCT(100), 0}, STR_CHANNELS2FAILSAFE);
-
-  btn->setPressHandler([=]() {
-    setCustomFailsafe(moduleIdx);
-    AUDIO_WARNING1();
-    SET_DIRTY();
-    return 0;
-  });
+  auto btn = new TextButton(body, rect_t{0, 0, LV_PCT(100), 0}, STR_CHANNELS2FAILSAFE,
+                            [=]() {
+                              setCustomFailsafe(moduleIdx);
+                              AUDIO_WARNING1();
+                              SET_DIRTY();
+                              return 0;
+                            });
 
   ModuleData* md = &g_model.moduleData[moduleIdx];
   auto start_ch = md->channelsStart;
@@ -226,8 +205,7 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) : Page(ICON_STATS_ANALOGS)
     new StaticText(line, rect_t{}, ch_label);
 
     // Channel value
-    auto combo = new ChannelFSCombo(line, ch, -lim, lim);
-    lv_obj_add_event_cb(btn->getLvObj(), set_failsafe, LV_EVENT_CLICKED, combo);
+    new ChannelFSCombo(line, ch, -lim, lim);
 
     // Channel bargraph
     auto bar = new ChannelFailsafeBargraph(
