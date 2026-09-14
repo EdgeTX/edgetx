@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "HelloRadioSky",
-    "model": "V16"
+    "model": "V16",
+    "usb_name": "HelloRadioSky V16",
+    "usb_manufacturer": "HRSky",
+    "usb_product": "V16"
   },
   "adc_inputs": {
     "adcs": [

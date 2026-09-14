@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "Jumper",
-    "model": "T12 MAX"
+    "model": "T12 MAX",
+    "usb_name": "Jumper T12 MAX",
+    "usb_manufacturer": "JUMPER",
+    "usb_product": "T12 MAX"
   },
   "adc_inputs": {
     "adcs": [

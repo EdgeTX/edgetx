@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "RadioMaster",
-    "model": "TX12 Mark II"
+    "model": "TX12 Mark II",
+    "usb_name": "Radiomaster TX12",
+    "usb_manufacturer": "RM_TX",
+    "usb_product": "RM TX12"
   },
   "adc_inputs": {
     "adcs": [

@@ -48,13 +48,16 @@
     },
 
     "identity": {
-      "description": "Board identity metadata, independent of any electrical/hardware detail. Consumed at build time (firmware) and runtime (Companion) so manufacturer/model aren't hand-maintained separately in either.",
+      "description": "Board identity metadata, independent of any electrical/hardware detail. Consumed at build time (firmware) and runtime (Companion) so manufacturer/model/USB descriptor strings aren't hand-maintained separately in either.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["manufacturer", "model"],
+      "required": ["manufacturer", "model", "usb_name", "usb_manufacturer", "usb_product"],
       "properties": {
-        "manufacturer": { "type": "string", "minLength": 1 },
-        "model":        { "type": "string", "minLength": 1 }
+        "manufacturer":     { "type": "string", "minLength": 1 },
+        "model":            { "type": "string", "minLength": 1 },
+        "usb_name":         { "type": "string", "minLength": 1, "description": "Free-form USB device name string (USB_NAME)." },
+        "usb_manufacturer": { "type": "string", "minLength": 1, "maxLength": 8, "description": "USB manufacturer string (USB_MANUFACTURER); space-padded to a fixed 8 bytes at codegen time." },
+        "usb_product":      { "type": "string", "minLength": 1, "maxLength": 8, "description": "USB product string (USB_PRODUCT); space-padded to a fixed 8 bytes at codegen time." }
       }
     },
 

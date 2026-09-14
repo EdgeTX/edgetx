@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "RadioMaster",
-    "model": "GX12"
+    "model": "GX12",
+    "usb_name": "Radiomaster GX12",
+    "usb_manufacturer": "RM_TX",
+    "usb_product": "RM GX12"
   },
   "adc_inputs": {
     "adcs": [

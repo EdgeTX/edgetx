@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "Jumper",
-    "model": "T18"
+    "model": "T18",
+    "usb_name": "Jumper T18",
+    "usb_manufacturer": "Jumper",
+    "usb_product": "T18"
   },
   "adc_inputs": {
     "adcs": [

@@ -155,6 +155,7 @@ AddHWGenTarget(${HW_DESC_JSON} simu_switches simu_switches.inc)
 
 AddHWGenTarget(${HW_DESC_JSON} hal_keys_lock hal_keys_lock.h)
 AddHWGenTarget(${HW_DESC_JSON} hal_manufacturer hal_manufacturer.h)
+AddHWGenTarget(${HW_DESC_JSON} hal_usb_descriptor usb_descriptor.h)
 
 add_dependencies(board hal_settings hal_pwm_sticks hal_keys hal_keys_lock hal_adc_inputs hal_manufacturer stm32_keys stm32_switches stm32_adc_inputs stm32_pwm_inputs yaml_inputs lua_inputs lua_mixsrc lua_keys)
 add_dependencies(board_bl hal_settings hal_pwm_sticks hal_keys hal_manufacturer stm32_keys)

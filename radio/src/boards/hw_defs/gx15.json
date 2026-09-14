@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "RadioMaster",
-    "model": "GX15"
+    "model": "GX15",
+    "usb_name": "Radiomaster GX15",
+    "usb_manufacturer": "RM",
+    "usb_product": "GX15"
   },
   "adc_inputs": {
     "adcs": [

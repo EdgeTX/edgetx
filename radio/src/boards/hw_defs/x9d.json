@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "FrSky",
-    "model": "X9D"
+    "model": "X9D",
+    "usb_name": "FrSky Taranis",
+    "usb_manufacturer": "FrSky",
+    "usb_product": "Taranis"
   },
   "adc_inputs": {
     "adcs": [

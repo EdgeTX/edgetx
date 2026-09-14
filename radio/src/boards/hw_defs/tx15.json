@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "RadioMaster",
-    "model": "TX15"
+    "model": "TX15",
+    "usb_name": "RadioMaster TX15",
+    "usb_manufacturer": "RM",
+    "usb_product": "TX15"
   },
   "adc_inputs": {
     "adcs": [

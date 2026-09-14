@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "Flysky",
-    "model": "NV14"
+    "model": "NV14",
+    "usb_name": "Flysky NV14",
+    "usb_manufacturer": "Flysky",
+    "usb_product": "NV14"
   },
   "adc_inputs": {
     "adcs": [

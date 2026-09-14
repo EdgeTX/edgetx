@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "BETAFPV",
-    "model": "LR3PRO"
+    "model": "LR3PRO",
+    "usb_name": "BETAFPV LR3PRO",
+    "usb_manufacturer": "BETAFPV",
+    "usb_product": "LR3PRO"
   },
   "adc_inputs": {
     "adcs": [

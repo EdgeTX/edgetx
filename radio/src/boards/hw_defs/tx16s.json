@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "RadioMaster",
-    "model": "TX16S"
+    "model": "TX16S",
+    "usb_name": "Radiomaster TX16S",
+    "usb_manufacturer": "RM_TX",
+    "usb_product": "RM TX16S"
   },
   "adc_inputs": {
     "adcs": [

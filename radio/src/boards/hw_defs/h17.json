@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "Senduwing",
-    "model": "H17"
+    "model": "H17",
+    "usb_name": "Senduwing H17",
+    "usb_manufacturer": "SEND",
+    "usb_product": "H17"
   },
   "adc_inputs": {
     "adcs": [

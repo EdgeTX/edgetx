@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "Flysky",
-    "model": "EL18"
+    "model": "EL18",
+    "usb_name": "Flysky EL18",
+    "usb_manufacturer": "Flysky",
+    "usb_product": "EL18"
   },
   "adc_inputs": {
     "adcs": [

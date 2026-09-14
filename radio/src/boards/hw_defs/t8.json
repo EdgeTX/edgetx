@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "RadioMaster",
-    "model": "T8"
+    "model": "T8",
+    "usb_name": "Radiomaster T8",
+    "usb_manufacturer": "RM_TX",
+    "usb_product": "RM T8"
   },
   "adc_inputs": {
     "adcs": [

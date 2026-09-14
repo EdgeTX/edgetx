@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "HelloRadioSky",
-    "model": "V14LCD"
+    "model": "V14LCD",
+    "usb_name": "HelloRadioSky V14LCD",
+    "usb_manufacturer": "HRSky",
+    "usb_product": "V14LCD"
   },
   "adc_inputs": {
     "adcs": [

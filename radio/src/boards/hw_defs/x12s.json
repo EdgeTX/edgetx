@@ -1,7 +1,10 @@
 {
   "identity": {
     "manufacturer": "FrSky",
-    "model": "X12S"
+    "model": "X12S",
+    "usb_name": "FrSky Horus",
+    "usb_manufacturer": "FrSky",
+    "usb_product": "Horus"
   },
   "adc_inputs": {
     "adcs": [
