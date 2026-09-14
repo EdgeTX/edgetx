@@ -51,7 +51,6 @@ add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 
 set(FLAVOUR h17)
-add_definitions(-DMANUFACTURER_SENDUWING)
 
 # defines existing internal modules
 set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
