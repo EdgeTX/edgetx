@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "iFlight",
+    "model": "Commando 14"
+  },
   "adc_inputs": {
     "adcs": [
       {

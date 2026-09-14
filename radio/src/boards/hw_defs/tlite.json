@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "Jumper",
+    "model": "T-Lite"
+  },
   "adc_inputs": {
     "adcs": [
       {

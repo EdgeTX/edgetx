@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "HelloRadioSky",
+    "model": "V14LCD"
+  },
   "adc_inputs": {
     "adcs": [
       {

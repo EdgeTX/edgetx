@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "Jumper",
+    "model": "T12 MAX"
+  },
   "adc_inputs": {
     "adcs": [
       {

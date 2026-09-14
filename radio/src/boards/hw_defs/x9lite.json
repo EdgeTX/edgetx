@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "FrSky",
+    "model": "X9-Lite"
+  },
   "adc_inputs": {
     "adcs": [
       {

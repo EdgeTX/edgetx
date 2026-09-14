@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "RadioMaster",
+    "model": "GX15"
+  },
   "adc_inputs": {
     "adcs": [
       {

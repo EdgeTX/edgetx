@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "FrSky",
+    "model": "X-Lite S/PRO"
+  },
   "adc_inputs": {
     "adcs": [
       {

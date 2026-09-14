@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "Jumper",
+    "model": "T18"
+  },
   "adc_inputs": {
     "adcs": [
       {

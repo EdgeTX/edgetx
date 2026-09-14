@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "RadioMaster",
+    "model": "T8"
+  },
   "adc_inputs": {
     "adcs": [
       {

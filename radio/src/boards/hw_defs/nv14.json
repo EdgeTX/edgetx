@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "Flysky",
+    "model": "NV14"
+  },
   "adc_inputs": {
     "adcs": [
       {

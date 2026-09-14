@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "RadioMaster",
+    "model": "Zorro"
+  },
   "adc_inputs": {
     "adcs": [
       {

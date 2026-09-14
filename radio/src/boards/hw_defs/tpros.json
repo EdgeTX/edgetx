@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "Jumper",
+    "model": "T-Pro S"
+  },
   "adc_inputs": {
     "adcs": [
       {

@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "FrSky",
+    "model": "X7/X7S Access"
+  },
   "adc_inputs": {
     "adcs": [
       {

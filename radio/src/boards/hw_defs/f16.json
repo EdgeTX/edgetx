@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "Fatfish",
+    "model": "F16"
+  },
   "adc_inputs": {
     "adcs": [
       {

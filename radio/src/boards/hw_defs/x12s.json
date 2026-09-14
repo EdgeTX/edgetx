@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "FrSky",
+    "model": "X12S"
+  },
   "adc_inputs": {
     "adcs": [
       {

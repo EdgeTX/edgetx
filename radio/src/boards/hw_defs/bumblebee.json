@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "Jumper",
+    "model": "Bumblebee"
+  },
   "adc_inputs": {
     "adcs": [
       {

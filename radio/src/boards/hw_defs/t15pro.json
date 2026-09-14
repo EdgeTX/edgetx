@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "Jumper",
+    "model": "T15 Pro"
+  },
   "adc_inputs": {
     "adcs": [
       {

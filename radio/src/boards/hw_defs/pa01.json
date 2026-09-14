@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "Flysky",
+    "model": "PA01"
+  },
   "adc_inputs": {
     "adcs": [
       {

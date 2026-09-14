@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "RadioMaster",
+    "model": "Boxer"
+  },
   "adc_inputs": {
     "adcs": [
       {

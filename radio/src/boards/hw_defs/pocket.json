@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "RadioMaster",
+    "model": "Pocket"
+  },
   "adc_inputs": {
     "adcs": [
       {

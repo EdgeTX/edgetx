@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "RadioMaster",
+    "model": "TX12 Mark II"
+  },
   "adc_inputs": {
     "adcs": [
       {

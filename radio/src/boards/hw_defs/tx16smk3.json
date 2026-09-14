@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "RadioMaster",
+    "model": "TX16S MK3"
+  },
   "adc_inputs": {
     "adcs": [
       {

@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "FrSky",
+    "model": "X9D+ 2019"
+  },
   "adc_inputs": {
     "adcs": [
       {

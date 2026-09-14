@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "HelloRadioSky",
+    "model": "V14"
+  },
   "adc_inputs": {
     "adcs": [
       {

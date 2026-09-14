@@ -1,4 +1,8 @@
 {
+  "identity": {
+    "manufacturer": "Flysky",
+    "model": "PL18U"
+  },
   "adc_inputs": {
     "adcs": [
       {
