@@ -259,7 +259,6 @@ add_subdirectory(wizard)
 include_directories(${maxLibQt_SOURCE_DIR}/widgets)
 
 set(companion_NAMES
-  helpers_html
   logsdialog
   mainwindow
   mdichild
