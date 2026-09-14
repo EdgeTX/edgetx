@@ -406,7 +406,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   }
 #endif
 
-#if defined(VOICE_CONTROL_SENSOR)
+#if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
   else if (i == MIXSRC_VGR || i == MIXSRC_VFL) {
     getvalue_t voiceVal = 0;
     CI1302_voiceIntegrationMixSrcValue(i, &voiceVal);
@@ -653,7 +653,7 @@ void evalInputs(uint8_t mode)
     }
   }
 
-#if defined(VOICE_CONTROL_SENSOR)
+#if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
   CI1302_voiceMotionControlApplyToInputs(pots_offset);
 #endif
 

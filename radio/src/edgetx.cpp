@@ -1146,7 +1146,7 @@ void flightReset(uint8_t check)
 
   START_SILENCE_PERIOD();
 
-#if defined(VOICE_CONTROL_SENSOR)
+#if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
   CI1302_voiceIntegrationOnFlightReset();
 #endif
 

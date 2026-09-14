@@ -333,11 +333,6 @@ if(USE_ADS79xx)
   target_sources(board PRIVATE targets/common/arm/stm32/ads79xx.cpp)
 endif()
 
-if(CI1302_SENSOR)
-  target_sources(board PRIVATE drivers/CI1302.cpp)
-  add_definitions(-DVOICE_CONTROL_SENSOR)
-endif()
-
 if(USB_CHARGE_LED)
   add_definitions(-DUSB_CHARGE_LED)
 endif()
@@ -354,6 +349,14 @@ set(FIRMWARE_SRC
 
 if (MULTIMODULE)
   add_definitions(-DMULTI_PROTOLIST)
+endif()
+
+if(CI1302_SENSOR)
+  # Via SRC (not target_sources(board ...)), same as io/frsky_firmware_update.cpp
+  # below: made available to SIMU/WASM builds, not just firmware. Live-sensor
+  # call sites are SIMU-guarded individually.
+  set(SRC ${SRC} drivers/CI1302.cpp)
+  add_definitions(-DVOICE_CONTROL_SENSOR)
 endif()
 
 set(SRC ${SRC}

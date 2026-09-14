@@ -106,7 +106,7 @@ uint32_t switchState(uint8_t pos_idx)
 
 SwitchHwPos switchGetPosition(uint8_t sw_idx)
 {
-#if defined(VOICE_CONTROL_SENSOR)
+#if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
   SwitchHwPos pos;
   if (CI1302_voiceSwitchTryGetPosition(sw_idx, &pos)) {
     return pos;

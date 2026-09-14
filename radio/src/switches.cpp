@@ -383,7 +383,7 @@ static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
   }
 
   if (!(switchesPos & result)) {
-#if defined(VOICE_CONTROL_SENSOR)
+#if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
     if (!CI1302_voiceSwitchSuppressMovedAudio(idx, startup))
 #endif
       PLAY_SWITCH_MOVED(index);

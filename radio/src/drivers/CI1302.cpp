@@ -164,6 +164,10 @@ void processVoiceFrame(uint8_t * voicedata, uint32_t size)
 #endif
 }
 
+// These call into the real UART driver (only compiled in for VOICE_CONTROL_USART
+// && !defined(SIMU) below), so they're excluded from SIMU too.
+#if !defined(SIMU)
+
 extern "C" int GetVoiceInput(uint8_t *rxchar)
 {
   auto _getByte = voiceGetByte;
@@ -221,6 +225,8 @@ void processVoiceInput(void)
     }
   }
 }
+
+#endif // !SIMU
 
 #if defined(VOICE_CONTROL_SENSOR)
 
@@ -739,7 +745,7 @@ bool CI1302_voiceIntegrationIsSwitchSwitchAvailable(int swtch, bool* available)
 
 #endif // VOICE_CONTROL_SENSOR
 
-#if defined(VOICE_CONTROL_USART)
+#if defined(VOICE_CONTROL_USART) && !defined(SIMU)
 
 #include "hal/gpio.h"
 #include "hal/serial_driver.h"
