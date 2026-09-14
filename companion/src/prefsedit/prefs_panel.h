@@ -61,6 +61,7 @@ class PrefsPanel : public AbstractPanel
 
     AutoLineEdit * newPathWidget(QWidget * parent);
     void setPathWidget(AutoLineEdit * wgt);
+    void shrink();
 
 };
 

@@ -59,6 +59,13 @@ void PrefsPanel::onRadioChanged(Firmware * firmware, bool deferUpdate)
     update();
 }
 
+void PrefsPanel::shrink()
+{
+  // resize(0,0) (AbstractPanel::shrink()) assumes a top-level widget; here the
+  // panel lives in a QScrollArea and can get stuck at zero size instead.
+  updateGeometry();
+}
+
 /*
     PrefsScrollArea
 */
