@@ -5,6 +5,6 @@
 
 #pragma once
 
-#define USB_NAME "{{ identity.usb_name }}"
+#define USB_NAME "{{ identity.manufacturer }} {{ identity.model }}"
 #define USB_MANUFACTURER {% for c in identity.usb_manufacturer.ljust(8) %}'{{ c }}'{% if not loop.last %}, {% endif %}{% endfor %}  /* 8 bytes */
 #define USB_PRODUCT {% for c in identity.usb_product.ljust(8) %}'{{ c }}'{% if not loop.last %}, {% endif %}{% endfor %}  /* 8 Bytes */
