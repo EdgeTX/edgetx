@@ -72,7 +72,8 @@ add_definitions(
 
 set(SDRAM ON)
 
-set(AUX_SERIAL OFF CACHE BOOL "AUX serial port" FORCE)
+# UART4 on the internal 3-pin header (no switchable power rail)
+set(AUX_SERIAL YES)
 
 # Handset supports external antenna selection via hardware GPIO switch
 set(EXTERNAL_ANTENNA ON)
