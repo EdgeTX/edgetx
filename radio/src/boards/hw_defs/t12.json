@@ -1,4 +1,10 @@
 {
+  "identity": {
+    "manufacturer": "Jumper",
+    "model": "T12",
+    "usb_manufacturer": "JUMPER",
+    "usb_product": "T12"
+  },
   "adc_inputs": {
     "adcs": [
       {

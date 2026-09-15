@@ -22,6 +22,7 @@
 #pragma once
 
 #include "hal_settings.h"
+#include "hal_manufacturer.h"
 #include "hal_pwm_sticks.h"
 
 /*
