@@ -35,6 +35,9 @@
 
 #if defined(COLORLCD)
 #include "startup_shutdown.h"
+#if defined(V16_CHARGE_UI)
+#include "targets/horus/charge_ui.h"
+#endif
 #endif
 
 task_handle_t menusTaskId;
@@ -95,10 +98,16 @@ static void menusTask()
   toplcdOff();
 #endif
 
+#if defined(COLORLCD)
+  cancelShutdownAnimation();
+#endif
 #if !defined(PWR_BUTTON_MANAGED)
   drawSleepBitmap();
 #endif
   edgeTxClose();
+#if defined(V16_CHARGE_UI)
+  shutdownWaitIfCharging();
+#endif
   boardOff();
 }
 
