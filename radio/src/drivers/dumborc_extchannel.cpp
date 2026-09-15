@@ -32,9 +32,9 @@
 #include <stdio.h>
 
 #include "hal.h"
-#include "hal/gpio.h"
-#include "stm32_gpio.h"
-#include "stm32_switch_driver.h"
+#include "stm32_hal.h"
+#include "stm32_hal_ll.h"
+#include "stm32_gpio_driver.h"
 #include "delays_driver.h"
 
 #include "os/time.h"
@@ -64,19 +64,22 @@
 #define DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_SDA     13
 #define DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_SCL     14
 
-#define DUMBORC_EXTCHANNEL_I2C_GPIO_SDA           \
-  GPIO_PIN(DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_SDA , \
-           DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_SDA)
-#define DUMBORC_EXTCHANNEL_I2C_GPIO_SCL           \
-  GPIO_PIN(DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_SCL , \
-           DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_SCL)
+#define DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_X(__GPIO__)                    \
+  DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_##__GPIO__
+#define DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_X(__GPIO__)                     \
+  DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_##__GPIO__
+#define DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_LL_X(__GPIO__)                  \
+  (1UL << DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_X(__GPIO__))
 
-#define DUMBORC_EXTCHANNEL_I2C_GPIO_SET_0(__GPIO__)    \
-  gpio_clear(__GPIO__)
-#define DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(__GPIO__)    \
-  gpio_set(__GPIO__)
-#define DUMBORC_EXTCHANNEL_I2C_GPIO_GET_X(__GPIO__)    \
-  gpio_read(__GPIO__)
+#define DUMBORC_EXTCHANNEL_I2C_GPIO_SET_L(__GPIO__)                     \
+  LL_GPIO_ResetOutputPin(DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_X(__GPIO__) , \
+                         DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_LL_X(__GPIO__))
+#define DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(__GPIO__)                     \
+  LL_GPIO_SetOutputPin(DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_X(__GPIO__) ,   \
+                       DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_LL_X(__GPIO__))
+#define DUMBORC_EXTCHANNEL_I2C_GPIO_GET_X(__GPIO__)                     \
+  LL_GPIO_IsInputPinSet(DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_X(__GPIO__) ,  \
+                        DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_LL_X(__GPIO__))
 
 
 #define DUMBORC_EXTCHANNEL_I2C_ADDR_A    (0x27 << 1)
@@ -136,7 +139,7 @@ static int i_dumborc_extchannel_delay_check(void)
   /* LJS : Get timer current tick  */
   val_tick = i_dumborc_extchannel_delay_get_tick();
   /* LJS : Simulate a 2us delay! */
-  val = (2 * ((DUMBORC_EXTCHANNEL_CPU_FREQ_HZ) / 1000000UL));
+  val = DUMBORC_EXTCHANNEL_DELAY_US_TO_TICK(2);
   while ( val-- > 0 ) {
     __NOP();
   }
@@ -154,17 +157,43 @@ static int i_dumborc_extchannel_delay_check(void)
 static void i_dumborc_extchannel_i2c_gpio_init(void)
 {
   /* LJS : Init Software-I2C SDA & SCL GPIO */
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SCL);
-  gpio_init(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA , GPIO_OD_PU , GPIO_PIN_SPEED_MEDIUM);
-  gpio_init(DUMBORC_EXTCHANNEL_I2C_GPIO_SCL , GPIO_OD_PU , GPIO_PIN_SPEED_MEDIUM);
+  LL_GPIO_InitTypeDef pinInit;
+
+
+  stm32_gpio_enable_clock(DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_X(SDA));
+  stm32_gpio_enable_clock(DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_X(SCL));
+
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SDA);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SCL);
+
+  LL_GPIO_StructInit(&pinInit);
+  pinInit.Pin        = DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_LL_X(SDA);
+  pinInit.Mode       = LL_GPIO_MODE_OUTPUT;
+  pinInit.Speed      = LL_GPIO_SPEED_FREQ_MEDIUM;
+  pinInit.OutputType = LL_GPIO_OUTPUT_OPENDRAIN;
+  pinInit.Pull       = LL_GPIO_PULL_UP;
+  pinInit.Alternate  = LL_GPIO_AF_0;
+  LL_GPIO_Init(DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_X(SDA) , &pinInit);
+  pinInit.Pin = DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_LL_X(SCL);
+  LL_GPIO_Init(DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_X(SCL) , &pinInit);
 }
 
 static void i_dumborc_extchannel_i2c_gpio_uninit(void)
 {
   /* LJS : Uninit Software-I2C SDA & SCL GPIO */
-  gpio_init(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA , GPIO_IN , GPIO_PIN_SPEED_LOW);
-  gpio_init(DUMBORC_EXTCHANNEL_I2C_GPIO_SCL , GPIO_IN , GPIO_PIN_SPEED_LOW);
+  LL_GPIO_InitTypeDef pinInit;
+
+
+  LL_GPIO_StructInit(&pinInit);
+  pinInit.Pin        = DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_LL_X(SDA);
+  pinInit.Mode       = LL_GPIO_MODE_INPUT;
+  pinInit.Speed      = LL_GPIO_SPEED_FREQ_LOW;
+  pinInit.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
+  pinInit.Pull       = LL_GPIO_PULL_NO;
+  pinInit.Alternate  = LL_GPIO_AF_0;
+  LL_GPIO_Init(DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_X(SDA) , &pinInit);
+  pinInit.Pin = DUMBORC_EXTCHANNEL_I2C_GPIO_PIN_LL_X(SCL);
+  LL_GPIO_Init(DUMBORC_EXTCHANNEL_I2C_GPIO_PORT_X(SCL) , &pinInit);
 }
 
 static void i_dumborc_extchannel_i2c_bus_start(void)
@@ -173,13 +202,13 @@ static void i_dumborc_extchannel_i2c_bus_start(void)
    * SCL XXXXXX XXXXXX HHHHHH HHHHHH LLLLLL
    * SDA XXXXXX HHHHHH HHHHHH LLLLLL LLLLLL
    */
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SDA);
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SCL);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SCL);
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_0(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_L(SDA);
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_0(DUMBORC_EXTCHANNEL_I2C_GPIO_SCL);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_L(SCL);
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
 }
 
@@ -190,11 +219,11 @@ static void i_dumborc_extchannel_i2c_bus_stop(void)
    * SDA XXXXXX LLLLLL LLLLLL HHHHHH
    */
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_0(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_L(SDA);
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SCL);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SCL);
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SDA);
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
 }
 
@@ -203,25 +232,25 @@ static uint8_t i_dumborc_extchannel_i2c_bus_read_1byte(void)
   uint32_t count , rx_byte;
 
 
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SDA);
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
 
   count = 8;
   rx_byte = 0;
   do {
-    DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SCL);
+    DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SCL);
     i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
 
     rx_byte <<= 1;
-    if ( DUMBORC_EXTCHANNEL_I2C_GPIO_GET_X(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA) ) {
+    if ( DUMBORC_EXTCHANNEL_I2C_GPIO_GET_X(SDA) ) {
       rx_byte |= 0x01;
     }
 
-    DUMBORC_EXTCHANNEL_I2C_GPIO_SET_0(DUMBORC_EXTCHANNEL_I2C_GPIO_SCL);
+    DUMBORC_EXTCHANNEL_I2C_GPIO_SET_L(SCL);
     i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
   } while ( --count );
 
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SDA);
 
   return (rx_byte & 0xFF);
 }
@@ -235,18 +264,18 @@ static void i_dumborc_extchannel_i2c_bus_write_1byte(uint8_t const data)
   tx_byte = data;
   do {
     if ( tx_byte & 0x80 ) {
-      DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
+      DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SDA);
     } else {
-      DUMBORC_EXTCHANNEL_I2C_GPIO_SET_0(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
+      DUMBORC_EXTCHANNEL_I2C_GPIO_SET_L(SDA);
     }
     tx_byte <<= 1;
 
     i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
-    DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SCL);
+    DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SCL);
     i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
-    DUMBORC_EXTCHANNEL_I2C_GPIO_SET_0(DUMBORC_EXTCHANNEL_I2C_GPIO_SCL);
+    DUMBORC_EXTCHANNEL_I2C_GPIO_SET_L(SCL);
     if ( count == 1 ) {
-      DUMBORC_EXTCHANNEL_I2C_GPIO_SET_0(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
+      DUMBORC_EXTCHANNEL_I2C_GPIO_SET_L(SDA);
     }
     i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
   } while ( --count );
@@ -257,24 +286,24 @@ static uint8_t i_dumborc_extchannel_i2c_bus_get_ack(void)
   uint32_t count , status;
 
 
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SDA);
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SCL);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SCL);
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
 
   count = 10;
   do {
-    status = DUMBORC_EXTCHANNEL_I2C_GPIO_GET_X(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
+    status = DUMBORC_EXTCHANNEL_I2C_GPIO_GET_X(SDA);
     if ( status == 0 ) {
       break;
     }
     i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
   } while ( --count );
 
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_0(DUMBORC_EXTCHANNEL_I2C_GPIO_SCL);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_L(SCL);
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
 
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SDA);
 
   return (!!status);
 }
@@ -282,15 +311,15 @@ static uint8_t i_dumborc_extchannel_i2c_bus_get_ack(void)
 static void i_dumborc_extchannel_i2c_bus_set_ack(uint32_t const status)
 {
   if ( status ) {
-    DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
+    DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SDA);
   } else {
-    DUMBORC_EXTCHANNEL_I2C_GPIO_SET_0(DUMBORC_EXTCHANNEL_I2C_GPIO_SDA);
+    DUMBORC_EXTCHANNEL_I2C_GPIO_SET_L(SDA);
   }
 
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_1(DUMBORC_EXTCHANNEL_I2C_GPIO_SCL);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_H(SCL);
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
-  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_0(DUMBORC_EXTCHANNEL_I2C_GPIO_SCL);
+  DUMBORC_EXTCHANNEL_I2C_GPIO_SET_L(SCL);
   i_dumborc_extchannel_delay_us(s_dumborc_extchannel_i2c_clk_cycle_tick_div3);
 }
 
@@ -642,6 +671,10 @@ uint32_t dumborc_extchannel_get_pin_status(uint32_t const pin_mask)
 
 
 #if 1
+#include "stm32_switch_driver.h"
+
+
+
 /**
  * [boardSwitchGetPosition (System board swith get position , Override)]
  * @param  idx [System board switch index (uint8_t)]
