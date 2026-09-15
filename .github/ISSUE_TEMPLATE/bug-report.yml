@@ -144,6 +144,7 @@ body:
         - RadioMaster TX16S MK3
         - RadioMaster Zorro
         - Senduwing H17
+        - DumboRC DRO1
         - Other (Please specify below)
     validations:
       required: true
