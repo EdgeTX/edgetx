@@ -301,7 +301,7 @@ void PrefsProfilePanel::sectionFirmwareOpts()
   });
   layFirmwareOpts->addWidget(chkBackupBeforeFlash, row, col++);
 
-  ui->csectFirmwareOpts->finish(row, col, [this] { this->shrink(); });
+  ui->csectFirmwareOpts->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsProfilePanel::sectionFolders()
@@ -359,7 +359,7 @@ void PrefsProfilePanel::sectionFolders()
   layFolders->addWidget(btnModelsPath, row, col++);
  */
 
-  ui->csectFolders->finish(-1, -1, [this] { this->shrink(); });
+  ui->csectFolders->finish(-1, -1, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsProfilePanel::sectionNewFile()
@@ -462,7 +462,7 @@ void PrefsProfilePanel::sectionNewFile()
   });
   layNewFile->addWidget(cboModuleExternal, row, col++);
 
-  ui->csectNewFile->finish(row, col, [this] { this->shrink(); });
+  ui->csectNewFile->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsProfilePanel::sectionSplash()
@@ -507,7 +507,7 @@ void PrefsProfilePanel::sectionSplash()
   });
   laySplash->addWidget(btnSplashClear, row, col++);
 
-  ui->csectSplash->finish(row, col, [this] { this->shrink(); });
+  ui->csectSplash->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 // called directly by PrefsEditDialog
