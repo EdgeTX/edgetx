@@ -48,6 +48,7 @@ class PrefsEditDialog : public QDialog
     void profileFirmwareChanged();
     void profileFirmwareAboutToChange(bool saveFiles = true);
     void resetFirmware();
+    void profileNameChanged();
 
   protected slots:
     void accept() Q_DECL_OVERRIDE;
@@ -65,6 +66,7 @@ class PrefsEditDialog : public QDialog
     Profile &profile;
     QList<PrefsPanel *> panels;
     bool dirty;
+    bool profNameChanged;
 
     PrefsPanel * addTab(PrefsPanel * panel, QString text);
     bool maybeSave();

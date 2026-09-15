@@ -36,7 +36,8 @@ PrefsEditDialog::PrefsEditDialog(QWidget * parent, UpdateFactories * factories) 
   firmware(getCurrentFirmware()),
   board(getCurrentBoard()),
   profile(g.currentProfile()),
-  dirty(false)
+  dirty(false),
+  profNameChanged(false)
 {
   ui->setupUi(this);
   setWindowIcon(CompanionIcon("apppreferences.png"));
@@ -45,6 +46,9 @@ PrefsEditDialog::PrefsEditDialog(QWidget * parent, UpdateFactories * factories) 
   PrefsProfilePanel *prefsProfPanel = new PrefsProfilePanel(this, firmware, board, profile);
   addTab(prefsProfPanel, tr("Radio Profile"));
   connect(prefsProfPanel, &PrefsProfilePanel::radioChanged, this, &PrefsEditDialog::onRadioChanged);
+  // store name change signal and delay until changed name saved
+  // as we do not want to update in case the save is cancelled
+  connect(prefsProfPanel, &PrefsProfilePanel::nameChanged, this, [this] () { profNameChanged = true; });
 
   addTab(new PrefsAppPanel(this, firmware, board, profile), tr("Application"));
   addTab(new PrefsSimuPanel(this, firmware, board, profile), tr("Simulator"));
@@ -96,7 +100,7 @@ PrefsPanel * PrefsEditDialog::addTab(PrefsPanel * panel, QString text)
   panels << panel;
   PrefsScrollArea *scrollArea = new PrefsScrollArea(ui->tabWidget, panel);
   ui->tabWidget->addTab(scrollArea, text);
-  connect(panel, &PrefsPanel::modified, this, [this] { this->dirty = true; });
+  connect(panel, &AbstractPanel::modified, this, [this] { this->dirty = true; });
   return panel;
 }
 
@@ -155,6 +159,12 @@ bool PrefsEditDialog::save()
     // save preferences for every tab
     for (const auto panel : panels)
       panel->save();
+
+    // flag need to update profile list
+    if (profNameChanged) {
+      profNameChanged = false;
+      emit profileNameChanged();
+    }
 
     // prevent re-prompting
     dirty = false;

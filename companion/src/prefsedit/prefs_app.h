@@ -43,6 +43,7 @@ class PrefsAppPanel : public PrefsPanel
 
     AutoCheckBox *chkSplash;
     AutoCheckBox *chkProfPrmpt;
+    AutoCheckBox *chkExpSects;
     AutoSpinBox  *sbxRecentFiles;
     AutoComboBox *cboModelNew;
     AutoCheckBox *chkModelDelete;
