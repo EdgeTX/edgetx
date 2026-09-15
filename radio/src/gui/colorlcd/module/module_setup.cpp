@@ -233,7 +233,7 @@ class ModuleWindow : public Window
                             GET_DEFAULT(*modelId), [=](int32_t newValue) {
                               if (newValue != *modelId) {
                                 *modelId = newValue;
-                                modelslist.updateCurrentModelCell();
+                                modelCellManager.updateCurrentModelCell();
                                 updateIDStaticText(moduleIdx);
   #if defined(CROSSFIRE)
                                 if (isModuleCrossfire(moduleIdx)) {
@@ -546,7 +546,7 @@ class ModuleWindow : public Window
     if (idUnique == nullptr) return;
     char buffer[50];
     std::string idStr = STR_MODELIDUNIQUE;
-    if (!modelslist.isModelIdUnique(mdIdx, buffer, sizeof(buffer))) {
+    if (!modelCellManager.isModelIdUnique(mdIdx, buffer, sizeof(buffer))) {
       idStr = STR_MODELIDUSED;
       idStr = idStr + buffer;
       lv_obj_add_state(idUnique->getLvObj(), ETX_STATE_UNIQUE_ID_WARN);
