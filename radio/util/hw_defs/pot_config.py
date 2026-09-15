@@ -171,6 +171,10 @@ POT_CONFIG = {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"},
     },
+    "t15h7": {
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"},
+    },
     "gx15": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"},

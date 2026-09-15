@@ -224,6 +224,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_X10_EXPRESS:
     case BOARD_JUMPER_T15:
     case BOARD_JUMPER_T15PRO:
+    case BOARD_JUMPER_T15H7:
     case BOARD_JUMPER_T22:
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:
@@ -293,6 +294,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_X10_EXPRESS:
     case BOARD_JUMPER_T15:
     case BOARD_JUMPER_T15PRO:
+    case BOARD_JUMPER_T15H7:
     case BOARD_JUMPER_T22:
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:
@@ -440,7 +442,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
              IS_HELLORADIOSKY_V14(board);
 
     case LcdDepth:
-      if (IS_FAMILY_HORUS_OR_T16(board))
+      if (IS_FAMILY_HORUS_OR_T16(board) || IS_JUMPER_T15H7(board))
         return 16;
       else if (IS_TARANIS_SMALL(board))
         return 1;
@@ -452,7 +454,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case LcdHeight:
       if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_RADIOMASTER_TX16SMK3(board))
         return 480;
-      else if (IS_FAMILY_PL18(board) || IS_JUMPER_T15(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T22(board) || IS_FLYSKY_ST16(board) || IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board))
+      else if (IS_FAMILY_PL18(board) || IS_JUMPER_T15(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T15H7(board) || IS_JUMPER_T22(board) || IS_FLYSKY_ST16(board) || IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board))
         return 320;
       else if (IS_FLYSKY_PA01(board) || IS_HELLORADIOSKY_V12(board))
         return 240;
@@ -466,7 +468,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 800;
       else if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PA01(board) || IS_HELLORADIOSKY_V12(board))
         return 320;
-      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_TX15(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))
+      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_JUMPER_T15H7(board) || IS_RADIOMASTER_TX15(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))
         return 480;
       else if (IS_TARANIS(board) && !IS_TARANIS_SMALL(board))
         return 212;
@@ -703,6 +705,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Jumper T15";
     case BOARD_JUMPER_T15PRO:
       return "Jumper T15 Pro";
+    case BOARD_JUMPER_T15H7:
+      return "Jumper T15-H7";
     case BOARD_JUMPER_T22:
       return "Jumper T22";
     case BOARD_JUMPER_T16:
@@ -893,6 +897,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_T14:
   case BOARD_JUMPER_T15:
   case BOARD_JUMPER_T15PRO:
+  case BOARD_JUMPER_T15H7:
   case BOARD_JUMPER_T22:
   case BOARD_JUMPER_T20:
   case BOARD_JUMPER_TPROS:

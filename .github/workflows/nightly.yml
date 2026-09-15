@@ -39,6 +39,7 @@ jobs:
           - st16
           - tx15
           - t15pro
+          - t15h7
           - gx15
           - h17
     container:
