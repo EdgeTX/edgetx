@@ -96,7 +96,7 @@ PrefsPanel * PrefsEditDialog::addTab(PrefsPanel * panel, QString text)
   panels << panel;
   PrefsScrollArea *scrollArea = new PrefsScrollArea(ui->tabWidget, panel);
   ui->tabWidget->addTab(scrollArea, text);
-  connect(panel, &PrefsPanel::modified, this, [this] { this->dirty = true; });
+  connect(panel, &AbstractPanel::modified, this, [this] { this->dirty = true; });
   return panel;
 }
 

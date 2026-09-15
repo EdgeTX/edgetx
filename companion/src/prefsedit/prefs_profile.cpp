@@ -113,9 +113,24 @@ void PrefsProfilePanel::onFirmwareTypePressed()
 
 QString PrefsProfilePanel::getLanguage()
 {
-  return !profile.fwLanguage().isEmpty() ?
-    profile.fwLanguage() :
-    QLocale::languageToString(QLocale().language()).split("_").first();
+  QString lang;
+
+  if (!profile.fwLanguage().isEmpty() &&
+      firmware->getFirmwareBase()->languageList().contains(profile.fwLanguage()))
+    lang = profile.fwLanguage();
+  else {
+    // depending on the OS environment this does not always return a valid language
+    lang = QLocale::languageToString(QLocale().language()).split("_").first();
+
+    if (!firmware->getFirmwareBase()->languageList().contains(lang))
+      lang = "en";  // give up trying
+
+    // the signal is emitted in the ctor however the signal is not trapped by PrefsEditDialog
+    // until after the ctor has finish so delay emitting
+    QTimer::singleShot(100, [this] () { emit this->modified(); });
+  }
+
+  return lang;
 }
 
 QStringList PrefsProfilePanel::getSelectedOptions()
@@ -253,7 +268,7 @@ void PrefsProfilePanel::sectionFirmwareOpts()
   QHBoxLayout *layLanguage = new QHBoxLayout();
   cboFirmwareLanguage = new AutoComboBox(this);
   cboFirmwareLanguage->setModel(languageModel());
-  cboFirmwareLanguage->setValue(profile.fwLanguage());
+  cboFirmwareLanguage->setValue(getLanguage());
   cboFirmwareLanguage->setBindSave([this] {
     this->profile.fwLanguage(this->cboFirmwareLanguage->currentData().toString());
   });
