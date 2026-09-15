@@ -28,13 +28,28 @@ class RadioGpsTool: public Page
 public:
   explicit RadioGpsTool();
 
+  // Kind of URI encoded in the QR code
+  enum UriType {
+    URI_GEO_RFC5870,      // geo:lat,lon
+    URI_GEO_ANDROID,      // geo:0,0?q=lat,lon
+    URI_GOOGLE_MAPS_WEB,  // https://maps.google.com/?q=lat,lon
+    URI_GOOGLE_MAPS_APP,  // comgooglemaps://?q=lat,lon
+    URI_COMAPS,           // cm://map?ll=lat,lon
+    URI_GURU_MAPS,        // guru://show?place=lat,lon
+    URI_TYPE_COUNT
+  };
+
 protected:
   int8_t gpsSensorID;
   StaticText* gpsLabel = nullptr;
   QRCode* gpsQR = nullptr;
 
+  // Remembered across page openings while the radio is powered on
+  static uint8_t uriType;
+
   static LAYOUT_VAL_SCALED(QR_SZ, 150)
   static LAYOUT_VAL_SCALED(BTN_SZ, 80)
+  static LAYOUT_VAL_SCALED(CHOICE_W, 170)
 
   void buildHeader(Window * window);
   void buildBody(Window * window);
