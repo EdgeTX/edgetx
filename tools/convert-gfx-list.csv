@@ -2,8 +2,6 @@ file,width,height,modified
 bmp_bootloader_plug_usb,111,59,2026-01-13 11:36:16
 bmp_bootloader_usb_plugged,52,54,2026-01-13 11:36:16
 bmp_logo_edgetx_splash,271,257,2026-01-13 11:36:16
-bmp_radio_stick_background,90,90,2026-01-13 12:46:22
-bmp_radio_stick_pointer,20,20,2026-01-13 11:36:16
 mask_icon_edgetx,30,30,2026-01-13 11:36:16
 mask_icon_menu_favs,30,30,2026-01-13 11:36:16
 mask_icon_menu_manage_models,30,30,2026-01-13 11:36:16
