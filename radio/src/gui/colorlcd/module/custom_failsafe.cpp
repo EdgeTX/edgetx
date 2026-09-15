@@ -116,7 +116,7 @@ class ChannelFailsafeEdit : public NumberEdit
 
   void toggle()
   {
-    int16_t& value = g_model.failsafeChannels[channel];
+    int16_t value = g_model.failsafeChannels[channel];
     if (value == FAILSAFE_CHANNEL_HOLD) {
       value = FAILSAFE_CHANNEL_NOPULSE;
     } else if (value == FAILSAFE_CHANNEL_NOPULSE) {
@@ -124,6 +124,7 @@ class ChannelFailsafeEdit : public NumberEdit
     } else {
       value = FAILSAFE_CHANNEL_HOLD;
     }
+    g_model.failsafeChannels[channel] = value;
     SET_DIRTY();
     update();
   }
@@ -182,13 +183,13 @@ FailSafePage::FailSafePage(uint8_t moduleIdx) : Page(ICON_STATS_ANALOGS)
 
   FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_ZERO);
 
-  auto btn = new TextButton(body, rect_t{0, 0, LV_PCT(100), 0}, STR_CHANNELS2FAILSAFE,
-                            [=]() {
-                              setCustomFailsafe(moduleIdx);
-                              AUDIO_WARNING1();
-                              SET_DIRTY();
-                              return 0;
-                            });
+  new TextButton(body, rect_t{0, 0, LV_PCT(100), 0}, STR_CHANNELS2FAILSAFE,
+                  [=]() {
+                    setCustomFailsafe(moduleIdx);
+                    AUDIO_WARNING1();
+                    SET_DIRTY();
+                    return 0;
+                  });
 
   ModuleData* md = &g_model.moduleData[moduleIdx];
   auto start_ch = md->channelsStart;
