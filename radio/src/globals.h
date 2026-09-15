@@ -76,7 +76,7 @@ extern int32_t chans[MAX_OUTPUT_CHANNELS];
 extern int16_t ex_chans[MAX_OUTPUT_CHANNELS]; // Outputs (before LIMITS) of the last perMain
 extern int16_t channelOutputs[MAX_OUTPUT_CHANNELS];
 // Highest channel number (1-based, 0 = none) with a mix or override configured
-extern uint8_t channelOutputsMax;
+extern uint8_t channelOutputsCnt;
 
 typedef uint16_t BeepANACenter;
 extern BeepANACenter bpanaCenter;

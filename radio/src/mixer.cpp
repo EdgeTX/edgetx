@@ -55,7 +55,7 @@ uint8_t mixWarning;
 
 int16_t calibratedAnalogs[MAX_ANALOG_INPUTS];
 int16_t channelOutputs[MAX_OUTPUT_CHANNELS] = {0};
-uint8_t channelOutputsMax = 0;
+uint8_t channelOutputsCnt = 0;
 int16_t ex_chans[MAX_OUTPUT_CHANNELS] = {0}; // Outputs (before LIMITS) of the last perMain;
 
 #if defined(HELI)
@@ -1157,7 +1157,7 @@ static uint8_t overrideChannelsMax(const CustomFunctionData* functions)
 
 // Based on the model configuration, not on which mixes / functions are
 // currently active, so the value does not change with switches or flight modes
-static void updateChannelOutputsMax()
+static void updateChannelOutputsCnt()
 {
   uint8_t result = 0;
   for (uint8_t i = 0; i < MAX_MIXERS; i++) {
@@ -1179,7 +1179,7 @@ static void updateChannelOutputsMax()
     result = max(result, overrideChannelsMax(g_model.customFn));
 #endif
 
-  channelOutputsMax = result;
+  channelOutputsCnt = result;
 }
 
 void evalMixes(uint8_t tick10ms)
@@ -1289,7 +1289,7 @@ void evalMixes(uint8_t tick10ms)
     channelOutputs[i] = value;  // copy consistent word to int-level
   }
 
-  updateChannelOutputsMax();
+  updateChannelOutputsCnt();
 
   if (tick10ms && flightModesFade) {
     uint16_t tick_delta = delta * tick10ms;

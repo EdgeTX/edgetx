@@ -1066,14 +1066,14 @@ TEST_F(MixerTest, flightModeOverflow)
   CHECK_FLIGHT_MODE_TRANSITION(0, 1000, 1024, 1024);
 }
 
-TEST_F(MixerTest, channelOutputsMax)
+TEST_F(MixerTest, channelOutputsCnt)
 {
   SYSTEM_RESET();
   MODEL_RESET();
   MIXER_RESET();
 
   evalMixes(1);
-  EXPECT_EQ(channelOutputsMax, 0);
+  EXPECT_EQ(channelOutputsCnt, 0);
 
   g_model.mixData[0].destCh = 3;
   g_model.mixData[0].srcRaw = MIXSRC_MAX;
@@ -1084,7 +1084,7 @@ TEST_F(MixerTest, channelOutputsMax)
   g_model.mixData[1].weight = makeSourceNumVal(100);
   g_model.mixData[1].swtch = SWSRC_OFF;
   evalMixes(1);
-  EXPECT_EQ(channelOutputsMax, 19);
+  EXPECT_EQ(channelOutputsCnt, 19);
 
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
   // override switch off: still counted
@@ -1093,12 +1093,12 @@ TEST_F(MixerTest, channelOutputsMax)
   g_model.customFn[0].all.param = 23;  // CH24
   g_model.customFn[0].active = true;
   evalMixes(1);
-  EXPECT_EQ(channelOutputsMax, 24);
+  EXPECT_EQ(channelOutputsCnt, 24);
 
   // disabled function is not counted
   g_model.customFn[0].active = false;
   evalMixes(1);
-  EXPECT_EQ(channelOutputsMax, 19);
+  EXPECT_EQ(channelOutputsCnt, 19);
 #endif
 }
 
