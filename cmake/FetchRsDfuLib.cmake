@@ -1,4 +1,4 @@
-# Fetch rs_dfu
+# Fetch rs_dfu C++ library for Companion
 cmake_minimum_required(VERSION 3.14)
 
 include(FetchContent)
