@@ -41,8 +41,8 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Typ
   ui->setupUi(this);
 
   panelItemModels->registerItemModel(new FilteredItemModel(GeneralSettings::templateSetupItemModel()), FIM_TEMPLATESETUP);
-  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir() ? GeneralSettings::RadioTypeContextAir :
-                                                                                     GeneralSettings::RadioTypeContextSurface);
+  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
+                                                                                          GeneralSettings::RadioTypeContextSurface);
 
   // name
   // The profile name may NEVER be empty
@@ -400,7 +400,7 @@ void PrefsProfilePanel::sectionNewFile()
             (this->chkUseSettingsBackup->isChecked() &&
              this->profile.generalSettings().isEmpty()));
   });
-  lblStickMode->setBindVisible([this] { return Boards::isAir(); });
+  lblStickMode->setBindVisible([this] { return Boards::isAir(board); });
   layNewFile->addWidget(lblStickMode, row, col++);
 
   cboStickMode = new AutoComboBox(this);
@@ -414,7 +414,7 @@ void PrefsProfilePanel::sectionNewFile()
             (this->chkUseSettingsBackup->isChecked() &&
              this->profile.generalSettings().isEmpty()));
   });
-  cboStickMode->setBindVisible([this] { return Boards::isAir(); });
+  cboStickMode->setBindVisible([this] { return Boards::isAir(board); });
   layNewFile->addWidget(cboStickMode, row, col++);
   // Channel Order
   ++row; col = 0;
@@ -517,6 +517,8 @@ void PrefsProfilePanel::onRadioChanged(Firmware * firmware, bool deferUpdate)
   PrefsPanel::onRadioChanged(firmware, true);
   fwTypeData->setText(firmware->getFirmwareBase()->getId());
   populateFirmwareOptions(profile.fwOptions().split("-"));
+  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
+                                                                                          GeneralSettings::RadioTypeContextSurface);
   update();
 }
 
