@@ -149,6 +149,7 @@
 #define TR_AUX_SERIAL_MODES_9          "Debug"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "Module externe"
+#define TR_AUX_SERIAL_MODES_12         "CRSF Trainer"
 
 #define TR_SWTYPES_1                   "Rien"
 #define TR_SWTYPES_2                   "Monostable"

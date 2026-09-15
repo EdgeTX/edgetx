@@ -44,6 +44,9 @@
 
 #if defined(CROSSFIRE)
   #include "telemetry/crossfire.h"
+  #if !defined(BOOT)
+    #include "crsf_trainer.h"
+  #endif
 #endif
 
 #if defined(GHOST)
@@ -227,6 +230,20 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     // trainer mode selects it as input source. See sbusTrainerAcquire().
     break;
 
+#if defined(CROSSFIRE)
+  case UART_MODE_CRSF_TRAINER:
+    // CRSF is self-framing, so it needs no idle-line detection: a receive
+    // callback is enough. On de-init ctx (and hence drv) is null, and the
+    // callback has to be released so the next user of the port gets a clean
+    // stream.
+    if (drv && drv->setReceiveCb) {
+      crsfTrainerStart(ctx, drv);
+    } else {
+      crsfTrainerStop();
+    }
+    break;
+#endif
+
   case UART_MODE_TELEMETRY:
     // telemetrySetGetByte(ctx, getByte);
 
@@ -325,6 +342,16 @@ static void serialSetupPort(int mode, etx_serial_init& params)
     params.encoding = ETX_Encoding_8E2,
     params.direction = ETX_Dir_RX;
     break;
+
+#if defined(CROSSFIRE)
+  case UART_MODE_CRSF_TRAINER:
+    // Only offered on USB-VCP, where the baud rate is not carried and
+    // usbSerialInit() ignores these params. It still has to be non-zero:
+    // serialInit() treats a zero baudrate as "nothing to set up".
+    params.baudrate = CROSSFIRE_BAUDRATES[1];
+    params.direction = ETX_Dir_RX;
+    break;
+#endif
 
   case UART_MODE_SBUS_TRAINER_INV:
     params.baudrate = SBUS_BAUDRATE;
