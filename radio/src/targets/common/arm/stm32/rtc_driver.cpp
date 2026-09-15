@@ -24,7 +24,7 @@
 
 RTC_HandleTypeDef rtc = {};
 
-void rtcSetTime(const struct gtm * t)
+void rtcDriverSetTime(const struct gtm * t)
 {
   g_ms100 = 0; // start of next second begins now
 
@@ -41,7 +41,9 @@ void rtcSetTime(const struct gtm * t)
   HAL_RTC_SetDate(&rtc, &RTC_DateStruct, RTC_FORMAT_BIN);
 }
 
-void rtcGetTime(struct gtm * t)
+// SSR must be read before TR, and TR before DR, or the shadow registers stay
+// frozen. HAL does that within one call, so seconds and sub-seconds match.
+uint16_t rtcGetTimeMs(struct gtm * t)
 {
   RTC_TimeTypeDef RTC_TimeStruct;
   RTC_DateTypeDef RTC_DateStruct;
@@ -55,7 +57,74 @@ void rtcGetTime(struct gtm * t)
   t->tm_year = RTC_DateStruct.Year + 100; // STM32 year is two decimals only (so base is currently 2000), gtm is based on number of years since 1900
   t->tm_mon  = RTC_DateStruct.Month - 1;
   t->tm_mday = RTC_DateStruct.Date;
+
+  // SSR counts down over PREDIV_S+1 steps, 1/256 s each with the usual setup
+  uint32_t fraction = RTC_TimeStruct.SecondFraction;
+  if (fraction == 0 || RTC_TimeStruct.SubSeconds > fraction) return 0;
+  return (uint16_t)(((fraction - RTC_TimeStruct.SubSeconds) * 1000) / (fraction + 1));
 }
+
+void rtcGetTime(struct gtm * t)
+{
+  rtcGetTimeMs(t);
+}
+
+#if defined(RTC_CALR_CALM) && !defined(BOOT)
+
+// DR0 is left alone, legacy code uses it for shutdown/soft reset requests
+#define RTC_CALIB_BKP_MAGIC_REG   RTC_BKP_DR1
+#define RTC_CALIB_BKP_REF_REG     RTC_BKP_DR2
+#define RTC_CALIB_BKP_MAGIC       0x52544301
+
+int32_t rtcGetCalibration()
+{
+  uint32_t calr = READ_REG(rtc.Instance->CALR);
+  int32_t units = -(int32_t)(calr & RTC_CALR_CALM);
+  if (calr & RTC_CALR_CALP) units += 512;
+  return units;
+}
+
+void rtcSetCalibration(int32_t units)
+{
+  if (units > RTC_CALIB_UNIT_MAX) units = RTC_CALIB_UNIT_MAX;
+  if (units < RTC_CALIB_UNIT_MIN) units = RTC_CALIB_UNIT_MIN;
+
+  // CALP adds 512 pulses, CALM removes up to 511
+  uint32_t plus = (units > 0) ? RTC_SMOOTHCALIB_PLUSPULSES_SET
+                              : RTC_SMOOTHCALIB_PLUSPULSES_RESET;
+  uint32_t minus = (units > 0) ? (512 - units) : -units;
+
+  HAL_RTCEx_SetSmoothCalib(&rtc, RTC_SMOOTHCALIB_PERIOD_32SEC, plus, minus);
+}
+
+gtime_t rtcGetCalibrationRef()
+{
+  if (HAL_RTCEx_BKUPRead(&rtc, RTC_CALIB_BKP_MAGIC_REG) != RTC_CALIB_BKP_MAGIC)
+    return 0;
+  return (gtime_t)HAL_RTCEx_BKUPRead(&rtc, RTC_CALIB_BKP_REF_REG);
+}
+
+void rtcSetCalibrationRef(gtime_t t)
+{
+  HAL_RTCEx_BKUPWrite(&rtc, RTC_CALIB_BKP_REF_REG, (uint32_t)t);
+  HAL_RTCEx_BKUPWrite(&rtc, RTC_CALIB_BKP_MAGIC_REG, RTC_CALIB_BKP_MAGIC);
+}
+
+void rtcClearCalibrationRef()
+{
+  HAL_RTCEx_BKUPWrite(&rtc, RTC_CALIB_BKP_MAGIC_REG, 0);
+  HAL_RTCEx_BKUPWrite(&rtc, RTC_CALIB_BKP_REF_REG, 0);
+}
+
+#else // no smooth calibration hardware
+
+int32_t rtcGetCalibration() { return 0; }
+void rtcSetCalibration(int32_t units) { (void)units; }
+gtime_t rtcGetCalibrationRef() { return 0; }
+void rtcSetCalibrationRef(gtime_t t) { (void)t; }
+void rtcClearCalibrationRef() {}
+
+#endif
 
 void rtcInit()
 {
