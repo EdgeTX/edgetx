@@ -146,6 +146,20 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
       switches->insert(switches->end(), defn);
     }
   }
+
+  //  CI1302 voice control virtual switches are not listed in json file
+  if (IS_HELLORADIOSKY_V16(board)) {
+    for (const QString &tag : {QStringLiteral("VGR"), QStringLiteral("VFL")}) {
+      if (getSwitchIndex(switches, tag, Board::LVT_TAG) < 0) {
+        SwitchDefn defn;
+        defn.tag = tag.toStdString();
+        defn.name = defn.tag;
+        defn.type = Board::SWITCH_3POS;
+        defn.dflt = Board::SWITCH_3POS;
+        switches->insert(switches->end(), defn);
+      }
+    }
+  }
 }
 
 // called from Boards::getCapability if no capability match

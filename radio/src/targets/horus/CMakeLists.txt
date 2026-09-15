@@ -116,6 +116,7 @@ if (PCB STREQUAL X10)
     set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
     set(AUX2_SERIAL OFF)
     set(CSD203_SENSOR ON)
+    set(CI1302_SENSOR ON)
     set(FLYSKY_GIMBAL ON)
     add_definitions(-DIMU_ICM42627)
     add_definitions(-DIMU_SC7U22)
@@ -348,6 +349,14 @@ set(FIRMWARE_SRC
 
 if (MULTIMODULE)
   add_definitions(-DMULTI_PROTOLIST)
+endif()
+
+if(CI1302_SENSOR)
+  # Via SRC (not target_sources(board ...)), same as io/frsky_firmware_update.cpp
+  # below: made available to SIMU/WASM builds, not just firmware. Live-sensor
+  # call sites are SIMU-guarded individually.
+  set(SRC ${SRC} drivers/CI1302.cpp)
+  add_definitions(-DVOICE_CONTROL_SENSOR)
 endif()
 
 set(SRC ${SRC}
