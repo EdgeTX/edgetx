@@ -48,6 +48,9 @@
 #include <assert.h>
 #include <clocale>
 #include <deque>
+#if defined(WIDGET_STUDIO)
+#include <mutex>
+#endif
 #include <stdint.h>
 
 // Monotonic event counter incremented each time haptic fires.
@@ -301,6 +304,90 @@ uint32_t simuLcdGetDepth()
   return 1;
 #endif
 }
+
+// ---------------------------------------------------------------------------
+// Widget Studio dev hooks (see simulib.h)
+// ---------------------------------------------------------------------------
+
+#if defined(WIDGET_STUDIO)
+
+static std::mutex widget_studio_mutex;
+
+static std::string capture_path;
+static bool capture_armed = false;
+static bool capture_redraw_pending = false;
+
+static bool reset_requested = false;
+
+void simuRequestReset()
+{
+  std::lock_guard<std::mutex> lock(widget_studio_mutex);
+  reset_requested = true;
+}
+
+bool simuConsumeResetRequest()
+{
+  std::lock_guard<std::mutex> lock(widget_studio_mutex);
+  bool r = reset_requested;
+  reset_requested = false;
+  return r;
+}
+
+static uint16_t analog_override[MAX_STICKS + MAX_POTS + MAX_VBAT + MAX_RTC_BAT];
+static bool analog_override_set[MAX_STICKS + MAX_POTS + MAX_VBAT + MAX_RTC_BAT];
+
+void simuCaptureArm(const char* path)
+{
+  std::lock_guard<std::mutex> lock(widget_studio_mutex);
+  if (path == nullptr || path[0] == '\0') {
+    capture_path.clear();
+    capture_armed = false;
+    capture_redraw_pending = false;
+    return;
+  }
+
+  capture_path = path;
+  capture_armed = true;
+  capture_redraw_pending = true;
+}
+
+bool simuConsumeCaptureRedraw()
+{
+  std::lock_guard<std::mutex> lock(widget_studio_mutex);
+  bool pending = capture_redraw_pending;
+  capture_redraw_pending = false;
+  return pending;
+}
+
+bool simuConsumeCapturePath(std::string& path)
+{
+  std::lock_guard<std::mutex> lock(widget_studio_mutex);
+  if (!capture_armed) return false;
+
+  path = capture_path;
+  capture_armed = false;
+  return true;
+}
+
+void simuSetAnalogValue(uint8_t idx, uint16_t value)
+{
+  if (idx >= (MAX_STICKS + MAX_POTS + MAX_VBAT + MAX_RTC_BAT)) return;
+  std::lock_guard<std::mutex> lock(widget_studio_mutex);
+  analog_override[idx] = value;
+  analog_override_set[idx] = true;
+}
+
+bool simuGetAnalogOverride(uint8_t idx, uint16_t* value)
+{
+  if (idx >= (MAX_STICKS + MAX_POTS + MAX_VBAT + MAX_RTC_BAT))
+    return false;
+  std::lock_guard<std::mutex> lock(widget_studio_mutex);
+  if (!analog_override_set[idx]) return false;
+  if (value) *value = analog_override[idx];
+  return true;
+}
+
+#endif  // WIDGET_STUDIO
 
 #if !defined(COLORLCD)
 void lcdSetRefVolt(uint8_t val)
