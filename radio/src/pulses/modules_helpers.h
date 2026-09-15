@@ -43,6 +43,7 @@ extern uint32_t NV14internalModuleFwVersion;
 #endif
 
 #define CROSSFIRE_CHANNELS_COUNT        16
+#define CROSSFIRE_MAX_CHANNELS_COUNT    (2 * CROSSFIRE_CHANNELS_COUNT)
 #define GHOST_CHANNELS_COUNT            16
 
 #define IS_NATIVE_FRSKY_PROTOCOL(module)                                \
@@ -441,7 +442,7 @@ static const int8_t maxChannelsModules_M8[] = {
   0, // MODULE_TYPE_XJT_PXX1: index NOT USED
   16,// MODULE_TYPE_ISRM_PXX2
   -2,// MODULE_TYPE_DSM2
-  CROSSFIRE_CHANNELS_COUNT - 8, // MODULE_TYPE_CROSSFIRE
+  CROSSFIRE_MAX_CHANNELS_COUNT - 8, // MODULE_TYPE_CROSSFIRE
   8, // MODULE_TYPE_MULTIMODULE
   0, // MODULE_TYPE_R9M_PXX1: index NOT USED
   0, // MODULE_TYPE_R9M_PXX2: index NOT USED
@@ -485,7 +486,7 @@ inline int8_t maxModuleChannels(uint8_t moduleIdx)
 inline int8_t minModuleChannels(uint8_t idx)
 {
   if (isModuleCrossfire(idx))
-    return CROSSFIRE_CHANNELS_COUNT;
+    return CROSSFIRE_MAX_CHANNELS_COUNT;
   else if (isModuleGhost(idx))
     return GHOST_CHANNELS_COUNT;
   else if (isModuleSBUS(idx))
