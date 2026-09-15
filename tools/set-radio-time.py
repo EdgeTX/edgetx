@@ -9,9 +9,10 @@ line.  The radio treats a CLI set as host timed and skips the margin it allows
 for someone turning the dials by hand, which leaves the drift measurement good
 to the USB round trip, a few milliseconds.
 
-That accuracy is in the measurement, not in the resulting clock: the RTC is
-written in whole seconds and keeps whatever sub-second phase it already had, so
-the radio can still read up to a second away from the host afterwards.
+Right after a run the hardware RTC matches the host to within a few
+milliseconds, since writing the time restarts its sub-second counter.  The time
+the radio displays comes from a separate software clock, seeded from the RTC in
+whole seconds at boot, so that one can lag the RTC by up to a second.
 
 Every setting rewrites the drift reference, and two settings less than a day
 apart are discarded, so do not put this on a short schedule or the radio never
