@@ -27,6 +27,7 @@
 #include "stamp.h"
 #include "lua_api.h"
 #include "api_filesystem.h"
+#include "lib_file.h"
 #include "hal/module_port.h"
 #include "hal/adc_driver.h"
 #include "hal/rotary_encoder.h"
@@ -1484,17 +1485,21 @@ static int luaPlayFile(lua_State * L)
   if(volume != USE_SETTINGS_VOLUME)
     volume = limit(-2, volume-3, 2);  // (rescale 1..5) to internal format and limit to (-2..2)
 
+  char file[AUDIO_FILENAME_MAXLEN+1];
   if (filename[0] != '/') {
     // relative sound file path - use current language dir for absolute path
-    char file[AUDIO_FILENAME_MAXLEN+1];
     char * str = getAudioPath(file);
     strncpy(str, filename, AUDIO_FILENAME_MAXLEN - (str-file));
     file[AUDIO_FILENAME_MAXLEN] = 0;
-    audioQueue.playFile(file, 0, 0, volume);
   }
   else {
-    audioQueue.playFile(filename, 0, 0, volume);
+    strncpy(file, filename, AUDIO_FILENAME_MAXLEN);
+    file[AUDIO_FILENAME_MAXLEN] = 0;
   }
+  // resolve to an absolute path (works on exFAT)
+  char norm[AUDIO_FILENAME_MAXLEN+1];
+  etxNormalizePath(file, norm, sizeof(norm));
+  audioQueue.playFile(norm, 0, 0, volume);
   return 0;
 }
 
