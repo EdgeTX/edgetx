@@ -27,7 +27,16 @@
 
 #if defined(CROSSFIRE)
 
-uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses);
+uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses, uint8_t nChannels);
+
+// Channels 1-16 ramp from -1024, channels 17-32 are zero
+static void initPulses(int16_t * pulses)
+{
+  memset(pulses, 0, sizeof(int16_t) * MAX_OUTPUT_CHANNELS);
+  for (int i=0; i<CROSSFIRE_CHANNELS_COUNT; i++) {
+    pulses[i] = -1024 + (2048 / CROSSFIRE_CHANNELS_COUNT) * i;
+  }
+}
 
 // Spec-defined part of the frame (0x16 RC Channels Packed): sync byte, type,
 // 16 x 11-bit channel packing. Expected bytes computed independently, not
@@ -36,15 +45,13 @@ TEST(Crossfire, createCrossfireChannelsFrame)
 {
   MODEL_RESET();
 
-  int16_t pulsesStart[MAX_TRAINER_CHANNELS];
+  int16_t pulsesStart[MAX_OUTPUT_CHANNELS];
   uint8_t crossfire[CROSSFIRE_FRAME_MAXLEN];
 
   memset(crossfire, 0, sizeof(crossfire));
-  for (int i=0; i<MAX_TRAINER_CHANNELS; i++) {
-    pulsesStart[i] = -1024 + (2048 / MAX_TRAINER_CHANNELS) * i;
-  }
+  initPulses(pulsesStart);
 
-  createCrossfireChannelsFrame(EXTERNAL_MODULE, crossfire, pulsesStart);
+  createCrossfireChannelsFrame(EXTERNAL_MODULE, crossfire, pulsesStart, CROSSFIRE_CHANNELS_COUNT);
 
   ASSERT_EQ(crossfire[0], MODULE_ADDRESS);
   ASSERT_EQ(crossfire[2], CHANNELS_ID);
@@ -64,17 +71,15 @@ TEST(Crossfire, ExpressLRSArmingExtension_CH5Mode)
 {
   MODEL_RESET();
 
-  int16_t pulsesStart[MAX_TRAINER_CHANNELS];
+  int16_t pulsesStart[MAX_OUTPUT_CHANNELS];
   uint8_t crossfire[CROSSFIRE_FRAME_MAXLEN];
 
   memset(crossfire, 0, sizeof(crossfire));
-  for (int i=0; i<MAX_TRAINER_CHANNELS; i++) {
-    pulsesStart[i] = -1024 + (2048 / MAX_TRAINER_CHANNELS) * i;
-  }
+  initPulses(pulsesStart);
 
   g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode = ARMING_MODE_CH5;
 
-  uint8_t len = createCrossfireChannelsFrame(EXTERNAL_MODULE, crossfire, pulsesStart);
+  uint8_t len = createCrossfireChannelsFrame(EXTERNAL_MODULE, crossfire, pulsesStart, CROSSFIRE_CHANNELS_COUNT);
 
   ASSERT_EQ(len, 27);
   ASSERT_EQ(crossfire[0], MODULE_ADDRESS);
@@ -90,18 +95,16 @@ TEST(Crossfire, ExpressLRSArmingExtension_SwitchMode)
 {
   MODEL_RESET();
 
-  int16_t pulsesStart[MAX_TRAINER_CHANNELS];
+  int16_t pulsesStart[MAX_OUTPUT_CHANNELS];
   uint8_t crossfire[CROSSFIRE_FRAME_MAXLEN];
 
   memset(crossfire, 0, sizeof(crossfire));
-  for (int i=0; i<MAX_TRAINER_CHANNELS; i++) {
-    pulsesStart[i] = -1024 + (2048 / MAX_TRAINER_CHANNELS) * i;
-  }
+  initPulses(pulsesStart);
 
   g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode = ARMING_MODE_SWITCH;
   g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingTrigger = SWSRC_NONE;
 
-  uint8_t len = createCrossfireChannelsFrame(EXTERNAL_MODULE, crossfire, pulsesStart);
+  uint8_t len = createCrossfireChannelsFrame(EXTERNAL_MODULE, crossfire, pulsesStart, CROSSFIRE_CHANNELS_COUNT);
 
   ASSERT_EQ(len, 27);
   ASSERT_EQ(crossfire[0], MODULE_ADDRESS);
@@ -111,6 +114,73 @@ TEST(Crossfire, ExpressLRSArmingExtension_SwitchMode)
 
   uint8_t crc = crc8(&crossfire[2], 24);
   ASSERT_EQ(crossfire[26], crc);
+}
+
+// More than 16 channels: the 16-channel frame is followed by channels 17-32
+// packed the same way, placed after the status byte.
+// 1 ID + 22 channel data + 1 status + 22 channel data (17-32) + 1 CRC = 47
+TEST(Crossfire, createCrossfireChannelsFrame_32Channels)
+{
+  MODEL_RESET();
+
+  int16_t pulsesStart[MAX_OUTPUT_CHANNELS];
+  uint8_t crossfire[CROSSFIRE_FRAME_MAXLEN];
+
+  initPulses(pulsesStart);
+  // channels 17-32 ramp down from +1024
+  for (int i=0; i<CROSSFIRE_CHANNELS_COUNT; i++) {
+    pulsesStart[CROSSFIRE_CHANNELS_COUNT + i] = 1024 - (2048 / CROSSFIRE_CHANNELS_COUNT) * i;
+  }
+
+  g_model.moduleData[EXTERNAL_MODULE].crsf.crsfArmingMode = ARMING_MODE_CH5;
+
+  const uint8_t expectedChannelData[22] = {
+    0xAD, 0xA0, 0x88, 0x5E, 0xC0, 0x73, 0xA4, 0x56, 0x51, 0x4C, 0x6F,
+    0xE0, 0x33, 0x22, 0x2B, 0x27, 0x9A, 0x57, 0xF0, 0x1A, 0x99, 0xD5
+  };
+  const uint8_t expectedChannelDataHigh[22] = {
+    0x13, 0x67, 0xB5, 0x91, 0xC1, 0x9B, 0xD7, 0x89, 0xB2, 0xD2, 0x88,
+    0xE0, 0xD3, 0x1B, 0xC5, 0x5A, 0x75, 0x24, 0xF0, 0xE8, 0x85, 0x22
+  };
+
+  // any count above 16 selects the large frame
+  for (int8_t nChannels : {CROSSFIRE_CHANNELS_COUNT + 1, MAX_OUTPUT_CHANNELS}) {
+    memset(crossfire, 0, sizeof(crossfire));
+
+    uint8_t len = createCrossfireChannelsFrame(EXTERNAL_MODULE, crossfire, pulsesStart, nChannels);
+
+    ASSERT_EQ(len, 49) << "nChannels=" << (int)nChannels;
+    ASSERT_EQ(crossfire[0], MODULE_ADDRESS);
+    ASSERT_EQ(crossfire[1], 47);
+    ASSERT_EQ(crossfire[2], CHANNELS_ID);
+    ASSERT_EQ(memcmp(&crossfire[3], expectedChannelData, sizeof(expectedChannelData)), 0);
+    ASSERT_EQ(crossfire[25], 0x02); // bit 1: arming mode CH5
+    ASSERT_EQ(memcmp(&crossfire[26], expectedChannelDataHigh, sizeof(expectedChannelDataHigh)), 0);
+
+    uint8_t crc = crc8(&crossfire[2], 46);
+    ASSERT_EQ(crossfire[48], crc);
+  }
+}
+
+// 16 or fewer channels keeps the standard 16-channel frame
+TEST(Crossfire, createCrossfireChannelsFrame_16ChannelsOrFewer)
+{
+  MODEL_RESET();
+
+  int16_t pulsesStart[MAX_OUTPUT_CHANNELS];
+  uint8_t crossfire[CROSSFIRE_FRAME_MAXLEN];
+
+  initPulses(pulsesStart);
+
+  for (int8_t nChannels : {0, 8, CROSSFIRE_CHANNELS_COUNT}) {
+    memset(crossfire, 0, sizeof(crossfire));
+
+    uint8_t len = createCrossfireChannelsFrame(EXTERNAL_MODULE, crossfire, pulsesStart, nChannels);
+
+    ASSERT_EQ(len, 27) << "nChannels=" << (int)nChannels;
+    ASSERT_EQ(crossfire[1], 25);
+    ASSERT_EQ(crossfire[26], crc8(&crossfire[2], 24));
+  }
 }
 
 TEST(Crossfire, crc8)
