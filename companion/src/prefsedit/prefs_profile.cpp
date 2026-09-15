@@ -57,6 +57,9 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Typ
     if (profile.name().isEmpty())
       profile.name(tr("My Radio"));
   });
+  ui->leName->setBindPostChanged([this] {
+    emit this->nameChanged();
+  });
 
   // radio
   // this widget is for data management
