@@ -323,7 +323,7 @@ class SpectrumWindow : public Window
 RadioSpectrumAnalyser::RadioSpectrumAnalyser(uint8_t moduleIdx) :
     Page(ICON_RADIO_TOOLS, PAD_ZERO), moduleIdx(moduleIdx)
 {
-  setCloseHandler([=]() { stop(); });
+  onClosing([=]() { stop(); });
   init();
   buildHeader(header);
   buildBody(body);

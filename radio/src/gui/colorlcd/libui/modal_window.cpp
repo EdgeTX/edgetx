@@ -60,6 +60,6 @@ void ModalWindow::onClicked()
     if (children.size() > 0)
       children.front()->onCancel();
     else
-      deleteLater();
+      closwWindow();
   }
 }

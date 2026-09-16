@@ -124,7 +124,7 @@ void ModelCurvesPage::rebuild(Window *window)
 void ModelCurvesPage::editCurve(Window *window, uint8_t curve)
 {
   Window *editWindow = new CurveEditWindow(curve);
-  editWindow->setCloseHandler([=]() { rebuild(window); });
+  editWindow->onClosing([=]() { rebuild(window); });
 }
 
 void ModelCurvesPage::presetMenu(Window *window, uint8_t index)

@@ -394,17 +394,12 @@ RadioMicRecorder::RadioMicRecorder() :
   buildHeader(header);
   buildBody(body);
   enterIdle();
-}
 
-void RadioMicRecorder::deleteLater()
-{
-  if (!deleted()) {
+  onClosing([=]() {
     if (recorder.isRecording()) recorder.stop();
     if (isPlayingTake()) audioQueue.stopAll();
     pdmStop();
-
-    Page::deleteLater();
-  }
+  });
 }
 
 void RadioMicRecorder::buildHeader(Window* window)

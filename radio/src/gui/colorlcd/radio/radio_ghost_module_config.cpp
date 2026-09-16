@@ -169,7 +169,7 @@ void RadioGhostModuleConfig::onLongPressRTN()
   reusableBuffer.ghostMenu.menuAction = GHST_MENU_CTRL_CLOSE;
   moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
   sleep_ms(10);
-  deleteLater();
+  closwWindow();
 #if defined(TRIMS_EMULATE_BUTTONS)
   setHatsAsKeys(false);  // switch trims back to normal
 #endif
@@ -187,7 +187,7 @@ void RadioGhostModuleConfig::checkEvents()
     moduleState[EXTERNAL_MODULE].counter = GHST_MENU_CONTROL;
   } else if (reusableBuffer.ghostMenu.menuStatus == GHST_MENU_STATUS_CLOSING) {
     sleep_ms(10);
-    deleteLater();
+    closwWindow();
 #if defined(TRIMS_EMULATE_BUTTONS)
     setHatsAsKeys(false);  // switch trims back to normal
 #endif

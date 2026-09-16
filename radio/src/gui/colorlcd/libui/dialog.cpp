@@ -94,7 +94,7 @@ void ProgressDialog::updateProgress(int percentage)
 
 void ProgressDialog::closeDialog()
 {
-  deleteLater();
+  closwWindow();
   onClose();
 }
 
@@ -114,7 +114,7 @@ MessageDialog::MessageDialog(const char* title,
   }
 }
 
-void MessageDialog::onClicked() { deleteLater(); }
+void MessageDialog::onClicked() { closwWindow(); }
 
 //-----------------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ DynamicMessageDialog::DynamicMessageDialog(
                                textHandler, color, textFlags);
 }
 
-void DynamicMessageDialog::onClicked() { deleteLater(); }
+void DynamicMessageDialog::onClicked() { closwWindow(); }
 
 //-----------------------------------------------------------------------------
 
@@ -158,7 +158,7 @@ ConfirmDialog::ConfirmDialog(const char* title,
   });
 
   new TextButton(box, rect_t{0, 0, 96, 0}, STR_YES, [=]() -> int8_t {
-    this->deleteLater();
+    this->closwWindow();
     this->confirmHandler();
     return 0;
   });
@@ -166,7 +166,7 @@ ConfirmDialog::ConfirmDialog(const char* title,
 
 void ConfirmDialog::onCancel()
 {
-  deleteLater();
+  closwWindow();
   if (cancelHandler) cancelHandler();
 }
 
@@ -206,12 +206,12 @@ LabelDialog::LabelDialog(const char *label, int length, const char* title,
                         LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
 
   new TextButton(box, rect_t{0, 0, 96, 0}, STR_CANCEL, [=]() {
-    deleteLater();
+    closwWindow();
     return 0;
   });
 
   new TextButton(box, rect_t{0, 0, 96, 0}, STR_SAVE, [=]() {
-    deleteLater();
+    closwWindow();
     if (saveHandler != nullptr) saveHandler(this->label);
     return 0;
   });

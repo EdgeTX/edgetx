@@ -64,7 +64,5 @@ class TableField : public Window
 
   bool onLongPress() override;
 
-  void deleteLater() override;
-
   static void force_editing(lv_group_t* g) { lv_group_set_editing(g, true); }
 };

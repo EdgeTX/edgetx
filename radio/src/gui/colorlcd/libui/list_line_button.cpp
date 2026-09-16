@@ -67,11 +67,10 @@ InputMixButtonBase::InputMixButtonBase(Window* parent, uint8_t index) :
   setWidth(BTN_W);
   setHeight(ListLineButton::BTN_H);
   padAll(PAD_ZERO);
-}
 
-InputMixButtonBase::~InputMixButtonBase()
-{
-  if (fm_buffer) free(fm_buffer);
+  onClosing([=]() {
+    if (fm_buffer) free(fm_buffer);
+  });
 }
 
 void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
@@ -196,7 +195,7 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
 void InputMixButtonBase::checkEvents()
 {
   ListLineButton::checkEvents();
-  if (!_deleted) {
+  if (!deleted()) {
     if (fm_canvas) {
       bool chkd = lv_obj_get_state(fm_canvas) & LV_STATE_CHECKED;
       if (chkd != this->checked()) {

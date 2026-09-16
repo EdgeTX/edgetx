@@ -23,9 +23,12 @@
 constexpr coord_t KEYBOARD_HEIGHT = LCD_H * 2 / 5;
 TextKeyboard* TextKeyboard::_instance = nullptr;
 
-TextKeyboard::TextKeyboard() : Keyboard(KEYBOARD_HEIGHT) {}
-
-TextKeyboard::~TextKeyboard() { _instance = nullptr; }
+TextKeyboard::TextKeyboard() : Keyboard(KEYBOARD_HEIGHT)
+{
+  onClosing([=]() {
+    _instance = nullptr;
+  });
+}
 
 #if defined(HARDWARE_KEYS)
 

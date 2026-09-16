@@ -50,7 +50,6 @@ class InputMixButtonBase : public ListLineButton
 {
  public:
   InputMixButtonBase(Window* parent, uint8_t index);
-  ~InputMixButtonBase();
 
   void setWeight(gvar_t value, gvar_t min, gvar_t max);
   void setSource(mixsrc_t idx);

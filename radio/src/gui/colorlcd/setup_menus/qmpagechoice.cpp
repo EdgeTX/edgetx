@@ -66,5 +66,5 @@ void QMPageChoice::openMenu()
 
   // fillMenu(menu); - called by MenuToolbar
 
-  menu->setCloseHandler([=]() { setEditMode(false); });
+  menu->onClosing([=]() { setEditMode(false); });
 }

@@ -43,6 +43,9 @@ SliderBase::SliderBase(Window* parent, coord_t width, coord_t height, int32_t vm
     _getValue(std::move(getValue)),
     _setValue(std::move(setValue))
 {
+  onClosing([=]() {
+    if (tickPts) delete tickPts;
+  });
 }
 
 void SliderBase::update()
@@ -55,14 +58,6 @@ void SliderBase::update()
     bar->cur_value_anim.anim_end = _getValue();
 
     lv_slider_set_value(slider, _getValue(), LV_ANIM_OFF);
-  }
-}
-
-void SliderBase::deleteLater()
-{
-  if (!deleted()) {
-    if (tickPts) delete tickPts;
-    Window::deleteLater();
   }
 }
 
@@ -84,7 +79,7 @@ void SliderBase::checkEvents()
 
 void SliderBase::enable(bool enabled)
 {
-  if (!_deleted && slider) {
+  if (!deleted() && slider) {
     if (lv_obj_has_state(slider, LV_STATE_DISABLED) == enabled) {
       if (enabled)
         lv_obj_clear_state(slider, LV_STATE_DISABLED);

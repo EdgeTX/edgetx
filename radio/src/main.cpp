@@ -65,7 +65,7 @@ void closeUsbMenu()
 {
   if (_usbMenu && !usbPlugged()) {
     // USB has been unplugged meanwhile
-    _usbMenu->deleteLater();
+    _usbMenu->closwWindow();
   }
 }
 
@@ -75,7 +75,7 @@ void openUsbMenu()
 
   _usbMenu = new Menu();
 
-  _usbMenu->setCloseHandler([]() { _usbMenu = nullptr; });
+  _usbMenu->onClosing([=]() { _usbMenu = nullptr; });
 
   _usbMenu->setCancelHandler([]() {
     if (usbPlugged() && (getSelectedUsbMode() == USB_UNSELECTED_MODE)) {
@@ -218,7 +218,7 @@ void handleUsbConnection()
     TRACE("USB stopped");
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
 #if defined(COLORLCD)
-      usbConnectedWindow->deleteLater();
+      usbConnectedWindow->closwWindow();
       usbConnectedWindow = nullptr;
       // In case the SD card is removed during the session
       if (!SD_CARD_PRESENT()) {
@@ -227,7 +227,7 @@ void handleUsbConnection()
         MainWindow::instance()->blockUntilClose(true, []() {
           return SD_CARD_PRESENT();
         }, true);
-        w->deleteLater();
+        w->closwWindow();
       }
       edgeTxResume();
 #else

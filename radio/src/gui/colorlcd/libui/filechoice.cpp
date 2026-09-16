@@ -191,7 +191,7 @@ void FileChoice::openMenu()
 
     // fillMenu(menu); - called by MenuToolbar
 
-    menu->setCloseHandler([=]() { setEditMode(false); });
+    menu->onClosing([=]() { setEditMode(false); });
   } else {
     new MessageDialog(STR_SDCARD, STR_NO_FILES_ON_SD);
   }

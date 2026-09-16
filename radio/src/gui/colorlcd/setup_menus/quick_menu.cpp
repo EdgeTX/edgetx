@@ -211,7 +211,7 @@ class QuickSubMenu
   void clearSubMenu()
   {
     if (subMenu) {
-      subMenu->deleteLater();
+      subMenu->closwWindow();
       subMenu = nullptr;
     }
   }
@@ -249,7 +249,7 @@ void QuickMenu::openQuickMenu()
 
 void QuickMenu::shutdownQuickMenu()
 {
-  if (instance) instance->deleteLater();
+  if (instance) instance->closwWindow();
 }
 
 QuickMenu::QuickMenu() :
@@ -298,14 +298,10 @@ QuickMenu::QuickMenu() :
 #endif
     }
   }
-}
 
-void QuickMenu::deleteLater()
-{
-  if (!_deleted) {
+  onClosing([=] () {
     instance = nullptr;
-    NavWindow::deleteLater();
-  }
+  });
 }
 
 void QuickMenu::openQM(PageGroupBase* newPageGroup, QMPage newCurPage)

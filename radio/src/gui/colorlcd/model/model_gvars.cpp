@@ -519,7 +519,7 @@ ModelGVarsPage::ModelGVarsPage(const PageDef& pageDef) :
 void ModelGVarsPage::cleanup()
 {
   if (hdr)
-    hdr->deleteLater();
+    hdr->closwWindow();
   hdr = nullptr;
 }
 
@@ -549,7 +549,7 @@ void ModelGVarsPage::build(Window* window)
       Menu* menu = new Menu();
       menu->addLine(STR_EDIT, [=]() {
         Window* editWindow = new GVarEditWindow(index);
-        editWindow->setCloseHandler([=]() { rebuild(window); });
+        editWindow->onClosing([=]() { rebuild(window); });
       });
       menu->addLine(STR_CLEAR, [=]() {
         for (auto& flightMode : g_model.flightModeData)

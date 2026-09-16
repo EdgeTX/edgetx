@@ -150,7 +150,7 @@ void SetupWidgetsPage::onClicked()
 
 void SetupWidgetsPage::onCancel()
 {
-  deleteLater();
+  closwWindow();
 
   QuickMenu::openPage((QMPage)(QM_UI_SCREEN1 + customScreenIdx));
 

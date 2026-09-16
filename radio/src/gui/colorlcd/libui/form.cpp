@@ -44,6 +44,10 @@ FormField::FormField(Window* parent, const rect_t& rect, LvglCreate objConstruct
 {
   setTextFlag(textFlags);
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+
+  onClosing([=]() {
+    if (isEditMode()) setEditMode(false);
+  });
 }
 
 void FormField::setEditMode(bool newEditMode)
@@ -71,14 +75,6 @@ void FormField::onCancel()
   } else {
     Window::onCancel();
   }
-}
-
-void FormField::deleteLater()
-{
-  if (_deleted) return;
-
-  if (isEditMode()) setEditMode(false);
-  Window::deleteLater();
 }
 
 FormLine::FormLine(Window* parent, FlexGridLayout& layout) :

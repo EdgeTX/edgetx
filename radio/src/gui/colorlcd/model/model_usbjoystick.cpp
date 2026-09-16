@@ -580,5 +580,5 @@ void ModelUSBJoystickPage::editChannel(uint8_t channel,
                                        USBChannelLineButton* btn)
 {
   auto chedit = new USBChannelEditWindow(channel);
-  chedit->setCloseHandler([=]() { this->update(); btn->refresh(); });
+  chedit->onClosing([=]() { this->update(); btn->refresh(); });
 }

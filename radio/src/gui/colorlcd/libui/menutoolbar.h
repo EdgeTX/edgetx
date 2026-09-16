@@ -37,7 +37,6 @@ class MenuToolbar : public Window
 {
  public:
   MenuToolbar(Choice* choice, Menu* menu, const int columns);
-  ~MenuToolbar();
 
   void resetFilter();
 

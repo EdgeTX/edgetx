@@ -27,16 +27,13 @@ WidgetsContainer::WidgetsContainer(Window* parent, const rect_t& rect, uint8_t z
 {
   widgets = new Widget*[zoneCount];
   for (int i = 0; i < zoneCount; i += 1) widgets[i] = nullptr;
-}
 
-void WidgetsContainer::deleteLater()
-{
-  if (deleted()) return;
-  for (int i = 0; i < zoneCount; i += 1)
-    if (widgets[i]) widgets[i]->deleteLater();
-  if (widgets) delete[] widgets;
-  widgets = nullptr;
-  Window::deleteLater();
+  onClosing([=]() {
+    for (int i = 0; i < zoneCount; i += 1)
+      if (widgets[i]) widgets[i]->closwWindow();
+    if (widgets) delete[] widgets;
+    widgets = nullptr;
+  });
 }
 
 Widget* WidgetsContainer::getWidget(unsigned int index)
@@ -51,7 +48,7 @@ void WidgetsContainer::removeWidget(unsigned int index)
   if (index >= zoneCount) return;
 
   if (widgets[index]) {
-    widgets[index]->deleteLater();
+    widgets[index]->closwWindow();
   }
 
   widgets[index] = nullptr;
@@ -85,9 +82,9 @@ void WidgetsContainer::showWidgets(bool visible)
 
 void WidgetsContainer::refreshWidgets(bool inForeground)
 {
-  if (!_deleted) {
+  if (!deleted()) {
     for (int i = 0; i < zoneCount; i++) {
-      if (widgets[i]) {
+      if (widgets[i] && !widgets[i]->deleted()) {
         if ((inForeground && widgets[i]->isOnScreen()) || widgets[i]->isFullscreen())
           widgets[i]->foreground();
         else

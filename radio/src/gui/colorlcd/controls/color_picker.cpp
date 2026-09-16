@@ -70,7 +70,7 @@ class ColorEditorPopup : public BaseDialog
   void onCancel() override
   {
     if (setValue) setValue(origColor);
-    this->deleteLater();
+    this->closwWindow();
   }
 
  public:
@@ -164,7 +164,7 @@ class ColorEditorPopup : public BaseDialog
 
     new TextButton(hbox, rect_t{0, 0, BTN_W, 0}, STR_SAVE, [=]() -> int8_t {
       if (setValue) setValue(m_color);
-      this->deleteLater();
+      this->closwWindow();
       return 0;
     });
   }

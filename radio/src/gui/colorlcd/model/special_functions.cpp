@@ -768,7 +768,7 @@ void FunctionsPage::editSpecialFunction(Window *window, uint8_t index,
                                         FunctionLineButton *button)
 {
   auto edit = editPage(index);
-  edit->setCloseHandler([=]() {
+  edit->onClosing([=]() {
     CustomFunctionData *cfn = customFunctionData(index);
     if (cfn->swtch != 0) {
       focusIndex = index;
