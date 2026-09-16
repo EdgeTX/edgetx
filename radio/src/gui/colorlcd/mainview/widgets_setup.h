@@ -46,7 +46,6 @@ class SetupWidgetsPage : public Window
   unsigned savedView = 0;
 
   void onEvent(event_t event) override;
-  void deleteLater(bool detach = true, bool trash = true) override;
 };
 
 class SetupWidgetsPageSlot : public ButtonBase
