@@ -38,7 +38,6 @@ class SetupTopBarWidgetsPage : public NavWindow
 
   void onClicked() override;
   void onCancel() override;
-  void deleteLater() override;
 
 #if defined(HARDWARE_KEYS)
   void onPressSYS() override {}
