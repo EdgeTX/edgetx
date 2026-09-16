@@ -486,7 +486,7 @@ inline int8_t maxModuleChannels(uint8_t moduleIdx)
 inline int8_t minModuleChannels(uint8_t idx)
 {
   if (isModuleCrossfire(idx))
-    return CROSSFIRE_MAX_CHANNELS_COUNT;
+    return CROSSFIRE_CHANNELS_COUNT;
   else if (isModuleGhost(idx))
     return GHOST_CHANNELS_COUNT;
   else if (isModuleSBUS(idx))
@@ -501,6 +501,8 @@ inline int8_t defaultModuleChannels_M8(uint8_t idx)
 {
   if (isModulePPM(idx))
     return 0; // 8 channels
+  else if (isModuleCrossfire(idx))
+    return CROSSFIRE_CHANNELS_COUNT - 8; // 16 channels
   else
     return maxModuleChannels_M8(idx);
 }

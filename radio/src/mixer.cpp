@@ -55,7 +55,6 @@ uint8_t mixWarning;
 
 int16_t calibratedAnalogs[MAX_ANALOG_INPUTS];
 int16_t channelOutputs[MAX_OUTPUT_CHANNELS] = {0};
-uint8_t channelOutputsCnt = 0;
 int16_t ex_chans[MAX_OUTPUT_CHANNELS] = {0}; // Outputs (before LIMITS) of the last perMain;
 
 #if defined(HELI)
@@ -1140,48 +1139,6 @@ uint8_t lastFlightMode = 255; // TODO reinit everything here when the model chan
 tmr10ms_t flightModeTransitionTime;
 uint8_t   flightModeTransitionLast = 255;
 
-#if defined(OVERRIDE_CHANNEL_FUNCTION)
-static uint8_t overrideChannelsMax(const CustomFunctionData* functions)
-{
-  uint8_t result = 0;
-  for (uint8_t i = 0; i < MAX_SPECIAL_FUNCTIONS; i++) {
-    const CustomFunctionData* cfn = &functions[i];
-    if (CFN_SWITCH(cfn) && CFN_ACTIVE(cfn) &&
-        CFN_FUNC(cfn) == FUNC_OVERRIDE_CHANNEL) {
-      result = max<uint8_t>(result, CFN_CH_INDEX(cfn) + 1);
-    }
-  }
-  return result;
-}
-#endif
-
-// Based on the model configuration, not on which mixes / functions are
-// currently active, so the value does not change with switches or flight modes
-static void updateChannelOutputsCnt()
-{
-  uint8_t result = 0;
-  for (uint8_t i = 0; i < MAX_MIXERS; i++) {
-    const MixData* md = mixAddress(i);
-    if (md->srcRaw == 0) {
-#if defined(COLORLCD)
-      continue;
-#else
-      break;
-#endif
-    }
-    result = max<uint8_t>(result, md->destCh + 1);
-  }
-
-#if defined(OVERRIDE_CHANNEL_FUNCTION)
-  if (radioGFEnabled())
-    result = max(result, overrideChannelsMax(g_eeGeneral.customFn));
-  if (modelSFEnabled())
-    result = max(result, overrideChannelsMax(g_model.customFn));
-#endif
-
-  channelOutputsCnt = result;
-}
-
 void evalMixes(uint8_t tick10ms)
 {
   int32_t sum_chans512[MAX_OUTPUT_CHANNELS];
@@ -1288,8 +1245,6 @@ void evalMixes(uint8_t tick10ms)
 
     channelOutputs[i] = value;  // copy consistent word to int-level
   }
-
-  updateChannelOutputsCnt();
 
   if (tick10ms && flightModesFade) {
     uint16_t tick_delta = delta * tick10ms;

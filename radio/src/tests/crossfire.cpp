@@ -183,6 +183,33 @@ TEST(Crossfire, createCrossfireChannelsFrame_16ChannelsOrFewer)
   }
 }
 
+// The channel count comes from the module setup, not from a count of mixes
+TEST(Crossfire, sentModuleChannelsFollowsModuleSetup)
+{
+  MODEL_RESET();
+
+  g_model.moduleData[EXTERNAL_MODULE].type = MODULE_TYPE_CROSSFIRE;
+
+  // a new module defaults to 16 channels, not to the 32 maximum
+  g_model.moduleData[EXTERNAL_MODULE].channelsCount =
+      defaultModuleChannels_M8(EXTERNAL_MODULE);
+  EXPECT_EQ(sentModuleChannels(EXTERNAL_MODULE), CROSSFIRE_CHANNELS_COUNT);
+
+  g_model.moduleData[EXTERNAL_MODULE].channelsCount =
+      CROSSFIRE_MAX_CHANNELS_COUNT - 8;
+  EXPECT_EQ(sentModuleChannels(EXTERNAL_MODULE), CROSSFIRE_MAX_CHANNELS_COUNT);
+
+  // never drops below 16, whatever an older model holds
+  g_model.moduleData[EXTERNAL_MODULE].channelsCount = 0;
+  EXPECT_EQ(sentModuleChannels(EXTERNAL_MODULE), CROSSFIRE_CHANNELS_COUNT);
+
+  // only 16 and 32 are selectable
+  EXPECT_TRUE(isCrossfireChannelsCountAllowed(CROSSFIRE_CHANNELS_COUNT - 8));
+  EXPECT_TRUE(isCrossfireChannelsCountAllowed(CROSSFIRE_MAX_CHANNELS_COUNT - 8));
+  EXPECT_FALSE(isCrossfireChannelsCountAllowed(0));
+  EXPECT_FALSE(isCrossfireChannelsCountAllowed(16));
+}
+
 TEST(Crossfire, crc8)
 {
   uint8_t frame[] = { 0x00, 0x0C, 0x14, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x01, 0x03, 0x00, 0x00, 0x00, 0xF4 };

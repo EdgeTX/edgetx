@@ -569,10 +569,7 @@ void pulsesSendNextFrame(uint8_t module)
 
     uint8_t channelStart = g_model.moduleData[module].channelsStart;
     int16_t* channels = &channelOutputs[channelStart];
-    // Channels configured from channelStart on (may be 0)
-    uint8_t nChannels = channelOutputsCnt > channelStart
-                            ? channelOutputsCnt - channelStart
-                            : 0;
+    uint8_t nChannels = sentModuleChannels(module);
 
     auto buffer = _module_buffers[module]._buffer;
     drv->sendPulses(ctx, buffer, channels, nChannels);

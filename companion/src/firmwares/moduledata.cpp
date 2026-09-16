@@ -381,6 +381,36 @@ int ModuleData::getMaxChannelCount()
   return 8;
 }
 
+int ModuleData::getMinChannelCount()
+{
+  switch (protocol) {
+    case PULSES_CROSSFIRE:
+      return 16;
+    default:
+      return 4;
+  }
+}
+
+int ModuleData::getDefaultChannelCount()
+{
+  switch (protocol) {
+    case PULSES_CROSSFIRE:
+      return 16;
+    default:
+      return getMaxChannelCount();
+  }
+}
+
+int ModuleData::getChannelCountStep()
+{
+  switch (protocol) {
+    case PULSES_CROSSFIRE:
+      return 16;  // 16 or 32 only
+    default:
+      return 1;
+  }
+}
+
 /*
       If Companion did not combine the /radio/src/datastructs type and sub-type fields
       this would be so much cleaner and, modules and protocols generally easier to maintain
