@@ -55,8 +55,6 @@ class SetupWidgetsPage : public NavWindow
  protected:
   uint8_t customScreenIdx;
   unsigned savedView = 0;
-
-  void deleteLater() override;
 };
 
 class SetupWidgetsPageSlot : public ButtonBase
