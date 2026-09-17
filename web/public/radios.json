@@ -1,5 +1,249 @@
 [
   {
+    "name": "DumboRC DRO1",
+    "wasm": "edgetx-dro1-simulator.wasm",
+    "display": {
+      "w": 480,
+      "h": 272,
+      "depth": 16
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "6POS",
+        "default": "MULTIPOS"
+      },
+      {
+        "name": "P3",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "POT_CENTER"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "LS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "RS",
+        "default": "SLIDER"
+      },
+      {
+        "name": "EXT1",
+        "type": "FLEX",
+        "label": "EXT1",
+        "default": "SLIDER"
+      },
+      {
+        "name": "EXT2",
+        "type": "FLEX",
+        "label": "EXT2",
+        "default": "SLIDER"
+      },
+      {
+        "name": "EXT3",
+        "type": "FLEX",
+        "label": "EXT3",
+        "default": "NONE"
+      },
+      {
+        "name": "EXT4",
+        "type": "FLEX",
+        "label": "EXT4",
+        "default": "NONE"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SF",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SG",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SH",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SI",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SJ",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SK",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SL",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SM",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SN",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SO",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SQ",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SR",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SS",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "ST",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SU",
+        "type": "3POS",
+        "default": "3POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      },
+      {
+        "name": "T5"
+      },
+      {
+        "name": "T6"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_TELE",
+        "label": "TELE",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "RTN",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
     "name": "Fatfish F16",
     "wasm": "edgetx-f16-simulator.wasm",
     "display": {
