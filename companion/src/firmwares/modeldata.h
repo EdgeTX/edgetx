@@ -126,6 +126,16 @@ class CustomSwitchData {
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(CustomSwitchData)); }
 };
 
+// Key/Value data for Lua scripts
+class UserData {
+  public:
+    UserData() { clear(); }
+    unsigned int type;
+    std::string key;
+    std::string value;
+    void clear() { key.clear(); value.clear(); type = 0; }
+};
+
 class ModelData {
   Q_DECLARE_TR_FUNCTIONS(ModelData)
 
@@ -238,6 +248,8 @@ class ModelData {
     USBJoystickChData usbJoystickCh[CPN_USBJ_MAX_JOYSTICK_CHANNELS];
 
     QByteArray checklistData;
+
+    UserData userData[CPN_MAX_USER_DATA];
 
     ModelData & operator=(const ModelData & src);
 
