@@ -190,8 +190,6 @@ Board::~Board()
 
 int Board::getCapability(const Capability capability) const
 {
-  // TODO investigate usage of any that should be covered in Board::getCapability or are no longer required
-  //      some could be used when importing pre v2.10 configurations
   switch (capability) {
     case Capability::BacklightLevelMin:
       return m_hardware.backlightLevelMin;
@@ -440,7 +438,7 @@ QString Board::switchTypeToString(int value)
 AbstractStaticItemModel * Board::switchTypeItemModel()
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-  mdl->setName(AIM_BOARDS_SWITCH_TYPE);
+  mdl->setName(AIM_BOARD_SWITCH_TYPE);
 
   for (int i = 0; i < Board::SWITCH_GLOBAL; i++) { // Function not required in lists
     mdl->appendToItemList(switchTypeToString(i), i, true, 0,
@@ -515,7 +513,7 @@ int Board::externalModuleStringToSize(const QString & value)
 AbstractStaticItemModel * Board::externalModuleSizeItemModel()
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-  mdl->setName(AIM_BOARDS_MODULE_SIZE);
+  mdl->setName(AIM_BOARD_MODULE_SIZE);
 
   for (int i = 0; i < Board::EXTMODSIZE_COUNT; i++) {
     mdl->appendToItemList(externalModuleSizeToString(i), i);
@@ -552,7 +550,7 @@ QString Board::flexTypeToString(int value)
 AbstractStaticItemModel * Board::flexTypeItemModel()
 {
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
-  mdl->setName(AIM_BOARDS_FLEX_TYPE);
+  mdl->setName(AIM_BOARD_FLEX_TYPE);
 
   for (int i = 0; i < Board::FLEX_TYPE_COUNT; i++) {
     mdl->appendToItemList(flexTypeToString(i), i, true, 0,
