@@ -22,7 +22,7 @@
 #ifndef RADIODATACONVERSIONSTATE_H
 #define RADIODATACONVERSIONSTATE_H
 
-#include "boards.h"
+#include "board.h"
 #include <QtCore>
 
 class ModelData;

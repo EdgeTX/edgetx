@@ -23,7 +23,7 @@
 #include "ui_joystickdialog.h"
 #include "eeprominterface.h"
 
-#include "boards.h"
+#include "board.h"
 #include "constants.h"
 
 joystickDialog::joystickDialog(QWidget *parent) :

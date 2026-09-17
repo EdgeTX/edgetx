@@ -26,7 +26,7 @@
 
 #include "virtualjoystickwidget.h"
 
-#include "boards.h"
+#include "board.h"
 #include "modeledit/node.h"
 #include "helpers.h"
 #include "radiotrimwidget.h"

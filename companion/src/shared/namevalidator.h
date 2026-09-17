@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "boards.h"
+#include "board.h"
 #include "textvalidator.h"
 
 // characters supportd by B&W radio firmware gui editor

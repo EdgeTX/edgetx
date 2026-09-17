@@ -21,7 +21,7 @@
 
 #include "yaml_switchconfig.h"
 
-#include "boards.h"
+#include "board.h"
 #include "eeprominterface.h"
 #include "generalsettings.h"
 #include "boardjson.h"

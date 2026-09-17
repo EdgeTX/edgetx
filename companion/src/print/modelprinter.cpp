@@ -22,7 +22,7 @@
 #include "helpers.h"
 #include "modelprinter.h"
 #include "multiprotocols.h"
-#include "boards.h"
+#include "board.h"
 #include "helpers_html.h"
 #include "appdata.h"
 #include "adjustmentreference.h"

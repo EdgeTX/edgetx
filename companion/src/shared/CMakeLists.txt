@@ -30,7 +30,6 @@ set(${PROJECT_NAME}_NAMES
   textvalidator
   abstractpanel
   genericpanel
-  firmwarepicker
   exclusivecombogroup
 )
 

@@ -23,7 +23,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include "helpers.h"
-#include "boards.h"
+#include "board.h"
 #include "semanticversion.h"
 #include "boundedstring.h"
 

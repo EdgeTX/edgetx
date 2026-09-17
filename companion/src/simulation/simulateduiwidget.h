@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "boards.h"
+#include "board.h"
 #include "constants.h"
 #include "radiowidget.h"
 #include "simulator.h"

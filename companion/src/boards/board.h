@@ -41,11 +41,11 @@ constexpr char HWDEFNSDIR[]               { ":/hwdefs" };
 constexpr char BOARD_UNKNOWN[]            { "unknown" };
 
 // identiying names of static abstract item models
-constexpr char AIM_BOARDS_POT_TYPE[]      {"boards.pottype"};
-constexpr char AIM_BOARDS_SLIDER_TYPE[]   {"boards.slidertype"};
-constexpr char AIM_BOARDS_SWITCH_TYPE[]   {"boards.switchtype"};
-constexpr char AIM_BOARDS_MODULE_SIZE[]   {"boards.extmodulesize"};
-constexpr char AIM_BOARDS_FLEX_TYPE[]     {"boards.flextype"};
+constexpr char AIM_BOARD_POT_TYPE[]      {"board.pottype"};
+constexpr char AIM_BOARD_SLIDER_TYPE[]   {"board.slidertype"};
+constexpr char AIM_BOARD_SWITCH_TYPE[]   {"board.switchtype"};
+constexpr char AIM_BOARD_MODULE_SIZE[]   {"board.extmodulesize"};
+constexpr char AIM_BOARD_FLEX_TYPE[]     {"board.flextype"};
 
 class Board : public JsonBase
 {

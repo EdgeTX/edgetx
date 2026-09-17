@@ -10,6 +10,7 @@ set(${PROJECT_NAME}_NAMES
   datahelpers
   firmware
   firmwarefactories
+  firmwarepicker
   flightmodedata
   generalsettings
   gvardata
@@ -56,6 +57,11 @@ set(${PROJECT_NAME}_HDRS
   ${${PROJECT_NAME}_HDRS}
   eeprominterface.h
   opentx/opentxinterface.h
+)
+
+# AUTOMOC does not detect so manually process
+qt_wrap_cpp(${PROJECT_NAME}_SRCS
+  firmwarepicker.h
 )
 
 add_library(${PROJECT_NAME}
