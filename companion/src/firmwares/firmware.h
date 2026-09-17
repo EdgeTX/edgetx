@@ -22,13 +22,14 @@
 #pragma once
 
 #include "../shared/capability.h"
-#include "../boards/board.h"
 #include "constants.h"
 #include "helpers_json.h"
 
 #include <QtCore>
 
 constexpr char FWDEFNSDIR[] { ":/fwdefs" };
+
+class Board;
 
 class Firmware : public JsonBase
 {

@@ -21,6 +21,7 @@
 
 #include "firmware.h"
 #include "firmwarefactories.h"
+#include "../boards/boardfactories.h"
 #include "appdata.h"
 
 // static
@@ -74,10 +75,18 @@ Firmware::Firmware(const QString & id, const QString & path, const bool isSuppor
     if (!getValue(obj, "hidden", false).toBool()) {
       m_defn.id = getValueStdString(obj, "id", "unknown");
       m_defn.name = getValueStdString(obj, "name", "unknown");
+      m_defn.boardId = getValueStdString(obj, "boardId", "unknown");
 
       if (m_defn.id == "unknown") {
         m_valid = false;
         qCritical() << "Error - file:" << path << "does not contain an id";
+      }
+
+      if (m_defn.boardId == "unknown") {
+        m_valid = false;
+        qCritical() << "Error - file:" << path << "does not contain a boardId";
+      } else {
+        m_board = gBoardFactories->boardForId(m_defn.boardId.c_str());
       }
     } else {
       qDebug() << "ignoring" << path;
