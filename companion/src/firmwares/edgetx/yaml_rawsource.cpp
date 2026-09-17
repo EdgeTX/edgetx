@@ -35,7 +35,7 @@ static const YamlLookupTable spacemouseLut = {
 
 std::string YamlRawSourceEncode(const RawSource& rhs)
 {
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
   Boards b = Boards(board);
   std::string src_str;
   div_t qr;
@@ -138,7 +138,7 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
 RawSource YamlRawSourceDecode(const std::string& src_str)
 {
   Firmware *firmware = getCurrentFirmware();
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
   Boards b = Boards(board);
   RawSource rhs;
   const char* val = src_str.data();

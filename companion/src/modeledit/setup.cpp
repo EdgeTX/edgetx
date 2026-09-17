@@ -69,7 +69,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelItemModels->registerItemModel(TimerData::showElapsedItemModel());
   panelItemModels->registerItemModel(ModuleData::crsfArmingModeItemModel());
 
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
 
   memset(modules, 0, sizeof(modules));
 
@@ -376,7 +376,7 @@ void SetupPanel::on_image_currentIndexChanged(int index)
 
 void SetupPanel::populateThrottleTrimSwitchCB()
 {
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
   bool isBoardSurface = Boards::isSurface(board);
   lock = true;
   ui->throttleTrimSwitch->clear();

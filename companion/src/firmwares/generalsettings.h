@@ -286,7 +286,7 @@ class GeneralSettings {
     void init();
     void convert(RadioDataConversionState & cstate);
 
-    void setDefaultControlTypes(Board::Type board);
+    void setDefaultControlTypes(QString board);
     int getDefaultStick(unsigned int channel) const;
     RawSource getDefaultSource(unsigned int channel) const;
     int getDefaultChannel(unsigned int stick) const;

@@ -275,7 +275,7 @@ QString ModelPrinter::printHeliSwashType ()
 QString ModelPrinter::printCenterBeep()
 {
   QStringList strl;
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
   int inputs = Boards::getBoardCapability(board, Board::Inputs);
 
   for (int i = 0; i < inputs; i++) {
@@ -753,7 +753,7 @@ QString ModelPrinter::printSettingsOther()
 QString ModelPrinter::printSwitchWarnings()
 {
   QStringList str;
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
   uint64_t switchStates = model.switchWarningStates;
   uint64_t value;
 
@@ -771,7 +771,7 @@ QString ModelPrinter::printSwitchWarnings()
 
 QString ModelPrinter::printPotWarnings()
 {
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
   QStringList str = { printLabelValue(tr("Mode"), printPotsWarningMode()) };
 
   if (model.potsWarningMode) {
@@ -851,7 +851,7 @@ QString ModelPrinter::printSettingsTrim()
   str << printLabelValue(tr("Step"), printTrimIncrementMode());
   str << printLabelValue(tr("Display"), printTrimsDisplayMode());
   str << printLabelValue(tr("Extended"), printBoolean(model.extendedTrims, BOOLEAN_YESNO));
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
   if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) {
     str << printLabelValue(tr("Hats Mode"), printHatsMode());
   }
@@ -860,7 +860,7 @@ QString ModelPrinter::printSettingsTrim()
 
 QString ModelPrinter::printThrottleSource(int idx)
 {
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
   int pscnt = Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders);
 
   if (idx == 0)

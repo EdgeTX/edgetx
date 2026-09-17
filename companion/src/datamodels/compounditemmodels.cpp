@@ -101,7 +101,7 @@ void AbstractStaticItemModel::loadItemList()
 //
 
 RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                       Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+                                       Firmware * firmware, const Boards * const board, const QString boardType) :
   AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_RawSource);
@@ -194,7 +194,7 @@ void RawSourceItemModel::update(const int event)
 //
 
 RawSwitchItemModel::RawSwitchItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                       Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+                                       Firmware * firmware, const Boards * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_RawSwitch);
@@ -295,7 +295,7 @@ void RawSwitchItemModel::update(const int event)
 //
 
 CurveItemModel::CurveItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                               Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+                               Firmware * firmware, const Boards * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_Curve);
@@ -340,7 +340,7 @@ void CurveItemModel::update(const int event)
 //
 
 GVarReferenceItemModel::GVarReferenceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                               Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+                                               Firmware * firmware, const Boards * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_GVarRef);
@@ -395,7 +395,7 @@ void GVarReferenceItemModel::update(const int event)
 //
 
 ThrottleSourceItemModel::ThrottleSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                                 Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+                                                 Firmware * firmware, const Boards * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_ThrSource);
@@ -436,7 +436,7 @@ void ThrottleSourceItemModel::update(const int event)
 //
 
 CustomFuncActionItemModel::CustomFuncActionItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                                     Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+                                                     Firmware * firmware, const Boards * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_CustomFuncAction);
@@ -478,7 +478,7 @@ void CustomFuncActionItemModel::update(const int event)
 //
 
 CustomFuncResetParamItemModel::CustomFuncResetParamItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                                             Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+                                                             Firmware * firmware, const Boards * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_CustomFuncResetParam);
@@ -515,7 +515,7 @@ void CustomFuncResetParamItemModel::update(const int event)
 //
 
 TelemetrySourceItemModel::TelemetrySourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                                   Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+                                                   Firmware * firmware, const Boards * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_TeleSource);
@@ -562,7 +562,7 @@ void TelemetrySourceItemModel::update(const int event)
 //
 
 CurveRefTypeItemModel::CurveRefTypeItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                             Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+                                             Firmware * firmware, const Boards * const board, const QString boardType) :
   AbstractStaticItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_CurveRefType);
@@ -581,7 +581,7 @@ CurveRefTypeItemModel::CurveRefTypeItemModel(const GeneralSettings * const gener
 //
 
 CurveRefFuncItemModel::CurveRefFuncItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                             Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+                                             Firmware * firmware, const Boards * const board, const QString boardType) :
   AbstractStaticItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_CurveRefFunc);
@@ -621,7 +621,7 @@ PrecisionItemModel::PrecisionItemModel(const int minDecimals, const int maxDecim
 //
 
 FlexSwitchesItemModel::FlexSwitchesItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                                   Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+                                                   Firmware * firmware, const Boards * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_FlexSwitches);
@@ -672,7 +672,7 @@ void FlexSwitchesItemModel::update(const int event)
 //
 
 ControlSourceItemModel::ControlSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                       Firmware * firmware, const Boards * const board, const Board::Type boardType) :
+                                       Firmware * firmware, const Boards * const board, const QString boardType) :
   AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_ControlSource);

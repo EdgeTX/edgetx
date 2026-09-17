@@ -38,7 +38,6 @@ class GeneralSettings;
 
 constexpr char BDDEFNSDIR[]               { ":/bddefs" };
 constexpr char HWDEFNSDIR[]               { ":/hwdefs" };
-constexpr char BOARD_UNKNOWN[]            { "unknown" };
 
 // identiying names of static abstract item models
 constexpr char AIM_BOARD_POT_TYPE[]      {"board.pottype"};
@@ -52,6 +51,8 @@ class Board : public JsonBase
   Q_DECLARE_TR_FUNCTIONS(Board)
 
   public:
+
+    static const QString BOARD_UNKNOWN { "unknown"} ;
 
     enum PotType
     {
@@ -514,7 +515,7 @@ class Board : public JsonBase
     static int getNumericSuffix(const std::string str);
 
     // deprecated
-    static std::string getLegacyAnalogMappedInputTag(const char * legacytag, const QString & id = Board::BOARD_UNKNOWN);
+    static std::string getLegacyAnalogMappedInputTag(const char * legacytag, const QString & id = BOARD_UNKNOWN);
 
   private:
 

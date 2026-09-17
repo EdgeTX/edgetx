@@ -40,7 +40,7 @@
 UserInterfacePanel::UserInterfacePanel(QWidget * parent, ModelData & model, GeneralSettings & generalSettings, Firmware * firmware):
   ModelPanel(parent, model, generalSettings, firmware)
 {
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
 
   QString sdPath = QString(g.profile[g.id()].sdPath()).trimmed();
 
@@ -232,7 +232,7 @@ UserInterfacePanel::~UserInterfacePanel()
 CustomScreenPanel::CustomScreenPanel(QWidget * parent, ModelData & model, int index, GeneralSettings & generalSettings, Firmware * firmware):
   ModelPanel(parent, model, generalSettings, firmware)
 {
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
   RadioLayout::CustomScreens & scrns = model.customScreens;
 
   grid = new QGridLayout(this);

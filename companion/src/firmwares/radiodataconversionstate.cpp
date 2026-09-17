@@ -24,7 +24,7 @@
 
 #include <QStandardItemModel>
 
-RadioDataConversionState::RadioDataConversionState(Board::Type before, Board::Type after, RadioData * rdata) :
+RadioDataConversionState::RadioDataConversionState(QString before, QString after, RadioData * rdata) :
   fromType(before),
   toType(after),
   fromBoard(Boards(before)),

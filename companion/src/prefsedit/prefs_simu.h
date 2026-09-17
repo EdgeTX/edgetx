@@ -32,7 +32,7 @@ class PrefsSimuPanel : public PrefsPanel
     Q_OBJECT
 
   public:
-    explicit PrefsSimuPanel(QWidget * parent, Firmware * fw, Board::Type & bd, Profile & prof);
+    explicit PrefsSimuPanel(QWidget * parent, Firmware * fw, QString & bd, Profile & prof);
     virtual ~PrefsSimuPanel();
 
     virtual void update() override;

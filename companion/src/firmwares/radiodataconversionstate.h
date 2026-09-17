@@ -72,7 +72,7 @@ class RadioDataConversionState
       QVector<LogField> fields;  // collected data fields indexed by LogColumn value
     };
 
-    RadioDataConversionState(Board::Type before = Board::BOARD_UNKNOWN, Board::Type after = Board::BOARD_UNKNOWN, RadioData * rdata = NULL);
+    RadioDataConversionState(QString before = Board::BOARD_UNKNOWN, QString after = Board::BOARD_UNKNOWN, RadioData * rdata = NULL);
     ~RadioDataConversionState();
 
     RadioDataConversionState & withModelIndex(int index);
@@ -108,8 +108,8 @@ class RadioDataConversionState
     QString getFieldName(int field) const;
     QStandardItemModel * getLogModel(EventType logLevel = EVT_INF, QObject *parent = Q_NULLPTR) const;
 
-    Board::Type fromType;    // board type before conversion
-    Board::Type toType;      // board type after
+    QString fromType;    // board type before conversion
+    QString toType;      // board type after
     Boards fromBoard;
     Boards toBoard;
     RadioData * rd;          // pointer to data struct being converted

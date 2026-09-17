@@ -34,7 +34,7 @@ class NameValidator : public TextValidator
   Q_OBJECT
 
   public:
-    explicit NameValidator(Board::Type board, QObject * parent = nullptr) :
+    explicit NameValidator(QString board, QObject * parent = nullptr) :
        TextValidator(parent, Boards::getCapability(board, Board::HasColorLcd) ? NAME_VALID_PATTERN_COLOR : NAME_VALID_PATTERN_BW) {}
     virtual ~NameValidator() {}
 };

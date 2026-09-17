@@ -48,7 +48,7 @@ class HardwarePanel : public GeneralPanel
     void on_internalModuleChanged();
 
   private:
-    Board::Type board;
+    QString board;
     CompoundItemModelFactory *editorItemModels;
     FilteredItemModelFactory *tabFilteredModels;
     QGridLayout *grid;

@@ -33,7 +33,7 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
   ui(new Ui::SimulatedUIWidgetGeneric)
 {
   ui->setupUi(this);
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
 
   if (Boards::getCapability(board, Board::HasBacklightColor)) {
     m_backlightColors << QColor(215, 243, 255);   //  blue

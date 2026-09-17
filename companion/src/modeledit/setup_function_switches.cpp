@@ -66,7 +66,7 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
   AbstractStaticItemModel *fsStart = ModelData::funcSwitchStartItemModel();
   AbstractStaticItemModel *fsGroups = ModelData::funcSwitchGroupsModel();
 
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
 
   lock = true;
 
@@ -229,7 +229,7 @@ void FunctionSwitchesPanel::update()
 {
   lock = true;
 
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
 
   for (int sw = 0, col = 0; sw < Boards::getCapability(firmware->getBoard(), Board::Switches); sw++) {
     int i = Boards::getCFSIndexForSwitch(sw);

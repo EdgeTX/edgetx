@@ -81,7 +81,7 @@ void ModuleData::clear()
 bool ModuleData::isAvailable(PulsesProtocol proto, int port)
 {
   Firmware *fw = getCurrentFirmware();
-  Board::Type board = fw->getBoard();
+  QString board = fw->getBoard();
 
   QString id = fw->getId();
 
@@ -480,7 +480,7 @@ AbstractStaticItemModel * ModuleData::internalModuleItemModel(int board)
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName("moduledata.internalmodule");
 
-  auto modules = Boards::getSupportedInternalModules(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : (Board::Type)board);
+  auto modules = Boards::getSupportedInternalModules(board == Board::BOARD_UNKNOWN ? getCurrentBoard() : (QString)board);
   for(auto mod : modules) {
     mdl->appendToItemList(typeToString(mod), mod);
   }
@@ -610,7 +610,7 @@ AbstractStaticItemModel * ModuleData::telemetryBaudrateItemModel(unsigned int pr
   for (int i = 0; i < moduleBaudratesList.size(); i++) {
     // CRSF limit external module to 3.75M for older boards
     if (protocol == PULSES_CROSSFIRE && moduleIdx == 1 &&
-        Boards::getCapability((Board::Type)board, Board::IsF4) &&
+        Boards::getCapability((QString)board, Board::IsF4) &&
         i > 4) break;
 
     if (protocol == PULSES_GHOST && i >= 2) break;

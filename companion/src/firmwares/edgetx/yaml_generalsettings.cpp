@@ -35,7 +35,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-void YamlValidateNames(GeneralSettings& gs, Board::Type board)
+void YamlValidateNames(GeneralSettings& gs, QString board)
 {
   for (int i = 0; i < CPN_MAX_INPUTS; i++) {
     YamlValidateName(gs.inputConfig[i].name, board);
@@ -196,7 +196,7 @@ YamlTelemetryBaudrate::YamlTelemetryBaudrate(
 void YamlTelemetryBaudrate::toCpn(unsigned int* moduleBaudrate,
                                   unsigned int variant)
 {
-  if (Boards::getCapability((Board::Type)variant, Board::SportMaxBaudRate) <
+  if (Boards::getCapability((QString)variant, Board::SportMaxBaudRate) <
       400000) {
     *moduleBaudrate = value;
   } else {

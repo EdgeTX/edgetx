@@ -1679,7 +1679,7 @@ QString ModelData::thrTraceSrcToString() const
 
 QString ModelData::thrTraceSrcToString(const GeneralSettings * generalSettings, const int index) const
 {
-  const Board::Type board = getCurrentBoard();
+  const QString board = getCurrentBoard();
   const int pscnt = Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders);
 
   if (index == 0)
@@ -1696,14 +1696,14 @@ QString ModelData::thrTraceSrcToString(const GeneralSettings * generalSettings, 
 int ModelData::thrTraceSrcCount() const
 {
   Firmware * firmware = getCurrentFirmware();
-  const Board::Type board = firmware->getBoard();
+  const QString board = firmware->getBoard();
 
   return 1 + Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders) + firmware->getCapability(Outputs);
 }
 
 bool ModelData::isThrTraceSrcAvailable(const GeneralSettings * generalSettings, const int index) const
 {
-  const Board::Type board = getCurrentBoard();
+  const QString board = getCurrentBoard();
 
   if (index == 0)
     return true;
@@ -1828,7 +1828,7 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
   if (value < TRAINER_MODE_FIRST || value > TRAINER_MODE_LAST)
     return false;
 
-  const Board::Type board = firmware->getBoard();
+  const QString board = firmware->getBoard();
 
   if (value == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE &&
       IS_TARANIS_X9E(board) &&

@@ -278,13 +278,13 @@ class RawSource {
     }
 
     RawSource convert(RadioDataConversionState & cstate);
-    QString toString(const ModelData * model = nullptr, const GeneralSettings * const generalSettings = nullptr, Board::Type board = Board::BOARD_UNKNOWN, bool prefixCustomName = true) const;
+    QString toString(const ModelData * model = nullptr, const GeneralSettings * const generalSettings = nullptr, QString board = Board::BOARD_UNKNOWN, bool prefixCustomName = true) const;
     RawSourceRange getRange(const ModelData * model, const GeneralSettings & settings, unsigned int flags=0) const;
-    bool isStick(Board::Type board = Board::BOARD_UNKNOWN) const;
-    bool isTimeBased(Board::Type board = Board::BOARD_UNKNOWN) const;
+    bool isStick(QString board = Board::BOARD_UNKNOWN) const;
+    bool isTimeBased(QString board = Board::BOARD_UNKNOWN) const;
     bool isAvailable(const ModelData * const model = nullptr,
                      const GeneralSettings * const gs = nullptr,
-                     Board::Type board = Board::BOARD_UNKNOWN,
+                     QString board = Board::BOARD_UNKNOWN,
                      const int flags = 0) const;
     bool isSet() const { return type != SOURCE_TYPE_NONE || index != 0; }
     void clear() { type = SOURCE_TYPE_NONE; index = 0; }

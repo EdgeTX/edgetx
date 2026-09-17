@@ -172,7 +172,7 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
   return result;
 }
 
-QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings, Board::Type board, bool prefixCustomName) const
+QString RawSource::toString(const ModelData * model, const GeneralSettings * const generalSettings, QString board, bool prefixCustomName) const
 {
   if (index < 0)
     return CPN_STR_SRC_INDICATOR_NEG % RawSource(type, -index).toString(model, generalSettings, board, prefixCustomName);
@@ -312,7 +312,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   }
 }
 
-bool RawSource::isStick(Board::Type board) const
+bool RawSource::isStick(QString board) const
 {
   if (board == Board::BOARD_UNKNOWN)
     board = getCurrentBoard();
@@ -325,7 +325,7 @@ bool RawSource::isStick(Board::Type board) const
 
 bool RawSource::isAvailable(const ModelData * const model,
                             const GeneralSettings * const gs,
-                            Board::Type board,
+                            QString board,
                             const int flags) const
 {
   if (type == SOURCE_TYPE_NONE && index == 0)

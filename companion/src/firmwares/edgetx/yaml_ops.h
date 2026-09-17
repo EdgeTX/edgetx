@@ -138,8 +138,8 @@ void operator>>(const YAML::Node& node, T (&value)[N])
   }
 }
 
-void YamlValidateName(char *input, Board::Type board);
-QString YamlValidateName(const QString &input, Board::Type board);
+void YamlValidateName(char *input, QString board);
+QString YamlValidateName(const QString &input, QString board);
 void YamlValidateLabel(QString &input);
 
 namespace YAML {

@@ -130,7 +130,7 @@ static NativeSymbol s_nativeSymbols[] = {
 
 WasmSimulatorInterface::WasmSimulatorInterface(const QString & wasmPath,
                                                const QString & boardName,
-                                               Board::Type boardType)
+                                               QString boardType)
     : SimulatorInterface(),
       m_wasmPath(wasmPath),
       m_boardName(boardName),
@@ -1214,7 +1214,7 @@ void WasmSimulatorInterface::checkOutputsChanged()
 
 WasmSimulatorFactory::WasmSimulatorFactory(const QString & wasmPath,
                                            const QString & boardName,
-                                           Board::Type boardType)
+                                           QString boardType)
     : m_wasmPath(wasmPath), m_boardName(boardName), m_boardType(boardType)
 {
 }
@@ -1224,7 +1224,7 @@ QString WasmSimulatorFactory::name()
   return m_boardName;
 }
 
-Board::Type WasmSimulatorFactory::type()
+QString WasmSimulatorFactory::type()
 {
   return m_boardType;
 }

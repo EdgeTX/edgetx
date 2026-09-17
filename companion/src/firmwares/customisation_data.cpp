@@ -33,7 +33,7 @@
 int layoutValueScaled(int value)
 {
   Firmware *firmware = getCurrentFirmware();
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
 
   if (firmware->getCapability(IsLandscape)) {
     if (Boards::getCapability(board, Board::LcdWidth) == 320)
@@ -285,7 +285,7 @@ void RadioLayout::init(const std::string layoutId, CustomScreens& customScreens)
 int RadioLayout::topBarZones()
 {
   Firmware *firmware = getCurrentFirmware();
-  Board::Type board = firmware->getBoard();
+  QString board = firmware->getBoard();
   const int menuHeaderButtonsLeft = layoutValueScaled(47);
   const int topBarZoneWidth = layoutValueScaled((firmware->getCapability(IsWideLayout) ? 74 : 70));
   return rangeCheck(((Boards::getCapability(board, Board::LcdWidth) - menuHeaderButtonsLeft - 1 +

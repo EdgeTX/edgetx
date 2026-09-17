@@ -28,7 +28,7 @@
 #include "joystickdialog.h"
 #endif
 
-PrefsSimuPanel::PrefsSimuPanel(QWidget * parent, Firmware * fw, Board::Type & bd, Profile & prof) :
+PrefsSimuPanel::PrefsSimuPanel(QWidget * parent, Firmware * fw, QString & bd, Profile & prof) :
   PrefsPanel(parent, fw, bd, prof),
   ui(new Ui::PrefsSimu)
 {

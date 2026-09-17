@@ -44,7 +44,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-void YamlValidateLabelsNames(ModelData& model, Board::Type board)
+void YamlValidateLabelsNames(ModelData& model, QString board)
 {
   model.name = YamlValidateName(model.name.toQString(), board).toLatin1().constData();
 
@@ -190,7 +190,7 @@ struct YamlThrTrace {
 
   YamlThrTrace(unsigned int cpn_value)
   {
-    Board::Type board = getCurrentBoard();
+    QString board = getCurrentBoard();
 
     if (cpn_value == 0) {
       if (Boards::getInputThrottleIndex(board) >= 0)
@@ -212,7 +212,7 @@ struct YamlThrTrace {
 
   unsigned int toCpn()
   {
-    Board::Type board = getCurrentBoard();
+    QString board = getCurrentBoard();
     int sticks = Boards::getCapability(board, Board::Sticks);
 
     switch (src.type) {
@@ -237,7 +237,7 @@ struct YamlThrTrace {
 struct YamlPotsWarnEnabled {
   unsigned int value;
 
-  const Board::Type board = getCurrentBoard();
+  const QString board = getCurrentBoard();
   const int maxradio = 8 * (int)(Boards::getCapability(board, Board::HasColorLcd) ? sizeof(uint16_t) : sizeof(uint8_t));
   const int maxcpn = Boards::getCapability(board, Board::FlexInputs);
 
@@ -1509,7 +1509,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   }
 
   // v2.12 CRSF limit external module to 3.75M for older boards
-  if (Boards::getCapability((Board::Type)board, Board::IsF4) &&
+  if (Boards::getCapability((QString)board, Board::IsF4) &&
       rhs.moduleData[1].protocol == PULSES_CROSSFIRE &&
       rhs.moduleData[1].crsf.telemetryBaudrate > 4)
     rhs.moduleData[1].crsf.telemetryBaudrate = 4;

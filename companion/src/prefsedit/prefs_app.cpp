@@ -23,7 +23,7 @@
 #include "ui_prefs_app.h"
 #include "appdata.h"
 
-PrefsAppPanel::PrefsAppPanel(QWidget * parent, Firmware * fw, Board::Type & bd, Profile & prof) :
+PrefsAppPanel::PrefsAppPanel(QWidget * parent, Firmware * fw, QString & bd, Profile & prof) :
   PrefsPanel(parent, fw, bd, prof),
   ui(new Ui::PrefsApp)
 {

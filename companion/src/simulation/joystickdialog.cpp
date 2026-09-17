@@ -149,7 +149,7 @@ void joystickDialog::populateSourceCombo(QComboBox * cb)
   int i;
   QString wname;
 
-  Board::Type m_board = getCurrentBoard();
+  QString m_board = getCurrentBoard();
   GeneralSettings radioSettings = GeneralSettings();
 
   int ttlInputs = Boards::getCapability(m_board, Board::Inputs);
@@ -174,7 +174,7 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
   int i;
   QString wname;
 
-  Board::Type m_board = getCurrentBoard();
+  QString m_board = getCurrentBoard();
   GeneralSettings radioSettings = GeneralSettings();
 
   int ttlSwitches = Boards::getCapability(m_board, Board::Switches);

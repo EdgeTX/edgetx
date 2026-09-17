@@ -32,7 +32,7 @@ class PrefsAppPanel : public PrefsPanel
     Q_OBJECT
 
   public:
-    PrefsAppPanel(QWidget * parent, Firmware * fw, Board::Type & bd, Profile & prof);
+    PrefsAppPanel(QWidget * parent, Firmware * fw, QString & bd, Profile & prof);
     virtual ~PrefsAppPanel();
 
     virtual void save() override;

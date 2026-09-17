@@ -405,7 +405,7 @@ bool convert<YamlSwitchConfig>::decode(const Node& node, YamlSwitchConfig& rhs)
 {
   if (!node.IsMap()) return false;
 
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
 
   const int maxcnt = Boards::getCapability(board, Board::Switches);
 

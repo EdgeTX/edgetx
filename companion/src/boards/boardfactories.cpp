@@ -23,7 +23,7 @@
 
 BoardFactories* gBoardFactories = nullptr;
 
-BoardFactory::BoardFactory(const Board::Type & id, const QString & hwdefn, const bool isSupported) :
+BoardFactory::BoardFactory(const QString & id, const QString & hwdefn, const bool isSupported) :
   m_board(new Boards(id, hwdefn, isSupported))
 {
 
@@ -55,7 +55,7 @@ Boards * BoardFactories::boardForHwDefn(const QString & hwdefn) const
   return m_default;
 }
 
-Boards * BoardFactories::boardForId(const Board::Type & id) const
+Boards * BoardFactories::boardForId(const QString & id) const
 {
   for (auto *registeredFactory : registeredBoardFactories) {
     auto board = registeredFactory->board();
@@ -71,7 +71,7 @@ Boards * BoardFactories::boardForId(const Board::Type & id) const
 }
 
 //  Registering firmware triggers registering the associated board
-bool BoardFactories::registerBoard(const Board::Type & id, const QString & hwdefn, const bool isSupported)
+bool BoardFactories::registerBoard(const QString & id, const QString & hwdefn, const bool isSupported)
 {
   if (m_default || id != Board::BOARD_UNKNOWN) {
     Boards* regboard = boardForId(id);

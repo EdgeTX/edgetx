@@ -25,7 +25,7 @@
 #include "radiodata.h"
 #include "radiodataconversionstate.h"
 
-QString RawSwitch::toString(Board::Type board, const GeneralSettings * const generalSettings, const ModelData * const modelData, bool prefixCustomName) const
+QString RawSwitch::toString(QString board, const GeneralSettings * const generalSettings, const ModelData * const modelData, bool prefixCustomName) const
 {
   if (board == Board::BOARD_UNKNOWN) {
     board = getCurrentBoard();
@@ -171,7 +171,7 @@ QString RawSwitch::toString(Board::Type board, const GeneralSettings * const gen
   }
 }
 
-bool RawSwitch::isAvailable(const ModelData * const model, const GeneralSettings * const gs, Board::Type board) const
+bool RawSwitch::isAvailable(const ModelData * const model, const GeneralSettings * const gs, QString board) const
 {
   if (board == Board::BOARD_UNKNOWN)
     board = getCurrentBoard();

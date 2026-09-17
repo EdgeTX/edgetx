@@ -84,7 +84,7 @@ bool GeneralSettings::switchSourceAllowed(int index) const
 
 bool GeneralSettings::isInputAvailable(int index) const
 {
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
 
   if (index < 0 || index >= Boards::getCapability(board, Board::Inputs))
     return false;
@@ -98,7 +98,7 @@ bool GeneralSettings::isInputAvailable(int index) const
 
 bool GeneralSettings::isInputFlexSwitchAvailable(int index) const
 {
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
 
   if (index < 0 || index >= Boards::getCapability(board, Board::Inputs))
     return false;
@@ -179,7 +179,7 @@ bool GeneralSettings::isSwitchFunc(int index) const
 
 bool GeneralSettings::unassignedInputFlexSwitches() const
 {
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
   int cnt = 0;
 
   for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
@@ -198,7 +198,7 @@ void GeneralSettings::clear()
 
 void GeneralSettings::init()
 {
-  Board::Type board = Firmware::getCurrentVariant()->getBoard();
+  QString board = Firmware::getCurrentVariant()->getBoard();
   Boards::getBattRange(board, vBatMin, vBatMax, vBatWarn);
 
   if (IS_JUMPER_T16(board))
@@ -255,7 +255,7 @@ void GeneralSettings::init()
   setDefaultKeyShortcuts();
 }
 
-void GeneralSettings::setDefaultControlTypes(Board::Type board)
+void GeneralSettings::setDefaultControlTypes(QString board)
 {
   for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
     if (!Boards::isInputIgnored(i, board)) {
@@ -476,7 +476,7 @@ QString GeneralSettings::internalModuleBaudrateToString() const
 //  static
 QString GeneralSettings::antennaModeToString(int value)
 {
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
 
   switch(value) {
     case ANTENNA_MODE_INTERNAL:
@@ -496,7 +496,7 @@ QString GeneralSettings::antennaModeToString(int value)
 //  static
 QString GeneralSettings::bluetoothModeToString(int value)
 {
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
 
   switch(value) {
     case BLUETOOTH_MODE_OFF:

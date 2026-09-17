@@ -451,7 +451,7 @@ void startSimulation(QWidget * parent, RadioData & radioData, int modelIdx)
 
 QPixmap makePixMap(const QImage & image)
 {
-  Board::Type board = getCurrentBoard();
+  QString board = getCurrentBoard();
   QImage result = image.scaled(Boards::getCapability(board, Board::LcdWidth), Boards::getCapability(board, Board::LcdHeight));
 
   if (Boards::getCapability(board, Board::LcdDepth) == 4) {

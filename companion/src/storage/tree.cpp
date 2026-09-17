@@ -93,7 +93,7 @@ bool TreeStorageFormat::load(RadioData & radioData)
   if (!loadRadioSettings(radioData.generalSettings))
     return false;
 
-  board = (Board::Type)radioData.generalSettings.variant;
+  board = (QString)radioData.generalSettings.variant;
 
   // Labels - Read the labels from labels.yml file
   //        - Always scan for /MODELS/modelXX.yml

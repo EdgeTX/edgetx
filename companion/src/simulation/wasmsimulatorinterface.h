@@ -32,7 +32,7 @@ class WasmSimulatorInterface : public SimulatorInterface
 
   public:
     WasmSimulatorInterface(const QString & wasmPath, const QString & boardName,
-                           Board::Type boardType);
+                           QString boardType);
     virtual ~WasmSimulatorInterface();
 
     QString name() override;
@@ -108,7 +108,7 @@ class WasmSimulatorInterface : public SimulatorInterface
 
     QString m_wasmPath;
     QString m_boardName;
-    Board::Type m_boardType;
+    QString m_boardType;
     QString m_sdPath;
     QString m_settingsPath;
 
@@ -219,14 +219,14 @@ class WasmSimulatorFactory : public SimulatorFactory
 {
   public:
     WasmSimulatorFactory(const QString & wasmPath, const QString & boardName,
-                         Board::Type boardType);
+                         QString boardType);
 
     QString name() override;
-    Board::Type type() override;
+    QString type() override;
     SimulatorInterface * create() override;
 
   private:
     QString m_wasmPath;
     QString m_boardName;
-    Board::Type m_boardType;
+    QString m_boardType;
 };
