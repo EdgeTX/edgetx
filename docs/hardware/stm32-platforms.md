@@ -70,7 +70,7 @@ This page lists which EdgeTX-supported radios use each STM32 processor family, a
 | NV14 | 2MB | 256KB + 8MB | Colour | 320×480 | No | Yes |
 | PL18 | 2MB | 256KB + 8MB | Colour | 480×320 | Yes | No |
 | PL18EV | 2MB | 256KB + 8MB | Colour | 480×320 | Yes | No |
-| PL18U | 2MB | 256KB + 32MB | Colour | 480×320 | Yes | No |
+| PL18U | 2MB | 256KB + 32MB | Colour | 480×320 | Yes | Yes |
 
 ### FrSky
 
@@ -127,11 +127,11 @@ This page lists which EdgeTX-supported radios use each STM32 processor family, a
 
 ## STM32H7
 
-!!! note "Preliminary Support"
-    Preliminary support for some STM32H7 radios began in EdgeTX v2.11. EdgeTX v2.12 is considered the more stable release for most STM32H7 based radios.
+!!! note "Recommended Version"
+    EdgeTX v2.12 or later is recommended for STM32H7 based radios.
 
 !!! note "SDRAM"
-    All STM32H7 radios include 8MB of external SDRAM in addition to the ~1MB of internal SRAM.
+    Most STM32H7 radios include 8MB of external SDRAM in addition to the ~1MB of internal SRAM — see the table for the exact SDRAM size of each radio.
 
 ### Flysky
 
@@ -146,15 +146,29 @@ This page lists which EdgeTX-supported radios use each STM32 processor family, a
 |-------|-------|------|--------|------------|------------------|---------|
 | V12 | 8MB | 1MB + 8MB | Colour | 320×240 | Yes | No |
 
+### iFlight
+
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| Commando 14 | 8MB | 1MB + 8MB | Colour | 480×272 | No | Yes |
+
 ### Jumper
 
 | Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
 |-------|-------|------|--------|------------|------------------|---------|
 | T15Pro | 16MB | 1MB + 8MB | Colour | 480×320 | Yes | No |
+| T22 | 16MB | 1MB + 8MB | Colour | 480×320 | Yes | No |
 
 ### RadioMaster
 
 | Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
 |-------|-------|------|--------|------------|------------------|---------|
+| GX15 | 16MB | 1MB + 8MB | Colour | 480×320 | Yes | Yes |
 | TX15 | 16MB | 1MB + 8MB | Colour | 480×320 | Yes | Yes |
-| TX16S MK3 | 16MB | 1MB + 8MB | Colour | 800×480 | Yes | Yes |
+| TX16S MK3 | 16MB | 1MB + 32MB | Colour | 800×480 | Yes | Yes |
+
+### Senduwing
+
+| Radio | Flash | SRAM | Screen | Resolution | Built-in storage | SD card |
+|-------|-------|------|--------|------------|------------------|---------|
+| H17 | 16MB | 1MB + 8MB | Colour | 480×272 | No | Yes |
