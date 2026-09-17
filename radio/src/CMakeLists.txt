@@ -59,7 +59,6 @@ else()
   option(USBJ_EX "Enable USB Joystick Extension" ON)
 endif()
 option(AUDIO "Enable audio" ON)
-option(RTC_CALIBRATION "Enable RTC crystal drift calibration" ON)
 option(EXFAT "Enable exFAT filesystem support in FatFs" OFF)
 
 if(NATIVE_BUILD)
@@ -553,10 +552,6 @@ if(ALL_LANGUAGES)
     translations/sim/lang_tw.cpp
     translations/sim/lang_ua.cpp
   )
-endif()
-
-if(RTC_CALIBRATION)
-  add_definitions(-DRTC_CALIBRATION)
 endif()
 
 if(USBJ_EX)

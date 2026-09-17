@@ -457,13 +457,11 @@ void rtcDriverSetTime(const struct gtm * t)
 {
 }
 
-#if defined(RTC_CALIBRATION)
 int32_t rtcGetCalibration() { return 0; }
 void rtcSetCalibration(int32_t units) { (void)units; }
 gtime_t rtcGetCalibrationRef() { return 0; }
 void rtcSetCalibrationRef(gtime_t t) { (void)t; }
 void rtcClearCalibrationRef() {}
-#endif
 
 #if defined(PCBTARANIS)
 void sdPoll10ms() {}

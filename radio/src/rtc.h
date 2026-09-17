@@ -62,8 +62,6 @@ void rtcDriverSetTime(const struct gtm * tm);
 void rtcGetTime(struct gtm * tm);
 uint16_t rtcGetTimeMs(struct gtm * tm);   // fills tm, returns 0..999 within that second
 
-#if defined(RTC_CALIBRATION)
-
 // Smooth calibration, one unit is one clock pulse out of 2^20 (~0.954 ppm)
 #define RTC_CALIB_UNITS_PER_SECOND  1048576
 #define RTC_CALIB_UNIT_MAX          512
@@ -105,8 +103,6 @@ void rtcClearCalibrationRef();
 
 // Back to a factory-fresh state, as if the backup domain had been lost
 void rtcResetCalibration();
-
-#endif // RTC_CALIBRATION
 
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {

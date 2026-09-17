@@ -490,8 +490,6 @@ uint8_t rtcAdjust(uint16_t year, uint8_t mon, uint8_t day, uint8_t hour, uint8_t
   return 0;
 }
 
-#if defined(RTC_CALIBRATION)
-
 // Crystal drift measured between two clock settings, compensated by the RTC
 // smooth calibration hardware. Reference kept in the RTC backup domain.
 
@@ -670,21 +668,6 @@ void rtcSetTimeAt(const struct gtm * t, uint16_t ms)
 {
   rtcSetTimeInternal(t, ms, true);
 }
-
-#else // no drift calibration, flash constrained target
-
-void rtcSetTime(const struct gtm * t)
-{
-  rtcDriverSetTime(t);
-}
-
-void rtcSetTimeAt(const struct gtm * t, uint16_t ms)
-{
-  (void)ms;
-  rtcDriverSetTime(t);
-}
-
-#endif
 
 bool rtcIsValid()
 {

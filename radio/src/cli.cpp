@@ -1132,7 +1132,7 @@ int cliSet(const char **argv)
       g_rtcTime = gmktime(&t);
       // the CLI is driven by a host, the menu is where someone sets it by hand
       rtcSetTimeAt(&t, (uint16_t)ms);
-#if defined(DEBUG) && defined(RTC_CALIBRATION)
+#if defined(DEBUG)
       const struct RtcCalibReport * rep = rtcGetCalibrationReport();
       if (rep->elapsed != 0) {
         int32_t ppm10 = 0;
@@ -1152,7 +1152,7 @@ int cliSet(const char **argv)
       return -1;
     }
   }
-#if defined(DEBUG) && defined(RTC_CALIBRATION)
+#if defined(DEBUG)
   else if (!strcmp(argv[1], "rtccal")) {
     int ppm = 0;
     if (!strcmp(argv[2], "reset")) {
@@ -1579,12 +1579,10 @@ int cliDisplay(const char ** argv)
     int32_t skew = (int32_t)(((int64_t)gmktime(&utm) - gmktime(&htm)) * 1000
                              + (int32_t)sw100 * 10 - hwMs);
     cliSerialPrint("rtc software clock offset = %d ms", (int)skew);
-#if defined(RTC_CALIBRATION)
     int32_t units = rtcGetCalibration();
     cliSerialPrint("rtc calibration = %d units (%d ppm x10), reference = %u",
                    (int)units, (int)rtcCalibrationPpm10(units),
                    (unsigned)rtcGetCalibrationRef());
-#endif
   }
 #if defined(VOLUME_I2C_ADDRESS)
   else if (!strcmp(argv[1], "volume")) {
