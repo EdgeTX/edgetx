@@ -52,9 +52,6 @@ class FirmwareFactories
 
     QMap<QString, QString> registeredFirmware();
 
-    // depeciated v3.0
-    QList<Firmware*> getRegisteredFirmwares();
-
   private:
     QList<FirmwareFactory *> registeredFactories;
 };

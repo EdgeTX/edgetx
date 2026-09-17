@@ -40,6 +40,7 @@ set(${PROJECT_NAME}_HDRS
   ${${PROJECT_NAME}_HDRS}
   namevalidator.h
   labelvalidator.h
+  capability.h
 )
 
 # AUTOMOC does not detect so manually process

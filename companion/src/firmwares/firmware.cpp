@@ -72,8 +72,8 @@ Firmware::Firmware(const QString & id, const QString & path, const bool isSuppor
     QJsonObject obj = doc->object();
     // ignore intermediate definitions
     if (!getValue(obj, "hidden", false).toBool()) {
-      m_defn.id = getValueString(obj, "id", "unknown");
-      m_defn.name = getValueString(obj, "name", "unknown");
+      m_defn.id = getValueStdString(obj, "id", "unknown");
+      m_defn.name = getValueStdString(obj, "name", "unknown");
 
       if (m_defn.id == "unknown") {
         m_valid = false;
@@ -87,16 +87,16 @@ Firmware::Firmware(const QString & id, const QString & path, const bool isSuppor
   delete doc;
 }
 
-int Firmware::getCapability(Capability value) const
+const int Firmware::getCapability(Capability value) const
 {
   QStringList opts = g.currentProfile().fwOptions().split("-");
 
   switch (value) {
     case Capability::ChannelsName:
-      return m_defn.outputs.nameLen;
+      return m_defn.outputs.limits.max_name_len;
 
-    case Capability::CustomFunctions:
-      return m_defn.customFuncs;
+    case Capability::SpecialFunctions:
+      return m_defn.max_specialFuncs;
 
     case Capability::DangerousFunctions:
       return opts.contains("danger") ? true : false;
@@ -105,10 +105,10 @@ int Firmware::getCapability(Capability value) const
       return m_defn.extTrimsRange;
 
     case Capability::Modes:
-      return m_defn.modes.cnt;
+      return m_defn.modes.max_count;
 
     case Capability::ModesName:
-      return m_defn.modes.nameLen;
+      return m_defn.modes.max_name_len;
 
     case Capability::FlightModes:
       return getCapability(Capability::Modes);
@@ -117,13 +117,13 @@ int Firmware::getCapability(Capability value) const
       return getCapability(Capability::ModesName);
 
     case Capability::GlobalFunctions:
-      return m_defn.globalFuncs;
+      return m_defn.max_globalFuncs;
 
     case Capability::Gvars:
-      return opts.contains("nogvars") ? 0 : m_defn.gvars.cnt;
+      return opts.contains("nogvars") ? 0 : m_defn.gvars.max_count;
 
     case Capability::GvarsName:
-      return m_defn.gvars.nameLen;
+      return m_defn.gvars.max_name_len;
 
     case Capability::HasExpoNames:
       return getCapability(Capability::InputsName);
@@ -138,7 +138,7 @@ int Firmware::getCapability(Capability value) const
       return opts.contains("flyskygimbals") || m_board->getCapability(Capability::HasFlySkyGimbals);
 
     case Capability::HasMixerNames:
-      return m_defn.mixes.nameLen;
+      return m_defn.mixes.max_name_len;
 
     case Capability::HasModelImage:
       return m_defn.modelImage.image;
@@ -159,55 +159,55 @@ int Firmware::getCapability(Capability value) const
       return !(opts.contains("noheli") || getCapability(Capability::Surface));
 
     case Capability::Inputs:
-      return m_defn.inputs.cnt;
+      return m_defn.inputs.max_count;
 
     case Capability::InputsName:
-      return m_defn.inputs.nameLen;
+      return m_defn.inputs.max_name_len;
 
     case Capability::InputsLength:
       return getCapability(Capability::InputsName);
 
     case Capability::KeyShortcuts:
-      return m_defn.keyShortcuts;
+      return m_defn.max_keyShortcuts;
 
     case Capability::LogicalSwitches:
-      return m_defn.logicalSW.cnt;
+      return m_defn.logicalSW.max_count;
 
     case Capability::LuaInputsPerScript:
-      return m_defn.luaScripts.inputs;
+      return m_defn.luaScripts.max_inputs;
 
     case Capability::LuaOutputsPerScript:
-      return m_defn.luaScripts.outputs;
+      return m_defn.luaScripts.max_outputs;
 
     case Capability::LuaScripts:
-      return opts.contains("lua") ? m_defn.luaScripts.cnt : 0;
+      return opts.contains("lua") ? m_defn.luaScripts.limits.max_count : 0;
 
     case Capability::Mixes:
-      return m_defn.mixes.cnt;
+      return m_defn.mixes.max_count;
 
     case Capability::ModelImageKeepExtn:
       return m_defn.modelImage.keepExtn;
 
     case Capability::ModelImageNameLen:
-      return m_defn.modelImage.nameLen;
+      return m_defn.modelImage.limits.max_name_len;
 
     case Capability::ModelName:
-      return m_defn.modelNameLen;
+      return m_defn.max_modelName;
 
     case Capability::Models:
-      return m_defn.modelSlots;
+      return m_defn.max_modelSlots;
 
     case Capability::NumCurvePoints:
-      return m_defn.curves.points;
+      return m_defn.curves.max_points;
 
     case Capability::NumCurves:
-      return m_defn.curves.cnt;
+      return m_defn.curves.limits.max_count;
 
     case Capability::OffsetWeight:
       return m_defn.offsetWeight;
 
     case Capability::Outputs:
-      return m_defn.outputs.cnt;
+      return m_defn.outputs.limits.max_count;
 
     case Capability::PPMCenter:
       return m_defn.outputs.ppmCenter;
@@ -216,13 +216,13 @@ int Firmware::getCapability(Capability value) const
       return m_defn.outputs.ppmFrameLen;
 
     case Capability::QMFavourites:
-      return m_defn.quickMenuFavs;
+      return m_defn.max_quickMenuFavs;
 
     case Capability::SafetyChannelCustomFunction:
       return opts.contains("nooverridech") ? 0 : 1;
 
     case Capability::Sensors:
-      return m_defn.sensors.cnt;
+      return m_defn.sensors.max_count;
 
     case Capability::SlowRange:
       return m_defn.slowRange;
@@ -231,39 +231,34 @@ int Firmware::getCapability(Capability value) const
       return m_defn.slowScale;
 
     case Capability::TelemetryCustomScreens:
-      return m_defn.teleCstmScrns.cnt;
+      return m_defn.teleCstmScrns.limits.max_count;
 
     case Capability::TelemetryCustomScreensBars:
-      return m_defn.teleCstmScrns.bars;
+      return m_defn.teleCstmScrns.max_bars;
 
     case Capability::TelemetryCustomScreensFieldsPerLine:
-      return m_defn.teleCstmScrns.perLine;
+      return m_defn.teleCstmScrns.max_perLine;
 
     case Capability::TelemetryCustomScreensLines:
-      return m_defn.teleCstmScrns.lines;
+      return m_defn.teleCstmScrns.max_lines;
 
     case Capability::Timers:
-      return m_defn.timers.cnt;
+      return m_defn.timers.max_count;
 
     case Capability::TimersName:
-      return m_defn.timers.nameLen;
+      return m_defn.timers.max_name_len;
 
     case Capability::TopBarZones:
-      return m_defn.topBarZones;
+      return m_defn.max_topBarZones;
 
     case Capability::TrainerInputs:
-      return m_defn.trainerInputs;
+      return m_defn.max_trainerInputs;
 
     case Capability::TrimsRange:
       return m_defn.trimsRange;
 
     case Capability::VoicesMaxLength:
-      return m_defn.voicesFileLen;
-
-    // depreciated v3.0 so call replacement Capability
-
-    case Capability::VirtualInputs:
-      return getCapability(Capability::Inputs);
+      return m_defn.max_voicesFileLen;
 
     // drop thru to Board
     default:
@@ -271,15 +266,15 @@ int Firmware::getCapability(Capability value) const
   }
 }
 
-QString Firmware::getCapabilityStr(Capability value) const
+const QString Firmware::getCapabilityStr(Capability value) const
 {
   switch (value) {
     case Capability::ModelImageFilters:
-      return m_defn.modelImage.filters;
+      return m_defn.modelImage.filters.c_str();
 
     // drop thru to Board
     default:
-      m_board->getCapabilityStr(value);
+      return m_board->getCapabilityStr(value);
   }
 }
 
@@ -292,13 +287,7 @@ Firmware * Firmware::getFirmwareForId(const QString & id)
 bool Firmware::isOptionDuplicate(const OptionsGroup & grp, const QString & val)
 {
   // qDebug() << val;
-
-  for (OptionsGroup::const_iterator itg = grp.cbegin(); itg != grp.cend(); ++itg) {
-    if (val == itg->name)
-      return true;
-  }
-
-  return false;
+  return grp.contains(val);
 }
 
 bool Firmware::isOptionDuplicate(const OptionsList & options, const QString & val)
@@ -307,7 +296,7 @@ bool Firmware::isOptionDuplicate(const OptionsList & options, const QString & va
 
   for (OptionsList::const_iterator it = options.cbegin(); it != options.cend(); ++it) {
     for (OptionsGroup::const_iterator itg = it->cbegin(); itg != it->cend(); ++itg) {
-      if (val == itg->name)
+      if (itg->contains(val))
         return true;
     }
   }
@@ -383,19 +372,19 @@ bool Firmware::loadDefinition(const QString & path)
       continue;
 
     if (it.key() == "id")
-      m_defn.id = getValueString(it);
+      m_defn.id = getValueStdString(it);
 
     else if (it.key() == "name")
-      m_defn.name = getValueString(it);
+      m_defn.name = getValueStdString(it);
 
     else if (it.key() == "board")
-      m_defn.boardId = getValueString(it);
+      m_defn.boardId = getValueStdString(it);
 
     else if (it.key() == "dwnldId")
-      m_defn.dwnldId = getValueString(it);
+      m_defn.dwnldId = getValueStdString(it);
 
     else if (it.key() == "simulatorId")
-      m_defn.simuId = getValueString(it);
+      m_defn.simuId = getValueStdString(it);
 
     else if (it.key() == "categories")
       m_defn.categories = getValueBool(it, m_defn.categories);
@@ -407,7 +396,7 @@ bool Firmware::loadDefinition(const QString & path)
       loadGroup(it, m_defn.inputs, CPN_MAX_INPUTS, 3);
 
     else if (it.key() == "keyShortcuts")
-      m_defn.keyShortcuts = getValueInt(it);
+      m_defn.max_keyShortcuts = getValueInt(it);
 
     else if (it.key() == "logicalSW")
       loadGroup(it, m_defn.logicalSW, CPN_MAX_LOGICAL_SWITCHES, 3);
@@ -419,10 +408,10 @@ bool Firmware::loadDefinition(const QString & path)
       loadModelImage(it);
 
     else if (it.key() == "modelNameLen")
-      m_defn.modelNameLen = getValueInt(it);
+      m_defn.max_modelName = getValueInt(it);
 
     else if (it.key() == "modelSlots")
-      m_defn.modelSlots = getValueInt(it);
+      m_defn.max_modelSlots = getValueInt(it);
 
     else if (it.key() == "modes")
       loadGroup(it, m_defn.modes, CPN_MAX_FLIGHT_MODES, 3);
@@ -434,7 +423,7 @@ bool Firmware::loadDefinition(const QString & path)
       loadOutputs(it);
 
     else if (it.key() == "quickMenuFavs")
-      m_defn.quickMenuFavs = getValueInt(it);
+      m_defn.max_quickMenuFavs = getValueInt(it);
 
     else if (it.key() == "sensors")
       loadGroup(it, m_defn.sensors, CPN_MAX_SENSORS, 3);
@@ -461,11 +450,11 @@ void Firmware::loadCurves(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "cnt")
-        crv.cnt = getValueInt(it, crv.cnt, CPN_MAX_CURVES);
+        crv.limits.max_count = getValueInt(it, crv.limits.max_count, CPN_MAX_CURVES);
       else if (it.key() == "nameLen")
-        crv.nameLen = getValueInt(it, crv.nameLen, 5);
+        crv.limits.max_name_len = getValueInt(it, crv.limits.max_name_len, 5);
       else if (it.key() == "points")
-        crv.points = getValueInt(it, crv.points, 512);
+        crv.max_points = getValueInt(it, crv.max_points, 512);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -473,7 +462,7 @@ void Firmware::loadCurves(QJsonObject::const_iterator & oit)
         qWarning() << "Warning: curves is not an object";
 }
 
-void Firmware::loadGroup(QJsonObject::const_iterator & grpit, BaseGrp & grp,
+void Firmware::loadGroup(QJsonObject::const_iterator & grpit, Limits & grp,
                            const int cntMax, const int nameLenMax,
                            const int cntMin, const int nameLenMin)
 {
@@ -482,9 +471,9 @@ void Firmware::loadGroup(QJsonObject::const_iterator & grpit, BaseGrp & grp,
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "cnt")
-        grp.cnt = getValueInt(it, grp.cnt, cntMax, cntMin);
+        grp.max_count = getValueInt(it, grp.max_count, cntMax, cntMin);
       else if (it.key() == "nameLen")
-        grp.nameLen = getValueInt(it, grp.nameLen, nameLenMax, nameLenMin);
+        grp.max_name_len = getValueInt(it, grp.max_name_len, nameLenMax, nameLenMin);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -500,11 +489,11 @@ void Firmware::loadLuaScripts(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "cnt")
-        lua.cnt = getValueInt(it, lua.cnt, CPN_MAX_SCRIPTS);
+        lua.limits.max_count = getValueInt(it, lua.limits.max_count, CPN_MAX_SCRIPTS);
       else if (it.key() == "inputs")
-        lua.inputs = getValueInt(it, lua.inputs, CPN_MAX_SCRIPT_INPUTS);
+        lua.max_inputs = getValueInt(it, lua.max_inputs, CPN_MAX_SCRIPT_INPUTS);
       else if (it.key() == "outputs")
-        lua.outputs = getValueInt(it, lua.outputs, CPN_MAX_SCRIPT_OUTPUTS);
+        lua.max_outputs = getValueInt(it, lua.max_outputs, CPN_MAX_SCRIPT_OUTPUTS);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -520,13 +509,13 @@ void Firmware::loadModelImage(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "filters")
-        mi.filters = getValueString(it, mi.filters);
+        mi.filters = getValueStdString(it, mi.filters);
       else if (it.key() == "image")
         mi.image = getValueBool(it, mi.image);
       else if (it.key() == "keepExtn")
         mi.keepExtn = getValueBool(it, mi.keepExtn);
       else if (it.key() == "nameLen")
-        mi.nameLen = getValueInt(it, mi.nameLen, 14);
+        mi.limits.max_name_len = getValueInt(it, mi.limits.max_name_len, 14);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -570,8 +559,7 @@ void Firmware::loadOptionGroup(QJsonArray::const_iterator & it, OptionsGroup & g
     if (registeredOptions.contains((*it).toString())) {
       if (!isOptionDuplicate(m_defn.options, opt)) {
         // TODO do not store a duplicate copy of the tooltip
-        grp.append( { Option(opt,
-                      registeredOptions.value(opt)) });
+        grp.append(opt);
       } else {
         qWarning() << "Duplicate option:" << opt;
       }
@@ -590,9 +578,9 @@ void Firmware::loadOutputs(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "cnt")
-        out.cnt = getValueInt(it, out.cnt, CPN_MAX_CHNOUT);
+        out.limits.max_count = getValueInt(it, out.limits.max_count, CPN_MAX_CHNOUT);
       else if (it.key() == "nameLen")
-        out.nameLen = getValueInt(it, out.nameLen, 6);
+        out.limits.max_name_len = getValueInt(it, out.limits.max_name_len, 6);
       else if (it.key() == "ppmCenter")
         out.ppmCenter = getValueInt(it, out.ppmCenter, 512);
       else if (it.key() == "ppmFrameLen")
@@ -612,13 +600,13 @@ void Firmware::loadTeleCstmScrns(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "cnt")
-        tele.cnt = getValueInt(it, tele.cnt, 3);
+        tele.limits.max_count = getValueInt(it, tele.limits.max_count, 3);
       else if (it.key() == "bars")
-        tele.bars = getValueInt(it, tele.bars, 4);
+        tele.max_bars = getValueInt(it, tele.max_bars, 4);
       else if (it.key() == "perLine")
-        tele.perLine = getValueInt(it, tele.perLine, 3);
+        tele.max_perLine = getValueInt(it, tele.max_perLine, 3);
       else if (it.key() == "lines")
-        tele.lines = getValueInt(it, tele.lines, 4);
+        tele.max_lines = getValueInt(it, tele.max_lines, 4);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -629,16 +617,13 @@ void Firmware::loadTeleCstmScrns(QJsonObject::const_iterator & oit)
 bool Firmware::postLoad()
 {
   // set defaults here to avoid business rules elsewhere
-  if (m_defn.bddefn.isEmpty())
-    m_defn.bddefn = m_defn.id;
+  if (m_defn.boardId.empty())
+    m_defn.boardId = m_defn.id;
 
-  if (m_defn.hwdefn.isEmpty())
-    m_defn.hwdefn = m_defn.id;
-
-  if (m_defn.dwnldId.isEmpty())
+  if (m_defn.dwnldId.empty())
     m_defn.dwnldId = m_defn.id;
 
-  if (m_defn.simuId.isEmpty())
+  if (m_defn.simuId.empty())
     m_defn.simuId = m_defn.id;
 
   return true;
@@ -662,7 +647,7 @@ void Firmware::setCurrent(Firmware * firmware)
   }
 
   if (!result)
-    qCritical() << "ERROR - Set current firmware to instance:" << (firmware ? firmware->id() : "unknown");
+    qCritical() << "ERROR - Set current firmware to instance:" << (firmware ? firmware->getId() : "unknown");
 
 }
 

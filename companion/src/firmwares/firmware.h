@@ -21,14 +21,12 @@
 
 #pragma once
 
-#include "capability.h"
-#include "board.h"
+#include "../shared/capability.h"
+#include "../boards/board.h"
 #include "constants.h"
 #include "helpers_json.h"
 
 #include <QtCore>
-
-class FirmwareFactories;
 
 constexpr char FWDEFNSDIR[] { ":/fwdefs" };
 
@@ -40,98 +38,84 @@ class Firmware : public JsonBase
 
     typedef QMap<QString, QString> OptionTooltip;
 
-  // TODO replace struct with QString
-    struct Option {
-      QString name;
-      QString tooltip;              // copy registeredOptions
-      unsigned variant = 0;         // depreciated
-
-      explicit Option(QString & name, const QString & description, unsigned variant = 0) :
-        name(name), tooltip(description), variant(variant) { }
-    };
-
-    // TODO
-    // typedef QList<QString> OptionsGroup;
-    typedef QList<Option> OptionsGroup;
+    typedef QList<QString> OptionsGroup;
     typedef QList<OptionsGroup> OptionsList;
 
-    struct BaseGrp {
-      int cnt;
-      int nameLen;
+    struct Limits {
+      int max_count    {0};
+      int max_name_len {0};
     };
 
     struct Curves {
-      int cnt     = CPN_MAX_CURVES;
-      int nameLen = 5;
-      int points  = 512;
+      Limits limits     {CPN_MAX_CURVES, 5};
+      int    max_points {512};
     };
 
     struct LuaScripts{
-      int cnt     = CPN_MAX_SCRIPTS;
-      int inputs  = CPN_MAX_SCRIPT_INPUTS;
-      int outputs = CPN_MAX_SCRIPT_OUTPUTS;
+      Limits limits      {CPN_MAX_SCRIPTS, 0};
+      int    max_inputs  {CPN_MAX_SCRIPT_INPUTS};
+      int    max_outputs {CPN_MAX_SCRIPT_OUTPUTS};
     };
 
     struct ModelImage {
-      QString filters  = "";
-      bool    image    = true; // any radios where no image???
-      bool    keepExtn = false;
-      int     nameLen  = 14; // 10
+      Limits      limits   {0, 14};
+      std::string filters  {""};
+      bool        image    {true}; // any radios where no image???
+      bool        keepExtn {false};
     };
 
     struct Outputs {
-      int cnt         = CPN_MAX_CHNOUT;
-      int nameLen     = 6;
-      int ppmCenter   = 512;
-      int ppmFrameLen = 40;
+      Limits limits      {CPN_MAX_CHNOUT, 6};
+      int    ppmCenter   {512};
+      int    ppmFrameLen {40};
     };
 
     struct TeleCstmScrns {
-      int cnt           = 0;
-      int bars          = 0;
-      int perLine       = 0;
-      int lines         = 0;
+      Limits limits      {0, 0};
+      int    max_bars    {0};
+      int    max_perLine {0};
+      int    max_lines   {0};
     };
 
     // TODO constants
     struct FirmwareDefn {
-      QString       id            = "unknown";          // use m_id as it has edgetx- prefix
-      QString       name          = "unknown";
-      QString       boardId       = "";                 // default firmware id
-      QString       dwnldId       = "";                 // default firmware id
-      QString       simuId        = "";                 // default firmware id
+      std::string   id                {"unknown"};
+      std::string   name              {"unknown"};
+      std::string   boardId           {""};                 // default firmware id
+      std::string   dwnldId           {""};                 // default firmware id
+      std::string   simuId            {""};                 // default firmware id
 
-      bool          categories    = true;               // same thing?
-      bool          labels        = true;               // same thing?
-      bool          modelsList    = false;              // depreciated - read yaml but not write check
+      bool          categories        {true};               // same thing?
+      bool          labels            {true};               // same thing?
+      bool          modelsList        {false};              // depreciated - read yaml but not write check
 
-      Curves        curves        = { CPN_MAX_CURVES, 5, 512 };
-      int           customFuncs   = CPN_MAX_SPECIAL_FUNCTIONS;
-      int           extTrimsRange = 512;
-      int           failsafeChans = 32;
-      int           globalFuncs   = CPN_MAX_SPECIAL_FUNCTIONS;
-      BaseGrp       gvars         = { CPN_MAX_GVARS, 3};
-      BaseGrp       inputs        = { CPN_MAX_INPUTS, 4 };
-      BaseGrp       logicalSW     = { CPN_MAX_LOGICAL_SWITCHES, 3 }; // check len
+      Curves        curves            {CPN_MAX_CURVES, 5, 512};
+      int           max_specialFuncs  {CPN_MAX_SPECIAL_FUNCTIONS};
+      int           extTrimsRange     {512};
+      int           failsafeChans     {32};
+      int           max_globalFuncs   {CPN_MAX_SPECIAL_FUNCTIONS};
+      Limits        gvars             {CPN_MAX_GVARS, 3};
+      Limits        inputs            {CPN_MAX_INPUTS, 4};
+      Limits        logicalSW         {CPN_MAX_LOGICAL_SWITCHES, 3};
       LuaScripts    luaScripts;
-      int           keyShortcuts  = 6; // MAX_KEYSHORTCUTS;
-      BaseGrp       mixes         = { CPN_MAX_MIXERS, 6};
+      int           max_keyShortcuts  {6};                        // MAX_KEYSHORTCUTS;
+      Limits        mixes             {CPN_MAX_MIXERS, 6};
       ModelImage    modelImage;
-      int           modelNameLen  = 15; // 12 or 10
-      int           modelSlots    = CPN_MAX_MODELS; // B&W or 0 colour
-      BaseGrp       modes         = { CPN_MAX_FLIGHT_MODES, 10 }; // rename constant
-      int           offsetWeight  = 500;
-      Outputs       outputs       = { CPN_MAX_CHNOUT, 3};
-      int           quickMenuFavs = 12; // MAX_QMFAVOURITES; // B&W 0
-      BaseGrp       sensors       = { CPN_MAX_SENSORS, 3 };   // 40 or 60 and check len
-      int           slowRange     = 250;
-      int           slowScale     = 10;
+      int           max_modelName     {15};                       // 15, 12 or 10
+      int           max_modelSlots    {CPN_MAX_MODELS};           // B&W or 0 colour
+      Limits        modes             {CPN_MAX_FLIGHT_MODES, 10}; // rename constant
+      int           offsetWeight      {500};
+      Outputs       outputs           {CPN_MAX_CHNOUT, 3};
+      int           max_quickMenuFavs {12};                       // MAX_QMFAVOURITES; // B&W 0
+      Limits        sensors           {CPN_MAX_SENSORS, 3};       // 40 or 60 and check len
+      int           slowRange         {250};
+      int           slowScale         {10};
       TeleCstmScrns teleCstmScrns;
-      BaseGrp       timers        = { CPN_MAX_TIMERS, 8 };
-      int           topBarZones   = 0;
-      int           trainerInputs = 16;
-      int           trimsRange    = 128;
-      int           voicesFileLen = 8;
+      Limits        timers            {CPN_MAX_TIMERS, 8};
+      int           max_topBarZones   {0};
+      int           max_trainerInputs {16};
+      int           trimsRange        {128};
+      int           max_voicesFileLen {8};
 
       OptionsList options;
 
@@ -141,16 +125,16 @@ class Firmware : public JsonBase
     explicit Firmware(const QString & id, const QString & path, const bool isSupported = true);
     virtual ~ Firmware() {}
 
-    Board * board() const { return m_board; }
-    const QString dwnldid() const { return m_defn.dwnldId; }
-    const QString id() const { return m_id; } // do not use m_defn.id as it does not have edgetx- prefix
-    const QString name() const { return m_defn.name; }
-    const QString simuid() const { return m_defn.simuId; }
+    Board * getBoard() const { return m_board; }
+    const QString getDwnldid() const { return m_defn.dwnldId.c_str(); }
+    const QString getId() const { return m_id; } // do not use m_defn.id as it does not have edgetx- prefix
+    const QString getName() const { return m_defn.name.c_str(); }
+    const QString getSimuid() const { return m_defn.simuId.c_str(); }
 
-    int getCapability(Capability value) const;
-    QString getCapabilityStr(Capability value) const;
+    const int getCapability(Capability value) const;
+    const QString getCapabilityStr(Capability value) const;
 
-    OptionsList optionGroups() const { return m_defn.options; }
+    const OptionsList optionGroups() const { return m_defn.options; }
 
     // parse the contents of the loaded json
     bool loadDefinition();
@@ -160,38 +144,13 @@ class Firmware : public JsonBase
     bool isValid() { return m_valid; }
     bool isSupported() { return m_supported; }
 
-    // static functions
     static Firmware * getFirmwareForId(const QString & id);
     static Firmware * getFirmware(const QString & id = QString());
 
     static Firmware * getCurrent() { return m_current; }
     static void setCurrent(Firmware * firmware);
     static void setCurrent(const QString & id);
-
-    static Firmware * getDefault() { return m_default; }
-    static void setDefault(Firmware * firmware) { m_default = firmware; }
-
-    // ========================
-    // deprecated v3.0
-    // [[deprecated("Deprecated from v3.0 use getCurrent() instead")]]
-    static Firmware * getCurrentVariant() { return m_current; }
-    static void setCurrentVariant(Firmware * value) { setCurrent(value); }
-    static Firmware * getDefaultVariant() { return m_default; }
-    static void setDefaultVariant(Firmware * value) { setDefault(value); }
-    const Firmware * getFirmwareBase() const { return m_current; }
-    Firmware * getFirmwareVariant(const QString & id) { return m_current; }
-    unsigned int getVariantNumber() { return 0; }
-    const QString getDownloadId() { return dwnldid(); }
-    QString getFlavour() { return id(); }
-    const QString getId() const { return id(); }
-    QString getLanguage() const;
-    const QString getName() const { return name(); }
-    const QString getSimulatorId() { return simuid(); }
-    static Firmware * getFirmwareForFlavour(const QString & flavour) { return getFirmwareForId(flavour); }
-    static QList<Firmware*>getRegisteredFirmwares();
-    QList<const char *> languageList() const { return m_languages; }
-    // end depreciated v3.0
-    // ========================
+    static QList<const QString> getLanguageList() { return m_languages; }
 
   private:
     QString m_id;       // has edgetx- prefix for backwards compatibility
@@ -202,20 +161,10 @@ class Firmware : public JsonBase
     bool m_valid;
     Board *m_board;
 
-    inline static Firmware * m_current = nullptr;
-    inline static Firmware * m_default = nullptr;
-    static QList<const QString> m_languages;
-
-    // tooltip translation cannot be performed at runtime
-    // so convert and load mapping at compile time
-    // key   name
-    // value tooltip
-    static const OptionTooltip registeredOptions;
-
     bool isOptionDuplicate(const OptionsGroup & grp, const QString & val);
     bool isOptionDuplicate(const OptionsList & options, const QString & val);
     void loadCurves(QJsonObject::const_iterator & it);
-    void loadGroup(QJsonObject::const_iterator & it, BaseGrp & grp,
+    void loadGroup(QJsonObject::const_iterator & it, Limits & grp,
                    const int cntMax = 199, const int nameMax = 20,
                    const int cntMin = 0, const int nameMin = 0);
     void loadLuaScripts(QJsonObject::const_iterator & it);
@@ -225,7 +174,18 @@ class Firmware : public JsonBase
     void loadOutputs(QJsonObject::const_iterator & it);
     void loadTeleCstmScrns(QJsonObject::const_iterator & it);
     bool postLoad();
-};
 
-Firmware * getCurrentFirmware() { return Firmware::getCurrent(); }
-Board * getCurrentBoard() { return getCurrentFirmware()->board(); }
+    inline static Firmware * m_current = nullptr;
+    inline static Firmware * m_default = nullptr;
+
+    static QList<const QString> m_languages;
+
+    // tooltip translation cannot be performed at runtime
+    // so convert and load mapping at compile time
+    // key   name
+    // value tooltip
+    static const OptionTooltip registeredOptions;
+  };
+
+Firmware* getCurrentFirmware() { return Firmware::getCurrent(); }
+Board* getCurrentBoard() { return getCurrentFirmware()->getBoard(); }

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "capability.h"
+#include "../shared/capability.h"
 #include "datahelpers.h"
 #include "helpers_json.h"
 

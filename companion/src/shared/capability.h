@@ -30,7 +30,7 @@
 enum Capability {
   // firmware
   ChannelsName,
-  CustomFunctions,
+  SpecialFunctions,
   DangerousFunctions,
   ExtendedTrimsRange,
   FlightModes,

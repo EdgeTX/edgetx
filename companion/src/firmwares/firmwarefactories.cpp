@@ -38,16 +38,6 @@ FirmwareFactories::~FirmwareFactories()
 {
 }
 
-QList<Firmware*> FirmwareFactories::getRegisteredFirmwares()
-{
-  QList<Firmware*> ret;
-
-  for (auto *registeredFactory : registeredFactories)
-    ret.append(registeredFactory->firmware());
-
-  return ret;
-}
-
 Firmware * FirmwareFactories::firmware(const QString & id) const
 {
   for (auto *registeredFactory : registeredFactories) {
