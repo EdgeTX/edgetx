@@ -22,7 +22,7 @@
 #pragma once
 
 #include "capability.h"
-#include "boards.h"
+#include "board.h"
 #include "constants.h"
 #include "helpers_json.h"
 
@@ -97,8 +97,7 @@ class Firmware : public JsonBase
     struct FirmwareDefn {
       QString       id            = "unknown";          // use m_id as it has edgetx- prefix
       QString       name          = "unknown";
-      QString       bddefn        = "";                 // boards\defn default firmware id
-      QString       hwdefn        = "";                 // radio\src default firmware id
+      QString       boardId       = "";                 // default firmware id
       QString       dwnldId       = "";                 // default firmware id
       QString       simuId        = "";                 // default firmware id
 
@@ -142,12 +141,11 @@ class Firmware : public JsonBase
     explicit Firmware(const QString & id, const QString & path, const bool isSupported = true);
     virtual ~ Firmware() {}
 
+    Board * board() const { return m_board; }
     const QString dwnldid() const { return m_defn.dwnldId; }
-    const QString hwdefn() const { return m_defn.hwdefn; }
     const QString id() const { return m_id; } // do not use m_defn.id as it does not have edgetx- prefix
     const QString name() const { return m_defn.name; }
     const QString simuid() const { return m_defn.simuId; }
-    Boards * board() const { return m_board; }
 
     int getCapability(Capability value) const;
     QString getCapabilityStr(Capability value) const;
@@ -174,13 +172,6 @@ class Firmware : public JsonBase
     static void setDefault(Firmware * firmware) { m_default = firmware; }
 
     // ========================
-    // until Boards refactored
-    Board::Type getBoard() const { return getBoardForHwDefn(m_defn.hwdefn)->getId(); }
-    Board::Type getBoardId() const { return getBoardForHwDefn(m_defn.hwdefn)->getId(); }
-    Boards* getBoardInstance() const { return m_board; }
-    // ========================
-
-    // ========================
     // deprecated v3.0
     // [[deprecated("Deprecated from v3.0 use getCurrent() instead")]]
     static Firmware * getCurrentVariant() { return m_current; }
@@ -193,7 +184,6 @@ class Firmware : public JsonBase
     const QString getDownloadId() { return dwnldid(); }
     QString getFlavour() { return id(); }
     const QString getId() const { return id(); }
-    const QString getHwDefnId() { return hwdefn(); }
     QString getLanguage() const;
     const QString getName() const { return name(); }
     const QString getSimulatorId() { return simuid(); }
@@ -210,11 +200,11 @@ class Firmware : public JsonBase
     FirmwareDefn m_defn;
     bool m_loaded;
     bool m_valid;
-    Boards *m_board;
+    Board *m_board;
 
     inline static Firmware * m_current = nullptr;
     inline static Firmware * m_default = nullptr;
-    static QList<const char *> m_languages;
+    static QList<const QString> m_languages;
 
     // tooltip translation cannot be performed at runtime
     // so convert and load mapping at compile time
@@ -237,11 +227,5 @@ class Firmware : public JsonBase
     bool postLoad();
 };
 
-inline Firmware * getCurrentFirmware() { return Firmware::getCurrent(); }
-inline Boards * getCurrentFirmwareBoard() { return getCurrentFirmware()->board(); }
-
-// before Boards refactored
-Board::Type getCurrentBoard() { return Firmware::getCurrent()->getBoard(); }
-Board::Type getCurrentBoardId() { return Firmware::getCurrent()->getBoardId(); }
-Boards* getCurrentBoardInstance() { return Firmware::getCurrent()->getBoardInstance(); }
-
+Firmware * getCurrentFirmware() { return Firmware::getCurrent(); }
+Board * getCurrentBoard() { return getCurrentFirmware()->board(); }

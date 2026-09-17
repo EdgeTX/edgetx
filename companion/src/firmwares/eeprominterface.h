@@ -24,7 +24,6 @@
 #include "firmware.h"
 
 // TODO thin out and add to individual code files as necessary to speed up compilation
-#include "boards.h"
 #include "macros.h"
 #include "radiodata.h"
 #include "simulatorinterface.h"

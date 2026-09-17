@@ -24,7 +24,7 @@
 #include "appdata.h"
 
 // static
-QList<const char *> Firmware::m_languages = {
+QList<const QString> Firmware::m_languages = {
   "cn",
   "cz",
   "da",
@@ -56,20 +56,6 @@ const Firmware::OptionTooltip Firmware::registeredOptions = {
   { "opt4", QT_TRANSLATE_NOOP("Firmware", "This is option 4") },
   { "opt5", QT_TRANSLATE_NOOP("Firmware", "This is option 5") }
 };
-
-// depreciated see note in .h
-QString Firmware::getLanguage() const {
-  QStringList strl = getId().split('-');
-  return strl.size() > 2 ? strl.last() : QString();
-  // TODO replace above lines with
-  // return g.currentProfile.fwLang();
-}
-
-// depreciated v3.0
-QList<Firmware*> Firmware::getRegisteredFirmwares()
-{
-  return gFirmwareFactories->getRegisteredFirmwares();
-}
 
 Firmware::Firmware(const QString & id, const QString & path, const bool isSupported) :
   m_id(id),
@@ -103,121 +89,174 @@ Firmware::Firmware(const QString & id, const QString & path, const bool isSuppor
 
 int Firmware::getCapability(Capability value) const
 {
-  // TODO data moved to a new field in Preferences refactor
-  // this contains edgetx-<firmware id>[-option[-option]...]-<language>
-  QStringList opts = g.currentProfile().fwType().split("-");
+  QStringList opts = g.currentProfile().fwOptions().split("-");
 
   switch (value) {
     case Capability::ChannelsName:
       return m_defn.outputs.nameLen;
+
     case Capability::CustomFunctions:
       return m_defn.customFuncs;
+
     case Capability::DangerousFunctions:
       return opts.contains("danger") ? true : false;
+
     case Capability::ExtendedTrimsRange:
       return m_defn.extTrimsRange;
+
     case Capability::Modes:
       return m_defn.modes.cnt;
+
     case Capability::ModesName:
       return m_defn.modes.nameLen;
+
     case Capability::FlightModes:
       return getCapability(Capability::Modes);
+
     case Capability::FlightModesName:
       return getCapability(Capability::ModesName);
+
     case Capability::GlobalFunctions:
       return m_defn.globalFuncs;
+
     case Capability::Gvars:
       return opts.contains("nogvars") ? 0 : m_defn.gvars.cnt;
+
     case Capability::GvarsName:
       return m_defn.gvars.nameLen;
+
     case Capability::HasExpoNames:
       return getCapability(Capability::InputsName);
+
     case Capability::FailsafeChannels:
       return m_defn.failsafeChans;
+
     case Capability::HasFailsafe:
       return m_defn.failsafeChans;
+
     case Capability::HasFlySkyGimbals:
       return opts.contains("flyskygimbals") || m_board->getCapability(Capability::HasFlySkyGimbals);
+
     case Capability::HasMixerNames:
       return m_defn.mixes.nameLen;
+
     case Capability::HasModelImage:
       return m_defn.modelImage.image;
+
     case Capability::HasModelLabels:
       return m_defn.labels;
+
     case Capability::HasModelsList:
       return m_defn.modelsList;
+
     case Capability::HasVario:
       return getCapability(Capability::Air);
+
     case Capability::HasVarioSink:
       return getCapability(Capability::Air);
+
     case Capability::Heli:
       return !(opts.contains("noheli") || getCapability(Capability::Surface));
+
     case Capability::Inputs:
       return m_defn.inputs.cnt;
+
     case Capability::InputsName:
       return m_defn.inputs.nameLen;
+
     case Capability::InputsLength:
       return getCapability(Capability::InputsName);
+
     case Capability::KeyShortcuts:
       return m_defn.keyShortcuts;
+
     case Capability::LogicalSwitches:
       return m_defn.logicalSW.cnt;
+
     case Capability::LuaInputsPerScript:
       return m_defn.luaScripts.inputs;
+
     case Capability::LuaOutputsPerScript:
       return m_defn.luaScripts.outputs;
+
     case Capability::LuaScripts:
       return opts.contains("lua") ? m_defn.luaScripts.cnt : 0;
+
     case Capability::Mixes:
       return m_defn.mixes.cnt;
+
     case Capability::ModelImageKeepExtn:
       return m_defn.modelImage.keepExtn;
+
     case Capability::ModelImageNameLen:
       return m_defn.modelImage.nameLen;
+
     case Capability::ModelName:
       return m_defn.modelNameLen;
+
     case Capability::Models:
       return m_defn.modelSlots;
+
     case Capability::NumCurvePoints:
       return m_defn.curves.points;
+
     case Capability::NumCurves:
       return m_defn.curves.cnt;
+
     case Capability::OffsetWeight:
       return m_defn.offsetWeight;
+
     case Capability::Outputs:
       return m_defn.outputs.cnt;
+
     case Capability::PPMCenter:
       return m_defn.outputs.ppmCenter;
+
     case Capability::PPMFrameLength:
       return m_defn.outputs.ppmFrameLen;
+
     case Capability::QMFavourites:
       return m_defn.quickMenuFavs;
+
     case Capability::SafetyChannelCustomFunction:
       return opts.contains("nooverridech") ? 0 : 1;
+
     case Capability::Sensors:
       return m_defn.sensors.cnt;
+
     case Capability::SlowRange:
       return m_defn.slowRange;
+
     case Capability::SlowScale:
       return m_defn.slowScale;
+
     case Capability::TelemetryCustomScreens:
       return m_defn.teleCstmScrns.cnt;
+
     case Capability::TelemetryCustomScreensBars:
       return m_defn.teleCstmScrns.bars;
+
     case Capability::TelemetryCustomScreensFieldsPerLine:
       return m_defn.teleCstmScrns.perLine;
+
     case Capability::TelemetryCustomScreensLines:
       return m_defn.teleCstmScrns.lines;
+
     case Capability::Timers:
       return m_defn.timers.cnt;
+
     case Capability::TimersName:
       return m_defn.timers.nameLen;
+
     case Capability::TopBarZones:
       return m_defn.topBarZones;
+
     case Capability::TrainerInputs:
       return m_defn.trainerInputs;
+
     case Capability::TrimsRange:
       return m_defn.trimsRange;
+
     case Capability::VoicesMaxLength:
       return m_defn.voicesFileLen;
 
@@ -226,6 +265,7 @@ int Firmware::getCapability(Capability value) const
     case Capability::VirtualInputs:
       return getCapability(Capability::Inputs);
 
+    // drop thru to Board
     default:
       m_board->getCapability(value);
   }
@@ -236,8 +276,10 @@ QString Firmware::getCapabilityStr(Capability value) const
   switch (value) {
     case Capability::ModelImageFilters:
       return m_defn.modelImage.filters;
+
+    // drop thru to Board
     default:
-      return QString();
+      m_board->getCapabilityStr(value);
   }
 }
 
@@ -342,48 +384,67 @@ bool Firmware::loadDefinition(const QString & path)
 
     if (it.key() == "id")
       m_defn.id = getValueString(it);
+
     else if (it.key() == "name")
       m_defn.name = getValueString(it);
+
     else if (it.key() == "board")
-      m_defn.bddefn = getValueString(it);
+      m_defn.boardId = getValueString(it);
+
     else if (it.key() == "dwnldId")
       m_defn.dwnldId = getValueString(it);
+
     else if (it.key() == "simulatorId")
       m_defn.simuId = getValueString(it);
-    else if (it.key() == "hwm_defnId")
-      m_defn.hwdefn = getValueString(it);
+
     else if (it.key() == "categories")
       m_defn.categories = getValueBool(it, m_defn.categories);
+
     else if (it.key() == "gvars")
       loadGroup(it, m_defn.gvars, CPN_MAX_GVARS, 3);
+
     else if (it.key() == "inputs")
       loadGroup(it, m_defn.inputs, CPN_MAX_INPUTS, 3);
+
     else if (it.key() == "keyShortcuts")
       m_defn.keyShortcuts = getValueInt(it);
+
     else if (it.key() == "logicalSW")
       loadGroup(it, m_defn.logicalSW, CPN_MAX_LOGICAL_SWITCHES, 3);
+
     else if (it.key() == "luaScripts")
       loadLuaScripts(it);
+
     else if (it.key() == "modelImage")
       loadModelImage(it);
+
     else if (it.key() == "modelNameLen")
       m_defn.modelNameLen = getValueInt(it);
+
     else if (it.key() == "modelSlots")
       m_defn.modelSlots = getValueInt(it);
+
     else if (it.key() == "modes")
       loadGroup(it, m_defn.modes, CPN_MAX_FLIGHT_MODES, 3);
+
     else if (it.key() == "mixes")
       loadGroup(it, m_defn.mixes, CPN_MAX_MIXERS, 3);
+
     else if (it.key() == "outputs")
       loadOutputs(it);
+
     else if (it.key() == "quickMenuFavs")
       m_defn.quickMenuFavs = getValueInt(it);
+
     else if (it.key() == "sensors")
       loadGroup(it, m_defn.sensors, CPN_MAX_SENSORS, 3);
+
     else if (it.key() == "timers")
       loadGroup(it, m_defn.timers, CPN_MAX_TIMERS, 3);
+
     else if (isArray(o, "options"))
       loadOptions(it);
+
     else
       qWarning() << "Warning: No rule to process - path:" << path << "name:" << it.key() << "value:" << it.value();
   }

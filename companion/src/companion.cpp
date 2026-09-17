@@ -233,8 +233,9 @@ int main(int argc, char *argv[])
   Q_INIT_RESOURCE(hwdefs);
   Q_INIT_RESOURCE(bddefs);
 
-  gBoardFactories = new BoardFactories();
   registerStorageFactories();
+  // IMPORTANT load boards before firmware
+  gBoardFactories = new BoardFactories();
   gFirmwareFactories = new FirmwareFactories();
   SimulatorLoader::registerSimulators();
 
@@ -281,8 +282,8 @@ int main(int argc, char *argv[])
 
   SimulatorLoader::unregisterSimulators();
   gFirmwareFactories->unregisterFactories();
-  unregisterStorageFactories();
   gBoardFactories->unregisterBoardFactories();
+  unregisterStorageFactories();
 
 #if defined(USE_SDL)
   SDL_Quit();

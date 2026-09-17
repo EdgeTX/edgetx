@@ -3,7 +3,7 @@ project(boards)
 
 set(${PROJECT_NAME}_NAMES
   boardfactories
-  boards
+  board
 )
 
 AddHeadersSources()

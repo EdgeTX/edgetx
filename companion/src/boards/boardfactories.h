@@ -21,19 +21,19 @@
 
 #pragma once
 
-#include "boards.h"
+#include "board.h"
 
 class BoardFactory
 {
   public:
-    explicit BoardFactory(const Board::Type & id, const QString & hwdefn, const bool isSupported = true);
+    explicit BoardFactory(const QString & id, const QString & hwdefn, const bool isSupported = true);
 
     virtual ~BoardFactory() {}
 
-    Boards * board() const { return m_board; }
+    Board * board() const { return m_board; }
 
   private:
-    Boards *m_board;
+    Board *m_board;
 };
 
 class BoardFactories
@@ -42,11 +42,11 @@ class BoardFactories
     explicit BoardFactories();
     virtual ~BoardFactories();
 
-    Boards * boardForId(const Board::Type & id) const;
+    Boards * boardForId(const QString & id) const;
     Boards * boardForHwDefn(const QString & hwdefn) const;
 
     void registerAllBoards();
-    bool registerBoard(const Board::Type & board, const QString & hwdefn, const bool isSupported = true);
+    bool registerBoard(const QString & board, const QString & hwdefn, const bool isSupported = true);
     bool registerBoardFactory(BoardFactory * factory);
     void unregisterBoardFactories();
 

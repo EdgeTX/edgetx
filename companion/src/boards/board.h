@@ -36,261 +36,254 @@ class AbstractStaticItemModel;
 class SemanticVersion;
 class GeneralSettings;
 
-constexpr char BDDEFNSDIR[] { ":/bddefs" };
-constexpr char HWDEFNSDIR[] { ":/hwdefs" };
+constexpr char BDDEFNSDIR[]               { ":/bddefs" };
+constexpr char HWDEFNSDIR[]               { ":/hwdefs" };
+constexpr char BOARD_UNKNOWN[]            { "unknown" };
 
 // identiying names of static abstract item models
-constexpr char AIM_BOARDS_POT_TYPE[]        {"boards.pottype"};
-constexpr char AIM_BOARDS_SLIDER_TYPE[]     {"boards.slidertype"};
-constexpr char AIM_BOARDS_SWITCH_TYPE[]     {"boards.switchtype"};
-constexpr char AIM_BOARDS_MODULE_SIZE[]     {"boards.extmodulesize"};
-constexpr char AIM_BOARDS_FLEX_TYPE[]       {"boards.flextype"};
+constexpr char AIM_BOARDS_POT_TYPE[]      {"boards.pottype"};
+constexpr char AIM_BOARDS_SLIDER_TYPE[]   {"boards.slidertype"};
+constexpr char AIM_BOARDS_SWITCH_TYPE[]   {"boards.switchtype"};
+constexpr char AIM_BOARDS_MODULE_SIZE[]   {"boards.extmodulesize"};
+constexpr char AIM_BOARDS_FLEX_TYPE[]     {"boards.flextype"};
 
-// TODO merge into Boards class
-namespace Board {
-
-  typedef QString Type;
-
-  constexpr char BOARD_UNKNOWN[] { "unknown" };
-
-  enum PotType
-  {
-    POT_NONE,
-    POT_WITH_DETENT,
-    POT_MULTIPOS_SWITCH,
-    POT_WITHOUT_DETENT,
-    POT_SLIDER_WITH_DETENT,
-    POT_TYPE_COUNT
-  };
-
-  enum SliderType
-  {
-    SLIDER_NONE,
-    SLIDER_WITH_DETENT,
-    SLIDER_TYPE_COUNT
-  };
-
-  enum SwitchType
-  {
-    SWITCH_NOT_AVAILABLE,
-    SWITCH_TOGGLE,
-    SWITCH_2POS,
-    SWITCH_3POS,
-    SWITCH_GLOBAL,
-    SWITCH_FUNC,
-    SWITCH_ADC,
-    SWITCH_TYPE_COUNT
-  };
-
-  enum StickAxes {
-    STICK_AXIS_LH = 0,
-    STICK_AXIS_LV,
-    STICK_AXIS_RV,
-    STICK_AXIS_RH,
-    STICK_AXIS_COUNT
-  };
-
-  enum TrimAxes {
-    TRIM_AXIS_LH = 0,
-    TRIM_AXIS_LV,
-    TRIM_AXIS_RV,
-    TRIM_AXIS_RH,
-    TRIM_AXIS_T5,
-    TRIM_AXIS_T6,
-    TRIM_AXIS_T7,
-    TRIM_AXIS_T8,
-    TRIM_AXIS_COUNT
-  };
-
-  enum TrimSwitches
-  {
-    TRIM_SW_LH_DEC,
-    TRIM_SW_LH_INC,
-    TRIM_SW_LV_DEC,
-    TRIM_SW_LV_INC,
-    TRIM_SW_RV_DEC,
-    TRIM_SW_RV_INC,
-    TRIM_SW_RH_DEC,
-    TRIM_SW_RH_INC,
-    TRIM_SW_T5_DEC,
-    TRIM_SW_T5_INC,
-    TRIM_SW_T6_DEC,
-    TRIM_SW_T6_INC,
-    TRIM_SW_T7_DEC,
-    TRIM_SW_T7_INC,
-    TRIM_SW_T8_DEC,
-    TRIM_SW_T8_INC,
-    TRIM_SW_COUNT
-  };
-
-  enum StickAxesSurface {
-    STICK_AXIS_SURFACE_RH = 0, // Steering
-    STICK_AXIS_SURFACE_LV,     // Throttle
-    STICK_AXIS_SURFACE_COUNT
-  };
-
-  enum TrimAxesSurface {
-    TRIM_AXIS_SURFACE_RH = 0,
-    TRIM_AXIS_SURFACE_LH, // Throttle axis vertical but its trim horizontal in lcd
-    TRIM_AXIS_SURFACE_T3,
-    TRIM_AXIS_SURFACE_T4,
-    TRIM_AXIS_SURFACE_T5,
-    TRIM_AXIS_SURFACE_T6,
-    TRIM_AXIS_SURFACE_T7,
-    TRIM_AXIS_SURFACE_T8,
-    TRIM_AXIS_SURFACE_COUNT
-  };
-
-  enum TrimSwitchesSurface
-  {
-    TRIM_SW_SURFACE_RH_DEC,
-    TRIM_SW_SURFACE_RH_INC,
-    TRIM_SW_SURFACE_LH_DEC, // Throttle axis vertical but its trim horizontal in lcd
-    TRIM_SW_SURFACE_LH_INC, // Throttle axis vertical but its trim horizontal in lcd
-    TRIM_SW_SURFACE_T3_DEC,
-    TRIM_SW_SURFACE_T3_INC,
-    TRIM_SW_SURFACE_T4_DEC,
-    TRIM_SW_SURFACE_T4_INC,
-    TRIM_SW_SURFACE_T5_DEC,
-    TRIM_SW_SURFACE_T5_INC,
-    TRIM_SW_SURFACE_T6_DEC,
-    TRIM_SW_SURFACE_T6_INC,
-    TRIM_SW_SURFACE_T7_DEC,
-    TRIM_SW_SURFACE_T7_INC,
-    TRIM_SW_SURFACE_T8_DEC,
-    TRIM_SW_SURFACE_T8_INC,
-    TRIM_SW_SURFACE_COUNT
-  };
-
-    struct SwitchPosition {
-    SwitchPosition(unsigned int index, unsigned int position):
-      index(index),
-      position(position)
-      {
-      }
-      unsigned int index;
-      unsigned int position;
-  };
-
-  enum SwitchTypeMasks {
-    SwitchTypeFlagNone    = 1 << 1,
-    SwitchTypeFlag2Pos    = 1 << 2,
-    SwitchTypeFlag3Pos    = 1 << 3,
-    SwitchTypeContextNone = SwitchTypeFlagNone,
-    SwitchTypeContext2Pos = SwitchTypeContextNone | SwitchTypeFlag2Pos,
-    SwitchTypeContext3Pos = SwitchTypeContext2Pos | SwitchTypeFlag3Pos
-  };
-
-  enum ExternalModuleSizes {
-    EXTMODSIZE_NONE,
-    EXTMODSIZE_STD,
-    EXTMODSIZE_SMALL,
-    EXTMODSIZE_BOTH,
-    EXTMODSIZE_COUNT
-  };
-
-  enum AnalogInputType
-  {
-    AIT_NONE,
-    AIT_STICK,
-    AIT_FLEX,
-    AIT_VBAT,
-    AIT_RTC_BAT,
-    AIT_LUX,
-    AIT_SWITCH,
-  };
-
-  enum FlexType {
-    FLEX_NONE = 0,
-    FLEX_POT,
-    FLEX_POT_CENTER,
-    FLEX_SLIDER,
-    FLEX_MULTIPOS,
-    FLEX_AXIS_X,
-    FLEX_AXIS_Y,
-    FLEX_SWITCH,
-    FLEX_TYPE_COUNT
-  };
-
-  enum FlexTypeMasks {
-    FlexTypeFlagNotSwitch   = 1 << 1,
-    FlexTypeFlagSwitch      = 1 << 2,
-    FlexTypeContextNoSwitch = FlexTypeFlagNotSwitch,
-    FlexTypeContextSwitch   = FlexTypeContextNoSwitch | FlexTypeFlagSwitch
-  };
-
-  enum LookupValueType {
-    LVT_TAG = 0,
-    LVT_NAME
-  };
-
-  enum TrainerModuleType {
-    TR_MOD_TYPE_NONE,
-    TR_MOD_TYPE_CPPM,
-    TR_MOD_TYPE_SBUS
-  };
-
-  struct InputInfo {
-    InputInfo() :
-      type(AIT_NONE),
-      tag(""),
-      name(""),
-      shortName(""),
-      flexType(FLEX_NONE),
-      inverted(false)
-    {}
-
-    AnalogInputType type;
-    std::string tag;
-    std::string name;
-    std::string label;
-    std::string shortName;
-    FlexType flexType;
-    bool inverted;
-  };
-
-  struct SwitchInfo {
-    SwitchInfo() :
-      type(SWITCH_NOT_AVAILABLE),
-      tag(""),
-      name(""),
-      dflt(SWITCH_NOT_AVAILABLE),
-      inverted(false)
-    {}
-
-    SwitchType type;
-    std::string tag;
-    std::string name;
-    SwitchType dflt;
-    bool inverted;
-  };
-
-  struct KeyInfo {
-    KeyInfo() :
-      key(""),
-      name(""),
-      label("")
-    {}
-
-    std::string key;
-    std::string name;
-    std::string label;
-  };
-
-  struct TrimInfo {
-    TrimInfo() :
-      name("")
-    {}
-
-    std::string name;
-  };
-}
-
-class Boards : public JsonBase
+class Board : public JsonBase
 {
-  Q_DECLARE_TR_FUNCTIONS(Boards)
+  Q_DECLARE_TR_FUNCTIONS(Board)
 
   public:
+
+    enum PotType
+    {
+      POT_NONE,
+      POT_WITH_DETENT,
+      POT_MULTIPOS_SWITCH,
+      POT_WITHOUT_DETENT,
+      POT_SLIDER_WITH_DETENT,
+      POT_TYPE_COUNT
+    };
+
+    enum SliderType
+    {
+      SLIDER_NONE,
+      SLIDER_WITH_DETENT,
+      SLIDER_TYPE_COUNT
+    };
+
+    enum SwitchType
+    {
+      SWITCH_NOT_AVAILABLE,
+      SWITCH_TOGGLE,
+      SWITCH_2POS,
+      SWITCH_3POS,
+      SWITCH_GLOBAL,
+      SWITCH_FUNC,
+      SWITCH_ADC,
+      SWITCH_TYPE_COUNT
+    };
+
+    enum StickAxes {
+      STICK_AXIS_LH = 0,
+      STICK_AXIS_LV,
+      STICK_AXIS_RV,
+      STICK_AXIS_RH,
+      STICK_AXIS_COUNT
+    };
+
+    enum TrimAxes {
+      TRIM_AXIS_LH = 0,
+      TRIM_AXIS_LV,
+      TRIM_AXIS_RV,
+      TRIM_AXIS_RH,
+      TRIM_AXIS_T5,
+      TRIM_AXIS_T6,
+      TRIM_AXIS_T7,
+      TRIM_AXIS_T8,
+      TRIM_AXIS_COUNT
+    };
+
+    enum TrimSwitches
+    {
+      TRIM_SW_LH_DEC,
+      TRIM_SW_LH_INC,
+      TRIM_SW_LV_DEC,
+      TRIM_SW_LV_INC,
+      TRIM_SW_RV_DEC,
+      TRIM_SW_RV_INC,
+      TRIM_SW_RH_DEC,
+      TRIM_SW_RH_INC,
+      TRIM_SW_T5_DEC,
+      TRIM_SW_T5_INC,
+      TRIM_SW_T6_DEC,
+      TRIM_SW_T6_INC,
+      TRIM_SW_T7_DEC,
+      TRIM_SW_T7_INC,
+      TRIM_SW_T8_DEC,
+      TRIM_SW_T8_INC,
+      TRIM_SW_COUNT
+    };
+
+    enum StickAxesSurface {
+      STICK_AXIS_SURFACE_RH = 0, // Steering
+      STICK_AXIS_SURFACE_LV,     // Throttle
+      STICK_AXIS_SURFACE_COUNT
+    };
+
+    enum TrimAxesSurface {
+      TRIM_AXIS_SURFACE_RH = 0,
+      TRIM_AXIS_SURFACE_LH, // Throttle axis vertical but its trim horizontal in lcd
+      TRIM_AXIS_SURFACE_T3,
+      TRIM_AXIS_SURFACE_T4,
+      TRIM_AXIS_SURFACE_T5,
+      TRIM_AXIS_SURFACE_T6,
+      TRIM_AXIS_SURFACE_T7,
+      TRIM_AXIS_SURFACE_T8,
+      TRIM_AXIS_SURFACE_COUNT
+    };
+
+    enum TrimSwitchesSurface
+    {
+      TRIM_SW_SURFACE_RH_DEC,
+      TRIM_SW_SURFACE_RH_INC,
+      TRIM_SW_SURFACE_LH_DEC, // Throttle axis vertical but its trim horizontal in lcd
+      TRIM_SW_SURFACE_LH_INC, // Throttle axis vertical but its trim horizontal in lcd
+      TRIM_SW_SURFACE_T3_DEC,
+      TRIM_SW_SURFACE_T3_INC,
+      TRIM_SW_SURFACE_T4_DEC,
+      TRIM_SW_SURFACE_T4_INC,
+      TRIM_SW_SURFACE_T5_DEC,
+      TRIM_SW_SURFACE_T5_INC,
+      TRIM_SW_SURFACE_T6_DEC,
+      TRIM_SW_SURFACE_T6_INC,
+      TRIM_SW_SURFACE_T7_DEC,
+      TRIM_SW_SURFACE_T7_INC,
+      TRIM_SW_SURFACE_T8_DEC,
+      TRIM_SW_SURFACE_T8_INC,
+      TRIM_SW_SURFACE_COUNT
+    };
+
+      struct SwitchPosition {
+      SwitchPosition(unsigned int index, unsigned int position):
+        index(index),
+        position(position)
+        {
+        }
+        unsigned int index;
+        unsigned int position;
+    };
+
+    enum SwitchTypeMasks {
+      SwitchTypeFlagNone    = 1 << 1,
+      SwitchTypeFlag2Pos    = 1 << 2,
+      SwitchTypeFlag3Pos    = 1 << 3,
+      SwitchTypeContextNone = SwitchTypeFlagNone,
+      SwitchTypeContext2Pos = SwitchTypeContextNone | SwitchTypeFlag2Pos,
+      SwitchTypeContext3Pos = SwitchTypeContext2Pos | SwitchTypeFlag3Pos
+    };
+
+    enum ExternalModuleSizes {
+      EXTMODSIZE_NONE,
+      EXTMODSIZE_STD,
+      EXTMODSIZE_SMALL,
+      EXTMODSIZE_BOTH,
+      EXTMODSIZE_COUNT
+    };
+
+    enum AnalogInputType
+    {
+      AIT_NONE,
+      AIT_STICK,
+      AIT_FLEX,
+      AIT_VBAT,
+      AIT_RTC_BAT,
+      AIT_LUX,
+      AIT_SWITCH,
+    };
+
+    enum FlexType {
+      FLEX_NONE = 0,
+      FLEX_POT,
+      FLEX_POT_CENTER,
+      FLEX_SLIDER,
+      FLEX_MULTIPOS,
+      FLEX_AXIS_X,
+      FLEX_AXIS_Y,
+      FLEX_SWITCH,
+      FLEX_TYPE_COUNT
+    };
+
+    enum FlexTypeMasks {
+      FlexTypeFlagNotSwitch   = 1 << 1,
+      FlexTypeFlagSwitch      = 1 << 2,
+      FlexTypeContextNoSwitch = FlexTypeFlagNotSwitch,
+      FlexTypeContextSwitch   = FlexTypeContextNoSwitch | FlexTypeFlagSwitch
+    };
+
+    enum LookupValueType {
+      LVT_TAG = 0,
+      LVT_NAME
+    };
+
+    enum TrainerModuleType {
+      TR_MOD_TYPE_NONE,
+      TR_MOD_TYPE_CPPM,
+      TR_MOD_TYPE_SBUS
+    };
+
+    struct InputInfo {
+      InputInfo() :
+        type(AIT_NONE),
+        tag(""),
+        name(""),
+        shortName(""),
+        flexType(FLEX_NONE),
+        inverted(false)
+      {}
+
+      AnalogInputType type;
+      std::string tag;
+      std::string name;
+      std::string label;
+      std::string shortName;
+      FlexType flexType;
+      bool inverted;
+    };
+
+    struct SwitchInfo {
+      SwitchInfo() :
+        type(SWITCH_NOT_AVAILABLE),
+        tag(""),
+        name(""),
+        dflt(SWITCH_NOT_AVAILABLE),
+        inverted(false)
+      {}
+
+      SwitchType type;
+      std::string tag;
+      std::string name;
+      SwitchType dflt;
+      bool inverted;
+    };
+
+    struct KeyInfo {
+      KeyInfo() :
+        key(""),
+        name(""),
+        label("")
+      {}
+
+      std::string key;
+      std::string name;
+      std::string label;
+    };
+
+    struct TrimInfo {
+      TrimInfo() :
+        name("")
+      {}
+
+      std::string name;
+    };
 
     enum YamlLookupType {
       YLT_CONFIG,
@@ -426,11 +419,11 @@ class Boards : public JsonBase
 
     typedef std::vector<TrimDefn> TrimsTable;
 
-    explicit Boards(const Board::Type & id, const QString & hwdefn, const bool isSupported = true);
-    explicit Boards(const Board::Type & id);
-    virtual ~Boards() {}
+    explicit Board(const QString & id, const QString & hwdefn, const bool isSupported = true);
+    explicit Board(const QString & id);
+    virtual ~Board() {}
 
-    const Board::Type getId() const { return m_id; }
+    const QString getId() const { return m_id; }
     const QString getManufacturer() const { return m_manufacturer; }
     const QString getName() const { return m_name; }
     const QString getHwDefn() const { return m_hwdefn; }
@@ -521,7 +514,7 @@ class Boards : public JsonBase
     static int getNumericSuffix(const std::string str);
 
     // deprecated
-    static std::string getLegacyAnalogMappedInputTag(const char * legacytag, const Board::Type & id = Board::BOARD_UNKNOWN);
+    static std::string getLegacyAnalogMappedInputTag(const char * legacytag, const QString & id = Board::BOARD_UNKNOWN);
 
   private:
 
@@ -595,7 +588,3 @@ class Boards : public JsonBase
     static QString flexTypeToString(int value);
     static QString switchTypeToString(int value);
 };
-
-// Helpers
-Boards * getBoardForHwDefn(const QString & hwdefn);
-Boards * getBoardForId(const Board::Type & id);
