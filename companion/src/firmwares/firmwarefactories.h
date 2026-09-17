@@ -50,7 +50,8 @@ class FirmwareFactories
     void registerAllFirmwares();
     bool loadDefinition(const QString & id);
 
-    QMap<QString, QString> registeredFirmware();
+    QMap<QString, QString> registeredFirmware() const;
+    QList<Firmware *> getRegisteredFirmwares() const;
 
   private:
     QList<FirmwareFactory *> registeredFactories;

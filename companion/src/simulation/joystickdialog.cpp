@@ -149,10 +149,10 @@ void joystickDialog::populateSourceCombo(QComboBox * cb)
   int i;
   QString wname;
 
-  QString m_board = getCurrentBoard();
+  Board *m_board = getCurrentBoard();
   GeneralSettings radioSettings = GeneralSettings();
 
-  int ttlInputs = Boards::getCapability(m_board, Board::Inputs);
+  int ttlInputs = m_board->getCapability(Capability::Inputs);
 
   cb->clear();
   cb->addItem(tr("Not Assigned"), -1);
@@ -161,7 +161,7 @@ void joystickDialog::populateSourceCombo(QComboBox * cb)
     if (radioSettings.isInputAvailable(i) &&
         (radioSettings.isInputStick(i) || radioSettings.isInputPot(i) || radioSettings.isInputSlider(i))) {
       if (radioSettings.isInputStick(i))
-        wname = Boards::getAxisName(i);
+        wname = Board::getAxisName(i);
       else
         wname = RawSource(RawSourceType::SOURCE_TYPE_INPUT, i + 1).toString(nullptr, &radioSettings);
       cb->addItem(wname, i);
@@ -174,11 +174,11 @@ void joystickDialog::populateButtonCombo(QComboBox * cb)
   int i;
   QString wname;
 
-  QString m_board = getCurrentBoard();
+  Board *m_board = getCurrentBoard();
   GeneralSettings radioSettings = GeneralSettings();
 
-  int ttlSwitches = Boards::getCapability(m_board, Board::Switches);
-  int ttlTrims = Boards::getCapability(m_board, Board::NumTrims);
+  int ttlSwitches = m_board->getCapability(Capability::Switches);
+  int ttlTrims = m_board->getCapability(Capability::NumTrims);
 
   cb->clear();
   cb->addItem(tr("Not Assigned"), -1);

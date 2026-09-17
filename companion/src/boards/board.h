@@ -232,6 +232,14 @@ class Board : public JsonBase
     };
 
     struct InputInfo {
+      AnalogInputType type;
+      std::string tag;
+      std::string name;
+      std::string label;
+      std::string shortName;
+      FlexType flexType;
+      bool inverted;
+
       InputInfo() :
         type(AIT_NONE),
         tag(""),
@@ -240,17 +248,15 @@ class Board : public JsonBase
         flexType(FLEX_NONE),
         inverted(false)
       {}
-
-      AnalogInputType type;
-      std::string tag;
-      std::string name;
-      std::string label;
-      std::string shortName;
-      FlexType flexType;
-      bool inverted;
     };
 
     struct SwitchInfo {
+      SwitchType type;
+      std::string tag;
+      std::string name;
+      SwitchType dflt;
+      bool inverted;
+
       SwitchInfo() :
         type(SWITCH_NOT_AVAILABLE),
         tag(""),
@@ -259,31 +265,26 @@ class Board : public JsonBase
         inverted(false)
       {}
 
-      SwitchType type;
-      std::string tag;
-      std::string name;
-      SwitchType dflt;
-      bool inverted;
     };
 
     struct KeyInfo {
+      std::string key;
+      std::string name;
+      std::string label;
+
       KeyInfo() :
         key(""),
         name(""),
         label("")
       {}
-
-      std::string key;
-      std::string name;
-      std::string label;
     };
 
     struct TrimInfo {
+      std::string name;
+
       TrimInfo() :
         name("")
       {}
-
-      std::string name;
     };
 
     enum YamlLookupType {
@@ -436,7 +437,7 @@ class Board : public JsonBase
 
     // inputs
     const int getInputIndex(const QString val, Board::LookupValueType lvt) const;
-    const Board::InputInfo getInputInfo(int index) const;
+    const InputInfo getInputInfo(int index) const;
     const QString getInputName(int index) const;
     const int getInputExtIndex(int index) const;
     const int getInputPotIndex(int index) const;
@@ -476,7 +477,7 @@ class Board : public JsonBase
     const int getSwitchIndexForCFS(int customSwitchIdx) const;
     const int getSwitchIndexForCFSOffset(int offset) const;
     const int getCFSOffsetForCFSIndex(int index) const;
-    const Board::SwitchInfo getSwitchInfo(int index) const;
+    const SwitchInfo getSwitchInfo(int index) const;
     const QString getSwitchName(int index) const;
     const QString getSwitchTag(int index) const;
     const int getSwitchTagNum(int index) const;
@@ -496,9 +497,6 @@ class Board : public JsonBase
     const int getTrimYamlIndex(const QString val, YamlLookupType ylt) const;
     const QString getTrimYamlName(int index, YamlLookupType ylt) const;
 
-    // misc
-    const int defaultInternalModule() const;
-    const int defaultExternalModuleSize() const;
     const QList<int> supportedInternalModules() const;
 
     bool loadDefinitions();

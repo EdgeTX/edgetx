@@ -53,7 +53,7 @@ SimulatorWidget::SimulatorWidget(QWidget * parent, SimulatorInterface * simulato
   simulator(simulator),
   firmware(getCurrentFirmware()),
   radioSettings(GeneralSettings()),
-  m_board(getCurrentFirmwareBoard()),
+  m_board(getCurrentBoard()),
   flags(flags)
 {
   ui->setupUi(this);

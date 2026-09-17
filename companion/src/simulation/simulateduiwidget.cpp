@@ -47,7 +47,7 @@ SimulatedUIWidget::SimulatedUIWidget(SimulatorInterface * simulator, QWidget * p
   m_scrollDnAction(nullptr),
   m_mouseMidClickAction(nullptr),
   m_screenshotAction(nullptr),
-  m_board(getCurrentFirmwareBoard()),
+  m_board(getCurrentBoard()),
   m_backLight(0),
   m_beepShow(0),
   m_beepVal(0)

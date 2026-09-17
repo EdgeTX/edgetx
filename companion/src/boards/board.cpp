@@ -194,6 +194,13 @@ int Board::getCapability(const Capability capability) const
     case Capability::BacklightLevelMin:
       return m_hardware.backlightLevelMin;
 
+    case Capability::defaultInternalModule:
+      return m_hardware.intModules.dflt;
+
+    case Capability::defaultExternalModuleSize:
+      return getCapability(Capability::HasExternalModuleSupport) ?
+             m_hardware.defExtModSz : Board::EXTMODSIZE_NONE;
+
     case Capability::HasAuxSerialMode:
       return m_hardware.auxSerialMode;
 
@@ -459,11 +466,6 @@ const QList<int> Board::supportedInternalModules() const
   return modules;
 }
 
-const int Board::defaultInternalModule() const
-{
-  return m_hardware.intModules.dflt;
-}
-
 #define BR(min, max, warn) vmin = min - 90; vmax = max - 120; vwarn = warn;
 
 void Board::getBatteryRange(int & vmin, int & vmax, unsigned int & vwarn) const
@@ -471,14 +473,6 @@ void Board::getBatteryRange(int & vmin, int & vmax, unsigned int & vwarn) const
   vmin = m_hardware.battery.min;
   vmax = m_hardware.battery.max;
   vwarn = m_hardware.battery.warn;
-}
-
-const int Board::defaultExternalModuleSize() const
-{
-  if (!getCapability(Capability::HasExternalModuleSupport))
-    return Board::EXTMODSIZE_NONE;
-
-  return m_hardware.defExtModSz;
 }
 
 //  static
@@ -685,9 +679,9 @@ const int Board::getInputTypeOffset(Board::AnalogInputType type) const
   return -1;
 }
 
-const Board::InputInfo Board::getInputInfo(int index) const
+const InputInfo Board::getInputInfo(int index) const
 {
-  Board::InputInfo info;
+  InputInfo info;
 
   try {
     InputDefn defn = m_inputs.at(index);
@@ -713,9 +707,9 @@ const int Board::getKeyIndex(QString key) const
   return -1;
 }
 
-const Board::KeyInfo Board::getKeyInfo(int index) const
+const KeyInfo Board::getKeyInfo(int index) const
 {
-  Board::KeyInfo info;
+  KeyInfo info;
 
   try {
     KeyDefn defn = m_keys.at(index);

@@ -48,6 +48,19 @@ Firmware * FirmwareFactories::getFirmware(const QString & id) const
   return Firmware::getDefault();
 }
 
+QList<Firmware *> FirmwareFactories::getRegisteredFirmware() const
+{
+  QList<Firmware *> ret;
+
+  for (auto *registeredFactory : registeredFactories) {
+    Firmware *firmware = registeredFactory->getFirmware();
+    if (firmware->isSupported())
+      ret.append(firmware);
+  }
+
+  return ret;
+}
+
 bool FirmwareFactories::loadDefinition(const QString & id)
 {
   Firmware *firmware = getFirmware(id);
@@ -82,7 +95,7 @@ void FirmwareFactories::registerAllFirmwares()
   Firmware::setDefault(registeredFactories.first()->getFirmware());
 }
 
-QMap<QString, QString> FirmwareFactories::registeredFirmware()
+QMap<QString, QString> FirmwareFactories::registeredFirmware() const
 {
   QMap<QString, QString> ret;
 

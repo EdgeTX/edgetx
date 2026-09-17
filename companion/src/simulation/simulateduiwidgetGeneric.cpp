@@ -33,9 +33,9 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
   ui(new Ui::SimulatedUIWidgetGeneric)
 {
   ui->setupUi(this);
-  QString board = getCurrentBoard();
+  Board* board = getCurrentBoard();
 
-  if (Boards::getCapability(board, Board::HasBacklightColor)) {
+  if (board->getCapability(Capability::HasBacklightColor)) {
     m_backlightColors << QColor(215, 243, 255);   //  blue
     m_backlightColors << QColor(166, 247, 159);   //  green
     m_backlightColors << QColor(247, 159, 166);   //  red
@@ -45,7 +45,7 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
   else
     m_backlightColors << QColor(198, 208, 199);
 
-  if (Boards::getCapability(board, Board::LcdOLED)) {
+  if (board->getCapability(Capability::LcdOLED)) {
     ui->lcd->setBgDefaultColor(QColor(0, 0, 0));        //  black
     ui->lcd->setFgDefaultColor(QColor(255, 255, 255));  //  white
   }
@@ -53,9 +53,9 @@ SimulatedUIWidgetGeneric::SimulatedUIWidgetGeneric(SimulatorInterface *simulator
   setLcd(ui->lcd);
 
   //  TODO: move to setLcd when all radios using generic
-  auto lcdDepth = Boards::getCapability(board, Board::LcdDepth);
-  auto lcdWidth = Boards::getCapability(board, Board::LcdWidth) * (lcdDepth < 12 ? 2 : 1);
-  auto lcdHeight = Boards::getCapability(board, Board::LcdHeight) * (lcdDepth < 12 ? 2 : 1);
+  auto lcdDepth = board->getCapability(Capability::LcdDepth);
+  auto lcdWidth = board->getCapability(Capability::LcdWidth) * (lcdDepth < 12 ? 2 : 1);
+  auto lcdHeight = board->getCapability(Capability::LcdHeight) * (lcdDepth < 12 ? 2 : 1);
 
   ui->lcd->setFixedSize(lcdWidth, lcdHeight);
   //  end TODO

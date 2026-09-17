@@ -290,7 +290,12 @@ const QString Firmware::getCapabilityStr(Capability value) const
 Firmware * Firmware::getFirmwareForId(const QString & id)
 {
   QStringList parts = id.split("-");
-  return gFirmwareFactories->firmware(parts.at(0) % "-" % parts.at(1));
+  return gFirmwareFactories->getFirmware(parts.at(0) % "-" % parts.at(1));
+}
+
+QList<Firmware *> Firmware::getRegisteredFirmwares()
+{
+  return gFirmwareFactories->getRegisteredFirmwares();
 }
 
 bool Firmware::isOptionDuplicate(const OptionsGroup & grp, const QString & val)

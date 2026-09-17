@@ -130,7 +130,7 @@ class Firmware : public JsonBase
     const QString getDwnldid() const { return m_defn.dwnldId.c_str(); }
     const QString getId() const { return m_id; } // do not use m_defn.id as it does not have edgetx- prefix
     const QString getName() const { return m_defn.name.c_str(); }
-    const QString getSimuid() const { return m_defn.simuId.c_str(); }
+    const QString getSimulatorId() const { return m_defn.simuId.c_str(); }
 
     const int getCapability(Capability value) const;
     const QString getCapabilityStr(Capability value) const;
@@ -147,6 +147,7 @@ class Firmware : public JsonBase
 
     static Firmware * getFirmwareForId(const QString & id);
     static Firmware * getFirmware(const QString & id = QString());
+    static QList<Firmware *> getRegisteredFirmwares();
 
     static Firmware * getCurrent() { return m_current; }
     static void setCurrent(Firmware * firmware);

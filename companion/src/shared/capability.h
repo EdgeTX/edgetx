@@ -110,6 +110,8 @@ enum Capability {
   CPU,
   CPUType,
   EepromSize,
+  defaultInternalModule,
+  defaultExternalModuleSize,
   FlashSize,
   FlexInputs,
   FlexSwitches,

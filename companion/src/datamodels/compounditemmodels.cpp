@@ -101,13 +101,13 @@ void AbstractStaticItemModel::loadItemList()
 //
 
 RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                       Firmware * firmware, const Boards * const board, const QString boardType) :
+                                       Firmware * firmware, const Board * const board, const QString boardType) :
   AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_RawSource);
   setUpdateMask(IMUE_All &~ (IMUE_Curves | IMUE_Scripts));
 
-  int groups = board->getCapability(Board::FunctionSwitchGroups);
+  int groups = board->getCapability(Capability::FunctionSwitchGroups);
 
   // Descending source direction: inverted (!) sources
   addItems(SOURCE_TYPE_TELEMETRY,      RawSource::TelemGroup,    -firmware->getCapability(Sensors) * 3);
@@ -120,12 +120,12 @@ RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSett
   addItems(SOURCE_TYPE_CUSTOM_SWITCH,  RawSource::SwitchesGroup, -firmware->getCapability(LogicalSwitches));
   if (modelData && groups > 0)
     addItems(SOURCE_TYPE_FUNCTIONSWITCH_GROUP,  RawSource::SourcesGroup,  -groups);
-  addItems(SOURCE_TYPE_SWITCH,         RawSource::SwitchesGroup, -board->getCapability(Board::Switches));
+  addItems(SOURCE_TYPE_SWITCH,         RawSource::SwitchesGroup, -board->getCapability(Capability::Switches));
   addItems(SOURCE_TYPE_MAX,            RawSource::SourcesGroup,  -1);
   addItems(SOURCE_TYPE_MIN,            RawSource::SourcesGroup,  -1);
   addItems(SOURCE_TYPE_SPACEMOUSE,     RawSource::SourcesGroup,  -CPN_MAX_SPACEMOUSE);
-  addItems(SOURCE_TYPE_TRIM,           RawSource::TrimsGroup,    -board->getCapability(Board::NumTrims));
-  addItems(SOURCE_TYPE_INPUT,          RawSource::SourcesGroup,  -board->getCapability(Board::Inputs));
+  addItems(SOURCE_TYPE_TRIM,           RawSource::TrimsGroup,    -board->getCapability(Capability::NumTrims));
+  addItems(SOURCE_TYPE_INPUT,          RawSource::SourcesGroup,  -board->getCapability(Capability::Inputs));
   addItems(SOURCE_TYPE_VIRTUAL_INPUT,  RawSource::InputsGroup,   -firmware->getCapability(VirtualInputs));
   for (int i = firmware->getCapability(LuaScripts) - 1; i >= 0; i--)
     addItems(SOURCE_TYPE_LUA_OUTPUT,   RawSource::ScriptsGroup,  -firmware->getCapability(LuaOutputsPerScript), -i * 16);
@@ -135,12 +135,12 @@ RawSourceItemModel::RawSourceItemModel(const GeneralSettings * const generalSett
   for (int i = 0; i < firmware->getCapability(LuaScripts); i++)
     addItems(SOURCE_TYPE_LUA_OUTPUT,   RawSource::ScriptsGroup,  firmware->getCapability(LuaOutputsPerScript), i * 16);
   addItems(SOURCE_TYPE_VIRTUAL_INPUT,  RawSource::InputsGroup,   firmware->getCapability(VirtualInputs));
-  addItems(SOURCE_TYPE_INPUT,          RawSource::SourcesGroup,  board->getCapability(Board::Inputs));
-  addItems(SOURCE_TYPE_TRIM,           RawSource::TrimsGroup,    board->getCapability(Board::NumTrims));
+  addItems(SOURCE_TYPE_INPUT,          RawSource::SourcesGroup,  board->getCapability(Capability::Inputs));
+  addItems(SOURCE_TYPE_TRIM,           RawSource::TrimsGroup,    board->getCapability(Capability::NumTrims));
   addItems(SOURCE_TYPE_SPACEMOUSE,     RawSource::SourcesGroup,  CPN_MAX_SPACEMOUSE);
   addItems(SOURCE_TYPE_MIN,            RawSource::SourcesGroup,  1);
   addItems(SOURCE_TYPE_MAX,            RawSource::SourcesGroup,  1);
-  addItems(SOURCE_TYPE_SWITCH,         RawSource::SwitchesGroup, board->getCapability(Board::Switches));
+  addItems(SOURCE_TYPE_SWITCH,         RawSource::SwitchesGroup, board->getCapability(Capability::Switches));
   if (modelData && groups > 0)
     addItems(SOURCE_TYPE_FUNCTIONSWITCH_GROUP,  RawSource::SourcesGroup,  groups);
   addItems(SOURCE_TYPE_CUSTOM_SWITCH,  RawSource::SwitchesGroup, firmware->getCapability(LogicalSwitches));
@@ -194,7 +194,7 @@ void RawSourceItemModel::update(const int event)
 //
 
 RawSwitchItemModel::RawSwitchItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                       Firmware * firmware, const Boards * const board, const QString boardType) :
+                                       Firmware * firmware, const Board * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_RawSwitch);
@@ -207,15 +207,15 @@ RawSwitchItemModel::RawSwitchItemModel(const GeneralSettings * const generalSett
   addItems(SWITCH_TYPE_TELEMETRY,      -1);
   addItems(SWITCH_TYPE_FLIGHT_MODE,    -firmware->getCapability(FlightModes));
   addItems(SWITCH_TYPE_VIRTUAL,        -firmware->getCapability(LogicalSwitches));
-  addItems(SWITCH_TYPE_TRIM,           -board->getCapability(Board::NumTrimSwitches));
-  addItems(SWITCH_TYPE_MULTIPOS_POT,   -(board->getCapability(Board::MultiposPots) * board->getCapability(Board::MultiposPotsPositions)));
-  addItems(SWITCH_TYPE_SWITCH,         -board->getCapability(Board::SwitchesPositions));
+  addItems(SWITCH_TYPE_TRIM,           -board->getCapability(Capability::NumTrimSwitches));
+  addItems(SWITCH_TYPE_MULTIPOS_POT,   -(board->getCapability(Capability::MultiposPots) * board->getCapability(Capability::MultiposPotsPositions)));
+  addItems(SWITCH_TYPE_SWITCH,         -board->getCapability(Capability::SwitchesPositions));
 
   // Ascending switch direction (including zero)
   addItems(SWITCH_TYPE_NONE, 1);
-  addItems(SWITCH_TYPE_SWITCH,         board->getCapability(Board::SwitchesPositions));
-  addItems(SWITCH_TYPE_MULTIPOS_POT,   board->getCapability(Board::MultiposPots) * board->getCapability(Board::MultiposPotsPositions));
-  addItems(SWITCH_TYPE_TRIM,           board->getCapability(Board::NumTrimSwitches));
+  addItems(SWITCH_TYPE_SWITCH,         board->getCapability(Capability::SwitchesPositions));
+  addItems(SWITCH_TYPE_MULTIPOS_POT,   board->getCapability(Capability::MultiposPots) * board->getCapability(Capability::MultiposPotsPositions));
+  addItems(SWITCH_TYPE_TRIM,           board->getCapability(Capability::NumTrimSwitches));
   addItems(SWITCH_TYPE_VIRTUAL,        firmware->getCapability(LogicalSwitches));
   addItems(SWITCH_TYPE_FLIGHT_MODE,    firmware->getCapability(FlightModes));
   addItems(SWITCH_TYPE_TELEMETRY,      1);
@@ -267,7 +267,7 @@ void RawSwitchItemModel::addItems(const RawSwitchType & type, int count)
     modelItem->setData(rs.toValue(), IMDR_Id);
     modelItem->setData(type, IMDR_Type);
     if (type == SWITCH_TYPE_SWITCH) {
-      if (Boards::isSwitchFunc(div(abs(rs.index) - 1, 3).quot, boardType))
+      if (board->isSwitchFunc(div(abs(rs.index) - 1, 3).quot))
         context &= ~RawSwitch::GlobalFunctionsContext;
       else
         context |= RawSwitch::GlobalFunctionsContext;
@@ -295,7 +295,7 @@ void RawSwitchItemModel::update(const int event)
 //
 
 CurveItemModel::CurveItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                               Firmware * firmware, const Boards * const board, const QString boardType) :
+                               Firmware * firmware, const Board * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_Curve);
@@ -340,7 +340,7 @@ void CurveItemModel::update(const int event)
 //
 
 GVarReferenceItemModel::GVarReferenceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                               Firmware * firmware, const Boards * const board, const QString boardType) :
+                                               Firmware * firmware, const Board * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_GVarRef);
@@ -395,7 +395,7 @@ void GVarReferenceItemModel::update(const int event)
 //
 
 ThrottleSourceItemModel::ThrottleSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                                 Firmware * firmware, const Boards * const board, const QString boardType) :
+                                                 Firmware * firmware, const Board * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_ThrSource);
@@ -436,7 +436,7 @@ void ThrottleSourceItemModel::update(const int event)
 //
 
 CustomFuncActionItemModel::CustomFuncActionItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                                     Firmware * firmware, const Boards * const board, const QString boardType) :
+                                                     Firmware * firmware, const Board * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_CustomFuncAction);
@@ -478,7 +478,7 @@ void CustomFuncActionItemModel::update(const int event)
 //
 
 CustomFuncResetParamItemModel::CustomFuncResetParamItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                                             Firmware * firmware, const Boards * const board, const QString boardType) :
+                                                             Firmware * firmware, const Board * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_CustomFuncResetParam);
@@ -515,7 +515,7 @@ void CustomFuncResetParamItemModel::update(const int event)
 //
 
 TelemetrySourceItemModel::TelemetrySourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                                   Firmware * firmware, const Boards * const board, const QString boardType) :
+                                                   Firmware * firmware, const Board * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_TeleSource);
@@ -562,7 +562,7 @@ void TelemetrySourceItemModel::update(const int event)
 //
 
 CurveRefTypeItemModel::CurveRefTypeItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                             Firmware * firmware, const Boards * const board, const QString boardType) :
+                                             Firmware * firmware, const Board * const board, const QString boardType) :
   AbstractStaticItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_CurveRefType);
@@ -581,7 +581,7 @@ CurveRefTypeItemModel::CurveRefTypeItemModel(const GeneralSettings * const gener
 //
 
 CurveRefFuncItemModel::CurveRefFuncItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                             Firmware * firmware, const Boards * const board, const QString boardType) :
+                                             Firmware * firmware, const Board * const board, const QString boardType) :
   AbstractStaticItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_CurveRefFunc);
@@ -621,7 +621,7 @@ PrecisionItemModel::PrecisionItemModel(const int minDecimals, const int maxDecim
 //
 
 FlexSwitchesItemModel::FlexSwitchesItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                                   Firmware * firmware, const Boards * const board, const QString boardType) :
+                                                   Firmware * firmware, const Board * const board, const QString boardType) :
     AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_FlexSwitches);
@@ -630,7 +630,7 @@ FlexSwitchesItemModel::FlexSwitchesItemModel(const GeneralSettings * const gener
     return;
 
   setUpdateMask(IMUE_FunctionSwitches);
-  const int count = Boards::getCapability(boardType, Board::Inputs);
+  const int count = board->getCapability(Capability::Inputs);
 
   {
     QStandardItem * modelItem = new QStandardItem();
@@ -650,7 +650,7 @@ FlexSwitchesItemModel::FlexSwitchesItemModel(const GeneralSettings * const gener
 
 void FlexSwitchesItemModel::setDynamicItemData(QStandardItem * item, const int value) const
 {
-  item->setText(Boards::getInputName(value, boardType));
+  item->setText(board->getInputName(value));
   item->setData(generalSettings->isInputFlexSwitchAvailable(value), IMDR_Available);
 }
 
@@ -672,20 +672,20 @@ void FlexSwitchesItemModel::update(const int event)
 //
 
 ControlSourceItemModel::ControlSourceItemModel(const GeneralSettings * const generalSettings, const ModelData * const modelData,
-                                       Firmware * firmware, const Boards * const board, const QString boardType) :
+                                       Firmware * firmware, const Board * const board, const QString boardType) :
   AbstractDynamicItemModel(generalSettings, modelData, firmware, board, boardType)
 {
   setId(IMID_ControlSource);
   setUpdateMask(IMUE_Hardware);
 
   // Descending source direction: inverted (!) sources
-  addItems(SOURCE_TYPE_SWITCH, -board->getCapability(Board::Switches));
-  addItems(SOURCE_TYPE_INPUT,  -board->getCapability(Board::Inputs), -board->getCapability(Board::Sticks));
+  addItems(SOURCE_TYPE_SWITCH, -board->getCapability(Capability::Switches));
+  addItems(SOURCE_TYPE_INPUT,  -board->getCapability(Capability::Inputs), -board->getCapability(Capability::Sticks));
 
   // Ascending source direction (including zero)
   addItems(SOURCE_TYPE_NONE,   1);
-  addItems(SOURCE_TYPE_INPUT,  board->getCapability(Board::Inputs), board->getCapability(Board::Sticks));
-  addItems(SOURCE_TYPE_SWITCH, board->getCapability(Board::Switches));
+  addItems(SOURCE_TYPE_INPUT,  board->getCapability(Capability::Inputs), board->getCapability(Capability::Sticks));
+  addItems(SOURCE_TYPE_SWITCH, board->getCapability(Capability::Switches));
 }
 
 void ControlSourceItemModel::setDynamicItemData(QStandardItem * item, const RawSource & src) const
@@ -732,8 +732,8 @@ CompoundItemModelFactory::CompoundItemModelFactory(const GeneralSettings * const
   modelData(modelData)
 {
   firmware = getCurrentFirmware();
-  board = new Boards(getCurrentBoard());
-  boardType = getCurrentBoard();
+  board = getCurrentBoard();
+  boardType = board->getId();
 }
 
 CompoundItemModelFactory::~CompoundItemModelFactory()
