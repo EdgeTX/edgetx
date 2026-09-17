@@ -518,6 +518,4 @@ USART6: EXTMODULE_USART
 
 #define LCD_DEPTH                       16
 
-#define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
-
 #endif // _HAL_H_

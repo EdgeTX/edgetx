@@ -628,8 +628,6 @@ TIM17:  ROTARY_ENCODER_TIMER
 
 #define LCD_DEPTH                        16
 
-#define LSE_DRIVE_STRENGTH               RCC_LSEDRIVE_HIGH
-
 // Keys held together to toggle the keyboard lock
 #define KEYS_LOCK_KEY1                   KEY_SYS
 #define KEYS_LOCK_KEY2                   KEY_MODEL

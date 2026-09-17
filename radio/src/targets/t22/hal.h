@@ -524,8 +524,6 @@ TIM17:	  ROTARY_ENCODER_TIMER
 
 #define LCD_DEPTH                       16
 
-#define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
-
 // Keys held together to toggle the keyboard lock. Override either define
 // in this file to map the combo to a different pair on this target.
 #define KEYS_LOCK_KEY1                  KEY_PAGEDN
