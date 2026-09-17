@@ -81,7 +81,7 @@ gridIndex GridLayout::newRow()
 
 void GridLayout::setIndexes(int col, int row)
 {
-  m_lastCol = (col = -1 ? m_lastCol + 1 : col);
+  m_lastCol = (col == -1 ? m_lastCol + 1 : col);
   // do not auto increment row
-  m_lastRow = (row = -1 ? m_lastRow : row);
+  m_lastRow = (row == -1 ? m_lastRow : row);
 }
