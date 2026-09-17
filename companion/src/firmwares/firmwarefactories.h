@@ -30,7 +30,7 @@ class FirmwareFactory
 
     virtual ~FirmwareFactory() {}
 
-    Firmware* firmware() const { return m_firmware; }
+    Firmware* getFirmware() const { return m_firmware; }
 
   private:
     Firmware *m_firmware;
@@ -42,7 +42,7 @@ class FirmwareFactories
     explicit FirmwareFactories();
     virtual ~FirmwareFactories();
 
-    Firmware* firmware(const QString & id) const;
+    Firmware* getFirmware(const QString & id) const;
 
     bool registerFirmware(const QString & id, const QString & path, const bool isSupported = true);
     bool registerFactory(FirmwareFactory * factory);

@@ -38,11 +38,11 @@ FirmwareFactories::~FirmwareFactories()
 {
 }
 
-Firmware * FirmwareFactories::firmware(const QString & id) const
+Firmware * FirmwareFactories::getFirmware(const QString & id) const
 {
   for (auto *registeredFactory : registeredFactories) {
-    if (registeredFactory->firmware()->id() == id)
-      return registeredFactory->firmware();
+    if (registeredFactory->getFirmware()->getId() == id)
+      return registeredFactory->getFirmware();
   }
 
   return Firmware::getDefault();
@@ -50,8 +50,8 @@ Firmware * FirmwareFactories::firmware(const QString & id) const
 
 bool FirmwareFactories::loadDefinition(const QString & id)
 {
-  Firmware *fw = firmware(id);
-  return fw ? fw->loadDefinition() : false;
+  Firmware *firmware = getFirmware(id);
+  return firmware ? firmware->loadDefinition() : false;
 }
 
 void FirmwareFactories::registerAllFirmwares()
@@ -79,7 +79,7 @@ void FirmwareFactories::registerAllFirmwares()
     delete doc;
   }
 
-  Firmware::setDefault(registeredFactories.first()->firmware());
+  Firmware::setDefault(registeredFactories.first()->getFirmware());
 }
 
 QMap<QString, QString> FirmwareFactories::registeredFirmware()
@@ -87,8 +87,9 @@ QMap<QString, QString> FirmwareFactories::registeredFirmware()
   QMap<QString, QString> ret;
 
   for (auto *registeredFactory : registeredFactories) {
-    if (registeredFactory->firmware()->isSupported())
-      ret.insert(registeredFactory->firmware()->id(), registeredFactory->firmware()->name());
+    Firmware *firmware = registeredFactory->getFirmware();
+    if (firmware->isSupported())
+      ret.insert(firmware->getId(), firmware->getName());
   }
 
   return ret;
@@ -96,9 +97,9 @@ QMap<QString, QString> FirmwareFactories::registeredFirmware()
 
 bool FirmwareFactories::registerFirmware(const QString & id, const QString & path, const bool isSupported)
 {
-  Firmware* regfirmware = firmware(id);
+  Firmware* firmware = getFirmware(id);
 
-  if (regfirmware) {
+  if (firmware) {
     qWarning() << "Error - Firmware id:" << id << "file:" << path << "already registered";
     return false;
   }
@@ -106,7 +107,7 @@ bool FirmwareFactories::registerFirmware(const QString & id, const QString & pat
   FirmwareFactory *ff = new FirmwareFactory(id, path, isSupported);
 
   if (registerFactory(ff)) {
-    qDebug() << "Registered firmware:" << ff->firmware()->id() << ff->firmware()->name();
+    qDebug() << "Registered firmware:" << ff->getFirmware()->getId() << ff->getFirmware()->getName();
     return true;
   }
 

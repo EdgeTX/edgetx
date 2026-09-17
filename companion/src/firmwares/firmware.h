@@ -151,6 +151,10 @@ class Firmware : public JsonBase
     static Firmware * getCurrent() { return m_current; }
     static void setCurrent(Firmware * firmware);
     static void setCurrent(const QString & id);
+
+    static Firmware * getDefault() { return m_default; }
+    static void setDefault(Firmware * firmware) { m_default = firmware; }
+
     static QList<const QString> getLanguageList() { return m_languages; }
 
   private:
