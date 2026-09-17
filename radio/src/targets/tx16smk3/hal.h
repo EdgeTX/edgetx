@@ -342,6 +342,4 @@ USART6: INTMODULE_USART
 #define EXTI2_IRQ_Priority  9
 #endif
 
-#define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
-
 #endif // _HAL_H_
