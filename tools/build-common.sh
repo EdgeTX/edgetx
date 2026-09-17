@@ -12,7 +12,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X7"
             ;;
         x7access)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES -DUSE_FW_LTO=y"
             ;;
         t12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
@@ -48,7 +48,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPRO"
             ;;
         tprov2)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROV2"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROV2 -DUSE_FW_LTO=y"
             ;;
         tpros)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROS"
@@ -72,7 +72,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
             ;;
         commando8)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8 -DUSE_FW_LTO=y"
             ;;
         xlite)
             BUILD_OPTIONS+="-DPCB=XLITE"
@@ -90,7 +90,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X9D+ -DPCBREV=2019 -DUSE_FW_LTO=y"
             ;;
         x9e)
-            BUILD_OPTIONS+="-DPCB=X9E"
+            BUILD_OPTIONS+="-DPCB=X9E -DUSE_FW_LTO=y"
             ;;
         x10)
             BUILD_OPTIONS+="-DPCB=X10"
