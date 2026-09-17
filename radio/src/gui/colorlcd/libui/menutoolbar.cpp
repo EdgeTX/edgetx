@@ -180,6 +180,8 @@ void MenuToolbar::addButton(const char* picto, int16_t filtermin,
   rect_t r = getButtonRect(wideButton);
   auto button = new MenuToolbarButton(this, r, picto);
 
+  setHeight(r.y + r.h + PAD_LARGE);
+
   button->setPressHandler(std::bind(&MenuToolbar::filterMenu, this, button,
                                     filtermin, filtermax, filterFunc, title));
 
