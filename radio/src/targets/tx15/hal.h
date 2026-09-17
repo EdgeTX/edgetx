@@ -349,6 +349,4 @@ SAI1_Block_A: PDM_CLOCK (1 MHz bit-clock output on SAI1_CK1 / PE5, !FLYSKY_GIMBA
 #define EXTI2_IRQ_Priority  9
 #endif
 
-#define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
-
 #endif // _HAL_H_
