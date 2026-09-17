@@ -13,6 +13,12 @@ if(NOT NATIVE_BUILD)
   set(STM32CUBE_DIR ${THIRDPARTY_DIR}/STM32F4xx_HAL_Driver)
   include_directories(${STM32CUBE_DIR}/Inc)
   
+  if(RTC_CALIBRATION)
+    set(STM32_RTC_CALIB_DRIVERS
+      ${STM32CUBE_DIR}/Src/stm32f4xx_hal_rtc_ex.c
+    )
+  endif()
+
   if(CPU_TYPE_FULL STREQUAL STM32F429xI)
     set(STM32_COLORLCD_DRIVERS
       ${STM32CUBE_DIR}/Src/stm32f4xx_ll_dma2d.c
@@ -41,7 +47,7 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_rcc.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_rcc_ex.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_rtc.c
-    ${STM32CUBE_DIR}/Src/stm32f4xx_hal_rtc_ex.c
+    ${STM32_RTC_CALIB_DRIVERS}
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_i2c.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_i2c_ex.c
     ${STM32CUBE_DIR}/Src/stm32f4xx_hal_sd.c
