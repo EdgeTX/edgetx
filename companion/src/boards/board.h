@@ -52,7 +52,7 @@ class Board : public JsonBase
 
   public:
 
-    static const QString BOARD_UNKNOWN { "unknown"} ;
+    inline static const QString BOARD_UNKNOWN { "unknown"} ;
 
     enum PotType
     {

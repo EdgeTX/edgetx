@@ -31,7 +31,7 @@
 #define DATE_MARK   "DATE"
 #define TIME_MARK   "TIME"
 #define EEPR_MARK   "EEPR"
-#define FSIZE_MAX   getCurrentFirmwareBoard()->getCapability(Capability::FlashSize)
+#define FSIZE_MAX   getCurrentBoard()->getCapability(Capability::FlashSize)
 
 #define UF2_HEADER_SIZE                 32
 #define UF2_BLOCK_SIZE                  512
