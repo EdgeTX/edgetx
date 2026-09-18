@@ -25,6 +25,7 @@
 
 #include "drivers/pca95xx.h"
 #include "drivers/aw9523b.h"
+#include "drivers/dumborc_extchannel.h"
 
 #include "definitions.h"
 #include "myeeprom.h"

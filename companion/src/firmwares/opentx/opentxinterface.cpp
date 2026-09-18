@@ -777,6 +777,14 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
 
+  /* DumboRC DRO1 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("dro1"), QCoreApplication::translate("Firmware", "DumboRC DRO1"), Board::BOARD_DUMBORC_DRO1);
+  addOpenTxCommonOptions(firmware);
+  firmware->addOption("lua", Firmware::tr("Enable Lua custom scripts screen"));
+  addOpenTxFontOptions(firmware);
+  registerOpenTxFirmware(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+
   Firmware::sortRegisteredFirmwares();
   Firmware::setDefaultVariant(Firmware::getFirmwareForFlavour("tx16s"));
   Firmware::setCurrentVariant(Firmware::getDefaultVariant());

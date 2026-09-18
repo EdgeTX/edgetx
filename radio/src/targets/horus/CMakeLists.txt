@@ -132,6 +132,26 @@ if (PCB STREQUAL X10)
       set(AUX2_SERIAL ON)
     endif()
     set(FLYSKY_GIMBAL ON)
+  elseif (PCBREV STREQUAL DRO1)
+    set(FLAVOUR dro1)
+    add_definitions(-DRADIO_FAMILY_T16)
+
+#   Uncomment the line below to enable bootloader support for SPI flash
+#    add_definitions(-DSPI_FLASH)
+
+    unset(INTERNAL_MODULES CACHE)
+    option(BLUETOOTH "Support for bluetooth module" OFF)
+    option(INTERNAL_GPS "Support for internal GPS" OFF)
+    set(SWSERIALPOWER YES)
+    set(USB_CHARGER YES)
+    add_definitions(-DMANUFACTURER_DUMBORC)
+    if (NOT BLUETOOTH)
+      set(AUX2_SERIAL ON)
+    endif()
+    add_definitions(-DDUMBORC_EXTCHANNEL_ENABLED)
+    set(INTERNAL_GPS_BAUDRATE "9600" CACHE STRING "Baud rate for internal GPS")
+    set(FLYSKY_GIMBAL OFF)
+    # set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
   else()
     set(FLAVOUR x10)
     set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
@@ -296,6 +316,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   drivers/lsm6ds.cpp
   drivers/icm42627.cpp
   drivers/sc7u22.cpp
+  drivers/dumborc_extchannel.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp
   targets/common/arm/stm32/sticks_pwm_driver.cpp

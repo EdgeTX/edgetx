@@ -104,4 +104,9 @@ boards = {
         "PCB": "X7",
         "PCBREV": "T14",
     },
+    "DRO1": {
+        "PCB": "X10",
+        "PCBREV": "DRO1",
+        "INTERNAL_MODULE_MULTI": "NO"
+    },
 }

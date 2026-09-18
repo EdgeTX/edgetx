@@ -45,6 +45,12 @@
 #define MODULE_ALIVE_TIMEOUT  50                      // if the module has sent a valid frame within 500ms it is declared alive
 static tmr10ms_t lastAlive[NUM_MODULES];              // last time stamp module sent CRSF frames
 static bool moduleAlive[NUM_MODULES];                 // module alive status
+#if ( DUMBORC_EXTCHANNEL_ENABLED )
+/* Record CRSF send count. */
+static uint32_t s_module_crsf_send_cnt[NUM_MODULES] = {0};
+/* Control CRSF send period. "(X-1) : 1" <=> "CRSF[1:16] : (X-1) times ; CRSF[17:31] : 1 time */
+static const uint32_t module_crsf_send_period = 5;
+#endif    /* ( DUMBORC_EXTCHANNEL_ENABLED ) */
 
 uint8_t createCrossfireBindFrame(uint8_t moduleIdx, uint8_t * frame)
 {
@@ -146,10 +152,32 @@ uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t
   return buf - frame;
 }
 
+#if ( DUMBORC_EXTCHANNEL_ENABLED )
+/* CRSF-CHANNELS_17_32_ID [BEGIN] */
+uint8_t createCrossfireChannelsFrame_17_32(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses)
+{
+  uint8_t len = createCrossfireChannelsFrame(moduleIdx, frame, pulses);
+
+
+  /* 1(ID) + 22(channel data) + 1(CRC) */
+  frame[1] = 24;
+  frame[2] = CHANNELS_17_32_ID;
+  frame[3 + ((CROSSFIRE_CHANNELS_COUNT * CROSSFIRE_CH_BITS) / 8)] = crc8(frame + 2, 23);
+
+  return (len - 1);
+}
+/* CRSF-CHANNELS_17_32_ID [END] */
+#endif    /* ( DUMBORC_EXTCHANNEL_ENABLED ) */
+
 static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
                                  uint8_t endpoint, int16_t* channels,
                                  uint8_t nChannels)
 {
+  #if ( DUMBORC_EXTCHANNEL_ENABLED )
+  uint32_t * p_module_crsf_send_cnt = s_module_crsf_send_cnt + module;
+  #endif    /* ( DUMBORC_EXTCHANNEL_ENABLED ) */
+
+
 #if defined(LUA)
   if (outputTelemetryBuffer.destination == endpoint) {
     auto len = outputTelemetryBuffer.size;
@@ -182,6 +210,9 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
         if(moduleAlive[module] == false) {                              // if the module was dead and came back to live, e.g. reset
           moduleAlive[module] = true;                                   // declare the module as alive
           moduleState[module].counter = CRSF_FRAME_MODELID;             // and send it the modelID again 
+          #if ( DUMBORC_EXTCHANNEL_ENABLED )
+          (*p_module_crsf_send_cnt) = 0;
+          #endif    /* ( DUMBORC_EXTCHANNEL_ENABLED ) */
         }
       }
     }
@@ -197,7 +228,18 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
       moduleState[module].mode = MODULE_MODE_NORMAL;
     } else {
       /* TODO: nChannels */
+      #if ( DUMBORC_EXTCHANNEL_ENABLED )
+      (*p_module_crsf_send_cnt)++;
+      if ( ((channels != channelOutputs) || (nChannels != 16)) ||
+           ((*p_module_crsf_send_cnt) < module_crsf_send_period) ) {
+        p_buf += createCrossfireChannelsFrame(module, p_buf, channels);
+      } else {
+        p_buf += createCrossfireChannelsFrame_17_32(module, p_buf, channels + nChannels);
+        (*p_module_crsf_send_cnt) = 0;
+      }
+      #else
       p_buf += createCrossfireChannelsFrame(module, p_buf, channels);
+      #endif    /* ( DUMBORC_EXTCHANNEL_ENABLED ) */
     }
   }
 }

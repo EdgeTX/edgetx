@@ -53,4 +53,8 @@
   #define USB_NAME                     "FrSky X10"
   #define USB_MANUFACTURER             'F', 'r', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'X', '1', '0', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#elif defined(RADIO_DRO1)
+  #define USB_NAME                     "DumboRC DRO1"
+  #define USB_MANUFACTURER             'D', 'U', 'M', 'B', 'O', 'R', 'C', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'D', 'R', 'O', '1', ' ', ' ', ' ', ' '  /* 8 Bytes */
 #endif

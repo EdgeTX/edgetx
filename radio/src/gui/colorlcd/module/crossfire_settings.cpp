@@ -63,7 +63,13 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
     char msg[64] = "";
     // sprintf(msg, "%d Hz %" PRIu32 " Err", 1000000 / getMixerSchedulerPeriod(),
     //         telemetryErrors);
+    #if ( DUMBORC_EXTCHANNEL_ENABLED )
+    sprintf(msg, "%d Hz%s", 1000000 / getMixerSchedulerPeriod() ,
+            ((md->channelsStart == 0) && (md->channelsCount == (16 - 8))) ?
+            " (CH[17:32] : '/5' Hz)" : "");
+    #else
     sprintf(msg, "%d Hz", 1000000 / getMixerSchedulerPeriod());
+    #endif    /* ( DUMBORC_EXTCHANNEL_ENABLED ) */
     return std::string(msg);
   });
 
