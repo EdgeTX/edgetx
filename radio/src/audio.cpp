@@ -202,12 +202,10 @@ const char * const audioFilenames[] = {
   "mixwarn3",
   "timovr1",
   "timovr2",
-#if defined(VOICE_CONTROL_SENSOR)
   "timovr3",
+#if defined(VOICE_CONTROL_SENSOR)
   "helloradio",
-  "okay"
-#else
-  "timovr3"
+  "okay",
 #endif
 };
 
