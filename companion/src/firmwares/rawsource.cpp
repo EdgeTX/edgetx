@@ -361,6 +361,14 @@ bool RawSource::isAvailable(const ModelData * const model,
                           abs(index) <= SOURCE_TYPE_SPECIAL_RESERVED2;
     if (!isVoiceSource)
       return false;
+
+    // None on the Hardware Switches screen disables VGR/VFL as a source too
+    if (gs) {
+      QString tag = (abs(index) == SOURCE_TYPE_SPECIAL_RESERVED1) ? "VGR" : "VFL";
+      int swIdx = Boards::getSwitchIndex(tag, Board::LVT_TAG, board);
+      if (swIdx >= 0 && gs->switchConfig[swIdx].type == Board::SWITCH_NOT_AVAILABLE)
+        return false;
+    }
   }
 
   if (type == SOURCE_TYPE_TIMER && abs(index) > CPN_MAX_TIMERS)

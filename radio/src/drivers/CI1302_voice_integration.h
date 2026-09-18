@@ -24,6 +24,7 @@ void CI1302_voiceIntegrationPer10ms();
 void CI1302_voiceIntegrationOnFlightReset();
 
 bool CI1302_voiceIntegrationMixSrcValue(mixsrc_t i, getvalue_t* val);
+bool CI1302_voiceIntegrationSourceAvailable(mixsrc_t i);
 const char* CI1302_voiceIntegrationMixSrcName(mixsrc_t idx);
 
 bool CI1302_voiceIntegrationMixSrcParseYaml(const char* val, uint8_t val_len, uint32_t* out);
@@ -31,15 +32,13 @@ bool CI1302_voiceIntegrationMixSrcWriteYaml(uint32_t val, const char** str);
 
 bool CI1302_voiceIntegrationSwitchSrcParseYaml(const char* val, uint8_t val_len, int32_t* ival);
 
-bool CI1302_voiceIntegrationModelGetSwitchType(uint8_t n, SwitchConfig* out);
-bool CI1302_voiceIntegrationModelSetSwitchType(uint8_t n);
-
 bool CI1302_voiceIntegrationIsSwitchAvailable(int swtch, int context, bool* available);
 bool CI1302_voiceIntegrationIsSwitchSwitchAvailable(int swtch, bool* available);
 
 // --- virtual voice switches (VGR / VFL) ---
 
 uint8_t CI1302_voiceSwitchExtraCount();
+void CI1302_voiceSwitchSetDefaults();
 
 bool CI1302_voiceSwitchTryGetPosition(uint8_t idx, SwitchHwPos* pos);
 const char* CI1302_voiceSwitchTryGetName(uint8_t idx);

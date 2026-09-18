@@ -409,7 +409,9 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
 #if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
   else if (i == MIXSRC_VGR || i == MIXSRC_VFL) {
     getvalue_t voiceVal = 0;
-    CI1302_voiceIntegrationMixSrcValue(i, &voiceVal);
+    // false also means "configured as None" here, not just "unknown source".
+    if (!CI1302_voiceIntegrationMixSrcValue(i, &voiceVal) && valid != nullptr)
+      *valid = false;
     return voiceVal;
   }
 #endif

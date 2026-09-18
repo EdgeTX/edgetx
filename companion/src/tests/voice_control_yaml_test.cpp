@@ -33,6 +33,7 @@
 #include "firmwares/edgetx/yaml_rawsource.h"
 #include "firmwares/edgetx/yaml_rawswitch.h"
 #include "firmwares/boardjson.h"
+#include "firmwares/generalsettings.h"
 #include "firmwares/mixdata.h"
 
 namespace {
@@ -105,6 +106,25 @@ TEST_F(VoiceControlV16, MixSrcAvailableOnlyForVoiceReservedSlots)
   EXPECT_FALSE(reserved4.isAvailable(nullptr, nullptr, board));
 }
 
+// A mix already using VGR as its source must not keep tracking it once the
+// user disables VGR on the Hardware Switches screen.
+TEST_F(VoiceControlV16, MixSrcNotAvailableWhenSwitchDisabled)
+{
+  Board::Type board = getCurrentBoard();
+  int vgrIdx = Boards::getSwitchYamlIndex(QStringLiteral("VGR"), BoardJson::YLT_REF, board);
+  ASSERT_GE(vgrIdx, 0);
+
+  const RawSource vgr(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_RESERVED1);
+  const RawSource vfl(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_RESERVED2);
+
+  GeneralSettings gs;
+  EXPECT_TRUE(vgr.isAvailable(nullptr, &gs, board));
+
+  gs.switchConfig[vgrIdx].type = Board::SWITCH_NOT_AVAILABLE;
+  EXPECT_FALSE(vgr.isAvailable(nullptr, &gs, board));
+  EXPECT_TRUE(vfl.isAvailable(nullptr, &gs, board));
+}
+
 // VGR/VFL must not leak into other radios' source pickers.
 TEST_F(VoiceControlOtherBoard, MixSrcNotAvailableOnOtherBoards)
 {
@@ -170,4 +190,87 @@ TEST_F(VoiceControlV16, ModelUsingVoiceSourceAndSwitchRoundTrips)
   ModelData m3 = roundTrip(m2, y2);
   EXPECT_EQ(m3.mixData[0].srcRaw.index, m2.mixData[0].srcRaw.index);
   EXPECT_TRUE(m3.mixData[0].swtch == m2.mixData[0].swtch);
+}
+
+// VGR (voice gear) is a 2POS switch on real hardware -- see
+// isTwoPosVoiceSwitch()/VSW_GEAR in radio/src/drivers/CI1302.cpp -- VFL
+// (voice flap) is 3POS.
+TEST_F(VoiceControlV16, VgrIsTwoPosVflIsThreePos)
+{
+  Board::Type board = getCurrentBoard();
+  int vgrIdx = Boards::getSwitchYamlIndex(QStringLiteral("VGR"), BoardJson::YLT_REF, board);
+  int vflIdx = Boards::getSwitchYamlIndex(QStringLiteral("VFL"), BoardJson::YLT_REF, board);
+  ASSERT_GE(vgrIdx, 0);
+  ASSERT_GE(vflIdx, 0);
+
+  EXPECT_EQ(Boards::getSwitchInfo(vgrIdx, board).dflt, Board::SWITCH_2POS);
+  EXPECT_EQ(Boards::getSwitchInfo(vflIdx, board).dflt, Board::SWITCH_3POS);
+}
+
+// Firmware (radio/src/drivers/CI1302.cpp, CI1302_voiceSwitchSetDefaults())
+// now default-initialises and genuinely persists VGR/VFL's type like any
+// other switch, and its own settings.yml always includes an explicit entry
+// for them (switchIsActive() already covers switchGetMaxAllSwitches()).
+// A real device's file therefore always states VGR/VFL's type explicitly
+// -- Companion must round-trip whatever value is there, including an
+// explicit NONE if the user disabled one on the radio.
+TEST_F(VoiceControlV16, GeneralSettingsRoundTripHonoursVoiceSwitchType)
+{
+  Board::Type board = getCurrentBoard();
+  int vgrIdx = Boards::getSwitchYamlIndex(QStringLiteral("VGR"), BoardJson::YLT_REF, board);
+  int vflIdx = Boards::getSwitchYamlIndex(QStringLiteral("VFL"), BoardJson::YLT_REF, board);
+  ASSERT_GE(vgrIdx, 0);
+  ASSERT_GE(vflIdx, 0);
+
+  const QByteArray deviceYaml =
+      "board: v16\n"
+      "switchConfig:\n"
+      "  SA:\n"
+      "    type: 3POS\n"
+      "  VGR:\n"
+      "    type: NONE\n"
+      "  VFL:\n"
+      "    type: 3POS\n";
+
+  GeneralSettings gs;
+  ASSERT_TRUE(loadRadioSettingsFromYaml(gs, deviceYaml));
+
+  EXPECT_EQ(gs.switchConfig[vgrIdx].type, Board::SWITCH_NOT_AVAILABLE)
+      << "the user disabled VGR on the radio; Companion must not resurrect it";
+  EXPECT_EQ(gs.switchConfig[vflIdx].type, Board::SWITCH_3POS);
+
+  RawSwitch vgrUp(SWITCH_TYPE_SWITCH, vgrIdx * 3 + 0 + 1);
+  RawSwitch vflUp(SWITCH_TYPE_SWITCH, vflIdx * 3 + 0 + 1);
+  RawSwitch vflMid(SWITCH_TYPE_SWITCH, vflIdx * 3 + 1 + 1);
+  RawSwitch vflDown(SWITCH_TYPE_SWITCH, vflIdx * 3 + 2 + 1);
+
+  EXPECT_FALSE(vgrUp.isAvailable(nullptr, &gs, board))
+      << "VGR is configured NONE; it must not appear in the switches picker";
+
+  EXPECT_TRUE(vflUp.isAvailable(nullptr, &gs, board));
+  EXPECT_TRUE(vflMid.isAvailable(nullptr, &gs, board))
+      << "VFL is a 3POS switch; all 3 positions must be available in the switches picker";
+  EXPECT_TRUE(vflDown.isAvailable(nullptr, &gs, board));
+}
+
+// A device's settings.yml with no switchConfig entry at all for VGR/VFL
+// (e.g. hand-written, or predating the firmware default-init fix) falls
+// back to None, same as it would for any other switch missing from the
+// file -- there's no special-casing left for these two on the Companion side.
+TEST_F(VoiceControlV16, GeneralSettingsRoundTripDefaultsMissingVoiceSwitchesToNone)
+{
+  Board::Type board = getCurrentBoard();
+  int vgrIdx = Boards::getSwitchYamlIndex(QStringLiteral("VGR"), BoardJson::YLT_REF, board);
+  ASSERT_GE(vgrIdx, 0);
+
+  const QByteArray deviceYaml =
+      "board: v16\n"
+      "switchConfig:\n"
+      "  SA:\n"
+      "    type: 3POS\n";
+
+  GeneralSettings gs;
+  ASSERT_TRUE(loadRadioSettingsFromYaml(gs, deviceYaml));
+
+  EXPECT_EQ(gs.switchConfig[vgrIdx].type, Board::SWITCH_NOT_AVAILABLE);
 }

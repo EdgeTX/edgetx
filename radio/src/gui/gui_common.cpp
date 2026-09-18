@@ -212,6 +212,12 @@ static bool isSourceSwitchAvailable(int source) {
   return SWITCH_EXISTS(source);
 }
 
+#if defined(VOICE_CONTROL_SENSOR)
+static bool isSourceVoiceAvailable(int source) {
+  return CI1302_voiceIntegrationSourceAvailable(MIXSRC_VGR + source);
+}
+#endif
+
 #if defined(FUNCTION_SWITCHES)
 static bool isSourceFuncSwitchAvailable(int source) {
   return getSwitchCountInFSGroup(source + 1) > 0;
@@ -285,7 +291,7 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, SRC_GVAR, isSourceGvarAvailable },
   { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, sourceIsAvailable },
 #if defined(VOICE_CONTROL_SENSOR)
-  { MIXSRC_VGR, MIXSRC_LAST_VOICE, SRC_VOICE, sourceIsAvailable },
+  { MIXSRC_VGR, MIXSRC_LAST_VOICE, SRC_VOICE, isSourceVoiceAvailable },
 #endif
   { MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SRC_TIMER, isSourceTimerAvailable },
   { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM, isSourceTelemAvailable },

@@ -148,14 +148,18 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
   }
 
   //  CI1302 voice control virtual switches are not listed in json file
+  //  VGR (voice gear) is a 2POS switch, VFL (voice flap) is 3POS -- see
+  //  isTwoPosVoiceSwitch() in radio/src/drivers/CI1302.cpp
   if (IS_HELLORADIOSKY_V16(board)) {
-    for (const QString &tag : {QStringLiteral("VGR"), QStringLiteral("VFL")}) {
+    for (const auto &sw : {std::make_pair(QStringLiteral("VGR"), Board::SWITCH_2POS),
+                           std::make_pair(QStringLiteral("VFL"), Board::SWITCH_3POS)}) {
+      const QString &tag = sw.first;
       if (getSwitchIndex(switches, tag, Board::LVT_TAG) < 0) {
         SwitchDefn defn;
         defn.tag = tag.toStdString();
         defn.name = defn.tag;
-        defn.type = Board::SWITCH_3POS;
-        defn.dflt = Board::SWITCH_3POS;
+        defn.type = sw.second;
+        defn.dflt = sw.second;
         switches->insert(switches->end(), defn);
       }
     }

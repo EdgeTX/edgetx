@@ -319,6 +319,10 @@ void generalDefaultSwitches()
 #endif
 #endif
   }
+
+#if defined(VOICE_CONTROL_SENSOR)
+  CI1302_voiceSwitchSetDefaults();
+#endif
 }
 
 void generalDefaultUILanguage()

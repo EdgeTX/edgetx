@@ -375,6 +375,17 @@ static bool isTwoPosVoiceSwitch(VoiceSwitchId id)
   return id != VSW_FLAP;
 }
 
+// Whether the user has this voice switch configured as anything but None.
+static bool voiceSwitchIsEnabled(VoiceSwitchId id)
+{
+  int8_t idx = voiceSwitchIndex(id);
+  if (idx < 0 || idx >= MAX_SWITCHES) {
+    return false;
+  }
+
+  return g_eeGeneral.switchConfig[idx].type != SWITCH_NONE;
+}
+
 bool CI1302_voiceSwitchIsPositionAvailable(uint8_t idx, uint8_t position)
 {
   if (!CI1302_voiceSwitchIsIndex(idx)) {
@@ -441,8 +452,25 @@ bool CI1302_voiceSwitchTryGetHwType(uint8_t idx, SwitchHwType* type)
     return false;
   }
 
-  *type = SWITCH_HW_3POS;
+  // VGR is 2POS (bool), VFL is 3POS.
+  *type = isTwoPosVoiceSwitch(voiceSwitchIdFromIndex(idx)) ? SWITCH_HW_2POS
+                                                            : SWITCH_HW_3POS;
   return true;
+}
+
+// Nothing else default-inits switchConfig[] for these two indices.
+void CI1302_voiceSwitchSetDefaults()
+{
+  for (uint8_t i = 0; i < VOICE_SWITCH_COUNT; i++) {
+    int8_t idx = voiceSwitchIndex((VoiceSwitchId)i);
+    if (idx < 0 || idx >= MAX_SWITCHES) {
+      continue;
+    }
+
+    g_eeGeneral.switchConfig[idx].type =
+        isTwoPosVoiceSwitch((VoiceSwitchId)i) ? SWITCH_2POS : SWITCH_3POS;
+    g_eeGeneral.switchConfig[idx].name[0] = 0;
+  }
 }
 
 bool CI1302_voiceSwitchTryIsAvailable(int swtch, int context, bool* available)
@@ -465,6 +493,11 @@ bool CI1302_voiceSwitchTryIsAvailable(int swtch, int context, bool* available)
   }
 
   if (context == GeneralCustomFunctionsContext) {
+    *available = false;
+    return true;
+  }
+
+  if (!voiceSwitchIsEnabled(voiceSwitchIdFromIndex(swinfo.quot))) {
     *available = false;
     return true;
   }
@@ -648,11 +681,13 @@ void CI1302_voiceIntegrationOnFlightReset()
 bool CI1302_voiceIntegrationMixSrcValue(mixsrc_t i, getvalue_t* val)
 {
   if (i == MIXSRC_VGR) {
+    if (!voiceSwitchIsEnabled(VSW_GEAR)) return false;
     *val = VoiceGearStatus ? 1024 : -1024;
     return true;
   }
 
   if (i == MIXSRC_VFL) {
+    if (!voiceSwitchIsEnabled(VSW_FLAP)) return false;
     switch (VoiceFlapStatus) {
       case 0:
         *val = -1024;
@@ -667,6 +702,13 @@ bool CI1302_voiceIntegrationMixSrcValue(mixsrc_t i, getvalue_t* val)
     return true;
   }
 
+  return false;
+}
+
+bool CI1302_voiceIntegrationSourceAvailable(mixsrc_t i)
+{
+  if (i == MIXSRC_VGR) return voiceSwitchIsEnabled(VSW_GEAR);
+  if (i == MIXSRC_VFL) return voiceSwitchIsEnabled(VSW_FLAP);
   return false;
 }
 
@@ -716,21 +758,6 @@ bool CI1302_voiceIntegrationMixSrcWriteYaml(uint32_t val, const char** str)
 bool CI1302_voiceIntegrationSwitchSrcParseYaml(const char* val, uint8_t val_len, int32_t* ival)
 {
   return CI1302_voiceSwitchTryParseYamlSrc(val, val_len, ival);
-}
-
-bool CI1302_voiceIntegrationModelGetSwitchType(uint8_t n, SwitchConfig* out)
-{
-  if (!CI1302_voiceSwitchIsIndex(n)) {
-    return false;
-  }
-
-  *out = SWITCH_3POS;
-  return true;
-}
-
-bool CI1302_voiceIntegrationModelSetSwitchType(uint8_t n)
-{
-  return CI1302_voiceSwitchIsIndex(n);
 }
 
 bool CI1302_voiceIntegrationIsSwitchAvailable(int swtch, int context, bool* available)
