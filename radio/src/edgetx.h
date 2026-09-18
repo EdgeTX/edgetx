@@ -94,6 +94,7 @@ enum RotaryEncoderMode {
 #include "debug.h"
 
 #include "myeeprom.h"
+#include "hal/led_driver.h"
 #include "curves.h"
 
 void memswap(void * a, void * b, uint8_t size);
@@ -342,6 +343,10 @@ void getADC();
 
 void resetBacklightTimeout();
 void checkBacklight();
+#if defined(STATUS_LED_PWM)
+void calcStatusLedBright(int16_t source);
+void checkStatusLed();
+#endif
 
 uint16_t isqrt32(uint32_t n);
 

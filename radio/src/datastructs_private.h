@@ -1232,6 +1232,13 @@ PACK(struct RadioData {
 
   NOBACKUP(uint8_t pwrOffIfInactive);
 
+#if defined(STATUS_LED_PWM)
+  // dimming, so that 0 (what older settings load as) is full brightness
+  NOBACKUP(uint8_t statusLedDim);
+  NOBACKUP(int16_t statusLedSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+  NOBACKUP(int16_t statusLedSpare:6 SKIP);
+#endif
+
 #if defined(COLORLCD)
   NOBACKUP(KeyShortcut keyShortcuts[MAX_KEY_SHORTCUTS]);
   NOBACKUP(QMFavorite qmFavorites[MAX_QM_FAVORITES]);

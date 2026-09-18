@@ -398,6 +398,9 @@ class GeneralSettings {
     RawSource backlightSrc;
     RawSource volumeSrc;
 
+    unsigned int statusLedDim;
+    RawSource statusLedSrc;
+
     // Radio level tabs control (global settings)
     bool radioThemesDisabled;
     bool radioGFDisabled;

@@ -557,6 +557,7 @@
 #define TR_BEEPCOUNTDOWN                TR("Conto rov", "Conto rovescia")
 #define TR_PERSISTENT                   TR("Persist.", "Persistente")
 #define TR_BACKLIGHT_LABEL              TR("Retroillu.", "Retroilluminazione")
+#define TR_STATUS_LED                   "LED di stato"
 #define TR_STATUS                       "Stato"
 #define TR_BLONBRIGHTNESS               "Luminosità ON"
 #define TR_BLOFFBRIGHTNESS              "Luminosità OFF"

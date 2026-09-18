@@ -20,10 +20,17 @@
  */
 
 #include "hal/gpio.h"
+#include "hal/led_driver.h"
 #include "hal/rgbleds.h"
 #include "stm32_gpio.h"
 #include "boards/generic_stm32/rgb_leds.h"
 #include "board.h"
+
+#if defined(STATUS_LED_PWM)
+  #include "hal.h"
+  #include "stm32_hal_ll.h"
+  #include "stm32_timer.h"
+#endif
 
 #define __weak __attribute__((weak))
 
@@ -35,6 +42,123 @@
 #define GPIO_LED_GPIO_ON              gpio_set
 #define GPIO_LED_GPIO_OFF             gpio_clear
 #endif
+
+#if defined(STATUS_LED_PWM)
+
+// No status LED pin has a timer output, so dimming toggles the GPIO from a
+// fixed-rate timer interrupt counting PWM steps. A late interrupt then only
+// shifts one edge, instead of stretching a whole period.
+// Full brightness needs no interrupt at all.
+
+#define LED_PWM_FREQ 250  // Hz
+#define LED_PWM_LEVELS 32
+#define LED_PWM_MIN_LEVEL 2  // dimmest step, the LED never goes darker
+#define LED_PWM_TICK_US (1000000 / (LED_PWM_FREQ * LED_PWM_LEVELS))
+
+static gpio_t _led_gpio[2] = {0, 0};  // lit LEDs, 0 = none
+static uint8_t _led_bright = STATUS_LED_BRIGHT_MAX;
+static uint8_t _led_level = LED_PWM_LEVELS;  // ON steps per period
+static uint8_t _led_tick = 0;
+static bool _led_pwm_running = false;
+
+static void _led_pins_on()
+{
+  for (auto pin : _led_gpio)
+    if (pin) GPIO_LED_GPIO_ON(pin);
+}
+
+static void _led_pins_off()
+{
+  for (auto pin : _led_gpio)
+    if (pin) GPIO_LED_GPIO_OFF(pin);
+}
+
+static void _led_pwm_start()
+{
+  if (_led_pwm_running) return;
+  _led_pwm_running = true;
+
+  stm32_timer_enable_clock(STATUS_LED_PWM_TIMER);
+
+  STATUS_LED_PWM_TIMER->CR1 &= ~TIM_CR1_CEN;
+  STATUS_LED_PWM_TIMER->PSC = STATUS_LED_PWM_TIMER_FREQ / 1000000 - 1;
+  STATUS_LED_PWM_TIMER->ARR = LED_PWM_TICK_US - 1;
+  STATUS_LED_PWM_TIMER->CNT = 0;
+
+  NVIC_SetPriority(STATUS_LED_PWM_TIMER_IRQn, 5);
+  NVIC_EnableIRQ(STATUS_LED_PWM_TIMER_IRQn);
+
+  _led_tick = 0;
+  _led_pins_on();
+
+  STATUS_LED_PWM_TIMER->SR &= ~TIM_SR_UIF;
+  STATUS_LED_PWM_TIMER->DIER |= TIM_DIER_UIE;
+  STATUS_LED_PWM_TIMER->CR1 |= TIM_CR1_CEN;
+}
+
+static void _led_pwm_stop()
+{
+  if (!_led_pwm_running) return;
+  _led_pwm_running = false;
+
+  STATUS_LED_PWM_TIMER->CR1 &= ~TIM_CR1_CEN;
+  STATUS_LED_PWM_TIMER->DIER &= ~TIM_DIER_UIE;
+  NVIC_DisableIRQ(STATUS_LED_PWM_TIMER_IRQn);
+}
+
+extern "C" void STATUS_LED_PWM_TIMER_IRQHandler(void)
+{
+  // write-only clear, a read of SR would stall on the APB every tick
+  STATUS_LED_PWM_TIMER->SR = ~TIM_SR_UIF;
+
+  if (++_led_tick >= LED_PWM_LEVELS) {
+    _led_tick = 0;
+    _led_pins_on();
+  } else if (_led_tick >= _led_level) {
+    _led_pins_off();
+  }
+}
+
+static void _led_apply()
+{
+  if (!_led_gpio[0] && !_led_gpio[1]) {
+    _led_pwm_stop();
+    return;
+  }
+
+  if (_led_bright >= STATUS_LED_BRIGHT_MAX) {
+    _led_pwm_stop();
+    _led_pins_on();
+  } else {
+    _led_pwm_start();
+  }
+}
+
+static void _led_on(gpio_t pin, gpio_t pin2)
+{
+  ledOff();
+  _led_gpio[0] = pin;
+  _led_gpio[1] = pin2;
+  _led_apply();
+}
+
+void ledSetBrightness(uint8_t bright)
+{
+  if (bright > STATUS_LED_BRIGHT_MAX) bright = STATUS_LED_BRIGHT_MAX;
+  if (bright == _led_bright) return;
+
+  // squared over what is left above the floor, so the low end stays usable
+  uint32_t level =
+      LED_PWM_MIN_LEVEL +
+      ((uint32_t)bright * bright * (LED_PWM_LEVELS - LED_PWM_MIN_LEVEL)) /
+          (STATUS_LED_BRIGHT_MAX * STATUS_LED_BRIGHT_MAX);
+
+  _led_level = level;
+  _led_bright = bright;
+  _led_apply();
+}
+
+#endif  // STATUS_LED_PWM
 
 #if defined(FUNCTION_SWITCHES) && !defined(FUNCTION_SWITCHES_RGB_LEDS)
 static const uint32_t fsLeds[] = {FSLED_GPIO_PIN_1, FSLED_GPIO_PIN_2,
@@ -101,6 +225,11 @@ __weak bool fsLedState(uint8_t index)
 
 __weak void ledOff()
 {
+#if defined(STATUS_LED_PWM)
+  _led_pwm_stop();
+  _led_gpio[0] = 0;
+  _led_gpio[1] = 0;
+#endif
 #if defined(LED_RED_GPIO)
   GPIO_LED_GPIO_OFF(LED_RED_GPIO);
 #endif
@@ -115,8 +244,34 @@ __weak void ledOff()
 #endif
 }
 
+#if defined(STATUS_LED_PWM)
+  #if defined(LED_RED_GPIO)
+    #define _LED_PWM_RED LED_RED_GPIO
+  #else
+    #define _LED_PWM_RED 0
+  #endif
+  #if defined(LED_RED2_GPIO)
+    #define _LED_PWM_RED2 LED_RED2_GPIO
+  #else
+    #define _LED_PWM_RED2 0
+  #endif
+  #if defined(LED_GREEN_GPIO)
+    #define _LED_PWM_GREEN LED_GREEN_GPIO
+  #else
+    #define _LED_PWM_GREEN 0
+  #endif
+  #if defined(LED_BLUE_GPIO)
+    #define _LED_PWM_BLUE LED_BLUE_GPIO
+  #else
+    #define _LED_PWM_BLUE 0
+  #endif
+#endif
+
 __weak void ledRed()
 {
+#if defined(STATUS_LED_PWM)
+  _led_on(_LED_PWM_RED, _LED_PWM_RED2);
+#else
   ledOff();
 #if defined(LED_RED_GPIO)
   GPIO_LED_GPIO_ON(LED_RED_GPIO);
@@ -124,21 +279,30 @@ __weak void ledRed()
 #if defined(LED_RED2_GPIO)
   GPIO_LED_GPIO_ON(LED_RED2_GPIO);
 #endif
+#endif
 }
 
 __weak void ledGreen()
 {
+#if defined(STATUS_LED_PWM)
+  _led_on(_LED_PWM_GREEN, 0);
+#else
   ledOff();
 #if defined(LED_GREEN_GPIO)
   GPIO_LED_GPIO_ON(LED_GREEN_GPIO);
+#endif
 #endif
 }
 
 __weak void ledBlue()
 {
+#if defined(STATUS_LED_PWM)
+  _led_on(_LED_PWM_BLUE, 0);
+#else
   ledOff();
 #if defined(LED_BLUE_GPIO)
   GPIO_LED_GPIO_ON(LED_BLUE_GPIO);
+#endif
 #endif
 }
 

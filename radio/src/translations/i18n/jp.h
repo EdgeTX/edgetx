@@ -556,6 +556,7 @@
 #define TR_BEEPCOUNTDOWN               "カウントダウン"
 #define TR_PERSISTENT                  TR("Persist.", "持続設定")
 #define TR_BACKLIGHT_LABEL             "バックライト"
+#define TR_STATUS_LED                  "ステータスLED"
 #define TR_STATUS                      "ステータス"
 #define TR_BLONBRIGHTNESS              "バックライトON"
 #define TR_BLOFFBRIGHTNESS             "バックライトOFF"

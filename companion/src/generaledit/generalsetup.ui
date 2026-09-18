@@ -1985,6 +1985,36 @@ p, li { white-space: pre-wrap; }
       </widget>
      </item>
      <item row="30" column="0">
+      <widget class="QLabel" name="label_statusLedBright">
+       <property name="text">
+        <string>Status LED brightness</string>
+       </property>
+      </widget>
+     </item>
+     <item row="30" column="1">
+      <widget class="QSpinBox" name="statusLedBright_SB">
+       <property name="suffix">
+        <string> %</string>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
+     <item row="31" column="0">
+      <widget class="QLabel" name="label_statusLedCtrl">
+       <property name="text">
+        <string>Status LED control</string>
+       </property>
+      </widget>
+     </item>
+     <item row="31" column="1">
+      <widget class="QComboBox" name="statusLedCtrl_CB"/>
+     </item>
+     <item row="32" column="0">
       <spacer name="verticalSpacer_3">
        <property name="orientation">
         <enum>Qt::Orientation::Vertical</enum>
