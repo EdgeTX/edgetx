@@ -318,7 +318,7 @@ void PageGroupBase::onClicked() { Keyboard::hide(false); }
 
 void PageGroupBase::onCancel()
 {
-  closwWindow();
+  closeWindow();
 }
 
 uint8_t PageGroupBase::tabCount() const

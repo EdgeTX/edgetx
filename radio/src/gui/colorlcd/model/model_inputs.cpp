@@ -368,10 +368,10 @@ void ModelInputsPage::deleteInput(uint8_t index)
 
     group->removeLine(line);
     if (group->getLineCount() == 0) {
-      group->closwWindow();
+      group->closeWindow();
       removeGroup(group);
     } else {
-      line->closwWindow();
+      line->closeWindow();
     }
     removeLine(line);
 

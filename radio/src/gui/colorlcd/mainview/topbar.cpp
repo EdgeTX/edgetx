@@ -103,7 +103,7 @@ void SetupTopBarWidgetsPage::onClicked()
 
 void SetupTopBarWidgetsPage::onCancel()
 {
-  closwWindow();
+  closeWindow();
   // restore screen setting tab on top
   QuickMenu::openPage(QM_UI_SETUP);
 }
@@ -210,7 +210,7 @@ void TopBar::load()
   for (unsigned int i = 0; i < count; i++) {
     // remove old widget
     if (widgets[i]) {
-      widgets[i]->closwWindow();
+      widgets[i]->closeWindow();
       widgets[i] = nullptr;
     }
   }

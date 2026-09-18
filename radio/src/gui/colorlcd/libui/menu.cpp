@@ -193,7 +193,7 @@ class MenuBody : public TableField
       } else {
         // delete menu first to avoid
         // focus issues with onPress()
-        menu->closwWindow();
+        menu->closeWindow();
         lines[row]->onPress();
       }
     }
@@ -425,7 +425,7 @@ void Menu::removeLines()
 void Menu::onCancel()
 {
   if (cancelHandler) cancelHandler();
-  closwWindow();
+  closeWindow();
 }
 
 void Menu::setCancelHandler(std::function<void()> handler)

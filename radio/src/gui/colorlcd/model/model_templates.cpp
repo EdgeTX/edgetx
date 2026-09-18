@@ -128,7 +128,7 @@ class SelectTemplate : public TemplatePage
         auto tb = new TextButton(
             listWindow, rect_t{0, 0, lv_pct(100), EdgeTxStyles::STD_FONT_HEIGHT * 2}, name,
             [=]() -> uint8_t {
-              closwWindow();
+              closeWindow();
               templateFolderPage->doUpdate(folder, name);
               return 0;
             });

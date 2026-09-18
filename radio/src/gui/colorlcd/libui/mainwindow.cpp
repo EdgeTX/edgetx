@@ -96,7 +96,7 @@ void MainWindow::shutdown()
 
   // clear layer stack first
   for (Window* w = Window::topWindow(); w; w = Window::topWindow())
-    w->closwWindow();
+    w->closeWindow();
 
   clear();
   emptyTrash();

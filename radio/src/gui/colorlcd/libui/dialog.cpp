@@ -94,7 +94,7 @@ void ProgressDialog::updateProgress(int percentage)
 
 void ProgressDialog::closeDialog()
 {
-  closwWindow();
+  closeWindow();
   onClose();
 }
 
@@ -114,7 +114,7 @@ MessageDialog::MessageDialog(const char* title,
   }
 }
 
-void MessageDialog::onClicked() { closwWindow(); }
+void MessageDialog::onClicked() { closeWindow(); }
 
 //-----------------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ DynamicMessageDialog::DynamicMessageDialog(
                                textHandler, color, textFlags);
 }
 
-void DynamicMessageDialog::onClicked() { closwWindow(); }
+void DynamicMessageDialog::onClicked() { closeWindow(); }
 
 //-----------------------------------------------------------------------------
 
@@ -158,7 +158,7 @@ ConfirmDialog::ConfirmDialog(const char* title,
   });
 
   new TextButton(box, rect_t{0, 0, 96, 0}, STR_YES, [=]() -> int8_t {
-    this->closwWindow();
+    this->closeWindow();
     this->confirmHandler();
     return 0;
   });
@@ -166,7 +166,7 @@ ConfirmDialog::ConfirmDialog(const char* title,
 
 void ConfirmDialog::onCancel()
 {
-  closwWindow();
+  closeWindow();
   if (cancelHandler) cancelHandler();
 }
 
@@ -206,12 +206,12 @@ LabelDialog::LabelDialog(const char *label, int length, const char* title,
                         LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_SPACE_BETWEEN);
 
   new TextButton(box, rect_t{0, 0, 96, 0}, STR_CANCEL, [=]() {
-    closwWindow();
+    closeWindow();
     return 0;
   });
 
   new TextButton(box, rect_t{0, 0, 96, 0}, STR_SAVE, [=]() {
-    closwWindow();
+    closeWindow();
     if (saveHandler != nullptr) saveHandler(this->label);
     return 0;
   });

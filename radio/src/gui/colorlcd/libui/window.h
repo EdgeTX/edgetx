@@ -188,7 +188,7 @@ class Window
 
   void assignLvGroup(lv_group_t* g, bool setDefault);
 
-  void closwWindow();
+  void closeWindow();
 
  protected:
   static std::list<Window *> trash;

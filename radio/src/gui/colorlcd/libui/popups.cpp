@@ -138,7 +138,7 @@ class BubbleDialog : public Window
   void checkEvents() override
   {
     if (lv_tick_elaps(startTime) >= timeout) {
-      closwWindow();
+      closeWindow();
     }
   }
 

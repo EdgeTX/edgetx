@@ -221,5 +221,5 @@ WidgetSettings::WidgetSettings(Widget* w) :
 void WidgetSettings::onCancel()
 {
   widget->updateWithoutRefresh();
-  closwWindow();
+  closeWindow();
 }

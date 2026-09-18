@@ -236,7 +236,7 @@ void StandaloneLuaWindow::checkEvents()
   luaNextEvent(&evt);
   if (evt.event == EVT_KEY_LONG(KEY_EXIT)) {
     killEvents(evt.event);
-    closwWindow();
+    closeWindow();
   } else {
     if (runFunction != LUA_REFNIL) {
       lua_rawgeti(lsStandalone, LUA_REGISTRYINDEX, runFunction);
@@ -258,7 +258,7 @@ void StandaloneLuaWindow::checkEvents()
           int scriptResult = lua_tointeger(lsStandalone, -1);
           lua_pop(lsStandalone, 1);  /* pop returned value */
           if (scriptResult != 0) {
-            closwWindow();
+            closeWindow();
           } else {
             if (useLvglLayout() && !hasError) {
               PROTECT_LUA() {
@@ -279,7 +279,7 @@ void StandaloneLuaWindow::checkEvents()
           nextScript[FF_MAX_LFN] = '\0';
           _instance = nullptr;
           lua_settop(lsStandalone, 0);
-          closwWindow();
+          closeWindow();
           luaExecStandalone(nextScript);
         }
       }

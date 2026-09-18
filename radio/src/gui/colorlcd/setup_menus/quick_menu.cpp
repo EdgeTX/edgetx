@@ -211,7 +211,7 @@ class QuickSubMenu
   void clearSubMenu()
   {
     if (subMenu) {
-      subMenu->closwWindow();
+      subMenu->closeWindow();
       subMenu = nullptr;
     }
   }
@@ -249,7 +249,7 @@ void QuickMenu::openQuickMenu()
 
 void QuickMenu::shutdownQuickMenu()
 {
-  if (instance) instance->closwWindow();
+  if (instance) instance->closeWindow();
 }
 
 QuickMenu::QuickMenu() :

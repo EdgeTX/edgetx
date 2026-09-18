@@ -62,7 +62,7 @@ void ScreenUserInterfacePage::build(Window* window)
 
   new TextButton(line, rect_t{}, STR_SETUP_WIDGETS,
             [=]() -> uint8_t {
-                window->getParent()->closwWindow();
+                window->getParent()->closeWindow();
                 new SetupTopBarWidgetsPage();
                 return 0;
             });

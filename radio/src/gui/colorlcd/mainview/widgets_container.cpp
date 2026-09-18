@@ -30,7 +30,7 @@ WidgetsContainer::WidgetsContainer(Window* parent, const rect_t& rect, uint8_t z
 
   onClosing([=]() {
     for (int i = 0; i < zoneCount; i += 1)
-      if (widgets[i]) widgets[i]->closwWindow();
+      if (widgets[i]) widgets[i]->closeWindow();
     if (widgets) delete[] widgets;
     widgets = nullptr;
   });
@@ -48,7 +48,7 @@ void WidgetsContainer::removeWidget(unsigned int index)
   if (index >= zoneCount) return;
 
   if (widgets[index]) {
-    widgets[index]->closwWindow();
+    widgets[index]->closeWindow();
   }
 
   widgets[index] = nullptr;

@@ -236,7 +236,7 @@ void RadioCalibrationPage::nextStep()
   menuCalibrationState++;
 
   if (menuCalibrationState == CALIB_FINISHED)
-    closwWindow();
+    closeWindow();
 
   if (menuCalibrationState == CALIB_STORE)
     adcCalibStore();

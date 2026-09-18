@@ -148,7 +148,7 @@ class ThemeDetailsDialog : public BaseDialog
 
     auto button =
         new TextButton(line, rect_t{0, 0, lv_pct(30), 0}, STR_CANCEL, [=]() {
-          closwWindow();
+          closeWindow();
           return 0;
         });
     lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 1,
@@ -163,7 +163,7 @@ class ThemeDetailsDialog : public BaseDialog
             if (!saveHandler(this->theme))
               return 0;
           }
-          closwWindow();
+          closeWindow();
           return 0;
         });
     lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 1, 1,
@@ -345,11 +345,11 @@ class ThemeEditPage : public Page
             if (saveHandler != nullptr) {
               saveHandler(_theme);
             }
-            closwWindow();
+            closeWindow();
           },
-          [=]() { closwWindow(); });
+          [=]() { closeWindow(); });
     } else {
-      closwWindow();
+      closeWindow();
     }
   }
 

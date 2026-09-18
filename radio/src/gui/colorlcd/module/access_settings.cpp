@@ -66,7 +66,7 @@ class BindWaitDialog : public BaseDialog
       // returned to normal after bind
       if (bindInfo.step > BIND_INIT) {
         removePXX2ReceiverIfEmpty(moduleIdx, receiverIdx);
-        closwWindow();
+        closeWindow();
         if (bindInfo.step == BIND_OK) {
           POPUP_INFORMATION(STR_REG_OK);
           setPXX2ReceiverUsed(moduleIdx, receiverIdx);
@@ -104,7 +104,7 @@ class BindWaitDialog : public BaseDialog
     if (bindInfo.step == BIND_INIT && bindInfo.candidateReceiversCount > 0) {
       // prevent module mode being reset to NORMAL before exiting
       resetOnClose = false;
-      closwWindow();
+      closeWindow();
 
       // ... and create RX choice dialog
       new BindRxChoiceMenu(moduleIdx, receiverIdx);
@@ -376,7 +376,7 @@ RegisterDialog::RegisterDialog(uint8_t moduleIdx) :
   box->padAll(PAD_MEDIUM);
 
   new TextButton(box, rect_t{}, STR_CANCEL, [=]() -> int8_t {
-    this->closwWindow();
+    this->closeWindow();
     return 0;
   });
 
@@ -420,7 +420,7 @@ void RegisterDialog::checkEvents()
       // status->hide();
       rx_name->update();
     } else if (modSetup.registerStep == REGISTER_OK) {
-      closwWindow();
+      closeWindow();
       POPUP_INFORMATION(STR_REG_OK);
       // pop-up call garbage collector,
       // so that the dialog is alread destroyed
@@ -482,12 +482,12 @@ void ModuleOptions::checkEvents()
     case MO_WritingSettings:
 #if defined(SIMU)
       statusText.clear();
-      closwWindow();
+      closeWindow();
 #else
       if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL &&
           hwSettings.moduleSettings.state == PXX2_SETTINGS_OK) {
         statusText.clear();
-        closwWindow();
+        closeWindow();
       }
 #endif
       break;
@@ -606,7 +606,7 @@ void ModuleOptions::update()
   box->padAll(PAD_MEDIUM);
 
   new TextButton(box, rect_t{}, STR_CANCEL, [=]() -> int8_t {
-    this->closwWindow();
+    this->closeWindow();
     return 0;
   });
 
@@ -706,12 +706,12 @@ void RxOptions::checkEvents()
     case RO_WritingSettings:
 #if defined(SIMU)
       statusText.clear();
-      closwWindow();
+      closeWindow();
 #else
       if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL &&
           hwSettings.receiverSettings.state == PXX2_SETTINGS_OK) {
         statusText.clear();
-        closwWindow();
+        closeWindow();
       }
 #endif
       break;
@@ -962,7 +962,7 @@ void RxOptions::update()
   box->padAll(PAD_MEDIUM);
 
   new TextButton(box, rect_t{}, STR_CANCEL, [=]() -> int8_t {
-    this->closwWindow();
+    this->closeWindow();
     return 0;
   });
 

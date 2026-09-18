@@ -103,7 +103,7 @@ void FullScreenDialog::build()
       auto btn = new TextButton(
           this, {LCD_W / 3 - TWOBTN_W / 2, LCD_H - TWOBTN_H - PAD_LARGE, TWOBTN_W, TWOBTN_H}, STR_CANCEL,
           [=]() {
-            closwWindow();
+            closeWindow();
             return 0;
           });
       etx_bg_color(btn->getLvObj(), COLOR_THEME_SECONDARY3_INDEX);
@@ -123,7 +123,7 @@ void FullScreenDialog::build()
 void FullScreenDialog::closeDialog()
 {
   if (confirmHandler) confirmHandler();
-  closwWindow();
+  closeWindow();
 }
 
 bool FullScreenDialog::onLongPress()
@@ -181,7 +181,7 @@ bool confirmationDialog(const char* title, const char* msg, bool checkPwr,
     if (dialog->deleted()) return true;
     if (closeCondition && closeCondition()) {
       confirmed = true;
-      dialog->closwWindow();
+      dialog->closeWindow();
     }
     return confirmed;
   });

@@ -113,7 +113,7 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
 
 void Page::onCancel()
 {
-  closwWindow();
+  closeWindow();
 }
 
 void Page::onClicked() { Keyboard::hide(false); }

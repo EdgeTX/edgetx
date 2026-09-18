@@ -379,7 +379,7 @@ void Window::onClosing(CloseHandler h)
 
 // Close the window, and all it's children.
 // Remove from LVGL and the save window pointer for later destruction.
-void Window::closwWindow()
+void Window::closeWindow()
 {
   TRACE_WINDOWS("Delete %p %s %s", this, getWindowDebugString().c_str(),deleted() ? "DELETED" : "");
   if (!deleted()) {
@@ -425,7 +425,7 @@ void Window::clear()
 void Window::deleteChildren()
 {
   while (!children.empty())
-    children.back()->closwWindow();
+    children.back()->closeWindow();
 }
 
 bool Window::hasFocus() const

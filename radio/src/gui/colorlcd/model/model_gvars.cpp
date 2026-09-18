@@ -519,7 +519,7 @@ ModelGVarsPage::ModelGVarsPage(const PageDef& pageDef) :
 void ModelGVarsPage::cleanup()
 {
   if (hdr)
-    hdr->closwWindow();
+    hdr->closeWindow();
   hdr = nullptr;
 }
 

@@ -44,7 +44,7 @@ class FullScreenDialog : public NavWindow
   void setMessage(const char* text);
 
   bool onLongPress() override;
-  void onCancel() override { closwWindow(); }
+  void onCancel() override { closeWindow(); }
 
   void closeDialog();
 
