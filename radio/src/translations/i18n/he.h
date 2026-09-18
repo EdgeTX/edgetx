@@ -560,6 +560,7 @@
 #define TR_BEEPCOUNTDOWN               "ספירה לאחור"
 #define TR_PERSISTENT                  TR("Persist.", "Persistent")
 #define TR_BACKLIGHT_LABEL             "תאורת רקע"
+#define TR_STATUS_LED                  "Status LED"
 #define TR_STATUS                      "סטטוס"
 #define TR_BLONBRIGHTNESS              "בהירות פעילה"
 #define TR_BLOFFBRIGHTNESS             "בהירות כבויה"

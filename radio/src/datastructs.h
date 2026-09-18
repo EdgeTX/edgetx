@@ -79,11 +79,23 @@ static inline void check_struct()
 #if defined(PCBXLITES)
   CHKSIZE(RadioData, 951);
 #elif defined(RADIO_ST16) || defined(PCBPA01) || defined(RADIO_TX15) || defined(RADIO_GX15) || defined(RADIO_T15PRO) || defined(RADIO_TX16SMK3) || defined(RADIO_T22)
-  CHKSIZE(RadioData, 1183);
+  #if defined(STATUS_LED_PWM)
+    CHKSIZE(RadioData, 1186);
+  #else
+    CHKSIZE(RadioData, 1183);
+  #endif
 #elif defined(RADIO_V12)
-  CHKSIZE(RadioData, 1180);
+  #if defined(STATUS_LED_PWM)
+    CHKSIZE(RadioData, 1183);
+  #else
+    CHKSIZE(RadioData, 1180);
+  #endif
 #elif defined(RADIO_H17)
-  CHKSIZE(RadioData, 1060);
+  #if defined(STATUS_LED_PWM)
+    CHKSIZE(RadioData, 1063);
+  #else
+    CHKSIZE(RadioData, 1060);
+  #endif
 #elif defined(COLORLCD)
   #if defined(IMU)
     CHKSIZE(RadioData, 1063);

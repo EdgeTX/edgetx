@@ -582,6 +582,33 @@ const static SetupLineDef backlightSetupLines[] = {
   {nullptr, nullptr},
 };
 
+#if defined(STATUS_LED_PWM)
+const static SetupLineDef statusLedSetupLines[] = {
+  {
+    // Status LED brightness
+    STR_DEF(STR_BRIGHTNESS),
+    [](Window* parent, coord_t x, coord_t y) {
+      (new Slider(parent, lv_pct(50), 1, STATUS_LED_BRIGHT_MAX,
+                  GET_DEFAULT(STATUS_LED_BRIGHT_MAX - g_eeGeneral.statusLedDim),
+                  [](int32_t newValue) {
+                    g_eeGeneral.statusLedDim = STATUS_LED_BRIGHT_MAX - newValue;
+                    SET_DIRTY();
+                  }))->setPos(x, y);
+    }
+  },
+  {
+    // Status LED brightness source
+    STR_DEF(STR_CONTROL),
+    [](Window* parent, coord_t x, coord_t y) {
+      auto choice = new SourceChoice(parent, {x, y, 0, 0}, MIXSRC_NONE, MIXSRC_LAST_SWITCH,
+              GET_SET_DEFAULT(g_eeGeneral.statusLedSrc), true);
+      choice->setAvailableHandler(isSourceAvailableForBacklightOrVolume);
+    }
+  },
+  {nullptr, nullptr},
+};
+#endif
+
 const static SetupLineDef gpsPageSetupLines[] = {
   {
     // Timezone
@@ -1085,6 +1112,9 @@ const static PageButtonDef radioSetupButtons[] = {
 #endif
   {STR_DEF(STR_ALARMS_LABEL), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_ALARMS_LABEL, alarmsPageSetupLines); }},
   {STR_DEF(STR_BACKLIGHT_LABEL), []() { (new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_BACKLIGHT_LABEL, backlightSetupLines))->useFlexLayout(); }},
+#if defined(STATUS_LED_PWM)
+  {STR_DEF(STR_STATUS_LED), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_STATUS_LED, statusLedSetupLines); }},
+#endif
   {STR_DEF(STR_GPS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines); }},
   {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines); }},
   {STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_MAIN_MENU_MANAGE_MODELS, manageModelsSetupLines); }},

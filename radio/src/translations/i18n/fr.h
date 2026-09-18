@@ -559,6 +559,7 @@
 #define TR_BEEPCOUNTDOWN               TR("Bip fin", "Compte à rebours")
 #define TR_PERSISTENT                  TR("Persist.", "Persistant")
 #define TR_BACKLIGHT_LABEL             "Rétroéclairage"
+#define TR_STATUS_LED                  "LED d'état"
 #define TR_STATUS                      "Version"
 #define TR_BLONBRIGHTNESS              "Luminosité ON"
 #define TR_BLOFFBRIGHTNESS             "Luminosité OFF"

@@ -556,6 +556,7 @@
 #define TR_BEEPCOUNTDOWN       "Odliczanie"
 #define TR_PERSISTENT          TR("Dokł.", "Dokładny")
 #define TR_BACKLIGHT_LABEL     "Podświetl"
+#define TR_STATUS_LED          "Dioda stanu"
 #define TR_STATUS                      "Status"
 #define TR_BLONBRIGHTNESS      "Jasnośc wł."
 #define TR_BLOFFBRIGHTNESS     "Jasność wył."

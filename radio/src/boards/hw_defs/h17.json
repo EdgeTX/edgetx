@@ -424,7 +424,11 @@
     "gpio_led_gpio_off": "gpio_clear",
     "led_red_gpio": "GPIO_PIN(GPIOI, 8)",
     "led_green_gpio": "GPIO_PIN(GPIOI, 11)",
-    "led_blue_gpio": "GPIO_PIN(GPIOI, 10)"
+    "led_blue_gpio": "GPIO_PIN(GPIOI, 10)",
+    "status_led_pwm_timer": "TIM7",
+    "status_led_pwm_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "status_led_pwm_timer_irqn": "TIM7_IRQn",
+    "status_led_pwm_timer_irqhandler": "TIM7_IRQHandler"
   },
   "timers": {
     "cpu_freq": 480000000,

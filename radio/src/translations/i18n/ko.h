@@ -566,6 +566,7 @@
 #define TR_PERSISTENT                   TR("유지", "값 유지")
 
 #define TR_BACKLIGHT_LABEL              "백라이트"
+#define TR_STATUS_LED                   "상태 LED"
 #define TR_STATUS                       "상태"
 #define TR_BLONBRIGHTNESS               "켜짐 밝기"
 #define TR_BLOFFBRIGHTNESS              "꺼짐 밝기"
