@@ -558,6 +558,7 @@
 #define TR_BEEPCOUNTDOWN               "Відлік"
 #define TR_PERSISTENT                  TR("Присутн.", "Присутній")
 #define TR_BACKLIGHT_LABEL             "Підсвітка"
+#define TR_STATUS_LED                  "Світлодіод стану"
 #define TR_STATUS                      "Статус"
 #define TR_BLONBRIGHTNESS              "ON яскравість"
 #define TR_BLOFFBRIGHTNESS             "OFF яскравість"

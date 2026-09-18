@@ -378,6 +378,9 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
   node["backlightSrc"] = rhs.backlightSrc;
   node["volumeSrc"] = rhs.volumeSrc;
 
+  node["statusLedDim"] = rhs.statusLedDim;
+  node["statusLedSrc"] = rhs.statusLedSrc;
+
   // Radio level tabs control (global settings)
   if (hasColorLcd)
     node["radioThemesDisabled"] = (int)rhs.radioThemesDisabled;
@@ -730,6 +733,9 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   node["backlightSrc"] >> rhs.backlightSrc;
   node["volumeSrc"] >> rhs.volumeSrc;
+
+  node["statusLedDim"] >> rhs.statusLedDim;
+  node["statusLedSrc"] >> rhs.statusLedSrc;
 
   // Radio level tabs control (global settings)
   node["radioThemesDisabled"] >> rhs.radioThemesDisabled;

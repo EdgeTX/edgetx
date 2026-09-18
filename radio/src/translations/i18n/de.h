@@ -558,6 +558,7 @@
 #define TR_BEEPCOUNTDOWN               "Countdown"
 #define TR_PERSISTENT                  TR("Permanent", "Permanent")
 #define TR_BACKLIGHT_LABEL             "Bildschirm"
+#define TR_STATUS_LED                  "Status-LED"
 #define TR_STATUS                      "Status"
 #define TR_BLONBRIGHTNESS              "An-Helligkeit"
 #define TR_BLOFFBRIGHTNESS             "Aus-Helligkeit"

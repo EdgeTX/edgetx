@@ -560,6 +560,7 @@
 #define TR_BEEPCOUNTDOWN                "Nedräkning"
 #define TR_PERSISTENT                   "Beständig"
 #define TR_BACKLIGHT_LABEL              "Belysning"
+#define TR_STATUS_LED                   "Status-LED"
 #define TR_STATUS                       "Status"
 #define TR_BLONBRIGHTNESS               "Ljusstyrka på"
 #define TR_BLOFFBRIGHTNESS              "Ljusstyrka av"

@@ -558,6 +558,7 @@
 #define TR_BEEPCOUNTDOWN               "Odpočet"
 #define TR_PERSISTENT                  "Trvalé"
 #define TR_BACKLIGHT_LABEL             "Podsvětlení"
+#define TR_STATUS_LED                  "Stavová LED"
 #define TR_STATUS                      "Stav"
 #define TR_BLONBRIGHTNESS              "Jas zapnutého LCD"
 #define TR_BLOFFBRIGHTNESS             "Jas vypnutého LCD"

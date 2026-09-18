@@ -941,6 +941,7 @@
 #define STR_START currentLangStrings->STR_START
 #define STR_STATISTICS currentLangStrings->STR_STATISTICS
 #define STR_STATUS currentLangStrings->STR_STATUS
+#define STR_STATUS_LED currentLangStrings->STR_STATUS_LED
 #define STR_STICK_NAMES0 currentLangStrings->STR_STICK_NAMES0
 #define STR_STICK_NAMES1 currentLangStrings->STR_STICK_NAMES1
 #define STR_STICK_NAMES2 currentLangStrings->STR_STICK_NAMES2
