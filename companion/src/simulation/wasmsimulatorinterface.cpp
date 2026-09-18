@@ -331,6 +331,8 @@ bool WasmSimulatorInterface::resolveExports()
   m_fnSetKey = wasm_runtime_lookup_function(m_moduleInst, "simuSetKey");
   m_fnSetTrim = wasm_runtime_lookup_function(m_moduleInst, "simuSetTrim");
   m_fnSetSwitch = wasm_runtime_lookup_function(m_moduleInst, "simuSetSwitch");
+  m_fnSetTxVoltage =
+      wasm_runtime_lookup_function(m_moduleInst, "simuSetTxVoltage");
   m_fnLcdChanged =
       wasm_runtime_lookup_function(m_moduleInst, "simuLcdChanged");
   m_fnLcdCopy = wasm_runtime_lookup_function(m_moduleInst, "simuLcdCopy");
@@ -643,6 +645,15 @@ void WasmSimulatorInterface::setSwitch(uint8_t swtch, int8_t state)
   wasm_runtime_call_wasm(m_execEnv, m_fnSetSwitch, 2, argv);
 }
 
+void WasmSimulatorInterface::setTxVoltage(int32_t decivolts)
+{
+  if (!m_fnSetTxVoltage || !m_execEnv)
+    return;
+  QMutexLocker lckr(&m_mutex);
+  uint32_t argv[1] = {(uint32_t)decivolts};
+  wasm_runtime_call_wasm(m_execEnv, m_fnSetTxVoltage, 1, argv);
+}
+
 void WasmSimulatorInterface::setTrim(unsigned int idx, int value)
 {
   if (!m_fnSetTrimValue || !m_execEnv)
@@ -681,7 +692,9 @@ void WasmSimulatorInterface::setInputValue(int type, uint8_t index,
       setAnalogValue(index, value);
       break;
     case INPUT_SRC_TXVIN:
-      setAnalogValue(index, value);
+      // Routed via a dedicated WASM export, not setAnalogValue(): index here
+      // is always 0, which would collide with STICK_AXIS_LH.
+      setTxVoltage(value);
       emit txBatteryVoltageChanged((unsigned int)value);
       break;
     case INPUT_SRC_SWITCH:
