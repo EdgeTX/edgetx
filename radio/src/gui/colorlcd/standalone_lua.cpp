@@ -38,7 +38,7 @@ LuaMemTracer lsStandaloneTrace;
 
 static void luaStandaloneHook(lua_State * L, lua_Debug *ar)
 {
-  else if (ar->event == LUA_HOOKLINE) {
+  if (ar->event == LUA_HOOKLINE) {
     lua_getinfo(L, "nSl", ar);
     LuaMemTracer * tracer = &lsStandaloneTrace;
     if (tracer->alloc || tracer->free) {
