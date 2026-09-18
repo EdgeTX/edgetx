@@ -27,8 +27,8 @@
 RadioDataConversionState::RadioDataConversionState(QString before, QString after, RadioData * rdata) :
   fromType(before),
   toType(after),
-  fromBoard(Boards(before)),
-  toBoard(Boards(after)),
+  fromBoard(Board::getBoardForId(before)),
+  toBoard(Board::getBoardForId(after)),
   rd(NULL),
   rdCopy(NULL),
   maxEventType(EVT_NONE),

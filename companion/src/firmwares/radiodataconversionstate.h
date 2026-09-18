@@ -19,8 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef RADIODATACONVERSIONSTATE_H
-#define RADIODATACONVERSIONSTATE_H
+#pragma once
 
 #include "board.h"
 #include <QtCore>
@@ -108,10 +107,10 @@ class RadioDataConversionState
     QString getFieldName(int field) const;
     QStandardItemModel * getLogModel(EventType logLevel = EVT_INF, QObject *parent = Q_NULLPTR) const;
 
-    QString fromType;    // board type before conversion
-    QString toType;      // board type after
-    Boards fromBoard;
-    Boards toBoard;
+    QString fromType;        // board type before conversion
+    QString toType;          // board type after
+    Board * fromBoard;
+    Board * toBoard;
     RadioData * rd;          // pointer to data struct being converted
     RadioData * rdCopy;      // copy of original radio data before conversion
     QVector<LogRecord> log;  // logged events
@@ -120,5 +119,3 @@ class RadioDataConversionState
     int modelIdx;            // model index in radio data array, -1 if none
     int subCompIdx;          // current row index within component (eg. model.mixData[componentIdx]), -1 if none
 };
-
-#endif // RADIODATACONVERSIONSTATE_H

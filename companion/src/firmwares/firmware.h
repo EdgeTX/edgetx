@@ -156,7 +156,7 @@ class Firmware : public JsonBase
     static Firmware * getDefault() { return m_default; }
     static void setDefault(Firmware * firmware) { m_default = firmware; }
 
-    static QList<const QString> getLanguageList() { return m_languages; }
+    static QList<QString> getLanguageList() { return m_languages; }
 
   private:
     QString m_id;       // has edgetx- prefix for backwards compatibility
@@ -184,7 +184,7 @@ class Firmware : public JsonBase
     inline static Firmware * m_current = nullptr;
     inline static Firmware * m_default = nullptr;
 
-    static QList<const QString> m_languages;
+    static QList<QString> m_languages;
 
     // tooltip translation cannot be performed at runtime
     // so convert and load mapping at compile time

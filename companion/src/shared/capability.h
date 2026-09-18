@@ -104,6 +104,9 @@ enum Capability {
   TrimsRange,
   VirtualInputs,
   VoicesMaxLength,
+  // new
+  // Fatfish F16
+  HasLCDtoVideo,
   // TODO boards start here but need to sort
   Air,
   BacklightLevelMin,

@@ -25,7 +25,7 @@
 #include "appdata.h"
 
 // static
-QList<const QString> Firmware::m_languages = {
+QList<QString> Firmware::m_languages = {
   "cn",
   "cz",
   "da",
@@ -271,7 +271,7 @@ const int Firmware::getCapability(Capability value) const
 
     // drop thru to Board
     default:
-      m_board->getCapability(value);
+      return m_board->getCapability(value);
   }
 }
 
@@ -645,7 +645,7 @@ bool Firmware::postLoad()
 
 void Firmware::setCurrent(const QString & id)
 {
-  setCurrent(gFirmwareFactories->firmware(id));
+  setCurrent(gFirmwareFactories->getFirmware(id));
 }
 
 void Firmware::setCurrent(Firmware * firmware)

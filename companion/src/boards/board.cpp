@@ -139,16 +139,6 @@ static const StringTagMappingTable trainerModuleLookupTable = {
     {std::to_string(Board::SWITCH_2POS),          "sbus"},
 };
 
-Board * getBoardForHwDefn(const QString & hwdefn)
-{
-  return gBoardFactories->boardForHwDefn(hwdefn);
-}
-
-Board * getBoardForId(const QString & id)
-{
-  return gBoardFactories->boardForId(id);
-}
-
 Board::Board(const QString & id, const QString & hwdefn, const bool isSupported) :
   JsonBase(),
   m_id(id),
@@ -186,6 +176,11 @@ Board::Board(const QString & id, const QString & hwdefn, const bool isSupported)
 
 Board::~Board()
 {
+}
+
+Board * Board::getBoardForId(const QString & id)
+{
+  return gBoardFactories->boardForId(id);
 }
 
 int Board::getCapability(const Capability capability) const

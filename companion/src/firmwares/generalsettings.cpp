@@ -84,9 +84,7 @@ bool GeneralSettings::switchSourceAllowed(int index) const
 
 bool GeneralSettings::isInputAvailable(int index) const
 {
-  QString board = getCurrentBoard();
-
-  if (index < 0 || index >= Boards::getCapability(board, Board::Inputs))
+  if (index < 0 || index >= getCurrentBoard()->getCapability(Capability::Inputs))
     return false;
 
   const InputConfig &config = inputConfig[index];
@@ -98,9 +96,7 @@ bool GeneralSettings::isInputAvailable(int index) const
 
 bool GeneralSettings::isInputFlexSwitchAvailable(int index) const
 {
-  QString board = getCurrentBoard();
-
-  if (index < 0 || index >= Boards::getCapability(board, Board::Inputs))
+  if (index < 0 || index >= getCurrentBoard()->getCapability(Capability::Inputs))
     return false;
 
   const InputConfig &config = inputConfig[index];
@@ -159,7 +155,7 @@ bool GeneralSettings::isInputStick(int index) const
 
 bool GeneralSettings::isSwitchAvailable(int index) const
 {
-  if (index < 0 || index >= Boards::getCapability(getCurrentBoard(), Board::Switches))
+  if (index < 0 || index >= getCurrentBoard()->getCapability(Capability::Switches))
     return false;
 
   const SwitchConfig &config = switchConfig[index];
@@ -169,30 +165,30 @@ bool GeneralSettings::isSwitchAvailable(int index) const
 
 bool GeneralSettings::isSwitchFlex(int index) const
 {
-  return Boards::isSwitchFlex(index);
+  return getCurrentBoard()->isSwitchFlex(index);
 }
 
 bool GeneralSettings::isSwitchFunc(int index) const
 {
-  return Boards::isSwitchFunc(index);
+  return getCurrentBoard()->isSwitchFunc(index);
 }
 
 bool GeneralSettings::unassignedInputFlexSwitches() const
 {
-  QString board = getCurrentBoard();
+  Board *board = getCurrentBoard();
   int cnt = 0;
 
-  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
+  for (int i = 0; i < board->getCapability(Capability::Inputs); i++) {
     if (inputConfig[i].flexType == Board::FLEX_SWITCH)
       cnt++;
   }
-  return cnt < Boards::getCapability(board, Board::FlexSwitches);
+  return cnt < board->getCapability(Capability::FlexSwitches);
 }
 
 void GeneralSettings::clear()
 {
   memset(reinterpret_cast<void *>(this), 0, sizeof(GeneralSettings));
-  setDefaultControlTypes(getCurrentBoard());
+  setDefaultControlTypes(getCurrentBoard()->getId());
   init();
 }
 
@@ -255,22 +251,24 @@ void GeneralSettings::init()
   setDefaultKeyShortcuts();
 }
 
-void GeneralSettings::setDefaultControlTypes(QString board)
+void GeneralSettings::setDefaultControlTypes(QString boardId)
 {
-  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); i++) {
-    if (!Boards::isInputIgnored(i, board)) {
-      Board::InputInfo info =  Boards::getInputInfo(i, board);
+  Board *board = Board::getBoardForId(boardId);
+
+  for (int i = 0; i < board->getCapability(Capability::Inputs); i++) {
+    if (!board->isInputIgnored(i)) {
+      Board::InputInfo info =  board->getInputInfo(i);
       inputConfig[i].type = info.type;
       inputConfig[i].flexType = info.flexType;
       inputConfig[i].inverted = false; //info.inverted;
     }
   }
 
-  for (int i = 0; i < Boards::getCapability(board, Board::Inputs); ++i) {
-    if (!Boards::isInputCalibrated(i, board))
+  for (int i = 0; i < board->getCapability(Capability::Inputs); ++i) {
+    if (!board->isInputCalibrated(i))
       continue;
 
-    Board::InputInfo info = Boards::getInputInfo(i, board);
+    Board::InputInfo info = board->getInputInfo(i);
 
     if (info.type == Board::AIT_FLEX && info.flexType == Board::FLEX_MULTIPOS) {
       inputConfig[i].calib.mid     = 773;
@@ -283,12 +281,12 @@ void GeneralSettings::setDefaultControlTypes(QString board)
     }
   }
 
-  for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
-    Board::SwitchInfo info =  Boards::getSwitchInfo(i, board);
+  for (int i = 0; i < board->getCapability(Capability::Switches); i++) {
+    Board::SwitchInfo info =  board->getSwitchInfo(i);
     switchConfig[i].type = info.dflt;
     switchConfig[i].inverted = info.inverted;
     switchConfig[i].inputIdx = SWITCH_INPUTINDEX_NONE;
-    if (Boards::isSwitchFunc(i)) {
+    if (board->isSwitchFunc(i)) {
       switchConfig[i].start = ModelData::FUNC_SWITCH_START_PREVIOUS;
       switchConfig[i].onColor.setColor(255, 255, 255);
     }
@@ -306,7 +304,8 @@ int GeneralSettings::getDefaultStick(unsigned int channel) const
   if (channel >= CPN_MAX_STICKS)
     return -1;
   else {
-    return useChannels(Boards::isAir())[controlsCount(Boards::isAir()) * templateSetup + channel] - 1;
+    Board *board = getCurrentBoard();
+    return useChannels(board->getCapability(Capability::Air))[controlsCount(board->getCapability(Capability::Air)) * templateSetup + channel] - 1;
   }
 }
 
@@ -322,7 +321,7 @@ RawSource GeneralSettings::getDefaultSource(unsigned int channel) const
 
 int GeneralSettings::getDefaultChannel(unsigned int stick) const
 {
-  for (int i = 0; i < controlsCount(Boards::isAir()); i++) {
+  for (int i = 0; i < controlsCount(getCurrentBoard()->getCapability(Capability::Air)); i++) {
     if (getDefaultStick(i) == (int)stick)
       return i;
   }

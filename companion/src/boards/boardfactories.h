@@ -42,8 +42,8 @@ class BoardFactories
     explicit BoardFactories();
     virtual ~BoardFactories();
 
-    Boards * boardForId(const QString & id) const;
-    Boards * boardForHwDefn(const QString & hwdefn) const;
+    Board * boardForId(const QString & id) const;
+    Board * boardForHwDefn(const QString & hwdefn) const;
 
     void registerAllBoards();
     bool registerBoard(const QString & board, const QString & hwdefn, const bool isSupported = true);
@@ -53,7 +53,7 @@ class BoardFactories
   private:
     QList<BoardFactory *> registeredBoardFactories;
 
-    Boards *m_default;
+    Board *m_default;
 };
 
 extern BoardFactories* gBoardFactories;

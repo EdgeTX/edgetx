@@ -510,6 +510,7 @@ class Board : public JsonBase
     static AbstractStaticItemModel * switchTypeItemModel();
 
     static QString getAxisName(int index);
+    static Board * getBoardForId(const QString & boardId);
     static int getNumericSuffix(const std::string str);
 
     // deprecated
