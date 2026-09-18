@@ -441,10 +441,10 @@ void WasmSimulatorInterface::init()
   }
 
   m_stopRequested = false;
-  memset(m_analogValues, 0, sizeof(m_analogValues));
 
   // Call simuInit
   QMutexLocker lckr(&m_mutex);
+  memset(m_analogValues, 0, sizeof(m_analogValues));
   wasm_runtime_call_wasm(m_execEnv, m_fnInit, 0, nullptr);
 
   // Query LCD dimensions
@@ -612,12 +612,14 @@ void WasmSimulatorInterface::setVolumeGain(const int value)
 
 void WasmSimulatorInterface::setAnalogValue(uint8_t index, int16_t value)
 {
+  QMutexLocker lckr(&m_mutex);
   if (index < MAX_ANALOGS)
     m_analogValues[index] = value;
 }
 
 int16_t WasmSimulatorInterface::getAnalogValue(uint8_t index)
 {
+  QMutexLocker lckr(&m_mutex);
   if (index < MAX_ANALOGS)
     return m_analogValues[index];
   return 0;
