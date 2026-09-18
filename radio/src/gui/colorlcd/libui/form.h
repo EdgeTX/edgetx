@@ -90,6 +90,21 @@ class FormField : public Window
     changeHandler = std::move(handler);
   }
 
+  // Called when the field is committed with the keyboard "Enter" key (as
+  // opposed to the "OK" checkmark). Optional: fields that don't set an
+  // enter handler simply commit like the checkmark.
+  virtual void onEnter()
+  {
+    if (enterHandler) {
+      enterHandler();
+    }
+  }
+
+  void setEnterHandler(std::function<void()> handler)
+  {
+    enterHandler = std::move(handler);
+  }
+
   inline bool isEditMode() const { return editMode; }
   virtual void setEditMode(bool newEditMode);
 
@@ -101,6 +116,7 @@ class FormField : public Window
   bool editMode = false;
   bool enabled = true;
   std::function<void()> changeHandler = nullptr;
+  std::function<void()> enterHandler = nullptr;
 };
 
 class FormLine : public Window
