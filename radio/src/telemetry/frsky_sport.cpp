@@ -105,6 +105,9 @@ const FrSkySportSensor sportSensors[] = {
   FS( SERVO_FIRST_ID,             SERVO_LAST_ID,            1, STR_SENSOR_SERVO_VOLTAGE,      UNIT_VOLTS,       1 ),
   FS( SERVO_FIRST_ID,             SERVO_LAST_ID,            2, STR_SENSOR_SERVO_TEMPERATURE,  UNIT_CELSIUS,     0 ),
   FS( SERVO_FIRST_ID,             SERVO_LAST_ID,            3, STR_SENSOR_SERVO_STATUS,       UNIT_TEXT,        0 ),
+  // Betaflight S.Port telemetry - Pitch and Roll are sent as degree * 10
+  FS( 0x5230,                     0x5230,                   0, STR_SENSOR_PITCH,               UNIT_DEGREE,      1 ),
+  FS( 0x5240,                     0x5240,                   0, STR_SENSOR_ROLL,                UNIT_DEGREE,      1 ),
   FS( 0,                          0,                        0, nullptr,                       UNIT_RAW,         0 ) // sentinel
 };
 // clang-format on
