@@ -127,6 +127,11 @@ class BoardJson
       std::string cpu_type             = "";
     };
 
+    struct IdentityDefn {
+      std::string manufacturer         = "";
+      std::string model                = "";
+    };
+
     typedef std::vector<TrimDefn> TrimsTable;
 
     explicit BoardJson(Board::Type board, QString hwdefn);
@@ -202,6 +207,7 @@ private:
     DisplayDefn m_display;
     CustomSwitchesDefn m_cfs;
     HardwareDefn m_hardware;
+    IdentityDefn m_identity;
     bool m_hasKeyLockCombo = false;
 
     struct InputCounts {
@@ -228,7 +234,7 @@ private:
 
     static bool loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
                          KeysTable * keys, TrimsTable * trims, DisplayDefn & lcd, CustomSwitchesDefn & cfs,
-                         HardwareDefn & hardware, bool & hasKeyLockCombo);
+                         HardwareDefn & hardware, IdentityDefn & identity, bool & hasKeyLockCombo);
     static void afterLoadFixups(Board::Type board, InputsTable * inputs, SwitchesTable * switches,
                                 KeysTable * keys, TrimsTable * trims);
 

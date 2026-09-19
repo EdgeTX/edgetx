@@ -73,6 +73,7 @@ USART6: INTMODULE_USART
 #define _HAL_H_
 
 #include "hal_settings.h"
+#include "hal_manufacturer.h"
 
 // Expanders
 #define IO_INT_GPIO GPIO_PIN(GPIOD, 3)

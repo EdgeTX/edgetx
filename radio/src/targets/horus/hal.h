@@ -22,6 +22,7 @@
 #pragma once
 
 #include "hal_settings.h"
+#include "hal_manufacturer.h"
 
 #define TELEMETRY_EXTI_PRIO             0 // required for soft serial
 

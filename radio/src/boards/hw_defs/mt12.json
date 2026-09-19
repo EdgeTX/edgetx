@@ -1,4 +1,10 @@
 {
+  "identity": {
+    "manufacturer": "RadioMaster",
+    "model": "MT12",
+    "usb_manufacturer": "RM_TX",
+    "usb_product": "RM MT12"
+  },
   "adc_inputs": {
     "adcs": [
       {

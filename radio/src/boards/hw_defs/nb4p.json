@@ -1,4 +1,10 @@
 {
+  "identity": {
+    "manufacturer": "Flysky",
+    "model": "NB4+",
+    "usb_manufacturer": "FlySky",
+    "usb_product": "NB4+"
+  },
   "adc_inputs": {
     "adcs": [
       {

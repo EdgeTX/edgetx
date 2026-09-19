@@ -1,4 +1,10 @@
 {
+  "identity": {
+    "manufacturer": "Jumper",
+    "model": "T-Pro S",
+    "usb_manufacturer": "JUMPER",
+    "usb_product": "T-Pro S"
+  },
   "adc_inputs": {
     "adcs": [
       {

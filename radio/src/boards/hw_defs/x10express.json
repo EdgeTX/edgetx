@@ -1,4 +1,10 @@
 {
+  "identity": {
+    "manufacturer": "FrSky",
+    "model": "X10/X10S Express",
+    "usb_manufacturer": "FrSky",
+    "usb_product": "X10"
+  },
   "adc_inputs": {
     "adcs": [
       {
