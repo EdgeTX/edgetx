@@ -31,6 +31,9 @@ void ledRed() {}
 void ledGreen() {}
 void ledBlue() {}
 void ledOff() {}
+#if defined(STATUS_LED_PWM)
+void ledSetBrightness(uint8_t bright) {}
+#endif
 void rgbLedColorApply() {}
 void rgbLedClearAll() {}
 

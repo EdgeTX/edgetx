@@ -640,6 +640,19 @@ void calcVolumeValue(int16_t source)
   requiredSpeakerVolume = (int16_t)v;
 }
 
+#if defined(STATUS_LED_PWM)
+void calcStatusLedBright(int16_t source)
+{
+  int32_t v = (1024 + getValue(source)) * STATUS_LED_BRIGHT_MAX / 2048;
+  requiredStatusLedBright = limit<int32_t>(0, v, STATUS_LED_BRIGHT_MAX);
+}
+
+void checkStatusLed()
+{
+  ledSetBrightness(requiredStatusLedBright);
+}
+#endif
+
 void checkBacklight()
 {
   static uint8_t tmr10ms ;

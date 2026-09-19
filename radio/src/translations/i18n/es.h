@@ -555,6 +555,7 @@
 #define TR_BEEPCOUNTDOWN       TR("Cta. atrás", "Cuenta atrás")
 #define TR_PERSISTENT          TR("Persisten.", "Persistente")
 #define TR_BACKLIGHT_LABEL     "Luz fondo"
+#define TR_STATUS_LED          "LED de estado"
 #define TR_STATUS                      "Status"
 #define TR_BLONBRIGHTNESS      "MAS brillo"
 #define TR_BLOFFBRIGHTNESS     "MENOS brillo"

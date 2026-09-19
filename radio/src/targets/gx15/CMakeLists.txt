@@ -50,6 +50,7 @@ add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
 add_definitions(-DUSB_CHARGE_CONTROL)
+add_definitions(-DSTATUS_LED_PWM)
 
 set(FLAVOUR gx15)
 add_definitions(-DMANUFACTURER_RADIOMASTER)

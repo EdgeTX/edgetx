@@ -487,6 +487,9 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "usbChargeDisabled", 1 ),
   YAML_PADDING( 6 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
+  YAML_UNSIGNED( "statusLedDim", 8 ),
+  YAML_SIGNED_CUST( "statusLedSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
+  YAML_PADDING( 6 ),
   YAML_ARRAY("keyShortcuts", 8, 6, struct_KeyShortcut, NULL),
   YAML_ARRAY("qmFavorites", 8, 12, struct_QMFavorite, NULL),
   YAML_END

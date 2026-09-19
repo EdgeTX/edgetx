@@ -55,6 +55,9 @@ bool hpDetected = false;
 
 uint8_t currentBacklightBright = 0;
 uint8_t requiredBacklightBright = 0;
+#if defined(STATUS_LED_PWM)
+uint8_t requiredStatusLedBright = STATUS_LED_BRIGHT_MAX;
+#endif
 
 static bool _usbDisabled = false;
 
@@ -573,6 +576,9 @@ void perMain()
   DEBUG_TIMER_STOP(debugTimerPerMain1);
 
   checkBacklight();
+#if defined(STATUS_LED_PWM)
+  checkStatusLed();
+#endif
 
 #if defined(USE_HATS_AS_KEYS)
   checkHatsAsKeys();

@@ -66,6 +66,22 @@ ui(new Ui::GeneralSetup)
   if (ui->brightCtrl_CB->currentIndex() < 0 && generalSettings.backlightSrc.toValue() == 0)
     ui->brightCtrl_CB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->brightCtrl_CB));
 
+  if (HAS_STATUS_LED_PWM(board)) {
+    ui->statusLedBright_SB->setValue(100 - generalSettings.statusLedDim);
+
+    ui->statusLedCtrl_CB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    ui->statusLedCtrl_CB->setModel(panelFilteredModels->getItemModel(FIM_CONTROLSRC));
+    ui->statusLedCtrl_CB->setCurrentIndex(ui->statusLedCtrl_CB->findData(generalSettings.statusLedSrc.toValue()));
+    if (ui->statusLedCtrl_CB->currentIndex() < 0 && generalSettings.statusLedSrc.toValue() == 0)
+      ui->statusLedCtrl_CB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->statusLedCtrl_CB));
+  }
+  else {
+    ui->label_statusLedBright->hide();
+    ui->statusLedBright_SB->hide();
+    ui->label_statusLedCtrl->hide();
+    ui->statusLedCtrl_CB->hide();
+  }
+
   ui->backlightswCB->setModel(panelFilteredModels->getItemModel(FIM_BACKLIGHTMODE));
   ui->backlightswCB->setCurrentIndex(ui->backlightswCB->findData(generalSettings.backlightMode));
 
@@ -717,6 +733,22 @@ void GeneralSetupPanel::on_brightCtrl_CB_currentIndexChanged(int index)
 {
   if (!lock) {
     generalSettings.backlightSrc = RawSource(ui->brightCtrl_CB->itemData(ui->brightCtrl_CB->currentIndex()).toInt());
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_statusLedBright_SB_editingFinished()
+{
+  if (!lock) {
+    generalSettings.statusLedDim = 100 - ui->statusLedBright_SB->value();
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_statusLedCtrl_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.statusLedSrc = RawSource(ui->statusLedCtrl_CB->itemData(ui->statusLedCtrl_CB->currentIndex()).toInt());
     emit modified();
   }
 }

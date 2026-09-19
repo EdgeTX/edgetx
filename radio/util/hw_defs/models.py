@@ -229,6 +229,10 @@ class LEDS(BaseModel):
     led_red2_gpio: Optional[str] = None
     led_green_gpio: Optional[str] = None
     led_blue_gpio: Optional[str] = None
+    status_led_pwm_timer: Optional[str] = None
+    status_led_pwm_timer_freq: Optional[str] = None
+    status_led_pwm_timer_irqn: Optional[str] = None
+    status_led_pwm_timer_irqhandler: Optional[str] = None
 
 class IMU(BaseModel):
     imu_i2c_bus: Optional[str] = None
