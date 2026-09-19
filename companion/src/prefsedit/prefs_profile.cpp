@@ -41,8 +41,8 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Typ
   ui->setupUi(this);
 
   panelItemModels->registerItemModel(new FilteredItemModel(GeneralSettings::templateSetupItemModel()), FIM_TEMPLATESETUP);
-  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir() ? GeneralSettings::RadioTypeContextAir :
-                                                                                     GeneralSettings::RadioTypeContextSurface);
+  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
+                                                                                          GeneralSettings::RadioTypeContextSurface);
 
   // name
   // The profile name may NEVER be empty
@@ -56,6 +56,9 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Typ
 
     if (profile.name().isEmpty())
       profile.name(tr("My Radio"));
+  });
+  ui->leName->setBindPostChanged([this] {
+    emit this->nameChanged();
   });
 
   // radio
@@ -113,9 +116,24 @@ void PrefsProfilePanel::onFirmwareTypePressed()
 
 QString PrefsProfilePanel::getLanguage()
 {
-  return !profile.fwLanguage().isEmpty() ?
-    profile.fwLanguage() :
-    QLocale::languageToString(QLocale().language()).split("_").first();
+  QString lang;
+
+  if (!profile.fwLanguage().isEmpty() &&
+      firmware->getFirmwareBase()->languageList().contains(profile.fwLanguage()))
+    lang = profile.fwLanguage();
+  else {
+    // depending on the OS environment this does not always return a valid language
+    lang = QLocale::languageToString(QLocale().language()).split("_").first();
+
+    if (!firmware->getFirmwareBase()->languageList().contains(lang))
+      lang = "en";  // give up trying
+
+    // the signal is emitted in the ctor however the signal is not trapped by PrefsEditDialog
+    // until after the ctor has finish so delay emitting
+    QTimer::singleShot(100, [this] () { emit this->modified(); });
+  }
+
+  return lang;
 }
 
 QStringList PrefsProfilePanel::getSelectedOptions()
@@ -253,7 +271,7 @@ void PrefsProfilePanel::sectionFirmwareOpts()
   QHBoxLayout *layLanguage = new QHBoxLayout();
   cboFirmwareLanguage = new AutoComboBox(this);
   cboFirmwareLanguage->setModel(languageModel());
-  cboFirmwareLanguage->setValue(profile.fwLanguage());
+  cboFirmwareLanguage->setValue(getLanguage());
   cboFirmwareLanguage->setBindSave([this] {
     this->profile.fwLanguage(this->cboFirmwareLanguage->currentData().toString());
   });
@@ -283,7 +301,7 @@ void PrefsProfilePanel::sectionFirmwareOpts()
   });
   layFirmwareOpts->addWidget(chkBackupBeforeFlash, row, col++);
 
-  ui->csectFirmwareOpts->finish(row, col, [this] { this->shrink(); });
+  ui->csectFirmwareOpts->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsProfilePanel::sectionFolders()
@@ -341,7 +359,7 @@ void PrefsProfilePanel::sectionFolders()
   layFolders->addWidget(btnModelsPath, row, col++);
  */
 
-  ui->csectFolders->finish(-1, -1, [this] { this->shrink(); });
+  ui->csectFolders->finish(-1, -1, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsProfilePanel::sectionNewFile()
@@ -382,7 +400,7 @@ void PrefsProfilePanel::sectionNewFile()
             (this->chkUseSettingsBackup->isChecked() &&
              this->profile.generalSettings().isEmpty()));
   });
-  lblStickMode->setBindVisible([this] { return Boards::isAir(); });
+  lblStickMode->setBindVisible([this] { return Boards::isAir(board); });
   layNewFile->addWidget(lblStickMode, row, col++);
 
   cboStickMode = new AutoComboBox(this);
@@ -396,7 +414,7 @@ void PrefsProfilePanel::sectionNewFile()
             (this->chkUseSettingsBackup->isChecked() &&
              this->profile.generalSettings().isEmpty()));
   });
-  cboStickMode->setBindVisible([this] { return Boards::isAir(); });
+  cboStickMode->setBindVisible([this] { return Boards::isAir(board); });
   layNewFile->addWidget(cboStickMode, row, col++);
   // Channel Order
   ++row; col = 0;
@@ -444,7 +462,7 @@ void PrefsProfilePanel::sectionNewFile()
   });
   layNewFile->addWidget(cboModuleExternal, row, col++);
 
-  ui->csectNewFile->finish(row, col, [this] { this->shrink(); });
+  ui->csectNewFile->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsProfilePanel::sectionSplash()
@@ -489,7 +507,7 @@ void PrefsProfilePanel::sectionSplash()
   });
   laySplash->addWidget(btnSplashClear, row, col++);
 
-  ui->csectSplash->finish(row, col, [this] { this->shrink(); });
+  ui->csectSplash->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 // called directly by PrefsEditDialog
@@ -499,6 +517,8 @@ void PrefsProfilePanel::onRadioChanged(Firmware * firmware, bool deferUpdate)
   PrefsPanel::onRadioChanged(firmware, true);
   fwTypeData->setText(firmware->getFirmwareBase()->getId());
   populateFirmwareOptions(profile.fwOptions().split("-"));
+  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
+                                                                                          GeneralSettings::RadioTypeContextSurface);
   update();
 }
 
