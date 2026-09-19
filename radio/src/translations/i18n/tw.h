@@ -704,6 +704,8 @@
 #define TR_REPEAT_AT_ZERO              "無變化報警"
 #define TR_BATT_CALIB                  TR("電池校準", "電池電壓校準")
 #define TR_VOLTAGE                     TR("電壓源", "電壓來源")
+#define TR_MODULE_SENSOR_VOLTAGE       "電壓"
+#define TR_MODULE_SENSOR_CURRENT       "電流"
 #define TR_SELECT_MODEL                "選擇模型"
 #define TR_SELECT_MODE                 "選擇模式"
 #define TR_CREATE_MODEL                "創建模型"
