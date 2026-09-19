@@ -223,6 +223,17 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
           if (cur < size - 1)
             cur++;
           break;
+#else
+        // page keys are free here: check() ignores them while editing
+        case EVT_KEY_BREAK(KEY_PAGEUP):
+          if (cur > 0)
+            cur--;
+          break;
+
+        case EVT_KEY_BREAK(KEY_PAGEDN):
+          if (cur < size - 1)
+            cur++;
+          break;
 #endif
 
         case EVT_KEY_BREAK(KEY_SHIFT):
