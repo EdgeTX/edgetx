@@ -192,6 +192,21 @@ TEST_F(VoiceControlV16, ModelUsingVoiceSourceAndSwitchRoundTrips)
   EXPECT_TRUE(m3.mixData[0].swtch == m2.mixData[0].swtch);
 }
 
+// Simulator switch widgets address switches by index, so these must match
+// firmware's initVoiceMappedSwitches() (radio/src/drivers/CI1302.cpp):
+// switchGetMaxSwitches() + MAX_FLEX_SWITCHES, where V16 has 10 physical
+// switches and 2 flex switches.
+TEST_F(VoiceControlV16, VoiceSwitchIndexesFollowFlexSwitches)
+{
+  Board::Type board = getCurrentBoard();
+
+  EXPECT_EQ(Boards::getCapability(board, Board::FlexSwitches), 2);
+  EXPECT_EQ(Boards::getSwitchYamlIndex(QStringLiteral("FL1"), BoardJson::YLT_REF, board), 10);
+  EXPECT_EQ(Boards::getSwitchYamlIndex(QStringLiteral("FL2"), BoardJson::YLT_REF, board), 11);
+  EXPECT_EQ(Boards::getSwitchYamlIndex(QStringLiteral("VGR"), BoardJson::YLT_REF, board), 12);
+  EXPECT_EQ(Boards::getSwitchYamlIndex(QStringLiteral("VFL"), BoardJson::YLT_REF, board), 13);
+}
+
 // VGR (voice gear) is a 2POS switch on real hardware -- see
 // isTwoPosVoiceSwitch()/VSW_GEAR in radio/src/drivers/CI1302.cpp -- VFL
 // (voice flap) is 3POS.
