@@ -35,9 +35,6 @@ class NumberArea : public FormField
   {
     setWindowFlag(NO_FOCUS);
 
-    // Allow encoder acceleration
-    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
-
     lv_obj_add_event_cb(lvobj, NumberArea::numberedit_cb, LV_EVENT_KEY, this);
 
     setFocusHandler([=](bool focus) {
