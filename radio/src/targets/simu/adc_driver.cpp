@@ -40,7 +40,13 @@ uint16_t getLuxSensorValue()
 
 uint16_t getBatteryVoltage()
 {
-  if (adcGetMaxInputs(ADC_INPUT_VBAT) < 1) return 0;
+  if (adcGetMaxInputs(ADC_INPUT_VBAT) < 1) {
+    // Battery is not an ADC input on this board (e.g. read from an I2C
+    // sensor on hardware), so report the same default as simu_start_conversion
+    uint16_t vBatWarn = BATTERY_WARN;
+    if (g_eeGeneral.vBatWarn > 0) vBatWarn = g_eeGeneral.vBatWarn;
+    return (vBatWarn + 5) * 10;
+  }
   return anaIn(adcGetInputOffset(ADC_INPUT_VBAT));
 }
 

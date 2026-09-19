@@ -28,6 +28,9 @@
 #include "edgetx_constants.h"
 #include "os/sleep.h"
 #include "switches.h"
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
 #include "input_mapping.h"
 #include "inactivity_timer.h"
 #include "tasks/mixer_task.h"
@@ -303,7 +306,12 @@ int switchLookupIdx(char c)
 
 int switchLookupIdx(const char* name, size_t len)
 {
-  if (len < 2 || (name[0] != 'S' && name[0] != 'F')) return -1;
+  if (len < 2) return -1;
+  if (name[0] != 'S' && name[0] != 'F'
+#if defined(VOICE_CONTROL_SENSOR)
+      && name[0] != 'V'  // VGR/VFL
+#endif
+  ) return -1;
 
   auto max_switches = switchGetMaxAllSwitches();
   for (int i = 0; i < max_switches; i++) {
@@ -380,7 +388,10 @@ static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
   }
 
   if (!(switchesPos & result)) {
-    PLAY_SWITCH_MOVED(index);
+#if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
+    if (!CI1302_voiceSwitchSuppressMovedAudio(idx, startup))
+#endif
+      PLAY_SWITCH_MOVED(index);
   }
 
   return result;
