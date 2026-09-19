@@ -306,7 +306,12 @@ int switchLookupIdx(char c)
 
 int switchLookupIdx(const char* name, size_t len)
 {
-  if (len < 2 || (name[0] != 'S' && name[0] != 'F')) return -1;
+  if (len < 2) return -1;
+  if (name[0] != 'S' && name[0] != 'F'
+#if defined(VOICE_CONTROL_SENSOR)
+      && name[0] != 'V'  // VGR/VFL
+#endif
+  ) return -1;
 
   auto max_switches = switchGetMaxAllSwitches();
   for (int i = 0; i < max_switches; i++) {
