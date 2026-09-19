@@ -748,6 +748,12 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     strncpy(dest, STR_SRC_LIGHT, dest_len - 1);
   }
 #endif
+#if defined(VOICE_CONTROL_SENSOR)
+  else if (idx >= MIXSRC_VGR && idx <= MIXSRC_LAST_VOICE) {
+    const char* voiceName = CI1302_voiceIntegrationMixSrcName(idx);
+    strncpy(dest, voiceName ? voiceName : "", dest_len - 1);
+  }
+#endif
   else if (idx <= MIXSRC_LAST_HELI) {
     idx -= MIXSRC_FIRST_HELI;
     getStringAtIndex(dest, STR_CYC_VSRCRAW, idx);
@@ -802,12 +808,6 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
       case MIXSRC_TX_GPS:
         src_str = STR_SRC_GPS;
         break;
-#if defined(VOICE_CONTROL_SENSOR)
-      case MIXSRC_VGR:
-      case MIXSRC_VFL:
-        src_str = CI1302_voiceIntegrationMixSrcName(idx);
-        break;
-#endif
       default:
         src_str = "";
         break;

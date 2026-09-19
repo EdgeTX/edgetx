@@ -209,6 +209,10 @@ static bool isSourceTrimAvailable(int source) {
 }
 
 static bool isSourceSwitchAvailable(int source) {
+#if defined(VOICE_CONTROL_SENSOR)
+  // VGR/VFL have their own dedicated sources
+  if (CI1302_voiceSwitchIsIndex(source)) return false;
+#endif
   return SWITCH_EXISTS(source);
 }
 
