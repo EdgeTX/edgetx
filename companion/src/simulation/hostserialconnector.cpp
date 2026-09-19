@@ -20,13 +20,18 @@
  */
 
 #include "hostserialconnector.h"
-#include <QMessageBox>
+
+#include "hostserialbackend.h"
+#include "hostserialbackend_serialport.h"
+#include "hostserialbackend_localsocket.h"
 
 HostSerialConnector::HostSerialConnector(QObject *parent, SimulatorInterface *simulator)
-  : simulator(simulator)
+  : QObject(parent),
+    simulator(simulator)
 {
   for (int i = 0; i < MAX_HOST_SERIAL; i++) {
-    hostAuxPorts[i] = nullptr;
+    hostAuxBackends[i] = nullptr;
+    hostAuxBackendKinds[i] = BackendNone;
     hostAuxPortsEncoding[i] = SERIAL_ENCODING_8N1;
     hostAuxPortsBaudRate[i] = 9600;
     hostAuxPortsOpen[i] = false;
@@ -36,55 +41,104 @@ HostSerialConnector::HostSerialConnector(QObject *parent, SimulatorInterface *si
 HostSerialConnector::~HostSerialConnector()
 {
   for (int i = 0; i < MAX_HOST_SERIAL; i++) {
-    if (hostAuxPorts[i] != nullptr) {
-      hostAuxPorts[i]->close();
-      hostAuxPorts[i]->deleteLater();
+    if (hostAuxBackends[i] != nullptr) {
+      hostAuxBackends[i]->close();
+      hostAuxBackends[i]->deleteLater();
     }
   }
 }
 
-QString HostSerialConnector::getConnectedSerialPortName(int index)
+HostSerialConnector::BackendKind HostSerialConnector::getBackendKind(int index) const
 {
   if (index >= MAX_HOST_SERIAL)
-    return QString("");
+    return BackendNone;
 
   QMutexLocker locker(&hostAuxPortsMutex);
-
-  QSerialPort * port = hostAuxPorts[index];
-  if (port == nullptr)
-    return QString("");
-
-  return port->portName();
+  return hostAuxBackendKinds[index];
 }
 
-void HostSerialConnector::connectSerialPort(int index, QString portName)
+QString HostSerialConnector::getBackendSpec(int index) const
+{
+  if (index >= MAX_HOST_SERIAL)
+    return QString();
+
+  QMutexLocker locker(&hostAuxPortsMutex);
+
+  HostSerialBackend * backend = hostAuxBackends[index];
+  if (backend == nullptr)
+    return QString();
+
+  return backend->displayName();
+}
+
+QString HostSerialConnector::getLocalSocketFullName(int index) const
+{
+  if (index >= MAX_HOST_SERIAL)
+    return QString();
+
+  QMutexLocker locker(&hostAuxPortsMutex);
+
+  if (hostAuxBackendKinds[index] != BackendLocalSocket)
+    return QString();
+
+  auto * backend = qobject_cast<QLocalSocketBackend *>(hostAuxBackends[index]);
+  return backend != nullptr ? backend->fullServerName() : QString();
+}
+
+void HostSerialConnector::setBackend(int index, HostSerialBackend * backend, BackendKind kind)
+{
+  // Caller holds hostAuxPortsMutex.
+  HostSerialBackend * old = hostAuxBackends[index];
+  if (old != nullptr) {
+    old->close();
+    old->deleteLater();
+  }
+
+  hostAuxBackends[index] = backend;
+  hostAuxBackendKinds[index] = backend != nullptr ? kind : BackendNone;
+
+  if (backend == nullptr)
+    return;
+
+  connect(backend, &HostSerialBackend::dataReceived, this,
+          [this, index](const QByteArray & data) {
+            simulator->receiveAuxSerialData(index, data);
+          });
+  connect(backend, &HostSerialBackend::errorOccurred, this,
+          [this, index](const QString & message) {
+            emit backendError(index, message);
+          });
+
+  // Re-apply cached settings to the freshly created backend.
+  backend->setEncoding(hostAuxPortsEncoding[index]);
+  backend->setBaudrate(hostAuxPortsBaudRate[index]);
+}
+
+void HostSerialConnector::connectBackend(int index, int kind, const QString & spec)
 {
   if (index >= MAX_HOST_SERIAL)
     return;
 
   QMutexLocker locker(&hostAuxPortsMutex);
 
-  QSerialPort * port = hostAuxPorts[index];
-  if (port != nullptr) {
-    port->close();
-    port->deleteLater();
-  }
-
-  if (portName.isEmpty()) {
-    hostAuxPorts[index] = nullptr;
+  if (kind == BackendNone || spec.isEmpty()) {
+    setBackend(index, nullptr, BackendNone);
     return;
   }
 
-  port = new QSerialPort(portName, this);
-  hostAuxPorts[index] = port;
+  HostSerialBackend * backend = nullptr;
+  switch (kind) {
+    case BackendSerialPort:
+      backend = new QSerialPortBackend(spec, this);
+      break;
+    case BackendLocalSocket:
+      backend = new QLocalSocketBackend(spec, this);
+      break;
+    default:
+      return;
+  }
 
-  setSerialEncoding(index, hostAuxPortsEncoding[index]);
-  setSerialBaudRate(index, hostAuxPortsBaudRate[index]);
-
-  connect(port, &QSerialPort::readyRead, [this, index, port]() {
-    QByteArray data = port->readAll();
-    simulator->receiveAuxSerialData(index, data);
-  });
+  setBackend(index, backend, static_cast<BackendKind>(kind));
 
   if (hostAuxPortsOpen[index])
     serialStart(index);
@@ -97,11 +151,11 @@ void HostSerialConnector::sendSerialData(const quint8 index, const QByteArray & 
 
   QMutexLocker locker(&hostAuxPortsMutex);
 
-  QSerialPort * port = hostAuxPorts[index];
-  if (port == nullptr)
+  HostSerialBackend * backend = hostAuxBackends[index];
+  if (backend == nullptr)
     return;
 
-  port->write(data);
+  backend->write(data);
 }
 
 void HostSerialConnector::setSerialEncoding(const quint8 index, const quint8 encoding)
@@ -113,25 +167,11 @@ void HostSerialConnector::setSerialEncoding(const quint8 index, const quint8 enc
 
   hostAuxPortsEncoding[index] = encoding;
 
-  QSerialPort * port = hostAuxPorts[index];
-  if (port == nullptr)
+  HostSerialBackend * backend = hostAuxBackends[index];
+  if (backend == nullptr)
     return;
-      
-  switch(encoding) {
-  case SERIAL_ENCODING_8N1:
-    port->setDataBits(QSerialPort::Data8);
-    port->setParity(QSerialPort::NoParity);
-    port->setStopBits(QSerialPort::OneStop);
-    break;
-  case SERIAL_ENCODING_8E2:
-    port->setDataBits(QSerialPort::Data8);
-    port->setParity(QSerialPort::EvenParity);
-    port->setStopBits(QSerialPort::TwoStop);
-    break;
-  default:
-    // Do nothing, QSerialPort can't do SERIAL_ENCODING_PXX1_PWM
-    break;
-  }
+
+  backend->setEncoding(encoding);
 }
 
 void HostSerialConnector::setSerialBaudRate(const quint8 index, const quint32 baudrate)
@@ -143,12 +183,11 @@ void HostSerialConnector::setSerialBaudRate(const quint8 index, const quint32 ba
 
   hostAuxPortsBaudRate[index] = baudrate;
 
-  QSerialPort * port = hostAuxPorts[index];
-  if (port == nullptr)
+  HostSerialBackend * backend = hostAuxBackends[index];
+  if (backend == nullptr)
     return;
 
-  if (!port->setBaudRate(baudrate))
-    qDebug() << "Failed to set baudrate";
+  backend->setBaudrate(baudrate);
 }
 
 void HostSerialConnector::serialStart(const quint8 index)
@@ -160,14 +199,11 @@ void HostSerialConnector::serialStart(const quint8 index)
 
   hostAuxPortsOpen[index] = true;
 
-  QSerialPort * port = hostAuxPorts[index];
-  if (port == nullptr)
+  HostSerialBackend * backend = hostAuxBackends[index];
+  if (backend == nullptr)
     return;
 
-  if (port->open(QIODevice::ReadWrite))
-    qDebug() << "Opened host serial " << index;
-  else
-    QMessageBox::warning(nullptr, tr("Host Serial Error"), port->errorString(), QMessageBox::Cancel, QMessageBox::Cancel);
+  backend->open();
 }
 
 void HostSerialConnector::serialStop(const quint8 index)
@@ -179,9 +215,9 @@ void HostSerialConnector::serialStop(const quint8 index)
 
   hostAuxPortsOpen[index] = false;
 
-  QSerialPort * port = hostAuxPorts[index];
-  if (port == nullptr)
+  HostSerialBackend * backend = hostAuxBackends[index];
+  if (backend == nullptr)
     return;
 
-  port->close();
+  backend->close();
 }
