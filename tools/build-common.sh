@@ -182,7 +182,9 @@ get_target_build_options() {
 
 # Determine parallel job limit based on environment
 determine_max_jobs() {
-  if [[ -n ${CMAKE_BUILD_PARALLEL_LEVEL} ]]; then
+  if [[ -n ${MAX_JOBS} ]]; then
+    : # explicit caller override, keep as-is
+  elif [[ -n ${CMAKE_BUILD_PARALLEL_LEVEL} ]]; then
     MAX_JOBS=${CMAKE_BUILD_PARALLEL_LEVEL}
   elif [ -n "$GITHUB_ACTIONS" ]; then
     # Limit jobs in GitHub Actions to n-1 to avoid resource contention
