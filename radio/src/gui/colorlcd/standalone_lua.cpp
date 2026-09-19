@@ -175,6 +175,31 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
 #if defined(USE_HATS_AS_KEYS)
   setTransposeHatsForLUA(true);
 #endif
+
+  onClosing([=]() {
+    luaL_unref(lsStandalone, LUA_REGISTRYINDEX, initFunction);
+    luaL_unref(lsStandalone, LUA_REGISTRYINDEX, runFunction);
+    luaLcdBuffer = nullptr;
+
+    luaClose(&lsStandalone);
+
+    if (lcdBuffer) delete lcdBuffer;
+    lcdBuffer = nullptr;
+
+    luaScriptManager = nullptr;
+
+    _instance = nullptr;
+
+#if defined(USE_HATS_AS_KEYS)
+    setTransposeHatsForLUA(false);
+#endif
+
+    luaState = prevLuaState;
+
+    luaEmptyEventBuffer();
+
+    MainWindow::instance()->enableWidgetRefresh(true);
+  });
 }
 
 void StandaloneLuaWindow::setup(bool useLvgl, int initFn, int runFn)
@@ -186,36 +211,6 @@ void StandaloneLuaWindow::setup(bool useLvgl, int initFn, int runFn)
 StandaloneLuaWindow* StandaloneLuaWindow::instance()
 {
   return _instance;
-}
-
-void StandaloneLuaWindow::deleteLater()
-{
-  if (_deleted) return;
-
-  luaL_unref(lsStandalone, LUA_REGISTRYINDEX, initFunction);
-  luaL_unref(lsStandalone, LUA_REGISTRYINDEX, runFunction);
-  luaLcdBuffer = nullptr;
-
-  luaClose(&lsStandalone);
-
-  if (lcdBuffer) delete lcdBuffer;
-  lcdBuffer = nullptr;
-
-  luaScriptManager = nullptr;
-
-  _instance = nullptr;
-
-#if defined(USE_HATS_AS_KEYS)
-  setTransposeHatsForLUA(false);
-#endif
-
-  luaState = prevLuaState;
-
-  luaEmptyEventBuffer();
-
-  MainWindow::instance()->enableWidgetRefresh(true);
-
-  Window::deleteLater();
 }
 
 void StandaloneLuaWindow::checkEvents()
@@ -241,7 +236,7 @@ void StandaloneLuaWindow::checkEvents()
   luaNextEvent(&evt);
   if (evt.event == EVT_KEY_LONG(KEY_EXIT)) {
     killEvents(evt.event);
-    deleteLater();
+    closeWindow();
   } else {
     if (runFunction != LUA_REFNIL) {
       lua_rawgeti(lsStandalone, LUA_REGISTRYINDEX, runFunction);
@@ -263,7 +258,7 @@ void StandaloneLuaWindow::checkEvents()
           int scriptResult = lua_tointeger(lsStandalone, -1);
           lua_pop(lsStandalone, 1);  /* pop returned value */
           if (scriptResult != 0) {
-            deleteLater();
+            closeWindow();
           } else {
             if (useLvglLayout() && !hasError) {
               PROTECT_LUA() {
@@ -284,7 +279,7 @@ void StandaloneLuaWindow::checkEvents()
           nextScript[FF_MAX_LFN] = '\0';
           _instance = nullptr;
           lua_settop(lsStandalone, 0);
-          deleteLater();
+          closeWindow();
           luaExecStandalone(nextScript);
         }
       }

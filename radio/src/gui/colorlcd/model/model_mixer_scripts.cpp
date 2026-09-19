@@ -306,5 +306,5 @@ void ModelMixerScriptsPage::build(Window* window, int8_t focusIdx)
 void ModelMixerScriptsPage::editLine(Window* window, uint8_t idx)
 {
   Window* editWindow = new ScriptEditWindow(idx);
-  editWindow->setCloseHandler([=]() { rebuild(window, idx); });
+  editWindow->onClosing([=]() { rebuild(window, idx); });
 }

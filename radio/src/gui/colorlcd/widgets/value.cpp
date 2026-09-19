@@ -78,7 +78,7 @@ class ValueWidget : public Widget
 
   void foreground() override
   {
-    if (!loaded || _deleted) return;
+    if (!loaded || deleted()) return;
 
     bool changed = false;
 
@@ -187,7 +187,7 @@ class ValueWidget : public Widget
 
   void update() override
   {
-    if (!loaded || _deleted) return;
+    if (!loaded || deleted()) return;
 
     auto widgetData = getPersistentData();
 

@@ -242,7 +242,7 @@ class BarColorType : public ColorType
   ~BarColorType() override
   {
     for (int i = 0; i < MAX_BARS; i++) {
-      bars[i]->deleteLater();
+      bars[i]->closeWindow();
     }
   };
 

@@ -126,7 +126,7 @@ HWPots::HWPots(Window* parent) :
 
   potsChanged = false;
 
-  setCloseHandler([=]() {
+  onClosing([=]() {
     if (potsChanged)
       LayoutFactory::loadCustomScreens();
   });

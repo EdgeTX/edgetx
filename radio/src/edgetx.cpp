@@ -786,7 +786,7 @@ void checkAll(bool isBootCheck)
     MainWindow::instance()->blockUntilClose(true, [=]() {
       if (dlg->deleted()) return true;
       if ((tgtime < get_tmr10ms()) || !keyDown()) {
-        dlg->deleteLater();
+        dlg->closeWindow();
         return true;
       }
       return false;

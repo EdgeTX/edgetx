@@ -55,8 +55,6 @@ class QuickMenuGroup : public Window
   void prevEntry();
   ButtonBase* getFocusedButton();
 
-  void deleteLater() override;
-
   static LAYOUT_VAL_SCALED(QM_ICON_SIZE, 30)
   static LAYOUT_ORIENTATION(QM_ICON_PAD, PAD_MEDIUM, PAD_SMALL)
 

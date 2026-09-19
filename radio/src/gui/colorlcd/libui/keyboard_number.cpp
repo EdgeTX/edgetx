@@ -130,9 +130,11 @@ NumberKeyboard::NumberKeyboard() : Keyboard(KEYBOARD_HEIGHT)
                       (const char**)number_kb_map, number_kb_ctrl_map);
 
   lv_keyboard_set_mode(keyboard, LV_KEYBOARD_MODE_USER_1);
-}
 
-NumberKeyboard::~NumberKeyboard() { _instance = nullptr; }
+  onClosing([=]() {
+    _instance = nullptr;
+  });
+}
 
 void NumberKeyboard::open(FormField* field)
 {

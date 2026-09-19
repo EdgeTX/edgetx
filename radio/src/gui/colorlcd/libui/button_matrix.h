@@ -29,7 +29,6 @@ class ButtonMatrix : public FormField
 
   public:
     ButtonMatrix(Window* parent, const rect_t& rect);
-    ~ButtonMatrix();
 
     virtual void onPress(uint8_t btn_id) {}
     virtual bool isActive(uint8_t btn_id) { return false; }

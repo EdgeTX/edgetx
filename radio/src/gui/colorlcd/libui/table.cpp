@@ -180,6 +180,16 @@ TableField::TableField(Window* parent, const rect_t& rect) :
   setWindowFlag(OPAQUE);
 
   lv_table_set_col_cnt(lvobj, 1);
+
+  onClosing([=]() {
+    if (autoedit) {
+      lv_group_del(group);
+      if (oldGroup)
+        assignLvGroup(oldGroup, true);
+      else
+        lv_group_set_default(nullptr);
+    }
+  });
 }
 
 void TableField::setRowCount(uint16_t rows)
@@ -280,18 +290,4 @@ void TableField::setAutoEdit()
       lv_group_set_focus_cb(group, nullptr);
     }
   });
-}
-
-void TableField::deleteLater()
-{
-  if (!deleted()) {
-    if (autoedit) {
-      lv_group_del(group);
-      if (oldGroup)
-        assignLvGroup(oldGroup, true);
-      else
-        lv_group_set_default(nullptr);
-    }
-    Window::deleteLater();
-  }
 }

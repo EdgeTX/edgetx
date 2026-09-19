@@ -111,7 +111,7 @@ void LayoutFactory::deleteCustomScreens()
 {
   for (auto& screen : customScreens) {
     if (screen) {
-      screen->deleteLater();
+      screen->closeWindow();
       screen = nullptr;
     }
   }
@@ -200,7 +200,7 @@ WidgetsContainer* LayoutFactory::createCustomScreen(
   auto& screen = customScreens[customScreenIndex];
 
   if (screen != nullptr)
-    screen->deleteLater();
+    screen->closeWindow();
 
   auto viewMain = ViewMain::instance();
   screen = create(viewMain, customScreenIndex);
@@ -417,7 +417,7 @@ void Layout::load()
   for (unsigned int i = 0; i < count; i++) {
     // remove old widget
     if (widgets[i]) {
-      widgets[i]->deleteLater();
+      widgets[i]->closeWindow();
       widgets[i] = nullptr;
     }
   }

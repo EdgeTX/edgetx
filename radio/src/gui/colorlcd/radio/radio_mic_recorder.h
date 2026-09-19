@@ -75,7 +75,6 @@ class RadioMicRecorder : public Page
   void buildHeader(Window* window);
   void buildBody(Window* window);
   void checkEvents() override;
-  void deleteLater() override;
 
   void onActionPressed();
   void onPlayPressed();

@@ -87,9 +87,11 @@ MenuToolbar::MenuToolbar(Choice* choice, Menu* menu, const int columns) :
     else
       prevFilter();
   });
-}
 
-MenuToolbar::~MenuToolbar() { lv_group_del(group); }
+  onClosing([=]() {
+    lv_group_del(group);
+  });
+}
 
 void MenuToolbar::resetFilter()
 {

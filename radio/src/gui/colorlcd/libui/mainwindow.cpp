@@ -54,7 +54,7 @@ void MainWindow::emptyTrash()
   trash.clear();
 }
 
-void MainWindow::run(bool trash)
+void MainWindow::run()
 {
   LvglWrapper::instance()->run();
 
@@ -77,8 +77,7 @@ void MainWindow::run(bool trash)
     }
   }
 
-  if (trash)
-    emptyTrash();
+  emptyTrash();
 
 #if defined(DEBUG_WINDOWS)
   auto delta = time_get_ms() - start;
@@ -97,7 +96,7 @@ void MainWindow::shutdown()
 
   // clear layer stack first
   for (Window* w = Window::topWindow(); w; w = Window::topWindow())
-    w->deleteLater();
+    w->closeWindow();
 
   clear();
   emptyTrash();
@@ -138,7 +137,7 @@ void MainWindow::blockUntilClose(bool checkPwr, std::function<bool(void)> closeC
     // On startup error wait for power button to be released
     while (pwrPressed()) {
       WDG_RESET();
-      run(false);
+      run();
       sleep_ms(10);
     }
   }
@@ -166,7 +165,7 @@ void MainWindow::blockUntilClose(bool checkPwr, std::function<bool(void)> closeC
 
     WDG_RESET();
 
-    run(false);
+    run();
     sleep_ms(10);
   }
 }

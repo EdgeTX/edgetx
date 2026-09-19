@@ -55,7 +55,7 @@ class SelectTemplateFolder : public TemplatePage
     SelectTemplateFolder(std::function<void(std::string, std::string)> update);
 
     void doUpdate(std::string folder, std::string name) {
-      deleteLater();
+      closeWindow();
       if (update)
         update(folder, name);
     }

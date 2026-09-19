@@ -38,7 +38,7 @@ void SwitchWarnDialog::checkEvents()
 
   uint16_t bad_pots;
   if (!isSwitchWarningRequired(bad_pots)) {
-    deleteLater();
+    closeWindow();
     return;
   };
 
@@ -92,5 +92,5 @@ void ThrottleWarnDialog::checkEvents()
 
   extern bool isThrottleWarningAlertNeeded();
   if (!isThrottleWarningAlertNeeded())
-    deleteLater();
+    closeWindow();
 }
