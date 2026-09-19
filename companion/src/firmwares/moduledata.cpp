@@ -339,6 +339,8 @@ bool ModuleData::hasFailsafes(Firmware * fw) const
 int ModuleData::getMaxChannelCount()
 {
   switch (protocol) {
+    case PULSES_CROSSFIRE:
+      return 32;
     case PULSES_ACCESS_ISRM:
       return 24;
     case PULSES_PXX_R9M:
@@ -348,7 +350,6 @@ int ModuleData::getMaxChannelCount()
     case PULSES_ACCST_ISRM_D16:
     case PULSES_XJT_LITE_X16:
     case PULSES_PXX_XJT_X16:
-    case PULSES_CROSSFIRE:
     case PULSES_GHOST:
     case PULSES_SBUS:
     case PULSES_PPM:
@@ -378,6 +379,36 @@ int ModuleData::getMaxChannelCount()
       break;
   }
   return 8;
+}
+
+int ModuleData::getMinChannelCount()
+{
+  switch (protocol) {
+    case PULSES_CROSSFIRE:
+      return 16;
+    default:
+      return 4;
+  }
+}
+
+int ModuleData::getDefaultChannelCount()
+{
+  switch (protocol) {
+    case PULSES_CROSSFIRE:
+      return 16;
+    default:
+      return getMaxChannelCount();
+  }
+}
+
+int ModuleData::getChannelCountStep()
+{
+  switch (protocol) {
+    case PULSES_CROSSFIRE:
+      return 16;  // 16 or 32 only
+    default:
+      return 1;
+  }
 }
 
 /*
