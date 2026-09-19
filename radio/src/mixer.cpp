@@ -406,7 +406,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   }
 #endif
 
-#if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
+#if defined(VOICE_CONTROL_SENSOR)
   else if (i == MIXSRC_VGR || i == MIXSRC_VFL) {
     getvalue_t voiceVal = 0;
     // false also means "configured as None" here, not just "unknown source".

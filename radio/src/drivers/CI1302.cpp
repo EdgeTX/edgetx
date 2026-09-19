@@ -399,8 +399,16 @@ bool CI1302_voiceSwitchIsPositionAvailable(uint8_t idx, uint8_t position)
   return true;
 }
 
+#if defined(SIMU)
+SwitchHwPos boardSwitchGetPosition(uint8_t idx);
+#endif
+
 static SwitchHwPos voiceSwitchPosition(uint8_t idx)
 {
+#if defined(SIMU)
+  // No CI1302 in the simulator: use the simulated switch widgets instead.
+  return boardSwitchGetPosition(idx);
+#endif
   switch (voiceSwitchIdFromIndex(idx)) {
     case VSW_GEAR:
       return VoiceGearStatus ? SWITCH_HW_DOWN : SWITCH_HW_UP;
@@ -680,29 +688,29 @@ void CI1302_voiceIntegrationOnFlightReset()
 
 bool CI1302_voiceIntegrationMixSrcValue(mixsrc_t i, getvalue_t* val)
 {
+  VoiceSwitchId id;
   if (i == MIXSRC_VGR) {
-    if (!voiceSwitchIsEnabled(VSW_GEAR)) return false;
-    *val = VoiceGearStatus ? 1024 : -1024;
-    return true;
+    id = VSW_GEAR;
+  } else if (i == MIXSRC_VFL) {
+    id = VSW_FLAP;
+  } else {
+    return false;
   }
 
-  if (i == MIXSRC_VFL) {
-    if (!voiceSwitchIsEnabled(VSW_FLAP)) return false;
-    switch (VoiceFlapStatus) {
-      case 0:
-        *val = -1024;
-        break;
-      case 1:
-        *val = 0;
-        break;
-      default:
-        *val = 1024;
-        break;
-    }
-    return true;
-  }
+  if (!voiceSwitchIsEnabled(id)) return false;
 
-  return false;
+  switch (voiceSwitchPosition(voiceSwitchIndex(id))) {
+    case SWITCH_HW_UP:
+      *val = -1024;
+      break;
+    case SWITCH_HW_MID:
+      *val = 0;
+      break;
+    default:
+      *val = 1024;
+      break;
+  }
+  return true;
 }
 
 bool CI1302_voiceIntegrationSourceAvailable(mixsrc_t i)
