@@ -64,9 +64,6 @@ class MenuBody : public TableField
   MenuBody(Window* parent, const rect_t& rect) :
       TableField(parent, rect)
   {
-    // Allow encoder acceleration
-    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
-
     setColumnWidth(0, rect.w);
 
     setAutoEdit();
