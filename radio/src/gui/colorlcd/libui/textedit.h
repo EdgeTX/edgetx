@@ -36,8 +36,11 @@ class TextEdit : public TextButton
   void preview(bool edited, char* text, uint8_t length);
   void update();
 
+  void setExcludedCharacters(const char* chars) { excludedChars = chars; }
+
  protected:
   std::function<void(void)> updateHandler = nullptr;
+  std::string excludedChars = "";
   TextArea* edit = nullptr;
   char* text;
   uint8_t length;
