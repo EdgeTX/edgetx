@@ -276,13 +276,14 @@ void ModelCell::setUniqueName()
   char s[LEN_MODEL_NAME + 1];
   strAppend(s, modelName, LEN_MODEL_NAME);
   int endPos = strlen(s);
-  bool truncate = endPos > LEN_MODEL_NAME - 3;
-  if (truncate) endPos -= 3;
+  if (endPos > LEN_MODEL_NAME - 3)
+    endPos = LEN_MODEL_NAME - 3;
   for (int i = 1; i < 99; i += 1) {
-    if (i == 10 && truncate) endPos -= 1;
+    if (i == 10 && (endPos > LEN_MODEL_NAME - 4))
+      endPos = LEN_MODEL_NAME - 4;
     sprintf(s + endPos, "(%d)", i);
     if (modelCellManager.getModelWithName(s) == nullptr) {
-      strAppend(modelName, s);
+      strAppend(modelName, s, LEN_MODEL_NAME);
       return;
     }
   }
@@ -330,8 +331,11 @@ void ModelCell::updateModelFile()
     strAppend(g_model.header.labels, csv.c_str(), LABELS_LENGTH - 1);
     storageDirty(EE_MODEL);
   } else {
-    writeModelLabels(csv.c_str());
-    updateFinfoHash();
+    if (writeModelLabels(csv.c_str())) {
+      updateFinfoHash();
+    } else{
+      TRACE("ERROR updating model file '%s'", modelFilename);
+    }
   }
 }
 
@@ -775,7 +779,9 @@ const char *ModelsList::save()
                  (unsigned int)model->moduleData[i].subType);
     }
 
-    f_printf(&file, "    labels: \"%s\"\r\n", toCSV(model->getLabels()).c_str());
+    f_printf(&file, "    labels: \"");
+    f_printf(&file, toCSV(model->getLabels()).c_str());
+    f_printf(&file, "\"\r\n");
 
 #if LEN_BITMAP_NAME > 0
     f_puts("    bitmap: \"", &file);
@@ -1210,8 +1216,7 @@ void ModelsList::moveLabelUp(uint16_t idx)
 
   std::swap(labels[idx - 1], labels[idx]);
 
-  int i = 1;
-  for (auto it = begin(); it != end(); ++it, i += 1) {
+  for (auto it = begin(); it != end(); ++it) {
     (*it)->moveLabelUp(idx);
   }
 
@@ -1231,7 +1236,22 @@ void ModelsList::renameLabel(const std::string &from, const std::string& to,
 {
   int idx = getIndexByLabel(from);
   if (idx >= 0) {
+    // Rename label
     labels[idx] = to;
+
+    // Check that new label fits in all models
+    for (auto it = begin(); it != end(); ++it) {
+      int newLen = toCSV((*it)->getLabels()).size();
+      if (newLen > LABELS_LENGTH) {
+        TRACE("Labels: Rename Error! Labels too long on %s", (*it)->modelName);
+        if (progress != nullptr) progress("", 100); // Kill progress dialog
+        // Restore old label
+        labels[idx] = from;
+        return;
+      }
+    }
+
+    // Update models
     int i = 1;
     for (auto it = begin(); it != end(); ++it, i += 1) {
       if (progress != nullptr) progress((*it)->modelFilename, (i * 100) / size());

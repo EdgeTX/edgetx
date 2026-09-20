@@ -76,7 +76,7 @@ class TextArea : public FormField
 
   void setExcludedChars(std::string& excludedChars) {
     if (excludedChars.size() > 0) {
-      for (char c = ' '; c < '~'; c += 1) {
+      for (char c = ' '; c <= '~'; c += 1) {
         if (excludedChars.find(c) == std::string::npos)
           allowedChars += c;
       }
