@@ -232,7 +232,11 @@ LabelsVector LabelsMap::getLabels()
 {
   LabelsVector rv;
   for (auto it = labelMap.begin(); it != labelMap.end(); ++it) {
-    rv.push_back(modelCellManager.getLabelByIndex(*it));
+    std::string s = modelCellManager.getLabelByIndex(*it);
+    // Ignore duplicates
+    if (std::find(rv.begin(), rv.end(), s) == rv.end()) {
+      rv.push_back(s);
+    }
   }
   return rv;
 }
@@ -1231,34 +1235,58 @@ void ModelsList::moveLabelUp(uint16_t idx)
  * @param progress function to update progress bar (if needed)
  */
 
-void ModelsList::renameLabel(const std::string &from, const std::string& to,
+void ModelsList::renameLabel(const std::string &from, const std::string& _to,
         std::function<void(const char *file, int progress)> progress)
 {
-  int idx = getIndexByLabel(from);
-  if (idx >= 0) {
-    // Rename label
-    labels[idx] = to;
+  // Sanitize input - should not be needed as the text entry excludes
+  // illegal characters and limits length
+  std::string to = _to;
+  removeYAMLChars(to);
+  if (to.size() > LABEL_LENGTH) to.resize(LABEL_LENGTH);
 
-    // Check that new label fits in all models
-    for (auto it = begin(); it != end(); ++it) {
-      int newLen = toCSV((*it)->getLabels()).size();
-      if (newLen > LABELS_LENGTH) {
-        TRACE("Labels: Rename Error! Labels too long on %s", (*it)->modelName);
-        if (progress != nullptr) progress("", 100); // Kill progress dialog
-        // Restore old label
-        labels[idx] = from;
-        return;
+  if (to.size() > 0 && from != to) {
+    int idx = getIndexByLabel(from);
+    if (idx >= 0) {
+      // Check in case rename would be a dupicate
+      int toIdx = getIndexByLabel(to);
+
+      // Rename label
+      labels[idx] = to;
+
+      // Check that new label fits in all models
+      for (auto it = begin(); it != end(); ++it) {
+        int newLen = toCSV((*it)->getLabels()).size();
+        if (newLen > LABELS_LENGTH) {
+          TRACE("Labels: Rename Error! Labels too long on %s", (*it)->modelName);
+          if (progress != nullptr) progress("", 100); // Kill progress dialog
+          // Restore old label
+          labels[idx] = from;
+          return;
+        }
       }
-    }
 
-    // Update models
-    int i = 1;
-    for (auto it = begin(); it != end(); ++it, i += 1) {
-      if (progress != nullptr) progress((*it)->modelFilename, (i * 100) / size());
-      if ((*it)->hasLabel(idx))
-        (*it)->updateModelFile();
+      // Update models
+      int i = 1;
+      for (auto it = begin(); it != end(); ++it, i += 1) {
+        if (progress != nullptr) progress((*it)->modelFilename, (i * 100) / size());
+        if ((*it)->hasLabel(idx)) {
+          // Check for duplicate
+          if (toIdx >= 0) {
+            (*it)->removeLabel(idx);
+            (*it)->addLabel(toIdx);
+          }
+          (*it)->updateModelFile();
+        }
+      }
+      // Check for duplicate
+      if (toIdx >= 0) {
+        // Restore temporarily so it can be deleted
+        labels[idx] = from;
+        removeLabel(from, progress);
+      }
+
+      storageDirty(EE_LABELS);
     }
-    storageDirty(EE_LABELS);
   }
 
   if (progress != nullptr) progress("", 100); // Kill progress dialog
@@ -1285,10 +1313,11 @@ bool ModelsList::addLabelToModel(const std::string &lbl, ModelCell *cell, bool u
   }
 
   int labelindex = addLabel(lbl);
-  cell->addLabel(labelindex);
-  if (update) cell->updateModelFile();
-
-  storageDirty(EE_LABELS);
+  if (labelindex >= 0) {
+    cell->addLabel(labelindex);
+    if (update) cell->updateModelFile();
+    storageDirty(EE_LABELS);
+  }
 
   return false;
 }

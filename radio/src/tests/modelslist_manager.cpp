@@ -413,7 +413,7 @@ TEST_F(ModelCellManagerFsTest, LabelsMapMoveUpSwapsMembership)
 
 TEST_F(ModelCellManagerFsTest, RejectedLabelDoesNotMakeModelLabelled)
 {
-  ModelCell* cell = addCell("model0001.yml", "One");
+  ModelCell* cell = addCell("model0001.yml", "");
 
   // "Unlabeled" is reserved and a label made only of excluded characters is
   // empty once sanitised: addLabel() refuses both, so nothing may be attached.
