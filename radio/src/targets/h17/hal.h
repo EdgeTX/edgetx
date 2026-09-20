@@ -63,7 +63,6 @@ TIM17:  ROTARY_ENCODER_TIMER
 
 // Clocks, timers, LCD, backlight, haptic, status LEDs and rotenc: see h17.json
 #include "hal_settings.h"
-#include "hal_manufacturer.h"
 
 // ADC
 #define ADC_VREF_PREC2                  330

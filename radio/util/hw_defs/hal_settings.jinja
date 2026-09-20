@@ -4,6 +4,12 @@
 //
 
 #pragma once
+{% if identity %}
+
+// Identity
+#define MANUFACTURER_{{ identity.manufacturer.upper() }}
+{% endif -%}
+
 {% if timers %}
 
 // Timers

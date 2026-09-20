@@ -60,7 +60,6 @@ TIM17:	  ROTARY_ENCODER_TIMER
 #define _HAL_H_
 
 #include "hal_settings.h"
-#include "hal_manufacturer.h"
 
 #define ADC_VREF_PREC2                  330
 

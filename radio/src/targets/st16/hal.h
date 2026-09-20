@@ -37,7 +37,6 @@
 // 
 
 #include "hal_settings.h"
-#include "hal_manufacturer.h"
 
 #define ADC_VREF_PREC2          329
 

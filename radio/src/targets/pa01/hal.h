@@ -23,7 +23,6 @@
 #define _HAL_H_
 
 #include "hal_settings.h"
-#include "hal_manufacturer.h"
 
 /* Timers Allocation:
  * TIM3  = Haptic / Backlight
