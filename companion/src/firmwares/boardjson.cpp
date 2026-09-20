@@ -135,8 +135,10 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
   }
 
   //  Flex switches are not listed in json file for these radios
-  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_MT12(board) ||
-              IS_HELLORADIOSKY_V16(board) ? 2 : 0;
+  //  Must match the targets that set FLEXSW (MAX_FLEX_SWITCHES) in the firmware
+  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_TX16SMK3(board) ||
+              IS_FATFISH_F16(board) || IS_HELLORADIOSKY_V16(board) ||
+              IS_RADIOMASTER_MT12(board) ? 2 : 0;
 
   for (int i = 1; i <= count; i++) {
     QString tag = QString("FL%1").arg(i);
