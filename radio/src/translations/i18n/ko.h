@@ -567,6 +567,12 @@
 
 #define TR_BACKLIGHT_LABEL              "백라이트"
 #define TR_STATUS_LED                   "상태 LED"
+#define TR_STATUS_LED_ERROR             "오류"
+#define TR_STATUS_LED_READY             "준비됨"
+#define TR_STATUS_LED_EMIT              "송신 중"
+#define TR_STATUS_LED_COLORS_1          "빨강"
+#define TR_STATUS_LED_COLORS_2          "초록"
+#define TR_STATUS_LED_COLORS_3          "파랑"
 #define TR_STATUS                       "상태"
 #define TR_BLONBRIGHTNESS               "켜짐 밝기"
 #define TR_BLOFFBRIGHTNESS              "꺼짐 밝기"

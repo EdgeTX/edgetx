@@ -562,6 +562,12 @@
 #define TR_PERSISTENT                  TR("Varig", "Varig")
 #define TR_BACKLIGHT_LABEL             "Baggrunds lys"
 #define TR_STATUS_LED                  "Status-LED"
+#define TR_STATUS_LED_ERROR            "Fejl"
+#define TR_STATUS_LED_READY            "Klar"
+#define TR_STATUS_LED_EMIT             "Sender"
+#define TR_STATUS_LED_COLORS_1         "Rød"
+#define TR_STATUS_LED_COLORS_2         "Grøn"
+#define TR_STATUS_LED_COLORS_3         "Blå"
 #define TR_STATUS                      "Status"
 #define TR_BLONBRIGHTNESS              "TIL klarhed"
 #define TR_BLOFFBRIGHTNESS             "FRA klarhed"

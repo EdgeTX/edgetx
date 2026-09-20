@@ -647,9 +647,65 @@ void calcStatusLedBright(int16_t source)
   requiredStatusLedBright = limit<int32_t>(0, v, STATUS_LED_BRIGHT_MAX);
 }
 
+static uint8_t _statusLedPhase = STATUS_LED_PHASE_BOOT;
+static uint8_t _statusLedColor = STATUS_LED_COLOR_DEFAULT;
+
+uint8_t statusLedPhaseColor(uint8_t phase)
+{
+  uint8_t color;
+  switch (phase) {
+    case STATUS_LED_PHASE_ERROR: color = g_eeGeneral.statusLedError; break;
+    case STATUS_LED_PHASE_EMIT:  color = g_eeGeneral.statusLedEmit; break;
+    default:                     color = g_eeGeneral.statusLedReady; break;
+  }
+
+  if (color != STATUS_LED_COLOR_DEFAULT) return color;
+
+  switch (phase) {
+    case STATUS_LED_PHASE_ERROR:
+      return STATUS_LED_COLOR_RED;
+    case STATUS_LED_PHASE_EMIT:
+      return STATUS_LED_COLOR_GREEN;
+    default:
+      return STATUS_LED_COLOR_BLUE;
+  }
+}
+
+static bool statusLedEmitting()
+{
+  for (uint8_t i = 0; i < NUM_MODULES; i++) {
+    if (moduleState[i].protocol != PROTOCOL_CHANNELS_NONE) return true;
+  }
+  return false;
+}
+
 void checkStatusLed()
 {
+  // boot lights every LED, until the radio reports itself ready
+  if (_statusLedPhase == STATUS_LED_PHASE_BOOT) return;
+
+  uint8_t phase = _statusLedPhase;
+  if (phase != STATUS_LED_PHASE_ERROR)
+    phase = statusLedEmitting() ? STATUS_LED_PHASE_EMIT : STATUS_LED_PHASE_READY;
+
+  uint8_t color = statusLedPhaseColor(phase);
+  if (color != _statusLedColor) {
+    _statusLedColor = color;
+    switch (color) {
+      case STATUS_LED_COLOR_RED:   ledRed(); break;
+      case STATUS_LED_COLOR_GREEN: ledGreen(); break;
+      default:                     ledBlue(); break;
+    }
+  }
+
   ledSetBrightness(requiredStatusLedBright);
+}
+
+void statusLedSetPhase(uint8_t phase)
+{
+  // perMain does not run during the long operations that report an error
+  _statusLedPhase = phase;
+  checkStatusLed();
 }
 #endif
 

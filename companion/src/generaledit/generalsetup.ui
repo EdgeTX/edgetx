@@ -2015,6 +2015,99 @@ p, li { white-space: pre-wrap; }
       <widget class="QComboBox" name="statusLedCtrl_CB"/>
      </item>
      <item row="32" column="0">
+      <widget class="QLabel" name="label_statusLedError">
+       <property name="text">
+        <string>Status LED error colour</string>
+       </property>
+      </widget>
+     </item>
+     <item row="32" column="1">
+      <widget class="QComboBox" name="statusLedError_CB">
+       <item>
+        <property name="text">
+         <string>Default</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Red</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Green</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Blue</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="33" column="0">
+      <widget class="QLabel" name="label_statusLedReady">
+       <property name="text">
+        <string>Status LED ready colour</string>
+       </property>
+      </widget>
+     </item>
+     <item row="33" column="1">
+      <widget class="QComboBox" name="statusLedReady_CB">
+       <item>
+        <property name="text">
+         <string>Default</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Red</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Green</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Blue</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="34" column="0">
+      <widget class="QLabel" name="label_statusLedEmit">
+       <property name="text">
+        <string>Status LED transmitting colour</string>
+       </property>
+      </widget>
+     </item>
+     <item row="34" column="1">
+      <widget class="QComboBox" name="statusLedEmit_CB">
+       <item>
+        <property name="text">
+         <string>Default</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Red</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Green</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Blue</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item row="35" column="0">
       <spacer name="verticalSpacer_3">
        <property name="orientation">
         <enum>Qt::Orientation::Vertical</enum>

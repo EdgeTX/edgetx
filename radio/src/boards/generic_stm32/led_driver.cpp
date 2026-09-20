@@ -45,6 +45,27 @@
 
 #if defined(STATUS_LED_PWM)
 
+  #if defined(LED_RED_GPIO)
+    #define _LED_PWM_RED LED_RED_GPIO
+  #else
+    #define _LED_PWM_RED 0
+  #endif
+  #if defined(LED_RED2_GPIO)
+    #define _LED_PWM_RED2 LED_RED2_GPIO
+  #else
+    #define _LED_PWM_RED2 0
+  #endif
+  #if defined(LED_GREEN_GPIO)
+    #define _LED_PWM_GREEN LED_GREEN_GPIO
+  #else
+    #define _LED_PWM_GREEN 0
+  #endif
+  #if defined(LED_BLUE_GPIO)
+    #define _LED_PWM_BLUE LED_BLUE_GPIO
+  #else
+    #define _LED_PWM_BLUE 0
+  #endif
+
 // No status LED pin has a timer output, so dimming toggles the GPIO from a
 // fixed-rate timer interrupt counting PWM steps. A late interrupt then only
 // shifts one edge, instead of stretching a whole period.
@@ -55,7 +76,7 @@
 #define LED_PWM_MIN_LEVEL 2  // dimmest step, the LED never goes darker
 #define LED_PWM_TICK_US (1000000 / (LED_PWM_FREQ * LED_PWM_LEVELS))
 
-static gpio_t _led_gpio[2] = {0, 0};  // lit LEDs, 0 = none
+static gpio_t _led_gpio[4] = {0, 0, 0, 0};  // lit LEDs, 0 = none
 static uint8_t _led_bright = STATUS_LED_BRIGHT_MAX;
 static uint8_t _led_level = LED_PWM_LEVELS;  // ON steps per period
 static uint8_t _led_tick = 0;
@@ -121,7 +142,7 @@ extern "C" void STATUS_LED_PWM_TIMER_IRQHandler(void)
 
 static void _led_apply()
 {
-  if (!_led_gpio[0] && !_led_gpio[1]) {
+  if (!_led_gpio[0] && !_led_gpio[1] && !_led_gpio[2] && !_led_gpio[3]) {
     _led_pwm_stop();
     return;
   }
@@ -139,6 +160,16 @@ static void _led_on(gpio_t pin, gpio_t pin2)
   ledOff();
   _led_gpio[0] = pin;
   _led_gpio[1] = pin2;
+  _led_apply();
+}
+
+static void _led_on_all()
+{
+  ledOff();
+  _led_gpio[0] = _LED_PWM_RED;
+  _led_gpio[1] = _LED_PWM_RED2;
+  _led_gpio[2] = _LED_PWM_GREEN;
+  _led_gpio[3] = _LED_PWM_BLUE;
   _led_apply();
 }
 
@@ -227,8 +258,7 @@ __weak void ledOff()
 {
 #if defined(STATUS_LED_PWM)
   _led_pwm_stop();
-  _led_gpio[0] = 0;
-  _led_gpio[1] = 0;
+  for (auto& pin : _led_gpio) pin = 0;
 #endif
 #if defined(LED_RED_GPIO)
   GPIO_LED_GPIO_OFF(LED_RED_GPIO);
@@ -243,29 +273,6 @@ __weak void ledOff()
   GPIO_LED_GPIO_OFF(LED_GREEN_GPIO);
 #endif
 }
-
-#if defined(STATUS_LED_PWM)
-  #if defined(LED_RED_GPIO)
-    #define _LED_PWM_RED LED_RED_GPIO
-  #else
-    #define _LED_PWM_RED 0
-  #endif
-  #if defined(LED_RED2_GPIO)
-    #define _LED_PWM_RED2 LED_RED2_GPIO
-  #else
-    #define _LED_PWM_RED2 0
-  #endif
-  #if defined(LED_GREEN_GPIO)
-    #define _LED_PWM_GREEN LED_GREEN_GPIO
-  #else
-    #define _LED_PWM_GREEN 0
-  #endif
-  #if defined(LED_BLUE_GPIO)
-    #define _LED_PWM_BLUE LED_BLUE_GPIO
-  #else
-    #define _LED_PWM_BLUE 0
-  #endif
-#endif
 
 __weak void ledRed()
 {
@@ -291,6 +298,18 @@ __weak void ledGreen()
 #if defined(LED_GREEN_GPIO)
   GPIO_LED_GPIO_ON(LED_GREEN_GPIO);
 #endif
+#endif
+}
+
+// all status LEDs, until the radio signals it is ready
+__weak void ledBoot()
+{
+#if defined(STATUS_LED_PWM)
+  _led_on_all();
+#elif !defined(POWER_LED_BLUE)
+  ledBlue();
+#else
+  ledGreen();
 #endif
 }
 

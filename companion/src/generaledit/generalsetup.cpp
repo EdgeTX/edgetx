@@ -74,12 +74,23 @@ ui(new Ui::GeneralSetup)
     ui->statusLedCtrl_CB->setCurrentIndex(ui->statusLedCtrl_CB->findData(generalSettings.statusLedSrc.toValue()));
     if (ui->statusLedCtrl_CB->currentIndex() < 0 && generalSettings.statusLedSrc.toValue() == 0)
       ui->statusLedCtrl_CB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->statusLedCtrl_CB));
+
+    // combo order matches GeneralSettings::StatusLedColor
+    ui->statusLedError_CB->setCurrentIndex(generalSettings.statusLedError);
+    ui->statusLedReady_CB->setCurrentIndex(generalSettings.statusLedReady);
+    ui->statusLedEmit_CB->setCurrentIndex(generalSettings.statusLedEmit);
   }
   else {
     ui->label_statusLedBright->hide();
     ui->statusLedBright_SB->hide();
     ui->label_statusLedCtrl->hide();
     ui->statusLedCtrl_CB->hide();
+    ui->label_statusLedError->hide();
+    ui->statusLedError_CB->hide();
+    ui->label_statusLedReady->hide();
+    ui->statusLedReady_CB->hide();
+    ui->label_statusLedEmit->hide();
+    ui->statusLedEmit_CB->hide();
   }
 
   ui->backlightswCB->setModel(panelFilteredModels->getItemModel(FIM_BACKLIGHTMODE));
@@ -749,6 +760,30 @@ void GeneralSetupPanel::on_statusLedCtrl_CB_currentIndexChanged(int index)
 {
   if (!lock) {
     generalSettings.statusLedSrc = RawSource(ui->statusLedCtrl_CB->itemData(ui->statusLedCtrl_CB->currentIndex()).toInt());
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_statusLedError_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.statusLedError = index;
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_statusLedReady_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.statusLedReady = index;
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_statusLedEmit_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.statusLedEmit = index;
     emit modified();
   }
 }

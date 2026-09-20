@@ -1236,7 +1236,9 @@ PACK(struct RadioData {
   // dimming, so that 0 (what older settings load as) is full brightness
   NOBACKUP(uint8_t statusLedDim);
   NOBACKUP(int16_t statusLedSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
-  NOBACKUP(int16_t statusLedSpare:6 SKIP);
+  NOBACKUP(uint16_t statusLedError:2 ENUM(StatusLedColor));
+  NOBACKUP(uint16_t statusLedReady:2 ENUM(StatusLedColor));
+  NOBACKUP(uint16_t statusLedEmit:2 ENUM(StatusLedColor));
 #endif
 
 #if defined(COLORLCD)

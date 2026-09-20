@@ -137,6 +137,14 @@ static const YamlLookupTable hatsModeLut = {
   {  GeneralSettings::HATSMODE_SWITCHABLE, "SWITCHABLE"  },
 };
 
+// must match enum StatusLedColor in the firmware, as the yaml generator names it
+static const YamlLookupTable statusLedColorLut = {
+  {  GeneralSettings::STATUS_LED_COLOR_DEFAULT, "LED_COLOR_DEFAULT"  },
+  {  GeneralSettings::STATUS_LED_COLOR_RED, "LED_COLOR_RED"  },
+  {  GeneralSettings::STATUS_LED_COLOR_GREEN, "LED_COLOR_GREEN"  },
+  {  GeneralSettings::STATUS_LED_COLOR_BLUE, "LED_COLOR_BLUE"  },
+};
+
 static const YamlLookupTable QMPageLut = {
   {  GeneralSettings::QM_NONE, "NONE" },
   {  GeneralSettings::QM_OPEN_QUICK_MENU, "OPEN_QUICK_MENU" },
@@ -380,6 +388,9 @@ Node convert<GeneralSettings>::encode(const GeneralSettings& rhs)
 
   node["statusLedDim"] = rhs.statusLedDim;
   node["statusLedSrc"] = rhs.statusLedSrc;
+  node["statusLedError"] = statusLedColorLut << rhs.statusLedError;
+  node["statusLedReady"] = statusLedColorLut << rhs.statusLedReady;
+  node["statusLedEmit"] = statusLedColorLut << rhs.statusLedEmit;
 
   // Radio level tabs control (global settings)
   if (hasColorLcd)
@@ -736,6 +747,9 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
 
   node["statusLedDim"] >> rhs.statusLedDim;
   node["statusLedSrc"] >> rhs.statusLedSrc;
+  node["statusLedError"] >> statusLedColorLut >> rhs.statusLedError;
+  node["statusLedReady"] >> statusLedColorLut >> rhs.statusLedReady;
+  node["statusLedEmit"] >> statusLedColorLut >> rhs.statusLedEmit;
 
   // Radio level tabs control (global settings)
   node["radioThemesDisabled"] >> rhs.radioThemesDisabled;

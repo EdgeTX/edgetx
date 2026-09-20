@@ -560,6 +560,12 @@
 #define TR_PERSISTENT                  TR("Пост", "Пост")
 #define TR_BACKLIGHT_LABEL             "Подсветка"
 #define TR_STATUS_LED                  "Светодиод состояния"
+#define TR_STATUS_LED_ERROR            "Ошибка"
+#define TR_STATUS_LED_READY            "Готов"
+#define TR_STATUS_LED_EMIT             "Передача"
+#define TR_STATUS_LED_COLORS_1         "Красный"
+#define TR_STATUS_LED_COLORS_2         "Зелёный"
+#define TR_STATUS_LED_COLORS_3         "Синий"
 #define TR_STATUS                      "Статус"
 #define TR_BLONBRIGHTNESS              "Подсветка Вкл"
 #define TR_BLOFFBRIGHTNESS             "Подсветка Вык"
