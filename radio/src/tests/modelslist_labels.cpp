@@ -30,7 +30,7 @@
 //
 // Label management (renaming/adding/removing labels) routinely touches
 // models other than the currently loaded one. These tests exercise that
-// label-management path through its public ModelMap API and assert the
+// label-management path through its public modelCellManager API and assert the
 // currently loaded model's screen/topbar data is left alone, regardless of
 // what label edits are made to other models on disk.
 
@@ -48,7 +48,7 @@
 
 namespace fs = std::filesystem;
 
-class ModelMapFsTest : public ::testing::Test
+class ModelLabelsFsTest : public ::testing::Test
 {
  protected:
   fs::path scratchDir;
@@ -110,7 +110,7 @@ class ModelMapFsTest : public ::testing::Test
   }
 };
 
-TEST_F(ModelMapFsTest, RenamingLabelOnOtherModelLeavesActiveScreenDataUntouched)
+TEST_F(ModelLabelsFsTest, RenamingLabelOnOtherModelLeavesActiveScreenDataUntouched)
 {
   // Seed a second, non-active model on disk with a label and screen/topbar
   // data distinct from the active model's.
@@ -145,7 +145,7 @@ TEST_F(ModelMapFsTest, RenamingLabelOnOtherModelLeavesActiveScreenDataUntouched)
   EXPECT_STREQ(partial.header.labels, "Bar");
 }
 
-TEST_F(ModelMapFsTest,
+TEST_F(ModelLabelsFsTest,
        AddingLabelToOtherModelWithFileUpdateLeavesActiveScreenDataUntouched)
 {
   writeFixtureModel("model0002.yml", "", "OtherLayout", "OtherWidget");
@@ -158,7 +158,7 @@ TEST_F(ModelMapFsTest,
   g_model.getScreenData(0)->LayoutId = "ActiveLayout";
   g_model.getTopbarData()->zones[0].widgetName = "ActiveWidget";
 
-  // update=true drives ModelMap::updateModelFile(), the second call site
+  // update=true drives ModelCell::updateModelFile(), the second call site
   // that reads/writes a non-active model's file on disk.
   EXPECT_FALSE(modelCellManager.addLabelToModel("Baz", other, true));
 

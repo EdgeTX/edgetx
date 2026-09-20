@@ -165,7 +165,7 @@ TEST(PartialModel, LabelsFieldRetainsFullCsvUpToItsOwnCapacity)
 }
 #endif // defined(STORAGE_MODELSLIST)
 
-// Real FatFS round-trip tests for ModelMap::writeModelLabels() itself -
+// Real FatFS round-trip tests for ModelCell::writeModelLabels() itself -
 // the raw file-surgery function these PartialModel tests don't exercise.
 #if defined(SIMU) && defined(STORAGE_MODELSLIST)
 
