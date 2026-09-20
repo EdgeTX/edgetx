@@ -193,7 +193,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   };
 
   static const QString special[] = {
-    "", tr("Batt"), tr("Time"), tr("GPS"), tr("Reserved1"), tr("Reserved2"), tr("Reserved3"), tr("Reserved4")
+    "", tr("Batt"), tr("Time"), tr("GPS"), tr("VGR"), tr("VFL"), tr("Reserved3"), tr("Reserved4")
   };
 
   static const QString rotary[]  = { "", tr("REa"), tr("REb") };
@@ -355,8 +355,21 @@ bool RawSource::isAvailable(const ModelData * const model,
   if (type == SOURCE_TYPE_SWITCH && abs(index) > b.getCapability(Board::Switches))
     return false;
 
-  if (type == SOURCE_TYPE_SPECIAL && abs(index) >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED)
-    return false;
+  if (type == SOURCE_TYPE_SPECIAL && abs(index) >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED) {
+    // RESERVED1/2 are used as the CI1302 voice control VGR/VFL sources on this board
+    bool isVoiceSource = IS_HELLORADIOSKY_V16(board) &&
+                          abs(index) <= SOURCE_TYPE_SPECIAL_RESERVED2;
+    if (!isVoiceSource)
+      return false;
+
+    // None on the Hardware Switches screen disables VGR/VFL as a source too
+    if (gs) {
+      QString tag = (abs(index) == SOURCE_TYPE_SPECIAL_RESERVED1) ? "VGR" : "VFL";
+      int swIdx = Boards::getSwitchIndex(tag, Board::LVT_TAG, board);
+      if (swIdx >= 0 && gs->switchConfig[swIdx].type == Board::SWITCH_NOT_AVAILABLE)
+        return false;
+    }
+  }
 
   if (type == SOURCE_TYPE_TIMER && abs(index) > CPN_MAX_TIMERS)
     return false;
@@ -475,8 +488,8 @@ tbl.insert(tbl.end(), {
                           {std::to_string(SOURCE_TYPE_SPECIAL_TX_BATT),    "TX_VOLTAGE"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_TX_TIME),    "TX_TIME"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_TX_GPS),     "TX_GPS"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED1),  "RESERVED1"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED2),  "RESERVED2"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED1),  "VGR"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED2),  "VFL"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED3),  "RESERVED3"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED4),  "RESERVED4"},
                           });

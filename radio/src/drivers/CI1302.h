@@ -19,25 +19,39 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#ifndef _CI1302_H_
+#define _CI1302_H_
 
-#include "lvgl/lvgl.h"
+#include <stdint.h>
 
-class LvglWrapper
-{
- public:
-  static LvglWrapper* instance();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-  // Called from UI task: executes the LVGL timer handler 
-  void run();
+void voiceControlPowerOn(void);
+void voiceControlPowerOff(void);
+void voiceSerialPutc(char c);
+int voiceGetByte(uint8_t* byte);
+int GetVoiceInput(uint8_t *rxchar);
+int dbgGetByte(uint8_t* byte);
+void voiceSerialPutstr(uint8_t* byte, uint32_t len);
 
- protected:
-  static LvglWrapper *_instance;
+#ifdef __cplusplus
+}
+#endif
 
-  LvglWrapper();
-  ~LvglWrapper() {}
-};
+#ifdef __cplusplus
 
-#if defined(VOICE_CONTROL_SENSOR)
-void lvglRequestKeyboardEnter();
+extern bool VoiceGearStatus;
+extern uint8_t VoiceFlapStatus;
+extern bool VoicePowerStatus;
+extern bool VoiceRunStatus;
+extern bool MotionControlStatus;
+
+void processUpdataInput(void);
+void processVoiceInput(void);
+void voiceControlInit(void);
+
+#endif
+
 #endif
