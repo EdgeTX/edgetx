@@ -69,7 +69,6 @@ class WaveformView : public FormField
     // No click focus either: LVGL clears the group's edit mode on every focus
     // call, so a touch would otherwise leave the encoder stuck in navigation.
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
-    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
     lv_obj_add_event_cb(lvobj, WaveformView::on_pressing, LV_EVENT_PRESSING, this);
     lv_obj_add_event_cb(lvobj, WaveformView::on_released, LV_EVENT_RELEASED, this);
     lv_obj_add_event_cb(lvobj, WaveformView::on_key, LV_EVENT_KEY, this);
