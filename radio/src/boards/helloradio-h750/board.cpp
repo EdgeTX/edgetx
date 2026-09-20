@@ -307,7 +307,7 @@ void boardInit()
   timersInit();
 
   usbChargerInit();
-  ledBlue();
+  ledBoot();
 
   ExtFLASH_InitRuntime();
 

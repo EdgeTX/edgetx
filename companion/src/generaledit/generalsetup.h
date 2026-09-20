@@ -50,6 +50,9 @@ class GeneralSetupPanel : public GeneralPanel
     void on_volumeCtrl_CB_currentIndexChanged(int index);
     void on_statusLedBright_SB_editingFinished();
     void on_statusLedCtrl_CB_currentIndexChanged(int index);
+    void on_statusLedError_CB_currentIndexChanged(int index);
+    void on_statusLedReady_CB_currentIndexChanged(int index);
+    void on_statusLedEmit_CB_currentIndexChanged(int index);
     void on_countrycode_CB_currentIndexChanged(int index);
     void on_units_CB_currentIndexChanged(int index);
     void on_ppm_units_CB_currentIndexChanged(int index);
