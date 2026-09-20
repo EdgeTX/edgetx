@@ -783,9 +783,7 @@ const char *ModelsList::save()
                  (unsigned int)model->moduleData[i].subType);
     }
 
-    f_printf(&file, "    labels: \"");
-    f_printf(&file, toCSV(model->getLabels()).c_str());
-    f_printf(&file, "\"\r\n");
+    f_printf(&file, "    labels: \"%s\"\r\n", toCSV(model->getLabels()).c_str());
 
 #if LEN_BITMAP_NAME > 0
     f_puts("    bitmap: \"", &file);
