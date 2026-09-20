@@ -173,6 +173,12 @@ static void _led_on_all()
   _led_apply();
 }
 
+// all status LEDs, until the radio signals it is ready
+void ledBoot()
+{
+  _led_on_all();
+}
+
 void ledSetBrightness(uint8_t bright)
 {
   if (bright > STATUS_LED_BRIGHT_MAX) bright = STATUS_LED_BRIGHT_MAX;
@@ -298,18 +304,6 @@ __weak void ledGreen()
 #if defined(LED_GREEN_GPIO)
   GPIO_LED_GPIO_ON(LED_GREEN_GPIO);
 #endif
-#endif
-}
-
-// all status LEDs, until the radio signals it is ready
-__weak void ledBoot()
-{
-#if defined(STATUS_LED_PWM)
-  _led_on_all();
-#elif !defined(POWER_LED_BLUE)
-  ledBlue();
-#else
-  ledGreen();
 #endif
 }
 

@@ -943,10 +943,10 @@
 #define STR_STATUS currentLangStrings->STR_STATUS
 #if defined(STATUS_LED_PWM)
 #define STR_STATUS_LED currentLangStrings->STR_STATUS_LED
-#define STR_STATUS_LED_COLORS currentLangStrings->STR_STATUS_LED_COLORS
-#define STR_STATUS_LED_EMIT currentLangStrings->STR_STATUS_LED_EMIT
 #define STR_STATUS_LED_ERROR currentLangStrings->STR_STATUS_LED_ERROR
 #define STR_STATUS_LED_READY currentLangStrings->STR_STATUS_LED_READY
+#define STR_STATUS_LED_EMIT currentLangStrings->STR_STATUS_LED_EMIT
+#define STR_STATUS_LED_COLORS currentLangStrings->STR_STATUS_LED_COLORS
 #endif
 #define STR_STICK_NAMES0 currentLangStrings->STR_STICK_NAMES0
 #define STR_STICK_NAMES1 currentLangStrings->STR_STICK_NAMES1
