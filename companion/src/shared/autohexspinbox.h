@@ -42,9 +42,12 @@ class AutoHexSpinBox : public QSpinBox, public AutoWidget
     void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
     void setBindText(std::function<QString()> fn) = delete;
 
-    void setField(unsigned int & field, const unsigned int min = 0, const unsigned int max = AUTOHEXSPINBOX_MAX_VALUE, GenericPanel * panel = nullptr);
-    void setField(unsigned int & field, GenericPanel * panel = nullptr);
+    void setField(unsigned int & field, const unsigned int min = 0, const unsigned int max = AUTOHEXSPINBOX_MAX_VALUE, AbstractPanel * panel = nullptr);
+    void setField(unsigned int & field, AbstractPanel * panel = nullptr);
     void setRange(unsigned int min = 0, unsigned int max = AUTOHEXSPINBOX_MAX_VALUE);
+    // use for widget not bound to a memory address
+    void setValue(int val, AbstractPanel * panel);
+    void setValue(int val);
 
   protected:
     QValidator::State validate(QString &text, int &pos) const;
@@ -61,4 +64,5 @@ class AutoHexSpinBox : public QSpinBox, public AutoWidget
     unsigned int *m_field;
     QRegularExpressionValidator *m_validator;
     unsigned int m_length;
+    unsigned int m_value;
 };

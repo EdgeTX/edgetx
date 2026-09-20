@@ -101,19 +101,11 @@ void SetupTopBarWidgetsPage::onClicked()
   // block event forwarding (window is transparent)
 }
 
-void SetupTopBarWidgetsPage::onCancel() { deleteLater(); }
-
-void SetupTopBarWidgetsPage::deleteLater()
+void SetupTopBarWidgetsPage::onCancel()
 {
-  if (_deleted) return;
-
-  // and continue async deletion...
-  Window::deleteLater();
-
+  deleteLater();
   // restore screen setting tab on top
   QuickMenu::openPage(QM_UI_SETUP);
-
-  storageDirty(EE_MODEL);
 }
 
 //-----------------------------------------------------------------------------
@@ -208,6 +200,8 @@ void TopBar::removeWidget(unsigned int index)
   g_model.getTopbarData()->clearZone(index);
 
   WidgetsContainer::removeWidget(index);
+
+  storageDirty(EE_MODEL);
 }
 
 void TopBar::load()

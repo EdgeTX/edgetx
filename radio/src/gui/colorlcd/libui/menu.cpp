@@ -64,9 +64,6 @@ class MenuBody : public TableField
   MenuBody(Window* parent, const rect_t& rect) :
       TableField(parent, rect)
   {
-    // Allow encoder acceleration
-    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
-
     setColumnWidth(0, rect.w);
 
     setAutoEdit();
@@ -374,7 +371,7 @@ void Menu::updatePosition()
     coord_t cw = lv_obj_get_width(content->getLvObj());
     coord_t ch = lv_obj_get_height(content->getLvObj());
     coord_t tw = lv_obj_get_width(toolbar->getLvObj());
-    coord_t th = lv_obj_get_height(toolbar->getLvObj());
+    coord_t th = max((coord_t)lv_obj_get_height(toolbar->getLvObj()), toolbar->height());
 
     lv_obj_align(toolbar->getLvObj(), LV_ALIGN_CENTER, -cw / 2, 0);
     lv_obj_align(content->getLvObj(), LV_ALIGN_CENTER, tw / 2, 0);

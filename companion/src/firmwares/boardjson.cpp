@@ -135,7 +135,10 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
   }
 
   //  Flex switches are not listed in json file for these radios
-  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_MT12(board) || IS_DUMBORC_DRO1(board) ? 2 : 0;
+  //  Must match the targets that set FLEXSW (MAX_FLEX_SWITCHES) in the firmware
+  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_TX16SMK3(board) ||
+              IS_FATFISH_F16(board) || IS_HELLORADIOSKY_V16(board) ||
+              IS_RADIOMASTER_MT12(board) || IS_DUMBORC_DRO1(board) ? 2 : 0;
 
   for (int i = 1; i <= count; i++) {
     QString tag = QString("FL%1").arg(i);
@@ -144,6 +147,26 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
       defn.tag = tag.toStdString();
       defn.name = defn.tag;
       switches->insert(switches->end(), defn);
+    }
+  }
+
+  //  CI1302 voice control virtual switches are not listed in json file
+  //  They must follow the flex switches above: firmware indexes them at
+  //  switchGetMaxSwitches() + MAX_FLEX_SWITCHES
+  //  VGR (voice gear) is a 2POS switch, VFL (voice flap) is 3POS -- see
+  //  isTwoPosVoiceSwitch() in radio/src/drivers/CI1302.cpp
+  if (IS_HELLORADIOSKY_V16(board)) {
+    for (const auto &sw : {std::make_pair(QStringLiteral("VGR"), Board::SWITCH_2POS),
+                           std::make_pair(QStringLiteral("VFL"), Board::SWITCH_3POS)}) {
+      const QString &tag = sw.first;
+      if (getSwitchIndex(switches, tag, Board::LVT_TAG) < 0) {
+        SwitchDefn defn;
+        defn.tag = tag.toStdString();
+        defn.name = defn.tag;
+        defn.type = sw.second;
+        defn.dflt = sw.second;
+        switches->insert(switches->end(), defn);
+      }
     }
   }
 }

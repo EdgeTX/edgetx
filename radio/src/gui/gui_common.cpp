@@ -26,6 +26,9 @@
 
 #include "edgetx.h"
 #include "switches.h"
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
 #include "mixes.h"
 #include "os/sleep.h"
 
@@ -206,8 +209,18 @@ static bool isSourceTrimAvailable(int source) {
 }
 
 static bool isSourceSwitchAvailable(int source) {
+#if defined(VOICE_CONTROL_SENSOR)
+  // VGR/VFL have their own dedicated sources
+  if (CI1302_voiceSwitchIsIndex(source)) return false;
+#endif
   return SWITCH_EXISTS(source);
 }
+
+#if defined(VOICE_CONTROL_SENSOR)
+static bool isSourceVoiceAvailable(int source) {
+  return CI1302_voiceIntegrationSourceAvailable(MIXSRC_VGR + source);
+}
+#endif
 
 #if defined(FUNCTION_SWITCHES)
 static bool isSourceFuncSwitchAvailable(int source) {
@@ -281,6 +294,9 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL_ALL, sourceIsAvailable },
   { MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, SRC_GVAR, isSourceGvarAvailable },
   { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, sourceIsAvailable },
+#if defined(VOICE_CONTROL_SENSOR)
+  { MIXSRC_VGR, MIXSRC_LAST_VOICE, SRC_VOICE, isSourceVoiceAvailable },
+#endif
   { MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SRC_TIMER, isSourceTimerAvailable },
   { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM, isSourceTelemAvailable },
   { MIXSRC_NONE, MIXSRC_NONE, SRC_NONE, sourceIsAvailable },
@@ -307,7 +323,11 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 bool isSourceAvailable(int source)
 {
   return checkSourceAvailable(source,
-            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
+            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM
+#if defined(VOICE_CONTROL_SENSOR)
+            | SRC_VOICE
+#endif
+            | SRC_NONE
             );
 }
 
@@ -340,6 +360,13 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
     if (swinfo.quot >= switchGetMaxAllSwitches()) {
       return false;
     }
+
+#if defined(VOICE_CONTROL_SENSOR)
+    bool voiceAvailable;
+    if (CI1302_voiceIntegrationIsSwitchAvailable(swtch, (int)context, &voiceAvailable)) {
+      return voiceAvailable;
+    }
+#endif
 
     if (!SWITCH_EXISTS(swinfo.quot)) {
       return false;
@@ -417,6 +444,13 @@ static bool isSwitchSwitchAvailable(int swtch, bool invert) {
     if (swinfo.quot >= switchGetMaxAllSwitches()) {
       return false;
     }
+
+#if defined(VOICE_CONTROL_SENSOR)
+    bool voiceAvailable;
+    if (CI1302_voiceIntegrationIsSwitchSwitchAvailable(swtch, &voiceAvailable)) {
+      return voiceAvailable;
+    }
+#endif
 
     if (!SWITCH_EXISTS(swinfo.quot)) {
       return false;

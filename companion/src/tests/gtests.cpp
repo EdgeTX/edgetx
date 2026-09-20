@@ -130,6 +130,8 @@ int main(int argc, char **argv)
 {
   QCoreApplication app(argc, argv);
 
+  Q_INIT_RESOURCE(hwdefs);
+
   CustomDebug::setFilterRules();
   gBoardFactories = new BoardFactories();
   registerStorageFactories();

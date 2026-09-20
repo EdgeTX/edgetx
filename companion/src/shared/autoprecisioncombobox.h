@@ -32,16 +32,16 @@ class AutoPrecisionComboBox : public QComboBox, public AutoWidget
 
   public:
     explicit AutoPrecisionComboBox(QWidget * parent = nullptr);
-    explicit AutoPrecisionComboBox(unsigned int & field, unsigned int minDecimals = 0, unsigned int maxDecimals = 1, bool padding = false, QString suffix = "", QWidget * parent = nullptr, GenericPanel * panel = nullptr);
-    explicit AutoPrecisionComboBox(int & field, unsigned int minDecimals = 0, unsigned int maxDecimals = 1, bool padding = false, QString suffix = "", QWidget * parent = nullptr, GenericPanel * panel = nullptr);
+    explicit AutoPrecisionComboBox(unsigned int & field, unsigned int minDecimals = 0, unsigned int maxDecimals = 1, bool padding = false, QString suffix = "", QWidget * parent = nullptr, AbstractPanel * panel = nullptr);
+    explicit AutoPrecisionComboBox(int & field, unsigned int minDecimals = 0, unsigned int maxDecimals = 1, bool padding = false, QString suffix = "", QWidget * parent = nullptr, AbstractPanel * panel = nullptr);
     virtual ~AutoPrecisionComboBox();
 
     virtual void updateValue() override;
     void setBindModel(std::function<QAbstractItemModel*()> fn) = delete;
     void setBindText(std::function<QString()> fn) = delete;
 
-    void setField(int & field, unsigned int minDecimals = 0, unsigned int maxDecimals = 1, bool padding = false, QString suffix = "", GenericPanel * panel = nullptr);
-    void setField(unsigned int & field, unsigned int minDecimals = 0, unsigned int maxDecimals = 1, bool padding = false, QString suffix = "", GenericPanel * panel = nullptr);
+    void setField(int & field, unsigned int minDecimals = 0, unsigned int maxDecimals = 1, bool padding = false, QString suffix = "", AbstractPanel * panel = nullptr);
+    void setField(unsigned int & field, unsigned int minDecimals = 0, unsigned int maxDecimals = 1, bool padding = false, QString suffix = "", AbstractPanel * panel = nullptr);
     void setMinDecimals(unsigned int minDecimals);
     void setMaxDecimals(unsigned int maxDecimals);
     void setDecimalsRange(unsigned int min, unsigned int max);
@@ -65,7 +65,7 @@ class AutoPrecisionComboBox : public QComboBox, public AutoWidget
     QString m_suffix = "";
 
     void init();
-    void setFieldInit(unsigned int minDecimals = 0, unsigned int maxDecimals = 1, bool padding = false, QString suffix = "", GenericPanel * panel = nullptr);
+    void setFieldInit(unsigned int minDecimals = 0, unsigned int maxDecimals = 1, bool padding = false, QString suffix = "", AbstractPanel * panel = nullptr);
     bool isValidDecimals(unsigned int value);
     unsigned int rangecheckDecimals(unsigned int decimals);
     void updateList();

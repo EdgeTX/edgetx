@@ -824,17 +824,38 @@ else()
 endif()
 
 if(CPU_FAMILY STREQUAL STM32)
-  add_custom_target(flash
-    COMMAND dfu-util --alt 0 --dfuse-address 0x08000000:leave -d 0483:df11 -D firmware.bin
-    DEPENDS firmware
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    )
+  # FIRMWARE_QSPI boards can only be firmware-flashed via flash-uf2 below;
+  # the bootloader doesn't expose external QSPI/XSPI flash as a DFU segment.
+  if(NOT FIRMWARE_QSPI)
+    add_custom_target(flash
+      COMMAND ${CMAKE_COMMAND}
+              -DRDFU_SUBCOMMAND=write -DRDFU_VENDOR=0483 -DRDFU_PRODUCT=df11
+              -DRDFU_START_ADDRESS=0x08000000 -DRDFU_FILE=firmware.bin
+              -P ${CMAKE_SOURCE_DIR}/cmake/RunRdfuCli.cmake
+      DEPENDS firmware
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+      )
+  endif()
 
   add_custom_target(flash-bl
-    COMMAND dfu-util --alt 0 --dfuse-address 0x08000000:leave -d 0483:df11 -D bootloader.bin
+    COMMAND ${CMAKE_COMMAND}
+            -DRDFU_SUBCOMMAND=write -DRDFU_VENDOR=0483 -DRDFU_PRODUCT=df11
+            -DRDFU_START_ADDRESS=0x08000000 -DRDFU_FILE=bootloader.bin
+            -P ${CMAKE_SOURCE_DIR}/cmake/RunRdfuCli.cmake
     DEPENDS bootloader
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
+
+  if(FIRMWARE_FORMAT_UF2)
+    add_custom_target(flash-uf2
+      COMMAND ${CMAKE_COMMAND}
+              -DRDFU_SUBCOMMAND=write -DRDFU_VENDOR=0483 -DRDFU_PRODUCT=df11
+              -DRDFU_FILE=firmware.uf2
+              -P ${CMAKE_SOURCE_DIR}/cmake/RunRdfuCli.cmake
+      DEPENDS firmware
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+      )
+  endif()
 
   add_custom_target(flash-jtag
     COMMAND st-flash --reset write firmware.bin 0x8000000

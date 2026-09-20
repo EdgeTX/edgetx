@@ -12,7 +12,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X7"
             ;;
         x7access)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES -DUSE_FW_LTO=y"
             ;;
         t12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
@@ -21,7 +21,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
             ;;
         tx12mk2)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2 -DUSE_FW_LTO=y"
             ;;
         gx12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=GX12"
@@ -33,10 +33,10 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
             ;;
         zorro)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO -DUSE_FW_LTO=y"
             ;;
         pocket)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=POCKET"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=POCKET -DUSE_FW_LTO=y"
             ;;
         mt12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=MT12"
@@ -48,7 +48,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPRO"
             ;;
         tprov2)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROV2"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROV2 -DUSE_FW_LTO=y"
             ;;
         tpros)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROS"
@@ -72,7 +72,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
             ;;
         commando8)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8 -DUSE_FW_LTO=y"
             ;;
         xlite)
             BUILD_OPTIONS+="-DPCB=XLITE"
@@ -90,7 +90,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X9D+ -DPCBREV=2019 -DUSE_FW_LTO=y"
             ;;
         x9e)
-            BUILD_OPTIONS+="-DPCB=X9E"
+            BUILD_OPTIONS+="-DPCB=X9E -DUSE_FW_LTO=y"
             ;;
         x10)
             BUILD_OPTIONS+="-DPCB=X10"
@@ -185,7 +185,9 @@ get_target_build_options() {
 
 # Determine parallel job limit based on environment
 determine_max_jobs() {
-  if [[ -n ${CMAKE_BUILD_PARALLEL_LEVEL} ]]; then
+  if [[ -n ${MAX_JOBS} ]]; then
+    : # explicit caller override, keep as-is
+  elif [[ -n ${CMAKE_BUILD_PARALLEL_LEVEL} ]]; then
     MAX_JOBS=${CMAKE_BUILD_PARALLEL_LEVEL}
   elif [ -n "$GITHUB_ACTIONS" ]; then
     # Limit jobs in GitHub Actions to n-1 to avoid resource contention

@@ -419,8 +419,12 @@ void VirtualJoystickWidget::setSize(const QSize & size, const QSize &)
   qreal h  = qr.height() - ballSize;
   qreal cx = qr.width() / 2;
   qreal cy = qr.height() / 2;
-  qreal nodeX = node->getX();
-  qreal nodeY = node->getY();
+  // Self-centering axes always resolve to 0 after a resize instead of
+  // reapplying a captured value, which can be garbage from a transient
+  // scene rect during construction/layout and would otherwise get
+  // permanently re-latched on every subsequent resize.
+  qreal nodeX = (node->getCenteringX() && !node->isPressed()) ? 0.0 : node->getX();
+  qreal nodeY = (node->getCenteringY() && !node->isPressed()) ? 0.0 : node->getY();
 
   scene->setSceneRect(-cx,-cy,w,h);
 

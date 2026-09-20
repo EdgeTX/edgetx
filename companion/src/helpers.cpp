@@ -266,10 +266,10 @@ void Helpers::getFileComboBoxValue(QComboBox * b, char * dest, int length)
   }
 }
 
-void Helpers::exportAppSettings(QWidget * dlgParent)
+void Helpers::exportPreferences(QWidget * dlgParent)
 {
   static QString lastExpFile = CPN_SETTINGS_INI_PATH.arg(QDateTime::currentDateTime().toString("dd-MMM-yy"));
-  const QString expFile = QFileDialog::getSaveFileName(dlgParent, QCoreApplication::translate("Companion", "Select or create a file for exported Settings:"), lastExpFile, CPN_STR_APP_SETTINGS_FILTER);
+  const QString expFile = QFileDialog::getSaveFileName(dlgParent, QCoreApplication::translate("Companion", "Select or create a file for exported Preferences:"), lastExpFile, CPN_STR_APP_SETTINGS_FILTER);
   if (expFile.isEmpty())
     return;
 
@@ -281,7 +281,7 @@ void Helpers::exportAppSettings(QWidget * dlgParent)
   }
   resultMsg.append("\n" % QCoreApplication::translate("Companion", "Press the 'Retry' button to choose another file."));
   if (QMessageBox::warning(dlgParent, CPN_STR_APP_NAME, resultMsg, QMessageBox::Cancel, QMessageBox::Retry) == QMessageBox::Retry)
-    exportAppSettings(dlgParent);
+    exportPreferences(dlgParent);
 }
 
 unsigned int Helpers::getBitmappedValue(const unsigned int & field, const unsigned int index, const unsigned int numbits, const unsigned int offset)

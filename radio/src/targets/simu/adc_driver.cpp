@@ -40,7 +40,13 @@ uint16_t getLuxSensorValue()
 
 uint16_t getBatteryVoltage()
 {
-  if (adcGetMaxInputs(ADC_INPUT_VBAT) < 1) return 0;
+  if (adcGetMaxInputs(ADC_INPUT_VBAT) < 1) {
+    // Battery is not an ADC input on this board (e.g. read from an I2C
+    // sensor on hardware), so report the same default as simu_start_conversion
+    uint16_t vBatWarn = BATTERY_WARN;
+    if (g_eeGeneral.vBatWarn > 0) vBatWarn = g_eeGeneral.vBatWarn;
+    return (vBatWarn + 5) * 10;
+  }
   return anaIn(adcGetInputOffset(ADC_INPUT_VBAT));
 }
 
@@ -51,6 +57,14 @@ uint16_t getRTCBatteryVoltage()
 
 extern uint16_t simuGetAnalog(uint8_t idx);
 
+// Negative = no override, fall back to the vBatWarn-derived default below.
+static int32_t s_simuTxVoltageOverride = -1;
+
+void simuSetTxVoltage(int32_t decivolts)
+{
+  s_simuTxVoltageOverride = decivolts;
+}
+
 static bool simu_start_conversion()
 {
   int max_input = adcGetMaxInputs(ADC_INPUT_ALL);
@@ -58,13 +72,18 @@ static bool simu_start_conversion()
     setAnalogValue(i, simuGetAnalog(i));
   }
 
-  // set batteries default voltages
   int i = adcGetInputOffset(ADC_INPUT_VBAT);
   if (i > 0) {
-    // +0.5V and prec2
-    uint16_t vBatWarn = BATTERY_WARN;
-    if (g_eeGeneral.vBatWarn > 0) vBatWarn = g_eeGeneral.vBatWarn;
-    uint16_t volts = (vBatWarn + 5) * 10;
+    uint16_t vBatDeciVolts;
+    if (s_simuTxVoltageOverride >= 0) {
+      vBatDeciVolts = (uint16_t)s_simuTxVoltageOverride;
+    } else {
+      // set battery default voltage: +0.5V above the warning threshold
+      uint16_t vBatWarn = BATTERY_WARN;
+      if (g_eeGeneral.vBatWarn > 0) vBatWarn = g_eeGeneral.vBatWarn;
+      vBatDeciVolts = vBatWarn + 5;
+    }
+    uint16_t volts = vBatDeciVolts * 10; // prec2
     setAnalogValue(i, volts * 2);
   }
 

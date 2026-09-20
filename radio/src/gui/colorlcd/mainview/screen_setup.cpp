@@ -168,6 +168,8 @@ void ScreenSetupPage::build(Window* window)
         }
 
         buildLayoutOptions();
+
+        SET_DIRTY();
       };
 
   Window* btn = new LayoutChoice(line, getFactory, setLayout);

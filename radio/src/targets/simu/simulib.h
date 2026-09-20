@@ -60,6 +60,10 @@ void WASM_EXPORT(simuSetKey)(uint8_t key, bool state);
 void WASM_EXPORT(simuSetTrim)(uint8_t trim, bool state);
 void WASM_EXPORT(simuSetSwitch)(uint8_t swtch, int8_t state);
 
+// TX battery voltage override, in decivolts (85 = 8.5V). Pass a negative
+// value to clear the override and go back to the vBatWarn-derived default.
+void WASM_EXPORT(simuSetTxVoltage)(int32_t decivolts);
+
 // Touch: call simuTouchDown(x,y) on press and repeatedly during drag
 // (continuous position updates), then simuTouchUp() on release.
 // The firmware detects slides from successive position changes.
