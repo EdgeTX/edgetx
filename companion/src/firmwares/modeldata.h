@@ -92,7 +92,7 @@ enum TrainerMode {
 #define MODEL_NAME_LEN 15
 #define MODEL_FILENAME_LEN 16  // must match radio LEN_MODEL_FILENAME (dataconstants.h)
 #define MODEL_SEMVER_LEN 8
-#define MODEL_LABELS_LEN 99    // CSV of labels; was char labels[100]
+#define MODEL_LABELS_LEN 100   // CSV of labels; was char labels[100]
 #define INPUT_NAME_LEN 4
 #define CPN_MAX_BITMAP_LEN 14
 

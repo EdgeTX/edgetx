@@ -332,7 +332,7 @@ void ModelCell::updateModelFile()
   // Update labels and write model file
   std::string csv = toCSV(getLabels());
   if (this == modelCellManager.getCurrentModel()) {
-    strAppend(g_model.header.labels, csv.c_str(), LABELS_LENGTH - 1);
+    strAppend(g_model.header.labels, csv.c_str(), LABELS_LENGTH);
     storageDirty(EE_MODEL);
   } else {
     if (writeModelLabels(csv.c_str())) {
@@ -440,7 +440,7 @@ bool ModelCell::writeModelLabels(const char* labels)
   // Update name (may have been changed when duplicating model)
   strAppend(partial.header.name, modelName, LEN_MODEL_NAME);
   // Update header with new labels
-  strAppend(partial.header.labels, labels, LABELS_LENGTH - 1);
+  strAppend(partial.header.labels, labels, LABELS_LENGTH);
   // Remove module data - only want to write the header
   memclear(&partial.moduleData, sizeof(ModuleData) * NUM_MODULES);
 
@@ -1305,7 +1305,7 @@ bool ModelsList::addLabelToModel(const std::string &lbl, ModelCell *cell, bool u
   // First check that there aren't too many labels on this model
   LabelsVector lbs = cell->getLabels();
   lbs.push_back(lbl);
-  if(toCSV(lbs).size() > LABELS_LENGTH - 1) {
+  if(toCSV(lbs).size() > LABELS_LENGTH) {
     TRACE("Cannot add the %s label to the model. Too many labels", lbl.c_str());
     return true;
   }
