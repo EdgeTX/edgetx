@@ -46,5 +46,3 @@
 
 /* telemetry flags */
 #define NO_UNIT                        0x40u
-
-#define LV_OBJ_FLAG_ENCODER_ACCEL LV_OBJ_FLAG_USER_1
