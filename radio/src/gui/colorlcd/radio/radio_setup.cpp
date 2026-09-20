@@ -605,6 +605,45 @@ const static SetupLineDef statusLedSetupLines[] = {
       choice->setAvailableHandler(isSourceAvailableForBacklightOrVolume);
     }
   },
+  {
+    // Colour shown while an error is displayed
+    STR_DEF(STR_STATUS_LED_ERROR),
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, 0}, STR_STATUS_LED_COLORS,
+                 STATUS_LED_COLOR_RED, STATUS_LED_COLOR_BLUE,
+                 GET_DEFAULT(statusLedPhaseColor(STATUS_LED_PHASE_ERROR)),
+                 [](int32_t newValue) {
+                   g_eeGeneral.statusLedError = newValue;
+                   SET_DIRTY();
+                 });
+    }
+  },
+  {
+    // Colour shown when the radio is ready but not transmitting
+    STR_DEF(STR_STATUS_LED_READY),
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, 0}, STR_STATUS_LED_COLORS,
+                 STATUS_LED_COLOR_RED, STATUS_LED_COLOR_BLUE,
+                 GET_DEFAULT(statusLedPhaseColor(STATUS_LED_PHASE_READY)),
+                 [](int32_t newValue) {
+                   g_eeGeneral.statusLedReady = newValue;
+                   SET_DIRTY();
+                 });
+    }
+  },
+  {
+    // Colour shown while a module is on air
+    STR_DEF(STR_STATUS_LED_EMIT),
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, 0}, STR_STATUS_LED_COLORS,
+                 STATUS_LED_COLOR_RED, STATUS_LED_COLOR_BLUE,
+                 GET_DEFAULT(statusLedPhaseColor(STATUS_LED_PHASE_EMIT)),
+                 [](int32_t newValue) {
+                   g_eeGeneral.statusLedEmit = newValue;
+                   SET_DIRTY();
+                 });
+    }
+  },
   {nullptr, nullptr},
 };
 #endif

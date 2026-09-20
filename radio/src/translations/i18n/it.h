@@ -558,6 +558,12 @@
 #define TR_PERSISTENT                   TR("Persist.", "Persistente")
 #define TR_BACKLIGHT_LABEL              TR("Retroillu.", "Retroilluminazione")
 #define TR_STATUS_LED                   "LED di stato"
+#define TR_STATUS_LED_ERROR             "Errore"
+#define TR_STATUS_LED_READY             "Pronto"
+#define TR_STATUS_LED_EMIT              "Trasmissione"
+#define TR_STATUS_LED_COLORS_1          "Rosso"
+#define TR_STATUS_LED_COLORS_2          "Verde"
+#define TR_STATUS_LED_COLORS_3          "Blu"
 #define TR_STATUS                       "Stato"
 #define TR_BLONBRIGHTNESS               "Luminosità ON"
 #define TR_BLOFFBRIGHTNESS              "Luminosità OFF"
