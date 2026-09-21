@@ -588,10 +588,11 @@ const static SetupLineDef statusLedSetupLines[] = {
     // Status LED brightness
     STR_DEF(STR_BRIGHTNESS),
     [](Window* parent, coord_t x, coord_t y) {
-      (new Slider(parent, lv_pct(50), 1, STATUS_LED_BRIGHT_MAX,
-                  GET_DEFAULT(STATUS_LED_BRIGHT_MAX - g_eeGeneral.statusLedDim),
+      constexpr int step = STATUS_LED_BRIGHT_MAX / STATUS_LED_BRIGHT_STEPS;
+      (new Slider(parent, lv_pct(50), 1, STATUS_LED_BRIGHT_STEPS,
+                  GET_DEFAULT((STATUS_LED_BRIGHT_MAX - g_eeGeneral.statusLedDim + step / 2) / step),
                   [](int32_t newValue) {
-                    g_eeGeneral.statusLedDim = STATUS_LED_BRIGHT_MAX - newValue;
+                    g_eeGeneral.statusLedDim = STATUS_LED_BRIGHT_MAX - newValue * step;
                     SET_DIRTY();
                   }))->setPos(x, y);
     }
