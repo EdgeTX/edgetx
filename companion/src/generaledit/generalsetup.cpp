@@ -751,7 +751,10 @@ void GeneralSetupPanel::on_brightCtrl_CB_currentIndexChanged(int index)
 void GeneralSetupPanel::on_statusLedBright_SB_editingFinished()
 {
   if (!lock) {
-    generalSettings.statusLedDim = 100 - ui->statusLedBright_SB->value();
+    // the radio steps in tens, keep typed values on the same grid
+    int value = qBound(10, (ui->statusLedBright_SB->value() + 5) / 10 * 10, 100);
+    ui->statusLedBright_SB->setValue(value);
+    generalSettings.statusLedDim = 100 - value;
     emit modified();
   }
 }
