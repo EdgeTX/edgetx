@@ -43,7 +43,7 @@
 #define VOLT_ARRAY_ID                  0xFE  // Pseudo sensor out of 0x0E frame
 #define LINK_ID                        0x14
 #define CHANNELS_ID                    0x16
-#define CHANNELS_17_32_ID              0x17  /* channel[32:17] */
+#define CHANNELS_17_32_ID              0x1A  /* channel[32:17] */
 #define LINK_RX_ID                     0x1C
 #define LINK_TX_ID                     0x1D
 #define ATTITUDE_ID                    0x1E
