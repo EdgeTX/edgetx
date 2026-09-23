@@ -377,11 +377,11 @@ void Window::onClosing(CloseHandler h)
   closeHandlers.push_back(std::move(h));
 }
 
-// Close the window, and all it's children.
-// Remove from LVGL and the save window pointer for later destruction.
+// Close the window, and all its children.
+// Remove from LVGL and save the window pointer for later destruction.
 void Window::closeWindow()
 {
-  TRACE_WINDOWS("Delete %p %s %s", this, getWindowDebugString().c_str(),deleted() ? "DELETED" : "");
+  TRACE_WINDOWS("Close %p %s %s", this, getWindowDebugString().c_str(), deleted() ? "DELETED" : "");
   if (!deleted()) {
     _deleted = true;
 
