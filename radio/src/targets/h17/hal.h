@@ -519,6 +519,4 @@ TIM17:  ROTARY_ENCODER_TIMER
 // Panel is mounted upside-down, as on tx16s
 #define LCD_VERTICAL_INVERT
 
-#define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
-
 #endif // _HAL_H_
