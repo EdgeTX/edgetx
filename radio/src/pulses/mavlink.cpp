@@ -86,9 +86,14 @@ static void* mavlinkInit(uint8_t module)
 
   uint8_t brIdx = g_model.moduleData[module].mavlink.telemetryBaudrate;
   if (brIdx >= MAVLINK_BAUDRATE_COUNT) brIdx = 0;
+
+  auto port = modulePortFind(module, ETX_MOD_TYPE_SERIAL, ETX_MOD_PORT_SPORT,
+                             params.polarity, params.direction);
+  if (port && port->port == ETX_MOD_PORT_SPORT) brIdx = 0;
+
   params.baudrate = MAVLINK_BAUDRATES[brIdx];
 
-  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_UART, &params, false);
+  auto mod_st = modulePortInitSerial(module, ETX_MOD_PORT_SPORT, &params, false);
   if (!mod_st) return nullptr;
 
   auto& st = mavlinkState[module];

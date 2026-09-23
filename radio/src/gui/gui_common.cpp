@@ -936,7 +936,6 @@ bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType)
     case MODULE_TYPE_R9M_LITE_PRO_PXX2:
     case MODULE_TYPE_FLYSKY_AFHDS2A:
     case MODULE_TYPE_FLYSKY_AFHDS3:
-    case MODULE_TYPE_MAVLINK:
       return false;
 
     case MODULE_TYPE_XJT_PXX1:
@@ -949,6 +948,7 @@ bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType)
 #endif
 
     case MODULE_TYPE_CROSSFIRE:
+    case MODULE_TYPE_MAVLINK:
 #if defined(HARDWARE_INTERNAL_MODULE)
       if (moduleBay == INTERNAL_MODULE)
         return false;
