@@ -126,7 +126,7 @@ int f_puts(const char* s, FIL* fp)
   return (len == written && result == FR_OK) ? 0 : EOF;
 }
 
-#define MAX_FPRINTF_LEN 100
+#define MAX_FPRINTF_LEN 128
 
 int f_printf (FIL* fp, const TCHAR* str, ...)
 {
