@@ -388,17 +388,18 @@ void Window::closeWindow()
     // Recursively delete child objects
     deleteChildren();
 
+    // Remove from parent
+    detach();
+
+    // Remove layer (if needed) before calling handlers, so any windows
+    // created by a handler are added to the restored lv_group
+    popLayer();
+
     // Call onClosing handler functions (reverse order of creation)
     for (auto it = closeHandlers.rbegin(); it != closeHandlers.rend(); ++it) {
       (*it)();
     }
     closeHandlers.clear();
-
-    // Remove from parent
-    detach();
-
-    // Remove layer (if needed)
-    popLayer();
 
     // Save for destructor call
     trash.push_back(this);
