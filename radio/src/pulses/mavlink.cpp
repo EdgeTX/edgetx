@@ -29,6 +29,7 @@
 
 #if !defined(SIMU)
   #include "stm32_exti_driver.h"
+  #include "stm32_hal_ll.h"
 #endif
 
 #include "mavlink.h"
