@@ -98,7 +98,7 @@ class ModelLabelsFsTest : public ::testing::Test
     // a "header:" section at all. Giving it a name keeps the fixture
     // realistic and avoids that unrelated edge case.
     copyToUnTerminated(model.header.name, filename);
-    strAppend(model.header.labels, labels, LABELS_LENGTH - 1);
+    strAppend(model.header.labels, labels, LABELS_LENGTH);
     model.getScreenData(0)->LayoutId = screenLayoutId;
     model.getTopbarData()->zones[0].widgetName = widgetName;
 

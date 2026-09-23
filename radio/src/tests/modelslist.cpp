@@ -137,7 +137,7 @@ TEST(PartialModel, HeaderParsesIdenticallyToModelData)
 
 // Behavioural contract for ModelHeader::labels: it holds the CSV-joined
 // list of *every* label attached to a model (declared as
-// char[LABELS_LENGTH], currently 100 bytes) -- as distinct from the length
+// char[LABELS_LENGTH+1], currently 100 bytes) -- as distinct from the length
 // of one individual label name (LABEL_LENGTH, 16 bytes). A model with
 // several labels attached should keep all of them when this field gets
 // (re)written, up to the field's own declared capacity, not just as much
@@ -156,11 +156,11 @@ TEST(PartialModel, LabelsFieldRetainsFullCsvUpToItsOwnCapacity)
   ASSERT_GT(strlen(csv), (size_t)LABEL_LENGTH);
   ASSERT_LT(strlen(csv), (size_t)LABELS_LENGTH);
 
-  strAppend(partial.header.labels, csv, LABELS_LENGTH - 1);
+  strAppend(partial.header.labels, csv, LABELS_LENGTH);
 
   EXPECT_STREQ(csv, partial.header.labels)
       << "header.labels should retain the full label list up to "
-         "LABELS_LENGTH-1 characters, not just a single label name's "
+         "LABELS_LENGTH characters, not just a single label name's "
          "worth.";
 }
 #endif // defined(STORAGE_MODELSLIST)

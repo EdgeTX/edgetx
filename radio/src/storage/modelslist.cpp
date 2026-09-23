@@ -438,7 +438,8 @@ bool ModelCell::writeModelLabels(const char* labels)
   readModelYaml(modelFilename, (uint8_t*)&partial, sizeof(PartialModel));
 
   // Update name (may have been changed when duplicating model)
-  strAppend(partial.header.name, modelName, LEN_MODEL_NAME);
+  // strAppend is not safe as it assumes dest buffer has room for nul terminator
+  strncpy(partial.header.name, modelName, LEN_MODEL_NAME);
   // Update header with new labels
   strAppend(partial.header.labels, labels, LABELS_LENGTH);
   // Remove module data - only want to write the header

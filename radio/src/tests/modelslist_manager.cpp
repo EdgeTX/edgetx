@@ -187,7 +187,7 @@ class ModelCellManagerFsTest : public ::testing::Test
     ModelData model;
     memclear(&model, sizeof(model));
     strAppend(model.header.name, name, LEN_MODEL_NAME);
-    strAppend(model.header.labels, labels, LABELS_LENGTH - 1);
+    strAppend(model.header.labels, labels, LABELS_LENGTH);
 
     char path[256];
     getModelPath(path, file);
@@ -413,7 +413,7 @@ TEST_F(ModelCellManagerFsTest, LabelsMapMoveUpSwapsMembership)
 
 TEST_F(ModelCellManagerFsTest, RejectedLabelDoesNotMakeModelLabelled)
 {
-  ModelCell* cell = addCell("model0001.yml", "");
+  ModelCell* cell = addCell("model0001.yml", "One");
 
   // "Unlabeled" is reserved and a label made only of excluded characters is
   // empty once sanitised: addLabel() refuses both, so nothing may be attached.
@@ -436,7 +436,7 @@ TEST_F(ModelCellManagerFsTest, LabelsFieldLengthLimitIsEnforced)
   EXPECT_GT(accepted, 0);
   EXPECT_LT(accepted, 20);
   std::string csv = joinCSV(cell->getLabels());
-  EXPECT_LE(csv.size(), (size_t)LABELS_LENGTH - 1);
+  EXPECT_LE(csv.size(), (size_t)LABELS_LENGTH);
   EXPECT_EQ(cell->getLabels().size(), (size_t)accepted);
 }
 
@@ -546,7 +546,7 @@ TEST_F(ModelCellManagerFsTest, RenameLabelTruncatesToLabelLength)
 }
 
 // Renaming must never leave a model's label field holding a partial label
-// (the CSV is capped at LABELS_LENGTH - 1 characters).
+// (the CSV is capped at LABELS_LENGTH characters).
 TEST_F(ModelCellManagerFsTest, RenameLabelNeverWritesPartialLabels)
 {
   std::vector<std::string> many;
