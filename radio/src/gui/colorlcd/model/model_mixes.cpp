@@ -82,6 +82,11 @@ class MixLineButton : public InputMixButtonBase
   {
     mplex = new MPlexIcon(parent, index);
 
+    // mplex is a sibling (not a child) so must be closed explicitly
+    onClosing([=]() {
+      mplex->closeWindow();
+    });
+
     delayLoad();
   }
 
