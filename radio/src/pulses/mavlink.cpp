@@ -93,8 +93,6 @@ static uint16_t channelToUs(int16_t value)
   return (uint16_t)limit<int32_t>(1000, us, 2000);
 }
 
-static void mavlinkRxTrigger(void* param);
-
 #if !defined(SIMU) && defined(HARDWARE_EXTERNAL_MODULE)
 static void mavlinkSoftIrqTrigger(void* param);
 static void mavlinkExtmoduleFrameReceived();
@@ -122,30 +120,23 @@ static void* mavlinkInit(uint8_t module)
   auto& rx_count = getTelemetryRxBufferCount(module);
   rx_count = 0;
 
+#if !defined(SIMU) && defined(HARDWARE_EXTERNAL_MODULE)
   auto rxdrv = modulePortGetSerialDrv(mod_st->rx);
   auto rxctx = modulePortGetCtx(mod_st->rx);
   if (rxdrv && rxctx && rxdrv->setIdleCb) {
-    if (!rxdrv->getByte && rxdrv->copyRxBuffer) {
-      // USB-VCP (no byte poll): the idle callback runs in a FreeRTOS-safe
-      // context, so trigger the frame path directly. (Unchanged.)
-      rxdrv->setIdleCb(rxctx, mavlinkRxTrigger, mod_st);
-    }
-#if !defined(SIMU) && defined(HARDWARE_EXTERNAL_MODULE)
-    else if (rxdrv->getByte && rxdrv->getBufferedBytes && rxdrv->copyRxBuffer) {
-      // Physical half-duplex S.PORT: the USART IDLE IRQ runs at priority 0
-      // where FreeRTOS calls are illegal, so bounce through an EXTI SWI to
-      // reach telemetryFrameTrigger_ISR safely (mirrors CRSF).
-      rxdrv->setIdleCb(rxctx, mavlinkSoftIrqTrigger, &mod_st->rx);
+    // The USART IDLE IRQ runs at priority 0 where FreeRTOS calls are illegal,
+    // so bounce through an EXTI SWI to reach telemetryFrameTrigger_ISR safely
+    // (mirrors CRSF).
+    rxdrv->setIdleCb(rxctx, mavlinkSoftIrqTrigger, &mod_st->rx);
   #if defined(TELEMETRY_USE_CUSTOM_EXTI)
-      stm32_exti_custom_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 3,
-                               mavlinkExtmoduleFrameReceived);
+    stm32_exti_custom_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 3,
+                             mavlinkExtmoduleFrameReceived);
   #else
-      stm32_exti_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 0,
-                        mavlinkExtmoduleFrameReceived);
+    stm32_exti_enable(TELEMETRY_RX_FRAME_EXTI_LINE, 0,
+                      mavlinkExtmoduleFrameReceived);
   #endif
-    }
-#endif
   }
+#endif
 
   mixerSchedulerSetPeriod(module, MAVLINK_PERIODS[brIdx]);
   return (void*)mod_st;
@@ -159,9 +150,7 @@ static void mavlinkDeInit(void* ctx)
   auto rxctx = modulePortGetCtx(mod_st->rx);
 
 #if !defined(SIMU) && defined(HARDWARE_EXTERNAL_MODULE)
-  // Tear down the S.PORT EXTI trampoline if it was set up (getByte present);
-  // the USB-VCP path never enabled it.
-  if (rxdrv && rxctx && rxdrv->getByte && rxdrv->setIdleCb) {
+  if (rxdrv && rxctx && rxdrv->setIdleCb) {
   #if defined(TELEMETRY_USE_CUSTOM_EXTI)
     stm32_exti_custom_disable(TELEMETRY_RX_FRAME_EXTI_LINE);
   #else
@@ -179,7 +168,7 @@ static void mavlinkDeInit(void* ctx)
 
 // Cooperative timing: if the module is feeding sync (DEBUG_VECT/ETXSYNC), let
 // it steer our RC period so our TX lands in the half-duplex gap (mirrors CRSF);
-// otherwise hold the fixed per-baud period. No-op for USB-VCP (no sync sent).
+// otherwise hold the fixed per-baud period.
 static void mavlinkSetupMixerScheduler(uint8_t module)
 {
   ModuleSyncStatus& status = getModuleSyncStatus(module);
@@ -349,17 +338,6 @@ static void mavlinkProcessFrame(void* ctx, uint8_t* frame, uint8_t flen, uint8_t
   }
 }
 
-// USB-VCP idle callback: runs in a FreeRTOS-safe context, so trigger directly.
-static void mavlinkRxTrigger(void* param)
-{
-  auto mod_st = (etx_module_state_t*)param;
-  auto drv = modulePortGetSerialDrv(mod_st->rx);
-  auto ctx = modulePortGetCtx(mod_st->rx);
-  if (!drv || !ctx || !drv->getBufferedBytes) return;
-  if (drv->getBufferedBytes(ctx) == 0) return;
-  telemetryFrameTrigger_ISR(modulePortGetModule(mod_st), &MavlinkDriver);
-}
-
 #if !defined(SIMU) && defined(HARDWARE_EXTERNAL_MODULE)
 // EXTI software-interrupt handler (FreeRTOS-safe priority) for the S.PORT path.
 static void mavlinkExtmoduleFrameReceived()
@@ -389,7 +367,7 @@ const etx_proto_driver_t MavlinkDriver = {
     .init = mavlinkInit,
     .deinit = mavlinkDeInit,
     .sendPulses = mavlinkSendPulses,
-    .processData = nullptr,  // frame-only (idle/EXTI) for both transports
+    .processData = nullptr,  // frame-only (idle/EXTI)
     .processFrame = mavlinkProcessFrame,
     .onConfigChange = nullptr,
     .txCompleted = modulePortSerialTxCompleted,
