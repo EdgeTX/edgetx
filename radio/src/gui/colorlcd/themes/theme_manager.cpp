@@ -469,7 +469,7 @@ bool ThemePersistance::createNewTheme(const std::string& name, ThemeFile& theme)
 void ThemePersistance::setDefaultTheme(int index)
 {
   if (index >= 0 && index < (int)themes.size()) {
-    strAppend(g_eeGeneral.selectedTheme, themes[index]->getName().c_str(),
+    strncpy(g_eeGeneral.selectedTheme, themes[index]->getName().c_str(),
               SELECTED_THEME_NAME_LEN);
     SET_DIRTY();
     currentTheme = index;
