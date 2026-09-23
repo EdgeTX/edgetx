@@ -111,7 +111,11 @@ Keyboard::Keyboard(coord_t height) :
   lv_obj_clear_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
 
   onClosing([=]() {
-    hide(false);
+    // Can't use hide() here, it ignores a keyboard already marked as deleted
+    if (activeKeyboard == this) {
+      clearField(false);
+      activeKeyboard = nullptr;
+    }
     if (group) lv_group_del(group);
   });
 }
