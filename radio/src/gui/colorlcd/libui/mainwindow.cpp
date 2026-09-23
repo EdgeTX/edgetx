@@ -54,7 +54,7 @@ void MainWindow::emptyTrash()
   trash.clear();
 }
 
-void MainWindow::run()
+void MainWindow::run(bool trash)
 {
   LvglWrapper::instance()->run();
 
@@ -77,7 +77,8 @@ void MainWindow::run()
     }
   }
 
-  emptyTrash();
+  if (trash)
+    emptyTrash();
 
 #if defined(DEBUG_WINDOWS)
   auto delta = time_get_ms() - start;
@@ -125,6 +126,9 @@ bool MainWindow::setBackgroundImage(std::string& fileName)
   return false;
 }
 
+// Note: windows closed while blocked are not destroyed until control returns
+// to the top-level loop. Callers poll the closed window (e.g. dialog->deleted())
+// and outer stack frames may still reference it.
 void MainWindow::blockUntilClose(bool checkPwr, std::function<bool(void)> closeCondition, bool isError)
 {
   // reset input devices to avoid
@@ -137,7 +141,7 @@ void MainWindow::blockUntilClose(bool checkPwr, std::function<bool(void)> closeC
     // On startup error wait for power button to be released
     while (pwrPressed()) {
       WDG_RESET();
-      run();
+      run(false);
       sleep_ms(10);
     }
   }
@@ -165,7 +169,7 @@ void MainWindow::blockUntilClose(bool checkPwr, std::function<bool(void)> closeC
 
     WDG_RESET();
 
-    run();
+    run(false);
     sleep_ms(10);
   }
 }
