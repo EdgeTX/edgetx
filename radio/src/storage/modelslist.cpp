@@ -1281,7 +1281,8 @@ void ModelsList::renameLabel(const std::string &from, const std::string& _to,
       if (toIdx >= 0) {
         // Restore temporarily so it can be deleted
         labels[idx] = from;
-        removeLabel(from, progress);
+        // Progress already reported 100% above
+        removeLabel(from, nullptr);
       }
 
       storageDirty(EE_LABELS);

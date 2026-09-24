@@ -43,6 +43,11 @@
 
 #if defined(COLORLCD)
 
+#include "dialog.h"
+#include "lcd.h"
+#include "mainwindow.h"
+#include "view_main.h"
+
 namespace fs = std::filesystem;
 
 namespace
@@ -581,6 +586,81 @@ TEST_F(ModelCellManagerFsTest, RenameLabelReportsProgressToCompletion)
   });
   EXPECT_GT(calls, 0);
   EXPECT_EQ(last, 100);
+}
+
+// Callers close the progress dialog at 100%
+TEST_F(ModelCellManagerFsTest, RenameLabelOntoExistingLabelProgressEndsAt100)
+{
+  writeFixtureModel("model0001.yml", "One", "Bar");
+  writeFixtureModel("model0002.yml", "Two", "Foo,Bar");
+  writeFixtureModel("model0003.yml", "Three", "Foo");
+  setCurrentFilename("model0001.yml");
+  modelCellManager.load();
+
+  std::vector<int> reported;
+  modelCellManager.renameLabel("Foo", "Bar", [&](const char*, int pct) {
+    reported.push_back(pct);
+  });
+
+  auto done = std::find(reported.begin(), reported.end(), 100);
+  ASSERT_NE(done, reported.end());
+  for (auto it = done; it != reported.end(); ++it)
+    EXPECT_EQ(*it, 100) << "progress reported again after reaching 100%";
+}
+
+static lv_obj_t* findProgressBar(lv_obj_t* obj)
+{
+  if (lv_obj_has_class(obj, &lv_bar_class)) return obj;
+  for (uint32_t i = 0; i < lv_obj_get_child_cnt(obj); i++) {
+    auto bar = findProgressBar(lv_obj_get_child(obj, i));
+    if (bar) return bar;
+  }
+  return nullptr;
+}
+
+// Callback as used in model_select.cpp. LVGL memory is not visible to ASAN,
+// so check the progress bar is still valid before each update.
+TEST_F(ModelCellManagerFsTest, RenameLabelOntoExistingLabelWithProgressDialog)
+{
+  writeFixtureModel("model0001.yml", "One", "Bar");
+  writeFixtureModel("model0002.yml", "Two", "Foo,Bar");
+  writeFixtureModel("model0003.yml", "Three", "Foo");
+  setCurrentFilename("model0001.yml");
+  modelCellManager.load();
+
+  // ProgressDialog forces a refresh, no simulator front end to complete it
+  lcdSetFlushCb([](lv_disp_drv_t* disp, uint16_t*, const rect_t&) {
+    lv_disp_flush_ready(disp);
+  });
+
+  // Dialogs are always shown over the main view
+  ViewMain::instance();
+  MainWindow::instance()->run();
+
+  auto rndialog = new ProgressDialog(STR_RENAME_LABEL, [=]() {});
+  lv_obj_t* bar = findProgressBar(rndialog->getLvObj());
+  ASSERT_NE(bar, nullptr);
+
+  modelCellManager.renameLabel(
+      "Foo", "Bar", [=](const char *name, int percentage) {
+        if (!lv_obj_is_valid(bar)) {
+          // 100% again is a no-op, anything else writes to the freed bar
+          EXPECT_EQ(percentage, 100)
+              << percentage << "% progress reported after the dialog was"
+              << " closed and its progress bar freed";
+          return;
+        }
+
+        rndialog->setTitle(std::string(STR_RENAME_LABEL) + " " + name);
+        rndialog->updateProgress(percentage);
+        if (percentage >= 100) rndialog->closeDialog();
+      });
+
+  MainWindow::instance()->run();
+  EXPECT_EQ(countOf(modelCellManager.getLabels(), "Bar"), 1);
+
+  // Restore simulator LCD callbacks
+  lcdInit();
 }
 
 // ---------------------------------------------------------------------------
