@@ -2748,7 +2748,7 @@ static void r_cfs_name(void* user, uint8_t* data, uint32_t bitoffs,
                          const char* val, uint8_t val_len)
 {
   uint16_t idx = getIdx(user);
-  strAppend(g_model.customSwitches[idx].name, val, LEN_SWITCH_NAME);
+  copyToUnTerminated(g_model.customSwitches[idx].name, val);
 }
 
 static const struct YamlNode struct_cfsNameConfig[] = {
