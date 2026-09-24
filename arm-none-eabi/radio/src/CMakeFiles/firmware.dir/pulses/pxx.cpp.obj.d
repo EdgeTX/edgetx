@@ -1,0 +1,14 @@
+radio/src/CMakeFiles/firmware.dir/pulses/pxx.cpp.obj: \
+ /workspaces/edgetx-sw/radio/src/pulses/pxx.cpp \
+ /workspaces/edgetx-sw/radio/src/pulses/pxx.h \
+ /workspaces/edgetx-sw/radio/src/hal/module_port.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include/stdint.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/stdint.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/machine/_default_types.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/features.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/_newlib_version.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/_intsup.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/_stdint.h \
+ /workspaces/edgetx-sw/radio/src/hal/serial_driver.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include/stdbool.h \
+ /workspaces/edgetx-sw/radio/src/hal/timer_driver.h

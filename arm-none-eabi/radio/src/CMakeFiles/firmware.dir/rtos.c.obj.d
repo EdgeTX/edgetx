@@ -1,0 +1,19 @@
+radio/src/CMakeFiles/firmware.dir/rtos.c.obj: \
+ /workspaces/edgetx-sw/radio/src/rtos.c \
+ /workspaces/edgetx-sw/radio/src/FreeRTOSConfig.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include/stdint.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/stdint.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/machine/_default_types.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/features.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/_newlib_version.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/_intsup.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/_stdint.h \
+ /workspaces/edgetx-sw/radio/src/thirdparty/FreeRTOS/include/FreeRTOS.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include/stddef.h \
+ /workspaces/edgetx-sw/radio/src/thirdparty/FreeRTOS/include/projdefs.h \
+ /workspaces/edgetx-sw/radio/src/thirdparty/FreeRTOS/include/portable.h \
+ /workspaces/edgetx-sw/radio/src/thirdparty/FreeRTOS/include/deprecated_definitions.h \
+ /workspaces/edgetx-sw/radio/src/thirdparty/FreeRTOS/portable/GCC/ARM_CM4F/portmacro.h \
+ /workspaces/edgetx-sw/radio/src/thirdparty/FreeRTOS/include/mpu_wrappers.h \
+ /workspaces/edgetx-sw/radio/src/thirdparty/FreeRTOS/include/task.h \
+ /workspaces/edgetx-sw/radio/src/thirdparty/FreeRTOS/include/list.h

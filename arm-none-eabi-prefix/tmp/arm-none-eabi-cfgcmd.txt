@@ -1,0 +1,1 @@
+cmd='/usr/bin/cmake;-DBLUETOOTH=NO;-DPCB=X7;-DPCBREV=GAJS;-Wno-dev;-DCMAKE_BUILD_TYPE=Release;-GUnix Makefiles;-C<TMP_DIR>/arm-none-eabi-cache-$<CONFIG>.cmake;-S;<SOURCE_DIR><SOURCE_SUBDIR>;-B;<BINARY_DIR>'

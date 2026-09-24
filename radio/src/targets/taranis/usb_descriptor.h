@@ -33,6 +33,10 @@
   #define USB_NAME                     "Radiomaster Zorro"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'R', 'M', ' ', 'Z', 'o', 'r', 'r', 'o'  /* 8 Bytes */
+#elif defined(RADIO_GAJS)
+  #define USB_NAME                     "Gayatri Aero"
+  #define USB_MANUFACTURER             'G', 'A', '_', 'J', 'S', ' ', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'G', 'A', ' ', 'J', 'S', 'C', 'V', '1'  /* 8 Bytes */
 #elif defined(RADIO_MT12)
   #define USB_NAME                     "Radiomaster MT12"
   #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */

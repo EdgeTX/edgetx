@@ -1,0 +1,29 @@
+radio/src/bootloader/CMakeFiles/bootloader.dir/__/gui/common/stdlcd/fonts.cpp.obj: \
+ /workspaces/edgetx-sw/radio/src/gui/common/stdlcd/fonts.cpp \
+ /workspaces/edgetx-sw/radio/src/gui/common/stdlcd/fonts.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include/stdint.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/stdint.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/machine/_default_types.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/features.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/_newlib_version.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/_intsup.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/_stdint.h \
+ /workspaces/edgetx-sw/radio/src/debug.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include/float.h \
+ /workspaces/edgetx-sw/radio/src/definitions.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/inttypes.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/newlib.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/config.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/machine/ieeefp.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/_ansi.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include/stddef.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/sys/_locale.h \
+ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include/stdbool.h \
+ /workspaces/edgetx-sw/radio/src/targets/common/arm/stm32/f4/memory_sections.h \
+ /workspaces/edgetx-sw/radio/src/rtc.h \
+ /workspaces/edgetx-sw/radio/src/dump.h \
+ /workspaces/edgetx-sw/radio/src/serial.h \
+ /workspaces/edgetx-sw/radio/src/hal/serial_port.h \
+ /workspaces/edgetx-sw/radio/src/hal/serial_driver.h \
+ /workspaces/edgetx-sw/arm-none-eabi/radio/src/bitmaps/128x64/font_05x07.lbm \
+ /workspaces/edgetx-sw/arm-none-eabi/radio/src/bitmaps/128x64/font_05x07_extra.lbm

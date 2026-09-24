@@ -271,6 +271,10 @@ POT_CONFIG = {
         "P1": {"default": "POT"},
         "P2": {"default": "POT"}
     },
+    "gajs": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"}
+    },
     "pocket": {
         "P1": {"default": "POT"}
     },

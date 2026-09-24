@@ -1,0 +1,2235 @@
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineSystem.cmake:12 (find_program)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_UNAME"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "uname"
+    candidate_directories:
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/uname"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/uname"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/uname"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/uname"
+      - "/opt/qt/6.9.0/gcc_64/bin/uname"
+      - "/opt/venv/bin/uname"
+      - "/usr/local/sbin/uname"
+      - "/usr/local/bin/uname"
+      - "/usr/sbin/uname"
+    found: "/usr/bin/uname"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineSystem.cmake:207 (message)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      The target system is: Generic -  - arm
+      The host system is: Linux - 6.8.0-1052-azure - x86_64
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeUnixFindMake.cmake:5 (find_program)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_MAKE_PROGRAM"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gmake"
+      - "make"
+      - "smake"
+    candidate_directories:
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/gmake"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/gmake"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/gmake"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/gmake"
+      - "/opt/qt/6.9.0/gcc_64/bin/gmake"
+      - "/opt/venv/bin/gmake"
+      - "/usr/local/sbin/gmake"
+      - "/usr/local/bin/gmake"
+      - "/usr/sbin/gmake"
+    found: "/usr/bin/gmake"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompiler.cmake:115 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCCompiler.cmake:67 (_cmake_find_compiler_path)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_C_COMPILER_WITH_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-gcc"
+    candidate_directories:
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc"
+    found: "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCCompilerId.c.in"
+    candidate_directories:
+      - "/usr/share/cmake-4.2/Modules/"
+    found: "/usr/share/cmake-4.2/Modules/CMakeCCompilerId.c.in"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+      Compiler: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      1
+      /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/libc.a(libc_a-exit.o): in function `exit':
+      exit.c:(.text.exit+0x28): undefined reference to `_exit'
+      /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/libc.a(libc_a-closer.o): in function `_close_r':
+      closer.c:(.text._close_r+0x18): undefined reference to `_close'
+      /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/libc.a(libc_a-lseekr.o): in function `_lseek_r':
+      lseekr.c:(.text._lseek_r+0x24): undefined reference to `_lseek'
+      /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/libc.a(libc_a-readr.o): in function `_read_r':
+      readr.c:(.text._read_r+0x24): undefined reference to `_read'
+      /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/libc.a(libc_a-writer.o): in function `_write_r':
+      writer.c:(.text._write_r+0x24): undefined reference to `_write'
+      /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/libc.a(libc_a-sbrkr.o): in function `_sbrk_r':
+      sbrkr.c:(.text._sbrk_r+0x18): undefined reference to `_sbrk'
+      collect2: error: ld returned 1 exit status
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCCompilerId.c.in"
+    candidate_directories:
+      - "/usr/share/cmake-4.2/Modules/"
+    found: "/usr/share/cmake-4.2/Modules/CMakeCCompilerId.c.in"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc 
+      Build flags: 
+      Id flags: -c 
+      
+      The output was:
+      0
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CMakeCCompilerId.o"
+      
+      The C compiler identification is GNU, found in:
+        /workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/4.2.1/CompilerIdC/CMakeCCompilerId.o
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:37 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:58 (__resolve_tool_path)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "_CMAKE_TOOL_WITH_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-ld"
+    candidate_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    found: "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-ld"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_NM"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-nm"
+      - "nm"
+    candidate_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    found: "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-nm"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_OBJDUMP"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-objdump"
+      - "objdump"
+    candidate_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    found: "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-objdump"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_READELF"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-readelf"
+      - "readelf"
+    candidate_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    found: "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-readelf"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_DLLTOOL"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-dlltool"
+      - "dlltool"
+    candidate_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-dlltool"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-dlltool"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-dlltool"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-dlltool"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-dlltool"
+      - "/opt/venv/bin/arm-none-eabi-dlltool"
+      - "/usr/local/sbin/arm-none-eabi-dlltool"
+      - "/usr/local/bin/arm-none-eabi-dlltool"
+      - "/usr/sbin/arm-none-eabi-dlltool"
+      - "/usr/bin/arm-none-eabi-dlltool"
+      - "/sbin/arm-none-eabi-dlltool"
+      - "/bin/arm-none-eabi-dlltool"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-dlltool"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/dlltool"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/dlltool"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/dlltool"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/dlltool"
+      - "/opt/qt/6.9.0/gcc_64/bin/dlltool"
+      - "/opt/venv/bin/dlltool"
+      - "/usr/local/sbin/dlltool"
+      - "/usr/local/bin/dlltool"
+      - "/usr/sbin/dlltool"
+      - "/usr/bin/dlltool"
+      - "/sbin/dlltool"
+      - "/bin/dlltool"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/dlltool"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_ADDR2LINE"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-addr2line"
+      - "addr2line"
+    candidate_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    found: "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-addr2line"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeFindBinUtils.cmake:243 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_TAPI"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-tapi"
+      - "tapi"
+    candidate_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-tapi"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-tapi"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-tapi"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-tapi"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-tapi"
+      - "/opt/venv/bin/arm-none-eabi-tapi"
+      - "/usr/local/sbin/arm-none-eabi-tapi"
+      - "/usr/local/bin/arm-none-eabi-tapi"
+      - "/usr/sbin/arm-none-eabi-tapi"
+      - "/usr/bin/arm-none-eabi-tapi"
+      - "/sbin/arm-none-eabi-tapi"
+      - "/bin/arm-none-eabi-tapi"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-tapi"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/tapi"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/tapi"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/tapi"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/tapi"
+      - "/opt/qt/6.9.0/gcc_64/bin/tapi"
+      - "/opt/venv/bin/tapi"
+      - "/usr/local/sbin/tapi"
+      - "/usr/local/bin/tapi"
+      - "/usr/sbin/tapi"
+      - "/usr/bin/tapi"
+      - "/sbin/tapi"
+      - "/bin/tapi"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/tapi"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/Compiler/GNU-FindBinUtils.cmake:18 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCCompiler.cmake:201 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_C_COMPILER_AR"
+    description: "A wrapper around 'ar' adding the appropriate '--plugin' option for the GCC compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-gcc-ar-14.2"
+      - "arm-none-eabi-gcc-ar-14"
+      - "arm-none-eabi-gcc-ar14"
+      - "arm-none-eabi-gcc-ar"
+    candidate_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ar-14.2"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ar-14.2"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ar-14.2"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ar-14.2"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ar-14.2"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ar-14.2"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ar-14.2"
+      - "/usr/local/bin/arm-none-eabi-gcc-ar-14.2"
+      - "/usr/sbin/arm-none-eabi-gcc-ar-14.2"
+      - "/usr/bin/arm-none-eabi-gcc-ar-14.2"
+      - "/sbin/arm-none-eabi-gcc-ar-14.2"
+      - "/bin/arm-none-eabi-gcc-ar-14.2"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ar-14.2"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ar-14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ar-14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ar-14"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ar-14"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ar-14"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ar-14"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ar-14"
+      - "/usr/local/bin/arm-none-eabi-gcc-ar-14"
+      - "/usr/sbin/arm-none-eabi-gcc-ar-14"
+      - "/usr/bin/arm-none-eabi-gcc-ar-14"
+      - "/sbin/arm-none-eabi-gcc-ar-14"
+      - "/bin/arm-none-eabi-gcc-ar-14"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ar-14"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ar14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ar14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ar14"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ar14"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ar14"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ar14"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ar14"
+      - "/usr/local/bin/arm-none-eabi-gcc-ar14"
+      - "/usr/sbin/arm-none-eabi-gcc-ar14"
+      - "/usr/bin/arm-none-eabi-gcc-ar14"
+      - "/sbin/arm-none-eabi-gcc-ar14"
+      - "/bin/arm-none-eabi-gcc-ar14"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ar14"
+    found: "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ar"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/Compiler/GNU-FindBinUtils.cmake:30 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCCompiler.cmake:201 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_C_COMPILER_RANLIB"
+    description: "A wrapper around 'ranlib' adding the appropriate '--plugin' option for the GCC compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-gcc-ranlib-14.2"
+      - "arm-none-eabi-gcc-ranlib-14"
+      - "arm-none-eabi-gcc-ranlib14"
+      - "arm-none-eabi-gcc-ranlib"
+    candidate_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ranlib-14.2"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ranlib-14.2"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ranlib-14.2"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/usr/local/bin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/usr/sbin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/usr/bin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/sbin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/bin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ranlib-14.2"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ranlib-14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ranlib-14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ranlib-14"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ranlib-14"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ranlib-14"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ranlib-14"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ranlib-14"
+      - "/usr/local/bin/arm-none-eabi-gcc-ranlib-14"
+      - "/usr/sbin/arm-none-eabi-gcc-ranlib-14"
+      - "/usr/bin/arm-none-eabi-gcc-ranlib-14"
+      - "/sbin/arm-none-eabi-gcc-ranlib-14"
+      - "/bin/arm-none-eabi-gcc-ranlib-14"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ranlib-14"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ranlib14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ranlib14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ranlib14"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ranlib14"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ranlib14"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ranlib14"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ranlib14"
+      - "/usr/local/bin/arm-none-eabi-gcc-ranlib14"
+      - "/usr/sbin/arm-none-eabi-gcc-ranlib14"
+      - "/usr/bin/arm-none-eabi-gcc-ranlib14"
+      - "/sbin/arm-none-eabi-gcc-ranlib14"
+      - "/bin/arm-none-eabi-gcc-ranlib14"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ranlib14"
+    found: "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ranlib"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompiler.cmake:115 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:71 (_cmake_find_compiler_path)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_WITH_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-g++"
+    candidate_directories:
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-g++"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-g++"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-g++"
+    found: "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-g++"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "/usr/share/cmake-4.2/Modules/"
+    found: "/usr/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+      Compiler: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-g++ 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      1
+      /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/libc.a(libc_a-exit.o): in function `exit':
+      exit.c:(.text.exit+0x28): undefined reference to `_exit'
+      /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/libc.a(libc_a-closer.o): in function `_close_r':
+      closer.c:(.text._close_r+0x18): undefined reference to `_close'
+      /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/libc.a(libc_a-lseekr.o): in function `_lseek_r':
+      lseekr.c:(.text._lseek_r+0x24): undefined reference to `_lseek'
+      /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/libc.a(libc_a-readr.o): in function `_read_r':
+      readr.c:(.text._read_r+0x24): undefined reference to `_read'
+      /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/libc.a(libc_a-writer.o): in function `_write_r':
+      writer.c:(.text._write_r+0x24): undefined reference to `_write'
+      /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/ld: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/libc.a(libc_a-sbrkr.o): in function `_sbrk_r':
+      sbrkr.c:(.text._sbrk_r+0x18): undefined reference to `_sbrk'
+      collect2: error: ld returned 1 exit status
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:462 (find_file)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:500 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCXXCompilerId.cpp.in"
+    candidate_directories:
+      - "/usr/share/cmake-4.2/Modules/"
+    found: "/usr/share/cmake-4.2/Modules/CMakeCXXCompilerId.cpp.in"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:125 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler: /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-g++ 
+      Build flags: 
+      Id flags: -c 
+      
+      The output was:
+      0
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.o"
+      
+      The CXX compiler identification is GNU, found in:
+        /workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/4.2.1/CompilerIdCXX/CMakeCXXCompilerId.o
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/Compiler/GNU-FindBinUtils.cmake:18 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_AR"
+    description: "A wrapper around 'ar' adding the appropriate '--plugin' option for the GCC compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-gcc-ar-14.2"
+      - "arm-none-eabi-gcc-ar-14"
+      - "arm-none-eabi-gcc-ar14"
+      - "arm-none-eabi-gcc-ar"
+    candidate_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ar-14.2"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ar-14.2"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ar-14.2"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ar-14.2"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ar-14.2"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ar-14.2"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ar-14.2"
+      - "/usr/local/bin/arm-none-eabi-gcc-ar-14.2"
+      - "/usr/sbin/arm-none-eabi-gcc-ar-14.2"
+      - "/usr/bin/arm-none-eabi-gcc-ar-14.2"
+      - "/sbin/arm-none-eabi-gcc-ar-14.2"
+      - "/bin/arm-none-eabi-gcc-ar-14.2"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ar-14.2"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ar-14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ar-14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ar-14"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ar-14"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ar-14"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ar-14"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ar-14"
+      - "/usr/local/bin/arm-none-eabi-gcc-ar-14"
+      - "/usr/sbin/arm-none-eabi-gcc-ar-14"
+      - "/usr/bin/arm-none-eabi-gcc-ar-14"
+      - "/sbin/arm-none-eabi-gcc-ar-14"
+      - "/bin/arm-none-eabi-gcc-ar-14"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ar-14"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ar14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ar14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ar14"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ar14"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ar14"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ar14"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ar14"
+      - "/usr/local/bin/arm-none-eabi-gcc-ar14"
+      - "/usr/sbin/arm-none-eabi-gcc-ar14"
+      - "/usr/bin/arm-none-eabi-gcc-ar14"
+      - "/sbin/arm-none-eabi-gcc-ar14"
+      - "/bin/arm-none-eabi-gcc-ar14"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ar14"
+    found: "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ar"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/Compiler/GNU-FindBinUtils.cmake:30 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCXXCompiler.cmake:207 (include)"
+      - "CMakeLists.txt:3 (project)"
+    mode: "program"
+    variable: "CMAKE_CXX_COMPILER_RANLIB"
+    description: "A wrapper around 'ranlib' adding the appropriate '--plugin' option for the GCC compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-gcc-ranlib-14.2"
+      - "arm-none-eabi-gcc-ranlib-14"
+      - "arm-none-eabi-gcc-ranlib14"
+      - "arm-none-eabi-gcc-ranlib"
+    candidate_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ranlib-14.2"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ranlib-14.2"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ranlib-14.2"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/usr/local/bin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/usr/sbin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/usr/bin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/sbin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/bin/arm-none-eabi-gcc-ranlib-14.2"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ranlib-14.2"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ranlib-14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ranlib-14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ranlib-14"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ranlib-14"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ranlib-14"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ranlib-14"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ranlib-14"
+      - "/usr/local/bin/arm-none-eabi-gcc-ranlib-14"
+      - "/usr/sbin/arm-none-eabi-gcc-ranlib-14"
+      - "/usr/bin/arm-none-eabi-gcc-ranlib-14"
+      - "/sbin/arm-none-eabi-gcc-ranlib-14"
+      - "/bin/arm-none-eabi-gcc-ranlib-14"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ranlib-14"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ranlib14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ranlib14"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ranlib14"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ranlib14"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ranlib14"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ranlib14"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ranlib14"
+      - "/usr/local/bin/arm-none-eabi-gcc-ranlib14"
+      - "/usr/sbin/arm-none-eabi-gcc-ranlib14"
+      - "/usr/bin/arm-none-eabi-gcc-ranlib14"
+      - "/sbin/arm-none-eabi-gcc-ranlib14"
+      - "/bin/arm-none-eabi-gcc-ranlib14"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ranlib14"
+    found: "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ranlib"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
+      - "/usr/share/cmake-4.2/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-iigTk9"
+      binary: "/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-iigTk9"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g3 -Og -Wall -pedantic -DDEBUG"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_WARN_DEPRECATED: "FALSE"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-iigTk9'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_b0ea7/fast
+        gmake[4]: Entering directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-iigTk9'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_b0ea7.dir/build.make CMakeFiles/cmTC_b0ea7.dir/build
+        gmake[5]: Entering directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-iigTk9'
+        Building C object CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.obj
+        /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc   -v -o CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.obj -c /usr/share/cmake-4.2/Modules/CMakeCCompilerABI.c
+        Using built-in specs.
+        COLLECT_GCC=/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc
+        Target: arm-none-eabi
+        Configured with: /data/jenkins/workspace/GNU-toolchain/arm-14/src/gcc/configure --target=arm-none-eabi --prefix=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/install --with-gmp=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --with-mpfr=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --with-mpc=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --with-isl=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --disable-shared --disable-nls --disable-threads --disable-tls --enable-checking=release --enable-languages=c,c++,fortran --with-newlib --with-gnu-as --with-headers=yes --with-gnu-ld --with-native-system-header-dir=/include --with-sysroot=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/install/arm-none-eabi --with-bugurl=https://bugs.linaro.org/ --with-multilib-list=aprofile,rmprofile --with-pkgversion='Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)'
+        Thread model: single
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 14.2.1 20241119 (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-mlibarch=armv4t' '-march=armv4t' '-dumpdir' 'CMakeFiles/cmTC_b0ea7.dir/'
+         /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../libexec/gcc/arm-none-eabi/14.2.1/cc1 -quiet -v -iprefix /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/ -isysroot /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi -D__USES_INITFINI__ /usr/share/cmake-4.2/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_b0ea7.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mcpu=arm7tdmi -mfloat-abi=soft -marm -mlibarch=armv4t -march=armv4t -version -o /tmp/cct93MwI.s
+        GNU C17 (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) version 14.2.1 20241119 (arm-none-eabi)
+        	compiled by GNU C version 9.2.1 20191120 (Red Hat 9.2.1-2), GMP version 6.2.1, MPFR version 3.1.6, MPC version 1.0.3, isl version isl-0.15-1-g835ea3a-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/include"
+        ignoring nonexistent directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi/usr/local/include"
+        ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/include-fixed"
+        ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include"
+        ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi/include"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include
+         /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include-fixed
+         /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include
+        End of search list.
+        Compiler executable checksum: e89038eedc6170daa7e4ecd67cd2deb0
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-mlibarch=armv4t' '-march=armv4t' '-dumpdir' 'CMakeFiles/cmTC_b0ea7.dir/'
+         /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/as -v -march=armv4t -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.obj /tmp/cct93MwI.s
+        GNU assembler version 2.43.1 (arm-none-eabi) using BFD version (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 2.43.1.20241119
+        COMPILER_PATH=/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../libexec/gcc/arm-none-eabi/14.2.1/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../libexec/gcc/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/
+        LIBRARY_PATH=/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-mlibarch=armv4t' '-march=armv4t' '-dumpdir' 'CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.'
+        Linking C static library libcmTC_b0ea7.a
+        /usr/bin/cmake -P CMakeFiles/cmTC_b0ea7.dir/cmake_clean_target.cmake
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b0ea7.dir/link.txt --verbose=1
+        arm-none-eabi-ar qc libcmTC_b0ea7.a CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.obj
+        arm-none-eabi-ranlib libcmTC_b0ea7.a
+        gmake[5]: Leaving directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-iigTk9'
+        gmake[4]: Leaving directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-iigTk9'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerABI.cmake:217 (message)"
+      - "/usr/share/cmake-4.2/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Parsed C implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include]
+          add: [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include-fixed]
+          add: [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include]
+        end of search list found
+        collapse include dir [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include] ==> [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include]
+        collapse include dir [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include-fixed] ==> [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include-fixed]
+        collapse include dir [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include] ==> [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include]
+        implicit include dirs: [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include;/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include-fixed;/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerABI.cmake:253 (message)"
+      - "/usr/share/cmake-4.2/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Parsed C implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|"|[0-9]+>[ 	-]*Build:[ 	0-9]+ ms[ 	]*)?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)))("|,| |$)]
+        ignore line: [Change Dir: '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-iigTk9']
+        ignore line: []
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_b0ea7/fast]
+        ignore line: [gmake[4]: Entering directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-iigTk9']
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_b0ea7.dir/build.make CMakeFiles/cmTC_b0ea7.dir/build]
+        ignore line: [gmake[5]: Entering directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-iigTk9']
+        ignore line: [Building C object CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.obj]
+        ignore line: [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc   -v -o CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.obj -c /usr/share/cmake-4.2/Modules/CMakeCCompilerABI.c]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc]
+        ignore line: [Target: arm-none-eabi]
+        ignore line: [Configured with: /data/jenkins/workspace/GNU-toolchain/arm-14/src/gcc/configure --target=arm-none-eabi --prefix=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/install --with-gmp=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --with-mpfr=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --with-mpc=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --with-isl=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --disable-shared --disable-nls --disable-threads --disable-tls --enable-checking=release --enable-languages=c,c++,fortran --with-newlib --with-gnu-as --with-headers=yes --with-gnu-ld --with-native-system-header-dir=/include --with-sysroot=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/install/arm-none-eabi --with-bugurl=https://bugs.linaro.org/ --with-multilib-list=aprofile,rmprofile --with-pkgversion='Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)']
+        ignore line: [Thread model: single]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 14.2.1 20241119 (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) ]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-mlibarch=armv4t' '-march=armv4t' '-dumpdir' 'CMakeFiles/cmTC_b0ea7.dir/']
+        ignore line: [ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../libexec/gcc/arm-none-eabi/14.2.1/cc1 -quiet -v -iprefix /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/ -isysroot /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi -D__USES_INITFINI__ /usr/share/cmake-4.2/Modules/CMakeCCompilerABI.c -quiet -dumpdir CMakeFiles/cmTC_b0ea7.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mcpu=arm7tdmi -mfloat-abi=soft -marm -mlibarch=armv4t -march=armv4t -version -o /tmp/cct93MwI.s]
+        ignore line: [GNU C17 (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) version 14.2.1 20241119 (arm-none-eabi)]
+        ignore line: [	compiled by GNU C version 9.2.1 20191120 (Red Hat 9.2.1-2)  GMP version 6.2.1  MPFR version 3.1.6  MPC version 1.0.3  isl version isl-0.15-1-g835ea3a-GMP]
+        ignore line: []
+        ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+        ignore line: [ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/include"]
+        ignore line: [ignoring nonexistent directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi/usr/local/include"]
+        ignore line: [ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/include-fixed"]
+        ignore line: [ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include"]
+        ignore line: [ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi/include"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include]
+        ignore line: [ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include-fixed]
+        ignore line: [ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include]
+        ignore line: [End of search list.]
+        ignore line: [Compiler executable checksum: e89038eedc6170daa7e4ecd67cd2deb0]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-mlibarch=armv4t' '-march=armv4t' '-dumpdir' 'CMakeFiles/cmTC_b0ea7.dir/']
+        ignore line: [ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/as -v -march=armv4t -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.obj /tmp/cct93MwI.s]
+        ignore line: [GNU assembler version 2.43.1 (arm-none-eabi) using BFD version (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 2.43.1.20241119]
+        ignore line: [COMPILER_PATH=/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../libexec/gcc/arm-none-eabi/14.2.1/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../libexec/gcc/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/]
+        ignore line: [LIBRARY_PATH=/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-mlibarch=armv4t' '-march=armv4t' '-dumpdir' 'CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.']
+        ignore line: [Linking C static library libcmTC_b0ea7.a]
+        ignore line: [/usr/bin/cmake -P CMakeFiles/cmTC_b0ea7.dir/cmake_clean_target.cmake]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b0ea7.dir/link.txt --verbose=1]
+        ignore line: [arm-none-eabi-ar qc libcmTC_b0ea7.a CMakeFiles/cmTC_b0ea7.dir/CMakeCCompilerABI.c.obj]
+        ignore line: [arm-none-eabi-ranlib libcmTC_b0ea7.a]
+        ignore line: [gmake[5]: Leaving directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-iigTk9']
+        ignore line: [gmake[4]: Leaving directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-iigTk9']
+        ignore line: []
+        ignore line: []
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: []
+        implicit fwks: []
+      
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerABI.cmake:83 (try_compile)"
+      - "/usr/share/cmake-4.2/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-K5faY6"
+      binary: "/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-K5faY6"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: ""
+      CMAKE_CXX_FLAGS_DEBUG: "-g3 -Og -Wall -pedantic -DDEBUG"
+      CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
+      CMAKE_EXE_LINKER_FLAGS: ""
+      CMAKE_WARN_DEPRECATED: "FALSE"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-K5faY6'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_3e460/fast
+        gmake[4]: Entering directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-K5faY6'
+        /usr/bin/gmake  -f CMakeFiles/cmTC_3e460.dir/build.make CMakeFiles/cmTC_3e460.dir/build
+        gmake[5]: Entering directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-K5faY6'
+        Building CXX object CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.obj
+        /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-g++   -std=gnu++17   -v -o CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.obj -c /usr/share/cmake-4.2/Modules/CMakeCXXCompilerABI.cpp
+        Using built-in specs.
+        COLLECT_GCC=/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-g++
+        Target: arm-none-eabi
+        Configured with: /data/jenkins/workspace/GNU-toolchain/arm-14/src/gcc/configure --target=arm-none-eabi --prefix=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/install --with-gmp=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --with-mpfr=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --with-mpc=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --with-isl=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --disable-shared --disable-nls --disable-threads --disable-tls --enable-checking=release --enable-languages=c,c++,fortran --with-newlib --with-gnu-as --with-headers=yes --with-gnu-ld --with-native-system-header-dir=/include --with-sysroot=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/install/arm-none-eabi --with-bugurl=https://bugs.linaro.org/ --with-multilib-list=aprofile,rmprofile --with-pkgversion='Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)'
+        Thread model: single
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 14.2.1 20241119 (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 
+        COLLECT_GCC_OPTIONS='-std=gnu++17' '-v' '-o' 'CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-mlibarch=armv4t' '-march=armv4t' '-dumpdir' 'CMakeFiles/cmTC_3e460.dir/'
+         /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../libexec/gcc/arm-none-eabi/14.2.1/cc1plus -quiet -v -iprefix /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/ -isysroot /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi -D__USES_INITFINI__ /usr/share/cmake-4.2/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_3e460.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mcpu=arm7tdmi -mfloat-abi=soft -marm -mlibarch=armv4t -march=armv4t -std=gnu++17 -version -o /tmp/ccLpeOpI.s
+        GNU C++17 (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) version 14.2.1 20241119 (arm-none-eabi)
+        	compiled by GNU C version 9.2.1 20191120 (Red Hat 9.2.1-2), GMP version 6.2.1, MPFR version 3.1.6, MPC version 1.0.3, isl version isl-0.15-1-g835ea3a-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1"
+        ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1/arm-none-eabi"
+        ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1/backward"
+        ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/include"
+        ignoring nonexistent directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi/usr/local/include"
+        ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/include-fixed"
+        ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include"
+        ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi/include"
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1
+         /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1/arm-none-eabi
+         /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1/backward
+         /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include
+         /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include-fixed
+         /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include
+        End of search list.
+        Compiler executable checksum: 761a3593099dc796ffc611563edb6c2e
+        COLLECT_GCC_OPTIONS='-std=gnu++17' '-v' '-o' 'CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-mlibarch=armv4t' '-march=armv4t' '-dumpdir' 'CMakeFiles/cmTC_3e460.dir/'
+         /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/as -v -march=armv4t -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.obj /tmp/ccLpeOpI.s
+        GNU assembler version 2.43.1 (arm-none-eabi) using BFD version (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 2.43.1.20241119
+        COMPILER_PATH=/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../libexec/gcc/arm-none-eabi/14.2.1/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../libexec/gcc/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/
+        LIBRARY_PATH=/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi/lib/
+        COLLECT_GCC_OPTIONS='-std=gnu++17' '-v' '-o' 'CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-mlibarch=armv4t' '-march=armv4t' '-dumpdir' 'CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.'
+        Linking CXX static library libcmTC_3e460.a
+        /usr/bin/cmake -P CMakeFiles/cmTC_3e460.dir/cmake_clean_target.cmake
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3e460.dir/link.txt --verbose=1
+        arm-none-eabi-ar qc libcmTC_3e460.a CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.obj
+        arm-none-eabi-ranlib libcmTC_3e460.a
+        gmake[5]: Leaving directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-K5faY6'
+        gmake[4]: Leaving directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-K5faY6'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerABI.cmake:217 (message)"
+      - "/usr/share/cmake-4.2/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Parsed CXX implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1]
+          add: [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1/arm-none-eabi]
+          add: [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1/backward]
+          add: [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include]
+          add: [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include-fixed]
+          add: [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include]
+        end of search list found
+        collapse include dir [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1] ==> [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/c++/14.2.1]
+        collapse include dir [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1/arm-none-eabi] ==> [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/c++/14.2.1/arm-none-eabi]
+        collapse include dir [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1/backward] ==> [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/c++/14.2.1/backward]
+        collapse include dir [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include] ==> [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include]
+        collapse include dir [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include-fixed] ==> [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include-fixed]
+        collapse include dir [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include] ==> [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include]
+        implicit include dirs: [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/c++/14.2.1;/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/c++/14.2.1/arm-none-eabi;/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/c++/14.2.1/backward;/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include;/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/14.2.1/include-fixed;/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerABI.cmake:253 (message)"
+      - "/usr/share/cmake-4.2/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:3 (project)"
+    message: |
+      Parsed CXX implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|"|[0-9]+>[ 	-]*Build:[ 	0-9]+ ms[ 	]*)?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)))("|,| |$)]
+        ignore line: [Change Dir: '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-K5faY6']
+        ignore line: []
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/gmake -f Makefile cmTC_3e460/fast]
+        ignore line: [gmake[4]: Entering directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-K5faY6']
+        ignore line: [/usr/bin/gmake  -f CMakeFiles/cmTC_3e460.dir/build.make CMakeFiles/cmTC_3e460.dir/build]
+        ignore line: [gmake[5]: Entering directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-K5faY6']
+        ignore line: [Building CXX object CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.obj]
+        ignore line: [/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-g++   -std=gnu++17   -v -o CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.obj -c /usr/share/cmake-4.2/Modules/CMakeCXXCompilerABI.cpp]
+        ignore line: [Using built-in specs.]
+        ignore line: [COLLECT_GCC=/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-g++]
+        ignore line: [Target: arm-none-eabi]
+        ignore line: [Configured with: /data/jenkins/workspace/GNU-toolchain/arm-14/src/gcc/configure --target=arm-none-eabi --prefix=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/install --with-gmp=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --with-mpfr=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --with-mpc=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --with-isl=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/host-tools --disable-shared --disable-nls --disable-threads --disable-tls --enable-checking=release --enable-languages=c,c++,fortran --with-newlib --with-gnu-as --with-headers=yes --with-gnu-ld --with-native-system-header-dir=/include --with-sysroot=/data/jenkins/workspace/GNU-toolchain/arm-14/build-arm-none-eabi/install/arm-none-eabi --with-bugurl=https://bugs.linaro.org/ --with-multilib-list=aprofile,rmprofile --with-pkgversion='Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)']
+        ignore line: [Thread model: single]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 14.2.1 20241119 (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) ]
+        ignore line: [COLLECT_GCC_OPTIONS='-std=gnu++17' '-v' '-o' 'CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-mlibarch=armv4t' '-march=armv4t' '-dumpdir' 'CMakeFiles/cmTC_3e460.dir/']
+        ignore line: [ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../libexec/gcc/arm-none-eabi/14.2.1/cc1plus -quiet -v -iprefix /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/ -isysroot /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi -D__USES_INITFINI__ /usr/share/cmake-4.2/Modules/CMakeCXXCompilerABI.cpp -quiet -dumpdir CMakeFiles/cmTC_3e460.dir/ -dumpbase CMakeCXXCompilerABI.cpp.cpp -dumpbase-ext .cpp -mcpu=arm7tdmi -mfloat-abi=soft -marm -mlibarch=armv4t -march=armv4t -std=gnu++17 -version -o /tmp/ccLpeOpI.s]
+        ignore line: [GNU C++17 (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) version 14.2.1 20241119 (arm-none-eabi)]
+        ignore line: [	compiled by GNU C version 9.2.1 20191120 (Red Hat 9.2.1-2)  GMP version 6.2.1  MPFR version 3.1.6  MPC version 1.0.3  isl version isl-0.15-1-g835ea3a-GMP]
+        ignore line: []
+        ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+        ignore line: [ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1"]
+        ignore line: [ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1/arm-none-eabi"]
+        ignore line: [ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1/backward"]
+        ignore line: [ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/include"]
+        ignore line: [ignoring nonexistent directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi/usr/local/include"]
+        ignore line: [ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/include-fixed"]
+        ignore line: [ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/../../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include"]
+        ignore line: [ignoring duplicate directory "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi/include"]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1]
+        ignore line: [ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1/arm-none-eabi]
+        ignore line: [ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include/c++/14.2.1/backward]
+        ignore line: [ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include]
+        ignore line: [ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/include-fixed]
+        ignore line: [ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/include]
+        ignore line: [End of search list.]
+        ignore line: [Compiler executable checksum: 761a3593099dc796ffc611563edb6c2e]
+        ignore line: [COLLECT_GCC_OPTIONS='-std=gnu++17' '-v' '-o' 'CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-mlibarch=armv4t' '-march=armv4t' '-dumpdir' 'CMakeFiles/cmTC_3e460.dir/']
+        ignore line: [ /opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/as -v -march=armv4t -mfloat-abi=soft -meabi=5 -o CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.obj /tmp/ccLpeOpI.s]
+        ignore line: [GNU assembler version 2.43.1 (arm-none-eabi) using BFD version (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 2.43.1.20241119]
+        ignore line: [COMPILER_PATH=/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../libexec/gcc/arm-none-eabi/14.2.1/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../libexec/gcc/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/bin/]
+        ignore line: [LIBRARY_PATH=/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../lib/gcc/arm-none-eabi/14.2.1/../../../../arm-none-eabi/lib/:/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/../arm-none-eabi/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-std=gnu++17' '-v' '-o' 'CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.obj' '-c' '-mcpu=arm7tdmi' '-mfloat-abi=soft' '-marm' '-mlibarch=armv4t' '-march=armv4t' '-dumpdir' 'CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.']
+        ignore line: [Linking CXX static library libcmTC_3e460.a]
+        ignore line: [/usr/bin/cmake -P CMakeFiles/cmTC_3e460.dir/cmake_clean_target.cmake]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3e460.dir/link.txt --verbose=1]
+        ignore line: [arm-none-eabi-ar qc libcmTC_3e460.a CMakeFiles/cmTC_3e460.dir/CMakeCXXCompilerABI.cpp.obj]
+        ignore line: [arm-none-eabi-ranlib libcmTC_3e460.a]
+        ignore line: [gmake[5]: Leaving directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-K5faY6']
+        ignore line: [gmake[4]: Leaving directory '/workspaces/edgetx-sw/arm-none-eabi/CMakeFiles/CMakeScratch/TryCompile-K5faY6']
+        ignore line: []
+        ignore line: []
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: []
+        implicit fwks: []
+      
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompiler.cmake:115 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineASMCompiler.cmake:64 (_cmake_find_compiler_path)"
+      - "CMakeLists.txt:149 (enable_language)"
+    mode: "program"
+    variable: "CMAKE_ASM_COMPILER_WITH_PATH"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-gcc"
+    candidate_directories:
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc"
+    found: "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PROGRAM_PATH:
+        - "/bin"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineCompilerId.cmake:1290 (message)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineASMCompiler.cmake:170 (CMAKE_DETERMINE_COMPILER_ID_VENDOR)"
+      - "CMakeLists.txt:149 (enable_language)"
+    message: |
+      Checking whether the ASM compiler is GNU using "--version" matched "(GNU assembler)|(GCC)|(Free Software Foundation)":
+      arm-none-eabi-gcc (Arm GNU Toolchain 14.2.Rel1 (Build arm-14.52)) 14.2.1 20241119
+      Copyright (C) 2024 Free Software Foundation, Inc.
+      This is free software; see the source for copying conditions.  There is NO
+      warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/Compiler/GNU-FindBinUtils.cmake:18 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineASMCompiler.cmake:268 (include)"
+      - "CMakeLists.txt:149 (enable_language)"
+    mode: "program"
+    variable: "CMAKE_ASM_COMPILER_AR"
+    description: "A wrapper around 'ar' adding the appropriate '--plugin' option for the GCC compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-gcc-ar-"
+      - "arm-none-eabi-gcc-ar-"
+      - "arm-none-eabi-gcc-ar"
+      - "arm-none-eabi-gcc-ar"
+    candidate_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ar-"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ar-"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ar-"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ar-"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ar-"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ar-"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ar-"
+      - "/usr/local/bin/arm-none-eabi-gcc-ar-"
+      - "/usr/sbin/arm-none-eabi-gcc-ar-"
+      - "/usr/bin/arm-none-eabi-gcc-ar-"
+      - "/sbin/arm-none-eabi-gcc-ar-"
+      - "/bin/arm-none-eabi-gcc-ar-"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ar-"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ar-"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ar-"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ar-"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ar-"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ar-"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ar-"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ar-"
+      - "/usr/local/bin/arm-none-eabi-gcc-ar-"
+      - "/usr/sbin/arm-none-eabi-gcc-ar-"
+      - "/usr/bin/arm-none-eabi-gcc-ar-"
+      - "/sbin/arm-none-eabi-gcc-ar-"
+      - "/bin/arm-none-eabi-gcc-ar-"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ar-"
+    found: "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ar"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PROGRAM_PATH:
+        - "/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/Compiler/GNU-FindBinUtils.cmake:30 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/CMakeDetermineASMCompiler.cmake:268 (include)"
+      - "CMakeLists.txt:149 (enable_language)"
+    mode: "program"
+    variable: "CMAKE_ASM_COMPILER_RANLIB"
+    description: "A wrapper around 'ranlib' adding the appropriate '--plugin' option for the GCC compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "arm-none-eabi-gcc-ranlib-"
+      - "arm-none-eabi-gcc-ranlib-"
+      - "arm-none-eabi-gcc-ranlib"
+      - "arm-none-eabi-gcc-ranlib"
+    candidate_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ranlib-"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ranlib-"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ranlib-"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ranlib-"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ranlib-"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ranlib-"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ranlib-"
+      - "/usr/local/bin/arm-none-eabi-gcc-ranlib-"
+      - "/usr/sbin/arm-none-eabi-gcc-ranlib-"
+      - "/usr/bin/arm-none-eabi-gcc-ranlib-"
+      - "/sbin/arm-none-eabi-gcc-ranlib-"
+      - "/bin/arm-none-eabi-gcc-ranlib-"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ranlib-"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ranlib-"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/arm-none-eabi-gcc-ranlib-"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/arm-none-eabi-gcc-ranlib-"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/arm-none-eabi-gcc-ranlib-"
+      - "/opt/qt/6.9.0/gcc_64/bin/arm-none-eabi-gcc-ranlib-"
+      - "/opt/venv/bin/arm-none-eabi-gcc-ranlib-"
+      - "/usr/local/sbin/arm-none-eabi-gcc-ranlib-"
+      - "/usr/local/bin/arm-none-eabi-gcc-ranlib-"
+      - "/usr/sbin/arm-none-eabi-gcc-ranlib-"
+      - "/usr/bin/arm-none-eabi-gcc-ranlib-"
+      - "/sbin/arm-none-eabi-gcc-ranlib-"
+      - "/bin/arm-none-eabi-gcc-ranlib-"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/arm-none-eabi-gcc-ranlib-"
+    found: "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-gcc-ranlib"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PROGRAM_PATH:
+        - "/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/FindGit.cmake:111 (find_program)"
+      - "cmake/Macros.cmake:1 (find_package)"
+      - "cmake/GenericDefinitions.cmake:49 (include)"
+      - "CMakeLists.txt:152 (include)"
+    mode: "program"
+    variable: "GIT_EXECUTABLE"
+    description: "Git command line client"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "git"
+    candidate_directories:
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/git"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/git"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/git"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/git"
+      - "/opt/qt/6.9.0/gcc_64/bin/git"
+      - "/opt/venv/bin/git"
+      - "/usr/local/sbin/git"
+      - "/usr/local/bin/git"
+      - "/usr/sbin/git"
+    found: "/usr/bin/git"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PROGRAM_PATH:
+        - "/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake-4.2/Modules/FindPython/Support.cmake:2022 (find_program)"
+      - "/usr/share/cmake-4.2/Modules/FindPython3.cmake:671 (include)"
+      - "cmake/GenericDefinitions.cmake:56 (find_package)"
+      - "CMakeLists.txt:152 (include)"
+    mode: "program"
+    variable: "_Python3_EXECUTABLE"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: false
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "python3.15mu"
+      - "python3.15m"
+      - "python3.15u"
+      - "python3.15"
+      - "python3.15dmu"
+      - "python3.15dm"
+      - "python3.15du"
+      - "python3.15d"
+      - "python3.14mu"
+      - "python3.14m"
+      - "python3.14u"
+      - "python3.14"
+      - "python3.14dmu"
+      - "python3.14dm"
+      - "python3.14du"
+      - "python3.14d"
+      - "python3.13mu"
+      - "python3.13m"
+      - "python3.13u"
+      - "python3.13"
+      - "python3.13dmu"
+      - "python3.13dm"
+      - "python3.13du"
+      - "python3.13d"
+      - "python3.12mu"
+      - "python3.12m"
+      - "python3.12u"
+      - "python3.12"
+      - "python3.12dmu"
+      - "python3.12dm"
+      - "python3.12du"
+      - "python3.12d"
+      - "python3.11mu"
+      - "python3.11m"
+      - "python3.11u"
+      - "python3.11"
+      - "python3.11dmu"
+      - "python3.11dm"
+      - "python3.11du"
+      - "python3.11d"
+      - "python3.10mu"
+      - "python3.10m"
+      - "python3.10u"
+      - "python3.10"
+      - "python3.10dmu"
+      - "python3.10dm"
+      - "python3.10du"
+      - "python3.10d"
+      - "python3.9mu"
+      - "python3.9m"
+      - "python3.9u"
+      - "python3.9"
+      - "python3.9dmu"
+      - "python3.9dm"
+      - "python3.9du"
+      - "python3.9d"
+      - "python3.8mu"
+      - "python3.8m"
+      - "python3.8u"
+      - "python3.8"
+      - "python3.8dmu"
+      - "python3.8dm"
+      - "python3.8du"
+      - "python3.8d"
+      - "python3.7mu"
+      - "python3.7m"
+      - "python3.7u"
+      - "python3.7"
+      - "python3.7dmu"
+      - "python3.7dm"
+      - "python3.7du"
+      - "python3.7d"
+      - "python3.6mu"
+      - "python3.6m"
+      - "python3.6u"
+      - "python3.6"
+      - "python3.6dmu"
+      - "python3.6dm"
+      - "python3.6du"
+      - "python3.6d"
+      - "python3.5mu"
+      - "python3.5m"
+      - "python3.5u"
+      - "python3.5"
+      - "python3.5dmu"
+      - "python3.5dm"
+      - "python3.5du"
+      - "python3.5d"
+      - "python3.4mu"
+      - "python3.4m"
+      - "python3.4u"
+      - "python3.4"
+      - "python3.4dmu"
+      - "python3.4dm"
+      - "python3.4du"
+      - "python3.4d"
+      - "python3.3mu"
+      - "python3.3m"
+      - "python3.3u"
+      - "python3.3"
+      - "python3.3dmu"
+      - "python3.3dm"
+      - "python3.3du"
+      - "python3.3d"
+      - "python3.2mu"
+      - "python3.2m"
+      - "python3.2u"
+      - "python3.2"
+      - "python3.2dmu"
+      - "python3.2dm"
+      - "python3.2du"
+      - "python3.2d"
+      - "python3.1mu"
+      - "python3.1m"
+      - "python3.1u"
+      - "python3.1"
+      - "python3.1dmu"
+      - "python3.1dm"
+      - "python3.1du"
+      - "python3.1d"
+      - "python3.0mu"
+      - "python3.0m"
+      - "python3.0u"
+      - "python3.0"
+      - "python3.0dmu"
+      - "python3.0dm"
+      - "python3.0du"
+      - "python3.0d"
+      - "python3"
+      - "python"
+    candidate_directories:
+      - "/opt/venv/bin/"
+      - "/opt/venv/Scripts/"
+      - "/opt/venv/"
+    searched_directories:
+      - "/opt/venv/bin/python3.15mu"
+      - "/opt/venv/bin/python3.15m"
+      - "/opt/venv/bin/python3.15u"
+      - "/opt/venv/bin/python3.15"
+      - "/opt/venv/bin/python3.15dmu"
+      - "/opt/venv/bin/python3.15dm"
+      - "/opt/venv/bin/python3.15du"
+      - "/opt/venv/bin/python3.15d"
+      - "/opt/venv/bin/python3.14mu"
+      - "/opt/venv/bin/python3.14m"
+      - "/opt/venv/bin/python3.14u"
+      - "/opt/venv/bin/python3.14"
+      - "/opt/venv/bin/python3.14dmu"
+      - "/opt/venv/bin/python3.14dm"
+      - "/opt/venv/bin/python3.14du"
+      - "/opt/venv/bin/python3.14d"
+      - "/opt/venv/bin/python3.13mu"
+      - "/opt/venv/bin/python3.13m"
+      - "/opt/venv/bin/python3.13u"
+      - "/opt/venv/bin/python3.13"
+      - "/opt/venv/bin/python3.13dmu"
+      - "/opt/venv/bin/python3.13dm"
+      - "/opt/venv/bin/python3.13du"
+      - "/opt/venv/bin/python3.13d"
+      - "/opt/venv/bin/python3.12mu"
+      - "/opt/venv/bin/python3.12m"
+      - "/opt/venv/bin/python3.12u"
+      - "/opt/venv/bin/python3.12"
+      - "/opt/venv/bin/python3.12dmu"
+      - "/opt/venv/bin/python3.12dm"
+      - "/opt/venv/bin/python3.12du"
+      - "/opt/venv/bin/python3.12d"
+      - "/opt/venv/bin/python3.11mu"
+      - "/opt/venv/bin/python3.11m"
+      - "/opt/venv/bin/python3.11u"
+      - "/opt/venv/bin/python3.11"
+      - "/opt/venv/bin/python3.11dmu"
+      - "/opt/venv/bin/python3.11dm"
+      - "/opt/venv/bin/python3.11du"
+      - "/opt/venv/bin/python3.11d"
+      - "/opt/venv/bin/python3.10mu"
+      - "/opt/venv/bin/python3.10m"
+      - "/opt/venv/bin/python3.10u"
+    found: "/opt/venv/bin/python3.10"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PROGRAM_PATH:
+        - "/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "radio/src/CMakeLists.txt:604 (find_program)"
+    mode: "program"
+    variable: "BASH"
+    description: "bash shell for firmware size report (eg. c:/cygwin/bin/bash.exe on Windows)."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "bash"
+    candidate_directories:
+      - "c:/cygwin/bin/"
+      - "c:/msys/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "c:/cygwin/bin/bash"
+      - "c:/msys/bin/bash"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/bash"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/bash"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/bash"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/bash"
+      - "/opt/qt/6.9.0/gcc_64/bin/bash"
+      - "/opt/venv/bin/bash"
+      - "/usr/local/sbin/bash"
+      - "/usr/local/bin/bash"
+      - "/usr/sbin/bash"
+    found: "/usr/bin/bash"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PROGRAM_PATH:
+        - "/bin"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "radio/src/CMakeLists.txt:757 (find_program)"
+    mode: "program"
+    variable: "GAWK"
+    description: "gawk for firmware size report."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gawk"
+    candidate_directories:
+      - "c:/cygwin/bin/"
+      - "c:/msys/bin/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+      - "/opt/qt/6.9.0/gcc_64/bin/"
+      - "/opt/venv/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/sbin/"
+      - "/usr/bin/"
+      - "/sbin/"
+      - "/bin/"
+      - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts/"
+    searched_directories:
+      - "c:/cygwin/bin/gawk"
+      - "c:/msys/bin/gawk"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand/gawk"
+      - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli/gawk"
+      - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli/gawk"
+      - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/gawk"
+      - "/opt/qt/6.9.0/gcc_64/bin/gawk"
+      - "/opt/venv/bin/gawk"
+      - "/usr/local/sbin/gawk"
+      - "/usr/local/bin/gawk"
+      - "/usr/sbin/gawk"
+    found: "/usr/bin/gawk"
+    search_context:
+      ENV{PATH}:
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/debugCommand"
+        - "/root/.vscode-remote/data/User/globalStorage/github.copilot-chat/copilotCli"
+        - "/vscode/bin/linux-x64/a44adf7f53e00964ab890f9f8758a334f1fc15bc/bin/remote-cli"
+        - "/opt/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin/"
+        - "/opt/qt/6.9.0/gcc_64/bin"
+        - "/opt/venv/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/sbin"
+        - "/usr/bin"
+        - "/sbin"
+        - "/bin"
+        - "/root/.vscode-remote/extensions/ms-python.debugpy-2026.6.0-linux-x64/bundled/scripts/noConfigScripts"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PROGRAM_PATH:
+        - "/bin"
+...

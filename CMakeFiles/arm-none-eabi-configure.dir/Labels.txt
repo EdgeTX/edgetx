@@ -1,0 +1,10 @@
+# Target labels
+ arm-none-eabi
+# Source files and their labels
+/workspaces/edgetx-sw/CMakeFiles/arm-none-eabi-configure
+/workspaces/edgetx-sw/CMakeFiles/arm-none-eabi-configure.rule
+/workspaces/edgetx-sw/arm-none-eabi-prefix/src/arm-none-eabi-stamp/arm-none-eabi-configure.rule
+/workspaces/edgetx-sw/arm-none-eabi-prefix/src/arm-none-eabi-stamp/arm-none-eabi-patch.rule
+/workspaces/edgetx-sw/arm-none-eabi-prefix/src/arm-none-eabi-stamp/arm-none-eabi-update.rule
+/workspaces/edgetx-sw/arm-none-eabi-prefix/src/arm-none-eabi-stamp/arm-none-eabi-download.rule
+/workspaces/edgetx-sw/arm-none-eabi-prefix/src/arm-none-eabi-stamp/arm-none-eabi-mkdir.rule

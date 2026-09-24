@@ -692,6 +692,18 @@ SWITCH_CONFIG = {
         "SF": {"default": "2POS",   "display": [1, 2]},
         "SH": {"default": "TOGGLE", "display": [1, 3]},
     },
+    "GAJS": {
+        # left side
+        "SB": {"default": "3POS",   "display": [0, 0]},
+        "SA": {"default": "TOGGLE", "display": [0, 1]},
+        "SE": {"default": "2POS",   "display": [0, 2]},
+        "SG": {"default": "TOGGLE", "display": [0, 3]},
+        # right side
+        "SC": {"default": "3POS",   "display": [1, 0]},
+        "SD": {"default": "TOGGLE", "display": [1, 1]},
+        "SF": {"default": "2POS",   "display": [1, 2]},
+        "SH": {"default": "TOGGLE", "display": [1, 3]},
+    },
     "pocket": {
         # left side
         "SA": { "default": "2POS", "display": [ 0, 0 ] },
