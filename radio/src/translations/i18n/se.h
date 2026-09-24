@@ -107,7 +107,7 @@
 #define TR_SD_CARD                      "SD-KORT"
 #define TR_DEBUG                        "Debug"
 #define TR_MENU_RADIO_SWITCHES          TR("BRYTARE","TEST AV BRYTARE")
-#define TR_MENUCALIBRATION              "KALIBRERING"
+#define TR_MENUCALIBRATION              "KALIBRERA"
 #define TR_FUNCTION_SWITCHES            "Anpassningsbara brytare"
 // End Main menu
 
@@ -438,7 +438,7 @@
 #define TR_FONT_SIZES_7                 "XXL"
 #define TR_FONT_SIZES_8                "LXL"
 
-#define TR_ENTER                        "[MENY]"
+#define TR_ENTER                        "[ENTER]"
 #define TR_OK                           TR_BW_COL(TR("\010\010\010[OK]", "\010\010\010\010\010[OK]"), "Ok")
 #define TR_EXIT                         TR_BW_COL("EXIT", "RTN")
 
@@ -573,10 +573,10 @@
 #define TR_BLOFFBRIGHTNESS              "Ljusstyrka av"
 #define TR_KEYS_BACKLIGHT               "Tangentbelysning"
 #define TR_ONE_LOG_PER_DAY              "En logg per dag"
-#define TR_KEY_LOCK_FMT                 "Key lock (%s+%s hold)"
-#define TR_KEYS_LOCKED                  "Keys locked"
-#define TR_KEYS_LOCKED_FMT              "Keys locked (%s+%s)"
-#define TR_KEYS_UNLOCKED                "Keys unlocked"
+#define TR_KEY_LOCK_FMT                 "Knapplås (%s+%s håll)"
+#define TR_KEYS_LOCKED                  "Knappar låsta"
+#define TR_KEYS_LOCKED_FMT              "Knappar låsta (%s+%s)"
+#define TR_KEYS_UNLOCKED                "Knappar upplåsta"
 #define TR_SPLASHSCREEN                 "Startbild"
 #define TR_PLAY_HELLO                   "Startljud"
 #define TR_PWR_ON_DELAY                 "Fördröj start"
@@ -604,12 +604,12 @@
 #define TR_CAL                          "Kal."
 #define TR_CALIBRATION                  BUTTON("Kalibrering")
 #define TR_VTRIM                        "Trimm - +"
-#define TR_CALIB_DONE                   "Kalibrering färdig"
+#define TR_CALIB_DONE                   "Kalibrering klar"
 
 #define TR_MENUTOSTART                  TR_ENTER " FÖR ATT STARTA"
-#define TR_MENUWHENDONE                 TR_ENTER " AVSLUTAR"
-#define TR_AXISDIR                      "AXIS DIR"
-#define TR_MENUAXISDIR                  "[ENTER LONG] "  TR_AXISDIR
+#define TR_MENUWHENDONE                 TR_ENTER " NÄR KLAR"
+#define TR_AXISDIR                      "AXELRIKTN."
+#define TR_MENUAXISDIR                  "[ENTER HÅLL] "  TR_AXISDIR
 #define TR_SETMIDPOINT                  TR_BW_COL(TR_SFC_AIR("CENTRERA VRED", TR("CENTRERA AXLAR", "CENTRERA AXLAR/REGLAGE")), "CENTRERA AXLAR/REGLAGE")
 #define TR_MOVESTICKSPOTS               TR_BW_COL(TR_SFC_AIR("RÖR ST/GA/VRED/AXLAR", "RÖR AXLAR/VRED"), "RÖR AXLAR/VRED")
 #define TR_NODATA                       "DATA SAKNAS"
@@ -982,9 +982,9 @@
 #define TR_GET_READY                    "Gör dig redo..."
 #define TR_SAVED                        "Sparad:"
 #define TR_SAVE_AS                      "Spara som"
-#define TR_AUTO_TRIM                   "Auto-trim"
-#define TR_TRIM_START                  "Trim start"
-#define TR_TRIM_END                    "Trim end"
+#define TR_AUTO_TRIM                    "Autotrim"
+#define TR_TRIM_START                   "Trimm start"
+#define TR_TRIM_END                     "Trimm slut"
 #define TR_OPEN_ERROR                   "Öppningsfel"
 #define TR_TURN_OFF_RECEIVER            "Stäng av mottagare"
 #define TR_STOPPING                     "Stoppar..."
