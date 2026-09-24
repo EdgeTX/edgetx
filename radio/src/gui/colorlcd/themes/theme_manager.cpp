@@ -396,7 +396,8 @@ void ThemePersistance::loadDefaultTheme()
   }
 
   for (auto theme : themes) {
-    if (theme->getName().compare(0, SELECTED_THEME_NAME_LEN, g_eeGeneral.selectedTheme) == 0) {
+    if (theme->getName().compare(0, SELECTED_THEME_NAME_LEN,
+                                  stringFromNtString(g_eeGeneral.selectedTheme)) == 0) {
       found = true;
       break;
     }
@@ -469,8 +470,7 @@ bool ThemePersistance::createNewTheme(const std::string& name, ThemeFile& theme)
 void ThemePersistance::setDefaultTheme(int index)
 {
   if (index >= 0 && index < (int)themes.size()) {
-    strncpy(g_eeGeneral.selectedTheme, themes[index]->getName().c_str(),
-              SELECTED_THEME_NAME_LEN);
+    copyToUnTerminated(g_eeGeneral.selectedTheme, themes[index]->getName());
     SET_DIRTY();
     currentTheme = index;
   }
