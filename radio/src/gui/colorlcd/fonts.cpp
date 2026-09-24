@@ -433,21 +433,18 @@ void decompressFont(int idx, etxLvglFont* fonts)
     lvglCmaps[i].type = etxFont->cmaps[i].type;
   }
 
+  if (idx == FONT_BOLD_INDEX) {
+    // BOLD font falls back to STD for missing chars
+    lvglFont->fallback = fonts[FONT_STD_INDEX].lvglFont;
+  }
+
 #if defined(ENABLE_FALLBACK)
+  // Language fonts fall back to EN font (overrides BOLD -> STD above)
   if (fonts[idx].lz4Font != en_fontTable[idx].lz4Font) {
     decompressFont(idx, en_fontTable);
     lvglFont->fallback = en_fontTable[idx].lvglFont;
   }
 #endif
-
-  if (idx == FONT_BOLD_INDEX) {
-    // BOLD font falls back to STD for missing chars
-#if defined(ALL_LANGS)
-    lvglFont->fallback = en_fontTable[FONT_STD_INDEX].lvglFont;
-#else
-    lvglFont->fallback = fontTable[FONT_STD_INDEX].lvglFont;
-#endif
-  }
 
   // Set LVGL font loaded flag
   fonts[idx].loaded = true;
