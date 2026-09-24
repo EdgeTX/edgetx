@@ -1172,6 +1172,7 @@ char *strAppendSigned(char *dest, int32_t value, uint8_t digits, uint8_t radix)
   return strAppendUnsigned(dest, (uint32_t)value, digits, radix);
 }
 
+// NOTE: 'dest' buffer must be at least 'len + 1' bytes long to allow for nul terminator
 char *strAppend(char *dest, const char *source, int len)
 {
   if (source == nullptr) { *dest = '\0'; return dest; }
