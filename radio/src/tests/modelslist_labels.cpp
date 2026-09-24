@@ -99,7 +99,7 @@ class ModelMapFsTest : public ::testing::Test
     // as a compaction optimisation, which would leave this fixture without
     // a "header:" section at all. Giving it a name keeps the fixture
     // realistic and avoids that unrelated edge case.
-    strAppend(model.header.name, filename, LEN_MODEL_NAME);
+    copyToUnTerminated(model.header.name, filename);
     strAppend(model.header.labels, labels, LABELS_LENGTH - 1);
     model.getScreenData(0)->LayoutId = screenLayoutId;
     model.getTopbarData()->zones[0].widgetName = widgetName;
