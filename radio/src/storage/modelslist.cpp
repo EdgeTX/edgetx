@@ -1253,8 +1253,10 @@ void ModelsList::renameLabel(const std::string &from, const std::string& _to,
       for (auto it = begin(); it != end(); ++it) {
         if (!(*it)->hasLabel(idx)) continue;
         LabelsVector lbls = (*it)->getLabels();
-        lbls.erase(std::remove(lbls.begin(), lbls.end(), from), lbls.end());
-        if (toIdx < 0 || !(*it)->hasLabel(toIdx)) lbls.push_back(to);
+        if (toIdx >= 0 && (*it)->hasLabel(toIdx))
+          lbls.erase(std::remove(lbls.begin(), lbls.end(), from), lbls.end());  // already has 'to'
+        else
+          std::replace(lbls.begin(), lbls.end(), from, to);
         if (toCSV(lbls).size() > LABELS_LENGTH) {
           TRACE("Labels: Rename Error! Labels too long on %s", (*it)->modelName);
           if (progress != nullptr) progress("", 100); // Kill progress dialog
