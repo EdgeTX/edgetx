@@ -1246,30 +1246,29 @@ void ModelsList::renameLabel(const std::string &from, const std::string& _to,
   if (to.size() > 0 && from != to) {
     int idx = getIndexByLabel(from);
     if (idx >= 0) {
-      // Check in case rename would be a dupicate
+      // Renaming to an existing label merges the two
       int toIdx = getIndexByLabel(to);
 
-      // Rename label
-      labels[idx] = to;
-
-      // Check that new label fits in all models
+      // Check that new label fits in all models using it
       for (auto it = begin(); it != end(); ++it) {
-        int newLen = toCSV((*it)->getLabels()).size();
-        if (newLen > LABELS_LENGTH) {
+        if (!(*it)->hasLabel(idx)) continue;
+        LabelsVector lbls = (*it)->getLabels();
+        lbls.erase(std::remove(lbls.begin(), lbls.end(), from), lbls.end());
+        if (toIdx < 0 || !(*it)->hasLabel(toIdx)) lbls.push_back(to);
+        if (toCSV(lbls).size() > LABELS_LENGTH) {
           TRACE("Labels: Rename Error! Labels too long on %s", (*it)->modelName);
           if (progress != nullptr) progress("", 100); // Kill progress dialog
-          // Restore old label
-          labels[idx] = from;
           return;
         }
       }
+
+      if (toIdx < 0) labels[idx] = to;
 
       // Update models
       int i = 1;
       for (auto it = begin(); it != end(); ++it, i += 1) {
         if (progress != nullptr) progress((*it)->modelFilename, (i * 100) / size());
         if ((*it)->hasLabel(idx)) {
-          // Check for duplicate
           if (toIdx >= 0) {
             (*it)->removeLabel(idx);
             (*it)->addLabel(toIdx);
@@ -1277,11 +1276,9 @@ void ModelsList::renameLabel(const std::string &from, const std::string& _to,
           (*it)->updateModelFile();
         }
       }
-      // Check for duplicate
+
       if (toIdx >= 0) {
-        // Restore temporarily so it can be deleted
-        labels[idx] = from;
-        // Progress already reported 100% above
+        // Remove the old label, now unused; progress already reported 100% above
         removeLabel(from, nullptr);
       }
 

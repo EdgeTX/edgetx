@@ -663,6 +663,46 @@ TEST_F(ModelCellManagerFsTest, RenameLabelOntoExistingLabelWithProgressDialog)
   lcdInit();
 }
 
+TEST_F(ModelCellManagerFsTest, RenameLabelOntoExistingLabelNeverDuplicatesLabel)
+{
+  writeFixtureModel("model0001.yml", "One", "Bar");
+  writeFixtureModel("model0002.yml", "Two", "Foo,Bar");
+  writeFixtureModel("model0003.yml", "Three", "Foo");
+  setCurrentFilename("model0001.yml");
+  modelCellManager.load();
+
+  modelCellManager.renameLabel("Foo", "Bar", [&](const char*, int) {
+    EXPECT_EQ(countOf(modelCellManager.getLabels(), "Bar"), 1)
+        << "label list has duplicate entries during merge";
+  });
+
+  EXPECT_EQ(modelCellManager.getIndexByLabel("Foo"), -1);
+  EXPECT_EQ(labelsOf("model0003.yml"), (LabelsVector{"Bar"}));
+}
+
+TEST_F(ModelCellManagerFsTest, RenameLabelOntoExistingLabelRejectedIfTooLong)
+{
+  // 5 x 16 + 13 + 5 separators = 98 chars, merging the 13 char label into a
+  // 16 char label would need 101
+  std::vector<std::string> many;
+  for (int i = 0; i < 5; i++) many.push_back(std::string(16, 'A' + i));
+  many.push_back(std::string(13, 'F'));
+  std::string existing(16, 'Z');
+
+  writeFixtureModel("model0001.yml", "One", existing.c_str());
+  writeFixtureModel("model0002.yml", "Two", joinCSV(many).c_str());
+  setCurrentFilename("model0001.yml");
+  modelCellManager.load();
+  ASSERT_EQ(labelsOf("model0002.yml").size(), 6u);
+
+  modelCellManager.renameLabel(many[5], existing);
+
+  EXPECT_EQ(countOf(modelCellManager.getLabels(), many[5]), 1);
+  EXPECT_EQ(countOf(modelCellManager.getLabels(), existing), 1);
+  EXPECT_EQ(sorted(labelsOf("model0002.yml")), sorted(many));
+  EXPECT_EQ(labelsOf("model0001.yml"), (LabelsVector{existing}));
+}
+
 // ---------------------------------------------------------------------------
 // removeLabel
 // ---------------------------------------------------------------------------
