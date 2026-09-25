@@ -46,7 +46,7 @@ Board * BoardFactories::boardForHwDefn(const QString & hwdefn) const
     auto board = registeredFactory->board();
     if (board->getHwDefn() == hwdefn) {
       if (!board->isLoaded())
-        board->loadDefinitions();
+        board->loadDefinition();
 
       return board;
     }
@@ -61,13 +61,25 @@ Board * BoardFactories::boardForId(const QString & id) const
     auto board = registeredFactory->board();
     if (board->getId() == id) {
       if (!board->isLoaded())
-        board->loadDefinitions();
+        board->loadDefinition();
 
       return board;
     }
   }
 
   return m_default;
+}
+
+bool BoardFactories::isAvailable(const QString & id) const
+{
+  for (auto *registeredFactory : registeredBoardFactories) {
+    auto board = registeredFactory->board();
+    if (board->getId() == id) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 //  Registering firmware triggers registering the associated board
@@ -78,7 +90,7 @@ bool BoardFactories::registerBoard(const QString & id, const QString & hwdefn, c
 
     if (regboard->getId() == id) {
       if (regboard->getHwDefn() == hwdefn) {
-        //qDebug() << "Warning - Board" << Boards::getBoardName(regboard->board()) << "already registered";
+        qDebug() << "Warning - Board" << regboard->getName() << "already registered";
         return true;
       }
       else {
@@ -91,7 +103,7 @@ bool BoardFactories::registerBoard(const QString & id, const QString & hwdefn, c
 
   BoardFactory *bf = new BoardFactory(id, hwdefn, isSupported);
 
-  if (bf->board()->loadDefinitions()) {
+  if (bf->board()->loadDefinition()) {
     if (registerBoardFactory(bf)) {
       qDebug() << "Registered board:" << (id != Board::BOARD_UNKNOWN ? bf->board()->getName() : "UNKNOWN (default)");
       return true;
@@ -113,7 +125,7 @@ void BoardFactories::registerAllBoards()
 
   while (it.hasNext()) {
     QString path = it.next();
-    //qDebug() << "found file:" << path;
+    qDebug() << "found file:" << path;
     QJsonDocument *doc = new QJsonDocument();
 
     if (Board::load(doc, path)) {
@@ -123,7 +135,7 @@ void BoardFactories::registerAllBoards()
         QString id = Board::getValueString(obj, "id", QFileInfo(path).baseName());
         registerBoard(id, path, Board::getValueBool(obj, "supported", true));
       } else {
-        //qDebug() << "ignoring file:" << path;
+        qDebug() << "ignoring file:" << path;
       }
     }
 

@@ -146,10 +146,142 @@ static const StringTagMappingTable intModuleTypesLookupTable = {
 
 // not used for yaml
 static const StringTagMappingTable trainerModuleLookupTable = {
-    {std::to_string(Board::SWITCH_NOT_AVAILABLE), "none"},
-    {std::to_string(Board::SWITCH_TOGGLE),        "ccpm"},
-    {std::to_string(Board::SWITCH_2POS),          "sbus"},
+    {std::to_string(0), "none"},
+    {std::to_string(1), "ccpm"},
+    {std::to_string(2), "sbus"},
 };
+
+// mapping json tag (1st entry) to legacy tag (2nd entry)
+// json tag then used to find inputs index
+// only used to decode pre v2.10 yaml configs
+StringTagMappingTable Board::getLegacyAnalogsLookupTable(QString boardId)
+{
+  Board *board = Board::getBoardForId(boardId);
+  StringTagMappingTable tbl;
+
+  tbl.insert(tbl.end(), {
+                              {tr("LH").toStdString(), "Rud"},
+                              {tr("LV").toStdString(), "Ele"},
+                              {tr("RV").toStdString(), "Thr"},
+                              {tr("RH").toStdString(), "Ail"},
+  });
+
+  tbl.insert(tbl.end(), {
+
+                              {tr("JSx").toStdString(), "MOUSE1"},
+                              {tr("JSy").toStdString(), "MOUSE2"},
+                              {tr("JSx").toStdString(), "JSx"},
+                              {tr("JSy").toStdString(), "JSy"},
+                              {tr("TILT_X").toStdString(), "TILT_X"},
+                              {tr("TILT_Y").toStdString(), "TILT_Y"},
+                              {tr("TILT_X").toStdString(), "GYRO1"},
+                              {tr("TILT_Y").toStdString(), "GYRO2"},
+  });
+
+  if (board->getId() == "x9lite") {
+    tbl.insert(tbl.end(), {
+                              {tr("SL1").toStdString(), "S1"},
+                              {tr("P1").toStdString(), "POT1"},
+                            });
+  } else if (board->getId() == "x9e") {
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "POT1"},
+                              {tr("P2").toStdString(), "POT2"},
+                              {tr("P3").toStdString(), "POT3"},
+                              {tr("P4").toStdString(), "POT4"},
+                              {tr("SL1").toStdString(), "SLIDER1"},
+                              {tr("SL2").toStdString(), "SLIDER2"},
+                              {tr("SL3").toStdString(), "SLIDER3"},
+                              {tr("SL4").toStdString(), "SLIDER4"},
+                          });
+  } else if (IS_TARANIS_XLITES(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "POT1"},
+                              {tr("P2").toStdString(), "POT2"},
+                          });
+  } else if (IS_RADIOMASTER_BOXER(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "POT1"},
+                              {tr("P2").toStdString(), "POT2"},
+                              {tr("P3").toStdString(), "POT3"},
+                          });
+  } else if (IS_RADIOMASTER_POCKET(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "P1"},
+                          });
+  } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board) && !IS_JUMPER_T20(board)) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "POT1"},
+                              {tr("P2").toStdString(), "POT2"},
+                          });
+  } else if (IS_TARANIS_X9(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "POT1"},
+                              {tr("P2").toStdString(), "POT2"},
+                              {tr("P3").toStdString(), "POT3"},
+                              {tr("SL1").toStdString(), "SLIDER1"},
+                              {tr("SL2").toStdString(), "SLIDER2"},
+                          });
+  } else if (IS_HORUS_X12S(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "S1"},
+                              {tr("P2").toStdString(), "6POS"},
+                              {tr("P3").toStdString(), "S2"},
+                              {tr("P4").toStdString(), "S3"},
+                              {tr("P5").toStdString(), "S4"},
+                              {tr("SL1").toStdString(), "LS"},
+                              {tr("SL2").toStdString(), "RS"},
+                          });
+  } else if (IS_FLYSKY_PL18(board) || IS_FLYSKY_PL18U(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "POT1"},
+                              {tr("P2").toStdString(), "POT2"},
+                              {tr("P3").toStdString(), "POT3"},
+                              {tr("SL1").toStdString(), "LS"},
+                              {tr("SL2").toStdString(), "RS"},
+                          });
+  } else if (IS_FLYSKY_PL18EV(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "POT1"},
+                              {tr("P2").toStdString(), "POT2"},
+                              {tr("P3").toStdString(), "POT3"},
+                              {tr("SL1").toStdString(), "LS"},
+                              {tr("SL2").toStdString(), "RS"},
+                              {tr("EXT1").toStdString(), "EXT1"},
+                              {tr("EXT2").toStdString(), "EXT2"},
+                              {tr("EXT3").toStdString(), "EXT3"},
+                              {tr("EXT4").toStdString(), "EXT4"},
+                          });
+  } else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
+    tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "S1"},
+                              {tr("P2").toStdString(), "6POS"},
+                              {tr("P3").toStdString(), "S2"},
+                              {tr("EXT1").toStdString(), "EXT1"},
+                              {tr("EXT2").toStdString(), "EXT2"},
+                              {tr("EXT3").toStdString(), "EXT3"},
+                              {tr("EXT4").toStdString(), "EXT4"},
+                              {tr("SL1").toStdString(), "LS"},
+                              {tr("SL2").toStdString(), "RS"},
+                          });
+  } else if (IS_JUMPER_T20(board)) {
+      tbl.insert(tbl.end(), {
+                              {tr("P1").toStdString(), "P1"},
+                              {tr("P2").toStdString(), "P2"},
+                              {tr("SL1").toStdString(), "SL1"},
+                              {tr("SL2").toStdString(), "SL2"},
+                              {tr("SL3").toStdString(), "SL3"},
+                              {tr("SL4").toStdString(), "SL4"},
+                            });
+  }
+
+  return tbl;
+}
+
+std::string Board::getLegacyAnalogMappedInputTag(const char * legacytag, const QString & boardId)
+{
+  return DataHelpers::getStringTagMappingName(Board::getLegacyAnalogsLookupTable(boardId == Board::BOARD_UNKNOWN ? getCurrentBoard()->getId() : boardId), legacytag);
+}
 
 Board::Board(const QString & id, const QString & hwdefn, const bool isSupported) :
   JsonBase(),
@@ -201,11 +333,11 @@ int Board::getCapability(const Capability capability) const
     case Capability::BacklightLevelMin:
       return m_hardware.backlightLevelMin;
 
-    case Capability::defaultInternalModule:
+    case Capability::DefaultInternalModule:
       return m_hardware.intModules.dflt;
 
     // TODO remove when Modules refactored and use extModules
-    case Capability::defaultExternalModuleSize:
+    case Capability::DefaultExternalModuleSize:
       return getCapability(Capability::HasExternalModuleSupport) ?
              m_hardware.defExtModSz : Board::EXTMODSIZE_NONE;
 
@@ -431,6 +563,11 @@ QString Board::getAxisName(int index)
     return axes[index];
   else
     return CPN_STR_UNKNOWN_ITEM;
+}
+
+bool Board::isAvailable(const QString & id)
+{
+  return gBoardFactories->isAvailable(id);
 }
 
 //  static

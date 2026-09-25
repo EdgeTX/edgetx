@@ -753,8 +753,8 @@ void MdiChild::onFirmwareChanged()
   Firmware * previous = firmware;
   firmware = getCurrentFirmware();
   //qDebug() << "onFirmwareChanged" << previous->getName() << "=>" << firmware->getName();
-  if (!Boards::isBoardCompatible(previous->getBoard(), firmware->getBoard())) {
-    if (!convertStorage(previous->getBoard(), firmware->getBoard())) {
+  if (previous->getBoard()->getId() != firmware->getBoard()->getId()) {
+    if (!convertStorage(previous->getBoard()->getId(), firmware->getBoard()->getId())) {
       closeFile(true);
       return;
     }
@@ -1380,8 +1380,8 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
     setModified();
 
   //  For etx files this will never be true as any conversion occurs when parsing file
-  if (!Boards::isBoardCompatible(storage.getBoard(), getCurrentBoard())) {
-    if (!convertStorage(storage.getBoard(), getCurrentBoard(), true))
+  if (storage.getBoard() != getCurrentBoard()->getId()) {
+    if (!convertStorage(storage.getBoard(), getCurrentBoard()->getId(), true))
       return false;
     setModified();
   }
@@ -1546,7 +1546,7 @@ bool MdiChild::convertStorage(QString from, QString to, bool newFile)
   QMessageBox::StandardButtons btns;
   QMessageBox::StandardButton dfltBtn;
 
-  QString q = tr("<p><b>Currently selected radio type (%1) is not compatible with file %3 (from %2), models and settings need to be converted.</b></p>").arg(Boards::getBoardName(to)).arg(Boards::getBoardName(from)).arg(userFriendlyCurrentFile());
+  QString q = tr("<p><b>Currently selected radio type (%1) is not compatible with file %3 (from %2), models and settings need to be converted.</b></p>").arg(Board::getBoardForId(to)->getName()).arg(Board::getBoardForId(from)->getName()).arg(userFriendlyCurrentFile());
   if (newFile) {
     q.append(tr("Do you wish to continue with the conversion?"));
     btns = (QMessageBox::Yes | QMessageBox::No);

@@ -255,12 +255,11 @@ int main(int argc, char *argv[])
 
   Profile & profile = g.currentProfile();
   if (profile.fwType().isEmpty()){
-    profile.fwType(Firmware::getDefaultVariant()->getId());
+    profile.fwType(Firmware::getDefault()->getId());
     profile.fwName("");
   }
 
-  // force the Board definition to load by appending "-xxx"
-  Firmware::setCurrentVariant(Firmware::getFirmwareForId(g.profile[g.id()].fwType() % "-xxx"));
+  Firmware::setCurrent(Firmware::getFirmwareForId(g.profile[g.id()].fwType()));
 
   MainWindow *mainWin = new MainWindow();
   mainWin->show();

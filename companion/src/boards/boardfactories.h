@@ -44,6 +44,7 @@ class BoardFactories
 
     Board * boardForId(const QString & id) const;
     Board * boardForHwDefn(const QString & hwdefn) const;
+    bool isAvailable(const QString & id) const;
 
     void registerAllBoards();
     bool registerBoard(const QString & board, const QString & hwdefn, const bool isSupported = true);

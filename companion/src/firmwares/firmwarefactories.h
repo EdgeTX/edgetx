@@ -43,6 +43,7 @@ class FirmwareFactories
     virtual ~FirmwareFactories();
 
     Firmware* getFirmware(const QString & id) const;
+    bool isAvailable(const QString & id) const;
 
     bool registerFirmware(const QString & id, const QString & path, const bool isSupported = true);
     bool registerFactory(FirmwareFactory * factory);

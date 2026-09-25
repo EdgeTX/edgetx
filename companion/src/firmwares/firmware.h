@@ -148,6 +148,8 @@ class Firmware : public JsonBase
 
     static Firmware * getFirmwareForId(const QString & id);
     static Firmware * getFirmware(const QString & id = QString());
+    static bool isAvailable(const QString & id);
+
     static QList<Firmware *> getRegisteredFirmwares();
 
     static Firmware * getCurrent() { return m_current; }

@@ -502,7 +502,8 @@ class Board : public JsonBase
 
     const QList<int> supportedInternalModules() const;
 
-    bool loadDefinitions();
+    bool loadDefinition();
+
     const QString radioModeString() const;
     const bool isLoaded() { return m_loaded; }
 
@@ -512,8 +513,10 @@ class Board : public JsonBase
     static AbstractStaticItemModel * intModuleTypeItemModel();
     static AbstractStaticItemModel * switchTypeItemModel();
 
-    static QString getAxisName(int index);
     static Board * getBoardForId(const QString & boardId);
+    static bool isAvailable(const QString & boardId);
+
+    static QString getAxisName(int index);
     static int getNumericSuffix(const std::string str);
     static QString flexTypeToString(int value);
     static QString switchTypeToString(int value);
@@ -570,7 +573,6 @@ class Board : public JsonBase
     const StringTagMappingTable rawSwitchTypesLookupTable;
     const StringTagMappingTable rawSourceSpecialTypesLookupTable;
 
-    bool loadDefinition();
     bool loadDefinition(const QString & path);
 
     void loadADCInputs(QJsonObject::const_iterator & it);
@@ -594,4 +596,6 @@ class Board : public JsonBase
 
     static QString externalModuleSizeToString(int value);
     static int externalModuleStringToSize(const QString & value);
+
+    static StringTagMappingTable getLegacyAnalogsLookupTable(QString boardId = Board::BOARD_UNKNOWN);
 };

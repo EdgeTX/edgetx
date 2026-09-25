@@ -309,6 +309,11 @@ QList<Firmware *> Firmware::getRegisteredFirmwares()
   return gFirmwareFactories->getRegisteredFirmwares();
 }
 
+bool Firmware::isAvailable(const QString & id)
+{
+  return gFirmwareFactories->isAvailable(id);
+}
+
 bool Firmware::isOptionDuplicate(const OptionsGroup & grp, const QString & val)
 {
   // qDebug() << val;

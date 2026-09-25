@@ -567,7 +567,7 @@ bool convert<GeneralSettings>::decode(const Node& node, GeneralSettings& rhs)
   if (node["internalModule"]) {
     node["internalModule"] >> internalModuleLut >> rhs.internalModule;
   } else {
-    rhs.internalModule = fw->getBoard()->getCapability(Capability::defaultInternalModule);
+    rhs.internalModule = fw->getBoard()->getCapability(Capability::DefaultInternalModule);
   }
 
   node["splashMode"] >> rhs.splashMode;

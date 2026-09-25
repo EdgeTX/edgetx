@@ -61,6 +61,16 @@ QList<Firmware *> FirmwareFactories::getRegisteredFirmwares() const
   return ret;
 }
 
+bool FirmwareFactories::isAvailable(const QString & id) const
+{
+  for (auto *registeredFactory : registeredFactories) {
+    if (registeredFactory->getFirmware()->getId() == id)
+      return true;
+  }
+
+  return false;
+}
+
 bool FirmwareFactories::loadDefinition(const QString & id)
 {
   Firmware *firmware = getFirmware(id);
