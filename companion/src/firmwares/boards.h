@@ -233,6 +233,8 @@ namespace Board {
     HasAux2SerialMode,
     HasBacklightColor,
     HasBlingLEDS,
+    HasStatusLedPwm,
+    StatusLedColors,
     HasBluetooth,
     HasColorLcd,
     HasExternalAntenna,
@@ -892,11 +894,3 @@ inline bool IS_ACCESS_RADIO(Board::Type board, const QString & id)
          (IS_FAMILY_HORUS_OR_T16(board) && id.contains("internalaccess"));
 }
 
-// radios whose status LED brightness can be set (H7, soft PWM on a spare timer)
-inline bool HAS_STATUS_LED_PWM(Board::Type board)
-{
-  return IS_RADIOMASTER_TX16SMK3(board) || IS_RADIOMASTER_TX15(board) ||
-         IS_RADIOMASTER_GX15(board) || IS_JUMPER_T15PRO(board) ||
-         IS_JUMPER_T22(board) || IS_SENDUWING_H17(board) ||
-         IS_HELLORADIOSKY_V12(board);
-}

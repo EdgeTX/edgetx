@@ -697,7 +697,6 @@ enum ModelOverridableEnable {
 #define SELECTED_THEME_NAME_LEN 26
 
 // PPM Units
-#if defined(STATUS_LED_PWM)
 // 0 keeps the built-in colour for the phase, so settings written before this
 // existed behave as they always did
 enum StatusLedColor {
@@ -713,7 +712,6 @@ enum StatusLedPhase {
   STATUS_LED_PHASE_READY,
   STATUS_LED_PHASE_EMIT,
 };
-#endif
 
 enum PPMUnit {
     PPM_PERCENT_PREC0,

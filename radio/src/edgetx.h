@@ -345,9 +345,12 @@ void resetBacklightTimeout();
 void checkBacklight();
 #if defined(STATUS_LED_PWM)
 void calcStatusLedBright(int16_t source);
+#endif
+#if defined(STATUS_LED_COLORS)
 void checkStatusLed();
 void statusLedSetPhase(uint8_t phase);
 uint8_t statusLedPhaseColor(uint8_t phase);
+bool statusLedColorAvailable(int color);
 #endif
 
 uint16_t isqrt32(uint32_t n);
@@ -583,21 +586,13 @@ constexpr uint8_t OPENTX_START_NO_SPLASH = 0x01;
 constexpr uint8_t OPENTX_START_NO_CALIBRATION = 0x02;
 constexpr uint8_t OPENTX_START_NO_CHECKS = 0x04;
 
-#if STATUS_LEDS
-#if defined(STATUS_LED_PWM)
+#if defined(STATUS_LED_COLORS)
   #define LED_ERROR_BEGIN()            statusLedSetPhase(STATUS_LED_PHASE_ERROR)
   #define LED_ERROR_END()              statusLedSetPhase(STATUS_LED_PHASE_READY)
-#else
+#elif STATUS_LEDS
+  // a single colour: lit on error only
   #define LED_ERROR_BEGIN()            ledRed()
-  // Green "ready to use" if available, unless overridden by user or mfg preference
-#if !defined(POWER_LED_BLUE) && (defined(LED_GREEN_GPIO) || defined(LED_STRIP_GPIO))
-  #define LED_ERROR_END() ledGreen()
-  #define LED_BIND() ledBlue()
-#else
-// Either green is not an option, or blue is preferred "ready to use" color
-  #define LED_ERROR_END()              ledBlue()
-#endif
-#endif
+  #define LED_ERROR_END()              ledOff()
 #else
   #define LED_ERROR_BEGIN()
   #define LED_ERROR_END()

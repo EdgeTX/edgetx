@@ -40,6 +40,16 @@ int8_t slider_5pos(coord_t y, int8_t value, event_t event, uint8_t attr, const c
   return editChoice(RADIO_SETUP_2ND_COLUMN, y, title, nullptr, value, -2, +2, attr, event, INDENT_WIDTH);
 }
 
+#if defined(STATUS_LED_COLORS)
+// stored value only changes when the user actually picks another colour
+static uint8_t editStatusLedColor(coord_t y, const char* title, uint8_t color, uint8_t attr, event_t event)
+{
+  return editChoice(LCD_W - 2, y, title, STR_STATUS_LED_COLORS, color,
+                    STATUS_LED_COLOR_RED, STATUS_LED_COLOR_BLUE, attr | RIGHT,
+                    event, INDENT_WIDTH, statusLedColorAvailable);
+}
+#endif
+
 #if !defined(SURFACE_RADIO)
 #define CASE_TX_MODE(x) x,
 #else
@@ -87,6 +97,10 @@ enum {
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_SOURCE)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_BACKLIGHT_SOURCE_OVERRIDE)
   CASE_BACKLIGHT(ITEM_RADIO_SETUP_FLASH_BEEP)
+  CASE_STATUS_LED_COLORS(ITEM_RADIO_SETUP_STATUS_LED_LABEL)
+  CASE_STATUS_LED_COLORS(ITEM_RADIO_SETUP_STATUS_LED_ERROR)
+  CASE_STATUS_LED_COLORS(ITEM_RADIO_SETUP_STATUS_LED_READY)
+  CASE_STATUS_LED_COLORS(ITEM_RADIO_SETUP_STATUS_LED_EMIT)
   CASE_KEY_LOCK(ITEM_RADIO_SETUP_KEY_LOCK)
   ITEM_RADIO_ONE_LOG_PER_DAY,
   CASE_SPLASH_PARAM(ITEM_RADIO_SETUP_DISABLE_SPLASH)
@@ -233,6 +247,11 @@ void menuRadioSetup(event_t event)
      CASE_BACKLIGHT(0)
      CASE_BACKLIGHT(BACKLIGHT_WARNING_ROW(LABEL(0)))
      CASE_BACKLIGHT(0)
+    // Status LED
+    CASE_STATUS_LED_COLORS(LABEL(STATUS_LED))
+     CASE_STATUS_LED_COLORS(0)
+     CASE_STATUS_LED_COLORS(0)
+     CASE_STATUS_LED_COLORS(0)
     CASE_KEY_LOCK(0)
     0, // One log per day
     CASE_SPLASH_PARAM(0)
@@ -631,6 +650,33 @@ void menuRadioSetup(event_t event)
           lcdSetContrast();
         }
         break;
+#endif
+
+#if defined(STATUS_LED_COLORS)
+      case ITEM_RADIO_SETUP_STATUS_LED_LABEL:
+        lcdDrawTextAlignedLeft(y, STR_STATUS_LED);
+        break;
+
+      case ITEM_RADIO_SETUP_STATUS_LED_ERROR: {
+        uint8_t color = statusLedPhaseColor(STATUS_LED_PHASE_ERROR);
+        uint8_t value = editStatusLedColor(y, STR_STATUS_LED_ERROR, color, attr, event);
+        if (value != color) g_eeGeneral.statusLedError = value;
+        break;
+      }
+
+      case ITEM_RADIO_SETUP_STATUS_LED_READY: {
+        uint8_t color = statusLedPhaseColor(STATUS_LED_PHASE_READY);
+        uint8_t value = editStatusLedColor(y, STR_STATUS_LED_READY, color, attr, event);
+        if (value != color) g_eeGeneral.statusLedReady = value;
+        break;
+      }
+
+      case ITEM_RADIO_SETUP_STATUS_LED_EMIT: {
+        uint8_t color = statusLedPhaseColor(STATUS_LED_PHASE_EMIT);
+        uint8_t value = editStatusLedColor(y, STR_STATUS_LED_EMIT, color, attr, event);
+        if (value != color) g_eeGeneral.statusLedEmit = value;
+        break;
+      }
 #endif
 
       case ITEM_RADIO_ONE_LOG_PER_DAY: {
