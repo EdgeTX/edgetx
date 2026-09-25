@@ -41,12 +41,12 @@ remove_definitions(-DUSB_SERIAL)
 
 if(NOT NO_LTO)
   message("-- Use LTO to compile bootloader")
-  target_compile_options(stm32cube_ll PRIVATE -flto)
-  target_compile_options(stm32usb PRIVATE -flto)
+  # stm32cube_ll, stm32usb, stm32usb_device_fw and
+  # stm32_drivers_w_dbg_fw are kept out of LTO: their objects must
+  # stay pattern-matchable by the .fastcode output section (hot
+  # USB/SD interrupt code executed from RAM, see firmware.ld)
   target_compile_options(stm32usb_device_bl PRIVATE -flto)
-  target_compile_options(stm32usb_device_fw PRIVATE -flto)
   target_compile_options(stm32_drivers PRIVATE -flto)
-  target_compile_options(stm32_drivers_w_dbg_fw PRIVATE -flto)
   target_compile_options(stm32_drivers_w_dbg_bl PRIVATE -flto)
   target_compile_options(board_bl PRIVATE -flto)
 endif()

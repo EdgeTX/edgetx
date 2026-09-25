@@ -73,6 +73,12 @@ typedef struct __attribute__((packed)) ContextStateFrame {
 __attribute__((optimize("O0")))
 void hard_fault_handler_c(sContextStateFrame *frame) {
   HALT_IF_DEBUGGING();
+#if defined(DIAG_BANK2_FENCE) && !defined(BOOT)
+  // record escalated fence traps (bank 2 access from a high-priority
+  // context) and reboot instead of returning into the fault
+  extern void bank2FenceRecordHardFault(uint32_t return_address);
+  bank2FenceRecordHardFault(frame->return_address);
+#endif
 }
 
 void HardFault_Handler(void) {

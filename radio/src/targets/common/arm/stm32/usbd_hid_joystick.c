@@ -521,6 +521,22 @@ uint8_t USBD_HID_SendReport(USBD_HandleTypeDef *pdev, uint8_t *report, uint16_t 
 }
 
 /**
+  * @brief  USBD_HID_IsReady
+  *         Check whether the HID IN endpoint is idle, i.e. the
+  *         previous report has been fully transmitted and the report
+  *         buffer may be safely rewritten
+  * @param  pdev: device instance
+  * @retval 1 if ready, 0 if busy or not initialized
+  */
+uint8_t USBD_HID_IsReady(USBD_HandleTypeDef *pdev)
+{
+  USBD_HID_HandleTypeDef *hhid =
+      (USBD_HID_HandleTypeDef *)pdev->pClassDataCmsit[pdev->classId];
+  if (hhid == NULL) return 0;
+  return (hhid->state == USBD_HID_IDLE) ? 1 : 0;
+}
+
+/**
   * @brief  USBD_HID_GetPollingInterval
   *         return polling interval from endpoint descriptor
   * @param  pdev: device instance
