@@ -52,3 +52,6 @@ void lcdClear();
 void lcdRefresh();
 
 extern "C" void lcdFlushed();
+
+// LVGL render rate (capped at refresh rate) and UI task CPU load in %
+void lcdGetPerfStats(uint32_t& fps, uint32_t& cpu);

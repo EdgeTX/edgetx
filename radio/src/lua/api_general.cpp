@@ -2223,6 +2223,28 @@ static int luaGetUsage(lua_State * L)
   return 1;
 }
 
+#if defined(COLORLCD)
+/*luadoc
+@function getUIPerf()
+
+Get UI rendering performance, same figures as the UI_PERF_MONITOR overlay.
+
+@retval fps (number) frames per second LVGL could render, capped at the display refresh rate
+
+@retval cpu (number) UI task CPU load, a value from 0 to 100 (percent)
+
+@status current Introduced in 3.0
+*/
+static int luaGetUIPerf(lua_State * L)
+{
+  uint32_t fps, cpu;
+  lcdGetPerfStats(fps, cpu);
+  lua_pushinteger(L, fps);
+  lua_pushinteger(L, cpu);
+  return 2;
+}
+#endif
+
 /*luadoc
 @function getAvailableMemory()
 
@@ -3157,6 +3179,9 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( loadScript, luaLoadScript )
   LROT_FUNCENTRY( getUsage, luaGetUsage )
   LROT_FUNCENTRY( getAvailableMemory, luaGetAvailableMemory )
+#if defined(COLORLCD)
+  LROT_FUNCENTRY( getUIPerf, luaGetUIPerf )
+#endif
   LROT_FUNCENTRY( resetGlobalTimer, luaResetGlobalTimer )
 #if LCD_DEPTH > 1 && !defined(COLORLCD)
   LROT_FUNCENTRY( GREY, luaGrey )
