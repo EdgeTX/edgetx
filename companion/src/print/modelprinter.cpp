@@ -275,8 +275,7 @@ QString ModelPrinter::printHeliSwashType ()
 QString ModelPrinter::printCenterBeep()
 {
   QStringList strl;
-  QString board = getCurrentBoard();
-  int inputs = Boards::getBoardCapability(board, Board::Inputs);
+  int inputs = getCurrentBoard()->getCapability(Capability::Inputs);
 
   for (int i = 0; i < inputs; i++) {
     if (model.beepANACenter & (0x01 << i)) {
@@ -368,10 +367,10 @@ QString ModelPrinter::printInputLine(const ExpoData & input)
     str += " " + flightModesStr.toHtmlEscaped();
 
   if (input.swtch.type != SWITCH_TYPE_NONE)
-    str += " " + tr("Switch(%1)").arg(input.swtch.toString(getCurrentBoard(), &generalSettings, &model)).toHtmlEscaped();
+    str += " " + tr("Switch(%1)").arg(input.swtch.toString(getCurrentBoard()->getId(), &generalSettings, &model)).toHtmlEscaped();
 
 
-  if (firmware->getCapability(VirtualInputs)) {
+  if (firmware->getCapability(Capability::VirtualInputs)) {
     if ((input.srcRaw.isStick() && input.carryTrim == CARRYTRIM_STICK_OFF) || (!input.srcRaw.isStick() && input.carryTrim == CARRYTRIM_DEFAULT))
       str += " " + tr("No Trim");
     else if (input.carryTrim != CARRYTRIM_DEFAULT)
@@ -414,7 +413,7 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
     str += " " + flightModesStr.toHtmlEscaped();
 
   if (mix.swtch.type != SWITCH_TYPE_NONE)
-    str += " " + tr("Switch(%1)").arg(mix.swtch.toString(getCurrentBoard(), &generalSettings, &model)).toHtmlEscaped();
+    str += " " + tr("Switch(%1)").arg(mix.swtch.toString(getCurrentBoard()->getId(), &generalSettings, &model)).toHtmlEscaped();
 
   if (mix.carryTrim > 0)
     str += " " + tr("NoTrim");
@@ -450,7 +449,7 @@ QString ModelPrinter::printMixerLine(const MixData & mix, bool showMultiplex, in
 
 QString ModelPrinter::printFlightModeSwitch(const RawSwitch & swtch)
 {
-  return swtch.toString(getCurrentBoard(), &generalSettings);
+  return swtch.toString(getCurrentBoard()->getId(), &generalSettings);
 }
 
 QString ModelPrinter::printFlightModeName(int index)
@@ -463,7 +462,7 @@ QString ModelPrinter::printFlightModes(unsigned int flightModes)
   int numFlightModes = firmware->getCapability(FlightModes);
   if (numFlightModes && flightModes) {
     if (flightModes == (unsigned int)(1 << numFlightModes) - 1) {
-      return (Boards::getCapability(getCurrentBoard(), Board::Air)
+      return (getCurrentBoard()->getCapability(Capability::Air)
                   ? tr("Disabled in all flight modes")
                   : tr("Disabled in all drive modes"));
     } else {
@@ -473,7 +472,7 @@ QString ModelPrinter::printFlightModes(unsigned int flightModes)
           list << printFlightModeName(i);
         }
       }
-      if (Boards::getCapability(getCurrentBoard(), Board::Air)) {
+      if (getCurrentBoard()->getCapability(Capability::Air)) {
         return (list.size() > 1 ? tr("Flight modes") : tr("Flight mode")) +
                QString("(%1)").arg(list.join(", "));
       } else {
@@ -488,7 +487,7 @@ QString ModelPrinter::printFlightModes(unsigned int flightModes)
 
 QString ModelPrinter::printInputFlightModes(unsigned int flightModes)
 {
-  int numFlightModes = firmware->getCapability(FlightModes);
+  int numFlightModes = firmware->getCapability(Capability::FlightModes);
   if (numFlightModes && flightModes) {
     if (flightModes == (unsigned int)(1 << numFlightModes) - 1) {
       return tr("None");
@@ -523,13 +522,13 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
   }
   switch (ls.getFunctionFamily()) {
     case LS_FAMILY_EDGE:
-      sw1Name = RawSwitch(ls.val1).toString(getCurrentBoard(), &generalSettings);
+      sw1Name = RawSwitch(ls.val1).toString(getCurrentBoard()->getId(), &generalSettings);
       result += tr("Edge") + QString("(%1, [%2:%3])").arg(sw1Name).arg(ValToTim(ls.val2)).arg(ls.val3 < 0 ?
                 tr("instant") : (ls.val3 == 0 ? tr("infinite") : QString("%1").arg(ValToTim(ls.val2 + ls.val3))));
       break;
     case LS_FAMILY_STICKY:
-      sw1Name = RawSwitch(ls.val1).toString(getCurrentBoard(), &generalSettings);
-      sw2Name = RawSwitch(ls.val2).toString(getCurrentBoard(), &generalSettings);
+      sw1Name = RawSwitch(ls.val1).toString(getCurrentBoard()->getId(), &generalSettings);
+      sw2Name = RawSwitch(ls.val2).toString(getCurrentBoard()->getId(), &generalSettings);
       result += tr("Sticky") + QString("(%1, %2)").arg(sw1Name).arg(sw2Name);
       if (ls.lsPersist)
         result += tr(" Persistent");
@@ -568,8 +567,8 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
       break;
     }
     case LS_FAMILY_VBOOL:
-      sw1Name = RawSwitch(ls.val1).toString(getCurrentBoard(), &generalSettings);
-      sw2Name = RawSwitch(ls.val2).toString(getCurrentBoard(), &generalSettings);
+      sw1Name = RawSwitch(ls.val1).toString(getCurrentBoard()->getId(), &generalSettings);
+      sw2Name = RawSwitch(ls.val2).toString(getCurrentBoard()->getId(), &generalSettings);
       result += sw1Name;
       switch (ls.func) {
         case LS_FN_AND:
@@ -630,7 +629,7 @@ QString ModelPrinter::printLogicalSwitchLine(int idx)
 
   if (ls.andsw != 0) {
     result +=" ) AND ";
-    result += RawSwitch(ls.andsw).toString(getCurrentBoard(), &generalSettings);
+    result += RawSwitch(ls.andsw).toString(getCurrentBoard()->getId(), &generalSettings);
   }
 
   if (ls.duration)
@@ -753,29 +752,29 @@ QString ModelPrinter::printSettingsOther()
 QString ModelPrinter::printSwitchWarnings()
 {
   QStringList str;
-  QString board = getCurrentBoard();
+  Board *board = getCurrentBoard();
   uint64_t switchStates = model.switchWarningStates;
   uint64_t value;
 
-  for (int i = 0; i < Boards::getCapability(board, Board::Switches); i++) {
+  for (int i = 0; i < board->getCapability(Capability::Switches); i++) {
     Board::SwitchType type = model.getSwitchType(i, generalSettings);
     if (type != Board::SWITCH_2POS && type != Board::SWITCH_3POS) {
       continue;
     }
     value = (switchStates >> (2 * i)) & 0x03;
     if (value > 0)
-      str += RawSwitch(SWITCH_TYPE_SWITCH, i * 3 + value).toString(board, &generalSettings, &model);
+      str += RawSwitch(SWITCH_TYPE_SWITCH, i * 3 + value).toString(board->getId(), &generalSettings, &model);
   }
   return (str.isEmpty() ? tr("None") : str.join(" ")) ;
 }
 
 QString ModelPrinter::printPotWarnings()
 {
-  QString board = getCurrentBoard();
+  Board *board = getCurrentBoard();
   QStringList str = { printLabelValue(tr("Mode"), printPotsWarningMode()) };
 
   if (model.potsWarningMode) {
-    for (int i = Boards::getCapability(board, Board::Sticks); i < Boards::getCapability(board, Board::Inputs); i++) {
+    for (int i = board->getCapability(Capability::Sticks); i < board->getCapability(Capability::Inputs); i++) {
       if (generalSettings.isInputAvailable(i) && (generalSettings.isInputPot(i) || generalSettings.isInputSlider(i))) {
         if (model.potsWarnEnabled[i]) {
           RawSource src(SOURCE_TYPE_INPUT, i);
@@ -851,8 +850,8 @@ QString ModelPrinter::printSettingsTrim()
   str << printLabelValue(tr("Step"), printTrimIncrementMode());
   str << printLabelValue(tr("Display"), printTrimsDisplayMode());
   str << printLabelValue(tr("Extended"), printBoolean(model.extendedTrims, BOOLEAN_YESNO));
-  QString board = firmware->getBoard();
-  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) {
+
+  if (firmware->getBoard()->getCapability(Capability::HasHats)) {
     str << printLabelValue(tr("Hats Mode"), printHatsMode());
   }
   return str.join(" ");
@@ -860,13 +859,13 @@ QString ModelPrinter::printSettingsTrim()
 
 QString ModelPrinter::printThrottleSource(int idx)
 {
-  QString board = firmware->getBoard();
-  int pscnt = Boards::getCapability(board, Board::Pots) + Boards::getCapability(board, Board::Sliders);
+  Board *board = firmware->getBoard();
+  int pscnt = board->getCapability(Capability::Pots) + board->getCapability(Capability::Sliders);
 
   if (idx == 0)
     return "THR";
   else if (idx <= pscnt)
-    return Boards::getInputName(idx + Boards::getCapability(board, Board::Sticks) - 1, board);
+    return board->getInputName(idx + board->getCapability(Capability::Sticks) - 1);
   else if (idx <= pscnt + getCurrentFirmware()->getCapability(Outputs))
     return RawSource(SOURCE_TYPE_CH, idx - pscnt - 1).toString(&model, &generalSettings);
 

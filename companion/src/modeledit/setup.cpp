@@ -69,15 +69,15 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   panelItemModels->registerItemModel(TimerData::showElapsedItemModel());
   panelItemModels->registerItemModel(ModuleData::crsfArmingModeItemModel());
 
-  QString board = firmware->getBoard();
+  Board *board = firmware->getBoard();
 
   memset(modules, 0, sizeof(modules));
 
   ui->name->setValidator(new NameValidator(board, this));
   ui->name->setMaxLength(firmware->getCapability(ModelName));
 
-  if (firmware->getCapability(HasModelImage)) {
-    if (Boards::getCapability(board, Board::HasColorLcd)) {
+  if (firmware->getCapability(Capability::HasModelImage)) {
+    if (board->getCapability(Capability::HasColorLcd)) {
       ui->imagePreview->setFixedSize(QSize(192, 114));
     }
     else {
@@ -162,8 +162,8 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   // Beep Center checkboxes
   prevFocus = ui->trimsDisplay;
 
-  const int ttlSticks = Boards::getBoardCapability(board, Board::Sticks);
-  const int ttlFlexInputs = Boards::getBoardCapability(board, Board::FlexInputs);
+  const int ttlSticks = board->getCapability(Capability::Sticks);
+  const int ttlFlexInputs = board->getCapability(Capability::FlexInputs);
   const int ttlInputs = ttlSticks + ttlFlexInputs;
 
   for (int i = 0; i < ttlInputs; i++) {
@@ -183,7 +183,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
   }
 
   // Startup switches warnings
-  for (int i = 0; i < Boards::getBoardCapability(board, Board::Switches); i++) {
+  for (int i = 0; i < board->getCapability(Capability::Switches); i++) {
     Board::SwitchType swType = model.getSwitchType(i, generalSettings);
 
     RawSource src(RawSourceType::SOURCE_TYPE_SWITCH, i + 1);
@@ -245,7 +245,7 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
 
   ui->trimsDisplay->setField(model.trimsDisplay, this);
 
-  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) {
+  if (board->getCapability(Capability::HasHats)) {
     ui->cboHatsMode->setModel(panelFilteredModels->getItemModel(FIM_HATSMODE));
     ui->cboHatsMode->setField(model.hatsMode, this);
   }
@@ -254,14 +254,14 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     ui->cboHatsMode->hide();
   }
 
-  if (Boards::getCapability(firmware->getBoard(), Board::FunctionSwitches) > 0) {
+  if (board->getCapability(Capability::FunctionSwitches) > 0) {
     funcswitches = new FunctionSwitchesPanel(this, model, generalSettings, firmware);
     ui->functionSwitchesLayout->addWidget(funcswitches);
     connect(funcswitches, &FunctionSwitchesPanel::modified, this, &SetupPanel::modified);
     connect(funcswitches, &FunctionSwitchesPanel::updateDataModels, this, &SetupPanel::onFunctionSwitchesUpdateItemModels);
   }
 
-  for (int i = firmware->getCapability(NumFirstUsableModule); i < firmware->getCapability(NumModules); i++) {
+  for (int i = firmware->getCapability(Capability::NumFirstUsableModule); i < firmware->getCapability(Capability::NumModules); i++) {
     modules[i] = new ModulePanel(this, model, model.moduleData[i], generalSettings, firmware, i, panelFilteredModels, panelItemModels);
     ui->modulesLayout->addWidget(modules[i]);
     connect(modules[i], &ModulePanel::modified, this, &SetupPanel::modified);
@@ -269,15 +269,15 @@ SetupPanel::SetupPanel(QWidget * parent, ModelData & model, GeneralSettings & ge
     connect(this, &SetupPanel::extendedLimitsToggled, modules[i], &ModulePanel::onExtendedLimitsToggled);
   }
 
-  for (int i = firmware->getCapability(NumFirstUsableModule); i < firmware->getCapability(NumModules); i++) {
-    for (int j = firmware->getCapability(NumFirstUsableModule); j < firmware->getCapability(NumModules); j++) {
+  for (int i = firmware->getCapability(Capability::NumFirstUsableModule); i < firmware->getCapability(Capability::NumModules); i++) {
+    for (int j = firmware->getCapability(Capability::NumFirstUsableModule); j < firmware->getCapability(Capability::NumModules); j++) {
       if (i != j) {
         connect(modules[i], SIGNAL(failsafeModified(unsigned)), modules[j], SLOT(onFailsafeModified(unsigned)));
       }
     }
   }
 
-  if (firmware->getCapability(ModelTrainerEnable)) {
+  if (firmware->getCapability(Capability::ModelTrainerEnable)) {
     modules[CPN_MAX_MODULES] = new ModulePanel(this, model, model.moduleData[CPN_MAX_MODULES], generalSettings, firmware, -1, panelFilteredModels);
     ui->modulesLayout->addWidget(modules[CPN_MAX_MODULES]);
     connect(modules[CPN_MAX_MODULES], &ModulePanel::modified, this, &SetupPanel::modified);
@@ -376,13 +376,13 @@ void SetupPanel::on_image_currentIndexChanged(int index)
 
 void SetupPanel::populateThrottleTrimSwitchCB()
 {
-  QString board = firmware->getBoard();
-  bool isBoardSurface = Boards::isSurface(board);
+  Board *board = firmware->getBoard();
+  bool isBoardSurface = board->getCapability(Capability::Surface);
   lock = true;
   ui->throttleTrimSwitch->clear();
   int idx = 0;
   QString trim;
-  for (int i = 0; i < getBoardCapability(board, Board::NumTrims); i++, idx++) {
+  for (int i = 0; i < board->getCapability(Capability::NumTrims); i++, idx++) {
     if (isBoardSurface) {
       if (i == 0)
         trim = RawSource(SOURCE_TYPE_TRIM, 1 + 1).toString(model, &generalSettings);

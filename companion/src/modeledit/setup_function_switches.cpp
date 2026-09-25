@@ -66,15 +66,15 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
   AbstractStaticItemModel *fsStart = ModelData::funcSwitchStartItemModel();
   AbstractStaticItemModel *fsGroups = ModelData::funcSwitchGroupsModel();
 
-  QString board = firmware->getBoard();
+  Board *board = firmware->getBoard();
 
   lock = true;
 
-  switchcnt = Boards::getCapability(board, Board::FunctionSwitches);
+  switchcnt = board->getCapability(Capability::FunctionSwitches);
 
   fsGroupStart = ModelData::funcSwitchGroupStartSwitchModel(switchcnt);
 
-  if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
+  if (board->getCapability(Capability::FunctionSwitchColors)) {
     QLabel * lblOffColor = new QLabel(this);
     lblOffColor->setText(tr("Off color"));
     ui->gridSwitches->addWidget(lblOffColor, 5, 0);
@@ -89,11 +89,11 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
     ui->gridSwitches->addWidget(lblOnLua, 8, 0);
   }
 
-  for (int sw = 0, col = 0; sw < Boards::getCapability(board, Board::Switches); sw++) {
-    int i = Boards::getCFSIndexForSwitch(sw);
+  for (int sw = 0, col = 0; sw < board->getCapability(Capability::Switches); sw++) {
+    int i = board->getCFSIndexForSwitch(sw);
     if (i >= 0) {
       QLabel * lblSwitchId = new QLabel(this);
-      lblSwitchId->setText(Boards::getSwitchName(sw));
+      lblSwitchId->setText(board->getSwitchName(sw));
 
       AutoLineEdit * aleName = new AutoLineEdit(this);
       aleName->setProperty("index", i);
@@ -124,7 +124,7 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
       ui->gridSwitches->addWidget(cboStartPosn, row++, col + coloffset);
       ui->gridSwitches->addWidget(cboGroup, row++, col + coloffset);
 
-      if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
+      if (board->getCapability(Capability::FunctionSwitchColors)) {
         const QString qss = QString("border-style: outset; border-width: 2px; border-radius: 5px; border-color: darkgrey; padding: 2px; background-color: %1;");
         QPushButton * btnOffColor = new QPushButton(tr(""));
         QColor off = this->model->customSwitches[i].offColor.getQColor();
@@ -189,7 +189,7 @@ FunctionSwitchesPanel::FunctionSwitchesPanel(QWidget * parent, ModelData & model
     }
   }
 
-  for (int i = 0; i < Boards::getCapability(board, Board::FunctionSwitchGroups); i += 1) {
+  for (int i = 0; i < board->getCapability(Capability::FunctionSwitchGroups); i += 1) {
     QLabel * lblGroupId = new QLabel(this);
     lblGroupId->setText(tr("Group %1").arg(i + 1));
 
@@ -229,10 +229,10 @@ void FunctionSwitchesPanel::update()
 {
   lock = true;
 
-  QString board = firmware->getBoard();
+  Board *board = firmware->getBoard();
 
-  for (int sw = 0, col = 0; sw < Boards::getCapability(firmware->getBoard(), Board::Switches); sw++) {
-    int i = Boards::getCFSIndexForSwitch(sw);
+  for (int sw = 0, col = 0; sw < board->getCapability(Capability::Switches); sw++) {
+    int i = board->getCFSIndexForSwitch(sw);
     if (i >= 0) {
       filterSwitchConfigs[col]->invalidate();
       filterSwitchGroups[col]->invalidate();
@@ -248,7 +248,7 @@ void FunctionSwitchesPanel::update()
       cboStartupPosns[col]->setEnabled(cfg == Board::SWITCH_2POS && (grp == 0));
       cboGroups[col]->setEnabled(cfg >= Board::SWITCH_TOGGLE && cfg < Board::SWITCH_GLOBAL);
 
-      if (Boards::getCapability(board, Board::FunctionSwitchColors)) {
+      if (board->getCapability(Capability::FunctionSwitchColors)) {
         btnOffColors[col]->setEnabled(cfg != Board::SWITCH_NOT_AVAILABLE && cfg != Board::SWITCH_GLOBAL);
         cbOffLuaOverrides[col]->setEnabled(cfg != Board::SWITCH_NOT_AVAILABLE && cfg != Board::SWITCH_GLOBAL);
         btnOnColors[col]->setEnabled(cfg != Board::SWITCH_NOT_AVAILABLE && cfg != Board::SWITCH_GLOBAL);
@@ -259,7 +259,7 @@ void FunctionSwitchesPanel::update()
     }
   }
 
-  for (int i = 0; i < Boards::getCapability(board, Board::FunctionSwitchGroups); i += 1) {
+  for (int i = 0; i < board->getCapability(Capability::FunctionSwitchGroups); i += 1) {
     filterGroupSwitches[i]->invalidate();
 
     model->setGroupSwitchState(i + 1, switchcnt);

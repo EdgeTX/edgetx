@@ -204,6 +204,7 @@ int Board::getCapability(const Capability capability) const
     case Capability::defaultInternalModule:
       return m_hardware.intModules.dflt;
 
+    // TODO remove when Modules refactored and use extModules
     case Capability::defaultExternalModuleSize:
       return getCapability(Capability::HasExternalModuleSupport) ?
              m_hardware.defExtModSz : Board::EXTMODSIZE_NONE;
@@ -304,6 +305,9 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::HasInternalModuleSupport:
       return m_hardware.has_int_module_support;
+
+    case Capability::HasKeyLockCombo:
+      return m_hardware.hasKeyLockCombo;
 
     case Capability::HasRTC:
       return m_inputCnt.rtcbat;

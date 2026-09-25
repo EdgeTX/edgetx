@@ -90,7 +90,7 @@ class FlightModePanel : public ModelPanel
     QVector<QComboBox *> trimsUse;
     QVector<QSpinBox *> trimsValue;
     QVector<QSlider *> trimsSlider;
-    QString board;
+    Board *board;
     QString radioMode;
 
     void trimUpdate(unsigned int trim);

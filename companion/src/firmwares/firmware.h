@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "../shared/capability.h"
+#include "../shared/capabilities.h"
 #include "constants.h"
 #include "helpers_json.h"
 

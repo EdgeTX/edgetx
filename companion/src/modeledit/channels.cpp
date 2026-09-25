@@ -92,7 +92,7 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
   ModelPanel(parent, model, generalSettings, firmware),
   sharedItemModels(sharedItemModels)
 {
-  QString board = firmware->getBoard();
+  Board *board = firmware->getBoard();
 
   chnCapability = firmware->getCapability(Outputs);
   int channelNameMaxLen = firmware->getCapability(ChannelsName);

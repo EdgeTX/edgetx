@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "../shared/capability.h"
+#include "../shared/capabilities.h"
 #include "datahelpers.h"
 #include "helpers_json.h"
 
@@ -402,7 +402,7 @@ class Board : public JsonBase
       bool bluetooth                    = false;
       std::string bluetoothName         = "unknown";
       Contrast contrast;
-      int defExtModSz                   = Board::EXTMODSIZE_NONE;
+      int defExtModSz                   = EXTMODSIZE_NONE;  // replace with extModules when Modules Refactored
       int eepromSize                    = 0;
       bool externalAntenna              = false;
       int flashSize                     = 0;

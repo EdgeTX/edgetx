@@ -98,10 +98,7 @@ ui(new Ui::GeneralSetup)
   ui->adjustRTC->setChecked(generalSettings.adjustRTC);
   ui->usbModeCB->setCurrentIndex(generalSettings.usbMode);
 
-  // "Charge while radio on" is only available on RadioMaster radios
-  // that expose the charger-enable pin (rm-h750 based targets).
-  if (IS_RADIOMASTER_TX16SMK3(board) || IS_RADIOMASTER_TX15(board) ||
-      IS_RADIOMASTER_GX15(board)) {
+  if (board->getCapability(Capability::HasChargeWhileOn)) {
     ui->usbChargeChkB->setChecked(!generalSettings.usbChargeDisabled); // Default is zero=checked
   }
   else {
@@ -109,7 +106,7 @@ ui(new Ui::GeneralSetup)
     ui->usbChargeChkB->hide();
   }
 
-  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) {
+  if (board->getCapability(Capability::HasHats)) {
     ui->hatsModeCB->setModel(panelFilteredModels->getItemModel(FIM_HATSMODE));
     ui->hatsModeCB->setField(generalSettings.hatsMode, this);
   }
@@ -128,13 +125,13 @@ ui(new Ui::GeneralSetup)
 
   ui->volume_SL->setMaximum(board->getCapability(Capability::MaxVolume));
 
-  if (!IS_FAMILY_HORUS_OR_T16(board)) {
+  if (!board->getCapability(Capability::HasColorLcd)) {
     ui->OFFBright_SB->hide();
     ui->OFFBright_SB->setDisabled(true);
     ui->label_OFFBright->hide();
   }
 
-  if (!IS_JUMPER_T18(board)) {
+  if (!firmware->getCapability(Capability::HasBacklightKeys)) {
     ui->keysBl_ChkB->hide();
     ui->keysBl_ChkB->setDisabled(true);
     ui->label_KeysBl->hide();
@@ -173,9 +170,9 @@ ui(new Ui::GeneralSetup)
   ui->trainerPowerOffWarnChkB->setChecked(!generalSettings.disableTrainerPoweroffAlarm); // Default is zero=checked
 
   ui->splashScreenDuration->setCurrentIndex(3 - generalSettings.splashMode);
-  if (IS_FAMILY_HORUS_OR_T16(firmware->getBoard())) {
+
+  if (board->getCapability(Capability::HasColorLcd))
     ui->splashScreenDuration->setItemText(0, QCoreApplication::translate("GeneralSetup", "1s", nullptr));
-  }
 
   if (!board->getCapability(Capability::PwrButtonPress)) {
     ui->pwrOnDelayLabel->hide();
@@ -185,7 +182,7 @@ ui(new Ui::GeneralSetup)
     ui->pwrOffIfInactiveLabel->hide();
     ui->pwrOffIfInactiveSB->hide();
   }
-  else if (!IS_TARANIS(board)) {
+  else if (!board->getCapability(Capability::HasPowerOnDelay)) {
     ui->pwrOnDelayLabel->hide();
     ui->pwrOnDelay->hide();
   }
@@ -472,7 +469,7 @@ int pwrDelayToYaml(int delay)
 
 void GeneralSetupPanel::setValues()
 {
-  QString board = firmware->getBoard();
+  Board *board = firmware->getBoard();
   ui->beeperCB->setCurrentIndex(generalSettings.beeperMode+2);
   ui->channelorderCB->setCurrentIndex(ui->channelorderCB->findData(generalSettings.templateSetup));
   ui->stickmodeCB->setCurrentIndex(ui->stickmodeCB->findData(generalSettings.stickMode));
@@ -505,8 +502,7 @@ void GeneralSetupPanel::setValues()
   ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
   ui->chkOneLogPerDay->setChecked(generalSettings.oneLogPerDay);
   {
-    BoardJson* bj = Boards::getBoardJson(board);
-    bool hasCombo = bj && bj->hasKeyLockCombo();
+    bool hasCombo = board->getCapability(Capability::HasKeyLockCombo);
     ui->chkKeyLockEnabled->setChecked(hasCombo && generalSettings.keyLockEnabled);
     ui->chkKeyLockEnabled->setEnabled(hasCombo);
     ui->label_keyLockEnabled->setEnabled(hasCombo);

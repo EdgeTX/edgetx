@@ -58,7 +58,8 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
 
   GeneralSettings &generalSettings = radioData.generalSettings;
   ModelData &model = radioData.models[modelId];
-  QString radioMode = Boards::getRadioModeString(firmware->getBoard());
+  Board *board = firmware->getBoard();
+  QString radioMode = board->radioModeString();
 
   sharedItemModels = new CompoundItemModelFactory(&generalSettings, &model);
   sharedItemModels->addItemModel(AbstractItemModel::IMID_RawSource);
@@ -83,7 +84,7 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
     s1.report("Heli");
   }
 
-  QString tabTitle = QString(tr("%1 Modes").arg(Boards::getRadioModeString(firmware->getBoard())));
+  QString tabTitle = QString(tr("%1 Modes").arg(radioMode));
   FlightModesPanel *flightModesPanel = new FlightModesPanel(this, model, generalSettings, firmware, sharedItemModels, radioMode);
   addTab(flightModesPanel, tabTitle);
   s1.report(tabTitle);
@@ -101,7 +102,7 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
   addTab(new CurvesPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Curves"));
   s1.report("Curves");
 
-  if (firmware->getCapability(Gvars)) {
+  if (firmware->getCapability(Capability::Gvars)) {
     addTab(new GlobalVariablesPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Global Variables"));
     s1.report("Global Variables");
   }
@@ -115,11 +116,11 @@ ModelEdit::ModelEdit(QWidget * parent, RadioData & radioData, int modelId, Firmw
   addTab(new TelemetryPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Telemetry"));
   s1.report("Telemetry");
 
-  if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
+  if (board->getCapability(Capability::HasColorLcd)) {
     addTab(new ColorCustomScreensPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Custom Screens"));
     s1.report("ColorLcd Custom Screens");
   }
-  else if (firmware->getCapability(TelemetryCustomScreens)) {
+  else if (firmware->getCapability(Capability::TelemetryCustomScreens)) {
     addTab(new TelemetryCustomScreensPanel(this, model, generalSettings, firmware, sharedItemModels), tr("Custom Screens"));
     s1.report("Telemetry Custom Screens");
   }

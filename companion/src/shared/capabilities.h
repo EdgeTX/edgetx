@@ -107,6 +107,10 @@ enum Capability {
   // new
   // Fatfish F16
   HasLCDtoVideo,
+  // IS_JUMPER_T18
+  HasBacklightKeys,
+  // IS_TARANIS
+  HasPowerOnDelay,
   // TODO boards start here but need to sort
   Air,
   BacklightLevelMin,
@@ -188,4 +192,15 @@ enum Capability {
   Surface,
   Switches,
   SwitchesPositions,
+  // NEW
+  // "Charge while radio on" is only available on RadioMaster radios
+  // that expose the charger-enable pin (rm-h750 based targets).
+  //if (IS_RADIOMASTER_TX16SMK3(board) || IS_RADIOMASTER_TX15(board) ||
+  //    IS_RADIOMASTER_GX15(board)) {
+  HasChargeWhileOn,
+  //if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) {
+  HasHats,
+  HasKeyLockCombo,
+  // (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board))
+  HasStickDeadZone,
 };

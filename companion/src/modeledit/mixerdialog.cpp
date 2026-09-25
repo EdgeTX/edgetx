@@ -39,7 +39,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
 {
   ui->setupUi(this);
 
-  QString board = firmware->getBoard();
+  Board *board = firmware->getBoard();
 
   dialogFilteredItemModels = new FilteredItemModelFactory();
 
@@ -93,7 +93,7 @@ MixerDialog::MixerDialog(QWidget *parent, ModelData & model, MixData * mixdata, 
 
   if (!firmware->getCapability(VirtualInputs)) {
     for(int i = 0; i < CPN_MAX_STICKS; i++) {
-      ui->trimCB->addItem(Boards::getInputName(i, board));
+      ui->trimCB->addItem(board->getInputName(i));
     }
   }
 
