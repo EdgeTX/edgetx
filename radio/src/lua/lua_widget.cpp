@@ -617,8 +617,7 @@ LuaScriptManager::~LuaScriptManager()
 {
   luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
   if (luaInputTelemetryFifo != nullptr) {
-    deregisterTelemetryQueue(luaInputTelemetryFifo);
-    delete luaInputTelemetryFifo;
+    destroyTelemetryQueue(luaInputTelemetryFifo);
     luaInputTelemetryFifo = nullptr;
   }
 }
