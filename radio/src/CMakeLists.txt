@@ -67,11 +67,6 @@ else()
   option(ALL_LANGUAGES "Enable runtime language selection" OFF)
 endif()
 
-if(PCB STREQUAL X7 AND PCBREV STREQUAL LR3PRO)
-  option(POWER_LED_BLUE  "Override Power LED to be normally Blue" ON)
-else()
-  option(POWER_LED_BLUE  "Override Power LED to be normally Blue" OFF)
-endif()
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
@@ -562,9 +557,6 @@ if(USBJ_EX)
   )
 endif()
 
-if(POWER_LED_BLUE)
-  add_definitions(-DPOWER_LED_BLUE)
-endif()
 
 foreach(FILE ${TARGET_SRC})
   set(SRC targets/${TARGET_DIR}/${FILE} ${SRC})

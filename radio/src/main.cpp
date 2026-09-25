@@ -576,7 +576,7 @@ void perMain()
   DEBUG_TIMER_STOP(debugTimerPerMain1);
 
   checkBacklight();
-#if defined(STATUS_LED_PWM)
+#if defined(STATUS_LED_COLORS)
   checkStatusLed();
 #endif
 

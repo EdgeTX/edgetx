@@ -76,36 +76,32 @@ static inline void check_struct()
   #error CHKSIZE not set up
 #endif
 
+#if defined(STATUS_LED_PWM)
+  #define STATUS_LED_SIZE 4
+#elif defined(STATUS_LED_SETTINGS)
+  #define STATUS_LED_SIZE 1
+#else
+  #define STATUS_LED_SIZE 0
+#endif
+
 #if defined(PCBXLITES)
-  CHKSIZE(RadioData, 951);
+  CHKSIZE(RadioData, 951 + STATUS_LED_SIZE);
 #elif defined(RADIO_ST16) || defined(PCBPA01) || defined(RADIO_TX15) || defined(RADIO_GX15) || defined(RADIO_T15PRO) || defined(RADIO_TX16SMK3) || defined(RADIO_T22)
-  #if defined(STATUS_LED_PWM)
-    CHKSIZE(RadioData, 1186);
-  #else
-    CHKSIZE(RadioData, 1183);
-  #endif
+  CHKSIZE(RadioData, 1183 + STATUS_LED_SIZE);
 #elif defined(RADIO_V12)
-  #if defined(STATUS_LED_PWM)
-    CHKSIZE(RadioData, 1183);
-  #else
-    CHKSIZE(RadioData, 1180);
-  #endif
+  CHKSIZE(RadioData, 1180 + STATUS_LED_SIZE);
 #elif defined(RADIO_H17)
-  #if defined(STATUS_LED_PWM)
-    CHKSIZE(RadioData, 1063);
-  #else
-    CHKSIZE(RadioData, 1060);
-  #endif
+  CHKSIZE(RadioData, 1060 + STATUS_LED_SIZE);
 #elif defined(COLORLCD)
   #if defined(IMU)
-    CHKSIZE(RadioData, 1063);
+    CHKSIZE(RadioData, 1063 + STATUS_LED_SIZE);
   #else
-    CHKSIZE(RadioData, 1062);
+    CHKSIZE(RadioData, 1062 + STATUS_LED_SIZE);
   #endif
 #elif defined(RADIO_GX12)
-  CHKSIZE(RadioData, 1068);
+  CHKSIZE(RadioData, 1068 + STATUS_LED_SIZE);
 #else
-  CHKSIZE(RadioData, 948);
+  CHKSIZE(RadioData, 948 + STATUS_LED_SIZE);
 #endif
 
 #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)
