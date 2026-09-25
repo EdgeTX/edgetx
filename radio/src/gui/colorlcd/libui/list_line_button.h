@@ -58,7 +58,7 @@ class InputMixButtonBase : public ListLineButton
 
   void updateHeight();
   virtual void updatePos(coord_t x, coord_t y) = 0;
-  virtual void swapLvglGroup(InputMixButtonBase* line2) = 0;
+  void swapLvglGroup(InputMixButtonBase* swapWith);
 
   void checkEvents() override;
 

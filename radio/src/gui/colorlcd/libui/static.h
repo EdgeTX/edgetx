@@ -136,6 +136,7 @@ class StaticIcon : public Window
 
  protected:
   LcdColorIndex currentColor;
+  EdgeTxIcon currentIcon = EDGETX_ICONS_COUNT;
   MaskBitmap* mask = nullptr;
 };
 

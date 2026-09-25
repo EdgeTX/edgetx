@@ -218,6 +218,20 @@ void InputMixButtonBase::updateHeight()
 #endif
 }
 
+void InputMixButtonBase::swapLvglGroup(InputMixButtonBase* swapWith)
+{
+  // Swap elements (focus + line list)
+  lv_obj_t* obj1 = getLvObj();
+  lv_obj_t* obj2 = swapWith->getLvObj();
+  if (lv_obj_get_parent(obj1) == lv_obj_get_parent(obj2)) {
+    // same input group: swap obj + focus group
+    lv_obj_swap(obj1, obj2);
+  } else {
+    // different input group: swap only focus group
+    lv_group_swap_obj(obj1, obj2);
+  }
+}
+
 static void group_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_std_style(obj, LV_PART_MAIN, PAD_TINY);
