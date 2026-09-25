@@ -1,4 +1,10 @@
 {
+  "identity": {
+    "manufacturer": "RadioMaster",
+    "model": "Boxer",
+    "usb_manufacturer": "RM_TX",
+    "usb_product": "RM Boxer"
+  },
   "adc_inputs": {
     "adcs": [
       {

@@ -73,6 +73,7 @@ BoardJson::BoardJson(Board::Type board, QString hwdefn) :
   m_display({0, 0, 0, 0, 0, 0, 0, 0}),
   m_cfs({0, 0}),
   m_hardware({0, 0, 0}),
+  m_identity({"", ""}),
   m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0, 0}),
   m_switchCnt({0, 0, 0})
 {
@@ -1005,7 +1006,7 @@ bool BoardJson::loadDefinition()
   if (m_board == Board::BOARD_UNKNOWN)
     return true;
 
-  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs, m_hardware, m_hasKeyLockCombo))
+  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs, m_hardware, m_identity, m_hasKeyLockCombo))
     return false;
 
   afterLoadFixups(m_board, m_inputs, m_switches, m_keys, m_trims);
@@ -1042,7 +1043,7 @@ bool BoardJson::loadDefinition()
 // static
 bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
                          KeysTable * keys, TrimsTable * trims, DisplayDefn & display, CustomSwitchesDefn & cfs,
-                         HardwareDefn & hardware, bool & hasKeyLockCombo)
+                         HardwareDefn & hardware, IdentityDefn & identity, bool & hasKeyLockCombo)
 {
   if (board == Board::BOARD_UNKNOWN) {
     return false;
@@ -1293,6 +1294,13 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
     hardware.cpu_type = o.value("cpu_type").toString().toStdString();
   }
 
+  if (obj.value("identity").isObject()) {
+    const QJsonObject &o = obj.value("identity").toObject();
+
+    identity.manufacturer = o.value("manufacturer").toString().toStdString();
+    identity.model = o.value("model").toString().toStdString();
+  }
+
   delete json;
   return true;
 }
@@ -1342,6 +1350,8 @@ const QString BoardJson::getCapabilityStr(const Board::Capability capability) co
       return m_hardware.cpu.c_str();
     case Board::CPUType:
       return m_hardware.cpu_type.c_str();
+    case Board::Manufacturer:
+      return m_identity.manufacturer.c_str();
     default:
       return QString();
   }

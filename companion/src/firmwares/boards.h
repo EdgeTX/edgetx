@@ -262,6 +262,7 @@ namespace Board {
     LcdHeight,
     LcdOLED,
     LcdWidth,
+    Manufacturer,
     MaxContrast,
     MaxVolume,
     MinContrast,

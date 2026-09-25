@@ -52,7 +52,6 @@ add_definitions(-DUSB_CHARGER)
 add_definitions(-DUSB_CHARGE_CONTROL)
 
 set(FLAVOUR gx15)
-add_definitions(-DMANUFACTURER_RADIOMASTER)
 
 # defines existing internal modules
 set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")

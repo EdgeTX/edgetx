@@ -62,6 +62,8 @@ if(NOT NATIVE_BUILD)
     ${STM32USB_DIR}/Class/HID/Inc
     ${STM32USB_DIR}/Class/MSC/Inc)
 
+  add_dependencies(stm32usb_device_bl hal_usb_descriptor)
+
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32usb_device_bl>)
 
   # Firmware USB devices
@@ -84,6 +86,8 @@ if(NOT NATIVE_BUILD)
     ${STM32USB_DIR}/Class/DFU/Inc
     ${STM32USB_DIR}/Class/HID/Inc
     ${STM32USB_DIR}/Class/MSC/Inc)
+
+  add_dependencies(stm32usb_device_fw hal_usb_descriptor)
 
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32usb_device_fw>)
 
