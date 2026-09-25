@@ -26,7 +26,7 @@
 #include "autocombobox.h"
 #include "namevalidator.h"
 #include "helpers.h"
-#include "boardjson.h"
+#include "board.h"
 
 constexpr char FIM_HATSMODE[]       {"Hats Mode"};
 constexpr char FIM_STICKMODE[]      {"Stick Mode"};
@@ -40,13 +40,14 @@ GeneralPanel(parent, generalSettings, firmware),
 ui(new Ui::GeneralSetup)
 {
   ui->setupUi(this);
-  QString board = firmware->getBoard();
+  Board *board = firmware->getBoard();
   panelFilteredModels = new FilteredItemModelFactory();
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::hatsModeItemModel()), FIM_HATSMODE);
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::stickModeItemModel()), FIM_STICKMODE);
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::templateSetupItemModel(),
-                                                               Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
-                                                                                      GeneralSettings::RadioTypeContextSurface),
+                                                               board->getCapability(Capability::Air) ?
+                                                                GeneralSettings::RadioTypeContextAir :
+                                                                GeneralSettings::RadioTypeContextSurface),
                                          FIM_TEMPLATESETUP);
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::backlightModeItemModel()), FIM_BACKLIGHTMODE);
   panelFilteredModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_ControlSource)),
@@ -70,7 +71,7 @@ ui(new Ui::GeneralSetup)
   ui->backlightswCB->setCurrentIndex(ui->backlightswCB->findData(generalSettings.backlightMode));
 
   populateVoiceLangCB(ui->voiceLang_CB, generalSettings.ttsLanguage);
-  populateTextLangCB(ui->textLang_CB, generalSettings.uiLanguage, Boards::getCapability(board, Board::HasColorLcd));
+  populateTextLangCB(ui->textLang_CB, generalSettings.uiLanguage, board->getCapability(Capability::HasColorLcd));
 
   if (!firmware->getCapability(MavlinkTelemetry)) {
     ui->mavbaud_CB->hide();
@@ -117,7 +118,7 @@ ui(new Ui::GeneralSetup)
     ui->hatsModeCB->hide();
   }
 
-  if (Boards::getCapability(board, Board::HasSwitchableJack)) {
+  if (board->getCapability(Capability::HasSwitchableJack)) {
     ui->jackModeCB->setCurrentIndex(generalSettings.jackMode);
   }
   else {
@@ -125,7 +126,7 @@ ui(new Ui::GeneralSetup)
     ui->jackModeCB->hide();
   }
 
-  ui->volume_SL->setMaximum(Boards::getCapability(board, Board::MaxVolume));
+  ui->volume_SL->setMaximum(board->getCapability(Capability::MaxVolume));
 
   if (!IS_FAMILY_HORUS_OR_T16(board)) {
     ui->OFFBright_SB->hide();
@@ -144,15 +145,15 @@ ui(new Ui::GeneralSetup)
     ui->hapticmodeCB->setDisabled(true);
   }
 
-  if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
+  if (board->getCapability(Capability::HasColorLcd)) {
     ui->backlightautoSB->setMinimum(5);
   }
 
-  ui->contrastSB->setMinimum(Boards::getCapability(board, Board::MinContrast));
-  ui->contrastSB->setMaximum(Boards::getCapability(board, Board::MaxContrast));
+  ui->contrastSB->setMinimum(board->getCapability(Capability::MinContrast));
+  ui->contrastSB->setMaximum(board->getCapability(Capability::MaxContrast));
   ui->contrastSB->setValue(generalSettings.contrast);
 
-  if (Boards::getCapability(board, Board::LcdOLED)) {
+  if (board->getCapability(Capability::LcdOLED)) {
     // OLED radios have no backlight - "contrast" is the panel brightness
     ui->label_contrast->setText(tr("Brightness"));
     ui->BLBright_SB->hide();
@@ -176,7 +177,7 @@ ui(new Ui::GeneralSetup)
     ui->splashScreenDuration->setItemText(0, QCoreApplication::translate("GeneralSetup", "1s", nullptr));
   }
 
-  if (!Boards::getCapability(board, Board::PwrButtonPress)) {
+  if (!board->getCapability(Capability::PwrButtonPress)) {
     ui->pwrOnDelayLabel->hide();
     ui->pwrOnDelay->hide();
     ui->pwrOffDelayLabel->hide();
@@ -201,7 +202,7 @@ ui(new Ui::GeneralSetup)
 
   lock = false;
 
-  if (Boards::getCapability(board, Board::HasBacklightColor)) {
+  if (board->getCapability(Capability::HasBacklightColor)) {
     ui->backlightColor_SL->setValue(generalSettings.backlightColor);
   }
   else {
@@ -214,7 +215,7 @@ ui(new Ui::GeneralSetup)
   ui->switchesDelay->setValue(10 * (generalSettings.switchesDelay + 15));
   ui->blAlarm_ChkB->setChecked(generalSettings.alarmsFlash);
 
-  if (Boards::getCapability(board, Board::Surface)) {
+  if (board->getCapability(Capability::Surface)) {
     ui->stickModeLabel->hide();
     ui->stickmodeCB->hide();
   }
@@ -482,7 +483,7 @@ void GeneralSetupPanel::setValues()
     ui->label_HL->hide();
     ui->hapticLengthCB->hide();
   }
-  ui->OFFBright_SB->setMinimum(Boards::getCapability(board, Board::BacklightLevelMin));
+  ui->OFFBright_SB->setMinimum(board->getCapability(Capability::BacklightLevelMin));
   if (generalSettings.backlightOffBright > 100 - generalSettings.backlightBright)
     generalSettings.backlightOffBright = 100 - generalSettings.backlightBright;
   ui->BLBright_SB->setValue(100 - generalSettings.backlightBright);
@@ -515,7 +516,7 @@ void GeneralSetupPanel::setValues()
     }
   }
 
-  if (Boards::getCapability(board, Board::HasColorLcd)) {
+  if (board->getCapability(Capability::HasColorLcd)) {
     ui->modelSelectLayout_CB->setCurrentIndex(generalSettings.modelSelectLayout);
     ui->labelSingleSelect_CB->setCurrentIndex(generalSettings.labelSingleSelect);
     ui->labelMultiMode_CB->setCurrentIndex(generalSettings.labelMultiMode);

@@ -480,7 +480,9 @@ class Profile: public CompStoreObj
   Q_OBJECT
   public:
     Profile & operator=(const Profile & rhs);
-    QString getVariantFromType() const { return fwType().section("-", 1, 1); }
+    // TODO fix when edgetx- removed
+    //      also find firmware in factories and get boardId from there
+    QString getBoardId() const { return fwType().section("-", 1, 1); }
     ComponentReleaseData & getCompRelease(int index);
     const ComponentReleaseData & getCompRelease(int index) const;
 

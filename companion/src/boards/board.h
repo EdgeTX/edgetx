@@ -293,14 +293,14 @@ class Board : public JsonBase
     };
 
     struct InputDefn {
-      Board::AnalogInputType type      = Board::AIT_NONE;
-      std::string tag                  = "";
-      std::string name                 = "";
-      std::string shortName            = "";
-      Board::FlexType flexType         = Board::FLEX_NONE;
-      bool inverted                    = false;
-      Board::LookupValueType cfgYaml   = Board::LVT_TAG;
-      Board::LookupValueType refYaml   = Board::LVT_TAG;
+      AnalogInputType type      = AIT_NONE;
+      std::string tag           = "";
+      std::string name          = "";
+      std::string shortName     = "";
+      FlexType flexType         = FLEX_NONE;
+      bool inverted             = false;
+      LookupValueType cfgYaml   = LVT_TAG;
+      LookupValueType refYaml   = LVT_TAG;
 
       InputDefn() = default;
     };
@@ -313,17 +313,17 @@ class Board : public JsonBase
     };
 
     struct SwitchDefn {
-      std::string tag                  = "";
-      Board::SwitchType type           = Board::SWITCH_NOT_AVAILABLE;
-      std::string name                 = "";
-      int flags                        = 0;
-      bool inverted                    = false;
-      Board::SwitchType dflt           = Board::SWITCH_NOT_AVAILABLE;
+      std::string tag           = "";
+      SwitchType type           = SWITCH_NOT_AVAILABLE;
+      std::string name          = "";
+      int flags                 = 0;
+      bool inverted             = false;
+      SwitchType dflt           = SWITCH_NOT_AVAILABLE;
       Display display;
-      bool isCustomSwitch              = false;
-      int customSwitchIdx              = -1;
-      Board::LookupValueType cfgYaml   = Board::LVT_TAG;
-      Board::LookupValueType refYaml   = Board::LVT_NAME;
+      bool isCustomSwitch       = false;
+      int customSwitchIdx       = -1;
+      LookupValueType cfgYaml   = LVT_TAG;
+      LookupValueType refYaml   = LVT_NAME;
 
       SwitchDefn() = default;
     };
@@ -331,12 +331,12 @@ class Board : public JsonBase
     typedef std::vector<SwitchDefn> SwitchesTable;
 
     struct KeyDefn {
-      std::string tag  = "";
-      std::string name = "";
-      std::string key = "";
-      std::string label = "";
-      Board::LookupValueType cfgYaml   = Board::LVT_TAG;
-      Board::LookupValueType refYaml   = Board::LVT_NAME;
+      std::string tag           = "";
+      std::string name          = "";
+      std::string key           = "";
+      std::string label         = "";
+      LookupValueType cfgYaml   = LVT_TAG;
+      LookupValueType refYaml   = LVT_NAME;
 
       KeyDefn() = default;
     };
@@ -344,10 +344,10 @@ class Board : public JsonBase
     typedef std::vector<KeyDefn> KeysTable;
 
     struct TrimDefn {
-      std::string tag                  = "";
-      std::string name                 = "";
-      Board::LookupValueType cfgYaml   = Board::LVT_TAG;
-      Board::LookupValueType refYaml   = Board::LVT_NAME;
+      std::string tag           = "";
+      std::string name          = "";
+      LookupValueType cfgYaml   = LVT_TAG;
+      LookupValueType refYaml   = LVT_NAME;
 
       TrimDefn() = default;
     };
@@ -379,14 +379,9 @@ class Board : public JsonBase
       int max = 0;
     };
 
-    struct Module {
-      int id                     = 0;
-      std::vector<int> protocols = {};
-    };
-
     struct Modules {
-      std::vector<Module> supported = {};
-      int dflt                      = 0;
+      std::vector<int> available = {};
+      int dflt                   = 0;
     };
 
     struct HardwareDefn {
@@ -430,7 +425,7 @@ class Board : public JsonBase
 
     explicit Board(const QString & id, const QString & hwdefn, const bool isSupported = true);
     explicit Board(const QString & id);
-    virtual ~Board() {}
+    virtual ~Board();
 
     QString getId() { return m_id; }
     const QString getId() const { return m_id; }
@@ -526,6 +521,7 @@ class Board : public JsonBase
     // deprecated
     static std::string getLegacyAnalogMappedInputTag(const char * legacytag, const QString & id = BOARD_UNKNOWN);
 
+    STRINGTAGMAPPINGFUNCS(legacyTrimSourcesLookupTable, LegacyTrimSource);
     STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitch);
     STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchType);
     STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialType);
@@ -569,6 +565,7 @@ class Board : public JsonBase
 
     SwitchCounts m_switchCnt;
 
+    const StringTagMappingTable legacyTrimSourcesLookupTable;
     const StringTagMappingTable trimSwitchesLookupTable;
     const StringTagMappingTable rawSwitchTypesLookupTable;
     const StringTagMappingTable rawSourceSpecialTypesLookupTable;
@@ -582,7 +579,9 @@ class Board : public JsonBase
     void loadDisplay(QJsonObject::const_iterator & it);
     void loadHardware(QJsonObject::const_iterator & it);
     void loadInputs(QJsonObject::const_iterator & it);
+    void loadExtModules(QJsonObject::const_iterator & it);
     void loadIntModules(QJsonObject::const_iterator & it);
+    void loadModules(QJsonObject::const_iterator & oit, Board::Modules & modules);
     void loadKeys(QJsonObject::const_iterator & it);
     void loadLEDS(QJsonObject::const_iterator & it);
     void loadSwitches(QJsonObject::const_iterator & it);

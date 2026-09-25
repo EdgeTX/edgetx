@@ -43,6 +43,18 @@
 #define FSIZE_2MB                      (2048*1024)
 #define FSIZE_MAX                      FSIZE_2MB
 
+// pre v2.10
+static const StringTagMappingTable legacyTrimSourcesLut = {
+    {std::to_string(Board::TRIM_AXIS_LH), "TrimRud"},
+    {std::to_string(Board::TRIM_AXIS_LV), "TrimEle"},
+    {std::to_string(Board::TRIM_AXIS_RV), "TrimThr"},
+    {std::to_string(Board::TRIM_AXIS_RH), "TrimAil"},
+    {std::to_string(Board::TRIM_AXIS_T5), "TrimT5"},
+    {std::to_string(Board::TRIM_AXIS_T6), "TrimT6"},
+    {std::to_string(Board::TRIM_AXIS_T7), "TrimT7"},
+    {std::to_string(Board::TRIM_AXIS_T8), "TrimT8"},
+};
+
 static const StringTagMappingTable trimSwitchesLut = {
     {std::to_string(Board::TRIM_SW_LH_DEC), "TrimRudLeft"},
     {std::to_string(Board::TRIM_SW_LH_INC), "TrimRudRight"},
@@ -457,7 +469,7 @@ AbstractStaticItemModel * Board::switchTypeItemModel()
 
 const QList<int> Board::supportedInternalModules() const
 {
-  QList<int> modules(m_hardware.intModules.supported.begin(), m_hardware.intModules.supported.end());
+  QList<int> modules(m_hardware.intModules.available.begin(), m_hardware.intModules.available.end());
   modules.prepend((int)MODULE_TYPE_NONE);
 
   return modules;
@@ -617,7 +629,7 @@ const int Board::getInputsCalibrated() const
 {
   unsigned int cnt = 0;
 
-  for (int i = 0; i < m_inputs.size(); i++) {
+  for (int i = 0; i < (int)m_inputs.size(); i++) {
      cnt += (int)isInputCalibrated(i);
   }
 
@@ -676,7 +688,7 @@ const int Board::getInputTypeOffset(Board::AnalogInputType type) const
   return -1;
 }
 
-const InputInfo Board::getInputInfo(int index) const
+const Board::InputInfo Board::getInputInfo(int index) const
 {
   InputInfo info;
 
@@ -704,7 +716,7 @@ const int Board::getKeyIndex(QString key) const
   return -1;
 }
 
-const KeyInfo Board::getKeyInfo(int index) const
+const Board::KeyInfo Board::getKeyInfo(int index) const
 {
   KeyInfo info;
 
@@ -1303,9 +1315,8 @@ bool Board::loadDefinition(const QString & path)
     else if (it.key() == "intModules")
       loadIntModules(it);
 
-    else if (it.key() == "defExtModSz") {
-      int idx = externalModuleStringToSize(getValueString(it));
-      m_hardware.defExtModSz = idx > -1 ? idx : m_hardware.defExtModSz;
+    else if (it.key() == "extModules") {
+      loadExtModules(it);
     }
     else if (it.key() == "fourCC")
       m_hardware.fourCC = getValueInt(it, m_hardware.fourCC);
@@ -1321,6 +1332,7 @@ bool Board::loadDefinition(const QString & path)
   }
 
   delete doc;
+  return true;
 }
 
 void Board::loadADCInputs(QJsonObject::const_iterator & oit)
@@ -1428,26 +1440,39 @@ void Board::loadInputs(QJsonObject::const_iterator & oit)
         qWarning() << "Warning: inputs is not an array" << *oit;
 }
 
-void Board::loadIntModules(QJsonObject::const_iterator & oit)
+void Board::loadExtModules(QJsonObject::const_iterator & it)
+{
+  loadModules(it, m_hardware.extModules);
+}
+
+void Board::loadIntModules(QJsonObject::const_iterator & it)
+{
+  loadModules(it, m_hardware.intModules);
+}
+
+void Board::loadModules(QJsonObject::const_iterator & oit, Board::Modules & modules)
 {
   if (oit->isObject()) {
     const QJsonObject &o = oit->toObject();
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "supported") {
+      if (it.key() == "available") {
         if (it.value().isArray()) {
           for (const auto &mod : it.value().toArray()) {
             int idx = DataHelpers::getStringTagMappingIndex(intModuleTypesLookupTable,
-                                                            getValueStdString(it).c_str());
-            if (idx > -1)
-              m_hardware.intModules.supported.push_back(idx);
+                                                            mod.toString().toLatin1().constData());
+            if (idx > -1) {
+              modules.available.push_back(idx);
+            } else {
+              qWarning() << "Warning: unsupported module:" << mod.toString();
+            }
           }
         }
       }
       else if (it.key() == "dflt") {
         int idx = DataHelpers::getStringTagMappingIndex(intModuleTypesLookupTable,
                                                         getValueStdString(it).c_str());
-        m_hardware.intModules.dflt = idx > -1 ? idx : MODULE_TYPE_NONE;
+        modules.dflt = idx > -1 ? idx : MODULE_TYPE_NONE;
       }
       else
         qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
@@ -1715,7 +1740,7 @@ void Board::postLoadFixups()
 
 void Board::setInputCounts()
 {
-  for (int i = 0; i < m_inputs.size(); i++) {
+  for (int i = 0; i < (int)m_inputs.size(); i++) {
     if (isInputStick(i))
       m_inputCnt.sticks++;
     else if (isInputFlexPot(i))
@@ -1739,7 +1764,7 @@ void Board::setInputCounts()
 
 void Board::setSwitchCounts()
 {
-  for (int i = 0; i < m_switches.size(); i++) {
+  for (int i = 0; i < (int)m_switches.size(); i++) {
     if (isSwitchStd(i))
       m_switchCnt.std++;
     else if (isSwitchFlex(i))

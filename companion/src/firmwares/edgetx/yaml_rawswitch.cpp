@@ -21,7 +21,7 @@
 
 #include "yaml_rawswitch.h"
 #include "eeprominterface.h"
-#include "boardjson.h"
+#include "board.h"
 
 //   v2.10, v2.9
 static const StringTagMappingTable funcSwitchConversionTable = {
@@ -39,8 +39,7 @@ static const StringTagMappingTable funcSwitchConversionTable = {
 
 std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 {
-  QString board = getCurrentBoard();
-  Boards b = Boards(board);
+  Board *board = getCurrentBoard();
   std::string sw_str;
   int32_t sval = rhs.index;
   if (rhs.index < 0) {
@@ -48,11 +47,11 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     sw_str += "!";
   }
 
-  int multiposcnt = Boards::getCapability(board, Board::MultiposPotsPositions);
+  int multiposcnt = board->getCapability(Capability::MultiposPotsPositions);
 
   switch (rhs.type) {
   case SWITCH_TYPE_SWITCH:
-    sw_str += Boards::getSwitchYamlName((sval - 1) / 3, BoardJson::YLT_REF).toStdString();
+    sw_str += board->getSwitchYamlName((sval - 1) / 3, Board::YLT_REF).toStdString();
     sw_str += std::to_string((sval - 1) % 3);
     break;
 
@@ -63,12 +62,12 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 
   case SWITCH_TYPE_MULTIPOS_POT:
     sw_str += "6P";
-    sw_str += std::to_string((sval - 1) / multiposcnt - Boards::getCapability(board, Board::Sticks));
+    sw_str += std::to_string((sval - 1) / multiposcnt - board->getCapability(Capability::Sticks));
     sw_str += std::to_string((sval - 1) % multiposcnt);
     break;
 
   case SWITCH_TYPE_TRIM:
-    sw_str += b.getTrimSwitchTag(sval - 1);
+    sw_str += board->getTrimSwitchTag(sval - 1);
     break;
 
   case SWITCH_TYPE_FLIGHT_MODE:
@@ -82,7 +81,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
     break;
 
   default:
-    sw_str += b.getRawSwitchTypeTag(rhs.type);
+    sw_str += board->getRawSwitchTypeTag(rhs.type);
     break;
   }
   return sw_str;
@@ -90,8 +89,7 @@ std::string YamlRawSwitchEncode(const RawSwitch& rhs)
 
 RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 {
-  QString board = getCurrentBoard();
-  Boards b = Boards(board);
+  Board *board = getCurrentBoard();
   RawSwitch rhs;  // constructor sets to SWITCH_TYPE_NONE
   const char* val = sw_str.data();
   size_t val_len = sw_str.size();
@@ -112,7 +110,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
     sw_str_tmp = sw_str_tmp.substr(1);
   }
 
-  const int multiposcnt = Boards::getCapability(board, Board::MultiposPotsPositions);
+  const int multiposcnt = board->getCapability(Capability::MultiposPotsPositions);
 
   //  TODO: validate all expected numeric chars are numeric not just first
 
@@ -136,13 +134,14 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
       mp_input_index = std::stoi(sw_str_tmp.substr(2, val_len - 3));
 
       if (modelSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
-        if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
+        if (board->getId() == "x10" || board->getId() == "x10express" ||
+            board->getId() == "tx16s" || board->getId() == "t16" || board->getId() == "t18") {
           if (mp_input_index > 2)
             mp_input_index += 2;
         }
       }
 
-      mp_index = (mp_input_index + Boards::getCapability(board, Board::Sticks)) * multiposcnt + (val[val_len - 1] - '0') + 1;
+      mp_index = (mp_input_index + board->getCapability(Capability::Sticks)) * multiposcnt + (val[val_len - 1] - '0') + 1;
 
     } catch(...) {
       mp_type = SWITCH_TYPE_NONE;
@@ -167,7 +166,7 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 
   } else if (sw_str_tmp.substr(0, 4) == std::string("Trim")) {
 
-    int tsw_idx = b.getTrimSwitchIndex(sw_str_tmp.c_str());
+    int tsw_idx = board->getTrimSwitchIndex(sw_str_tmp.c_str());
     if (tsw_idx >= 0) {
       rhs.type = SWITCH_TYPE_TRIM;
       rhs.index = tsw_idx + 1;
@@ -184,17 +183,17 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
 
     std::string tmp = sw_str_tmp.substr(0, val_len - 1);
 
-    if (modelSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)) && IS_JUMPER_TPRO(board))
+    if (modelSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)) && board->getId() == "tpro")
       tmp = DataHelpers::getStringTagMappingName(funcSwitchConversionTable, tmp.c_str());
 
-    int sw_idx = Boards::getSwitchYamlIndex(tmp.c_str(), BoardJson::YLT_REF);
+    int sw_idx = board->getSwitchYamlIndex(tmp.c_str(), Board::YLT_REF);
     if (sw_idx >= 0) {
       rhs.type = SWITCH_TYPE_SWITCH;
       rhs.index = sw_idx * 3 + (val[val_len - 1] - '0' + 1);
     }
 
   } else {
-    int sw_type = b.getRawSwitchTypeIndex(sw_str_tmp.c_str());
+    int sw_type = board->getRawSwitchTypeIndex(sw_str_tmp.c_str());
     if (sw_type >= 0) {
       rhs.type = (RawSwitchType)sw_type;
       if (rhs.type == SWITCH_TYPE_TELEMETRY || rhs.type == SWITCH_TYPE_TRAINER  || rhs.type == SWITCH_TYPE_ACT || rhs.type == SWITCH_TYPE_ONE)

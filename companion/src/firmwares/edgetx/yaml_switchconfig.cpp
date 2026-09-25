@@ -24,7 +24,7 @@
 #include "board.h"
 #include "eeprominterface.h"
 #include "generalsettings.h"
-#include "boardjson.h"
+#include "board.h"
 
 const YamlLookupTable switchConfigLut = {
     {Board::SWITCH_NOT_AVAILABLE, "NONE"},
@@ -65,9 +65,11 @@ const YamlLookupTable sticksLut = {
 
 YamlPotConfig::YamlPotConfig(const GeneralSettings::InputConfig* rhs)
 {
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Inputs); i++) {
-    if (Boards::isInputConfigurable(i)) {
-      config[i].tag = Boards::getInputYamlName(i, BoardJson::YLT_CONFIG).toStdString();
+  Board *board = getCurrentBoard();
+
+  for (int i = 0; i < board->getCapability(Capability::Inputs); i++) {
+    if (board->isInputConfigurable(i)) {
+      config[i].tag = board->getInputYamlName(i, Board::YLT_CONFIG).toStdString();
       config[i].type = rhs[i].type;
       memcpy(config[i].name, rhs[i].name, sizeof(HARDWARE_NAME_LEN));
       config[i].flexType = rhs[i].flexType;
@@ -78,7 +80,9 @@ YamlPotConfig::YamlPotConfig(const GeneralSettings::InputConfig* rhs)
 
 void YamlPotConfig::copy(GeneralSettings::InputConfig* rhs) const
 {
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Inputs); i++) {
+  Board *board = getCurrentBoard();
+
+  for (int i = 0; i < board->getCapability(Capability::Inputs); i++) {
     if (config[i].type == (unsigned int)Board::AIT_FLEX) {
       memcpy(rhs[i].name, config[i].name, sizeof(HARDWARE_NAME_LEN));
       rhs[i].flexType = (Board::FlexType)config[i].flexType;
@@ -89,7 +93,9 @@ void YamlPotConfig::copy(GeneralSettings::InputConfig* rhs) const
 
 void YamlSliderConfig::copy(GeneralSettings::InputConfig* rhs) const
 {
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Inputs); i++) {
+  Board *board = getCurrentBoard();
+
+  for (int i = 0; i < board->getCapability(Capability::Inputs); i++) {
     if (config[i].type == (unsigned int)Board::AIT_FLEX) {
       memcpy(rhs[i].name, config[i].name, sizeof(HARDWARE_NAME_LEN));
       rhs[i].flexType = (Board::FlexType)config[i].flexType;
@@ -100,7 +106,9 @@ void YamlSliderConfig::copy(GeneralSettings::InputConfig* rhs) const
 
 YamlStickConfig::YamlStickConfig(const GeneralSettings::InputConfig* rhs)
 {
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Inputs); i++) {
+  Board *board = getCurrentBoard();
+
+  for (int i = 0; i < board->getCapability(Capability::Inputs); i++) {
     config[i].tag = std::to_string(i);
     config[i].type = rhs[i].type;
     config[i].inverted = rhs[i].inverted;
@@ -110,7 +118,9 @@ YamlStickConfig::YamlStickConfig(const GeneralSettings::InputConfig* rhs)
 
 void YamlStickConfig::copy(GeneralSettings::InputConfig* rhs) const
 {
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Inputs); i++) {
+  Board *board = getCurrentBoard();
+
+  for (int i = 0; i < board->getCapability(Capability::Inputs); i++) {
     if (config[i].type == (unsigned int)Board::AIT_STICK) {
       rhs[i].inverted = config[i].inverted;
       memcpy(rhs[i].name, config[i].name, sizeof(HARDWARE_NAME_LEN));
@@ -120,8 +130,10 @@ void YamlStickConfig::copy(GeneralSettings::InputConfig* rhs) const
 
 YamlSwitchConfig::YamlSwitchConfig(const GeneralSettings::SwitchConfig* rhs)
 {
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
-    config[i].tag = Boards::getSwitchYamlName(i, BoardJson::YLT_CONFIG).toStdString();
+  Board *board = getCurrentBoard();
+
+  for (int i = 0; i < board->getCapability(Capability::Switches); i++) {
+    config[i].tag = board->getSwitchYamlName(i, Board::YLT_CONFIG).toStdString();
     config[i].type = rhs[i].type;
     config[i].start = rhs[i].start;
     memcpy(config[i].name, rhs[i].name, sizeof(HARDWARE_NAME_LEN));
@@ -135,7 +147,9 @@ YamlSwitchConfig::YamlSwitchConfig(const GeneralSettings::SwitchConfig* rhs)
 
 void YamlSwitchConfig::copy(GeneralSettings::SwitchConfig* rhs) const
 {
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
+  Board *board = getCurrentBoard();
+
+  for (int i = 0; i < board->getCapability(Capability::Switches); i++) {
     if (config[i].type != (unsigned int)Board::SWITCH_NOT_AVAILABLE) {
       memcpy(rhs[i].name, config[i].name, sizeof(HARDWARE_NAME_LEN));
       rhs[i].type = (Board::SwitchType)config[i].type;
@@ -151,12 +165,14 @@ void YamlSwitchConfig::copy(GeneralSettings::SwitchConfig* rhs) const
 
 YamlSwitchesFlex::YamlSwitchesFlex(const GeneralSettings::SwitchConfig* rhs)
 {
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Switches); i++) {
-    if (Boards::isSwitchFlex(i) && rhs[i].inputIdx != SWITCH_INPUTINDEX_NONE) {
-      int idx = Boards::getSwitchTagNum(i) - 1;
+  Board *board = getCurrentBoard();
+
+  for (int i = 0; i < board->getCapability(Capability::Switches); i++) {
+    if (board->isSwitchFlex(i) && rhs[i].inputIdx != SWITCH_INPUTINDEX_NONE) {
+      int idx = board->getSwitchTagNum(i) - 1;
       if (idx >= 0 && idx < CPN_MAX_SWITCHES_FLEX) {
-        config[idx].tag = Boards::getSwitchYamlName(i, BoardJson::YLT_CONFIG).toStdString();
-        config[idx].channel = Boards::getInputYamlName(rhs[i].inputIdx, BoardJson::YLT_CONFIG).toStdString();
+        config[idx].tag = board->getSwitchYamlName(i, Board::YLT_CONFIG).toStdString();
+        config[idx].channel = board->getInputYamlName(rhs[i].inputIdx, Board::YLT_CONFIG).toStdString();
       }
     }
   }
@@ -164,8 +180,10 @@ YamlSwitchesFlex::YamlSwitchesFlex(const GeneralSettings::SwitchConfig* rhs)
 
 void YamlSwitchesFlex::copy(GeneralSettings::SwitchConfig* rhs) const
 {
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::FlexSwitches); i++) {
-    int idx = Boards::getSwitchYamlIndex(config[i].tag.c_str(), BoardJson::YLT_CONFIG);
+  Board *board = getCurrentBoard();
+
+  for (int i = 0; i < board->getCapability(Capability::FlexSwitches); i++) {
+    int idx = board->getSwitchYamlIndex(config[i].tag.c_str(), Board::YLT_CONFIG);
     rhs[idx].inputIdx = config[i].inputIndx;
   }
 }
@@ -194,10 +212,12 @@ bool convert<InputConfig>::decode(const Node& node, InputConfig& rhs)
   node["type"] >> potConfigLut >> rhs.flexType;
   node["inv"] >> rhs.inverted;
 
+  Board *board = getCurrentBoard();
+
   if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
-    int idx = Boards::getInputYamlIndex(rhs.tag.c_str(), BoardJson::YLT_CONFIG);
+    int idx = board->getInputYamlIndex(rhs.tag.c_str(), Board::YLT_CONFIG);
     if (idx >= 0) {
-      Board::InputInfo info = Boards::getInputInfo(idx);
+      Board::InputInfo info = board->getInputInfo(idx);
       rhs.inverted = info.inverted;
     }
     else
@@ -223,9 +243,12 @@ Node convert<SwitchConfig>::encode(const SwitchConfig& rhs)
   Node node;
   node["type"] = switchConfigLut << rhs.type;
   node["name"] = rhs.name;
-  if (Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
-    int idx = Boards::getSwitchYamlIndex(rhs.tag.c_str(), BoardJson::YLT_REF);
-    if (Boards::isSwitchFunc(idx, getCurrentBoard())) {
+
+  Board *board = getCurrentBoard();
+
+  if (board->getCapability(Capability::FunctionSwitches)) {
+    int idx = board->getSwitchYamlIndex(rhs.tag.c_str(), Board::YLT_REF);
+    if (board->isSwitchFunc(idx)) {
       node["start"] = cfsSwitchStart << rhs.start;
       node["onColorLuaOverride"] = cfsSwitchLuaOverride << rhs.onColorLuaOverride;
       node["offColorLuaOverride"] = cfsSwitchLuaOverride << rhs.offColorLuaOverride;
@@ -250,10 +273,12 @@ bool convert<SwitchConfig>::decode(const Node& node, SwitchConfig& rhs)
   node["onColor"] >> rhs.onColor;
   node["offColor"] >> rhs.offColor;
 
+  Board *board = getCurrentBoard();
+
   if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION))) {
-    int idx = Boards::getSwitchYamlIndex(rhs.tag.c_str(), BoardJson::YLT_CONFIG);
+    int idx = board->getSwitchYamlIndex(rhs.tag.c_str(), Board::YLT_CONFIG);
     if (idx >= 0) {
-      Board::SwitchInfo info = Boards::getSwitchInfo(idx);
+      Board::SwitchInfo info = board->getSwitchInfo(idx);
       rhs.inverted = info.inverted;
     }
   }
@@ -273,7 +298,8 @@ bool convert<SwitchFlex>::decode(const Node& node, SwitchFlex& rhs)
   if (!node.IsMap()) return false;
 
   node["channel"] >> rhs.channel;
-  rhs.inputIndx = Boards::getInputYamlIndex(rhs.channel.c_str(), BoardJson::YLT_CONFIG);
+  Board *board = getCurrentBoard();
+  rhs.inputIndx = board->getInputYamlIndex(rhs.channel.c_str(), Board::YLT_CONFIG);
 
   return true;
 }
@@ -281,7 +307,7 @@ bool convert<SwitchFlex>::decode(const Node& node, SwitchFlex& rhs)
 Node convert<YamlPotConfig>::encode(const YamlPotConfig& rhs)
 {
   Node node;
-  const int maxcnt = Boards::getCapability(getCurrentBoard(), Board::Inputs);
+  const int maxcnt = getCurrentBoard()->getCapability(Capability::Inputs);
 
   for (int i = 0; i < maxcnt; i++) {
     if (rhs.config[i].type == (unsigned int)Board::AIT_FLEX && rhs.config[i].flexType != (unsigned int)Board::FLEX_NONE) {
@@ -297,16 +323,17 @@ bool convert<YamlPotConfig>::decode(const Node& node, YamlPotConfig& rhs)
 {
   if (!node.IsMap()) return false;
 
-  const int maxcnt = Boards::getCapability(getCurrentBoard(), Board::Inputs);
+  Board *board = getCurrentBoard();
+  const int maxcnt = board->getCapability(Capability::Inputs);
 
   for (const auto& kv : node) {
     std::string tag;
     kv.first >> tag;
 
     if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
-      tag = Boards::getLegacyAnalogMappedInputTag(tag.c_str());
+      tag = board->getLegacyAnalogMappedInputTag(tag.c_str());
 
-    int idx = Boards::getInputYamlIndex(tag.c_str(), BoardJson::YLT_CONFIG);
+    int idx = board->getInputYamlIndex(tag.c_str(), Board::YLT_CONFIG);
 
     if (idx >= 0 && idx < maxcnt) {
       kv.second >> rhs.config[idx];
@@ -323,9 +350,10 @@ bool convert<YamlSliderConfig>::decode(const Node& node, YamlSliderConfig& rhs)
 {
   if (!node.IsMap()) return false;
 
-  const int maxcnt = Boards::getCapability(getCurrentBoard(), Board::Inputs);
+  Board *board = getCurrentBoard();
+  const int maxcnt = board->getCapability(Capability::Inputs);
 
-  if (Boards::getCapability(getCurrentBoard(), Board::Sliders) < 1)
+  if (board->getCapability(Capability::Sliders) < 1)
     return true;
 
   int i = 1;
@@ -333,11 +361,11 @@ bool convert<YamlSliderConfig>::decode(const Node& node, YamlSliderConfig& rhs)
   for (const auto& kv : node) {
     std::string tag;
     kv.first >> tag;
-    int idx = Boards::getInputSliderIndex(i);
+    int idx = board->getInputSliderIndex(i);
 
     if (idx >= 0 && idx < maxcnt) {
       kv.second >> rhs.config[idx];
-      rhs.config[idx].tag = Boards::getInputTag(idx).toStdString();
+      rhs.config[idx].tag = board->getInputTag(idx).toStdString();
       rhs.config[idx].type = Board::AIT_FLEX;
     }
 
@@ -350,7 +378,7 @@ bool convert<YamlSliderConfig>::decode(const Node& node, YamlSliderConfig& rhs)
 Node convert<YamlStickConfig>::encode(const YamlStickConfig& rhs)
 {
   Node node;
-  const int maxcnt = Boards::getCapability(getCurrentBoard(), Board::Inputs);
+  const int maxcnt = getCurrentBoard()->getCapability(Capability::Inputs);
 
   for (int i = 0; i < maxcnt; i++) {
     if (rhs.config[i].type == (unsigned int)Board::AIT_STICK) {
@@ -366,7 +394,7 @@ bool convert<YamlStickConfig>::decode(const Node& node, YamlStickConfig& rhs)
 {
   if (!node.IsMap()) return false;
 
-  const int maxcnt = Boards::getCapability(getCurrentBoard(), Board::Inputs);
+  const int maxcnt = getCurrentBoard()->getCapability(Capability::Inputs);
 
   for (const auto& kv : node) {
     std::string tag;
@@ -389,11 +417,12 @@ bool convert<YamlStickConfig>::decode(const Node& node, YamlStickConfig& rhs)
 Node convert<YamlSwitchConfig>::encode(const YamlSwitchConfig& rhs)
 {
   Node node;
-  const int maxcnt = Boards::getCapability(getCurrentBoard(), Board::Switches);
+  Board *board = getCurrentBoard();
+  const int maxcnt = board->getCapability(Capability::Switches);
 
   for (int i = 0; i < maxcnt; i++) {
     if (rhs.config[i].type != Board::SWITCH_NOT_AVAILABLE) {
-      std::string tag = Boards::getSwitchYamlName(i, BoardJson::YLT_CONFIG).toStdString();
+      std::string tag = board->getSwitchYamlName(i, Board::YLT_CONFIG).toStdString();
       node[tag] = rhs.config[i];
     }
   }
@@ -405,14 +434,13 @@ bool convert<YamlSwitchConfig>::decode(const Node& node, YamlSwitchConfig& rhs)
 {
   if (!node.IsMap()) return false;
 
-  QString board = getCurrentBoard();
-
-  const int maxcnt = Boards::getCapability(board, Board::Switches);
+  Board *board = getCurrentBoard();
+  const int maxcnt = getCurrentBoard()->getCapability(Capability::Switches);
 
   for (const auto& kv : node) {
     std::string tag;
     kv.first >> tag;
-    int idx = Boards::getSwitchYamlIndex(tag.c_str(), BoardJson::YLT_CONFIG);
+    int idx = board->getSwitchYamlIndex(tag.c_str(), Board::YLT_CONFIG);
 
     if (idx >= 0 && idx < maxcnt) {
       kv.second >> rhs.config[idx];
@@ -426,7 +454,7 @@ bool convert<YamlSwitchConfig>::decode(const Node& node, YamlSwitchConfig& rhs)
 Node convert<YamlSwitchesFlex>::encode(const YamlSwitchesFlex& rhs)
 {
   Node node;
-  const int maxcnt = Boards::getCapability(getCurrentBoard(), Board::FlexSwitches);
+  const int maxcnt = getCurrentBoard()->getCapability(Capability::FlexSwitches);
 
   for (int i = 0; i < maxcnt; i++) {
     if (!rhs.config[i].tag.empty())
@@ -440,7 +468,7 @@ bool convert<YamlSwitchesFlex>::decode(const Node& node, YamlSwitchesFlex& rhs)
 {
   if (!node.IsMap()) return false;
 
-  const int maxcnt = Boards::getCapability(getCurrentBoard(), Board::FlexSwitches);
+  const int maxcnt = getCurrentBoard()->getCapability(Capability::FlexSwitches);
 
   for (const auto& kv : node) {
     std::string tag;

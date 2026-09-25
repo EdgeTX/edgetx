@@ -24,7 +24,7 @@
 BoardFactories* gBoardFactories = nullptr;
 
 BoardFactory::BoardFactory(const QString & id, const QString & hwdefn, const bool isSupported) :
-  m_board(new Boards(id, hwdefn, isSupported))
+  m_board(new Board(id, hwdefn, isSupported))
 {
 
 }
@@ -40,7 +40,7 @@ BoardFactories::~BoardFactories()
   unregisterBoardFactories();
 }
 
-Boards * BoardFactories::boardForHwDefn(const QString & hwdefn) const
+Board * BoardFactories::boardForHwDefn(const QString & hwdefn) const
 {
   for (auto *registeredFactory : registeredBoardFactories) {
     auto board = registeredFactory->board();
@@ -55,7 +55,7 @@ Boards * BoardFactories::boardForHwDefn(const QString & hwdefn) const
   return m_default;
 }
 
-Boards * BoardFactories::boardForId(const QString & id) const
+Board * BoardFactories::boardForId(const QString & id) const
 {
   for (auto *registeredFactory : registeredBoardFactories) {
     auto board = registeredFactory->board();
@@ -74,7 +74,7 @@ Boards * BoardFactories::boardForId(const QString & id) const
 bool BoardFactories::registerBoard(const QString & id, const QString & hwdefn, const bool isSupported)
 {
   if (m_default || id != Board::BOARD_UNKNOWN) {
-    Boards* regboard = boardForId(id);
+    Board* regboard = boardForId(id);
 
     if (regboard->getId() == id) {
       if (regboard->getHwDefn() == hwdefn) {
@@ -116,12 +116,12 @@ void BoardFactories::registerAllBoards()
     //qDebug() << "found file:" << path;
     QJsonDocument *doc = new QJsonDocument();
 
-    if (Boards::load(doc, path)) {
+    if (Board::load(doc, path)) {
       QJsonObject obj = doc->object();
       // ignore intermediate definitions
-      if (!Boards::getValueBool(obj, "hidden", false)) {
-        QString id = Boards::getValueString(obj, "id", QFileInfo(path).baseName());
-        registerBoard(id, path, Boards::getValueBool(obj, "supported", true));
+      if (!Board::getValueBool(obj, "hidden", false)) {
+        QString id = Board::getValueString(obj, "id", QFileInfo(path).baseName());
+        registerBoard(id, path, Board::getValueBool(obj, "supported", true));
       } else {
         //qDebug() << "ignoring file:" << path;
       }

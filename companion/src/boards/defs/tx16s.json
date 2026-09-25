@@ -4,5 +4,12 @@
     "flexsw"
   ],
   "id": "tx16s",
-  "name": "TX16S"
+  "name": "TX16S",
+  "intModules": {
+    "available": [
+      "elrs",
+      "multi"
+    ],
+    "dflt": "elrs"
+  }
 }

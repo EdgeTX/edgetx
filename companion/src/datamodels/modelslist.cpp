@@ -146,7 +146,7 @@ ModelsListModel::ModelsListModel(RadioData * radioData, QObject * parent):
   // uniqueId and version for drag/drop operations (see encodeHeaderData())
   mimeHeaderData.instanceId = QUuid::createUuid();
   mimeHeaderData.dataVersion = MIME_HEADER_DATA_VERSION;
-  mimeHeaderData.board = getCurrentBoard();
+  mimeHeaderData.board = getCurrentBoard()->getId();
 
   refresh();
   //connect(this, &QAbstractItemModel::rowsAboutToBeRemoved, this, &ModelsListModel::onRowsAboutToBeRemoved);

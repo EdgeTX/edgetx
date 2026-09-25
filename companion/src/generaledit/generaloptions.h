@@ -34,7 +34,7 @@ class GeneralOptionsPanel : public GeneralPanel
     virtual ~GeneralOptionsPanel();
 
   private:
-    QString board;
+    Board *board;
     QGridLayout *grid;
     QList<QWidget *> *params;
     int row;
