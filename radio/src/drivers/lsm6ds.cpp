@@ -194,6 +194,8 @@ static uint16_t s_i2c_addr;
 
 #define LSM6DSLTR_ID                            0x6A
 #define LSM6DS33TR_ID                           0x69
+#define LSM6DSO_ID                              0x6C
+
 
 static const char configure[][2] = {
   // ODR = 1000 (1.66 kHz (high performance)); FS_XL = 00 (+/-2 g full scale)
@@ -249,7 +251,7 @@ static int lsm6dsInit(etx_i2c_bus_t bus, uint16_t addr)
 
   // LSM6DS33TR works with LSM6DSLTR code for our use
   int id = read_reg(LSM6DS_WHO_AM_I);
-  if (id != LSM6DSLTR_ID && id != LSM6DS33TR_ID)
+  if (id != LSM6DSLTR_ID && id != LSM6DS33TR_ID && id != LSM6DSO_ID)
     return -1;
 
   for (uint8_t i = 0; i < DIM(configure); i++) {
