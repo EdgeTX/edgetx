@@ -1796,15 +1796,24 @@ Return whether the firmware currently accepts touch input.
 
 This reflects the two firmware gates used by the touch input path: the
 backlight must be on and the Disable touch special function must be inactive.
+While the backlight is off, a touch still wakes the screen, but the touch
+itself is not passed on as input.
 
 @retval boolean `true` when touch input is enabled, `false` when it is disabled
 @retval nil the radio has no touch screen
 
-@status current Introduced in 3.0.0
+@status current Introduced in 3.0
 */
 static int luaGetTouchEnabled(lua_State * L)
 {
 #if defined(HARDWARE_TOUCH)
+#if !defined(SIMU) && defined(HAS_TOUCH_PANEL)
+  // touch panel is optional on some boards (e.g. X10 / X12S)
+  if (!HAS_TOUCH_PANEL()) {
+    lua_pushnil(L);
+    return 1;
+  }
+#endif
   const bool enabled =
       isBacklightEnabled() && !isFunctionActive(FUNCTION_DISABLE_TOUCH);
   lua_pushboolean(L, enabled);

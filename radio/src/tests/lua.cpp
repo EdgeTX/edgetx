@@ -241,27 +241,38 @@ TEST(Lua, testFloatIntegerEquality)
 TEST(Lua, TouchEnabled)
 {
 #if defined(HARDWARE_TOUCH)
-  const bool previousBacklightState = boardBacklightOn;
+  const bool savedBacklight = boardBacklightOn;
+  const CustomFunctionsContext savedGlobal = globalFunctionsContext;
+  const CustomFunctionsContext savedModel = modelFunctionsContext;
+  const MASK_FUNC_TYPE disableTouch = (MASK_FUNC_TYPE)1 << FUNCTION_DISABLE_TOUCH;
+
   globalFunctionsContext.reset();
   modelFunctionsContext.reset();
   boardBacklightOn = true;
-
   luaExecStr("assert(getTouchEnabled() == true)");
 
-  modelFunctionsContext.activeFunctions =
-      (MASK_FUNC_TYPE)1 << FUNCTION_DISABLE_TOUCH;
+  modelFunctionsContext.activeFunctions = disableTouch;
   luaExecStr("assert(getTouchEnabled() == false)");
-
   modelFunctionsContext.reset();
-  globalFunctionsContext.activeFunctions =
-      (MASK_FUNC_TYPE)1 << FUNCTION_DISABLE_TOUCH;
-  luaExecStr("assert(getTouchEnabled() == false)");
 
+  modelFunctionsContext.activeUIFunctions = disableTouch;
+  luaExecStr("assert(getTouchEnabled() == false)");
+  modelFunctionsContext.reset();
+
+  globalFunctionsContext.activeFunctions = disableTouch;
+  luaExecStr("assert(getTouchEnabled() == false)");
   globalFunctionsContext.reset();
+
+  globalFunctionsContext.activeUIFunctions = disableTouch;
+  luaExecStr("assert(getTouchEnabled() == false)");
+  globalFunctionsContext.reset();
+
   boardBacklightOn = false;
   luaExecStr("assert(getTouchEnabled() == false)");
 
-  boardBacklightOn = previousBacklightState;
+  boardBacklightOn = savedBacklight;
+  globalFunctionsContext = savedGlobal;
+  modelFunctionsContext = savedModel;
 #else
   luaExecStr("assert(getTouchEnabled() == nil)");
 #endif
