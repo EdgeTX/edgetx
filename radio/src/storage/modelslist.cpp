@@ -366,15 +366,20 @@ void ModelCell::updateModelCell()
   _isDirty = false;
 }
 
+
+/* 
+   TODO: Revisit once labels.yml records the version that wrote it and
+   cached model data is discarded on a version mismatch. It *will* add
+   extra overhead, writes to labels.yml and hasn't been fully tested.
+ 
+   Currently the file hashes are only synchronised between the labels.yml file
+   and the model files on startup. Any updates to model files while running
+   do not update the labels.yml copy of the file hash.
+  
+   This function can be used to re-sync a model file to the labels file hash
+*/
 void ModelCell::updateFinfoHash()
 {
-  // Currently the file hashes are only synchronised between the labels.yml file
-  // and the model files on startup. Any updates to model files while running
-  // do not update the labels.yml copy of the file hash.
-
-  // This function can be used to re-synch a model file to the labels file hash
-  // Currently disabled to maintain compatability with existing firmware.
-
 #if 0
   // Recalculate file info hash and save to SD
   FILINFO finfo;
