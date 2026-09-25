@@ -79,14 +79,6 @@ void PrefsEditDialog::accept()
   QDialog::accept();
 }
 
-void PrefsEditDialog::closeEvent(QCloseEvent *event)
-{
-  if (!maybeSave())
-    return;
-
-  QDialog::closeEvent(event);
-}
-
 void PrefsEditDialog::reject()
 {
   if (!maybeSave())
