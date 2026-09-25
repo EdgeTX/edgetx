@@ -127,8 +127,9 @@ class Firmware : public JsonBase
     virtual ~ Firmware() {}
 
     Board * getBoard() const { return m_board; }
-    const QString getDwnldid() const { return m_defn.dwnldId.c_str(); }
+    const QString getDownloadId() const { return m_defn.dwnldId.c_str(); }
     const QString getId() const { return m_id; } // do not use m_defn.id as it does not have edgetx- prefix
+    const QString getFullName() const;
     const QString getName() const { return m_defn.name.c_str(); }
     const QString getSimulatorId() const { return m_defn.simuId.c_str(); }
 
@@ -158,6 +159,8 @@ class Firmware : public JsonBase
 
     static QList<QString> getLanguageList() { return m_languages; }
 
+    static QString getOptionTooltip(const QString opt);
+
   private:
     QString m_id;       // has edgetx- prefix for backwards compatibility
     QString m_path;
@@ -165,7 +168,7 @@ class Firmware : public JsonBase
     FirmwareDefn m_defn;
     bool m_loaded;
     bool m_valid;
-    Board *m_board;
+    Board *m_board;     // pointer to BoardFactories Board
 
     bool isOptionDuplicate(const OptionsGroup & grp, const QString & val);
     bool isOptionDuplicate(const OptionsList & options, const QString & val);

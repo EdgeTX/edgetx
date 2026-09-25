@@ -34,7 +34,7 @@ class PrefsUpdatePanel : public PrefsPanel
     Q_OBJECT
 
   public:
-    PrefsUpdatePanel(QWidget * parent, Firmware * fw, QString & bd, Profile & prof, UpdateFactories * factories);
+    PrefsUpdatePanel(QWidget * parent, Firmware * firmware, Board * board, Profile & prof, UpdateFactories * factories);
     virtual ~PrefsUpdatePanel();
 
     virtual void save() override;

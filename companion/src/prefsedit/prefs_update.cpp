@@ -26,8 +26,8 @@
 
 #include <QMessageBox>
 
-PrefsUpdatePanel::PrefsUpdatePanel(QWidget * parent, Firmware * fw, QString & bd, Profile & prof, UpdateFactories * factories):
-  PrefsPanel(parent, fw, bd, prof),
+PrefsUpdatePanel::PrefsUpdatePanel(QWidget * parent, Firmware * firmware, Board * board, Profile & prof, UpdateFactories * factories):
+  PrefsPanel(parent, firmware, board, prof),
   ui(new Ui::PrefsUpdate),
   factories(factories)
 {

@@ -61,7 +61,7 @@ class PrefsEditDialog : public QDialog
     Ui::PrefsEdit *ui;
     bool mainWinHasDirtyChild;
     Firmware *firmware;
-    QString board;
+    Board *board;
     Profile &profile;
     QList<PrefsPanel *> panels;
     bool dirty;

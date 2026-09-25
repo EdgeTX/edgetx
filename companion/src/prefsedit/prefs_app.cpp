@@ -23,8 +23,8 @@
 #include "ui_prefs_app.h"
 #include "appdata.h"
 
-PrefsAppPanel::PrefsAppPanel(QWidget * parent, Firmware * fw, QString & bd, Profile & prof) :
-  PrefsPanel(parent, fw, bd, prof),
+PrefsAppPanel::PrefsAppPanel(QWidget * parent, Firmware * firmware, Board * board, Profile & prof) :
+  PrefsPanel(parent, firmware, board, prof),
   ui(new Ui::PrefsApp)
 {
   lock = true;

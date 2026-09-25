@@ -127,9 +127,9 @@ bool PrefsEditDialog::save()
   if (dirty) {
     bool fwchange = false;
     // If a new fw type has been choosen, several things need to reset
-    if (getCurrentFirmware()->getFirmwareBase()->getId() != firmware->getFirmwareBase()->getId()) {
+    if (getCurrentFirmware()->getId() != firmware->getId()) {
       // check if we're going to be converting to a new radio type and there are unsaved files in the main window
-      if (mainWinHasDirtyChild && !Boards::isBoardCompatible(getCurrentBoard(), firmware->getBoard())) {
+      if (mainWinHasDirtyChild && getCurrentBoard()->getId() != firmware->getBoard()->getId()) {
         QString q = tr("<p><b>You cannot change Radio Types while there are unsaved model file changes. What do you wish to do?</b></p> <ul>" \
                       "<li><i>Save All</i> - save all open model file(s) before saving preferences.<li>" \
                       "<li><i>Reset</i> - revert Radio Type and Build Options before saving all other preferences.</li>" \

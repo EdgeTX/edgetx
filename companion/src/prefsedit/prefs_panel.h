@@ -41,7 +41,7 @@ class PrefsPanel : public AbstractPanel
   public:
     friend class PrefsEditDialog;
 
-    explicit PrefsPanel(QWidget * parent, Firmware * firmware, QString & board, Profile & profile) ;
+    explicit PrefsPanel(QWidget * parent, Firmware * firmware, Board * board, Profile & profile) ;
     virtual ~PrefsPanel();
 
     virtual void save() override {};
@@ -54,7 +54,7 @@ class PrefsPanel : public AbstractPanel
 
   protected:
     Firmware *firmware;
-    QString board;
+    Board *board;
     Profile &profile;
     int row;
     int col;

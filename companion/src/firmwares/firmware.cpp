@@ -58,6 +58,12 @@ const Firmware::OptionTooltip Firmware::registeredOptions = {
   { "opt5", QT_TRANSLATE_NOOP("Firmware", "This is option 5") }
 };
 
+// static
+QString Firmware::getOptionTooltip(const QString opt)
+{
+  return registeredOptions.value(opt, tr("No tooltip available for this option"));
+}
+
 Firmware::Firmware(const QString & id, const QString & path, const bool isSupported) :
   m_id(id),
   m_path(path),
@@ -291,6 +297,11 @@ Firmware * Firmware::getFirmwareForId(const QString & id)
 {
   QStringList parts = id.split("-");
   return gFirmwareFactories->getFirmware(parts.at(0) % "-" % parts.at(1));
+}
+
+const QString Firmware::getFullName() const
+{
+  return m_board->getManufacturer() % " " % m_defn.name.c_str();
 }
 
 QList<Firmware *> Firmware::getRegisteredFirmwares()
