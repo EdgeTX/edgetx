@@ -166,22 +166,6 @@ class InputLineButton : public InputMixButtonBase
     setPos(x, y);
   }
 
-  void swapLvglGroup(InputMixButtonBase* line2) override
-  {
-    InputLineButton* swapWith = (InputLineButton*)line2;
-
-    // Swap elements (focus + line list)
-    lv_obj_t* obj1 = getLvObj();
-    lv_obj_t* obj2 = swapWith->getLvObj();
-    if (lv_obj_get_parent(obj1) == lv_obj_get_parent(obj2)) {
-      // same input group: swap obj + focus group
-      lv_obj_swap(obj1, obj2);
-    } else {
-      // different input group: swap only focus group
-      lv_group_swap_obj(obj1, obj2);
-    }
-  }
-
   bool isActive() const override { return isExpoActive(index); }
 
  protected:
