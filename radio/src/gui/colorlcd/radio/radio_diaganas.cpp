@@ -240,6 +240,13 @@ class AnaCalibratedViewWindow : public AnaViewWindow
 #endif  // defined(HARDWARE_TOUCH)
 
     setHeight(parent->height());
+
+#if defined(HARDWARE_TOUCH)
+    onClosing([=]() {
+      lv_obj_del(touchLines[0]);
+      lv_obj_del(touchLines[1]);
+    });
+#endif
   }
 
 #if defined(HARDWARE_TOUCH)
@@ -263,26 +270,16 @@ class AnaCalibratedViewWindow : public AnaViewWindow
       lv_obj_add_flag(touchLines[1], LV_OBJ_FLAG_HIDDEN);
     }
   }
-
-  void deleteLater() override
-  {
-    if (!deleted()) {
-      // Attached to parent->parent window
-      lv_obj_del(touchLines[0]);
-      lv_obj_del(touchLines[1]);
-      AnaViewWindow::deleteLater();
-    }
-  }
 #endif
 
   static LAYOUT_SIZE(TSI2CEventsCol, 5, 0)
 
  protected:
+  int16_t column3(int i) override { return anaIn(i); }
 #if defined(HARDWARE_TOUCH)
   lv_point_t touchPts[4];
   lv_obj_t* touchLines[2];
 #endif
-  int16_t column3(int i) override { return anaIn(i); }
 };
 
 class AnaFilteredDevViewWindow : public AnaViewWindow

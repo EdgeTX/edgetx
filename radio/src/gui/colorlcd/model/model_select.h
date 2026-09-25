@@ -55,6 +55,7 @@ class ModelLabelsWindow : public Page
   ModelsPageBody *mdlselector;
   ModelLayoutButton *mdlLayout;
   std::string currentLabel;
+  Messaging closeMessage;
 
   LabelsVector getLabels()
   {

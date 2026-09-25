@@ -69,7 +69,7 @@ class FlashDialog: public FullScreenDialog
           progress->setValue(total > 0 ? count * 100 / total : 0);
           lv_refr_now(nullptr);
         });
-    deleteLater();
+    closeWindow();
   }
 
  protected:
@@ -104,7 +104,7 @@ class FrskyOtaFlashDialog : public BaseDialog
     reusableBuffer.sdManager.otaUpdateInformation.module = module;
     moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].startBind(&reusableBuffer.sdManager.otaUpdateInformation, onUpdateStateChangedCallbackFor(this));
 
-    setCloseHandler([=]() { moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].mode = MODULE_MODE_NORMAL; });
+    onClosing([=]() { moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].mode = MODULE_MODE_NORMAL; });
   }
 
   void onUpdateConfirmation()
@@ -113,7 +113,7 @@ class FrskyOtaFlashDialog : public BaseDialog
     Pxx2OtaUpdate otaUpdate(reusableBuffer.sdManager.otaUpdateInformation.module, destination->candidateReceiversNames[destination->selectedReceiverIndex]);
     auto dialog = new FlashDialog<Pxx2OtaUpdate>(otaUpdate);
     dialog->flash(destination->filename);
-    deleteLater();
+    closeWindow();
   }
 
   void onUpdateStateChanged()
@@ -136,9 +136,9 @@ class FrskyOtaFlashDialog : public BaseDialog
         updateConfirmDialog = new ConfirmDialog(getPXX2ReceiverName(modelId),
                           std::string(reusableBuffer.sdManager.otaReceiverVersion).c_str(),
                           [=]() { onUpdateConfirmation(); },
-                          [=]() { deleteLater(); });
+                          [=]() { closeWindow(); });
       } else {
-        deleteLater();
+        closeWindow();
         POPUP_WARNING(STR_OTA_UPDATE_ERROR, STR_UNSUPPORTED_RX);
       }
     }
@@ -156,8 +156,8 @@ class FrskyOtaFlashDialog : public BaseDialog
               rxChoiceMenu->setCancelHandler([=]() {
                 // Seems menu didn't delete itself before call cancelHandler().
                 // Delete the menu explicity to ensure menu is deleted before dialog.
-                rxChoiceMenu->deleteLater();
-                deleteLater();
+                rxChoiceMenu->closeWindow();
+                closeWindow();
               });
             } else {
               rxChoiceMenu->removeLines();

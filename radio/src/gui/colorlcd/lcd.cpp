@@ -25,6 +25,7 @@
 
 #include "bitmapbuffer.h"
 #include "board.h"
+#include "debug.h"
 #include "etx_lv_theme.h"
 #if !LV_USE_GPU_STM32_DMA2D && !defined(SIMU)
 #include "dma2d.h"

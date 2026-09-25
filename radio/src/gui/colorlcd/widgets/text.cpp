@@ -60,7 +60,7 @@ class TextWidget : public Widget
 
   void update() override
   {
-    if (!loaded || _deleted) return;
+    if (!loaded || deleted()) return;
 
     auto widgetData = getPersistentData();
 

@@ -360,8 +360,6 @@ class ModelsPageBody : public Window
       }
     }
 
-    closeHandler();
-
     // Skip reloading model if re-selecting the active model
     if (model != modelCellManager.getCurrentModel()) {
       // store changes (if any) and load selected model
@@ -392,6 +390,8 @@ class ModelsPageBody : public Window
       storageDirty(EE_GENERAL);
       storageCheck(true);
     }
+
+    Messaging::send(Messaging::ON_CLOSE);
   }
 
   void duplicateModel(ModelCell *model)
@@ -445,7 +445,7 @@ class ModelsPageBody : public Window
     if (labels.size()) {
       auto menu = new Menu(true);
       menu->setTitle(model->modelName);
-      menu->setCloseHandler([=]() {
+      menu->onClosing([=]() {
         if (isDirty) {
           isDirty = false;
           update();
@@ -701,7 +701,6 @@ void ModelLabelsWindow::buildBody(Window *window)
 {
   // Models List
   mdlselector = new ModelsPageBody(window, {MDLS_X, MDLS_Y, MDLS_W, MDLS_H});
-  mdlselector->setCloseHandler([=]() { onCancel(); });
   mdlselector->setLblRefreshFunc([=]() { labelRefreshRequest(); });
   auto mdl_obj = mdlselector->getLvObj();
   lv_obj_set_style_max_width(mdl_obj, MDLS_W, LV_PART_MAIN);
@@ -710,6 +709,8 @@ void ModelLabelsWindow::buildBody(Window *window)
 
   if (mdlselector->getSortOrder() == NO_SORT)
     mdlselector->setSortOrder(NAME_ASC);
+
+  closeMessage.subscribe(Messaging::ON_CLOSE, [=](uint32_t) { onCancel(); });
 
   // Labels
   lblselector =

@@ -82,13 +82,12 @@ class MixLineButton : public InputMixButtonBase
   {
     mplex = new MPlexIcon(parent, index);
 
-    delayLoad();
-  }
+    // mplex is a sibling (not a child) so must be closed explicitly
+    onClosing([=]() {
+      mplex->closeWindow();
+    });
 
-  void deleteLater() override
-  {
-    if (mplex) mplex->deleteLater();
-    InputMixButtonBase::deleteLater();
+    delayLoad();
   }
 
   void delayedInit() override
@@ -350,7 +349,7 @@ void ModelMixesPage::editMix(uint8_t channel, uint8_t index)
   if (!line) return;
 
   auto edit = new MixEditWindow(channel, index);
-  edit->setCloseHandler([=]() {
+  edit->onClosing([=]() {
     MixData* mix = mixAddress(index);
     if (is_memclear(mix, sizeof(MixData))) {
       deleteMix(index);
@@ -395,10 +394,10 @@ void ModelMixesPage::deleteMix(uint8_t index)
 
     group->removeLine(line);
     if (group->getLineCount() == 0) {
-      group->deleteLater();
+      group->closeWindow();
       removeGroup(group);
     } else {
-      line->deleteLater();
+      line->closeWindow();
     }
     removeLine(line);
   }

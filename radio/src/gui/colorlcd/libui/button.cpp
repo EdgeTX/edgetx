@@ -65,7 +65,7 @@ ButtonBase::ButtonBase(Window* parent, const rect_t& rect,
 
 void ButtonBase::check(bool checked)
 {
-  if (!_deleted) {
+  if (!deleted()) {
     if (checked != this->checked()) {
       if (checked)
         lv_obj_add_state(lvobj, LV_STATE_CHECKED);

@@ -534,7 +534,7 @@ class ModuleWindow : public Window
         getRxStatLabels()->label, 50,
         COLOR_THEME_SECONDARY1_INDEX, CENTERED | FONT(XL));
 
-    rssiDialog->setCloseHandler([this, closeHandler]() {
+    rssiDialog->onClosing([this, closeHandler]() {
       rangeButton->check(false);
       moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
       if (closeHandler) closeHandler();
@@ -719,7 +719,7 @@ class ModuleSubTypeChoice : public Choice
       auto menu = new Menu();
 
       if (menuTitle) menu->setTitle(menuTitle);
-      menu->setCloseHandler([=]() { setEditMode(false); });
+      menu->onClosing([=]() { setEditMode(false); });
 
       setEditMode(true);
 

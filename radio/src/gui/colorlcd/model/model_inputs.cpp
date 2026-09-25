@@ -331,7 +331,7 @@ void ModelInputsPage::editInput(uint8_t input, uint8_t index)
   if (!line) return;
 
   auto edit = new InputEditWindow(input, index);
-  edit->setCloseHandler([=]() {
+  edit->onClosing([=]() {
     Messaging::send(Messaging::REFRESH);
     group->refresh();
     group->adjustHeight();
@@ -368,10 +368,10 @@ void ModelInputsPage::deleteInput(uint8_t index)
 
     group->removeLine(line);
     if (group->getLineCount() == 0) {
-      group->deleteLater();
+      group->closeWindow();
       removeGroup(group);
     } else {
-      line->deleteLater();
+      line->closeWindow();
     }
     removeLine(line);
 

@@ -176,14 +176,11 @@ StaticIcon::StaticIcon(Window* parent, coord_t x, coord_t y, const char* filenam
   }
 
   etx_img_color(lvobj, currentColor, LV_PART_MAIN);
-}
 
-void StaticIcon::deleteLater()
-{
-  if (_deleted) return;
-  if (mask) free(mask);
-  mask = nullptr;
-  Window::deleteLater();
+  onClosing([=]() {
+    if (mask) free(mask);
+    mask = nullptr;
+  });
 }
 
 void StaticIcon::setColor(LcdColorIndex color)
@@ -279,6 +276,11 @@ StaticBitmap::StaticBitmap(Window* parent, const rect_t& rect,
   setWindowFlag(NO_FOCUS | NO_CLICK);
 
   setSource(filename);
+
+  onClosing([=]() {
+    if (img) delete img;
+    img = nullptr;
+  });
 }
 
 void StaticBitmap::setSource(const char *filename)
@@ -300,11 +302,6 @@ void StaticBitmap::clearSource()
     delete img;
   }
   img = nullptr;
-}
-
-StaticBitmap::~StaticBitmap()
-{
-  if (img) delete img;
 }
 
 bool StaticBitmap::hasImage() const
@@ -345,15 +342,11 @@ StaticLZ4Image::StaticLZ4Image(Window* parent, coord_t x, coord_t y,
   }
 
   lv_canvas_set_buffer(lvobj, imgData, w, h, LV_IMG_CF_TRUE_COLOR_ALPHA);
-}
 
-void StaticLZ4Image::deleteLater()
-{
-  if (!deleted()) {
+  onClosing([=]() {
     if (imgData) lv_mem_free(imgData);
     imgData = nullptr;
-    Window::deleteLater();
-  }
+  });
 }
 
 //-----------------------------------------------------------------------------

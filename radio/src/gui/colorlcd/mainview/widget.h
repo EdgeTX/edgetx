@@ -75,8 +75,6 @@ class Widget : public ButtonBase
   Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
          int screenNum, int zoneNum);
 
-  ~Widget() override = default;
-
   const WidgetFactory* getFactory() const { return factory; }
 
   const WidgetOption* getOptionDefinitions() const;

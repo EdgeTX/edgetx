@@ -73,9 +73,8 @@ class LayoutChoice : public Button
     menu->select(
         std::distance(LayoutFactory::getRegisteredLayouts().begin(), it));
 
-    menu->setCloseHandler([=]() {
-      if (!menu->deleted())
-        update();
+    menu->onClosing([=]() {
+      update();
     });
   }
 
@@ -181,7 +180,7 @@ void ScreenSetupPage::build(Window* window)
   btn = new TextButton(line, rect_t{}, STR_SETUP_WIDGETS,
                        [=]() -> uint8_t {
     auto idx = customScreenIndex;
-    window->getParent()->deleteLater();
+    window->getParent()->closeWindow();
     new SetupWidgetsPage(idx);
     return 0;
   });
@@ -302,7 +301,7 @@ void ScreenSetupPage::addScreen()
     TRACE("Add screen: add screen: LayoutId = %s", g_model.getScreenLayoutId(newIdx));
 
 #if VERSION_MAJOR == 2
-    Window::pageGroup()->deleteLater();
+    Window::pageGroup()->closeWindow();
 #endif
     QuickMenu::openPage((QMPage)(QM_UI_SCREEN1 + newIdx));
 

@@ -55,7 +55,7 @@ class BindWaitDialog : public BaseDialog
   {
     new StaticText(form, rect_t{}, STR_WAITING_FOR_RX);
 
-    setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
+    onClosing([=]() { if (resetOnClose) moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
   }
 
   void checkEvents() override
@@ -66,7 +66,7 @@ class BindWaitDialog : public BaseDialog
       // returned to normal after bind
       if (bindInfo.step > BIND_INIT) {
         removePXX2ReceiverIfEmpty(moduleIdx, receiverIdx);
-        deleteLater();
+        closeWindow();
         if (bindInfo.step == BIND_OK) {
           POPUP_INFORMATION(STR_REG_OK);
           setPXX2ReceiverUsed(moduleIdx, receiverIdx);
@@ -103,8 +103,8 @@ class BindWaitDialog : public BaseDialog
 
     if (bindInfo.step == BIND_INIT && bindInfo.candidateReceiversCount > 0) {
       // prevent module mode being reset to NORMAL before exiting
-      setCloseHandler(nullptr);
-      deleteLater();
+      resetOnClose = false;
+      closeWindow();
 
       // ... and create RX choice dialog
       new BindRxChoiceMenu(moduleIdx, receiverIdx);
@@ -117,6 +117,7 @@ class BindWaitDialog : public BaseDialog
  protected:
   uint8_t moduleIdx;
   uint8_t receiverIdx;
+  bool resetOnClose = true;
 };
 
 class RxOptions : public BaseDialog
@@ -284,7 +285,7 @@ uint8_t ReceiverButton::pressBind()
       });
       return 0;
     });
-    menu->setCloseHandler(
+    menu->onClosing(
         [=]() { removePXX2ReceiverIfEmpty(moduleIdx, receiverIdx); });
   }
   return 0;
@@ -375,7 +376,7 @@ RegisterDialog::RegisterDialog(uint8_t moduleIdx) :
   box->padAll(PAD_MEDIUM);
 
   new TextButton(box, rect_t{}, STR_CANCEL, [=]() -> int8_t {
-    this->deleteLater();
+    this->closeWindow();
     return 0;
   });
 
@@ -385,7 +386,7 @@ RegisterDialog::RegisterDialog(uint8_t moduleIdx) :
   });
   btn_ok->hide();
 
-  setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
+  onClosing([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
 }
 
 void RegisterDialog::start()
@@ -419,7 +420,7 @@ void RegisterDialog::checkEvents()
       // status->hide();
       rx_name->update();
     } else if (modSetup.registerStep == REGISTER_OK) {
-      deleteLater();
+      closeWindow();
       POPUP_INFORMATION(STR_REG_OK);
       // pop-up call garbage collector,
       // so that the dialog is alread destroyed
@@ -442,7 +443,7 @@ ModuleOptions::ModuleOptions(uint8_t moduleIdx) :
   moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
   state = MO_ReadModuleSettings;
 #endif
-  setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
+  onClosing([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
 }
 
 void ModuleOptions::checkEvents()
@@ -481,12 +482,12 @@ void ModuleOptions::checkEvents()
     case MO_WritingSettings:
 #if defined(SIMU)
       statusText.clear();
-      deleteLater();
+      closeWindow();
 #else
       if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL &&
           hwSettings.moduleSettings.state == PXX2_SETTINGS_OK) {
         statusText.clear();
-        deleteLater();
+        closeWindow();
       }
 #endif
       break;
@@ -605,7 +606,7 @@ void ModuleOptions::update()
   box->padAll(PAD_MEDIUM);
 
   new TextButton(box, rect_t{}, STR_CANCEL, [=]() -> int8_t {
-    this->deleteLater();
+    this->closeWindow();
     return 0;
   });
 
@@ -645,7 +646,7 @@ RxOptions::RxOptions(uint8_t moduleIdx, uint8_t rxIdx) :
     hwSettings.receiverSettings.outputsMapping[i] = i;
   }
 #endif
-  setCloseHandler([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
+  onClosing([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
 }
 
 void RxOptions::checkEvents()
@@ -705,12 +706,12 @@ void RxOptions::checkEvents()
     case RO_WritingSettings:
 #if defined(SIMU)
       statusText.clear();
-      deleteLater();
+      closeWindow();
 #else
       if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL &&
           hwSettings.receiverSettings.state == PXX2_SETTINGS_OK) {
         statusText.clear();
-        deleteLater();
+        closeWindow();
       }
 #endif
       break;
@@ -961,7 +962,7 @@ void RxOptions::update()
   box->padAll(PAD_MEDIUM);
 
   new TextButton(box, rect_t{}, STR_CANCEL, [=]() -> int8_t {
-    this->deleteLater();
+    this->closeWindow();
     return 0;
   });
 
