@@ -379,8 +379,19 @@ bool flashWrite(uint32_t* address, const uint32_t* buffer)
     if (stm32_flash_erase_sector((uintptr_t)address) < 0) return false;
   }
 
-  return stm32_flash_program((uintptr_t)address, (uint8_t*)buffer,
-                             FLASH_PAGESIZE) == 0;
+  if (stm32_flash_program((uintptr_t)address, (uint8_t*)buffer,
+                          FLASH_PAGESIZE) < 0)
+    return false;
+
+#if defined(__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
+  // drop any lines cached before the erase/program so the read back
+  // below comes from flash
+  SCB_InvalidateDCache_by_Addr(address, FLASH_PAGESIZE);
+#endif
+
+  // verify the page was actually written, independently of what the
+  // flash controller reported
+  return memcmp(address, buffer, FLASH_PAGESIZE) == 0;
 }
 
 // TODO: move this somewhere else, as it depends on firmware layout
