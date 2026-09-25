@@ -165,9 +165,7 @@ void ledOff();
 void ledRed();
 void ledBlue();
 void ledGreen();
-#if defined(STATUS_LED_PWM)
 void ledBoot();
-#endif
 
 // LCD driver
 void lcdSetInitalFrameBuffer(void* fbAddress);

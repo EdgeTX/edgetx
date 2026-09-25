@@ -174,7 +174,7 @@ static void _led_on_all()
 }
 
 // all status LEDs, until the radio signals it is ready
-void ledBoot()
+__weak void ledBoot()
 {
   _led_on_all();
 }
@@ -318,6 +318,26 @@ __weak void ledBlue()
 #endif
 #endif
 }
+
+#if !defined(STATUS_LED_PWM)
+// all status LEDs, until the radio signals it is ready
+__weak void ledBoot()
+{
+  ledOff();
+#if defined(LED_RED_GPIO)
+  GPIO_LED_GPIO_ON(LED_RED_GPIO);
+#endif
+#if defined(LED_RED2_GPIO)
+  GPIO_LED_GPIO_ON(LED_RED2_GPIO);
+#endif
+#if defined(LED_GREEN_GPIO)
+  GPIO_LED_GPIO_ON(LED_GREEN_GPIO);
+#endif
+#if defined(LED_BLUE_GPIO)
+  GPIO_LED_GPIO_ON(LED_BLUE_GPIO);
+#endif
+}
+#endif
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 __weak uint32_t fsGetLedRGB(uint8_t index)

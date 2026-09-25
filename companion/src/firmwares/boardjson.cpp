@@ -214,6 +214,12 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::HasBlingLEDS:
       return m_hardware.has_bling_leds;
 
+    case Board::StatusLedColors:
+      return m_hardware.status_led_colors;
+
+    case Board::HasStatusLedPwm:
+      return m_hardware.status_led_pwm;
+
     case Board::HasColorLcd:
       return m_display.color;
 
@@ -1280,6 +1286,16 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
     cfs.groups = cfs_leds_per_switch ? cfs_led_strip_length / (2 * cfs_leds_per_switch) : 0;
     cfs.rgb_led = cfs.groups > 0;
     hardware.has_bling_leds = o.value("bling_led_strip_length").toInt();
+
+    if (o.value("status_leds").toBool()) {
+      if (o.value("status_led_rgb_strip").toBool())
+        hardware.status_led_colors = 0b111;
+      else
+        hardware.status_led_colors = (o.contains("led_red_gpio") ? 0b001 : 0) |
+                                     (o.contains("led_green_gpio") ? 0b010 : 0) |
+                                     (o.contains("led_blue_gpio") ? 0b100 : 0);
+    }
+    hardware.status_led_pwm = o.contains("status_led_pwm_timer");
   }
 
   if (obj.value("hardware").isObject()) {
