@@ -144,9 +144,9 @@ extern HardwareOptions hardwareOptions;
   #define BATTERY_MAX                   42 // 4.2V
 #else
   // NI-MH 7.2V
-  #define BATTERY_WARN                  65 // 6.5V
-  #define BATTERY_MIN                   60 // 6.0V
-  #define BATTERY_MAX                   80 // 8.0V
+  #define BATTERY_WARN                  33 // 6.5V
+  #define BATTERY_MIN                   30 // 6.0V
+  #define BATTERY_MAX                   58 // 8.0V
 #endif
 
 #if defined(PCBXLITE)

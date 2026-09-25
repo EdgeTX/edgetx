@@ -1919,7 +1919,6 @@
 #endif
 
 // PWR and LED driver
-
 #if defined(PCBX9LITE)
   #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOA, 7)  // PA.07
   #define PWR_ON_GPIO                   GPIO_PIN(GPIOA, 6)  // PA.06
@@ -1935,7 +1934,7 @@
 #elif defined(RADIO_V14) || defined(RADIO_V14LCD)
   #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 1)  // PD.01
   #define PWR_ON_GPIO                   GPIO_PIN(GPIOB, 2)  // PB.02
-#else
+#elif !defined(RADIO_GAJS)
   #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 1)  // PD.01
   #define PWR_ON_GPIO                   GPIO_PIN(GPIOD, 0)  // PD.00
 #endif
