@@ -134,7 +134,8 @@ class LabelDialog : public ModalWindow
 {
  public:
   LabelDialog(const char *label, int length, const char* title,
-              std::function<void(std::string)> _saveHandler = nullptr);
+              std::function<void(std::string)> _saveHandler = nullptr,
+              const char* excludedChars = nullptr);
 
   static constexpr int MAX_LABEL_LENGTH = 255;
 

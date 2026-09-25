@@ -37,7 +37,7 @@
   #define LUA_EXPORT_EXTRA(...)
 #endif
 
-#define LABELS_LENGTH 100 // Maximum length of the label string
+#define LABELS_LENGTH 99  // Maximum length of the label string
 #define LABEL_LENGTH 16
 
 #if defined(COLORLCD)

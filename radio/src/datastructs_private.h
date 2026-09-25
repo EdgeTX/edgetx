@@ -608,7 +608,7 @@ PACK(struct ModelHeader {
   uint8_t   modelId[NUM_MODULES];
   MODEL_HEADER_BITMAP_FIELD
 #if defined(STORAGE_MODELSLIST)
-  char      labels[LABELS_LENGTH];
+  char      labels[LABELS_LENGTH + 1];  // alow null terminator
 #endif
 });
 
