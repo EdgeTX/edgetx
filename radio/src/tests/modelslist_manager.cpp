@@ -636,6 +636,7 @@ TEST_F(ModelCellManagerFsTest, RenameLabelOntoExistingLabelWithProgressDialog)
   // Dialogs are always shown over the main view
   ViewMain::instance();
   MainWindow::instance()->run();
+  lcdFlushed();
 
   auto rndialog = new ProgressDialog(STR_RENAME_LABEL, [=]() {});
   lv_obj_t* bar = findProgressBar(rndialog->getLvObj());

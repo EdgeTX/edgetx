@@ -193,10 +193,13 @@ void StaticIcon::setColor(LcdColorIndex color)
 
 void StaticIcon::setIcon(EdgeTxIcon icon)
 {
-  auto newMask = getBuiltinIcon(icon);
-  setSize(newMask->width, newMask->height);
-  lv_canvas_set_buffer(lvobj, (void*)newMask->data, newMask->width, newMask->height,
-                       LV_IMG_CF_ALPHA_8BIT);
+  if (currentIcon != icon) {
+    currentIcon = icon;
+    auto newMask = getBuiltinIcon(icon);
+    setSize(newMask->width, newMask->height);
+    lv_canvas_set_buffer(lvobj, (void*)newMask->data, newMask->width, newMask->height,
+                        LV_IMG_CF_ALPHA_8BIT);
+  }
 }
 
 void StaticIcon::center(coord_t w, coord_t h)
