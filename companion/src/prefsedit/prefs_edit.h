@@ -52,7 +52,6 @@ class PrefsEditDialog : public QDialog
 
   protected slots:
     void accept() Q_DECL_OVERRIDE;
-    void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
     void done(int r) Q_DECL_OVERRIDE;
     void reject() Q_DECL_OVERRIDE;
 
