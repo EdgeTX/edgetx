@@ -137,7 +137,6 @@ class ModelButton : public Button
             return true;
           }
         }
-        showNoImgMsg();
       }
 
       return false;
@@ -266,10 +265,12 @@ class ModelsPageBody : public Window
 
       // Long Press Handler for Models
       button->setLongPressHandler([=]() -> uint8_t {
-        button->setFocused();
-        focusedModel = model;
+        if (model != focusedModel) {
+          button->setFocused();
+          focusedModel = model;
+        }
         openMenu();
-        return 0;
+        return model == modelslist.getCurrentModel();
       });
     }
 
@@ -281,10 +282,15 @@ class ModelsPageBody : public Window
     }
   }
 
-  void reload()
+  void clearButtons()
   {
     modelButtons.clear();
     clear();
+  }
+
+  void reload()
+  {
+    clearButtons();
     update();
   }
 
@@ -665,14 +671,8 @@ void ModelLabelsWindow::newLabel()
   new LabelDialog(tmpLabel, LABEL_LENGTH, STR_ENTER_LABEL, [=](std::string label) {
     int newlabindex = modelslabels.addLabel(label);
     if (newlabindex >= 0) {
-      std::set<uint32_t> newset;
-      newset.insert(newlabindex);
       auto labels = getLabels();
       lblselector->setNames(labels);
-      lblselector->setSelected(newset);
-      if (g_eeGeneral.labelSingleSelect)
-        lblselector->setActiveItem(newlabindex);
-      updateFilteredLabels(newset);
     }
   });
 }
@@ -824,6 +824,7 @@ void ModelLabelsWindow::buildBody(Window *window)
                   });
               auto labels = getLabels();
               lblselector->setNames(labels);
+              mdlselector->clearButtons();
               updateFilteredLabels(modelslabels.filteredLabels(), false);
             }
           });
@@ -846,8 +847,13 @@ void ModelLabelsWindow::buildBody(Window *window)
                 std::set<uint32_t> newset;
                 lblselector->setNames(labels);
                 lblselector->setSelected(newset);
-                if (g_eeGeneral.labelSingleSelect && selected == lblselector->getActiveItem())
-                  lblselector->setActiveItem(-1);
+                if (g_eeGeneral.labelSingleSelect) {
+                  if (selected == lblselector->getActiveItem())
+                    lblselector->setActiveItem(-1);
+                  else
+                    newset.insert(lblselector->getActiveItem());
+                }
+                mdlselector->clearButtons();
                 updateFilteredLabels(newset);
               });
           return 0;

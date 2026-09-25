@@ -20,7 +20,7 @@
 
 #include "numberedit.h"
 
-constexpr coord_t KEYBOARD_HEIGHT = 90;
+LAYOUT_VAL_SCALED(KEYBOARD_HEIGHT, 90);
 NumberKeyboard* NumberKeyboard::_instance = nullptr;
 
 static const char* const number_kb_map[] = {"<<",  "-",   "+",   ">>",  "\n",
@@ -71,42 +71,42 @@ void NumberKeyboard::handleEvent(const char* btn)
 
 void NumberKeyboard::decLarge()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_BACKWARD);
+  field->onEvent(EVT_VIRTUAL_KEY_BACKWARD);
 }
 
 void NumberKeyboard::decSmall()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_MINUS);
+  field->onEvent(EVT_VIRTUAL_KEY_MINUS);
 }
 
 void NumberKeyboard::incSmall()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_PLUS);
+  field->onEvent(EVT_VIRTUAL_KEY_PLUS);
 }
 
 void NumberKeyboard::incLarge()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_FORWARD);
+  field->onEvent(EVT_VIRTUAL_KEY_FORWARD);
 }
 
 void NumberKeyboard::setMIN()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_MIN);
+  field->onEvent(EVT_VIRTUAL_KEY_MIN);
 }
 
 void NumberKeyboard::setMAX()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_MAX);
+  field->onEvent(EVT_VIRTUAL_KEY_MAX);
 }
 
 void NumberKeyboard::setDEF()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_DEFAULT);
+  field->onEvent(EVT_VIRTUAL_KEY_DEFAULT);
 }
 
 void NumberKeyboard::changeSign()
 {
-  ((NumberEdit*)field)->onEvent(EVT_VIRTUAL_KEY_SIGN);
+  field->onEvent(EVT_VIRTUAL_KEY_SIGN);
 }
 
 #if defined(HARDWARE_KEYS)
