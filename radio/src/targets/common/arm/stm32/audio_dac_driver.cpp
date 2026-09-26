@@ -118,6 +118,13 @@ void audioUnmute()
 
 #if defined(STM32H5) || defined(STM32H7RS)
 LL_DMA_LinkNodeTypeDef dacDmaLinkNode;
+
+// Registers re-loaded from the linked-list node on every fetch. CTR3/CBR2 exist
+// only on the 2D channels (ch6/7); on a linear channel their update bits are
+// reserved and must stay 0, or the node fetch goes out of sync.
+#define DAC_DMA_NODE_UPDATE_REGS                                     \
+  (LL_DMA_UPDATE_CTR1 | LL_DMA_UPDATE_CTR2 | LL_DMA_UPDATE_CBR1 |    \
+   LL_DMA_UPDATE_CSAR | LL_DMA_UPDATE_CDAR | LL_DMA_UPDATE_CLLR)
 #endif
 
 // 16 bit, 1 channels
@@ -168,15 +175,22 @@ static bool audio_update_dma_buffer(uint8_t tc)
   }
 }
 
+// _dma_buffer lives in a NOLOAD section, so it holds random SRAM contents at
+// power-on. Prime it with silence so the DAC never clocks out garbage (heard
+// as a crackle) on the very first transfer.
+//
+// This is a one-shot boot-time step: it must NOT run from dac_dma_init() on the
+// GPDMA re-arm path, which happens *after* audioConsumeCurrentBuffer() has
+// already loaded both halves from the FIFO.
+static void dac_prime_silence()
+{
+  for (unsigned i = 0; i < DMA_BUFFER_LEN; i++)
+    _dma_buffer[i] = AUDIO_DATA_SILENCE;
+}
+
 static void dac_dma_init()
 {
   stm32_dma_enable_clock(AUDIO_DMA);
-
-  // _dma_buffer lives in a NOLOAD section, so it holds random SRAM contents at
-  // power-on. Prime it with silence so the DAC never clocks out garbage (heard
-  // as a crackle) on the very first transfer.
-  for (unsigned i = 0; i < DMA_BUFFER_LEN; i++)
-    _dma_buffer[i] = AUDIO_DATA_SILENCE;
 
   LL_DMA_DeInit(AUDIO_DMA, AUDIO_DMA_Stream);
 
@@ -222,8 +236,7 @@ static void dac_dma_init()
   nodeInit.BlkHWRequest = LL_DMA_HWREQUEST_SINGLEBURST;
   nodeInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
   nodeInit.Request = AUDIO_DMA_REQUEST;
-  nodeInit.UpdateRegisters = (LL_DMA_UPDATE_CTR1 | LL_DMA_UPDATE_CTR2 | LL_DMA_UPDATE_CBR1 | LL_DMA_UPDATE_CSAR
-                                | LL_DMA_UPDATE_CDAR | LL_DMA_UPDATE_CTR3 | LL_DMA_UPDATE_CBR2 | LL_DMA_UPDATE_CLLR);
+  nodeInit.UpdateRegisters = DAC_DMA_NODE_UPDATE_REGS;
   nodeInit.NodeType = LL_DMA_GPDMA_LINEAR_NODE;
   /* Additional settings */
   nodeInit.SrcAddress = (uintptr_t)_dma_buffer;
@@ -242,17 +255,15 @@ static void dac_dma_init()
    * on the start of DMA operation
    */
   LL_DMA_SetLinkedListBaseAddr(AUDIO_DMA, AUDIO_DMA_Stream, (intptr_t)&dacDmaLinkNode);
-  LL_DMA_ConfigLinkUpdate(AUDIO_DMA, AUDIO_DMA_Stream,
-                          (LL_DMA_UPDATE_CTR1 | LL_DMA_UPDATE_CTR2 | LL_DMA_UPDATE_CBR1 | LL_DMA_UPDATE_CSAR
-                           | LL_DMA_UPDATE_CDAR | LL_DMA_UPDATE_CTR3 | LL_DMA_UPDATE_CBR2 | LL_DMA_UPDATE_CLLR),
+  LL_DMA_ConfigLinkUpdate(AUDIO_DMA, AUDIO_DMA_Stream, DAC_DMA_NODE_UPDATE_REGS,
 			   (intptr_t)&dacDmaLinkNode);
 
   LL_DMA_InitLinkedListTypeDef DMA_InitLinkedListStruct = {0};
   /* Initialize linked list general setup for GPDMA CH0 - the way transfers are done */
-  DMA_InitLinkedListStruct.Priority = LL_DMA_LOW_PRIORITY_HIGH_WEIGHT;
+  DMA_InitLinkedListStruct.Priority = LL_DMA_HIGH_PRIORITY;
   DMA_InitLinkedListStruct.LinkStepMode = LL_DMA_LSM_FULL_EXECUTION;
   DMA_InitLinkedListStruct.LinkAllocatedPort = LL_DMA_LINK_ALLOCATED_PORT1;
-  DMA_InitLinkedListStruct.TransferEventMode = LL_DMA_TCEM_LAST_LLITEM_TRANSFER;
+  DMA_InitLinkedListStruct.TransferEventMode = LL_DMA_TCEM_BLK_TRANSFER;
   LL_DMA_List_Init(AUDIO_DMA, AUDIO_DMA_Stream, &DMA_InitLinkedListStruct);
 
 
@@ -280,6 +291,25 @@ static void dac_close_dma_xfer()
 {
   LL_DMA_DisableIT_TC(AUDIO_DMA, AUDIO_DMA_Stream);
   LL_DMA_DisableIT_HT(AUDIO_DMA, AUDIO_DMA_Stream);
+#if defined(STM32H5) || defined(STM32H7RS)
+  // GPDMA: a running channel must be SUSPENDED (and the suspend must take
+  // effect) before RESET is honoured. LL_DMA_DisableChannel() writes
+  // SUSP|RESET in one go, which does NOT abort the self-linked circular
+  // channel - it keeps cycling and the ISR refills silence forever.
+  LL_DMA_SuspendChannel(AUDIO_DMA, AUDIO_DMA_Stream);
+  uint32_t timeout = 10000;
+  while (!LL_DMA_IsActiveFlag_SUSP(AUDIO_DMA, AUDIO_DMA_Stream) && --timeout) {
+  }
+  LL_DMA_ResetChannel(AUDIO_DMA, AUDIO_DMA_Stream);
+  // drop any pending transfer flags so no stale IRQ re-arms the refill
+  LL_DMA_ClearFlag_HT(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_ClearFlag_TC(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_ClearFlag_SUSP(AUDIO_DMA, AUDIO_DMA_Stream);
+
+  // Disable DAC DMA to prevent underrun while DMA is stopped
+  AUDIO_DAC->CR &= ~DAC_CR_DMAEN1;
+  LL_DAC_ClearFlag_DMAUDR1(AUDIO_DAC);
+#else
   LL_DMA_DisableStream(AUDIO_DMA, AUDIO_DMA_Stream);
 
   // Wait until DMA EN bit is actually cleared by hardware.
@@ -289,10 +319,17 @@ static void dac_close_dma_xfer()
   }
 
   dac_clear_dma_flags();
+#endif
 }
 
 static void dac_start_dma()
 {
+#if defined(STM32H5) || defined(STM32H7RS)
+  // On GPDMA, dac_close_dma_xfer() suspends and resets the channel, which tears
+  // it down: the linked-list pointer (CxLLR) and the source/block-length
+  // registers are lost, so rebuild the descriptor before re-arming.
+  dac_dma_init();
+#else
   // re-arm from the start of the buffer: a mid-transfer stop leaves NDTR and the
   // memory address partway, which desyncs the HT/TC half tracking
   LL_DMA_DisableStream(AUDIO_DMA, AUDIO_DMA_Stream);
@@ -300,11 +337,16 @@ static void dac_start_dma()
   LL_DMA_SetDataLength(AUDIO_DMA, AUDIO_DMA_Stream, DMA_BUFFER_LEN);
 
   dac_clear_dma_flags();
+#endif
 
   // enable DMA stream and transfer complete interrupt
   LL_DMA_EnableIT_HT(AUDIO_DMA, AUDIO_DMA_Stream);
   LL_DMA_EnableIT_TC(AUDIO_DMA, AUDIO_DMA_Stream);
+#if defined(STM32H5) || defined(STM32H7RS)
+  LL_DMA_EnableChannel(AUDIO_DMA, AUDIO_DMA_Stream);
+#else
   LL_DMA_EnableStream(AUDIO_DMA, AUDIO_DMA_Stream);
+#endif
 
   // clear underrun flag
   AUDIO_DAC_CLEAR_DMAUDR();
@@ -315,7 +357,19 @@ static void dac_start_dma()
 
 void audioConsumeCurrentBuffer()
 {
+#if defined(STM32H5) || defined(STM32H7RS)
+  // An underrun latches DMAUDR1 and the DAC stops taking DMA requests while
+  // the channel stays enabled, so the re-arm below would never fire.
+  if (LL_DAC_IsActiveFlag_DMAUDR1(AUDIO_DAC)) {
+    LL_DAC_ClearFlag_DMAUDR1(AUDIO_DAC);
+    dac_close_dma_xfer();
+    _empty_dma_halves = 0;
+  }
+
+  if (!LL_DMA_IsEnabledChannel(AUDIO_DMA, AUDIO_DMA_Stream)) {
+#else
   if (!LL_DMA_IsEnabledStream(AUDIO_DMA, AUDIO_DMA_Stream)) {
+#endif
     // Prime both halves before starting the circular DMA. The interrupt only
     // refills one half at a time, so if we left the second half untouched it
     // would play stale/garbage data for the first lap (a crackle), then a gap.
@@ -341,6 +395,13 @@ void audioConsumeCurrentBuffer()
 
 extern "C" void AUDIO_DMA_Stream_IRQHandler()
 {
+#if defined(STM32H5) || defined(STM32H7RS)
+  // Clear error flags to prevent infinite ISR loop
+  LL_DMA_ClearFlag_DTE(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_ClearFlag_ULE(AUDIO_DMA, AUDIO_DMA_Stream);
+  LL_DMA_ClearFlag_USE(AUDIO_DMA, AUDIO_DMA_Stream);
+#endif
+
   bool hasData = false;
   if(stm32_dma_check_ht_flag(AUDIO_DMA, AUDIO_DMA_Stream)) {
     if (audio_update_dma_buffer(0)) {
@@ -374,6 +435,9 @@ extern "C" void AUDIO_DMA_Stream_IRQHandler()
 #define DAC_TRIGGER 0 // TIM6
 
 const AudioBuffer * nextBuffer = nullptr;
+
+// no private DMA buffer on this path: the DMA plays straight out of the FIFO
+static inline void dac_prime_silence() {}
 
 static void dac_dma_init()
 {
@@ -470,16 +534,19 @@ static void dac_trigger_init()
 {
   stm32_timer_enable_clock(AUDIO_TIMER);
 
-  // set timer to: 10 uS, 100 kHz
-  AUDIO_TIMER->PSC = 0;
-  AUDIO_TIMER->ARR = (PERI1_FREQUENCY * TIMER_MULT_APB1) / 100000 - 1;
+  // A basic timer's TRGO is the update event, one timer clock wide - 4ns at
+  // 250MHz. Prescaling widens that pulse without moving the sample rate.
+#if !defined(AUDIO_TIMER_PSC)
+  #define AUDIO_TIMER_PSC 1
+#endif
+  AUDIO_TIMER->PSC = AUDIO_TIMER_PSC - 1;
 
   // reset counter
   AUDIO_TIMER->CNT = 0;
 
   // set expiry to sample period (1 / sample_rate)
   AUDIO_TIMER->ARR =
-      (PERI1_FREQUENCY * TIMER_MULT_APB1) / AUDIO_SAMPLE_RATE - 1;
+      ((PERI1_FREQUENCY * TIMER_MULT_APB1) / AUDIO_TIMER_PSC) / AUDIO_SAMPLE_RATE - 1;
 
   // Master mode selection
   //
@@ -498,6 +565,8 @@ static void dac_periph_init()
 
 #if defined(LL_APB1_GRP1_PERIPH_DAC12)
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_DAC12);
+#elif defined(LL_AHB2_GRP1_PERIPH_DAC1)
+  LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_DAC1);
 #else
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_DAC1);
 #endif
@@ -508,8 +577,18 @@ static void dac_periph_init()
   // STM32H5/H7: the DAC sample/hold timing must be told the bus clock band via
   // HFSEL, otherwise the analog output is distorted (and marginal => varies
   // boot-to-boot). Must be written while the channel is disabled (before EN1).
-  // Threshold is on the DAC's APB clock (PERI1_FREQUENCY).
-#if (PERI1_FREQUENCY > 160000000)
+  // The band is on the AHB clock, NOT the ADCDACSEL kernel clock: see
+  // HAL_DAC_ConfigChannel()'s AUTOMATIC mode, which reads HAL_RCC_GetHCLKFreq().
+#if defined(AUDIO_DAC_HFSEL)
+  LL_DAC_SetHighFrequencyMode(AUDIO_DAC, AUDIO_DAC_HFSEL);
+#elif defined(STM32H5)
+  // SystemCoreClock is HCLK here (SystemCoreClockUpdate() applies HPRE)
+  uint32_t hclk = SystemCoreClock;
+  LL_DAC_SetHighFrequencyMode(
+      AUDIO_DAC, hclk > 160000000 ? LL_DAC_HIGH_FREQ_MODE_ABOVE_160MHZ
+               : hclk >  80000000 ? LL_DAC_HIGH_FREQ_MODE_ABOVE_80MHZ
+                                  : LL_DAC_HIGH_FREQ_MODE_DISABLE);
+#elif (PERI1_FREQUENCY > 160000000)
   LL_DAC_SetHighFrequencyMode(AUDIO_DAC, LL_DAC_HIGH_FREQ_MODE_ABOVE_160MHZ);
 #elif (PERI1_FREQUENCY > 80000000)
   LL_DAC_SetHighFrequencyMode(AUDIO_DAC, LL_DAC_HIGH_FREQ_MODE_ABOVE_80MHZ);
@@ -541,6 +620,7 @@ void dacInit()
 #endif
 
   dac_trigger_init();
+  dac_prime_silence();
   dac_dma_init();
   dac_periph_init();
 }
