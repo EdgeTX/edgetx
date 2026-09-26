@@ -595,6 +595,15 @@ static int luaLvglGetScrollPos(lua_State *L)
   return 0;
 }
 
+static int luaLvglGetUIPerf(lua_State *L)
+{
+  uint32_t fps, cpu;
+  lcdGetPerfStats(fps, cpu);
+  lua_pushinteger(L, fps);
+  lua_pushinteger(L, cpu);
+  return 2;
+}
+
 extern "C" {
 // lvgl functions
 LROT_BEGIN(lvgllib, NULL, 0)
@@ -604,6 +613,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(isFullScreen, luaLvglIsFullscreen)
   LROT_FUNCENTRY(exitFullScreen, luaLvglExitFullscreen)
   LROT_FUNCENTRY(getContext, luaLvglGetContext)
+  LROT_FUNCENTRY(getUIPerf, luaLvglGetUIPerf)
   /*luadoc
   @common lvgl_object
 
