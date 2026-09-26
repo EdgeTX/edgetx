@@ -844,7 +844,7 @@ void ModelLabelsWindow::buildBody(Window *window)
               lblselector->setNames(labels);
               updateFilteredLabels(modelCellManager.filteredLabels(), false);
             }
-          });
+          }, labelExcludedChars);
           return 0;
         });
         menu->addLine(STR_DELETE_LABEL, [=]() {
