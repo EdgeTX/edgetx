@@ -659,7 +659,7 @@ The list of valid sources is available:
 
 @retval nil the requested field was not found
 
-@status current Introduced in 2.0.8, 'unit' field added in 2.2.0, and argument also can be an index number as of 2.6.0
+@status current Introduced in 2.0.8, 'unit' field added in 2.2.0, and argument also can be an index number as of 2.6.0, lower case switch names and flex/voice switches added in 3.0
 */
 static int luaGetFieldInfo(lua_State * L)
 {
@@ -2650,9 +2650,9 @@ static int luaGetLogicalSwitchValue(lua_State * L)
 * `isCustomisableSwitch`   (boolean) field identifier
 return true if switch is a customisable switch
 
-* `name` (string) switch name
+* `name` (string) switch name as shown on the radio, including a custom name. Use `getFieldInfo(sourceIndex).name` for the default name.
 
-@status current Introduced in 2.12
+@status current Introduced in 2.12, name fixed and retval nil added in 3.0
 */
 
 static int luaGetSwitchInfo(lua_State * L)
