@@ -178,12 +178,7 @@ StringTagMappingTable Board::getLegacyAnalogsLookupTable(QString boardId)
                               {tr("TILT_Y").toStdString(), "GYRO2"},
   });
 
-  if (board->getId() == "x9lite") {
-    tbl.insert(tbl.end(), {
-                              {tr("SL1").toStdString(), "S1"},
-                              {tr("P1").toStdString(), "POT1"},
-                            });
-  } else if (board->getId() == "x9e") {
+  if (board->getId() == "x9e") {
     tbl.insert(tbl.end(), {
                               {tr("P1").toStdString(), "POT1"},
                               {tr("P2").toStdString(), "POT2"},
@@ -194,27 +189,19 @@ StringTagMappingTable Board::getLegacyAnalogsLookupTable(QString boardId)
                               {tr("SL3").toStdString(), "SLIDER3"},
                               {tr("SL4").toStdString(), "SLIDER4"},
                           });
-  } else if (IS_TARANIS_XLITES(board)) {
-    tbl.insert(tbl.end(), {
-                              {tr("P1").toStdString(), "POT1"},
-                              {tr("P2").toStdString(), "POT2"},
-                          });
-  } else if (IS_RADIOMASTER_BOXER(board)) {
+  } else if (board->getId() == "boxer"|| board->getId() == "commodo8" ||
+             board->getId() == "bumblebee" || board->getId() == "tx12mk2" ||
+             board->getId() == "nv14" || board->getId() == "el18") {
     tbl.insert(tbl.end(), {
                               {tr("P1").toStdString(), "POT1"},
                               {tr("P2").toStdString(), "POT2"},
                               {tr("P3").toStdString(), "POT3"},
                           });
-  } else if (IS_RADIOMASTER_POCKET(board)) {
+  } else if (board->getId() == "pocket") {
     tbl.insert(tbl.end(), {
                               {tr("P1").toStdString(), "P1"},
                           });
-  } else if ((IS_TARANIS_SMALL(board) && !IS_JUMPER_TLITE(board) && !IS_JUMPER_T20(board)) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board)) {
-    tbl.insert(tbl.end(), {
-                              {tr("P1").toStdString(), "POT1"},
-                              {tr("P2").toStdString(), "POT2"},
-                          });
-  } else if (IS_TARANIS_X9(board)) {
+  } else if (board->getId() == "x9d+2019" ) {
     tbl.insert(tbl.end(), {
                               {tr("P1").toStdString(), "POT1"},
                               {tr("P2").toStdString(), "POT2"},
@@ -222,7 +209,7 @@ StringTagMappingTable Board::getLegacyAnalogsLookupTable(QString boardId)
                               {tr("SL1").toStdString(), "SLIDER1"},
                               {tr("SL2").toStdString(), "SLIDER2"},
                           });
-  } else if (IS_HORUS_X12S(board)) {
+  } else if (board->getId() == "x12s") {
     tbl.insert(tbl.end(), {
                               {tr("P1").toStdString(), "S1"},
                               {tr("P2").toStdString(), "6POS"},
@@ -232,27 +219,8 @@ StringTagMappingTable Board::getLegacyAnalogsLookupTable(QString boardId)
                               {tr("SL1").toStdString(), "LS"},
                               {tr("SL2").toStdString(), "RS"},
                           });
-  } else if (IS_FLYSKY_PL18(board) || IS_FLYSKY_PL18U(board)) {
-    tbl.insert(tbl.end(), {
-                              {tr("P1").toStdString(), "POT1"},
-                              {tr("P2").toStdString(), "POT2"},
-                              {tr("P3").toStdString(), "POT3"},
-                              {tr("SL1").toStdString(), "LS"},
-                              {tr("SL2").toStdString(), "RS"},
-                          });
-  } else if (IS_FLYSKY_PL18EV(board)) {
-    tbl.insert(tbl.end(), {
-                              {tr("P1").toStdString(), "POT1"},
-                              {tr("P2").toStdString(), "POT2"},
-                              {tr("P3").toStdString(), "POT3"},
-                              {tr("SL1").toStdString(), "LS"},
-                              {tr("SL2").toStdString(), "RS"},
-                              {tr("EXT1").toStdString(), "EXT1"},
-                              {tr("EXT2").toStdString(), "EXT2"},
-                              {tr("EXT3").toStdString(), "EXT3"},
-                              {tr("EXT4").toStdString(), "EXT4"},
-                          });
-  } else if (IS_HORUS_X10(board) || IS_FAMILY_T16(board)) {
+  } else if (board->getId() == "x10" || board->getId() == "x10express" ||
+             board->getId() == "t16" || board->getId() == "t18" || board->getId() == "tx16s") {
     tbl.insert(tbl.end(), {
                               {tr("P1").toStdString(), "S1"},
                               {tr("P2").toStdString(), "6POS"},
@@ -264,15 +232,6 @@ StringTagMappingTable Board::getLegacyAnalogsLookupTable(QString boardId)
                               {tr("SL1").toStdString(), "LS"},
                               {tr("SL2").toStdString(), "RS"},
                           });
-  } else if (IS_JUMPER_T20(board)) {
-      tbl.insert(tbl.end(), {
-                              {tr("P1").toStdString(), "P1"},
-                              {tr("P2").toStdString(), "P2"},
-                              {tr("SL1").toStdString(), "SL1"},
-                              {tr("SL2").toStdString(), "SL2"},
-                              {tr("SL3").toStdString(), "SL3"},
-                              {tr("SL4").toStdString(), "SL4"},
-                            });
   }
 
   return tbl;

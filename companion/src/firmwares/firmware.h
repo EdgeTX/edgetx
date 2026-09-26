@@ -164,7 +164,7 @@ class Firmware : public JsonBase
     static QString getOptionTooltip(const QString opt);
 
   private:
-    QString m_id;       // has edgetx- prefix for backwards compatibility
+    QString m_id;       // has edgetx- prefix for backwards compatibility TODO conversion to get rid of
     QString m_path;
     bool m_supported;   // false - hide from list of available firmwares but available for conversion
     FirmwareDefn m_defn;
@@ -198,5 +198,5 @@ class Firmware : public JsonBase
     static const OptionTooltip registeredOptions;
   };
 
-Firmware* getCurrentFirmware() { return Firmware::getCurrent(); }
-Board* getCurrentBoard() { return getCurrentFirmware()->getBoard(); }
+inline Firmware* getCurrentFirmware() { return Firmware::getCurrent(); }
+inline Board* getCurrentBoard() { return getCurrentFirmware()->getBoard(); }
