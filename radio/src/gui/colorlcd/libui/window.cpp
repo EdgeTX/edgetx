@@ -22,6 +22,7 @@
 #include "debug.h"
 #include "etx_lv_theme.h"
 #include "form.h"
+#include "keyboard_base.h"
 #include "keys.h"
 #include "pagegroup.h"
 #include "static.h"
@@ -164,15 +165,15 @@ void Window::eventHandler(lv_event_t *e)
 {
   static bool _longPressed = false;
 
-  lv_obj_t *target = lv_event_get_target(e);
   lv_event_code_t code = lv_event_get_code(e);
 
   if (code == LV_EVENT_DELETE || deleted()) return;
 
-  if (customEventHandler(code)) return;
+  if (customEventHandler(code, e)) return;
 
   switch (code) {
     case LV_EVENT_SCROLL: {
+      lv_obj_t *target = lv_event_get_target(e);
       // exclude pointer based scrolling (only focus scrolling)
       if (!lv_obj_is_scrolling(target) && ((windowFlags & NO_FORCED_SCROLL) == 0)) {
         lv_point_t *p = (lv_point_t *)lv_event_get_param(e);
@@ -199,6 +200,9 @@ void Window::eventHandler(lv_event_t *e)
     case LV_EVENT_CLICKED:
       if (!_longPressed) {
         TRACE("CLICKED[%p]", this);
+        // Close keyboard when clicking outside edit / keyboard windows
+        if (!isEditWindow())
+          Keyboard::hideKeyboard();
         onClicked();
       }
       _longPressed = false;
@@ -223,13 +227,6 @@ void Window::eventHandler(lv_event_t *e)
 }
 
 //-----------------------------------------------------------------------------
-
-// Constructor to allow lvobj to be created separately - used by NumberEdit and
-// TextEdit
-Window::Window(const rect_t &rect) : rect(rect), parent(nullptr)
-{
-  lvobj = nullptr;
-}
 
 Window::Window(Window *parent, const rect_t &rect, LvglCreate objConstruct) :
     rect(rect), parent(parent)
@@ -326,13 +323,6 @@ void Window::assignLvGroup(lv_group_t* g, bool setDefault)
     lv_indev_set_group(indev, g);
     indev = lv_indev_get_next(indev);
   }
-}
-
-Window *Window::getFullScreenWindow()
-{
-  if (width() == LCD_W && height() == LCD_H) return this;
-  if (parent) return parent->getFullScreenWindow();
-  return nullptr;
 }
 
 void Window::setWindowFlag(WindowFlags flag)
@@ -641,7 +631,7 @@ NavWindow::NavWindow(Window *parent, const rect_t &rect,
                      LvglCreate objConstruct) :
     Window(parent, rect, objConstruct)
 {
-  setWindowFlag(OPAQUE);
+  setWindowFlag(OPAQUE | IS_NAV_WINDOW);
 }
 
 #if defined(HARDWARE_KEYS)

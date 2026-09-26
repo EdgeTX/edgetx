@@ -291,7 +291,7 @@ void StandaloneLuaWindow::checkEvents()
   luaLcdAllowed = false;
 }
 
-void StandaloneLuaWindow::onClicked() { Keyboard::hide(false); LuaScriptManager::onClickedEvent(); }
+void StandaloneLuaWindow::onClicked() { LuaScriptManager::onClickedEvent(); }
 
 void StandaloneLuaWindow::onCancel() { LuaScriptManager::onCancelEvent(); }
 

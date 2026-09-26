@@ -314,8 +314,6 @@ void PageGroupBase::checkEvents()
   }
 }
 
-void PageGroupBase::onClicked() { Keyboard::hide(false); }
-
 void PageGroupBase::onCancel()
 {
   closeWindow();
@@ -430,6 +428,8 @@ void PageGroupBase::setScrollY(coord_t y)
 PageGroup::PageGroup(EdgeTxIcon icon, const char* title, const PageDef* pages) :
     PageGroupBase(PAGE_GROUP_BODY_Y, icon)
 {
+  setWindowFlag(IS_PAGE_GROUP);
+
   header = new PageGroupHeader(this, icon, title);
 
   for (int i = 0; pages[i].icon < EDGETX_ICONS_COUNT; i += 1) {

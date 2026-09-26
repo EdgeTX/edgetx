@@ -156,5 +156,5 @@ class MomentaryButton : public FormField
   std::string text;
   lv_obj_t* label = nullptr;
 
-  bool customEventHandler(lv_event_code_t code) override;
+  bool customEventHandler(lv_event_code_t code, lv_event_t *e) override;
 };
