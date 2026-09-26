@@ -516,7 +516,7 @@ void PrefsProfilePanel::onRadioChanged(Firmware * firmware, bool deferUpdate)
 {
   PrefsPanel::onRadioChanged(firmware, true);
   fwTypeData->setText(firmware->getFirmwareBase()->getId());
-  populateFirmwareOptions(profile.fwOptions().split("-"));
+  populateFirmwareOptions();
   panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
                                                                                           GeneralSettings::RadioTypeContextSurface);
   update();
