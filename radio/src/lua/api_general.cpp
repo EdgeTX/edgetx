@@ -2606,7 +2606,9 @@ static int luaGetLogicalSwitchValue(lua_State * L)
 /*luadoc
 @function getSwitchInfo(sourceIndex)
 
-@param sourceIndex: integer identifying a value source as returned by `getSourceIndex(sourceName)` or the `id` field in the table returned by `getFieldInfo`.
+@param sourceIndex: integer identifying a switch source, e.g. `MIXSRC_SA`, `getSourceIndex("SA")` or the `id` field in the table returned by `getFieldInfo("sa")`. This is not a switch position index as returned by `getSwitchIndex()`.
+
+@retval nil sourceIndex is not a switch source
 
 @retval table information about requested field, table elements:
 * `type`   (number) field identifier
