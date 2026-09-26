@@ -27,8 +27,7 @@ class Keyboard : public NavWindow
  public:
   explicit Keyboard(coord_t height);
 
-  void clearField(bool wasCancelled);
-  static void hide(bool wasCancelled);
+  static void hideKeyboard();
 
   static Keyboard* keyboardWindow() { return activeKeyboard; }
 
@@ -37,13 +36,14 @@ class Keyboard : public NavWindow
 
   bool hasTwoPageKeys;
   lv_group_t* group = nullptr;
-  lv_obj_t* keyboard = nullptr;
 
   FormField* field = nullptr;
   Window* fieldContainer = nullptr;
+  lv_coord_t fieldContainerTop = 0;
   lv_group_t* fieldGroup = nullptr;
-  lv_coord_t scroll_pos = 0;
+  lv_coord_t scrollPos = 0;
+  Window* scrollWindow = nullptr;
 
-  void setField(FormField* newField);
-  bool attachKeyboard();
+  void clearField();
+  void setField(FormField* newField, bool useTextArea = true);
 };

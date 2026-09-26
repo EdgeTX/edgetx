@@ -156,7 +156,7 @@ MomentaryButton::MomentaryButton(Window* parent, const rect_t& rect, std::string
   lv_obj_center(label);
 }
 
-bool MomentaryButton::customEventHandler(lv_event_code_t code)
+bool MomentaryButton::customEventHandler(lv_event_code_t code, lv_event_t *e)
 {
   switch (code) {
     case LV_EVENT_PRESSED:

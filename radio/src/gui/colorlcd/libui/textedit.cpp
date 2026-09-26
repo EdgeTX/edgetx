@@ -30,21 +30,20 @@
 class TextArea : public FormField
 {
  public:
-  TextArea(Window* parent, const rect_t& rect, char* value, uint8_t length) :
-      FormField(parent, rect, etx_textarea_create), value(value), length(length)
+  TextArea(Window* parent, const rect_t& rect, char* value, uint8_t length,
+           std::function<void()> changeHandler) :
+      FormField(parent, rect, etx_textarea_create),
+      value(value), length(length),
+      changeHandler(changeHandler)
   {
-    setWindowFlag(NO_FOCUS);
+    setWindowFlag(NO_FOCUS | IS_EDIT_WINDOW);
 
     lv_textarea_set_max_length(lvobj, length);
     lv_textarea_set_placeholder_text(lvobj, "---");
 
     setFocusHandler([=](bool focus) {
-      if (!focus && editMode) {
-        setEditMode(false);
-        hide();
-        lv_group_focus_obj(parent->getLvObj());
-        lv_obj_clear_state(parent->getLvObj(), LV_STATE_FOCUSED);
-      }
+      if (!focus && editMode)
+        Keyboard::hideKeyboard();
     });
 
     update();
@@ -61,33 +60,32 @@ class TextArea : public FormField
     lv_textarea_set_text(lvobj, txt.c_str());
   }
 
-  void onClicked() override {
-    setEditMode(true);
-  }
-
-  void openKeyboard() {
-    TextKeyboard::open(this);
-  }
-
-  void setCancelHandler(std::function<void(void)> handler)
+  void openKeyboard()
   {
-    cancelHandler = std::move(handler);
+    update();
+    show();
+    lv_group_focus_obj(lvobj);
+    TextKeyboard::open(this);
+    setEditMode(true);
   }
 
   void setExcludedChars(std::string& excludedChars) {
     if (excludedChars.size() > 0) {
+      allowedChars = "";
       for (char c = ' '; c <= '~'; c += 1) {
         if (excludedChars.find(c) == std::string::npos)
           allowedChars += c;
       }
       lv_textarea_set_accepted_chars(lvobj, allowedChars.c_str());
+    } else {
+      lv_textarea_set_accepted_chars(lvobj, nullptr);
     }
   }
 
  protected:
   char* value;
   uint8_t length;
-  std::function<void(void)> cancelHandler = nullptr;
+  std::function<void()> changeHandler = nullptr;
   std::string allowedChars;
 
   void trim()
@@ -100,31 +98,17 @@ class TextArea : public FormField
     }
   }
 
-  void changeEnd(bool forceChanged = false) override
+  void changeEnd() override
   {
-    if (lvobj == nullptr) return;
+    setEditMode(false);
+    hide();
 
-    bool changed = false;
     auto text = lv_textarea_get_text(lvobj);
     if (strncmp(value, text, length) != 0) {
-      changed = true;
-    }
-
-    if (changed || forceChanged) {
       strncpy(value, text, length);
       trim();
-      FormField::changeEnd();
-    } else if (cancelHandler) {
-      cancelHandler();
+      if (changeHandler) changeHandler();
     }
-  }
-
-  void onCancel() override
-  {
-    if (cancelHandler)
-      cancelHandler();
-    else
-      FormField::onCancel();
   }
 };
 
@@ -143,6 +127,9 @@ TextEdit::TextEdit(Window* parent, const rect_t& rect, char* text,
     }),
     updateHandler(updateHandler), text(text), length(length)
 {
+  // Prevent TextArea focus outline from clipping
+  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_OVERFLOW_VISIBLE);
+
   if (rect.w == 0) setWidth(EdgeTxStyles::EDIT_FLD_WIDTH);
 
   update();
@@ -165,25 +152,14 @@ void TextEdit::openEdit()
     edit = new TextArea(this,
                         {-(PAD_MEDIUM + 2), -(PAD_BORDER * 2),
                           lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)},
-                        text, length);
-    edit->setChangeHandler([=]() {
-      update();
-      if (updateHandler) updateHandler();
-      lv_group_focus_obj(lvobj);
-      edit->hide();
-    });
-    edit->setCancelHandler([=]() {
-      lv_group_focus_obj(lvobj);
-      edit->hide();
-    });
-    if (excludedChars.size() > 0)
-      edit->setExcludedChars(excludedChars);
+                        text, length,
+                        [=]() {
+                          update();
+                          if (updateHandler) updateHandler();
+                        });
   }
-  edit->update();
-  edit->show();
-  lv_group_focus_obj(edit->getLvObj());
+  edit->setExcludedChars(excludedChars);
   edit->openKeyboard();
-  lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
 }
 
 void TextEdit::preview(bool edited, char* text, uint8_t length)
@@ -192,7 +168,7 @@ void TextEdit::preview(bool edited, char* text, uint8_t length)
 
   edit = new TextArea(this,
                       {-(PAD_MEDIUM + 2), -(PAD_BORDER * 2), width(), height()},
-                      text, length);
+                      text, length, nullptr);
   edit->setWindowFlag(NO_CLICK);
   lv_group_focus_obj(edit->getLvObj());
   lv_obj_add_state(edit->getLvObj(), LV_STATE_FOCUSED);
