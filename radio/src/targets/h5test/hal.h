@@ -202,6 +202,7 @@ TIM17:	ROTARY_ENCODER_TIMER
   #define FLYSKY_HALL_SERIAL_DMA                   GPDMA1
   #define FLYSKY_HALL_DMA_Stream_RX                LL_DMA_CHANNEL_4
   #define FLYSKY_HALL_DMA_Channel                  LL_GPDMA1_REQUEST_UART4_RX
+  #define FLYSKY_GIMBAL_INVERT_MASK                0x09  // LH, RH
 #endif
 
 // PWR and LED driver

@@ -218,6 +218,12 @@ static void flysky_gimbal_loop(void*)
             _fs_gimbal_cmd_finished = true;
             uint16_t* adcValues = getAnalogValues();
             for (uint8_t i = 0; i < 4; i++) {
+#if defined(FLYSKY_GIMBAL_INVERT_MASK)
+              if (FLYSKY_GIMBAL_INVERT_MASK & (1 << i)) {
+                adcValues[i] = FLYSKY_OFFSET_VALUE + p_values[i];
+                continue;
+              }
+#endif
               adcValues[i] = FLYSKY_OFFSET_VALUE - p_values[i];
             }
           } else if (HallProtocol.hallID.hall_Id.packetID == FLYSKY_PACKET_VERSION_ID) {
