@@ -712,6 +712,11 @@ void simuRotaryEncoderEvent(int32_t steps)
 {
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotencValue += steps * ROTARY_ENCODER_GRANULARITY;
+  static uint32_t last_tick = 0;
+  uint32_t now = time_get_ms();
+  uint32_t dt = now - last_tick;
+  rotencDt += dt;
+  last_tick = now;
 #endif
 }
 
