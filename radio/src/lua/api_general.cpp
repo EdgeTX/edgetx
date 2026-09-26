@@ -453,8 +453,9 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
   if (_searchSingleFieldsByName(name, field, flags, luaSingleFields, DIM(luaSingleFields)))
     return true;
 
+  // Switches by hardware name ('SA', 'SW1', ...) are found in _lua_inputs.
+
   // check switches from 'sa' to 'sz'
-  // TODO: does not work with function switches!
   if (len == 2 && name[0] == 's' && name[1] >= 'a' && name[1] <= 'z') {
     auto c = name[1] - 'a' + 'A';
     auto sw_idx = switchLookupIdx(c);
@@ -469,7 +470,7 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
       return true;
     }
   }
-  
+
   // search in multiples
   for (unsigned int n=0; n<DIM(luaMultipleFields); ++n) {
     const char * fieldName = luaMultipleFields[n].name;
@@ -531,6 +532,25 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
     }
   }
 
+  // Last resort: any switch by its default name, in upper or lower case.
+  // This also finds switches that are not in _lua_inputs, e.g. flex
+  // switches ('FL1'). It is checked last so it never changes what an
+  // existing field name finds.
+  char swName[8];
+  if (len < sizeof(swName)) {
+    for (size_t i = 0; i <= len; i++) swName[i] = toupper(name[i]);
+    auto sw_idx = switchLookupIdx(swName, len);
+    if (sw_idx >= 0) {
+      field.id = MIXSRC_FIRST_SWITCH + sw_idx;
+      if (flags & FIND_FIELD_DESC) {
+        snprintf(field.desc, sizeof(field.desc), "Switch %s", swName);
+      } else {
+        field.desc[0] = '\0';
+      }
+      return true;
+    }
+  }
+
   return false;  // not found
 }
 
@@ -566,6 +586,18 @@ bool luaFindFieldById(int id, LuaField & field, unsigned int flags)
   // well known single fields
   if (_searchSingleFieldsById(id, field, flags, luaSingleFields, DIM(luaSingleFields)))
     return true;
+
+  // switches that are not in _lua_inputs, e.g. flex switches
+  if (id >= MIXSRC_FIRST_SWITCH &&
+      id < MIXSRC_FIRST_SWITCH + switchGetMaxAllSwitches()) {
+    const char* swName = switchGetDefaultName(id - MIXSRC_FIRST_SWITCH);
+    if (swName) {
+      strAppend(field.name, swName, sizeof(field.name) - 1);
+      if (flags & FIND_FIELD_DESC)
+        snprintf(field.desc, sizeof(field.desc), "Switch %s", swName);
+      return true;
+    }
+  }
 
   // search in telemetry for configured sensor
   if (id >= MIXSRC_FIRST_TELEM && id <= MIXSRC_LAST_TELEM) {
@@ -629,7 +661,7 @@ The list of valid sources is available:
 
 @retval nil the requested field was not found
 
-@status current Introduced in 2.0.8, 'unit' field added in 2.2.0, and argument also can be an index number as of 2.6.0
+@status current Introduced in 2.0.8, 'unit' field added in 2.2.0, and argument also can be an index number as of 2.6.0, lower case switch names and flex/voice switches added in 3.0
 */
 static int luaGetFieldInfo(lua_State * L)
 {
@@ -2606,7 +2638,9 @@ static int luaGetLogicalSwitchValue(lua_State * L)
 /*luadoc
 @function getSwitchInfo(sourceIndex)
 
-@param sourceIndex: integer identifying a value source as returned by `getSourceIndex(sourceName)` or the `id` field in the table returned by `getFieldInfo`.
+@param sourceIndex: integer identifying a switch source, e.g. `MIXSRC_SA`, `getSourceIndex("SA")` or the `id` field in the table returned by `getFieldInfo("sa")`. This is not a switch position index as returned by `getSwitchIndex()`.
+
+@retval nil sourceIndex is not a switch source
 
 @retval table information about requested field, table elements:
 * `type`   (number) field identifier
@@ -2618,17 +2652,19 @@ static int luaGetLogicalSwitchValue(lua_State * L)
 * `isCustomisableSwitch`   (boolean) field identifier
 return true if switch is a customisable switch
 
-* `name` (string) switch name
+* `name` (string) switch name as shown on the radio, including a custom name. Use `getFieldInfo(sourceIndex).name` for the default name.
 
-@status current Introduced in 2.12
+@status current Introduced in 2.12, name fixed and retval nil added in 3.0
 */
 
 static int luaGetSwitchInfo(lua_State * L)
 {
-  swsrc_t idx = luaL_checkinteger(L, 1) - MIXSRC_FIRST_SWITCH;
-  if (idx < SWSRC_COUNT && isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+  // idx is a physical switch number, not a switch position (SWSRC_xxx)
+  lua_Integer idx = luaL_checkinteger(L, 1) - MIXSRC_FIRST_SWITCH;
+  if (idx >= 0 && idx < switchGetMaxAllSwitches()) {
     lua_newtable(L);
-    char* name = getSwitchPositionName(idx);
+    char name[LEN_SWITCH_NAME + 1];
+    getSwitchName(name, idx);
     lua_pushtableinteger(L, "type", g_model.getSwitchType(idx));
     lua_pushtableboolean(L, "isCustomisableSwitch", switchIsCustomSwitch(idx));
     lua_pushtablestring(L, "name", name);
