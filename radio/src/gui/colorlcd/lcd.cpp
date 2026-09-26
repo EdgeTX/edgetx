@@ -99,6 +99,52 @@ static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
   }
 }
 
+// Same accounting as LVGL's LV_USE_PERF_MONITOR, without the overlay
+#define PERF_WINDOW_MS 300
+
+static uint32_t perf_elaps_sum = 0;
+static uint32_t perf_frame_cnt = 0;
+static uint32_t perf_last_time = 0;
+static uint32_t perf_fps = 0;
+
+static void perfUpdate()
+{
+  if (lv_tick_elaps(perf_last_time) >= PERF_WINDOW_MS) {
+    perf_last_time = lv_tick_get();
+
+    uint32_t period = LV_DISP_DEF_REFR_PERIOD;
+    lv_disp_t* disp = lv_disp_get_default();
+    if (disp && disp->refr_timer) period = disp->refr_timer->period;
+    uint32_t fps_limit = 1000 / period;
+
+    if (perf_frame_cnt == 0) {
+      perf_fps = fps_limit;
+    } else {
+      if (perf_elaps_sum == 0) perf_elaps_sum = 1;
+      perf_fps = (1000 * perf_frame_cnt) / perf_elaps_sum;
+      if (perf_fps > fps_limit) perf_fps = fps_limit;
+    }
+    perf_elaps_sum = 0;
+    perf_frame_cnt = 0;
+  }
+}
+
+static void perfMonitorCb(lv_disp_drv_t* disp_drv, uint32_t time, uint32_t px)
+{
+  perfUpdate();
+  if (px > 5000) {
+    perf_elaps_sum += time;
+    perf_frame_cnt++;
+  }
+}
+
+void lcdGetPerfStats(uint32_t& fps, uint32_t& cpu)
+{
+  perfUpdate();
+  fps = perf_fps;
+  cpu = 100 - lv_timer_get_idle();
+}
+
 static void clear_frame_buffers()
 {
   memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
@@ -124,6 +170,7 @@ static void init_lvgl_disp_drv()
 
   disp_drv.draw_buf = &disp_buf; /*Set an initialized buffer*/
   disp_drv.flush_cb = flushLcd;  /*Set a flush callback to draw to the display*/
+  disp_drv.monitor_cb = perfMonitorCb;
 #if defined(SIMU)
   disp_drv.wait_cb = lcd_wait_cb; /*Set a wait callback*/
 #endif
