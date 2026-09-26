@@ -610,6 +610,16 @@ void evalUIFunctions(CustomFunctionData * functions, CustomFunctionsContext & fu
     }
   }
 #endif
+
+#if defined(STATUS_LED_PWM)
+  if (g_eeGeneral.statusLedSrc && mixerTaskRunning()) {
+    calcStatusLedBright(g_eeGeneral.statusLedSrc);
+  } else {
+    requiredStatusLedBright =
+        STATUS_LED_BRIGHT_MAX - limit<int>(0, (int)g_eeGeneral.statusLedDim,
+                                           STATUS_LED_BRIGHT_MAX);
+  }
+#endif
 }
 
 const char* funcGetLabel(uint8_t func)

@@ -25,6 +25,7 @@
 #include <inttypes.h>
 #include "board.h"
 #include "dataconstants.h"
+#include "hal/led_driver.h"
 #include "definitions.h"
 #include "edgetx_types.h"
 #include "globals.h"
@@ -1231,6 +1232,20 @@ PACK(struct RadioData {
 #endif
 
   NOBACKUP(uint8_t pwrOffIfInactive);
+
+#if defined(STATUS_LED_SETTINGS)
+  NOBACKUP(uint8_t statusLedError:2 ENUM(StatusLedColor));
+  NOBACKUP(uint8_t statusLedReady:2 ENUM(StatusLedColor));
+  NOBACKUP(uint8_t statusLedEmit:2 ENUM(StatusLedColor));
+  NOBACKUP(uint8_t statusLedSpare:2 SKIP);
+#endif
+
+#if defined(STATUS_LED_PWM)
+  // dimming, so that 0 (what older settings load as) is full brightness
+  NOBACKUP(uint8_t statusLedDim);
+  NOBACKUP(int16_t statusLedSrc:10 CUST(r_mixSrcRawEx,w_mixSrcRawEx));
+  NOBACKUP(int16_t statusLedPwmSpare:6 SKIP);
+#endif
 
 #if defined(COLORLCD)
   NOBACKUP(KeyShortcut keyShortcuts[MAX_KEY_SHORTCUTS]);

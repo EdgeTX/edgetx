@@ -114,6 +114,13 @@ const struct YamlIdStr enum_booleanEnum[] = {
   {  BOOL_ON, "ON"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_StatusLedColor[] = {
+  {  STATUS_LED_COLOR_DEFAULT, "LED_COLOR_DEFAULT"  },
+  {  STATUS_LED_COLOR_RED, "LED_COLOR_RED"  },
+  {  STATUS_LED_COLOR_GREEN, "LED_COLOR_GREEN"  },
+  {  STATUS_LED_COLOR_BLUE, "LED_COLOR_BLUE"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_QMPage[] = {
   {  QM_NONE, "NONE"  },
   {  QM_OPEN_QUICK_MENU, "OPEN_QUICK_MENU"  },
@@ -485,6 +492,13 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "radioThemesDisabled", 1 ),
   YAML_PADDING( 7 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
+  YAML_ENUM("statusLedError", 2, enum_StatusLedColor, NULL),
+  YAML_ENUM("statusLedReady", 2, enum_StatusLedColor, NULL),
+  YAML_ENUM("statusLedEmit", 2, enum_StatusLedColor, NULL),
+  YAML_PADDING( 2 ),
+  YAML_UNSIGNED( "statusLedDim", 8 ),
+  YAML_SIGNED_CUST( "statusLedSrc", 10, r_mixSrcRawEx, w_mixSrcRawEx ),
+  YAML_PADDING( 6 ),
   YAML_ARRAY("keyShortcuts", 8, 6, struct_KeyShortcut, NULL),
   YAML_ARRAY("qmFavorites", 8, 12, struct_QMFavorite, NULL),
   YAML_END

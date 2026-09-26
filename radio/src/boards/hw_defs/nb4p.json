@@ -183,7 +183,8 @@
     "led_strip_timer_dma_irqn": "DMA1_Stream0_IRQn",
     "led_strip_timer_dma_irqhandler": "DMA1_Stream0_IRQHandler",
     "led_strip_refresh_period": 50,
-    "status_leds": true
+    "status_leds": true,
+    "status_led_rgb_strip": true
   },
   "hardware": {
     "has_audio_mute": true,

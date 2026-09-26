@@ -497,7 +497,11 @@
     "led_red_gpio": "GPIO_PIN(GPIOB, 15)",
     "led_red2_gpio": "GPIO_PIN(GPIOJ, 12)",
     "led_green_gpio": "GPIO_PIN(GPIOB, 13)",
-    "led_blue_gpio": "GPIO_PIN(GPIOB, 12)"
+    "led_blue_gpio": "GPIO_PIN(GPIOB, 12)",
+    "status_led_pwm_timer": "TIM7",
+    "status_led_pwm_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "status_led_pwm_timer_irqn": "TIM7_IRQn",
+    "status_led_pwm_timer_irqhandler": "TIM7_IRQHandler"
   },
   "hardware": {
     "has_audio_mute": true,

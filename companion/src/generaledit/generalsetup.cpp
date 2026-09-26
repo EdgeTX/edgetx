@@ -34,6 +34,17 @@ constexpr char FIM_TEMPLATESETUP[]  {"Template Setup"};
 constexpr char FIM_BACKLIGHTMODE[]  {"Backlight Mode"};
 constexpr char FIM_CONTROLSRC[]     {"Control Source"};
 
+static void populateStatusLedColorCB(QComboBox * cb, int available, unsigned int value)
+{
+  cb->clear();
+  cb->addItem(QObject::tr("Default"), GeneralSettings::STATUS_LED_COLOR_DEFAULT);
+  if (available & 0b001) cb->addItem(QObject::tr("Red"), GeneralSettings::STATUS_LED_COLOR_RED);
+  if (available & 0b010) cb->addItem(QObject::tr("Green"), GeneralSettings::STATUS_LED_COLOR_GREEN);
+  if (available & 0b100) cb->addItem(QObject::tr("Blue"), GeneralSettings::STATUS_LED_COLOR_BLUE);
+  // a colour this radio lacks shows as Default, which is what the radio does
+  cb->setCurrentIndex(qMax(0, cb->findData(value)));
+}
+
 GeneralSetupPanel::GeneralSetupPanel(QWidget * parent, GeneralSettings & generalSettings,
   Firmware * firmware, CompoundItemModelFactory * sharedItemModels):
 GeneralPanel(parent, generalSettings, firmware),
@@ -65,6 +76,38 @@ ui(new Ui::GeneralSetup)
   ui->brightCtrl_CB->setCurrentIndex(ui->brightCtrl_CB->findData(generalSettings.backlightSrc.toValue()));
   if (ui->brightCtrl_CB->currentIndex() < 0 && generalSettings.backlightSrc.toValue() == 0)
     ui->brightCtrl_CB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->brightCtrl_CB));
+
+  if (Boards::getCapability(board, Board::HasStatusLedPwm)) {
+    ui->statusLedBright_SB->setValue(100 - generalSettings.statusLedDim);
+
+    ui->statusLedCtrl_CB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+    ui->statusLedCtrl_CB->setModel(panelFilteredModels->getItemModel(FIM_CONTROLSRC));
+    ui->statusLedCtrl_CB->setCurrentIndex(ui->statusLedCtrl_CB->findData(generalSettings.statusLedSrc.toValue()));
+    if (ui->statusLedCtrl_CB->currentIndex() < 0 && generalSettings.statusLedSrc.toValue() == 0)
+      ui->statusLedCtrl_CB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->statusLedCtrl_CB));
+  }
+  else {
+    ui->label_statusLedBright->hide();
+    ui->statusLedBright_SB->hide();
+    ui->label_statusLedCtrl->hide();
+    ui->statusLedCtrl_CB->hide();
+  }
+
+  // a colour per phase needs at least two colours to choose from
+  int ledColors = Boards::getCapability(board, Board::StatusLedColors);
+  if (qPopulationCount((quint32)ledColors) >= 2) {
+    populateStatusLedColorCB(ui->statusLedError_CB, ledColors, generalSettings.statusLedError);
+    populateStatusLedColorCB(ui->statusLedReady_CB, ledColors, generalSettings.statusLedReady);
+    populateStatusLedColorCB(ui->statusLedEmit_CB, ledColors, generalSettings.statusLedEmit);
+  }
+  else {
+    ui->label_statusLedError->hide();
+    ui->statusLedError_CB->hide();
+    ui->label_statusLedReady->hide();
+    ui->statusLedReady_CB->hide();
+    ui->label_statusLedEmit->hide();
+    ui->statusLedEmit_CB->hide();
+  }
 
   ui->backlightswCB->setModel(panelFilteredModels->getItemModel(FIM_BACKLIGHTMODE));
   ui->backlightswCB->setCurrentIndex(ui->backlightswCB->findData(generalSettings.backlightMode));
@@ -717,6 +760,49 @@ void GeneralSetupPanel::on_brightCtrl_CB_currentIndexChanged(int index)
 {
   if (!lock) {
     generalSettings.backlightSrc = RawSource(ui->brightCtrl_CB->itemData(ui->brightCtrl_CB->currentIndex()).toInt());
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_statusLedBright_SB_editingFinished()
+{
+  if (!lock) {
+    // the radio steps in tens, keep typed values on the same grid
+    int value = qBound(10, (ui->statusLedBright_SB->value() + 5) / 10 * 10, 100);
+    ui->statusLedBright_SB->setValue(value);
+    generalSettings.statusLedDim = 100 - value;
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_statusLedCtrl_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.statusLedSrc = RawSource(ui->statusLedCtrl_CB->itemData(ui->statusLedCtrl_CB->currentIndex()).toInt());
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_statusLedError_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.statusLedError = ui->statusLedError_CB->itemData(index).toUInt();
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_statusLedReady_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.statusLedReady = ui->statusLedReady_CB->itemData(index).toUInt();
+    emit modified();
+  }
+}
+
+void GeneralSetupPanel::on_statusLedEmit_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.statusLedEmit = ui->statusLedEmit_CB->itemData(index).toUInt();
     emit modified();
   }
 }

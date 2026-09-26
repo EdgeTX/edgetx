@@ -557,6 +557,13 @@
 #define TR_BEEPCOUNTDOWN               "Countdown"
 #define TR_PERSISTENT                  TR("Persist.", "Persistent")
 #define TR_BACKLIGHT_LABEL             "Backlight"
+#define TR_STATUS_LED                  "Status LED"
+#define TR_STATUS_LED_ERROR            "Error"
+#define TR_STATUS_LED_READY            "Ready"
+#define TR_STATUS_LED_EMIT             "Transmitting"
+#define TR_STATUS_LED_COLORS_1         "Red"
+#define TR_STATUS_LED_COLORS_2         "Green"
+#define TR_STATUS_LED_COLORS_3         "Blue"
 #define TR_STATUS                      "Status"
 #define TR_BLONBRIGHTNESS              "ON brightness"
 #define TR_BLOFFBRIGHTNESS             "OFF brightness"

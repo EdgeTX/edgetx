@@ -47,6 +47,12 @@
 #define CASE_BACKLIGHT(x)
 #endif
 
+#if defined(STATUS_LED_COLORS)
+#define CASE_STATUS_LED_COLORS(x) x,
+#else
+#define CASE_STATUS_LED_COLORS(x)
+#endif
+
 #if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
 #define CASE_KEY_LOCK(x) x,
 #else

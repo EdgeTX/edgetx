@@ -556,6 +556,13 @@
 #define TR_BEEPCOUNTDOWN               "カウントダウン"
 #define TR_PERSISTENT                  TR("Persist.", "持続設定")
 #define TR_BACKLIGHT_LABEL             "バックライト"
+#define TR_STATUS_LED                  "ステータスLED"
+#define TR_STATUS_LED_ERROR            "エラー"
+#define TR_STATUS_LED_READY            "準備完了"
+#define TR_STATUS_LED_EMIT             "送信中"
+#define TR_STATUS_LED_COLORS_1         "赤"
+#define TR_STATUS_LED_COLORS_2         "緑"
+#define TR_STATUS_LED_COLORS_3         "青"
 #define TR_STATUS                      "ステータス"
 #define TR_BLONBRIGHTNESS              "バックライトON"
 #define TR_BLOFFBRIGHTNESS             "バックライトOFF"

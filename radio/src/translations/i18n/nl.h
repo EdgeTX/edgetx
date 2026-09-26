@@ -558,6 +558,13 @@
 #define TR_BEEPCOUNTDOWN       "Countdown"
 #define TR_PERSISTENT          TR("Vasth.", "Vasthouden")
 #define TR_BACKLIGHT_LABEL     "LCD-Verlichting"
+#define TR_STATUS_LED          "Status-LED"
+#define TR_STATUS_LED_ERROR    "Fout"
+#define TR_STATUS_LED_READY    "Gereed"
+#define TR_STATUS_LED_EMIT     "Zendend"
+#define TR_STATUS_LED_COLORS_1 "Rood"
+#define TR_STATUS_LED_COLORS_2 "Groen"
+#define TR_STATUS_LED_COLORS_3 "Blauw"
 #define TR_STATUS              "Status"
 #define TR_BLONBRIGHTNESS      "Aan-Helderheid"
 #define TR_BLOFFBRIGHTNESS     "Uit-Helderheid"

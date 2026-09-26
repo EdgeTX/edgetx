@@ -651,6 +651,90 @@ void calcVolumeValue(int16_t source)
   requiredSpeakerVolume = (int16_t)v;
 }
 
+#if defined(STATUS_LED_PWM)
+void calcStatusLedBright(int16_t source)
+{
+  int32_t v = (1024 + getValue(source)) * STATUS_LED_BRIGHT_MAX / 2048;
+  requiredStatusLedBright = limit<int32_t>(0, v, STATUS_LED_BRIGHT_MAX);
+}
+#endif
+
+#if defined(STATUS_LED_COLORS)
+static uint8_t _statusLedPhase = STATUS_LED_PHASE_BOOT;
+static uint8_t _statusLedColor = STATUS_LED_COLOR_DEFAULT;
+
+bool statusLedColorAvailable(int color)
+{
+  switch (color) {
+    case STATUS_LED_COLOR_RED:   return STATUS_LED_HAS_RED;
+    case STATUS_LED_COLOR_GREEN: return STATUS_LED_HAS_GREEN;
+    case STATUS_LED_COLOR_BLUE:  return STATUS_LED_HAS_BLUE;
+    default:                     return false;
+  }
+}
+
+uint8_t statusLedPhaseColor(uint8_t phase)
+{
+  // the stored choice, else the phase default, else whatever the radio has
+  static const uint8_t fallback[][3] = {
+    {STATUS_LED_COLOR_RED, STATUS_LED_COLOR_BLUE, STATUS_LED_COLOR_GREEN},
+    {STATUS_LED_COLOR_BLUE, STATUS_LED_COLOR_GREEN, STATUS_LED_COLOR_RED},
+    {STATUS_LED_COLOR_GREEN, STATUS_LED_COLOR_BLUE, STATUS_LED_COLOR_RED},
+  };
+
+  uint8_t color, row;
+  switch (phase) {
+    case STATUS_LED_PHASE_ERROR: color = g_eeGeneral.statusLedError; row = 0; break;
+    case STATUS_LED_PHASE_EMIT:  color = g_eeGeneral.statusLedEmit;  row = 2; break;
+    default:                     color = g_eeGeneral.statusLedReady; row = 1; break;
+  }
+
+  if (statusLedColorAvailable(color)) return color;
+  for (auto c : fallback[row])
+    if (statusLedColorAvailable(c)) return c;
+  return STATUS_LED_COLOR_RED;
+}
+
+static bool statusLedEmitting()
+{
+  for (uint8_t i = 0; i < NUM_MODULES; i++) {
+    if (moduleState[i].protocol != PROTOCOL_CHANNELS_NONE) return true;
+  }
+  return false;
+}
+
+void checkStatusLed()
+{
+  // boot lights every LED, until the radio reports itself ready
+  if (_statusLedPhase == STATUS_LED_PHASE_BOOT) return;
+
+  uint8_t phase = _statusLedPhase;
+  if (phase != STATUS_LED_PHASE_ERROR)
+    phase = statusLedEmitting() ? STATUS_LED_PHASE_EMIT : STATUS_LED_PHASE_READY;
+
+  uint8_t color = statusLedPhaseColor(phase);
+  if (color != _statusLedColor) {
+    _statusLedColor = color;
+    switch (color) {
+      case STATUS_LED_COLOR_RED:   ledRed(); break;
+      case STATUS_LED_COLOR_GREEN: ledGreen(); break;
+      default:                     ledBlue(); break;
+    }
+  }
+
+#if defined(STATUS_LED_PWM)
+  ledSetBrightness(requiredStatusLedBright);
+#endif
+}
+
+void statusLedSetPhase(uint8_t phase)
+{
+  // perMain does not run during the long operations that report an error
+  _statusLedPhase = phase;
+  checkStatusLed();
+}
+#endif
+
 void checkBacklight()
 {
   static uint8_t tmr10ms ;

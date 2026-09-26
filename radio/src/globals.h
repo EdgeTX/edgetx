@@ -55,6 +55,10 @@ extern uint8_t requiredSpeakerVolume;
 
 extern uint8_t requiredBacklightBright;
 
+#if defined(STATUS_LED_PWM)
+extern uint8_t requiredStatusLedBright;
+#endif
+
 PACK(struct MixState {
   uint16_t delay:14; // max = 2550
   uint8_t  activeMix:1;

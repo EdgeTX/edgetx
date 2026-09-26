@@ -556,6 +556,13 @@
 #define TR_BEEPCOUNTDOWN       "Odliczanie"
 #define TR_PERSISTENT          TR("Dokł.", "Dokładny")
 #define TR_BACKLIGHT_LABEL     "Podświetl"
+#define TR_STATUS_LED          "Dioda stanu"
+#define TR_STATUS_LED_ERROR    "Błąd"
+#define TR_STATUS_LED_READY    "Gotowy"
+#define TR_STATUS_LED_EMIT     "Nadawanie"
+#define TR_STATUS_LED_COLORS_1 "Czerwony"
+#define TR_STATUS_LED_COLORS_2 "Zielony"
+#define TR_STATUS_LED_COLORS_3 "Niebieski"
 #define TR_STATUS                      "Status"
 #define TR_BLONBRIGHTNESS      "Jasnośc wł."
 #define TR_BLOFFBRIGHTNESS     "Jasność wył."

@@ -233,6 +233,8 @@ namespace Board {
     HasAux2SerialMode,
     HasBacklightColor,
     HasBlingLEDS,
+    HasStatusLedPwm,
+    StatusLedColors,
     HasBluetooth,
     HasColorLcd,
     HasExternalAntenna,
@@ -892,3 +894,4 @@ inline bool IS_ACCESS_RADIO(Board::Type board, const QString & id)
   return IS_ACCESS_RADIO(board) ||
          (IS_FAMILY_HORUS_OR_T16(board) && id.contains("internalaccess"));
 }
+
