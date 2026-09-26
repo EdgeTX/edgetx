@@ -471,23 +471,6 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
     }
   }
 
-  // check any switch by its default name, in upper or lower case. This also
-  // finds switches that are not in _lua_inputs, e.g. flex switches ('FL1')
-  char swName[8];
-  if (len < sizeof(swName)) {
-    for (size_t i = 0; i <= len; i++) swName[i] = toupper(name[i]);
-    auto sw_idx = switchLookupIdx(swName, len);
-    if (sw_idx >= 0) {
-      field.id = MIXSRC_FIRST_SWITCH + sw_idx;
-      if (flags & FIND_FIELD_DESC) {
-        snprintf(field.desc, sizeof(field.desc), "Switch %s", swName);
-      } else {
-        field.desc[0] = '\0';
-      }
-      return true;
-    }
-  }
-
   // search in multiples
   for (unsigned int n=0; n<DIM(luaMultipleFields); ++n) {
     const char * fieldName = luaMultipleFields[n].name;
@@ -546,6 +529,25 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
           return true;
         }
       }
+    }
+  }
+
+  // Last resort: any switch by its default name, in upper or lower case.
+  // This also finds switches that are not in _lua_inputs, e.g. flex
+  // switches ('FL1'). It is checked last so it never changes what an
+  // existing field name finds.
+  char swName[8];
+  if (len < sizeof(swName)) {
+    for (size_t i = 0; i <= len; i++) swName[i] = toupper(name[i]);
+    auto sw_idx = switchLookupIdx(swName, len);
+    if (sw_idx >= 0) {
+      field.id = MIXSRC_FIRST_SWITCH + sw_idx;
+      if (flags & FIND_FIELD_DESC) {
+        snprintf(field.desc, sizeof(field.desc), "Switch %s", swName);
+      } else {
+        field.desc[0] = '\0';
+      }
+      return true;
     }
   }
 
