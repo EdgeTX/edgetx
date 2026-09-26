@@ -408,6 +408,38 @@ static int luaModelResetTimer(lua_State *L)
   return 0;
 }
 
+// Out of range switches are treated as no switch
+static swsrc_t luaCheckSwitch(lua_Integer swtch)
+{
+  return (swtch >= SWSRC_FIRST && swtch <= SWSRC_LAST) ? swtch : SWSRC_NONE;
+}
+
+// Curve function and custom curve values index arrays, so reset invalid ones
+static void luaCheckCurveRef(CurveRef& curve)
+{
+  SourceNumVal v;
+  v.rawValue = curve.value;
+
+  switch (curve.type) {
+    case CURVE_REF_DIFF:
+    case CURVE_REF_EXPO:
+      // value is limited when used
+      break;
+    case CURVE_REF_FUNC:
+      if (v.isSource || v.value < 0 || v.value >= CURVE_BASE)
+        curve.value = 0;
+      break;
+    case CURVE_REF_CUSTOM:
+      if (v.isSource || abs(v.value) > MAX_CURVES)
+        curve.value = 0;
+      break;
+    default:
+      curve.type = CURVE_REF_DIFF;
+      curve.value = 0;
+      break;
+  }
+}
+
 static unsigned int getFirstInput(unsigned int chn)
 {
   for (unsigned int i=0; i<MAX_EXPOS; i++) {
@@ -705,7 +737,7 @@ static int luaModelInsertInput(lua_State *L)
         expo->offset = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "switch")) {
-        expo->swtch = luaL_checkinteger(L, -1);
+        expo->swtch = luaCheckSwitch(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "curveType")) {
         expo->curve.type = luaL_checkinteger(L, -1);
@@ -720,6 +752,7 @@ static int luaModelInsertInput(lua_State *L)
         expo->flightModes = luaL_checkinteger(L, -1);
       }
     }
+    luaCheckCurveRef(expo->curve);
   }
 
   return 0;
@@ -932,7 +965,7 @@ static int luaModelInsertMix(lua_State *L)
         mix->offset = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "switch")) {
-        mix->swtch = luaL_checkinteger(L, -1);
+        mix->swtch = luaCheckSwitch(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "curveType")) {
         mix->curve.type = luaL_checkinteger(L, -1);
@@ -973,6 +1006,7 @@ static int luaModelInsertMix(lua_State *L)
         mix->speedDown = luaL_checkinteger(L, -1);
       }
     }
+    luaCheckCurveRef(mix->curve);
   }
 
   return 0;
