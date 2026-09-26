@@ -453,8 +453,25 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
   if (_searchSingleFieldsByName(name, field, flags, luaSingleFields, DIM(luaSingleFields)))
     return true;
 
+  // Switches by hardware name ('SA', 'SW1', ...) are found in _lua_inputs.
+  // Also accept the legacy lower case names.
+
+  // check customisable switches from 'sw1' to 'sw9'
+  if (len == 3 && name[0] == 's' && name[1] == 'w' && isdigit(name[2])) {
+    char swName[] = {'S', 'W', name[2], '\0'};
+    auto sw_idx = switchLookupIdx(swName, len);
+    if (sw_idx >= 0) {
+      field.id = MIXSRC_FIRST_SWITCH + sw_idx;
+      if (flags & FIND_FIELD_DESC) {
+        snprintf(field.desc, sizeof(field.desc), "Switch %s", swName);
+      } else {
+        field.desc[0] = '\0';
+      }
+      return true;
+    }
+  }
+
   // check switches from 'sa' to 'sz'
-  // TODO: does not work with function switches!
   if (len == 2 && name[0] == 's' && name[1] >= 'a' && name[1] <= 'z') {
     auto c = name[1] - 'a' + 'A';
     auto sw_idx = switchLookupIdx(c);
