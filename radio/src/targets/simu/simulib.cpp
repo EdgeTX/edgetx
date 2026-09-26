@@ -389,9 +389,10 @@ void setSelectedUsbMode(int mode) {}
 void delay_ms(uint32_t ms) { }
 void delay_us(uint16_t us) { }
 
-void flashWrite(uint32_t *address, const uint32_t *buffer)
+bool flashWrite(uint32_t *address, const uint32_t *buffer)
 {
   sleep_ms(10);
+  return true;
 }
 
 uint32_t isBootloaderStart(const uint8_t * block)

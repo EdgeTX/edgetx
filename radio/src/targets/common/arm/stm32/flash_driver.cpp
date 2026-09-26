@@ -85,6 +85,82 @@ static uint32_t stm32_flash_get_sector_size(uint32_t sector)
   return 128 * 1024;
 }
 
+// twice the datasheet maximum for a 128 KB sector erase at x32 parallelism
+// (2 s, DS9405 Table 48); the driver never issues a bank or mass erase
+#define FLASH_TIMEOUT_MS 4000
+
+#if defined(FLASH_FLAG_RDERR)
+  #define _FLASH_FLAG_RDERR FLASH_FLAG_RDERR
+#else
+  #define _FLASH_FLAG_RDERR 0U
+#endif
+
+// Error flags are sticky and survive a reset, so one left over by whatever
+// wrote the flash before us (DFU, a previous firmware) would abort the very
+// next erase/program. Clear them before starting an operation.
+static void flash_drv_clear_errors()
+{
+  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
+                         FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR |
+                         FLASH_FLAG_PGSERR | _FLASH_FLAG_RDERR);
+}
+
+static bool flash_drv_wait_last_op()
+{
+  CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+  DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+
+  uint32_t start = DWT->CYCCNT;
+  uint32_t timeout_cycles =
+      (uint32_t)(FLASH_TIMEOUT_MS * (SystemCoreClock / 1000UL));
+
+  while (__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY)) {
+    if ((DWT->CYCCNT - start) > timeout_cycles) {
+      __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_WRPERR |
+                             FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR |
+                             FLASH_FLAG_PGSERR);
+      return false;
+    }
+  }
+
+  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP);
+
+  if (__HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR |
+                           FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR)) {
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR |
+                           FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR |
+                           FLASH_FLAG_EOP);
+    return false;
+  }
+
+  return true;
+}
+
+// ES0206 2.2.15: on dual bank devices the data cache may be corrupted by a
+// read-while-write, so it must be disabled while flash is erased/programmed
+// and reset before being enabled again.
+static bool flash_drv_disable_dcache()
+{
+  bool enabled = (FLASH->ACR & FLASH_ACR_DCEN) != 0;
+  if (enabled) FLASH->ACR &= ~FLASH_ACR_DCEN;
+  return enabled;
+}
+
+static void flash_drv_flush_caches(bool dcache_enabled)
+{
+  if (FLASH->ACR & FLASH_ACR_ICEN) {
+    FLASH->ACR &= ~FLASH_ACR_ICEN;
+    FLASH->ACR |= FLASH_ACR_ICRST;
+    FLASH->ACR &= ~FLASH_ACR_ICRST;
+    FLASH->ACR |= FLASH_ACR_ICEN;
+  }
+  if (dcache_enabled) {
+    FLASH->ACR |= FLASH_ACR_DCRST;
+    FLASH->ACR &= ~FLASH_ACR_DCRST;
+    FLASH->ACR |= FLASH_ACR_DCEN;
+  }
+}
+
 #elif defined(STM32H7) || defined(STM32H7RS)
 
 static uint32_t stm32_flash_get_sector(uint32_t address)
@@ -129,6 +205,43 @@ static inline void stm32_flash_lock() { HAL_FLASH_Lock(); }
 
 static int stm32_flash_erase_sector(uint32_t address)
 {
+  int ret = 0;
+
+#if defined(STM32F2) || defined(STM32F4)
+
+  uint32_t sector = stm32_flash_get_sector(address);
+
+  __disable_irq();
+  __DSB();
+
+  stm32_flash_unlock();
+  flash_drv_clear_errors();
+
+  bool dcache = flash_drv_disable_dcache();
+
+  if (sector > 11) sector += 4;
+
+  CLEAR_BIT(FLASH->CR, FLASH_CR_PSIZE);
+  FLASH->CR |= FLASH_PSIZE_WORD;
+  CLEAR_BIT(FLASH->CR, FLASH_CR_SNB);
+  FLASH->CR |= FLASH_CR_SER | (sector << FLASH_CR_SNB_Pos);
+  FLASH->CR |= FLASH_CR_STRT;
+
+  if (!flash_drv_wait_last_op()) {
+    ret = -1;
+  }
+
+  CLEAR_BIT(FLASH->CR, FLASH_CR_SER | FLASH_CR_SNB);
+
+  __DSB();
+  __enable_irq();
+
+  flash_drv_flush_caches(dcache);
+
+  stm32_flash_lock();
+
+#else
+
   FLASH_EraseInitTypeDef eraseInit;
   eraseInit.TypeErase = FLASH_TYPEERASE_SECTORS;
   eraseInit.Sector = stm32_flash_get_sector(address);
@@ -142,15 +255,19 @@ static int stm32_flash_erase_sector(uint32_t address)
   eraseInit.VoltageRange = FLASH_VOLTAGE_RANGE_3;
 #endif
 
-  int ret = 0;
   uint32_t sector_errors = 0;
 
+  __disable_irq();
   stm32_flash_unlock();
   if (HAL_FLASHEx_Erase(&eraseInit, &sector_errors) != HAL_OK) {
     ret = -1;
   }
 
   stm32_flash_lock();
+  __enable_irq();
+
+#endif
+
   return ret;
 }
 
@@ -162,18 +279,57 @@ static int stm32_flash_erase_sector(uint32_t address)
   #define FLASH_PROG_WORDS 4UL
   #define _FLASH_PROGRAM(address, p_data) \
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_QUADWORD, address, (uintptr_t)p_data)
-#else
-  #define FLASH_PROG_WORDS 1UL
-  #define _FLASH_PROGRAM(address, p_data) \
-    HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, *p_data)
 #endif
 
 static int stm32_flash_program(uint32_t address, void* data, uint32_t len)
 {
+  int ret = 0;
+
+#if defined(STM32F2) || defined(STM32F4)
+
   uint32_t* p_data = (uint32_t*)data;
   uint32_t end_addr = address + len;
 
-  int ret = 0;
+  __disable_irq();
+  __DSB();
+  stm32_flash_unlock();
+  flash_drv_clear_errors();
+
+  bool dcache = flash_drv_disable_dcache();
+
+  while (address < end_addr) {
+    CLEAR_BIT(FLASH->CR, FLASH_CR_PSIZE);
+    FLASH->CR |= FLASH_PSIZE_WORD;
+    FLASH->CR |= FLASH_CR_PG;
+
+    *(__IO uint32_t*)address = *p_data;
+
+    // PG must be cleared even on failure, or the next erase sees PG+SER
+    bool ok = flash_drv_wait_last_op();
+    CLEAR_BIT(FLASH->CR, FLASH_CR_PG);
+
+    if (!ok) {
+      ret = -1;
+      break;
+    }
+
+    address += sizeof(uint32_t);
+    p_data++;
+  }
+
+  __DSB();
+  __enable_irq();
+
+  flash_drv_flush_caches(dcache);
+
+  stm32_flash_lock();
+
+#else
+
+  uint32_t* p_data = (uint32_t*)data;
+  uint32_t end_addr = address + len;
+
+  __disable_irq();
   stm32_flash_unlock();
   while (address < end_addr) {
     if (_FLASH_PROGRAM(address, p_data) != HAL_OK) {
@@ -186,6 +342,10 @@ static int stm32_flash_program(uint32_t address, void* data, uint32_t len)
   }
 
   stm32_flash_lock();
+  __enable_irq();
+
+#endif
+
   return ret;
 }
 
@@ -211,17 +371,29 @@ const etx_flash_driver_t stm32_flash_driver = {
 void unlockFlash() { stm32_flash_unlock(); }
 void lockFlash() { stm32_flash_lock(); }
 
-void flashWrite(uint32_t* address, const uint32_t* buffer)
+bool flashWrite(uint32_t* address, const uint32_t* buffer)
 {
   // check first if the address is on a sector boundary
   uint32_t sector = stm32_flash_get_sector((uintptr_t)address);
   uint32_t bank = stm32_flash_get_bank((uintptr_t)address);
 
   if ((uintptr_t)address == _flash_sector_address(sector, bank)) {
-    if (stm32_flash_erase_sector((uintptr_t)address) < 0) return;
+    if (stm32_flash_erase_sector((uintptr_t)address) < 0) return false;
   }
 
-  stm32_flash_program((uintptr_t)address, (uint8_t*)buffer, FLASH_PAGESIZE);
+  if (stm32_flash_program((uintptr_t)address, (uint8_t*)buffer,
+                          FLASH_PAGESIZE) < 0)
+    return false;
+
+#if defined(__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
+  // drop any lines cached before the erase/program so the read back
+  // below comes from flash
+  SCB_InvalidateDCache_by_Addr(address, FLASH_PAGESIZE);
+#endif
+
+  // verify the page was actually written, independently of what the
+  // flash controller reported
+  return memcmp(address, buffer, FLASH_PAGESIZE) == 0;
 }
 
 // TODO: move this somewhere else, as it depends on firmware layout
