@@ -454,22 +454,6 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
     return true;
 
   // Switches by hardware name ('SA', 'SW1', ...) are found in _lua_inputs.
-  // Also accept the legacy lower case names.
-
-  // check customisable switches from 'sw1' to 'sw9'
-  if (len == 3 && name[0] == 's' && name[1] == 'w' && isdigit(name[2])) {
-    char swName[] = {'S', 'W', name[2], '\0'};
-    auto sw_idx = switchLookupIdx(swName, len);
-    if (sw_idx >= 0) {
-      field.id = MIXSRC_FIRST_SWITCH + sw_idx;
-      if (flags & FIND_FIELD_DESC) {
-        snprintf(field.desc, sizeof(field.desc), "Switch %s", swName);
-      } else {
-        field.desc[0] = '\0';
-      }
-      return true;
-    }
-  }
 
   // check switches from 'sa' to 'sz'
   if (len == 2 && name[0] == 's' && name[1] >= 'a' && name[1] <= 'z') {
@@ -486,7 +470,24 @@ bool luaFindFieldByName(const char * name, LuaField & field, unsigned int flags)
       return true;
     }
   }
-  
+
+  // check any switch by its default name, in upper or lower case. This also
+  // finds switches that are not in _lua_inputs, e.g. flex switches ('FL1')
+  char swName[8];
+  if (len < sizeof(swName)) {
+    for (size_t i = 0; i <= len; i++) swName[i] = toupper(name[i]);
+    auto sw_idx = switchLookupIdx(swName, len);
+    if (sw_idx >= 0) {
+      field.id = MIXSRC_FIRST_SWITCH + sw_idx;
+      if (flags & FIND_FIELD_DESC) {
+        snprintf(field.desc, sizeof(field.desc), "Switch %s", swName);
+      } else {
+        field.desc[0] = '\0';
+      }
+      return true;
+    }
+  }
+
   // search in multiples
   for (unsigned int n=0; n<DIM(luaMultipleFields); ++n) {
     const char * fieldName = luaMultipleFields[n].name;
@@ -583,6 +584,18 @@ bool luaFindFieldById(int id, LuaField & field, unsigned int flags)
   // well known single fields
   if (_searchSingleFieldsById(id, field, flags, luaSingleFields, DIM(luaSingleFields)))
     return true;
+
+  // switches that are not in _lua_inputs, e.g. flex switches
+  if (id >= MIXSRC_FIRST_SWITCH &&
+      id < MIXSRC_FIRST_SWITCH + switchGetMaxAllSwitches()) {
+    const char* swName = switchGetDefaultName(id - MIXSRC_FIRST_SWITCH);
+    if (swName) {
+      strAppend(field.name, swName, sizeof(field.name) - 1);
+      if (flags & FIND_FIELD_DESC)
+        snprintf(field.desc, sizeof(field.desc), "Switch %s", swName);
+      return true;
+    }
+  }
 
   // search in telemetry for configured sensor
   if (id >= MIXSRC_FIRST_TELEM && id <= MIXSRC_LAST_TELEM) {
