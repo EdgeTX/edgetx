@@ -548,9 +548,6 @@ void guiMain(event_t evt)
 }
 #endif
 
-// from logs.cpp
-void initLoggingTimer();
-
 void perMain()
 {
   DEBUG_TIMER_START(debugTimerPerMain1);
@@ -559,7 +556,7 @@ void perMain()
 
   if (!usbPlugged() || (getSelectedUsbMode() == USB_UNSELECTED_MODE)) {
     checkStorageUpdate();
-    initLoggingTimer();  // initialize software timer for logging
+    logsHandle();  // open/close log file and drive the logging timer
   }
 
   handleUsbConnection();
