@@ -46,6 +46,6 @@ class FirmwarePicker : public QDialog
 
   private:
     Ui::FirmwarePicker *ui;
-    const QString &m_oldtype;
+    const QString m_oldtype;
     QTreeWidgetItem *m_currentItem;
 };

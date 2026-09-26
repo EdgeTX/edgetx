@@ -21,6 +21,7 @@
 
 #include "appdata.h"
 #include "updates/updateoptionsdialog.h"
+#include "eeprominterface.h"
 
 #include <QDateTime>
 #include <QDir>
@@ -963,6 +964,18 @@ void AppData::convertSettings(QSettings & settings)
             newfwOpts = oldparts.mid(2, oldparts.count() - 3).join("-");
             settings.setValue(profilePath.arg(i) % "/fwOptions", newfwOpts);
           }
+
+          // invalid or non-existent language
+          if (!getCurrentFirmware()->getFirmwareBase()->languageList().contains(newfwLang)) {
+            // depending on the OS environment this does not always return a valid language
+            newfwLang = QLocale::languageToString(QLocale().language()).split("_").first();
+
+            if (!getCurrentFirmware()->getFirmwareBase()->languageList().contains(newfwLang))
+              newfwLang = "en"; // give up trying
+
+            settings.setValue(profilePath.arg(i) % "/fwLanguage", newfwLang);
+          }
+
           qInfo().noquote() << "Converted entry" << profileFwTypePath.arg(i)
                             << "from (" << oldValue << ")"
                             << "to (type:" << newfwType << "opts:" << newfwOpts << "lang:" << newfwLang << ")";
