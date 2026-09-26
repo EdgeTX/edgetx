@@ -21,6 +21,7 @@
 
 #include "mavlink.h"
 #include "edgetx.h"
+#include "sensor_names.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Waddress-of-packed-member"
@@ -36,28 +37,28 @@ struct MavlinkSensor {
   const uint8_t id;
   const TelemetryUnit unit;
   const uint8_t precision;
-  STR_TYP name;
+  const char* name;
 };
 
 static const MavlinkSensor mavlinkSensors[] = {
-  MS(MAV_ID_RSSI,        STR_DEF(STR_SENSOR_RX_RSSI_PERC), UNIT_PERCENT,            0),
-  MS(MAV_ID_BATT_V,      STR_DEF(STR_SENSOR_BATT),         UNIT_VOLTS,              2),
-  MS(MAV_ID_BATT_A,      STR_DEF(STR_SENSOR_CURR),         UNIT_AMPS,               2),
-  MS(MAV_ID_BATT_PCT,    STR_DEF(STR_SENSOR_BATT_PERCENT), UNIT_PERCENT,            0),
-  MS(MAV_ID_GPS,         STR_DEF(STR_SENSOR_GPS),          UNIT_GPS_LATITUDE,       0),
-  MS(MAV_ID_GPS_ALT,     STR_DEF(STR_SENSOR_GPSALT),       UNIT_METERS,             0),
-  MS(MAV_ID_GPS_SPD,     STR_DEF(STR_SENSOR_GSPD),         UNIT_KMH,                1),
-  MS(MAV_ID_GPS_SATS,    STR_DEF(STR_SENSOR_SATELLITES),   UNIT_RAW,                0),
-  MS(MAV_ID_GPS_HDG,     STR_DEF(STR_SENSOR_HDG),          UNIT_DEGREE,             2),
-  MS(MAV_ID_ROLL,        STR_DEF(STR_SENSOR_ROLL),         UNIT_DEGREE,             1),
-  MS(MAV_ID_PITCH,       STR_DEF(STR_SENSOR_PITCH),        UNIT_DEGREE,             1),
-  MS(MAV_ID_YAW,         STR_DEF(STR_SENSOR_YAW),          UNIT_DEGREE,             1),
-  MS(MAV_ID_ALT,         STR_DEF(STR_SENSOR_ALT),          UNIT_METERS,             1),
-  MS(MAV_ID_VSPD,        STR_DEF(STR_SENSOR_VSPD),         UNIT_METERS_PER_SECOND,  2),
-  MS(MAV_ID_ASPD,        STR_DEF(STR_SENSOR_ASPD),         UNIT_KMH,                1),
-  MS(MAV_ID_FLIGHT_MODE, STR_DEF(STR_SENSOR_FLIGHT_MODE),  UNIT_TEXT,               0),
-  MS(MAV_ID_RRSSI,       STR_DEF(STR_SENSOR_TX_RSSI_PERC), UNIT_PERCENT,            0),
-  MS(MAV_ID_NONE,        STR_DEF(STR_UNKNOWN),             UNIT_RAW,                0),
+  MS(MAV_ID_RSSI,        STR_SENSOR_RX_RSSI_PERC,          UNIT_PERCENT,            0),
+  MS(MAV_ID_BATT_V,      STR_SENSOR_BATT,                  UNIT_VOLTS,              2),
+  MS(MAV_ID_BATT_A,      STR_SENSOR_CURR,                  UNIT_AMPS,               2),
+  MS(MAV_ID_BATT_PCT,    STR_SENSOR_BATT_PERCENT,          UNIT_PERCENT,            0),
+  MS(MAV_ID_GPS,         STR_SENSOR_GPS,                   UNIT_GPS_LATITUDE,       0),
+  MS(MAV_ID_GPS_ALT,     STR_SENSOR_GPSALT,                UNIT_METERS,             0),
+  MS(MAV_ID_GPS_SPD,     STR_SENSOR_GSPD,                  UNIT_KMH,                1),
+  MS(MAV_ID_GPS_SATS,    STR_SENSOR_SATELLITES,            UNIT_RAW,                0),
+  MS(MAV_ID_GPS_HDG,     STR_SENSOR_HDG,                   UNIT_DEGREE,             2),
+  MS(MAV_ID_ROLL,        STR_SENSOR_ROLL,                  UNIT_DEGREE,             1),
+  MS(MAV_ID_PITCH,       STR_SENSOR_PITCH,                 UNIT_DEGREE,             1),
+  MS(MAV_ID_YAW,         STR_SENSOR_YAW,                   UNIT_DEGREE,             1),
+  MS(MAV_ID_ALT,         STR_SENSOR_ALT,                   UNIT_METERS,             1),
+  MS(MAV_ID_VSPD,        STR_SENSOR_VSPD,                  UNIT_METERS_PER_SECOND,  2),
+  MS(MAV_ID_ASPD,        STR_SENSOR_ASPD,                  UNIT_KMH,                1),
+  MS(MAV_ID_FLIGHT_MODE, STR_SENSOR_FLIGHT_MODE,           UNIT_TEXT,               0),
+  MS(MAV_ID_RRSSI,       STR_SENSOR_TX_RSSI_PERC,          UNIT_PERCENT,            0),
+  MS(MAV_ID_NONE,        STR_SENSOR_UNKNOWN,               UNIT_RAW,                0),
 };
 
 static const MavlinkSensor& getMavlinkSensor(uint8_t id)
@@ -85,7 +86,7 @@ void mavlinkSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
   const MavlinkSensor& sensor = getMavlinkSensor((uint8_t)id);
   TelemetryUnit unit = sensor.unit;
   if (unit == UNIT_GPS_LATITUDE || unit == UNIT_GPS_LONGITUDE) unit = UNIT_GPS;
-  telemetrySensor.init(STR_VAL(sensor.name), unit, sensor.precision);
+  telemetrySensor.init(sensor.name, unit, sensor.precision);
 
   storageDirty(EE_MODEL);
 }
