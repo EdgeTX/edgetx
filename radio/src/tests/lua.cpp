@@ -269,6 +269,34 @@ TEST(Lua, getFieldInfoSwitches)
   }
 }
 
+TEST(Lua, getFieldInfoSensorBeforeSwitch)
+{
+  RADIO_RESET();
+  MODEL_RESET();
+  char lower[TELEM_LABEL_LEN + 1] = {};
+  char lua[256];
+
+  // A switch only found by its lower case default name, e.g. 'sw1'
+  for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
+    const char* name = switchGetDefaultName(i);
+    size_t len = strlen(name);
+    if (len > 2 && len <= TELEM_LABEL_LEN) {
+      for (size_t n = 0; n < len; n++) lower[n] = tolower(name[n]);
+      break;
+    }
+  }
+  if (!lower[0]) return;  // no such switch on this target
+
+  // A sensor with the same name is still found first
+  strncpy(g_model.telemetrySensors[0].label, lower, TELEM_LABEL_LEN);
+  snprintf(lua, sizeof(lua),
+           "local info = getFieldInfo('%s')\n"
+           "if info == nil or info.id ~= %d then error('not sensor') end",
+           lower, MIXSRC_FIRST_TELEM);
+  EXPECT_TRUE(__luaExecStr(lua)) << lower;
+  MODEL_RESET();
+}
+
 TEST(Lua, getSwitchInfoOutOfRange)
 {
   RADIO_RESET();
