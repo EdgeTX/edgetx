@@ -595,7 +595,7 @@ static int luaLvglGetScrollPos(lua_State *L)
   return 0;
 }
 
-static int luaLvglGetUIPerf(lua_State *L)
+static int luaLvglGetPerf(lua_State *L)
 {
   uint32_t fps, cpu;
   lcdGetPerfStats(fps, cpu);
@@ -613,7 +613,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(isFullScreen, luaLvglIsFullscreen)
   LROT_FUNCENTRY(exitFullScreen, luaLvglExitFullscreen)
   LROT_FUNCENTRY(getContext, luaLvglGetContext)
-  LROT_FUNCENTRY(getUIPerf, luaLvglGetUIPerf)
+  LROT_FUNCENTRY(getPerf, luaLvglGetPerf)
   /*luadoc
   @common lvgl_object
 
