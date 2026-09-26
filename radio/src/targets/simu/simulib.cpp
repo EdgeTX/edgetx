@@ -72,6 +72,8 @@ char * main_thread_error = nullptr;
 bool simu_shutdown = false;
 bool simu_running = false;
 bool simuCreateDefaultSettings = false;
+bool simuInitDone = false;
+bool simuBootComplete = false;
 
 
 volatile rotenc_t rotencValue = 0;
@@ -188,6 +190,8 @@ void simuStart(bool tests, int32_t utcOffset)
 
   startOptions = (tests ? 0 : OPENTX_START_NO_SPLASH | OPENTX_START_NO_CALIBRATION | OPENTX_START_NO_CHECKS);
   simu_shutdown = false;
+  simuInitDone = false;
+  simuBootComplete = false;
 
   /*
     g_tmr10ms must be non-zero otherwise some SF functions (that use this timer as a marker when it was last executed)
@@ -259,11 +263,45 @@ void simuStop()
   task_shutdown_all();
 
   simu_running = false;
+  simuInitDone = false;
+  simuBootComplete = false;
 }
 
 bool simuIsRunning()
 {
   return simu_running;
+}
+
+// Lua is up once the interpreter reached its steady state (or is parked
+// behind a standalone script). Builds without Lua are always ready.
+static bool simuLuaReady()
+{
+#if defined(LUA)
+  if (luaState == INTERPRETER_RUNNING) return true;
+#if defined(COLORLCD)
+  if (luaState == INTERPRETER_PAUSED) return true;
+#endif
+  return false;
+#else
+  return true;
+#endif
+}
+
+void simuCheckBootComplete()
+{
+  if (simuInitDone && !simuBootComplete && simuLuaReady())
+    simuBootComplete = true;
+}
+
+void simuGuiHook()
+{
+  simuCheckBootComplete();
+  simuUiTreePoll();
+}
+
+bool simuIsBootComplete()
+{
+  return simu_running && simuBootComplete;
 }
 
 bool simuLcdChanged()
