@@ -913,6 +913,12 @@ bool isPxx2IsrmChannelsCountAllowed(int channels)
 }
 #endif
 
+bool isCrossfireChannelsCountAllowed(int channels)
+{
+  return channels == CROSSFIRE_CHANNELS_COUNT - 8 ||
+         channels == CROSSFIRE_MAX_CHANNELS_COUNT - 8;
+}
+
 bool isTrainerUsingModuleBay()
 {
   if (g_model.trainerData.mode == TRAINER_MODE_MASTER_SBUS_EXTERNAL_MODULE ||
@@ -1502,7 +1508,11 @@ uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
       return 0;
   }
 #endif
-  else if (isModuleDSM2(moduleIdx) || isModuleCrossfire(moduleIdx) ||
+  else if (isModuleCrossfire(moduleIdx)) {
+    // 16 or 32 channels
+    return 1;
+  }
+  else if (isModuleDSM2(moduleIdx) ||
              isModuleGhost(moduleIdx) || isModuleSBUS(moduleIdx) ||
              isModuleDSMP(moduleIdx)) {
     // fixed number of channels
