@@ -75,7 +75,9 @@ bool simuCreateDefaultSettings = false;
 
 
 volatile rotenc_t rotencValue = 0;
+#if defined(COLORLCD)
 volatile uint32_t rotencDt = 0;
+#endif
 
 rotenc_t rotaryEncoderGetValue()
 {
@@ -711,6 +713,12 @@ void simuTouchUp()
 void simuRotaryEncoderEvent(int32_t steps)
 {
 #if defined(ROTARY_ENCODER_NAVIGATION)
+  if (steps == 0) return;
+  if (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_BOTH)
+    steps = -steps;
+#if defined(COLORLCD)
+  rotencDt = time_get_ms();
+#endif
   rotencValue += steps * ROTARY_ENCODER_GRANULARITY;
 #endif
 }
