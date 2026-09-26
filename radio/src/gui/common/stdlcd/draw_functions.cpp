@@ -391,7 +391,8 @@ void drawCurveRef(coord_t x, coord_t y, CurveRef & curve, LcdFlags att)
         break;
 
       case CURVE_REF_FUNC:
-        lcdDrawTextAtIndex(x, y, STR_VCURVEFUNC, curve.value, att);
+        if (curve.value < CURVE_BASE)
+          lcdDrawTextAtIndex(x, y, STR_VCURVEFUNC, curve.value, att);
         break;
 
       case CURVE_REF_CUSTOM:
