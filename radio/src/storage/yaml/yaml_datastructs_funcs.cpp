@@ -811,7 +811,8 @@ bool w_wov_string(void* user, uint8_t* data, uint32_t bitoffs,
   uint16_t option;
   auto widgetData = get_widgetData(user, option);
 
-  return wf(opaque, widgetData->getString(option).c_str(), widgetData->getString(option).size());
+  return yaml_output_string(widgetData->getString(option).c_str(),
+                            widgetData->getString(option).size(), wf, opaque, true);
 }
 
 void r_wov_unsigned(void* user, uint8_t* data, uint32_t bitoffs,
