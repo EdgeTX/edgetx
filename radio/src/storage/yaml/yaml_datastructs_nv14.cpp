@@ -45,6 +45,7 @@ const struct YamlIdStr enum_ModuleType[] = {
   {  MODULE_TYPE_FLYSKY_AFHDS2A, "TYPE_FLYSKY_AFHDS2A"  },
   {  MODULE_TYPE_FLYSKY_AFHDS3, "TYPE_FLYSKY_AFHDS3"  },
   {  MODULE_TYPE_LEMON_DSMP, "TYPE_LEMON_DSMP"  },
+  {  MODULE_TYPE_MAVLINK, "TYPE_MAVLINK"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_TrainerMultiplex[] = {

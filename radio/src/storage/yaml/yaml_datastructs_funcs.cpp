@@ -1050,6 +1050,8 @@ static uint8_t select_mod_type(void* user, uint8_t* data, uint32_t bitoffs)
       return 9;
     case MODULE_TYPE_LEMON_DSMP:
       return 10;
+    case MODULE_TYPE_MAVLINK:
+      return 0;
   }
   return 0;
 }

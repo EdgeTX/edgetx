@@ -16,3 +16,7 @@
 	path = radio/src/thirdparty/uf2
 	url = https://github.com/microsoft/uf2.git
 	shallow = true
+[submodule "radio/src/thirdparty/mavlink"]
+	path = radio/src/thirdparty/mavlink
+	url = https://github.com/mavlink/c_library_v2.git
+	shallow = true

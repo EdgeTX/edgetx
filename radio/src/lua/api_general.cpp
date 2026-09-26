@@ -56,6 +56,11 @@
   #include "telemetry/ghost.h"
 #endif
 
+#if defined(MAVLINK)
+  #include "pulses/mavlink.h"
+  #include "crc.h"
+#endif
+
 #if defined(SIMU)
   #define RADIO_VERSION FLAVOUR "-simu"
 #else
@@ -1260,6 +1265,69 @@ static int luaCrossfireTelemetryPush(lua_State* L)
   } else {
     lua_pushboolean(L, false);
   }
+  return 1;
+}
+#endif
+
+#if defined(MAVLINK)
+static int luaMavlinkTelemetryPop(lua_State * L)
+{
+  auto queue = getTelemetryQueue();
+
+  if (queue) {
+    uint8_t length = 0, data = 0;
+    if (queue->probe(length) && queue->size() >= uint32_t(length)) {
+      queue->pop(length);
+      queue->pop(data);
+      lua_pushinteger(L, data);
+      lua_newtable(L);
+      for (uint8_t i = 1; i < length - 1; i++) {
+        queue->pop(data);
+        lua_pushinteger(L, i);
+        lua_pushinteger(L, data);
+        lua_settable(L, -3);
+      }
+      return 2;
+    }
+  }
+
+  return 0;
+}
+
+static int luaMavlinkTelemetryPush(lua_State* L)
+{
+  if (moduleState[EXTERNAL_MODULE].protocol != PROTOCOL_CHANNELS_MAVLINK) {
+    lua_pushnil(L);
+    return 1;
+  }
+
+  if (lua_gettop(L) == 0) {
+    lua_pushboolean(L, mavlinkTunnelStageAvailable());
+    return 1;
+  }
+
+  uint8_t command = luaL_checkinteger(L, 1);
+  luaL_checktype(L, 2, LUA_TTABLE);
+  uint8_t length = luaL_len(L, 2);
+
+  uint8_t frame[64];
+  if ((int)length + 4 > (int)sizeof(frame)) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
+  uint8_t idx = 0;
+  frame[idx++] = 0xEE;
+  frame[idx++] = 2 + length;
+  frame[idx++] = command;
+  for (int i = 0; i < length; i++) {
+    lua_rawgeti(L, 2, i + 1);
+    frame[idx++] = luaL_checkinteger(L, -1);
+    lua_pop(L, 1);
+  }
+  frame[idx++] = crc8(frame + 2, 1 + length);
+
+  lua_pushboolean(L, mavlinkTunnelStage(frame, idx));
   return 1;
 }
 #endif
@@ -3176,6 +3244,10 @@ LROT_BEGIN(etxlib, NULL, 0)
 #if defined(CROSSFIRE)
   LROT_FUNCENTRY( crossfireTelemetryPop, luaCrossfireTelemetryPop )
   LROT_FUNCENTRY( crossfireTelemetryPush, luaCrossfireTelemetryPush )
+#endif
+#if defined(MAVLINK)
+  LROT_FUNCENTRY( mavlinkTelemetryPop, luaMavlinkTelemetryPop )
+  LROT_FUNCENTRY( mavlinkTelemetryPush, luaMavlinkTelemetryPush )
 #endif
 #if defined(GHOST)
   LROT_FUNCENTRY( ghostTelemetryPop, luaGhostTelemetryPop )
