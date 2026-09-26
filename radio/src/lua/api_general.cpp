@@ -2625,10 +2625,12 @@ return true if switch is a customisable switch
 
 static int luaGetSwitchInfo(lua_State * L)
 {
-  swsrc_t idx = luaL_checkinteger(L, 1) - MIXSRC_FIRST_SWITCH;
-  if (idx < SWSRC_COUNT && isSwitchAvailable(idx, ModelCustomFunctionsContext)) {
+  // idx is a physical switch number, not a switch position (SWSRC_xxx)
+  lua_Integer idx = luaL_checkinteger(L, 1) - MIXSRC_FIRST_SWITCH;
+  if (idx >= 0 && idx < switchGetMaxAllSwitches()) {
     lua_newtable(L);
-    char* name = getSwitchPositionName(idx);
+    char name[LEN_SWITCH_NAME + 1];
+    getSwitchName(name, idx);
     lua_pushtableinteger(L, "type", g_model.getSwitchType(idx));
     lua_pushtableboolean(L, "isCustomisableSwitch", switchIsCustomSwitch(idx));
     lua_pushtablestring(L, "name", name);
