@@ -248,15 +248,23 @@ TEST(Lua, getFieldInfoSwitches)
     for (size_t n = 0; n <= len && n < sizeof(lower); n++)
       lower[n] = tolower(name[n]);
 
+    // The lower case name can belong to another field first, e.g. the 'sl'
+    // slider on T22, but must never find a different switch
     snprintf(lua, sizeof(lua),
              "local id = %d\n"
+             "local first, last = %d, %d\n"
              "local info = getFieldInfo('%s')\n"
              "if info == nil or info.id ~= id then error('upper') end\n"
              "info = getFieldInfo('%s')\n"
-             "if info == nil or info.id ~= id then error('lower') end\n"
+             "if info == nil then error('lower') end\n"
+             "if info.id ~= id and info.id >= first and info.id <= last then\n"
+             "  error('lower finds switch ' .. info.id)\n"
+             "end\n"
              "info = getFieldInfo(id)\n"
              "if info == nil or info.name ~= '%s' then error('by id') end",
-             MIXSRC_FIRST_SWITCH + i, name, lower, name);
+             MIXSRC_FIRST_SWITCH + i, MIXSRC_FIRST_SWITCH,
+             MIXSRC_FIRST_SWITCH + switchGetMaxAllSwitches() - 1, name, lower,
+             name);
     EXPECT_TRUE(__luaExecStr(lua)) << "switch " << i << " (" << name << ")";
   }
 }
