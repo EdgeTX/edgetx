@@ -714,6 +714,8 @@ void simuRotaryEncoderEvent(int32_t steps)
 {
 #if defined(ROTARY_ENCODER_NAVIGATION)
   if (steps == 0) return;
+  if (g_eeGeneral.rotEncMode == ROTARY_ENCODER_MODE_INVERT_BOTH)
+    steps = -steps;
 #if defined(COLORLCD)
   rotencDt = time_get_ms();
 #endif
