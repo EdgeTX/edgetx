@@ -941,7 +941,9 @@ static int luaModelInsertMix(lua_State *L)
         mix->curve.value = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "multiplex")) {
-        mix->mltpx = luaL_checkinteger(L, -1);
+        // Out of range values are treated as ADD (same as mixer and YAML load)
+        lua_Integer mltpx = luaL_checkinteger(L, -1);
+        mix->mltpx = (mltpx >= MLTPX_ADD && mltpx <= MLTPX_REPL) ? mltpx : MLTPX_ADD;
       }
       else if (!strcmp(key, "flightModes")) {
         mix->flightModes = luaL_checkinteger(L, -1);
