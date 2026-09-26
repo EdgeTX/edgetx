@@ -235,6 +235,32 @@ TEST(Lua, getSwitchInfo)
   RADIO_RESET();
 }
 
+TEST(Lua, getFieldInfoSwitches)
+{
+  RADIO_RESET();
+  MODEL_RESET();
+  char lower[8];
+  char lua[512];
+
+  for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
+    const char* name = switchGetDefaultName(i);
+    size_t len = strlen(name);
+    for (size_t n = 0; n <= len && n < sizeof(lower); n++)
+      lower[n] = tolower(name[n]);
+
+    snprintf(lua, sizeof(lua),
+             "local id = %d\n"
+             "local info = getFieldInfo('%s')\n"
+             "if info == nil or info.id ~= id then error('upper') end\n"
+             "info = getFieldInfo('%s')\n"
+             "if info == nil or info.id ~= id then error('lower') end\n"
+             "info = getFieldInfo(id)\n"
+             "if info == nil or info.name ~= '%s' then error('by id') end",
+             MIXSRC_FIRST_SWITCH + i, name, lower, name);
+    EXPECT_TRUE(__luaExecStr(lua)) << "switch " << i << " (" << name << ")";
+  }
+}
+
 TEST(Lua, getSwitchInfoOutOfRange)
 {
   RADIO_RESET();
