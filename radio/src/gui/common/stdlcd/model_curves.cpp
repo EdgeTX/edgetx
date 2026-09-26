@@ -118,7 +118,8 @@ void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlag
     flags1 = 0;
   }
 
-  lcdDrawTextAtIndex(x1, y, STR_VCURVETYPE, curve.type, flags1);
+  if (curve.type <= CURVE_REF_CUSTOM)
+    lcdDrawTextAtIndex(x1, y, STR_VCURVETYPE, curve.type, flags1);
 
   if (active && menuHorizontalPosition==0) {
     CHECK_INCDEC_MODELVAR_ZERO(event, curve.type, modelCurvesEnabled() ? CURVE_REF_CUSTOM : CURVE_REF_FUNC);
@@ -133,7 +134,8 @@ void editCurveRef(coord_t x, coord_t y, CurveRef & curve, event_t event, LcdFlag
     {
       SourceNumVal v;
       v.rawValue = curve.value;
-      lcdDrawTextAtIndex(x, y, STR_VCURVEFUNC, v.value, flags);
+      if (v.value >= 0 && v.value < CURVE_BASE)
+        lcdDrawTextAtIndex(x, y, STR_VCURVEFUNC, v.value, flags);
       if (active && menuHorizontalPosition==1) {
         CHECK_INCDEC_MODELVAR_ZERO(event, v.value, CURVE_BASE-1);
         curve.value = v.rawValue;
