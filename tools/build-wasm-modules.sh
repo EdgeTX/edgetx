@@ -10,6 +10,13 @@ if [[ -z ${SRCDIR} ]]; then
   SRCDIR="$(pwd)"
 fi
 
+# Make SRCDIR absolute, as it is also used from within other directories
+# (e.g. the WASI SDK fetch project below)
+if ! SRCDIR="$(cd "${SRCDIR}" && pwd)"; then
+  echo "❌ Source directory not found: $1"
+  exit 1
+fi
+
 if [[ -z ${OUTDIR} ]]; then
   OUTDIR="$(pwd)/output"
 fi
