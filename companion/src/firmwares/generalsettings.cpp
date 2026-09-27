@@ -240,7 +240,7 @@ void GeneralSettings::init()
   stickMode = g.profile[g.sessionId()].defaultMode();
   templateSetup = g.profile[g.sessionId()].channelOrder();
 
-  QString lang = getCurrentFirmware()->getLanguage();
+  QString lang = g.profile[g.sessionId()].fwLanguage();
   if (lang.size() > 1) {
     memcpy(ttsLanguage, lang.toLatin1().data(), 2);
   } else {
