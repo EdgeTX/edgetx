@@ -68,3 +68,12 @@ TEST_F(ModulesHelpersTest, multiProtocolChecksMatchMultimodule)
 
 #endif
 
+#if defined(HARDWARE_EXTERNAL_MODULE)
+
+// AFHDS2A is only supported by the internal module driver
+TEST_F(ModulesHelpersTest, afhds2aNotAvailableAsExternalModule)
+{
+  EXPECT_FALSE(isExternalModuleAvailable(MODULE_TYPE_FLYSKY_AFHDS2A));
+}
+
+#endif
