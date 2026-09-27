@@ -347,8 +347,14 @@ RadioVersionPage::RadioVersionPage(const PageDef& pageDef) :
 }
 
 #if defined(PCBPL18)
+#if defined(SIMU)
+// placeholders so the simulator shows the same lines as the radio
+static const char* boardLcdType = "Simulator";
+static const char* boardTouchType = "Simulator";
+#else
 extern const char* boardLcdType;
 extern const char* boardTouchType;
+#endif
 #endif
 
 void RadioVersionPage::build(Window* window)
@@ -414,7 +420,7 @@ void RadioVersionPage::build(Window* window)
   version += '0' + hardwareOptions.pcbrev;
 #endif
 
-#if defined(PCBPL18) && !defined(SIMU)
+#if defined(PCBPL18)
   version += nl;
   version += "LCD: ";
   version += boardLcdType;
