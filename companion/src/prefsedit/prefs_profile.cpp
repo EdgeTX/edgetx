@@ -224,6 +224,7 @@ void PrefsProfilePanel::populateFirmwareOptions(QStringList opts)
         currOpts.append(it.key());    // keep previous selections
 
       layFirmwareBuildOpts->removeWidget(chk);
+      chk->hide();
       chk->deleteLater();
       it.remove();
     }
@@ -242,6 +243,7 @@ void PrefsProfilePanel::populateFirmwareOptions(QStringList opts)
         chk->setBindPostChanged([=] { this->onOptionChanged(opt.name); });
 
       layFirmwareBuildOpts->addWidget(chk, index / 4, index % 4);
+      chk->show();    // so the size hint counts it when panel already visible
       chkFirmwareBuildOpts.insert(opt.name, chk);
       QWidget::setTabOrder(prevFocus, chk);
       prevFocus = chk;
@@ -249,6 +251,8 @@ void PrefsProfilePanel::populateFirmwareOptions(QStringList opts)
     }
   }
 
+  // the number of option rows may have changed
+  ui->csectFirmwareOpts->contentChanged();
   shrink();
 }
 

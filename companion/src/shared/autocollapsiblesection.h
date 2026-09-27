@@ -74,6 +74,7 @@ class AutoCollapsibleSection : public QWidget, public AutoWidget
     const int getAnimationDuration() { return animationDuration; }
 
     void updateHeights();
+    void contentChanged();
 
   signals:
     // inform parent that expand/collapse animation finished
@@ -94,4 +95,6 @@ class AutoCollapsibleSection : public QWidget, public AutoWidget
     bool isExpanded = false;
     QString title;
     std::function<void()> fnResize;
+
+    void setAnimationRange(int contentHeight);
 };
