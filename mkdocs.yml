@@ -33,6 +33,7 @@ theme:
     - content.action.edit
 
 markdown_extensions:
+  - abbr
   - admonition
   - pymdownx.details
   - pymdownx.superfences
