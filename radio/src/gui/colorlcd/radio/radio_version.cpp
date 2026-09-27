@@ -384,10 +384,15 @@ void RadioVersionPage::build(Window* window)
 
   new QRCode(qrBox, (qw - QR_SZ) / 2, qh - QR_SZ - PAD_MEDIUM, QR_SZ, edgetx_url);
 
+  // Button follows the text so it can't overlap it; the box scrolls when
+  // the text is too tall (e.g. PL18 family on portrait LCD).
   auto infoBox = new Window(window, {ix, iy, iw, ih});
   infoBox->padAll(PAD_SMALL);
   infoBox->padLeft(PAD_LARGE);
   infoBox->padRight(PAD_LARGE);
+  infoBox->padBottom(PAD_LARGE);
+  infoBox->setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_SMALL, iw, ih);
+  etx_scrollbar(infoBox->getLvObj());
 
   std::string nl("\n");
   std::string version;
@@ -420,8 +425,13 @@ void RadioVersionPage::build(Window* window)
 
   new StaticText(infoBox, {0, 0, LV_PCT(100), LV_SIZE_CONTENT}, version);
 
+  // Spacer keeps the button at the bottom when the text is short, and
+  // shrinks to nothing when it is not (so the text is never squashed)
+  auto spacer = new Window(infoBox, {0, 0, LV_PCT(100), 0});
+  lv_obj_set_flex_grow(spacer->getLvObj(), 1);
+
   // Module and receivers versions
-  new TextButton(infoBox, {0, ih - EdgeTxStyles::UI_ELEMENT_HEIGHT - PAD_LARGE - PAD_SMALL, LV_PCT(100), 0},
+  new TextButton(infoBox, {0, 0, LV_PCT(100), 0},
                   STR_MODULES_RX_VERSION, [=]() {
                     new VersionDialog();
                     return 0;
