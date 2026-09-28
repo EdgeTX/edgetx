@@ -126,6 +126,10 @@ if(CPU_TYPE_FULL STREQUAL STM32H750xB)
   set(CMSIS_SRC ${CMSIS_SRC}
     targets/common/arm/stm32/h7/vectors_stm32h750xx.c
   )
+elseif(CPU_TYPE_FULL STREQUAL STM32H743xx OR CPU_TYPE_FULL STREQUAL STM32H743xI)
+  set(CMSIS_SRC ${CMSIS_SRC}
+    targets/common/arm/stm32/h7/vectors_stm32h743xx.c
+  )
 elseif(CPU_TYPE_FULL STREQUAL STM32H747Ix)
   set(CMSIS_SRC ${CMSIS_SRC}
     targets/common/arm/stm32/h7/vectors_stm32h747xx.c
