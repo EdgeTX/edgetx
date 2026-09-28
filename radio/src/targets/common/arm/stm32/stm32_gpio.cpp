@@ -115,11 +115,15 @@ void gpio_init_int(gpio_t pin, gpio_mode_t mode, gpio_flank_t flank, gpio_cb_t c
 #else
   #error "Unsupported SYSCFG clock"
 #endif
-#warning exti NOK
-#if 0
+#if defined(STM32H5)
+  // EXTI owns the source selection on H5 (8 bits per line), not SYSCFG/SBS
+  EXTI->EXTICR[pin_num >> 2] &= ~(0xffUL << ((pin_num & 0x03) * 8));
+  EXTI->EXTICR[pin_num >> 2] |= (port_num << ((pin_num & 0x03) * 8));
+#else
   SYSCFG->EXTICR[pin_num >> 2] &= ~(0xf << ((pin_num & 0x03) * 4));
   SYSCFG->EXTICR[pin_num >> 2] |= (port_num << ((pin_num & 0x03) * 4));
 #endif
+
   stm32_exti_enable(1 << pin_num, (uint8_t)flank, cb);
 }
 

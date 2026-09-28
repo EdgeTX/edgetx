@@ -402,138 +402,137 @@ void SystemCoreClockUpdate(void)
 }
 
 
-void HardFault_Handler() { asm("BKPT"); }
-void MemManage_Handler() {  asm("BKPT"); }
-void BusFault_Handler() {  asm("BKPT"); }
-void UsageFault_Handler() {  asm("BKPT"); }
-void SecureFault_Handler() {  asm("BKPT"); }
+__attribute__((weak)) void HardFault_Handler() { asm("BKPT"); }
+__attribute__((weak)) void MemManage_Handler() {  asm("BKPT"); }
+__attribute__((weak)) void BusFault_Handler() {  asm("BKPT"); }
+__attribute__((weak)) void UsageFault_Handler() {  asm("BKPT"); }
+__attribute__((weak)) void SecureFault_Handler() {  asm("BKPT"); }
 // void SVC_Handler() {  asm("BKPT"); }
-void DebugMon_Handler() {  asm("BKPT"); }
+__attribute__((weak)) void DebugMon_Handler() {  asm("BKPT"); }
 // void PendSV_Handler() {  asm("BKPT"); }
 // void SysTick_Handler() {  asm("BKPT"); }
-void WWDG_IRQHandler() {  asm("BKPT"); }
-void PVD_AVD_IRQHandler() {  asm("BKPT"); }
-void RTC_IRQHandler() {  asm("BKPT"); }
-void RTC_S_IRQHandler() {  asm("BKPT"); }
-void TAMP_IRQHandler() {  asm("BKPT"); }
-void RAMCFG_IRQHandler() {  asm("BKPT"); }
-void FLASH_IRQHandler() {  asm("BKPT"); }
-void FLASH_S_IRQHandler() {  asm("BKPT"); }
-void GTZC_IRQHandler() {  asm("BKPT"); }
-void RCC_IRQHandler() {  asm("BKPT"); }
-void RCC_S_IRQHandler() {  asm("BKPT"); }
-void EXTI0_IRQHandler() {  asm("BKPT"); }
-void EXTI1_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void WWDG_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void PVD_AVD_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void RTC_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void RTC_S_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TAMP_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void RAMCFG_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void FLASH_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void FLASH_S_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void GTZC_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void RCC_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void RCC_S_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void EXTI0_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void EXTI1_IRQHandler() {  asm("BKPT"); }
 // void EXTI2_IRQHandler() {  asm("BKPT"); }
 // void EXTI3_IRQHandler() {  asm("BKPT"); }
 //void EXTI4_IRQHandler() {  asm("BKPT"); }
-void EXTI5_IRQHandler() {  asm("BKPT"); }
-void EXTI6_IRQHandler() {  asm("BKPT"); }
-void EXTI7_IRQHandler() {  asm("BKPT"); }
-void EXTI8_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void EXTI5_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void EXTI6_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void EXTI7_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void EXTI8_IRQHandler() {  asm("BKPT"); }
 //void EXTI9_IRQHandler() {  asm("BKPT"); }
-void EXTI10_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void EXTI10_IRQHandler() {  asm("BKPT"); }
 //void EXTI11_IRQHandler() {  asm("BKPT"); }
-void EXTI12_IRQHandler() {  asm("BKPT"); }
-void EXTI13_IRQHandler() {  asm("BKPT"); }
-void EXTI14_IRQHandler() {  asm("BKPT"); }
-void EXTI15_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void EXTI12_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void EXTI13_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void EXTI14_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void EXTI15_IRQHandler() {  asm("BKPT"); }
 //void GPDMA1_Channel0_IRQHandler() {  asm("BKPT"); }
-void GPDMA1_Channel1_IRQHandler() {  asm("BKPT"); }
-void GPDMA1_Channel2_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void GPDMA1_Channel1_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void GPDMA1_Channel2_IRQHandler() {  asm("BKPT"); }
 //void GPDMA1_Channel3_IRQHandler() {  asm("BKPT"); }
-void GPDMA1_Channel4_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void GPDMA1_Channel4_IRQHandler() {  asm("BKPT"); }
 //void GPDMA1_Channel5_IRQHandler() {  asm("BKPT"); }
-void GPDMA1_Channel6_IRQHandler() {  asm("BKPT"); }
-void GPDMA1_Channel7_IRQHandler() {  asm("BKPT"); }
-void IWDG_IRQHandler() {  asm("BKPT"); }
-void ADC1_IRQHandler() {  asm("BKPT"); }
-void DAC1_IRQHandler() {  asm("BKPT"); }
-void FDCAN1_IT0_IRQHandler() {  asm("BKPT"); }
-void FDCAN1_IT1_IRQHandler() {  asm("BKPT"); }
-void TIM1_BRK_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void GPDMA1_Channel6_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void GPDMA1_Channel7_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void IWDG_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void ADC1_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void DAC1_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void FDCAN1_IT0_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void FDCAN1_IT1_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM1_BRK_IRQHandler() {  asm("BKPT"); }
 //void TIM1_UP_IRQHandler() {  asm("BKPT"); }
-void TIM1_TRG_COM_IRQHandler() {  asm("BKPT"); }
-void TIM1_CC_IRQHandler() {  asm("BKPT"); }
-void TIM2_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM1_TRG_COM_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM1_CC_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM2_IRQHandler() {  asm("BKPT"); }
 //void TIM3_IRQHandler() {  asm("BKPT"); }
-void TIM4_IRQHandler() {  asm("BKPT"); }
-void TIM5_IRQHandler() {  asm("BKPT"); }
-void TIM6_IRQHandler() {  asm("BKPT"); }
-void TIM7_IRQHandler() {  asm("BKPT"); }
-void I2C1_EV_IRQHandler() {  asm("BKPT"); }
-void I2C1_ER_IRQHandler() {  asm("BKPT"); }
-void I2C2_EV_IRQHandler() {  asm("BKPT"); }
-void I2C2_ER_IRQHandler() {  asm("BKPT"); }
-void SPI1_IRQHandler() {  asm("BKPT"); }
-void SPI2_IRQHandler() {  asm("BKPT"); }
-void SPI3_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM4_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM5_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM6_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM7_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void I2C1_EV_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void I2C1_ER_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void I2C2_EV_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void I2C2_ER_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void SPI1_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void SPI2_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void SPI3_IRQHandler() {  asm("BKPT"); }
 // void USART1_IRQHandler() {  asm("BKPT"); }
 // void USART2_IRQHandler() {  asm("BKPT"); }
 // void USART3_IRQHandler() {  asm("BKPT"); }
 // void UART4_IRQHandler() {  asm("BKPT"); }
 // void UART5_IRQHandler() {  asm("BKPT"); }
-void LPUART1_IRQHandler() {  asm("BKPT"); }
-void LPTIM1_IRQHandler() {  asm("BKPT"); }
-void TIM8_BRK_IRQHandler() {  asm("BKPT"); }
-void TIM8_UP_IRQHandler() {  asm("BKPT"); }
-void TIM8_TRG_COM_IRQHandler() {  asm("BKPT"); }
-void TIM8_CC_IRQHandler() {  asm("BKPT"); }
-void ADC2_IRQHandler() {  asm("BKPT"); }
-void LPTIM2_IRQHandler() {  asm("BKPT"); }
-void TIM15_IRQHandler() {  asm("BKPT"); }
-void TIM16_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void LPUART1_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void LPTIM1_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM8_BRK_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM8_UP_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM8_TRG_COM_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM8_CC_IRQHandler() {  asm("BKPT"); }
+//__attribute__((weak)) void ADC2_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void LPTIM2_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM15_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM16_IRQHandler() {  asm("BKPT"); }
 //void TIM17_IRQHandler() {  asm("BKPT"); }
 //void USB_DRD_FS_IRQHandler() {  asm("BKPT"); }
-void CRS_IRQHandler() {  asm("BKPT"); }
-void UCPD1_IRQHandler() {  asm("BKPT"); }
-void FMC_IRQHandler() {  asm("BKPT"); }
-void OCTOSPI1_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void CRS_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void UCPD1_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void FMC_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void OCTOSPI1_IRQHandler() {  asm("BKPT"); }
 // void SDMMC1_IRQHandler() {  asm("BKPT"); }
-void I2C3_EV_IRQHandler() {  asm("BKPT"); }
-void I2C3_ER_IRQHandler() {  asm("BKPT"); }
-void SPI4_IRQHandler() {  asm("BKPT"); }
-void SPI5_IRQHandler() {  asm("BKPT"); }
-void SPI6_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void I2C3_EV_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void I2C3_ER_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void SPI4_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void SPI5_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void SPI6_IRQHandler() {  asm("BKPT"); }
 // void USART6_IRQHandler() {  asm("BKPT"); }
 // void USART10_IRQHandler() {  asm("BKPT"); }
 // void USART11_IRQHandler() {  asm("BKPT"); }
-void SAI1_IRQHandler() {  asm("BKPT"); }
-void SAI2_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void SAI1_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void SAI2_IRQHandler() {  asm("BKPT"); }
 //void GPDMA2_Channel0_IRQHandler() {  asm("BKPT"); }
-void GPDMA2_Channel1_IRQHandler() {  asm("BKPT"); }
-void GPDMA2_Channel2_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void GPDMA2_Channel1_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void GPDMA2_Channel2_IRQHandler() {  asm("BKPT"); }
 //void GPDMA2_Channel3_IRQHandler() {  asm("BKPT"); }  // defined by rgb_leds.cpp (LED_STRIP_TIMER_DMA_IRQHandler)
-void GPDMA2_Channel4_IRQHandler() {  asm("BKPT"); }
-void GPDMA2_Channel5_IRQHandler() {  asm("BKPT"); }
-void GPDMA2_Channel6_IRQHandler() {  asm("BKPT"); }
-void GPDMA2_Channel7_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void GPDMA2_Channel4_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void GPDMA2_Channel5_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void GPDMA2_Channel6_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void GPDMA2_Channel7_IRQHandler() {  asm("BKPT"); }
 // void UART7_IRQHandler() {  asm("BKPT"); }
 // void UART8_IRQHandler() {  asm("BKPT"); }
 // void UART9_IRQHandler() {  asm("BKPT"); }
 // void UART12_IRQHandler() {  asm("BKPT"); }
-void FPU_IRQHandler() {  asm("BKPT"); }
-void ICACHE_IRQHandler() {  asm("BKPT"); }
-void DCACHE1_IRQHandler() {  asm("BKPT"); }
-void DCMI_PSSI_IRQHandler() {  asm("BKPT"); }
-void CORDIC_IRQHandler() {  asm("BKPT"); }
-void FMAC_IRQHandler() {  asm("BKPT"); }
-void DTS_IRQHandler() {  asm("BKPT"); }
-void RNG_IRQHandler() {  asm("BKPT"); }
-void HASH_IRQHandler() {  asm("BKPT"); }
-void CEC_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void FPU_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void ICACHE_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void DCACHE1_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void DCMI_PSSI_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void CORDIC_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void FMAC_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void DTS_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void RNG_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void HASH_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void CEC_IRQHandler() {  asm("BKPT"); }
 // void TIM12_IRQHandler() {  asm("BKPT"); }
-void TIM13_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void TIM13_IRQHandler() {  asm("BKPT"); }
 // void TIM14_IRQHandler() {  asm("BKPT"); }
-void I3C1_EV_IRQHandler() {  asm("BKPT"); }
-void I3C1_ER_IRQHandler() {  asm("BKPT"); }
-void I2C4_EV_IRQHandler() {  asm("BKPT"); }
-void I2C4_ER_IRQHandler() {  asm("BKPT"); }
-void LPTIM3_IRQHandler() {  asm("BKPT"); }
-void LPTIM4_IRQHandler() {  asm("BKPT"); }
-void LPTIM5_IRQHandler() {  asm("BKPT"); }
-void LPTIM6_IRQHandler() {  asm("BKPT"); }
-
+__attribute__((weak)) void I3C1_EV_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void I3C1_ER_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void I2C4_EV_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void I2C4_ER_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void LPTIM3_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void LPTIM4_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void LPTIM5_IRQHandler() {  asm("BKPT"); }
+__attribute__((weak)) void LPTIM6_IRQHandler() {  asm("BKPT"); }
 /**
   * @}
   */

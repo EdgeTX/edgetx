@@ -43,6 +43,7 @@ struct stm32_adc_t {
   uint8_t              offset;
   uint8_t              n_channels;
   uint8_t              sample_time;
+  uint32_t             common_clock;  // 0 = driver default
 };
 
 struct stm32_adc_gpio_t {

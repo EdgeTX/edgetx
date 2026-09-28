@@ -494,6 +494,11 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
   commonInit.CommonClock = LL_ADC_CLOCK_SYNC_PCLK_DIV4;
 #endif
 
+  // the ADC/DAC kernel clock is shared, so a board driving the DAC fast has to
+  // bring the ADC back down with its own prescaler
+  if (n_ADC > 0 && ADCs[0].common_clock != 0)
+    commonInit.CommonClock = ADCs[0].common_clock;
+
   _adc_input_mask = 0;
   const stm32_adc_t* adc = ADCs;
 
@@ -502,12 +507,22 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
     uint8_t nconv = adc->n_channels;
     if (nconv > 0) {
 
+#if defined(STM32H5)
+      // enable periph clock first: the common registers live in the ADC's
+      // clock domain, so CommonInit() is silently dropped if it runs before
+      // this (CCR reads back 0 = async kernel clock, PRESC = DIV1).
+      // Only reordered for H5 here: every other target has shipped with the
+      // original order and its ADC timing is calibrated around it.
+      adc_enable_clock(adc->ADCx);
+      LL_ADC_CommonInit(__LL_ADC_COMMON_INSTANCE(adc->ADCx), &commonInit);
+#else
       // enable common instance
       LL_ADC_CommonInit(__LL_ADC_COMMON_INSTANCE(adc->ADCx), &commonInit);
-  
+
       // enable periph clock
       adc_enable_clock(adc->ADCx);
-  
+#endif
+
       // configure each channel
       const uint8_t* chan = adc->channels;
       nconv = adc_init_channels(adc, inputs, chan, nconv);
