@@ -739,7 +739,7 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
 
   /* Radiomaster GX15 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("gx15"), Firmware::tr("Radiomaster GX15"), BOARD_RADIOMASTER_GX15);
+  firmware = new OpenTxFirmware(FIRMWAREID("gx15"), Firmware::tr("GX15"), BOARD_RADIOMASTER_GX15);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   firmware->addOptionsGroup({opt_bt, opt_internal_gps});
@@ -772,7 +772,7 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
 
   /* Senduwing H17 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("h17"), Firmware::tr("Senduwing H17"), BOARD_SENDUWING_H17);
+  firmware = new OpenTxFirmware(FIRMWAREID("h17"), Firmware::tr("H17"), BOARD_SENDUWING_H17);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
