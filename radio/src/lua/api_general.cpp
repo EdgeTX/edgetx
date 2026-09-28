@@ -32,6 +32,7 @@
 #include "hal/rotary_encoder.h"
 #include "switches.h"
 #include "input_mapping.h"
+#include "os/task.h"
 #if defined(LED_STRIP_GPIO)
 #include "boards/generic_stm32/rgb_leds.h"
 #include "hal/rgbleds.h"
@@ -2243,6 +2244,27 @@ static int luaGetAvailableMemory(lua_State * L)
 }
 
 /*luadoc
+@function getCpuLoad()
+
+Get the MCU load: the share of time the processor was not running the idle task.
+
+@retval load (number) a value from 0 to 100 (percent), averaged over the last 500 ms or more (since the previous update); nil in the simulator
+
+@notice Interrupts are counted against the task they interrupt, so interrupts that occur while the MCU is idle count as idle time.
+
+@status current Introduced in 3.0.0
+*/
+static int luaGetCpuLoad(lua_State * L)
+{
+  int load = task_get_cpu_load();
+  if (load < 0)
+    lua_pushnil(L);
+  else
+    lua_pushinteger(L, load);
+  return 1;
+}
+
+/*luadoc
 @function resetGlobalTimer([type])
 
  Resets the radio global timer to 0.
@@ -3163,6 +3185,7 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( loadScript, luaLoadScript )
   LROT_FUNCENTRY( getUsage, luaGetUsage )
   LROT_FUNCENTRY( getAvailableMemory, luaGetAvailableMemory )
+  LROT_FUNCENTRY( getCpuLoad, luaGetCpuLoad )
   LROT_FUNCENTRY( resetGlobalTimer, luaResetGlobalTimer )
 #if LCD_DEPTH > 1 && !defined(COLORLCD)
   LROT_FUNCENTRY( GREY, luaGrey )

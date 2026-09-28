@@ -27,6 +27,7 @@ extern "C" {
 #endif
 #include <stdint.h>
 extern uint32_t SystemCoreClock;
+uint32_t timersGetRunTimeCounter(void);
 #if defined(__cplusplus)
 }
 #endif
@@ -53,7 +54,9 @@ extern uint32_t SystemCoreClock;
 #define configUSE_MALLOC_FAILED_HOOK    0
 #define configUSE_APPLICATION_TASK_TAG  0
 #define configUSE_COUNTING_SEMAPHORES   0
-#define configGENERATE_RUN_TIME_STATS   0
+#define configGENERATE_RUN_TIME_STATS   1
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()
+#define portGET_RUN_TIME_COUNTER_VALUE() timersGetRunTimeCounter()
 #define configUSE_TIMERS                1
 
 #if !defined(DEBUG)
@@ -86,6 +89,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelay                  1
 #define INCLUDE_xTimerPendFunctionCall      1
 #define INCLUDE_uxTaskGetStackHighWaterMark 1
+#define INCLUDE_xTaskGetIdleTaskHandle      1
 
 #if defined(THREADSAFE_MALLOC)
 #define INCLUDE_xTaskGetSchedulerState  1
