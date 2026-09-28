@@ -93,10 +93,6 @@ static const unsigned char _icon_png[] = {
 };
 #endif
 
-#if defined(ROTARY_ENCODER_NAVIGATION)
-extern volatile rotenc_t rotencValue;
-#endif
-
 int pots[MAX_POTS] = {0};
 
 static bool handleKeyEvents(SDL_Event& event)
@@ -136,7 +132,7 @@ static bool handleKeyEvents(SDL_Event& event)
     case SDLK_UP:
 #if defined(ROTARY_ENCODER_NAVIGATION)
       if (event.type == SDL_KEYDOWN) {
-        rotencValue -= ROTARY_ENCODER_GRANULARITY;
+        simuRotaryEncoderEvent(-1);
       }
 #else
       if (keysGetSupported() & (1 << KEY_UP)) {
@@ -149,7 +145,7 @@ static bool handleKeyEvents(SDL_Event& event)
     case SDLK_DOWN:
 #if defined(ROTARY_ENCODER_NAVIGATION)
       if (event.type == SDL_KEYDOWN) {
-        rotencValue += ROTARY_ENCODER_GRANULARITY;
+        simuRotaryEncoderEvent(1);
       }
 #else
       if (keysGetSupported() & (1 << KEY_DOWN)) {
