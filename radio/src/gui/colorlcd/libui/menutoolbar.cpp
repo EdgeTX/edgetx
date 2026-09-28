@@ -59,6 +59,10 @@ MenuToolbarButton::MenuToolbarButton(Window* parent, const rect_t& rect,
   auto label = etx_label_create(lvobj);
   lv_label_set_text(label, picto);
   lv_obj_center(label);
+
+  onClosing([=]() {
+    lv_group_remove_obj(lvobj);
+  });
 }
 
 MenuToolbar::MenuToolbar(Choice* choice, Menu* menu, const int columns) :
