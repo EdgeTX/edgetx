@@ -1108,7 +1108,9 @@ Set warning state for a switch
 2 = switch middle
 3 = switch down
 
-@retval nil when switch is a toggle or does not exist
+@retval boolean true when the warning state was set
+
+@retval nil when switch is a toggle or does not exist, or state is out of range
 
 @status current Introduced in 3.0.0
 */
@@ -1132,6 +1134,7 @@ static int luaModelSetSwitchWarning(lua_State *L)
 
   if (sw <= switchGetMaxAllSwitches() && SWITCH_WARNING_ALLOWED(sw) && newstate < 4) {
     g_model.setSwitchWarning(sw, newstate);
+    lua_pushboolean(L, true);
   }
   else {
     lua_pushnil(L);
@@ -2056,11 +2059,11 @@ static int luaGetUserData(lua_State *L)
 }
 
 /*luadoc
-@function model.getAllUserData()
+@function model.getAllUserData([app])
 
 Get a table of all User Data entries
 
-@param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
+@param app (string) (optional) name of Lua app / widget / script. App name cannot contain the '|' character.
 
 @retval table of all User Data entries for the named app. If the app name is not supplied returns all entries.
 
@@ -2169,6 +2172,8 @@ Delete User Data entry for given app + key
 @param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
 
 @param key (string) name of User Data entry
+
+@retval none
 
 @status current Introduced in 3.0.0
 */
