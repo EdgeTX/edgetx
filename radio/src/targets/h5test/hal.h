@@ -188,7 +188,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2)
 #define ADC_VREF_PREC2                330
 
-#define ADC_DIRECTION {-1,1,-1,1,  -1,-1, 1,-1}
+#define ADC_DIRECTION {1,1,-1,-1,  -1,-1, 1,-1}
 
 // Flysky Hall Stick (digital sticks) on UART4: TX=PA0, RX=PA1. These pins are
 // the legacy analog left-stick ADC inputs, now repurposed for the gimbal serial
