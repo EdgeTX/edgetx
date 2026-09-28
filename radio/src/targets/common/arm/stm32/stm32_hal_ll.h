@@ -78,6 +78,7 @@ extern "C" {
   #include "STM32H5xx_HAL_Driver/Inc/stm32h5xx_ll_iwdg.h"
   #include "STM32H5xx_HAL_Driver/Inc/stm32h5xx_ll_usb.h"
   #include "STM32H5xx_HAL_Driver/Inc/stm32h5xx_ll_pwr.h"
+  #include "STM32H5xx_HAL_Driver/Inc/stm32h5xx_ll_icache.h"
 #elif defined(STM32H7)
   #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_bus.h"
   #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_dac.h"

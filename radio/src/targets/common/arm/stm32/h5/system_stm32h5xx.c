@@ -261,6 +261,17 @@ void SystemInit(void)
     SCB->VTOR = (uint32_t) &g_pfnVectors ; /* Vector Table Relocation in Internal FLASH */
   #endif /* VECT_TAB_SRAM */
 
+  /* ICACHE is off after reset: mandatory to run flash at full speed */
+  LL_ICACHE_Disable();
+  while (LL_ICACHE_IsEnabled() != 0U) {
+  }
+  LL_ICACHE_SetMode(LL_ICACHE_2WAYS);
+  LL_ICACHE_Invalidate();
+  while (LL_ICACHE_IsActiveFlag_BSYEND() == 0U) {
+  }
+  LL_ICACHE_ClearFlag_BSYEND();
+  LL_ICACHE_Enable();
+
   /* Check OPSR register to verify if there is an ongoing swap or option bytes update interrupted by a reset */
   reg_opsr = FLASH->OPSR & FLASH_OPSR_CODE_OP;
   if ((reg_opsr == FLASH_OPSR_CODE_OP) || (reg_opsr == (FLASH_OPSR_CODE_OP_2 | FLASH_OPSR_CODE_OP_1)))

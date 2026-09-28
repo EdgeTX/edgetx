@@ -87,7 +87,7 @@ static V2_GIMBAL_MODE _fs_gimbal_mode;
 static V2_GIMBAL_MODE _fs_gimbal_mode_change;
 static V2_GIMBAL_MODE _fs_gimbal_mode_detected;
 static uint32_t _fs_gimbal_last_mode_change_tick;
-static bool _fs_gimbal_cmd_finished;
+static volatile bool _fs_gimbal_cmd_finished;
 static uint32_t _fs_gimbal_lastReadTick;
 static uint32_t _fs_gimbal_readTick;
 static uint32_t _fs_gimbal_sync_period;
@@ -348,7 +348,7 @@ void flysky_gimbal_wait_completion()
     while(!_fs_gimbal_cmd_finished) {
       // busy wait
       if ((uint32_t)(timersGetUsTick() - timeout) >= SAMPLING_TIMEOUT_US) {
-//        TRACE("Gimbal timeout");
+        TRACE("Gimbal timeout");
         return;
       }
     }
