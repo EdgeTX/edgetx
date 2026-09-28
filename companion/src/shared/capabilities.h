@@ -38,7 +38,6 @@ enum Capability {
   GlobalFunctions,
   Gvars,
   GvarsName,
-  Haptic,
   HasExpoNames,
   HasFailsafe,
   HasFlySkyGimbals,
@@ -57,7 +56,7 @@ enum Capability {
   HasVario,
   HasVarioSink,
   Heli,
-  //Inputs, duplicate in boards
+  InputsCnt, // renamed to Inputs to InputsCnt as duplicate in Boards keep until move to std::vector
   InputsName,
   InputsLength,
   IsLandscape,
@@ -114,7 +113,7 @@ enum Capability {
   // TODO boards start here but need to sort
   Air,
   BacklightLevelMin,
-  BluetoothName,    // add to bddefn and load
+  BluetoothName,
   Contrast,
   BacklightBright,
   BacklightDelay,
@@ -140,6 +139,7 @@ enum Capability {
   FunctionSwitchGroups,
   GyroAxes,
   Gyros,
+  Haptic,
   HasAudioMuteGPIO,
   HasAuxSerialMode,
   HasAux2SerialMode,
@@ -164,9 +164,9 @@ enum Capability {
   HasVCPSerialMode,
   Inputs,
   InputSwitches,
-  IsF4,
-  IsH5,
-  IsH7,
+  HasCPUF4,
+  HasCPUH5,
+  HasCPUH7,
   JoystickAxes,
   Joysticks,
   Keys,

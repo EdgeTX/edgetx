@@ -1,6 +1,6 @@
 {
   "basedOn": [
-    "flexsw"
+    "flex_switches"
   ],
   "id": "mt12",
   "name": "MT12"

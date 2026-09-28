@@ -1,6 +1,6 @@
 {
   "basedOn": [
-    "flexsw"
+    "flex_switches"
   ],
   "id": "tx16s",
   "name": "TX16S"

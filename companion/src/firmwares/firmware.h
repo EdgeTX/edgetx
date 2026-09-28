@@ -104,6 +104,7 @@ class Firmware : public JsonBase
       Limits        globalFuncs       {CPN_MAX_SPECIAL_FUNCTIONS, 0};
       Limits        gvars             {CPN_MAX_GVARS, 3};
       Limits        inputs            {CPN_MAX_INPUTS, 4};
+      bool          lcdtoVideo        {false};
       Limits        logicalSW         {CPN_MAX_LOGICAL_SWITCHES, 3};
       LuaScripts    luaScripts;
       int           maxKeyShortcuts   {6};                        // MAX_KEYSHORTCUTS;

@@ -431,6 +431,9 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "inputs")
       loadGroup(it, m_defn.inputs, CPN_MAX_INPUTS, 3);
 
+    else if (it.key() == "lcdtoVideo")
+      m_defn.lcdtoVideo = getValueBool(it, m_defn.lcdtoVideo);
+
     else if (it.key() == "keyShortcuts")
       m_defn.maxKeyShortcuts = getValueInt(it);
 

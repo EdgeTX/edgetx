@@ -394,28 +394,32 @@ class Board : public JsonBase
       std::string cpu                   = "unknown";
       std::string cpu_type              = "unknown";
       bool hasKeyLockCombo              = false;
+      bool haptic                       = false;
+      bool statusLeds                   = false;
 
       // these sourced from board definitions
       Battery battery;
       bool auxSerialMode                = false;
       bool aux2SerialMode               = false;
       int backlightLevelMin             = 0;
-      bool bluetooth                    = false;
       std::string bluetoothName         = "unknown";
+      bool chargeWhileOn                = false;
       Contrast contrast;
+      bool stickDeadZone                = false;
       int defExtModSz                   = EXTMODSIZE_NONE;  // replace with extModules when Modules Refactored
       int eepromSize                    = 0;
       bool externalAntenna              = false;
       int flashSize                     = 0;
       int fourCC                        = 0;
       bool hardwareAntennaSwitch        = false;
+      bool hats                         = false;
       bool imu                          = false;
       bool internalGPS                  = false;
       Modules intModules;
       Modules extModules;
       int maxVolume                     = 0;
-      bool pwrButtonPress               = true;
-      bool rotaryEncNav                 = true;
+      bool pwrButtonPress               = false;
+      bool rotaryEncNav                 = false;
       bool softwareSerialPower          = false;
       bool switchableJack               = false;
       int  trainerModule                = Board::TR_MOD_TYPE_NONE;
@@ -583,6 +587,7 @@ class Board : public JsonBase
     void loadBattery(QJsonObject::const_iterator & it);
     void loadContrast(QJsonObject::const_iterator & it);
     void loadDisplay(QJsonObject::const_iterator & it);
+    void loadHaptic(QJsonObject::const_iterator & it);
     void loadHardware(QJsonObject::const_iterator & it);
     void loadInputs(QJsonObject::const_iterator & it);
     void loadExtModules(QJsonObject::const_iterator & it);

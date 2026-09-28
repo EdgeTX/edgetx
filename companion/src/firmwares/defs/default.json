@@ -48,6 +48,7 @@
     "max": 32,
     "name": 4
   },
+  "lcdtoVideo": false,
   "logicalSw": {
     "comments": "",
     "max": 40,

@@ -309,6 +309,9 @@ int Board::getCapability(const Capability capability) const
       return getCapability(Capability::HasExternalModuleSupport) ?
              m_hardware.defExtModSz : Board::EXTMODSIZE_NONE;
 
+    case Capability::Haptic:
+      return m_hardware.haptic;
+
     case Capability::HasAuxSerialMode:
       return m_hardware.auxSerialMode;
 
@@ -316,7 +319,7 @@ int Board::getCapability(const Capability capability) const
       return m_hardware.aux2SerialMode;
 
     case Capability::HasBluetooth:
-      return m_hardware.bluetooth;
+      return !m_hardware.bluetoothName.empty();
 
     case Capability::HasExternalAntenna:
       return m_hardware.externalAntenna;
@@ -424,13 +427,13 @@ int Board::getCapability(const Capability capability) const
     case Capability::InputSwitches:
       return m_inputCnt.switches;
 
-    case Capability::IsF4:
+    case Capability::HasCPUF4:
       return m_hardware.cpu_type == "STM32F4";
 
-    case Capability::IsH5:
+    case Capability::HasCPUH5:
       return m_hardware.cpu_type == "STM32H5";
 
-    case Capability::IsH7:
+    case Capability::HasCPUH7:
       return m_hardware.cpu_type == "STM32H7";
 
     case Capability::JoystickAxes:
@@ -1342,16 +1345,22 @@ bool Board::loadDefinition(const QString & path)
       loadDisplay(it);
 
     else if (it.key() == "haptic")
-      continue;
+      loadHaptic(it);
 
     else if (it.key() == "hardware")
       loadHardware(it);
+
+    else if (it.key() == "imu")
+      m_hardware.imu = true;
 
     else if (it.key() == "keys")
       loadKeys(it);
 
     else if (it.key() == "leds")
       loadLEDS(it);
+
+    else if (it.key() == "rotenc")
+      m_hardware.rotaryEncNav = true;
 
     else if (it.key() == "switches")
       loadSwitches(it);
@@ -1383,8 +1392,8 @@ bool Board::loadDefinition(const QString & path)
     else if (it.key() == "aux2SerialMode")
       m_hardware.aux2SerialMode = getValueBool(it, m_hardware.aux2SerialMode);
 
-    else if (it.key() == "bluetooth")
-      m_hardware.bluetooth = getValueBool(it, m_hardware.bluetooth);
+    else if (it.key() == "bluetoothName")
+      m_hardware.bluetoothName = getValueStdString(it, m_hardware.bluetoothName);
 
     else if (it.key() == "externalAntenna")
       m_hardware.externalAntenna = getValueBool(it, m_hardware.externalAntenna);
@@ -1392,14 +1401,17 @@ bool Board::loadDefinition(const QString & path)
     else if (it.key() == "hardwareAntennaSwitch")
       m_hardware.hardwareAntennaSwitch = getValueBool(it, m_hardware.hardwareAntennaSwitch);
 
-    else if (it.key() == "imu")
-      m_hardware.imu = getValueBool(it, m_hardware.imu);
+    else if (it.key() == "hats")
+      m_hardware.hats = getValueBool(it, m_hardware.hats);
 
     else if (it.key() == "internalGPS")
       m_hardware.internalGPS = getValueBool(it, m_hardware.internalGPS);
 
     else if (it.key() == "softwareSerialPower")
       m_hardware.softwareSerialPower = getValueBool(it, m_hardware.softwareSerialPower);
+
+    else if (it.key() == "stickDeadZone")
+      m_hardware.stickDeadZone = getValueBool(it, m_hardware.stickDeadZone);
 
     else if (it.key() == "switchableJack")
       m_hardware.switchableJack = getValueBool(it, m_hardware.switchableJack);
@@ -1498,6 +1510,19 @@ void Board::loadContrast(QJsonObject::const_iterator & oit)
     }
   } else
         qWarning() << "Warning: contrast is not an object" << *oit;
+}
+
+void Board::loadHaptic(QJsonObject::const_iterator & oit)
+{
+  if (oit->isObject()) {
+    const QJsonObject &o = oit->toObject();
+
+    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      if (it.key() == "haptic_pwm")
+        m_hardware.haptic = getValueBool(it, m_hardware.haptic);
+    }
+  } else
+        qWarning() << "Warning: haptic is not an object" << *oit;
 }
 
 void Board::loadInputs(QJsonObject::const_iterator & oit)
@@ -1784,6 +1809,9 @@ void Board::loadLEDS(QJsonObject::const_iterator & it)
 
       else if (it.key() == "cfs_led_strip_length")
         cfs_led_strip_length = getValueInt(it, 0);
+
+      else if (it.key() == "status_leds")
+        m_hardware.statusLeds = getValueBool(it, m_hardware.statusLeds);
 
       else
         qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();

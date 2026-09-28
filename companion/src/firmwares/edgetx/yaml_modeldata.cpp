@@ -1525,7 +1525,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   }
 
   // v2.12 CRSF limit external module to 3.75M for older boards
-  if (board->getCapability(Capability::IsF4) &&
+  if (board->getCapability(Capability::HasCPUF4) &&
       rhs.moduleData[1].protocol == PULSES_CROSSFIRE &&
       rhs.moduleData[1].crsf.telemetryBaudrate > 4)
     rhs.moduleData[1].crsf.telemetryBaudrate = 4;

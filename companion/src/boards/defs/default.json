@@ -39,8 +39,8 @@
   "auxSerialMode": false,
   "aux2SerialMode":false,
   "backlightLevelMin": 0,
-  "bluetooth": false,
   "bluetoothName": "unknown",
+  "chargeWhileOn": false,
   "contrast": {
     "min": 0,
     "max": 0
@@ -51,12 +51,14 @@
   "flashSize": 0,
   "fourCC": 0,
   "hardwareAntennaSwitch": false,
+  "hats": false,
   "imu": false,
   "internalGPS": false,
   "maxVolume": 0,
   "pwrButtonPress": true,
   "rotaryEncNav": true,
   "softwareSerialPower": false,
+  "stickDeadZone": false,
   "switchableJack": false,
   "trainerModule": "none",
   "vcpSerialMode": false

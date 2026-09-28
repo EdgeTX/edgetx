@@ -613,7 +613,7 @@ AbstractStaticItemModel * ModuleData::telemetryBaudrateItemModel(unsigned int pr
   for (int i = 0; i < moduleBaudratesList.size(); i++) {
     // CRSF limit external module to 3.75M for older boards
     if (protocol == PULSES_CROSSFIRE && moduleIdx == 1 &&
-        board->getCapability(Capability::IsF4) &&
+        board->getCapability(Capability::HasCPUF4) &&
         i > 4) break;
 
     if (protocol == PULSES_GHOST && i >= 2) break;
