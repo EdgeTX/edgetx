@@ -447,7 +447,7 @@ void PrefsProfilePanel::sectionNewFile()
   AutoLabel *lblModuleInternal = new AutoLabel(this, tr("Default Internal Module"));
   layNewFile->addWidget(lblModuleInternal, row, col++);
   cboModuleInternal = new AutoComboBox(this);
-  cboModuleInternal->setModel(ModuleData::internalModuleItemModel());
+  cboModuleInternal->setModel(ModuleData::internalModuleItemModel(board));
   cboModuleInternal->setValue(profile.defaultInternalModule());
   cboModuleInternal->setBindSave([this] {
     profile.defaultInternalModule(this->cboModuleInternal->currentData().toInt());
@@ -518,11 +518,27 @@ void PrefsProfilePanel::sectionSplash()
 // slot not used due to risk of Qt events not being processed in required sequence
 void PrefsProfilePanel::onRadioChanged(Firmware * firmware, bool deferUpdate)
 {
+  const Board::Type prevBoard = board;
   PrefsPanel::onRadioChanged(firmware, true);
   fwTypeData->setText(firmware->getFirmwareBase()->getId());
   populateFirmwareOptions();
   panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
                                                                                           GeneralSettings::RadioTypeContextSurface);
+
+  if (board != prevBoard) {
+    // module choices and defaults depend on the radio; restore the saved
+    // profile values if changing back to the profile's radio
+    const bool profileBoard = (board == getCurrentBoard());
+
+    QAbstractItemModel *oldModel = cboModuleInternal->model();
+    cboModuleInternal->setModel(ModuleData::internalModuleItemModel(board));
+    delete oldModel;
+    cboModuleInternal->setValue(profileBoard ? profile.defaultInternalModule()
+                                             : Boards::getDefaultInternalModules(board));
+    cboModuleExternal->setValue(profileBoard ? profile.externalModuleSize()
+                                             : Boards::getDefaultExternalModuleSize(board));
+  }
+
   update();
 }
 
