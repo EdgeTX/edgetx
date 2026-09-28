@@ -1146,15 +1146,10 @@ bool isExternalModuleAvailable(int moduleType)
     return false;
 #endif
 
-#if !defined(AFHDS2)
+  // AFHDS2A is the NV14 internal RF chip protocol: no external module
+  // speaks it and the driver only supports the internal module
   if (moduleType == MODULE_TYPE_FLYSKY_AFHDS2A)
     return false;
-#endif
-  
-#if !defined(AFHDS3)
-  if (moduleType == MODULE_TYPE_FLYSKY_AFHDS3)
-    return false;
-#endif
 
   return true;
 }
