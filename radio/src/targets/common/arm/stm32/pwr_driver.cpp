@@ -95,19 +95,6 @@ void pwrInit()
 #if defined(AUX2_SERIAL_PWR_GPIO)
   gpio_init(AUX2_SERIAL_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
-
-// // --- ADD THIS CUSTOM BOOT TRAP HERE ---
-//   // Trap the MCU here until the user presses the power button.
-//   // This prevents EdgeTX from entering its default shutdown loop.
-//   while (!pwrPressed()) {
-//       // Loop endlessly. The screen stays dark and the board waits.
-//       // Note: If your custom board initializes a Watchdog Timer (WDT) 
-//       // prior to this function, you must add your WDT reset command here.
-//   }
-
-//   // The user pressed the button. Latch the soft-power and proceed.
-//   pwrOn();
-
 }
 
 void pwrOn()

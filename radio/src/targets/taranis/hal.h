@@ -1934,7 +1934,7 @@
 #elif defined(RADIO_V14) || defined(RADIO_V14LCD)
   #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 1)  // PD.01
   #define PWR_ON_GPIO                   GPIO_PIN(GPIOB, 2)  // PB.02
-#elif !defined(RADIO_GAJS)
+#else
   #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 1)  // PD.01
   #define PWR_ON_GPIO                   GPIO_PIN(GPIOD, 0)  // PD.00
 #endif
