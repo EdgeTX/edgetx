@@ -124,8 +124,10 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define TRIMS_GPIO_PIN_RHR            LL_GPIO_PIN_10 // PD.10
 
 // Switches
-#define SWITCHES_GPIO_REG_A           GPIOE
-#define SWITCHES_GPIO_PIN_A           LL_GPIO_PIN_13 // PE.13
+#define SWITCHES_GPIO_REG_A_L         GPIOD
+#define SWITCHES_GPIO_PIN_A_L         LL_GPIO_PIN_4   // PD.04
+#define SWITCHES_GPIO_REG_A_H         GPIOE
+#define SWITCHES_GPIO_PIN_A_H         LL_GPIO_PIN_13  // PE.13
 #define SWITCHES_GPIO_REG_B_L         GPIOD
 #define SWITCHES_GPIO_PIN_B_L         LL_GPIO_PIN_1   // PD.01
 #define SWITCHES_GPIO_REG_B_H         GPIOD
