@@ -9,6 +9,7 @@ concurrency:
   group: 'nightly'
   cancel-in-progress: true
 
+# each target uses one of the 20 runners available, keep grouped to manage concurrency
 jobs:
   build:
     name: Build firmware
@@ -16,32 +17,14 @@ jobs:
     strategy:
       matrix:
         target:
-          - nv14;el18
-          - pl18;pl18ev;pl18u
-          - pa01
-          - t12max
-          - t15;t16;t18;t22
-          - zorro;pocket;mt12;commando8
-          - tprov2;tpros;bumblebee
-          - t20;t20v2;t14
-          - tx12mk2;boxer;gx12
-          - tx16s
-          - tx16smk3
-          - f16
-          - v14;v14lcd;v16
-          - x10;x10express
-          - x12s
-          - x7access
-          - x9dp2019
-          - x9e
-          - mt12
-          - nb4p
-          - st16
-          - c14
-          - tx15;gx15
-          - t15pro
-          - v12
-          - h17
+          - f16 # Fatfish
+          - el18;nb4p;nv14;pa01;pl18;pl18ev;pl18u;st16 # Flysky
+          - x10;x10express;x12s;x7access;x9dp2019;x9e # FrSky
+          - v12;v14;v14lcd;v16 # HelloRadioSky
+          - c14;commando8 # iFlight
+          - bumblebee;t12max;t14;t15;t15pro;t16;t18;t20;t20v2;t22;tpros;tprov2 # Jumper
+          - boxer;gx12;gx15;mt12;pocket;tx12mk2;tx15;tx16s;tx16smk3;zorro # RadioMaster
+          - h17 # Senduwing
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:

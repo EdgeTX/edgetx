@@ -21,36 +21,32 @@ jobs:
   test:
     name: Run tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     if: |
       github.event_name != 'pull_request' ||
       !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw')
     strategy:
       matrix:
+        # each target uses one of the 20 runners available, keep grouped to manage concurrency
         target:
-          - x9dp2019;x9e
-          - tx15
-          - tx16s
-          - tx16smk3
-          - nv14
-          - el18
-          - pl18
-          - pl18ev
-          - t12max;t14
-          - t15
-          - t16
-          - t18
-          - t20;t20v2
-          - x10
-          - x12s
-          - mt12;gx12
-          - nb4p
-          - st16
-          - t15pro
-          - pa01
-          - t22
-          - c14
-          - v12
-          - h17
+          - el18;nv14 # Flysky
+          - nb4p;pa01 # Flysky
+          - pl18;pl18ev # Flysky
+          - st16 # Flysky
+          - x9dp2019;x9e # FrSky
+          - x10 # FrSky
+          - x12s # FrSky
+          - v12 # HelloRadioSky
+          - c14 # iFlight
+          - t12max;t14 # Jumper
+          - t15;t15pro # Jumper
+          - t16;t18 # Jumper
+          - t20;t20v2 # Jumper
+          - t22 # Jumper
+          - gx12;mt12 # RadioMaster
+          - tx15 # RadioMaster
+          - tx16s;tx16smk3 # RadioMaster
+          - h17 # Senduwing
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -78,28 +74,26 @@ jobs:
       !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw')
     strategy:
       matrix:
+        # each target uses one of the 20 runners available, keep grouped to manage concurrency
         target:
-          - nv14;el18
-          - pl18;pl18ev
-          - pl18u;pa01
-          - t15;t16
-          - t14;t18;mt12
-          - zorro;pocket;commando8
-          - tprov2;tpros;bumblebee
-          - mt12;gx12;t20;t20v2
-          - t12max;tx12mk2;boxer
-          - tx16s
-          - tx15;gx15
-          - x12s;f16
-          - v14;v14lcd;v16
-          - x10;x10express
-          - x7access;x9dp2019;x9e
-          - nb4p;st16
-          - tx16smk3;t14;t15pro
-          - t22
-          - c14
-          - v12
-          - h17
+          - f16 # Fatfish
+          - el18;nv14 # Flysky
+          - nb4p;pa01;st16 # Flysky
+          - pl18;pl18ev;pl18u # Flysky
+          - x10;x10express;x12s # FrSky
+          - x7access;x9dp2019;x9e # FrSky
+          - v12;v14 # HelloRadioSky
+          - v14lcd;v16 # HelloRadioSky
+          - c14;commando8 # iFlight
+          - bumblebee;t12max;t14 # Jumper
+          - t15;t15pro;t16 # Jumper
+          - t18;t20;t20v2 # Jumper
+          - t22;tpros;tprov2 # Jumper
+          - boxer;gx12;gx15 # RadioMaster
+          - mt12;pocket;tx12mk2 # RadioMaster
+          - tx15;tx16s;tx16smk3 # RadioMaster
+          - zorro # RadioMaster
+          - h17 # Senduwing
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
