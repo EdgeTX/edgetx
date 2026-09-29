@@ -38,7 +38,7 @@ void task_create(task_handle_t* h, task_func_t func, const char* name,
 unsigned task_get_stack_usage(task_handle_t* h);
 unsigned task_get_stack_size(task_handle_t* h);
 
-// MCU load in % over the last >= 500 ms, -1 if not supported
+// CPU load in % over the last >= 500 ms, -1 if not supported
 int task_get_cpu_load();
 
 bool scheduler_is_running();

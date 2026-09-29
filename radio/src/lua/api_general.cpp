@@ -2246,11 +2246,11 @@ static int luaGetAvailableMemory(lua_State * L)
 /*luadoc
 @function getCpuLoad()
 
-Get the MCU load: the share of time the processor was not running the idle task.
+Get the CPU load: the share of time the processor was not running the idle task.
 
 @retval load (number) a value from 0 to 100 (percent), averaged over the last 500 ms or more (since the previous update); nil in the simulator
 
-@notice Interrupts are counted against the task they interrupt, so interrupts that occur while the MCU is idle count as idle time.
+@notice Interrupts are counted against the task they interrupt, so interrupts that occur while the CPU is idle count as idle time.
 
 @status current Introduced in 3.0.0
 */

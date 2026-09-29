@@ -602,7 +602,7 @@ Get the UI rendering rate and load, the same figures as the `UI_PERF_MONITOR` ov
 
 @retval fps,taskload (integers) `fps` is the LVGL render rate averaged over 300 ms, capped at the display refresh rate (about 33); frames that redraw 5000 pixels or fewer are not counted, so a static screen reports the cap. `taskload` is the percentage of time spent in LVGL's timer handler (rendering, including `lcd` drawing), averaged over 500 ms.
 
-@notice `taskload` does not include time spent in a widget's `refresh()`, the mixer or other tasks, so it is not the total MCU load.
+@notice `taskload` does not include time spent in a widget's `refresh()`, the mixer or other tasks, so it is not the total CPU load.
 
 @status current Introduced in 3.0.0
 */
