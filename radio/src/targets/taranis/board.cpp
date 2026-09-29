@@ -181,7 +181,7 @@ void boardInit()
 // TODO: needs refactoring if any other manufacturer implements either of the following:
 // - function switches and the radio supports charging
 // - single USB for data + charge which powers on radio
-#if defined(MANUFACTURER_JUMPER) && !defined(USB_CHARGE_LED)
+#if defined(MANUFACTURER_JUMPER) /*|| defined(RADIO_GAJS)*/ && !defined(USB_CHARGE_LED)
   if (usbPlugged()) {
     adcInit(&_adc_driver);
     getADC();

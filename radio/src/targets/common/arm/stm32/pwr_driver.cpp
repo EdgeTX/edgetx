@@ -121,7 +121,7 @@ bool pwrForcePressed()
 
 bool pwrPressed()
 {
-#if defined(RADIO_C14) && defined(DEBUG_SEGGER_RTT) && defined(RADIO_GAJS)
+#if defined(RADIO_C14) && defined(DEBUG_SEGGER_RTT)
   // Required to allow powering with USB the MCU for RTT flashing
   // and not have the radio turn itself off on power on
   if (usbPlugged()) {
