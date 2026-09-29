@@ -198,6 +198,134 @@ TEST(Lua, Switches)
 #endif
 }
 
+// Defines rtMix() / rtInput(): insert a line on channel / input 0 with the
+// given fields, read it back, delete it, and check the stored values.
+static void luaDefineRoundTrip()
+{
+  luaExecStr(
+      "local function check(l, expect)\n"
+      "  if l == nil then error('line not inserted') end\n"
+      "  for k, v in pairs(expect) do\n"
+      "    if l[k] ~= v then\n"
+      "      error(k .. ': expected ' .. tostring(v) .. ' got ' .. tostring(l[k]))\n"
+      "    end\n"
+      "  end\n"
+      "end\n"
+      "function rtMix(fields, expect)\n"
+      "  model.insertMix(0, 0, fields)\n"
+      "  local l = model.getMix(0, 0)\n"
+      "  model.deleteMix(0, 0)\n"
+      "  check(l, expect or fields)\n"
+      "end\n"
+      "function rtInput(fields, expect)\n"
+      "  model.insertInput(0, 0, fields)\n"
+      "  local l = model.getInput(0, 0)\n"
+      "  model.deleteInput(0, 0)\n"
+      "  check(l, expect or fields)\n"
+      "end\n");
+}
+
+static std::string luaCurveRoundTrips(const char* rt)
+{
+  std::string fn(rt);
+  std::string s;
+  // DIFF and EXPO: -100..100, or a source
+  s += "for t = 0, 1 do\n"
+       "  for v = -100, 100 do " + fn + "({curveType = t, curveValue = v}) end\n"
+       "  " + fn + "({curveType = t, curveValue = 1025})\n"
+       "  " + fn + "({curveType = t, curveValue = -1025})\n"
+       "end\n";
+  // FUNC: 0..CURVE_BASE-1
+  s += "for v = 0, " + std::to_string(CURVE_BASE - 1) + " do " + fn +
+       "({curveType = 2, curveValue = v}) end\n";
+  // CUSTOM: -MAX_CURVES..MAX_CURVES
+  s += "for v = -" + std::to_string(MAX_CURVES) + ", " +
+       std::to_string(MAX_CURVES) + " do " + fn +
+       "({curveType = 3, curveValue = v}) end\n";
+  return s;
+}
+
+static std::string luaSwitchRoundTrips(const char* rt)
+{
+  return "for v = " + std::to_string(SWSRC_FIRST) + ", " +
+         std::to_string(SWSRC_LAST) + " do " + rt + "({switch = v}) end\n";
+}
+
+static std::string luaInvalidRoundTrips(const char* rt)
+{
+  std::string fn(rt);
+  std::string last = std::to_string(SWSRC_LAST);
+  std::string s;
+  // out of range switches are stored as no switch
+  for (auto sw : {last + " + 1", "-(" + last + " + 1)", std::string("100000"),
+                  std::string("-100000")}) {
+    s += fn + "({switch = " + sw + "}, {switch = 0})\n";
+  }
+  // invalid curve function values are reset to none
+  for (auto v : {std::to_string(CURVE_BASE), std::string("-1"),
+                 std::string("511"), std::string("1025")}) {
+    s += fn + "({curveType = 2, curveValue = " + v +
+         "}, {curveType = 2, curveValue = 0})\n";
+  }
+  // invalid custom curve values are reset to none
+  for (auto v : {std::to_string(MAX_CURVES + 1),
+                 "-" + std::to_string(MAX_CURVES + 1), std::string("100"),
+                 std::string("1025")}) {
+    s += fn + "({curveType = 3, curveValue = " + v +
+         "}, {curveType = 3, curveValue = 0})\n";
+  }
+  // unknown curve types reset the curve
+  for (auto t : {"4", "31"}) {
+    s += fn + "({curveType = " + std::string(t) +
+         ", curveValue = 5}, {curveType = 0, curveValue = 0})\n";
+  }
+  return s;
+}
+
+TEST(Lua, insertMixValidValues)
+{
+  MODEL_RESET();
+  luaDefineRoundTrip();
+
+  luaExecStr("for v = 0, 2 do rtMix({multiplex = v}) end");
+  luaExecStr(luaSwitchRoundTrips("rtMix").c_str());
+  luaExecStr(luaCurveRoundTrips("rtMix").c_str());
+  luaExecStr("if model.getMixesCount(0) ~= 0 then error('lines left') end");
+}
+
+TEST(Lua, insertMixInvalidValues)
+{
+  MODEL_RESET();
+  luaDefineRoundTrip();
+
+  // out of range multiplex values are stored as ADD
+  for (auto v : {"3", "-1", "5", "100"}) {
+    luaExecStr((std::string("rtMix({multiplex = ") + v +
+                "}, {multiplex = 0})").c_str());
+  }
+  luaExecStr(luaInvalidRoundTrips("rtMix").c_str());
+  luaExecStr("if model.getMixesCount(0) ~= 0 then error('lines left') end");
+}
+
+TEST(Lua, insertInputValidValues)
+{
+  MODEL_RESET();
+  luaDefineRoundTrip();
+
+  luaExecStr(luaSwitchRoundTrips("rtInput").c_str());
+  luaExecStr(luaCurveRoundTrips("rtInput").c_str());
+  luaExecStr("if model.getInputsCount(0) ~= 0 then error('lines left') end");
+}
+
+TEST(Lua, insertInputInvalidValues)
+{
+  MODEL_RESET();
+  luaDefineRoundTrip();
+
+  luaExecStr(luaInvalidRoundTrips("rtInput").c_str());
+  luaExecStr("if model.getInputsCount(0) ~= 0 then error('lines left') end");
+}
+
 TEST(Lua, testFloatIntegerEquality)
 {
   // 0.5 is not an integer, so it must not equal 0 (regression #7587)
