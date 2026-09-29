@@ -1809,7 +1809,7 @@ itself is not passed on as input.
 static int luaGetTouchEnabled(lua_State * L)
 {
 #if defined(HARDWARE_TOUCH)
-#if !defined(SIMU) && defined(HAS_TOUCH_PANEL)
+#if !defined(SIMU) && defined(TP_GT911)
   // touch panel is optional on some boards (e.g. X10 / X12S)
   if (!HAS_TOUCH_PANEL()) {
     lua_pushnil(L);
