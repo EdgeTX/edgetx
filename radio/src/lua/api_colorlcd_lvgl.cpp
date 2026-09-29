@@ -600,18 +600,18 @@ static int luaLvglGetScrollPos(lua_State *L)
 
 Get the UI rendering rate and load, the same figures as the `UI_PERF_MONITOR` overlay, without drawing anything on screen.
 
-@retval fps,cpu (integers) `fps` is the LVGL render rate averaged over 300 ms, capped at the display refresh rate (about 33); frames that redraw 5000 pixels or fewer are not counted, so a static screen reports the cap. `cpu` is the percentage of time spent in LVGL's timer handler (rendering, including `lcd` drawing), averaged over 500 ms.
+@retval fps,taskload (integers) `fps` is the LVGL render rate averaged over 300 ms, capped at the display refresh rate (about 33); frames that redraw 5000 pixels or fewer are not counted, so a static screen reports the cap. `taskload` is the percentage of time spent in LVGL's timer handler (rendering, including `lcd` drawing), averaged over 500 ms.
 
-@notice `cpu` does not include time spent in a widget's `refresh()`, the mixer or other tasks, so it is not the total MCU load.
+@notice `taskload` does not include time spent in a widget's `refresh()`, the mixer or other tasks, so it is not the total MCU load.
 
 @status current Introduced in 3.0.0
 */
 static int luaLvglGetPerf(lua_State *L)
 {
-  uint32_t fps, cpu;
-  lcdGetPerfStats(fps, cpu);
+  uint32_t fps, taskload;
+  lcdGetPerfStats(fps, taskload);
   lua_pushinteger(L, fps);
-  lua_pushinteger(L, cpu);
+  lua_pushinteger(L, taskload);
   return 2;
 }
 

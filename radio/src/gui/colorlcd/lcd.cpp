@@ -138,11 +138,11 @@ static void perfMonitorCb(lv_disp_drv_t* disp_drv, uint32_t time, uint32_t px)
   }
 }
 
-void lcdGetPerfStats(uint32_t& fps, uint32_t& cpu)
+void lcdGetPerfStats(uint32_t& fps, uint32_t& taskload)
 {
   perfUpdate();
   fps = perf_fps;
-  cpu = 100 - lv_timer_get_idle();
+  taskload = 100 - lv_timer_get_idle();
 }
 
 static void clear_frame_buffers()
