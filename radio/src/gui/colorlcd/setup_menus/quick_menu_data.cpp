@@ -71,14 +71,7 @@ const PageDef modelMenuItems[] = {
 };
 
 const PageDef radioMenuItems[] = {
-#if VERSION_MAJOR == 2
-  { ICON_TOOLS_APPS, STR_DEF(STR_QM_APPS), STR_DEF(STR_MAIN_MENU_APPS), PAGE_CREATE, QM_TOOLS_APPS, [](const PageDef& pageDef) { return new RadioToolsPage(pageDef); }},
-  { ICON_RADIO_SD_MANAGER, STR_DEF(STR_QM_STORAGE), STR_DEF(STR_SD_CARD), PAGE_CREATE, QM_TOOLS_STORAGE, [](const PageDef& pageDef) { return new RadioSdManagerPage(pageDef); }},
-#endif
   { ICON_RADIO_SETUP, STR_DEF(STR_QM_RADIO_SETTINGS), STR_DEF(STR_MAIN_RADIO_SETTINGS), PAGE_CREATE, QM_RADIO_SETUP, [](const PageDef& pageDef) { return new RadioSetupPage(pageDef); }},
-#if VERSION_MAJOR == 2
-  { ICON_RADIO_EDIT_THEME, STR_DEF(STR_QM_THEMES), STR_DEF(STR_MAIN_MENU_THEMES), PAGE_CREATE, QM_UI_THEMES, [](const PageDef& pageDef) { return new ThemeSetupPage(pageDef); }, radioThemesEnabled},
-#endif
   { ICON_RADIO_GLOBAL_FUNCTIONS, STR_DEF(STR_QM_GLOB_FUNC), STR_DEF(STR_MENUSPECIALFUNCS), PAGE_CREATE, QM_RADIO_GF, [](const PageDef& pageDef) { return new GlobalFunctionsPage(pageDef); }, radioGFEnabled},
   { ICON_RADIO_TRAINER, STR_DEF(STR_QM_TRAINER), STR_DEF(STR_MENUTRAINER), PAGE_CREATE, QM_RADIO_TRAINER, [](const PageDef& pageDef) { return new RadioTrainerPage(pageDef); }, radioTrainerEnabled},
   { ICON_RADIO_HARDWARE, STR_DEF(STR_QM_HARDWARE), STR_DEF(STR_HARDWARE), PAGE_CREATE, QM_RADIO_HARDWARE, [](const PageDef& pageDef) { return new RadioHardwarePage(pageDef); }},
@@ -87,9 +80,7 @@ const PageDef radioMenuItems[] = {
 };
 
 const PageDef screensMenuItems[] = {
-#if VERSION_MAJOR > 2
   { ICON_RADIO_EDIT_THEME, STR_DEF(STR_QM_THEMES), STR_DEF(STR_MAIN_MENU_THEMES), PAGE_CREATE, QM_UI_THEMES, [](const PageDef& pageDef) { return new ThemeSetupPage(pageDef); }, radioThemesEnabled},
-#endif
   { ICON_THEME_SETUP, STR_DEF(STR_QM_TOP_BAR), STR_DEF(STR_USER_INTERFACE), PAGE_CREATE, QM_UI_SETUP, [](const PageDef& pageDef) { return new ScreenUserInterfacePage(pageDef); }},
   { ICON_THEME_VIEW1, STR_DEF(STR_QM_SCREEN_1), STR_DEF(STR_MAIN_VIEW_1), PAGE_CREATE, QM_UI_SCREEN1, [](const PageDef& pageDef) { return new ScreenSetupPage(0, pageDef); }},
   { ICON_THEME_VIEW2, STR_DEF(STR_QM_SCREEN_2), STR_DEF(STR_MAIN_VIEW_2), PAGE_CREATE, QM_UI_SCREEN2, [](const PageDef& pageDef) { return new ScreenSetupPage(1, pageDef); }, []() { return customScreens[1] != nullptr; }},
@@ -101,51 +92,9 @@ const PageDef screensMenuItems[] = {
   { ICON_THEME_VIEW8, STR_DEF(STR_QM_SCREEN_8), STR_DEF(STR_MAIN_VIEW_8), PAGE_CREATE, QM_UI_SCREEN8, [](const PageDef& pageDef) { return new ScreenSetupPage(7, pageDef); }, []() { return customScreens[7] != nullptr; }},
   { ICON_THEME_VIEW9, STR_DEF(STR_QM_SCREEN_9), STR_DEF(STR_MAIN_VIEW_9), PAGE_CREATE, QM_UI_SCREEN9, [](const PageDef& pageDef) { return new ScreenSetupPage(8, pageDef); }, []() { return customScreens[8] != nullptr; }},
   { ICON_THEME_VIEW10, STR_DEF(STR_QM_SCREEN_10), STR_DEF(STR_MAIN_VIEW_10), PAGE_CREATE, QM_UI_SCREEN10, [](const PageDef& pageDef) { return new ScreenSetupPage(9, pageDef); }, []() { return customScreens[9] != nullptr; }},
-#if VERSION_MAJOR == 2
-  { ICON_THEME_ADD_VIEW, STR_DEF(STR_QM_ADD_SCREEN), STR_DEF(STR_QM_ADD_SCREEN), PAGE_CREATE, QM_UI_ADD_PG, [](const PageDef& pageDef) { return new ScreenAddPage(pageDef); }, []() { return customScreens[9] == nullptr; }},
-#else
   { ICON_THEME_ADD_VIEW, STR_DEF(STR_QM_ADD_SCREEN), STR_DEF(STR_QM_ADD_SCREEN), PAGE_ACTION, QM_UI_ADD_PG, nullptr, []() { return customScreens[9] == nullptr; }, []() { ScreenSetupPage::addScreen(); } },
-#endif
   { EDGETX_ICONS_COUNT }
 };
-
-#if VERSION_MAJOR == 2
-
-const PageDef statsMenuItems[] = {
-  { ICON_STATS, STR_DEF(STR_QM_STATS), STR_DEF(STR_MAIN_MENU_STATISTICS), PAGE_CREATE, QM_TOOLS_STATS, [](const PageDef& pageDef) { return new StatisticsViewPage(pageDef); }},
-  { ICON_STATS_DEBUG, STR_DEF(STR_QM_DEBUG), STR_DEF(STR_DEBUG), PAGE_CREATE, QM_TOOLS_DEBUG, [](const PageDef& pageDef) { return new DebugViewPage(pageDef); }},
-  { EDGETX_ICONS_COUNT }
-};
-
-const QMMainDef qmTopItems[] = {
-  { ICON_MODEL_SELECT, STR_DEF(STR_QM_MANAGE_MODELS), STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), QM_ACTION, QM_MANAGE_MODELS, nullptr, []() { new ModelLabelsWindow(); }},
-  { ICON_MODEL_NOTES, STR_DEF(STR_MAIN_MENU_MODEL_NOTES), STR_DEF(STR_MAIN_MENU_MODEL_NOTES), QM_ACTION, QM_NONE, nullptr, []() { QuickMenu::openPage(QM_MODEL_NOTES); }, modelHasNotes},
-  { ICON_MONITOR, STR_DEF(STR_QM_CHAN_MON), STR_DEF(STR_QM_CHAN_MON), QM_ACTION, QM_TOOLS_CHAN_MON, nullptr, []() { new ChannelsViewMenu(); }
-  },
-  { ICON_MODEL_SETUP, STR_DEF(STR_QM_MODEL_SETTINGS), STR_DEF(STR_MAIN_MODEL_SETTINGS), QM_ACTION, QM_NONE, nullptr, []() { QuickMenu::openPage(QM_MODEL_SETUP); }},
-  { ICON_RADIO_SETUP, STR_DEF(STR_QM_RADIO_SETTINGS), STR_DEF(STR_MAIN_RADIO_SETTINGS), QM_ACTION, QM_NONE, nullptr, []() { QuickMenu::openPage(QM_RADIO_SETUP); }},
-  { ICON_THEME, STR_DEF(STR_MAIN_MENU_SCREEN_SETTINGS), STR_DEF(STR_MAIN_MENU_SCREEN_SETTINGS), QM_ACTION, QM_NONE, nullptr, []() { QuickMenu::openPage(QM_UI_SCREEN1); }},
-  { ICON_TOOLS_RESET, STR_DEF(STR_QM_RESET), STR_DEF(STR_QM_RESET), QM_ACTION, QM_TOOLS_RESET, nullptr,
-    []() {
-      Menu* resetMenu = new Menu();
-      resetMenu->addLine(STR_RESET_SESSION, []() { flightReset(); });
-      resetMenu->addLine(STR_RESET_TIMER1, []() { timerReset(0); });
-      resetMenu->addLine(STR_RESET_TIMER2, []() { timerReset(1); });
-      resetMenu->addLine(STR_RESET_TIMER3, []() { timerReset(2); });
-      resetMenu->addLine(STR_RESET_TELEMETRY, []() { telemetryReset(); });
-    }
-  },
-  { ICON_STATS, STR_DEF(STR_QM_STATS), STR_DEF(STR_MAIN_MENU_STATISTICS), QM_ACTION, QM_NONE, nullptr, []() { QuickMenu::openPage(QM_TOOLS_STATS); }},
-  { ICON_RADIO_VERSION, STR_DEF(STR_QM_ABOUT), STR_DEF(STR_MAIN_MENU_ABOUT_EDGETX), QM_ACTION, QM_NONE, nullptr, []() { QuickMenu::openPage(QM_RADIO_VERSION); }},
-  // Not displayed - search / run only
-  { ICON_MODEL, STR_DEF(STR_QM_MODEL_SETUP), STR_DEF(STR_MAIN_MENU_MODEL_SETTINGS), QM_SUBMENU, QM_NONE, modelMenuItems},
-  { ICON_RADIO, STR_DEF(STR_QM_RADIO_SETUP), STR_DEF(STR_MAIN_MENU_RADIO_SETTINGS), QM_SUBMENU, QM_NONE, radioMenuItems},
-  { ICON_THEME, STR_DEF(STR_QM_UI_SETUP), STR_DEF(STR_MAIN_MENU_SCREEN_SETTINGS), QM_SUBMENU, QM_NONE, screensMenuItems},
-  { ICON_STATS, STR_DEF(STR_QM_STATS), STR_DEF(STR_MAIN_MENU_STATISTICS), QM_SUBMENU, QM_NONE, statsMenuItems},
-  { EDGETX_ICONS_COUNT }
-};
-
-#else
 
 PageDef favoritesMenuItems[] = {
   { EDGETX_ICONS_COUNT, nullptr, nullptr, PAGE_CREATE, QM_NONE, nullptr},
@@ -192,5 +141,3 @@ const QMMainDef qmTopItems[] = {
   { ICON_RADIO_TOOLS, STR_DEF(STR_QM_TOOLS), STR_DEF(STR_QM_TOOLS), QM_SUBMENU, QM_NONE, toolsMenuItems},
   { EDGETX_ICONS_COUNT }
 };
-
-#endif

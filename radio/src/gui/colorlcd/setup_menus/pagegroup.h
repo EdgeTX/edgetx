@@ -28,10 +28,6 @@
 class HeaderIcon;
 class PageGroupItem;
 class PageGroupBase;
-#if VERSION_MAJOR == 2
-class SelectedTabIcon;
-class PageGroupIconButton;
-#endif
 
 //-----------------------------------------------------------------------------
 
@@ -51,9 +47,7 @@ struct PageDef {
   std::function<void()> action;
 };
 
-#if VERSION_MAJOR > 2
 extern PageDef favoritesMenuItems[];
-#endif
 
 //-----------------------------------------------------------------------------
 
@@ -122,11 +116,6 @@ class PageGroupHeaderBase : public Window
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
   uint8_t tabCount() const { return pages.size(); }
 
-#if VERSION_MAJOR == 2
-  static LAYOUT_VAL_SCALED(ICON_EXTRA_H, 10)
-  static LAYOUT_VAL_SCALED(MENU_HEADER_BUTTON_WIDTH, 33)
-#endif
-
  protected:
   uint8_t currentIndex = 0;
   lv_obj_t* titleLabel = nullptr;
@@ -134,14 +123,6 @@ class PageGroupHeaderBase : public Window
   HeaderIcon* hdrIcon = nullptr;
   std::vector<PageGroupItem*> pages;
   PageGroupBase* menu;
-#if VERSION_MAJOR ==2
-  SelectedTabIcon* selectedIcon = nullptr;
-  Window* carousel = nullptr;
-  std::vector<PageGroupIconButton*> buttons;
-
-  coord_t getX(uint8_t idx);
-  void checkEvents() override;
-#endif
 };
 
 //-----------------------------------------------------------------------------
@@ -198,17 +179,10 @@ class PageGroup : public PageGroupBase
 
   PageGroupItem* getCurrentTab() const { return currentTab; }
 
-#if VERSION_MAJOR == 2
-  static LAYOUT_VAL_SCALED(PAGE_GROUP_TOP_BAR_H, 48)
-  static constexpr coord_t PAGE_GROUP_ALT_TITLE_H = EdgeTxStyles::STD_FONT_HEIGHT;
-  static constexpr coord_t PAGE_GROUP_BACK_BTN_W = 0;
-  static LAYOUT_VAL_SCALED(PAGE_GROUP_BACK_BTN_XO, 45)
-#else
   static LAYOUT_VAL_SCALED(PAGE_GROUP_TOP_BAR_H, 45)
   static constexpr coord_t PAGE_GROUP_ALT_TITLE_H = 0;
   static constexpr coord_t PAGE_GROUP_BACK_BTN_W = PAGE_GROUP_TOP_BAR_H;
   static constexpr coord_t PAGE_GROUP_BACK_BTN_XO = PAGE_GROUP_TOP_BAR_H;
-#endif
   static constexpr coord_t PAGE_GROUP_BODY_Y = PAGE_GROUP_TOP_BAR_H + PAGE_GROUP_ALT_TITLE_H;
 
  protected:
@@ -227,13 +201,8 @@ class TabsGroup : public PageGroupBase
 
   void hidePageButtons();
 
-#if VERSION_MAJOR == 2
-  static LAYOUT_VAL_SCALED(TABS_GROUP_TOP_BAR_H, 48)
-  static constexpr coord_t TABS_GROUP_ALT_TITLE_H = EdgeTxStyles::STD_FONT_HEIGHT;
-#else
   static LAYOUT_ORIENTATION_SCALED(TABS_GROUP_TOP_BAR_H, 45, 48)
   static LAYOUT_ORIENTATION(TABS_GROUP_ALT_TITLE_H, 0, EdgeTxStyles::STD_FONT_HEIGHT)
-#endif
   static constexpr coord_t TABS_GROUP_BODY_Y = TABS_GROUP_TOP_BAR_H + TABS_GROUP_ALT_TITLE_H;
 
  protected:
