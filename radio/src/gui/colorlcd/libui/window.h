@@ -192,6 +192,8 @@ class Window
 
   void closeWindow();
 
+  const std::list<Window*>& getChildren() const { return children; }
+
  protected:
   static std::list<Window *> trash;
   std::list<CloseHandler> closeHandlers;

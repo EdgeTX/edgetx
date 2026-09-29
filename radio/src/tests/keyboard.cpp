@@ -67,7 +67,7 @@ class KeyboardTestPage : public Page
   {
   // Send clicked event to page cancel button to close window
     Window *btn = nullptr;
-    for (auto c : children)
+    for (auto c : header->getChildren())
       if (c->left() == LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT && c->top() == 0) {
         btn = c;
         break;
