@@ -59,7 +59,6 @@ int QMMainDef::getIndex(QMPage n) const
 
 //-----------------------------------------------------------------------------
 
-#if VERSION_MAJOR > 2
 class QuickSubMenu
 {
  public:
@@ -223,7 +222,6 @@ class QuickSubMenu
   QuickMenuGroup* subMenu = nullptr;
   ButtonBase* menuButton = nullptr;
 };
-#endif
 
 //-----------------------------------------------------------------------------
 
@@ -280,22 +278,18 @@ QuickMenu::QuickMenu() :
 
   mainMenu = new QuickMenuGroup(box);
 
-#if VERSION_MAJOR > 2
   box = new Window(this, {QM_SUB_X, QM_SUB_Y, QM_SUB_W, QM_SUB_H});
 
   updateFavorites();
-#endif
 
   for (int i = 0; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
     if (qmTopItems[i].pageAction == QM_ACTION) {
       mainMenu->addButton(qmTopItems[i].icon, STR_VAL(qmTopItems[i].qmTitle),
                   [=]() { topMenuAction(i); }, qmTopItems[i].enabled);
-#if VERSION_MAJOR > 2
     } else {
       auto sub = new QuickSubMenu(box, this, &qmTopItems[i]);
       sub->addButton();
       subMenus.emplace_back(sub);
-#endif
     }
   }
 
@@ -308,12 +302,7 @@ void QuickMenu::openQM(PageGroupBase* newPageGroup, QMPage newCurPage)
 {
   pushLayer();
 
-#if VERSION_MAJOR == 2
-  curPage = QM_NONE;
-#endif
-
   mainMenu->doLayout(QM_MAIN_COLS);
-#if VERSION_MAJOR > 2
   for (size_t i = 0; i < subMenus.size(); i += 1)
     subMenus[i]->doLayout();
 
@@ -332,7 +321,6 @@ void QuickMenu::openQM(PageGroupBase* newPageGroup, QMPage newCurPage)
       curPage = QM_NONE;
     }
   }
-#endif
 
   show();
   lv_obj_move_foreground(lvobj);
@@ -350,14 +338,12 @@ void QuickMenu::openQM(PageGroupBase* newPageGroup, QMPage newCurPage)
       mainMenu->setDisabled(false);
       setFocus(curPage);
     } else {
-#if VERSION_MAJOR > 2
       for (int i = 0; qmTopItems[i].icon != EDGETX_ICONS_COUNT; i += 1) {
         if (qmTopItems[i].qmPage == curPage && qmTopItems[i].pageAction == QM_ACTION) {
           mainMenu->setCurrent(i);
           break;
         }
       }
-#endif
       focusMainMenu();
     }
   }
@@ -481,7 +467,6 @@ std::vector<std::string>& QuickMenu::menuPageNames(bool forFavorites)
   return qmPages;
 }
 
-#if VERSION_MAJOR > 2
 void QuickMenu::resetFavorites()
 {
   if (instance)
@@ -561,7 +546,6 @@ bool QuickMenu::setupFavorite(int favIdx, int favBtn)
 
   return false;
 }
-#endif
 
 void QuickMenu::setCurrentPage(QMPage newPage, EdgeTxIcon newIcon)
 {
@@ -573,10 +557,8 @@ void QuickMenu::focusMainMenu()
 {
   inSubMenu = false;
   mainMenu->activate();
-#if VERSION_MAJOR > 2
   for(auto sub : subMenus)
     sub->setDisabled(true);
-#endif
 }
 
 void QuickMenu::onSelect(bool close)
@@ -605,14 +587,12 @@ void QuickMenu::onCancel()
 
 void QuickMenu::setFocus(QMPage selection)
 {
-#if VERSION_MAJOR > 2
   for(auto sub : subMenus) {
     if (sub->isSubMenu(selection, curIcon)) {
       sub->setCurrent(selection);
       return;
     }
   }
-#endif
 }
 
 void QuickMenu::enableSubMenu()
@@ -641,14 +621,12 @@ void QuickMenu::afterPG()
 {
   auto b = mainMenu->getFocusedButton();
   if (b) {
-#if VERSION_MAJOR > 2
     for(auto sub : subMenus) {
       if (sub->isSubMenu(b)) {
         sub->activate();
         return;
       }
     }
-#endif
     focusMainMenu();
     curPage = QM_NONE;
   }
