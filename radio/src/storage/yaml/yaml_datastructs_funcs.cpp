@@ -620,7 +620,8 @@ bool w_widget_name(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto zoneData = get_zoneData(user);
 
-  return wf(opaque, zoneData->widgetName.c_str(), zoneData->widgetName.size());
+  return yaml_output_string(zoneData->widgetName.c_str(),
+                            zoneData->widgetName.size(), wf, opaque);
 }
 
 static WidgetPersistentData* get_widgetData(void* user, uint16_t& option)
@@ -789,7 +790,8 @@ bool w_wov_string(void* user, uint8_t* data, uint32_t bitoffs,
   uint16_t option;
   auto widgetData = get_widgetData(user, option);
 
-  return wf(opaque, widgetData->getString(option).c_str(), widgetData->getString(option).size());
+  return yaml_output_string(widgetData->getString(option).c_str(),
+                            widgetData->getString(option).size(), wf, opaque, true);
 }
 
 void r_wov_unsigned(void* user, uint8_t* data, uint32_t bitoffs,
@@ -1064,9 +1066,7 @@ static bool _write_analog_name(uint8_t type, void* user, uint8_t* data,
   uint16_t idx = tw->getElmts(1);
 
   const char* name = analogGetCustomLabel(type, idx);
-  if (!wf(opaque, "\"", 1)) return false;
-  if (!wf(opaque, name, strlen(name))) return false;
-  return wf(opaque, "\"", 1);
+  return yaml_output_string(name, strlen(name), wf, opaque);
 }
 
 static void r_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
