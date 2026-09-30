@@ -692,7 +692,7 @@ SWITCH_CONFIG = {
         "SF": {"default": "2POS",   "display": [1, 2]},
         "SH": {"default": "TOGGLE", "display": [1, 3]},
     },
-    "GAJS": {
+    "gajs": {
         # left side
         "SB": {"default": "3POS",   "display": [0, 0]},
         "SA": {"default": "TOGGLE", "display": [0, 1]},

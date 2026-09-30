@@ -2763,19 +2763,11 @@
 #define I2C_B1_CLK_RATE                 400000
 
 // EEPROM
-#if !defined(RADIO_GAJS)
-  #define EEPROM_I2C_ADDRESS              0x51
-  #define EEPROM_I2C_BUS                  I2C_Bus_1
-  #define EEPROM_PAGESIZE                 64
-  #define EEPROM_SIZE                     (32*1024)
-#endif
+#define EEPROM_I2C_ADDRESS              0x51
+#define EEPROM_I2C_BUS                  I2C_Bus_1
+#define EEPROM_PAGESIZE                 64
+#define EEPROM_SIZE                     (32*1024)
 
-#if defined(RADIO_GAJS)
-  #define EEPROM_I2C_ADDRESS              0x51
-  #define EEPROM_I2C_BUS                  I2C_Bus_1
-  #define EEPROM_PAGESIZE                 16
-  #define EEPROM_SIZE                     256
-#endif
 
 // Second I2C Bus: IMU
 #if defined(PCBXLITES)

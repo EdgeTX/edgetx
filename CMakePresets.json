@@ -3,12 +3,14 @@
   "configurePresets": [
     {
       "name": "firmware",
-      "displayName": "Firmware",
-      "binaryDir": "build/fw",
-      "toolchainFile": "cmake/toolchain/arm-none-eabi.cmake",
+      "displayName": "Firmware-GAJS",
+      "binaryDir": "build-output",
       "cacheVariables": {
-        "EdgeTX_SUPERBUILD": false,
-        "NATIVE_BUILD": false
+        "EdgeTX_SUPERBUILD": true,
+        "NATIVE_BUILD": false,
+        "CMAKE_EXPORT_COMPILE_COMMANDS": true,
+        "PCB": "X7",
+        "PCBREV": "GAJS"
       }
     },
     {

@@ -304,6 +304,12 @@ if(PCBREV)
   endif()
 endif(PCBREV)
 
+if(DEFINED PCB AND NOT "${PCB}" STREQUAL "")
+  string(TOLOWER "${PCB}" FLAVOUR)
+else()
+  set(FLAVOUR "")
+endif()
+
 set(COMPANION_TARGETS_DIR_ROOT "${COMPANION_SRC_DIRECTORY}/../targets")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")

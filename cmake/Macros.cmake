@@ -101,7 +101,10 @@ function(AddHardwareDefTarget output)
 
   add_custom_command(OUTPUT ${output}
     COMMAND ${GEN_HW_DEFS} | ${GEN_JSON} > ${output}
-    DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
+    DEPENDS ${HW_DEF_SRC}
+            ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
+            ${RADIO_DIRECTORY}/util/hw_defs/legacy_names.py
+            ${RADIO_DIRECTORY}/util/hw_defs/switch_config.py
     )
 
   add_custom_command(OUTPUT ${output}.h

@@ -622,7 +622,7 @@ LEGACY_NAMES = [
             "tx12", "tx12mk2",
             "x7", "x7access",
             "xlite", "xlites",
-            "zorro", "gajs", "GAJS"
+            "zorro", "gajs"
         },
         "inputs": {
             "LH": {
