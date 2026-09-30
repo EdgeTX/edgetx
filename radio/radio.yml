@@ -1,0 +1,166 @@
+checksum: 25480
+manuallyEdited: 0
+timezoneMinutes: 0
+ppmunit: 0
+semver: 2.12.4
+board: gajs
+calib: 
+   LH:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   LV:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   RV:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   RH:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   P1:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+   P2:
+      mid: 1023
+      spanNeg: 1008
+      spanPos: 1008
+currModel: 0
+contrast: 15
+vBatWarn: 0
+txVoltageCalibration: 0
+backlightMode: backlight_mode_all
+antennaMode: MODE_PER_MODEL
+disableRtcWarning: 0
+keysBacklight: 0
+dontPlayHello: 0
+internalModule: TYPE_CROSSFIRE
+trainer: 
+   mix: 
+      0:
+         srcChn: 0
+         mode: REPL
+         studWeight: 100
+      1:
+         srcChn: 1
+         mode: REPL
+         studWeight: 100
+      2:
+         srcChn: 2
+         mode: REPL
+         studWeight: 100
+      3:
+         srcChn: 3
+         mode: REPL
+         studWeight: 100
+view: 16
+fai: 0
+beepMode: mode_nokeys
+alarmsFlash: 0
+disableMemoryWarning: 0
+disableAlarmWarning: 0
+stickMode: 0
+timezone: 0
+adjustRTC: 0
+inactivityTimer: 10
+internalModuleBaudrate: 1
+splashMode: 0
+hapticMode: mode_nokeys
+switchesDelay: 0
+lightAutoOff: 2
+templateSetup: 0
+PPM_Multiplier: 0
+hapticLength: 2
+beepLength: 2
+hapticStrength: 2
+gpsFormat: 0
+audioMuteEnable: 1
+speakerPitch: 0
+speakerVolume: 12
+vBatMin: 0
+vBatMax: 0
+backlightBright: 0
+globalTimer: 372
+bluetoothBaudrate: 0
+bluetoothMode: OFF
+countryCode: 0
+pwrOnSpeed: 0
+pwrOffSpeed: 0
+noJitterFilter: 0
+imperial: 0
+disableRssiPoweroffAlarm: 0
+USBMode: 0
+jackMode: 0
+ttsLanguage: "en"
+uiLanguage: "en"
+beepVolume: 2
+wavVolume: 4
+varioVolume: 2
+backgroundVolume: 3
+varioPitch: 0
+varioRange: 0
+varioRepeat: 0
+serialPort: 
+   VCP:
+      mode: CLI
+      power: 0
+potsConfig: 
+   P1:
+      type: without_detent
+      inv: 0
+      name: ""
+   P2:
+      type: without_detent
+      inv: 0
+      name: ""
+switchConfig: 
+   SA:
+      name: ""
+      type: TOGGLE
+   SB:
+      name: ""
+      type: 3POS
+   SC:
+      name: ""
+      type: 3POS
+   SD:
+      name: ""
+      type: TOGGLE
+   SE:
+      name: ""
+      type: 2POS
+   SF:
+      name: ""
+      type: 2POS
+   SG:
+      name: ""
+      type: TOGGLE
+   SH:
+      name: ""
+      type: TOGGLE
+backlightColor: 0
+bluetoothName: ""
+ownerRegistrationID: "-eC!U*U*"
+rotEncMode: 0
+uartSampleMode: 0
+radioGFDisabled: 0
+radioTrainerDisabled: 0
+modelHeliDisabled: 0
+modelFMDisabled: 0
+modelCurvesDisabled: 0
+modelGVDisabled: 0
+modelLSDisabled: 0
+modelSFDisabled: 0
+modelCustomScriptsDisabled: 1
+modelTelemetryDisabled: 0
+disableTrainerPoweroffAlarm: 0
+disablePwrOnOffHaptic: 0
+modelQuickSelect: 0
+oneLogPerDay: 0
+keyLockEnabled: 0
+invertLCD: 0
+pwrOffIfInactive: 0

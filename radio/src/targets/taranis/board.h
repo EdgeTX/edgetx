@@ -142,11 +142,6 @@ extern HardwareOptions hardwareOptions;
   #define BATTERY_WARN                  32 // 3.5V
   #define BATTERY_MIN                   30 // 3.0V
   #define BATTERY_MAX                   42 // 4.2V
-#elif defined(RADIO_GAJS)
-  // USB only, no battery
-  #define BATTERY_WARN                  0
-  #define BATTERY_MIN                   0
-  #define BATTERY_MAX                   0
 #else
   // NI-MH 7.2V
   #define BATTERY_WARN                  65 // 6.5V
