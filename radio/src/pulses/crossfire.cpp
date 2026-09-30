@@ -40,10 +40,9 @@
   #define CROSSFIRE_CENTER_CH_OFFSET(ch)            (0)
 #endif
 
-#define MIN_FRAME_LEN         3                       // Min size of the buffer needed to begin processing (HDR + LEN + 1)
-#define MAX_FRAME_LEN         64                      // A whole CRSF packet including header and length can not exceed 64 bytes
-#define MIN_PAYLOAD_LEN       3                       // Min value for the LEN field (TYPE + 1 payload + CRC)
-#define MAX_PAYLOAD_LEN       (MAX_FRAME_LEN-2)       // Max value for the LEN field (MAX - HDR - LEN)
+#define MIN_FRAME_LEN         3                                 // Min size of the buffer needed to begin processing (HDR + LEN + 1)
+#define MIN_PAYLOAD_LEN       3                                 // Min value for the LEN field (TYPE + 1 payload + CRC)
+#define MAX_PAYLOAD_LEN       (CROSSFIRE_FRAME_MAXLEN - 2)      // Max value for the LEN field (MAX - HDR - LEN)
 
 #define MODULE_ALIVE_TIMEOUT  50                      // if the module has sent a valid frame within 500ms it is declared alive
 static tmr10ms_t lastAlive[NUM_MODULES];              // last time stamp module sent CRSF frames
