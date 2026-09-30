@@ -1862,7 +1862,7 @@ void menuModelSetup(event_t event)
               CHECK_INCDEC_MODELVAR_ZERO(event, moduleData.channelsStart, 32-8-moduleData.channelsCount);
               break;
             case 1:
-              CHECK_INCDEC_MODELVAR_CHECK(event, moduleData.channelsCount, -4, min<int8_t>(maxModuleChannels_M8(moduleIdx), 32-8-moduleData.channelsStart), moduleData.type == MODULE_TYPE_ISRM_PXX2 ? isPxx2IsrmChannelsCountAllowed : nullptr);
+              CHECK_INCDEC_MODELVAR_CHECK(event, moduleData.channelsCount, -4, min<int8_t>(maxModuleChannels_M8(moduleIdx), 32-8-moduleData.channelsStart), moduleData.type == MODULE_TYPE_ISRM_PXX2 ? isPxx2IsrmChannelsCountAllowed : (moduleData.type == MODULE_TYPE_CROSSFIRE ? isCrossfireChannelsCountAllowed : nullptr));
               if (checkIncDec_Ret && moduleData.type == MODULE_TYPE_PPM) {
                 setDefaultPpmFrameLength(moduleIdx);
               }

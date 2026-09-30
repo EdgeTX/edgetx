@@ -344,8 +344,7 @@ void ModulePanel::update()
         max_rx_num = 20;
         break;
       case PULSES_CROSSFIRE:
-        mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_BAUDRATE | MASK_CSRF_ARMING_MODE;
-        module.channelsCount = 16;
+        mask |= MASK_CHANNELS_RANGE | MASK_CHANNELS_COUNT | MASK_RX_NUMBER | MASK_BAUDRATE | MASK_CSRF_ARMING_MODE;
         ui->telemetryBaudrate->setModel(ModuleData::telemetryBaudrateItemModel(protocol, moduleIdx, board));
         ui->telemetryBaudrate->setField(module.crsf.telemetryBaudrate);
         ui->crsfArmingMode->setCurrentIndex(module.crsf.crsfArmingMode);
@@ -445,9 +444,10 @@ void ModulePanel::update()
   ui->label_channelsCount->setVisible(mask & MASK_CHANNELS_RANGE);
   ui->channelsCount->setVisible(mask & MASK_CHANNELS_RANGE);
   ui->channelsCount->setEnabled(mask & MASK_CHANNELS_COUNT);
+  ui->channelsCount->setMinimum(module.getMinChannelCount());
   ui->channelsCount->setMaximum(module.getMaxChannelCount());
   ui->channelsCount->setValue(module.channelsCount);
-  ui->channelsCount->setSingleStep(1);
+  ui->channelsCount->setSingleStep(module.getChannelCountStep());
 
   // CRSF
   ui->label_crsfArmingMode->setVisible(mask & MASK_CSRF_ARMING_MODE);
@@ -706,7 +706,7 @@ void ModulePanel::update()
 void ModulePanel::onProtocolChanged(int index)
 {
   if (!lock) {
-    module.channelsCount = module.getMaxChannelCount();
+    module.channelsCount = module.getDefaultChannelCount();
     update();
 
     if (module.protocol == PULSES_GHOST ||

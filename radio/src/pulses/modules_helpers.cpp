@@ -77,7 +77,7 @@ int8_t maxModuleChannels_M8(uint8_t moduleIdx)
 int8_t sentModuleChannels(uint8_t idx)
 {
   if (isModuleCrossfire(idx))
-    return CROSSFIRE_CHANNELS_COUNT;
+    return max<int8_t>(CROSSFIRE_CHANNELS_COUNT, sentModulePXXChannels(idx));
   else if (isModuleGhost(idx))
     return GHOST_CHANNELS_COUNT;
   else if (isModuleMultimodule(idx) && !isModuleMultimoduleDSM2(idx))

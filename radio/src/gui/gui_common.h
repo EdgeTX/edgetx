@@ -74,6 +74,7 @@ bool isSwitchAvailableInCustomFunctions(int swtch);
 bool isSwitchAvailableForArming(int swtch);
 bool isSwitchAvailableInMixes(int swtch);
 bool isPxx2IsrmChannelsCountAllowed(int channels);
+bool isCrossfireChannelsCountAllowed(int channels);
 bool isModuleUsingSport(uint8_t moduleBay, uint8_t moduleType);
 bool isTrainerUsingModuleBay();
 bool isExternalModuleAvailable(int moduleType);

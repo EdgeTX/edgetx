@@ -229,6 +229,9 @@ class ModuleData {
     static QStringList powerValueStrings(enum PulsesProtocol protocol, int subType, Firmware * fw);
     bool hasFailsafes(Firmware * fw) const;
     int getMaxChannelCount();
+    int getMinChannelCount();
+    int getDefaultChannelCount();
+    int getChannelCountStep();
     static int getTypeFromProtocol(unsigned int protocol);
     static int getSubTypeFromProtocol(unsigned int protocol);
     static QString typeToString(int type);

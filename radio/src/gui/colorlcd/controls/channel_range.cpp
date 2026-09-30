@@ -133,11 +133,19 @@ void ModuleChannelRange::update()
 
   if (chEnd->getValue() > chEnd->getMax()) chEnd->setValue(chEnd->getMax());
 
-  if (!isModulePXX2(moduleIdx)) {
+  if (isModuleCrossfire(moduleIdx)) {
+    chEnd->setStep(CROSSFIRE_CHANNELS_COUNT);
+    chEnd->setAvailableHandler([=](int value) {
+      return isCrossfireChannelsCountAllowed(value - getChannelsStart() - 8);
+    });
+  }
+  else if (!isModulePXX2(moduleIdx)) {
+    chEnd->setStep(1);
     chEnd->setAvailableHandler(nullptr);
   }
 #if defined(PXX2)
   else {
+    chEnd->setStep(1);
     chEnd->setAvailableHandler(
         [=](int value) { return isPxx2IsrmChannelsCountAllowed(value - 8); });
   }
@@ -165,6 +173,12 @@ int8_t ModuleChannelRange::getChannelsCount()
 void ModuleChannelRange::setChannelsCount(int8_t val)
 {
   ModuleData* md = &g_model.moduleData[moduleIdx];
+  if (isModuleCrossfire(moduleIdx) && !isCrossfireChannelsCountAllowed(val)) {
+    // typed values are not filtered: snap to the nearest of 16 / 32
+    val = (val > (CROSSFIRE_CHANNELS_COUNT + CROSSFIRE_MAX_CHANNELS_COUNT) / 2 - 8)
+              ? CROSSFIRE_MAX_CHANNELS_COUNT - 8
+              : CROSSFIRE_CHANNELS_COUNT - 8;
+  }
   md->channelsCount = val;
 }
 

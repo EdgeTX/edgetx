@@ -92,27 +92,11 @@ uint8_t createCrossfireModelIDFrame(uint8_t moduleIdx, uint8_t * frame)
   return buf - frame;
 }
 
-// Range for pulses (channels output) is [-1024:+1024]
-uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses)
+static uint8_t * crossfireAssembleChannelData(uint8_t startChannel, uint8_t * buf, int16_t * pulses)
 {
-  //
-  // sends channel data and also communicates status information in status byte:
-  // - arming status in Switch mode (bit 0)
-  // - arming mode Switch or CH5 (bit 1)
-  // - bits 2-7 spare
-  //
-  uint8_t * buf = frame;
-  *buf++ = MODULE_ADDRESS;
-  *buf++ = 25;                  // 1(ID) + 22(channel data) + 1(extra status byte) + 1(CRC)
-  uint8_t * crc_start = buf;
-  *buf++ = CHANNELS_ID;
-
-  //
-  // assemble channel data
-  //
   uint32_t bits = 0;
   uint8_t bitsavailable = 0;
-  for (int i=0; i<CROSSFIRE_CHANNELS_COUNT; i++) {
+  for (int i=startChannel; i<startChannel+CROSSFIRE_CHANNELS_COUNT; i++) {
     uint32_t val = limit(0, CROSSFIRE_CENTER + (CROSSFIRE_CENTER_CH_OFFSET(i) * 4) / 5 + (pulses[i] * 4) / 5, 2 * CROSSFIRE_CENTER);
     bits |= val << bitsavailable;
     bitsavailable += CROSSFIRE_CH_BITS;
@@ -122,6 +106,33 @@ uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t
       bitsavailable -= 8;
     }
   }
+
+  return buf;
+}
+
+// Range for pulses (channels output) is [-1024:+1024]
+uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t * pulses, uint8_t nChannels)
+{
+  //
+  // sends channel data and also communicates status information in status byte:
+  // - arming status in Switch mode (bit 0)
+  // - arming mode Switch or CH5 (bit 1)
+  // - bits 2-7 spare
+  //
+  // 1(ID) + 22(channel data) + 1(extra status byte) + [22(channel data high)] + 1(CRC)
+  const bool use32Channels = nChannels > CROSSFIRE_CHANNELS_COUNT;
+  const uint8_t payloadLen = use32Channels ? 45 : 23;
+
+  uint8_t * buf = frame;
+  *buf++ = MODULE_ADDRESS;
+  *buf++ =  payloadLen + 2;
+  uint8_t * crc_start = buf;
+  *buf++ = CHANNELS_ID;
+
+  //
+  // assemble channel data ch1-ch16
+  //
+  buf = crossfireAssembleChannelData(0, buf, pulses);
 
   //
   // assemble status byte
@@ -135,13 +146,19 @@ uint8_t createCrossfireChannelsFrame(uint8_t moduleIdx, uint8_t * frame, int16_t
   } else {
     *buf = 0x02;                                    // flag arming mode CH5
   }
-
   buf++;
-  
+
+  //
+  // assemble channel data ch17-ch32
+  //
+  if (use32Channels) {
+    buf = crossfireAssembleChannelData(CROSSFIRE_CHANNELS_COUNT, buf, pulses);
+  }
+
   //
   // add crc
   //
-  *buf++ = crc8(crc_start, 24);
+  *buf++ = crc8(crc_start, payloadLen + 1);
 
   return buf - frame;
 }
@@ -196,8 +213,7 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
       p_buf += createCrossfireBindFrame(module, p_buf);
       moduleState[module].mode = MODULE_MODE_NORMAL;
     } else {
-      /* TODO: nChannels */
-      p_buf += createCrossfireChannelsFrame(module, p_buf, channels);
+      p_buf += createCrossfireChannelsFrame(module, p_buf, channels, nChannels);
     }
   }
 }
