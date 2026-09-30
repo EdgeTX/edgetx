@@ -440,7 +440,8 @@ char *getCurveRefString(char *dest, size_t len, const CurveRef& curve)
         return dest;
 
       case CURVE_REF_FUNC:
-        strAppend(dest, STR_VCURVEFUNC[v.value], len);
+        if (v.value > 0 && v.value < CURVE_BASE)
+          strAppend(dest, STR_VCURVEFUNC[v.value], len);
         return dest;
 
       case CURVE_REF_CUSTOM:
