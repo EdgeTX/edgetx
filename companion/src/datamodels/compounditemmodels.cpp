@@ -523,19 +523,38 @@ TelemetrySourceItemModel::TelemetrySourceItemModel(const GeneralSettings * const
   if (!modelData)
     return;
 
-  setUpdateMask(IMUE_TeleSensors | IMUE_Modules);
+  setUpdateMask(IMUE_TeleSensors | IMUE_Modules | IMUE_GVars);
   const int count = firmware->getCapability(Sensors);
+  const int gvars = std::min(firmware->getCapability(Gvars), CPN_MAX_GVARS);
 
-  for (int i = -count; i <= count; ++i) {
-    QStandardItem * modelItem = new QStandardItem();
-    modelItem->setData(i, IMDR_Id);
-    setDynamicItemData(modelItem, i);
-    appendRow(modelItem);
-  }
+  // GVars are only valid as calculated sensor sources
+  for (int i = gvars - 1; i >= 0; --i)
+    addItem(SensorData::gvarSource(i, true));
+
+  for (int i = -count; i <= count; ++i)
+    addItem(i);
+
+  for (int i = 0; i < gvars; ++i)
+    addItem(SensorData::gvarSource(i, false));
+}
+
+void TelemetrySourceItemModel::addItem(const int value)
+{
+  QStandardItem * modelItem = new QStandardItem();
+  modelItem->setData(value, IMDR_Id);
+  setDynamicItemData(modelItem, value);
+  appendRow(modelItem);
 }
 
 void TelemetrySourceItemModel::setDynamicItemData(QStandardItem * item, const int value) const
 {
+  if (SensorData::isGVarSource(value)) {
+    item->setText(SensorData::calcSourceToString(modelData, value, SensorData::TELEM_FORMULA_ADD));
+    item->setData(true, IMDR_Available);
+    item->setData(SensorData::SensorTypeFlagGVar, IMDR_Flags);
+    return;
+  }
+
   item->setText(SensorData::sourceToString(modelData, value));
   item->setData(SensorData::isSourceAvailable(modelData, value), IMDR_Available);
   int flags = value < 0 ? SensorData::SensorTypeFlagNeg : value > 0 ? SensorData::SensorTypeFlagPos : SensorData::SensorTypeFlagNone;
