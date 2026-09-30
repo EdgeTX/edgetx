@@ -153,6 +153,30 @@ TEST(getSwitch, nullSW)
   EXPECT_TRUE(getSwitch(0));
 }
 
+TEST(getSwitch, sensorSwitches)
+{
+  MODEL_RESET();
+  telemetryItems[0].setFresh();
+  telemetryItems[MAX_TELEMETRY_SENSORS - 1].setFresh();
+
+  for (int i = 0; i < MAX_TELEMETRY_SENSORS; i++) {
+    bool expected = !telemetryItems[i].isOld();
+    EXPECT_EQ(expected, getSwitch(SWSRC_FIRST_SENSOR + i)) << "sensor " << i;
+    EXPECT_EQ(!expected, getSwitch(-(SWSRC_FIRST_SENSOR + i))) << "sensor " << i;
+  }
+}
+
+TEST(getSwitch, outOfRange)
+{
+  MODEL_RESET();
+
+  // Out of range switches behave like a switch that doesn't exist
+  for (swsrc_t sw : {SWSRC_LAST + 1, SWSRC_LAST + 100, 511}) {
+    EXPECT_FALSE(getSwitch(sw)) << "switch " << sw;
+    EXPECT_TRUE(getSwitch(-sw)) << "switch " << -sw;
+  }
+}
+
 
 TEST(getSwitch, inputWithTrim)
 {
