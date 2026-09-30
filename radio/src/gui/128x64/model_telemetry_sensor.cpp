@@ -299,46 +299,41 @@ void menuModelSensor(event_t event)
       {
         drawStringWithIndex(0, y, STR_SOURCE, k-SENSOR_FIELD_PARAM1+1);
         int8_t * source = &sensor->calc.sources[k-SENSOR_FIELD_PARAM1];
-        uint8_t delta = GV_GET_GV1_VALUE(-MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS);
-        if (attr) {
 #if defined(GVARS)
-          if (event == EVT_KEY_LONG(KEY_ENTER)) {
-            *source = (GV_IS_GV_VALUE(*source, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS) ? 0 : delta);
-            s_editMode = !s_editMode;
-          }
-          if(GV_IS_GV_VALUE(*source, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS)) {
-            int8_t idx = (int16_t)GV_INDEX_CALC_DELTA(*source, delta);
-            CHECK_INCDEC_MODELVAR(event, idx, -MAX_GVARS, MAX_GVARS-1);
-            if (idx < 0) {
-              *source = (int8_t)GV_CALC_VALUE_IDX_NEG(idx, delta);
-            }
-            else {
-              *source = (int8_t)GV_CALC_VALUE_IDX_POS(idx, delta);
-            }
-          } else {
-#endif
-            *source = checkIncDec(event, *source, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isSensorAvailable);
-            }
-#if defined(GVARS)
+        if (attr && modelGVEnabled() && event == EVT_KEY_LONG(KEY_ENTER)) {
+          killEvents(event);
+          s_editMode = !s_editMode;
+          *source = calcSourceIsGVar(*source) ? 0 : calcSourceFromGVar(0, false);
+          storageDirty(EE_MODEL);
         }
-        if(GV_IS_GV_VALUE(*source, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS)) {
-          int8_t gvindex = GV_INDEX_CALC_DELTA(*source, delta);
-          if(gvindex<0 && sensor->formula == TELEM_FORMULA_MULTIPLY) {
-            lcdDrawChar(SENSOR_2ND_COLUMN, y, '/', attr);
-            drawGVarName(lcdNextPos, y, -gvindex-1, attr);
-          } else {
-            drawGVarName(SENSOR_2ND_COLUMN, y, gvindex, attr);
+        if (calcSourceIsGVar(*source)) {
+          bool negative = *source < 0;
+          int8_t idx = calcSourceGVarIndex(*source);
+          if (negative) idx = -idx - 1;
+          if (attr) {
+            CHECK_INCDEC_MODELVAR(event, idx, -MAX_GVARS, MAX_GVARS-1);
+            negative = idx < 0;
+            *source = calcSourceFromGVar(negative ? -idx - 1 : idx, negative);
           }
-        } else
-#endif
-        {
-          if (*source < 0) {
-            lcdDrawChar(SENSOR_2ND_COLUMN, y, '-', attr);
-            drawSource(lcdNextPos, y, MIXSRC_FIRST_TELEM+3*(-1-*source), attr);
+          if (negative && sensor->formula == TELEM_FORMULA_MULTIPLY) {
+            lcdDrawChar(SENSOR_2ND_COLUMN, y, '/', attr);
+            drawGVarName(lcdNextPos, y, -idx - 1, attr);
           }
           else {
-            drawSource(SENSOR_2ND_COLUMN, y, *source ? MIXSRC_FIRST_TELEM+3*(*source-1) : 0, attr);
+            drawGVarName(SENSOR_2ND_COLUMN, y, idx, attr);
           }
+          break;
+        }
+#endif
+        if (attr) {
+          *source = checkIncDec(event, *source, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isSensorAvailable);
+        }
+        if (*source < 0) {
+          lcdDrawChar(SENSOR_2ND_COLUMN, y, '-', attr);
+          drawSource(lcdNextPos, y, MIXSRC_FIRST_TELEM+3*(-1-*source), attr);
+        }
+        else {
+          drawSource(SENSOR_2ND_COLUMN, y, *source ? MIXSRC_FIRST_TELEM+3*(*source-1) : 0, attr);
         }
         break;
       }
