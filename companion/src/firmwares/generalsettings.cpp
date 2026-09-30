@@ -535,6 +535,10 @@ QString GeneralSettings::serialModeToString(int value)
       return tr("SpaceMouse");
     case AUX_SERIAL_EXT_MODULE:
       return tr("External module");
+    case AUX_SERIAL_SBUS_TRAINER_INV:
+      return tr("SBUS Trainer Inv.");
+    case AUX_SERIAL_CRSF_TRAINER:
+      return tr("CRSF Trainer");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -613,8 +617,18 @@ AbstractStaticItemModel * GeneralSettings::serialModeItemModel()
     if (i == AUX_SERIAL_EXT_MODULE) {
       contexts &= ~(AUX2Context | VCPContext);
     }
+    else if (i == AUX_SERIAL_SBUS_TRAINER_INV &&
+             Boards::getCapability(getCurrentBoard(), Board::IsF4)) {
+      // needs the USART to invert RX, which F4 cannot do
+      contexts = 0;
+    }
+    else if (i == AUX_SERIAL_CRSF_TRAINER) {
+      // driven from a receive callback, which only USB-VCP provides
+      contexts &= VCPContext;
+    }
     else if (i == AUX_SERIAL_TELE_IN ||
              i == AUX_SERIAL_SBUS_TRAINER ||
+             i == AUX_SERIAL_SBUS_TRAINER_INV ||
              i == AUX_SERIAL_GPS ||
              i == AUX_SERIAL_SPACEMOUSE ||
              i == AUX_SERIAL_EXT_MODULE) {

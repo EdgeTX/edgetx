@@ -1853,10 +1853,17 @@ bool ModelData::isTrainerModeAvailable(const GeneralSettings & generalSettings, 
       moduleData[1].protocol != PULSES_OFF)
     return false;
 
-  if (value == TRAINER_MODE_MASTER_SERIAL &&
-      (generalSettings.serialPort[GeneralSettings::SP_AUX1] != GeneralSettings::AUX_SERIAL_SBUS_TRAINER &&
-       generalSettings.serialPort[GeneralSettings::SP_AUX2] != GeneralSettings::AUX_SERIAL_SBUS_TRAINER))
-    return false;
+  if (value == TRAINER_MODE_MASTER_SERIAL) {
+    // inverted SBUS relies on the USART inverting RX, which F4 cannot do
+    auto isSbusTrainer = [&](unsigned int mode) {
+      return mode == GeneralSettings::AUX_SERIAL_SBUS_TRAINER ||
+             (mode == GeneralSettings::AUX_SERIAL_SBUS_TRAINER_INV &&
+              !Boards::getCapability(board, Board::IsF4));
+    };
+    if (!isSbusTrainer(generalSettings.serialPort[GeneralSettings::SP_AUX1]) &&
+        !isSbusTrainer(generalSettings.serialPort[GeneralSettings::SP_AUX2]))
+      return false;
+  }
 
   if ((value == TRAINER_MODE_MASTER_BLUETOOTH || value == TRAINER_MODE_SLAVE_BLUETOOTH) &&
       !IS_TARANIS_X9E(board) &&
