@@ -1,0 +1,65 @@
+name: Lua compiler
+on:
+  push:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+    paths:
+      - 'radio/src/thirdparty/Lua/**'
+      - '.github/workflows/luac.yml'
+  pull_request:
+    paths:
+      - 'radio/src/thirdparty/Lua/**'
+      - '.github/workflows/luac.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build edgetx-luac (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+
+      - name: Build
+        run: |
+          cmake -S radio/src/thirdparty/Lua -B build-luac -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-luac --config Release
+
+      - name: Compile a script and check the bytecode header
+        run: |
+          LUAC=$(find build-luac -type f \( -name edgetx-luac -o -name edgetx-luac.exe \) | head -1)
+          cat > ok.lua <<'EOF'
+          local t = { 1, 2, 3 }
+          return { run = function() return #t + 0.5 end }
+          EOF
+          "$LUAC" -s -o ok.luac ok.lua
+
+          # signature, version 5.3, format, LUAC_DATA, then sizeof(int),
+          # sizeof(size_t) (written as int for the radio), Instruction,
+          # lua_Integer and lua_Number must all be 4 bytes
+          expected=1b4c7561530019930d0a1a0a0404040404
+          actual=$(od -An -tx1 -N17 ok.luac | tr -d ' \n')
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::Unexpected bytecode header: $actual (expected $expected)"
+            exit 1
+          fi
+
+          # load the bytecode back through lundump
+          "$LUAC" -l -p ok.luac > /dev/null
+
+      - name: Reject a script with a syntax error
+        run: |
+          LUAC=$(find build-luac -type f \( -name edgetx-luac -o -name edgetx-luac.exe \) | head -1)
+          printf 'local x =\n' > bad.lua
+          if "$LUAC" -p bad.lua; then
+            echo "::error::edgetx-luac accepted a script with a syntax error"
+            exit 1
+          fi
