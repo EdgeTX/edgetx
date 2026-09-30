@@ -120,7 +120,6 @@ class ModuleWindow : public Window
   {
     setFlexLayout();
     updateModule();
-    lv_obj_add_event_cb(lvobj, ModuleWindow::mw_refresh_cb, LV_EVENT_REFRESH, this);
     moduleUpdateMsg.subscribe(Messaging::MODULE_UPDATE, [=](uint32_t param) { updateLayout(); });
   }
 
@@ -567,15 +566,6 @@ class ModuleWindow : public Window
       bindButton->show(isModuleBindRangeAvailable(moduleIdx));
     }
     Window::checkEvents();
-  }
-
-  static void mw_refresh_cb(lv_event_t* e)
-  {
-    auto mw = (ModuleWindow*)lv_event_get_user_data(e);
-    if (mw) {
-      mw->updateRxID();
-      mw->updateFailsafe();
-    }
   }
 };
 
