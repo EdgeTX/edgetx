@@ -170,26 +170,38 @@ TEST_F(TelemetryCalcTest, YamlReadInvalidSources)
 }
 
 #if defined(GVARS)
+// GVar values are used as displayed (with the GVar's own precision)
+
 TEST_F(TelemetryCalcTest, AddGVars)
 {
-  customSensor(0, 1200);
-  g_model.flightModeData[0].gvars[1] = 50;
+  customSensor(0, 1200);                       // 12.00V
+  g_model.flightModeData[0].gvars[1] = 1;      // 1
 
   auto& sensor = calcSensor(1, TELEM_FORMULA_ADD);
   sensor.calc.sources[0] = 1;
   sensor.calc.sources[1] = calcSourceFromGVar(1, false);
   telemetryItems[1].eval(sensor);
-  EXPECT_EQ(1250, telemetryItems[1].value);
+  EXPECT_EQ(1300, telemetryItems[1].value);    // 12.00 + 1
 
   sensor.calc.sources[1] = calcSourceFromGVar(1, true);
   telemetryItems[1].eval(sensor);
-  EXPECT_EQ(1150, telemetryItems[1].value);
+  EXPECT_EQ(1100, telemetryItems[1].value);    // 12.00 - 1
+
+  g_model.gvars[1].prec = 1;
+  g_model.flightModeData[0].gvars[1] = 5;      // 0.5
+  sensor.calc.sources[1] = calcSourceFromGVar(1, false);
+  telemetryItems[1].eval(sensor);
+  EXPECT_EQ(1250, telemetryItems[1].value);    // 12.00 + 0.5
+
+  sensor.prec = 0;
+  telemetryItems[1].eval(sensor);
+  EXPECT_EQ(12, telemetryItems[1].value);      // 12 + 0 (0.5 truncated)
 }
 
 TEST_F(TelemetryCalcTest, MinMaxGVarFirst)
 {
-  customSensor(0, 1200);
-  g_model.flightModeData[0].gvars[0] = 300;
+  customSensor(0, 1200);                       // 12.00V
+  g_model.flightModeData[0].gvars[0] = 3;      // 3
 
   auto& sensor = calcSensor(1, TELEM_FORMULA_MIN);
   sensor.calc.sources[0] = calcSourceFromGVar(0, false);
@@ -204,24 +216,43 @@ TEST_F(TelemetryCalcTest, MinMaxGVarFirst)
 
 TEST_F(TelemetryCalcTest, MultiplyDivideGVar)
 {
-  // GVar values are in the calculated sensor's unit and precision
   customSensor(0, 1200);                       // 12.00V
-  g_model.flightModeData[0].gvars[0] = 300;    // 3.00
+  g_model.flightModeData[0].gvars[0] = 3;      // 3 cells
 
   auto& sensor = calcSensor(1, TELEM_FORMULA_MULTIPLY);
   sensor.calc.sources[0] = 1;
   sensor.calc.sources[1] = calcSourceFromGVar(0, true);
   telemetryItems[1].eval(sensor);
-  EXPECT_EQ(400, telemetryItems[1].value);     // 12.00 / 3.00
+  EXPECT_EQ(400, telemetryItems[1].value);     // 12.00 / 3
 
   sensor.calc.sources[1] = calcSourceFromGVar(0, false);
   telemetryItems[1].eval(sensor);
-  EXPECT_EQ(3600, telemetryItems[1].value);    // 12.00 * 3.00
+  EXPECT_EQ(3600, telemetryItems[1].value);    // 12.00 * 3
 
-  g_model.flightModeData[0].gvars[0] = 0;
+  g_model.gvars[0].prec = 1;
+  g_model.flightModeData[0].gvars[0] = 25;     // 2.5
+  telemetryItems[1].eval(sensor);
+  EXPECT_EQ(3000, telemetryItems[1].value);    // 12.00 * 2.5
+
   sensor.calc.sources[1] = calcSourceFromGVar(0, true);
   telemetryItems[1].eval(sensor);
+  EXPECT_EQ(480, telemetryItems[1].value);     // 12.00 / 2.5
+
+  g_model.flightModeData[0].gvars[0] = 0;
+  telemetryItems[1].eval(sensor);
   EXPECT_EQ(0, telemetryItems[1].value);       // divide by zero
+}
+
+TEST_F(TelemetryCalcTest, DivideByGVarFirst)
+{
+  customSensor(0, 1200);                       // 12.00V
+  g_model.flightModeData[0].gvars[0] = 2;
+
+  auto& sensor = calcSensor(1, TELEM_FORMULA_MULTIPLY);
+  sensor.calc.sources[0] = calcSourceFromGVar(0, true);
+  sensor.calc.sources[1] = 1;
+  telemetryItems[1].eval(sensor);
+  EXPECT_EQ(600, telemetryItems[1].value);     // 1 / 2 * 12.00
 }
 
 TEST_F(TelemetryCalcTest, GVarOnlySensorStaysFresh)
@@ -236,7 +267,7 @@ TEST_F(TelemetryCalcTest, GVarOnlySensorStaysFresh)
   sensor.calc.sources[1] = calcSourceFromGVar(1, false);
   EXPECT_TRUE(sensor.isOfflineFresh());
   telemetryItems[0].eval(sensor);
-  EXPECT_EQ(30, telemetryItems[0].value);
+  EXPECT_EQ(3000, telemetryItems[0].value);    // 10 + 20, prec 2
 
   sensor.calc.sources[2] = 2;
   EXPECT_FALSE(sensor.isOfflineFresh());

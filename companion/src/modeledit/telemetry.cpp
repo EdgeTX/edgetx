@@ -26,6 +26,8 @@
 #include "appdata.h"
 #include "namevalidator.h"
 
+#include <QIdentityProxyModel>
+
 constexpr char FIM_RAWSOURCE[]       {"Raw Source"};
 constexpr char FIM_TELEALLSRC[]      {"Tele All Source"};
 constexpr char FIM_TELEPOSSRC[]      {"Tele Pos Source"};
@@ -35,6 +37,39 @@ constexpr char FIM_SENSORCELLINDEX[] {"Sensor.CellIndex"};
 constexpr char FIM_SENSORUNIT[]      {"Sensor.Unit"};
 constexpr char FIM_SENSORPRECISION[] {"Sensor.Precision"};
 constexpr char FIM_TELEVARIOSRC[]    {"Tele Vario Source"};
+
+// Calculated sensor sources, labelling an inverted GVar as a divisor
+// for the multiply formula
+class CalcSourceProxyModel : public QIdentityProxyModel
+{
+  public:
+    CalcSourceProxyModel(const ModelData & model, const SensorData & sensor, QObject * parent) :
+      QIdentityProxyModel(parent),
+      model(model),
+      sensor(sensor)
+    {
+    }
+
+    QVariant data(const QModelIndex & index, int role) const override
+    {
+      if (role == Qt::DisplayRole || role == Qt::EditRole) {
+        const int id = QIdentityProxyModel::data(index, AbstractItemModel::IMDR_Id).toInt();
+        if (SensorData::isGVarSource(id))
+          return SensorData::calcSourceToString(&model, id, sensor.formula);
+      }
+      return QIdentityProxyModel::data(index, role);
+    }
+
+    void refresh()
+    {
+      if (rowCount() > 0)
+        emit dataChanged(index(0, 0), index(rowCount() - 1, 0), { Qt::DisplayRole, Qt::EditRole });
+    }
+
+  private:
+    const ModelData & model;
+    const SensorData & sensor;
+};
 
 TelemetrySensorPanel::TelemetrySensorPanel(QWidget *parent, SensorData & sensor, int sensorIndex, int sensorCapability, ModelData & model,
                                            GeneralSettings & generalSettings, Firmware * firmware, const bool & parentLock,
@@ -99,14 +134,15 @@ TelemetrySensorPanel::TelemetrySensorPanel(QWidget *parent, SensorData & sensor,
   ui->cellsSensor->setField(sensor.source, this);
   ui->cellsIndex->setModel(panelFilteredItemModels->getItemModel(FIM_SENSORCELLINDEX));
   ui->cellsIndex->setField(sensor.index);
-  fltmdl = panelFilteredItemModels->getItemModel(FIM_TELEALLSRC);
-  ui->source1->setModel(fltmdl);
+  calcSourceModel = new CalcSourceProxyModel(model, sensor, this);
+  calcSourceModel->setSourceModel(panelFilteredItemModels->getItemModel(FIM_TELEALLSRC));
+  ui->source1->setModel(calcSourceModel);
   ui->source1->setField(sensor.sources[0], this);
-  ui->source2->setModel(fltmdl);
+  ui->source2->setModel(calcSourceModel);
   ui->source2->setField(sensor.sources[1], this);
-  ui->source3->setModel(fltmdl);
+  ui->source3->setModel(calcSourceModel);
   ui->source3->setField(sensor.sources[2], this);
-  ui->source4->setModel(fltmdl);
+  ui->source4->setModel(calcSourceModel);
   ui->source4->setField(sensor.sources[3], this);
   ui->prec->setModel(panelFilteredItemModels->getItemModel(FIM_SENSORPRECISION));
   ui->prec->setField(sensor.prec);
@@ -230,6 +266,7 @@ void TelemetrySensorPanel::on_nameDataChanged()
 void TelemetrySensorPanel::on_formulaDataChanged()
 {
   sensor.formulaChanged();
+  calcSourceModel->refresh();
   update();
 }
 

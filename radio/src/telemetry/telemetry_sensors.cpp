@@ -414,25 +414,31 @@ void TelemetryItem::eval(const TelemetrySensor & sensor)
           uint8_t gvIdx = calcSourceGVarIndex(source);
           if (gvIdx >= MAX_GVARS)
             continue;
-          // GVar value is taken in the unit and precision of this sensor
+          // GVar value is used as displayed, with its own precision:
+          // a plain factor for multiply / divide, a value in the unit of
+          // this sensor otherwise
           int32_t gvarValue = getGVarValue(gvIdx, mixerCurrentFlightMode);
+          uint8_t gvarPrec = g_model.gvars[gvIdx].prec;
           count += 1;
           if (sensor.formula == TELEM_FORMULA_MULTIPLY) {
             if (source < 0) {
-              // divide
+              // divide, keeping at least the precision of this sensor
               if (gvarValue != 0) {
+                int32_t prec = max<int32_t>(mulprec, sensor.prec);
                 value = convertTelemetryValue(value, sensor.unit, mulprec,
-                                              sensor.unit,
-                                              mulprec + sensor.prec) /
+                                              sensor.unit, prec + gvarPrec) /
                         gvarValue;
+                mulprec = prec;
               } else {
                 value = 0;
               }
             } else {
               value *= gvarValue;
-              mulprec += sensor.prec;
+              mulprec += gvarPrec;
             }
           } else {
+            gvarValue = convertTelemetryValue(gvarValue, sensor.unit, gvarPrec,
+                                              sensor.unit, sensor.prec);
             if (source < 0)
               gvarValue = -gvarValue;
             if (sensor.formula == TELEM_FORMULA_MIN)
