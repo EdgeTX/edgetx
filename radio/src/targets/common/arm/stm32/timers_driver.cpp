@@ -71,6 +71,9 @@ uint32_t timersGetUsTick()
   return ms * 1000 + us;
 }
 
+// FreeRTOS run-time stats clock
+extern "C" uint32_t timersGetRunTimeCounter() { return timersGetUsTick(); }
+
 static volatile uint32_t watchdogTimeout = 0;
 
 void watchdogSuspend(uint32_t timeout)
