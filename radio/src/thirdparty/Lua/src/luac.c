@@ -13,6 +13,9 @@
 #include <alloca.h>
 #elif defined(_MSC_VER)
 #include <malloc.h>
+#if !defined(alloca)
+#define alloca _alloca
+#endif
 #endif
 #include <ctype.h>
 #include <errno.h>
