@@ -130,6 +130,11 @@ unsigned task_get_stack_size(task_handle_t* h)
   return h->_stack_size * 4;
 }
 
+int task_get_cpu_load()
+{
+  return -1;
+}
+
 bool scheduler_is_running()
 {
   return true;
