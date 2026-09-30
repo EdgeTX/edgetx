@@ -358,6 +358,69 @@ class SensorSourceChoice : public SourceChoice
   }
 };
 
+// Calculated sensor source: sensor or GVar, either may be inverted
+// (an inverted GVar divides for the multiply formula)
+class CalcSourceChoice : public SourceChoice
+{
+ public:
+  CalcSourceChoice(Window* window, const rect_t& rect,
+                   TelemetrySensor* sensor, uint8_t idx) :
+      SourceChoice(
+          window, rect, MIXSRC_NONE, MIXSRC_LAST_TELEM,
+          [=]() { return toMixSrc(sensor->calc.sources[idx]); },
+          [=](int16_t newValue) {
+            sensor->calc.sources[idx] = fromMixSrc(newValue);
+            SET_DIRTY();
+          },
+          true)
+  {
+    setAvailableHandler([=](int value) {
+      int src = abs(value);
+      if (src == MIXSRC_NONE) return true;
+#if defined(GVARS)
+      if (src >= MIXSRC_FIRST_GVAR && src <= MIXSRC_LAST_GVAR)
+        return modelGVEnabled();
+#endif
+      if (src < MIXSRC_FIRST_TELEM || src > MIXSRC_LAST_TELEM) return false;
+      auto qr = div(src - MIXSRC_FIRST_TELEM, 3);
+      return qr.rem == 0 && isSensorAvailable(qr.quot + 1);
+    });
+
+    setTextHandler([=](int value) {
+      if (inMenu && inverted) value = -value;
+      if (value < 0 && sensor->formula == TELEM_FORMULA_MULTIPLY &&
+          -value >= MIXSRC_FIRST_GVAR && -value <= MIXSRC_LAST_GVAR)
+        return std::string("/") + getSourceString(-value);
+      return std::string(getSourceString(value));
+    });
+  }
+
+ protected:
+  static int16_t toMixSrc(int8_t source)
+  {
+    if (source == 0) return MIXSRC_NONE;
+    int16_t src;
+    if (calcSourceIsGVar(source))
+      src = MIXSRC_FIRST_GVAR + calcSourceGVarIndex(source);
+    else
+      src = MIXSRC_FIRST_TELEM + 3 * (abs(source) - 1);
+    return source < 0 ? -src : src;
+  }
+
+  static int8_t fromMixSrc(int16_t value)
+  {
+    int16_t src = abs(value);
+    bool negative = value < 0;
+    if (src >= MIXSRC_FIRST_GVAR && src <= MIXSRC_LAST_GVAR)
+      return calcSourceFromGVar(src - MIXSRC_FIRST_GVAR, negative);
+    if (src >= MIXSRC_FIRST_TELEM && src <= MIXSRC_LAST_TELEM) {
+      int8_t sensor = (src - MIXSRC_FIRST_TELEM) / 3 + 1;
+      return negative ? -sensor : sensor;
+    }
+    return 0;
+  }
+};
+
 class SensorEditWindow : public SubPage
 {
  public:
@@ -643,9 +706,7 @@ class SensorEditWindow : public SubPage
     std::string s(STR_SOURCE);
 
     paramLines[P_CALC0] = setupLine((s + std::to_string(1)).c_str(), [=](Window* parent, coord_t x, coord_t y) {
-          new SensorSourceChoice(parent, {x, y, 0, 0},
-                                (uint8_t*)&sensor->calc.sources[0],
-                                isSensorAvailable);
+          new CalcSourceChoice(parent, {x, y, 0, 0}, sensor, 0);
         });
 
     paramLines[P_BLADES] = setupLine(STR_BLADES, [=](Window* parent, coord_t x, coord_t y) {
@@ -686,9 +747,7 @@ class SensorEditWindow : public SubPage
         });
 
     paramLines[P_CALC1] = setupLine((s + std::to_string(2)).c_str(), [=](Window* parent, coord_t x, coord_t y) {
-          new SensorSourceChoice(parent, {x, y, 0, 0},
-                                (uint8_t*)&sensor->calc.sources[1],
-                                isSensorAvailable);
+          new CalcSourceChoice(parent, {x, y, 0, 0}, sensor, 1);
         });
 
     paramLines[P_MULT] = setupLine(STR_MULTIPLIER, [=](Window* parent, coord_t x, coord_t y) {
@@ -704,15 +763,11 @@ class SensorEditWindow : public SubPage
         });
 
     paramLines[P_CALC2] = setupLine((s + std::to_string(3)).c_str(), [=](Window* parent, coord_t x, coord_t y) {
-          new SensorSourceChoice(parent, {x, y, 0, 0},
-                                (uint8_t*)&sensor->calc.sources[2],
-                                isSensorAvailable);
+          new CalcSourceChoice(parent, {x, y, 0, 0}, sensor, 2);
         });
 
     paramLines[P_CALC3] = setupLine((s + std::to_string(4)).c_str(), [=](Window* parent, coord_t x, coord_t y) {
-          new SensorSourceChoice(parent, {x, y, 0, 0},
-                                (uint8_t*)&sensor->calc.sources[3],
-                                isSensorAvailable);
+          new CalcSourceChoice(parent, {x, y, 0, 0}, sensor, 3);
         });
 
     paramLines[P_AUTOOFFSET] = setupLine(STR_AUTOOFFSET, [=](Window* parent, coord_t x, coord_t y) {
