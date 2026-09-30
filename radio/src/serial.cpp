@@ -233,9 +233,9 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
 #if defined(CROSSFIRE)
   case UART_MODE_CRSF_TRAINER:
     // CRSF is self-framing, so it needs no idle-line detection: a receive
-    // callback is enough. On de-init ctx (and hence drv) is null, and the
-    // callback has to be released so the next user of the port gets a clean
-    // stream.
+    // callback is enough. The callback is normally released before the port
+    // is de-initialised (see crsfTrainerReleaseCtx()); on de-init ctx (and
+    // hence drv) is null, so make sure it is gone.
     if (drv && drv->setReceiveCb) {
       crsfTrainerStart(ctx, drv);
     } else {
@@ -466,6 +466,9 @@ void serialInit(uint8_t port_nr, int mode)
 #if !defined(BOOT)
     // Drop the trainer input before the driver context goes away
     sbusTrainerReleaseCtx(state->usart_ctx);
+#if defined(CROSSFIRE)
+    crsfTrainerReleaseCtx(state->usart_ctx);
+#endif
 #endif
     auto drv = state->port->uart;
     if (drv && drv->deinit && state->usart_ctx) {
@@ -605,6 +608,9 @@ void serialStop(uint8_t port_nr)
 #if !defined(BOOT)
     // Drop the trainer input before the driver context goes away
     sbusTrainerReleaseCtx(state->usart_ctx);
+#if defined(CROSSFIRE)
+    crsfTrainerReleaseCtx(state->usart_ctx);
+#endif
 #endif
     auto port = state->port;
     auto drv = port->uart;

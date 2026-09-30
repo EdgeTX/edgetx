@@ -263,6 +263,29 @@ TEST_F(CrsfTrainerTest, otherFrameTypesAreIgnoredButConsumed)
   EXPECT_TRUE(isTrainerValid());
 }
 
+// A CHANNELS_ID frame too short to hold 16 channels has a valid CRC, but must
+// not be decoded: the channel bits would come from stale buffer bytes.
+TEST_F(CrsfTrainerTest, truncatedChannelsFrameIsIgnored)
+{
+  // Leave a good frame behind in the assembler buffer
+  feed(buildChannelsFrame());
+  ASSERT_TRUE(isTrainerValid());
+  memset(trainerInput, 0, sizeof(trainerInput));
+  trainerSetTimer(0);
+
+  std::vector<uint8_t> frame = {UART_SYNC, 4, CHANNELS_ID, 0x11, 0x22};
+  frame.push_back(crc8(frame.data() + 2, frame.size() - 2));
+  feed(frame);
+
+  EXPECT_FALSE(isTrainerValid()) << "truncated channels frame was accepted";
+  for (int ch = 0; ch < 16; ch++) EXPECT_EQ(trainerInput[ch], 0) << "channel " << ch;
+
+  // and the stream stays aligned
+  feed(buildChannelsFrame());
+  expectTestChannels();
+  EXPECT_TRUE(isTrainerValid());
+}
+
 // Both address bytes are accepted as a frame start.
 TEST_F(CrsfTrainerTest, acceptsBothAddressBytes)
 {
@@ -311,6 +334,29 @@ TEST_F(CrsfTrainerTest, partialFrameIsDroppedOnStop)
   feed(rest);
 
   EXPECT_FALSE(isTrainerValid());
+}
+
+namespace {
+void (*stubRxCb)(uint8_t*, uint32_t) = nullptr;
+void stubSetReceiveCb(void*, void (*cb)(uint8_t*, uint32_t)) { stubRxCb = cb; }
+}  // namespace
+
+// The receive callback is released before the port's driver context goes
+// away, and only by the port it is attached to.
+TEST_F(CrsfTrainerTest, releasedOnlyByOwningCtx)
+{
+  etx_serial_driver_t drv = {};
+  drv.setReceiveCb = stubSetReceiveCb;
+  int ctx, otherCtx;
+
+  crsfTrainerStart(&ctx, &drv);
+  ASSERT_EQ(stubRxCb, crsfTrainerReceiveData);
+
+  crsfTrainerReleaseCtx(&otherCtx);
+  EXPECT_EQ(stubRxCb, crsfTrainerReceiveData) << "released by another port";
+
+  crsfTrainerReleaseCtx(&ctx);
+  EXPECT_EQ(stubRxCb, nullptr);
 }
 
 #if defined(USB_SERIAL)

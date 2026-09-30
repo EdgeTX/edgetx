@@ -35,5 +35,8 @@
 void crsfTrainerStart(void* ctx, const etx_serial_driver_t* drv);
 void crsfTrainerStop();
 
+// Stop if attached to this driver context, before the context goes away
+void crsfTrainerReleaseCtx(void* ctx);
+
 // Receive callback: feeds a chunk of the byte stream into the frame assembler
 void crsfTrainerReceiveData(uint8_t* data, uint32_t len);

@@ -41,6 +41,9 @@
 //
 #define CRSF_MIN_FRAME_LEN 3
 
+// len byte of a CHANNELS_ID frame: type + 16 x 11-bit channels (22) + crc
+#define CRSF_CHANNELS_FRAME_LEN 24
+
 static uint8_t _crsf_buf[TELEMETRY_RX_PACKET_SIZE];
 static uint8_t _crsf_len = 0;
 
@@ -108,7 +111,9 @@ void crsfTrainerReceiveData(uint8_t* data, uint32_t len)
 
     if (_crsf_len < pkt_len) continue;  // incomplete, wait for more bytes
 
-    if (_checkCRC(_crsf_buf) && _crsf_buf[2] == CHANNELS_ID) {
+    // A truncated CHANNELS_ID frame would be decoded from stale buffer bytes
+    if (_checkCRC(_crsf_buf) && _crsf_buf[2] == CHANNELS_ID &&
+        _crsf_buf[1] >= CRSF_CHANNELS_FRAME_LEN) {
       // Fills trainerInput[] and resets the trainer validity timer
       crossfireProcessChannelsFrame(_crsf_buf);
     }
@@ -139,10 +144,16 @@ void crsfTrainerStop()
   auto drv = _crsf_drv;
   auto ctx = _crsf_ctx;
 
+  // Disarm first: no further callback can start once this returns, and the
+  // next user of the port gets a clean stream
+  if (drv && drv->setReceiveCb) drv->setReceiveCb(ctx, nullptr);
+
   _crsf_drv = nullptr;
   _crsf_ctx = nullptr;
   _crsf_len = 0;
+}
 
-  // Release the RX stream, so the next user of the port gets it
-  if (drv && drv->setReceiveCb) drv->setReceiveCb(ctx, nullptr);
+void crsfTrainerReleaseCtx(void* ctx)
+{
+  if (ctx && ctx == _crsf_ctx) crsfTrainerStop();
 }
