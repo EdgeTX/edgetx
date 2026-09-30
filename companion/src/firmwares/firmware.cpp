@@ -336,11 +336,11 @@ bool Firmware::isOptionDuplicate(const OptionsList & options, const QString & va
 
 bool Firmware::loadDefinition()
 {
-  if (m_loaded)
-    return true;
+  if (m_loaded) return true;
 
   // load default.json first and allow subsequent file values to override
   // this avoids having to include default in basedOn tree
+
   if (loadDefinition(QString("%1/%2.json").arg(FWDEFNSDIR).arg("default"))) {
     if (loadDefinition(m_path)) {
       m_loaded = true;
@@ -354,6 +354,19 @@ bool Firmware::loadDefinition()
 
 bool Firmware::loadDefinition(const QString & path)
 {
+  /*
+    Iterating is less efficient than looking for specific keys, especially at the top level.
+    However, it does provide the benefit of allowing reporting of all key value pairs
+    and any unexpected keys, which can make debugging json files easier.
+    The overhead is not excessive since we only load the full definition for
+    the firmware used.
+
+    An alternative is to build a custom schema and validate files against it.
+    As at Qt 6.9 there is no such a feature thus a third party
+    utility such as nlohmann/json-schema-validator would need to be
+    incorporated into the build process.
+  */
+
   bool success = true;
   QJsonDocument *doc = new QJsonDocument();
   QJsonObject o;
@@ -393,11 +406,12 @@ bool Firmware::loadDefinition(const QString & path)
     return false;
   }
 
-  //qDebug() << "loading values from:" << m_path;
+  qDebug() << "loading values from:" << m_path;
 
   for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-    //qDebug() << "key:" << it.key() << "value:" << it.value();
+    qDebug() << "key:" << it.key() << "value:" << it.value();
 
+    // skips first to save processing time and avoid unknown key warning messages
     if (it.key() == "hidden" || it.key() == "basedOn" || it.key() == "comments")
       continue;
 

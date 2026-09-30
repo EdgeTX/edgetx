@@ -1287,6 +1287,19 @@ bool Board::loadDefinition()
 
 bool Board::loadDefinition(const QString & path)
 {
+  /*
+    Iterating is less efficient than looking for specific keys, especially at the top level.
+    However, it does provide the benefit of allowing reporting of all key value pairs
+    and any unexpected keys, which can make debugging json files easier.
+    The overhead is not excessive since we only load the full definition for
+    the boards used.
+
+    An alternative is to build a custom schema and validate files against it.
+    As at Qt 6.9 there is no such a feature thus a third party
+    utility such as nlohmann/json-schema-validator would need to be
+    incorporated into the build process.
+  */
+
   bool success = true;
   QJsonDocument *doc = new QJsonDocument();
   QJsonObject o;
@@ -1296,7 +1309,7 @@ bool Board::loadDefinition(const QString & path)
     if (doc->isObject()) {
       o = doc->object();
 
-      // hwdefs are flat so not used
+      // hwdefs are flat i.e. have no basedOn key so walking not required
       if (isArray(o,"basedOn")) {
         QJsonArray a = o.value("basedOn").toArray();
 
@@ -1331,7 +1344,7 @@ bool Board::loadDefinition(const QString & path)
   for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
     qDebug() << "key:" << it.key() << "value:" << it.value();
 
-    // skips first to save processing time and no unknown key warning messages
+    // skips first to save processing time and avoid unknown key warning messages
     if (it.key() == "hidden" || it.key() == "basedOn" || it.key() == "comments")
       continue;
 

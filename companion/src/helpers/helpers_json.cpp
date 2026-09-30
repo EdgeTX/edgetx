@@ -25,15 +25,20 @@
 #include <QFile>
 #include <QMessageBox>
 
+const bool JsonBase::exists(const QJsonObject & obj, const QString & name)
+{
+  return !obj.value(name).isUndefined();
+}
+
 const QVariant JsonBase::getValue(const QJsonObject & obj, const QString & name,
                                   const QVariant & dflt)
 {
-  bool isvalid = !obj.value(name).isUndefined();
-
-  if (!isvalid)
+  if (!exists(obj, name)) {
     qWarning() << "Warning: name:" << name << "not found";
+    return dflt;
+  }
 
-  return isvalid ? obj.value(name).toVariant() : dflt;
+  return obj.value(name).toVariant();
 }
 
 const bool JsonBase::getValueBool(const QJsonObject::const_iterator & it, const bool dflt)

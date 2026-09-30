@@ -38,6 +38,8 @@ class JsonBase {
 
     static bool load(QJsonDocument * doc, const QString & path);
 
+    static const bool exists(const QJsonObject & obj, const QString & name);
+
     static const QVariant getValue(const QJsonObject & obj, const QString & name,
                                    const QVariant & dflt = QVariant());
 
