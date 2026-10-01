@@ -64,38 +64,30 @@ QString Firmware::getOptionTooltip(const QString opt)
   return registeredOptions.value(opt, tr("No tooltip available for this option"));
 }
 
-Firmware::Firmware(const QString & id, const QString & path, const bool isSupported) :
+Firmware::Firmware(const QString & id) :
   m_id(id),
-  m_path(path),
-  m_supported(isSupported),
+  m_supported(true),
   m_loaded(false),
-  m_valid(true)
+  m_valid(true),
+  m_board(nullptr)
 {
   m_defn = FirmwareDefn();
 
   QJsonDocument *doc = new QJsonDocument();
 
-  if (load(doc, path)) {
+  if (load(doc, QString("%1/%2.json").arg(FWDEFNSDIR).arg(id))) {
     QJsonObject obj = doc->object();
     // ignore intermediate definitions
     if (!getValue(obj, "hidden", false).toBool()) {
-      m_defn.id = getValueStdString(obj, "id", "unknown");
-      m_defn.name = getValueStdString(obj, "name", "unknown");
-      m_defn.boardId = getValueStdString(obj, "boardId", "unknown");
+      m_defn.name = getValue(obj, "name", "unknown").toString().toStdString();
+      m_defn.boardId = getValue(obj, "board", id).toString().toStdString();
 
-      if (m_defn.id == "unknown") {
-        m_valid = false;
-        qCritical() << "Error - file:" << path << "does not contain an id";
-      }
-
-      if (m_defn.boardId == "unknown") {
-        m_valid = false;
-        qCritical() << "Error - file:" << path << "does not contain a boardId";
-      } else {
-        m_board = gBoardFactories->boardForId(m_defn.boardId.c_str());
-      }
+      if (Board::isAvailable(m_defn.boardId.c_str()))
+        m_board = Board::getBoardForId(m_defn.boardId.c_str());
+      else
+        qDebug() << "Error: cannot find board:" << m_defn.boardId;
     } else {
-      qDebug() << "ignoring" << path;
+      qDebug() << "Error: attempt to register hidden firmware id:" << id;
     }
   }
 
@@ -424,10 +416,7 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "name")
       m_defn.name = getValueStdString(it);
 
-    else if (it.key() == "bddefn")
-      m_defn.boardId = getValueStdString(it);
-
-    else if (it.key() == "hwdefn")
+    else if (it.key() == "board")
       m_defn.boardId = getValueStdString(it);
 
     else if (it.key() == "dwnldId")
@@ -484,8 +473,8 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "timers")
       loadGroup(it, m_defn.timers, CPN_MAX_TIMERS, 8);
 
-    else if (isArray(o, "options"))
-      loadOptions(it);
+    else if (isArray(o, "buildOpts"))
+      loadBuildOptions(it);
 
     else
       qWarning() << "Warning: No rule to process - path:" << path << "name:" << it.key() << "value:" << it.value();
@@ -580,7 +569,7 @@ void Firmware::loadModelImage(QJsonObject::const_iterator & oit)
         qWarning() << "Warning: modelImage is not an object";
 }
 
-void Firmware::loadOptions(QJsonObject::const_iterator & it)
+void Firmware::loadBuildOptions(QJsonObject::const_iterator & it)
 {
   if (it->isArray()) {
     QJsonArray arrOptions = it->toArray();
@@ -594,12 +583,12 @@ void Firmware::loadOptions(QJsonObject::const_iterator & it)
 
         for (QJsonArray::const_iterator itOptGrp = arrOptGrp.constBegin(); itOptGrp != arrOptGrp.constEnd(); ++itOptGrp) {
           if (!isOptionDuplicate(grp,(*itOptGrp).toString()))
-            loadOptionGroup(itOptGrp, grp);
+            loadBuildOptionGroup(itOptGrp, grp);
           else
             qWarning() << "Warning: duplicate option:" << *itOptGrp;
         }
       } else
-        loadOptionGroup(itOptions, grp);
+        loadBuildOptionGroup(itOptions, grp);
 
       if (grp.count())
         m_defn.options.append(grp);
@@ -608,7 +597,7 @@ void Firmware::loadOptions(QJsonObject::const_iterator & it)
     qWarning() << "Warning: options is not an array";
 }
 
-void Firmware::loadOptionGroup(QJsonArray::const_iterator & it, OptionsGroup & grp)
+void Firmware::loadBuildOptionGroup(QJsonArray::const_iterator & it, OptionsGroup & grp)
 {
   if ((*it).isString()) {
     QString opt((*it).toString());

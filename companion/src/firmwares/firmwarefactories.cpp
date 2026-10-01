@@ -25,8 +25,8 @@
 
 FirmwareFactories* gFirmwareFactories = nullptr;
 
-FirmwareFactory::FirmwareFactory(const QString & id, const QString & path, const bool isSupported) :
-  m_firmware(new Firmware(id, path, isSupported))
+FirmwareFactory::FirmwareFactory(const QString & id) :
+  m_firmware(new Firmware(id))
 {}
 
 FirmwareFactories::FirmwareFactories()
@@ -92,10 +92,9 @@ void FirmwareFactories::registerAllFirmwares()
       QJsonObject obj = doc->object();
       // ignore intermediate definitions
       if (!Firmware::getValueBool(obj, "hidden", false)) {
-        QString id = Firmware::getValueString(obj, "id", QFileInfo(path).baseName());
-        registerFirmware("edgetx-" % id, path, Firmware::getValueBool(obj, "supported", true));
+        registerFirmware(QFileInfo(path).baseName());
       } else {
-        //qDebug() << "ignoring file:" << path;
+        qInfo() << "Ignoring hidden file:" << path;
       }
     }
 
@@ -118,16 +117,16 @@ QMap<QString, QString> FirmwareFactories::registeredFirmwares() const
   return ret;
 }
 
-bool FirmwareFactories::registerFirmware(const QString & id, const QString & path, const bool isSupported)
+bool FirmwareFactories::registerFirmware(const QString & id)
 {
   Firmware* firmware = getFirmware(id);
 
   if (firmware) {
-    qWarning() << "Error - Firmware id:" << id << "file:" << path << "already registered";
+    qWarning() << "Error - Firmware id:" << id << "already registered";
     return false;
   }
 
-  FirmwareFactory *ff = new FirmwareFactory(id, path, isSupported);
+  FirmwareFactory *ff = new FirmwareFactory(id);
 
   if (registerFactory(ff)) {
     qDebug() << "Registered firmware:" << ff->getFirmware()->getId() << ff->getFirmware()->getName();

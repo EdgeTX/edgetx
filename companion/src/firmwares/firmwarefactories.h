@@ -26,7 +26,7 @@
 class FirmwareFactory
 {
   public:
-    explicit FirmwareFactory(const QString & id, const QString & path, const bool isSupported = true);
+    explicit FirmwareFactory(const QString & id);
 
     virtual ~FirmwareFactory() {}
 
@@ -45,7 +45,7 @@ class FirmwareFactories
     Firmware* getFirmware(const QString & id) const;
     bool isAvailable(const QString & id) const;
 
-    bool registerFirmware(const QString & id, const QString & path, const bool isSupported = true);
+    bool registerFirmware(const QString & id);
     bool registerFactory(FirmwareFactory * factory);
     void unregisterFactories();
     void registerAllFirmwares();

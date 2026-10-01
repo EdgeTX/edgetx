@@ -1,0 +1,16 @@
+{
+  "comments": "MUST be listed in basedOn AFTER flex_switches",
+  "hidden": true,
+  "switches": [
+    {
+      "name": "VGR",
+      "type": "2POS",
+      "default": "2POS"
+    },
+    {
+      "name": "VFL",
+      "type": "3POS",
+      "default": "3POS"
+    }
+  ]
+}

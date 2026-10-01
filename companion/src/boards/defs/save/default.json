@@ -1,0 +1,65 @@
+{
+  "comments": [
+    "This file is always loaded first, then hwdefn, then variations overlaid in basedOn sequence",
+    "hidden: true prevents the name being displayed in any ui lists",
+    "supported: false prevents the name being displayed in any ui list however available for data conversion",
+    "Some entries are future proofing eg external modules and for parsing consistency"
+  ],
+  "hidden": true,
+  "id": "default",
+  "name": "Default",
+  "supported": true,
+  "basedOn": "",
+  "hwDefn": "",
+  "modules": [
+    {
+      "internal": {
+        "comments": "refer external for complete list",
+        "available": [
+          "elrs",
+          "multi"
+        ],
+        "default": "elrs"
+      }
+    },
+    {
+      "external": {
+        "comments": "replaces module size. replace available: all with full list to make it easier to pick from",
+        "available": [
+          "all"
+        ]
+      }
+    }
+  ],
+  "battery": {
+    "min": 0,
+    "max": 0,
+    "warn": 0
+  },
+  "auxSerialMode": false,
+  "aux2SerialMode":false,
+  "backlightLevelMin": 0,
+  "bluetoothName": "unknown",
+  "chargeWhileOn": false,
+  "contrast": {
+    "min": 0,
+    "max": 0
+  },
+  "defExtModSz": "std",
+  "eepromSize": 0,
+  "externalAntenna": false,
+  "flashSize": 0,
+  "fourCC": 0,
+  "hardwareAntennaSwitch": false,
+  "hats": false,
+  "imu": false,
+  "internalGPS": false,
+  "maxVolume": 0,
+  "pwrButtonPress": true,
+  "rotaryEncNav": true,
+  "softwareSerialPower": false,
+  "stickDeadZone": false,
+  "switchableJack": false,
+  "trainerModule": "none",
+  "vcpSerialMode": false
+}

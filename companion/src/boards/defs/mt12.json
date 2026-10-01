@@ -1,7 +1,5 @@
 {
   "basedOn": [
-    "flex_switches"
   ],
-  "id": "mt12",
-  "name": "MT12"
+  "name": "Mt12"
 }

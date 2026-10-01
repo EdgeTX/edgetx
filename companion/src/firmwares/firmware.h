@@ -89,9 +89,9 @@ class Firmware : public JsonBase
     struct FirmwareDefn {
       std::string   id                {"unknown"};
       std::string   name              {"unknown"};
-      std::string   boardId           {""};                 // default firmware id
-      std::string   dwnldId           {""};                 // default firmware id
-      std::string   simuId            {""};                 // default firmware id
+      std::string   boardId           {""};                 // default id
+      std::string   dwnldId           {""};                 // default id
+      std::string   simuId            {""};                 // default id
 
       bool          categories        {true};               // same thing?
       bool          labels            {true};               // same thing?
@@ -131,7 +131,7 @@ class Firmware : public JsonBase
       FirmwareDefn() = default;
     };
 
-    explicit Firmware(const QString & id, const QString & path, const bool isSupported = true);
+    explicit Firmware(const QString & id);
     virtual ~ Firmware() {}
 
     Board * getBoard() const { return m_board; }
@@ -188,8 +188,8 @@ class Firmware : public JsonBase
                    const int cntMin = 0, const int nameMin = 0);
     void loadLuaScripts(QJsonObject::const_iterator & it);
     void loadModelImage(QJsonObject::const_iterator & it);
-    void loadOptions(QJsonObject::const_iterator & it);
-    void loadOptionGroup(QJsonArray::const_iterator & it, OptionsGroup & grp);
+    void loadBuildOptions(QJsonObject::const_iterator & it);
+    void loadBuildOptionGroup(QJsonArray::const_iterator & it, OptionsGroup & grp);
     void loadOutputs(QJsonObject::const_iterator & it);
     void loadTeleCstmScrns(QJsonObject::const_iterator & it);
     bool postLoad();

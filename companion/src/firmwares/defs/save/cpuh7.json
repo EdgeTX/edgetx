@@ -1,0 +1,5 @@
+{
+  "hidden": true,
+  "gvars": { "max": 15 },
+  "sensors": { "max": 99 }
+}
