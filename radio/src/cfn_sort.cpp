@@ -765,26 +765,26 @@ Functions cfn_sorted[] = {
 #if defined(COLORLCD)
   /* Deaktivácia dotyku */ FUNC_DISABLE_TOUCH,
 #endif
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* Deaktivácia klávesov */ FUNC_DISABLE_KEYS,
+#endif
   /* Hlasitosť */ FUNC_VOLUME,
   /* Hlásiť stav */ FUNC_PLAY_VALUE,
   /* Hudba */ FUNC_BACKGND_MUSIC,
   /* Hudba pauza */ FUNC_BACKGND_MUSIC_PAUSE,
-  /* Insta-Trim */ FUNC_INSTANT_TRIM,
 #if OLED_SCREEN
   /* Jas */ FUNC_BACKLIGHT,
 #endif
   /* Kontrola dosahu */ FUNC_RANGECHECK,
 #if defined(VIDEO_SWITCH)
-  /* LCD to Video */ FUNC_LCD_TO_VIDEO,
+  /* LCD na video */ FUNC_LCD_TO_VIDEO,
 #endif
   /* Loguj na SD */ FUNC_LOGS,
   /* Lua Skript */ FUNC_PLAY_SCRIPT,
   /* Nastav */ FUNC_ADJUST_GVAR,
-  /* Nastaviť Failsafe */ FUNC_SET_FAILSAFE,
-#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
-  /* No Keys */ FUNC_DISABLE_KEYS,
-#endif
-  /* Párovanie Modulu */ FUNC_BIND,
+  /* Nastaviť failsafe */ FUNC_SET_FAILSAFE,
+  /* Okamžitý trim */ FUNC_INSTANT_TRIM,
+  /* Párovanie modulu */ FUNC_BIND,
 #if !OLED_SCREEN
   /* Podsvietenie */ FUNC_BACKLIGHT,
 #endif
