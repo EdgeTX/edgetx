@@ -40,6 +40,8 @@
  #include "yaml_datastructs_tx15.cpp"
 #elif defined(PCBT15)
  #include "yaml_datastructs_t15pro.cpp"
+#elif defined(PCBT15H7)
+ #include "yaml_datastructs_t15h7.cpp"
 #elif defined(PCBTX16SMK3)
  #include "yaml_datastructs_tx16smk3.cpp"
 #elif defined(PCBH17)
