@@ -147,7 +147,7 @@ const LangStrings* const langStrings[] = {
   &ptLangStrings,
   &ruLangStrings,
   &seLangStrings,
-  &skLangStrings,  
+  &enLangStrings,
   &enLangStrings,
   &enLangStrings,
   &uaLangStrings,

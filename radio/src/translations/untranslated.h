@@ -19,7 +19,7 @@
  * GNU General Public License for more details.
  */
 
-#if defined(TRANSLATIONS_CZ) || defined(TRANSLATIONS_PL)
+#if defined(TRANSLATIONS_CZ) || defined(TRANSLATIONS_PL) || defined(TRANSLATIONS_SK)
   #define MAX_PLURAL2 4
   #define USE_PLURAL2_SPECIAL_CASE 1
 #else
@@ -37,7 +37,7 @@
 #endif
 
 // If the number of minutes is above this value PLURAL2 is used
-#if defined(TRANSLATIONS_CZ)
+#if defined(TRANSLATIONS_CZ) || defined(TRANSLATIONS_SK)
   #define USE_PLURAL2 20
 #else
   #define USE_PLURAL2 INT_MAX
