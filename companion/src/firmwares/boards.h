@@ -261,6 +261,7 @@ namespace Board {
     HasVCPSerialMode,
     Inputs,
     InputSwitches,
+    IsF2,
     IsF4,
     IsH5,
     IsH7,

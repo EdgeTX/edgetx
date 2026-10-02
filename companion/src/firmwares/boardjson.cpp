@@ -271,6 +271,9 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::InputSwitches:
       return m_inputCnt.switches;
 
+    case Board::IsF2:
+      return m_hardware.cpu_type == "STM32F2";
+
     case Board::IsF4:
       return m_hardware.cpu_type == "STM32F4";
 

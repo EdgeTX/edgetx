@@ -390,7 +390,7 @@ void MainWindow::saveAll()
 {
   foreach (QMdiSubWindow * window, mdiArea->subWindowList()) {
     MdiChild * child;
-    if ((child = qobject_cast<MdiChild *>(window->widget())) && child->isWindowModified())
+    if ((child = qobject_cast<MdiChild *>(window->widget())) && child->isWindowModified() && !child->isReadOnly())
       child->save();
   }
 }
@@ -666,13 +666,16 @@ void MainWindow::updateMenus()
 
   newAct->setEnabled(true);
   openAct->setEnabled(true);
-  saveAct->setEnabled(activeChild);
-  saveAsAct->setEnabled(activeChild);
+  // documents for radios no longer supported (STM32F2) can only be viewed
+  MdiChild * child = activeMdiChild();
+  const bool canWrite = child && !child->isReadOnly();
+  saveAct->setEnabled(canWrite);
+  saveAsAct->setEnabled(canWrite);
   closeAct->setEnabled(activeChild);
   compareAct->setEnabled(activeChild);
-  writeSettingsAct->setEnabled(activeChild);
+  writeSettingsAct->setEnabled(canWrite);
   readSettingsAct->setEnabled(true);
-  writeSettingsSDPathAct->setEnabled(activeChild && isSDPathValid());
+  writeSettingsSDPathAct->setEnabled(canWrite && isSDPathValid());
   readSettingsSDPathAct->setEnabled(isSDPathValid());
   writeBUToRadioAct->setEnabled(false);
   readBUToFileAct->setEnabled(false);

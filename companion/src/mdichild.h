@@ -108,6 +108,7 @@ class MdiChild : public QWidget
     QAction * getAction(const Actions type);
     int invalidModels();
     QStringList modelErrorsList();
+    bool isReadOnly() const;
 
   public slots:
     void newFile(bool useProfileSettings = false);
@@ -130,6 +131,7 @@ class MdiChild : public QWidget
     virtual void changeEvent(QEvent * event);
     virtual void closeEvent(QCloseEvent * event);
     virtual void resizeEvent(QResizeEvent * event);
+    virtual void showEvent(QShowEvent * event);
     virtual QSize sizeHint() const;
 
   private slots:
@@ -220,6 +222,9 @@ class MdiChild : public QWidget
     bool hasClipboardData(const quint8 type = 0) const;
 
     bool maybeSave();
+    bool checkWritable();
+    void showReadOnlyNotice();
+    void showReadOnlyMessage(QMessageBox::Icon icon, const QString & title);
     void setCurrentFile(const QString & fileName);
     void forceNewFilename(const QString & suffix = "", const QString & ext = "etx");
     bool convertStorage(Board::Type from, Board::Type to, bool newFile = false);
@@ -255,6 +260,7 @@ class MdiChild : public QWidget
     bool isUntitled;
     bool showLabelToolbar;
     bool forceCloseFlag;
+    bool readOnlyNoticeShown = false;
     const quint16 stateDataVersion;
     AbstractStaticItemModel* modelSortOrderItemModel;
     QComboBox* cboModelSortOrder;
