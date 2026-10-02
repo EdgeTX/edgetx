@@ -24,7 +24,8 @@
 
 #define ETX_STATE_TIMER_ELAPSED LV_STATE_USER_1
 #define ETX_STATE_TELEM_STALE LV_STATE_USER_2
-#define ETX_STATE_LARGE_FONT LV_STATE_USER_3
+#define ETX_STATE_L_FONT LV_STATE_USER_3
+#define ETX_STATE_XL_FONT LV_STATE_USER_4
 
 class ValueWidget : public Widget
 {
@@ -57,21 +58,52 @@ class ValueWidget : public Widget
     etx_txt_color(label, COLOR_THEME_DISABLED_INDEX, ETX_STATE_TELEM_STALE);
     lv_label_set_text(label, "");
 
-    valueShadow = etx_label_create(lvobj, FONT_L_INDEX);
+    valueShadow = etx_label_create(lvobj);
     lv_obj_add_style(valueShadow, &valueStyle, LV_PART_MAIN);
     lv_obj_set_style_text_color(valueShadow, lv_color_black(), LV_PART_MAIN);
-    etx_font(valueShadow, FONT_XL_INDEX, ETX_STATE_LARGE_FONT);
+    etx_font(valueShadow, FONT_L_INDEX, ETX_STATE_L_FONT);
+    etx_font(valueShadow, FONT_XL_INDEX, ETX_STATE_XL_FONT);
     lv_label_set_text(valueShadow, "");
 
-    value = etx_label_create(lvobj, FONT_L_INDEX);
+    value = etx_label_create(lvobj);
     lv_obj_add_style(value, &valueStyle, LV_PART_MAIN);
     etx_txt_color(value, COLOR_THEME_WARNING_INDEX, ETX_STATE_TIMER_ELAPSED);
     etx_txt_color(value, COLOR_THEME_DISABLED_INDEX, ETX_STATE_TELEM_STALE);
-    etx_font(value, FONT_XL_INDEX, ETX_STATE_LARGE_FONT);
+    etx_font(value, FONT_L_INDEX, ETX_STATE_L_FONT);
+    etx_font(value, FONT_XL_INDEX, ETX_STATE_XL_FONT);
     lv_label_set_text(value, "");
 
     update();
     checkEvents();
+  }
+
+  void setValueText(std::string& text)
+  {
+    // Calculate font size and text position based on text width and window size
+    int fontSize = 0;
+    int w = getTextWidth(text.c_str(), 0, FONT(XL));
+    if ((height() >= H_CHK) && (w + valueX + 1 <= width())) {
+      fontSize = ETX_STATE_XL_FONT;
+    } else {
+      w = getTextWidth(text.c_str(), 0, FONT(L));
+      if (w + valueX + 1 <= width()) {
+        fontSize = ETX_STATE_L_FONT;
+      }
+    }
+    if (fontSize) {
+      lv_obj_add_state(value, fontSize);
+      lv_obj_add_state(valueShadow, fontSize);
+      lv_obj_set_pos(valueShadow, valueX + 1, valueY + 1);
+      lv_obj_set_pos(value, valueX, valueY);
+    } else {
+      lv_obj_clear_state(value, ETX_STATE_L_FONT | ETX_STATE_XL_FONT);
+      lv_obj_clear_state(valueShadow, ETX_STATE_L_FONT | ETX_STATE_XL_FONT);
+      lv_obj_set_pos(valueShadow, valueX + 1, valueY + 1 + PAD_SMALL);
+      lv_obj_set_pos(value, valueX, valueY + PAD_SMALL);
+    }
+  
+    lv_label_set_text(value, text.c_str());
+    lv_label_set_text(valueShadow, text.c_str());
   }
 
   void checkEvents() override
@@ -163,8 +195,7 @@ class ValueWidget : public Widget
             getSourceCustomValueString(field, getValue(field), valueFlags);
       }
 
-      lv_label_set_text(value, valueTxt.c_str());
-      lv_label_set_text(valueShadow, valueTxt.c_str());
+      setValueText(valueTxt);
     }
   }
 
@@ -180,6 +211,8 @@ class ValueWidget : public Widget
   lv_obj_t* value;
   lv_obj_t* valueShadow;
   LcdFlags valueFlags = 0;
+  lv_coord_t valueX = 0;
+  lv_coord_t valueY = VAL_Y1;
 
   static LAYOUT_VAL_SCALED(VAL_Y1, 14)
   static LAYOUT_VAL_SCALED(VAL_Y2, 18)
@@ -207,49 +240,19 @@ class ValueWidget : public Widget
 
     lv_coord_t labelX = 0;
     lv_coord_t labelY = 0;
-    lv_coord_t valueX = 0;
-    lv_coord_t valueY = VAL_Y1;
-
-    // Set font to L
-    lv_obj_clear_state(value, ETX_STATE_LARGE_FONT);
-    lv_obj_clear_state(valueShadow, ETX_STATE_LARGE_FONT);
+    valueX = 0;
+    valueY = VAL_Y1;
 
     // Get positions, alignment and value font size.
-    if (height() < H_CHK) {
-      if (width() >= W_CHK) {
-        lblAlign = ALIGN_LEFT;
-        valAlign = ALIGN_RIGHT;
-        labelX = PAD_SMALL;
-        labelY = PAD_TINY;
-        valueX = -PAD_SMALL;
-        valueY = -PAD_TINY;
-      }
-    } else {
+    if (height() >= H_CHK) {
       labelX = (lblAlign == ALIGN_LEFT)     ? PAD_SMALL
                : (lblAlign == ALIGN_CENTER) ? -PAD_THREE
                                             : -PAD_SMALL;
-      labelY = 2;
+      labelY = PAD_TINY;
       valueX = (valAlign == ALIGN_LEFT)     ? PAD_SMALL
                : (valAlign == ALIGN_CENTER) ? 1
                                             : -PAD_SMALL;
       valueY = VAL_Y2;
-      if (field >= MIXSRC_FIRST_TELEM) {
-        int8_t sensor = 1 + (field - MIXSRC_FIRST_TELEM) / 3;
-        if (!isGPSSensor(sensor) && !isSensorUnit(sensor, UNIT_DATETIME) && !isSensorUnit(sensor, UNIT_TEXT)) {
-          // Set font to XL
-          lv_obj_add_state(value, ETX_STATE_LARGE_FONT);
-          lv_obj_add_state(valueShadow, ETX_STATE_LARGE_FONT);
-        }
-      }
-#if defined(INTERNAL_GPS)
-      else if (field == MIXSRC_TX_GPS) {
-      }
-#endif
-      else {
-        // Set font to XL
-        lv_obj_add_state(value, ETX_STATE_LARGE_FONT);
-        lv_obj_add_state(valueShadow, ETX_STATE_LARGE_FONT);
-      }
     }
 
     // Set text alignment
