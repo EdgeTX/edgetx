@@ -23,7 +23,6 @@
 
 #include "../shared/capabilities.h"
 #include "datahelpers.h"
-#include "helpers_json.h"
 
 #include <QtCore>
 #include <QObject>
@@ -46,7 +45,7 @@ constexpr char AIM_BOARD_SWITCH_TYPE[]   {"board.switchtype"};
 constexpr char AIM_BOARD_MODULE_SIZE[]   {"board.extmodulesize"};
 constexpr char AIM_BOARD_FLEX_TYPE[]     {"board.flextype"};
 
-class Board : public JsonBase
+class Board
 {
   Q_DECLARE_TR_FUNCTIONS(Board)
 

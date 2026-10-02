@@ -23,14 +23,13 @@
 
 #include <QByteArray>
 #include <QFile>
-#include <QMessageBox>
 
-const bool JsonBase::exists(const QJsonObject & obj, const QString & key)
+const bool Json::exists(const QJsonObject & obj, const QString & key)
 {
   return !obj.value(key).isUndefined();
 }
 
-const QVariant JsonBase::getValue(const QJsonObject & obj, const QString & key, bool manditory,
+const QVariant Json::getValue(const QJsonObject & obj, const QString & key, bool manditory,
                                   const QVariant & dflt)
 {
   if (!exists(obj, key)) {
@@ -43,7 +42,7 @@ const QVariant JsonBase::getValue(const QJsonObject & obj, const QString & key, 
   return obj.value(key).toVariant();
 }
 
-const bool JsonBase::getValueBool(const QJsonObject::const_iterator & it, const bool dflt)
+const bool Json::getValueBool(const QJsonObject::const_iterator & it, const bool dflt)
 {
   bool isvalid = it.value().isBool();
 
@@ -53,7 +52,7 @@ const bool JsonBase::getValueBool(const QJsonObject::const_iterator & it, const 
   return isvalid ? it.value().toBool() : dflt;
 }
 
-const bool JsonBase::getValueBool(const QJsonObject & obj, const QString & key,
+const bool Json::getValueBool(const QJsonObject & obj, const QString & key,
                                   const bool dflt)
 {
   bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isBool());
@@ -64,7 +63,7 @@ const bool JsonBase::getValueBool(const QJsonObject & obj, const QString & key,
   return isvalid ? obj.value(key).toBool() : dflt;
 }
 
-const int JsonBase::getValueInt(const QJsonObject::const_iterator & it,
+const int Json::getValueInt(const QJsonObject::const_iterator & it,
                                 const int dflt, const int max, const int min)
 {
   bool isvalid = it.value().isDouble();
@@ -79,7 +78,7 @@ const int JsonBase::getValueInt(const QJsonObject::const_iterator & it,
   return (isvalid && (min < max ? value >= min && value <= max : true)) ? value : dflt;
 }
 
-const int JsonBase::getValueInt(const QJsonObject & obj, const QString & key,
+const int Json::getValueInt(const QJsonObject & obj, const QString & key,
                                 const int dflt, const int max, const int min)
 {
   bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isDouble());
@@ -94,7 +93,7 @@ const int JsonBase::getValueInt(const QJsonObject & obj, const QString & key,
   return (isvalid && (min < max ? value >= min && value <= max : true)) ? value : dflt;
 }
 
-const std::string JsonBase::getValueStdString(const QJsonObject::const_iterator & it,
+const std::string Json::getValueStdString(const QJsonObject::const_iterator & it,
                                               const std::string & dflt)
 {
   bool isvalid = it.value().isString();
@@ -105,7 +104,7 @@ const std::string JsonBase::getValueStdString(const QJsonObject::const_iterator 
   return isvalid ? it.value().toString().toStdString() : dflt;
 }
 
-const std::string JsonBase::getValueStdString(const QJsonObject & obj, const QString & key,
+const std::string Json::getValueStdString(const QJsonObject & obj, const QString & key,
                                               const std::string & dflt)
 {
   bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isString());
@@ -116,7 +115,7 @@ const std::string JsonBase::getValueStdString(const QJsonObject & obj, const QSt
   return isvalid ? obj.value(key).toString().toStdString() : dflt;
 }
 
-const QString JsonBase::getValueString(const QJsonObject::const_iterator & it,
+const QString Json::getValueString(const QJsonObject::const_iterator & it,
                                        const QString & dflt)
 {
   bool isvalid = it.value().isString();
@@ -127,7 +126,7 @@ const QString JsonBase::getValueString(const QJsonObject::const_iterator & it,
   return isvalid ? it.value().toString() : dflt;
 }
 
-const QString JsonBase::getValueString(const QJsonObject & obj, const QString & key,
+const QString Json::getValueString(const QJsonObject & obj, const QString & key,
                                        const QString & dflt)
 {
   bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isString());
@@ -138,23 +137,22 @@ const QString JsonBase::getValueString(const QJsonObject & obj, const QString & 
   return isvalid ? obj.value(key).toString() : dflt;
 }
 
-const bool JsonBase::isArray(const QJsonObject & obj, const QString & key)
+const bool Json::isArray(const QJsonObject & obj, const QString & key)
 {
   return !obj.value(key).isUndefined() && obj.value(key).isArray();
 }
 
-const bool JsonBase::isObject(const QJsonObject & obj, const QString & key)
+const bool Json::isObject(const QJsonObject & obj, const QString & key)
 {
   return !obj.value(key).isUndefined() && obj.value(key).isObject();
 }
 
-bool JsonBase::load(QJsonDocument * doc, const QString & filename)
+bool Json::load(QJsonDocument * doc, const QString & filename)
 {
   QFile file(filename);
 
   if (!file.open(QIODevice::ReadOnly)) {
-    QMessageBox::critical(nullptr, tr("Load Json File"),
-                          tr("Error: Unable to open file %1").arg(file.fileName()));
+    qCritical() << "Error: Unable to open file:" << filename;
     return false;
   }
 
@@ -163,8 +161,7 @@ bool JsonBase::load(QJsonDocument * doc, const QString & filename)
   file.close();
 
   if (buffer->isEmpty()) {
-    QMessageBox::critical(nullptr, tr("Load Json File"),
-                          tr("Error: Unable to read file %1").arg(file.fileName()));
+    qCritical() << "Error: Unable to read file:" << filename;
     return false;
   }
 
@@ -173,9 +170,8 @@ bool JsonBase::load(QJsonDocument * doc, const QString & filename)
   delete buffer;
 
   if (res.error || doc->isNull() || !doc->isObject()) {
-    QMessageBox::critical(nullptr, tr("Load Json File"),
-      tr("Error: %1 is not a valid json formatted file.\nError code: %2\nError description: %3")
-          .arg(file.fileName()).arg(res.error).arg(res.errorString()));
+    qCritical() << QString("Error: %1 is not a valid json formatted file.\nError code: %2\nError description: %3")
+                           .arg(filename).arg(res.error).arg(res.errorString());
     *doc = QJsonDocument();
     return false;
   }

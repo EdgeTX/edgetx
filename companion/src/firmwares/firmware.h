@@ -23,7 +23,6 @@
 
 #include "../shared/capabilities.h"
 #include "constants.h"
-#include "helpers_json.h"
 
 #include <QtCore>
 
@@ -31,7 +30,7 @@ constexpr char FWDEFNSDIR[] { ":/fwdefs" };
 
 class Board;
 
-class Firmware : public JsonBase
+class Firmware
 {
   Q_DECLARE_TR_FUNCTIONS(Firmware)
 

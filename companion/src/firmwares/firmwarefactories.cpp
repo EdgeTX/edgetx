@@ -20,6 +20,7 @@
  */
 
 #include "firmwarefactories.h"
+#include "helpers_json.h"
 
 #include <QFileInfo>
 
@@ -88,10 +89,10 @@ void FirmwareFactories::registerAllFirmwares()
     //qDebug() << "found file:" << path;
     QJsonDocument *doc = new QJsonDocument();
 
-    if (Firmware::load(doc, path)) {
+    if (Json::load(doc, path)) {
       QJsonObject obj = doc->object();
       // ignore intermediate definitions
-      if (!Firmware::getValueBool(obj, "hidden", false)) {
+      if (!Json::getValueBool(obj, "hidden", false)) {
         registerFirmware(QFileInfo(path).baseName());
       } else {
         qInfo() << "Ignoring hidden file:" << path;

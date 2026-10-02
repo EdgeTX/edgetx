@@ -25,16 +25,15 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-
 #include <string>
 
-class JsonBase {
+class Json {
 
-  Q_DECLARE_TR_FUNCTIONS(JsonBase)
+  Q_DECLARE_TR_FUNCTIONS(Json)
 
   public:
-    explicit JsonBase() {}
-    virtual ~JsonBase() {}
+    explicit Json() {}
+    virtual ~Json() {}
 
     static bool load(QJsonDocument * doc, const QString & path);
 

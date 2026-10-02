@@ -20,6 +20,7 @@
  */
 
 #include "boardfactories.h"
+#include "helpers_json.h"
 
 BoardFactories* gBoardFactories = nullptr;
 
@@ -119,11 +120,11 @@ void BoardFactories::registerAllBoards()
     qDebug() << "found file:" << path;
     QJsonDocument *doc = new QJsonDocument();
 
-    if (Board::load(doc, path)) {
+    if (Json::load(doc, path)) {
       QJsonObject obj = doc->object();
       // ignore intermediate definitions
-      if (!Board::getValueBool(obj, "hidden", false)) {
-        QString id = Board::getValueString(obj, "id", QFileInfo(path).baseName());
+      if (!Json::getValueBool(obj, "hidden", false)) {
+        QString id = Json::getValueString(obj, "id", QFileInfo(path).baseName());
         registerBoard(id, path);
       } else {
         qDebug() << "ignoring file:" << path;
