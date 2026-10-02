@@ -286,9 +286,14 @@ void RadioSdManagerPage::dirAction(const char* path, const char* name,
     std::string extension("");
     if (ext) extension = ext;
 
+    // full paths, so the rename doesn't depend on FatFs's working folder
+    std::string from(fullpath);
+    std::string dir(path);
+    if (dir.back() != '/') dir += '/';
+
     new LabelDialog(fname.c_str(), maxNameLength, STR_RENAME_FILE, [=](std::string label) {
-      label += extension;
-      f_rename((const TCHAR *)name, (const TCHAR *)label.c_str());
+      std::string to = dir + label + extension;
+      f_rename((const TCHAR *)from.c_str(), (const TCHAR *)to.c_str());
       browser->refresh();
     });
   });
@@ -510,9 +515,14 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
     std::string extension("");
     if (ext) extension = ext;
 
+    // full paths, so the rename doesn't depend on FatFs's working folder
+    std::string from(fullpath);
+    std::string dir(path);
+    if (dir.back() != '/') dir += '/';
+
     new LabelDialog(fname.c_str(), maxNameLength, STR_RENAME_FILE, [=](std::string label) {
-      label += extension;
-      f_rename((const TCHAR *)name, (const TCHAR *)label.c_str());
+      std::string to = dir + label + extension;
+      f_rename((const TCHAR *)from.c_str(), (const TCHAR *)to.c_str());
       browser->refresh();
     });
   });

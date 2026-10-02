@@ -502,7 +502,15 @@ void menuRadioSdManager(event_t _event)
 
       reusableBuffer.sdManager.count = 0;
 
-      FRESULT res = f_opendir(&dir, "."); // Open the directory
+      // A Lua script can chdir() behind the SD manager's back: point FatFs
+      // back at the tracked folder and list that, so the list and file
+      // actions agree.
+      if (etxChdir(sdManagerPath) != FR_OK) {
+        strcpy(sdManagerPath, ROOT_PATH);
+        etxChdir(sdManagerPath);
+      }
+
+      FRESULT res = f_opendir(&dir, sdManagerPath); // Open the directory
       if (res == FR_OK) {
         bool firstTime = true;
         for (;;) {

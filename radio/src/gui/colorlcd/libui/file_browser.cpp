@@ -95,7 +95,14 @@ int FileBrowser::scan_files(std::list<std::string>& files,
   FILINFO fno;
   DIR dir;
 
-  FRESULT res = f_opendir(&dir, "."); // Open the directory
+  // A Lua script can chdir() behind the browser's back: point FatFs back at
+  // the tracked folder and list that, so the list and file actions agree.
+  if (etxChdir(currentPath.c_str()) != FR_OK) {
+    currentPath = ROOT_PATH;
+    etxChdir(currentPath.c_str());
+  }
+
+  FRESULT res = f_opendir(&dir, currentPath.c_str()); // Open the directory
   if (res != FR_OK) return -1;
 
   // read all entries
