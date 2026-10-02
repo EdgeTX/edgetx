@@ -584,23 +584,12 @@ void _sport_set_pwr(uint8_t enabled)
   gpio_write(SPORT_UPDATE_PWR_GPIO, enabled);
 }
 
-#if defined(RADIO_X7)
-// set_pwr is set at runtime once
-// the PCB has been identified
-etx_module_t _sport_module = {
-  .ports = nullptr,
-  .set_pwr = nullptr,
-  .set_bootcmd = nullptr,
-  .n_ports = 0,
-};
-#else
 const etx_module_t _sport_module = {
   .ports = nullptr,
   .set_pwr = _sport_set_pwr,
   .set_bootcmd = nullptr,
   .n_ports = 0,
 };
-#endif // RADIO_X7
 
 #endif // SPORT_UPDATE_PWR_GPIO
 

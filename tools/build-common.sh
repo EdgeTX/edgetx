@@ -2,23 +2,8 @@ get_target_build_options() {
     local target_name=$1
 
     case $target_name in
-        x9lite)
-            BUILD_OPTIONS+="-DPCB=X9LITE"
-            ;;
-        x9lites)
-            BUILD_OPTIONS+="-DPCB=X9LITES"
-            ;;
-        x7)
-            BUILD_OPTIONS+="-DPCB=X7"
-            ;;
         x7access)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES -DUSE_FW_LTO=y"
-            ;;
-        t12)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
-            ;;
-        tx12)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
             ;;
         tx12mk2)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2 -DUSE_FW_LTO=y"
@@ -29,9 +14,6 @@ get_target_build_options() {
         boxer)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BOXER"
             ;;
-        t8)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
-            ;;
         zorro)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ZORRO -DUSE_FW_LTO=y"
             ;;
@@ -40,12 +22,6 @@ get_target_build_options() {
             ;;
         mt12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=MT12"
-            ;;
-        tlite)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TLITE"
-            ;;
-        tpro)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPRO"
             ;;
         tprov2)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TPROV2 -DUSE_FW_LTO=y"
@@ -68,23 +44,8 @@ get_target_build_options() {
         t20v2)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20V2"
             ;;
-        lr3pro)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=LR3PRO"
-            ;;
         commando8)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=COMMANDO8 -DUSE_FW_LTO=y"
-            ;;
-        xlite)
-            BUILD_OPTIONS+="-DPCB=XLITE"
-            ;;
-        xlites)
-            BUILD_OPTIONS+="-DPCB=XLITES"
-            ;;
-        x9d)
-            BUILD_OPTIONS+="-DPCB=X9D"
-            ;;
-        x9dp)
-            BUILD_OPTIONS+="-DPCB=X9D+"
             ;;
         x9dp2019)
             BUILD_OPTIONS+="-DPCB=X9D+ -DPCBREV=2019 -DUSE_FW_LTO=y"

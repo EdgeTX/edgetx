@@ -73,31 +73,19 @@
 #elif defined(PCBPA01)
  #include "yaml_datastructs_pa01.cpp"
 #elif defined(PCBX7)
- #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)
+ #if defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)
   #include "yaml_datastructs_tprov2.cpp"
  #elif defined(RADIO_FAMILY_T20)
   #include "yaml_datastructs_t20.cpp"
  #elif defined(RADIO_GX12)
    #include "yaml_datastructs_gx12.cpp"
- #elif defined(RADIO_LR3PRO) || defined(RADIO_T8) || defined(RADIO_T12) || defined(RADIO_TLITE)
-  #include "yaml_datastructs_xlite.cpp"
  #else
   #include "yaml_datastructs_128x64.cpp"
  #endif
-#elif defined(PCBX9LITE)
- #include "yaml_datastructs_128x64.cpp"
-#elif defined(PCBXLITE) && !defined(PCBXLITES)
- #include "yaml_datastructs_xlite.cpp"
-#elif defined(PCBXLITES)
- #include "yaml_datastructs_xlites.cpp"
 #elif defined(PCBX9E)
  #include "yaml_datastructs_x9e.cpp"
-#elif defined(PCBX9D) || defined(PCBX9DP)
- #if PCBREV < 2019
-  #include "yaml_datastructs_x9d.cpp"
- #else
-  #include "yaml_datastructs_x9dp2019.cpp"
- #endif
+#elif defined(PCBX9DP)
+ #include "yaml_datastructs_x9dp2019.cpp"
 #else
 #error "Board not supported by YAML storage"
 #endif

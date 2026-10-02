@@ -165,12 +165,7 @@ void menuSpecialFunctions(event_t event, CustomFunctionData * functions, CustomF
   uint8_t eeFlags = (functions == g_model.customFn) ? EE_MODEL : EE_GENERAL;
 
 #if defined(PCBTARANIS)
-#if defined(PCBXLITE)
-  // ENT LONG on xlite brings up switch type menu, so this menu is activated with SHIFT + ENT LONG
-  if (menuHorizontalPosition==0 && event==EVT_KEY_LONG(KEY_ENTER) && keysGetState(KEY_SHIFT)) {
-#else
   if (menuHorizontalPosition<0 && event==EVT_KEY_LONG(KEY_ENTER)) {
-#endif
     CustomFunctionData *cfn = &functions[sub];
     if (!CFN_EMPTY(cfn))
       POPUP_MENU_ADD_ITEM(STR_COPY);

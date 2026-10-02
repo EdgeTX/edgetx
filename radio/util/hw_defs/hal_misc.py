@@ -33,12 +33,9 @@ def parse_misc(hw_defs):
     else:
       has_bling_leds = 0
 
-    if f'RADIO_T8' in hw_defs:
-      has_ext_module_support = 0
-    else:
-      has_ext_module_support = 1
+    has_ext_module_support = 1
 
-    if f'PCBX9D' in hw_defs or f'PCBX9DP' in hw_defs or f'PCBX9E' in hw_defs:
+    if f'PCBX9DP' in hw_defs or f'PCBX9E' in hw_defs:
       has_int_module_support = 0
     else:
       has_int_module_support = 1

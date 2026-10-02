@@ -285,7 +285,7 @@ void menuModelReceiverOptions(event_t event)
             if (mapping <= channelMax) {
               uint8_t channel = g_model.moduleData[g_moduleIdx].channelsStart + mapping;
               int32_t channelValue = channelOutputs[channel];
-  #if !(defined(PCBX7) || defined(PCBX9LITE) || defined(PCBX9LITES)) // X7/X9 LCD doesn't like too many horizontal lines
+  #if !defined(PCBX7) // X7/X9 LCD doesn't like too many horizontal lines
               lcdDrawRect(RECEIVER_OPTIONS_2ND_COLUMN, y + 2, wbar + 1, 4);
   #endif
               auto lenChannel = limit<uint8_t>(1, (abs(channelValue) * wbar / 2 + lim / 2) / lim, wbar / 2);

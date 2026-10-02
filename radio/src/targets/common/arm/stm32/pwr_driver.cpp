@@ -69,14 +69,8 @@ void pwrInit()
   gpio_init(PWR_EXTRA_SWITCH_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
 #endif
 
-#if defined(PCBREV_HARDCODED)
-  hardwareOptions.pcbrev = PCBREV_HARDCODED;
-#elif defined(PCBREV_GPIO)
-  #if defined(PCBREV_GPIO_PULL_DOWN)
-    gpio_init(PCBREV_GPIO, GPIO_IN_PD, GPIO_PIN_SPEED_LOW);
-  #else
-    gpio_init(PCBREV_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
-  #endif
+#if defined(PCBREV_GPIO)
+  gpio_init(PCBREV_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
   hardwareOptions.pcbrev = PCBREV_VALUE();
 #elif defined(PCBREV_GPIO_1) && defined(PCBREV_GPIO_2)
   gpio_init(PCBREV_GPIO_1, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);

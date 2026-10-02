@@ -107,7 +107,7 @@ bool isBacklightEnabled()
 {
   return (BACKLIGHT_TIMER->CCR4 != 0 || BACKLIGHT_TIMER->CCR2 != 0);
 }
-#elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE)
+#elif defined(PCBX7)
 void backlightInit()
 {
   gpio_init_af(BACKLIGHT_GPIO, BACKLIGHT_GPIO_AF, GPIO_PIN_SPEED_LOW);
@@ -120,8 +120,6 @@ void backlightInit()
   BACKLIGHT_TIMER->PSC = BACKLIGHT_TIMER_FREQ / 50000 - 1; // 20us * 100 = 2ms => 500Hz
   #if defined(BACKLIGHT_CCMR1)
     BACKLIGHT_TIMER->CCMR1 = BACKLIGHT_CCMR1;
-  #elif defined(BACKLIGHT_CCMR2)
-    BACKLIGHT_TIMER->CCMR2 = BACKLIGHT_CCMR2;
   #endif
   BACKLIGHT_TIMER->CCER = BACKLIGHT_CCER;
   BACKLIGHT_COUNTER_REGISTER = 100;
@@ -147,39 +145,5 @@ void backlightDisable()
 bool isBacklightEnabled()
 {
   return BACKLIGHT_COUNTER_REGISTER != 0;
-}
-#else
-void backlightInit()
-{
-  gpio_init_af(BACKLIGHT_GPIO, BACKLIGHT_GPIO_AF, GPIO_PIN_SPEED_LOW);
-  stm32_timer_enable_clock(BACKLIGHT_TIMER);  
-  
-  BACKLIGHT_TIMER->ARR = 100;
-  BACKLIGHT_TIMER->PSC = BACKLIGHT_TIMER_FREQ / 50000 - 1; // 20us * 100 = 2ms => 500Hz
-  BACKLIGHT_TIMER->CCMR1 = TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_2; // PWM
-  BACKLIGHT_TIMER->CCER = TIM_CCER_CC1E;
-  BACKLIGHT_TIMER->CCR1 = 80;
-  BACKLIGHT_TIMER->EGR = 0;
-  BACKLIGHT_TIMER->CR1 = 1;
-}
-
-void backlightEnable(uint8_t level)
-{
-  BACKLIGHT_TIMER->CCR1 = 100 - level;
-}
-
-void backlightFullOn()
-{
-  backlightEnable(0);
-}
-
-void backlightDisable()
-{
-  BACKLIGHT_TIMER->CCR1 = 0;
-}
-
-bool isBacklightEnabled()
-{
-  return BACKLIGHT_TIMER->CCR1 != 0;
 }
 #endif
