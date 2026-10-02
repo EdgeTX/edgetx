@@ -31,6 +31,7 @@
 #include "lua_api.h"
 #include "lua_widget.h"
 #include "api_colorlcd.h"
+#include "lib_file.h"
 
 #define BITMAP_METATABLE "BITMAP*"
 
@@ -507,7 +508,9 @@ Bitmap loading can fail if:
 */
 static int luaOpenBitmap(lua_State *L)
 {
-  const char *filename = luaL_checkstring(L, 1);
+  const char *path = luaL_checkstring(L, 1);
+  char filename[FF_MAX_LFN + 1];
+  etxNormalizePath(path, filename, sizeof(filename));
 
   BitmapBuffer **b =
       (BitmapBuffer **)lua_newuserdata(L, sizeof(BitmapBuffer *));

@@ -58,7 +58,7 @@ static void displayRadioTool(uint8_t index)
       pushMenu(reusableBuffer.radioTools.script[index - menuVerticalOffset].tool);
     }
     else if (reusableBuffer.radioTools.script[index - menuVerticalOffset].filename[0]) {
-      f_chdir(SCRIPTS_TOOLS_PATH);
+      etxChdir(SCRIPTS_TOOLS_PATH);
       char path[FF_MAX_LFN + 1] = SCRIPTS_TOOLS_PATH "/";
       strcat(path, reusableBuffer.radioTools.script[index - menuVerticalOffset].filename);
       luaExec(path);
