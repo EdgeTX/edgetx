@@ -95,9 +95,9 @@ static uint32_t stm32_flash_get_sector_size(uint32_t sector)
   #define _FLASH_FLAG_RDERR 0U
 #endif
 
-// Error flags are sticky and survive a reset, so one left over by whatever
-// wrote the flash before us (DFU, a previous firmware) would abort the very
-// next erase/program. Clear them before starting an operation.
+// Error flags are sticky until written with 1, so one left over by an earlier
+// access since reset (e.g. a stray write to flash, which sets PGSERR) would
+// abort the very next erase/program. Clear them before starting an operation.
 static void flash_drv_clear_errors()
 {
   __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
