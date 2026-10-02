@@ -48,7 +48,7 @@
 : ${SIZE:="arm-none-eabi-size"}
 
 # -- MCU type, if defined will set certain memory defaults
-#    e.g. STM32F205xE or ATSAM3S4C
+#    e.g. STM32F407xE or ATSAM3S4C
 : ${MCU:="unknown"}
 
 # -- process options

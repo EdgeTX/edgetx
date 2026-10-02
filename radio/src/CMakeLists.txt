@@ -175,10 +175,6 @@ if(CPU_TYPE STREQUAL STM32F4)
   include(targets/common/arm/stm32/f4/CMakeLists.txt)
 endif()
 
-if(CPU_TYPE STREQUAL STM32F2)
-  include(targets/common/arm/stm32/f2/CMakeLists.txt)
-endif()
-
 if(CPU_FAMILY STREQUAL STM32)
   include(targets/common/arm/stm32/CMakeLists.txt)
   include(boards/generic_stm32/CMakeLists.txt)
@@ -665,7 +661,8 @@ set(COMMON_FLAGS "${COMMON_FLAGS} ${WARNING_FLAGS}")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_FLAGS} -Wimplicit")
 
-# "-Wno-register" because ${THIRDPARTY_DIR}/STM32F2xx_HAL_Driver uses invalid C++17 storage class specifier
+# "-Wno-register" was added for the (since removed) STM32F2 HAL, which used the
+# C++17-removed 'register' storage class; kept as a safeguard for other third-party code
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_FLAGS} -fno-rtti -Wno-register")
 
 if(SDRAM)

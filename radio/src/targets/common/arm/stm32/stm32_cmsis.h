@@ -31,8 +31,6 @@ extern "C" {
   #include "CMSIS/Device/ST/STM32H7RS/Include/stm32h7rsxx.h"
 #elif defined(STM32F4)
   #include "CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
-#elif defined(STM32F2)
-  #include "CMSIS/Device/ST/STM32F2xx/Include/stm32f2xx.h"
 #endif
 
 #if defined(__cplusplus)

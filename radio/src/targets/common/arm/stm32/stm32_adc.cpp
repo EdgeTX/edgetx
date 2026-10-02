@@ -432,7 +432,7 @@ static bool adc_init_dma_stream(ADC_TypeDef* adc, DMA_TypeDef* DMAx,
             LL_BDMA_PDATAALIGN_HALFWORD | LL_BDMA_MEMORY_INCREMENT |
             LL_BDMA_DIRECTION_PERIPH_TO_MEMORY);
   }
-#elif defined(STM32F4) || defined(STM32F2)
+#elif defined(STM32F4)
   LL_DMA_ConfigAddresses(DMAx, stream, CONVERT_PTR_UINT(&adc->DR),
                          CONVERT_PTR_UINT(dest),
                          LL_DMA_DIRECTION_PERIPH_TO_MEMORY);

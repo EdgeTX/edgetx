@@ -48,20 +48,6 @@ extern "C" {
   #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_spi.h"
   #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_iwdg.h"
   #include "STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h"
-#elif defined(STM32F2)
-  #define USE_RTOS 0U
-  #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_bus.h"
-  #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_gpio.h"
-  #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_tim.h"
-  #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_dma.h"
-  #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_usart.h"
-  #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_exti.h"
-  #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_system.h"
-  #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_rcc.h"
-  #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_adc.h"
-  #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_spi.h"
-  #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_iwdg.h"
-  #include "STM32F2xx_HAL_Driver/Inc/stm32f2xx_ll_usb.h"
 #elif defined(STM32H7)
   #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_bus.h"
   #include "STM32H7xx_HAL_Driver/Inc/stm32h7xx_ll_dac.h"
