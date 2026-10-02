@@ -252,7 +252,7 @@ Board::Board(const QString & id, const QString & bddefn, const bool isSupported)
   JsonBase(),
   m_id(id),
   m_bddefn(bddefn),
-  m_hwdefn(""),
+  m_hwdefn(bddefn),
   m_supported(isSupported),
   m_name("unknown"),
   m_manufacturer("unknown"),
@@ -269,10 +269,10 @@ Board::Board(const QString & id, const QString & bddefn, const bool isSupported)
   if (load(doc, bddefn)) {
     QJsonObject obj = doc->object();
     // ignore intermediate definitions
-    if (!getValue(obj, "hidden", false).toBool()) {
+    if (!getValue(obj, "hidden", false, false).toBool()) {
       m_id = getValueString(obj, "id", "unknown");
-      m_name = getValue(obj, "name", "unknown").toString();
-      m_hwdefn = getValue(obj, "hwdefn", bddefn).toString();
+      m_name = getValue(obj, "name", false, "unknown").toString();
+      m_hwdefn = getValue(obj, "hwdefn", false, bddefn).toString();
 
       if (m_id == "unknown") {
         m_valid = false;
@@ -1465,7 +1465,7 @@ bool Board::loadDefinition(const QString & path)
       m_hardware.flashSize = getValueInt(it, m_hardware.flashSize);
 
     else
-      qWarning() << "Warning: No rule to process - path:" << path << "name:" << it.key() << "value:" << it.value();
+      qWarning() << "Warning: No rule to process - path:" << path << "key:" << it.key() << "value:" << it.value();
   }
 
   delete doc;

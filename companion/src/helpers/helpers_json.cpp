@@ -25,20 +25,22 @@
 #include <QFile>
 #include <QMessageBox>
 
-const bool JsonBase::exists(const QJsonObject & obj, const QString & name)
+const bool JsonBase::exists(const QJsonObject & obj, const QString & key)
 {
-  return !obj.value(name).isUndefined();
+  return !obj.value(key).isUndefined();
 }
 
-const QVariant JsonBase::getValue(const QJsonObject & obj, const QString & name,
+const QVariant JsonBase::getValue(const QJsonObject & obj, const QString & key, bool manditory,
                                   const QVariant & dflt)
 {
-  if (!exists(obj, name)) {
-    qWarning() << "Warning: name:" << name << "not found";
+  if (!exists(obj, key)) {
+    if (manditory)
+      qWarning() << "Error - key:" << key << "not found. Using default value:" << dflt;
+
     return dflt;
   }
 
-  return obj.value(name).toVariant();
+  return obj.value(key).toVariant();
 }
 
 const bool JsonBase::getValueBool(const QJsonObject::const_iterator & it, const bool dflt)
@@ -46,20 +48,20 @@ const bool JsonBase::getValueBool(const QJsonObject::const_iterator & it, const 
   bool isvalid = it.value().isBool();
 
   if (!isvalid)
-    qWarning() << "Warning: value type not a boolean";
+    qWarning() << "Warning: key value not a boolean";
 
   return isvalid ? it.value().toBool() : dflt;
 }
 
-const bool JsonBase::getValueBool(const QJsonObject & obj, const QString & name,
+const bool JsonBase::getValueBool(const QJsonObject & obj, const QString & key,
                                   const bool dflt)
 {
-  bool isvalid = (!obj.value(name).isUndefined() && obj.value(name).isBool());
+  bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isBool());
 
   if (!isvalid)
-    qWarning() << "Warning: name:" << name << "not found and/or value type not a boolean";
+    qWarning() << "Warning: key:" << key << "not found and/or key value not a boolean";
 
-  return isvalid ? obj.value(name).toBool() : dflt;
+  return isvalid ? obj.value(key).toBool() : dflt;
 }
 
 const int JsonBase::getValueInt(const QJsonObject::const_iterator & it,
@@ -69,7 +71,7 @@ const int JsonBase::getValueInt(const QJsonObject::const_iterator & it,
   int value = isvalid ? it.value().toInt() : 0;
 
   if (!isvalid)
-    qWarning() << "Warning: value type not an integer";
+    qWarning() << "Warning: key value not an integer";
 
   if (min > max)
     qWarning() << "Warning: range check ignored as min:" << min << "exceeds max:" << max;
@@ -77,17 +79,17 @@ const int JsonBase::getValueInt(const QJsonObject::const_iterator & it,
   return (isvalid && (min < max ? value >= min && value <= max : true)) ? value : dflt;
 }
 
-const int JsonBase::getValueInt(const QJsonObject & obj, const QString & name,
+const int JsonBase::getValueInt(const QJsonObject & obj, const QString & key,
                                 const int dflt, const int max, const int min)
 {
-  bool isvalid = (!obj.value(name).isUndefined() && obj.value(name).isDouble());
-  int value = isvalid ? obj.value(name).toInt() : 0;
+  bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isDouble());
+  int value = isvalid ? obj.value(key).toInt() : 0;
 
   if (!isvalid)
-    qWarning() << "Warning: name:" << name << "not found and/or value type not an integer";
+    qWarning() << "Warning: key:" << key << "not found and/or key value not an integer";
 
   if (min > max)
-    qWarning() << "Warning: range check ignored for:" << name << "as min:" << min << "exceeds max:" << max;
+    qWarning() << "Warning: range check ignored for:" << key << "as min:" << min << "exceeds max:" << max;
 
   return (isvalid && (min < max ? value >= min && value <= max : true)) ? value : dflt;
 }
@@ -98,20 +100,20 @@ const std::string JsonBase::getValueStdString(const QJsonObject::const_iterator 
   bool isvalid = it.value().isString();
 
   if (!isvalid)
-    qWarning() << "Warning: value type not a string";
+    qWarning() << "Warning: key value not a string";
 
   return isvalid ? it.value().toString().toStdString() : dflt;
 }
 
-const std::string JsonBase::getValueStdString(const QJsonObject & obj, const QString & name,
+const std::string JsonBase::getValueStdString(const QJsonObject & obj, const QString & key,
                                               const std::string & dflt)
 {
-  bool isvalid = (!obj.value(name).isUndefined() && obj.value(name).isString());
+  bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isString());
 
   if (!isvalid)
-    qWarning() << "Warning: name:" << name << "not found and/or value type not a string";
+    qWarning() << "Warning: key:" << key << "not found and/or key value not a string";
 
-  return isvalid ? obj.value(name).toString().toStdString() : dflt;
+  return isvalid ? obj.value(key).toString().toStdString() : dflt;
 }
 
 const QString JsonBase::getValueString(const QJsonObject::const_iterator & it,
@@ -120,30 +122,30 @@ const QString JsonBase::getValueString(const QJsonObject::const_iterator & it,
   bool isvalid = it.value().isString();
 
   if (!isvalid)
-    qWarning() << "Warning: value type not a string";
+    qWarning() << "Warning: key value not a string";
 
   return isvalid ? it.value().toString() : dflt;
 }
 
-const QString JsonBase::getValueString(const QJsonObject & obj, const QString & name,
+const QString JsonBase::getValueString(const QJsonObject & obj, const QString & key,
                                        const QString & dflt)
 {
-  bool isvalid = (!obj.value(name).isUndefined() && obj.value(name).isString());
+  bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isString());
 
   if (!isvalid)
-    qWarning() << "Warning: name:" << name << "not found and/or value type not a string";
+    qWarning() << "Warning: key:" << key << "not found and/or key value not a string";
 
-  return isvalid ? obj.value(name).toString() : dflt;
+  return isvalid ? obj.value(key).toString() : dflt;
 }
 
-const bool JsonBase::isArray(const QJsonObject & obj, const QString & name)
+const bool JsonBase::isArray(const QJsonObject & obj, const QString & key)
 {
-  return !obj.value(name).isUndefined() && obj.value(name).isArray();
+  return !obj.value(key).isUndefined() && obj.value(key).isArray();
 }
 
-const bool JsonBase::isObject(const QJsonObject & obj, const QString & name)
+const bool JsonBase::isObject(const QJsonObject & obj, const QString & key)
 {
-  return !obj.value(name).isUndefined() && obj.value(name).isObject();
+  return !obj.value(key).isUndefined() && obj.value(key).isObject();
 }
 
 bool JsonBase::load(QJsonDocument * doc, const QString & filename)

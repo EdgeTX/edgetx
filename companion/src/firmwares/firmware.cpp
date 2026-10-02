@@ -66,9 +66,9 @@ QString Firmware::getOptionTooltip(const QString opt)
 
 Firmware::Firmware(const QString & id) :
   m_id(id),
-  m_supported(true),
+  m_supported(false),
   m_loaded(false),
-  m_valid(true),
+  m_valid(false),
   m_board(nullptr)
 {
   m_defn = FirmwareDefn();
@@ -78,9 +78,10 @@ Firmware::Firmware(const QString & id) :
   if (load(doc, QString("%1/%2.json").arg(FWDEFNSDIR).arg(id))) {
     QJsonObject obj = doc->object();
     // ignore intermediate definitions
-    if (!getValue(obj, "hidden", false).toBool()) {
-      m_defn.name = getValue(obj, "name", "unknown").toString().toStdString();
-      m_defn.boardId = getValue(obj, "board", id).toString().toStdString();
+    if (!getValue(obj, "hidden", false, false).toBool()) {
+      m_supported = getValue(obj, "supported", false, true).toBool();
+      m_defn.name = getValue(obj, "name", false, "unknown").toString().toStdString();
+      m_defn.boardId = getValue(obj, "board", false, id).toString().toStdString();
 
       if (Board::isAvailable(m_defn.boardId.c_str()))
         m_board = Board::getBoardForId(m_defn.boardId.c_str());
@@ -334,7 +335,7 @@ bool Firmware::loadDefinition()
   // this avoids having to include default in basedOn tree
 
   if (loadDefinition(QString("%1/%2.json").arg(FWDEFNSDIR).arg("default"))) {
-    if (loadDefinition(m_path)) {
+    if (loadDefinition(QString("%1/%2.json").arg(FWDEFNSDIR).arg(m_id))) {
       m_loaded = true;
       qDebug() << "Definition loaded:" << m_id;
       return true;
@@ -398,7 +399,7 @@ bool Firmware::loadDefinition(const QString & path)
     return false;
   }
 
-  qDebug() << "loading values from:" << m_path;
+  qDebug() << "loading values from:" << path;
 
   for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
     qDebug() << "key:" << it.key() << "value:" << it.value();
@@ -480,6 +481,7 @@ bool Firmware::loadDefinition(const QString & path)
       qWarning() << "Warning: No rule to process - path:" << path << "name:" << it.key() << "value:" << it.value();
   }
 
+  m_valid = true;
   delete doc;
   return postLoad();
 }

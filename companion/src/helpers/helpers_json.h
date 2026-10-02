@@ -38,32 +38,32 @@ class JsonBase {
 
     static bool load(QJsonDocument * doc, const QString & path);
 
-    static const bool exists(const QJsonObject & obj, const QString & name);
+    static const bool exists(const QJsonObject & obj, const QString & key);
 
-    static const QVariant getValue(const QJsonObject & obj, const QString & name,
-                                   const QVariant & dflt = QVariant());
+    static const QVariant getValue(const QJsonObject & obj, const QString & key,
+                                   const bool manditory = true, const QVariant & dflt = QVariant());
 
     static const bool getValueBool(const QJsonObject::const_iterator & it,
                                    const bool dflt = false);
-    static const bool getValueBool(const QJsonObject & obj, const QString & name,
+    static const bool getValueBool(const QJsonObject & obj, const QString & key,
                                    const bool dflt = false);
 
     static const int getValueInt(const QJsonObject::const_iterator & it,
                                  const int dflt = 0, const int max = 999999, const int min = 0);
-    static const int getValueInt(const QJsonObject & obj, const QString & name,
+    static const int getValueInt(const QJsonObject & obj, const QString & key,
                                  const int dflt = 0, const int max = 999999, const int min = 0);
 
     static const std::string getValueStdString(const QJsonObject::const_iterator & it,
                                                const std::string & dflt = std::string());
-    static const std::string getValueStdString(const QJsonObject & obj, const QString & name,
+    static const std::string getValueStdString(const QJsonObject & obj, const QString & key,
                                                const std::string & dflt = std::string());
 
     static const QString getValueString(const QJsonObject::const_iterator & it,
                                         const QString & dflt = QString());
-    static const QString getValueString(const QJsonObject & obj, const QString & name,
+    static const QString getValueString(const QJsonObject & obj, const QString & key,
                                         const QString & dflt = QString());
 
-    static const bool isArray(const QJsonObject & obj, const QString & name);
-    static const bool isObject(const QJsonObject & obj, const QString & name);
+    static const bool isArray(const QJsonObject & obj, const QString & key);
+    static const bool isObject(const QJsonObject & obj, const QString & key);
 
 };

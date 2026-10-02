@@ -173,7 +173,6 @@ class Firmware : public JsonBase
 
   private:
     QString m_id;       // has edgetx- prefix for backwards compatibility TODO conversion to get rid of
-    QString m_path;
     bool m_supported;   // false - hide from list of available firmwares but available for conversion
     FirmwareDefn m_defn;
     bool m_loaded;
