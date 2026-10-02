@@ -257,14 +257,15 @@ static int stm32_flash_erase_sector(uint32_t address)
 
   uint32_t sector_errors = 0;
 
-  __disable_irq();
+  // Interrupts must stay enabled here: the HAL timeout counts HAL_GetTick(),
+  // which only advances in the ms timer interrupt. Nothing needs masking, as
+  // code and vectors run from TCM/SDRAM, never from the bank being erased.
   stm32_flash_unlock();
   if (HAL_FLASHEx_Erase(&eraseInit, &sector_errors) != HAL_OK) {
     ret = -1;
   }
 
   stm32_flash_lock();
-  __enable_irq();
 
 #endif
 
@@ -329,7 +330,7 @@ static int stm32_flash_program(uint32_t address, void* data, uint32_t len)
   uint32_t* p_data = (uint32_t*)data;
   uint32_t end_addr = address + len;
 
-  __disable_irq();
+  // interrupts stay enabled, see stm32_flash_erase_sector()
   stm32_flash_unlock();
   while (address < end_addr) {
     if (_FLASH_PROGRAM(address, p_data) != HAL_OK) {
@@ -342,7 +343,6 @@ static int stm32_flash_program(uint32_t address, void* data, uint32_t len)
   }
 
   stm32_flash_lock();
-  __enable_irq();
 
 #endif
 
