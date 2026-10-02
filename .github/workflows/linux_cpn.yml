@@ -28,3 +28,7 @@ jobs:
         uses: ./.github/actions/build_companion
         with:
           os: 'linux'
+
+      - name: Run companion unit tests
+        shell: bash
+        run: cmake --build build/native --target tests-companion --parallel
