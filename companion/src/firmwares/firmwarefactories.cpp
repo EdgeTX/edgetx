@@ -92,7 +92,7 @@ void FirmwareFactories::registerAllFirmwares()
     if (Json::load(doc, path)) {
       QJsonObject obj = doc->object();
       // ignore intermediate definitions
-      if (!Json::getValueBool(obj, "hidden", false)) {
+      if (!Json::valueBool(obj, "hidden", false)) {
         registerFirmware(QFileInfo(path).baseName());
       } else {
         qInfo() << "Ignoring hidden file:" << path;

@@ -29,8 +29,8 @@ const bool Json::exists(const QJsonObject & obj, const QString & key)
   return !obj.value(key).isUndefined();
 }
 
-const QVariant Json::getValue(const QJsonObject & obj, const QString & key, bool manditory,
-                                  const QVariant & dflt)
+const QVariant Json::value(const QJsonObject & obj, const QString & key, bool manditory,
+                           const QVariant & dflt)
 {
   if (!exists(obj, key)) {
     if (manditory)
@@ -42,7 +42,7 @@ const QVariant Json::getValue(const QJsonObject & obj, const QString & key, bool
   return obj.value(key).toVariant();
 }
 
-const bool Json::getValueBool(const QJsonObject::const_iterator & it, const bool dflt)
+const bool Json::valueBool(const QJsonObject::const_iterator & it, const bool dflt)
 {
   bool isvalid = it.value().isBool();
 
@@ -52,8 +52,8 @@ const bool Json::getValueBool(const QJsonObject::const_iterator & it, const bool
   return isvalid ? it.value().toBool() : dflt;
 }
 
-const bool Json::getValueBool(const QJsonObject & obj, const QString & key,
-                                  const bool dflt)
+const bool Json::valueBool(const QJsonObject & obj, const QString & key,
+                           const bool dflt)
 {
   bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isBool());
 
@@ -63,8 +63,8 @@ const bool Json::getValueBool(const QJsonObject & obj, const QString & key,
   return isvalid ? obj.value(key).toBool() : dflt;
 }
 
-const int Json::getValueInt(const QJsonObject::const_iterator & it,
-                                const int dflt, const int max, const int min)
+const int Json::valueInt(const QJsonObject::const_iterator & it,
+                         const int dflt, const int max, const int min)
 {
   bool isvalid = it.value().isDouble();
   int value = isvalid ? it.value().toInt() : 0;
@@ -78,8 +78,8 @@ const int Json::getValueInt(const QJsonObject::const_iterator & it,
   return (isvalid && (min < max ? value >= min && value <= max : true)) ? value : dflt;
 }
 
-const int Json::getValueInt(const QJsonObject & obj, const QString & key,
-                                const int dflt, const int max, const int min)
+const int Json::valueInt(const QJsonObject & obj, const QString & key,
+                         const int dflt, const int max, const int min)
 {
   bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isDouble());
   int value = isvalid ? obj.value(key).toInt() : 0;
@@ -93,8 +93,8 @@ const int Json::getValueInt(const QJsonObject & obj, const QString & key,
   return (isvalid && (min < max ? value >= min && value <= max : true)) ? value : dflt;
 }
 
-const std::string Json::getValueStdString(const QJsonObject::const_iterator & it,
-                                              const std::string & dflt)
+const std::string Json::valueStdString(const QJsonObject::const_iterator & it,
+                                       const std::string & dflt)
 {
   bool isvalid = it.value().isString();
 
@@ -104,8 +104,8 @@ const std::string Json::getValueStdString(const QJsonObject::const_iterator & it
   return isvalid ? it.value().toString().toStdString() : dflt;
 }
 
-const std::string Json::getValueStdString(const QJsonObject & obj, const QString & key,
-                                              const std::string & dflt)
+const std::string Json::valueStdString(const QJsonObject & obj, const QString & key,
+                                       const std::string & dflt)
 {
   bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isString());
 
@@ -115,8 +115,8 @@ const std::string Json::getValueStdString(const QJsonObject & obj, const QString
   return isvalid ? obj.value(key).toString().toStdString() : dflt;
 }
 
-const QString Json::getValueString(const QJsonObject::const_iterator & it,
-                                       const QString & dflt)
+const QString Json::valueString(const QJsonObject::const_iterator & it,
+                                const QString & dflt)
 {
   bool isvalid = it.value().isString();
 
@@ -126,8 +126,8 @@ const QString Json::getValueString(const QJsonObject::const_iterator & it,
   return isvalid ? it.value().toString() : dflt;
 }
 
-const QString Json::getValueString(const QJsonObject & obj, const QString & key,
-                                       const QString & dflt)
+const QString Json::valueString(const QJsonObject & obj, const QString & key,
+                                const QString & dflt)
 {
   bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isString());
 

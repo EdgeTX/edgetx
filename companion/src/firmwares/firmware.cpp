@@ -30,19 +30,18 @@ Firmware::Firmware(const QString & id) :
   m_supported(false),
   m_loaded(false),
   m_valid(false),
+  m_defn(FirmwareDefn()),
   m_board(nullptr)
 {
-  m_defn = FirmwareDefn();
-
   QJsonDocument *doc = new QJsonDocument();
 
   if (Json::load(doc, QString("%1/%2.json").arg(FWDEFNSDIR).arg(id))) {
     QJsonObject obj = doc->object();
     // ignore intermediate definitions
-    if (!Json::getValue(obj, "hidden", false, false).toBool()) {
-      m_supported = Json::getValue(obj, "supported", false, true).toBool();
-      m_defn.name = Json::getValue(obj, "name", false, "unknown").toString().toStdString();
-      m_defn.boardId = Json::getValue(obj, "board", false, id).toString().toStdString();
+    if (!Json::value(obj, "hidden", false, false).toBool()) {
+      m_supported = Json::value(obj, "supported", false, true).toBool();
+      m_defn.name = Json::value(obj, "name", false, "unknown").toString().toStdString();
+      m_defn.boardId = Json::value(obj, "board", false, id).toString().toStdString();
 
       if (Board::isAvailable(m_defn.boardId.c_str()))
         m_board = Board::getBoardForId(m_defn.boardId.c_str());
@@ -82,6 +81,10 @@ QList<QString> Firmware::m_languages = {
 };
 
 // static
+// tooltip translation cannot be performed at runtime
+// so convert and load mapping at compile time
+// key   name
+// value tooltip
 const Firmware::OptionTooltip Firmware::registeredOptions = {
   { "opt1", QT_TRANSLATE_NOOP("Firmware", "This is option 1") },
   { "opt2", QT_TRANSLATE_NOOP("Firmware", "This is option 2") },
@@ -410,25 +413,25 @@ bool Firmware::loadDefinition(const QString & path)
       continue;
 
     else if (it.key() == "supported")
-      m_supported = Json::getValueBool(it, m_supported);
+      m_supported = Json::valueBool(it, m_supported);
 
     else if (it.key() == "id")
-      m_defn.id = Json::getValueStdString(it);
+      m_defn.id = Json::valueStdString(it);
 
     else if (it.key() == "name")
-      m_defn.name = Json::getValueStdString(it);
+      m_defn.name = Json::valueStdString(it);
 
     else if (it.key() == "board")
-      m_defn.boardId = Json::getValueStdString(it);
+      m_defn.boardId = Json::valueStdString(it);
 
     else if (it.key() == "dwnldId")
-      m_defn.dwnldId = Json::getValueStdString(it);
+      m_defn.dwnldId = Json::valueStdString(it);
 
     else if (it.key() == "simulatorId")
-      m_defn.simuId = Json::getValueStdString(it);
+      m_defn.simuId = Json::valueStdString(it);
 
     else if (it.key() == "categories")
-      m_defn.categories = Json::getValueBool(it, m_defn.categories);
+      m_defn.categories = Json::valueBool(it, m_defn.categories);
 
     else if (it.key() == "gvars")
       loadGroup(it, m_defn.gvars, CPN_MAX_GVARS, 3);
@@ -437,10 +440,10 @@ bool Firmware::loadDefinition(const QString & path)
       loadGroup(it, m_defn.inputs, CPN_MAX_INPUTS, 3);
 
     else if (it.key() == "lcdtoVideo")
-      m_defn.lcdtoVideo = Json::getValueBool(it, m_defn.lcdtoVideo);
+      m_defn.lcdtoVideo = Json::valueBool(it, m_defn.lcdtoVideo);
 
     else if (it.key() == "keyShortcuts")
-      m_defn.maxKeyShortcuts = Json::getValueInt(it);
+      m_defn.maxKeyShortcuts = Json::valueInt(it);
 
     else if (it.key() == "logicalSW")
       loadGroup(it, m_defn.logicalSW, CPN_MAX_LOGICAL_SWITCHES, 3);
@@ -452,10 +455,10 @@ bool Firmware::loadDefinition(const QString & path)
       loadModelImage(it);
 
     else if (it.key() == "modelNameLen")
-      m_defn.maxModelName = Json::getValueInt(it);
+      m_defn.maxModelName = Json::valueInt(it);
 
     else if (it.key() == "modelSlots")
-      m_defn.maxModelSlots = Json::getValueInt(it);
+      m_defn.maxModelSlots = Json::valueInt(it);
 
     else if (it.key() == "modes")
       loadGroup(it, m_defn.modes, CPN_MAX_FLIGHT_MODES, 4);
@@ -467,7 +470,7 @@ bool Firmware::loadDefinition(const QString & path)
       loadOutputs(it);
 
     else if (it.key() == "quickMenuFavs")
-      m_defn.maxQuickMenuFavs = Json::getValueInt(it);
+      m_defn.maxQuickMenuFavs = Json::valueInt(it);
 
     else if (it.key() == "sensors")
       loadGroup(it, m_defn.sensors, CPN_MAX_SENSORS, 4);
@@ -495,15 +498,15 @@ void Firmware::loadCurves(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "max")
-        crv.limits.max = Json::getValueInt(it, crv.limits.max, CPN_MAX_CURVES);
+        crv.limits.max = Json::valueInt(it, crv.limits.max, CPN_MAX_CURVES);
       else if (it.key() == "name")
-        crv.limits.name = Json::getValueInt(it, crv.limits.name, 5);
+        crv.limits.name = Json::valueInt(it, crv.limits.name, 5);
       else if (it.key() == "minPoints")
-        crv.minPoints = Json::getValueInt(it, crv.minPoints, 2);
+        crv.minPoints = Json::valueInt(it, crv.minPoints, 2);
       else if (it.key() == "maxPoints")
-        crv.maxPoints = Json::getValueInt(it, crv.maxPoints, 17);
+        crv.maxPoints = Json::valueInt(it, crv.maxPoints, 17);
       else if (it.key() == "totalPoints")
-        crv.totalPoints = Json::getValueInt(it, crv.totalPoints, 512);
+        crv.totalPoints = Json::valueInt(it, crv.totalPoints, 512);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -520,9 +523,9 @@ void Firmware::loadGroup(QJsonObject::const_iterator & grpit, Limits & grp,
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "max")
-        grp.max = Json::getValueInt(it, grp.max, cntMax, cntMin);
+        grp.max = Json::valueInt(it, grp.max, cntMax, cntMin);
       else if (it.key() == "name")
-        grp.name = Json::getValueInt(it, grp.name, nameLenMax, nameLenMin);
+        grp.name = Json::valueInt(it, grp.name, nameLenMax, nameLenMin);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -538,11 +541,11 @@ void Firmware::loadLuaScripts(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "max")
-        lua.limits.max = Json::getValueInt(it, lua.limits.max, CPN_MAX_SCRIPTS);
+        lua.limits.max = Json::valueInt(it, lua.limits.max, CPN_MAX_SCRIPTS);
       else if (it.key() == "inputs")
-        lua.maxInputs = Json::getValueInt(it, lua.maxInputs, CPN_MAX_SCRIPT_INPUTS);
+        lua.maxInputs = Json::valueInt(it, lua.maxInputs, CPN_MAX_SCRIPT_INPUTS);
       else if (it.key() == "outputs")
-        lua.maxOutputs = Json::getValueInt(it, lua.maxOutputs, CPN_MAX_SCRIPT_OUTPUTS);
+        lua.maxOutputs = Json::valueInt(it, lua.maxOutputs, CPN_MAX_SCRIPT_OUTPUTS);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -558,13 +561,13 @@ void Firmware::loadModelImage(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "filters")
-        mi.filters = Json::getValueStdString(it, mi.filters);
+        mi.filters = Json::valueStdString(it, mi.filters);
       else if (it.key() == "image")
-        mi.image = Json::getValueBool(it, mi.image);
+        mi.image = Json::valueBool(it, mi.image);
       else if (it.key() == "keepExtn")
-        mi.keepExtn = Json::getValueBool(it, mi.keepExtn);
+        mi.keepExtn = Json::valueBool(it, mi.keepExtn);
       else if (it.key() == "name")
-        mi.limits.name = Json::getValueInt(it, mi.limits.name, 14);
+        mi.limits.name = Json::valueInt(it, mi.limits.name, 14);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -627,13 +630,13 @@ void Firmware::loadOutputs(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "max")
-        out.limits.max = Json::getValueInt(it, out.limits.max, CPN_MAX_CHNOUT);
+        out.limits.max = Json::valueInt(it, out.limits.max, CPN_MAX_CHNOUT);
       else if (it.key() == "name")
-        out.limits.name = Json::getValueInt(it, out.limits.name, 6);
+        out.limits.name = Json::valueInt(it, out.limits.name, 6);
       else if (it.key() == "ppmCenter")
-        out.ppmCenter = Json::getValueInt(it, out.ppmCenter, 512);
+        out.ppmCenter = Json::valueInt(it, out.ppmCenter, 512);
       else if (it.key() == "ppmFrameLen")
-        out.ppmFrameLen = Json::getValueInt(it, out.ppmFrameLen, 40);
+        out.ppmFrameLen = Json::valueInt(it, out.ppmFrameLen, 40);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -649,13 +652,13 @@ void Firmware::loadTeleCstmScrns(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "max")
-        tele.limits.max = Json::getValueInt(it, tele.limits.max, 3);
+        tele.limits.max = Json::valueInt(it, tele.limits.max, 3);
       else if (it.key() == "bars")
-        tele.maxBars = Json::getValueInt(it, tele.maxBars, 4);
+        tele.maxBars = Json::valueInt(it, tele.maxBars, 4);
       else if (it.key() == "perLine")
-        tele.maxPerLine = Json::getValueInt(it, tele.maxPerLine, 3);
+        tele.maxPerLine = Json::valueInt(it, tele.maxPerLine, 3);
       else if (it.key() == "lines")
-        tele.maxLines = Json::getValueInt(it, tele.maxLines, 4);
+        tele.maxLines = Json::valueInt(it, tele.maxLines, 4);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }

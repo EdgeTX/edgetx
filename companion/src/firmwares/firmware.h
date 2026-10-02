@@ -173,9 +173,9 @@ class Firmware
   private:
     QString m_id;       // has edgetx- prefix for backwards compatibility TODO conversion to get rid of
     bool m_supported;   // false - hide from list of available firmwares but available for conversion
-    FirmwareDefn m_defn;
     bool m_loaded;
     bool m_valid;
+    FirmwareDefn m_defn;
     Board *m_board;     // pointer to BoardFactories Board
 
     bool isOptionDuplicate(const OptionsGroup & grp, const QString & val);
@@ -196,11 +196,6 @@ class Firmware
     inline static Firmware * m_default = nullptr;
 
     static QList<QString> m_languages;
-
-    // tooltip translation cannot be performed at runtime
-    // so convert and load mapping at compile time
-    // key   name
-    // value tooltip
     static const OptionTooltip registeredOptions;
   };
 

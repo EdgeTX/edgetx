@@ -123,8 +123,8 @@ void BoardFactories::registerAllBoards()
     if (Json::load(doc, path)) {
       QJsonObject obj = doc->object();
       // ignore intermediate definitions
-      if (!Json::getValueBool(obj, "hidden", false)) {
-        QString id = Json::getValueString(obj, "id", QFileInfo(path).baseName());
+      if (!Json::valueBool(obj, "hidden", false)) {
+        QString id = Json::valueString(obj, "id", QFileInfo(path).baseName());
         registerBoard(id, path);
       } else {
         qDebug() << "ignoring file:" << path;

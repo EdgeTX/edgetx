@@ -32,12 +32,14 @@
 
 // TODO remove all those constants
 // Update: These are now all only used within this class.
-//  External access is only via getEEpromSize() and getFlashSize()
+//  External access is only via getCapability(Capability::EEpromSize)
+//  and getCapability(Capability::FlashSize)
 
 #define EESIZE_TARANIS                 (32*1024)
 #define EESIZE_MAX                     EESIZE_TARANIS
 
-// getFlashSize() (and these macros) is only used by radiointerface::getDfuArgs (perhaps can find a better way?)
+// getFlashSize() (and these macros) is only used by
+// radiointerface::getDfuArgs (perhaps can find a better way?)
 
 #define FSIZE_512KB                    (512*1024)
 #define FSIZE_1MB                      (1024*1024)
@@ -269,10 +271,10 @@ Board::Board(const QString & id, const QString & bddefn, const bool isSupported)
   if (Json::load(doc, bddefn)) {
     QJsonObject obj = doc->object();
     // ignore intermediate definitions
-    if (!Json::getValue(obj, "hidden", false, false).toBool()) {
-      m_id = Json::getValueString(obj, "id", "unknown");
-      m_name = Json::getValue(obj, "name", false, "unknown").toString();
-      m_hwdefn = Json::getValue(obj, "hwdefn", false, bddefn).toString();
+    if (!Json::value(obj, "hidden", false, false).toBool()) {
+      m_id = Json::valueString(obj, "id", "unknown");
+      m_name = Json::value(obj, "name", false, "unknown").toString();
+      m_hwdefn = Json::value(obj, "hwdefn", false, bddefn).toString();
 
       if (m_id == "unknown") {
         m_valid = false;
@@ -1349,7 +1351,7 @@ bool Board::loadDefinition(const QString & path)
       continue;
 
     else if (it.key() == "supported")
-      m_supported = Json::getValueBool(it, m_supported);
+      m_supported = Json::valueBool(it, m_supported);
 
     else if (it.key() == "adc_inputs")
       loadADCInputs(it);
@@ -1385,69 +1387,69 @@ bool Board::loadDefinition(const QString & path)
       loadTrims(it);
 
     else if (it.key() == "backlight")
-      m_display.backlight_color = Json::getValueBool(it, m_display.backlight_color);
+      m_display.backlight_color = Json::valueBool(it, m_display.backlight_color);
 
     else if (it.key() == "key_lock_combo")
       m_hardware.hasKeyLockCombo = (it->isArray() && it->toArray().size() == 2 ? true : m_hardware.hasKeyLockCombo);
 
     else if (it.key() == "manufacturer")
-      m_manufacturer = Json::getValueString(it, m_manufacturer);
+      m_manufacturer = Json::valueString(it, m_manufacturer);
 
     else if (it.key() == "battery")
       loadBattery(it);
 
     else if (it.key() == "backlightLevelMin")
-      m_hardware.backlightLevelMin = Json::getValueBool(it, m_hardware.backlightLevelMin);
+      m_hardware.backlightLevelMin = Json::valueBool(it, m_hardware.backlightLevelMin);
 
     else if (it.key() == "auxSerialMode")
-      m_hardware.auxSerialMode = Json::getValueBool(it, m_hardware.auxSerialMode);
+      m_hardware.auxSerialMode = Json::valueBool(it, m_hardware.auxSerialMode);
 
     else if (it.key() == "aux2SerialMode")
-      m_hardware.aux2SerialMode = Json::getValueBool(it, m_hardware.aux2SerialMode);
+      m_hardware.aux2SerialMode = Json::valueBool(it, m_hardware.aux2SerialMode);
 
     else if (it.key() == "bluetoothName")
-      m_hardware.bluetoothName = Json::getValueStdString(it, m_hardware.bluetoothName);
+      m_hardware.bluetoothName = Json::valueStdString(it, m_hardware.bluetoothName);
 
     else if (it.key() == "externalAntenna")
-      m_hardware.externalAntenna = Json::getValueBool(it, m_hardware.externalAntenna);
+      m_hardware.externalAntenna = Json::valueBool(it, m_hardware.externalAntenna);
 
     else if (it.key() == "hardwareAntennaSwitch")
-      m_hardware.hardwareAntennaSwitch = Json::getValueBool(it, m_hardware.hardwareAntennaSwitch);
+      m_hardware.hardwareAntennaSwitch = Json::valueBool(it, m_hardware.hardwareAntennaSwitch);
 
     else if (it.key() == "hats")
-      m_hardware.hats = Json::getValueBool(it, m_hardware.hats);
+      m_hardware.hats = Json::valueBool(it, m_hardware.hats);
 
     else if (it.key() == "internalGPS")
-      m_hardware.internalGPS = Json::getValueBool(it, m_hardware.internalGPS);
+      m_hardware.internalGPS = Json::valueBool(it, m_hardware.internalGPS);
 
     else if (it.key() == "softwareSerialPower")
-      m_hardware.softwareSerialPower = Json::getValueBool(it, m_hardware.softwareSerialPower);
+      m_hardware.softwareSerialPower = Json::valueBool(it, m_hardware.softwareSerialPower);
 
     else if (it.key() == "stickDeadZone")
-      m_hardware.stickDeadZone = Json::getValueBool(it, m_hardware.stickDeadZone);
+      m_hardware.stickDeadZone = Json::valueBool(it, m_hardware.stickDeadZone);
 
     else if (it.key() == "switchableJack")
-      m_hardware.switchableJack = Json::getValueBool(it, m_hardware.switchableJack);
+      m_hardware.switchableJack = Json::valueBool(it, m_hardware.switchableJack);
 
     else if (it.key() == "trainerModule") {
       int idx = DataHelpers::getStringTagMappingIndex(trainerModuleLookupTable,
-                                                      Json::getValueStdString(it).c_str());
+                                                      Json::valueStdString(it).c_str());
       m_hardware.trainerModule = idx > -1 ? idx : m_hardware.trainerModule;
     }
     else if (it.key() == "vcpSerialMode")
-      m_hardware.vcpSerialMode = Json::getValueBool(it, m_hardware.vcpSerialMode);
+      m_hardware.vcpSerialMode = Json::valueBool(it, m_hardware.vcpSerialMode);
 
     else if (it.key() == "contrast")
       loadContrast(it);
 
     else if (it.key() == "maxVolume")
-      m_hardware.maxVolume = Json::getValueInt(it, m_hardware.maxVolume);
+      m_hardware.maxVolume = Json::valueInt(it, m_hardware.maxVolume);
 
     else if (it.key() == "pwrButtonPress")
-      m_hardware.pwrButtonPress = Json::getValueBool(it, m_hardware.pwrButtonPress);
+      m_hardware.pwrButtonPress = Json::valueBool(it, m_hardware.pwrButtonPress);
 
     else if (it.key() == "rotaryEncNav")
-      m_hardware.rotaryEncNav = Json::getValueBool(it, m_hardware.rotaryEncNav);
+      m_hardware.rotaryEncNav = Json::valueBool(it, m_hardware.rotaryEncNav);
 
     else if (it.key() == "intModules")
       loadIntModules(it);
@@ -1456,13 +1458,13 @@ bool Board::loadDefinition(const QString & path)
       loadExtModules(it);
     }
     else if (it.key() == "fourCC")
-      m_hardware.fourCC = Json::getValueInt(it, m_hardware.fourCC);
+      m_hardware.fourCC = Json::valueInt(it, m_hardware.fourCC);
 
     else if (it.key() == "eepromSize")
-      m_hardware.eepromSize = Json::getValueInt(it, m_hardware.eepromSize);
+      m_hardware.eepromSize = Json::valueInt(it, m_hardware.eepromSize);
 
     else if (it.key() == "flashSize")
-      m_hardware.flashSize = Json::getValueInt(it, m_hardware.flashSize);
+      m_hardware.flashSize = Json::valueInt(it, m_hardware.flashSize);
 
     else
       qWarning() << "Warning: No rule to process - path:" << path << "key:" << it.key() << "value:" << it.value();
@@ -1496,11 +1498,11 @@ void Board::loadBattery(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "min")
-        m_hardware.battery.min = Json::getValueInt(it, m_hardware.battery.min);
+        m_hardware.battery.min = Json::valueInt(it, m_hardware.battery.min);
       else if (it.key() == "max")
-        m_hardware.battery.max = Json::getValueInt(it, m_hardware.battery.max);
+        m_hardware.battery.max = Json::valueInt(it, m_hardware.battery.max);
       else if (it.key() == "warn")
-        m_hardware.battery.warn = Json::getValueInt(it, m_hardware.battery.warn);
+        m_hardware.battery.warn = Json::valueInt(it, m_hardware.battery.warn);
       else
         qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
     }
@@ -1515,9 +1517,9 @@ void Board::loadContrast(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "min")
-        m_hardware.contrast.min = Json::getValueInt(it, m_hardware.contrast.min);
+        m_hardware.contrast.min = Json::valueInt(it, m_hardware.contrast.min);
       else if (it.key() == "max")
-        m_hardware.contrast.max = Json::getValueInt(it, m_hardware.contrast.max);
+        m_hardware.contrast.max = Json::valueInt(it, m_hardware.contrast.max);
       else
         qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
     }
@@ -1532,7 +1534,7 @@ void Board::loadHaptic(QJsonObject::const_iterator & oit)
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "haptic_pwm")
-        m_hardware.haptic = Json::getValueBool(it, m_hardware.haptic);
+        m_hardware.haptic = Json::valueBool(it, m_hardware.haptic);
     }
   } else
         qWarning() << "Warning: haptic is not an object" << *oit;
@@ -1551,26 +1553,26 @@ void Board::loadInputs(QJsonObject::const_iterator & oit)
         for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
           //qDebug() << "key:" << it.key() << "value:" << it.value();
           if (it.key() == "name")
-            defn.name = Json::getValueStdString(it, defn.name);
+            defn.name = Json::valueStdString(it, defn.name);
 
           else if (it.key() == "type") {
-            std::string type = Json::getValueStdString(it);
+            std::string type = Json::valueStdString(it);
             defn.type = (Board::AnalogInputType)DataHelpers::getStringTagMappingIndex(inputTypesLookupTable, type.c_str());
             if (defn.type == Board::AIT_STICK)
               defn.refYaml = Board::LVT_NAME;
           }
 
           else if (it.key() == "inverted")
-            defn.inverted = Json::getValueBool(it, defn.inverted);
+            defn.inverted = Json::valueBool(it, defn.inverted);
 
           else if (it.key() == "label")
-            defn.name = Json::getValueStdString(it, defn.name);
+            defn.name = Json::valueStdString(it, defn.name);
 
           else if (it.key() == "short_label")
-            defn.shortName = Json::getValueStdString(it, defn.shortName);
+            defn.shortName = Json::valueStdString(it, defn.shortName);
 
           else if (it.key() == "default") {
-            std::string dflt = Json::getValueStdString(it);
+            std::string dflt = Json::valueStdString(it);
 
             if (defn.type == Board::AIT_FLEX) {
               int idx = DataHelpers::getStringTagMappingIndex(flexTypesLookupTable, dflt.c_str());
@@ -1621,7 +1623,7 @@ void Board::loadModules(QJsonObject::const_iterator & oit, Board::Modules & modu
       }
       else if (it.key() == "dflt") {
         int idx = DataHelpers::getStringTagMappingIndex(intModuleTypesLookupTable,
-                                                        Json::getValueStdString(it).c_str());
+                                                        Json::valueStdString(it).c_str());
         modules.dflt = idx > -1 ? idx : MODULE_TYPE_NONE;
       }
       else
@@ -1644,11 +1646,11 @@ void Board::loadSwitches(QJsonObject::const_iterator & oit)
         for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
           //qDebug() << "key:" << it.key() << "value:" << it.value();
           if (it.key() == "name")
-            sw.name = Json::getValueStdString(it, sw.name);
+            sw.name = Json::valueStdString(it, sw.name);
 
           else if (it.key() == "type") {
             int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable,
-                                                            Json::getValueStdString(it).c_str());
+                                                            Json::valueStdString(it).c_str());
             sw.type = idx < 0 ? Board::SWITCH_NOT_AVAILABLE : (Board::SwitchType)idx;
           }
 
@@ -1656,11 +1658,11 @@ void Board::loadSwitches(QJsonObject::const_iterator & oit)
             sw.flags = o.value("flags").toInt();
 
           else if (it.key() == "inverted")
-            sw.inverted = Json::getValueBool(it);
+            sw.inverted = Json::valueBool(it);
 
           else if (it.key() == "default") {
             int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable,
-                                                            Json::getValueStdString(it).c_str());
+                                                            Json::valueStdString(it).c_str());
             sw.dflt = idx < 0 ? Board::SWITCH_NOT_AVAILABLE : (Board::SwitchType)idx;
           }
 
@@ -1678,10 +1680,10 @@ void Board::loadSwitches(QJsonObject::const_iterator & oit)
           }
 
           else if (it.key() == "is_cfs")
-            sw.isCustomSwitch = Json::getValueBool(it, sw.isCustomSwitch);
+            sw.isCustomSwitch = Json::valueBool(it, sw.isCustomSwitch);
 
           else if (it.key() == "cfs_idx")
-            sw.customSwitchIdx = Json::getValueBool(it, sw.customSwitchIdx);
+            sw.customSwitchIdx = Json::valueBool(it, sw.customSwitchIdx);
 
           else
             qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
@@ -1720,13 +1722,13 @@ void Board::loadKeys(QJsonObject::const_iterator & oit)
         for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
           //qDebug() << "key:" << it.key() << "value:" << it.value();
           if (it.key() == "name")
-            k.name = Json::getValueStdString(it, k.name);
+            k.name = Json::valueStdString(it, k.name);
 
           else if (it.key() == "key")
-            k.key = Json::getValueStdString(it, k.key);
+            k.key = Json::valueStdString(it, k.key);
 
           else if (it.key() == "label")
-            k.label = Json::getValueStdString(it, k.label);
+            k.label = Json::valueStdString(it, k.label);
 
           else
             qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
@@ -1754,7 +1756,7 @@ void Board::loadTrims(QJsonObject::const_iterator & oit)
         for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
           //qDebug() << "key:" << it.key() << "value:" << it.value();
           if (it.key() == "name")
-            t.name = Json::getValueStdString(it, t.name);
+            t.name = Json::valueStdString(it, t.name);
 
           else
             qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
@@ -1777,22 +1779,22 @@ void Board::loadDisplay(QJsonObject::const_iterator & it)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       //qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "lcd_depth")
-        m_display.depth = Json::getValueInt(it, m_display.depth);
+        m_display.depth = Json::valueInt(it, m_display.depth);
 
       else if (it.key() == "lcd_h")
-        m_display.h = Json::getValueInt(it, m_display.h);
+        m_display.h = Json::valueInt(it, m_display.h);
 
       else if (it.key() == "lcd_w")
-        m_display.w = Json::getValueInt(it, m_display.w);
+        m_display.w = Json::valueInt(it, m_display.w);
 
       else if (it.key() == "lcd_phys_h")
-        m_display.phys_h = Json::getValueInt(it, m_display.phys_h);
+        m_display.phys_h = Json::valueInt(it, m_display.phys_h);
 
       else if (it.key() == "lcd_phys_w")
-        m_display.phys_w = Json::getValueInt(it, m_display.phys_w);
+        m_display.phys_w = Json::valueInt(it, m_display.phys_w);
 
       else if (it.key() == "oled_screen")
-        m_display.oled = Json::getValueBool(it, m_display.oled);
+        m_display.oled = Json::valueBool(it, m_display.oled);
 
       else
         qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
@@ -1815,16 +1817,16 @@ void Board::loadLEDS(QJsonObject::const_iterator & it)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       //qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "bling_led_strip_length")
-        m_hardware.has_bling_leds = Json::getValueInt(it, m_hardware.has_bling_leds);
+        m_hardware.has_bling_leds = Json::valueInt(it, m_hardware.has_bling_leds);
 
       else if (it.key() == "cfs_leds_per_switch")
-        cfs_leds_per_switch = Json::getValueInt(it, 0);
+        cfs_leds_per_switch = Json::valueInt(it, 0);
 
       else if (it.key() == "cfs_led_strip_length")
-        cfs_led_strip_length = Json::getValueInt(it, 0);
+        cfs_led_strip_length = Json::valueInt(it, 0);
 
       else if (it.key() == "status_leds")
-        m_hardware.statusLeds = Json::getValueBool(it, m_hardware.statusLeds);
+        m_hardware.statusLeds = Json::valueBool(it, m_hardware.statusLeds);
 
       else
         qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
@@ -1845,25 +1847,25 @@ void Board::loadHardware(QJsonObject::const_iterator & it)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       //qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "has_audio_mute")
-        m_hardware.has_audio_mute = Json::getValueBool(it, m_hardware.has_audio_mute);
+        m_hardware.has_audio_mute = Json::valueBool(it, m_hardware.has_audio_mute);
 
       else if (it.key() == "has_ext_module_support")
-        m_hardware.has_ext_module_support = Json::getValueBool(it, m_hardware.has_ext_module_support);
+        m_hardware.has_ext_module_support = Json::valueBool(it, m_hardware.has_ext_module_support);
 
       else if (it.key() == "has_int_module_support")
-        m_hardware.has_int_module_support = Json::getValueBool(it, m_hardware.has_int_module_support);
+        m_hardware.has_int_module_support = Json::valueBool(it, m_hardware.has_int_module_support);
 
       else if (it.key() == "sport_max_baudrate")
-        m_hardware.sport_max_baudrate = Json::getValueInt(it, m_hardware.sport_max_baudrate);
+        m_hardware.sport_max_baudrate = Json::valueInt(it, m_hardware.sport_max_baudrate);
 
       else if (it.key() == "surface")
-        m_hardware.surface = Json::getValueBool(it, m_hardware.surface);
+        m_hardware.surface = Json::valueBool(it, m_hardware.surface);
 
       else if (it.key() == "cpu")
-        m_hardware.cpu = Json::getValueStdString(it, m_hardware.cpu);
+        m_hardware.cpu = Json::valueStdString(it, m_hardware.cpu);
 
       else if (it.key() == "cpu_type")
-        m_hardware.cpu_type = Json::getValueStdString(it, m_hardware.cpu_type);
+        m_hardware.cpu_type = Json::valueStdString(it, m_hardware.cpu_type);
 
       else
         qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
