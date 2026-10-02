@@ -167,3 +167,11 @@ public:
 // utils
 uint32_t yaml_parse_enum(const struct YamlIdStr* choices, const char* val, uint8_t val_len);
 const char* yaml_output_enum(int32_t i, const struct YamlIdStr* choices);
+// exact=false (default) stops at the first NUL, matching the semantics
+// needed for a fixed-capacity char[] field whose content is shorter than
+// its declared max_len - the field is not necessarily NUL-padded so
+// anything past the terminator has no meaning. exact=true writes the full
+// max_len regardless of embedded NULs - use it when max_len already IS
+// the true content length (e.g. a std::string's size()).
+bool yaml_output_string(const char* str, uint32_t max_len, yaml_writer_func wf,
+                        void* opaque, bool exact = false);
