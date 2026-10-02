@@ -25,6 +25,37 @@
 #include "helpers_json.h"
 #include "appdata.h"
 
+Firmware::Firmware(const QString & id) :
+  m_id(id),
+  m_supported(false),
+  m_loaded(false),
+  m_valid(false),
+  m_board(nullptr)
+{
+  m_defn = FirmwareDefn();
+
+  QJsonDocument *doc = new QJsonDocument();
+
+  if (Json::load(doc, QString("%1/%2.json").arg(FWDEFNSDIR).arg(id))) {
+    QJsonObject obj = doc->object();
+    // ignore intermediate definitions
+    if (!Json::getValue(obj, "hidden", false, false).toBool()) {
+      m_supported = Json::getValue(obj, "supported", false, true).toBool();
+      m_defn.name = Json::getValue(obj, "name", false, "unknown").toString().toStdString();
+      m_defn.boardId = Json::getValue(obj, "board", false, id).toString().toStdString();
+
+      if (Board::isAvailable(m_defn.boardId.c_str()))
+        m_board = Board::getBoardForId(m_defn.boardId.c_str());
+      else
+        qDebug() << "Error: cannot find board:" << m_defn.boardId;
+    } else {
+      qDebug() << "Error: attempt to register hidden firmware id:" << id;
+    }
+  }
+
+  delete doc;
+}
+
 // static
 QList<QString> Firmware::m_languages = {
   "cn",
@@ -63,37 +94,6 @@ const Firmware::OptionTooltip Firmware::registeredOptions = {
 QString Firmware::getOptionTooltip(const QString opt)
 {
   return registeredOptions.value(opt, tr("No tooltip available for this option"));
-}
-
-Firmware::Firmware(const QString & id) :
-  m_id(id),
-  m_supported(false),
-  m_loaded(false),
-  m_valid(false),
-  m_board(nullptr)
-{
-  m_defn = FirmwareDefn();
-
-  QJsonDocument *doc = new QJsonDocument();
-
-  if (Json::load(doc, QString("%1/%2.json").arg(FWDEFNSDIR).arg(id))) {
-    QJsonObject obj = doc->object();
-    // ignore intermediate definitions
-    if (!Json::getValue(obj, "hidden", false, false).toBool()) {
-      m_supported = Json::getValue(obj, "supported", false, true).toBool();
-      m_defn.name = Json::getValue(obj, "name", false, "unknown").toString().toStdString();
-      m_defn.boardId = Json::getValue(obj, "board", false, id).toString().toStdString();
-
-      if (Board::isAvailable(m_defn.boardId.c_str()))
-        m_board = Board::getBoardForId(m_defn.boardId.c_str());
-      else
-        qDebug() << "Error: cannot find board:" << m_defn.boardId;
-    } else {
-      qDebug() << "Error: attempt to register hidden firmware id:" << id;
-    }
-  }
-
-  delete doc;
 }
 
 int Firmware::getCapability(Capability value) const
