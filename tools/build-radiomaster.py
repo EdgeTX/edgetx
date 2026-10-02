@@ -19,16 +19,6 @@ boards = {
         "PCBREV": "TX16S",
         "DEFAULT_MODE": "2",
     },
-    "TX12_1": {
-        "PCB": "X7",
-        "PCBREV": "TX12",
-        "DEFAULT_MODE": "1",
-    },
-    "TX12_2": {
-        "PCB": "X7",
-        "PCBREV": "TX12",
-        "DEFAULT_MODE": "2",
-    },
     "TX12MK2_1": {
         "PCB": "X7",
         "PCBREV": "TX12MK2",
@@ -79,18 +69,6 @@ boards = {
         "PCBREV": "MT12",
         "DEFAULT_MODE": "2",
     },
-    "T8_1": {
-        "PCB": "X7",
-        "PCBREV": "T8",
-        "DEFAULT_MODE": "1",
-        "RADIOMASTER_RTF_RELEASE": "YES",
-    },
-    "T8_2": {
-        "PCB": "X7",
-        "PCBREV": "T8",
-        "DEFAULT_MODE": "2",
-        "RADIOMASTER_RTF_RELEASE": "YES",
-    }
 }
 
 translations = [

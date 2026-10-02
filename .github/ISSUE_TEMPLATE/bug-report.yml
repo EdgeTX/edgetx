@@ -9,6 +9,14 @@ body:
 
         Please note that this is not the place to make feature requests or ask for
         help. For this, please use the [Discord server](https://discord.gg/wF9wUKnZ6H) or [Discussion forum](https://github.com/EdgeTX/edgetx/discussions).
+  - type: markdown
+    attributes:
+      value: |
+        **STM32F2 radios** (BetaFPV LiteRadio3 Pro; FrSky Q X7 / Q X7S (ACCST), X9D, X9D+ (not 2019),
+        X9 Lite / Lite S, X-Lite / S / Pro; Jumper T12, T-Lite, T-Pro; RadioMaster T8, TX12 (not MK2))
+        were last supported in **EdgeTX 2.11**. Firmware bug reports for these radios on later versions
+        will not be accepted. Companion can still read their models and settings.
+        See [STM32 platform support](https://edgetx.org/edgetx/latest/hardware/stm32-platforms/).
   - type: checkboxes
     attributes:
       label: Is there an existing issue for this problem?
@@ -89,10 +97,12 @@ body:
       label: Transmitter
       description: |
         What transmitter are you using? You can pick more than one if this is
-        affecting more than one transmitter.
+        affecting more than one transmitter. Radios marked "2.11 max" are
+        [STM32F2 radios](https://edgetx.org/edgetx/latest/hardware/stm32-platforms/)
+        last supported in EdgeTX 2.11.
       multiple: true
       options:
-        - BetaFPV LiteRadio3 Pro
+        - BetaFPV LiteRadio3 Pro (2.11 max)
         - iFlight Commando 8
         - iFlight Commando 14
         - Fatfish F16
@@ -103,24 +113,24 @@ body:
         - Flysky PL18/PL18EV
         - Flysky PL18U
         - Flysky ST16
-        - FrSky Q X7 / Q X7S (ACCST)
+        - FrSky Q X7 / Q X7S (ACCST, 2.11 max)
         - FrSky Q X7 / Q X7S (ACCESS)
-        - FrSky X9D
-        - FrSky X9D+
+        - FrSky X9D (2.11 max)
+        - FrSky X9D+ (2.11 max)
         - FrSky X9D+2019
         - FrSky X9E / X9E Hall
-        - FrSky X9 Lite / Lite S
+        - FrSky X9 Lite / Lite S (2.11 max)
         - FrSky X10 / X10S (ACCST)
         - FrSky X10 Express / X10S Express (ACCESS)
         - FrSky X12
-        - FrSky X-Lite / S / Pro
+        - FrSky X-Lite / S / Pro (2.11 max)
         - HelloRadioSky V12
         - HelloRadioSky V14
         - HelloRadioSky V14LCD
         - HelloRadioSky V15
         - HelloRadioSky V16
         - Jumper Bumblebee
-        - Jumper T12
+        - Jumper T12 (2.11 max)
         - Jumper T12 MAX
         - Jumper T14
         - Jumper T15
@@ -132,16 +142,17 @@ body:
         - Jumper T20/T20S
         - Jumper T20 V2
         - Jumper T22
-        - Jumper T-Lite
-        - Jumper T-Pro
+        - Jumper T-Lite (2.11 max)
+        - Jumper T-Pro (2.11 max)
         - Jumper T-Pro V2
         - RadioMaster Boxer
         - RadioMaster GX12
         - RadioMaster GX15
         - RadioMaster MT12
         - RadioMaster Pocket
-        - RadioMaster T8
-        - RadioMaster TX12 / TX12MK2
+        - RadioMaster T8 (2.11 max)
+        - RadioMaster TX12 (2.11 max)
+        - RadioMaster TX12MK2
         - RadioMaster TX15
         - RadioMaster TX16S / TX16S Mark II
         - RadioMaster TX16S MK3

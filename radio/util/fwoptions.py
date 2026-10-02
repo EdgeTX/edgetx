@@ -22,21 +22,6 @@ tts_languages = {
     "pt"
 }
 
-options_taranis_x9d = {
-    "noheli": ("HELI", "NO", "YES"),
-    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
-    "haptic": ("HAPTIC", "YES", "NO"),
-    "nogvars": ("GVARS", "NO", "YES"),
-    "sqt5font": ("FONT", "SQT5", None),
-    "noras": ("RAS", "NO", "YES"),
-    "faimode": ("FAI", "YES", None),
-    "faichoice": ("FAI", "CHOICE", None),
-    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
-    "eu": ("MODULE_PROTOCOL_D8", "NO", "YES"),
-    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
-    "afhds3": ("AFHDS3", "YES", "NO")
-}
-
 options_taranis_x9dp = {
     "noheli": ("HELI", "NO", "YES"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
@@ -60,45 +45,6 @@ options_taranis_x7 = {
     "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
     "eu": ("MODULE_PROTOCOL_D8", "NO", "YES"),
     "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
-}
-
-options_taranis_x9lite = {
-    "noheli": ("HELI", "NO", "YES"),
-    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
-    "nogvars": ("GVARS", "NO", "YES"),
-    "sqt5font": ("FONT", "SQT5", None),
-    "faimode": ("FAI", "YES", None),
-    "faichoice": ("FAI", "CHOICE", None),
-    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
-    "eu": ("MODULE_PROTOCOL_D8", "NO", "YES"),
-    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
-    "afhds3": ("AFHDS3", "YES", "NO")
-}
-
-options_taranis_xlite = {
-    "noheli": ("HELI", "NO", "YES"),
-    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
-    "nogvars": ("GVARS", "NO", "YES"),
-    "sqt5font": ("FONT", "SQT5", None),
-    "faimode": ("FAI", "YES", None),
-    "faichoice": ("FAI", "CHOICE", None),
-    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
-    "eu": ("MODULE_PROTOCOL_D8", "NO", "YES"),
-    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
-    "afhds3": ("AFHDS3", "YES", "NO")
-}
-
-options_taranis_xlites = {
-    "noheli": ("HELI", "NO", "YES"),
-    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
-    "nogvars": ("GVARS", "NO", "YES"),
-    "sqt5font": ("FONT", "SQT5", None),
-    "faimode": ("FAI", "YES", None),
-    "faichoice": ("FAI", "CHOICE", None),
-    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
-    "eu": ("MODULE_PROTOCOL_D8", "NO", "YES"),
-    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
-    "afhds3": ("AFHDS3", "YES", "NO")
 }
 
 options_taranis_x9e = {
@@ -155,38 +101,6 @@ options_horus_x10express = {
     "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
 }
 
-options_betafpv_lr3pro = {
-    "noheli": ("HELI", "NO", "YES"),
-    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
-    "nogvars": ("GVARS", "NO", "YES"),
-    "faimode": ("FAI", "YES", None),
-    "faichoice": ("FAI", "CHOICE", None),
-    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
-    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
-}
-
-options_jumper_tlite = {
-    "noheli": ("HELI", "NO", "YES"),
-    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
-    "nogvars": ("GVARS", "NO", "YES"),
-    "faimode": ("FAI", "YES", None),
-    "faichoice": ("FAI", "CHOICE", None),
-    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
-    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
-}
-
-options_jumper_t12 = {
-    "noheli": ("HELI", "NO", "YES"),
-    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
-    "nogvars": ("GVARS", "NO", "YES"),
-    "faimode": ("FAI", "YES", None),
-    "faichoice": ("FAI", "CHOICE", None),
-    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
-    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
-    "internalmulti": ("INTERNAL_MODULE_MULTI", "YES", "NO"),
-    "afhds3": ("AFHDS3", "YES", "NO")
-}
-
 options_jumper_t16 = {
     "noheli": ("HELI", "NO", "YES"),
     "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
@@ -210,17 +124,6 @@ options_jumper_t18 = {
     "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
     "bluetooth": ("BLUETOOTH", "YES", "NO"),
     "externalaccessmod": ("HARDWARE_EXTERNAL_ACCESS_MOD", "YES", "NO"),
-}
-
-options_radiomaster_tx12 = {
-    "noheli": ("HELI", "NO", "YES"),
-    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
-    "nogvars": ("GVARS", "NO", "YES"),
-    "faimode": ("FAI", "YES", None),
-    "faichoice": ("FAI", "CHOICE", None),
-    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
-    "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
-    "afhds3": ("AFHDS3", "YES", "NO")
 }
 
 options_radiomaster_tx12mk2 = {
@@ -293,16 +196,6 @@ options_radiomaster_mt12 = {
     "flexr9m": ("MODULE_PROTOCOL_FLEX", "YES", None),
     "afhds3": ("AFHDS3", "YES", "NO"),
     "internalelrs": ("INTERNAL_MODULE_ELRS", "YES", "NO"),
-}
-
-options_radiomaster_t8 = {
-    "noheli": ("HELI", "NO", "YES"),
-    "lua": ("LUA", "YES", "NO_MODEL_SCRIPTS"),
-    "nogvars": ("GVARS", "NO", "YES"),
-    "faimode": ("FAI", "YES", None),
-    "faichoice": ("FAI", "CHOICE", None),
-    "nooverridech": ("OVERRIDE_CHANNEL_FUNCTION", "NO", "YES"),
-    "bindkey": ("BIND_KEY", "NO", "YES"),
 }
 
 options_radiomaster_tx16s = {

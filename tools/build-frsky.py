@@ -9,62 +9,11 @@ import tempfile
 
 
 boards = {
-    "XLITE_FCC": {
-        "PCB": "XLITE",
-        "MODULE_SIZE_STD": "NO",
-        "PPM": "NO",
-        "DSM2": "NO",
-        "SBUS": "NO",
-    },
-    "XLITE_LBT": {
-        "PCB": "XLITE",
-        "MODULE_PROTOCOL_D8": "NO",
-        "MODULE_SIZE_STD": "NO",
-        "PPM": "NO",
-        "DSM2": "NO",
-        "SBUS": "NO",
-    },
-    "XLITES": {
-        "PCB": "XLITES",
-        "AUTOUPDATE": "YES",
-        "PXX1": "YES",
-        "XJT": "NO",
-        "MODULE_SIZE_STD": "NO",
-        "PPM": "NO",
-        "DSM2": "NO",
-        "SBUS": "NO",
-    },
-    "X9LITE": {
-        "PCB": "X9LITE",
-        "AUTOUPDATE": "YES",
-        "PXX1": "YES",
-        "XJT": "NO",
-        "MODULE_SIZE_STD": "NO",
-        "PPM": "NO",
-        "DSM2": "NO",
-        "SBUS": "NO",
-        "DEFAULT_MODE": "2",
-    },
-    "X9LITES": {
-        "PCB": "X9LITES",
-        "AUTOUPDATE": "YES",
-        "PXX1": "YES",
-        "XJT": "NO",
-        "MODULE_SIZE_STD": "NO",
-        "PPM": "NO",
-        "DSM2": "NO",
-        "SBUS": "NO",
-        "DEFAULT_MODE": "2",
-    },
     "X9D+2019": {
         "PCB": "X9D+",
         "PCBREV": "2019",
         "AUTOUPDATE": "YES",
         "PXX1": "YES",
-        "DEFAULT_MODE": "2",
-    },
-    "X9D+": {
-        "PCB": "X9D+",
         "DEFAULT_MODE": "2",
     },
     "X9E": {
@@ -74,15 +23,6 @@ boards = {
     "X9EHall": {
         "PCB": "X9E",
         "STICKS": "HORUS",
-        "DEFAULT_MODE": "2",
-    },
-    "X7_FCC": {
-        "PCB": "X7",
-        "DEFAULT_MODE": "2",
-    },
-    "X7_LBT": {
-        "PCB": "X7",
-        "MODULE_PROTOCOL_D8": "NO",
         "DEFAULT_MODE": "2",
     },
     "X7ACCESS": {
