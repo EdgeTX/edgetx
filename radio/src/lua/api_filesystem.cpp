@@ -24,6 +24,7 @@
 #include "edgetx.h"
 #include "lua_api.h"
 #include "api_filesystem.h"
+#include "lib_file.h"
 
 // garbage collector for luaDir
 static int dir_gc(lua_State* L)
@@ -67,12 +68,15 @@ static int dir_iter(lua_State* L)
 int luaDir(lua_State* L)
 {
   const char* path = luaL_optstring(L, 1, nullptr);
+  char fullPath[FF_MAX_LFN + 1];
+  etxNormalizePath(path, fullPath, sizeof(fullPath));
+
   DIR* dir = (DIR*)lua_newuserdata(L, sizeof(DIR));
 
   luaL_getmetatable(L, DIR_METATABLE);
   lua_setmetatable(L, -2);
 
-  FRESULT res = f_opendir(dir, path);
+  FRESULT res = f_opendir(dir, fullPath);
   if (res != FR_OK) {
     TRACE("luaDir cannot open %s", path);
     return 0;
@@ -126,11 +130,13 @@ void luaPushDateTime(lua_State * L, uint32_t year, uint32_t mon, uint32_t day,
 int luaFstat(lua_State* L)
 {
   const char * path = luaL_optstring(L, 1, nullptr);
+  char fullPath[FF_MAX_LFN + 1];
+  etxNormalizePath(path, fullPath, sizeof(fullPath));
 
   FRESULT res;
   FILINFO info;
 
-  res = f_stat(path, &info);
+  res = f_stat(fullPath, &info);
   if (res != FR_OK) {
     TRACE("luaFstat cannot open %s", path);
     return 0;
@@ -174,8 +180,10 @@ int luaFstat(lua_State* L)
 int luaDelete(lua_State* L)
 {
   const char* filename = luaL_optstring(L, 1, nullptr);
+  char fullPath[FF_MAX_LFN + 1];
+  etxNormalizePath(filename, fullPath, sizeof(fullPath));
 
-  FRESULT res = f_unlink(filename);
+  FRESULT res = f_unlink(fullPath);
   if (res != FR_OK) {
     TRACE("luaDelete cannot delete file/folder %s", filename);
   }
@@ -198,7 +206,7 @@ int luaDelete(lua_State* L)
 static int luaChdir(lua_State * L)
 {
   const char * directory = luaL_optstring(L, 1, nullptr);
-  f_chdir(directory);
+  etxChdir(directory);
   return 0;
 }
 
@@ -218,7 +226,9 @@ static int luaChdir(lua_State * L)
 static int luaMkdir(lua_State * L)
 {
   const char * directory = luaL_checkstring(L, 1);
-  FRESULT res = f_mkdir(directory);
+  char fullPath[FF_MAX_LFN + 1];
+  etxNormalizePath(directory, fullPath, sizeof(fullPath));
+  FRESULT res = f_mkdir(fullPath);
   lua_pushunsigned(L, res);
   return 1;
 }
@@ -243,7 +253,11 @@ static int luaRename(lua_State * L)
 {
   const char * from_path = luaL_checkstring(L, 1);
   const char * to_path = luaL_checkstring(L, 2);
-  FRESULT res = f_rename(from_path, to_path);
+  char fullFrom[FF_MAX_LFN + 1];
+  char fullTo[FF_MAX_LFN + 1];
+  etxNormalizePath(from_path, fullFrom, sizeof(fullFrom));
+  etxNormalizePath(to_path, fullTo, sizeof(fullTo));
+  FRESULT res = f_rename(fullFrom, fullTo);
   lua_pushunsigned(L, res);
   return 1;
 }

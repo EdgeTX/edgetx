@@ -24,6 +24,9 @@
 
 #include "FatFs/ff.h"
 
+/* EdgeTX: resolves "." and ".." against the tracked working folder (lib_file.cpp) */
+void etxNormalizePath(const char *in, char *out, size_t outLen);
+
 // #define l_getc(f)         fatfs_getc(f)
 // #define l_lockfile(f)     ((void)0)
 // #define l_unlockfile(f)   ((void)0)
@@ -282,10 +285,12 @@ static inline BYTE fatfs_open_mode(const char *mode)
 static int io_open (lua_State *L) {
   const char *filename = luaL_checkstring(L, 1);
   const char *mode = luaL_optstring(L, 2, "r");
+  char path[FF_MAX_LFN + 1];
   LStream *p = newfile(L);
   const char *md = mode;  /* to traverse/check mode */
   luaL_argcheck(L, l_checkmode(md), 2, "invalid mode");
-  return (f_open(&p->f, filename, fatfs_open_mode(mode)) != FR_OK)
+  etxNormalizePath(filename, path, sizeof(path));  /* FatFs can't resolve ".." on exFAT */
+  return (f_open(&p->f, path, fatfs_open_mode(mode)) != FR_OK)
              ? luaL_fileresult(L, 0, filename) : 1;
 }
 
