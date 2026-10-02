@@ -32,8 +32,9 @@ bool isExtensionMatching(const char * extension, const char * pattern, char * ma
 // before they reach FatFS, matching FAT12/16/32 behavior.
 
 // Resolve 'in' (absolute or relative to the tracked CWD) to a normalized
-// absolute path in 'out' (bounds-checked against outLen).
-void etxNormalizePath(const char * in, char * out, size_t outLen);
+// absolute path in 'out' (bounds-checked against outLen). C linkage so the
+// Lua C library (io.open, loadfile) can use it too.
+extern "C" void etxNormalizePath(const char * in, char * out, size_t outLen);
 // f_chdir() to a normalized absolute path; updates the tracked CWD on success.
 FRESULT etxChdir(const char * path);
 // Tracked absolute CWD (replacement for the exFAT-broken f_getcwd()).
