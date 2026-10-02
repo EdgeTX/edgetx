@@ -74,12 +74,12 @@
  #include "yaml_datastructs_pa01.cpp"
 #elif defined(PCBX7)
  #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)
-  #include "yaml_datastructs_tpro.cpp"
+  #include "yaml_datastructs_tprov2.cpp"
  #elif defined(RADIO_FAMILY_T20)
   #include "yaml_datastructs_t20.cpp"
  #elif defined(RADIO_GX12)
    #include "yaml_datastructs_gx12.cpp"
- #elif defined(RADIO_COMMANDO8) || defined(RADIO_LR3PRO) || defined(RADIO_T8) || defined(RADIO_T12) || defined(RADIO_TLITE)
+ #elif defined(RADIO_LR3PRO) || defined(RADIO_T8) || defined(RADIO_T12) || defined(RADIO_TLITE)
   #include "yaml_datastructs_xlite.cpp"
  #else
   #include "yaml_datastructs_128x64.cpp"
