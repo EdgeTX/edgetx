@@ -33,6 +33,10 @@
 #include "tasks.h"
 #include "tasks/mixer_task.h"
 
+#if defined(SIMU)
+#include "targets/simu/simulib.h"
+#endif
+
 #if defined(COLORLCD)
 #include "startup_shutdown.h"
 #endif
@@ -58,6 +62,10 @@ static void menusTask()
   edgeTxInit();
 
   mixerTaskInit();
+
+#if defined(SIMU)
+  simuInitDone = true;
+#endif
 
 #if defined(COLORLCD) && defined(RTC_BACKUP_RAM)
   if (UNEXPECTED_SHUTDOWN())

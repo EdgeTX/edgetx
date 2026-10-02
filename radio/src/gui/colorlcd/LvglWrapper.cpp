@@ -333,6 +333,10 @@ int8_t rotaryEncoderGetAccel() { return 0; }
 
 #endif // defined(ROTARY_ENCODER_NAVIGATION)
 
+#if defined(SIMU)
+void simuGuiHook();  // targets/simu/simulib.cpp
+#endif
+
 static void init_lvgl_drivers()
 {
   // Register the driver and save the created display object
@@ -419,6 +423,11 @@ void LvglWrapper::run()
       lv_indev_read_timer_cb(indev->driver->read_timer);
     }
   }
+
+#if defined(SIMU)
+  // Simulator hosts observe the GUI loop here, outside any UI code.
+  simuGuiHook();
+#endif
 }
 
 void initLvgl()
