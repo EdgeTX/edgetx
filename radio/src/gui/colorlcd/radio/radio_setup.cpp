@@ -42,6 +42,45 @@ static const lv_coord_t col_two_dsc[] = {LV_GRID_FR(19), LV_GRID_FR(21),
                                          LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
+// Number edit that stops refreshing from the RTC while being edited, and
+// only writes the new value back once editing is finished.
+class DateNumberEdit : public NumberEdit
+{
+ public:
+  DateNumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
+                 std::function<int()> getValue,
+                 std::function<void(int)> setValue) :
+      NumberEdit(parent, rect, vmin, vmax,
+                [=]() {
+                  if (isEditing) return editValue;
+                  return getValue();
+                },
+                [=](int newValue) {
+                  if (isEditing)
+                    editValue = newValue;
+                })
+  {
+    setOnEditStartHandler([=]() {
+      isEditing = true;
+      editValue = getValue();
+    });
+    setOnEditedHandler([=](int newValue) {
+      isEditing = false;
+      setValue(newValue);
+    });
+  }
+
+ protected:
+  int editValue;
+  bool isEditing = false;
+
+  void checkEvents() override
+  {
+    if (!isEditing)
+      NumberEdit::checkEvents();
+  }
+};
+
 class DateTimeWindow : public Window
 {
  public:
@@ -125,7 +164,7 @@ class DateTimeWindow : public Window
 
     // Date
     new StaticText(this, rect_t{PAD_TINY, PAD_TINY + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::STD_FONT_HEIGHT}, STR_DATE);
-    year = new NumberEdit(
+    year = new DateNumberEdit(
         this, rect_t{SubPage::EDT_X, PAD_TINY, DT_EDT_W, 0}, 2023, 2037,
         [=]() -> int32_t { return TM_YEAR_BASE + m_tm.tm_year; },
         [=](int32_t newValue) {
@@ -134,7 +173,7 @@ class DateTimeWindow : public Window
           SET_LOAD_DATETIME(&m_tm);
         });
 
-    month = new NumberEdit(
+    month = new DateNumberEdit(
         this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY, PAD_TINY, DT_EDT_W, 0}, 1, 12,
         [=]() -> int32_t { return 1 + m_tm.tm_mon; },
         [=](int32_t newValue) {
@@ -145,7 +184,7 @@ class DateTimeWindow : public Window
     month->setDisplayHandler(
         [](int32_t value) { return formatNumberAsString(value, LEADING0); });
 
-    day = new NumberEdit(
+    day = new DateNumberEdit(
         this, rect_t{SubPage::EDT_X + 2 * DT_EDT_W + PAD_SMALL, PAD_TINY, DT_EDT_W, 0}, 1,
         daysInMonth(), [=]() -> int32_t { return m_tm.tm_mday; },
         [=](int32_t newValue) {
@@ -157,7 +196,7 @@ class DateTimeWindow : public Window
 
     // Time
     new StaticText(this, rect_t{PAD_TINY, DT_Y2 + PAD_MEDIUM, SubPage::EDT_X - PAD_TINY - PAD_SMALL, EdgeTxStyles::STD_FONT_HEIGHT}, STR_TIME);
-    hour = new NumberEdit(
+    hour = new DateNumberEdit(
         this, rect_t{SubPage::EDT_X, DT_Y2, DT_EDT_W, 0}, 0, 23,
         [=]() -> int32_t { return m_tm.tm_hour; },
         [=](int32_t newValue) {
@@ -167,7 +206,7 @@ class DateTimeWindow : public Window
     hour->setDisplayHandler(
         [](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
 
-    minutes = new NumberEdit(
+    minutes = new DateNumberEdit(
         this, rect_t{SubPage::EDT_X + DT_EDT_W + PAD_TINY, DT_Y2, DT_EDT_W, 0}, 0, 59,
         [=]() -> int32_t { return m_tm.tm_min; },
         [=](int32_t newValue) {
@@ -177,7 +216,7 @@ class DateTimeWindow : public Window
     minutes->setDisplayHandler(
         [](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
 
-    seconds = new NumberEdit(
+    seconds = new DateNumberEdit(
         this, rect_t{SubPage::EDT_X + DT_EDT_W * 2 + PAD_SMALL, DT_Y2, DT_EDT_W, 0}, 0, 59,
         [=]() -> int32_t { return m_tm.tm_sec; },
         [=](int32_t newValue) {

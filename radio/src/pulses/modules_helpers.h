@@ -50,13 +50,17 @@ extern uint32_t NV14internalModuleFwVersion;
    (moduleState[module].protocol == PROTOCOL_CHANNELS_PXX2))
 
 #if defined (MULTIMODULE)
+  // Check the module type as well: 'multi.rfProtocol' shares its storage
+  // with other modules' data (e.g. AFHDS2A 'flysky.rx_id[0]')
   #define IS_D16_MULTI(module)                                            \
-    ((g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX) || \
-    (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX2))
+    (isModuleMultimodule(module) &&                                       \
+     ((g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX) || \
+      (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX2)))
 
-  #define IS_R9_MULTI(module)                         \
-    (g_model.moduleData[module].multi.rfProtocol == \
-    MODULE_SUBTYPE_MULTI_FRSKY_R9)
+  #define IS_R9_MULTI(module)                           \
+    (isModuleMultimodule(module) &&                     \
+     (g_model.moduleData[module].multi.rfProtocol ==    \
+      MODULE_SUBTYPE_MULTI_FRSKY_R9))
 
   #define IS_HOTT_MULTI(module)                                           \
     (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_HOTT)
