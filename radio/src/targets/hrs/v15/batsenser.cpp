@@ -247,6 +247,9 @@ int16_t v15BatterySystemCurrent(void)
   return g_systemCurrentMa;
 }
 
+uint16_t batterySensorVoltage() { return v15BatterySystemVoltage(); }
+int16_t batterySensorCurrent() { return v15BatterySystemCurrent(); }
+
 uint8_t v15BatteryDetectedCells(void)
 {
   return g_detectedCells;
