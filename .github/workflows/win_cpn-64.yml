@@ -48,7 +48,7 @@ jobs:
                                 mingw-w64-x86_64-SDL2 \
                                 mingw-w64-x86_64-clang \
                                 mingw-w64-x86_64-nsis \
-                                mingw-w64-x86_64-dfu-util \
+                                mingw-w64-x86_64-libusb \
                                 mingw-w64-x86_64-openssl
           python -m pip install clang jinja2
 
@@ -56,6 +56,13 @@ jobs:
         uses: actions/checkout@v7
         with:
           submodules: recursive
+
+      # MSYS2 dropped dfu-util from its mingw64 package database, so install
+      # the last signed mingw64 build vendored in .github/msys2 instead.
+      - name: Install dfu-util
+        working-directory: ${{github.workspace}}
+        run: |
+          pacman -U --noconfirm .github/msys2/mingw-w64-x86_64-dfu-util-0.11-2-any.pkg.tar.zst
 
       - name: Install Qt
         uses: jdpurcell/install-qt-action@v5
