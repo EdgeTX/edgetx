@@ -42,6 +42,7 @@ class PrefsProfilePanel : public PrefsPanel
 
   signals:
     void sdPathChanged(QString path);
+    void nameChanged();
 
   public slots:
     void onOptionChanged(QString name);

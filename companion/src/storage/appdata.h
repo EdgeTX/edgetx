@@ -825,6 +825,9 @@ class AppData: public CompStoreObj
     PROPERTY(bool, settingsToolbarVisible, true)
     PROPERTY(bool, toolsToolbarVisible, true)
 
+    // expand all collapsible sections on startup
+    PROPERTY(bool, expPrefsSects, false)
+
     bool firstUse;
     QString upgradeFromVersion;
 
