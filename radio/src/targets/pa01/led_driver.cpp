@@ -69,3 +69,10 @@ void ledBlue()
   rgbSetLedColor(9, 0, 0, 20);
   rgbLedColorApply();
 }
+
+void ledBoot()
+{
+  rgbSetLedColor(8, 20, 20, 20);
+  rgbSetLedColor(9, 20, 20, 20);
+  rgbLedColorApply();
+}

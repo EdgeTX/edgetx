@@ -100,6 +100,13 @@ const struct YamlIdStr enum_SwitchConfig[] = {
   {  SWITCH_3pos, "3pos"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_StatusLedColor[] = {
+  {  STATUS_LED_COLOR_DEFAULT, "LED_COLOR_DEFAULT"  },
+  {  STATUS_LED_COLOR_RED, "LED_COLOR_RED"  },
+  {  STATUS_LED_COLOR_GREEN, "LED_COLOR_GREEN"  },
+  {  STATUS_LED_COLOR_BLUE, "LED_COLOR_BLUE"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_TimerModes[] = {
   {  TMRMODE_OFF, "OFF"  },
   {  TMRMODE_ON, "ON"  },
@@ -388,6 +395,10 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "keyLockEnabled", 1 ),
   YAML_PADDING( 5 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
+  YAML_ENUM("statusLedError", 2, enum_StatusLedColor, NULL),
+  YAML_ENUM("statusLedReady", 2, enum_StatusLedColor, NULL),
+  YAML_ENUM("statusLedEmit", 2, enum_StatusLedColor, NULL),
+  YAML_PADDING( 2 ),
   YAML_END
 };
 static const struct YamlNode struct_unsigned_8[] = {

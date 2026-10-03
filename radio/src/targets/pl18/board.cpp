@@ -289,11 +289,7 @@ void boardInit()
   rtcInit(); // RTC must be initialized before rambackupRestore() is called
 #endif
 #if defined(LED_STRIP_GPIO)
-#if !defined(POWER_LED_BLUE)
-  ledBlue();
-#else
-  ledGreen();
-#endif
+  ledBoot();
 #endif
 }
 

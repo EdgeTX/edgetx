@@ -223,12 +223,17 @@ class LEDS(BaseModel):
     led_strip_timer_dma_irqhandler: Optional[str] = None
     led_strip_refresh_period: Optional[int] = None
     status_leds: Optional[bool] = False
+    status_led_rgb_strip: Optional[bool] = None
     gpio_led_gpio_on: Optional[str] = None
     gpio_led_gpio_off: Optional[str] = None
     led_red_gpio: Optional[str] = None
     led_red2_gpio: Optional[str] = None
     led_green_gpio: Optional[str] = None
     led_blue_gpio: Optional[str] = None
+    status_led_pwm_timer: Optional[str] = None
+    status_led_pwm_timer_freq: Optional[str] = None
+    status_led_pwm_timer_irqn: Optional[str] = None
+    status_led_pwm_timer_irqhandler: Optional[str] = None
 
 class IMU(BaseModel):
     imu_i2c_bus: Optional[str] = None

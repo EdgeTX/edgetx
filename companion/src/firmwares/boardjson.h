@@ -119,6 +119,8 @@ class BoardJson
     struct HardwareDefn {
       int has_audio_mute               = 0;
       int has_bling_leds               = 0;
+      int status_led_colors            = 0;   // bit 0 red, 1 green, 2 blue
+      int status_led_pwm               = 0;
       int has_ext_module_support       = 0;
       int has_int_module_support       = 0;
       int sport_max_baudrate           = 0;

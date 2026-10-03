@@ -556,6 +556,13 @@
 #define TR_BEEPCOUNTDOWN               "ContaRegr"
 #define TR_PERSISTENT                  TR("Persist.", "Persistente")
 #define TR_BACKLIGHT_LABEL             "Backlight"
+#define TR_STATUS_LED                  "LED de estado"
+#define TR_STATUS_LED_ERROR            "Erro"
+#define TR_STATUS_LED_READY            "Pronto"
+#define TR_STATUS_LED_EMIT             "Transmitindo"
+#define TR_STATUS_LED_COLORS_1         "Vermelho"
+#define TR_STATUS_LED_COLORS_2         "Verde"
+#define TR_STATUS_LED_COLORS_3         "Azul"
 #define TR_STATUS                      "Estado"
 #define TR_BLONBRIGHTNESS              "Brilho LIGA"
 #define TR_BLOFFBRIGHTNESS             "Brilho DESL"
