@@ -149,6 +149,20 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
         result.max = 30000;
         result.min = -result.max;
       }
+      else if (abs(index) == SOURCE_TYPE_SPECIAL_TX_BAT_CURRENT) {
+        result.step = 0.1;
+        result.decimals = 1;
+        result.max = 33.0;
+        result.min = -result.max;
+        result.unit = tr("A");
+      }
+      else if (abs(index) == SOURCE_TYPE_SPECIAL_TX_BAT_POWER) {
+        result.step = 0.01;
+        result.decimals = 2;
+        result.max = 300.0;
+        result.min = -result.max;
+        result.unit = tr("W");
+      }
       break;
 
     case SOURCE_TYPE_TIMER:
@@ -193,7 +207,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   };
 
   static const QString special[] = {
-    "", tr("Batt"), tr("Time"), tr("GPS"), tr("Reserved1"), tr("Reserved2"), tr("Reserved3"), tr("Reserved4")
+    "", tr("Batt"), tr("Time"), tr("GPS"), tr("Reserved1"), tr("Reserved2"), tr("BatI"), tr("BatP")
   };
 
   static const QString rotary[]  = { "", tr("REa"), tr("REb") };
@@ -352,8 +366,13 @@ bool RawSource::isAvailable(const ModelData * const model, const GeneralSettings
   if (type == SOURCE_TYPE_SWITCH && abs(index) > b.getCapability(Board::Switches))
     return false;
 
-  if (type == SOURCE_TYPE_SPECIAL && abs(index) >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED)
-    return false;
+  if (type == SOURCE_TYPE_SPECIAL && abs(index) >= SOURCE_TYPE_SPECIAL_FIRST_RESERVED) {
+    // RESERVED3/4 are used as the battery sensor current/power sources on this board
+    bool isBatterySource = IS_HELLORADIOSKY_V15(board) &&
+                           abs(index) >= SOURCE_TYPE_SPECIAL_TX_BAT_CURRENT;
+    if (!isBatterySource)
+      return false;
+  }
 
   if (type == SOURCE_TYPE_TIMER && abs(index) > CPN_MAX_TIMERS)
     return false;
@@ -470,8 +489,8 @@ tbl.insert(tbl.end(), {
                           {std::to_string(SOURCE_TYPE_SPECIAL_TX_GPS),     "TX_GPS"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED1),  "RESERVED1"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED2),  "RESERVED2"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED3),  "RESERVED3"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED4),  "RESERVED4"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TX_BAT_CURRENT), "TX_BAT_CURRENT"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TX_BAT_POWER),   "TX_BAT_POWER"},
                           });
 
   return tbl;
