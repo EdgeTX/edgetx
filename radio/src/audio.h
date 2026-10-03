@@ -464,7 +464,8 @@ class AudioQueue {
     void stopSD();
     bool isPlaying(uint8_t id);
     bool isEmpty() const { return fragmentsFifo.empty(); };
-    bool isPlayingFile() const { return normalContext.isFile() || !fragmentsFifo.empty(); }
+    // a file is playing, or something that may be a file is queued
+    bool mayReadFile() const { return normalContext.isFile() || !fragmentsFifo.empty(); }
     // while held, queued fragments are not started
     void holdQueue(bool hold) { _holdQueue = hold; }
     void wakeup();

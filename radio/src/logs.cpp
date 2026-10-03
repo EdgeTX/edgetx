@@ -49,7 +49,7 @@ static void loggingTimerCb(timer_handle_t* timer)
     // prompts stutter: write between prompts, and hold new ones meanwhile.
     // Hold before checking, so a prompt cannot start in between.
     audioQueue.holdQueue(true);
-    if (audioQueue.isPlayingFile() && retries < LOG_MAX_RETRIES) {
+    if (audioQueue.mayReadFile() && retries < LOG_MAX_RETRIES) {
       audioQueue.holdQueue(false);
       if (!retries++) timer_set_period(timer, LOG_RETRY_MS);
       return;
