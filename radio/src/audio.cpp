@@ -397,6 +397,7 @@ AudioBuffer audioBuffers[AUDIO_BUFFER_COUNT] __DMA;
 AudioQueue::AudioQueue()
   : buffersFifo(),
   _started(false),
+  _holdQueue(false),
   normalContext(),
   backgroundContext(),
   priorityContext(),
@@ -666,7 +667,7 @@ void AudioQueue::wakeup()
     }
 
     // mix the normal context (tones and wavs)
-    if (normalContext.isEmpty() && !fragmentsFifo.empty()) {
+    if (normalContext.isEmpty() && !fragmentsFifo.empty() && !_holdQueue) {
       _audio_lock();
       normalContext.setFragment(fragmentsFifo.get());
       _audio_unlock();

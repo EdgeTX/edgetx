@@ -37,13 +37,31 @@ static tmr10ms_t lastLogTime = 0;
 
 static timer_handle_t loggingTimer = TIMER_INITIALIZER;
 
+#define LOG_RETRY_MS       50
+#define LOG_MAX_RETRIES    60 // 3s
+
 static void loggingTimerCb(timer_handle_t* timer)
 {
-  (void)timer;
+  static uint8_t retries = 0;
+
   if (mixerTaskRunning()) {
+    // SD writes block the audio task's WAV reads for 100ms+, which makes
+    // prompts stutter: write between prompts, and hold new ones meanwhile.
+    // Hold before checking, so a prompt cannot start in between.
+    audioQueue.holdQueue(true);
+    if (audioQueue.isPlayingFile() && retries < LOG_MAX_RETRIES) {
+      audioQueue.holdQueue(false);
+      if (!retries++) timer_set_period(timer, LOG_RETRY_MS);
+      return;
+    }
+    if (retries) {
+      retries = 0;
+      timer_set_period(timer, logDelay100ms ? logDelay100ms * 100 : LOG_RETRY_MS);
+    }
     DEBUG_TIMER_START(debugTimerLoggingWakeup);
     logsWrite();
     DEBUG_TIMER_STOP(debugTimerLoggingWakeup);
+    audioQueue.holdQueue(false);
   }
 }
 
