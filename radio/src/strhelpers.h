@@ -159,15 +159,19 @@ std::string stringFromNtString(const char (&a)[N])
 {
   return std::string(a, strnlen(a, N));
 }
+// Same result as strncpy(dest, src, L), without -Wstringop-truncation when 'src'
+// fills 'dest' exactly (intended: 'dest' is a fixed width, unterminated field)
 template <size_t L>
 void copyToUnTerminated(char (&dest)[L], const char *const src)
 {
-  strncpy(dest, src, L);
+  size_t len = strnlen(src, L);
+  memcpy(dest, src, len);
+  memset(dest + len, 0, L - len);
 }
 template <size_t L>
 void copyToUnTerminated(char (&dest)[L], const std::string &src)
 {
-  strncpy(dest, src.c_str(), L);
+  copyToUnTerminated(dest, src.c_str());
 }
 template <typename S>
 void clearStruct(S &s)
