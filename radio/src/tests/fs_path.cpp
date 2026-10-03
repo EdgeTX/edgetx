@@ -21,6 +21,7 @@
 
 #include "gtests.h"
 #include "lib_file.h"
+#include "sdcard.h"
 
 // Helper: normalize with the given CWD (set via etxChdir, which needs the dir
 // to exist under the sim SD root = radio/src/tests). "/" and "/images" exist.
@@ -162,4 +163,16 @@ TEST(FsPath, chdirOverflow)
   EXPECT_STREQ(etxGetcwd(), "/images");
 
   EXPECT_EQ(etxChdir("/"), FR_OK);  // later tests resolve paths from the root
+}
+
+// The basename must be found at any path length (an 8-bit index used to wrap
+// past 127 chars and return the whole path).
+TEST(FsPath, basename)
+{
+  EXPECT_STREQ(getBasename("/SCRIPTS/TOOLS/tool.lua"), "tool.lua");
+  EXPECT_STREQ(getBasename("tool.lua"), "tool.lua");
+  EXPECT_STREQ(getBasename("/dir/"), "");
+
+  std::string longPath = "/" + std::string(200, 'd') + "/tool.lua";
+  EXPECT_STREQ(getBasename(longPath.c_str()), "tool.lua");
 }

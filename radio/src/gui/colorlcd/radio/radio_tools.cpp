@@ -47,10 +47,10 @@ static bool luaToolsLoaded = false;
 
 static void run_lua_tool(const std::string& path)
 {
-  char toolPath[FF_MAX_LFN + 1];
-  strncpy(toolPath, path.c_str(), sizeof(toolPath) - 1);
-  *((char*)getBasename(toolPath) - 1) = '\0';
-  etxChdir(toolPath);
+  // run from the tool's own directory
+  auto sep = path.rfind('/');
+  if (sep != std::string::npos)
+    etxChdir(sep == 0 ? "/" : path.substr(0, sep).c_str());
 
   luaExecStandalone(path.c_str());
 }

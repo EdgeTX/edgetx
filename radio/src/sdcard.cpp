@@ -183,12 +183,8 @@ unsigned int findNextFileIndex(char * filename, uint8_t size, const char * direc
 
 const char * getBasename(const char * path)
 {
-  for (int8_t i = strlen(path) - 1; i >= 0; i--) {
-    if (path[i] == '/') {
-      return &path[i + 1];
-    }
-  }
-  return path;
+  const char * sep = strrchr(path, '/');
+  return sep ? sep + 1 : path;
 }
 
 #if !defined(COLORLCD)
