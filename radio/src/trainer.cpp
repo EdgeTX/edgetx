@@ -64,16 +64,15 @@ bool isTrainerConnected()
   return trainerStatus == TRAINER_CONNECTED || trainerStatus == TRAINER_RECONNECTED;
 }
 
+enum {
+  TRAINER_IN_IS_NOT_USED = 0,
+  TRAINER_IN_IS_VALID,
+  TRAINER_IN_IS_INVALID
+};
+static uint8_t trainerInputValidState = TRAINER_IN_IS_NOT_USED;
+
 void checkTrainerSignalWarning()
 {
-  enum {
-    TRAINER_IN_IS_NOT_USED = 0,
-    TRAINER_IN_IS_VALID,
-    TRAINER_IN_IS_INVALID
-  };
-
-  static uint8_t trainerInputValidState = TRAINER_IN_IS_NOT_USED;
-
   if (trainerInputValidityTimer && (trainerInputValidState == TRAINER_IN_IS_NOT_USED)) {
     trainerInputValidState = TRAINER_IN_IS_VALID;
     trainerStatus = TRAINER_CONNECTED;
@@ -120,6 +119,12 @@ void stopTrainer()
     _on_change_cb(currentTrainerMode, 0xFF);
   }
   currentTrainerMode = 0xFF;
+
+  // Forget any previous link, so a new model or trainer mode
+  // does not inherit a stale connected/lost status
+  trainerInputValidityTimer = 0;
+  trainerInputValidState = TRAINER_IN_IS_NOT_USED;
+  trainerStatus = TRAINER_NOT_CONNECTED;
 }
 
 void checkTrainerSettings()
