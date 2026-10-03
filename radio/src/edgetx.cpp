@@ -2126,10 +2126,10 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
   }
 #if defined(MODULE_BATTERY_SENSOR)
   else if (asrc == MIXSRC_TX_BAT_CURRENT) {
-    valMax = 30000;
+    valMax = 330;
     valMin = -valMax;
     if (flags)
-      *flags |= PREC2;
+      *flags |= PREC1;
   }
   else if (asrc == MIXSRC_TX_BAT_POWER) {
     valMax = 30000;
