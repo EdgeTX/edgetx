@@ -36,6 +36,12 @@ typedef int32_t rotenc_t;
 
 void rotaryEncoderInit();
 
+#if defined(ROTARY_ENCODER_POLLING)
+// Sample the encoder from its timer instead of EXTI, while the encoder's
+// EXTI lines are in use elsewhere. Call rotaryEncoderInit() to restore.
+void rotaryEncoderStartPolling();
+#endif
+
 // return impulses / granularity
 rotenc_t rotaryEncoderGetValue();
 

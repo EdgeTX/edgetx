@@ -35,7 +35,10 @@ def definable():
         names.add(name)
         why.setdefault(name, reason)
 
-    for cml in TARGETS.glob("*/CMakeLists.txt"):
+    # targets may be nested by vendor (e.g. targets/hrs/v12)
+    for cml in TARGETS.rglob("CMakeLists.txt"):
+        if skipped(cml.relative_to(ROOT)):
+            continue
         text = cml.read_text(errors="ignore")
         for flav in re.findall(r"set\s*\(\s*FLAVOUR\s+([A-Za-z0-9+._-]+)\s*\)", text):
             add(flavour_macro(flav), f"FLAVOUR {flav} ({cml.relative_to(ROOT)})")

@@ -554,6 +554,8 @@ void guiMain(event_t evt)
 // from logs.cpp
 void initLoggingTimer();
 
+__attribute__((weak)) void customUIActions() {}
+
 void perMain()
 {
   DEBUG_TIMER_START(debugTimerPerMain1);
@@ -643,6 +645,10 @@ void perMain()
 #if defined(GUI)
   DEBUG_TIMER_START(debugTimerGuiMain);
 #if defined(COLORLCD)
+
+  // Radio specific UI actions
+  customUIActions();
+
   guiMain(0);
 #else
   guiMain(evt);

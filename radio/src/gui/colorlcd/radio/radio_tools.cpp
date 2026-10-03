@@ -288,6 +288,8 @@ void RadioToolsPage::checkEvents()
   PageGroupItem::checkEvents();
 }
 
+__attribute__((weak)) void customUITools(std::list<ToolEntry>& tools) {}
+
 void RadioToolsPage::rebuild(Window* window)
 {
   window->clear();
@@ -364,6 +366,9 @@ void RadioToolsPage::rebuild(Window* window)
 #if defined(LUA)
   scanLuaTools(tools);
 #endif
+
+  // Radio specific tools
+  customUITools(tools);
 
   tools.sort(tool_compare_nocase);
 
