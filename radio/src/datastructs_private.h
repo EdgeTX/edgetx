@@ -413,6 +413,14 @@ PACK(struct VarioData {
 #define TELEMETRY_ENDPOINT_NONE    0xFF
 #define TELEMETRY_ENDPOINT_SPORT   0x07
 
+// Calculated sensor source: sensor index or GVar
+// (see TELEM_CALC_SRC_GV1 in telemetry/telemetry_sensors.h)
+#if defined(YAML_GENERATOR)
+PACK(struct CalcSensorSource {
+  int8_t val CUST(r_calcSource,w_calcSource);
+});
+#endif
+
 PACK(struct TelemetrySensor {
   union {
     uint16_t id;  // data identifier, for FrSky we can reuse existing ones.
@@ -451,7 +459,11 @@ PACK(struct TelemetrySensor {
       uint16_t spare SKIP;
     }) cell);
     NOBACKUP(PACK(struct {
+#if defined(YAML_GENERATOR)
+      CalcSensorSource sources[4];
+#else
       int8_t sources[4];
+#endif
     }) calc);
     NOBACKUP(PACK(struct {
       uint8_t source;
@@ -468,6 +480,7 @@ PACK(struct TelemetrySensor {
     void init(const char *label, uint8_t unit=UNIT_RAW, uint8_t prec=0);
     void init(uint16_t id);
     bool isAvailable() const;
+    bool isOfflineFresh() const;
     int32_t getValue(int32_t value, uint8_t unit, uint8_t prec) const;
     bool isConfigurable() const;
     bool isPrecConfigurable() const;

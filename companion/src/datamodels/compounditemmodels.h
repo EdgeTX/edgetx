@@ -308,6 +308,7 @@ class TelemetrySourceItemModel: public AbstractDynamicItemModel
 
   protected:
     virtual void setDynamicItemData(QStandardItem * item, const int value) const;
+    void addItem(const int value);
 };
 
 class CurveRefTypeItemModel : public AbstractStaticItemModel
