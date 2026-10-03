@@ -34,6 +34,9 @@ static const char * const options[] = {
 #if defined(GHOST)
   "ghost",
 #endif
+#if FF_FS_EXFAT
+  "exfat",
+#endif
 #if !defined(MODULE_PROTOCOL_D8)
   "eu",
 #endif
