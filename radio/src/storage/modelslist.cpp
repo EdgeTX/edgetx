@@ -303,7 +303,7 @@ void ModelCell::setDefaultName()
   int idx = -1;
   sscanf(modelFilename, "model%d", &idx);
   if (idx > 0)
-    sprintf(modelName, "MODEL%02d" MODEL_FILENAME_SUFFIX, idx);
+    snprintf(modelName, sizeof(modelName), "MODEL%02d", idx);
   else
     strAppend(modelName, modelFilename, LEN_MODEL_NAME);
   char* tmp = (char *)strrchr(modelName, '.');
