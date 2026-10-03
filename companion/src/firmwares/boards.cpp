@@ -169,6 +169,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4D78746F;
     case BOARD_HELLORADIOSKY_V14LCD:
       return 0x4F78746F;
+    case BOARD_HELLORADIOSKY_V15:
+      return 0x4C78746F;
     case BOARD_HELLORADIOSKY_V16:
       return 0x4E78746F;
     case BOARD_IFLIGHT_COMMANDO14:
@@ -241,6 +243,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_FLYSKY_ST16:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V12:
+    case BOARD_HELLORADIOSKY_V15:
     case BOARD_HELLORADIOSKY_V16:
     case BOARD_IFLIGHT_COMMANDO14:
     case BOARD_SENDUWING_H17:
@@ -310,6 +313,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_ST16: // 8MB SDRAM
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V12: // 8MB SDRAM
+    case BOARD_HELLORADIOSKY_V15:
     case BOARD_HELLORADIOSKY_V16:
     case BOARD_IFLIGHT_COMMANDO14:
     case BOARD_SENDUWING_H17: // 8MB SDRAM
@@ -769,6 +773,8 @@ QString Boards::getBoardName(Board::Type board)
       return "HelloRadioSky V14";
     case BOARD_HELLORADIOSKY_V14LCD:
       return "HelloRadioSky V14LCD";
+    case BOARD_HELLORADIOSKY_V15:
+      return "HelloRadioSky V15";
     case BOARD_HELLORADIOSKY_V16:
       return "HelloRadioSky V16";
     default:
@@ -881,6 +887,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_HELLORADIOSKY_V12:
   case BOARD_HELLORADIOSKY_V14:
   case BOARD_HELLORADIOSKY_V14LCD:
+  case BOARD_HELLORADIOSKY_V15:
   case BOARD_HELLORADIOSKY_V16:
   case BOARD_RADIOMASTER_TX15:
   case BOARD_RADIOMASTER_GX15:
@@ -988,6 +995,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
       BR(70, 86, 80)
       break;
     case BOARD_SENDUWING_H17:
+    case BOARD_HELLORADIOSKY_V15:
       BR(70, 86, 74)
       break;
     case BOARD_IFLIGHT_COMMANDO8:

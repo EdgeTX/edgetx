@@ -50,6 +50,8 @@
  #include "yaml_datastructs_v12.cpp"
 #elif defined(PCBGX15)
  #include "yaml_datastructs_gx15.cpp"
+#elif defined(PCBV15)
+ #include "yaml_datastructs_v15.cpp"
 #elif defined(PCBPL18)
  #if defined(RADIO_NB4P)
   #include "yaml_datastructs_nb4p.cpp"

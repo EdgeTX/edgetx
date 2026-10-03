@@ -26,6 +26,9 @@
 #include "input_mapping.h"
 #include "mixes.h"
 
+#if defined(MODULE_BATTERY_SENSOR)
+#include "batsenser.h"
+#endif
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
 #include "hal/switch_driver.h"
@@ -506,6 +509,21 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
 
   else if (i == MIXSRC_TX_VOLTAGE) {
     return g_vbat100mV;
+#if defined(MODULE_BATTERY_SENSOR)
+  } else if (i == MIXSRC_TX_BAT_CURRENT) {
+#if defined(SIMU)
+    return 0;
+#else
+    return divRoundClosest(v15BatterySystemCurrent(), 100);
+#endif
+  } else if (i == MIXSRC_TX_BAT_POWER) {
+#if defined(SIMU)
+    return 0;
+#else
+    return divRoundClosest(v15BatterySystemVoltage(), 100) *
+           divRoundClosest(v15BatterySystemCurrent(), 100);
+#endif
+#endif
   } else if (i < MIXSRC_FIRST_TIMER) {
     // TX_TIME + SPARES
 #if defined(RTCLOCK)
