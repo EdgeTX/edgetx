@@ -27,7 +27,6 @@
 #include "edgetx.h"
 #include "etx_lv_theme.h"
 #include "getset_helpers.h"
-#include "gvar_numberedit.h"
 #include "mixer_edit_adv.h"
 #include "mixes.h"
 #include "pagegroup.h"

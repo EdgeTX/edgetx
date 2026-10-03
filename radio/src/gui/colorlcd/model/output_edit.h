@@ -22,7 +22,7 @@
 #pragma once
 
 #include "page.h"
-#include "gvar_numberedit.h"
+#include "source_numberedit.h"
 
 // deadband in % for switching direction of Min/Max text and value field highlighting
 // 0 = no deadband
@@ -42,9 +42,9 @@ class OutputEditWindow : public Page
   uint8_t channel;
   int value = 0;
   StaticText *minText;
-  GVarNumberEdit* minEdit;
+  SourceNumberEdit* minEdit;
   StaticText *maxText;
-  GVarNumberEdit* maxEdit;
+  SourceNumberEdit* maxEdit;
   OutputEditStatusBar *statusBar = nullptr;
 
   void checkEvents() override;
