@@ -269,7 +269,7 @@ uint8_t v15AiModeGet();
 void v15AiModeApply(uint8_t mode);
 bool v15AiTerminalFetchLine(char *buffer, uint32_t bufferLen);
 bool v15AiTerminalIsActive();
-// Implemented in radio_setup (AI Terminal modal singleton).
+// Implemented in tools/ai_terminal_ui.cpp (AI Terminal modal singleton).
 void v15AiTerminalUiClose();
 void v15AiTerminalUiOpen();
 
