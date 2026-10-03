@@ -63,6 +63,7 @@ namespace Board {
     BOARD_JUMPER_T14,
     BOARD_JUMPER_T15,
     BOARD_JUMPER_T15PRO,
+    BOARD_JUMPER_T15H7,
     BOARD_JUMPER_T22,
     BOARD_JUMPER_T16,
     BOARD_RADIOMASTER_TX16S,
@@ -573,6 +574,11 @@ inline bool IS_JUMPER_T15PRO(Board::Type board)
   return board == Board::BOARD_JUMPER_T15PRO;
 }
 
+inline bool IS_JUMPER_T15H7(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T15H7;
+}
+
 inline bool IS_JUMPER_T22(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T22;
@@ -695,6 +701,7 @@ inline bool IS_FAMILY_T16(Board::Type board)
          board == Board::BOARD_HELLORADIOSKY_V16 ||
          board == Board::BOARD_JUMPER_T15 ||
          board == Board::BOARD_JUMPER_T15PRO ||
+         board == Board::BOARD_JUMPER_T15H7 ||
          board == Board::BOARD_JUMPER_T16 ||
          board == Board::BOARD_JUMPER_T18 ||
          board == Board::BOARD_RADIOMASTER_TX15 ||

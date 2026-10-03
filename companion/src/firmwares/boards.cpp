@@ -224,6 +224,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_X10_EXPRESS:
     case BOARD_JUMPER_T15:
     case BOARD_JUMPER_T15PRO:
+    case BOARD_JUMPER_T15H7:
     case BOARD_JUMPER_T22:
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:
@@ -292,6 +293,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_X10_EXPRESS:
     case BOARD_JUMPER_T15:
     case BOARD_JUMPER_T15PRO:
+    case BOARD_JUMPER_T15H7:
     case BOARD_JUMPER_T22:
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:
@@ -427,10 +429,10 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
               IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_TX12(board) ||
               IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_TX16S(board) ||
               IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX15(board) ||
-              IS_JUMPER_T15PRO(board) || IS_FLYSKY_PA01(board) ||
-              IS_FLYSKY_ST16(board) || IS_RADIOMASTER_TX16SMK3(board) ||
-              IS_IFLIGHT_C14(board) || IS_RADIOMASTER_GX15(board) ||
-              IS_SENDUWING_H17(board));
+              IS_JUMPER_T15PRO(board) || IS_JUMPER_T15H7(board) ||
+              IS_FLYSKY_PA01(board) || IS_FLYSKY_ST16(board) ||
+              IS_RADIOMASTER_TX16SMK3(board) || IS_IFLIGHT_C14(board) ||
+              IS_RADIOMASTER_GX15(board) || IS_SENDUWING_H17(board));
 
     default:
       return getBoardJson(board)->getCapability(capability);
@@ -640,6 +642,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Jumper T15";
     case BOARD_JUMPER_T15PRO:
       return "Jumper T15 Pro";
+    case BOARD_JUMPER_T15H7:
+      return "Jumper T15-H7";
     case BOARD_JUMPER_T22:
       return "Jumper T22";
     case BOARD_JUMPER_T16:
@@ -828,6 +832,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_T14:
   case BOARD_JUMPER_T15:
   case BOARD_JUMPER_T15PRO:
+  case BOARD_JUMPER_T15H7:
   case BOARD_JUMPER_T22:
   case BOARD_JUMPER_T20:
   case BOARD_JUMPER_TPROS:
