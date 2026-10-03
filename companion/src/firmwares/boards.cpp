@@ -172,7 +172,7 @@ uint32_t Boards::getFourCC(Type board)
     case BOARD_HELLORADIOSKY_V14LCD:
       return 0x4F78746F;
     case BOARD_HELLORADIOSKY_V15:
-      return 0x4C78746F;
+      return 0x5178746F;
     case BOARD_HELLORADIOSKY_V16:
       return 0x4E78746F;
     case BOARD_SENDUWING_H17:
