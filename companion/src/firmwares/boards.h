@@ -96,10 +96,11 @@ namespace Board {
     BOARD_JUMPER_T20V2,
     BOARD_JUMPER_BUMBLEBEE,
     BOARD_FATFISH_F16,
-    BOARD_HELLORADIOSKY_V16,
     BOARD_RADIOMASTER_MT12,
     BOARD_HELLORADIOSKY_V14,
     BOARD_HELLORADIOSKY_V14LCD,
+    BOARD_HELLORADIOSKY_V15,
+    BOARD_HELLORADIOSKY_V16,
     BOARD_IFLIGHT_COMMANDO14,
     BOARD_HELLORADIOSKY_V12,
     BOARD_SENDUWING_H17,
@@ -683,6 +684,11 @@ inline bool IS_HELLORADIOSKY_V14LCD(Board::Type board)
   return board == Board::BOARD_HELLORADIOSKY_V14LCD;
 }
 
+inline bool IS_HELLORADIOSKY_V15(Board::Type board)
+{
+  return board == Board::BOARD_HELLORADIOSKY_V15;
+}
+
 inline bool IS_HELLORADIOSKY_V16(Board::Type board)
 {
   return board == Board::BOARD_HELLORADIOSKY_V16;
@@ -692,6 +698,7 @@ inline bool IS_FAMILY_T16(Board::Type board)
 {
   return board == Board::BOARD_FATFISH_F16 ||
          board == Board::BOARD_HELLORADIOSKY_V12 ||
+         board == Board::BOARD_HELLORADIOSKY_V15 ||
          board == Board::BOARD_HELLORADIOSKY_V16 ||
          board == Board::BOARD_JUMPER_T15 ||
          board == Board::BOARD_JUMPER_T15PRO ||

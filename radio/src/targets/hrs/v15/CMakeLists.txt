@@ -7,30 +7,33 @@ option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
-option(STICK_DEAD_ZONE "Enable sticks dead zone" OFF)
+option(MODULE_XIAOZHI_CHAT "Enable V15 XiaoZhi chat UI module" OFF)
 
 set(FIRMWARE_QSPI YES)
 set(FIRMWARE_FORMAT_UF2 YES)
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(CPU_TYPE STM32H7)
-set(HSE_VALUE 8000000)
+set(HSE_VALUE 48000000)
 set(SDCARD YES)
 set(STORAGE_MODELSLIST YES)
 set(HAPTIC YES)
 set(GUI_DIR colorlcd)
-set(BITMAPS_DIR 320x240)
-set(TARGET_DIR v12)
+set(BITMAPS_DIR 480x272)
+set(TARGET_DIR hrs/v15)
 set(RTC_BACKUP_RAM YES)
 set(PPM_LIMITS_SYMETRICAL YES)
 set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(HARDWARE_EXTERNAL_MODULE YES)
 set(INTERNAL_MODULE_AFHDS3 NO)
-set(INTERNAL_EXTERNAL_ANT YES)
 set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
 
-# IMU is not populated on production V12/V12p units.
-set(IMU OFF)
+#option(STICK_DEAD_ZONE "Enable sticks dead zone" YES)
+
+# IMU support
+set(IMU ON)
+add_definitions(-DIMU_ICM4207C)
+add_definitions(-DIMU_SC7U22)
 
 # for size report script
 set(CPU_TYPE_FULL STM32H750xB)
@@ -39,43 +42,43 @@ set(TARGET_EXTRAM_START 0xC0000000)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM1=8192")
 set(FIRMWARE_STRIP_BOOTLOADER YES)
 
-add_definitions(-DPCBV12 -DPCBHORUS)
+add_definitions(-DPCBV15 -DPCBHORUS -DPCBFLYSKY)
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
+# Logic measure borrows EXTI8 (rotary encoder B), so the encoder is polled meanwhile
+add_definitions(-DROTARY_ENCODER_POLLING)
+set(AUX_SERIAL YES)
+set(AUX2_SERIAL YES)
 
-set(FLAVOUR v12)
+set(FLAVOUR v15)
+add_definitions(-DRADIO_V15)
 
 # defines existing internal modules
 set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
 set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
 
-set(BITMAPS_TARGET bm320_bitmaps)
+set(BITMAPS_TARGET bm480_bitmaps)
 set(FONTS_TARGET x12_fonts)
 set(LCD_DRIVER lcd_driver.cpp)
-set(HARDWARE_TOUCH NO)
+set(HARDWARE_TOUCH YES)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
 set(SOFTWARE_KEYBOARD ON)
 set(FLYSKY_GIMBAL OFF)
+set(FUNCTION_SWITCHES_WITH_RGB ON)
 
 add_definitions(
   -DSTM32H750XBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
   -DCOLORLCD -DLIBOPENUI
-  -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
-  -DINTERNAL_EXTERNAL_ANT
+  -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
+  -DWS2812_MAX_LEDS=38
 )
 
 set(SDRAM ON)
-
-set(AUX_SERIAL OFF CACHE BOOL "AUX serial port" FORCE)
-
-# Handset supports external antenna selection via hardware GPIO switch
-set(EXTERNAL_ANTENNA ON)
-add_definitions(-DEXTERNAL_ANTENNA)
 
 add_definitions(-DAUDIO -DVOICE)
 add_definitions(-DSOFTWARE_VOLUME)
@@ -83,7 +86,6 @@ add_definitions(-DRTCLOCK)
 add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DPWR_BUTTON_DUAL)
-add_definitions(-DI2C_HAS_BUS_4)
 
 if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
@@ -104,26 +106,31 @@ if(FUNCTION_SWITCHES_WITH_RGB)
   add_definitions(-DFUNCTION_SWITCHES_RGB_LEDS)
 endif()
 
+if(FUNCTION_SWITCHES)
+add_definitions(-DFUNCTION_SWITCHES)
+endif()
+
 set(AFHDS3 ON)
 
 # VCP CLI
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
 set(CLI ON CACHE BOOL "Enable CLI")
 
-set(BOARD helloradio-h750)
-set(BOARD_SRC_DIR boards/${BOARD})
-include_directories(boards/${BOARD})
-
+# V15 starts fully under targets/v15 (philmoz): get it working here first,
+# then later extract truly shared code into radio/src/boards when V18 lands.
 set(TARGET_SRC_DIR targets/${TARGET_DIR})
+include_directories(${TARGET_SRC_DIR})
 
 set(BOARD_COMMON_SRC
-  ${BOARD_SRC_DIR}/board.cpp
-  ${BOARD_SRC_DIR}/key_driver.cpp
-  ${BOARD_SRC_DIR}/lcd_driver.cpp
-  ${BOARD_SRC_DIR}/backlight_driver.cpp
-  ${BOARD_SRC_DIR}/haptic_driver.cpp
-  ${BOARD_SRC_DIR}/extflash_driver.cpp
-  ${BOARD_SRC_DIR}/usb_charger_driver.cpp
+  ${TARGET_SRC_DIR}/board.cpp
+  ${TARGET_SRC_DIR}/key_driver.cpp
+  ${TARGET_SRC_DIR}/lcd_driver.cpp
+  ${TARGET_SRC_DIR}/backlight_driver.cpp
+  ${TARGET_SRC_DIR}/haptic_driver.cpp
+  ${TARGET_SRC_DIR}/extflash_driver.cpp
+  ${TARGET_SRC_DIR}/usb_charger_driver.cpp
+  ${TARGET_SRC_DIR}/ext_senser_driver.cpp
+  ${TARGET_SRC_DIR}/aux3_chat.cpp
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/dma2d.cpp
@@ -138,20 +145,26 @@ set(BOARD_COMMON_SRC
 # Bootloader board library
 add_library(board_bl OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
-  ${BOARD_SRC_DIR}/sdram_driver.cpp
+  ${TARGET_SRC_DIR}/sdram_driver.cpp
   ${RADIO_SRC_DIR}/gui/colorlcd/boot_menu.cpp
   targets/common/arm/stm32/stm32_qspi.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
-  targets/common/arm/stm32/stm32_rgbleds.cpp
 )
 add_dependencies(board_bl minimal_board_lib)
 set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 
-set(CMSIS_SRC ${BOARD_SRC_DIR}/system_clock.c)
+set(CMSIS_SRC ${TARGET_SRC_DIR}/system_clock.c)
 
 # Firmware board library
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
+  ${TARGET_SRC_DIR}/batsenser.cpp
+  ${TARGET_SRC_DIR}/csd203_driver.cpp
+  ${TARGET_SRC_DIR}/ext_port_safety.cpp
+  ${TARGET_SRC_DIR}/led_driver.cpp
+  ${TARGET_SRC_DIR}/touch_driver.cpp
+  drivers/icm42607C.cpp
+  drivers/sc7u22.cpp
   targets/common/arm/stm32/audio_dac_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
@@ -171,7 +184,7 @@ include_directories(${RADIO_SRC_DIR}/fonts/colorlcd gui/${GUI_DIR} gui/${GUI_DIR
 if(BOOTLOADER)
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
-    ../../bootloader/loadboot.cpp
+    ../../../bootloader/loadboot.cpp
     )
 endif()
 
@@ -179,7 +192,52 @@ set(SRC
   ${SRC}
   io/frsky_firmware_update.cpp
   io/multi_firmware_update.cpp
+)
+
+set(SRC
+  ${SRC}
+  ${TARGET_SRC_DIR}/../tools/custom_actions.cpp
+  ${TARGET_SRC_DIR}/../tools/hrs_tool.cpp
+  ${TARGET_SRC_DIR}/../tools/hrs_tools_hub.cpp
+  ${TARGET_SRC_DIR}/servo_tester.cpp
+  ${TARGET_SRC_DIR}/../tools/servo_tester_ui.cpp
+  ${TARGET_SRC_DIR}/pwm_measure.cpp
+  ${TARGET_SRC_DIR}/../tools/pwm_measure_ui.cpp
+  ${TARGET_SRC_DIR}/ppm_measure.cpp
+  ${TARGET_SRC_DIR}/../tools/ppm_measure_ui.cpp
+  ${TARGET_SRC_DIR}/sbus_measure.cpp
+  ${TARGET_SRC_DIR}/../tools/sbus_measure_ui.cpp
+  ${TARGET_SRC_DIR}/crsf_measure.cpp
+  ${TARGET_SRC_DIR}/../tools/crsf_measure_ui.cpp
+  ${TARGET_SRC_DIR}/dshot_tester.cpp
+  ${TARGET_SRC_DIR}/../tools/dshot_tester_ui.cpp
+  ${TARGET_SRC_DIR}/sumd_measure.cpp
+  ${TARGET_SRC_DIR}/../tools/sumd_measure_ui.cpp
+  ${TARGET_SRC_DIR}/dji_rs_measure.cpp
+  ${TARGET_SRC_DIR}/../tools/dji_rs_measure_ui.cpp
+  ${TARGET_SRC_DIR}/mavlink_measure.cpp
+  ${TARGET_SRC_DIR}/../tools/mavlink_measure_ui.cpp
+  ${TARGET_SRC_DIR}/logic_measure.cpp
+  ${TARGET_SRC_DIR}/../tools/logic_measure_ui.cpp
+  ${TARGET_SRC_DIR}/auto_measure.cpp
+  ${TARGET_SRC_DIR}/../tools/auto_measure_ui.cpp
+  ${TARGET_SRC_DIR}/measure_trainer_feed.cpp
+)
+
+if(NOT NATIVE_BUILD)
+set(SRC
+  ${SRC}
+  ${TARGET_SRC_DIR}/../tools/batsenser_ui.cpp
+  ${TARGET_SRC_DIR}/../tools/charge_ui.cpp
   )
+
+if(MODULE_XIAOZHI_CHAT)
+  add_definitions(-DMODULE_XIAOZHI_CHAT)
+  set(SRC ${SRC}
+    ${TARGET_SRC_DIR}/../tools/chat_ui.cpp
+    )
+endif()
+endif()
 
 if (MULTIMODULE)
   add_definitions(-DMULTI_PROTOLIST)
@@ -190,3 +248,8 @@ endif()
 
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)
+
+# V15 board.cpp provides sixPosUpdateFromAdc(); skip generic rgb_6pos.cpp
+set_source_files_properties(
+  ${RADIO_SRC_DIR}/boards/generic_stm32/rgb_6pos.cpp
+  PROPERTIES HEADER_FILE_ONLY TRUE)

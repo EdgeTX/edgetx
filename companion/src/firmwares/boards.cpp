@@ -171,6 +171,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4D78746F;
     case BOARD_HELLORADIOSKY_V14LCD:
       return 0x4F78746F;
+    case BOARD_HELLORADIOSKY_V15:
+      return 0x4C78746F;
     case BOARD_HELLORADIOSKY_V16:
       return 0x4E78746F;
     case BOARD_SENDUWING_H17:
@@ -242,6 +244,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_SENDUWING_H17:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V12:
+    case BOARD_HELLORADIOSKY_V15:
     case BOARD_HELLORADIOSKY_V16:
       return 0;
     default:
@@ -311,6 +314,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_SENDUWING_H17: // 8MB SDRAM
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V12: // 8MB SDRAM
+    case BOARD_HELLORADIOSKY_V15:
     case BOARD_HELLORADIOSKY_V16:
       return FSIZE_2MB;
     case BOARD_UNKNOWN:
@@ -700,14 +704,16 @@ QString Boards::getBoardName(Board::Type board)
       return "Senduwing H17";
     case BOARD_FATFISH_F16:
       return "Fatfish F16";
-    case BOARD_HELLORADIOSKY_V16:
-      return "HelloRadioSky V16";
     case BOARD_HELLORADIOSKY_V12:
       return "HelloRadioSky V12";
     case BOARD_HELLORADIOSKY_V14:
       return "HelloRadioSky V14";
     case BOARD_HELLORADIOSKY_V14LCD:
       return "HelloRadioSky V14LCD";
+    case BOARD_HELLORADIOSKY_V15:
+      return "HelloRadioSky V15";
+    case BOARD_HELLORADIOSKY_V16:
+      return "HelloRadioSky V16";
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -816,6 +822,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_HELLORADIOSKY_V12:
   case BOARD_HELLORADIOSKY_V14:
   case BOARD_HELLORADIOSKY_V14LCD:
+  case BOARD_HELLORADIOSKY_V15:
   case BOARD_HELLORADIOSKY_V16:
   case BOARD_RADIOMASTER_TX15:
   case BOARD_RADIOMASTER_GX15:
@@ -923,6 +930,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
       BR(70, 86, 80)
       break;
     case BOARD_SENDUWING_H17:
+    case BOARD_HELLORADIOSKY_V15:
       BR(70, 86, 74)
       break;
     case BOARD_IFLIGHT_COMMANDO8:

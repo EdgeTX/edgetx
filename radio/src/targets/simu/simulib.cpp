@@ -50,6 +50,10 @@
 #include <deque>
 #include <stdint.h>
 
+// Dummy CPU ID
+static const uint32_t cpu_uid_data[3] = {0x12345678, 0x55AA55AA, 0x87654321};
+const uint32_t * const cpu_uid = &cpu_uid_data[0];
+
 // Monotonic event counter incremented each time haptic fires.
 // Host (WasmSimulatorInterface) compares against last-seen value to detect new events.
 uint32_t simuHapticValue = 0;

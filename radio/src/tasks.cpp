@@ -53,6 +53,8 @@ mutex_handle_t audioMutex;
 bool perMainEnabled = true;
 #endif
 
+__attribute__((weak)) void customShutdownActions() {}
+
 static void menusTask()
 {
   edgeTxInit();
@@ -99,6 +101,10 @@ static void menusTask()
   drawSleepBitmap();
 #endif
   edgeTxClose();
+
+  // Radio specific shutdown actions
+  customShutdownActions();
+
   boardOff();
 }
 
