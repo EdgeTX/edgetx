@@ -32,7 +32,11 @@
 
 #if !defined(DEBUG)
 #define MIXER_STACK_SIZE       400
+#if FF_FS_EXFAT
+#define AUDIO_STACK_SIZE       512
+#else
 #define AUDIO_STACK_SIZE       400
+#endif
 #else
 #define MIXER_STACK_SIZE       512
 #define AUDIO_STACK_SIZE       512
