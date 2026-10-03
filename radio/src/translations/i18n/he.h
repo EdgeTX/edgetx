@@ -369,6 +369,8 @@
 #define TR_CYC_VSRCRAW_3             "CYC3"
 
 #define TR_SRC_BATT                    "סוללה"
+#define TR_SRC_BAT_CURRENT             "BatI"
+#define TR_SRC_BAT_POWER               "BatP"
 #define TR_SRC_TIME                    "זמן"
 #define TR_SRC_GPS                     "GPS"
 #define	TR_SRC_LIGHT                   "תאורה אחורית"

@@ -364,6 +364,8 @@
 #define TR_CYC_VSRCRAW_3            "사이클릭3"
 
 #define TR_SRC_BATT                   "배터리"
+#define TR_SRC_BAT_CURRENT            "BatI"
+#define TR_SRC_BAT_POWER              "BatP"
 #define TR_SRC_TIME                   "시간"
 #define TR_SRC_GPS                    "GPS"
 #define	TR_SRC_LIGHT                  "Ambient light"
