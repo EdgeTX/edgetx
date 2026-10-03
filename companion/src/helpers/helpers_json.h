@@ -64,5 +64,4 @@ class Json {
 
     static const bool isArray(const QJsonObject & obj, const QString & key);
     static const bool isObject(const QJsonObject & obj, const QString & key);
-
 };

@@ -26,7 +26,7 @@
 class BoardFactory
 {
   public:
-    explicit BoardFactory(const QString & id, const QString & bddefn);
+    explicit BoardFactory(const QString & id);
 
     virtual ~BoardFactory() {}
 
@@ -43,11 +43,10 @@ class BoardFactories
     virtual ~BoardFactories();
 
     Board * boardForId(const QString & id) const;
-    Board * boardForHwDefn(const QString & hwdefn) const;
     bool isAvailable(const QString & id) const;
 
     void registerAllBoards();
-    bool registerBoard(const QString & board, const QString & bddefn);
+    bool registerBoard(const QString & id);
     bool registerBoardFactory(BoardFactory * factory);
     void unregisterBoardFactories();
 

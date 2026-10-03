@@ -367,13 +367,14 @@ bool Firmware::loadDefinition(const QString & path)
   bool success = true;
   QJsonDocument *doc = new QJsonDocument();
   QJsonObject o;
-  QStringList depends;
+  QStringList depends;  // stores basedOn tree and used to test for circular references
 
   if (Json::load(doc, path)) {
     if (doc->isObject()) {
       o = doc->object();
 
-      if (Json::isArray(o,"basedOn")) {
+      // for each dependency walk to its root and retrace path loading definitions
+      if (Json::isArray(o, "basedOn")) {
         QJsonArray a = o.value("basedOn").toArray();
 
         for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
@@ -403,13 +404,19 @@ bool Firmware::loadDefinition(const QString & path)
     return false;
   }
 
-  qDebug() << "loading values from:" << path;
+  qDebug() << "Loading values from:" << path;
+
+  // key: supported is not manditory and if omitted it is assumed true
+  // if an earlier definition contained "supported": false
+  // we need to override with true if it is omitted in a later file
+  m_supported = Json::value(o, "supported", false, true).toBool();
 
   for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
     qDebug() << "key:" << it.key() << "value:" << it.value();
 
-    // skips first to save processing time and avoid unknown key warning messages
-    if (it.key() == "hidden" || it.key() == "basedOn" || it.key() == "comments")
+      // skip early to save processing time and avoid unknown key warning messages
+    if (it.key() == "hidden"    || it.key() == "basedOn" ||
+        it.key() == "supported" || it.key() == "comments")
       continue;
 
     else if (it.key() == "supported")

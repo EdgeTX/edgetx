@@ -24,8 +24,8 @@
 
 BoardFactories* gBoardFactories = nullptr;
 
-BoardFactory::BoardFactory(const QString & id, const QString & bddefn) :
-  m_board(new Board(id, bddefn))
+BoardFactory::BoardFactory(const QString & id) :
+  m_board(new Board(id))
 {
 
 }
@@ -39,21 +39,6 @@ BoardFactory::BoardFactory(const QString & id, const QString & bddefn) :
 BoardFactories::~BoardFactories()
 {
   unregisterBoardFactories();
-}
-
-Board * BoardFactories::boardForHwDefn(const QString & hwdefn) const
-{
-  for (auto *registeredFactory : registeredBoardFactories) {
-    auto board = registeredFactory->board();
-    if (board->getHwDefn() == hwdefn) {
-      if (!board->isLoaded())
-        board->loadDefinition();
-
-      return board;
-    }
-  }
-
-  return m_default;
 }
 
 Board * BoardFactories::boardForId(const QString & id) const
@@ -83,17 +68,16 @@ bool BoardFactories::isAvailable(const QString & id) const
   return false;
 }
 
-bool BoardFactories::registerBoard(const QString & id, const QString & bddefn)
+bool BoardFactories::registerBoard(const QString & id)
 {
   if (isAvailable(id)) {
     Board* regboard = boardForId(id);
     qDebug() << "Error - Board id:" << id << "name:" << regboard->getName()
-             << "bddefn:" << regboard->getBdDefn() << "hwdefn:" << regboard->getHwDefn()
              << "already registered";
     return false;
   }
 
-  BoardFactory *bf = new BoardFactory(id, bddefn);
+  BoardFactory *bf = new BoardFactory(id);
 
   if (bf->board()->loadDefinition()) {
     if (registerBoardFactory(bf)) {
@@ -125,7 +109,7 @@ void BoardFactories::registerAllBoards()
       // ignore intermediate definitions
       if (!Json::valueBool(obj, "hidden", false)) {
         QString id = Json::valueString(obj, "id", QFileInfo(path).baseName());
-        registerBoard(id, path);
+        registerBoard(id);
       } else {
         qDebug() << "ignoring file:" << path;
       }

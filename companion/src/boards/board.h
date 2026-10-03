@@ -35,8 +35,9 @@ class AbstractStaticItemModel;
 class SemanticVersion;
 class GeneralSettings;
 
-constexpr char BDDEFNSDIR[]               { ":/bddefs" };
-constexpr char HWDEFNSDIR[]               { ":/hwdefs" };
+// definition json files are compiled resources
+constexpr char BDDEFNSDIR[] { ":/bddefs" };
+constexpr char HWDEFNSDIR[] { ":/hwdefs" };
 
 // identiying names of static abstract item models
 constexpr char AIM_BOARD_POT_TYPE[]      {"board.pottype"};
@@ -427,7 +428,6 @@ class Board
 
     typedef std::vector<TrimDefn> TrimsTable;
 
-    explicit Board(const QString & id, const QString & bddefn, const bool isSupported = true);
     explicit Board(const QString & id);
     virtual ~Board();
 
@@ -435,8 +435,6 @@ class Board
     const QString getId() const { return m_id; }
     const QString getManufacturer() const { return m_manufacturer; }
     const QString getName() const { return m_name; }
-    const QString getBdDefn() const { return m_bddefn; }
-    const QString getHwDefn() const { return m_hwdefn; }
 
     void getBatteryRange(int & vmin, int & vmax, unsigned int & vwarn) const;
 
@@ -537,7 +535,6 @@ class Board
   private:
 
     QString m_id;
-    QString m_bddefn;
     QString m_hwdefn;
     bool m_supported;
     QString m_name;

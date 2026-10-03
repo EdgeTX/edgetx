@@ -251,13 +251,12 @@ std::string Board::getLegacyAnalogMappedInputTag(const char * legacytag, const Q
 
 */
 
-Board::Board(const QString & id, const QString & bddefn, const bool isSupported) :
+Board::Board(const QString & id) :
   m_id(id),
-  m_bddefn(bddefn),
-  m_hwdefn(bddefn),
-  m_supported(isSupported),
-  m_name("unknown"),
-  m_manufacturer("unknown"),
+  m_hwdefn(""),
+  m_supported(false),
+  m_name(""),
+  m_manufacturer(""),
   m_loaded(false),
   m_valid(true),
   m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0, 0}),
@@ -268,20 +267,18 @@ Board::Board(const QString & id, const QString & bddefn, const bool isSupported)
 {
   QJsonDocument *doc = new QJsonDocument();
 
-  if (Json::load(doc, bddefn)) {
+  if (Json::load(doc, QString("%1/%2.json").arg(BDDEFNSDIR).arg(id))) {
     QJsonObject obj = doc->object();
     // ignore intermediate definitions
     if (!Json::value(obj, "hidden", false, false).toBool()) {
-      m_id = Json::valueString(obj, "id", "unknown");
       m_name = Json::value(obj, "name", false, "unknown").toString();
-      m_hwdefn = Json::value(obj, "hwdefn", false, bddefn).toString();
+      m_hwdefn = Json::value(obj, "hwdefn", false, id).toString();
 
-      if (m_id == "unknown") {
-        m_valid = false;
-        qCritical() << "Error - file:" << bddefn << "does not contain an id";
+      if (!QFile::exists(QString("%1/%2.json").arg(HWDEFNSDIR).arg(m_hwdefn))) {
+        qDebug() << "Error - board:" << id << "hwdefn:" << m_hwdefn << "does not exist";
       }
     } else {
-      qDebug() << "ignoring" << bddefn;
+      qDebug() << "Error: attempt to register hidden board id:" << id;
     }
   }
 
@@ -1252,7 +1249,7 @@ bool Board::loadDefinition()
   // this avoids having to include default in basedOn tree
   if (loadDefinition(QString("%1/%2.json").arg(BDDEFNSDIR).arg("default"))) {
     if (loadDefinition(QString("%1/%2.json").arg(HWDEFNSDIR).arg(m_hwdefn))) {
-      if (loadDefinition(QString("%1/%2.json").arg(BDDEFNSDIR).arg(m_bddefn))) {
+      if (loadDefinition(QString("%1/%2.json").arg(BDDEFNSDIR).arg(m_id))) {
         qDebug() << "Definition loaded:" << m_id;
       } else
         return false;
@@ -1305,13 +1302,13 @@ bool Board::loadDefinition(const QString & path)
   bool success = true;
   QJsonDocument *doc = new QJsonDocument();
   QJsonObject o;
-  QStringList depends;
+  QStringList depends;  // stores basedOn tree and used to test for circular references
 
   if (Json::load(doc, path)) {
     if (doc->isObject()) {
       o = doc->object();
 
-      // hwdefs are flat i.e. have no basedOn key so walking not required
+      // for each dependency walk to its root and retrace path loading definitions
       if (Json::isArray(o,"basedOn")) {
         QJsonArray a = o.value("basedOn").toArray();
 
@@ -1341,17 +1338,20 @@ bool Board::loadDefinition(const QString & path)
     return false;
   }
 
-  qDebug() << "loading values from:" << path;
+  qDebug() << "Loading values from:" << path;
+
+  // key: supported is not manditory and if omitted it is assumed true
+  // if an earlier definition contained "supported": false
+  // we need to override with true if it is omitted in a later file
+  m_supported = Json::value(o, "supported", false, true).toBool();
 
   for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
     qDebug() << "key:" << it.key() << "value:" << it.value();
 
-    // skips first to save processing time and avoid unknown key warning messages
-    if (it.key() == "hidden" || it.key() == "basedOn" || it.key() == "comments")
+    // skip early to save processing time and avoid unknown key warning messages
+    if (it.key() == "hidden"    || it.key() == "basedOn" ||
+        it.key() == "supported" || it.key() == "comments")
       continue;
-
-    else if (it.key() == "supported")
-      m_supported = Json::valueBool(it, m_supported);
 
     else if (it.key() == "adc_inputs")
       loadADCInputs(it);
@@ -1480,6 +1480,7 @@ void Board::loadADCInputs(QJsonObject::const_iterator & oit)
     const QJsonObject &o = oit->toObject();
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "acds")
         continue;
       else if (it.key() == "inputs")
@@ -1497,6 +1498,7 @@ void Board::loadBattery(QJsonObject::const_iterator & oit)
     const QJsonObject &o = oit->toObject();
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "min")
         m_hardware.battery.min = Json::valueInt(it, m_hardware.battery.min);
       else if (it.key() == "max")
@@ -1516,6 +1518,7 @@ void Board::loadContrast(QJsonObject::const_iterator & oit)
     const QJsonObject &o = oit->toObject();
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "min")
         m_hardware.contrast.min = Json::valueInt(it, m_hardware.contrast.min);
       else if (it.key() == "max")
@@ -1533,6 +1536,7 @@ void Board::loadHaptic(QJsonObject::const_iterator & oit)
     const QJsonObject &o = oit->toObject();
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "haptic_pwm")
         m_hardware.haptic = Json::valueBool(it, m_hardware.haptic);
     }
@@ -1551,7 +1555,7 @@ void Board::loadInputs(QJsonObject::const_iterator & oit)
         InputDefn defn;
 
         for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-          //qDebug() << "key:" << it.key() << "value:" << it.value();
+          qDebug() << "key:" << it.key() << "value:" << it.value();
           if (it.key() == "name")
             defn.name = Json::valueStdString(it, defn.name);
 
@@ -1608,6 +1612,7 @@ void Board::loadModules(QJsonObject::const_iterator & oit, Board::Modules & modu
     const QJsonObject &o = oit->toObject();
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "available") {
         if (it.value().isArray()) {
           for (const auto &mod : it.value().toArray()) {
@@ -1644,7 +1649,7 @@ void Board::loadSwitches(QJsonObject::const_iterator & oit)
         SwitchDefn sw;
 
         for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-          //qDebug() << "key:" << it.key() << "value:" << it.value();
+          qDebug() << "key:" << it.key() << "value:" << it.value();
           if (it.key() == "name")
             sw.name = Json::valueStdString(it, sw.name);
 
@@ -1720,7 +1725,7 @@ void Board::loadKeys(QJsonObject::const_iterator & oit)
         KeyDefn k;
 
         for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-          //qDebug() << "key:" << it.key() << "value:" << it.value();
+          qDebug() << "key:" << it.key() << "value:" << it.value();
           if (it.key() == "name")
             k.name = Json::valueStdString(it, k.name);
 
@@ -1754,7 +1759,7 @@ void Board::loadTrims(QJsonObject::const_iterator & oit)
         TrimDefn t;
 
         for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-          //qDebug() << "key:" << it.key() << "value:" << it.value();
+          qDebug() << "key:" << it.key() << "value:" << it.value();
           if (it.key() == "name")
             t.name = Json::valueStdString(it, t.name);
 
@@ -1777,7 +1782,7 @@ void Board::loadDisplay(QJsonObject::const_iterator & it)
     const QJsonObject &o = it->toObject();
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      //qDebug() << "key:" << it.key() << "value:" << it.value();
+      qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "lcd_depth")
         m_display.depth = Json::valueInt(it, m_display.depth);
 
@@ -1815,7 +1820,7 @@ void Board::loadLEDS(QJsonObject::const_iterator & it)
     int cfs_leds_per_switch = 0;
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      //qDebug() << "key:" << it.key() << "value:" << it.value();
+      qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "bling_led_strip_length")
         m_hardware.has_bling_leds = Json::valueInt(it, m_hardware.has_bling_leds);
 
@@ -1845,7 +1850,7 @@ void Board::loadHardware(QJsonObject::const_iterator & it)
     const QJsonObject &o = it->toObject();
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      //qDebug() << "key:" << it.key() << "value:" << it.value();
+      qDebug() << "key:" << it.key() << "value:" << it.value();
       if (it.key() == "has_audio_mute")
         m_hardware.has_audio_mute = Json::valueBool(it, m_hardware.has_audio_mute);
 
