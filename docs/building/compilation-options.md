@@ -29,6 +29,7 @@ Selects the radio target.
 | `ST16` | Siyi ST16 |
 | `PA01` | FrSky PA01 |
 | `H17` | Senduwing H17 |
+| `V15` | HelloRadioSky V15 |
 
 ### `PCBREV`
 

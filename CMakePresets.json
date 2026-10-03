@@ -176,6 +176,12 @@
       "cacheVariables": { "PCB": "X7", "PCBREV": "V14LCD" }
     },
     {
+      "name": "v15",
+      "displayName": "HelloRadioSky V15",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "V15" }
+    },
+    {
       "name": "v16",
       "displayName": "HelloRadioSky V16",
       "inherits": "firmware",
