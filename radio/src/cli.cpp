@@ -1016,14 +1016,14 @@ int cliTrace(const char ** argv)
 int cliStackInfo(const char ** argv)
 {
   cliSerialPrint("[MENUS] %d available / %d bytes",
-                 task_get_stack_usage(&menusTaskId) * 4,
+                 task_get_stack_usage(&menusTaskId),
                  task_get_stack_size(&menusTaskId));
   cliSerialPrint("[MIXER] %d available / %d bytes",
-                 task_get_stack_usage(&mixerTaskId) * 4,
+                 task_get_stack_usage(&mixerTaskId),
                  task_get_stack_size(&mixerTaskId));
 #if defined(AUDIO)
   cliSerialPrint("[AUDIO] %d available / %d bytes",
-                 task_get_stack_usage(&audioTaskId) * 4,
+                 task_get_stack_usage(&audioTaskId),
                  task_get_stack_size(&audioTaskId));
 #endif
 #if defined(CLI)
