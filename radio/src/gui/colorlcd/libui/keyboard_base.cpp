@@ -26,7 +26,7 @@
 
 static void keyboard_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
-  etx_solid_bg(obj, COLOR_THEME_SECONDARY3_INDEX);
+  etx_solid_bg(obj, COLOR_THEME_DISABLED_INDEX);
   etx_obj_add_style(obj, styles->pad_tiny, LV_PART_MAIN);
   etx_obj_add_style(obj, styles->rounded, LV_PART_MAIN);
 
@@ -67,142 +67,135 @@ Keyboard* Keyboard::activeKeyboard = nullptr;
 static void keyboard_event_cb(lv_event_t* e)
 {
   auto code = lv_event_get_code(e);
-  if (code == LV_EVENT_READY) {
-    Keyboard::hide(false);
-  } else if (code == LV_EVENT_CANCEL) {
-    Keyboard::hide(true);
-  } else if (code == LV_EVENT_KEY) {
-    int32_t c = *((int32_t*)lv_event_get_param(e));
-    if (c == LV_KEY_ESC) {
-      Keyboard::hide(false);
-    }
+  if (code == LV_EVENT_READY || code == LV_EVENT_CANCEL ||
+      (code == LV_EVENT_KEY && lv_event_get_key(e) == LV_KEY_ESC)) {
+    Keyboard::hideKeyboard();
   }
 }
 
-static void field_focus_leave(lv_event_t* e) { Keyboard::hide(false); }
-
 Keyboard::Keyboard(coord_t height) :
-    NavWindow(MainWindow::instance(), {0, LCD_H - height, LCD_W, height})
+    NavWindow(MainWindow::instance(), {0, LCD_H - height, LCD_W, height}, keyboard_create)
 {
+  setWindowFlag(IS_EDIT_WINDOW);
+
 #if defined(USE_HATS_AS_KEYS)
   hasTwoPageKeys = true;
 #else
   hasTwoPageKeys = keyIsSupported(KEY_PAGEUP);
 #endif
 
-  lv_obj_set_parent(lvobj, lv_layer_top());  // the keyboard is always on top
+  // Keyboard is created off screen so it can be animated into place
+  // We don't use this, so just move it into position.
+  lv_obj_set_pos(lvobj, 0, 0);
 
   // use a separate group for the keyboard
   group = lv_group_create();
   lv_group_set_editing(group, true);
+  lv_group_add_obj(group, lvobj);
 
-  auto old_g = lv_group_get_default();
-  lv_group_set_default(group);
-
-  keyboard = keyboard_create(lvobj);
-  lv_group_set_default(old_g);
-
-  lv_obj_add_event_cb(keyboard, keyboard_event_cb, LV_EVENT_ALL, this);
-
-  lv_obj_set_pos(keyboard, 0, 0);
-  lv_obj_set_size(keyboard, LCD_W, height);
-
-  // TODO: really needed ???
-  lv_obj_clear_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
+  lv_obj_add_event_cb(lvobj, keyboard_event_cb, LV_EVENT_ALL, this);
 
   onClosing([=]() {
-    // Can't use hide() here, it ignores a keyboard already marked as deleted
-    if (activeKeyboard == this) {
-      clearField(false);
-      activeKeyboard = nullptr;
-    }
+    hideKeyboard();
     if (group) lv_group_del(group);
   });
 }
 
-void Keyboard::clearField(bool wasCancelled)
+void Keyboard::clearField()
 {
-  TRACE("CLEAR FIELD");
-  if (keyboard != nullptr) {
-    lv_obj_add_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
-  }
+  if (!deleted()) {
+    TRACE("CLEAR FIELD");
 
-  detach();
-  lv_obj_set_parent(lvobj, lv_layer_top());
+    lv_obj_move_background(lvobj);
+    hide();
 
-  if (fieldContainer) {
-    lv_obj_scroll_to_y(fieldContainer->getLvObj(), scroll_pos, LV_ANIM_OFF);
-    fieldContainer = nullptr;
-  }
+    if (field) {
+      bool focused = lv_obj_has_state(field->getLvObj(), LV_STATE_FOCUSED);
 
-  if (field) {
-    // restore field's group
-    auto obj = field->getLvObj();
-    if (obj) {
-      lv_obj_remove_event_cb(obj, field_focus_leave);
+      // restore field's group
+      if (fieldGroup) {
+        assignLvGroup(fieldGroup, false);
+        lv_group_set_editing(fieldGroup, false);
+        fieldGroup = nullptr;
+       }
+
+      // End changes and restore focus
+      field->changeEnd();
+      if (focused)
+        lv_group_focus_obj(field->getParent()->getLvObj());
+      field = nullptr;
     }
 
-    if (!wasCancelled)
-      field->setEditMode(false);
-    field->changeEnd();
-    field = nullptr;
+    // Reset parent if moved
+    if (fieldContainer) {
+      fieldContainer->setTop(fieldContainerTop);
+      fieldContainer = nullptr;
+    }
 
-    if (fieldGroup) {
-      assignLvGroup(fieldGroup, false);
-      lv_group_set_editing(fieldGroup, false);
-      fieldGroup = nullptr;
+    // Restore scroll position
+    if (scrollWindow) {
+      lv_obj_scroll_to_y(scrollWindow->getLvObj(), scrollPos, LV_ANIM_OFF);
+      scrollWindow = nullptr;
     }
   }
 }
 
-void Keyboard::hide(bool wasCancelled)
+void Keyboard::hideKeyboard()
 {
-  if (activeKeyboard  && !activeKeyboard->deleted()) {
-    activeKeyboard->clearField(wasCancelled);
-    lv_obj_add_flag(activeKeyboard->lvobj, LV_OBJ_FLAG_HIDDEN);
+  if (activeKeyboard) {
+    activeKeyboard->clearField();
     activeKeyboard = nullptr;
   }
 }
 
-bool Keyboard::attachKeyboard()
+void Keyboard::setField(FormField* newField, bool useTextArea)
 {
   if (activeKeyboard) {
-    if (activeKeyboard == this) return false;
-    hide(false);
+    if (activeKeyboard == this) return;
+    // Cancel previous keyboard
+    hideKeyboard();
   }
 
   activeKeyboard = this;
-  return true;
-}
 
-void Keyboard::setField(FormField* newField)
-{
-  if (!attachKeyboard()) return;
+  // Ensure the keyboard is on top
+  lv_obj_move_foreground(lvobj);
 
   lv_obj_t* obj = newField->getLvObj();
-  if (obj) {
-    fieldContainer = newField->getFullScreenWindow();
-    if (fieldContainer) {
-      attach(fieldContainer);
 
-      lv_area_t coords;
-      lv_obj_get_coords(obj, &coords);
+  if (useTextArea)
+    lv_keyboard_set_textarea(lvobj, obj);
+  assignLvGroup(group, false);
 
-      // place keyboard bellow the field with some margin
-      setTop(max((coord_t)coords.y2 + 21, LCD_H - height()));
-
-      // save scroll position
-      scroll_pos = lv_obj_get_scroll_y(fieldContainer->getLvObj());
-      lv_obj_scroll_to_view(lvobj, LV_ANIM_OFF);
-
-      newField->setEditMode(true);
-
-      lv_keyboard_set_textarea(keyboard, obj);
-      lv_obj_add_event_cb(obj, field_focus_leave, LV_EVENT_DEFOCUSED, nullptr);
-      assignLvGroup(group, false);
-
-      field = newField;
-      fieldGroup = (lv_group_t*)lv_obj_get_group(obj);
-    }
+  // save scroll position (scroll may get changed when focus is restored)
+  scrollPos = 0;
+  scrollWindow = newField->getParent();
+  while (scrollWindow && scrollPos == 0) {
+    scrollPos = lv_obj_get_scroll_y(scrollWindow->getLvObj());
+    if (scrollPos == 0)
+      scrollWindow = scrollWindow->getParent();
   }
+
+  // Find parent window large enough so window can be moved and field is not under keyboard
+  fieldContainer = newField->getParent();
+  while (fieldContainer && ((fieldContainer->width() == LV_SIZE_CONTENT) ||
+                            (fieldContainer->width() < LCD_W))
+                        && ((fieldContainer->height() == LV_SIZE_CONTENT) ||
+                            (fieldContainer->height() < LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT))) {
+    fieldContainer = fieldContainer->getParent();
+  }
+  if (fieldContainer) {
+    fieldContainerTop = fieldContainer->top();
+    lv_area_t coords;
+    lv_obj_get_coords(obj, &coords);
+    // Distance of field bottom to keyboard top - if negative field is under keyboard
+    lv_coord_t yo = (LCD_H - height() - PAD_MEDIUM) - coords.y2;
+    if (yo < 0)
+      fieldContainer->setTop(yo + fieldContainerTop);
+    else
+      fieldContainer = nullptr;
+  }
+  
+  field = newField;
+  fieldGroup = (lv_group_t*)lv_obj_get_group(obj);
 }

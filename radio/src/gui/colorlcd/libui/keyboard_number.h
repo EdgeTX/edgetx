@@ -25,25 +25,39 @@ class NumberKeyboard : public Keyboard
  public:
   NumberKeyboard();
 
+  enum NumKBEvents
+  {
+    // Match button order in number_kb_map
+    DEC_FASTSTEP = 0,
+    DEC_STEP,
+    INC_STEP,
+    INC_FASTSTEP,
+    SET_MIN,
+    SET_DEFAULT,
+    CHANGE_SIGN,
+    SET_MAX,
+  };
+
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "NumberKeyboard"; }
 #endif
 
-  static void open(FormField* field);
+  static void open(FormField* field, int stepSmall, int stepLarge, LcdFlags textFlags,
+                    bool hasChangeSign, std::function<void(uint16_t)> onEvent);
 
-  void handleEvent(const char* btn);
+  void handleEvent(uint16_t btnId);
+
+  static LAYOUT_VAL_SCALED(KEYBOARD_HEIGHT, 90)
 
  protected:
-  void decLarge();
-  void decSmall();
-  void incSmall();
-  void incLarge();
-  void setMIN();
-  void setMAX();
-  void setDEF();
-  void changeSign();
+
+  std::function<void(uint16_t)> eventHandler = nullptr;
+
+  void openKeyboard(FormField* field, int stepSmall, int stepLarge, LcdFlags textFlags,
+                    bool hasChangeSign, std::function<void(uint16_t)> onEvent);
 
 #if defined(HARDWARE_KEYS)
+  void onKey(NumKBEvents e1, NumKBEvents e2);
   void onPressSYS() override;
   void onLongPressSYS() override;
   void onPressMDL() override;

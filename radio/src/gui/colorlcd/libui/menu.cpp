@@ -312,8 +312,6 @@ class MenuWindowContent : public NavWindow
     header->show();
   }
 
-  void onClicked() override { Keyboard::hide(false); }
-
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "MenuWindowContent"; }
 #endif

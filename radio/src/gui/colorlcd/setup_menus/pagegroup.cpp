@@ -314,8 +314,6 @@ void PageGroupBase::checkEvents()
   }
 }
 
-void PageGroupBase::onClicked() { Keyboard::hide(false); }
-
 void PageGroupBase::onCancel()
 {
   closeWindow();
@@ -430,6 +428,8 @@ void PageGroupBase::setScrollY(coord_t y)
 PageGroup::PageGroup(EdgeTxIcon icon, const char* title, const PageDef* pages) :
     PageGroupBase(PAGE_GROUP_BODY_Y, icon)
 {
+  setWindowFlag(IS_PAGE_GROUP);
+
   header = new PageGroupHeader(this, icon, title);
 
   for (int i = 0; pages[i].icon < EDGETX_ICONS_COUNT; i += 1) {
@@ -439,10 +439,10 @@ PageGroup::PageGroup(EdgeTxIcon icon, const char* title, const PageDef* pages) :
 
 #if defined(HARDWARE_TOUCH)
 #if VERSION_MAJOR == 2
-  addCustomButton(0, 0, [=]() { onCancel(); });
+  header->addCustomButton(0, 0, [=]() { onCancel(); });
 #else
-  addCustomButton(0, 0, [=]() { QuickMenu::openQuickMenu(); });
-  addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
+  header->addCustomButton(0, 0, [=]() { QuickMenu::openQuickMenu(); });
+  header->addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
 #endif
 #endif
 
@@ -521,10 +521,10 @@ TabsGroup::TabsGroup(EdgeTxIcon icon, const char* parentLabel) :
 
 #if defined(HARDWARE_TOUCH)
 #if VERSION_MAJOR == 2
-  addCustomButton(0, 0, [=]() { onCancel(); });
+  header->addCustomButton(0, 0, [=]() { onCancel(); });
 #else
-  addCustomButton(0, 0, [=]() { QuickMenu::openQuickMenu(); });
-  addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
+  header->addCustomButton(0, 0, [=]() { QuickMenu::openQuickMenu(); });
+  header->addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
 #endif
 #endif
 }

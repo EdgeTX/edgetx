@@ -51,7 +51,6 @@ class Page : public NavWindow
 #endif
 
   void onCancel() override;
-  void onClicked() override;
 
   void enableRefresh();
 
