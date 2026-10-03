@@ -38,7 +38,7 @@ void task_create(task_handle_t* h, task_func_t func, const char* name,
 
 unsigned task_get_stack_usage(task_handle_t* h)
 {
-  return (h->_stack_size - uxTaskGetStackHighWaterMark(h->_rtos_handle)) *
+  return (uxTaskGetStackHighWaterMark(h->_rtos_handle)) *
          sizeof(StackType_t);
 }
 
