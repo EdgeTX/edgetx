@@ -692,10 +692,8 @@ QString ModelPrinter::printGlobalVarPopup(int idx)
 QString ModelPrinter::printOutputValueGVar(int val)
 {
   QString result = "";
-  if (abs(val) > 10000) {
-    if (val < 0)
-      result = "-";
-    result.append(RawSource(SOURCE_TYPE_GVAR, (abs(val)-10001) + 1).toString(&model));
+  if (SourceNumRef(val).isSource()) {
+    result = RawSource(val).toString(&model);
   }
   else {
     if (val >= 0)

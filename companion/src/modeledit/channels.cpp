@@ -24,12 +24,20 @@
 #include "filtereditemmodels.h"
 #include "curveimagewidget.h"
 #include "namevalidator.h"
+#include "sourcenumref.h"
 
-LimitsGroup::LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row, int col, int & value, const ModelData & model, GeneralSettings & generalSettings,
-                         int min, int max, int deflt, FilteredItemModel * gvarModel, ModelPanel * panel):
+LimitsGroup::LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row, int col, int & value, GeneralSettings & generalSettings,
+                         int min, int max, int deflt, FilteredItemModel * sourceModel, ModelPanel * panel):
+  QObject(panel),
   firmware(firmware),
   spinbox(new QDoubleSpinBox()),
-  value(value)
+  chkSource(new QCheckBox(tr("SRC"))),
+  cboSource(new QComboBox()),
+  value(value),
+  mini(min),
+  maxi(max),
+  deflt(deflt),
+  lock(true)
 {
   spinbox->setProperty("index", row);
   spinbox->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
@@ -48,45 +56,107 @@ LimitsGroup::LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row
   spinbox->setSingleStep(displayStep);
   spinbox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
+  chkSource->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+  cboSource->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+  cboSource->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+  cboSource->setMaxVisibleItems(10);
+  cboSource->setModel(sourceModel);
+
   QHBoxLayout *horizontalLayout = new QHBoxLayout();
-  gv = new QCheckBox(tr("GV"));
-  gv->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-  horizontalLayout->addWidget(gv);
-  QComboBox *cb = new QComboBox();
-  cb->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-  horizontalLayout->addWidget(cb);
+  horizontalLayout->addWidget(chkSource);
+  horizontalLayout->addWidget(cboSource);
   horizontalLayout->addWidget(spinbox);
   tableLayout->addLayout(row, col, horizontalLayout);
-  gvarGroup = new GVarGroup(gv, spinbox, cb, value, model, deflt, min, max, displayStep, gvarModel);
-  QObject::connect(gvarGroup, &GVarGroup::valueChanged, panel, &ModelPanel::modified);
+
+  connect(chkSource, &QCheckBox::stateChanged, this, &LimitsGroup::chkSourceChanged);
+  connect(cboSource, QOverload<int>::of(&QComboBox::currentIndexChanged), this, &LimitsGroup::cboSourceChanged);
+  connect(spinbox, &QDoubleSpinBox::editingFinished, this, &LimitsGroup::spinboxChanged);
+  connect(this, &LimitsGroup::valueChanged, panel, &ModelPanel::modified);
+
+  setValue(value);
+  lock = false;
 }
 
-LimitsGroup::~LimitsGroup()
+void LimitsGroup::chkSourceChanged(int state)
 {
-  delete gvarGroup;
+  if (lock)
+    return;
+
+  if (state) {
+    int idx = cboSource->findData(RawSource(SOURCE_TYPE_GVAR, 1).toValue());
+    cboSource->setCurrentIndex(idx >= 0 ? idx : Helpers::getFirstPosValueIndex(cboSource));
+    value = cboSource->currentData().toInt();
+  }
+  else {
+    value = deflt;
+  }
+
+  setValue(value);
+  emit valueChanged();
+}
+
+void LimitsGroup::cboSourceChanged(int index)
+{
+  if (lock)
+    return;
+
+  value = cboSource->itemData(index).toInt();
+  emit valueChanged();
+}
+
+void LimitsGroup::spinboxChanged()
+{
+  if (lock)
+    return;
+
+  value = round(spinbox->value() / displayStep);
+  emit valueChanged();
 }
 
 void LimitsGroup::setValue(int val)
 {
-  gvarGroup->setWeight(val);
+  bool wasLocked = lock;
+  lock = true;
+
+  spinbox->setMinimum(mini * displayStep);
+  spinbox->setMaximum(maxi * displayStep);
+
+  if (SourceNumRef(val).isSource()) {
+    chkSource->setChecked(true);
+    int idx = cboSource->findData(val);
+    if (idx < 0)
+      idx = Helpers::getFirstPosValueIndex(cboSource);
+    cboSource->setCurrentIndex(idx);
+    spinbox->setValue(deflt * displayStep);
+    spinbox->hide();
+    cboSource->show();
+  }
+  else {
+    chkSource->setChecked(false);
+    spinbox->setValue(val * displayStep);
+    cboSource->hide();
+    spinbox->show();
+  }
+
+  lock = wasLocked;
 }
 
 void LimitsGroup::updateMinMax(int max)
 {
-  if (spinbox->maximum() == 0) {
-    spinbox->setMinimum(-max * displayStep);
-    gvarGroup->setMinimum(-max);
-    if (!gv->isChecked() && value < -max) {
+  bool isNumber = SourceNumRef(value).isNumber();
+
+  if (maxi == 0) {
+    mini = -max;
+    if (isNumber && value < -max)
       value = -max;
-    }
   }
-  if (spinbox->minimum() == 0) {
-    spinbox->setMaximum(max * displayStep);
-    gvarGroup->setMaximum(max);
-    if (!gv->isChecked() && value > max) {
+  if (mini == 0) {
+    maxi = max;
+    if (isNumber && value > max)
       value = max;
-    }
   }
+
+  setValue(value);
 }
 
 ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * sharedItemModels):
@@ -103,7 +173,9 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
   int crvid = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_Curve)), "Curve");
   connectItemModelEvents(dialogFilteredItemModels->getItemModel(crvid));
 
-  int gvid = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_GVarRef)), "GVarRef");
+  int srcid = dialogFilteredItemModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_RawSource),
+                                                          (RawSource::AllSourceGroups & ~RawSource::NoneGroup & ~RawSource::ScriptsGroup)),
+                                                          "LimitSource");
   curveRefFilteredItemModels = new CurveRefFilteredFactory(sharedItemModels, 0);
 
   QStringList headerLabels;
@@ -143,13 +215,13 @@ ChannelsPanel::ChannelsPanel(QWidget * parent, ModelData & model, GeneralSetting
     }
 
     // Channel offset
-    chnOffset[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].offset, model, generalSettings, -1000, 1000, 0, dialogFilteredItemModels->getItemModel(gvid), this);
+    chnOffset[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].offset, generalSettings, -1000, 1000, 0, dialogFilteredItemModels->getItemModel(srcid), this);
 
     // Channel min
-    chnMin[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].min, model, generalSettings, -model.getChannelsMax() * 10, 0, -1000, dialogFilteredItemModels->getItemModel(gvid), this);
+    chnMin[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].min, generalSettings, -model.getChannelsMax() * 10, 0, -1000, dialogFilteredItemModels->getItemModel(srcid), this);
 
     // Channel max
-    chnMax[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].max, model, generalSettings, 0, model.getChannelsMax() * 10, 1000, dialogFilteredItemModels->getItemModel(gvid), this);
+    chnMax[i] = new LimitsGroup(firmware, tableLayout, i, col++, model.limitData[i].max, generalSettings, 0, model.getChannelsMax() * 10, 1000, dialogFilteredItemModels->getItemModel(srcid), this);
 
     // Channel inversion
     invCB[i] = new QComboBox(this);

@@ -23,6 +23,8 @@
 #include "hal/adc_driver.h"
 
 class TrimsTest : public EdgeTxTest {};
+extern int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max);
+
 class MixerTest : public EdgeTxTest {};
 
 #define CHECK_NO_MOVEMENT(channel, value, duration) \
@@ -421,7 +423,7 @@ TEST_F(TrimsTest, CopyTrimsToOffset)
   evalFunctions(g_model.customFn, modelFunctionsContext); // it disables all safety channels
   copyTrimsToOffset(ELE_CHAN);
   EXPECT_EQ(getTrimValue(0, ELE_STICK), -100); // unchanged
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195);
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, makeLimitNumVal(-195));
 }
 
 TEST_F(TrimsTest, CopySticksToOffset)
@@ -430,9 +432,9 @@ TEST_F(TrimsTest, CopySticksToOffset)
   evalMixes(1);
   copySticksToOffset(ELE_CHAN);
 #if defined(STICK_DEAD_ZONE)
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -93);
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, makeLimitNumVal(-93));
 #else
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -97);
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, makeLimitNumVal(-97));
 #endif
 }
 
@@ -447,9 +449,9 @@ TEST_F(TrimsTest, MoveTrimsToOffsets)
   EXPECT_EQ(channelOutputs[THR_CHAN], TRIM_SCALE(200));  // THR output value is reflecting 100 trim
   moveTrimsToOffsets();
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[THR_CHAN].offset, TRIM_SCALE(195)); // value transferred
+  EXPECT_EQ(g_model.limitData[THR_CHAN].offset, makeLimitNumVal(TRIM_SCALE(195))); // value transferred
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, makeLimitNumVal(-195)); // value transferred
   evalMixes(1);
 #if defined(SURFACE_RADIO)
   EXPECT_EQ(channelOutputs[THR_CHAN], 99); // THR output value is still reflecting 100 trim
@@ -477,16 +479,16 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithTrimIdle)
 
   // Trim affecting Throttle should not be affected
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 100);  // unchanged
-  EXPECT_EQ(g_model.limitData[2].offset, 0); // unchanged
+  EXPECT_EQ(g_model.limitData[2].offset, makeLimitNumVal(0)); // unchanged
 
   // Other trims should
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
 #if defined(SURFACE_RADIO)
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, makeLimitNumVal(-195)); // value transferred
   evalMixes(1);
   EXPECT_EQ(channelOutputs[THR_CHAN], 228);  // THR output value is reflecting 100 trim idle
 #else
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, makeLimitNumVal(-195)); // value transferred
   evalMixes(1);
   EXPECT_EQ(channelOutputs[THR_CHAN], -568);  // THR output value is reflecting 100 trim idle
 #endif
@@ -520,9 +522,9 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrossTrims)
   EXPECT_EQ(channelOutputs[THR_CHAN], 200);  // THR output value remains unchanged
 #endif
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[THR_CHAN].offset, TRIM_SCALE(195)); // value transferred
+  EXPECT_EQ(g_model.limitData[THR_CHAN].offset, makeLimitNumVal(TRIM_SCALE(195))); // value transferred
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // value transferred
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, makeLimitNumVal(-195)); // value transferred
 }
 
 TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrosstrimsAndTrimIdle)
@@ -550,11 +552,11 @@ TEST_F(TrimsTest, MoveTrimsToOffsetsWithCrosstrimsAndTrimIdle)
 
   // Trim affecting Throttle (now Ele because of crosstrims) should not be affected
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMELE - MIXSRC_FIRST_TRIM), 100);  // unchanged
-  EXPECT_EQ(g_model.limitData[2].offset, 0); // THR chan offset unchanged
+  EXPECT_EQ(g_model.limitData[2].offset, makeLimitNumVal(0)); // THR chan offset unchanged
 
   // Other trims should
   EXPECT_EQ(getTrimValue(0, MIXSRC_TRIMTHR - MIXSRC_FIRST_TRIM), 0);  // back to neutral
-  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, -195); // Ele chan offset transferred
+  EXPECT_EQ(g_model.limitData[ELE_CHAN].offset, makeLimitNumVal(-195)); // Ele chan offset transferred
   evalMixes(1);
 #if defined(SURFACE_RADIO)
   EXPECT_EQ(channelOutputs[THR_CHAN], 228);  // THR output value is still reflecting 100 trim idle
@@ -611,6 +613,167 @@ TEST(Curves, LinearIntpol)
 }
 
 
+
+TEST_F(MixerTest, LimitsFromGVar)
+{
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].srcRaw = MIXSRC_MAX;
+  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.limitData[0].max = makeLimitNumVal(MIXSRC_FIRST_GVAR, true);
+  g_model.limitData[0].min = makeLimitNumVal(-(MIXSRC_FIRST_GVAR + 1), true);
+  g_model.gvars[0].prec = 0;
+  g_model.gvars[1].prec = 0;
+
+  // gvars without decimals are whole percent
+  GVAR_VALUE(0, 0) = 50;
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], 512);
+
+  GVAR_VALUE(0, 0) = 25;
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], 256);
+
+  // negated gvar gives the lower limit
+  g_model.mixData[0].srcRaw = MIXSRC_MIN;
+  GVAR_VALUE(1, 0) = 40;
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], -410);
+}
+
+TEST_F(MixerTest, LimitOffsetFromGVar)
+{
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].srcRaw = MIXSRC_FIRST_GVAR + 2;
+  g_model.mixData[0].weight = makeSourceNumVal(0);
+  g_model.limitData[0].offset = makeLimitNumVal(MIXSRC_FIRST_GVAR, true);
+  g_model.gvars[0].prec = 0;
+
+  GVAR_VALUE(0, 0) = 10;
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], 102);
+
+  // plain number still works
+  g_model.limitData[0].offset = makeLimitNumVal(-100);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], -102);
+}
+
+TEST_F(MixerTest, LimitsFromOtherSources)
+{
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].srcRaw = MIXSRC_MAX;
+  g_model.mixData[0].weight = makeSourceNumVal(100);
+
+  // fixed source: max = MIN (-100%) squeezes the output to the bottom
+  g_model.limitData[0].max = makeLimitNumVal(MIXSRC_MIN, true);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], -1024);
+
+  // half of another channel's output
+  g_model.mixData[1].destCh = 1;
+  g_model.mixData[1].srcRaw = MIXSRC_MAX;
+  g_model.mixData[1].weight = makeSourceNumVal(50);
+  g_model.limitData[0].max = makeLimitNumVal(MIXSRC_FIRST_CH + 1, true);
+  evalMixes(1);
+  evalMixes(1);  // channel sources are one cycle behind
+  EXPECT_NEAR(channelOutputs[0], 512, 1);
+
+  // inverted source
+  g_model.limitData[0].max = makeLimitNumVal(-MIXSRC_MIN, true);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], 1024);
+}
+
+TEST_F(MixerTest, LimitGVarPrecision)
+{
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].srcRaw = MIXSRC_MAX;
+  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.limitData[0].max = makeLimitNumVal(MIXSRC_FIRST_GVAR, true);
+
+  // one decimal: 250 is 25.0%
+  g_model.gvars[0].prec = 1;
+  GVAR_VALUE(0, 0) = 250;
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], 256);
+
+  // no decimal: 25 is 25%
+  g_model.gvars[0].prec = 0;
+  GVAR_VALUE(0, 0) = 25;
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], 256);
+}
+
+TEST_F(MixerTest, LimitGVarIsClamped)
+{
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].srcRaw = MIXSRC_MAX;
+  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.limitData[0].max = makeLimitNumVal(MIXSRC_FIRST_GVAR, true);
+  g_model.limitData[0].offset = makeLimitNumVal(MIXSRC_FIRST_GVAR + 1, true);
+  g_model.gvars[0].prec = 0;
+  g_model.gvars[1].prec = 0;
+
+  // way above 150% / 100%
+  GVAR_VALUE(0, 0) = 900;
+  GVAR_VALUE(1, 0) = 900;
+  EXPECT_EQ(LIMIT_MAX(limitAddress(0)), LIMIT_EXT_MAX);
+  EXPECT_EQ(LIMIT_OFS(limitAddress(0)), LIMIT_STD_MAX);
+  GVAR_VALUE(0, 0) = -900;
+  GVAR_VALUE(1, 0) = -900;
+  EXPECT_EQ(LIMIT_MAX(limitAddress(0)), -LIMIT_EXT_MAX);
+  EXPECT_EQ(LIMIT_OFS(limitAddress(0)), -LIMIT_STD_MAX);
+}
+
+TEST_F(MixerTest, LimitGVarFollowsFlightMode)
+{
+  g_model.limitData[0].max = makeLimitNumVal(MIXSRC_FIRST_GVAR, true);
+  g_model.gvars[0].prec = 0;
+  GVAR_VALUE(0, 0) = 30;
+  GVAR_VALUE(0, 1) = 60;
+
+  mixerCurrentFlightMode = 0;
+  EXPECT_EQ(LIMIT_MAX(limitAddress(0)), 300);
+  mixerCurrentFlightMode = 1;
+  EXPECT_EQ(LIMIT_MAX(limitAddress(0)), 600);
+  mixerCurrentFlightMode = 0;
+}
+
+TEST_F(MixerTest, InvertedHighSourceIsNotTakenForGVar)
+{
+  // a negated telemetry/timer/tx voltage source sits above the gvar range
+  // and used to be read as an out of range gvar
+  g_model.gvars[0].prec = 0;
+  int32_t v = getSourceNumFieldValue(makeSourceNumVal(-MIXSRC_TX_VOLTAGE, true), -100, 100);
+  int32_t expected = calcRESXto1000(getValue(-MIXSRC_TX_VOLTAGE));
+  EXPECT_EQ(v, limit<int32_t>(-1000, expected, 1000));
+  EXPECT_EQ(getLimitNumFieldValue(makeLimitNumVal(-MIXSRC_TX_VOLTAGE, true), 0, -1000, 1000),
+            limit<int32_t>(-1000, expected, 1000));
+}
+
+TEST_F(MixerTest, TrimToSubtrimLeavesSourceOffsets)
+{
+  g_model.limitData[0].offset = makeLimitNumVal(MIXSRC_FIRST_GVAR, true);
+  g_model.limitData[1].offset = makeLimitNumVal(20);
+  moveTrimsToOffsets();
+  EXPECT_EQ(g_model.limitData[0].offset, makeLimitNumVal(MIXSRC_FIRST_GVAR, true));
+
+  copyTrimsToOffset(0);
+  EXPECT_EQ(g_model.limitData[0].offset, makeLimitNumVal(MIXSRC_FIRST_GVAR, true));
+}
+
+TEST_F(MixerTest, CopyMinMaxKeepsSources)
+{
+  g_model.limitData[0].min = makeLimitNumVal(-(MIXSRC_FIRST_GVAR + 1), true);
+  g_model.limitData[0].max = makeLimitNumVal(MIXSRC_FIRST_GVAR, true);
+  g_model.limitData[0].ppmCenter = 12;
+  copyMinMaxToOutputs(0);
+  for (int i = 1; i < MAX_OUTPUT_CHANNELS; i++) {
+    EXPECT_EQ(g_model.limitData[i].min, g_model.limitData[0].min) << i;
+    EXPECT_EQ(g_model.limitData[i].max, g_model.limitData[0].max) << i;
+    EXPECT_EQ(g_model.limitData[i].ppmCenter, 12) << i;
+  }
+}
 
 TEST_F(MixerTest, InfiniteRecursiveChannels)
 {

@@ -118,8 +118,8 @@ char *getCurveString(char *dest, int idx);
 char *getCurveString(int idx);
 char *getGVarString(char *dest, int idx);
 char *getGVarString(int idx);
-char *getValueOrGVarString(char *dest, size_t len, gvar_t value, LcdFlags flags = 0,
-                           const char *suffix = nullptr, gvar_t offset = 0, bool usePPMUnit = false);
+char *getLimitNumString(char *dest, size_t len, uint16_t value, LcdFlags flags = 0,
+                        gvar_t offset = 0, bool usePPMUnit = false);
 char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value, LcdFlags flags = 0,
                              const char *suffix = nullptr, gvar_t offset = 0, bool usePPMUnit = false);
 const char *getSwitchWarnSymbol(uint8_t pos);

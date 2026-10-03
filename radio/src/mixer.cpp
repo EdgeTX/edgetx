@@ -64,24 +64,38 @@ int16_t ex_chans[MAX_OUTPUT_CHANNELS] = {0}; // Outputs (before LIMITS) of the l
 int16_t cyc_anas[3] = {0};
 #endif
 
+// Source value in tenths of a percent
+static int32_t getSourceValuePrec1(int16_t src)
+{
+  int32_t result = getValue(src);
+  int idx = abs(src);
+  if (idx >= MIXSRC_FIRST_GVAR && idx <= MIXSRC_LAST_GVAR) {
+    // Gvars without decimal precision are whole percent
+    if (g_model.gvars[idx - MIXSRC_FIRST_GVAR].prec == 0)
+      result = result * 10;
+    return result;
+  }
+  return calcRESXto1000(result);
+}
+
 // TOOD: find better home for this.
 int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max)
 {
   int32_t result;
   SourceNumVal v; v.rawValue = val;
-  if (v.isSource) {
-    result = getValue(v.value);
-    if (abs(v.value) >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
-      // Mimic behviour of GET_GVAR_PREC1
-      if (g_model.gvars[abs(v.value) - MIXSRC_FIRST_GVAR].prec == 0)
-        result = result * 10;
-    } else {
-      result = calcRESXto1000(result);
-    }
-  } else {
+  if (v.isSource)
+    result = getSourceValuePrec1(v.value);
+  else
     result = v.value * 10;
-  }
   return limit<int>(min * 10, result, max * 10);
+}
+
+int32_t getLimitNumFieldValue(uint16_t val, int32_t numOffset, int32_t min,
+                              int32_t max)
+{
+  LimitNumVal v; v.rawValue = val;
+  if (!v.isSource) return v.value + numOffset;
+  return limit<int32_t>(min, getSourceValuePrec1(v.value), max);
 }
 
 // #define EXTENDED_EXPO
