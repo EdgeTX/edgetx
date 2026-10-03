@@ -89,6 +89,43 @@ inline uint16_t makeSourceNumVal(int16_t val, bool isSource = false)
   return v.rawValue;
 }
 
+// Value or source for output limits (0.1% units, range does not fit SourceNumVal)
+PACK(union LimitNumVal {
+  struct {
+    int16_t value:11;
+    uint16_t isSource:1;
+  };
+  uint16_t rawValue:12;
+});
+
+inline uint16_t makeLimitNumVal(int16_t val, bool isSource = false)
+{
+  LimitNumVal v;
+  v.value = val;
+  v.isSource = isSource;
+  return v.rawValue;
+}
+
+// Conversion for Lua API, numeric limits reach +/-1500 so sources start at 2048
+constexpr int LIMIT_LUA_SRC_BASE = 2048;
+
+inline int limitNumValToLuaInt(uint16_t val, int numOffset)
+{
+  LimitNumVal v;
+  v.rawValue = val;
+  if (!v.isSource) return v.value + numOffset;
+  return v.value + ((v.value < 0) ? -LIMIT_LUA_SRC_BASE : LIMIT_LUA_SRC_BASE);
+}
+
+inline uint16_t luaIntToLimitNumVal(int val, int numOffset)
+{
+  if (val >= LIMIT_LUA_SRC_BASE)
+    return makeLimitNumVal(val - LIMIT_LUA_SRC_BASE, true);
+  if (val <= -LIMIT_LUA_SRC_BASE)
+    return makeLimitNumVal(val + LIMIT_LUA_SRC_BASE, true);
+  return makeLimitNumVal(val - numOffset);
+}
+
 // Conversion for Lua API
 inline int sourceNumValToLuaInt(uint16_t val)
 {
@@ -168,13 +205,12 @@ PACK(struct ExpoData {
  */
 
 PACK(struct LimitData {
-  int32_t min:11 CUST(in_read_weight,in_write_weight);
-  int32_t max:11 CUST(in_read_weight,in_write_weight);
+  uint32_t min:12 CUST(r_limitNumVal,w_limitNumVal);
+  uint32_t max:12 CUST(r_limitNumVal,w_limitNumVal);
   int32_t ppmCenter:10; // TODO can be reduced to 8 bits
-  int16_t offset:11 CUST(in_read_weight,in_write_weight);
+  uint16_t offset:12 CUST(r_limitNumVal,w_limitNumVal);
   uint16_t symetrical:1;
   uint16_t revert:1;
-  uint16_t spare:3 SKIP;
   int8_t curve;
   NOBACKUP(char name[LEN_CHANNEL_NAME]);
 });

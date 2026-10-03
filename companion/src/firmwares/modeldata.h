@@ -427,7 +427,6 @@ class ModelData {
     void updateTypeIndexRef(R & curref, const T type, const int idxAdj = 0, const bool defClear = true, const int defType = 0, const int defIndex = 0);
     template <class R, typename T>
     void updateTypeValueRef(R & curref, const T type, const int idxAdj = 0, const bool defClear = true, const int defType = 0, const int defValue = 0);
-    void updateAdjustRef(int & adj);
     void updateAssignFunc(CustomFunctionData * cfd);
     void updateCurveRef(CurveReference & crv);
     void updateDestCh(MixData * md);

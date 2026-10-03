@@ -622,4 +622,55 @@ TEST(Lua, testUserDataEmbeddedNul)
   luaExecStr(userdata_nul_tst);
 }
 
+TEST(Lua, testOutputLimitsAsSources)
+{
+  // plain numbers
+  luaExecStr("model.setOutput(0, {min=-800, max=1200, offset=-35})");
+  LimitData* ld = limitAddress(0);
+  LimitNumVal v;
+  v.rawValue = ld->min;
+  EXPECT_FALSE(v.isSource);
+  EXPECT_EQ(v.value, 200);  // stored relative to -1000
+  v.rawValue = ld->max;
+  EXPECT_FALSE(v.isSource);
+  EXPECT_EQ(v.value, 200);  // stored relative to +1000
+  v.rawValue = ld->offset;
+  EXPECT_EQ(v.value, -35);
+  luaExecStr(
+      "o = model.getOutput(0)"
+      "if o.min ~= -800 or o.max ~= 1200 or o.offset ~= -35 then error('numbers') end");
+
+  // sources: gvar, inverted gvar and a channel
+  char cmd[256];
+  snprintf(cmd, sizeof(cmd), "model.setOutput(0, {min=%d, max=%d, offset=%d})",
+           LIMIT_LUA_SRC_BASE + MIXSRC_FIRST_GVAR + 2,
+           -(LIMIT_LUA_SRC_BASE + MIXSRC_FIRST_GVAR + 1),
+           LIMIT_LUA_SRC_BASE + MIXSRC_FIRST_CH + 3);
+  luaExecStr(cmd);
+  ld = limitAddress(0);
+  v.rawValue = ld->min;
+  EXPECT_TRUE(v.isSource);
+  EXPECT_EQ(v.value, MIXSRC_FIRST_GVAR + 2);
+  v.rawValue = ld->max;
+  EXPECT_TRUE(v.isSource);
+  EXPECT_EQ(v.value, -(MIXSRC_FIRST_GVAR + 1));
+  v.rawValue = ld->offset;
+  EXPECT_TRUE(v.isSource);
+  EXPECT_EQ(v.value, MIXSRC_FIRST_CH + 3);
+
+  snprintf(cmd, sizeof(cmd),
+           "o = model.getOutput(0)"
+           "if o.min ~= %d or o.max ~= %d or o.offset ~= %d then error('sources') end",
+           LIMIT_LUA_SRC_BASE + MIXSRC_FIRST_GVAR + 2,
+           -(LIMIT_LUA_SRC_BASE + MIXSRC_FIRST_GVAR + 1),
+           LIMIT_LUA_SRC_BASE + MIXSRC_FIRST_CH + 3);
+  luaExecStr(cmd);
+
+  // extended range numbers must not be read as sources
+  luaExecStr("model.setOutput(0, {min=-1500, max=1500, offset=1000})");
+  luaExecStr(
+      "o = model.getOutput(0)"
+      "if o.min ~= -1500 or o.max ~= 1500 or o.offset ~= 1000 then error('extended') end");
+}
+
 #endif   // #if defined(LUA)

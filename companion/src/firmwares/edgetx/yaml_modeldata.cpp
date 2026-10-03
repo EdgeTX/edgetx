@@ -36,6 +36,7 @@
 #include "boardjson.h"
 #include "modeldata.h"
 #include "output_data.h"
+#include "sourcenumref.h"
 #include "eeprominterface.h"
 #include "version.h"
 #include "helpers.h"
@@ -518,60 +519,31 @@ bool convert<TimerData>::decode(const Node& node, TimerData& rhs)
 
 static int32_t YamlReadLimitValue(const YAML::Node& node, int32_t shift = 0)
 {
-  Firmware *firmware = getCurrentFirmware();
-  std::string val_str = node.as<std::string>();
+  std::string val = node.as<std::string>();
 
-  try {
-    return std::stoi(val_str) + shift;
-  } catch(...) {
+  // Legacy 1-based "GVn" / "-GVn" form
+  bool neg = !val.empty() && val[0] == '-';
+  size_t pos = neg ? 1 : 0;
+  if (val.size() > pos + 2 && val[pos] == 'G' && val[pos + 1] == 'V') {
+    int gv = 0;
     try {
-      const char* val = val_str.data();
-      int multiplier = 1;
-
-      if (val_str.size() >= 4
-          && val[0] == '-') {
-
-        multiplier = -1;
-        val_str = val_str.substr(1);
-      }
-
-      if (val_str.size() >= 3
-          && val[0] == 'G'
-          && val[1] == 'V') {
-
-        int32_t num = 0;
-
-        try {
-          num = std::stoi(val_str.substr(2));
-        } catch (...) {
-          throw;
-        }
-
-        if (num <= firmware->getCapability(Gvars))
-          return ((10000 * multiplier) + (num * multiplier));
-        else
-          return 0;
-
-      } else {
-        throw "Invalid value";
-      }
-    } catch(...) {
+      gv = std::stoi(val.substr(pos + 2));
+    } catch (...) {
       throw YAML::TypedBadConversion<int>(node.Mark());
     }
+    if (gv < 1 || gv > getCurrentFirmware()->getCapability(Gvars))
+      return 0;
+    int src = RawSource(SOURCE_TYPE_GVAR, gv).toValue();
+    return neg ? -src : src;
   }
+
+  int32_t result = YamlSourceNumRefDecode(node);
+  return SourceNumRef(result).isNumber() ? result + shift : result;
 }
 
 static std::string YamlWriteLimitValue(int32_t sval, int32_t shift = 0)
 {
-  if (sval < -10000) {
-    int n = -sval - 10000;
-    return std::string("-GV") + std::to_string(n);
-  } else if (sval > 10000) {
-    int n = sval - 10000;
-    return std::string("GV") + std::to_string(n);
-  }
-
-  return std::to_string(sval - shift);
+  return YamlSourceNumRefEncode(SourceNumRef(sval).isNumber() ? sval - shift : sval);
 }
 
 template <>
