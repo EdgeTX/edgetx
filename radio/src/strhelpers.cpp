@@ -795,10 +795,10 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
         break;
 #if defined(MODULE_BATTERY_SENSOR)
       case MIXSRC_TX_BAT_CURRENT:
-        src_str = "BatI";
+        src_str = STR_SRC_BAT_CURRENT;
         break;
       case MIXSRC_TX_BAT_POWER:
-        src_str = "BatP";
+        src_str = STR_SRC_BAT_POWER;
         break;
 #endif
       case MIXSRC_TX_TIME:
