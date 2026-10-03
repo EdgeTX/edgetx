@@ -70,6 +70,11 @@ int luaDir(lua_State* L)
   const char* path = luaL_optstring(L, 1, nullptr);
   char fullPath[FF_MAX_LFN + 1];
   etxNormalizePath(path, fullPath, sizeof(fullPath));
+  // too long: FatFs would open "" as the current dir
+  if (!fullPath[0]) {
+    TRACE("luaDir cannot open %s", path);
+    return 0;
+  }
 
   DIR* dir = (DIR*)lua_newuserdata(L, sizeof(DIR));
 

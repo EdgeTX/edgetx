@@ -470,6 +470,7 @@ int luaLoadScriptFileToState(lua_State * L, const char * filename, const char * 
   // resolve to an absolute path (works on exFAT)
   char normPath[FF_MAX_LFN + 1];
   etxNormalizePath(filename, normPath, sizeof(normPath));
+  if (!normPath[0]) return ret;  // too long: "" would resolve in the current dir
 
   fnamelen = strlen(normPath);
   // check if file extension is already in the file name and strip it

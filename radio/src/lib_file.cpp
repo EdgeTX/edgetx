@@ -98,12 +98,11 @@ void etxNormalizePath(const char* in, char* out, size_t outLen)
 
   // absolute input replaces the CWD; relative input is appended
   char work[FF_MAX_LFN + 1];
-  if (in[0] == '/') {
-    strncpy(work, in, sizeof(work) - 1);
-    work[sizeof(work) - 1] = '\0';
-  } else {
-    snprintf(work, sizeof(work), "%s/%s", s_currentDir, in);
-  }
+  int n = (in[0] == '/')
+              ? snprintf(work, sizeof(work), "%s", in)
+              : snprintf(work, sizeof(work), "%s/%s", s_currentDir, in);
+  if (n >= (int)sizeof(work))
+    return;  // too long: leave 'out' empty rather than resolve a truncated path
 
   size_t len = 0;
   bool truncated = false;
@@ -141,6 +140,8 @@ FRESULT etxChdir(const char* path)
 {
   char abs[FF_MAX_LFN + 1];
   etxNormalizePath(path, abs, sizeof(abs));
+  // too long: FatFs would take "" as the current dir and succeed
+  if (!abs[0]) return FR_INVALID_NAME;
   FRESULT res = f_chdir(abs);
   if (res == FR_OK) {
     strncpy(s_currentDir, abs, sizeof(s_currentDir) - 1);

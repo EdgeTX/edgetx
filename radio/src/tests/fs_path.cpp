@@ -134,3 +134,32 @@ TEST(FsPath, normalizeBufferBounds)
   etxNormalizePath("/ab/cd", out, 4);
   EXPECT_STREQ(out, "/ab");
 }
+
+// A path too long for the work buffer must resolve to empty, not to a
+// truncated (and therefore different) path.
+TEST(FsPath, normalizeOverflow)
+{
+  // absolute: "/" + name + nul must fit FF_MAX_LFN + 1
+  std::string fits = "/" + std::string(FF_MAX_LFN - 1, 'a');
+  EXPECT_EQ(norm("/", fits.c_str()), fits);
+  std::string tooLong = "/" + std::string(FF_MAX_LFN, 'a');
+  EXPECT_EQ(norm("/", tooLong.c_str()), "");
+
+  // relative: CWD "/" + "/" + name + nul must fit FF_MAX_LFN + 1
+  fits = std::string(FF_MAX_LFN - 2, 'a');
+  EXPECT_EQ(norm("/", fits.c_str()), "/" + fits);
+  tooLong = std::string(FF_MAX_LFN - 1, 'a');
+  EXPECT_EQ(norm("/", tooLong.c_str()), "");
+}
+
+// An over-long path must fail the chdir and leave the CWD alone: FatFs would
+// otherwise take the empty normalized path as the current dir and succeed.
+TEST(FsPath, chdirOverflow)
+{
+  EXPECT_EQ(etxChdir("/images"), FR_OK);
+  std::string tooLong(FF_MAX_LFN + 45, 'a');
+  EXPECT_NE(etxChdir(tooLong.c_str()), FR_OK);
+  EXPECT_STREQ(etxGetcwd(), "/images");
+
+  EXPECT_EQ(etxChdir("/"), FR_OK);  // later tests resolve paths from the root
+}

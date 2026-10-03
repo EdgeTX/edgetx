@@ -84,8 +84,11 @@ static void sdManagerChdir(const char* name)
 
 void getSelectionFullPath(char * lfn)
 {
-  snprintf(lfn, FF_MAX_LFN + 1, "%s/%s", sdManagerPath,
-           reusableBuffer.sdManager.lines[menuVerticalPosition - HEADER_LINE - menuVerticalOffset]);
+  // too long: return an empty path so callers fail rather than act on a truncated one
+  if (snprintf(lfn, FF_MAX_LFN + 1, "%s/%s", sdManagerPath,
+               reusableBuffer.sdManager.lines[menuVerticalPosition - HEADER_LINE - menuVerticalOffset]) >
+      FF_MAX_LFN)
+    lfn[0] = '\0';
 }
 
 #if defined(PXX2)
