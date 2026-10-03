@@ -584,6 +584,7 @@ USART6: INTMODULE_USART
 #define BT_TX_GPIO                          GPIO_PIN(GPIOB, 10) // PB.10
 #define BT_RX_GPIO                          GPIO_PIN(GPIOB, 11) // PB.11
 #define BT_EN_GPIO                          GPIO_PIN(GPIOE, 6)  // PE.06
+#define BT_PWR_GPIO                         GPIO_PIN(GPIOC, 13) // PC.13
 #endif
 
 // Touch
