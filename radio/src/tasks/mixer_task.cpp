@@ -138,6 +138,8 @@ void execMixerFrequentActions()
 
 void mixerTask()
 {
+static uint16_t syncCounter = 0;
+
   while (task_running()) {
 
     int timeout = 0;
@@ -181,7 +183,21 @@ void mixerTask()
       mixerTaskLock();
 
       doMixerCalculations();
-      pulsesSendChannels();
+
+      syncCounter++;
+
+      if(getMixerSchedulerSyncedModule() == EXTERNAL_MODULE) {
+        pulsesSendNextFrame(EXTERNAL_MODULE);
+      
+        if((syncCounter % getMixerSchedulerDivider(INTERNAL_MODULE)) == 0)
+          pulsesSendNextFrame(INTERNAL_MODULE);
+      } else {
+        pulsesSendNextFrame(INTERNAL_MODULE);
+
+        if((syncCounter % getMixerSchedulerDivider(EXTERNAL_MODULE)) == 0)
+            pulsesSendNextFrame(EXTERNAL_MODULE);
+      }
+
       doMixerPeriodicUpdates();
 
       // TODO: what are these for???
