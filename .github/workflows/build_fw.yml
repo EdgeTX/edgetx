@@ -36,7 +36,7 @@ jobs:
           - x9dp2019;x9e # FrSky
           - x10 # FrSky
           - x12s # FrSky
-          - v12 # HelloRadioSky
+          - v12;v15 # HelloRadioSky
           - c14 # iFlight
           - t12max;t14 # Jumper
           - t15;t15pro;t15h7 # Jumper
@@ -82,7 +82,7 @@ jobs:
           - pl18;pl18ev;pl18u # Flysky
           - x10;x10express;x12s # FrSky
           - x7access;x9dp2019;x9e # FrSky
-          - v12;v14 # HelloRadioSky
+          - v12;v14;v15 # HelloRadioSky
           - v14lcd;v16 # HelloRadioSky
           - c14;commando8 # iFlight
           - bumblebee;t12max;t14 # Jumper
