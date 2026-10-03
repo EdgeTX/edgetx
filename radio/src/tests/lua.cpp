@@ -331,7 +331,7 @@ TEST(Lua, getSwitchInfo)
   RADIO_RESET();
   MODEL_RESET();
   char name[32];
-  char lua[256];
+  char lua[512];
 
   // Unconfigured switches still return a table, with type SWITCH_NONE
   int unconfigured = -1;
@@ -416,7 +416,7 @@ TEST(Lua, getFieldInfoSensorBeforeSwitch)
   if (!lower[0]) return;  // no such switch on this target
 
   // A sensor with the same name is still found first
-  strncpy(g_model.telemetrySensors[0].label, lower, TELEM_LABEL_LEN);
+  copyToUnTerminated(g_model.telemetrySensors[0].label, lower);
   snprintf(lua, sizeof(lua),
            "local info = getFieldInfo('%s')\n"
            "if info == nil or info.id ~= %d then error('not sensor') end",

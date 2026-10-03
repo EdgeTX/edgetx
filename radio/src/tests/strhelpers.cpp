@@ -114,8 +114,8 @@ TEST(StrHelpers, CurveString)
   EXPECT_STREQ("CV32", getCurveString(s, MAX_CURVES));
   EXPECT_STREQ("-CV32", getCurveString(s, -MAX_CURVES));
 
-  strncpy(g_model.curves[0].name, "Abc", LEN_CURVE_NAME);
-  strncpy(g_model.curves[MAX_CURVES - 1].name, "Xyz", LEN_CURVE_NAME);
+  copyToUnTerminated(g_model.curves[0].name, "Abc");
+  copyToUnTerminated(g_model.curves[MAX_CURVES - 1].name, "Xyz");
   EXPECT_STREQ("Abc", getCurveString(s, 1));
   EXPECT_STREQ("-Abc", getCurveString(s, -1));
   EXPECT_STREQ("Xyz", getCurveString(s, MAX_CURVES));
