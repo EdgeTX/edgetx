@@ -199,6 +199,10 @@ enum RawSourceTypeSpecial {
   SOURCE_TYPE_SPECIAL_COUNT
 };
 
+// Board-specific uses of the reserved special sources
+constexpr int SOURCE_TYPE_SPECIAL_TX_BAT_CURRENT { SOURCE_TYPE_SPECIAL_RESERVED3 };  // HelloRadioSky V15
+constexpr int SOURCE_TYPE_SPECIAL_TX_BAT_POWER { SOURCE_TYPE_SPECIAL_RESERVED4 };    // HelloRadioSky V15
+
 constexpr int SOURCE_TYPE_INPUT_THR_IDX { 3 };      //  TODO is there a function to determine index?
 
 class RawSourceRange

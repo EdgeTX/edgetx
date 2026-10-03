@@ -149,6 +149,20 @@ RawSourceRange RawSource::getRange(const ModelData * model, const GeneralSetting
         result.max = 30000;
         result.min = -result.max;
       }
+      else if (abs(index) == SOURCE_TYPE_SPECIAL_TX_BAT_CURRENT) {
+        result.step = 0.1;
+        result.decimals = 1;
+        result.max = 33.0;
+        result.min = -result.max;
+        result.unit = tr("A");
+      }
+      else if (abs(index) == SOURCE_TYPE_SPECIAL_TX_BAT_POWER) {
+        result.step = 0.01;
+        result.decimals = 2;
+        result.max = 300.0;
+        result.min = -result.max;
+        result.unit = tr("W");
+      }
       break;
 
     case SOURCE_TYPE_TIMER:
@@ -193,7 +207,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
   };
 
   static const QString special[] = {
-    "", tr("Batt"), tr("Time"), tr("GPS"), tr("VGR"), tr("VFL"), tr("Reserved3"), tr("Reserved4")
+    "", tr("Batt"), tr("Time"), tr("GPS"), tr("VGR"), tr("VFL"), tr("BatI"), tr("BatP")
   };
 
   static const QString rotary[]  = { "", tr("REa"), tr("REb") };
@@ -359,11 +373,14 @@ bool RawSource::isAvailable(const ModelData * const model,
     // RESERVED1/2 are used as the CI1302 voice control VGR/VFL sources on this board
     bool isVoiceSource = IS_HELLORADIOSKY_V16(board) &&
                           abs(index) <= SOURCE_TYPE_SPECIAL_RESERVED2;
-    if (!isVoiceSource)
+    // RESERVED3/4 are used as the battery sensor current/power sources on this board
+    bool isBatterySource = IS_HELLORADIOSKY_V15(board) &&
+                           abs(index) >= SOURCE_TYPE_SPECIAL_TX_BAT_CURRENT;
+    if (!isVoiceSource && !isBatterySource)
       return false;
 
     // None on the Hardware Switches screen disables VGR/VFL as a source too
-    if (gs) {
+    if (isVoiceSource && gs) {
       QString tag = (abs(index) == SOURCE_TYPE_SPECIAL_RESERVED1) ? "VGR" : "VFL";
       int swIdx = Boards::getSwitchIndex(tag, Board::LVT_TAG, board);
       if (swIdx >= 0 && gs->switchConfig[swIdx].type == Board::SWITCH_NOT_AVAILABLE)
@@ -490,8 +507,8 @@ tbl.insert(tbl.end(), {
                           {std::to_string(SOURCE_TYPE_SPECIAL_TX_GPS),     "TX_GPS"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED1),  "VGR"},
                           {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED2),  "VFL"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED3),  "RESERVED3"},
-                          {std::to_string(SOURCE_TYPE_SPECIAL_RESERVED4),  "RESERVED4"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TX_BAT_CURRENT), "TX_BAT_CURRENT"},
+                          {std::to_string(SOURCE_TYPE_SPECIAL_TX_BAT_POWER),   "TX_BAT_POWER"},
                           });
 
   return tbl;
