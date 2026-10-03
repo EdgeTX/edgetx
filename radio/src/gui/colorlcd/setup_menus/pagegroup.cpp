@@ -54,60 +54,6 @@ static void on_draw_end(lv_event_t* e)
 
 //-----------------------------------------------------------------------------
 
-#if VERSION_MAJOR == 2
-class SelectedTabIcon : public StaticIcon
-{
- public:
-  SelectedTabIcon(Window* parent) :
-      StaticIcon(parent, 0, 0, ICON_CURRENTMENU_SHADOW, COLOR_THEME_PRIMARY1_INDEX)
-  {
-    new StaticIcon(this, 0, 0, ICON_CURRENTMENU_BG, COLOR_THEME_FOCUS_INDEX);
-    new StaticIcon(this, SEL_DOT_X, SEL_DOT_Y, ICON_CURRENTMENU_DOT, COLOR_THEME_PRIMARY2_INDEX);
-  }
-
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override { return "SelectedTabIcon"; }
-#endif
-
-  static LAYOUT_VAL_SCALED(SEL_DOT_X, 10)
-  static LAYOUT_VAL_SCALED(SEL_DOT_Y, 39)
-};
-
-class PageGroupIconButton : public ButtonBase
-{
- public:
-  PageGroupIconButton(Window* parent, const rect_t& rect, PageGroupItem* page, int idx) :
-      ButtonBase(parent, rect, nullptr, window_create), pageTab(page), index(idx)
-  {
-    new StaticIcon(this, 2, ICON_Y, pageTab->getIcon(), COLOR_THEME_PRIMARY2_INDEX);
-    show(isVisible());
-  }
-
-#if defined(DEBUG_WINDOWS)
-  std::string getName() const override
-  {
-    return "PageGroupIconButton(" + std::to_string(index) + ")";
-  }
-#endif
-
-  bool isVisible() const { return pageTab->isVisible(); }
-
-  static LAYOUT_VAL_SCALED(ICON_Y, 7)
-
- protected:
-  PageGroupItem* pageTab;
-  int index;
-
-  void checkEvents() override
-  {
-    show(isVisible());
-    ButtonBase::checkEvents();
-  }
-};
-#endif
-
-//-----------------------------------------------------------------------------
-
 PageGroupHeaderBase::PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxIcon icon, const char* parentTitle, PageGroupBase* menu) :
     Window(parent, {0, 0, LCD_W, height}), menu(menu)
 {
@@ -115,7 +61,6 @@ PageGroupHeaderBase::PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxI
 
     hdrIcon = new HeaderIcon(this, icon);
 
-#if VERSION_MAJOR > 2
     new HeaderBackIcon(this);
 
     parentLabel = etx_label_create(lvobj);
@@ -123,37 +68,14 @@ PageGroupHeaderBase::PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxI
     lv_obj_set_pos(parentLabel, PageHeader::PAGE_TITLE_LEFT, PageHeader::PAGE_TITLE_TOP);
     lv_obj_set_size(parentLabel, LCD_W - PageHeader::PAGE_TITLE_LEFT - PageGroup::PAGE_GROUP_BACK_BTN_W * 2 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
     lv_label_set_text(parentLabel, parentTitle);
-#endif
 
     titleLabel = etx_label_create(lvobj);
     etx_txt_color(titleLabel, COLOR_THEME_PRIMARY2_INDEX);
 
-#if VERSION_MAJOR == 2
-    auto sep = lv_obj_create(lvobj);
-    etx_solid_bg(sep);
-    lv_obj_set_pos(sep, 0, EdgeTxStyles::MENU_HEADER_HEIGHT);
-    lv_obj_set_size(sep, LCD_W, PageGroup::PAGE_GROUP_TOP_BAR_H - EdgeTxStyles::MENU_HEADER_HEIGHT);
-
-    lv_obj_set_style_pad_left(titleLabel, PAD_MEDIUM, LV_PART_MAIN);
-    lv_obj_set_style_pad_top(titleLabel, 1, LV_PART_MAIN);
-    lv_obj_set_pos(titleLabel, 0, PageGroup::PAGE_GROUP_TOP_BAR_H);
-    lv_obj_set_size(titleLabel, LCD_W, PageGroup::PAGE_GROUP_ALT_TITLE_H);
-#else
     lv_obj_set_pos(titleLabel, PageHeader::PAGE_TITLE_LEFT, PageHeader::PAGE_TITLE_TOP + EdgeTxStyles::STD_FONT_HEIGHT);
     lv_obj_set_size(titleLabel, LCD_W - PageHeader::PAGE_TITLE_LEFT - PageGroup::PAGE_GROUP_BACK_BTN_W * 2 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
-#endif
 
     setTitle("");
-
-#if VERSION_MAJOR == 2
-    carousel = new Window(this,
-                          {MENU_HEADER_BUTTONS_LEFT, 0,
-                           LCD_W - MENU_HEADER_BUTTONS_LEFT, EdgeTxStyles::MENU_HEADER_HEIGHT + ICON_EXTRA_H});
-    carousel->padAll(PAD_ZERO);
-    carousel->setWindowFlag(NO_FOCUS);
-
-    selectedIcon = new SelectedTabIcon(carousel);
-#endif
 
   onClosing([=]() {
     for (uint8_t i = 0; i < pages.size(); i += 1)
@@ -162,49 +84,17 @@ PageGroupHeaderBase::PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxI
   });
 }
 
-#if VERSION_MAJOR == 2
-coord_t PageGroupHeaderBase::getX(uint8_t idx)
-{
-  coord_t x = 0;
-  for (uint8_t i = 0; i < idx; i += 1)
-    if (buttons[i]->isVisible())
-      x += MENU_HEADER_BUTTON_WIDTH;
-  return x;
-}
-#endif
-
 void PageGroupHeaderBase::setCurrentIndex(uint8_t index)
 {
   if (index < pages.size()) {
     currentIndex = index;
-#if VERSION_MAJOR == 2
-    if (index < buttons.size()) {
-      buttons[currentIndex]->check(false);
-      currentIndex = index;
-      buttons[currentIndex]->check(true);
-      coord_t x = getX(currentIndex);
-      selectedIcon->setPos(x, 0);
-      coord_t sx = lv_obj_get_scroll_x(carousel->getLvObj());
-      if (x + MENU_HEADER_BUTTON_WIDTH - sx > carousel->width()) {
-        lv_obj_scroll_to(carousel->getLvObj(), x + MENU_HEADER_BUTTON_WIDTH - carousel->width(), 0, LV_ANIM_OFF);
-      } else if (x < sx) {
-        lv_obj_scroll_to(carousel->getLvObj(), x, 0, LV_ANIM_OFF);
-      }
-    }
-#endif
   }
 }
 
 void PageGroupHeaderBase::setTitle(const char* title)
 {
   if (titleLabel) {
-#if VERSION_MAJOR == 2
-    std::string s(title);
-    strReplaceAll(s, "\n", " ");
-    lv_label_set_text(titleLabel, s.c_str());
-#else
     lv_label_set_text(titleLabel, title);
-#endif
   }
 }
 
@@ -216,18 +106,6 @@ void PageGroupHeaderBase::setIcon(EdgeTxIcon newIcon)
 void PageGroupHeaderBase::addTab(PageGroupItem* page)
 {
   pages.emplace_back(page);
-
-#if VERSION_MAJOR == 2
-  uint8_t idx = buttons.size();
-  auto btn = new PageGroupIconButton(
-      carousel, {getX(idx), 0, MENU_HEADER_BUTTON_WIDTH + PAD_THREE, PageGroup::PAGE_GROUP_TOP_BAR_H + PAD_THREE + PAD_TINY}, page, idx);
-  btn->setPressHandler([=]() {
-    menu->setCurrentTab(idx);
-    return true;
-  });
-  btn->show(btn->isVisible());
-  buttons.emplace_back(btn);
-#endif
 }
 
 bool PageGroupHeaderBase::hasSubMenu(QMPage qmPage)
@@ -238,17 +116,6 @@ bool PageGroupHeaderBase::hasSubMenu(QMPage qmPage)
   }
   return false;
 }
-
-#if VERSION_MAJOR == 2
-void PageGroupHeaderBase::checkEvents()
-{
-  for (uint8_t i = 0; i < buttons.size(); i += 1) {
-    buttons[i]->setPos(getX(i), 0);
-  }
-
-  Window::checkEvents();
-}
-#endif
 
 //-----------------------------------------------------------------------------
 
@@ -344,9 +211,7 @@ void PageGroupBase::setCurrentTab(unsigned index)
 
   if (tab != currentTab) {
     header->setTitle(tab->getTitle().c_str());
-#if VERSION_MAJOR > 2
     header->setIcon(tab->getIcon());
-#endif
 
     if (isPageGroup())
       QuickMenu::setCurrentPage(tab->pageId(), icon);
@@ -438,12 +303,8 @@ PageGroup::PageGroup(EdgeTxIcon icon, const char* title, const PageDef* pages) :
   }
 
 #if defined(HARDWARE_TOUCH)
-#if VERSION_MAJOR == 2
-  addCustomButton(0, 0, [=]() { onCancel(); });
-#else
   addCustomButton(0, 0, [=]() { QuickMenu::openQuickMenu(); });
   addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
-#endif
 #endif
 
   onClosing([=]{
@@ -460,7 +321,7 @@ class TabsGroupHeader : public PageGroupHeaderBase
   TabsGroupHeader(TabsGroup* menu, EdgeTxIcon icon, const char* parentTitle) :
       PageGroupHeaderBase(menu, TabsGroup::TABS_GROUP_BODY_Y, icon, parentTitle, menu)
   {
-#if PORTRAIT && VERSION_MAJOR > 2
+#if PORTRAIT
     lv_obj_set_pos(parentLabel, PageGroup::PAGE_GROUP_TOP_BAR_H + PAD_LARGE, PAD_MEDIUM * 2);
     lv_obj_set_size(parentLabel, LCD_W - PageGroup::PAGE_GROUP_TOP_BAR_H * 2 - PAD_LARGE * 2, PageGroup::PAGE_GROUP_TOP_BAR_H - PAD_MEDIUM * 2);
 
@@ -475,7 +336,6 @@ class TabsGroupHeader : public PageGroupHeaderBase
     lv_obj_set_size(titleLabel, LCD_W, TabsGroup::TABS_GROUP_ALT_TITLE_H);
 #endif
 
-#if VERSION_MAJOR > 2
     prevBtn = new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_W * 3, PAD_MEDIUM, [=]() {
       prevTab();
       return 0;
@@ -485,7 +345,6 @@ class TabsGroupHeader : public PageGroupHeaderBase
       nextTab();
       return 0;
     });
-#endif
   }
 
 #if defined(DEBUG_WINDOWS)
@@ -520,12 +379,8 @@ TabsGroup::TabsGroup(EdgeTxIcon icon, const char* parentLabel) :
   header = new TabsGroupHeader(this, icon, parentLabel);
 
 #if defined(HARDWARE_TOUCH)
-#if VERSION_MAJOR == 2
-  addCustomButton(0, 0, [=]() { onCancel(); });
-#else
   addCustomButton(0, 0, [=]() { QuickMenu::openQuickMenu(); });
   addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
-#endif
 #endif
 }
 

@@ -31,9 +31,7 @@
 
 class PageGroupBase;
 struct PageDef;
-#if VERSION_MAJOR > 2
 class QuickSubMenu;
-#endif
 
 //-----------------------------------------------------------------------------
 
@@ -93,9 +91,7 @@ class QuickMenu : public NavWindow
   static bool isInMenu(EdgeTxIcon icon) { return instance && instance->curIcon == icon; }
   static bool isFavoritesMenu() { return isInMenu(ICON_QM_FAVORITES); }
 
-#if VERSION_MAJOR > 2
   static void resetFavorites();
-#endif
 
 #if defined(HARDWARE_KEYS)
   void doKeyShortcut(event_t event) override;
@@ -105,23 +101,6 @@ class QuickMenu : public NavWindow
   void afterPG();
 #endif
 
-#if VERSION_MAJOR == 2
-  static LAYOUT_ORIENTATION(QM_MAIN_COLS, 5, 3)
-  static LAYOUT_ORIENTATION(QM_MAIN_ROWS, 2, 4)
-#if PORTRAIT
-  static LAYOUT_VAL_SCALED(QM_BUTTON_WIDTH, 72)
-#else
-  static LAYOUT_SIZE_SCALED(QM_BUTTON_WIDTH, 72, 60)
-#endif
-  static LAYOUT_VAL_SCALED(QM_BUTTON_HEIGHT, 70)
-  static constexpr int QM_MAIN_W = GRP_W(QM_MAIN_COLS);
-  static constexpr int QM_MAIN_H = GRP_H(QM_MAIN_ROWS);
-  static constexpr coord_t QM_W = QM_MAIN_W + PAD_LARGE * 2;
-  static constexpr coord_t QM_H = QM_MAIN_H + EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_MEDIUM * 2;
-  static constexpr coord_t QM_MAIN_X = (QM_W - QM_MAIN_W) / 2;
-  static constexpr coord_t QM_MAIN_Y = EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_OUTLINE;
-  static constexpr int FIRST_SEARCH_IDX = 0;
-#else
   static LAYOUT_ORIENTATION(QM_MAIN_COLS, 6, 1)
   static LAYOUT_ORIENTATION(QM_MAIN_ROWS, 1, 6)
   static LAYOUT_ORIENTATION(QM_SUB_COLS, 6, 3)
@@ -143,7 +122,6 @@ class QuickMenu : public NavWindow
   static LAYOUT_ORIENTATION(QM_SUB_X, QM_MAIN_X, QM_MAIN_X + QM_MAIN_W + PAD_SMALL)
   static LAYOUT_ORIENTATION(QM_SUB_Y, QM_MAIN_Y + QM_MAIN_H + PAD_LARGE, QM_MAIN_Y)
   static constexpr int FIRST_SEARCH_IDX = 1;  // Skip favorites
-#endif
   static constexpr coord_t QM_X = (LCD_W - QM_W) / 2;
   static constexpr coord_t QM_Y = (LCD_H - QM_H) / 2;
 
@@ -153,9 +131,7 @@ class QuickMenu : public NavWindow
   static EdgeTxIcon curIcon;
   bool inSubMenu = false;
   QuickMenuGroup* mainMenu = nullptr;
-#if VERSION_MAJOR > 2
   std::vector<QuickSubMenu*> subMenus;
-#endif
   PageGroupBase* pageGroup = nullptr;
 
   void openQM(PageGroupBase* pageGroup, QMPage curPage);
@@ -166,10 +142,8 @@ class QuickMenu : public NavWindow
   static void selected();
   static void topMenuAction(int n);
 
-#if VERSION_MAJOR > 2
   void updateFavorites();
   bool setupFavorite(int fav, int favBtn);
-#endif
 };
 
 //-----------------------------------------------------------------------------

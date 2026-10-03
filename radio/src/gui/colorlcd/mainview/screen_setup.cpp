@@ -300,9 +300,6 @@ void ScreenSetupPage::addScreen()
     g_model.setScreenLayoutId(newIdx, factory->getId());
     TRACE("Add screen: add screen: LayoutId = %s", g_model.getScreenLayoutId(newIdx));
 
-#if VERSION_MAJOR == 2
-    Window::pageGroup()->closeWindow();
-#endif
     QuickMenu::openPage((QMPage)(QM_UI_SCREEN1 + newIdx));
 
     storageDirty(EE_MODEL);
@@ -310,22 +307,3 @@ void ScreenSetupPage::addScreen()
     TRACE("Add screen: factory is NULL");
   }
 }
-
-#if VERSION_MAJOR == 2
-ScreenAddPage::ScreenAddPage(const PageDef& pageDef) : PageGroupItem(pageDef)
-{
-}
-
-void ScreenAddPage::build(Window* window)
-{
-  std::string s(STR_QM_ADD_SCREEN);
-  strReplaceAll(s, "\n", " ");
-
-  new TextButton(window,
-                 rect_t{LCD_W / 2 - ADD_TXT_W / 2, window->height() / 2 - EdgeTxStyles::UI_ELEMENT_HEIGHT, ADD_TXT_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
-                 s, [this]() -> uint8_t {
-                    ScreenSetupPage::addScreen();
-                    return 0;
-                 });
-}
-#endif

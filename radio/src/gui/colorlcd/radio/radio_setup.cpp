@@ -1062,7 +1062,6 @@ const static SetupLineDef setupLines[] = {
 
 RadioSetupPage::RadioSetupPage(const PageDef& pageDef) : PageGroupItem(pageDef, PAD_TINY) {}
 
-#if VERSION_MAJOR > 2
 static bool hasShortcutKeys()
 {
 #if defined(USE_HATS_AS_KEYS)
@@ -1071,7 +1070,6 @@ static bool hasShortcutKeys()
   return keysGetSupported() & ((1 << KEY_MODEL) | (1 << KEY_SYS) | (1 << KEY_TELE));
 #endif
 }
-#endif
 
 const static PageButtonDef radioSetupButtons[] = {
 #if defined(AUDIO)
@@ -1088,10 +1086,8 @@ const static PageButtonDef radioSetupButtons[] = {
   {STR_DEF(STR_GPS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_GPS, gpsPageSetupLines); }},
   {STR_DEF(STR_ENABLED_FEATURES), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_ENABLED_FEATURES, viewOptionsPageSetupLines); }},
   {STR_DEF(STR_MAIN_MENU_MANAGE_MODELS), []() { new SubPage(ICON_RADIO_SETUP, STR_MAIN_RADIO_SETTINGS, STR_MAIN_MENU_MANAGE_MODELS, manageModelsSetupLines); }},
-#if VERSION_MAJOR > 2
   {STR_DEF(STR_KEY_SHORTCUTS), []() { new QMKeyShortcutsPage(); }, nullptr, []() { return hasShortcutKeys(); }},
   {STR_DEF(STR_QUICK_MENU_FAVORITES), []() { new QMFavoritesPage(); }, nullptr},
-#endif
   {nullptr},
 };
 

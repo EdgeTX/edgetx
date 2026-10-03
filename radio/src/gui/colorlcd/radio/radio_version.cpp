@@ -334,11 +334,7 @@ class VersionDialog : public BaseDialog
 #endif
 };
 
-#if VERSION_MAJOR == 2 && LCD_H == 272
-const std::string copyright_str = "(C) " BUILD_YEAR " EdgeTX";
-#else
 const std::string copyright_str = "Copyright (C) " BUILD_YEAR " EdgeTX";
-#endif
 const std::string edgetx_url = "https://edgetx.org";
 
 RadioVersionPage::RadioVersionPage(const PageDef& pageDef) :
