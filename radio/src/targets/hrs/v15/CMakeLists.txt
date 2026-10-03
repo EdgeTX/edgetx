@@ -236,6 +236,7 @@ if(MODULE_XIAOZHI_CHAT)
   add_definitions(-DMODULE_XIAOZHI_CHAT)
   set(SRC ${SRC}
     ${TARGET_SRC_DIR}/../tools/chat_ui.cpp
+    ${TARGET_SRC_DIR}/../tools/ai_terminal_ui.cpp
     )
 endif()
 endif()
