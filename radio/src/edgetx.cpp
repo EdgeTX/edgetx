@@ -1792,14 +1792,17 @@ uint32_t pwrCheck()
   if (pwrDelayHoldActive() || inactivityShutdown) {
     if (!inactivityShutdown)
       inactivityTimerReset(ActivitySource::Keys);
-  #if defined(RADIO_V12)
+#if defined(PWR_BUTTON_DUAL_KEY1)
     if (!inactivityShutdown) {
-      // SYS+MDL are also used as power combo on V12. Prevent their menu BREAK
-      // events from being emitted while shutdown key sequence is in progress.
-      killEvents(KEY_SYS);
-      killEvents(KEY_MODEL);
+      // These keys also form the power combo on dual-button boards.
+      // Prevent their menu BREAK events from being emitted while the
+      // shutdown key sequence is in progress.
+      killEvents(PWR_BUTTON_DUAL_KEY1);
+#if defined(PWR_BUTTON_DUAL_KEY2)
+      killEvents(PWR_BUTTON_DUAL_KEY2);
+#endif
     }
-  #endif
+#endif
     if (TELEMETRY_STREAMING()) {
       message = STR_MODEL_STILL_POWERED;
     }
@@ -2071,6 +2074,20 @@ void getMixSrcRange(const int source, int16_t & valMin, int16_t & valMax, LcdFla
     if (flags)
       *flags |= PREC1;
   }
+#if defined(MODULE_BATTERY_SENSOR)
+  else if (asrc == MIXSRC_TX_BAT_CURRENT) {
+    valMax = 30000;
+    valMin = -valMax;
+    if (flags)
+      *flags |= PREC2;
+  }
+  else if (asrc == MIXSRC_TX_BAT_POWER) {
+    valMax = 30000;
+    valMin = -valMax;
+    if (flags)
+      *flags |= PREC2;
+  }
+#endif
 #if defined(LUMINOSITY_SENSOR)
   else if (asrc == MIXSRC_LIGHT) {
     valMax = 100;

@@ -19,7 +19,7 @@ set(STORAGE_MODELSLIST YES)
 set(HAPTIC YES)
 set(GUI_DIR colorlcd)
 set(BITMAPS_DIR 320x240)
-set(TARGET_DIR v12)
+set(TARGET_DIR hrs/v12)
 set(RTC_BACKUP_RAM YES)
 set(PPM_LIMITS_SYMETRICAL YES)
 set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
@@ -176,7 +176,7 @@ include_directories(${RADIO_SRC_DIR}/fonts/colorlcd gui/${GUI_DIR} gui/${GUI_DIR
 if(BOOTLOADER)
   set(FIRMWARE_TARGET_SRC
     ${FIRMWARE_TARGET_SRC}
-    ../../bootloader/loadboot.cpp
+    ../../../bootloader/loadboot.cpp
     )
 endif()
 
