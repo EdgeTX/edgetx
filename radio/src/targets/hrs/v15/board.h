@@ -263,6 +263,12 @@ void usbChargerInit();
 bool usbChargerLed();
 #endif
 
+// Battery sensor, used by the TX_BAT_CURRENT/TX_BAT_POWER sources
+#if defined(MODULE_BATTERY_SENSOR)
+uint16_t batterySensorVoltage();  // mV
+int16_t batterySensorCurrent();   // mA
+#endif
+
 void hr_exesenserInit();
 void hr_exesenserTask();
 uint8_t v15AiModeGet();
