@@ -210,7 +210,6 @@ void evalFunctionSwitches()
         }
 
         fsPreviousState ^= uint32_t(1) << i;  // Toggle state
-        storageDirty(EE_MODEL);
       }
 
       if (!pwrPressed()) {

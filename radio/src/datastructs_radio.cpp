@@ -45,8 +45,10 @@ SwitchConfig RadioData::switchType(uint8_t n) {
 }
 
 void RadioData::switchSetType(uint8_t n, SwitchConfig v) {
-  switchConfig[n].type = v;
-  storageDirty(EE_GENERAL);
+  if (switchConfig[n].type != v) {
+    switchConfig[n].type = v;
+    storageDirty(EE_GENERAL);
+  }
 }
 
 char* RadioData::switchName(uint8_t n) {
@@ -59,8 +61,10 @@ fsStartPositionType RadioData::switchStart(uint8_t n) {
 }
 
 void RadioData::switchSetStart(uint8_t n, fsStartPositionType v) {
-  switchConfig[n].start = v;
-  storageDirty(EE_GENERAL);
+  if (switchConfig[n].start != v) {
+    switchConfig[n].start = v;
+    storageDirty(EE_GENERAL);
+  }
 }
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
@@ -81,13 +85,17 @@ bool RadioData::cfsOffColorLuaOverride(uint8_t n) {
 }
 
 void RadioData::cfsSetOnColorLuaOverride(uint8_t n, bool v) {
-  switchConfig[n].onColorLuaOverride = v;
-  storageDirty(EE_GENERAL);
+  if (switchConfig[n].onColorLuaOverride != v) {
+    switchConfig[n].onColorLuaOverride = v;
+    storageDirty(EE_GENERAL);
+  }
 }
 
 void RadioData::cfsSetOffColorLuaOverride(uint8_t n, bool v) {
-  switchConfig[n].offColorLuaOverride = v;
-  storageDirty(EE_GENERAL);
+  if (switchConfig[n].offColorLuaOverride != v) {
+    switchConfig[n].offColorLuaOverride = v;
+    storageDirty(EE_GENERAL);
+  }
 }
 #endif
 #endif

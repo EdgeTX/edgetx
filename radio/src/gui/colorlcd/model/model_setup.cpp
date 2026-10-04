@@ -396,6 +396,7 @@ const static SetupLineDef setupLines[] = {
                             model->setModelName(g_model.header.name);
                           }
                           SET_DIRTY();
+                          storageDirty(EE_LABELS);
                         });
     }
   },
@@ -442,6 +443,7 @@ const static SetupLineDef setupLines[] = {
                          model->modelBitmap[LEN_BITMAP_NAME] = '\0';
                        }
                        SET_DIRTY();
+                       storageDirty(EE_LABELS);
                      }, false, STR_BITMAP);
     }
   },

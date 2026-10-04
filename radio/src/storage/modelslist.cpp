@@ -840,7 +840,6 @@ void ModelsList::updateCurrentModelCell()
     strAppend(currentModel->modelFilename, g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME);
     currentModel->setModelName(g_model.header.name);
     currentModel->setRfData(&g_model.header, g_model.moduleData);
-    storageDirty(EE_LABELS);
   } else {
     TRACE("ModelList Error - No Current Model");
   }
