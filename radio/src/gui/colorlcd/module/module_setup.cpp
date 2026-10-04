@@ -241,7 +241,6 @@ class ModuleWindow : public Window
                                 }
   #endif
                                 SET_DIRTY();
-                                storageDirty(EE_LABELS);
                               }
                             });
 
@@ -614,9 +613,7 @@ class ModuleSubTypeChoice : public Choice
         g_model.moduleData[moduleIdx].channelsCount = defaultModuleChannels_M8(moduleIdx);
       }
       g_model.moduleData[moduleIdx].subType = newValue;
-
       SET_DIRTY();
-      storageDirty(EE_LABELS);
     } else {
 #if defined(MULTIMODULE)
       g_model.moduleData[moduleIdx].multi.rfProtocol = newValue;
@@ -631,7 +628,6 @@ class ModuleSubTypeChoice : public Choice
         sleep_ms(1);
 
       SET_DIRTY();
-      storageDirty(EE_LABELS);
 #endif
     }
 
@@ -780,7 +776,6 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
     subTypeChoice->updateLayout();
 
     SET_DIRTY();
-    storageDirty(EE_LABELS);
   });
 
   // Call this last in case it opens the 'Scanning' popup.
