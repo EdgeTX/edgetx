@@ -27,6 +27,7 @@
 #include "quick_menu.h"
 #include "radio_tools.h"
 #include "screen_setup.h"
+#include "theme_manager.h"
 #include "topbar.h"
 #include "view_channels.h"
 #include "widget.h"
@@ -104,6 +105,7 @@ ViewMain::ViewMain() :
 
   // create last to be on top
   topbar = new TopBar(this);
+  headerIcon = new HeaderIcon(this, ICON_EDGETX, [=]() { QuickMenu::openQuickMenu(); });
 
   onClosing([=]() {
     _instance = nullptr;
@@ -127,8 +129,26 @@ void ViewMain::addMainView(WidgetsContainer* view, uint32_t viewId)
   view->show();
 }
 
-void ViewMain::setTopbarVisible(float visible) { topbar->setVisible(visible); }
-void ViewMain::setEdgeTxButtonVisible(float visible) { topbar->setEdgeTxButtonVisible(visible); }
+void ViewMain::setTopbarVisible(float visible)
+{
+  topbar->setVisible(visible);
+}
+
+void ViewMain::setEdgeTxButtonVisible(float visible)
+{
+  headerIcon->show(isVisible);
+
+  if (isVisible)
+  {
+    coord_t y = 0;
+    if (visible == 0.0f) {
+      y = -EdgeTxStyles::MENU_HEADER_HEIGHT;
+    } else if (visible > 0.0f && visible < 1.0f){
+      y = -(float)EdgeTxStyles::MENU_HEADER_HEIGHT * (1.0f - visible);
+    }
+    if (y != headerIcon->top()) headerIcon->setTop(y);
+  }
+}
 
 unsigned ViewMain::getMainViewsCount() const
 {
@@ -188,8 +208,8 @@ void ViewMain::updateTopbarVisibility()
   int leftScroll = scrollPos % width();
   if (leftScroll == 0) {
     int view = scrollPos / pageWidth;
-    setTopbarVisible(hasTopbar(view));
-    setEdgeTxButtonVisible(hasTopbar(view) || isAppMode(view));
+    setTopbarVisible(isVisible && hasTopbar(view) ? 1.0f : 0.0f);
+    showTopBarEdgeTxButton();
   } else {
     int leftIdx = scrollPos / pageWidth;
     bool leftTopbar = hasTopbar(leftIdx);
@@ -198,15 +218,15 @@ void ViewMain::updateTopbarVisibility()
     float ratio;
 
     if (leftTopbar && rightTopbar) {
-      ratio = 1.0;
+      ratio = 1.0f;
     } else if (leftTopbar) {
       // scrolling from a screen with Topbar
-      ratio = 1.0 - (float)leftScroll / (float)pageWidth;
+      ratio = 1.0f - (float)leftScroll / (float)pageWidth;
     } else if (rightTopbar) {
       // scrolling to a screen with Topbar
       ratio = (float)leftScroll / (float)pageWidth;
     } else {
-      ratio = 0.0;
+      ratio = 0.0f;
     }
 
     setTopbarVisible(ratio);
@@ -217,15 +237,15 @@ void ViewMain::updateTopbarVisibility()
     ratio = (float)leftScroll / (float)pageWidth;
 
     if (leftTopbar && rightTopbar) {
-      ratio = 1.0;
+      ratio = 1.0f;
     } else if (leftTopbar) {
       // scrolling from a screen with Topbar
-      ratio = 1.0 - (float)leftScroll / (float)pageWidth;
+      ratio = 1.0f - (float)leftScroll / (float)pageWidth;
     } else if (rightTopbar) {
       // scrolling to a screen with Topbar
       ratio = (float)leftScroll / (float)pageWidth;
     } else {
-      ratio = 0.0;
+      ratio = 0.0f;
     }
 
     setEdgeTxButtonVisible(ratio);
@@ -326,8 +346,8 @@ void ViewMain::show(bool visible)
   if (deleted()) return;
   isVisible = visible;
   int view = getCurrentMainView();
-  setTopbarVisible(visible && hasTopbar(view));
-  setEdgeTxButtonVisible(visible && (hasTopbar(view) || isAppMode()));
+  setTopbarVisible(isVisible && hasTopbar(view) ? 1.0f : 0.0f);
+  showTopBarEdgeTxButton();
   for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
     if (customScreens[i]) {
       customScreens[i]->show(visible);
@@ -362,12 +382,12 @@ bool ViewMain::hasTopbar(unsigned view)
 
 void ViewMain::showTopBarEdgeTxButton()
 {
-  topbar->setEdgeTxButtonVisible(hasTopbar() || isAppMode());
+  setEdgeTxButtonVisible(isVisible && (hasTopbar() || isAppMode()) ? 1.0f : 0.0f);
 }
 
 void ViewMain::hideTopBarEdgeTxButton()
 {
-  topbar->setEdgeTxButtonVisible(0.0);
+  setEdgeTxButtonVisible(0.0f);
 }
 
 void ViewMain::_refreshWidgets()
