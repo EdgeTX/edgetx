@@ -21,13 +21,7 @@
 
 #include "edgetx.h"
 
-#if defined(GVARS_IN_CURVES_SCREEN)
-  #warning "define still not added to CMakeLists.txt"
-  #define CURVE_SELECTED() (sub >= 0 && sub < MAX_CURVES)
-  #define GVAR_SELECTED()  (sub >= MAX_CURVES)
-#else
-  #define CURVE_SELECTED() (sub >= 0)
-#endif
+#define CURVE_SELECTED() (sub >= 0)
 
 void drawCurve(coord_t offset)
 {
@@ -44,11 +38,7 @@ void menuModelCurvesAll(event_t event)
 {
   uint8_t old_editMode = s_editMode;
 
-#if defined(GVARS_IN_CURVES_SCREEN)
-  SIMPLE_MENU(STR_MENUCURVES, menuTabModel, MENU_MODEL_CURVES, HEADER_LINE+MAX_CURVES+MAX_GVARS);
-#else
   SIMPLE_MENU(STR_MENUCURVES, menuTabModel, MENU_MODEL_CURVES, HEADER_LINE+MAX_CURVES);
-#endif
 
   int8_t sub = menuVerticalPosition - HEADER_LINE;
 
@@ -64,26 +54,13 @@ void menuModelCurvesAll(event_t event)
     coord_t y = MENU_HEADER_HEIGHT + 1 + i*FH;
     uint8_t k = i + menuVerticalOffset;
     LcdFlags attr = (sub == k ? INVERS : 0);
-#if defined(GVARS_IN_CURVES_SCREEN)
-    if (k >= MAX_CURVES) {
-      drawStringWithIndex(0, y, STR_GV, k-MAX_CURVES+1);
-      if (GVAR_SELECTED()) {
-        if (attr && s_editMode>0) attr |= BLINK;
-        lcdDrawNumber(10*FW, y, GVAR_VALUE(k-MAX_CURVES, -1), attr);
-        if (attr) g_model.gvars[k-MAX_CURVES] = checkIncDec(event, g_model.gvars[k-MAX_CURVES], -1000, 1000, EE_MODEL);
-      }
-    }
-    else
-#endif
-    {
-      drawStringWithIndex(0, y, STR_CV, k+1, attr);
-      CurveHeader & crv = g_model.curves[k];
-      editName(4*FW, y, crv.name, sizeof(crv.name), 0, 0, 0, old_editMode);
+    drawStringWithIndex(0, y, STR_CV, k+1, attr);
+    CurveHeader & crv = g_model.curves[k];
+    editName(4*FW, y, crv.name, sizeof(crv.name), 0, 0, 0, old_editMode);
 #if LCD_W >= 212
-      lcdDrawNumber(11*FW, y, 5+crv.points, LEFT);
-      lcdDrawText(lcdLastRightPos, y, STR_PTS, 0);
+    lcdDrawNumber(11*FW, y, 5+crv.points, LEFT);
+    lcdDrawText(lcdLastRightPos, y, STR_PTS, 0);
 #endif
-    }
   }
 
   if (CURVE_SELECTED()) {
