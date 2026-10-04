@@ -96,6 +96,7 @@ void bootloaderMenu()
   uint8_t index = 0;
   FRESULT fr;
   uint32_t nameCount = 0;
+  uint32_t progress = 0;
   
   sdInit();
 
@@ -107,7 +108,8 @@ void bootloaderMenu()
       next_frame += FRAME_INTERVAL_MS;
 
       if (state != ST_USB && state != ST_FLASHING
-          && state != ST_FLASH_DONE && state != ST_RADIO_MENU) {
+          && state != ST_FLASH_DONE && state != ST_FLASH_ERROR
+          && state != ST_RADIO_MENU) {
         if (usbPlugged()) {
           state = ST_USB;
 #if !defined(SIMU)
@@ -244,14 +246,16 @@ void bootloaderMenu()
         } else if (result == 1) {
           // confirmed
           firmwareInitWrite(vpos);
+          progress = 0;
           state = ST_FLASHING;
         }
       } else if (state == ST_FLASHING) {
-        uint32_t progress = 0;
-        bool done = firmwareWriteBlock(&progress);
+        FlashWriteRes res = firmwareWriteBlock(&progress);
         bootloaderDrawScreen(state, progress);
-        if(done) {
+        if (res == FW_DONE) {
           state = ST_FLASH_DONE;
+        } else if (res == FW_ERROR) {
+          state = ST_FLASH_ERROR;
         }
 #if defined(SPI_FLASH)
       } else if (state == ST_CLEAR_FLASH_CHECK) {
@@ -282,13 +286,15 @@ void bootloaderMenu()
         }
       }
 
-      if (state == ST_FLASH_DONE) {
+      if (state == ST_FLASH_DONE || state == ST_FLASH_ERROR) {
+        BootloaderState drawn = state;
+
         if (event == EVT_KEY_BREAK(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_ENTER)) {
           state = ST_START;
           vpos = 0;
         }
 
-        bootloaderDrawScreen(state, 100);
+        bootloaderDrawScreen(drawn, drawn == ST_FLASH_DONE ? 100 : progress);
       }
 
       if (event == EVT_KEY_LONG(KEY_EXIT)) {

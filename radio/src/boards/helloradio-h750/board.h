@@ -61,7 +61,7 @@ void getCPUUniqueID(char * s);
 #define FLASH_PAGESIZE 256
 void unlockFlash();
 void lockFlash();
-void flashWrite(uint32_t * address, const uint32_t * buffer);
+bool flashWrite(uint32_t * address, const uint32_t * buffer);
 uint32_t isFirmwareStart(const uint8_t * buffer);
 uint32_t isBootloaderStart(const uint8_t * buffer);
 
