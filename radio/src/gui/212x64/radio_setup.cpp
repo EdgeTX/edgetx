@@ -166,8 +166,12 @@ uint8_t viewOptCheckBox(coord_t y, const char* title, uint8_t value, uint8_t att
 void menuRadioSetup(event_t event)
 {
 #if defined(RTCLOCK)
-  struct gtm t;
-  gettime(&t);
+  static struct gtm t;
+  struct gtm ct;
+  gettime(&ct);
+
+  if (event == EVT_ENTRY)
+    t = ct;
 
   if ((menuVerticalPosition==ITEM_RADIO_SETUP_DATE || menuVerticalPosition==ITEM_RADIO_SETUP_TIME) &&
       (s_editMode>0) &&
@@ -313,10 +317,12 @@ void menuRadioSetup(event_t event)
             case 0:
               lcdDrawNumber(RADIO_SETUP_DATE_COLUMN, y, t.tm_year+TM_YEAR_BASE, rowattr|RIGHT);
               if (rowattr && s_editMode>0) t.tm_year = checkIncDec(event, t.tm_year, 123, 137, 0);
+              else t.tm_year = ct.tm_year;
               break;
             case 1:
               lcdDrawNumber(RADIO_SETUP_DATE_COLUMN+3*FW-2, y, t.tm_mon+1, rowattr|LEADING0|RIGHT, 2);
               if (rowattr && s_editMode>0) t.tm_mon = checkIncDec(event, t.tm_mon, 0, 11, 0);
+              else t.tm_mon = ct.tm_mon;
               break;
             case 2:
             {
@@ -326,6 +332,7 @@ void menuRadioSetup(event_t event)
               dlim += dmon[t.tm_mon];
               lcdDrawNumber(RADIO_SETUP_DATE_COLUMN+6*FW-4, y, t.tm_mday, rowattr|LEADING0|RIGHT, 2);
               if (rowattr && s_editMode>0) t.tm_mday = checkIncDec(event, t.tm_mday, 1, dlim, 0);
+              else t.tm_mday = ct.tm_mday;
               break;
             }
           }
@@ -345,14 +352,17 @@ void menuRadioSetup(event_t event)
             case 0:
               lcdDrawNumber(RADIO_SETUP_TIME_COLUMN, y, t.tm_hour, rowattr|LEADING0|RIGHT, 2);
               if (rowattr && s_editMode>0) t.tm_hour = checkIncDec(event, t.tm_hour, 0, 23, 0);
+              else t.tm_hour = ct.tm_hour;
               break;
             case 1:
               lcdDrawNumber(RADIO_SETUP_TIME_COLUMN+3*FWNUM, y, t.tm_min, rowattr|LEADING0|RIGHT, 2);
               if (rowattr && s_editMode>0) t.tm_min = checkIncDec(event, t.tm_min, 0, 59, 0);
+              else t.tm_min = ct.tm_min;
               break;
             case 2:
               lcdDrawNumber(RADIO_SETUP_TIME_COLUMN+6*FWNUM, y, t.tm_sec, rowattr|LEADING0|RIGHT, 2);
               if (rowattr && s_editMode>0) t.tm_sec = checkIncDec(event, t.tm_sec, 0, 59, 0);
+              else t.tm_sec = ct.tm_sec;
               break;
           }
         }

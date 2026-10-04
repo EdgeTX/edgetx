@@ -22,6 +22,9 @@
 #include "edgetx.h"
 #include "edgetx_types.h"
 #include "timers.h"
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
 #include "switches.h"
 #include "input_mapping.h"
 #include "mixes.h"
@@ -403,6 +406,16 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   }
 #endif
 
+#if defined(VOICE_CONTROL_SENSOR)
+  else if (i == MIXSRC_VGR || i == MIXSRC_VFL) {
+    getvalue_t voiceVal = 0;
+    // false also means "configured as None" here, not just "unknown source".
+    if (!CI1302_voiceIntegrationMixSrcValue(i, &voiceVal) && valid != nullptr)
+      *valid = false;
+    return voiceVal;
+  }
+#endif
+
   else if (i == MIXSRC_MIN) {
     return -RESX;
   }
@@ -642,6 +655,10 @@ void evalInputs(uint8_t mode)
     }
   }
 
+#if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
+  CI1302_voiceMotionControlApplyToInputs(pots_offset);
+#endif
+
   // EXPOs
   applyExpos(anas, mode);
 
@@ -716,13 +733,13 @@ int getSourceTrimOrigin(int source)
 
 int getSourceTrimValue(int source, int stickValue=0)
 {
-  auto origin = getSourceTrimOrigin(source);
+  int rv = 0;
+  auto origin = getSourceTrimOrigin(abs(source));
   if (origin >= 0) {
-    return getStickTrimValue(origin, stickValue);
+    rv = getStickTrimValue(origin, stickValue);
+    if (source < 0) rv = -rv;
   }
-  else {
-    return 0;
-  }
+  return rv;
 }
 
 constexpr bitfield_channels_t all_channels_dirty = (bitfield_channels_t)-1;
@@ -978,7 +995,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       if (applyOffsetAndCurve) {
         bool applyTrims = !(mode & e_perout_mode_notrims);
         if (!applyTrims && g_model.thrTrim) {
-          auto origin = getSourceTrimOrigin(srcRaw);
+          auto origin = getSourceTrimOrigin(srcRawAbs);
           if (origin == g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM) {
             applyTrims = true;
           }

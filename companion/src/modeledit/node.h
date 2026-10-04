@@ -57,6 +57,8 @@ class Node : public QGraphicsObject
 
     void setCenteringX(bool val) { centerX = val; }
     void setCenteringY(bool val) { centerY = val; }
+    bool getCenteringX() const { return centerX; }
+    bool getCenteringY() const { return centerY; }
     void setFixedX(bool val) { fixedX = val; }
     void setFixedY(bool val) { fixedY = val; }
     bool getFixedX() { return fixedX; }

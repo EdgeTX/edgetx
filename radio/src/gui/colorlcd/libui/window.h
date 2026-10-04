@@ -53,7 +53,7 @@ class Window
   Window(const rect_t &rect);
   Window(Window *parent, const rect_t &rect, LvglCreate objConstruct = nullptr);
 
-  virtual ~Window();
+  virtual ~Window() {}
 
 #if defined(DEBUG_WINDOWS)
   virtual std::string getName() const;
@@ -75,7 +75,7 @@ class Window
   LcdFlags getTextFlags() const { return textFlags; }
 
   typedef std::function<void()> CloseHandler;
-  void setCloseHandler(CloseHandler h) { closeHandler = std::move(h); }
+  void onClosing(CloseHandler h);
 
   typedef std::function<void(bool)> FocusHandler;
   void setFocusHandler(FocusHandler h) { focusHandler = std::move(h); }
@@ -84,7 +84,6 @@ class Window
   void setScrollHandler(ScrollHandler h) { scrollHandler = std::move(h); }
 
   virtual void clear();
-  virtual void deleteLater();
 
   bool hasFocus() const;
 
@@ -189,8 +188,11 @@ class Window
 
   void assignLvGroup(lv_group_t* g, bool setDefault);
 
+  void closeWindow();
+
  protected:
   static std::list<Window *> trash;
+  std::list<CloseHandler> closeHandlers;
 
   rect_t rect;
 
@@ -208,7 +210,6 @@ class Window
   bool layerCreated = false;
   bool parentHidden = false;
 
-  CloseHandler closeHandler;
   FocusHandler focusHandler;
   ScrollHandler scrollHandler;
 

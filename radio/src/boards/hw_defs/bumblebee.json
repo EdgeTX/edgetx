@@ -1,4 +1,10 @@
 {
+  "identity": {
+    "manufacturer": "Jumper",
+    "model": "Bumblebee",
+    "usb_manufacturer": "JUMPER",
+    "usb_product": "Bumblebe"
+  },
   "adc_inputs": {
     "adcs": [
       {

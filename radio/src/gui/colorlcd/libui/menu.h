@@ -21,7 +21,6 @@
 #include "modal_window.h"
 
 class MaskBitmap;
-class Menu;
 class MenuWindowContent;
 class MenuToolbar;
 

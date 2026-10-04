@@ -1,4 +1,10 @@
 {
+  "identity": {
+    "manufacturer": "Flysky",
+    "model": "PL18U",
+    "usb_manufacturer": "FlySky",
+    "usb_product": "PL18U"
+  },
   "adc_inputs": {
     "adcs": [
       {

@@ -163,8 +163,6 @@ class QuickMenu : public NavWindow
 
   void focusMainMenu();
 
-  void deleteLater() override;
-
   static void selected();
   static void topMenuAction(int n);
 

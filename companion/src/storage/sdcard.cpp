@@ -31,7 +31,7 @@ bool SdcardFormat::write(RadioData & radioData)
   dir.mkdir("RADIO");
   dir.mkdir("MODELS");
   dir.mkdir("IMAGES");
-  return LabelsStorageFormat::write(radioData);
+  return TreeStorageFormat::write(radioData);
 }
 
 bool SdcardFormat::loadFile(QByteArray & filedata, const QString & filename, bool optional)

@@ -166,22 +166,6 @@ class InputLineButton : public InputMixButtonBase
     setPos(x, y);
   }
 
-  void swapLvglGroup(InputMixButtonBase* line2) override
-  {
-    InputLineButton* swapWith = (InputLineButton*)line2;
-
-    // Swap elements (focus + line list)
-    lv_obj_t* obj1 = getLvObj();
-    lv_obj_t* obj2 = swapWith->getLvObj();
-    if (lv_obj_get_parent(obj1) == lv_obj_get_parent(obj2)) {
-      // same input group: swap obj + focus group
-      lv_obj_swap(obj1, obj2);
-    } else {
-      // different input group: swap only focus group
-      lv_group_swap_obj(obj1, obj2);
-    }
-  }
-
   bool isActive() const override { return isExpoActive(index); }
 
  protected:
@@ -331,7 +315,7 @@ void ModelInputsPage::editInput(uint8_t input, uint8_t index)
   if (!line) return;
 
   auto edit = new InputEditWindow(input, index);
-  edit->setCloseHandler([=]() {
+  edit->onClosing([=]() {
     Messaging::send(Messaging::REFRESH);
     group->refresh();
     group->adjustHeight();
@@ -368,10 +352,10 @@ void ModelInputsPage::deleteInput(uint8_t index)
 
     group->removeLine(line);
     if (group->getLineCount() == 0) {
-      group->deleteLater();
+      group->closeWindow();
       removeGroup(group);
     } else {
-      line->deleteLater();
+      line->closeWindow();
     }
     removeLine(line);
 

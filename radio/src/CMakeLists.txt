@@ -1,7 +1,7 @@
 include(CMakeForceCompiler)
 include(Bitmaps)
 
-set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15 GX15 TX16SMK3 T22 V12)
+set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15 GX15 TX16SMK3 T22 V12 H17)
 set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 set(TTS_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 
@@ -107,6 +107,8 @@ elseif(PCB STREQUAL GX15)
   include(targets/gx15/CMakeLists.txt)
 elseif(PCB STREQUAL TX16SMK3)
     include(targets/tx16smk3/CMakeLists.txt)
+elseif(PCB STREQUAL H17)
+  include(targets/h17/CMakeLists.txt)
 elseif(PCB STREQUAL T22)
   include(targets/t22/CMakeLists.txt)
 elseif(PCB STREQUAL STM32H7S78_DK)
@@ -152,6 +154,7 @@ AddHWGenTarget(${HW_DESC_JSON} simu_keys simu_keys.inc)
 AddHWGenTarget(${HW_DESC_JSON} simu_switches simu_switches.inc)
 
 AddHWGenTarget(${HW_DESC_JSON} hal_keys_lock hal_keys_lock.h)
+AddHWGenTarget(${HW_DESC_JSON} hal_usb_descriptor usb_descriptor.h)
 
 add_dependencies(board hal_settings hal_pwm_sticks hal_keys hal_keys_lock hal_adc_inputs stm32_keys stm32_switches stm32_adc_inputs stm32_pwm_inputs yaml_inputs lua_inputs lua_mixsrc lua_keys)
 add_dependencies(board_bl hal_settings hal_pwm_sticks hal_keys stm32_keys)
@@ -818,17 +821,38 @@ else()
 endif()
 
 if(CPU_FAMILY STREQUAL STM32)
-  add_custom_target(flash
-    COMMAND dfu-util --alt 0 --dfuse-address 0x08000000:leave -d 0483:df11 -D firmware.bin
-    DEPENDS firmware
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    )
+  # FIRMWARE_QSPI boards can only be firmware-flashed via flash-uf2 below;
+  # the bootloader doesn't expose external QSPI/XSPI flash as a DFU segment.
+  if(NOT FIRMWARE_QSPI)
+    add_custom_target(flash
+      COMMAND ${CMAKE_COMMAND}
+              -DRDFU_SUBCOMMAND=write -DRDFU_VENDOR=0483 -DRDFU_PRODUCT=df11
+              -DRDFU_START_ADDRESS=0x08000000 -DRDFU_FILE=firmware.bin
+              -P ${CMAKE_SOURCE_DIR}/cmake/RunRdfuCli.cmake
+      DEPENDS firmware
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+      )
+  endif()
 
   add_custom_target(flash-bl
-    COMMAND dfu-util --alt 0 --dfuse-address 0x08000000:leave -d 0483:df11 -D bootloader.bin
+    COMMAND ${CMAKE_COMMAND}
+            -DRDFU_SUBCOMMAND=write -DRDFU_VENDOR=0483 -DRDFU_PRODUCT=df11
+            -DRDFU_START_ADDRESS=0x08000000 -DRDFU_FILE=bootloader.bin
+            -P ${CMAKE_SOURCE_DIR}/cmake/RunRdfuCli.cmake
     DEPENDS bootloader
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
+
+  if(FIRMWARE_FORMAT_UF2)
+    add_custom_target(flash-uf2
+      COMMAND ${CMAKE_COMMAND}
+              -DRDFU_SUBCOMMAND=write -DRDFU_VENDOR=0483 -DRDFU_PRODUCT=df11
+              -DRDFU_FILE=firmware.uf2
+              -P ${CMAKE_SOURCE_DIR}/cmake/RunRdfuCli.cmake
+      DEPENDS firmware
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+      )
+  endif()
 
   add_custom_target(flash-jtag
     COMMAND st-flash --reset write firmware.bin 0x8000000

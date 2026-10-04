@@ -29,6 +29,9 @@
 #include "hal/switch_driver.h"
 #include "edgetx.h"
 #include "switches.h"
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
 
 static char _static_str_buffer[32];
 static const char s_charTab[] = "_-.,";
@@ -337,7 +340,7 @@ char *getCurveString(char *dest, int idx)
     idx = -idx;
   }
 
-  if (g_model.curves[idx - 1].name[0])
+  if (idx <= MAX_CURVES && g_model.curves[idx - 1].name[0])
     strAppend(s, g_model.curves[idx - 1].name, LEN_CURVE_NAME);
   else
     strAppendStringWithIndex(s, STR_CV, idx);
@@ -475,6 +478,9 @@ char *getSwitchPositionName(char *dest, swsrc_t idx, bool defaultOnly)
     return strcpy(dest, STR_EMPTY);
   } else if (idx == SWSRC_OFF) {
     return getStringAtIndex(dest, STR_OFFON, 0);
+  } else if (idx < SWSRC_FIRST || idx > SWSRC_LAST) {
+    *dest = '\0';
+    return dest;
   }
 
   char *s = dest;
@@ -743,6 +749,12 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
 #if defined(LUMINOSITY_SENSOR)
   else if (idx == MIXSRC_LIGHT) {
     strncpy(dest, STR_SRC_LIGHT, dest_len - 1);
+  }
+#endif
+#if defined(VOICE_CONTROL_SENSOR)
+  else if (idx >= MIXSRC_VGR && idx <= MIXSRC_LAST_VOICE) {
+    const char* voiceName = CI1302_voiceIntegrationMixSrcName(idx);
+    strncpy(dest, voiceName ? voiceName : "", dest_len - 1);
   }
 #endif
   else if (idx <= MIXSRC_LAST_HELI) {
@@ -1183,6 +1195,7 @@ char *strAppendSigned(char *dest, int32_t value, uint8_t digits, uint8_t radix)
   return strAppendUnsigned(dest, (uint32_t)value, digits, radix);
 }
 
+// NOTE: 'dest' buffer must be at least 'len + 1' bytes long to allow for nul terminator
 char *strAppend(char *dest, const char *source, int len)
 {
   if (source == nullptr) { *dest = '\0'; return dest; }

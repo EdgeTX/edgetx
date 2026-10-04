@@ -52,8 +52,57 @@ extern uint8_t g_ms100; // global to allow time set function to reset to zero
 bool rtcIsValid();
 void rtcInit();
 void rtcSetTime(const struct gtm * tm);
+// Host timed the second boundary itself, ms is how far into it the true time was
+void rtcSetTimeAt(const struct gtm * tm, uint16_t ms);
 gtime_t gmktime (struct gtm *tm);
 uint8_t rtcAdjust(uint16_t year, uint8_t mon, uint8_t day, uint8_t hour, uint8_t min, uint8_t sec);
+
+// Driver interface, rtcSetTime() wraps rtcDriverSetTime()
+void rtcDriverSetTime(const struct gtm * tm);
+void rtcGetTime(struct gtm * tm);
+uint16_t rtcGetTimeMs(struct gtm * tm);   // fills tm, returns 0..999 within that second
+
+// Smooth calibration, one unit is one clock pulse out of 2^20 (~0.954 ppm)
+#define RTC_CALIB_UNITS_PER_SECOND  1048576
+#define RTC_CALIB_UNIT_MAX          512
+#define RTC_CALIB_UNIT_MIN          (-511)
+
+int32_t rtcGetCalibration();
+void rtcSetCalibration(int32_t units);
+int32_t rtcCalibrationPpm10(int32_t units);
+int32_t rtcCalibrationUnits(int32_t ppm);
+
+// Why the last clock setting did or did not move the calibration
+enum {
+  RTC_CALIB_APPLIED,
+  RTC_CALIB_NO_REF,
+  RTC_CALIB_CLOCK_INVALID,
+  RTC_CALIB_REF_AHEAD,
+  RTC_CALIB_TOO_SOON,
+  RTC_CALIB_REF_TOO_OLD,
+  RTC_CALIB_TOO_SMALL,
+  RTC_CALIB_TOO_LARGE,
+  RTC_CALIB_TIME_ZONE,
+};
+
+#if defined(DEBUG)
+struct RtcCalibReport {
+  uint8_t result;
+  gtime_t elapsed;
+  int32_t errorMs;   // clamped, > 0 when the clock runs fast
+};
+
+const struct RtcCalibReport * rtcGetCalibrationReport();
+const char * rtcCalibrationResultText(uint8_t result);
+#endif
+
+// Time of the last known good setting, 0 when unknown
+gtime_t rtcGetCalibrationRef();
+void rtcSetCalibrationRef(gtime_t t);
+void rtcClearCalibrationRef();
+
+// Back to a factory-fresh state, as if the backup domain had been lost
+void rtcResetCalibration();
 
 #if defined(__cplusplus) && !defined(SIMU)
 extern "C" {

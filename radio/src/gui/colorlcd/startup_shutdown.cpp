@@ -98,7 +98,7 @@ void startSplash()
 void cancelSplash()
 {
   if (splashScreen) {
-    splashScreen->deleteLater();
+    splashScreen->closeWindow();
     splashScreen = nullptr;
     splashStartTime = 0;
   }
@@ -172,7 +172,7 @@ void drawSleepBitmap()
 void cancelShutdownAnimation()
 {
   if (shutdownWindow) {
-    shutdownWindow->deleteLater();
+    shutdownWindow->closeWindow();
     shutdownWindow = nullptr;
     for (int i = 0; i < 4; i += 1) shutdownAnim[i] = nullptr;
   }

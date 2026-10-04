@@ -8,7 +8,11 @@ on:
       - v*
     paths:
       - '.github/workflows/companion.yml'
+      - '.github/actions/python_dependencies/**'
+      - '.github/actions/wasi_sdk/**'
+      - '.github/actions/build_companion/**'
       - 'companion/**'
+      - 'pyproject.toml'
       - 'tools/build-companion.sh'
       - 'tools/build-wasm-modules.sh'
       - 'cmake/wasm/CMakeLists.txt'
@@ -16,7 +20,11 @@ on:
   pull_request:
     paths:
       - '.github/workflows/companion.yml'
+      - '.github/actions/python_dependencies/**'
+      - '.github/actions/wasi_sdk/**'
+      - '.github/actions/build_companion/**'
       - 'companion/**'
+      - 'pyproject.toml'
       - 'tools/build-companion.sh'
       - 'tools/build-wasm-modules.sh'
       - 'cmake/wasm/CMakeLists.txt'
@@ -59,7 +67,7 @@ jobs:
           - id: color-4
             target: [nb4p, st16, pa01, c14]
           - id: color-5
-            target: [t15pro, tx16smk3, gx15]
+            target: [t15pro, tx16smk3, gx15, h17]
 
     steps:
       - name: Check out the repo

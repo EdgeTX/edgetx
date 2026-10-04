@@ -50,8 +50,6 @@ class ColorBar : public FormField
            uint32_t maxValue = 0) :
       FormField(parent, r)
   {
-    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
-
     lv_group_add_obj((lv_group_t*)lv_group_get_default(), lvobj);
 
     lv_obj_add_event_cb(lvobj, ColorBar::pressing, LV_EVENT_PRESSING, nullptr);
@@ -242,7 +240,7 @@ class BarColorType : public ColorType
   ~BarColorType() override
   {
     for (int i = 0; i < MAX_BARS; i++) {
-      bars[i]->deleteLater();
+      bars[i]->closeWindow();
     }
   };
 

@@ -145,6 +145,13 @@ static const YamlLookupTable moduleAntennaModeLut = {
   {  GeneralSettings::ANTENNA_MODE_EXTERNAL, "MODE_EXTERNAL"  },
 };
 
+// Firmware built before the field was made unconditional emitted antennaMode on
+// boards without an external antenna, where it aliased the top bits of subType.
+static bool hasModuleAntennaMode()
+{
+  return Boards::getCapability(getCurrentBoard(), Board::HasExternalAntenna);
+}
+
 static int exportPpmDelay(int delay) { return (delay - 300) / 50; }
 static int importPpmDelay(int delay) { return 300 + 50 * delay; }
 
@@ -204,7 +211,7 @@ Node convert<ModuleData>::encode(const ModuleData& rhs)
   node["channelsStart"] = rhs.channelsStart;
   node["channelsCount"] = rhs.channelsCount;
   node["failsafeMode"] = LookupValue(failsafeLut, rhs.failsafeMode);
-  if (rhs.antennaMode)
+  if (rhs.antennaMode && hasModuleAntennaMode())
     node["antennaMode"] = LookupValue(moduleAntennaModeLut, rhs.antennaMode);
 
   Node mod;
@@ -370,7 +377,7 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
   node["channelsStart"] >> rhs.channelsStart;
   node["channelsCount"] >> rhs.channelsCount;
   node["failsafeMode"] >> failsafeLut >> rhs.failsafeMode;
-  if (node["antennaMode"])
+  if (node["antennaMode"] && hasModuleAntennaMode())
     node["antennaMode"] >> moduleAntennaModeLut >> rhs.antennaMode;
 
   if (node["mod"]) {
@@ -397,7 +404,7 @@ bool convert<ModuleData>::decode(const Node& node, ModuleData& rhs)
           // pxx["receiverTelemetryOff"] >> rhs.pxx.receiverTelemetryOff;
           // pxx["receiverHigherChannels"] >> rhs.pxx.receiverHigherChannels;
           // Migration: legacy raw-int antennaMode, only if not already set
-          if (!node["antennaMode"] && pxx["antennaMode"]) {
+          if (!node["antennaMode"] && pxx["antennaMode"] && hasModuleAntennaMode()) {
             pxx["antennaMode"] >> rhs.antennaMode;
           }
       } else if (mod["sbus"]) {

@@ -1,4 +1,10 @@
 {
+  "identity": {
+    "manufacturer": "Jumper",
+    "model": "T-Lite",
+    "usb_manufacturer": "JUMPER",
+    "usb_product": "T-Lite"
+  },
   "adc_inputs": {
     "adcs": [
       {

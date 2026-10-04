@@ -59,6 +59,10 @@ MenuToolbarButton::MenuToolbarButton(Window* parent, const rect_t& rect,
   auto label = etx_label_create(lvobj);
   lv_label_set_text(label, picto);
   lv_obj_center(label);
+
+  onClosing([=]() {
+    lv_group_remove_obj(lvobj);
+  });
 }
 
 MenuToolbar::MenuToolbar(Choice* choice, Menu* menu, const int columns) :
@@ -87,17 +91,17 @@ MenuToolbar::MenuToolbar(Choice* choice, Menu* menu, const int columns) :
     else
       prevFilter();
   });
-}
 
-MenuToolbar::~MenuToolbar() { lv_group_del(group); }
+  onClosing([=]() {
+    lv_group_del(group);
+  });
+}
 
 void MenuToolbar::resetFilter()
 {
-  if (lv_group_get_focused(group) != lvobj) {
-    lv_group_focus_obj(lvobj);
-    choice->fillMenu(menu);
-    menu->setTitle(choice->getTitle());
-  }
+  // Nothing to do if no filter is active
+  if (allBtn && !allBtn->checked())
+    lv_event_send(allBtn->getLvObj(), LV_EVENT_CLICKED, nullptr);
 }
 
 void MenuToolbar::nextFilter()
@@ -181,6 +185,8 @@ void MenuToolbar::addButton(const char* picto, int16_t filtermin,
 
   rect_t r = getButtonRect(wideButton);
   auto button = new MenuToolbarButton(this, r, picto);
+
+  setHeight(r.y + r.h + PAD_LARGE);
 
   button->setPressHandler(std::bind(&MenuToolbar::filterMenu, this, button,
                                     filtermin, filtermax, filterFunc, title));

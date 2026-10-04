@@ -180,7 +180,10 @@ RawSwitch YamlRawSwitchDecode(const std::string& sw_str)
               val[val_len - 1] >= '0' && val[val_len - 1] <= '2') ||
              (val_len >= 3 && val[0] == 'S' &&
               val[1] >= 'A' && val[1] <= 'Z' &&
-              val[2] >= '0' && val[2] <= '2')) {
+              val[2] >= '0' && val[2] <= '2') ||
+             (val_len == 4 &&
+              (sw_str_tmp.substr(0, 3) == "VGR" || sw_str_tmp.substr(0, 3) == "VFL") &&
+              val[3] >= '0' && val[3] <= '2')) {
 
     std::string tmp = sw_str_tmp.substr(0, val_len - 1);
 

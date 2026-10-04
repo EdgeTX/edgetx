@@ -39,6 +39,10 @@
 #include "quick_menu_def.h"
 #endif
 
+#if !defined(BACKUP)
+#include <string>
+#endif
+
 #if defined(PCBTARANIS)
   #define N_TARANIS_FIELD(x)
   #define TARANIS_FIELD(x) x;
@@ -284,7 +288,7 @@ PACK(struct TimerData {
   uint32_t minuteBeep:1;
   uint32_t persistent:2;
   int32_t  countdownStart:2;
-  uint8_t  showElapsed:1; 
+  uint8_t  showElapsed:1;
   uint8_t  extraHaptic:1;
   uint8_t  spare:6 SKIP;
   NOBACKUP(char name[LEN_TIMER_NAME]);
@@ -499,17 +503,15 @@ PACK(struct PpmModule {
 });
 
 PACK(struct ModuleData {
-  uint8_t type ENUM(ModuleType) CUST(r_moduleType, w_moduleType);
+  // antennaMode stays unconditional as boards differing on EXTERNAL_ANTENNA share
+  // generated YAML descriptors.
+  uint8_t type:6 ENUM(ModuleType) CUST(r_moduleType, w_moduleType);
+  int8_t  antennaMode:2 ENUM(AntennaModes);
   CUST_ATTR(subType,r_modSubtype,w_modSubtype);
   uint8_t channelsStart;
   int8_t  channelsCount CUST(r_channelsCount,w_channelsCount); // 0=8 channels
   uint8_t failsafeMode:4 ENUM(FailsafeModes);  // only 3 bits used
-  #if defined(EXTERNAL_ANTENNA)
-  uint8_t subType:2 SKIP;
-  int8_t  antennaMode:2 ENUM(AntennaModes);
-  #else
   uint8_t subType:4 SKIP;
-  #endif
 
   union {
     uint8_t raw[PXX2_MAX_RECEIVERS_PER_MODULE * PXX2_LEN_RX_NAME + 1];
@@ -606,7 +608,7 @@ PACK(struct ModelHeader {
   uint8_t   modelId[NUM_MODULES];
   MODEL_HEADER_BITMAP_FIELD
 #if defined(STORAGE_MODELSLIST)
-  char      labels[LABELS_LENGTH];
+  char      labels[LABELS_LENGTH + 1];  // alow null terminator
 #endif
 });
 
@@ -756,6 +758,28 @@ PACK(struct USBJoystickChData {
 #endif
 });
 
+// Key/Value data for Lua scripts
+enum UDType {
+  UD_INT,
+  UD_FLOAT,
+  UD_STRING,
+};
+struct UserData {
+#if defined(YAML_GENERATOR)
+  CUST_ATTR(key, r_userdata_key, w_userdata_key);
+  CUST_ATTR(type, r_userdata_type, w_userdata_type);
+  CUST_ATTR(value, r_userdata_value, w_userdata_value);
+#else
+#if !defined(BACKUP)
+  std::string key;
+  UDType type = UD_STRING;
+  std::string value;
+  UserData() = default;
+  UserData(const char* k, const char* v, UDType t) { key = k; value = v; type = t; }
+#endif
+#endif
+};
+
 PACK(struct ModelData {
   // Must match start of PartialModel
   CUST_ATTR(semver,nullptr,w_semver);
@@ -888,7 +912,7 @@ PACK(struct ModelData {
   NOBACKUP(uint8_t usbJoystickIfMode:3 ENUM(USBJoystickIfMode));
   NOBACKUP(uint8_t usbJoystickCircularCut:4);
   NOBACKUP(USBJoystickChData usbJoystickCh[USBJ_MAX_JOYSTICK_CHANNELS]);
-  
+
   // Radio level tabs control (model settings)
 #if defined(COLORLCD)
   uint8_t radioThemesDisabled:2 ENUM(ModelOverridableEnable);
@@ -945,6 +969,25 @@ PACK(struct ModelData {
   bool cfsGroupAlwaysOn(uint8_t n) { return bfGet<uint8_t>(cfsGroupOn, n, 1); }
   void cfsSetGroupAlwaysOn(uint8_t n, bool v) { cfsGroupOn = bfSet<uint8_t>(cfsGroupOn, v, n, 1); }
 #endif
+
+#if defined(YAML_GENERATOR)
+  NOBACKUP(UserData userData[MAX_USER_DATA]) FUNC(userdata_is_active);
+#endif
+  bool hasUserData(int n);
+  UserData* getUserData(int n);
+  UserData* getUserData(const char* key);
+  // Used by the YAML reader: get (creating/resizing as needed) the entry
+  // at parsed array index n, in case of a sparse/non-contiguous index
+  // sequence (e.g. a hand-edited or Companion-generated model file).
+  UserData* getOrCreateUserData(int n);
+  bool setUserData(const char* key, const char* str);
+  // str may contain embedded NUL bytes.
+  bool setUserData(const char* key, const char* str, size_t len);
+  bool setUserData(const char* key, int32_t num);
+  bool setUserData(const char* key, float num);
+  void deleteUserData(const char* key);
+  void clearUserData();
+  int getUserDataCount();
 });
 
 /*

@@ -67,11 +67,10 @@ InputMixButtonBase::InputMixButtonBase(Window* parent, uint8_t index) :
   setWidth(BTN_W);
   setHeight(ListLineButton::BTN_H);
   padAll(PAD_ZERO);
-}
 
-InputMixButtonBase::~InputMixButtonBase()
-{
-  if (fm_buffer) free(fm_buffer);
+  onClosing([=]() {
+    if (fm_buffer) free(fm_buffer);
+  });
 }
 
 void InputMixButtonBase::setWeight(gvar_t value, gvar_t min, gvar_t max)
@@ -196,7 +195,7 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
 void InputMixButtonBase::checkEvents()
 {
   ListLineButton::checkEvents();
-  if (!_deleted) {
+  if (!deleted()) {
     if (fm_canvas) {
       bool chkd = lv_obj_get_state(fm_canvas) & LV_STATE_CHECKED;
       if (chkd != this->checked()) {
@@ -217,6 +216,20 @@ void InputMixButtonBase::updateHeight()
     h += FM_CANVAS_HEIGHT + PAD_TINY;
   setHeight(h);
 #endif
+}
+
+void InputMixButtonBase::swapLvglGroup(InputMixButtonBase* swapWith)
+{
+  // Swap elements (focus + line list)
+  lv_obj_t* obj1 = getLvObj();
+  lv_obj_t* obj2 = swapWith->getLvObj();
+  if (lv_obj_get_parent(obj1) == lv_obj_get_parent(obj2)) {
+    // same input group: swap obj + focus group
+    lv_obj_swap(obj1, obj2);
+  } else {
+    // different input group: swap only focus group
+    lv_group_swap_obj(obj1, obj2);
+  }
 }
 
 static void group_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)

@@ -56,6 +56,7 @@ class WasmSimulatorInterface : public SimulatorInterface
     void setSwitch(uint8_t swtch, int8_t state) override;
     void setTrim(unsigned int idx, int value) override;
     void setTrimSwitch(uint8_t trim, bool state) override;
+    void setTxVoltage(int32_t decivolts);
     void setTrainerInput(unsigned int inputNumber, int16_t value) override;
     void setInputValue(int type, uint8_t index, int16_t value) override;
     void rotaryEncoderEvent(int steps) override;
@@ -157,6 +158,7 @@ class WasmSimulatorInterface : public SimulatorInterface
     wasm_function_inst_t m_fnSetKey = nullptr;
     wasm_function_inst_t m_fnSetTrim = nullptr;
     wasm_function_inst_t m_fnSetSwitch = nullptr;
+    wasm_function_inst_t m_fnSetTxVoltage = nullptr;
     wasm_function_inst_t m_fnLcdChanged = nullptr;
     wasm_function_inst_t m_fnLcdCopy = nullptr;
     wasm_function_inst_t m_fnLcdGetWidth = nullptr;

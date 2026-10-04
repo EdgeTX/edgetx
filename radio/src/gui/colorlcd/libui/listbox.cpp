@@ -153,21 +153,20 @@ void ListBox::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
   const char* sym = LV_SYMBOL_OK;
   if (getSelectedSymbol) sym = getSelectedSymbol(row);
 
-  lv_coord_t w = 30;
-  lv_coord_t h = 12;
-  lv_coord_t xo = 1;
-  lv_coord_t yo = 1;
+  LAYOUT_VAL_SCALED(w, 30)
+  lv_coord_t h = LAYOUT_SCALE(12);
+  lv_coord_t xo = PAD_TINY;
+  lv_coord_t yo = PAD_TINY;
 
   if (smallSelectMarker) {
     // Check for non-LVGL symbol
     if (sym[0] != (char)0xEF) {
-      yo = -2;
+      yo = -PAD_TINY;
       xo = 0;
     }
     label_dsc.font = getFont(FONT(XS));
   } else {
     h = getFontHeight(FONT(STD));
-    xo = 2;
     yo = (lv_area_get_height(dsc->draw_area) - h) / 2;
   }
 

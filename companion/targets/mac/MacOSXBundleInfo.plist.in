@@ -34,6 +34,8 @@
 	<true/>
 
     <!-- added since cmake/qt do not add these by default -->
+    <key>LSMinimumSystemVersion</key>
+    <string>${CMAKE_OSX_DEPLOYMENT_TARGET}</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
     <key>NSHighResolutionCapable</key>

@@ -44,6 +44,7 @@ if(NOT NATIVE_BUILD)
       ${STM32CUBE_SRC_PREFIX}_hal_rcc.c
       ${STM32CUBE_SRC_PREFIX}_hal_rcc_ex.c
       ${STM32CUBE_SRC_PREFIX}_hal_rtc.c
+      ${STM32CUBE_SRC_PREFIX}_hal_rtc_ex.c
       ${STM32CUBE_SRC_PREFIX}_hal_i2c.c
       ${STM32CUBE_SRC_PREFIX}_hal_i2c_ex.c
       ${STM32CUBE_SRC_PREFIX}_hal_i2s.c
@@ -85,6 +86,7 @@ if(NOT NATIVE_BUILD)
       ${STM32CUBE_SRC_PREFIX}_hal_rcc.c
       ${STM32CUBE_SRC_PREFIX}_hal_rcc_ex.c
       ${STM32CUBE_SRC_PREFIX}_hal_rtc.c
+      ${STM32CUBE_SRC_PREFIX}_hal_rtc_ex.c
       ${STM32CUBE_SRC_PREFIX}_hal_i2c.c
       ${STM32CUBE_SRC_PREFIX}_hal_i2c_ex.c
       ${STM32CUBE_SRC_PREFIX}_hal_i2s.c
@@ -123,6 +125,10 @@ endif()
 if(CPU_TYPE_FULL STREQUAL STM32H750xB)
   set(CMSIS_SRC ${CMSIS_SRC}
     targets/common/arm/stm32/h7/vectors_stm32h750xx.c
+  )
+elseif(CPU_TYPE_FULL STREQUAL STM32H743xx OR CPU_TYPE_FULL STREQUAL STM32H743xI)
+  set(CMSIS_SRC ${CMSIS_SRC}
+    targets/common/arm/stm32/h7/vectors_stm32h743xx.c
   )
 elseif(CPU_TYPE_FULL STREQUAL STM32H747Ix)
   set(CMSIS_SRC ${CMSIS_SRC}

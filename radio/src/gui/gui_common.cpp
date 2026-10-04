@@ -26,6 +26,9 @@
 
 #include "edgetx.h"
 #include "switches.h"
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
 #include "mixes.h"
 #include "os/sleep.h"
 
@@ -206,8 +209,18 @@ static bool isSourceTrimAvailable(int source) {
 }
 
 static bool isSourceSwitchAvailable(int source) {
+#if defined(VOICE_CONTROL_SENSOR)
+  // VGR/VFL have their own dedicated sources
+  if (CI1302_voiceSwitchIsIndex(source)) return false;
+#endif
   return SWITCH_EXISTS(source);
 }
+
+#if defined(VOICE_CONTROL_SENSOR)
+static bool isSourceVoiceAvailable(int source) {
+  return CI1302_voiceIntegrationSourceAvailable(MIXSRC_VGR + source);
+}
+#endif
 
 #if defined(FUNCTION_SWITCHES)
 static bool isSourceFuncSwitchAvailable(int source) {
@@ -281,6 +294,9 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_FIRST_CH, MIXSRC_LAST_CH, SRC_CHANNEL_ALL, sourceIsAvailable },
   { MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR, SRC_GVAR, isSourceGvarAvailable },
   { MIXSRC_TX_VOLTAGE, MIXSRC_TX_GPS, SRC_TX, sourceIsAvailable },
+#if defined(VOICE_CONTROL_SENSOR)
+  { MIXSRC_VGR, MIXSRC_LAST_VOICE, SRC_VOICE, isSourceVoiceAvailable },
+#endif
   { MIXSRC_FIRST_TIMER, MIXSRC_LAST_TIMER, SRC_TIMER, isSourceTimerAvailable },
   { MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM, SRC_TELEM, isSourceTelemAvailable },
   { MIXSRC_NONE, MIXSRC_NONE, SRC_NONE, sourceIsAvailable },
@@ -307,7 +323,11 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 bool isSourceAvailable(int source)
 {
   return checkSourceAvailable(source,
-            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM | SRC_NONE
+            SRC_COMMON | SRC_INPUT | SRC_LUA | SRC_HELI | SRC_CHANNEL | SRC_TX | SRC_TIMER | SRC_TELEM
+#if defined(VOICE_CONTROL_SENSOR)
+            | SRC_VOICE
+#endif
+            | SRC_NONE
             );
 }
 
@@ -340,6 +360,13 @@ bool isSwitchAvailable(int swtch, SwitchContext context)
     if (swinfo.quot >= switchGetMaxAllSwitches()) {
       return false;
     }
+
+#if defined(VOICE_CONTROL_SENSOR)
+    bool voiceAvailable;
+    if (CI1302_voiceIntegrationIsSwitchAvailable(swtch, (int)context, &voiceAvailable)) {
+      return voiceAvailable;
+    }
+#endif
 
     if (!SWITCH_EXISTS(swinfo.quot)) {
       return false;
@@ -417,6 +444,13 @@ static bool isSwitchSwitchAvailable(int swtch, bool invert) {
     if (swinfo.quot >= switchGetMaxAllSwitches()) {
       return false;
     }
+
+#if defined(VOICE_CONTROL_SENSOR)
+    bool voiceAvailable;
+    if (CI1302_voiceIntegrationIsSwitchSwitchAvailable(swtch, &voiceAvailable)) {
+      return voiceAvailable;
+    }
+#endif
 
     if (!SWITCH_EXISTS(swinfo.quot)) {
       return false;
@@ -1042,12 +1076,11 @@ bool isExternalModuleAvailable(int moduleType)
     return false;
 #endif
 
-#if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_STD)
+#if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_STD)  // Ignore Standard Size modules
   if (moduleType == MODULE_TYPE_R9M_PXX1 ||
       moduleType == MODULE_TYPE_R9M_PXX2 ||
       moduleType == MODULE_TYPE_XJT_PXX1 ||
-      moduleType == MODULE_TYPE_DSM2 ||
-      moduleType == MODULE_TYPE_LEMON_DSMP )
+      moduleType == MODULE_TYPE_DSM2)
     return false;
 #endif
 
@@ -1084,6 +1117,10 @@ bool isExternalModuleAvailable(int moduleType)
      return false;
 #endif
 
+#if !defined(DSMP)
+  if (moduleType == MODULE_TYPE_LEMON_DSMP) return false;
+#endif
+
 #if !defined(SBUS)
   if (moduleType == MODULE_TYPE_SBUS)
     return false;
@@ -1112,15 +1149,10 @@ bool isExternalModuleAvailable(int moduleType)
     return false;
 #endif
 
-#if !defined(AFHDS2)
+  // AFHDS2A is the NV14 internal RF chip protocol: no external module
+  // speaks it and the driver only supports the internal module
   if (moduleType == MODULE_TYPE_FLYSKY_AFHDS2A)
     return false;
-#endif
-  
-#if !defined(AFHDS3)
-  if (moduleType == MODULE_TYPE_FLYSKY_AFHDS3)
-    return false;
-#endif
 
   return true;
 }

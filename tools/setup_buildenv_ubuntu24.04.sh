@@ -80,7 +80,6 @@ sudo apt-get -y install --no-install-recommends \
     clang \
     libclang-dev \
     python-is-python3 \
-    dfu-util \
     nodejs \
     locales \
     stlink-tools \

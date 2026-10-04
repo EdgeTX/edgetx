@@ -2246,7 +2246,7 @@ Vill du hämta inställningarna från en fil?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="126"/>
         <source>Disable Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>Inaktivera knappar</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="132"/>
@@ -2488,124 +2488,124 @@ Vill du hämta inställningarna från en fil?</translation>
 <context>
     <name>CustomFunctionsPanel</name>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="112"/>
+        <location filename="../modeledit/customfunctions.cpp" line="111"/>
         <source>Switch</source>
         <translation>Brytare</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="112"/>
+        <location filename="../modeledit/customfunctions.cpp" line="111"/>
         <source>Parameters</source>
         <translation>Parametrar</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="112"/>
+        <location filename="../modeledit/customfunctions.cpp" line="111"/>
         <source>Action</source>
         <translation>Funktion</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="123"/>
+        <location filename="../modeledit/customfunctions.cpp" line="122"/>
         <source>SF%1</source>
         <translation>SF%1</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="648"/>
+        <location filename="../modeledit/customfunctions.cpp" line="647"/>
         <source>Delete</source>
         <translation>Radera</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="642"/>
+        <location filename="../modeledit/customfunctions.cpp" line="641"/>
         <source>Copy</source>
         <translation>Kopiera</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="643"/>
+        <location filename="../modeledit/customfunctions.cpp" line="642"/>
         <source>Cut</source>
         <translation>Klipp ut</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="644"/>
+        <location filename="../modeledit/customfunctions.cpp" line="643"/>
         <source>Paste</source>
         <translation>Klistra in</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="125"/>
+        <location filename="../modeledit/customfunctions.cpp" line="124"/>
         <source>GF%1</source>
         <translation>GF%1</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="112"/>
+        <location filename="../modeledit/customfunctions.cpp" line="111"/>
         <source>Repeat</source>
         <translation>Repetera</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="112"/>
+        <location filename="../modeledit/customfunctions.cpp" line="111"/>
         <source>Enable</source>
         <translation>Aktivera</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="119"/>
+        <location filename="../modeledit/customfunctions.cpp" line="118"/>
         <source>Popup menu available</source>
         <translation>Popupmeny tillgänglig</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="252"/>
+        <location filename="../modeledit/customfunctions.cpp" line="251"/>
         <source>Error occurred while trying to play sound, possibly the file is already opened. (Err: %1 [%2])</source>
         <translation>Fel vid uppspelning av ljud, möjligen är ljudfilen redan öppnad. (Err: %1 [%2])</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="274"/>
+        <location filename="../modeledit/customfunctions.cpp" line="273"/>
         <source>Unable to find or open sound file:
 %1</source>
         <translation>Kan inte hitta eller öppna ljudfil:
 %1</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="645"/>
+        <location filename="../modeledit/customfunctions.cpp" line="644"/>
         <source>Clear</source>
         <translation>Rensa</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="652"/>
+        <location filename="../modeledit/customfunctions.cpp" line="651"/>
         <source>Clear All</source>
         <translation>Rensa alla</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="738"/>
+        <location filename="../modeledit/customfunctions.cpp" line="737"/>
         <source>Clear all Functions. Are you sure?</source>
         <translation>Rensa alla funktioner. Är du säker?</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="727"/>
+        <location filename="../modeledit/customfunctions.cpp" line="726"/>
         <source>Clear Function. Are you sure?</source>
         <translation>Rensa funktionen. Är du säker?</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="629"/>
+        <location filename="../modeledit/customfunctions.cpp" line="628"/>
         <source>Cut Special Function. Are you sure?</source>
         <translation>Klipp ut specialfunktionen. Är du säker?</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="606"/>
+        <location filename="../modeledit/customfunctions.cpp" line="605"/>
         <source>Delete Function. Are you sure?</source>
         <translation>Radera specialfunktionen. Är du säker?</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="163"/>
+        <location filename="../modeledit/customfunctions.cpp" line="162"/>
         <source>GV</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="647"/>
+        <location filename="../modeledit/customfunctions.cpp" line="646"/>
         <source>Insert</source>
         <translation>Lägg till</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="650"/>
+        <location filename="../modeledit/customfunctions.cpp" line="649"/>
         <source>Move Down</source>
         <translation>Flytta ner</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="649"/>
+        <location filename="../modeledit/customfunctions.cpp" line="648"/>
         <source>Move Up</source>
         <translation>Flytta upp</translation>
     </message>
@@ -3041,7 +3041,7 @@ För att &lt;b&gt;ta bort ett sparat värde&lt;/b&gt; från filterlistan, marker
     <message>
         <location filename="../storage/etx.cpp" line="128"/>
         <source>Image data written does not match expected</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Data i avbildningsfil matchar inte förväntad</translation>
     </message>
     <message>
         <location filename="../storage/etx.cpp" line="134"/>
@@ -3051,7 +3051,7 @@ För att &lt;b&gt;ta bort ett sparat värde&lt;/b&gt; från filterlistan, marker
     <message>
         <location filename="../storage/etx.cpp" line="138"/>
         <source>Extracted image: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Extraherad avbildningsfil: %1</translation>
     </message>
     <message>
         <location filename="../storage/etx.cpp" line="145"/>
@@ -3061,22 +3061,22 @@ För att &lt;b&gt;ta bort ett sparat värde&lt;/b&gt; från filterlistan, marker
     <message>
         <location filename="../storage/etx.cpp" line="165"/>
         <source>Unable to open image %1</source>
-        <translation>Kan inte öppna bild %1</translation>
+        <translation>Kan inte öppna avbildningsfil %1</translation>
     </message>
     <message>
         <location filename="../storage/etx.cpp" line="172"/>
         <source>Error adding file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel vid tillägg av fil: %1</translation>
     </message>
     <message>
         <location filename="../storage/etx.cpp" line="176"/>
         <source>File written: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen skriven: %1</translation>
     </message>
     <message>
         <location filename="../storage/etx.cpp" line="180"/>
         <source>Unable to find and write image file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kan inte hitta och skriva avbildningsfil: %1</translation>
     </message>
 </context>
 <context>
@@ -3604,7 +3604,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="499"/>
         <source>HelloRadioSky V12</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="506"/>
@@ -3614,7 +3614,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="513"/>
         <source>HelloRadioSky V14LCD</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="520"/>
@@ -3624,12 +3624,12 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="527"/>
         <source>iFlight Commando 8</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="537"/>
         <source>iFlight Commando 14</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="563"/>
@@ -3669,7 +3669,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="630"/>
         <source>Jumper T22</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="658"/>
@@ -3892,7 +3892,7 @@ Tomt betyder inkludera alla. ?, * och [...] jokertecken accepteras.</translation
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="739"/>
         <source>Radiomaster GX15</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="754"/>
@@ -5586,12 +5586,12 @@ Are you sure?</source>
         <translation>GPS-koordinater</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1761"/>
+        <location filename="../generaledit/generalsetup.ui" line="1775"/>
         <source>Speaker Pitch (spkr only)</source>
         <translation>Högtalarton (endast högtalare)</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1290"/>
+        <location filename="../generaledit/generalsetup.ui" line="1304"/>
         <source>Measurement Units</source>
         <translation>Måttenheter</translation>
     </message>
@@ -5601,17 +5601,17 @@ Are you sure?</source>
         <translation>NMEA</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1369"/>
+        <location filename="../generaledit/generalsetup.ui" line="1383"/>
         <source>Voice Language</source>
         <translation>Röstspråk</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1489"/>
+        <location filename="../generaledit/generalsetup.ui" line="1503"/>
         <source>Rotary Encoder Mode</source>
         <translation>Läge för inmatningshjul</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1436"/>
+        <location filename="../generaledit/generalsetup.ui" line="1450"/>
         <source>Timeshift from UTC</source>
         <translation>Tidsskillnad mot UTC</translation>
     </message>
@@ -5626,62 +5626,62 @@ Are you sure?</source>
         <translation>Brittisk</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1775"/>
+        <location filename="../generaledit/generalsetup.ui" line="1789"/>
         <source>Country Code</source>
         <translation>Landskod</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1820"/>
+        <location filename="../generaledit/generalsetup.ui" line="1834"/>
         <source>America</source>
         <translation>Amerika</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1825"/>
+        <location filename="../generaledit/generalsetup.ui" line="1839"/>
         <source>Japan</source>
         <translation>Japan</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1830"/>
+        <location filename="../generaledit/generalsetup.ui" line="1844"/>
         <source>Europe</source>
         <translation>Europa</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1145"/>
-        <location filename="../generaledit/generalsetup.ui" line="1186"/>
+        <location filename="../generaledit/generalsetup.ui" line="1159"/>
+        <location filename="../generaledit/generalsetup.ui" line="1200"/>
         <source>X-Short</source>
         <translation>Extra kort</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1150"/>
-        <location filename="../generaledit/generalsetup.ui" line="1191"/>
+        <location filename="../generaledit/generalsetup.ui" line="1164"/>
+        <location filename="../generaledit/generalsetup.ui" line="1205"/>
         <source>Short</source>
         <translation>Kort</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1155"/>
-        <location filename="../generaledit/generalsetup.ui" line="1196"/>
+        <location filename="../generaledit/generalsetup.ui" line="1169"/>
+        <location filename="../generaledit/generalsetup.ui" line="1210"/>
         <source>Normal</source>
         <translation>Normal</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1160"/>
-        <location filename="../generaledit/generalsetup.ui" line="1201"/>
+        <location filename="../generaledit/generalsetup.ui" line="1174"/>
+        <location filename="../generaledit/generalsetup.ui" line="1215"/>
         <source>Long</source>
         <translation>Lång</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1165"/>
-        <location filename="../generaledit/generalsetup.ui" line="1206"/>
+        <location filename="../generaledit/generalsetup.ui" line="1179"/>
+        <location filename="../generaledit/generalsetup.ui" line="1220"/>
         <source>X-Long</source>
         <translation>Extra lång</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1617"/>
+        <location filename="../generaledit/generalsetup.ui" line="1631"/>
         <source>Color 1</source>
         <translation>Färg 1</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1634"/>
+        <location filename="../generaledit/generalsetup.ui" line="1648"/>
         <source>Color 2</source>
         <translation>Färg 2</translation>
     </message>
@@ -5696,7 +5696,7 @@ Are you sure?</source>
         <translation>Summerläge</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1415"/>
+        <location filename="../generaledit/generalsetup.ui" line="1429"/>
         <source>Vario pitch at zero</source>
         <translation>Vario tonläge vid noll</translation>
     </message>
@@ -5751,8 +5751,8 @@ Are you sure?</source>
         <translation>Vibrationsläge</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1376"/>
-        <location filename="../generaledit/generalsetup.ui" line="1883"/>
+        <location filename="../generaledit/generalsetup.ui" line="1390"/>
+        <location filename="../generaledit/generalsetup.ui" line="1897"/>
         <source> Hz</source>
         <translation> Hz</translation>
     </message>
@@ -5762,58 +5762,58 @@ Are you sure?</source>
         <translation>Batterivarning</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1546"/>
+        <location filename="../generaledit/generalsetup.ui" line="1560"/>
         <source>Vario pitch at max</source>
         <translation>Vario tonläge vid max</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1455"/>
+        <location filename="../generaledit/generalsetup.ui" line="1469"/>
         <source>If this value is not 0, any keypress will turn on the backlight and turn it off after the specified number of seconds.</source>
         <translation>Anger antalet sekunder som bakgrundsbelysningen förblir påslagen efter senaste knapptryck.</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1458"/>
+        <location filename="../generaledit/generalsetup.ui" line="1472"/>
         <source> sec</source>
         <translation> sek</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="662"/>
-        <location filename="../generaledit/generalsetup.ui" line="1909"/>
+        <location filename="../generaledit/generalsetup.ui" line="1923"/>
         <source> ms</source>
         <translation> ms</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1408"/>
+        <location filename="../generaledit/generalsetup.ui" line="1422"/>
         <source>Backlight Brightness</source>
         <translation>Ljusstyrka</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1768"/>
+        <location filename="../generaledit/generalsetup.ui" line="1782"/>
         <source>Vario repeat at zero</source>
         <translation>Repetition av vario vid noll</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1664"/>
+        <location filename="../generaledit/generalsetup.ui" line="1678"/>
         <source>Backlight  Auto OFF after</source>
         <translation>Bakgrundsbelysning av efter</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1601"/>
+        <location filename="../generaledit/generalsetup.ui" line="1615"/>
         <source>Backlight Control</source>
         <translation>Kontroll för bakgrundsljus</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1902"/>
+        <location filename="../generaledit/generalsetup.ui" line="1916"/>
         <source>Text Language</source>
         <translation>Textspråk</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1782"/>
+        <location filename="../generaledit/generalsetup.ui" line="1796"/>
         <source>Backlight color</source>
         <translation>Bakgrundsbelysningens färg</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1876"/>
+        <location filename="../generaledit/generalsetup.ui" line="1890"/>
         <source>Volume Control</source>
         <translation>Volymkontroll</translation>
     </message>
@@ -5874,17 +5874,22 @@ Are you sure?</source>
         <translation>115200 Baud</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1310"/>
+        <location filename="../generaledit/generalsetup.ui" line="903"/>
+        <source>Charge while radio on</source>
+        <translation>Ladda när radion är på</translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="1324"/>
         <source>One log per day</source>
         <translation>En logg per dag</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1324"/>
+        <location filename="../generaledit/generalsetup.ui" line="1338"/>
         <source>Key lock</source>
-        <translation type="unfinished"></translation>
+        <translation>Knapplås</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1848"/>
+        <location filename="../generaledit/generalsetup.ui" line="1862"/>
         <source>Backlight Switch</source>
         <translation>Brytare för bakgrundsbelysning</translation>
     </message>
@@ -5897,7 +5902,7 @@ Are you sure?</source>
         <location filename="../generaledit/generalsetup.ui" line="194"/>
         <location filename="../generaledit/generalsetup.ui" line="604"/>
         <location filename="../generaledit/generalsetup.ui" line="823"/>
-        <location filename="../generaledit/generalsetup.ui" line="1267"/>
+        <location filename="../generaledit/generalsetup.ui" line="1281"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -5927,12 +5932,12 @@ p, li { white-space: pre-wrap; }
         <translation>MAVLink Baud Rate</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1608"/>
+        <location filename="../generaledit/generalsetup.ui" line="1622"/>
         <source>Speaker Volume</source>
         <translation>Högtalarvolym</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="954"/>
+        <location filename="../generaledit/generalsetup.ui" line="968"/>
         <source>Haptic Length</source>
         <translation>Vibrationstid</translation>
     </message>
@@ -5949,14 +5954,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../generaledit/generalsetup.ui" line="272"/>
         <location filename="../generaledit/generalsetup.ui" line="579"/>
-        <location filename="../generaledit/generalsetup.ui" line="1112"/>
+        <location filename="../generaledit/generalsetup.ui" line="1126"/>
         <source>2s</source>
         <translation></translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="277"/>
         <location filename="../generaledit/generalsetup.ui" line="584"/>
-        <location filename="../generaledit/generalsetup.ui" line="1117"/>
+        <location filename="../generaledit/generalsetup.ui" line="1131"/>
         <source>3s</source>
         <translation></translation>
     </message>
@@ -5991,27 +5996,27 @@ p, li { white-space: pre-wrap; }
         <translation>Varna för avstängt ljud</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1076"/>
+        <location filename="../generaledit/generalsetup.ui" line="1090"/>
         <source>Haptic Strength</source>
         <translation>Vibrationsstyrka</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1650"/>
+        <location filename="../generaledit/generalsetup.ui" line="1664"/>
         <source>Beep volume</source>
         <translation>Ljudstyrka varning</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1657"/>
+        <location filename="../generaledit/generalsetup.ui" line="1671"/>
         <source>Wav volume</source>
         <translation>Ljudstyrka Wav</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1362"/>
+        <location filename="../generaledit/generalsetup.ui" line="1376"/>
         <source>Vario volume</source>
         <translation>Ljudstyrka vario</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1422"/>
+        <location filename="../generaledit/generalsetup.ui" line="1436"/>
         <source>Background volume</source>
         <translation>Ljudstyrka bakgrund</translation>
     </message>
@@ -6021,12 +6026,12 @@ p, li { white-space: pre-wrap; }
         <translation>Spakkonfiguration</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1303"/>
+        <location filename="../generaledit/generalsetup.ui" line="1317"/>
         <source>Default Channel Order</source>
         <translation>Kanalordning</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1401"/>
+        <location filename="../generaledit/generalsetup.ui" line="1415"/>
         <source>FAI Mode</source>
         <translation>FAI-läge</translation>
     </message>
@@ -6077,84 +6082,84 @@ Mode 4:
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Kanalordning&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Den ordning på kanaler som används för en ny modell.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1869"/>
+        <location filename="../generaledit/generalsetup.ui" line="1883"/>
         <source>Label selection mode</source>
         <translation>Alternativ för etikettval</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1499"/>
+        <location filename="../generaledit/generalsetup.ui" line="1513"/>
         <source>Label matching</source>
         <translation>Etikettmatchning</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1946"/>
+        <location filename="../generaledit/generalsetup.ui" line="1960"/>
         <source>Large image (2 columns)</source>
         <translation>Stora bilder (2 kolumner)</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1951"/>
+        <location filename="../generaledit/generalsetup.ui" line="1965"/>
         <source>Small image (3 columns)</source>
         <translation>Små bilder (3 kolumner)</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1956"/>
+        <location filename="../generaledit/generalsetup.ui" line="1970"/>
         <source>Name only (2 columns)</source>
         <translation>Endast namn (2 kolumner)</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1961"/>
+        <location filename="../generaledit/generalsetup.ui" line="1975"/>
         <source>Name only (1 column)</source>
         <translation>Endast namn (1 kolumn)</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1722"/>
+        <location filename="../generaledit/generalsetup.ui" line="1736"/>
         <source>Manage Models layout</source>
         <translation>Layot för modellhantering</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1560"/>
+        <location filename="../generaledit/generalsetup.ui" line="1574"/>
         <source>Favorites matching</source>
         <translation>Matcha favoriter</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1856"/>
+        <location filename="../generaledit/generalsetup.ui" line="1870"/>
         <source>Multi select</source>
         <translation>Flerval</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1861"/>
+        <location filename="../generaledit/generalsetup.ui" line="1875"/>
         <source>Single select</source>
         <translation>Enskilt val</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1932"/>
+        <location filename="../generaledit/generalsetup.ui" line="1946"/>
         <source>Match all</source>
         <translation>Matcha alla</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1937"/>
+        <location filename="../generaledit/generalsetup.ui" line="1951"/>
         <source>Match any</source>
         <translation>Matcha någon</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1588"/>
+        <location filename="../generaledit/generalsetup.ui" line="1602"/>
         <source>Must match</source>
         <translation>Måste matcha</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1593"/>
+        <location filename="../generaledit/generalsetup.ui" line="1607"/>
         <source>Optional match</source>
         <translation>Alternativt matcha</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="564"/>
-        <location filename="../generaledit/generalsetup.ui" line="1097"/>
+        <location filename="../generaledit/generalsetup.ui" line="1111"/>
         <source>0s</source>
         <translation>0s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="569"/>
-        <location filename="../generaledit/generalsetup.ui" line="1102"/>
+        <location filename="../generaledit/generalsetup.ui" line="1116"/>
         <source>0.5s</source>
         <translation>0.5s</translation>
     </message>
@@ -6169,12 +6174,12 @@ Mode 4:
         <translation>Vibration vid radio Av/På</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1125"/>
+        <location filename="../generaledit/generalsetup.ui" line="1139"/>
         <source>Power Auto Off</source>
         <translation>Automatisk avstängning</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="935"/>
+        <location filename="../generaledit/generalsetup.ui" line="949"/>
         <source>Play Delay (switch mid position)</source>
         <translation>Talfördröjning för brytare</translation>
     </message>
@@ -6205,28 +6210,28 @@ Mode 4:
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1429"/>
+        <location filename="../generaledit/generalsetup.ui" line="1443"/>
         <source>Backlight flash on alarm</source>
         <translation>Blinkande ljus vid alarm</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1578"/>
+        <location filename="../generaledit/generalsetup.ui" line="1592"/>
         <source>Adjust RTC</source>
         <translation>Justera RTC</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="970"/>
+        <location filename="../generaledit/generalsetup.ui" line="984"/>
         <source>Min</source>
         <translation>Min</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="977"/>
-        <location filename="../generaledit/generalsetup.ui" line="1006"/>
+        <location filename="../generaledit/generalsetup.ui" line="991"/>
+        <location filename="../generaledit/generalsetup.ui" line="1020"/>
         <source>v</source>
         <translation>v</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="999"/>
+        <location filename="../generaledit/generalsetup.ui" line="1013"/>
         <source>Max</source>
         <translation>Max</translation>
     </message>
@@ -6236,22 +6241,22 @@ Mode 4:
         <translation>Batterimätarens mätområde</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1572"/>
+        <location filename="../generaledit/generalsetup.ui" line="1586"/>
         <source>Automatically adjust the radio&apos;s clock if a GPS is connected to telemetry.</source>
         <translation>Automatisk justering av radions klocka om GPS-enhet är ansluten till telemetri.</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1539"/>
+        <location filename="../generaledit/generalsetup.ui" line="1553"/>
         <source>Backlight OFF Brightness</source>
         <translation>Ljusstyrka för Bakgrundsljus av</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1751"/>
+        <location filename="../generaledit/generalsetup.ui" line="1765"/>
         <source>If you enable FAI, only RSSI and RxBt sensors will keep working. This function cannot be disabled by the radio.</source>
         <translation>Om du aktiverar FAI kommer endast RSSI och RxBt-sensorerna att fungera. Detta går inte att ändra från radion.</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="915"/>
+        <location filename="../generaledit/generalsetup.ui" line="929"/>
         <source>RSSI Poweroff Warning</source>
         <translation>RSSI-varning vid avstängning</translation>
     </message>
@@ -6287,12 +6292,12 @@ Mode 4:
         <translation>Seriell USB (CDC)</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="922"/>
+        <location filename="../generaledit/generalsetup.ui" line="936"/>
         <source>Hats Mode</source>
         <translation>Hattläge</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1506"/>
+        <location filename="../generaledit/generalsetup.ui" line="1520"/>
         <source>Owner Registration ID</source>
         <translation>ID för ägarregistrering</translation>
     </message>
@@ -6302,7 +6307,7 @@ Mode 4:
         <translation>Fördröjning vid uppstart</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="961"/>
+        <location filename="../generaledit/generalsetup.ui" line="975"/>
         <source>Jack Mode</source>
         <translation>Uttagsläge</translation>
     </message>
@@ -6327,7 +6332,7 @@ Mode 4:
         <translation>Fördröjning vid avstängning</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1477"/>
+        <location filename="../generaledit/generalsetup.ui" line="1491"/>
         <source>This is the switch selectrion for turning on the backlight (if installed).
 
 </source>
@@ -6336,7 +6341,7 @@ Mode 4:
 </translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1789"/>
+        <location filename="../generaledit/generalsetup.ui" line="1803"/>
         <source>Keys Backlight</source>
         <translation>Knappbelysning</translation>
     </message>
@@ -6352,19 +6357,19 @@ Detta är det gränsvärde vid vilket batterivarningen ljuder.
 Acceptabla värden är 3 - 12 volt</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1643"/>
+        <location filename="../generaledit/generalsetup.ui" line="1657"/>
         <source>Model quick select</source>
         <translation>Snabbval av modell</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1529"/>
+        <location filename="../generaledit/generalsetup.ui" line="1543"/>
         <source>Enable this to quickly change model on the model select page (a long press can then be used to open the model edit menu).</source>
         <translation>Aktivera detta för att snabbt byta modell på modellvalssidan. Ett långt knapptryck kan sedan användas för att öppna modellredigeringsmenyn.</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="574"/>
-        <location filename="../generaledit/generalsetup.ui" line="1107"/>
-        <location filename="../generaledit/generalsetup.cpp" line="165"/>
+        <location filename="../generaledit/generalsetup.ui" line="1121"/>
+        <location filename="../generaledit/generalsetup.cpp" line="176"/>
         <source>1s</source>
         <translation></translation>
     </message>
@@ -6372,23 +6377,23 @@ Acceptabla värden är 3 - 12 volt</translation>
 <context>
     <name>GeneralSetupPanel</name>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="146"/>
+        <location filename="../generaledit/generalsetup.cpp" line="157"/>
         <source>Brightness</source>
-        <translation type="unfinished"></translation>
+        <translation>Ljusstyrka</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="150"/>
+        <location filename="../generaledit/generalsetup.cpp" line="161"/>
         <source>Flash display on alarm</source>
-        <translation type="unfinished"></translation>
+        <translation>Blinka skärmen vid alarm</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="494"/>
-        <location filename="../generaledit/generalsetup.cpp" line="495"/>
+        <location filename="../generaledit/generalsetup.cpp" line="513"/>
+        <location filename="../generaledit/generalsetup.cpp" line="514"/>
         <source>Not available on this radio (no key combo defined)</source>
-        <translation type="unfinished"></translation>
+        <translation>Inte tillgängligt på denna radio (ingen knappkombo definierad)</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="542"/>
+        <location filename="../generaledit/generalsetup.cpp" line="561"/>
         <source>If you enable FAI, only RSSI and RxBt sensors will keep working.
 This function cannot be disabled by the radio.
 Are you sure ?</source>
@@ -6557,17 +6562,17 @@ att fungera. Detta går inte att ändra från radion.
     <message>
         <location filename="../generaledit/hardware.cpp" line="111"/>
         <source>IMU</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="116"/>
         <source>X</source>
-        <translation type="unfinished">X</translation>
+        <translation>X</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="122"/>
         <source>Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Y</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="132"/>
@@ -7075,122 +7080,123 @@ att fungera. Detta går inte att ändra från radion.
     <message>
         <location filename="../storage/labeled.cpp" line="70"/>
         <source>Scanning for models...</source>
-        <translation type="unfinished"></translation>
+        <translation>Söker efter modeller...</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="135"/>
         <source>Warning: file %1 skipped as slot %2 already used</source>
-        <translation type="unfinished"></translation>
+        <translation>Varrning: fil %1 skippad eftersom plats %2 redan används</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="140"/>
         <source>Warning: file %1 skipped as slot %2 not available</source>
-        <translation type="unfinished"></translation>
+        <translation>Varrning: fil %1 skippad eftersom plats %2 inte är tillgänglig</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="161"/>
         <location filename="../storage/labeled.cpp" line="418"/>
         <source>Cannot convert to yaml %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan inte konvertera till yaml %1</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="165"/>
         <location filename="../storage/labeled.cpp" line="422"/>
         <source>Cannot convert to yaml %1:
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan inte konvertera till yaml %1:
+%2</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="189"/>
         <source>Loaded: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Laddad: %1</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="192"/>
         <source>Loading model images...</source>
-        <translation type="unfinished"></translation>
+        <translation>Laddar modellbilder...</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="201"/>
         <source>Loading labels...</source>
-        <translation type="unfinished"></translation>
+        <translation>Laddar etiketter...</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="244"/>
         <source>Deleting existing models...</source>
-        <translation type="unfinished"></translation>
+        <translation>Raderar befintliga modeller...</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="254"/>
         <source>Unable to delete file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan inte radera fil: %1</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="257"/>
         <source>Deleted file: %1</source>
-        <translation type="unfinished">Raderad fil: %1</translation>
+        <translation>Raderad fil: %1</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="272"/>
         <source>Preserve radio calibration...</source>
-        <translation type="unfinished"></translation>
+        <translation>Bevara radions kalibrering...</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="283"/>
         <source>Error reading radio calibration from %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel vid läsning av radions kalibrering från %1</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="292"/>
         <source>Writing radio settings...</source>
-        <translation type="unfinished"></translation>
+        <translation>Skriver radioinställningarna...</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="296"/>
         <source>Error converting radio settings to yaml</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel vid konvertering av radioinställningarna till yaml</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="301"/>
         <location filename="../storage/labeled.cpp" line="332"/>
         <location filename="../storage/labeled.cpp" line="371"/>
         <source>Error writing: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel vid skrivning av %1</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="306"/>
         <source>Writing models...</source>
-        <translation type="unfinished"></translation>
+        <translation>Skriver modeller...</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="327"/>
         <source>Error converting model to yaml: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel vid konvertering av modell till yaml: %1</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="347"/>
         <source>Model written: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Modell skriven: %1</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="351"/>
         <source>Writing model images...</source>
-        <translation type="unfinished"></translation>
+        <translation>Skriver modellbilder...</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="361"/>
         <source>Writing labels...</source>
-        <translation type="unfinished"></translation>
+        <translation>Skriver etiketter...</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="365"/>
         <source>Error converting labels to yaml</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel vid konvertering av etiketter till yaml</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="412"/>
         <source>Cannot read %1</source>
-        <translation type="unfinished">Kan inte läsa %1</translation>
+        <translation>Kan inte läsa %1</translation>
     </message>
     <message>
         <location filename="../storage/labeled.cpp" line="150"/>
@@ -7966,7 +7972,7 @@ fält</translation>
     <message>
         <location filename="../mainwindow.cpp" line="1485"/>
         <source>Read Models and Settings from Profile SD Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Läs modeller och inställningar från profilens SD-kort</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1495"/>
@@ -8060,22 +8066,22 @@ Vill du fortsätta?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="564"/>
         <source>Initialising</source>
-        <translation type="unfinished"></translation>
+        <translation>Initierar</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="570"/>
         <source>Finished %1</source>
-        <translation type="unfinished">Avslutade %1</translation>
+        <translation>Avslutade %1</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="570"/>
         <source>successfully</source>
-        <translation type="unfinished">utan problem</translation>
+        <translation>utan problem</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="570"/>
         <source>with errors</source>
-        <translation type="unfinished">med fel</translation>
+        <translation>med fel</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="738"/>
@@ -8812,13 +8818,15 @@ Vill du spara ändringarna?</translation>
         <location filename="../mdichild.cpp" line="1306"/>
         <source>Operation aborted: %1 models have errors that may affect simulation.
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbetning avbruten: %1 modeller har fel som kan påverka simuleringen.
+%2</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1321"/>
         <source>Operation aborted: selected model has errors that may affect simulation.
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbetning avbruten: vald modell har fel som kan påverka simuleringen.
+%1</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1347"/>
@@ -8833,22 +8841,22 @@ Vill du spara ändringarna?</translation>
     <message>
         <location filename="../mdichild.cpp" line="1472"/>
         <source>Initialising</source>
-        <translation type="unfinished"></translation>
+        <translation>Initierar</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1479"/>
         <source>Finished %1</source>
-        <translation type="unfinished">Avslutade %1</translation>
+        <translation>Avslutade %1</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1479"/>
         <source>successfully</source>
-        <translation type="unfinished">utan problem</translation>
+        <translation>utan problem</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1479"/>
         <source>with errors</source>
-        <translation type="unfinished">med fel</translation>
+        <translation>med fel</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1551"/>
@@ -8874,17 +8882,18 @@ Vill du spara ändringarna?</translation>
         <location filename="../mdichild.cpp" line="1616"/>
         <source>Operation aborted as %1 models have significant errors that may affect model operation.
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbetning avbruten, då %1 modeller har betydande fel som kan påverka förfarandet.
+%2</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1642"/>
         <source>Unable to find radio SD card!</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan inte hitta radions SD-kort!</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="1649"/>
         <source>Unable to find SD path &apos;%1&apos;!</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan inte hitta SD-kortets sökväg &apos;%1&apos;!</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="2016"/>
@@ -8899,12 +8908,12 @@ Vill du spara ändringarna?</translation>
     <message>
         <location filename="../mdichild.cpp" line="2035"/>
         <source>Double click to display errors</source>
-        <translation type="unfinished"></translation>
+        <translation>Dubbelklicka för att visa felen</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="2037"/>
         <source>Models Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Modellstatus</translation>
     </message>
     <message>
         <location filename="../mdichild.cpp" line="2049"/>
@@ -9808,13 +9817,14 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../modeledit/modeledit.cpp" line="172"/>
         <source>Simulate Model</source>
-        <translation type="unfinished">Simulera modell</translation>
+        <translation>Simulera modell</translation>
     </message>
     <message>
         <location filename="../modeledit/modeledit.cpp" line="173"/>
         <source>Operation aborted: model has errors that may affect simulation.
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbetning avbruten: modellen har fel som kan påverka simuleringen.
+%1</translation>
     </message>
     <message>
         <location filename="../modeledit/modeledit.ui" line="51"/>
@@ -12562,22 +12572,22 @@ r</translation>
     <message>
         <location filename="../storage/sdcard.cpp" line="53"/>
         <source>File empty: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen tom: %1</translation>
     </message>
     <message>
         <location filename="../storage/sdcard.cpp" line="57"/>
         <source>File loaded: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen laddad: %1</translation>
     </message>
     <message>
         <location filename="../storage/sdcard.cpp" line="77"/>
         <source>Unable to delete cached</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan inte radera cachad</translation>
     </message>
     <message>
         <location filename="../storage/sdcard.cpp" line="85"/>
         <source>Failed to cache image: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunde inte cacha avbildning: %1</translation>
     </message>
     <message>
         <location filename="../storage/sdcard.cpp" line="90"/>
@@ -12594,47 +12604,47 @@ r</translation>
     <message>
         <location filename="../storage/sdcard.cpp" line="111"/>
         <source>Error writing file %1: wrote %2 of %3 bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel vid skrivning av fil %1: skrev %2 av %3 bytes</translation>
     </message>
     <message>
         <location filename="../storage/sdcard.cpp" line="115"/>
         <source>File written: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Filen skriven: %1</translation>
     </message>
     <message>
         <location filename="../storage/sdcard.cpp" line="131"/>
         <source>Duplicate image file: %1 skipped</source>
-        <translation type="unfinished"></translation>
+        <translation>Dubblerad avbildningsfil: %1 överhoppad</translation>
     </message>
     <message>
         <location filename="../storage/sdcard.cpp" line="136"/>
         <source>Error removing existing image file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel vid borttagning av befintlig avbildningsfil: %1</translation>
     </message>
     <message>
         <location filename="../storage/sdcard.cpp" line="142"/>
         <source>Error writing image file: %1</source>
-        <translation>Fel vid skrivning av bildfi:l %1</translation>
+        <translation>Fel vid skrivning av avbildningsfil: %1</translation>
     </message>
     <message>
         <location filename="../storage/sdcard.cpp" line="146"/>
         <source>Image written: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Avbildningsfil skriven: %1</translation>
     </message>
     <message>
         <location filename="../storage/sdcard.cpp" line="150"/>
         <source>Unable to find and write image file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Kan inte hitta och skriva avbildningsfil: %1</translation>
     </message>
     <message>
         <location filename="../storage/sdcard.cpp" line="176"/>
         <source>Error deleting file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fel vid radering av fil: %1</translation>
     </message>
     <message>
         <location filename="../storage/sdcard.cpp" line="180"/>
         <source>Deleted file: %1</source>
-        <translation type="unfinished">Raderad fil: %1</translation>
+        <translation>Raderad fil: %1</translation>
     </message>
 </context>
 <context>
@@ -18171,7 +18181,7 @@ Bearbeta nu?</translation>
 <context>
     <name>YamlGeneralSettings</name>
     <message>
-        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="456"/>
+        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="457"/>
         <source>Warning: File version %1 is not supported by Companion %2!
 
 Model and radio settings may be corrupted if you continue.</source>
@@ -18180,12 +18190,12 @@ Model and radio settings may be corrupted if you continue.</source>
 Modell- och radioinställningar kan bli korrupta om du fortsätter.</translation>
     </message>
     <message>
-        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="459"/>
+        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="460"/>
         <source>Read Radio Settings</source>
         <translation>Läs radioinställningar</translation>
     </message>
     <message>
-        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="497"/>
+        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="498"/>
         <source>Warning: Radio settings file is missing the board entry!
 
 Current firmware profile board will be used.
@@ -18198,7 +18208,7 @@ Radiotyp för nuvarande profil kommer användas.
 Vill du fortsätta?</translation>
     </message>
     <message>
-        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="508"/>
+        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="509"/>
         <source>Settings file board (%1) does not match current profile board (%2).
 
 Do you wish to continue?</source>

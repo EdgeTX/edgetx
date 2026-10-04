@@ -1,4 +1,10 @@
 {
+  "identity": {
+    "manufacturer": "Jumper",
+    "model": "T15 Pro",
+    "usb_manufacturer": "JUMPER",
+    "usb_product": "T15 PRO"
+  },
   "adc_inputs": {
     "adcs": [
       {

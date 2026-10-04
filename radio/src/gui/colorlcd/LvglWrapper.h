@@ -37,3 +37,7 @@ class LvglWrapper
   LvglWrapper();
   ~LvglWrapper() {}
 };
+
+#if defined(VOICE_CONTROL_SENSOR)
+void lvglRequestKeyboardEnter();
+#endif

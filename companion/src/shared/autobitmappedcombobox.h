@@ -48,10 +48,10 @@ class AutoBitMappedComboBox : public QComboBox, public AutoWidget
 
     void setBits(const unsigned int numBits = 1, const unsigned int offsetBits = 0, const unsigned int index = 0,
                  const unsigned int indexBits = 1);
-    void setField(unsigned int & field, GenericPanel * panel = nullptr);
-    void setField(int & field, GenericPanel * panel = nullptr);
-    void setField(RawSource & field, GenericPanel * panel = nullptr);
-    void setField(RawSwitch & field, GenericPanel * panel = nullptr);
+    void setField(unsigned int & field, AbstractPanel * panel = nullptr);
+    void setField(int & field, AbstractPanel * panel = nullptr);
+    void setField(RawSource & field, AbstractPanel * panel = nullptr);
+    void setField(RawSwitch & field, AbstractPanel * panel = nullptr);
 
     void setAutoIndexes();
     void setModel(QAbstractItemModel * model) override;
@@ -76,5 +76,5 @@ class AutoBitMappedComboBox : public QComboBox, public AutoWidget
     unsigned int shiftbits();
     unsigned int bitmask();
 
-    void setFieldInit(GenericPanel * panel);
+    void setFieldInit(AbstractPanel * panel);
 };

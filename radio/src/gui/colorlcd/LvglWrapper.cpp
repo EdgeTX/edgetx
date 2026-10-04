@@ -179,6 +179,37 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
   }
 }
 
+#if defined(VOICE_CONTROL_SENSOR)
+static bool voiceEnterPending = false;
+
+static void lvglInjectKeyboardEnter()
+{
+  if (!keyboardDevice) return;
+
+  auto obj = get_focus_obj(keyboardDevice);
+  if (obj) {
+    lv_group_t* g = keyboardDevice->group;
+    if (g && !lv_obj_has_state(obj, LV_STATE_DISABLED)) {
+      // Same sequence as lv_indev keypad Enter (press then release).
+      lv_group_send_data(g, LV_KEY_ENTER);
+      lv_event_send(obj, LV_EVENT_PRESSED, keyboardDevice);
+      lv_event_send(obj, LV_EVENT_RELEASED, keyboardDevice);
+      lv_event_send(obj, LV_EVENT_SHORT_CLICKED, keyboardDevice);
+      lv_event_send(obj, LV_EVENT_CLICKED, keyboardDevice);
+    }
+    return;
+  }
+
+  auto w = Window::topWindow();
+  dispatch_kb_event(w, EVT_KEY_BREAK(KEY_ENTER));
+}
+
+void lvglRequestKeyboardEnter()
+{
+  voiceEnterPending = true;
+}
+#endif
+
 extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
 #if defined(HARDWARE_TOUCH)
@@ -377,6 +408,12 @@ void LvglWrapper::run()
 #if defined(SIMU_AUTOMATION)
     if (edgetx::automation::consumeAutomationLcdInvalidation()) {
       lv_obj_invalidate(lv_scr_act());
+    }
+#endif
+#if defined(VOICE_CONTROL_SENSOR)
+    if (voiceEnterPending) {
+      voiceEnterPending = false;
+      lvglInjectKeyboardEnter();
     }
 #endif
     lv_timer_handler();

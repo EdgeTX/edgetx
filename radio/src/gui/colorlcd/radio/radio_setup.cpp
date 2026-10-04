@@ -55,26 +55,37 @@ class DateNumberEdit : public NumberEdit
                   std::function<int()> getValue,
                   std::function<void(int)> setValue) :
       NumberEdit(parent, {x, y, DT_EDT_W, 0}, vmin, vmax,
-                  getValue,
-                  [=](int32_t newValue) {
-                    setValue(newValue);
-                    SET_DIRTY();
-                  })
+                [=]() {
+                  if (isEditing) return editValue;
+                  return getValue();
+                },
+                [=](int newValue) {
+                  if (isEditing)
+                    editValue = newValue;
+                })
   {
-    lastValue = this->getValue();
     if (leading0)
       setDisplayHandler([](int32_t value) { return formatNumberAsString(value, LEADING0, 2); });
+    setOnEditStartHandler([=]() {
+      isEditing = true;
+      editValue = getValue();
+    });
+    setOnEditedHandler([=](int newValue) {
+      isEditing = false;
+      setValue(newValue);
+    });
 }
 
   static LAYOUT_ORIENTATION(DT_EDT_W, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, LAYOUT_SCALE(52))
 
  protected:
-  int32_t lastValue;
+  int editValue;
+  bool isEditing = false;
 
   void checkEvents() override
   {
-    if (lastValue != getValue())
-      update();
+    if (!isEditing)
+      NumberEdit::checkEvents();
   }
 };
 
@@ -743,7 +754,7 @@ const static SetupLineDef manageModelsSetupLines[] = {
                 GET_DEFAULT(g_eeGeneral.labelSingleSelect),
                 [=](int newValue) {
                   g_eeGeneral.labelSingleSelect = newValue;
-                  modelslabels.clearFilter();
+                  modelCellManager.clearFilter();
                   Messaging::send(Messaging::REFRESH);
                   SET_DIRTY();
                 });

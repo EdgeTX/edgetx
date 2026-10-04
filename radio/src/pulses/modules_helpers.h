@@ -50,13 +50,17 @@ extern uint32_t NV14internalModuleFwVersion;
    (moduleState[module].protocol == PROTOCOL_CHANNELS_PXX2))
 
 #if defined (MULTIMODULE)
+  // Check the module type as well: 'multi.rfProtocol' shares its storage
+  // with other modules' data (e.g. AFHDS2A 'flysky.rx_id[0]')
   #define IS_D16_MULTI(module)                                            \
-    ((g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX) || \
-    (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX2))
+    (isModuleMultimodule(module) &&                                       \
+     ((g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX) || \
+      (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX2)))
 
-  #define IS_R9_MULTI(module)                         \
-    (g_model.moduleData[module].multi.rfProtocol == \
-    MODULE_SUBTYPE_MULTI_FRSKY_R9)
+  #define IS_R9_MULTI(module)                           \
+    (isModuleMultimodule(module) &&                     \
+     (g_model.moduleData[module].multi.rfProtocol ==    \
+      MODULE_SUBTYPE_MULTI_FRSKY_R9))
 
   #define IS_HOTT_MULTI(module)                                           \
     (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_HOTT)
@@ -499,7 +503,9 @@ inline int8_t minModuleChannels(uint8_t idx)
 inline int8_t defaultModuleChannels_M8(uint8_t idx)
 {
   if (isModulePPM(idx))
-    return 0; // 8 channels
+    return 0;  // 8 channels
+  else if (isModuleDSMP(idx))
+    return 4; // 12 channels
   else
     return maxModuleChannels_M8(idx);
 }

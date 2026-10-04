@@ -198,6 +198,248 @@ TEST(Lua, Switches)
 #endif
 }
 
+// Defines rtMix() / rtInput(): insert a line on channel / input 0 with the
+// given fields, read it back, delete it, and check the stored values.
+static void luaDefineRoundTrip()
+{
+  luaExecStr(
+      "local function check(l, expect)\n"
+      "  if l == nil then error('line not inserted') end\n"
+      "  for k, v in pairs(expect) do\n"
+      "    if l[k] ~= v then\n"
+      "      error(k .. ': expected ' .. tostring(v) .. ' got ' .. tostring(l[k]))\n"
+      "    end\n"
+      "  end\n"
+      "end\n"
+      "function rtMix(fields, expect)\n"
+      "  model.insertMix(0, 0, fields)\n"
+      "  local l = model.getMix(0, 0)\n"
+      "  model.deleteMix(0, 0)\n"
+      "  check(l, expect or fields)\n"
+      "end\n"
+      "function rtInput(fields, expect)\n"
+      "  model.insertInput(0, 0, fields)\n"
+      "  local l = model.getInput(0, 0)\n"
+      "  model.deleteInput(0, 0)\n"
+      "  check(l, expect or fields)\n"
+      "end\n");
+}
+
+static std::string luaCurveRoundTrips(const char* rt)
+{
+  std::string fn(rt);
+  std::string s;
+  // DIFF and EXPO: -100..100, or a source
+  s += "for t = 0, 1 do\n"
+       "  for v = -100, 100 do " + fn + "({curveType = t, curveValue = v}) end\n"
+       "  " + fn + "({curveType = t, curveValue = 1025})\n"
+       "  " + fn + "({curveType = t, curveValue = -1025})\n"
+       "end\n";
+  // FUNC: 0..CURVE_BASE-1
+  s += "for v = 0, " + std::to_string(CURVE_BASE - 1) + " do " + fn +
+       "({curveType = 2, curveValue = v}) end\n";
+  // CUSTOM: -MAX_CURVES..MAX_CURVES
+  s += "for v = -" + std::to_string(MAX_CURVES) + ", " +
+       std::to_string(MAX_CURVES) + " do " + fn +
+       "({curveType = 3, curveValue = v}) end\n";
+  return s;
+}
+
+static std::string luaSwitchRoundTrips(const char* rt)
+{
+  return "for v = " + std::to_string(SWSRC_FIRST) + ", " +
+         std::to_string(SWSRC_LAST) + " do " + rt + "({switch = v}) end\n";
+}
+
+static std::string luaInvalidRoundTrips(const char* rt)
+{
+  std::string fn(rt);
+  std::string last = std::to_string(SWSRC_LAST);
+  std::string s;
+  // out of range switches are stored as no switch
+  for (auto sw : {last + " + 1", "-(" + last + " + 1)", std::string("100000"),
+                  std::string("-100000")}) {
+    s += fn + "({switch = " + sw + "}, {switch = 0})\n";
+  }
+  // invalid curve function values are reset to none
+  for (auto v : {std::to_string(CURVE_BASE), std::string("-1"),
+                 std::string("511"), std::string("1025")}) {
+    s += fn + "({curveType = 2, curveValue = " + v +
+         "}, {curveType = 2, curveValue = 0})\n";
+  }
+  // invalid custom curve values are reset to none
+  for (auto v : {std::to_string(MAX_CURVES + 1),
+                 "-" + std::to_string(MAX_CURVES + 1), std::string("100"),
+                 std::string("1025")}) {
+    s += fn + "({curveType = 3, curveValue = " + v +
+         "}, {curveType = 3, curveValue = 0})\n";
+  }
+  // unknown curve types reset the curve
+  for (auto t : {"4", "31"}) {
+    s += fn + "({curveType = " + std::string(t) +
+         ", curveValue = 5}, {curveType = 0, curveValue = 0})\n";
+  }
+  return s;
+}
+
+TEST(Lua, insertMixValidValues)
+{
+  MODEL_RESET();
+  luaDefineRoundTrip();
+
+  luaExecStr("for v = 0, 2 do rtMix({multiplex = v}) end");
+  luaExecStr(luaSwitchRoundTrips("rtMix").c_str());
+  luaExecStr(luaCurveRoundTrips("rtMix").c_str());
+  luaExecStr("if model.getMixesCount(0) ~= 0 then error('lines left') end");
+}
+
+TEST(Lua, insertMixInvalidValues)
+{
+  MODEL_RESET();
+  luaDefineRoundTrip();
+
+  // out of range multiplex values are stored as ADD
+  for (auto v : {"3", "-1", "5", "100"}) {
+    luaExecStr((std::string("rtMix({multiplex = ") + v +
+                "}, {multiplex = 0})").c_str());
+  }
+  luaExecStr(luaInvalidRoundTrips("rtMix").c_str());
+  luaExecStr("if model.getMixesCount(0) ~= 0 then error('lines left') end");
+}
+
+TEST(Lua, insertInputValidValues)
+{
+  MODEL_RESET();
+  luaDefineRoundTrip();
+
+  luaExecStr(luaSwitchRoundTrips("rtInput").c_str());
+  luaExecStr(luaCurveRoundTrips("rtInput").c_str());
+  luaExecStr("if model.getInputsCount(0) ~= 0 then error('lines left') end");
+}
+
+TEST(Lua, insertInputInvalidValues)
+{
+  MODEL_RESET();
+  luaDefineRoundTrip();
+
+  luaExecStr(luaInvalidRoundTrips("rtInput").c_str());
+  luaExecStr("if model.getInputsCount(0) ~= 0 then error('lines left') end");
+}
+
+TEST(Lua, getSwitchInfo)
+{
+  RADIO_RESET();
+  MODEL_RESET();
+  char name[32];
+  char lua[256];
+
+  // Unconfigured switches still return a table, with type SWITCH_NONE
+  int unconfigured = -1;
+  for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
+    if (!switchIsCustomSwitch(i)) {
+      g_eeGeneral.switchSetType(i, SWITCH_NONE);
+      unconfigured = i;
+      break;
+    }
+  }
+
+  for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
+    getSwitchName(name, i);
+    snprintf(lua, sizeof(lua),
+             "local info = getSwitchInfo(%d)\n"
+             "if info == nil then error('nil') end\n"
+             "if info.name ~= '%s' then error('name ' .. info.name) end\n"
+             "if info.type ~= %d then error('type ' .. info.type) end\n"
+             "if info.isCustomisableSwitch ~= %s then error('custom') end",
+             MIXSRC_FIRST_SWITCH + i, name, g_model.getSwitchType(i),
+             switchIsCustomSwitch(i) ? "true" : "false");
+    EXPECT_TRUE(__luaExecStr(lua)) << "switch " << i << " (" << name << ")";
+  }
+
+  if (unconfigured >= 0) {
+    EXPECT_EQ(SWITCH_NONE, g_model.getSwitchType(unconfigured));
+  }
+
+  RADIO_RESET();
+}
+
+TEST(Lua, getFieldInfoSwitches)
+{
+  RADIO_RESET();
+  MODEL_RESET();
+  char lower[8];
+  char lua[512];
+
+  for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
+    const char* name = switchGetDefaultName(i);
+    size_t len = strlen(name);
+    for (size_t n = 0; n <= len && n < sizeof(lower); n++)
+      lower[n] = tolower(name[n]);
+
+    // The lower case name can belong to another field first, e.g. the 'sl'
+    // slider on T22, but must never find a different switch
+    snprintf(lua, sizeof(lua),
+             "local id = %d\n"
+             "local first, last = %d, %d\n"
+             "local info = getFieldInfo('%s')\n"
+             "if info == nil or info.id ~= id then error('upper') end\n"
+             "info = getFieldInfo('%s')\n"
+             "if info == nil then error('lower') end\n"
+             "if info.id ~= id and info.id >= first and info.id <= last then\n"
+             "  error('lower finds switch ' .. info.id)\n"
+             "end\n"
+             "info = getFieldInfo(id)\n"
+             "if info == nil or info.name ~= '%s' then error('by id') end",
+             MIXSRC_FIRST_SWITCH + i, MIXSRC_FIRST_SWITCH,
+             MIXSRC_FIRST_SWITCH + switchGetMaxAllSwitches() - 1, name, lower,
+             name);
+    EXPECT_TRUE(__luaExecStr(lua)) << "switch " << i << " (" << name << ")";
+  }
+}
+
+TEST(Lua, getFieldInfoSensorBeforeSwitch)
+{
+  RADIO_RESET();
+  MODEL_RESET();
+  char lower[TELEM_LABEL_LEN + 1] = {};
+  char lua[256];
+
+  // A switch only found by its lower case default name, e.g. 'sw1'
+  for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
+    const char* name = switchGetDefaultName(i);
+    size_t len = strlen(name);
+    if (len > 2 && len <= TELEM_LABEL_LEN) {
+      for (size_t n = 0; n < len; n++) lower[n] = tolower(name[n]);
+      break;
+    }
+  }
+  if (!lower[0]) return;  // no such switch on this target
+
+  // A sensor with the same name is still found first
+  strncpy(g_model.telemetrySensors[0].label, lower, TELEM_LABEL_LEN);
+  snprintf(lua, sizeof(lua),
+           "local info = getFieldInfo('%s')\n"
+           "if info == nil or info.id ~= %d then error('not sensor') end",
+           lower, MIXSRC_FIRST_TELEM);
+  EXPECT_TRUE(__luaExecStr(lua)) << lower;
+  MODEL_RESET();
+}
+
+TEST(Lua, getSwitchInfoOutOfRange)
+{
+  RADIO_RESET();
+  MODEL_RESET();
+  char lua[128];
+
+  for (int src : {MIXSRC_FIRST_SWITCH - 1, MIXSRC_FIRST_SWITCH - 1000,
+                  MIXSRC_FIRST_SWITCH + MAX_SWITCHES,
+                  MIXSRC_FIRST_SWITCH + SWSRC_COUNT - 1, -100000, 100000}) {
+    snprintf(lua, sizeof(lua),
+             "if getSwitchInfo(%d) ~= nil then error('not nil') end", src);
+    EXPECT_TRUE(__luaExecStr(lua)) << "source " << src;
+  }
+}
+
 TEST(Lua, testFloatIntegerEquality)
 {
   // 0.5 is not an integer, so it must not equal 0 (regression #7587)
@@ -236,6 +478,46 @@ TEST(Lua, testFloatIntegerEquality)
   luaExecStr("if math.type(1 / 2) ~= 'float' then error('1 / 2') end");
   luaExecStr("if math.type(7.5 % 2) ~= 'float' then error('7.5 % 2') end");
   luaExecStr("if math.type(0.5 * 2) ~= 'float' then error('0.5 * 2') end");
+}
+
+TEST(Lua, TouchEnabled)
+{
+#if defined(HARDWARE_TOUCH)
+  const bool savedBacklight = boardBacklightOn;
+  const CustomFunctionsContext savedGlobal = globalFunctionsContext;
+  const CustomFunctionsContext savedModel = modelFunctionsContext;
+  const MASK_FUNC_TYPE disableTouch = (MASK_FUNC_TYPE)1 << FUNCTION_DISABLE_TOUCH;
+
+  globalFunctionsContext.reset();
+  modelFunctionsContext.reset();
+  boardBacklightOn = true;
+  luaExecStr("assert(getTouchEnabled() == true)");
+
+  modelFunctionsContext.activeFunctions = disableTouch;
+  luaExecStr("assert(getTouchEnabled() == false)");
+  modelFunctionsContext.reset();
+
+  modelFunctionsContext.activeUIFunctions = disableTouch;
+  luaExecStr("assert(getTouchEnabled() == false)");
+  modelFunctionsContext.reset();
+
+  globalFunctionsContext.activeFunctions = disableTouch;
+  luaExecStr("assert(getTouchEnabled() == false)");
+  globalFunctionsContext.reset();
+
+  globalFunctionsContext.activeUIFunctions = disableTouch;
+  luaExecStr("assert(getTouchEnabled() == false)");
+  globalFunctionsContext.reset();
+
+  boardBacklightOn = false;
+  luaExecStr("assert(getTouchEnabled() == false)");
+
+  boardBacklightOn = savedBacklight;
+  globalFunctionsContext = savedGlobal;
+  modelFunctionsContext = savedModel;
+#else
+  luaExecStr("assert(getTouchEnabled() == nil)");
+#endif
 }
 
 TEST(Lua, testLegacyNames)
@@ -281,6 +563,63 @@ TEST(Lua, ioSeek)
 
   luaExecStr(io_seek_tst);
   std::filesystem::remove(simuFatfsGetRealPath("seek-test.txt"));
+}
+
+// Adapted from the sample script in PR #7562 (minus the LVGL UI part):
+// populates the same app/key/value set and exercises the full Lua API
+// through the real binding layer, not just the underlying C++ store.
+TEST(Lua, testUserData)
+{
+  MODEL_RESET();
+
+  const char userdata_tst[] =
+      "model.setUserData('App', 'K1', 'String')\n"
+      "model.setUserData('App', 'K2', 12345)\n"
+      "model.setUserData('App', 'K3', 12.345)\n"
+
+      "assert(model.getUserData('App', 'K1') == 'String')\n"
+      "assert(model.getUserData('App', 'K2') == 12345)\n"
+      "assert(math.abs(model.getUserData('App', 'K3') - 12.345) < 0.001)\n"
+      "assert(model.getUserData('Other', 'K1') == nil)\n"
+
+      "local ud = model.getAllUserData('App')\n"
+      "local n = 0\n"
+      "for k in pairs(ud) do n = n + 1 end\n"
+      "assert(n == 3)\n"
+      "assert(ud.K1 == 'String')\n"
+
+      "local all = model.getAllUserData()\n"
+      "assert(all['App|K1'] == 'String')\n"
+
+      "model.deleteUserData('App', 'K1')\n"
+      "assert(model.getUserData('App', 'K1') == nil)\n"
+      "assert(model.getUserData('App', 'K2') == 12345)\n";
+
+  luaExecStr(userdata_tst);
+}
+
+// string.char() builds the value at runtime, sidestepping the fact that
+// luaL_loadstring() (used to load this test's own Lua source) is itself
+// strlen()-based and couldn't carry a literal embedded NUL through.
+TEST(Lua, testUserDataEmbeddedNul)
+{
+  MODEL_RESET();
+
+  const char userdata_nul_tst[] =
+      "local v = string.char(65, 0, 66)\n"
+      "assert(#v == 3)\n"
+      "model.setUserData('App', 'NulKey', v)\n"
+
+      "local got = model.getUserData('App', 'NulKey')\n"
+      "assert(#got == 3)\n"
+      "assert(got == v)\n"
+      "assert(string.byte(got, 2) == 0)\n"
+
+      "local all = model.getAllUserData('App')\n"
+      "assert(#all.NulKey == 3)\n"
+      "assert(all.NulKey == v)\n";
+
+  luaExecStr(userdata_nul_tst);
 }
 
 #endif   // #if defined(LUA)

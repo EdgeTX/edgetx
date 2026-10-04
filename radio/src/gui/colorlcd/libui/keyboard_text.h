@@ -39,7 +39,6 @@ class TextKeyboard : public Keyboard
 {
  public:
   TextKeyboard();
-  ~TextKeyboard() override;
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "TextKeyboard"; }

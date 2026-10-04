@@ -260,3 +260,129 @@ void ModelData::resetScreenData()
   }
 }
 #endif
+
+// User Data store. Each entry is a key/value pair.
+// Can be used by Lua scripts to save configuration data.
+std::vector<UserData> userData;
+
+// Check if userData[n] exists - controls YAML writing
+bool ModelData::hasUserData(int n)
+{
+  return (size_t)n < userData.size() && !userData[n].key.empty();
+}
+
+// Get User Data item at position 'n'
+// Used when parsing YAML files
+UserData* ModelData::getUserData(int n)
+{
+  if ((size_t)n >= userData.size())
+    return nullptr;
+  return &userData[n];
+}
+
+// Get User Data item with specified key
+UserData* ModelData::getUserData(const char* key)
+{
+  if (key[0]) {
+    for (int i = 0; (size_t)i < userData.size(); i += 1)
+      if (userData[i].key == key)
+        return &userData[i];
+  }
+  return nullptr;
+}
+
+// Get User Data item at position 'n', resizing the store if needed
+// (handles gaps in a sparse/hand-edited YAML index sequence). No
+// storageDirty() here - this also runs on plain loads, not just mutations.
+UserData* ModelData::getOrCreateUserData(int n)
+{
+  if ((size_t)n >= MAX_USER_DATA) return nullptr;
+  if ((size_t)n >= userData.size()) {
+    userData.resize(n + 1);
+  }
+  return &userData[n];
+}
+
+// val/val_len are used verbatim (not NUL-terminated semantics), so a
+// string value may contain embedded NUL bytes.
+static bool setUD(const char* key, const char* val, size_t val_len, UDType typ)
+{
+  if (key[0] == 0) return false;
+
+  auto ud = g_model.getUserData(key);
+  if (ud == nullptr) {
+    // Reuse a gap slot (see getOrCreateUserData()) before growing the store.
+    for (auto& slot : userData) {
+      if (slot.key.empty()) {
+        slot.key = key;
+        slot.value.assign(val, val_len);
+        slot.type = typ;
+        storageDirty(EE_MODEL);
+        return true;
+      }
+    }
+    if (userData.size() >= MAX_USER_DATA) return false;
+    userData.emplace_back();
+    userData.back().key = key;
+    userData.back().value.assign(val, val_len);
+    userData.back().type = typ;
+    storageDirty(EE_MODEL);
+  } else if (ud->type != typ || ud->value.compare(0, std::string::npos, val, val_len) != 0) {
+    ud->value.assign(val, val_len);
+    ud->type = typ;
+    storageDirty(EE_MODEL);
+  }
+  return true;
+}
+
+// Update or add User Data item
+bool ModelData::setUserData(const char* key, const char* str)
+{
+  return setUD(key, str, strlen(str), UD_STRING);
+}
+
+// Update or add User Data item - str may contain embedded NUL bytes.
+bool ModelData::setUserData(const char* key, const char* str, size_t len)
+{
+  return setUD(key, str, len, UD_STRING);
+}
+
+// Update or add User Data item
+bool ModelData::setUserData(const char* key, int32_t num)
+{
+  std::string s = std::to_string(num);
+  return setUD(key, s.c_str(), s.size(), UD_INT);
+}
+
+// Update or add User Data item
+bool ModelData::setUserData(const char* key, float num)
+{
+  // %.9g gives enough significant digits to round-trip a 32-bit float,
+  // unlike std::to_string() which fixes 6 decimal places and silently
+  // loses precision (e.g. very small or very large values).
+  char buf[32];
+  int len = snprintf(buf, sizeof(buf), "%.9g", (double)num);
+  return setUD(key, buf, len, UD_FLOAT);
+}
+
+void ModelData::deleteUserData(const char* key)
+{
+  for (auto ud = userData.cbegin(); ud != userData.cend(); ud++) {
+    if (ud->key == key) {
+      userData.erase(ud);
+      storageDirty(EE_MODEL);
+      return;
+    }
+  }
+}
+
+// Clear all User Data
+void ModelData::clearUserData()
+{
+  userData.clear();
+}
+
+int ModelData::getUserDataCount()
+{
+  return userData.size();
+}

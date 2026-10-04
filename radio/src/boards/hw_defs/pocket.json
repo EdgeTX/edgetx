@@ -1,4 +1,10 @@
 {
+  "identity": {
+    "manufacturer": "RadioMaster",
+    "model": "Pocket",
+    "usb_manufacturer": "RM_TX",
+    "usb_product": "RMPocket"
+  },
   "adc_inputs": {
     "adcs": [
       {

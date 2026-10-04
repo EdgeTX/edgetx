@@ -109,7 +109,7 @@ namespace Helpers
   void populateFileComboBox(QComboBox * b, const QSet<QString> & set, const QString & current);
   void getFileComboBoxValue(QComboBox * b, char * dest, int length);
 
-  void exportAppSettings(QWidget * dlgParent = nullptr);
+  void exportPreferences(QWidget * dlgParent = nullptr);
 
   QString removeAccents(const QString & str);
   unsigned int getBitmappedValue(const unsigned int & field, const unsigned int index = 0, const unsigned int numbits = 1, const unsigned int offset = 0);

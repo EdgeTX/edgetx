@@ -41,26 +41,34 @@
 
 #pragma once
 
+#include "autowidget.h"
+#include <QDialog>
 #include <QFrame>
 #include <QGridLayout>
 #include <QParallelAnimationGroup>
 #include <QScrollArea>
 #include <QToolButton>
-#include <QWidget>
 
-class AutoCollapsibleSection : public QWidget
+class AutoCollapsibleSection : public QWidget, public AutoWidget
 {
   Q_OBJECT
 
   public:
-    static const int DEFAULT_DURATION = 0;
+    static const int DEFAULT_DURATION = 300;
 
     explicit AutoCollapsibleSection(QWidget * parent = nullptr);
+    virtual ~AutoCollapsibleSection() {}
+
+    virtual void updateValue() override {}
+
+    QGridLayout * start(const QString & title);
+    void finish(int row = -1, int col = -1, std::function<void()> fnResize = nullptr, bool expand = false);
 
     // setters
     void setAnimationDuration(const int duration);
     void setContentLayout(QLayout & contentLayout);
     void setTitle(const QString & title);
+    void setBindResize(std::function<void()> fn);
 
     // getters
     const int getAnimationDuration() { return animationDuration; }
@@ -80,8 +88,10 @@ class AutoCollapsibleSection : public QWidget
     QFrame *headerLine;
     QParallelAnimationGroup *toggleAnimation;
     QScrollArea *contentArea;
+    QGridLayout *contentAreaLayout;
     int animationDuration = DEFAULT_DURATION;
     int collapsedHeight;
     bool isExpanded = false;
     QString title;
+    std::function<void()> fnResize;
 };

@@ -126,7 +126,6 @@ bool ModuleData::isAvailable(PulsesProtocol proto, int port)
         case PULSES_SBUS:
         case PULSES_MULTIMODULE:
         case PULSES_CROSSFIRE:
-        case PULSES_FLYSKY_AFHDS2A:
         case PULSES_FLYSKY_AFHDS3:
         case PULSES_GHOST:
           return true;
@@ -371,7 +370,7 @@ int ModuleData::getMaxChannelCount()
     case PULSES_FLYSKY_AFHDS3:
       return 18;
     case PULSES_LEMON_DSMP:
-      return 12;
+      return 16;
     case PULSES_OFF:
       break;
     default:
@@ -520,7 +519,6 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
             case MODULE_TYPE_CROSSFIRE:
             case MODULE_TYPE_MULTIMODULE:
             case MODULE_TYPE_GHOST:
-            case MODULE_TYPE_FLYSKY_AFHDS2A:
             case MODULE_TYPE_FLYSKY_AFHDS3:
             case MODULE_TYPE_LEMON_DSMP:
             case MODULE_TYPE_R9M_LITE_PXX1:
@@ -543,7 +541,6 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
             case MODULE_TYPE_CROSSFIRE:
             case MODULE_TYPE_MULTIMODULE:
             case MODULE_TYPE_GHOST:
-            case MODULE_TYPE_FLYSKY_AFHDS2A:
             case MODULE_TYPE_FLYSKY_AFHDS3:
             case MODULE_TYPE_LEMON_DSMP:
             case MODULE_TYPE_PPM:
@@ -563,6 +560,7 @@ bool ModuleData::isProtocolAvailable(int moduleidx, unsigned int protocol, Gener
             case MODULE_TYPE_GHOST:
             case MODULE_TYPE_PPM:
             case MODULE_TYPE_SBUS:
+            case MODULE_TYPE_LEMON_DSMP:
               return true;
             default:
               return false;

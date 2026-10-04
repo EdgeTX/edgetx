@@ -263,6 +263,4 @@ TIM17:	  ROTARY_ENCODER_TIMER
 #define EXTI15_10_IRQ_Priority 9
 #endif
 
-#define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
-
 #endif // _HAL_H_

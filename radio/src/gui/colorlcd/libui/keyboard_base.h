@@ -26,7 +26,6 @@ class Keyboard : public NavWindow
 {
  public:
   explicit Keyboard(coord_t height);
-  ~Keyboard();
 
   void clearField(bool wasCancelled);
   static void hide(bool wasCancelled);
@@ -47,5 +46,4 @@ class Keyboard : public NavWindow
 
   void setField(FormField* newField);
   bool attachKeyboard();
-  void deleteLater() override;
 };

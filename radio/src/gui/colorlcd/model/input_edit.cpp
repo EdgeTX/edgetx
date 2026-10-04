@@ -234,7 +234,7 @@ void InputEditWindow::buildBody(Window* form)
 
 void InputEditWindow::checkEvents()
 {
-  if (_deleted) return;
+  if (deleted()) return;
 
   ExpoData* input = expoAddress(index);
 

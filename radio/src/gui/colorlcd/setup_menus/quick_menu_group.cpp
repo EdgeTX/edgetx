@@ -144,6 +144,10 @@ QuickMenuGroup::QuickMenuGroup(Window* parent) :
 {
   padAll(PAD_OUTLINE);
   group = lv_group_create();
+
+  onClosing([=]() {
+    if (group) lv_group_del(group);
+  });
 }
 
 ButtonBase* QuickMenuGroup::addButton(EdgeTxIcon icon, const char* title,
@@ -177,14 +181,6 @@ void QuickMenuGroup::setGroup()
       indev = lv_indev_get_next(indev);
     }
   }
-}
-
-void QuickMenuGroup::deleteLater()
-{
-  if (_deleted) return;
-
-  if (group) lv_group_del(group);
-  Window::deleteLater();
 }
 
 void QuickMenuGroup::setFocus()

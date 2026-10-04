@@ -64,9 +64,6 @@ class MenuBody : public TableField
   MenuBody(Window* parent, const rect_t& rect) :
       TableField(parent, rect)
   {
-    // Allow encoder acceleration
-    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
-
     setColumnWidth(0, rect.w);
 
     setAutoEdit();
@@ -193,7 +190,7 @@ class MenuBody : public TableField
       } else {
         // delete menu first to avoid
         // focus issues with onPress()
-        menu->deleteLater();
+        menu->closeWindow();
         lines[row]->onPress();
       }
     }
@@ -202,7 +199,7 @@ class MenuBody : public TableField
   void onDrawBegin(uint16_t row, uint16_t col,
                    lv_obj_draw_part_dsc_t* dsc) override
   {
-    if (lines.size() == 0) return;
+    if (row >= lines.size()) return;
 
     lv_canvas_t* icon = (lv_canvas_t*)lines[row]->getIcon();
     if (!icon) return;
@@ -374,7 +371,7 @@ void Menu::updatePosition()
     coord_t cw = lv_obj_get_width(content->getLvObj());
     coord_t ch = lv_obj_get_height(content->getLvObj());
     coord_t tw = lv_obj_get_width(toolbar->getLvObj());
-    coord_t th = lv_obj_get_height(toolbar->getLvObj());
+    coord_t th = max((coord_t)lv_obj_get_height(toolbar->getLvObj()), toolbar->height());
 
     lv_obj_align(toolbar->getLvObj(), LV_ALIGN_CENTER, -cw / 2, 0);
     lv_obj_align(content->getLvObj(), LV_ALIGN_CENTER, tw / 2, 0);
@@ -425,7 +422,7 @@ void Menu::removeLines()
 void Menu::onCancel()
 {
   if (cancelHandler) cancelHandler();
-  deleteLater();
+  closeWindow();
 }
 
 void Menu::setCancelHandler(std::function<void()> handler)

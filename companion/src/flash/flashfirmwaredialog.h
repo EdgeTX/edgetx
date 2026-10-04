@@ -33,7 +33,7 @@ class FlashFirmwareDialog : public QDialog
     Q_OBJECT
 
   public:
-    FlashFirmwareDialog(QWidget *parent = 0);
+    FlashFirmwareDialog(QWidget * parent = nullptr);
     ~FlashFirmwareDialog();
 
   private slots:

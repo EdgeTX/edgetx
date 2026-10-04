@@ -58,6 +58,8 @@ def generate_from_template(json_filename, template_filename, target):
         trims = root_obj.get("trims")
         trim_gpios = json_index.build_trim_gpio_port_index(trims)
 
+        identity = root_obj.get("identity")
+
         legacy_inputs = legacy_names.inputs_by_target(target)
 
         template_dir = os.path.dirname(os.path.abspath(template_filename))
@@ -80,6 +82,7 @@ def generate_from_template(json_filename, template_filename, target):
             switches=hw_def.switches,
             keys=hw_def.keys,
             trims=trims,
+            identity=identity,
             adc_index=adc_index,
             adc_gpios=adc_gpios,
             switch_gpios=switch_gpios,

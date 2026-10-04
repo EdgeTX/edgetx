@@ -22,6 +22,7 @@
 #include "edgetx.h"
 #include "hal/adc_driver.h"
 #include "input_mapping.h"
+#include "lib_file.h"
 #include "mixes.h"
 
 #if defined(COLORLCD)
@@ -152,6 +153,7 @@ void applyDefaultTemplate()
   LayoutFactory::deleteCustomScreens();
   LayoutFactory::deleteTopBarWidgets();
 #endif
+  g_model.clearUserData();
 
   // enable switch warnings
   bool sw1found = false;
@@ -192,7 +194,7 @@ void setModelDefaults(uint8_t id)
 
 #if defined(LUA) && defined(PCBTARANIS)
   if (isFileAvailable(WIZARD_PATH "/" WIZARD_NAME)) {
-    f_chdir(WIZARD_PATH);
+    etxChdir(WIZARD_PATH);
     luaExec(WIZARD_NAME);
   }
 #endif

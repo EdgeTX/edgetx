@@ -28,63 +28,73 @@
 #include <QList>
 #include <QAbstractItemModel>
 
-class GenericPanel;
+class AbstractPanel;
 
 // Base class for all Auto name prefixed widgets
-// Note: ths class cannot be a Qt object as it will trigger a compile time ambiguity in the inheriting class
+// Note: this class cannot be a Qt object as it will trigger a compile time ambiguity in the inheriting class
 class AutoWidget
 {
-  friend class GenericPanel;
+  friend class AbstractPanel;
 
   public:
-    explicit AutoWidget();
+    explicit AutoWidget(QWidget * parent = nullptr);
     ~AutoWidget();
 
     // buddy Auto widgets have their bindings mirroring the parent
     // example buddies are AutoLabel and AutoComboBox
     void addBuddyWidget(AutoWidget * wgt);
     void addBuddyWidgets(QList<AutoWidget *> wgts);
-    void clearBuddyWidget(AutoWidget * wgt);
-    void clearBuddyWidgets();
+    void removeBuddyWidget(AutoWidget * wgt);
+    void removeBuddyWidgets();
+    void addBuddyParentWidget(AutoWidget * wgt);
 
-    // mark those unsupported by the base Qt widget as deleted in the child widget
+    // mark those unsupported as deleted in the child widget
     // these are not marked as virtual to support deletion
     void setBindEnabled(std::function<bool()> pred);
     void setBindModel(std::function<QAbstractItemModel*()> fn);
+    void setBindPreUpdate(std::function<void()> fn);
     void setBindPostChanged(std::function<void()> fn);
+    void setBindSave(std::function<void()> fn);
     void setBindText(std::function<QString()> fn);
     void setBindVisible(std::function<bool()> pred);
+
+    void setPanel(AbstractPanel * panel);
 
   protected:
     virtual void setAutoModel(QAbstractItemModel * model) {};
     virtual void setAutoText(QString text) {};
 
+    virtual void saveValue();
     virtual void updateValue() = 0;
 
     void applyBindings();
     void clearBindEnabled();
     void clearBindVisible();
     void clearBuddyBinds(AutoWidget * wgt);
+    void setParentBuddyWidget(AutoWidget * wgt);
+
     bool lock();
     bool panelLock();
+    void runPreUpdate();
     void runPostChanged();
     void setAutoEnabled(bool enabled);
     void setAutoVisible(bool visible);
     void setLock(bool lock);
-    void setPanel(GenericPanel * panel);
-
 
   private:
-    GenericPanel *m_panel;
+    AbstractPanel *m_panel;
     bool m_lock;
 
     QList<AutoWidget *> m_buddyWidgets;
+    AutoWidget *m_parentBuddyWidget;
 
     std::function<bool()> m_enabled;
     std::function<QAbstractItemModel*()> m_model;
     std::function<QString()> m_text;
     std::function<bool()> m_visible;
+    std::function<void()> m_preUpdate;
     std::function<void()> m_postChanged;
+    std::function<void()> m_save;
 
     void dataChanged();
 };

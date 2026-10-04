@@ -440,6 +440,11 @@ void decompressFont(int idx, etxLvglFont* fonts)
   }
 #endif
 
+  if (idx == FONT_BOLD_INDEX && fonts[idx].lz4Font == &lv_font_en_bold_STD) {
+    // EN BOLD font falls back to EN STD for missing chars
+    lvglFont->fallback = fonts[FONT_STD_INDEX].lvglFont;
+  }
+
   // Set LVGL font loaded flag
   fonts[idx].loaded = true;
 }

@@ -25,6 +25,7 @@ include(ExternalProject)
 ExternalProject_Add(wasm
   SOURCE_DIR ${EDGETX_SOURCE_DIR}
   BINARY_DIR ${CMAKE_BINARY_DIR}/wasm-build
+  LIST_SEPARATOR |
   CMAKE_ARGS
     ${_forwarded_args}
     -Wno-dev

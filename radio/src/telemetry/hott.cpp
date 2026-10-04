@@ -296,13 +296,15 @@ const HottSensor hottSensors[] = {
 };
 // clang-format on
 
+// Never returns null: falls back to the sentinel entry (name == nullptr)
 const HottSensor * getHottSensor(uint16_t id)
 {
-  for (const HottSensor * sensor = hottSensors; sensor->id; sensor++) {
+  const HottSensor * sensor = hottSensors;
+  for (; sensor->id; sensor++) {
     if (id == sensor->id)
       return sensor;
   }
-  return nullptr;
+  return sensor;
 }
 
 int16_t processHoTTdBm(int16_t value)
@@ -929,7 +931,7 @@ void hottSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
   telemetrySensor.instance = instance;
 
   const HottSensor * sensor = getHottSensor(id);
-  if (sensor) {
+  if (sensor->name) {
     TelemetryUnit unit = sensor->unit;
     uint8_t prec = min<uint8_t>(2, sensor->precision);
     telemetrySensor.init(sensor->name, unit, prec);

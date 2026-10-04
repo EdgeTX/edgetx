@@ -28,6 +28,7 @@ Selects the radio target.
 | `T15PRO` | Jumper T15 Pro |
 | `ST16` | Siyi ST16 |
 | `PA01` | FrSky PA01 |
+| `H17` | Senduwing H17 |
 
 ### `PCBREV`
 

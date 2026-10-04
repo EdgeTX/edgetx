@@ -1,4 +1,10 @@
 {
+  "identity": {
+    "manufacturer": "FrSky",
+    "model": "X7/X7S",
+    "usb_manufacturer": "FrSky",
+    "usb_product": "Taranis"
+  },
   "adc_inputs": {
     "adcs": [
       {

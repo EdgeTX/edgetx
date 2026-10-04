@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PrefsApp</class>
+ <widget class="QWidget" name="PrefsApp">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>648</width>
+    <height>132</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="AutoCollapsibleSection" name="csectGeneral" native="true"/>
+   </item>
+   <item>
+    <widget class="AutoCollapsibleSection" name="csectProfiles" native="true"/>
+   </item>
+   <item>
+    <widget class="AutoCollapsibleSection" name="csectFolders" native="true"/>
+   </item>
+   <item>
+    <widget class="AutoCollapsibleSection" name="csectLogging" native="true"/>
+   </item>
+   <item>
+    <widget class="AutoCollapsibleSection" name="csectGoogleEarth" native="true"/>
+   </item>
+   <item>
+    <widget class="AutoCollapsibleSection" name="csectSplash" native="true"/>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Orientation::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AutoCollapsibleSection</class>
+   <extends>QWidget</extends>
+   <header>autocollapsiblesection.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

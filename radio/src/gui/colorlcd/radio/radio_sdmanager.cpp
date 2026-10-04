@@ -69,7 +69,7 @@ class FlashDialog: public FullScreenDialog
           progress->setValue(total > 0 ? count * 100 / total : 0);
           lv_refr_now(nullptr);
         });
-    deleteLater();
+    closeWindow();
   }
 
  protected:
@@ -104,7 +104,7 @@ class FrskyOtaFlashDialog : public BaseDialog
     reusableBuffer.sdManager.otaUpdateInformation.module = module;
     moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].startBind(&reusableBuffer.sdManager.otaUpdateInformation, onUpdateStateChangedCallbackFor(this));
 
-    setCloseHandler([=]() { moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].mode = MODULE_MODE_NORMAL; });
+    onClosing([=]() { moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].mode = MODULE_MODE_NORMAL; });
   }
 
   void onUpdateConfirmation()
@@ -113,7 +113,7 @@ class FrskyOtaFlashDialog : public BaseDialog
     Pxx2OtaUpdate otaUpdate(reusableBuffer.sdManager.otaUpdateInformation.module, destination->candidateReceiversNames[destination->selectedReceiverIndex]);
     auto dialog = new FlashDialog<Pxx2OtaUpdate>(otaUpdate);
     dialog->flash(destination->filename);
-    deleteLater();
+    closeWindow();
   }
 
   void onUpdateStateChanged()
@@ -136,9 +136,9 @@ class FrskyOtaFlashDialog : public BaseDialog
         updateConfirmDialog = new ConfirmDialog(getPXX2ReceiverName(modelId),
                           std::string(reusableBuffer.sdManager.otaReceiverVersion).c_str(),
                           [=]() { onUpdateConfirmation(); },
-                          [=]() { deleteLater(); });
+                          [=]() { closeWindow(); });
       } else {
-        deleteLater();
+        closeWindow();
         POPUP_WARNING(STR_OTA_UPDATE_ERROR, STR_UNSUPPORTED_RX);
       }
     }
@@ -156,8 +156,8 @@ class FrskyOtaFlashDialog : public BaseDialog
               rxChoiceMenu->setCancelHandler([=]() {
                 // Seems menu didn't delete itself before call cancelHandler().
                 // Delete the menu explicity to ensure menu is deleted before dialog.
-                rxChoiceMenu->deleteLater();
-                deleteLater();
+                rxChoiceMenu->closeWindow();
+                closeWindow();
               });
             } else {
               rxChoiceMenu->removeLines();
@@ -286,9 +286,14 @@ void RadioSdManagerPage::dirAction(const char* path, const char* name,
     std::string extension("");
     if (ext) extension = ext;
 
+    // full paths, so the rename doesn't depend on FatFs's working folder
+    std::string from(fullpath);
+    std::string dir(path);
+    if (dir.back() != '/') dir += '/';
+
     new LabelDialog(fname.c_str(), maxNameLength, STR_RENAME_FILE, [=](std::string label) {
-      label += extension;
-      f_rename((const TCHAR *)name, (const TCHAR *)label.c_str());
+      std::string to = dir + label + extension;
+      f_rename((const TCHAR *)from.c_str(), (const TCHAR *)to.c_str());
       browser->refresh();
     });
   });
@@ -468,14 +473,19 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
   }
   menu->addLine(STR_COPY_FILE, [=]() {
     clipboard.type = CLIPBOARD_TYPE_SD_FILE;
-    f_getcwd(clipboard.data.sd.directory, CLIPBOARD_PATH_LEN);
+    // f_getcwd() is a no-op on exFAT; use the tracked path.
+    strncpy(clipboard.data.sd.directory, path, CLIPBOARD_PATH_LEN - 1);
+    clipboard.data.sd.directory[CLIPBOARD_PATH_LEN - 1] = '\0';
     strncpy(clipboard.data.sd.filename, name, CLIPBOARD_PATH_LEN - 1);
+    clipboard.data.sd.filename[CLIPBOARD_PATH_LEN - 1] = '\0';
   });
   if (clipboard.type == CLIPBOARD_TYPE_SD_FILE) {
     menu->addLine(STR_PASTE, [=]() {
       static char lfn[FF_MAX_LFN + 1];  // TODO optimize that!
       char destFileName[2 * CLIPBOARD_PATH_LEN + 1];
-      f_getcwd((TCHAR*)lfn, FF_MAX_LFN);
+      // f_getcwd() is a no-op on exFAT; use the tracked path.
+      strncpy(lfn, path, FF_MAX_LFN);
+      lfn[FF_MAX_LFN] = '\0';
       // prevent copying to the same directory with the same name
       char* destNamePtr = clipboard.data.sd.filename;
       if (!strcmp(clipboard.data.sd.directory, lfn)) {
@@ -505,9 +515,14 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
     std::string extension("");
     if (ext) extension = ext;
 
+    // full paths, so the rename doesn't depend on FatFs's working folder
+    std::string from(fullpath);
+    std::string dir(path);
+    if (dir.back() != '/') dir += '/';
+
     new LabelDialog(fname.c_str(), maxNameLength, STR_RENAME_FILE, [=](std::string label) {
-      label += extension;
-      f_rename((const TCHAR *)name, (const TCHAR *)label.c_str());
+      std::string to = dir + label + extension;
+      f_rename((const TCHAR *)from.c_str(), (const TCHAR *)to.c_str());
       browser->refresh();
     });
   });

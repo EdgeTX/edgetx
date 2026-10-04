@@ -73,6 +73,7 @@ BoardJson::BoardJson(Board::Type board, QString hwdefn) :
   m_display({0, 0, 0, 0, 0, 0, 0, 0}),
   m_cfs({0, 0}),
   m_hardware({0, 0, 0}),
+  m_identity({"", ""}),
   m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0, 0}),
   m_switchCnt({0, 0, 0})
 {
@@ -92,9 +93,11 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
 {
   // TODO json files do not contain gyro defs
   // Radio cmake directive IMU is currently used
-  if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board) ||
-      IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board) ||
-      IS_RADIOMASTER_TX16SMK3(board) || IS_FLYSKY_PA01(board)) {
+  // H17 has no IMU
+  if ((IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board) ||
+       IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board) ||
+       IS_RADIOMASTER_TX16SMK3(board) || IS_FLYSKY_PA01(board)) &&
+      !IS_SENDUWING_H17(board)) {
     if (getInputIndex(inputs, "TILT_X", Board::LVT_TAG) < 0) {
       InputDefn defn;
       defn.type = AIT_FLEX;
@@ -133,7 +136,10 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
   }
 
   //  Flex switches are not listed in json file for these radios
-  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_MT12(board) ? 2 : 0;
+  //  Must match the targets that set FLEXSW (MAX_FLEX_SWITCHES) in the firmware
+  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_TX16SMK3(board) ||
+              IS_FATFISH_F16(board) || IS_HELLORADIOSKY_V16(board) ||
+              IS_RADIOMASTER_MT12(board) ? 2 : 0;
 
   for (int i = 1; i <= count; i++) {
     QString tag = QString("FL%1").arg(i);
@@ -142,6 +148,26 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
       defn.tag = tag.toStdString();
       defn.name = defn.tag;
       switches->insert(switches->end(), defn);
+    }
+  }
+
+  //  CI1302 voice control virtual switches are not listed in json file
+  //  They must follow the flex switches above: firmware indexes them at
+  //  switchGetMaxSwitches() + MAX_FLEX_SWITCHES
+  //  VGR (voice gear) is a 2POS switch, VFL (voice flap) is 3POS -- see
+  //  isTwoPosVoiceSwitch() in radio/src/drivers/CI1302.cpp
+  if (IS_HELLORADIOSKY_V16(board)) {
+    for (const auto &sw : {std::make_pair(QStringLiteral("VGR"), Board::SWITCH_2POS),
+                           std::make_pair(QStringLiteral("VFL"), Board::SWITCH_3POS)}) {
+      const QString &tag = sw.first;
+      if (getSwitchIndex(switches, tag, Board::LVT_TAG) < 0) {
+        SwitchDefn defn;
+        defn.tag = tag.toStdString();
+        defn.name = defn.tag;
+        defn.type = sw.second;
+        defn.dflt = sw.second;
+        switches->insert(switches->end(), defn);
+      }
     }
   }
 }
@@ -980,7 +1006,7 @@ bool BoardJson::loadDefinition()
   if (m_board == Board::BOARD_UNKNOWN)
     return true;
 
-  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs, m_hardware, m_hasKeyLockCombo))
+  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs, m_hardware, m_identity, m_hasKeyLockCombo))
     return false;
 
   afterLoadFixups(m_board, m_inputs, m_switches, m_keys, m_trims);
@@ -1017,7 +1043,7 @@ bool BoardJson::loadDefinition()
 // static
 bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
                          KeysTable * keys, TrimsTable * trims, DisplayDefn & display, CustomSwitchesDefn & cfs,
-                         HardwareDefn & hardware, bool & hasKeyLockCombo)
+                         HardwareDefn & hardware, IdentityDefn & identity, bool & hasKeyLockCombo)
 {
   if (board == Board::BOARD_UNKNOWN) {
     return false;
@@ -1268,6 +1294,13 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
     hardware.cpu_type = o.value("cpu_type").toString().toStdString();
   }
 
+  if (obj.value("identity").isObject()) {
+    const QJsonObject &o = obj.value("identity").toObject();
+
+    identity.manufacturer = o.value("manufacturer").toString().toStdString();
+    identity.model = o.value("model").toString().toStdString();
+  }
+
   delete json;
   return true;
 }
@@ -1317,6 +1350,8 @@ const QString BoardJson::getCapabilityStr(const Board::Capability capability) co
       return m_hardware.cpu.c_str();
     case Board::CPUType:
       return m_hardware.cpu_type.c_str();
+    case Board::Manufacturer:
+      return m_identity.manufacturer.c_str();
     default:
       return QString();
   }

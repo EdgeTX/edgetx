@@ -1,10 +1,11 @@
 option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(PXX1 "PXX1 protocol support" ON)
-option(PXX2 "PXX2 protocol support" OFF)
+option(PXX2 "PXX2 protocol support" ON)
 option(AFHDS3 "AFHDS3 TX Module" ON)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(GHOST "Ghost TX Module" ON)
-option(MODULE_SIZE_STD "Standard size TX Module" ON)
+option(MODULE_SIZE_STD "Standard size TX Module" OFF)
+option(MODULE_SIZE_SML "Small size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(STICK_DEAD_ZONE "Enable sticks dead zone" YES)
@@ -47,7 +48,6 @@ add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 
 set(FLAVOUR pa01)
-add_definitions(-DMANUFACTURER_FLYSKY)
 
 # Defines internal modules for PL18 via UART7
 set(INTERNAL_MODULES AFHDS3;CRSF CACHE STRING "Internal modules")

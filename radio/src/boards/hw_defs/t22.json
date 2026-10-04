@@ -1,4 +1,10 @@
 {
+  "identity": {
+    "manufacturer": "Jumper",
+    "model": "T22",
+    "usb_manufacturer": "JUMPER",
+    "usb_product": "T22"
+  },
   "adc_inputs": {
     "adcs": [
       {

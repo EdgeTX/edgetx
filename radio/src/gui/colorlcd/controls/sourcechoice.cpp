@@ -55,6 +55,9 @@ class SourceChoiceMenuToolbar : public MenuToolbar
 #if defined(LUMINOSITY_SENSOR)
           if (index == MIXSRC_LIGHT) return true;
 #endif
+#if defined(VOICE_CONTROL_SENSOR)
+          if (index >= MIXSRC_VGR && index <= MIXSRC_LAST_VOICE) return true;
+#endif
           return (index >= MIXSRC_MIN && index <= MIXSRC_MAX) ||
                  (index >= MIXSRC_TX_VOLTAGE && index <= MIXSRC_LAST_TIMER);
         },
@@ -181,7 +184,7 @@ void SourceChoice::openMenu()
 #if defined(AUTOSOURCE)
   menu->setWaitHandler([=]() {
     int16_t val = getMovedSource(vmin);
-    if (val) {
+    if (val && (!isValueAvailable || isValueAvailable(val))) {
       tb->resetFilter();
       menu->select(getIndexFromValue(val));
     }
@@ -190,7 +193,7 @@ void SourceChoice::openMenu()
       swsrc_t swtch = abs(getMovedSwitch());
       if (swtch && !IS_SWITCH_MULTIPOS(swtch)) {
         val = switchToMix(swtch);
-        if (val && (val >= vmin) && (val <= vmax)) {
+        if (val && (val >= vmin) && (val <= vmax) && (!isValueAvailable || isValueAvailable(val))) {
           tb->resetFilter();
           menu->select(getIndexFromValue(val));
         }
@@ -202,7 +205,7 @@ void SourceChoice::openMenu()
 
   // fillMenu(menu); - called by MenuToolbar
 
-  menu->setCloseHandler([=]() { setEditMode(false); });
+  menu->onClosing([=]() { setEditMode(false); });
 }
 
 SourceChoice::SourceChoice(Window *parent, const rect_t &rect, int16_t vmin,

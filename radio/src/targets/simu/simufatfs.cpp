@@ -366,7 +366,7 @@ FRESULT f_write(FIL* fil, const void* data, UINT size, UINT* written)
   return FR_OK;
 }
 
-FRESULT f_lseek(FIL* fil, DWORD offset)
+FRESULT f_lseek(FIL* fil, FSIZE_t offset)
 {
   if (fil && fil->obj.fs) {
     _simu_FIL* sf = reinterpret_cast<_simu_FIL*>(fil->obj.fs);

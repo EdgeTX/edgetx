@@ -104,7 +104,7 @@ class RadioInfoWidget : public Widget
 
   void update() override
   {
-    if (_deleted) return;
+    if (deleted()) return;
 
     auto widgetData = getPersistentData();
 
@@ -116,7 +116,7 @@ class RadioInfoWidget : public Widget
 
   void foreground() override
   {
-    if (_deleted) return;
+    if (deleted()) return;
 
     usbIcon->show(usbPlugged());
     if (getSelectedUsbMode() == USB_UNSELECTED_MODE)
@@ -246,14 +246,14 @@ class DateTimeWidget : public Widget
 
   void foreground() override
   {
-    if (_deleted) return;
+    if (deleted()) return;
 
     Widget::checkEvents();
   }
 
   void update() override
   {
-    if (_deleted) return;
+    if (deleted()) return;
 
     auto widgetData = getPersistentData();
 
@@ -302,7 +302,7 @@ class InternalGPSWidget : public Widget
 
   void foreground() override
   {
-    if (_deleted) return;
+    if (deleted()) return;
 
     bool hasGPS = serialGetModePort(UART_MODE_GPS) >= 0;
 

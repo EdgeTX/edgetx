@@ -408,6 +408,38 @@ static int luaModelResetTimer(lua_State *L)
   return 0;
 }
 
+// Out of range switches are treated as no switch
+static swsrc_t luaCheckSwitch(lua_Integer swtch)
+{
+  return (swtch >= SWSRC_FIRST && swtch <= SWSRC_LAST) ? swtch : SWSRC_NONE;
+}
+
+// Curve function and custom curve values index arrays, so reset invalid ones
+static void luaCheckCurveRef(CurveRef& curve)
+{
+  SourceNumVal v;
+  v.rawValue = curve.value;
+
+  switch (curve.type) {
+    case CURVE_REF_DIFF:
+    case CURVE_REF_EXPO:
+      // value is limited when used
+      break;
+    case CURVE_REF_FUNC:
+      if (v.isSource || v.value < 0 || v.value >= CURVE_BASE)
+        curve.value = 0;
+      break;
+    case CURVE_REF_CUSTOM:
+      if (v.isSource || abs(v.value) > MAX_CURVES)
+        curve.value = 0;
+      break;
+    default:
+      curve.type = CURVE_REF_DIFF;
+      curve.value = 0;
+      break;
+  }
+}
+
 static unsigned int getFirstInput(unsigned int chn)
 {
   for (unsigned int i=0; i<MAX_EXPOS; i++) {
@@ -613,9 +645,9 @@ Return input data for given input and line number
  * `curveType` (number) curve type (function, expo, custom curve)
  * `curveValue` (number) curve index
  * `carryTrim` deprecated, please use trimSource instead. WARNING: carryTrim was getting negative values (carryTrim = - trimSource)
- * 'trimSource' (number) a positive number representing trim source
- * 'side' (number) input side (positive, negative or all)
- * 'flightModes' (number) bit-mask of active flight modes
+ * `trimSource` (number) a positive number representing trim source
+ * `side` (number) input side (positive, negative or all)
+ * `flightModes` (number) bit-mask of active flight modes
 
 @status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11, broken carryTrim replaced by trimSource in 2.8.1, scale added in 2.10, side added in 2.11
 */
@@ -705,7 +737,7 @@ static int luaModelInsertInput(lua_State *L)
         expo->offset = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "switch")) {
-        expo->swtch = luaL_checkinteger(L, -1);
+        expo->swtch = luaCheckSwitch(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "curveType")) {
         expo->curve.type = luaL_checkinteger(L, -1);
@@ -720,6 +752,7 @@ static int luaModelInsertInput(lua_State *L)
         expo->flightModes = luaL_checkinteger(L, -1);
       }
     }
+    luaCheckCurveRef(expo->curve);
   }
 
   return 0;
@@ -932,7 +965,7 @@ static int luaModelInsertMix(lua_State *L)
         mix->offset = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "switch")) {
-        mix->swtch = luaL_checkinteger(L, -1);
+        mix->swtch = luaCheckSwitch(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "curveType")) {
         mix->curve.type = luaL_checkinteger(L, -1);
@@ -941,7 +974,9 @@ static int luaModelInsertMix(lua_State *L)
         mix->curve.value = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "multiplex")) {
-        mix->mltpx = luaL_checkinteger(L, -1);
+        // Out of range values are treated as ADD (same as mixer and YAML load)
+        lua_Integer mltpx = luaL_checkinteger(L, -1);
+        mix->mltpx = (mltpx >= MLTPX_ADD && mltpx <= MLTPX_REPL) ? mltpx : MLTPX_ADD;
       }
       else if (!strcmp(key, "flightModes")) {
         mix->flightModes = luaL_checkinteger(L, -1);
@@ -971,6 +1006,7 @@ static int luaModelInsertMix(lua_State *L)
         mix->speedDown = luaL_checkinteger(L, -1);
       }
     }
+    luaCheckCurveRef(mix->curve);
   }
 
   return 0;
@@ -1072,7 +1108,9 @@ Set warning state for a switch
 2 = switch middle
 3 = switch down
 
-@retval nil when switch is a toggle or does not exist
+@retval boolean true when the warning state was set
+
+@retval nil when switch is a toggle or does not exist, or state is out of range
 
 @status current Introduced in 3.0.0
 */
@@ -1096,6 +1134,7 @@ static int luaModelSetSwitchWarning(lua_State *L)
 
   if (sw <= switchGetMaxAllSwitches() && SWITCH_WARNING_ALLOWED(sw) && newstate < 4) {
     g_model.setSwitchWarning(sw, newstate);
+    lua_pushboolean(L, true);
   }
   else {
     lua_pushnil(L);
@@ -1736,16 +1775,21 @@ static int luaModelSetGlobalVariable(lua_State *L)
 }
 
 /*luadoc
-@name model.getGlobalVariableDetails(index)
+@function model.getGlobalVariableDetails(index)
 
-@description Returns details about a Global Variable, but not values
+Returns details about a Global Variable, but not values
 
-@syntax val = model.getGlobalVariableDetails(index)
-@arg index required integer
-@argdesc zero based global variable index, use 0 for GV1, 8 for GV9
-@return table
-@returndesc table with keys - name (string), min (int), max, prec, unit and popup (bool) - if exists
-@apistat 2.11.0 introduced
+@param index (number) zero based global variable index, use 0 for GV1, 8 for GV9
+
+@retval table details of the global variable:
+ * `name` (string) global variable name
+ * `min` (number) minimum value
+ * `max` (number) maximum value
+ * `prec` (number) precision
+ * `unit` (number) unit
+ * `popup` (boolean) show popup - if exists
+
+@status current Introduced in 2.11.0
 */
 static int luaModelGetGlobalVariableDetails(lua_State *L)
 {
@@ -1765,17 +1809,17 @@ static int luaModelGetGlobalVariableDetails(lua_State *L)
 }
 
 /*luadoc
-@name model.setGlobalVariableDetails(index, params)
+@function model.setGlobalVariableDetails(index, params)
 
-@description Sets details about a Global Variable, but not values
+Sets details about a Global Variable, but not values
 
-@arg index required integer
-@argdesc zero based global variable index, use 0 for GV1, 8 for GV9
-@arg table params
-@argdesc see model.getGlobalVariableDetails(index) return format for table format.
-@return none
-@apistat 2.11.0 introduced
+@param index (number) zero based global variable index, use 0 for GV1, 8 for GV9
 
+@param params (table) see model.getGlobalVariableDetails(index) return format for table format
+
+@retval none
+
+@status current Introduced in 2.11.0
 */
 static int luaModelSetGlobalVariableDetails(lua_State *L)
 {
@@ -1886,12 +1930,12 @@ Get heli swash parameters
 @retval table with heli swash parameters:
 * `type` (number) 0=---, 1=120, 2=120X, 3=140, 4=90
 * `value` (number) swash ring value (normally 0)
-* 'collectiveSource' (number) source index
-* 'aileronSource' (number) source index
-* 'elevatorSource' (number) source index
-* 'collectiveWeight'(value) -100 to 100
-* 'aileronWeight' (value) -100 to 100
-* 'elevatorWeight' (value) -100 to 100
+* `collectiveSource` (number) source index
+* `aileronSource` (number) source index
+* `elevatorSource` (number) source index
+* `collectiveWeight`(value) -100 to 100
+* `aileronWeight` (value) -100 to 100
+* `elevatorWeight` (value) -100 to 100
 
  @status current Introduced in 2.8.0
 */
@@ -1958,6 +2002,189 @@ static int luaModelSetSwashRing(lua_State *L)
 }
 #endif // HELI
 
+static std::string getUDKey(lua_State *L)
+{
+  // generate user data key from supplied 'app' and 'key' values
+  // UD key = "app|key"
+
+  const char* a = luaL_checkstring(L, 1);
+  const char* k = luaL_checkstring(L, 2);
+
+  // App name and key are mandatory, and app name cannot contain '|'
+  // (used internally as the app/key separator)
+  if (a[0] == 0 || k[0] == 0 || strchr(a, '|') != nullptr) {
+    return "";
+  }
+
+  std::string s(a);
+  s += "|";
+  s += k;
+
+  return s;
+}
+
+/*luadoc
+@function model.getUserData(app, key)
+
+Get User Data value for given app + key
+
+@param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
+
+@param key (string) name of User Data entry
+
+@retval nil no User Data value defined
+
+@retval User Data value (string or number)
+
+@status current Introduced in 3.0.0
+*/
+static int luaGetUserData(lua_State *L)
+{
+  std::string s = getUDKey(L);
+
+  auto ud = g_model.getUserData(s.c_str());
+  if (ud) {
+    if (ud->type == UD_INT) {
+      lua_pushinteger(L, strtol(ud->value.c_str(), nullptr, 10));
+    } else if (ud->type == UD_FLOAT) {
+      lua_pushnumber(L, strtof(ud->value.c_str(), nullptr));
+    } else {
+      lua_pushlstring(L, ud->value.data(), ud->value.size());
+    }
+  }
+  else {
+    lua_pushnil(L);
+  }
+  return 1;
+}
+
+/*luadoc
+@function model.getAllUserData([app])
+
+Get a table of all User Data entries
+
+@param app (string) (optional) name of Lua app / widget / script. App name cannot contain the '|' character.
+
+@retval table of all User Data entries for the named app. If the app name is not supplied returns all entries.
+
+@status current Introduced in 3.0.0
+*/
+static int luaGetAllUserData(lua_State *L)
+{
+  // Increases stack by pushing an empty table so lua_gettop(L) checks below must check for >= 2 (not 1).
+  lua_newtable(L);
+
+  if (g_model.getUserDataCount() == 0) return 1;
+  if (lua_gettop(L) >= 2 && lua_type(L, 1) != LUA_TSTRING) return 1;
+
+  bool matchApp = false;
+  std::string s;
+  if (lua_gettop(L) >= 2) {
+    s = luaL_checkstring(L, 1);
+    // App name cannot contain '|' - no entry can match, since no app
+    // name stored via setUserData()/getUDKey() ever contains one either.
+    if (s.find('|') != std::string::npos) return 1;
+    s += "|";
+    matchApp = true;
+  }
+
+  for (int i = 0; i < g_model.getUserDataCount(); i += 1) {
+    auto ud = g_model.getUserData(i);
+    if (ud && !ud->key.empty()) {
+      std::string k = ud->key;
+      if (matchApp) {
+        if (k.rfind(s, 0) != 0)
+          continue;
+        k = k.substr(s.size(), k.size()-s.size());
+      }
+      if (ud->type == UD_INT) {
+        lua_pushtableinteger(L, k.c_str(), strtol(ud->value.c_str(), nullptr, 10));
+      } else if (ud->type == UD_FLOAT) {
+        lua_pushtablenumber(L, k.c_str(), strtof(ud->value.c_str(), nullptr));
+      } else {
+        // lua_pushtablestring() would truncate an embedded NUL byte.
+        lua_pushstring(L, k.c_str());
+        lua_pushlstring(L, ud->value.data(), ud->value.size());
+        lua_settable(L, -3);
+      }
+    }
+  }
+
+  return 1;
+}
+
+/*luadoc
+@function model.setUserData(app, key, value)
+
+Update User Data string for given app and key with new value.
+A new User Data entry will be created if the app + key is not found.
+
+@param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
+App and key names are stored as NUL-terminated C strings, so any embedded
+'\0' character - and everything after it - will be silently truncated.
+String values may contain embedded '\0' characters, except when the value
+is both longer than 255 bytes and contains one - such a value is
+truncated at the first '\0'.
+
+@param key (string) name of User Data entry
+
+@param value (string or number) value to save to User Data entry
+
+@retval boolean - true if user data was saved, false if save failed
+
+@status current Introduced in 3.0.0
+*/
+static int luaSetUserData(lua_State *L)
+{
+  if (lua_type(L, 3) != LUA_TSTRING && !lua_isnumber(L, 3)) {
+    // Fallback to trigger the standard Lua type error before allocating std::string
+    luaL_checkstring(L, 3);
+    return 0;
+  }
+
+  std::string s = getUDKey(L);
+
+  // App name and key are mandatory
+  if (s.empty()) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
+  if (lua_type(L, 3) == LUA_TSTRING) {
+    size_t len;
+    const char* v = lua_tolstring(L, 3, &len);
+    lua_pushboolean(L, g_model.setUserData(s.c_str(), v, len));
+  } else if (lua_isinteger(L, 3)) {
+    int32_t n = luaL_checkinteger(L, 3);
+    lua_pushboolean(L, g_model.setUserData(s.c_str(), n));
+  } else {
+    float f = luaL_checknumber(L, 3);
+    lua_pushboolean(L, g_model.setUserData(s.c_str(), f));
+  }
+  return 1;
+}
+
+/*luadoc
+@function model.deleteUserData(app, key)
+
+Delete User Data entry for given app + key
+
+@param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
+
+@param key (string) name of User Data entry
+
+@retval none
+
+@status current Introduced in 3.0.0
+*/
+static int luaDeleteUserData(lua_State *L)
+{
+  std::string s = getUDKey(L);
+  if (!s.empty())
+    g_model.deleteUserData(s.c_str());
+  return 0;
+}
+
 extern "C" {
 LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( getInfo, luaModelGetInfo )
@@ -2003,5 +2230,9 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( getSwashRing, luaModelGetSwashRing )
   LROT_FUNCENTRY( setSwashRing, luaModelSetSwashRing )
 #endif
+  LROT_FUNCENTRY( getUserData, luaGetUserData )
+  LROT_FUNCENTRY( getAllUserData, luaGetAllUserData )
+  LROT_FUNCENTRY( setUserData, luaSetUserData )
+  LROT_FUNCENTRY( deleteUserData, luaDeleteUserData )
 LROT_END(modellib, NULL, 0)
 }

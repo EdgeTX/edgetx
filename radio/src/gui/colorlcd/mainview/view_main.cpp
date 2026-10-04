@@ -104,9 +104,11 @@ ViewMain::ViewMain() :
 
   // create last to be on top
   topbar = new TopBar(this);
-}
 
-ViewMain::~ViewMain() { _instance = nullptr; }
+  onClosing([=]() {
+    _instance = nullptr;
+  });
+}
 
 void ViewMain::addMainView(WidgetsContainer* view, uint32_t viewId)
 {
@@ -370,7 +372,7 @@ void ViewMain::hideTopBarEdgeTxButton()
 
 void ViewMain::_refreshWidgets()
 {
-  if (!_deleted) {
+  if (!deleted()) {
     topbar->refreshWidgets(isVisible && hasTopbar());
     for (int i = 0; i < MAX_CUSTOM_SCREENS; i += 1) {
       if (customScreens[i])

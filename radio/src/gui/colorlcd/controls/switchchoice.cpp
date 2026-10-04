@@ -156,7 +156,7 @@ void SwitchChoice::openMenu()
 
   // fillMenu(menu); - called by MenuToolbar
 
-  menu->setCloseHandler([=]() { setEditMode(false); });
+  menu->onClosing([=]() { setEditMode(false); });
 }
 
 SwitchChoice::SwitchChoice(Window* parent, const rect_t& rect, int vmin,

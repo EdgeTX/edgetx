@@ -82,6 +82,7 @@ inline void SYSTEM_RESET()
 inline void MODEL_RESET()
 {
   memset(&g_model, 0, sizeof(g_model));
+  g_model.clearUserData();
   anaResetFiltered();
   extern uint8_t s_mixer_first_run_done;
   s_mixer_first_run_done = false;
@@ -99,6 +100,23 @@ inline void MIXER_RESET()
   mixerCurrentFlightMode = lastFlightMode = 0;
   lastAct = 0;
   logicalSwitchesReset();
+}
+
+// Find a hardware switch matching the given type (SWITCH_3POS, SWITCH_2POS,
+// etc.), skipping function switches. Pass SWITCH_NONE to match any type.
+// Pass startAfter to find a second (or further) distinct switch, continuing
+// the scan after that index. Returns the switch index, or -1 if none found.
+inline int findHwSwitch(int type = SWITCH_NONE, int startAfter = -1)
+{
+  for (int sw = startAfter + 1; sw < switchGetMaxAllSwitches(); sw++) {
+    auto swType = g_model.getSwitchType(sw);
+    if (swType == SWITCH_NONE) continue;
+#if defined(FUNCTION_SWITCHES)
+    if (switchIsCustomSwitch(sw)) continue;
+#endif
+    if (type == SWITCH_NONE || swType == type) return sw;
+  }
+  return -1;
 }
 
 inline void TELEMETRY_RESET()

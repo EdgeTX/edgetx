@@ -230,7 +230,7 @@ bool RadioData::addLabelToModel(int index, QString label)
 
   auto & modelLabelCsv = models[index].labels;
   // Make sure it will fit
-  if (modelLabelCsv.size() + (size_t)label.size() + 1 < modelLabelCsv.capacity()) {
+  if (modelLabelCsv.size() + (size_t)label.size() + 1 <= modelLabelCsv.capacity()) {
     QStringList modelLabels = QString::fromLatin1(modelLabelCsv.c_str()).split(',', Qt::SkipEmptyParts);
     if (modelLabels.indexOf(label) == -1) {
       modelLabels.append(label);

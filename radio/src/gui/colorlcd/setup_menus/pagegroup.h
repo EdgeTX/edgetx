@@ -122,8 +122,6 @@ class PageGroupHeaderBase : public Window
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
   uint8_t tabCount() const { return pages.size(); }
 
-  void deleteLater() override;
-
 #if VERSION_MAJOR == 2
   static LAYOUT_VAL_SCALED(ICON_EXTRA_H, 10)
   static LAYOUT_VAL_SCALED(MENU_HEADER_BUTTON_WIDTH, 33)

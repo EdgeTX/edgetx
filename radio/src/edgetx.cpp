@@ -46,6 +46,10 @@
 #include "input_mapping.h"
 #include "trainer.h"
 
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
+
 #include "tasks.h"
 #include "tasks/mixer_task.h"
 #include "os/async.h"
@@ -231,6 +235,9 @@ void per10ms()
 #if defined(CSD203_SENSOR) && !defined(SIMU)
   readCSD203();
 #endif
+#if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
+  CI1302_voiceIntegrationPer10ms();
+#endif
 
   telemetryInterrupt10ms();
 
@@ -312,6 +319,10 @@ void generalDefaultSwitches()
 #endif
 #endif
   }
+
+#if defined(VOICE_CONTROL_SENSOR)
+  CI1302_voiceSwitchSetDefaults();
+#endif
 }
 
 void generalDefaultUILanguage()
@@ -438,6 +449,7 @@ void generalDefault()
   uint8_t defaultCalib[] = DEFAULT_6POS_CALIB;
   StepsCalibData* calib = (StepsCalibData*)&g_eeGeneral.calib[DEFAULT_6POS_IDX];
 
+  calib->count = XPOTS_MULTIPOS_COUNT - 1;
   for (int i = 0; i < 5; i++) {
     calib->steps[i] = defaultCalib[i];
   }
@@ -785,7 +797,7 @@ void checkAll(bool isBootCheck)
     MainWindow::instance()->blockUntilClose(true, [=]() {
       if (dlg->deleted()) return true;
       if ((tgtime < get_tmr10ms()) || !keyDown()) {
-        dlg->deleteLater();
+        dlg->closeWindow();
         return true;
       }
       return false;
@@ -1137,6 +1149,10 @@ void flightReset(uint8_t check)
   s_mixer_first_run_done = false;
 
   START_SILENCE_PERIOD();
+
+#if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
+  CI1302_voiceIntegrationOnFlightReset();
+#endif
 
   RESET_THR_TRACE();
 

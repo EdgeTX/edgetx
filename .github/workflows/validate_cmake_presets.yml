@@ -1,0 +1,39 @@
+---
+name: Validate CMakePresets.json
+on:
+  push:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+    paths:
+      - 'CMakePresets.json'
+      - '.prettierrc.json'
+      - '.github/workflows/validate_cmake_presets.yml'
+  pull_request:
+    branches:
+      - 'main'
+      - '[0-9]+.[0-9]+'
+    paths:
+      - 'CMakePresets.json'
+      - '.prettierrc.json'
+      - '.github/workflows/validate_cmake_presets.yml'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Validate CMakePresets.json
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.0.1
+
+      - name: Validate against CMake's presets schema
+        run: |
+          cmake --version
+          CMAKE_PREFIX="$(dirname "$(dirname "$(command -v cmake)")")"
+          uvx check-jsonschema --schemafile "$CMAKE_PREFIX"/share/cmake-*/Help/manual/presets/schema.json CMakePresets.json
+
+      - name: Check formatting (prettier)
+        run: npx --yes prettier@3.9.6 --check CMakePresets.json

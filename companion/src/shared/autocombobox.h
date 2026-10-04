@@ -46,26 +46,34 @@ class AutoComboBox : public QComboBox, public AutoWidget
     // QComboBox
     virtual void addItem(const QString & item);
     virtual void addItem(const QString & item, int value);
+    virtual void addItems(const QStringList & items);
     virtual void insertItems(int index, const QStringList & items);
+
     // AutoWidget
     virtual void updateValue() override;
     void setAutoModel(QAbstractItemModel * model) override;
+
+    // not applicable to this widget
     void setBindText(std::function<QString()> fn) = delete;
 
     void clear();
 
-    void setField(unsigned int & field, GenericPanel * panel = nullptr);
-    void setField(int & field, GenericPanel * panel = nullptr);
-    void setField(RawSource & field, GenericPanel * panel = nullptr);
-    void setField(RawSwitch & field, GenericPanel * panel = nullptr);
-    void setField(CurveData::CurveType & field, GenericPanel * panel = nullptr);
-    void setField(Board::FlexType & field, GenericPanel * panel = nullptr);
-    void setField(Board::SwitchType & field, GenericPanel * panel = nullptr);
-    void setField(QString & field, GenericPanel * panel = nullptr);
-    void setField(std::string & field, GenericPanel * panel = nullptr);
+    void setField(unsigned int & field, AbstractPanel * panel = nullptr);
+    void setField(int & field, AbstractPanel * panel = nullptr);
+    void setField(RawSource & field, AbstractPanel * panel = nullptr);
+    void setField(RawSwitch & field, AbstractPanel * panel = nullptr);
+    void setField(CurveData::CurveType & field, AbstractPanel * panel = nullptr);
+    void setField(Board::FlexType & field, AbstractPanel * panel = nullptr);
+    void setField(Board::SwitchType & field, AbstractPanel * panel = nullptr);
+    void setField(QString & field, AbstractPanel * panel = nullptr);
+    void setField(std::string & field, AbstractPanel * panel = nullptr);
 
     void setAutoIndexes();
     void setModel(QAbstractItemModel * model) override;
+
+    // use for widget not bound to a memory address
+    void setValue(QVariant value, AbstractPanel * panel, bool useFindData = true);
+    void setValue(QVariant value);
 
   signals:
     void currentDataChanged(int value);
@@ -76,7 +84,7 @@ class AutoComboBox : public QComboBox, public AutoWidget
   private:
     int m_next;
     bool m_hasModel;
-    int *m_field;
+    int *m_int;
     RawSource *m_rawSource;
     RawSwitch *m_rawSwitch;
     CurveData::CurveType *m_curveType;
@@ -84,7 +92,9 @@ class AutoComboBox : public QComboBox, public AutoWidget
     Board::SwitchType *m_switchType;
     QString *m_qString;
     std::string *m_stdString;
+    QVariant m_value;
+    bool m_useFindData;
 
     void initField();
-    void setFieldInit(GenericPanel * panel);
+    void setFieldInit(AbstractPanel * panel);
 };

@@ -34,6 +34,10 @@
 #include "hal/adc_driver.h"
 #include "hal/audio_driver.h"
 
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
+
 #if defined(COLORLCD)
 #include "radio_tools.h"
 #endif
@@ -291,6 +295,15 @@ static uint32_t r_mixSrcRaw(const YamlNode* node, const char* val, uint8_t val_l
       return MIXSRC_FIRST_TRIM + (val[1] - '1');
     }
 
+#if defined(VOICE_CONTROL_SENSOR)
+    {
+      uint32_t voiceSrc;
+      if (CI1302_voiceIntegrationMixSrcParseYaml(val, val_len, &voiceSrc)) {
+        return voiceSrc;
+      }
+    }
+#endif
+
     auto idx = analogLookupCanonicalIdx(ADC_INPUT_MAIN, val, val_len);
     if (idx >= 0) return idx + MIXSRC_FIRST_STICK;
 
@@ -407,6 +420,11 @@ static bool w_mixSrcRaw(const YamlNode* node, uint32_t val, yaml_writer_func wf,
           return false;
         str = closing_parenthesis;
     }
+#if defined(VOICE_CONTROL_SENSOR)
+    else if (CI1302_voiceIntegrationMixSrcWriteYaml(val, &str)) {
+      // handled
+    }
+#endif
     else if (val >= MIXSRC_FIRST_TIMER
              && val <= MIXSRC_LAST_TIMER) {
         if (!wf(opaque, "Tmr", 3)) return false;
@@ -624,7 +642,8 @@ bool w_widget_name(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto zoneData = get_zoneData(user);
 
-  return wf(opaque, zoneData->widgetName.c_str(), zoneData->widgetName.size());
+  return yaml_output_string(zoneData->widgetName.c_str(),
+                            zoneData->widgetName.size(), wf, opaque);
 }
 
 static WidgetPersistentData* get_widgetData(void* user, uint16_t& option)
@@ -793,7 +812,8 @@ bool w_wov_string(void* user, uint8_t* data, uint32_t bitoffs,
   uint16_t option;
   auto widgetData = get_widgetData(user, option);
 
-  return wf(opaque, widgetData->getString(option).c_str(), widgetData->getString(option).size());
+  return yaml_output_string(widgetData->getString(option).c_str(),
+                            widgetData->getString(option).size(), wf, opaque, true);
 }
 
 void r_wov_unsigned(void* user, uint8_t* data, uint32_t bitoffs,
@@ -953,15 +973,13 @@ bool w_keyShortcut(void* user, uint8_t* data, uint32_t bitoffs,
   QMPage pg = g_eeGeneral.getKeyShortcut(ev);
 
   const char* str = yaml_output_enum(pg, enum_QMPage);
-  if (!wf(opaque, str, strlen(str))) return false;
 
   if (pg == QM_APP) {
-    auto s = g_eeGeneral.getKeyToolName(ev);
-    if (!wf(opaque, ",", 1)) return false;
-    return wf(opaque, s.c_str(), s.size());
+    auto s = std::string(str) + "," + g_eeGeneral.getKeyToolName(ev);
+    return yaml_output_string(s.c_str(), s.size(), wf, opaque);
   }
 
-  return true;
+  return wf(opaque, str, strlen(str));
 }
 
 void r_qmFavorite(void* user, uint8_t* data, uint32_t bitoffs,
@@ -984,15 +1002,13 @@ bool w_qmFavorite(void* user, uint8_t* data, uint32_t bitoffs,
   QMPage pg = (QMPage)g_eeGeneral.qmFavorites[idx].shortcut;
 
   const char* str = yaml_output_enum(pg, enum_QMPage);
-  if (!wf(opaque, str, strlen(str))) return false;
 
   if (pg == QM_APP) {
-    auto s = g_eeGeneral.getFavoriteToolName(idx);
-    if (!wf(opaque, ",", 1)) return false;
-    return wf(opaque, s.c_str(), s.size());
+    auto s = std::string(str) + "," + g_eeGeneral.getFavoriteToolName(idx);
+    return yaml_output_string(s.c_str(), s.size(), wf, opaque);
   }
 
-  return true;
+  return wf(opaque, str, strlen(str));
 }
 #endif
 
@@ -1132,9 +1148,7 @@ static bool _write_analog_name(uint8_t type, void* user, uint8_t* data,
   uint16_t idx = tw->getElmts(1);
 
   const char* name = analogGetCustomLabel(type, idx);
-  if (!wf(opaque, "\"", 1)) return false;
-  if (!wf(opaque, name, strlen(name))) return false;
-  return wf(opaque, "\"", 1);
+  return yaml_output_string(name, strlen(name), wf, opaque);
 }
 
 static void r_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
@@ -1395,6 +1409,11 @@ static uint32_t r_swtchSrc(const YamlNode* node, const char* val, uint8_t val_le
       ival += SWSRC_FIRST_SWITCH;
       
     }
+#if defined(VOICE_CONTROL_SENSOR)
+    else if (CI1302_voiceIntegrationSwitchSrcParseYaml(val, val_len, &ival)) {
+      // parsed
+    }
+#endif
     else if (val_len > 3
         && val[0] == '6'
         && val[1] == 'P'
@@ -2725,7 +2744,7 @@ static void r_cfs_name(void* user, uint8_t* data, uint32_t bitoffs,
                          const char* val, uint8_t val_len)
 {
   uint16_t idx = getIdx(user);
-  strAppend(g_model.customSwitches[idx].name, val, LEN_SWITCH_NAME);
+  copyToUnTerminated(g_model.customSwitches[idx].name, val);
 }
 
 static const struct YamlNode struct_cfsNameConfig[] = {
@@ -2879,4 +2898,89 @@ bool switchIsActive(void* user, uint8_t* data, uint32_t bitoffs)
 bool isAlwaysActive(void* user, uint8_t* data, uint32_t bitoffs)
 {
   return true;
+}
+
+// Handle User Data save / load
+
+bool userdata_is_active(void* user, uint8_t* data, uint32_t bitoffs)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  return g_model.hasUserData(tw->getElmts());
+}
+
+// val_len wraps for a true length > 255, but val is always NUL-terminated
+// at its real end, so strlen(val) recovers the true length whenever it's
+// >= val_len. Only a true length > 255 with an embedded NUL can still
+// truncate - a pre-existing limit of the shared uint8_t val_len param.
+static size_t userdata_val_len(const char* val, uint8_t val_len)
+{
+  size_t real_len = strlen(val);
+  return real_len > val_len ? real_len : val_len;
+}
+
+void r_userdata_key(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getOrCreateUserData(tw->getElmts(1));
+  if (ud) ud->key.assign(val, userdata_val_len(val, val_len));
+}
+
+bool w_userdata_key(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  if (!ud) return false;
+  return yaml_output_string(ud->key.c_str(), ud->key.size(), wf, opaque, true);
+}
+
+const struct YamlIdStr enum_UDType[] = {
+  { UD_INT, "INT" },
+  { UD_FLOAT, "FLOAT" },
+  { UD_STRING, "STRING" },
+  { 0, NULL  }
+};
+
+void r_userdata_type(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  if (ud) {
+    ud->type = (UDType)yaml_parse_enum(enum_UDType, val, val_len);
+  } else {
+    TRACE("Bad model YAML - userData 'type' defined before 'key'");
+  }
+}
+
+bool w_userdata_type(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  if (!ud) return false;
+  const char* s = yaml_output_enum(ud->type, enum_UDType);
+  return wf(opaque, s, strlen(s));
+}
+
+void r_userdata_value(void* user, uint8_t* data, uint32_t bitoffs,
+                 const char* val, uint8_t val_len)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  if (ud) {
+    ud->value.assign(val, userdata_val_len(val, val_len));
+  } else {
+    TRACE("Bad model YAML - userData 'value' defined before 'key'");
+  }
+}
+
+bool w_userdata_value(void* user, uint8_t* data, uint32_t bitoffs,
+                 yaml_writer_func wf, void* opaque)
+{
+  auto tw = reinterpret_cast<YamlTreeWalker*>(user);
+  auto ud = g_model.getUserData(tw->getElmts(1));
+  if (!ud) return false;
+  return yaml_output_string(ud->value.c_str(), ud->value.size(), wf, opaque, true);
 }

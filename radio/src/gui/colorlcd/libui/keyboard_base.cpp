@@ -109,18 +109,15 @@ Keyboard::Keyboard(coord_t height) :
 
   // TODO: really needed ???
   lv_obj_clear_flag(keyboard, LV_OBJ_FLAG_HIDDEN);
-}
 
-Keyboard::~Keyboard()
-{
-  if (group) lv_group_del(group);
-}
-
-void Keyboard::deleteLater()
-{
-  if (!_deleted)
-    hide(false);
-  NavWindow::deleteLater();
+  onClosing([=]() {
+    // Can't use hide() here, it ignores a keyboard already marked as deleted
+    if (activeKeyboard == this) {
+      clearField(false);
+      activeKeyboard = nullptr;
+    }
+    if (group) lv_group_del(group);
+  });
 }
 
 void Keyboard::clearField(bool wasCancelled)
@@ -160,7 +157,7 @@ void Keyboard::clearField(bool wasCancelled)
 
 void Keyboard::hide(bool wasCancelled)
 {
-  if (activeKeyboard  && !activeKeyboard->_deleted) {
+  if (activeKeyboard  && !activeKeyboard->deleted()) {
     activeKeyboard->clearField(wasCancelled);
     lv_obj_add_flag(activeKeyboard->lvobj, LV_OBJ_FLAG_HIDDEN);
     activeKeyboard = nullptr;

@@ -39,6 +39,7 @@
 
 #include "firmwares/eeprominterface.h"
 #include "firmwares/edgetx/edgetxinterface.h"
+#include "firmwares/edgetx/yaml_moduledata.h"
 
 namespace {
 
@@ -123,4 +124,159 @@ TEST_F(ModelYamlRoundTrip, OverlongNameTruncatesAndRoundTrips)
   QByteArray y2;
   ModelData m3 = roundTrip(m2, y2);
   EXPECT_EQ(m2.name.str(), m3.name.str());
+}
+
+// A module written by a radio that emitted antennaMode must decode. The field is
+// a string enum firmware side; read as a raw int, yaml-cpp throws
+// TypedBadConversion and the whole model fails to open.
+TEST_F(ModelYamlRoundTrip, RadioWrittenAntennaModeDecodes)
+{
+  YAML::Node node = YAML::Load(
+      "type: TYPE_MULTIMODULE\n"
+      "subType: 6,7\n"
+      "channelsStart: 0\n"
+      "channelsCount: 16\n"
+      "failsafeMode: NOT_SET\n"
+      "antennaMode: MODE_PER_MODEL\n");
+
+  ModuleData md;
+  bool threw = false;
+  std::string err;
+  try {
+    node >> md;
+  } catch (const std::exception& e) {
+    threw = true;
+    err = e.what();
+  } catch (...) {
+    threw = true;
+    err = "non-std exception";
+  }
+
+  ASSERT_FALSE(threw) << "decoding threw: " << err;
+  EXPECT_EQ(md.subType, 7u) << "subType lost alongside antennaMode";
+}
+
+// The fixture selects tx16s, which has no external antenna. Such radios parse
+// antennaMode over the top two bits of subType, so writing the key back would
+// change the sub-protocol on load.
+TEST_F(ModelYamlRoundTrip, AntennaModeNotWrittenWithoutExternalAntenna)
+{
+  ASSERT_FALSE(Boards::getCapability(getCurrentBoard(), Board::HasExternalAntenna))
+      << "fixture board is expected to have no external antenna";
+
+  ModelData m;
+  m.clear();
+  m.used = true;
+  // only modules with a protocol are serialised at all
+  m.moduleData[1].protocol = PULSES_MULTIMODULE;
+  m.moduleData[1].antennaMode = GeneralSettings::ANTENNA_MODE_EXTERNAL;
+
+  QByteArray y;
+  writeModelToYaml(m, y);
+  ASSERT_TRUE(y.contains("moduleData")) << "module was not serialised";
+  EXPECT_FALSE(y.contains("antennaMode"));
+}
+
+// userData string values may contain embedded NUL bytes.
+TEST_F(ModelYamlRoundTrip, UserDataEmbeddedNulSurvivesRoundTrip)
+{
+  ModelData m;
+  m.clear();
+  m.used = true;
+  m.userData[0].key = "App|Key";
+  m.userData[0].type = 2;  // STRING
+  m.userData[0].value = std::string("emb") + '\0' + "X";
+  ASSERT_EQ(m.userData[0].value.size(), (size_t)5);
+
+  QByteArray y;
+  ModelData m2 = roundTrip(m, y);
+
+  EXPECT_EQ(m2.userData[0].key, m.userData[0].key);
+  ASSERT_EQ(m2.userData[0].value.size(), m.userData[0].value.size());
+  EXPECT_EQ(m2.userData[0].value, m.userData[0].value);
+}
+
+// Companion must also read a value written by the firmware's own writer,
+// which escapes non-printable bytes as \xHH - not just its own output.
+TEST_F(ModelYamlRoundTrip, UserDataParsesFirmwareEscapedEmbeddedNul)
+{
+  const QByteArray yaml =
+      "header:\n"
+      "  name: Tst\n"
+      "userData:\n"
+      "  \"0\":\n"
+      "    key: \"App|Key\"\n"
+      "    type: STRING\n"
+      "    value: \"emb\\x00X\"\n";
+
+  ModelData m;
+  m.clear();
+  ASSERT_TRUE(loadModelFromYaml(m, yaml));
+
+  EXPECT_EQ(m.userData[0].key, "App|Key");
+  const std::string expected = std::string("emb") + '\0' + "X";
+  ASSERT_EQ(m.userData[0].value.size(), expected.size());
+  EXPECT_EQ(m.userData[0].value, expected);
+}
+
+// Quotes and backslashes are both special-cased by the firmware's writer
+// (radio/src/storage/yaml/yaml_tree_walker.cpp), more likely to show up in
+// real user data than an embedded NUL (quoted text, Windows-style paths).
+TEST_F(ModelYamlRoundTrip, UserDataEscapesQuotesAndBackslashesRoundTrip)
+{
+  ModelData m;
+  m.clear();
+  m.used = true;
+  m.userData[0].key = "App|Key";
+  m.userData[0].type = 2;  // STRING
+  m.userData[0].value = "a\"b\\c";
+
+  QByteArray y;
+  ModelData m2 = roundTrip(m, y);
+
+  EXPECT_EQ(m2.userData[0].value, m.userData[0].value);
+}
+
+TEST_F(ModelYamlRoundTrip, UserDataParsesFirmwareEscapedQuotesAndBackslashes)
+{
+  const QByteArray yaml =
+      "header:\n"
+      "  name: Tst\n"
+      "userData:\n"
+      "  \"0\":\n"
+      "    key: \"App|Key\"\n"
+      "    type: STRING\n"
+      "    value: \"a\\x22b\\x5Cc\"\n";
+
+  ModelData m;
+  m.clear();
+  ASSERT_TRUE(loadModelFromYaml(m, yaml));
+
+  EXPECT_EQ(m.userData[0].value, "a\"b\\c");
+}
+
+// Multiple entries of different types survive a round trip together.
+TEST_F(ModelYamlRoundTrip, UserDataMixedTypesRoundTrip)
+{
+  ModelData m;
+  m.clear();
+  m.used = true;
+  m.userData[0].key = "App|Str";
+  m.userData[0].type = 2;  // STRING
+  m.userData[0].value = "hello";
+  m.userData[1].key = "App|Int";
+  m.userData[1].type = 0;  // INT
+  m.userData[1].value = "12345";
+  m.userData[2].key = "App|Float";
+  m.userData[2].type = 1;  // FLOAT
+  m.userData[2].value = "1.23456789";
+
+  QByteArray y;
+  ModelData m2 = roundTrip(m, y);
+
+  for (int i = 0; i < 3; i++) {
+    EXPECT_EQ(m2.userData[i].key, m.userData[i].key) << "entry " << i;
+    EXPECT_EQ(m2.userData[i].type, m.userData[i].type) << "entry " << i;
+    EXPECT_EQ(m2.userData[i].value, m.userData[i].value) << "entry " << i;
+  }
 }

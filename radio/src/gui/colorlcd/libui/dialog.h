@@ -44,7 +44,7 @@ class BaseDialog : public ModalWindow
   Window* form = nullptr;
   StaticText* header = nullptr;
 
-  void onCancel() override { deleteLater(); }
+  void onCancel() override { closeWindow(); }
   void onEvent(event_t event) override {}
 };
 
@@ -134,11 +134,12 @@ class LabelDialog : public ModalWindow
 {
  public:
   LabelDialog(const char *label, int length, const char* title,
-              std::function<void(std::string)> _saveHandler = nullptr);
+              std::function<void(std::string)> _saveHandler = nullptr,
+              const char* excludedChars = nullptr);
 
   static constexpr int MAX_LABEL_LENGTH = 255;
 
-  void onCancel() override { deleteLater(); }
+  void onCancel() override { closeWindow(); }
 
  protected:
   std::function<void(std::string)> saveHandler;

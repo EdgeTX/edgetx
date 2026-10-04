@@ -36,6 +36,7 @@ class Messaging
     MENU_CHANGE_FILTER,
     REFRESH,
     REFRESH_OUTPUTS_WIDGET,
+    ON_CLOSE,
   };
 
   Messaging() {}

@@ -6,6 +6,7 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "identity",
     "adc_inputs",
     "switches",
     "keys",
@@ -15,6 +16,7 @@
     "timers"
   ],
   "properties": {
+    "identity":   { "$ref": "#/$defs/identity" },
     "adc_inputs": { "$ref": "#/$defs/adc_inputs" },
     "switches":   { "type": "array", "items": { "$ref": "#/$defs/switch" } },
     "keys":       { "type": "array", "items": { "$ref": "#/$defs/key" } },
@@ -43,6 +45,19 @@
       "description": "Combined GPIO macro form GPIO_PIN(port, n) used by some LED fields.",
       "type": "string",
       "pattern": "^GPIO_PIN\\(GPIO[A-K],\\s*\\d+\\)$"
+    },
+
+    "identity": {
+      "description": "Board identity metadata, independent of any electrical/hardware detail. Consumed at build time (firmware) and runtime (Companion) so manufacturer/model/USB descriptor strings aren't hand-maintained separately in either.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manufacturer", "model", "usb_manufacturer", "usb_product"],
+      "properties": {
+        "manufacturer":     { "type": "string", "minLength": 1 },
+        "model":            { "type": "string", "minLength": 1 },
+        "usb_manufacturer": { "type": "string", "minLength": 1, "maxLength": 8, "description": "USB manufacturer string (USB_MANUFACTURER); space-padded to a fixed 8 bytes at codegen time." },
+        "usb_product":      { "type": "string", "minLength": 1, "maxLength": 8, "description": "USB product string (USB_PRODUCT); space-padded to a fixed 8 bytes at codegen time." }
+      }
     },
 
     "adc_inputs": {
