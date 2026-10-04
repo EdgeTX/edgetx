@@ -64,6 +64,7 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
   FIL file;
   uint8_t buffer[1024];
   UINT count;
+  bool success = true;
 
   pulsesStop();
 
@@ -81,21 +82,28 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
 
     if (f_read(&file, buffer, sizeof(buffer), &count) != FR_OK) {
       POPUP_WARNING(STR_SDCARD_ERROR);
+      success = false;
       break;
     }
     if (count != sizeof(buffer)
         && !f_eof(&file)) {
       POPUP_WARNING(STR_SDCARD_ERROR);
+      success = false;
       break;
     }
     if (i == 0 && !isBootloaderStart(buffer)) {
       POPUP_WARNING(STR_INCOMPATIBLE);
+      success = false;
       break;
     }
-    for (UINT j = 0; j < count; j += FLASH_PAGESIZE) {
+    for (UINT j = 0; j < count && success; j += FLASH_PAGESIZE) {
       WDG_ENABLE(3000);
-      flashWrite(CONVERT_UINT_PTR(BOOTLOADER_ADDRESS + i + j), CONVERT_UINT_PTR(buffer + j));
+      success = flashWrite(CONVERT_UINT_PTR(BOOTLOADER_ADDRESS + i + j), CONVERT_UINT_PTR(buffer + j));
       WDG_ENABLE(WDG_DURATION);
+    }
+    if (!success) {
+      POPUP_WARNING(STR_FIRMWARE_UPDATE_ERROR);
+      break;
     }
     progressHandler("Bootloader", STR_WRITING, i, flash_size);
 
@@ -107,7 +115,7 @@ void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHand
 #endif
   }
 
-  POPUP_INFORMATION(STR_FIRMWARE_UPDATE_SUCCESS);
+  if (success) POPUP_INFORMATION(STR_FIRMWARE_UPDATE_SUCCESS);
 
   watchdogSuspend(0);
   WDG_RESET();
