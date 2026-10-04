@@ -64,6 +64,8 @@
     #define TR_BL_DIR_EMPTY               "Adresar je prazdny"
     #define TR_BL_WRITING_FW              "Nahravani firmware ..."
     #define TR_BL_WRITING_COMPL           "Nahravani dokonceno"
+    #define TR_BL_WRITING_FAILED          TR("Zapis selhal!", "Zapis se nezdaril!")
+    #define TR_BL_RETRY_OR_DFU            TR("Zkuste znovu / DFU", "Zkuste znovu, nebo pouzijte USB (DFU)")
     #define TR_BL_ENABLE                  "Povoleno"
     #define TR_BL_DISABLE                 "Zakazano"
 
@@ -111,6 +113,8 @@
     #define TR_BL_DIR_EMPTY               "Katalog er tomt"
     #define TR_BL_WRITING_FW              "Installerer..."
     #define TR_BL_WRITING_COMPL           "Installation slut"
+    #define TR_BL_WRITING_FAILED          TR("Skrivning fejlede!", "Skrivning mislykkedes!")
+    #define TR_BL_RETRY_OR_DFU            TR("Prov igen / DFU", "Prov igen, eller brug USB (DFU)")
     #define TR_BL_ENABLE                  "Aktiver"
     #define TR_BL_DISABLE                 "Deaktiver"
 
@@ -158,6 +162,8 @@
     #define TR_BL_DIR_EMPTY               "Verzeichnis leer"
     #define TR_BL_WRITING_FW              "Schreibe..."
     #define TR_BL_WRITING_COMPL           TR("Schreiben fertig","Schreiben abgeschlossen")
+    #define TR_BL_WRITING_FAILED          TR("Schreiben Fehler!", "Schreiben fehlgeschlagen!")
+    #define TR_BL_RETRY_OR_DFU            TR("Neu vers. / DFU", "Erneut versuchen, oder USB (DFU)")
     #define TR_BL_ENABLE                  "Aktivieren"
     #define TR_BL_DISABLE                 "Deaktivieren"
 
@@ -206,6 +212,8 @@
     #define TR_BL_DIR_EMPTY               "Repertoire vide"
     #define TR_BL_WRITING_FW              "Ecriture Firmware ..."
     #define TR_BL_WRITING_COMPL           "Ecriture terminée"
+    #define TR_BL_WRITING_FAILED          TR("Echec ecriture!", "Echec de l'ecriture!")
+    #define TR_BL_RETRY_OR_DFU            TR("Reessayer / DFU", "Reessayez, ou utilisez USB (DFU)")
     #define TR_BL_ENABLE                  "Activer"
     #define TR_BL_DISABLE                 "Désactiver"
 
@@ -253,6 +261,8 @@
     #define TR_BL_DIR_EMPTY               "Cartella vuota"
     #define TR_BL_WRITING_FW              "Scrittura..."
     #define TR_BL_WRITING_COMPL           "Scrittura completata"
+    #define TR_BL_WRITING_FAILED          TR("Scrittura fallita!", "Scrittura fallita!")
+    #define TR_BL_RETRY_OR_DFU            TR("Riprova / DFU", "Riprova, oppure usa USB (DFU)")
     #define TR_BL_ENABLE                  "Abilita"
     #define TR_BL_DISABLE                 "Disabilita"
 
@@ -300,6 +310,8 @@
     #define TR_BL_DIR_EMPTY               "Katalog jest pusty"
     #define TR_BL_WRITING_FW              "Zapis firmware ..."
     #define TR_BL_WRITING_COMPL           "Zapis ukonczony"
+    #define TR_BL_WRITING_FAILED          TR("Zapis nieudany!", "Zapis nie powiodl sie!")
+    #define TR_BL_RETRY_OR_DFU            TR("Powtorz / DFU", "Powtorz, lub uzyj USB (DFU)")
     #define TR_BL_ENABLE                  "Enable"
     #define TR_BL_DISABLE                 "Disable"
 
@@ -347,6 +359,8 @@
     #define TR_BL_DIR_EMPTY                "Katalogen aer tom"
     #define TR_BL_WRITING_FW               "Skriver..."
     #define TR_BL_WRITING_COMPL            "Skrivning klar"
+    #define TR_BL_WRITING_FAILED           TR("Skrivning fel!", "Skrivningen misslyckades!")
+    #define TR_BL_RETRY_OR_DFU             TR("Forsok igen / DFU", "Forsok igen, eller anvand USB (DFU)")
     #define TR_BL_ENABLE                   "Aktivera"
     #define TR_BL_DISABLE                  "Inaktivera"
 
@@ -394,6 +408,8 @@
     #define TR_BL_DIR_EMPTY               "Directory is empty"
     #define TR_BL_WRITING_FW              "Writing..."
     #define TR_BL_WRITING_COMPL           "Writing complete"
+    #define TR_BL_WRITING_FAILED          TR("Writing failed!", "Writing failed!")
+    #define TR_BL_RETRY_OR_DFU            TR("Retry or use DFU", "Retry, or flash over USB (DFU)")
     #define TR_BL_ENABLE                  "Enable"
     #define TR_BL_DISABLE                 "Disable"
 

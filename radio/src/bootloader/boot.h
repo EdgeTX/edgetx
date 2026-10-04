@@ -53,6 +53,7 @@ enum BootloaderState {
   ST_FLASH_CHECK,
   ST_FLASHING,
   ST_FLASH_DONE,
+  ST_FLASH_ERROR,
   ST_RESTORE_MENU,
   ST_USB,
 #if defined(SPI_FLASH)
