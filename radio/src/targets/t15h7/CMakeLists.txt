@@ -28,8 +28,6 @@ set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES YES)
 set(FUNCTION_SWITCHES_RGB_LEDS YES)
 
-#option(STICK_DEAD_ZONE "Enable sticks dead zone" YES)
-
 # IMU support
 set(IMU ON)
 
