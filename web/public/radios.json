@@ -3812,7 +3812,7 @@
       {
         "name": "SF",
         "type": "2POS",
-        "default": "2POS"
+        "default": "TOGGLE"
       },
       {
         "name": "SW1",

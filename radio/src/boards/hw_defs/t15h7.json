@@ -172,7 +172,7 @@
       "type": "2POS",
       "flags": 0,
       "inverted": false,
-      "default": "2POS",
+      "default": "TOGGLE",
       "display": null,
       "gpio": "GPIOA",
       "pin": "LL_GPIO_PIN_15",
