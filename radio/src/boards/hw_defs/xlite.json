@@ -316,6 +316,6 @@
   "trainer": {
     "trainer_timer": "TIM4",
     "trainer_timer_irqn": "TIM4_IRQn",
-    "trainer_timer_irqhandler": "TIM4_IRQHandler",
+    "trainer_timer_irqhandler": "TIM4_IRQHandler"
   }
 }
