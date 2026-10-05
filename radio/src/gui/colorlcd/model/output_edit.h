@@ -42,9 +42,9 @@ class OutputEditWindow : public Page
   uint8_t channel;
   int value = 0;
   StaticText *minText;
-  SourceNumberEdit* minEdit;
+  LimitNumberEdit* minEdit;
   StaticText *maxText;
-  SourceNumberEdit* maxEdit;
+  LimitNumberEdit* maxEdit;
   OutputEditStatusBar *statusBar = nullptr;
 
   void checkEvents() override;

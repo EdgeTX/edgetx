@@ -30,7 +30,7 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
                                    std::function<void(int32_t)> setValue,
                                    int16_t sourceMin,
                                    LcdFlags textFlags, int32_t voffset,
-                                   int32_t vdefault, bool wide) :
+                                   int32_t vdefault) :
     Window(parent, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW + SRC_BTN_W + PAD_TINY * 3, EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_TINY * 2}),
     vmin(vmin),
     vmax(vmax),
@@ -38,8 +38,7 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
     sourceDefault(sourceMin),
     getValue(getValue),
     setValue(setValue),
-    voffset(voffset),
-    wide(wide)
+    voffset(voffset)
 {
   setTextFlag(textFlags);
 
@@ -51,12 +50,12 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
   // Source field
   source_field = new SourceChoice(
       this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, sourceMin, INPUTSRC_LAST,
-      [=]() { return decodeValue(); },
+      [=]() { return decode(); },
       [=](int newValue) { setValue(encode(newValue, true)); }, true);
 
   num_field = new NumberEdit(
       this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, vmin, vmax,
-      [=]() { return decodeValue() + voffset; },
+      [=]() { return decode() + voffset; },
       [=](int newValue) { setValue(encode(newValue - voffset, false)); },
       textFlags);
   num_field->setDefault(vdefault);
@@ -66,6 +65,12 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
     switchSourceMode();
     return isSource();
   });
+
+  delayLoad();
+}
+
+void SourceNumberEdit::delayedInit()
+{
   m_srcBtn->check(isSource());
 
   // update field type based on value
@@ -74,23 +79,13 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
 
 bool SourceNumberEdit::isSource()
 {
-  if (wide) {
-    LimitNumVal v;
-    v.rawValue = getValue();
-    return v.isSource;
-  }
   SourceNumVal v;
   v.rawValue = getValue();
   return v.isSource;
 }
 
-int16_t SourceNumberEdit::decodeValue()
+int16_t SourceNumberEdit::decode()
 {
-  if (wide) {
-    LimitNumVal v;
-    v.rawValue = getValue();
-    return v.value;
-  }
   SourceNumVal v;
   v.rawValue = getValue();
   return v.value;
@@ -98,7 +93,6 @@ int16_t SourceNumberEdit::decodeValue()
 
 int32_t SourceNumberEdit::encode(int16_t value, bool isSource)
 {
-  if (wide) return makeLimitNumVal(value, isSource);
   return makeSourceNumVal(value, isSource);
 }
 
@@ -146,4 +140,23 @@ void SourceNumberEdit::update()
   if (has_focus) {
     lv_group_focus_obj(act_field->getLvObj());
   }
+}
+
+bool LimitNumberEdit::isSource()
+{
+  LimitNumVal v;
+  v.rawValue = getValue();
+  return v.isSource;
+}
+
+int16_t LimitNumberEdit::decode()
+{
+  LimitNumVal v;
+  v.rawValue = getValue();
+  return v.value;
+}
+
+int32_t LimitNumberEdit::encode(int16_t value, bool isSource)
+{
+  return makeLimitNumVal(value, isSource);
 }

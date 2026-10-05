@@ -131,9 +131,9 @@ void OutputEditWindow::buildBody(Window *form)
 
   // Offset
   new StaticText(line, rect_t{}, STR_LIMITS_HEADERS_SUBTRIM);
-  auto off = new SourceNumberEdit(line, -LIMIT_STD_MAX, +LIMIT_STD_MAX,
+  auto off = new LimitNumberEdit(line, -LIMIT_STD_MAX, +LIMIT_STD_MAX,
                                   GET_SET_DEFAULT(output->offset),
-                                  MIXSRC_FIRST, PREC1, 0, 0, true);
+                                  MIXSRC_FIRST, PREC1, 0, 0);
   off->setSourceDefault(MIXSRC_FIRST_GVAR);
   off->setFastStep(20);
   off->setAccelFactor(16);
@@ -148,9 +148,9 @@ void OutputEditWindow::buildBody(Window *form)
   minText = new StaticText(line, rect_t{}, STR_MIN);
   etx_solid_bg(minText->getLvObj(), COLOR_THEME_ACTIVE_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   etx_font(minText->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
-  minEdit = new SourceNumberEdit(line, -limit, 0,
+  minEdit = new LimitNumberEdit(line, -limit, 0,
                                  GET_SET_DEFAULT(output->min), MIXSRC_FIRST,
-                                 PREC1, -LIMIT_STD_MAX, -limit, true);
+                                 PREC1, -LIMIT_STD_MAX, -limit);
   minEdit->setSourceDefault(MIXSRC_FIRST_GVAR);
   etx_font(minEdit->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   minEdit->setFastStep(20);
@@ -165,9 +165,9 @@ void OutputEditWindow::buildBody(Window *form)
   maxText = new StaticText(line, rect_t{}, STR_MAX);
   etx_solid_bg(maxText->getLvObj(), COLOR_THEME_ACTIVE_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   etx_font(maxText->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
-  maxEdit = new SourceNumberEdit(line, 0, +limit,
+  maxEdit = new LimitNumberEdit(line, 0, +limit,
                                  GET_SET_DEFAULT(output->max), MIXSRC_FIRST,
-                                 PREC1, +LIMIT_STD_MAX, limit, true);
+                                 PREC1, +LIMIT_STD_MAX, limit);
   maxEdit->setSourceDefault(MIXSRC_FIRST_GVAR);
   etx_font(maxEdit->getLvObj(), FONT_BOLD_INDEX, ETX_STATE_MINMAX_HIGHLIGHT);
   maxEdit->setFastStep(20);
