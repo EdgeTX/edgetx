@@ -39,7 +39,7 @@ jobs:
           - v12 # HelloRadioSky
           - c14 # iFlight
           - t12max;t14 # Jumper
-          - t15;t15pro # Jumper
+          - t15;t15pro;t15h7 # Jumper
           - t16;t18 # Jumper
           - t20;t20v2 # Jumper
           - t22 # Jumper
@@ -86,7 +86,7 @@ jobs:
           - v14lcd;v16 # HelloRadioSky
           - c14;commando8 # iFlight
           - bumblebee;t12max;t14 # Jumper
-          - t15;t15pro;t16 # Jumper
+          - t15;t15h7;t15pro;t16 # Jumper
           - t18;t20;t20v2 # Jumper
           - t22;tpros;tprov2 # Jumper
           - boxer;gx12;gx15 # RadioMaster

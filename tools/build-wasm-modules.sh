@@ -233,7 +233,7 @@ else
         # colour
         c14 el18 h17 nb4p nv14 st16 pa01
         pl18 pl18ev pl18u
-        t15 t15pro t16 t18 t22
+        t15 t15pro t15h7 t16 t18 t22
         tx15 gx15 tx16s tx16smk3 f16 v12 v16
         x10 x10express x12s
     )

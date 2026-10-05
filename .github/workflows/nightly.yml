@@ -22,7 +22,7 @@ jobs:
           - x10;x10express;x12s;x7access;x9dp2019;x9e # FrSky
           - v12;v14;v14lcd;v16 # HelloRadioSky
           - c14;commando8 # iFlight
-          - bumblebee;t12max;t14;t15;t15pro;t16;t18;t20;t20v2;t22;tpros;tprov2 # Jumper
+          - bumblebee;t12max;t14;t15;t15h7;t15pro;t16;t18;t20;t20v2;t22;tpros;tprov2 # Jumper
           - boxer;gx12;gx15;mt12;pocket;tx12mk2;tx15;tx16s;tx16smk3;zorro # RadioMaster
           - h17 # Senduwing
     container:
