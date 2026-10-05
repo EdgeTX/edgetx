@@ -336,7 +336,7 @@ void GeneralSetupPanel::populateTextLangCB(QComboBox* b, const char* currLang, b
     LANG_PT,
     LANG_RU,
     LANG_SE,
-    // LANG_SK,   // no translation file
+    // LANG_SK,   // no fonts
     // LANG_TW,   // no fonts
     LANG_UA,
     LANG_COUNT
@@ -361,7 +361,7 @@ void GeneralSetupPanel::populateTextLangCB(QComboBox* b, const char* currLang, b
     LANG_PT,
     LANG_RU,
     LANG_SE,
-    // LANG_SK,   // no translation file
+    LANG_SK,
     LANG_TW,
     LANG_UA,
     LANG_COUNT
