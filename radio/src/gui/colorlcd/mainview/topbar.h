@@ -23,8 +23,6 @@
 
 #include "layout.h"
 
-class HeaderIcon;
-
 //-----------------------------------------------------------------------------
 
 class SetupTopBarWidgetsPage : public NavWindow
@@ -71,7 +69,6 @@ class TopBar: public WidgetsContainer
   rect_t getZone(unsigned int index) const override;
 
   void setVisible(float visible);
-  void setEdgeTxButtonVisible(float visible);
   coord_t getVisibleHeight(float visible) const; // 0.0 -> 1.0
 
   bool isTopBar() override { return true; }
@@ -90,7 +87,6 @@ class TopBar: public WidgetsContainer
 
  protected:
   uint32_t lastRefresh = 0;
-  HeaderIcon* headerIcon = nullptr;
 };
 
 //-----------------------------------------------------------------------------

@@ -28,7 +28,6 @@
 #include "view_main.h"
 #include "widgets_setup.h"
 #include "pagegroup.h"
-#include "theme_manager.h"
 #include "widget.h"
 
 //-----------------------------------------------------------------------------
@@ -115,8 +114,6 @@ TopBar::TopBar(Window * parent) :
 {
   setWindowFlag(NO_FOCUS);
   etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
-
-  headerIcon = new HeaderIcon(parent, ICON_EDGETX, [=]() { QuickMenu::openQuickMenu(); });
 }
 
 unsigned int TopBar::getZonesCount() const
@@ -145,31 +142,20 @@ rect_t TopBar::getZone(unsigned int index) const
 void TopBar::setVisible(float visible) // 0.0 -> 1.0
 {
   coord_t y = 0;
-  if (visible == 0.0) {
+  if (visible == 0.0f) {
     y = -EdgeTxStyles::MENU_HEADER_HEIGHT;
-  } else if (visible > 0.0 && visible < 1.0){
-    y = -(float)EdgeTxStyles::MENU_HEADER_HEIGHT * (1.0 - visible);
+  } else if (visible > 0.0f && visible < 1.0f){
+    y = -(float)EdgeTxStyles::MENU_HEADER_HEIGHT * (1.0f - visible);
   }
   if (y != top()) setTop(y);
 }
 
-void TopBar::setEdgeTxButtonVisible(float visible) // 0.0 -> 1.0
-{
-  coord_t y = 0;
-  if (visible == 0.0) {
-    y = -EdgeTxStyles::MENU_HEADER_HEIGHT;
-  } else if (visible > 0.0 && visible < 1.0){
-    y = -(float)EdgeTxStyles::MENU_HEADER_HEIGHT * (1.0 - visible);
-  }
-  if (y != headerIcon->top()) headerIcon->setTop(y);
-}
-
 coord_t TopBar::getVisibleHeight(float visible) const // 0.0 -> 1.0
 {
-  if (visible == 0.0) {
+  if (visible == 0.0f) {
     return 0;
   }
-  else if (visible == 1.0) {
+  else if (visible == 1.0f) {
     return EdgeTxStyles::MENU_HEADER_HEIGHT;
   }
 
