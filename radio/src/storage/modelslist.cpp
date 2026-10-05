@@ -828,19 +828,38 @@ void ModelsList::setCurrentModel(ModelCell *cell)
 
 /**
  * @brief Takes the current g_model + filename data in memory and update
- *        the ModelCell data to match.
+ *        the ModelCell data to match. labels.yml is only flagged for
+ *        writing if the cached data changed.
  */
 
 void ModelsList::updateCurrentModelCell()
 {
   if (currentModel) {
+    char oldName[LEN_MODEL_NAME + 1];
+    char oldFilename[LEN_MODEL_FILENAME + 1];
+    uint8_t oldModelId[NUM_MODULES];
+    SimpleModuleData oldModuleData[NUM_MODULES];
+    strcpy(oldName, currentModel->modelName);
+    strcpy(oldFilename, currentModel->modelFilename);
+    memcpy(oldModelId, currentModel->modelId, sizeof(oldModelId));
+    memcpy(oldModuleData, currentModel->moduleData, sizeof(oldModuleData));
 #if LEN_BITMAP_NAME > 0
+    char oldBitmap[LEN_BITMAP_NAME + 1];
+    strcpy(oldBitmap, currentModel->modelBitmap);
     strAppend(currentModel->modelBitmap, g_model.header.bitmap, LEN_BITMAP_NAME);
 #endif
     strAppend(currentModel->modelFilename, g_eeGeneral.currModelFilename, LEN_MODEL_FILENAME);
     currentModel->setModelName(g_model.header.name);
     currentModel->setRfData(&g_model.header, g_model.moduleData);
-    storageDirty(EE_LABELS);
+
+    bool changed = strcmp(oldName, currentModel->modelName) ||
+                   strcmp(oldFilename, currentModel->modelFilename) ||
+                   memcmp(oldModelId, currentModel->modelId, sizeof(oldModelId)) ||
+                   memcmp(oldModuleData, currentModel->moduleData, sizeof(oldModuleData));
+#if LEN_BITMAP_NAME > 0
+    changed = changed || strcmp(oldBitmap, currentModel->modelBitmap);
+#endif
+    if (changed) storageDirty(EE_LABELS);
   } else {
     TRACE("ModelList Error - No Current Model");
   }

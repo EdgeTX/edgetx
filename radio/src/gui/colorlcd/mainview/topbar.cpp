@@ -200,8 +200,6 @@ void TopBar::removeWidget(unsigned int index)
   g_model.getTopbarData()->clearZone(index);
 
   WidgetsContainer::removeWidget(index);
-
-  storageDirty(EE_MODEL);
 }
 
 void TopBar::load()

@@ -112,7 +112,6 @@ class FunctionSwitch : public FunctionSwitchBase
             setFSLogicalState(switchIndex, 0);
             startChoice->setValue(startChoice->getIntValue());
           }
-          SET_DIRTY();
         });
     typeChoice->setAvailableHandler([=](int typ) -> bool {
       if (typ == SWITCH_3POS) return false;
@@ -141,7 +140,6 @@ class FunctionSwitch : public FunctionSwitchBase
             g_model.cfsSetStart(switchIndex, FS_START_PREVIOUS);
           }
           setGroupSwitchState(oldGroup);
-          SET_DIRTY();
         });
     groupChoice->setAvailableHandler([=](int group) -> bool {
       if (g_model.cfsType(switchIndex) == SWITCH_TOGGLE && group &&
@@ -155,7 +153,6 @@ class FunctionSwitch : public FunctionSwitchBase
         [=]() { return g_model.cfsStart(switchIndex); },
         [=](int val) {
           g_model.cfsSetStart(switchIndex, (fsStartPositionType)val);
-          SET_DIRTY();
         });
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
@@ -266,13 +263,12 @@ class SwitchGroup : public Window
         [=](int sw) {
           for (int i = 0; i < switchGetMaxSwitches(); i += 1) {
             if (switchIsCustomSwitch(i) && g_model.cfsGroup(i) == groupIndex) {
-              g_model.cfsSetStart(i, (sw > 0) ? FS_START_OFF : FS_START_PREVIOUS);
+              if (sw - 1 == i)
+                g_model.cfsSetStart(sw - 1, FS_START_ON);
+              else
+                g_model.cfsSetStart(i, (sw > 0) ? FS_START_OFF : FS_START_PREVIOUS);
             }
           }
-          if (sw > 0 && sw <= switchGetMaxSwitches()) {
-            g_model.cfsSetStart(sw - 1, FS_START_ON);
-          }
-          SET_DIRTY();
         });
     startChoice->setTextHandler([=](int sw) -> std::string {
       if (sw == 0)

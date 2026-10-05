@@ -1055,4 +1055,91 @@ TEST_F(ModelCellManagerFsTest, SortModelsByNameAndDate)
   EXPECT_EQ(v, (ModelsVector{c, b, a}));
 }
 
+// ---------------------------------------------------------------------------
+// labels.yml refresh from the current model (updateCurrentModelCell)
+// ---------------------------------------------------------------------------
+
+// model0001.yml loaded as the current model, with g_model matching its cell
+class CurrentModelCellTest : public ModelCellManagerFsTest
+{
+ protected:
+  void SetUp() override
+  {
+    ModelCellManagerFsTest::SetUp();
+    writeFixtureModel("model0001.yml", "One", "");
+    setCurrentFilename("model0001.yml");
+    modelCellManager.load();
+    ASSERT_EQ(modelCellManager.getCurrentModel(),
+              modelCellManager.getModel("model0001.yml"));
+    strAppend(g_model.header.name, "One", LEN_MODEL_NAME);
+    storageDirtyMsk = 0;
+  }
+};
+
+TEST_F(CurrentModelCellTest, UnchangedCellDoesNotFlagLabels)
+{
+  modelCellManager.updateCurrentModelCell();
+  EXPECT_FALSE(storageDirtyMsk & EE_LABELS);
+}
+
+TEST_F(CurrentModelCellTest, NameChangeFlagsLabels)
+{
+  strAppend(g_model.header.name, "Two", LEN_MODEL_NAME);
+  modelCellManager.updateCurrentModelCell();
+  EXPECT_STREQ(modelCellManager.getCurrentModel()->modelName, "Two");
+  EXPECT_TRUE(storageDirtyMsk & EE_LABELS);
+}
+
+TEST_F(CurrentModelCellTest, BitmapChangeFlagsLabels)
+{
+  strncpy(g_model.header.bitmap, "plane.png", LEN_BITMAP_NAME);
+  modelCellManager.updateCurrentModelCell();
+  EXPECT_STREQ(modelCellManager.getCurrentModel()->modelBitmap, "plane.png");
+  EXPECT_TRUE(storageDirtyMsk & EE_LABELS);
+}
+
+TEST_F(CurrentModelCellTest, RfDataChangeFlagsLabels)
+{
+  g_model.header.modelId[EXTERNAL_MODULE] = 5;
+  modelCellManager.updateCurrentModelCell();
+  EXPECT_EQ(modelCellManager.getCurrentModel()->modelId[EXTERNAL_MODULE], 5);
+  EXPECT_TRUE(storageDirtyMsk & EE_LABELS);
+
+  storageDirtyMsk = 0;
+  g_model.moduleData[EXTERNAL_MODULE].type = MODULE_TYPE_PPM;
+  modelCellManager.updateCurrentModelCell();
+  EXPECT_EQ(modelCellManager.getCurrentModel()->moduleData[EXTERNAL_MODULE].type,
+            MODULE_TYPE_PPM);
+  EXPECT_TRUE(storageDirtyMsk & EE_LABELS);
+}
+
+// A model change made without touching labels (e.g. Lua model.setInfo())
+// must still reach labels.yml once the model is saved
+TEST_F(CurrentModelCellTest, ModelSaveRefreshesLabelsYml)
+{
+  strAppend(g_model.header.name, "Two", LEN_MODEL_NAME);
+  storageDirty(EE_MODEL);
+  storageCheck(true);  // writes the model, refreshes the cell
+  storageCheck(true);  // writes labels.yml
+
+  EXPECT_FALSE(storageDirtyMsk & EE_LABELS);
+  EXPECT_NE(readFile("labels.yml").find("name: \"Two\""), std::string::npos);
+}
+
+// New model flow: the cell is made current before the model file exists,
+// so the first labels.yml write has no filename for it
+TEST_F(ModelCellManagerFsTest, NewModelSaveRefreshesLabelsYml)
+{
+  ModelCell* cell = modelCellManager.addModel("", false);
+  modelCellManager.setCurrentModel(cell);
+  setCurrentFilename("model0001.yml");
+  storageDirty(EE_MODEL);
+  storageCheck(true);  // writes labels.yml with no filename, then the model
+  storageCheck(true);  // writes labels.yml again
+
+  std::string labels = readFile("labels.yml");
+  EXPECT_NE(labels.find("\n  model0001.yml:\r\n"), std::string::npos);
+  EXPECT_EQ(labels.find("\n  :\r\n"), std::string::npos);
+}
+
 #endif  // defined(COLORLCD)

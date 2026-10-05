@@ -391,10 +391,7 @@ const static SetupLineDef setupLines[] = {
       new ModelTextEdit(parent, {x, y, ModelSetupPage::NAM_W, 0},
                         g_model.header.name, sizeof(g_model.header.name),
                         [=]() {
-                          auto model = modelCellManager.getCurrentModel();
-                          if (model) {
-                            model->setModelName(g_model.header.name);
-                          }
+                          modelCellManager.updateCurrentModelCell();
                           SET_DIRTY();
                         });
     }
@@ -436,11 +433,7 @@ const static SetupLineDef setupLines[] = {
                      },
                      [=](std::string newValue) {
                        strncpy(g_model.header.bitmap, newValue.c_str(), LEN_BITMAP_NAME);
-                       auto model = modelCellManager.getCurrentModel();
-                       if (model) {
-                         strncpy(model->modelBitmap, newValue.c_str(), LEN_BITMAP_NAME);
-                         model->modelBitmap[LEN_BITMAP_NAME] = '\0';
-                       }
+                       modelCellManager.updateCurrentModelCell();
                        SET_DIRTY();
                      }, false, STR_BITMAP);
     }
