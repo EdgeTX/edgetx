@@ -126,7 +126,6 @@ class NumberEdit : public TextButton
   std::string getDisplayVal();
 
   void updateDisplay();
-  void openEdit();
   void changeValue(int step);
   void setDirectEdit(bool editMode);
 

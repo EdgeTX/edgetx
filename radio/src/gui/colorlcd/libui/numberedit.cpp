@@ -324,7 +324,8 @@ void NumberEdit::handleKBEvent(int n)
       value = vdefault;
       break;
     case NumberKeyboard::CHANGE_SIGN:
-      value = -value;
+      if (vmin < 0 && vmax < 0)
+        value = -value;
       break;
     case NumberKeyboard::SET_MAX:
       value = vmax;
