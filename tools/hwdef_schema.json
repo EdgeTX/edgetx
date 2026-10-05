@@ -296,7 +296,28 @@
         "cfs_led_strip_length":             { "type": "integer", "minimum": 0 },
         "cfs_leds_per_switch":              { "type": "integer", "minimum": 0 },
         "bling_led_strip_start":            { "type": "integer", "minimum": 0 },
-        "bling_led_strip_length":           { "type": "integer", "minimum": 0 }
+        "bling_led_strip_length":           { "type": "integer", "minimum": 0 },
+        "bling_groups": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/led_group" }
+        }
+      }
+    },
+
+    "led_group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "first", "count"],
+      "dependentRequired": {
+        "start_angle": ["direction"],
+        "direction": ["start_angle"]
+      },
+      "properties": {
+        "name":         { "type": "string" },
+        "first":        { "type": "integer", "minimum": 0 },
+        "count":        { "type": "integer", "minimum": 1 },
+        "start_angle":  { "type": "integer" },
+        "direction":    { "enum": [-1, 1] }
       }
     },
 

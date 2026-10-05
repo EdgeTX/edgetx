@@ -659,6 +659,28 @@ TEST(Lua, RGBLedIndexes)
 
   luaExecStr("if setRGBLedColor(LED_STRIP_LENGTH, 1, 2, 3) then error('out of range') end");
 }
+
+TEST(Lua, RGBLedInfo)
+{
+  luaExecStr("if FUNC_RGB_LED == nil then error('FUNC_RGB_LED') end");
+  luaExecStr("info = getRGBLedInfo()");
+  luaExecStr("if info.length ~= LED_STRIP_LENGTH then error('length') end");
+  luaExecStr("if info.bling ~= BLING_LED_STRIP_LENGTH then error('bling') end");
+  luaExecStr(
+      "for name, g in pairs(info.groups) do\n"
+      "  if g.first < 0 or g.count <= 0 or g.first + g.count > info.bling then\n"
+      "    error(name)\n"
+      "  end\n"
+      "end");
+#if CFS_LED_STRIP_LENGTH > 0
+  luaExecStr(
+      "if info.cfs.first ~= info.bling or\n"
+      "   info.cfs.first + info.cfs.count ~= info.length or\n"
+      "   info.cfs.perSwitch < 1 then error('cfs') end");
+#else
+  luaExecStr("if info.cfs ~= nil then error('cfs') end");
+#endif
+}
 #endif
 
 #endif   // #if defined(LUA)

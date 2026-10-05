@@ -146,6 +146,7 @@ AddHWGenTarget(${HW_DESC_JSON} yaml_inputs yaml_inputs.inc)
 AddHWGenTarget(${HW_DESC_JSON} lua_inputs lua_inputs.inc)
 AddHWGenTarget(${HW_DESC_JSON} lua_mixsrc lua_mixsrc.inc)
 AddHWGenTarget(${HW_DESC_JSON} lua_keys lua_keys.inc)
+AddHWGenTarget(${HW_DESC_JSON} lua_leds lua_leds.inc)
 
 AddHWGenTarget(${HW_DESC_JSON} stm32_keys stm32_keys.inc)
 AddHWGenTarget(${HW_DESC_JSON} stm32_switches stm32_switches.inc)
@@ -158,7 +159,7 @@ AddHWGenTarget(${HW_DESC_JSON} simu_switches simu_switches.inc)
 AddHWGenTarget(${HW_DESC_JSON} hal_keys_lock hal_keys_lock.h)
 AddHWGenTarget(${HW_DESC_JSON} hal_usb_descriptor usb_descriptor.h)
 
-add_dependencies(board hal_settings hal_pwm_sticks hal_keys hal_keys_lock hal_adc_inputs stm32_keys stm32_switches stm32_adc_inputs stm32_pwm_inputs yaml_inputs lua_inputs lua_mixsrc lua_keys)
+add_dependencies(board hal_settings hal_pwm_sticks hal_keys hal_keys_lock hal_adc_inputs stm32_keys stm32_switches stm32_adc_inputs stm32_pwm_inputs yaml_inputs lua_inputs lua_mixsrc lua_keys lua_leds)
 add_dependencies(board_bl hal_settings hal_pwm_sticks hal_keys stm32_keys)
 
 
@@ -615,7 +616,7 @@ if(NATIVE_BUILD)
   )
   add_dependencies(radiolib_native ${RADIO_DEPENDENCIES}
     hal_settings hal_pwm_sticks hal_keys hal_keys_lock hal_adc_inputs
-    yaml_inputs lua_inputs lua_mixsrc lua_keys)
+    yaml_inputs lua_inputs lua_mixsrc lua_keys lua_leds)
   set_property(TARGET radiolib_native PROPERTY POSITION_INDEPENDENT_CODE ON)
 
   add_subdirectory(targets/simu)
