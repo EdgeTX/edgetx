@@ -180,15 +180,25 @@ void Window::eventHandler(lv_event_t *e)
         lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
         lv_coord_t scroll_bottom = lv_obj_get_scroll_bottom(target);
 
-        TRACE("SCROLL[x=%d;y=%d;top=%d;bottom=%d]", p->x, p->y, scroll_y,
-              scroll_bottom);
-
         // Force scroll to top or bottom when near either edge.
         // Only applies when using rotary encoder or keys.
-        if (scroll_y <= EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 && p->y > 0) {
-          lv_obj_scroll_by(target, 0, scroll_y, LV_ANIM_OFF);
-        } else if (scroll_bottom <= EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 && p->y < 0) {
-          lv_obj_scroll_by(target, 0, -scroll_bottom, LV_ANIM_OFF);
+        // Limit is 2 standard size labels with some extra padding
+        constexpr lv_coord_t NEAR_LIMIT =
+            (EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY * 2 + PAD_OUTLINE * 2) * 2 + PAD_MEDIUM * 2;
+
+        TRACE("SCROLL[x=%d;y=%d;top=%d;bottom=%d,limit=%d]", p->x, p->y, scroll_y,
+              scroll_bottom,NEAR_LIMIT);
+
+        lv_coord_t scroll_by = 0;
+        if (scroll_y > 0 && scroll_y <= NEAR_LIMIT && p->y > 0) {
+          scroll_by = scroll_y;
+        } else if (scroll_bottom > 0 && scroll_bottom <= NEAR_LIMIT && p->y < 0) {
+          scroll_by = -scroll_bottom;
+        }
+        if (scroll_by != 0) {
+          lv_obj_scroll_by(target, 0, scroll_by, LV_ANIM_OFF);
+          // Don't call scrollHandler until next update
+          return;
         }
       }
 
