@@ -622,4 +622,43 @@ TEST(Lua, testUserDataEmbeddedNul)
   luaExecStr(userdata_nul_tst);
 }
 
+#if defined(LED_STRIP_LENGTH)
+#include "boards/generic_stm32/rgb_leds.h"
+
+#if !defined(BLING_LED_STRIP_LENGTH)
+  #define BLING_LED_STRIP_START 0
+  #define BLING_LED_STRIP_LENGTH 0
+#endif
+#if !defined(CFS_LED_STRIP_LENGTH)
+  #define CFS_LED_STRIP_LENGTH 0
+#endif
+
+TEST(Lua, RGBLedIndexes)
+{
+  MODEL_RESET();
+
+#if BLING_LED_STRIP_LENGTH > 0
+  luaExecStr("if not setRGBLedColor(0, 4, 5, 6) then error('bling') end");
+  EXPECT_EQ(0x040506u, rgbGetLedColor(BLING_LED_STRIP_START));
+#endif
+
+#if CFS_LED_STRIP_LENGTH > 0
+  // Lua index of the first LED of the first custom switch
+  const std::string cfs = std::to_string(BLING_LED_STRIP_LENGTH);
+  uint8_t sw = switchGetSwitchFromCustomIdx(0);
+  ASSERT_LT(sw, switchGetMaxSwitches());
+
+  g_model.setSwitchType(sw, SWITCH_NONE);
+  luaExecStr(("if not setRGBLedColor(" + cfs + ", 1, 2, 3) then error('unused cfs') end").c_str());
+  EXPECT_EQ(0x010203u, fsGetLedRGB(0));
+
+  g_model.setSwitchType(sw, SWITCH_TOGGLE);
+  luaExecStr(("if setRGBLedColor(" + cfs + ", 7, 8, 9) then error('used cfs') end").c_str());
+  EXPECT_EQ(0x010203u, fsGetLedRGB(0));
+#endif
+
+  luaExecStr("if setRGBLedColor(LED_STRIP_LENGTH, 1, 2, 3) then error('out of range') end");
+}
+#endif
+
 #endif   // #if defined(LUA)

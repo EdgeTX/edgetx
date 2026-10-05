@@ -3014,15 +3014,15 @@ static int luaGetTrainerStatus(lua_State * L)
 
 #if (BLING_LED_STRIP_LENGTH > 0) || (CFS_LED_STRIP_LENGTH > 0)
 /*luadoc
-@function setRGBLedColor(id, rvalue, bvalue, cvalue)
+@function setRGBLedColor(id, rvalue, gvalue, bvalue)
 
 @param id: integer identifying a led in the led chain
 
-@param rvalue: interger, value of red channel
+@param rvalue: integer, value of red channel
 
-@param gvalue: interger, value of green channel
+@param gvalue: integer, value of green channel
 
-@param bvalue: interger, value of blue channel
+@param bvalue: integer, value of blue channel
 
 @retval: true if LED index is valid, false otherwise
 
@@ -3051,12 +3051,14 @@ static int luaSetRgbLedColor(lua_State * L)
   }
   id -= BLING_LED_STRIP_LENGTH;
 #endif
-  uint8_t swIdx = switchGetSwitchFromCustomIdx(id / CFS_LEDS_PER_SWITCH);
-  if (g_model.getSwitchType(swIdx) != SWITCH_NONE) {
+  uint8_t cfsIdx = id / CFS_LEDS_PER_SWITCH;
+  uint8_t swIdx = switchGetSwitchFromCustomIdx(cfsIdx);
+  if (swIdx >= switchGetMaxSwitches() ||
+      g_model.getSwitchType(swIdx) != SWITCH_NONE) {
     lua_pushboolean(L, false);
     return 1;
   }
-  rgbSetLedColor(id + CFS_LED_STRIP_START, r, g, b);
+  rgbSetLedColor(fsLedFirstIndex(cfsIdx) + id % CFS_LEDS_PER_SWITCH, r, g, b);
 #else
   rgbSetLedColor(id + BLING_LED_STRIP_START, r, g, b);
 #endif

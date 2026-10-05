@@ -77,14 +77,29 @@ uint32_t rgbGetLedColor(uint8_t led)
   return (pixel[1] << 16) + (pixel[0] << 8) + pixel[2];
 }
 
+#if !defined(CFS_LED_STRIP_START)
+  #define CFS_LED_STRIP_START 0
+#endif
+#if !defined(CFS_LEDS_PER_SWITCH)
+  #define CFS_LEDS_PER_SWITCH 1
+#endif
+
+uint8_t fsLedFirstIndex(uint8_t index)
+{
+  return CFS_LED_STRIP_START + index * CFS_LEDS_PER_SWITCH;
+}
+
 void fsLedRGB(uint8_t idx, uint32_t color)
 {
-  rgbSetLedColor(idx, (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
+  uint8_t led = fsLedFirstIndex(idx);
+  for (uint8_t i = 0; i < CFS_LEDS_PER_SWITCH; i++) {
+    rgbSetLedColor(led + i, (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF);
+  }
 }
 
 uint32_t fsGetLedRGB(uint8_t index)
 {
-  return rgbGetLedColor(index);
+  return rgbGetLedColor(fsLedFirstIndex(index));
 }
 
 void fsLedOn(uint8_t idx)
