@@ -407,6 +407,8 @@
     #define TR_BL_DIR_EMPTY               "Adresar je prazdny"
     #define TR_BL_WRITING_FW              "Nahravanie firmware ..."
     #define TR_BL_WRITING_COMPL           "Nahravanie dokoncene"
+    #define TR_BL_WRITING_FAILED          TR("Zapis zlyhal!", "Zapis sa nepodaril!")
+    #define TR_BL_RETRY_OR_DFU            TR("Skuste znova / DFU", "Skuste znova, alebo pouzite USB (DFU)")
     #define TR_BL_ENABLE                  "Povolene"
     #define TR_BL_DISABLE                 "Zakazane"
 
