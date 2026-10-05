@@ -149,8 +149,40 @@ void AutoCollapsibleSection::toggle(bool expanded)
 
 void AutoCollapsibleSection::updateHeights()
 {
-  int contentHeight = contentArea->layout()->sizeHint().height();
+  setAnimationRange(contentArea->layout()->sizeHint().height());
 
+  toggleAnimation->setDirection(isExpanded ? QAbstractAnimation::Forward :
+                                             QAbstractAnimation::Backward);
+  toggleAnimation->start();
+}
+
+// call after adding or removing content widgets once finish() has been called
+void AutoCollapsibleSection::contentChanged()
+{
+  QLayout *layout = contentArea->layout();
+
+  // content layout not attached until finish()
+  if (!layout)
+    return;
+
+  layout->invalidate();
+  int contentHeight = layout->sizeHint().height();
+  setAnimationRange(contentHeight);
+
+  // a running animation picks up the new end values, and a collapsed
+  // section will use them when next expanded, so only an expanded
+  // section at rest needs resizing now, without replaying the animation
+  if (isExpanded && toggleAnimation->state() != QAbstractAnimation::Running) {
+    setMinimumHeight(collapsedHeight + contentHeight);
+    setMaximumHeight(collapsedHeight + contentHeight);
+    contentArea->setMaximumHeight(contentHeight);
+    if (fnResize) fnResize();
+    emit resized();
+  }
+}
+
+void AutoCollapsibleSection::setAnimationRange(int contentHeight)
+{
   for (int i = 0; i < toggleAnimation->animationCount() - 1; ++i) {
     QPropertyAnimation* SectionAnimation = static_cast<QPropertyAnimation *>
       (toggleAnimation->animationAt(i));
@@ -164,8 +196,4 @@ void AutoCollapsibleSection::updateHeights()
   contentAnimation->setDuration(animationDuration);
   contentAnimation->setStartValue(0);
   contentAnimation->setEndValue(contentHeight);
-
-  toggleAnimation->setDirection(isExpanded ? QAbstractAnimation::Forward :
-                                             QAbstractAnimation::Backward);
-  toggleAnimation->start();
 }

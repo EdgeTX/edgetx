@@ -457,6 +457,7 @@ void MainWindow::editPreferences()
   dlg->setMainWinHasDirtyChild(anyChildrenDirty());
   connect(dlg, &PrefsEditDialog::profileFirmwareAboutToChange, this, &MainWindow::saveAll);
   connect(dlg, &PrefsEditDialog::profileFirmwareChanged, this, &MainWindow::onCurrentProfileChanged);
+  connect(dlg, &PrefsEditDialog::profileNameChanged, this, [this] () {this->updateProfilesActions(); });
   dlg->exec();
 }
 
