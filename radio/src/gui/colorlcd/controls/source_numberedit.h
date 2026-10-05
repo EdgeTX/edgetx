@@ -35,7 +35,7 @@ class SourceNumberEdit : public Window
                    std::function<void(int32_t)> setValue,
                    int16_t sourceMin,
                    LcdFlags textFlags = 0, int32_t voffset = 0,
-                   int32_t vdefault = 0, bool wide = false);
+                   int32_t vdefault = 0);
 
   void switchSourceMode();
   void setSuffix(const std::string& value);
@@ -62,11 +62,29 @@ class SourceNumberEdit : public Window
   std::function<int32_t()> getValue;
   std::function<void(int32_t)> setValue;
   int32_t voffset;
-  bool wide;
 
-  bool isSource();
-  int16_t decodeValue();
-  int32_t encode(int16_t value, bool isSource);
+  void delayedInit() override;
 
-  static void value_changed(lv_event_t* e);
+  virtual bool isSource();
+  virtual int16_t decode();
+  virtual int32_t encode(int16_t value, bool isSource);
+};
+
+class LimitNumberEdit : public SourceNumberEdit
+{
+ public:
+  LimitNumberEdit(Window* parent, int32_t vmin, int32_t vmax,
+                   std::function<int32_t()> getValue,
+                   std::function<void(int32_t)> setValue,
+                   int16_t sourceMin,
+                   LcdFlags textFlags = 0, int32_t voffset = 0,
+                   int32_t vdefault = 0) :
+      SourceNumberEdit(parent, vmin, vmax, getValue, setValue,
+                       sourceMin, textFlags, voffset, vdefault)
+  {}
+
+ protected:
+  bool isSource() override;
+  int16_t decode() override;
+  int32_t encode(int16_t value, bool isSource) override;
 };
