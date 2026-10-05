@@ -177,6 +177,9 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
 #endif
 
   onClosing([=]() {
+    // In case keyboard was open when window closed
+    Keyboard::hideKeyboard();
+
     luaL_unref(lsStandalone, LUA_REGISTRYINDEX, initFunction);
     luaL_unref(lsStandalone, LUA_REGISTRYINDEX, runFunction);
     luaLcdBuffer = nullptr;
@@ -291,7 +294,7 @@ void StandaloneLuaWindow::checkEvents()
   luaLcdAllowed = false;
 }
 
-void StandaloneLuaWindow::onClicked() { Keyboard::hide(false); LuaScriptManager::onClickedEvent(); }
+void StandaloneLuaWindow::onClicked() { LuaScriptManager::onClickedEvent(); }
 
 void StandaloneLuaWindow::onCancel() { LuaScriptManager::onCancelEvent(); }
 

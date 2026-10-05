@@ -107,8 +107,8 @@ class NumberEdit : public TextButton
   NumberArea* edit = nullptr;
   std::function<int()> _getValue;
   std::function<void(int)> _setValue;
-  std::function<void(int)> onEdited;
-  std::function<void()> onEditStart;
+  std::function<void(int)> onEdited = nullptr;
+  std::function<void()> onEditStart = nullptr;
   int vdefault = 0;
   int vmin;
   int vmax;
@@ -119,13 +119,20 @@ class NumberEdit : public TextButton
   std::string prefix;
   std::string suffix;
   std::string zeroText;
-  std::function<std::string(int)> displayFunction = nullptr;
-  std::function<bool(int)> isValueAvailable = nullptr;
+  std::function<std::string(int)> displayFunction;
+  std::function<bool(int)> isValueAvailable;
+  bool directEdit = false;
 
   std::string getDisplayVal();
 
   void updateDisplay();
-  void openEdit();
+  void changeValue(int step);
+  void setDirectEdit(bool editMode);
 
+  void onCancel() override;
+  void onClicked() override;
   void checkEvents() override;
+
+  bool customEventHandler(lv_event_code_t code, lv_event_t *e) override;
+  void handleKBEvent(int n);
 };

@@ -29,20 +29,25 @@
 class NumberArea : public FormField
 {
  public:
-  NumberArea(NumberEdit* parent, const rect_t& rect) :
+  NumberArea(NumberEdit* parent, const rect_t& rect, std::function<void()> changeHandler) :
       FormField(parent, rect, etx_textarea_create),
-      numEdit(parent)
+      numEdit(parent),
+      changeHandler(changeHandler)
   {
-    setWindowFlag(NO_FOCUS);
+    if (parent->getTextFlags() & CENTERED)
+      etx_obj_add_style(lvobj, styles->text_align_center, LV_PART_MAIN);
+    else
+      etx_obj_add_style(lvobj, styles->text_align_right, LV_PART_MAIN);
 
-    lv_obj_add_event_cb(lvobj, NumberArea::numberedit_cb, LV_EVENT_KEY, this);
+    // Hide cursor
+    lv_obj_set_style_bg_opa(lvobj, LV_OPA_0, LV_PART_CURSOR | LV_STATE_EDITED);
+  
+    setWindowFlag(NO_FOCUS | IS_EDIT_WINDOW);
 
+    // Cancel edit if this field loses focus (another field was selected)
     setFocusHandler([=](bool focus) {
-      if (!focus && editMode) {
-        setEditMode(false);
-        hide();
-        lv_obj_clear_state(parent->getLvObj(), LV_STATE_FOCUSED);
-      }
+      if (!focus && editMode)
+        Keyboard::hideKeyboard();
     });
 
     update();
@@ -58,135 +63,38 @@ class NumberArea : public FormField
   }
 #endif
 
-  void onEvent(event_t event) override
+  void changeEnd() override
   {
-    TRACE_WINDOWS("%s received event 0x%X", getWindowDebugString().c_str(),
-                  event);
-
-    if (editMode) {
-      int value = numEdit->getValue();
-      switch (event) {
-#if defined(HARDWARE_KEYS)
-        case EVT_ROTARY_RIGHT: {
-          auto step = numEdit->step;
-          step += (rotaryEncoderGetAccel() * numEdit->accelFactor) / 8;
-          do {
-#if defined(USE_HATS_AS_KEYS)
-            value -= step;
-#else
-            value += step;
-#endif
-          } while (numEdit->isValueAvailable && !numEdit->isValueAvailable(value) &&
-                   value <= numEdit->vmax);
-          if (value <= numEdit->vmax) {
-            numEdit->setValue(value);
-          } else {
-            numEdit->setValue(numEdit->vmax);
-            onKeyError();
-          }
-          return;
-        }
-
-        case EVT_ROTARY_LEFT: {
-          auto step = numEdit->step;
-          step += (rotaryEncoderGetAccel() * numEdit->accelFactor) / 8;
-          do {
-#if defined(USE_HATS_AS_KEYS)
-            value += step;
-#else
-            value -= step;
-#endif
-          } while (numEdit->isValueAvailable && !numEdit->isValueAvailable(value) &&
-                   value >= numEdit->vmin);
-          if (value >= numEdit->vmin) {
-            numEdit->setValue(value);
-          } else {
-            numEdit->setValue(numEdit->vmin);
-            onKeyError();
-          }
-          return;
-        }
-#endif
-
-        case EVT_VIRTUAL_KEY_PLUS:
-          numEdit->setValue(value + numEdit->step);
-          break;
-
-        case EVT_VIRTUAL_KEY_MINUS:
-          numEdit->setValue(value - numEdit->step);
-          break;
-
-        case EVT_VIRTUAL_KEY_FORWARD:
-          numEdit->setValue(value + numEdit->fastStep * numEdit->step);
-          break;
-
-        case EVT_VIRTUAL_KEY_BACKWARD:
-          numEdit->setValue(value - numEdit->fastStep * numEdit->step);
-          break;
-
-        case EVT_VIRTUAL_KEY_DEFAULT:
-          numEdit->setValue(numEdit->vdefault);
-          break;
-
-        case EVT_VIRTUAL_KEY_MAX:
-          numEdit->setValue(numEdit->vmax);
-          break;
-
-        case EVT_VIRTUAL_KEY_MIN:
-          numEdit->setValue(numEdit->vmin);
-          break;
-
-        case EVT_VIRTUAL_KEY_SIGN:
-          numEdit->setValue(-value);
-          break;
-      }
-    }
-
-    FormField::onEvent(event);
+    setEditMode(false);
+    hide();
+    if (changeHandler) changeHandler();
   }
 
-  void onClicked() override
+  void openKeyboard()
   {
-    lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
-    if (indev_type == LV_INDEV_TYPE_POINTER) {
-      setEditMode(true);
-    } else {
-      FormField::onClicked();
-      if (!editMode) changeEnd();
-    }
-  }
+    update();
+    show();
+    lv_group_focus_obj(lvobj);
 
-  void openKeyboard() { NumberKeyboard::open(this); }
-  void directEdit() { FormField::onClicked(); }
+    NumberKeyboard::open(this, numEdit->step, numEdit->fastStep * numEdit->step, parent->getTextFlags(),
+                         (numEdit->vmin < 0) && (numEdit->vmax > 0),
+                         [=](uint16_t n) { numEdit->handleKBEvent(n); });
+
+    setEditMode(true);
+  }
 
   void update()
   {
-    if (lvobj != nullptr)
-      lv_textarea_set_text(lvobj, numEdit->getDisplayVal().c_str());
+    lv_textarea_set_text(lvobj, numEdit->getDisplayVal().c_str());
   }
 
  protected:
   NumberEdit* numEdit = nullptr;
+  std::function<void()> changeHandler = nullptr;
 
   void onCancel() override
   {
-    onClicked();
-  }
-
-  static void numberedit_cb(lv_event_t* e)
-  {
-    NumberArea* numEdit = (NumberArea*)lv_event_get_user_data(e);
-    if (!numEdit || numEdit->deleted()) return;
-
-    uint32_t key = lv_event_get_key(e);
-    switch (key) {
-      case LV_KEY_LEFT:
-        numEdit->onEvent(EVT_ROTARY_LEFT);
-        break;
-      case LV_KEY_RIGHT:
-        numEdit->onEvent(EVT_ROTARY_RIGHT);
-        break;
-    }
+    changeEnd();
   }
 };
 
@@ -195,20 +103,23 @@ class NumberArea : public FormField
   edit fields, the text area is initially displayed as a button. When the button
   is pressed, a text area object is created over the top of the button in order
   to edit the value.
+
+  Number edit supports 'direct' edit mode by pressing the ENTER key while the
+  field has focus. This enables the rotary encoder to be user to change the value.
+  The lv_textarea is not used in this case.
 */
 NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
                        std::function<int()> getValue,
                        std::function<void(int)> setValue, LcdFlags textFlags) :
-    TextButton(parent, rect, "",
-               [=]() {
-                 openEdit();
-                 return 0;
-               }),
+    TextButton(parent, rect, ""),
     _getValue(std::move(getValue)),
     _setValue(std::move(setValue)),
     vmin(vmin),
     vmax(vmax)
 {
+  // Prevent NumberArea focus outline from clipping
+  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_OVERFLOW_VISIBLE);
+
   if (rect.w == 0 || rect.w == LV_SIZE_CONTENT) setWidth(EdgeTxStyles::EDIT_FLD_WIDTH);
 
   setTextFlag(textFlags);
@@ -223,36 +134,72 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
   else
     etx_obj_add_style(label, styles->text_align_right, LV_PART_MAIN);
 
+  etx_bg_color(lvobj, COLOR_THEME_EDIT_INDEX, LV_PART_MAIN | LV_STATE_EDITED);
+  etx_txt_color(lvobj, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN | LV_STATE_EDITED);
+
   update();
+
+  // Cancel edit if this field loses focus (another field was selected)
+  setFocusHandler([=](bool focus) {
+    if (!focus && editMode && directEdit)
+      onCancel();
+  });
 }
 
-void NumberEdit::openEdit()
+bool NumberEdit::customEventHandler(lv_event_code_t code, lv_event_t *e)
 {
+  // Rotary encoder events in direct mode
+  if (directEdit && code == LV_EVENT_KEY) {
+    uint32_t key = lv_event_get_key(e);
+    auto inc = step + (rotaryEncoderGetAccel() * accelFactor) / 8;
+
+    switch (key) {
+      case LV_KEY_LEFT:
+        changeValue(-inc);
+        return true;
+
+      case LV_KEY_RIGHT:
+        changeValue(inc);
+        return true;
+    }
+  }
+
+  return false;
+}
+
+void NumberEdit::onClicked()
+{
+  lv_indev_type_t indev_type = lv_indev_get_type(lv_indev_get_act());
+
+  if (directEdit) {
+    if (indev_type != LV_INDEV_TYPE_POINTER) {
+      onCancel();
+    } else {
+      // User has tapped on screen outside of any control, then taps on
+      // this control
+      if (!lv_obj_has_state(lvobj, LV_STATE_EDITED))
+        setDirectEdit(true);
+    }
+    return;
+  }
+
   if (onEditStart) onEditStart();
-  if (edit == nullptr) {
-    edit = new NumberArea(
-        this,
-        {-(PAD_MEDIUM + 2), -(PAD_BORDER * 2),
-        lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)});
-    edit->setChangeHandler([=]() {
-      update();
-      if (onEdited) onEdited(currentValue);
-      if (edit->hasFocus())
-        lv_group_focus_obj(lvobj);
-      edit->hide();
-    });
-  }
-  edit->update();
-  edit->show();
-  lv_group_focus_obj(edit->getLvObj());
-  lv_indev_type_t indev_type =
-      lv_indev_get_type(lv_indev_get_act());
-  if (indev_type == LV_INDEV_TYPE_POINTER) {
-    edit->openKeyboard();
+
+  if (indev_type != LV_INDEV_TYPE_POINTER) {
+    setDirectEdit(true);
   } else {
-    edit->directEdit();
+    if (edit == nullptr) {
+      edit = new NumberArea(
+          this,
+          {-(PAD_MEDIUM + 2), -(PAD_BORDER * 2),
+          lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)},
+          [=]() {
+            update();
+            if (onEdited) onEdited(currentValue);
+          });
+    }
+    edit->openKeyboard();
   }
-  lv_obj_add_state(lvobj, LV_STATE_FOCUSED);
 }
 
 void NumberEdit::update()
@@ -304,4 +251,85 @@ void NumberEdit::checkEvents()
     }
   }
   TextButton::checkEvents();
+}
+
+void NumberEdit::changeValue(int step)
+{
+  // Rotary encoder change
+  int value = getValue();
+  do {
+#if defined(USE_HATS_AS_KEYS)
+    value -= step;
+#else
+    value += step;
+#endif
+  } while (isValueAvailable && !isValueAvailable(value) &&
+            value >= vmin && value <= vmax);
+  if (value > vmax) {
+    value = vmax;
+    onKeyError();
+  } else if (value < vmin) {
+    value = vmin;
+    onKeyError();
+  }
+  setValue(value);
+}
+
+void NumberEdit::setDirectEdit(bool editMode)
+{
+  directEdit = editMode;
+
+  // Clear 'edited' state
+  if (editMode) {
+    lv_obj_add_state(lvobj, LV_STATE_EDITED);
+  } else {
+    lv_obj_clear_state(lvobj, LV_STATE_EDITED);
+
+    // Call final change handler (Lua scripts)
+    if (onEdited) onEdited(currentValue);
+  }
+
+  setEditMode(editMode);
+}
+
+void NumberEdit::onCancel()
+{
+  if (directEdit)
+    setDirectEdit(false);
+  else
+    TextButton::onCancel();
+}
+
+void NumberEdit::handleKBEvent(int n)
+{
+  // Handle events from the custom keyboard
+  int value = getValue();
+  switch (n) {
+    case NumberKeyboard::DEC_FASTSTEP:
+      value = value - fastStep * step;
+      break;
+    case NumberKeyboard::DEC_STEP:
+      value = value - step;
+      break;
+    case NumberKeyboard::INC_STEP:
+      value = value + step;
+      break;
+    case NumberKeyboard::INC_FASTSTEP:
+      value = value + fastStep * step;
+      break;
+    case NumberKeyboard::SET_MIN:
+      value = vmin;
+      break;
+    case NumberKeyboard::SET_DEFAULT:
+      value = vdefault;
+      break;
+    case NumberKeyboard::CHANGE_SIGN:
+      if (vmin < 0 && vmax > 0)
+        value = -value;
+      break;
+    case NumberKeyboard::SET_MAX:
+      value = vmax;
+      break;
+  }
+  setValue(value);
 }

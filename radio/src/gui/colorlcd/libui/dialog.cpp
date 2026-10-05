@@ -40,7 +40,6 @@ class BaseDialogForm : public Window
   }
 
  protected:
-  void onClicked() override { Keyboard::hide(false); }
 };
 
 BaseDialog::BaseDialog(const char* title,

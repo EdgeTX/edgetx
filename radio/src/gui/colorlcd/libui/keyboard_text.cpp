@@ -35,21 +35,21 @@ TextKeyboard::TextKeyboard() : Keyboard(KEYBOARD_HEIGHT)
 void TextKeyboard::changeMode()
 {
   // Change keyboard mode
-  lv_keyboard_mode_t mode = lv_keyboard_get_mode(keyboard);
+  lv_keyboard_mode_t mode = lv_keyboard_get_mode(lvobj);
   mode = (mode + 1) & 3;
-  lv_keyboard_set_mode(keyboard, mode);
+  lv_keyboard_set_mode(lvobj, mode);
 }
 
 void TextKeyboard::backspace()
 {
-  lv_keyboard_t* kb = (lv_keyboard_t*)keyboard;
+  lv_keyboard_t* kb = (lv_keyboard_t*)lvobj;
   // Backspace
   lv_textarea_del_char(kb->ta);
 }
 
 void TextKeyboard::toggleCase()
 {
-  lv_keyboard_t* kb = (lv_keyboard_t*)keyboard;
+  lv_keyboard_t* kb = (lv_keyboard_t*)lvobj;
   // Toggle case
   char c = lv_textarea_get_text(kb->ta)[lv_textarea_get_cursor_pos(kb->ta)];
   if (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z'))) {
@@ -62,28 +62,28 @@ void TextKeyboard::toggleCase()
 
 void TextKeyboard::deleteChar()
 {
-  lv_keyboard_t* kb = (lv_keyboard_t*)keyboard;
+  lv_keyboard_t* kb = (lv_keyboard_t*)lvobj;
   // Delete
   lv_textarea_del_char_forward(kb->ta);
 }
 
 void TextKeyboard::cursorLeft()
 {
-  lv_keyboard_t* kb = (lv_keyboard_t*)keyboard;
+  lv_keyboard_t* kb = (lv_keyboard_t*)lvobj;
   // Cursor left
   lv_textarea_cursor_left(kb->ta);
 }
 
 void TextKeyboard::cursorRight()
 {
-  lv_keyboard_t* kb = (lv_keyboard_t*)keyboard;
+  lv_keyboard_t* kb = (lv_keyboard_t*)lvobj;
   // Cursor right
   lv_textarea_cursor_right(kb->ta);
 }
 
 void TextKeyboard::cursorStart()
 {
-  lv_keyboard_t* kb = (lv_keyboard_t*)keyboard;
+  lv_keyboard_t* kb = (lv_keyboard_t*)lvobj;
   // Cursor to start
   while (lv_textarea_get_cursor_pos(kb->ta) > 0)
     lv_textarea_cursor_left(kb->ta);
@@ -91,7 +91,7 @@ void TextKeyboard::cursorStart()
 
 void TextKeyboard::cursorEnd()
 {
-  lv_keyboard_t* kb = (lv_keyboard_t*)keyboard;
+  lv_keyboard_t* kb = (lv_keyboard_t*)lvobj;
   // Cursor to end
   size_t l = strlen(lv_textarea_get_text(kb->ta));
   while (lv_textarea_get_cursor_pos(kb->ta) < l)
@@ -114,9 +114,9 @@ void TextKeyboard::open(FormField* field)
 {
   if (!_instance) _instance = new TextKeyboard();
 
-  lv_obj_clear_flag(_instance->lvobj, LV_OBJ_FLAG_HIDDEN);
-  lv_obj_clear_flag(_instance->keyboard, LV_OBJ_FLAG_HIDDEN);
-  lv_keyboard_set_mode(_instance->keyboard, LV_KEYBOARD_MODE_TEXT_LOWER);
+  _instance->show();
 
   _instance->setField(field);
+
+  lv_keyboard_set_mode(_instance->lvobj, LV_KEYBOARD_MODE_TEXT_LOWER);
 }

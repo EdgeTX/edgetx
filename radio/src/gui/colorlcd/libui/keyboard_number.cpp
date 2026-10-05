@@ -20,19 +20,38 @@
 
 #include "numberedit.h"
 #include "keys.h"
+#include "strhelpers.h"
 
-LAYOUT_VAL_SCALED(KEYBOARD_HEIGHT, 90);
 NumberKeyboard* NumberKeyboard::_instance = nullptr;
 
-static const char* const number_kb_map[] = {"<<",  "-",   "+",   ">>",  "\n",
-                                            "MIN", "DEF", "+/-", "MAX", ""};
+// NOTE: number_kb_map must be a static (not class) object
+//       as the lvgl keyboard keeps a reference to it.
+//       A class object will eventually crash after the keyboard
+//       is closed and reopened (e.g. USB SD mode)
+
+// Fixed length strings for number keys.
+// Key label set on open using step values.
+// Ensure uniqueness & length.
+static constexpr int NUM_BTN_LEN = 5;
+static char decL[NUM_BTN_LEN+1] = "-10";
+static char decS[NUM_BTN_LEN+1] = "-1";
+static char incS[NUM_BTN_LEN+1] = "+1";
+static char incL[NUM_BTN_LEN+1] = "+10";
+
+static const char* number_kb_map[] = {
+  decL,  decS,  incS,  incL,  "\n",
+  "MIN", "DEF", "+/-", "MAX", ""
+};
 
 #define LV_KB_BTN(width) LV_BTNMATRIX_CTRL_POPOVER | width
 #define LV_KB_CTRL(width) LV_KEYBOARD_CTRL_BTN_FLAGS | width
 
-static const lv_btnmatrix_ctrl_t number_kb_ctrl_map[] = {
-    LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_BTN(4),  LV_KB_BTN(4),
-    LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_CTRL(4), LV_KB_BTN(4)};
+// Index of the '+/-' control map value.
+static constexpr int CHG_SIGN_IDX = 6;
+
+static lv_btnmatrix_ctrl_t number_kb_ctrl_map[] = {
+    LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1),  LV_KB_BTN(1),
+    LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_CTRL(1), LV_KB_BTN(1)};
 
 static void on_key(lv_event_t* e)
 {
@@ -40,114 +59,69 @@ static void on_key(lv_event_t* e)
   NumberKeyboard* edit = (NumberKeyboard*)lv_event_get_user_data(e);
   if (!obj || !edit) return;
 
-  uint16_t btn_id = lv_btnmatrix_get_selected_btn(obj);
-  if (btn_id == LV_BTNMATRIX_BTN_NONE) return;
-
-  const char* txt =
-      lv_btnmatrix_get_btn_text(obj, lv_btnmatrix_get_selected_btn(obj));
-  if (txt == NULL) return;
-
-  edit->handleEvent(txt);
+  edit->handleEvent(lv_btnmatrix_get_selected_btn(obj));
 }
 
-void NumberKeyboard::handleEvent(const char* btn)
+void NumberKeyboard::handleEvent(uint16_t btnId)
 {
-  if (strcmp(btn, "<<") == 0)
-    decLarge();
-  else if (strcmp(btn, "-") == 0)
-    decSmall();
-  else if (strcmp(btn, "+") == 0)
-    incSmall();
-  else if (strcmp(btn, ">>") == 0)
-    incLarge();
-  else if (strcmp(btn, "MIN") == 0)
-    setMIN();
-  else if (strcmp(btn, "DEF") == 0)
-    setDEF();
-  else if (strcmp(btn, "MAX") == 0)
-    setMAX();
-  else if (strcmp(btn, "+/-") == 0)
-    changeSign();
-}
-
-void NumberKeyboard::decLarge()
-{
-  field->onEvent(EVT_VIRTUAL_KEY_BACKWARD);
-}
-
-void NumberKeyboard::decSmall()
-{
-  field->onEvent(EVT_VIRTUAL_KEY_MINUS);
-}
-
-void NumberKeyboard::incSmall()
-{
-  field->onEvent(EVT_VIRTUAL_KEY_PLUS);
-}
-
-void NumberKeyboard::incLarge()
-{
-  field->onEvent(EVT_VIRTUAL_KEY_FORWARD);
-}
-
-void NumberKeyboard::setMIN()
-{
-  field->onEvent(EVT_VIRTUAL_KEY_MIN);
-}
-
-void NumberKeyboard::setMAX()
-{
-  field->onEvent(EVT_VIRTUAL_KEY_MAX);
-}
-
-void NumberKeyboard::setDEF()
-{
-  field->onEvent(EVT_VIRTUAL_KEY_DEFAULT);
-}
-
-void NumberKeyboard::changeSign()
-{
-  field->onEvent(EVT_VIRTUAL_KEY_SIGN);
+  if (btnId != LV_BTNMATRIX_BTN_NONE && eventHandler)
+    eventHandler(btnId);
 }
 
 #if defined(HARDWARE_KEYS)
 
-void NumberKeyboard::onPressSYS() { if (hasTwoPageKeys) decLarge(); else decSmall(); }
-void NumberKeyboard::onLongPressSYS() { setMIN(); }
-void NumberKeyboard::onPressMDL() { incLarge(); }
-void NumberKeyboard::onLongPressMDL() { if (hasTwoPageKeys) setMAX(); else changeSign(); }
-void NumberKeyboard::onPressTELE() { if (hasTwoPageKeys) changeSign(); else incSmall(); }
-void NumberKeyboard::onLongPressTELE() { if (hasTwoPageKeys) setDEF(); else setMAX(); }
-void NumberKeyboard::onPressPGUP() { if (hasTwoPageKeys) decSmall(); else setDEF(); }
-void NumberKeyboard::onPressPGDN() { if (hasTwoPageKeys) incSmall(); else decLarge(); }
+void NumberKeyboard::onKey(NumKBEvents e1, NumKBEvents e2)
+{
+  handleEvent(hasTwoPageKeys ? e1 : e2);
+}
+
+void NumberKeyboard::onPressSYS() { onKey(NumKBEvents::DEC_FASTSTEP, NumKBEvents::DEC_STEP); }
+void NumberKeyboard::onLongPressSYS() { handleEvent(NumKBEvents::SET_MIN); }
+void NumberKeyboard::onPressMDL() { handleEvent(NumKBEvents::INC_FASTSTEP); }
+void NumberKeyboard::onLongPressMDL() { onKey(NumKBEvents::SET_MAX, NumKBEvents::CHANGE_SIGN); }
+void NumberKeyboard::onPressTELE() { onKey(NumKBEvents::CHANGE_SIGN, NumKBEvents::INC_STEP); }
+void NumberKeyboard::onLongPressTELE() { onKey(NumKBEvents::SET_DEFAULT, NumKBEvents::SET_MAX); }
+void NumberKeyboard::onPressPGUP() { onKey(NumKBEvents::DEC_STEP, NumKBEvents::SET_DEFAULT); }
+void NumberKeyboard::onPressPGDN() { onKey(NumKBEvents::INC_STEP, NumKBEvents::DEC_FASTSTEP); }
 
 #endif
 
 NumberKeyboard::NumberKeyboard() : Keyboard(KEYBOARD_HEIGHT)
 {
-  // setup custom keyboard
-  lv_keyboard_set_map(keyboard, LV_KEYBOARD_MODE_USER_1,
-                      (const char**)number_kb_map, number_kb_ctrl_map);
+  lv_obj_add_event_cb(lvobj, on_key, LV_EVENT_VALUE_CHANGED, this);
 
-  lv_keyboard_set_mode(keyboard, LV_KEYBOARD_MODE_USER_1);
+  lv_keyboard_set_mode(lvobj, LV_KEYBOARD_MODE_USER_1);
 
   onClosing([=]() {
     _instance = nullptr;
   });
 }
 
-void NumberKeyboard::open(FormField* field)
+void NumberKeyboard::openKeyboard(FormField* field, int stepSmall, int stepLarge, LcdFlags textFlags,
+                                  bool hasChangeSign, std::function<void(uint16_t)> onEvent)
+{
+  strAppend(decL, formatNumberAsString(stepLarge, textFlags, 0, "-").c_str(), NUM_BTN_LEN);
+  strAppend(decS, formatNumberAsString(stepSmall, textFlags, 0, "-").c_str(), NUM_BTN_LEN);
+  strAppend(incS, formatNumberAsString(stepSmall, textFlags, 0, "+").c_str(), NUM_BTN_LEN);
+  strAppend(incL, formatNumberAsString(stepLarge, textFlags, 0, "+").c_str(), NUM_BTN_LEN);
+
+  // Show / hide '+/-' button
+  number_kb_ctrl_map[CHG_SIGN_IDX] = hasChangeSign ? LV_KB_CTRL(1) : LV_BTNMATRIX_CTRL_HIDDEN;
+
+  // setup custom keyboard
+  lv_keyboard_set_map(lvobj, LV_KEYBOARD_MODE_USER_1,
+                      (const char**)number_kb_map, number_kb_ctrl_map);
+
+  eventHandler = onEvent;
+  show();
+
+  setField(field, false);
+}
+
+void NumberKeyboard::open(FormField* field, int stepSmall, int stepLarge, LcdFlags textFlags,
+                          bool hasChangeSign, std::function<void(uint16_t)> onEvent)
 {
   if (!_instance) _instance = new NumberKeyboard();
 
-  lv_obj_clear_flag(_instance->lvobj, LV_OBJ_FLAG_HIDDEN);
-  lv_obj_clear_flag(_instance->keyboard, LV_OBJ_FLAG_HIDDEN);
-
-  _instance->setField(field);
-
-  auto kb = _instance->keyboard;
-  lv_keyboard_set_textarea(kb, nullptr);
-
-  lv_obj_remove_event_cb(kb, on_key);
-  lv_obj_add_event_cb(kb, on_key, LV_EVENT_VALUE_CHANGED, _instance);
+  _instance->openKeyboard(field, stepSmall, stepLarge, textFlags, hasChangeSign, onEvent);
 }

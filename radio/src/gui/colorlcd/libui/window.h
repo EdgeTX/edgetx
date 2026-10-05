@@ -44,13 +44,17 @@ constexpr WindowFlags NO_FOCUS = 1u << 1u;
 constexpr WindowFlags NO_SCROLL = 1u << 2u;
 constexpr WindowFlags NO_CLICK = 1u << 3u;
 constexpr WindowFlags NO_FORCED_SCROLL = 1u << 4u;
+constexpr WindowFlags IS_TOP_BAR = 1u << 5u;
+constexpr WindowFlags IS_NAV_WINDOW = 1u << 6u;
+constexpr WindowFlags IS_PAGE_GROUP = 1u << 7u;
+constexpr WindowFlags IS_BUBBLE_POPUP = 1u << 8u;
+constexpr WindowFlags IS_EDIT_WINDOW = 1u << 9u;
 
 //-----------------------------------------------------------------------------
 
 class Window
 {
  public:
-  Window(const rect_t &rect);
   Window(Window *parent, const rect_t &rect, LvglCreate objConstruct = nullptr);
 
   virtual ~Window() {}
@@ -63,8 +67,6 @@ class Window
 #endif
 
   Window *getParent() const { return parent; }
-
-  Window *getFullScreenWindow();
 
   void setWindowFlag(WindowFlags flag);
   void clearWindowFlag(WindowFlags flag);
@@ -151,7 +153,6 @@ class Window
   void invalidate();
 
   void attach(Window *window);
-
   void detach();
 
   bool deleted() const { return _deleted; }
@@ -163,10 +164,11 @@ class Window
 
   inline lv_obj_t *getLvObj() { return lvobj; }
 
-  virtual bool isTopBar() { return false; }
-  virtual bool isNavWindow() { return false; }
-  virtual bool isPageGroup() { return false; }
-  virtual bool isBubblePopup() { return false; }
+  bool isTopBar() { return windowFlags & IS_TOP_BAR; }
+  bool isNavWindow() { return windowFlags & IS_NAV_WINDOW; }
+  bool isPageGroup() { return windowFlags & IS_PAGE_GROUP; }
+  bool isBubblePopup() { return windowFlags & IS_BUBBLE_POPUP; }
+  bool isEditWindow() { return windowFlags & IS_EDIT_WINDOW; }
 
   void setFlexLayout(lv_flex_flow_t flow = LV_FLEX_FLOW_COLUMN,
                      lv_coord_t padding = PAD_TINY, coord_t width = LV_PCT(100),
@@ -189,6 +191,8 @@ class Window
   void assignLvGroup(lv_group_t* g, bool setDefault);
 
   void closeWindow();
+
+  const std::list<Window*>& getChildren() const { return children; }
 
  protected:
   static std::list<Window *> trash;
@@ -219,7 +223,7 @@ class Window
 
   void eventHandler(lv_event_t *e);
   static void window_event_cb(lv_event_t *e);
-  virtual bool customEventHandler(lv_event_code_t code) { return false; }
+  virtual bool customEventHandler(lv_event_code_t code, lv_event_t *e) { return false; }
 
   static void delayLoader(lv_event_t* e);
   void delayLoad();
@@ -233,8 +237,6 @@ class NavWindow : public Window
  public:
   NavWindow(Window *parent, const rect_t &rect,
             LvglCreate objConstruct = nullptr);
-
-  bool isNavWindow() override { return true; }
 
 #if defined(HARDWARE_KEYS)
   virtual void doKeyShortcut(event_t event) {}

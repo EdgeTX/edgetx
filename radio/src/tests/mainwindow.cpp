@@ -81,9 +81,8 @@ class SwitchMover : public Window
   SwitchMover(uint8_t sw, int8_t state) :
       Window(MainWindow::instance(), {0, 0, 0, 0}), sw(sw), state(state)
   {
+    setWindowFlag(IS_BUBBLE_POPUP);
   }
-
-  bool isBubblePopup() override { return true; }
 
   void checkEvents() override
   {

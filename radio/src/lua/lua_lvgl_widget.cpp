@@ -2437,6 +2437,11 @@ class WidgetPage : public NavWindow, public LuaEventHandler
       prevActive(std::move(prevActive)), nextActive(std::move(nextActive)),
       showPrev(showPrevBtn), showNext(showNextBtn)
   {
+    // Create body first so header has higher Z order
+    body = new Window(
+        this, {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});
+    body->setWindowFlag(NO_FOCUS);
+
     if (iconFile.empty())
       header = new PageHeader(this, ICON_EDGETX);
     else
@@ -2445,16 +2450,12 @@ class WidgetPage : public NavWindow, public LuaEventHandler
 #if defined(HARDWARE_TOUCH)
     if (showBackBtn) {
       new HeaderBackIcon(header);
-      addCustomButton(0, 0, this->menuAction);
-      addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, this->backAction);
+      header->addCustomButton(0, 0, this->menuAction);
+      header->addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, this->backAction);
     } else {
-      addCustomButton(0, 0, this->backAction);
+      header->addCustomButton(0, 0, this->backAction);
     }
 #endif
-
-    body = new Window(
-        this, {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});
-    body->setWindowFlag(NO_FOCUS);
 
     header->setTitle(title);
     header->setTitle2(subtitle);
@@ -2506,7 +2507,7 @@ class WidgetPage : public NavWindow, public LuaEventHandler
   IconButton* prevBtn = nullptr;
   IconButton* nextBtn = nullptr;
 
-  void onClicked() override { Keyboard::hide(false); LuaEventHandler::onClickedEvent(); }
+  void onClicked() override { LuaEventHandler::onClickedEvent(); }
 
   void onCancel() override { backAction(); }
 

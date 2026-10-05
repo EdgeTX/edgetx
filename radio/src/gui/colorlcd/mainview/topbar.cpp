@@ -112,7 +112,7 @@ void SetupTopBarWidgetsPage::onCancel()
 TopBar::TopBar(Window * parent) :
   WidgetsContainer(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT}, MAX_TOPBAR_ZONES)
 {
-  setWindowFlag(NO_FOCUS);
+  setWindowFlag(NO_FOCUS | IS_TOP_BAR);
   etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 }
 

@@ -153,7 +153,6 @@ class PageGroupBase : public NavWindow
 
   void setCurrentTab(unsigned index);
 
-  void onClicked() override;
   void onCancel() override;
 
   uint8_t tabCount() const;
@@ -199,8 +198,6 @@ class PageGroup : public PageGroupBase
 
   PageGroupItem* getCurrentTab() const { return currentTab; }
 
-  bool isPageGroup() override { return true; }
-
 #if VERSION_MAJOR == 2
   static LAYOUT_VAL_SCALED(PAGE_GROUP_TOP_BAR_H, 48)
   static constexpr coord_t PAGE_GROUP_ALT_TITLE_H = EdgeTxStyles::STD_FONT_HEIGHT;
@@ -229,8 +226,6 @@ class TabsGroup : public PageGroupBase
 #endif
 
   void hidePageButtons();
-
-  bool isPageGroup() override { return false; }
 
 #if VERSION_MAJOR == 2
   static LAYOUT_VAL_SCALED(TABS_GROUP_TOP_BAR_H, 48)

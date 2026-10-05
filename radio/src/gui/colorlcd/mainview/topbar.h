@@ -71,8 +71,6 @@ class TopBar: public WidgetsContainer
   void setVisible(float visible);
   coord_t getVisibleHeight(float visible) const; // 0.0 -> 1.0
 
-  bool isTopBar() override { return true; }
-
   void removeWidget(unsigned int index) override;
 
   Widget* createWidget(unsigned int index, const WidgetFactory* factory) override;
