@@ -28,8 +28,6 @@ set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES YES)
 set(FUNCTION_SWITCHES_RGB_LEDS YES)
 
-#option(STICK_DEAD_ZONE "Enable sticks dead zone" YES)
-
 # IMU support
 set(IMU ON)
 
@@ -48,7 +46,6 @@ add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
 
 set(FLAVOUR t15h7)
-add_definitions(-DRADIO_T15H7)
 
 # defines existing internal modules
 set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
