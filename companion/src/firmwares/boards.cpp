@@ -442,7 +442,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
              IS_HELLORADIOSKY_V14(board);
 
     case LcdDepth:
-      if (IS_FAMILY_HORUS_OR_T16(board) || IS_JUMPER_T15H7(board))
+      if (IS_FAMILY_HORUS_OR_T16(board))
         return 16;
       else if (IS_TARANIS_SMALL(board))
         return 1;
@@ -468,7 +468,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 800;
       else if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PA01(board) || IS_HELLORADIOSKY_V12(board))
         return 320;
-      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_JUMPER_T15H7(board) || IS_RADIOMASTER_TX15(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))
+      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_TX15(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))
         return 480;
       else if (IS_TARANIS(board) && !IS_TARANIS_SMALL(board))
         return 212;
@@ -830,7 +830,7 @@ QList<int> Boards::getSupportedInternalModules(Board::Type board)
   } else if (IS_RADIOMASTER_MT12(board)) {
     modules.append((int)MODULE_TYPE_CROSSFIRE);
     modules.append((int)MODULE_TYPE_MULTIMODULE);
-  } else if (IS_IFLIGHT_C14(board)) {
+  } else if (IS_IFLIGHT_C14(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T15H7(board)) {
     modules.append((int)MODULE_TYPE_CROSSFIRE);
   } else if (IS_FAMILY_HORUS_OR_T16(board) || IS_FAMILY_T12(board) ||
              (IS_TARANIS_SMALL(board) && IS_ACCESS_RADIO(board))) {
