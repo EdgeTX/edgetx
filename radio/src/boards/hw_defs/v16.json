@@ -453,6 +453,9 @@
     "touch_i2c_bus": "I2C_Bus_1",
     "touch_int_gpio": "GPIO_PIN(GPIOH, 2)",
     "touch_rst_gpio": "GPIO_PIN(GPIOF, 10)",
+    "touch_int_exti_line": "LL_EXTI_LINE_2",
+    "touch_int_exti_port": "LL_SYSCFG_EXTI_PORTH",
+    "touch_int_exti_syscfgline": "LL_SYSCFG_EXTI_LINE2",
     "exti": [
       {
         "irq": "EXTI2_IRQ",
