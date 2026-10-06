@@ -196,16 +196,8 @@
 {% endfor %}
 {% endif -%}
 
-{% if hardware %}
+{% if hardware and hardware.sport_max_baudrate is not none %}
 
 // Hardware
-{% for name, val in hardware %}
-{% if val is not none and val is not sameas false %}
-{% if val is sameas true %}
-#define {{ name | upper }}
-{% else %}
-#define {{ name | upper }} {{ val }}
-{% endif %}
-{% endif %}
-{% endfor %}
+#define SPORT_MAX_BAUDRATE {{ hardware.sport_max_baudrate }}
 {% endif -%}
