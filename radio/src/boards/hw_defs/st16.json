@@ -411,7 +411,7 @@
     "exti": [
       {
         "irq": "EXTI15_10_IRQ",
-        "priority": 9
+        "priority": 5
       }
     ]
   },
