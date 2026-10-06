@@ -479,7 +479,8 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
     -> commit & push
 13. [x] Companion build: `companion/src/CMakeLists.txt` flavour + `build-companion.sh` plugin
     (added in task 7). -> commit & push
-14. [ ] Translations: run `companion_translations` (lupdate). -> commit & push
+14. [x] Translations: `lupdate` run over `companion_*.ts` (adds "FlySky G11P" + location
+    updates). -> commit & push
 15. [x] Storage/YAML (`yaml_datastructs_g11p.cpp`) generated and wired for `RADIO_G11P`.
     -> commit & push
 16. [ ] Build, flash, hardware + Companion validation. -> commit & push

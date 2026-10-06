@@ -1028,274 +1028,274 @@ Error description: %4</source>
 <context>
     <name>Boards</name>
     <message>
-        <location filename="../firmwares/boards.cpp" line="441"/>
+        <location filename="../firmwares/boards.cpp" line="448"/>
         <source>Left Horizontal</source>
         <translation>왼쪽 수평</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="442"/>
+        <location filename="../firmwares/boards.cpp" line="449"/>
         <source>Left Vertical</source>
         <translation>왼쪽 수직</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="443"/>
+        <location filename="../firmwares/boards.cpp" line="450"/>
         <source>Right Vertical</source>
         <translation>오른쪽 수직</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="444"/>
+        <location filename="../firmwares/boards.cpp" line="451"/>
         <source>Right Horizontal</source>
         <translation>오른쪽 수평</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="445"/>
+        <location filename="../firmwares/boards.cpp" line="452"/>
         <source>Aux. 1</source>
         <translation>Aux. 1(보조1)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="446"/>
+        <location filename="../firmwares/boards.cpp" line="453"/>
         <source>Aux. 2</source>
         <translation>Aux. 2(보조2)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="462"/>
+        <location filename="../firmwares/boards.cpp" line="469"/>
         <source>LH</source>
         <translation>LH(왼쪽 수평)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="463"/>
+        <location filename="../firmwares/boards.cpp" line="470"/>
         <source>LV</source>
         <translation>LV(왼쪽 수직)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="464"/>
+        <location filename="../firmwares/boards.cpp" line="471"/>
         <source>RV</source>
         <translation>RV(오른쪽 수직)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="465"/>
+        <location filename="../firmwares/boards.cpp" line="472"/>
         <source>RH</source>
         <translation>RH(오른쪽 수평)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="474"/>
-        <location filename="../firmwares/boards.cpp" line="476"/>
+        <location filename="../firmwares/boards.cpp" line="481"/>
+        <location filename="../firmwares/boards.cpp" line="483"/>
         <source>TILT_X</source>
         <translation>TILT_X(기울기X축)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="475"/>
-        <location filename="../firmwares/boards.cpp" line="477"/>
+        <location filename="../firmwares/boards.cpp" line="482"/>
+        <location filename="../firmwares/boards.cpp" line="484"/>
         <source>TILT_Y</source>
         <translation>TILT_Y(기울기Y축)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="482"/>
-        <location filename="../firmwares/boards.cpp" line="491"/>
-        <location filename="../firmwares/boards.cpp" line="521"/>
-        <location filename="../firmwares/boards.cpp" line="531"/>
-        <location filename="../firmwares/boards.cpp" line="539"/>
-        <location filename="../firmwares/boards.cpp" line="547"/>
-        <location filename="../firmwares/boards.cpp" line="563"/>
+        <location filename="../firmwares/boards.cpp" line="489"/>
+        <location filename="../firmwares/boards.cpp" line="498"/>
+        <location filename="../firmwares/boards.cpp" line="528"/>
+        <location filename="../firmwares/boards.cpp" line="538"/>
+        <location filename="../firmwares/boards.cpp" line="546"/>
+        <location filename="../firmwares/boards.cpp" line="554"/>
         <location filename="../firmwares/boards.cpp" line="570"/>
+        <location filename="../firmwares/boards.cpp" line="577"/>
         <source>SL1</source>
         <translation>SL1(슬라이더1)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="490"/>
-        <location filename="../firmwares/boards.cpp" line="529"/>
+        <location filename="../firmwares/boards.cpp" line="497"/>
+        <location filename="../firmwares/boards.cpp" line="536"/>
         <source>P4</source>
         <translation>P4(포트4)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="492"/>
-        <location filename="../firmwares/boards.cpp" line="522"/>
-        <location filename="../firmwares/boards.cpp" line="532"/>
-        <location filename="../firmwares/boards.cpp" line="540"/>
-        <location filename="../firmwares/boards.cpp" line="548"/>
-        <location filename="../firmwares/boards.cpp" line="564"/>
+        <location filename="../firmwares/boards.cpp" line="499"/>
+        <location filename="../firmwares/boards.cpp" line="529"/>
+        <location filename="../firmwares/boards.cpp" line="539"/>
+        <location filename="../firmwares/boards.cpp" line="547"/>
+        <location filename="../firmwares/boards.cpp" line="555"/>
         <location filename="../firmwares/boards.cpp" line="571"/>
+        <location filename="../firmwares/boards.cpp" line="578"/>
         <source>SL2</source>
         <translation>SL2(슬라이더2)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="493"/>
-        <location filename="../firmwares/boards.cpp" line="572"/>
+        <location filename="../firmwares/boards.cpp" line="500"/>
+        <location filename="../firmwares/boards.cpp" line="579"/>
         <source>SL3</source>
         <translation>SL3(슬라이더3)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="494"/>
-        <location filename="../firmwares/boards.cpp" line="573"/>
+        <location filename="../firmwares/boards.cpp" line="501"/>
+        <location filename="../firmwares/boards.cpp" line="580"/>
         <source>SL4</source>
         <translation>SL4(슬라이더4)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="530"/>
+        <location filename="../firmwares/boards.cpp" line="537"/>
         <source>P5</source>
         <translation>P5(포트5)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="970"/>
+        <location filename="../firmwares/boards.cpp" line="981"/>
         <source>Slider</source>
         <translation>슬라이더</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="972"/>
+        <location filename="../firmwares/boards.cpp" line="983"/>
         <source>Multipos Switch</source>
         <translation>다단 스위치</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="974"/>
+        <location filename="../firmwares/boards.cpp" line="985"/>
         <source>Axis X</source>
         <translation>X축</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="976"/>
+        <location filename="../firmwares/boards.cpp" line="987"/>
         <source>Axis Y</source>
         <translation>Y축</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="978"/>
+        <location filename="../firmwares/boards.cpp" line="989"/>
         <source>Switch</source>
         <translation>스위치</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="1174"/>
+        <location filename="../firmwares/boards.cpp" line="1185"/>
         <source>Flight</source>
         <translation>비행</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="1174"/>
+        <location filename="../firmwares/boards.cpp" line="1185"/>
         <source>Drive</source>
         <translation>주행</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="483"/>
-        <location filename="../firmwares/boards.cpp" line="487"/>
-        <location filename="../firmwares/boards.cpp" line="498"/>
-        <location filename="../firmwares/boards.cpp" line="503"/>
-        <location filename="../firmwares/boards.cpp" line="509"/>
-        <location filename="../firmwares/boards.cpp" line="513"/>
-        <location filename="../firmwares/boards.cpp" line="518"/>
-        <location filename="../firmwares/boards.cpp" line="526"/>
-        <location filename="../firmwares/boards.cpp" line="536"/>
-        <location filename="../firmwares/boards.cpp" line="544"/>
-        <location filename="../firmwares/boards.cpp" line="556"/>
-        <location filename="../firmwares/boards.cpp" line="568"/>
+        <location filename="../firmwares/boards.cpp" line="490"/>
+        <location filename="../firmwares/boards.cpp" line="494"/>
+        <location filename="../firmwares/boards.cpp" line="505"/>
+        <location filename="../firmwares/boards.cpp" line="510"/>
+        <location filename="../firmwares/boards.cpp" line="516"/>
+        <location filename="../firmwares/boards.cpp" line="520"/>
+        <location filename="../firmwares/boards.cpp" line="525"/>
+        <location filename="../firmwares/boards.cpp" line="533"/>
+        <location filename="../firmwares/boards.cpp" line="543"/>
+        <location filename="../firmwares/boards.cpp" line="551"/>
+        <location filename="../firmwares/boards.cpp" line="563"/>
+        <location filename="../firmwares/boards.cpp" line="575"/>
         <source>P1</source>
         <translation>P1(포트1)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="488"/>
-        <location filename="../firmwares/boards.cpp" line="499"/>
-        <location filename="../firmwares/boards.cpp" line="504"/>
-        <location filename="../firmwares/boards.cpp" line="514"/>
-        <location filename="../firmwares/boards.cpp" line="519"/>
-        <location filename="../firmwares/boards.cpp" line="527"/>
-        <location filename="../firmwares/boards.cpp" line="537"/>
-        <location filename="../firmwares/boards.cpp" line="545"/>
-        <location filename="../firmwares/boards.cpp" line="557"/>
-        <location filename="../firmwares/boards.cpp" line="569"/>
+        <location filename="../firmwares/boards.cpp" line="495"/>
+        <location filename="../firmwares/boards.cpp" line="506"/>
+        <location filename="../firmwares/boards.cpp" line="511"/>
+        <location filename="../firmwares/boards.cpp" line="521"/>
+        <location filename="../firmwares/boards.cpp" line="526"/>
+        <location filename="../firmwares/boards.cpp" line="534"/>
+        <location filename="../firmwares/boards.cpp" line="544"/>
+        <location filename="../firmwares/boards.cpp" line="552"/>
+        <location filename="../firmwares/boards.cpp" line="564"/>
+        <location filename="../firmwares/boards.cpp" line="576"/>
         <source>P2</source>
         <translation>P2(포트2)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="489"/>
-        <location filename="../firmwares/boards.cpp" line="505"/>
-        <location filename="../firmwares/boards.cpp" line="520"/>
-        <location filename="../firmwares/boards.cpp" line="528"/>
-        <location filename="../firmwares/boards.cpp" line="538"/>
-        <location filename="../firmwares/boards.cpp" line="546"/>
-        <location filename="../firmwares/boards.cpp" line="558"/>
+        <location filename="../firmwares/boards.cpp" line="496"/>
+        <location filename="../firmwares/boards.cpp" line="512"/>
+        <location filename="../firmwares/boards.cpp" line="527"/>
+        <location filename="../firmwares/boards.cpp" line="535"/>
+        <location filename="../firmwares/boards.cpp" line="545"/>
+        <location filename="../firmwares/boards.cpp" line="553"/>
+        <location filename="../firmwares/boards.cpp" line="565"/>
         <source>P3</source>
         <translation>P3(포트3)</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="470"/>
-        <location filename="../firmwares/boards.cpp" line="472"/>
+        <location filename="../firmwares/boards.cpp" line="477"/>
+        <location filename="../firmwares/boards.cpp" line="479"/>
         <source>JSx</source>
         <translation>조이스틱 X</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="471"/>
-        <location filename="../firmwares/boards.cpp" line="473"/>
+        <location filename="../firmwares/boards.cpp" line="478"/>
+        <location filename="../firmwares/boards.cpp" line="480"/>
         <source>JSy</source>
         <translation>조이스틱 Y</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="549"/>
-        <location filename="../firmwares/boards.cpp" line="559"/>
+        <location filename="../firmwares/boards.cpp" line="556"/>
+        <location filename="../firmwares/boards.cpp" line="566"/>
         <source>EXT1</source>
         <translation>확장1</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="550"/>
-        <location filename="../firmwares/boards.cpp" line="560"/>
+        <location filename="../firmwares/boards.cpp" line="557"/>
+        <location filename="../firmwares/boards.cpp" line="567"/>
         <source>EXT2</source>
         <translation>확장2</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="551"/>
-        <location filename="../firmwares/boards.cpp" line="561"/>
+        <location filename="../firmwares/boards.cpp" line="558"/>
+        <location filename="../firmwares/boards.cpp" line="568"/>
         <source>EXT3</source>
         <translation>확장3</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="552"/>
-        <location filename="../firmwares/boards.cpp" line="562"/>
+        <location filename="../firmwares/boards.cpp" line="559"/>
+        <location filename="../firmwares/boards.cpp" line="569"/>
         <source>EXT4</source>
         <translation>확장4</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="705"/>
-        <location filename="../firmwares/boards.cpp" line="934"/>
-        <location filename="../firmwares/boards.cpp" line="964"/>
+        <location filename="../firmwares/boards.cpp" line="714"/>
+        <location filename="../firmwares/boards.cpp" line="945"/>
+        <location filename="../firmwares/boards.cpp" line="975"/>
         <source>None</source>
         <translation>없음</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="966"/>
+        <location filename="../firmwares/boards.cpp" line="977"/>
         <source>Pot</source>
         <translation>가변 저항</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="968"/>
+        <location filename="../firmwares/boards.cpp" line="979"/>
         <source>Pot with detent</source>
         <translation>중간 고정점 있는 가변 저항</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="707"/>
+        <location filename="../firmwares/boards.cpp" line="716"/>
         <source>2 Positions Toggle</source>
         <translation>2단 토글 스위치</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="709"/>
+        <location filename="../firmwares/boards.cpp" line="718"/>
         <source>2 Positions</source>
         <translation>2단 스위치</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="711"/>
+        <location filename="../firmwares/boards.cpp" line="720"/>
         <source>3 Positions</source>
         <translation>3단 스위치</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="713"/>
+        <location filename="../firmwares/boards.cpp" line="722"/>
         <source>Function</source>
         <translation>기능</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="936"/>
+        <location filename="../firmwares/boards.cpp" line="947"/>
         <source>Standard</source>
         <translation>표준</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="938"/>
+        <location filename="../firmwares/boards.cpp" line="949"/>
         <source>Small</source>
         <translation>소형</translation>
     </message>
     <message>
-        <location filename="../firmwares/boards.cpp" line="940"/>
+        <location filename="../firmwares/boards.cpp" line="951"/>
         <source>Both</source>
         <translation>둘 다</translation>
     </message>
@@ -1554,52 +1554,52 @@ Error description: %4</source>
 <context>
     <name>Companion</name>
     <message>
-        <location filename="../constants.h" line="63"/>
+        <location filename="../constants.h" line="65"/>
         <source>Information</source>
         <translation>정보</translation>
     </message>
     <message>
-        <location filename="../constants.h" line="64"/>
+        <location filename="../constants.h" line="66"/>
         <source>Warning</source>
         <translation>경고</translation>
     </message>
     <message>
-        <location filename="../constants.h" line="65"/>
+        <location filename="../constants.h" line="67"/>
         <source>Error</source>
         <translation>오류</translation>
     </message>
     <message>
-        <location filename="../constants.h" line="66"/>
+        <location filename="../constants.h" line="68"/>
         <source>Accept</source>
         <translation>수락</translation>
     </message>
     <message>
-        <location filename="../constants.h" line="67"/>
+        <location filename="../constants.h" line="69"/>
         <source>Decline</source>
         <translation>거부</translation>
     </message>
     <message>
-        <location filename="../constants.h" line="85"/>
+        <location filename="../constants.h" line="87"/>
         <source>Application Settings</source>
         <translation>애플리케이션 설정</translation>
     </message>
     <message>
-        <location filename="../constants.h" line="69"/>
+        <location filename="../constants.h" line="71"/>
         <source>files</source>
         <translation>파일</translation>
     </message>
     <message>
-        <location filename="../constants.h" line="61"/>
+        <location filename="../constants.h" line="63"/>
         <source>EdgeTX Companion</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../constants.h" line="62"/>
+        <location filename="../constants.h" line="64"/>
         <source>EdgeTX Simulator</source>
         <translation>EdgeTX 시뮬레이터</translation>
     </message>
     <message>
-        <location filename="../constants.h" line="70"/>
+        <location filename="../constants.h" line="72"/>
         <source>Radio and Models settings</source>
         <translation>송신기 및 모델 설정</translation>
     </message>
@@ -2377,8 +2377,8 @@ Do you want to import settings from a file?</source>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="388"/>
-        <source>Value</source>
-        <translation>값</translation>
+        <source>Constant</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="390"/>
@@ -2561,67 +2561,67 @@ Do you want to import settings from a file?</source>
 %1</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="635"/>
+        <location filename="../modeledit/customfunctions.cpp" line="646"/>
         <source>Delete Function. Are you sure?</source>
         <translation>기능을 삭제하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="658"/>
+        <location filename="../modeledit/customfunctions.cpp" line="669"/>
         <source>Cut Special Function. Are you sure?</source>
         <translation>특수 기능을 잘라내시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="671"/>
+        <location filename="../modeledit/customfunctions.cpp" line="682"/>
         <source>Copy</source>
         <translation>복사</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="672"/>
+        <location filename="../modeledit/customfunctions.cpp" line="683"/>
         <source>Cut</source>
         <translation>잘라내기</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="673"/>
+        <location filename="../modeledit/customfunctions.cpp" line="684"/>
         <source>Paste</source>
         <translation>붙여넣기</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="674"/>
+        <location filename="../modeledit/customfunctions.cpp" line="685"/>
         <source>Clear</source>
         <translation>지우기</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="676"/>
+        <location filename="../modeledit/customfunctions.cpp" line="687"/>
         <source>Insert</source>
         <translation>삽입</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="677"/>
+        <location filename="../modeledit/customfunctions.cpp" line="688"/>
         <source>Delete</source>
         <translation>삭제</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="678"/>
+        <location filename="../modeledit/customfunctions.cpp" line="689"/>
         <source>Move Up</source>
         <translation>위로 이동</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="679"/>
+        <location filename="../modeledit/customfunctions.cpp" line="690"/>
         <source>Move Down</source>
         <translation>아래로 이동</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="681"/>
+        <location filename="../modeledit/customfunctions.cpp" line="692"/>
         <source>Clear All</source>
         <translation>모두 지우기</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="756"/>
+        <location filename="../modeledit/customfunctions.cpp" line="767"/>
         <source>Clear Function. Are you sure?</source>
         <translation>기능을 지우시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/customfunctions.cpp" line="767"/>
+        <location filename="../modeledit/customfunctions.cpp" line="778"/>
         <source>Clear all Functions. Are you sure?</source>
         <translation>모든 기능을 지우시겠습니까?</translation>
     </message>
@@ -3514,404 +3514,409 @@ Blank means include all. ?, *, and [...] wildcards accepted.</source>
 <context>
     <name>Firmware</name>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="412"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="414"/>
         <source>No OverrideCH functions available</source>
         <translation>OverrideCH 기능을 사용할 수 없습니다</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="408"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="410"/>
         <source>Possibility to enable FAI MODE (no telemetry) at field</source>
         <translation>현장에서 FAI 모드(텔레메트리 없음)를 활성화할 수 있습니다</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="409"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="411"/>
         <source>FAI MODE (no telemetry) always enabled</source>
         <translation>FAI 모드(텔레메트리 없음)가 항상 활성화됩니다</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="425"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="427"/>
         <source>Removes D8 FrSky protocol support which is not legal for use in the EU on radios sold after Jan 1st, 2015</source>
         <translation>2015년 1월 1일 이후 판매된 송신기에서 EU 내에서 합법적이지 않은 D8 FrSky 프로토콜 지원을 제거합니다</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="451"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="475"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="642"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="453"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="477"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="651"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="661"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="671"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="681"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="691"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="701"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="711"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="771"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="781"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="800"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="811"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="821"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="846"/>
+        <source>Disable HELI menu and cyclic mix support</source>
+        <translation>HELI 메뉴 및 cyclic 믹스 지원 비활성화</translation>
+    </message>
+    <message>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="454"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="478"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="652"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="662"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="672"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="682"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="692"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="702"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="762"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="712"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="772"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="782"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="791"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="802"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="801"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="812"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="837"/>
-        <source>Disable HELI menu and cyclic mix support</source>
-        <translation>HELI 메뉴 및 cyclic 믹스 지원 비활성화</translation>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="822"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="847"/>
+        <source>Disable Global variables</source>
+        <translation>글로벌 변수 비활성화</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="452"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="476"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="643"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="455"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="479"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="653"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="663"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="673"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="683"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="693"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="703"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="763"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="713"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="773"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="782"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="792"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="803"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="813"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="838"/>
-        <source>Disable Global variables</source>
-        <translation>글로벌 변수 비활성화</translation>
-    </message>
-    <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="453"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="477"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="644"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="654"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="664"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="674"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="684"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="694"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="704"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="764"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="774"/>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="783"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="793"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="804"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="814"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="839"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="792"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="802"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="813"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="823"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="848"/>
         <source>Enable Lua custom scripts screen</source>
         <translation>Lua 사용자 스크립트 화면 활성화</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="445"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="447"/>
         <source>Use alternative SQT5 font</source>
         <translation>대체 SQT5 글꼴 사용</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="605"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="614"/>
         <source>FrSky Taranis X9D+</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="426"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="428"/>
         <source>Enable non certified firmwares</source>
         <translation>인증되지 않은 펌웨어 허용</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="428"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="430"/>
         <source>Enable AFHDS3 support</source>
         <translation>AFHDS3 지원 활성화</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="598"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="606"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="607"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="615"/>
         <source>Disable RAS (SWR)</source>
         <translation>RAS(SWR) 비활성화</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="612"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="621"/>
         <source>FrSky Taranis X9D+ 2019</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="597"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="606"/>
         <source>FrSky Taranis X9D</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="599"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="608"/>
         <source>Haptic module installed</source>
         <translation>햅틱 모듈이 설치되어 있음</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="618"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="627"/>
         <source>FrSky Taranis X9E</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="619"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="628"/>
         <source>Confirmation before radio shutdown</source>
         <translation>조종기 종료 전 확인 메시지 표시</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="620"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="629"/>
         <source>Horus gimbals installed (Hall sensors)</source>
         <translation>Horus 짐벌이 설치됨 (홀 센서 사용)</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="585"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="594"/>
         <source>FrSky Taranis X9-Lite</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="560"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="569"/>
         <source>FrSky Taranis X7 / X7S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="579"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="588"/>
         <source>FrSky Taranis X-Lite S/PRO</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="572"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="581"/>
         <source>FrSky Taranis X-Lite</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="539"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="548"/>
         <source>FrSky Horus X10 / X10S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="546"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="555"/>
         <source>FrSky Horus X10 Express / X10S Express</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="552"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="561"/>
         <source>FrSky Horus X12S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="555"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="564"/>
         <source>Use ONLY with first DEV pcb version</source>
         <translation>최초 DEV PCB 버전에서만 사용하십시오</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="700"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="709"/>
         <source>Jumper T12 / T12 Pro</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="705"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="733"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="714"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="742"/>
         <source>Support for MULTI internal module</source>
         <translation>MULTI 내장 모듈 지원</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="650"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="659"/>
         <source>Jumper T-Lite</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="660"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="669"/>
         <source>Jumper T-Pro</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="731"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="740"/>
         <source>Jumper T16 / T16+ / T16 Pro</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="469"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="471"/>
         <source>Support for bluetooth module</source>
         <translation>블루투스 모듈 지원</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="800"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="809"/>
         <source>Radiomaster TX12</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="810"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="819"/>
         <source>Radiomaster TX12 Mark II</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="835"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="844"/>
         <source>Radiomaster Zorro</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="713"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="720"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="748"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="755"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="840"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="722"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="729"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="757"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="764"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="849"/>
         <source>Select if internal ELRS module is installed</source>
         <translation>내장 ELRS 모듈이 설치된 경우 선택</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="505"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="507"/>
         <source>FlySky PA01</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="518"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="520"/>
         <source>FlySky PL18EV</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="525"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="527"/>
         <source>FlySky PL18U</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="532"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="534"/>
         <source>FlySky ST16</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="626"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="541"/>
+        <source>FlySky G11P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="635"/>
         <source>HelloRadioSky V14</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="633"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="642"/>
         <source>HelloRadioSky V16</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="670"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="679"/>
         <source>Jumper T-Pro V2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="680"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="689"/>
         <source>Jumper T-Pro S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="690"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="699"/>
         <source>Jumper Bumblebee</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="711"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="720"/>
         <source>Jumper T12 MAX</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="718"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="727"/>
         <source>Jumper T14</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="725"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="734"/>
         <source>Jumper T15</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="746"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="755"/>
         <source>Jumper T20</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="753"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="762"/>
         <source>Jumper T20 V2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="760"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="769"/>
         <source>Radiomaster Boxer</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="770"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="779"/>
         <source>Radiomaster Pocket</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="780"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="789"/>
         <source>Radiomaster MT12</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="789"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="798"/>
         <source>Radiomaster T8</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="797"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="806"/>
         <source>Allow bind using bind key</source>
         <translation>Bind 키를 사용하여 바인딩 허용</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="820"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="829"/>
         <source>Radiomaster GX12</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="827"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="836"/>
         <source>Radiomaster TX16S / SE / Hall / Masterfire</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="470"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="472"/>
         <source>Support internal GPS</source>
         <translation>내장 GPS 지원</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="487"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="831"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="489"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="840"/>
         <source>Support hardware mod: FlySky Paladin EV Gimbals</source>
         <translation>하드웨어 개조 지원: FlySky Paladin EV 짐벌</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="739"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="748"/>
         <source>Jumper T18</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="491"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="493"/>
         <source>FlySky NV14</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="473"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="475"/>
         <source>BETAFPV LiteRadio3 Pro</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="640"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="649"/>
         <source>iFlight Commando8</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="427"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="429"/>
         <source>Enable AFHDS2A support</source>
         <translation>AFHDS2A 지원 활성화</translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="483"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="485"/>
         <source>Fatfish F16</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="498"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="500"/>
         <source>FlySky EL18</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="511"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="513"/>
         <source>FlySky PL18</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="591"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="600"/>
         <source>FrSky Taranis X9-Lite S</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="566"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="575"/>
         <source>FrSky Taranis X7 / X7S Access</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="541"/>
-        <location filename="../firmwares/opentx/opentxinterface.cpp" line="554"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="550"/>
+        <location filename="../firmwares/opentx/opentxinterface.cpp" line="563"/>
         <source>Support for ACCESS internal module replacement</source>
         <translation>ACCESS 내장 모듈 교체 지원</translation>
     </message>
@@ -4356,126 +4361,126 @@ You are currently using:
         <translation>%1 모드 %2 값</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="512"/>
+        <location filename="../modeledit/flightmodes.cpp" line="517"/>
         <source>Warning: Global variable links back to itself. %1 Mode 0 value used.</source>
         <translation>경고: 전역 변수가 자기 자신을 참조합니다. %1 모드 0 값이 사용됩니다.</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="621"/>
+        <location filename="../modeledit/flightmodes.cpp" line="626"/>
         <source>Warning: Rotary encoder links back to itself. %1 Mode 0 value used.</source>
         <translation>경고: 로터리 엔코더가 자기 자신을 참조합니다. %1 모드 0 값이 사용됩니다.</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="695"/>
-        <location filename="../modeledit/flightmodes.cpp" line="1076"/>
+        <location filename="../modeledit/flightmodes.cpp" line="700"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1081"/>
         <source>Copy</source>
         <translation>복사</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="696"/>
-        <location filename="../modeledit/flightmodes.cpp" line="1077"/>
+        <location filename="../modeledit/flightmodes.cpp" line="701"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1082"/>
         <source>Cut</source>
         <translation>잘라내기</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="697"/>
-        <location filename="../modeledit/flightmodes.cpp" line="1078"/>
+        <location filename="../modeledit/flightmodes.cpp" line="702"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1083"/>
         <source>Paste</source>
         <translation>붙여넣기</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="700"/>
-        <location filename="../modeledit/flightmodes.cpp" line="1081"/>
+        <location filename="../modeledit/flightmodes.cpp" line="705"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1086"/>
         <source>Insert</source>
         <translation>삽입</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="701"/>
-        <location filename="../modeledit/flightmodes.cpp" line="1082"/>
+        <location filename="../modeledit/flightmodes.cpp" line="706"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1087"/>
         <source>Delete</source>
         <translation>삭제</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="702"/>
-        <location filename="../modeledit/flightmodes.cpp" line="1083"/>
+        <location filename="../modeledit/flightmodes.cpp" line="707"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1088"/>
         <source>Move Up</source>
         <translation>위로 이동</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="703"/>
-        <location filename="../modeledit/flightmodes.cpp" line="1084"/>
+        <location filename="../modeledit/flightmodes.cpp" line="708"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1089"/>
         <source>Move Down</source>
         <translation>아래로 이동</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="705"/>
-        <location filename="../modeledit/flightmodes.cpp" line="1086"/>
+        <location filename="../modeledit/flightmodes.cpp" line="710"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1091"/>
         <source>Clear All</source>
         <translation>모두 초기화</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="740"/>
+        <location filename="../modeledit/flightmodes.cpp" line="745"/>
         <source>Clear %1 Mode. Are you sure?</source>
         <translation>%1 모드를 초기화하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="777"/>
+        <location filename="../modeledit/flightmodes.cpp" line="782"/>
         <source>Clear all %1 Modes. Are you sure?</source>
         <translation>모든 %1 모드를 초기화하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="812"/>
+        <location filename="../modeledit/flightmodes.cpp" line="817"/>
         <source>Cut %1 Mode. Are you sure?</source>
         <translation>%1 모드를 잘라내시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="820"/>
+        <location filename="../modeledit/flightmodes.cpp" line="825"/>
         <source>Delete %1 Mode. Are you sure?</source>
         <translation>%1 모드를 삭제하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="1176"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1181"/>
         <source>Clear Global Variable across all %1 Modes. Are you sure?</source>
         <translation>모든 %1 모드에서 전역 변수를 초기화하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="1200"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1205"/>
         <source>Clear all Global Variables for all %1 Modes. Are you sure?</source>
         <translation>모든 %1 모드의 전역 변수를 전부 초기화하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="1211"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1216"/>
         <source>Clear all Global Variables for this %1 Mode. Are you sure?</source>
         <translation>이 %1 모드의 모든 전역 변수를 초기화하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="1263"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1268"/>
         <source>Cut Global Variable across all %1 Modes. Are you sure?</source>
         <translation>모든 %1 모드에서 전역 변수를 잘라내시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="1341"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1346"/>
         <source>Paste to selected Global Variable across all %1 Modes. Are you sure?</source>
         <translation>선택한 전역 변수에 모든 %1 모드에 붙여넣으시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="1187"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1192"/>
         <source>Clear Global Variable. Are you sure?</source>
         <translation>전역 변수를 초기화하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="1267"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1272"/>
         <source>Cut Global Variable. Are you sure?</source>
         <translation>전역 변수를 잘라내시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="1280"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1285"/>
         <source>Delete Global Variable. Are you sure?</source>
         <translation>전역 변수를 삭제하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="698"/>
-        <location filename="../modeledit/flightmodes.cpp" line="1079"/>
+        <location filename="../modeledit/flightmodes.cpp" line="703"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1084"/>
         <source>Clear</source>
         <translation>초기화</translation>
     </message>
@@ -4483,17 +4488,17 @@ You are currently using:
 <context>
     <name>FlightModesPanel</name>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="1462"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1467"/>
         <source>%1 Mode %2</source>
         <translation>%1 모드 %2</translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="1465"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1470"/>
         <source> (%1)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../modeledit/flightmodes.cpp" line="1468"/>
+        <location filename="../modeledit/flightmodes.cpp" line="1473"/>
         <source> (default)</source>
         <translation> (기본값)</translation>
     </message>
@@ -4940,206 +4945,206 @@ These will be relevant for all models in the same EEPROM.</source>
 <context>
     <name>GeneralSettings</name>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="416"/>
+        <location filename="../firmwares/generalsettings.cpp" line="418"/>
         <source>Radio Settings</source>
         <translation>송신기 설정</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="418"/>
+        <location filename="../firmwares/generalsettings.cpp" line="420"/>
         <source>Hardware</source>
         <translation>하드웨어</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="419"/>
+        <location filename="../firmwares/generalsettings.cpp" line="421"/>
         <source>Internal Module</source>
         <translation>내장 모듈</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="434"/>
+        <location filename="../firmwares/generalsettings.cpp" line="436"/>
         <source>Axis &amp; Pots</source>
         <translation>축 &amp; 포트</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="439"/>
+        <location filename="../firmwares/generalsettings.cpp" line="441"/>
         <source>Axis</source>
         <translation>축</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="439"/>
+        <location filename="../firmwares/generalsettings.cpp" line="441"/>
         <source>Pot</source>
         <translation>포트</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="468"/>
+        <location filename="../firmwares/generalsettings.cpp" line="470"/>
         <source>Switches</source>
         <translation>스위치</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="473"/>
-        <location filename="../firmwares/generalsettings.cpp" line="485"/>
+        <location filename="../firmwares/generalsettings.cpp" line="475"/>
+        <location filename="../firmwares/generalsettings.cpp" line="487"/>
         <source>Flex Switch</source>
         <translation>플렉스 스위치</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="474"/>
-        <location filename="../firmwares/generalsettings.cpp" line="486"/>
+        <location filename="../firmwares/generalsettings.cpp" line="476"/>
+        <location filename="../firmwares/generalsettings.cpp" line="488"/>
         <source>Function Switch</source>
         <translation>기능 스위치</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="474"/>
-        <location filename="../firmwares/generalsettings.cpp" line="486"/>
+        <location filename="../firmwares/generalsettings.cpp" line="476"/>
+        <location filename="../firmwares/generalsettings.cpp" line="488"/>
         <source>Switch</source>
         <translation>스위치</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="503"/>
+        <location filename="../firmwares/generalsettings.cpp" line="505"/>
         <source>None</source>
         <translation>없음</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="557"/>
+        <location filename="../firmwares/generalsettings.cpp" line="559"/>
         <source>Internal</source>
         <translation>내장</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="559"/>
+        <location filename="../firmwares/generalsettings.cpp" line="561"/>
         <source>Ask</source>
         <translation>묻기</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="561"/>
+        <location filename="../firmwares/generalsettings.cpp" line="563"/>
         <source>Per model</source>
         <translation>모델별</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="564"/>
+        <location filename="../firmwares/generalsettings.cpp" line="566"/>
         <source>Internal + External</source>
         <translation>내장 + 외부</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="564"/>
+        <location filename="../firmwares/generalsettings.cpp" line="566"/>
         <source>External</source>
         <translation>외부</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="577"/>
-        <location filename="../firmwares/generalsettings.cpp" line="593"/>
+        <location filename="../firmwares/generalsettings.cpp" line="579"/>
+        <location filename="../firmwares/generalsettings.cpp" line="595"/>
         <source>OFF</source>
         <translation>꺼짐</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="580"/>
+        <location filename="../firmwares/generalsettings.cpp" line="582"/>
         <source>Enabled</source>
         <translation>활성화됨</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="580"/>
+        <location filename="../firmwares/generalsettings.cpp" line="582"/>
         <source>Telemetry</source>
         <translation>텔레메트리</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="582"/>
+        <location filename="../firmwares/generalsettings.cpp" line="584"/>
         <source>Trainer</source>
         <translation>트레이너</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="595"/>
+        <location filename="../firmwares/generalsettings.cpp" line="597"/>
         <source>Telemetry Mirror</source>
         <translation>텔레메트리 미러</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="597"/>
+        <location filename="../firmwares/generalsettings.cpp" line="599"/>
         <source>Telemetry In</source>
         <translation>텔레메트리 입력</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="599"/>
+        <location filename="../firmwares/generalsettings.cpp" line="601"/>
         <source>SBUS Trainer</source>
         <translation>SBUS 트레이너</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="601"/>
+        <location filename="../firmwares/generalsettings.cpp" line="603"/>
         <source>LUA</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="603"/>
+        <location filename="../firmwares/generalsettings.cpp" line="605"/>
         <source>CLI</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="605"/>
+        <location filename="../firmwares/generalsettings.cpp" line="607"/>
         <source>GPS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="607"/>
+        <location filename="../firmwares/generalsettings.cpp" line="609"/>
         <source>Debug</source>
         <translation>디버그</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="609"/>
+        <location filename="../firmwares/generalsettings.cpp" line="611"/>
         <source>SpaceMouse</source>
         <translation>스페이스마우스</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="611"/>
+        <location filename="../firmwares/generalsettings.cpp" line="613"/>
         <source>External module</source>
         <translation>외부 모듈</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="644"/>
+        <location filename="../firmwares/generalsettings.cpp" line="646"/>
         <source>mA</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="743"/>
+        <location filename="../firmwares/generalsettings.cpp" line="745"/>
         <source>Normal</source>
         <translation>일반</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="745"/>
+        <location filename="../firmwares/generalsettings.cpp" line="747"/>
         <source>OneBit</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="791"/>
+        <location filename="../firmwares/generalsettings.cpp" line="793"/>
         <source>Trims only</source>
         <translation>트림만</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="793"/>
+        <location filename="../firmwares/generalsettings.cpp" line="795"/>
         <source>Keys only</source>
         <translation>버튼만</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="795"/>
+        <location filename="../firmwares/generalsettings.cpp" line="797"/>
         <source>Switchable</source>
         <translation>전환 가능</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="797"/>
+        <location filename="../firmwares/generalsettings.cpp" line="799"/>
         <source>Global</source>
         <translation>글로벌</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="931"/>
+        <location filename="../firmwares/generalsettings.cpp" line="933"/>
         <source>Mode 1 (RUD ELE THR AIL)</source>
         <translation>모드 1 (RUD ELE THR AIL)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="933"/>
+        <location filename="../firmwares/generalsettings.cpp" line="935"/>
         <source>Mode 2 (RUD THR ELE AIL)</source>
         <translation>모드 2 (RUD THR ELE AIL)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="935"/>
+        <location filename="../firmwares/generalsettings.cpp" line="937"/>
         <source>Mode 3 (AIL ELE THR RUD)</source>
         <translation>모드 3 (AIL ELE THR RUD)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="937"/>
+        <location filename="../firmwares/generalsettings.cpp" line="939"/>
         <source>Mode 4 (AIL THR ELE RUD)</source>
         <translation>모드 4 (AIL THR ELE RUD)</translation>
     </message>
@@ -5319,7 +5324,7 @@ These will be relevant for all models in the same EEPROM.</source>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="757"/>
-        <location filename="../generaledit/generalsetup.ui" line="2180"/>
+        <location filename="../generaledit/generalsetup.ui" line="1484"/>
         <source> ms</source>
         <translation> 밀리초</translation>
     </message>
@@ -5352,7 +5357,7 @@ These will be relevant for all models in the same EEPROM.</source>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="823"/>
-        <location filename="../generaledit/generalsetup.ui" line="2172"/>
+        <location filename="../generaledit/generalsetup.ui" line="1476"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -5408,17 +5413,17 @@ p, li { white-space: pre-wrap; }
         <translation>백라이트 꺼짐 밝기</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2159"/>
+        <location filename="../generaledit/generalsetup.ui" line="1463"/>
         <source>RSSI Poweroff Warning</source>
         <translation>RSSI 전원 종료 경고</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2020"/>
+        <location filename="../generaledit/generalsetup.ui" line="2464"/>
         <source>Low EEPROM Warning</source>
         <translation>EEPROM 용량 부족 경고</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1887"/>
+        <location filename="../generaledit/generalsetup.ui" line="2188"/>
         <source>Mode selection:
 
 Mode 1:
@@ -5441,38 +5446,38 @@ Mode 4:
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1732"/>
+        <location filename="../generaledit/generalsetup.ui" line="2072"/>
         <source>USB Mode</source>
         <translation>USB 모드</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1544"/>
-        <location filename="../generaledit/generalsetup.ui" line="2064"/>
+        <location filename="../generaledit/generalsetup.ui" line="1933"/>
+        <location filename="../generaledit/generalsetup.ui" line="2391"/>
         <source>Ask on Connect</source>
         <translation>연결 시 선택</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1549"/>
+        <location filename="../generaledit/generalsetup.ui" line="1938"/>
         <source>Joystick (HID)</source>
         <translation>조이스틱 (HID)</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1554"/>
+        <location filename="../generaledit/generalsetup.ui" line="1943"/>
         <source>USB Mass Storage</source>
         <translation>USB 대용량 저장장치</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1559"/>
+        <location filename="../generaledit/generalsetup.ui" line="1948"/>
         <source>USB Serial (CDC)</source>
         <translation>USB 시리얼 (CDC)</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1536"/>
+        <location filename="../generaledit/generalsetup.ui" line="1956"/>
         <source>Hats Mode</source>
         <translation>Hats 모드</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1246"/>
+        <location filename="../generaledit/generalsetup.ui" line="1217"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Channel order&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Defines the order of the default mixes created on a new model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;채널 순서&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;새 모델 생성 시 기본 믹스의 채널 배치를 정의합니다.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -5567,7 +5572,7 @@ Mode 4:
         <translation>선택적 일치</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1701"/>
+        <location filename="../generaledit/generalsetup.ui" line="2129"/>
         <source>Battery warning voltage.
 This is the threshold where the battery warning sounds.
 
@@ -5578,187 +5583,187 @@ Acceptable values are 3v..12v</source>
 허용 범위: 3V ~ 12V</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2259"/>
+        <location filename="../generaledit/generalsetup.ui" line="1425"/>
         <source>Power On Delay</source>
         <translation>전원 켜짐 지연</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2342"/>
+        <location filename="../generaledit/generalsetup.ui" line="1544"/>
         <source>Jack Mode</source>
         <translation>잭 모드</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2140"/>
+        <location filename="../generaledit/generalsetup.ui" line="2522"/>
         <source>Play Startup Sound</source>
         <translation>시작음 재생</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1567"/>
+        <location filename="../generaledit/generalsetup.ui" line="1877"/>
         <source>PPM Units</source>
         <translation>PPM 단위</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2041"/>
-        <location filename="../generaledit/generalsetup.ui" line="2045"/>
+        <location filename="../generaledit/generalsetup.ui" line="2409"/>
+        <location filename="../generaledit/generalsetup.ui" line="2413"/>
         <source>0.--</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2050"/>
+        <location filename="../generaledit/generalsetup.ui" line="2418"/>
         <source>0.0</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2055"/>
+        <location filename="../generaledit/generalsetup.ui" line="2423"/>
         <source>us</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2069"/>
+        <location filename="../generaledit/generalsetup.ui" line="2396"/>
         <source>Audio</source>
         <translation>오디오</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2074"/>
+        <location filename="../generaledit/generalsetup.ui" line="2401"/>
         <source>Trainer</source>
         <translation>트레이너</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1830"/>
+        <location filename="../generaledit/generalsetup.ui" line="2260"/>
         <source>DMS</source>
         <translation>DMS (도/분/초)</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2082"/>
+        <location filename="../generaledit/generalsetup.ui" line="2529"/>
         <source>Stick Mode</source>
         <translation>조종기 모드</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2001"/>
+        <location filename="../generaledit/generalsetup.ui" line="2431"/>
         <source>Power Off Delay</source>
         <translation>전원 꺼짐 지연</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2028"/>
+        <location filename="../generaledit/generalsetup.ui" line="2439"/>
         <source>Metric</source>
         <translation>미터법</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2033"/>
+        <location filename="../generaledit/generalsetup.ui" line="2444"/>
         <source>Imperial</source>
         <translation>야드법</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1786"/>
+        <location filename="../generaledit/generalsetup.ui" line="2085"/>
         <source>Default Channel Order</source>
         <translation>기본 채널 순서</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1488"/>
+        <location filename="../generaledit/generalsetup.ui" line="1925"/>
         <source>GPS Coordinates</source>
         <translation>GPS 좌표</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2379"/>
+        <location filename="../generaledit/generalsetup.ui" line="1657"/>
         <source>Min</source>
         <translation>최소</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2386"/>
-        <location filename="../generaledit/generalsetup.ui" line="2415"/>
+        <location filename="../generaledit/generalsetup.ui" line="1664"/>
+        <location filename="../generaledit/generalsetup.ui" line="1693"/>
         <source>v</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2408"/>
+        <location filename="../generaledit/generalsetup.ui" line="1686"/>
         <source>Max</source>
         <translation>최대</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1953"/>
+        <location filename="../generaledit/generalsetup.ui" line="2383"/>
         <source>Inactivity Timer</source>
         <translation>비활성 타이머</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1773"/>
+        <location filename="../generaledit/generalsetup.ui" line="2104"/>
         <source>Show Splash Screen on Startup</source>
         <translation>시작 시 스플래시 화면 표시</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1754"/>
+        <location filename="../generaledit/generalsetup.ui" line="2175"/>
         <source>Contrast</source>
         <translation>명암 대비</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2451"/>
+        <location filename="../generaledit/generalsetup.ui" line="1797"/>
         <source>Battery Meter Range</source>
         <translation>배터리 측정 범위</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1316"/>
+        <location filename="../generaledit/generalsetup.ui" line="1239"/>
         <source>Haptic Strength</source>
         <translation>진동 강도</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1934"/>
+        <location filename="../generaledit/generalsetup.ui" line="2316"/>
         <source>LCD Display Type</source>
         <translation>LCD 디스플레이 종류</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2470"/>
+        <location filename="../generaledit/generalsetup.ui" line="1778"/>
         <source>&quot;No Sound&quot; Warning</source>
         <translation>“무음” 경고</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1338"/>
+        <location filename="../generaledit/generalsetup.ui" line="1418"/>
         <source>Battery Warning</source>
         <translation>배터리 경고</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2252"/>
+        <location filename="../generaledit/generalsetup.ui" line="1444"/>
         <source>Haptic Length</source>
         <translation>진동 시간</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1621"/>
+        <location filename="../generaledit/generalsetup.ui" line="2065"/>
         <source>MAVLink Baud Rate</source>
         <translation>MAVLink 통신 속도</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1806"/>
-        <location filename="../generaledit/generalsetup.ui" line="2117"/>
+        <location filename="../generaledit/generalsetup.ui" line="2229"/>
+        <location filename="../generaledit/generalsetup.ui" line="2499"/>
         <source>Quiet</source>
         <translation>조용함</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1811"/>
+        <location filename="../generaledit/generalsetup.ui" line="2234"/>
         <source>Only Alarms</source>
         <translation>알람만</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1816"/>
-        <location filename="../generaledit/generalsetup.ui" line="2127"/>
+        <location filename="../generaledit/generalsetup.ui" line="2239"/>
+        <location filename="../generaledit/generalsetup.ui" line="2509"/>
         <source>No Keys</source>
         <translation>키음 없음</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1821"/>
-        <location filename="../generaledit/generalsetup.ui" line="2132"/>
+        <location filename="../generaledit/generalsetup.ui" line="2244"/>
+        <location filename="../generaledit/generalsetup.ui" line="2514"/>
         <source>All</source>
         <translation>전체</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1670"/>
+        <location filename="../generaledit/generalsetup.ui" line="1976"/>
         <source>Standard</source>
         <translation>표준</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1675"/>
+        <location filename="../generaledit/generalsetup.ui" line="1981"/>
         <source>Optrex</source>
         <translation>옵트렉스</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1861"/>
+        <location filename="../generaledit/generalsetup.ui" line="2291"/>
         <source>If not zero will sound beeps if the transmitter has been left without inputs for the specified number of minutes.</source>
         <translation>0이 아니면 설정된 시간 동안 조작이 없을 경우 경고음이 울립니다.</translation>
     </message>
@@ -5773,127 +5778,132 @@ Acceptable values are 3v..12v</source>
         <translation>로터리 인코더 모드</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1864"/>
-        <location filename="../generaledit/generalsetup.ui" line="2526"/>
+        <location filename="../generaledit/generalsetup.ui" line="1804"/>
+        <location filename="../generaledit/generalsetup.ui" line="2294"/>
         <source> min</source>
         <translation> 분</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1373"/>
+        <location filename="../generaledit/generalsetup.ui" line="1332"/>
         <source>---</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1212"/>
-        <location filename="../generaledit/generalsetup.ui" line="1629"/>
+        <location filename="../generaledit/generalsetup.ui" line="1295"/>
+        <location filename="../generaledit/generalsetup.ui" line="1990"/>
         <source>0s</source>
         <translation>0초</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1217"/>
-        <location filename="../generaledit/generalsetup.ui" line="1634"/>
+        <location filename="../generaledit/generalsetup.ui" line="1300"/>
+        <location filename="../generaledit/generalsetup.ui" line="1995"/>
         <source>0.5s</source>
         <translation>0.5초</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1227"/>
-        <location filename="../generaledit/generalsetup.ui" line="1378"/>
-        <location filename="../generaledit/generalsetup.ui" line="1644"/>
+        <location filename="../generaledit/generalsetup.ui" line="1310"/>
+        <location filename="../generaledit/generalsetup.ui" line="1337"/>
+        <location filename="../generaledit/generalsetup.ui" line="2005"/>
         <source>2s</source>
         <translation>2초</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1232"/>
-        <location filename="../generaledit/generalsetup.ui" line="1383"/>
-        <location filename="../generaledit/generalsetup.ui" line="1649"/>
+        <location filename="../generaledit/generalsetup.ui" line="1315"/>
+        <location filename="../generaledit/generalsetup.ui" line="1342"/>
+        <location filename="../generaledit/generalsetup.ui" line="2010"/>
         <source>3s</source>
         <translation>3초</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1388"/>
+        <location filename="../generaledit/generalsetup.ui" line="1347"/>
         <source>4s</source>
         <translation>4초</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1393"/>
+        <location filename="../generaledit/generalsetup.ui" line="1352"/>
         <source>6s</source>
         <translation>6초</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1398"/>
+        <location filename="../generaledit/generalsetup.ui" line="1357"/>
         <source>8s</source>
         <translation>8초</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1403"/>
+        <location filename="../generaledit/generalsetup.ui" line="1362"/>
         <source>10s</source>
         <translation>10초</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1408"/>
+        <location filename="../generaledit/generalsetup.ui" line="1367"/>
         <source>15s</source>
         <translation>15초</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1418"/>
+        <location filename="../generaledit/generalsetup.ui" line="1377"/>
         <source>Trainer Poweroff Warning</source>
         <translation>트레이너 전원 종료 경고</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1915"/>
+        <location filename="../generaledit/generalsetup.ui" line="2364"/>
         <source>Power ON/OFF Haptic</source>
         <translation>전원 온/오프 진동</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2286"/>
+        <location filename="../generaledit/generalsetup.ui" line="2543"/>
+        <source>&gt;One log per day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../generaledit/generalsetup.ui" line="1612"/>
         <source>4800 Baud</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2291"/>
+        <location filename="../generaledit/generalsetup.ui" line="1617"/>
         <source>9600 Baud</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2296"/>
+        <location filename="../generaledit/generalsetup.ui" line="1622"/>
         <source>14400 Baud</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2301"/>
+        <location filename="../generaledit/generalsetup.ui" line="1627"/>
         <source>19200 Baud</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2306"/>
+        <location filename="../generaledit/generalsetup.ui" line="1632"/>
         <source>38400 Baud</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2311"/>
+        <location filename="../generaledit/generalsetup.ui" line="1637"/>
         <source>57600 Baud</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2316"/>
+        <location filename="../generaledit/generalsetup.ui" line="1642"/>
         <source>76800 Baud</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2321"/>
+        <location filename="../generaledit/generalsetup.ui" line="1647"/>
         <source>115200 Baud</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2519"/>
+        <location filename="../generaledit/generalsetup.ui" line="1759"/>
         <source>Power Auto Off</source>
         <translation>자동 전원 차단</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1281"/>
-        <location filename="../generaledit/generalsetup.ui" line="1513"/>
-        <location filename="../generaledit/generalsetup.ui" line="2217"/>
-        <location filename="../generaledit/generalsetup.ui" line="2496"/>
+        <location filename="../generaledit/generalsetup.ui" line="1271"/>
+        <location filename="../generaledit/generalsetup.ui" line="1521"/>
+        <location filename="../generaledit/generalsetup.ui" line="1729"/>
+        <location filename="../generaledit/generalsetup.ui" line="1902"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -5919,67 +5929,67 @@ p, li { white-space: pre-wrap; }
 </translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1587"/>
-        <location filename="../generaledit/generalsetup.ui" line="1973"/>
+        <location filename="../generaledit/generalsetup.ui" line="2031"/>
+        <location filename="../generaledit/generalsetup.ui" line="2336"/>
         <source>X-Short</source>
         <translation>매우 짧게</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1592"/>
-        <location filename="../generaledit/generalsetup.ui" line="1978"/>
+        <location filename="../generaledit/generalsetup.ui" line="2036"/>
+        <location filename="../generaledit/generalsetup.ui" line="2341"/>
         <source>Short</source>
         <translation>짧게</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1597"/>
-        <location filename="../generaledit/generalsetup.ui" line="1983"/>
+        <location filename="../generaledit/generalsetup.ui" line="2041"/>
+        <location filename="../generaledit/generalsetup.ui" line="2346"/>
         <source>Normal</source>
         <translation>보통</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1602"/>
-        <location filename="../generaledit/generalsetup.ui" line="1988"/>
+        <location filename="../generaledit/generalsetup.ui" line="2046"/>
+        <location filename="../generaledit/generalsetup.ui" line="2351"/>
         <source>Long</source>
         <translation>길게</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1607"/>
-        <location filename="../generaledit/generalsetup.ui" line="1993"/>
+        <location filename="../generaledit/generalsetup.ui" line="2051"/>
+        <location filename="../generaledit/generalsetup.ui" line="2356"/>
         <source>X-Long</source>
         <translation>매우 길게</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1835"/>
+        <location filename="../generaledit/generalsetup.ui" line="2265"/>
         <source>NMEA</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1262"/>
+        <location filename="../generaledit/generalsetup.ui" line="1252"/>
         <source>Play Delay (switch mid position)</source>
         <translation>재생 지연 (스위치 중간 위치)</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1425"/>
+        <location filename="../generaledit/generalsetup.ui" line="1814"/>
         <source>Measurement Units</source>
         <translation>측정 단위</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1357"/>
+        <location filename="../generaledit/generalsetup.ui" line="1396"/>
         <source>Haptic Mode</source>
         <translation>진동 모드</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1447"/>
+        <location filename="../generaledit/generalsetup.ui" line="1833"/>
         <source>Beeper Length</source>
         <translation>비퍼 길이</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2278"/>
+        <location filename="../generaledit/generalsetup.ui" line="1591"/>
         <source>Beeper Mode</source>
         <translation>비퍼 모드</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2107"/>
+        <location filename="../generaledit/generalsetup.ui" line="2489"/>
         <source>Beeper volume
 
 0 - Quiet.  No beeps at all.
@@ -5996,13 +6006,13 @@ p, li { white-space: pre-wrap; }
 4 - 매우 큼: 최대 음량.</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="2122"/>
+        <location filename="../generaledit/generalsetup.ui" line="2504"/>
         <source>Alarms Only</source>
         <translation>알람만</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.ui" line="1222"/>
-        <location filename="../generaledit/generalsetup.ui" line="1639"/>
+        <location filename="../generaledit/generalsetup.ui" line="1305"/>
+        <location filename="../generaledit/generalsetup.ui" line="2000"/>
         <location filename="../generaledit/generalsetup.cpp" line="292"/>
         <source>1s</source>
         <translation>1초</translation>
@@ -6091,7 +6101,7 @@ p, li { white-space: pre-wrap; }
         <translation>헝가리어</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="637"/>
+        <location filename="../generaledit/generalsetup.cpp" line="638"/>
         <source>Normal, Edit Inverted</source>
         <translation>일반, 편집 시 반전</translation>
     </message>
@@ -6166,7 +6176,7 @@ p, li { white-space: pre-wrap; }
         <translation>로터리 인코더 E</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="618"/>
+        <location filename="../generaledit/generalsetup.cpp" line="619"/>
         <source>If you enable FAI, only RSSI and RxBt sensors will keep working.
 This function cannot be disabled by the radio.
 Are you sure ?</source>
@@ -6175,22 +6185,22 @@ Are you sure ?</source>
 계속하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="637"/>
+        <location filename="../generaledit/generalsetup.cpp" line="638"/>
         <source>Normal</source>
         <translation>일반</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="637"/>
+        <location filename="../generaledit/generalsetup.cpp" line="638"/>
         <source>Inverted</source>
         <translation>반전</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="637"/>
+        <location filename="../generaledit/generalsetup.cpp" line="638"/>
         <source>Vertical Inverted, Horizontal Normal</source>
         <translation>수직 반전, 수평 일반</translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="637"/>
+        <location filename="../generaledit/generalsetup.cpp" line="638"/>
         <source>Vertical Inverted, Horizontal Alternate</source>
         <translation>수직 반전, 수평 대체</translation>
     </message>
@@ -6889,117 +6899,117 @@ Are you sure ?</source>
 <context>
     <name>LogicalSwitchesPanel</name>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="47"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="46"/>
         <source>Function</source>
         <translation>함수</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="47"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="46"/>
         <source>V1</source>
         <translation>입력 V1</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="47"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="46"/>
         <source>V2</source>
         <translation>입력 V2</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="47"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="46"/>
         <source>AND Switch</source>
         <translation>AND 스위치</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="49"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="47"/>
         <source>Duration</source>
         <translation>지속 시간</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="49"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="47"/>
         <source>Delay</source>
         <translation>지연 시간</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="51"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="47"/>
         <source>Persistent</source>
         <translation>지속 유지</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="62"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="58"/>
         <source>Popup menu available</source>
         <translation>팝업 메뉴 사용 가능</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="430"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="438"/>
         <source> (infinite)</source>
         <translation> (무한)</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="526"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="534"/>
         <source>Delete Logical Switch. Are you sure?</source>
         <translation>논리 스위치를 삭제하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="549"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="557"/>
         <source>Cut Logical Switch. Are you sure?</source>
         <translation>논리 스위치를 잘라내시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="562"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="570"/>
         <source>Copy</source>
         <translation>복사</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="563"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="571"/>
         <source>Cut</source>
         <translation>잘라내기</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="564"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="572"/>
         <source>Paste</source>
         <translation>붙여넣기</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="565"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="573"/>
         <source>Clear</source>
         <translation>초기화</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="567"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="575"/>
         <source>Insert</source>
         <translation>삽입</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="568"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="576"/>
         <source>Delete</source>
         <translation>삭제</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="569"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="577"/>
         <source>Move Up</source>
         <translation>위로 이동</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="570"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="578"/>
         <source>Move Down</source>
         <translation>아래로 이동</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="572"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="580"/>
         <source>Clear All</source>
         <translation>전체 초기화</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="617"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="625"/>
         <source>Clear Logical Switch. Are you sure?</source>
         <translation>논리 스위치를 초기화하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="630"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="638"/>
         <source>Clear all Logical Switches. Are you sure?</source>
         <translation>모든 논리 스위치를 초기화하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../modeledit/logicalswitches.cpp" line="115"/>
+        <location filename="../modeledit/logicalswitches.cpp" line="111"/>
         <source>(instant)</source>
         <translation>(즉시)</translation>
     </message>
@@ -11511,189 +11521,189 @@ s</source>
 <context>
     <name>RawSource</name>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="94"/>
+        <location filename="../firmwares/rawsource.cpp" line="141"/>
         <source>V</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="99"/>
-        <location filename="../firmwares/rawsource.cpp" line="111"/>
+        <location filename="../firmwares/rawsource.cpp" line="146"/>
+        <location filename="../firmwares/rawsource.cpp" line="158"/>
         <source>s</source>
         <translation>초</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="141"/>
+        <location filename="../firmwares/rawsource.cpp" line="184"/>
         <source>Trim Rud</source>
         <translation>러더 트림</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="141"/>
+        <location filename="../firmwares/rawsource.cpp" line="184"/>
         <source>Trim Ele</source>
         <translation>엘리베이터 트림</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="141"/>
+        <location filename="../firmwares/rawsource.cpp" line="184"/>
         <source>Trim Thr</source>
         <translation>스로틀 트림</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="141"/>
+        <location filename="../firmwares/rawsource.cpp" line="184"/>
         <source>Trim Ail</source>
         <translation>엘러론 트림</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="141"/>
-        <location filename="../firmwares/rawsource.cpp" line="145"/>
+        <location filename="../firmwares/rawsource.cpp" line="184"/>
+        <location filename="../firmwares/rawsource.cpp" line="188"/>
         <source>Trim 5</source>
         <translation>트림 5</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="141"/>
-        <location filename="../firmwares/rawsource.cpp" line="145"/>
+        <location filename="../firmwares/rawsource.cpp" line="184"/>
+        <location filename="../firmwares/rawsource.cpp" line="188"/>
         <source>Trim 6</source>
         <translation>트림 6</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="141"/>
-        <location filename="../firmwares/rawsource.cpp" line="145"/>
+        <location filename="../firmwares/rawsource.cpp" line="184"/>
+        <location filename="../firmwares/rawsource.cpp" line="188"/>
         <source>Trim 7</source>
         <translation>트림 7</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="141"/>
-        <location filename="../firmwares/rawsource.cpp" line="145"/>
+        <location filename="../firmwares/rawsource.cpp" line="184"/>
+        <location filename="../firmwares/rawsource.cpp" line="188"/>
         <source>Trim 8</source>
         <translation>트림 8</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="145"/>
+        <location filename="../firmwares/rawsource.cpp" line="188"/>
         <source>Trim ST</source>
         <translation>조향 트림(ST)</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="145"/>
+        <location filename="../firmwares/rawsource.cpp" line="188"/>
         <source>Trim TH</source>
         <translation>스로틀 트림(TH)</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="145"/>
+        <location filename="../firmwares/rawsource.cpp" line="188"/>
         <source>Trim 3</source>
         <translation>트림 3</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="145"/>
+        <location filename="../firmwares/rawsource.cpp" line="188"/>
         <source>Trim 4</source>
         <translation>트림 4</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="149"/>
+        <location filename="../firmwares/rawsource.cpp" line="192"/>
         <source>TrmH</source>
         <translation>수평 트림</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="149"/>
+        <location filename="../firmwares/rawsource.cpp" line="192"/>
         <source>TrmV</source>
         <translation>수직 트림</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="153"/>
+        <location filename="../firmwares/rawsource.cpp" line="196"/>
         <source>Batt</source>
         <translation>배터리</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="153"/>
+        <location filename="../firmwares/rawsource.cpp" line="196"/>
         <source>Time</source>
         <translation>시간</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="153"/>
+        <location filename="../firmwares/rawsource.cpp" line="196"/>
         <source>GPS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="153"/>
+        <location filename="../firmwares/rawsource.cpp" line="196"/>
         <source>Reserved1</source>
         <translation>예약됨1</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="153"/>
+        <location filename="../firmwares/rawsource.cpp" line="196"/>
         <source>Reserved2</source>
         <translation>예약됨2</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="153"/>
+        <location filename="../firmwares/rawsource.cpp" line="196"/>
         <source>Reserved3</source>
         <translation>예약됨3</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="153"/>
+        <location filename="../firmwares/rawsource.cpp" line="196"/>
         <source>Reserved4</source>
         <translation>예약됨4</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="156"/>
+        <location filename="../firmwares/rawsource.cpp" line="199"/>
         <source>REa</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="156"/>
+        <location filename="../firmwares/rawsource.cpp" line="199"/>
         <source>REb</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="171"/>
+        <location filename="../firmwares/rawsource.cpp" line="214"/>
         <source>I</source>
         <comment>as in Input</comment>
         <translation>입력</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="177"/>
+        <location filename="../firmwares/rawsource.cpp" line="220"/>
         <source>LUA%1%2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="195"/>
+        <location filename="../firmwares/rawsource.cpp" line="238"/>
         <source>MIN</source>
         <translation>최소</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="198"/>
+        <location filename="../firmwares/rawsource.cpp" line="241"/>
         <source>MAX</source>
         <translation>최대</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="221"/>
+        <location filename="../firmwares/rawsource.cpp" line="264"/>
         <source>CYC%1</source>
         <translation>사이클%1</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="224"/>
+        <location filename="../firmwares/rawsource.cpp" line="267"/>
         <source>TR</source>
         <comment>as in Trainer</comment>
         <translation>트레이너</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="265"/>
+        <location filename="../firmwares/rawsource.cpp" line="308"/>
         <source>sm%1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="268"/>
+        <location filename="../firmwares/rawsource.cpp" line="311"/>
         <source>GR%1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="400"/>
+        <location filename="../firmwares/rawsource.cpp" line="443"/>
         <source>Source</source>
         <translation>소스</translation>
     </message>
     <message>
-        <location filename="../firmwares/rawsource.cpp" line="412"/>
+        <location filename="../firmwares/rawsource.cpp" line="455"/>
         <source>None</source>
         <translation>없음</translation>
     </message>
     <message>
-        <location filename="../constants.h" line="97"/>
+        <location filename="../constants.h" line="99"/>
         <source>-</source>
         <translation></translation>
     </message>
@@ -11701,22 +11711,22 @@ s</source>
 <context>
     <name>RawSwitch</name>
     <message>
-        <location filename="../constants.h" line="92"/>
+        <location filename="../constants.h" line="94"/>
         <source>↑</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../constants.h" line="93"/>
+        <location filename="../constants.h" line="95"/>
         <source>↓</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../constants.h" line="94"/>
+        <location filename="../constants.h" line="96"/>
         <source>-</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../constants.h" line="95"/>
+        <location filename="../constants.h" line="97"/>
         <source>!</source>
         <translation></translation>
     </message>
@@ -14349,291 +14359,291 @@ Too many errors, giving up.</source>
         <translation>Sats (위성 수)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="139"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="148"/>
         <source>RPWR</source>
         <translation>RPWR (수신기 전송 전력)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="157"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="166"/>
         <source>RxBt</source>
         <translation>RxBt (수신기 배터리 전압)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="175"/>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="350"/>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="593"/>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="945"/>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1278"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="184"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="359"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="602"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="954"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1287"/>
         <source>dB</source>
         <translation>dB (데시벨)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="193"/>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1206"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="202"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1215"/>
         <source>GPS</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="211"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="220"/>
         <source>dBm</source>
         <translation>dBm (수신 전력)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="229"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="238"/>
         <source>m</source>
         <translation>m (미터)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="247"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="256"/>
         <source>ANT</source>
         <translation>ANT (안테나)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="265"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="274"/>
         <source>km/h</source>
         <translation>km/h (킬로미터/시간)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="283"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="292"/>
         <source>VSpd</source>
         <translation>VSpd (수직 속도)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="301"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="310"/>
         <source>Hdg</source>
         <translation>Hdg (기수 방향)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="332"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="341"/>
         <source>RSNR</source>
         <translation>RSNR (신호 대 잡음비)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="368"/>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="410"/>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1020"/>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1038"/>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1441"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="377"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="419"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1029"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1047"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1450"/>
         <source>%</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="422"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="431"/>
         <source>Degrees</source>
         <translation>도 (Degrees)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="464"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="473"/>
         <source>Capa</source>
         <translation>Capa (용량)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="498"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="507"/>
         <source>0mW</source>
         <translation>0mW (전송 전력)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="503"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="512"/>
         <source>10mW</source>
         <translation>10mW (전송 전력)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="508"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="517"/>
         <source>25mW</source>
         <translation>25mW (전송 전력)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="513"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="522"/>
         <source>50mW</source>
         <translation>50mW (전송 전력)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="518"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="527"/>
         <source>100mW</source>
         <translation>100mW (전송 전력)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="523"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="532"/>
         <source>250mW</source>
         <translation>250mW (전송 전력)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="528"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="537"/>
         <source>500mW</source>
         <translation>500mW (전송 전력)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="533"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="542"/>
         <source>1000mW</source>
         <translation>1000mW (전송 전력)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="538"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="547"/>
         <source>2000mW</source>
         <translation>2000mW (전송 전력)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="575"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="584"/>
         <source>Bat%</source>
         <translation>배터리 잔량 (%)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="605"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="614"/>
         <source>Save Telemetry Values</source>
         <translation>배터리 잔량 (%)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="623"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="632"/>
         <source>m/s</source>
         <translation>m/s (미터/초)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="641"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="650"/>
         <source>Lat,Lon
 (dec.deg.)</source>
         <translation>위도,경도
 (소수도)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="681"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="690"/>
         <source>GSpd</source>
         <translation>GSpd (지상 속도)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="729"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="738"/>
         <source>Yaw</source>
         <translation>요 (Yaw)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="747"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="756"/>
         <source>FM</source>
         <translation>FM (비행 모드)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="783"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="792"/>
         <source>V</source>
         <translation>V (전압)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="801"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="810"/>
         <source>TPWR</source>
         <translation>TPWR (송신기 전송 전력)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="849"/>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1315"/>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1459"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="858"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1324"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1468"/>
         <source>Radians</source>
         <translation>라디안</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="888"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="897"/>
         <source>TRSS</source>
         <translation>TRSS (송신기 수신 강도)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="906"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="915"/>
         <source>TSNR</source>
         <translation>TSNR (송신기 신호 대 잡음비)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1002"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1011"/>
         <source>RFMD</source>
         <translation>RFMD (RF 모드)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1050"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1059"/>
         <source>Battery Monitoring</source>
         <translation>배터리 모니터링</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1068"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1077"/>
         <source>Ptch</source>
         <translation>피치</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1086"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1095"/>
         <source>RQly</source>
         <translation>수신 품질 (RQly)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1104"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1113"/>
         <source>mAh</source>
         <translation>mAh (전류 용량)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1116"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1125"/>
         <source>Attitude</source>
         <translation>자세</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1194"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1203"/>
         <source>1RSS</source>
         <translation>1RSS (안테나1 수신강도)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1224"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1233"/>
         <source>Curr</source>
         <translation>전류 (A)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1242"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1251"/>
         <source>TRSP</source>
         <translation>TRSP (TX 응답률)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1260"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1269"/>
         <source>Roll</source>
         <translation>롤</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1290"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1299"/>
         <source>Load Telemetry Values</source>
         <translation>텔레메트리 값 불러오기</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1348"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1357"/>
         <source>Barometer</source>
         <translation>기압계</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1387"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1396"/>
         <source>mw</source>
         <translation>mW (밀리와트)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1405"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1414"/>
         <source>Alt</source>
         <translation>고도</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1423"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1432"/>
         <source>A</source>
         <translation>A (암페어)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1519"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1528"/>
         <source>RRSP</source>
         <translation>RRSP (RX 응답률)</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1531"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1540"/>
         <source>Flight Controller</source>
         <translation>플라이트 컨트롤러</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1543"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1552"/>
         <source>GPS Sim</source>
         <translation>GPS 시뮬레이터</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1576"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1585"/>
         <location filename="../simulation/telemetryprovidercrossfire.cpp" line="379"/>
         <source>Run</source>
         <translation>시작</translation>
     </message>
     <message>
-        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1588"/>
+        <location filename="../simulation/telemetryprovidercrossfire.ui" line="1597"/>
         <source>25.9973,-97.1572</source>
         <translation></translation>
     </message>
@@ -15777,22 +15787,22 @@ Timestamp</source>
 <context>
     <name>TrainerMix</name>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="877"/>
+        <location filename="../firmwares/generalsettings.cpp" line="879"/>
         <source>OFF</source>
         <translation>꺼짐</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="879"/>
+        <location filename="../firmwares/generalsettings.cpp" line="881"/>
         <source>+= (Sum)</source>
         <translation>+= (합산)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="881"/>
+        <location filename="../firmwares/generalsettings.cpp" line="883"/>
         <source>:= (Replace)</source>
         <translation>:= (대체)</translation>
     </message>
     <message>
-        <location filename="../firmwares/generalsettings.cpp" line="890"/>
+        <location filename="../firmwares/generalsettings.cpp" line="892"/>
         <source>CH%1</source>
         <translation>채널 %1</translation>
     </message>
@@ -16421,12 +16431,12 @@ Timestamp</source>
         <translation>준비 중</translation>
     </message>
     <message>
-        <location filename="../updates/updateinterface.cpp" line="742"/>
+        <location filename="../updates/updateinterface.cpp" line="755"/>
         <source>Set run folders failed</source>
         <translation>실행 폴더 설정 실패</translation>
     </message>
     <message>
-        <location filename="../updates/updateinterface.cpp" line="755"/>
+        <location filename="../updates/updateinterface.cpp" line="748"/>
         <source>Set release id from update release &apos;%1&apos; failed</source>
         <translation>업데이트 릴리스 &apos;%1&apos;에서 릴리스 ID 설정 실패</translation>
     </message>
@@ -17467,7 +17477,7 @@ Process now?</source>
 <context>
     <name>YamlGeneralSettings</name>
     <message>
-        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="373"/>
+        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="375"/>
         <source>Warning: File version %1 is not supported by this version of Companion!
 
 Model and radio settings may be corrupted if you continue.</source>
@@ -17475,12 +17485,12 @@ Model and radio settings may be corrupted if you continue.</source>
 계속 진행할 경우 모델 및 송신기 설정이 손상될 수 있습니다.</translation>
     </message>
     <message>
-        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="376"/>
+        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="378"/>
         <source>Read Radio Settings</source>
         <translation>송신기 설정 읽기</translation>
     </message>
     <message>
-        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="413"/>
+        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="415"/>
         <source>Warning: Radio settings file is missing the board entry!
 
 Current firmware profile board will be used.
@@ -17491,7 +17501,7 @@ Do you wish to continue?</source>
 계속하시겠습니까?</translation>
     </message>
     <message>
-        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="424"/>
+        <location filename="../firmwares/edgetx/yaml_generalsettings.cpp" line="426"/>
         <source>Settings file board (%1) does not match current profile board (%2).
 
 Do you wish to continue?</source>
