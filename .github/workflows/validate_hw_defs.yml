@@ -7,10 +7,14 @@ on:
     paths:
       - 'radio/util/hw_defs/**'
       - 'radio/src/boards/hw_defs/**'
+      - 'tools/hwdef_schema.json'
+      - '.github/workflows/validate_hw_defs.yml'
   pull_request:
     paths:
       - 'radio/util/hw_defs/**'
       - 'radio/src/boards/hw_defs/**'
+      - 'tools/hwdef_schema.json'
+      - '.github/workflows/validate_hw_defs.yml'
   workflow_dispatch:
 
 jobs:
@@ -34,8 +38,12 @@ jobs:
       - name: Check Python script syntax
         run: uv run python3 -m py_compile *.py
 
-      - name: Validate JSON schemas
+      - name: Validate against Pydantic model
         run: uv run python3 json_validator.py ../../src/boards/hw_defs
+
+      - name: Validate against hwdef_schema.json
+        working-directory: .
+        run: uvx check-jsonschema --schemafile tools/hwdef_schema.json radio/src/boards/hw_defs/*.json
 
       - name: Test template generation (all boards x all templates)
         run: uv run python3 test_templates.py ../../src/boards/hw_defs
