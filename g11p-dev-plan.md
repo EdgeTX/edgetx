@@ -475,7 +475,8 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
     Surface, default internal module AFHDS3, batt range, name). -> commit & push
 11. [x] Companion: `opentxinterface.cpp` firmware registration + ST16-branch capabilities.
     -> commit & push
-12. [ ] Companion: `generalsettings.cpp` / `moduledata.cpp` G11P branches. -> commit & push
+12. [x] Companion: `generalsettings.cpp` (BT name `g11p`) / `moduledata.cpp` branches.
+    -> commit & push
 13. [ ] Companion build: `companion/src/CMakeLists.txt` flavour + `build-companion.sh` plugin.
     -> commit & push
 14. [ ] Translations: run `companion_translations` (lupdate). -> commit & push
