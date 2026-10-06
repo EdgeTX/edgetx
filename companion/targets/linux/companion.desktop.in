@@ -9,3 +9,10 @@ Terminal=false
 StartupWMClass=EdgeTX Companion
 StartupNotify=false
 Categories=Utility;
+Actions=Simulator;
+
+# AppImage integrators (libappimage) point each action's Exec at the AppImage, whose AppRun
+# routes --simulator to the bundled simulator
+[Desktop Action Simulator]
+Name=EdgeTX Simulator
+Exec=@COMPANION_NAME@ --simulator
