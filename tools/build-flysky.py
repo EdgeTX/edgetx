@@ -15,6 +15,7 @@ boards = {
     "PL18EV": { "PCB": "PL18", "PCBREV": "PL18EV" },
     "PL18U": { "PCB": "PL18", "PCBREV": "PL18U" },
     "ST16": { "PCB": "ST16" , "NANO": "NO" },
+    "G11P": { "PCB": "ST16", "PCBREV": "G11P", "NANO": "NO" },
 }
 
 translations = [

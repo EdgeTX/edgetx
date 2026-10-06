@@ -158,6 +158,9 @@ get_target_build_options() {
         st16)
             BUILD_OPTIONS+="-DPCB=ST16"
             ;;
+        g11p)
+            BUILD_OPTIONS+="-DPCB=ST16 -DPCBREV=G11P"
+            ;;
         pa01)
             BUILD_OPTIONS+="-DPCB=PA01"
             ;;

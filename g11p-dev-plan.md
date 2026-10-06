@@ -463,8 +463,10 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
 6. [x] Radio: `g11p_key_driver.cpp` / `g11p_switch_driver.cpp` (custom ADC-ladder decode)
    + `hal_g11p.h` ADC input map. G11P firmware compiles (docker build `FLAVOR` g11p).
    -> commit & push
-7. [ ] Tooling + CI registration (`build-common.sh`, `build-flysky.py`, generators,
-   `.github/workflows/actions.yml`, `fw.json`). -> commit & push
+7. [x] Tooling registration (`build-common.sh`, `build-flysky.py`, generators,
+   `build-companion.sh`, `fw.json`). `FLAVOR=g11p` builds via `build-gh.sh`. CI matrix
+   (`.github/workflows/actions.yml`) pending: push token lacks `workflow` scope.
+   -> commit & push
 8. [x] `hw_defs` entries (`switch_config`, `pot_config`, `legacy_names`, `hal_adc`
    `MAX_RAWS`) — required by both radio and Companion. -> commit & push
 9. [ ] Companion: `BOARD_FLYSKY_G11P` enum + `IS_FLYSKY_G11P` + family helpers (`boards.h`).
