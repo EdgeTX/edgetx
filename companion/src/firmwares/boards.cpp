@@ -163,6 +163,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4A78746F;
     case BOARD_FLYSKY_ST16:
       return 0x4C78746F;
+    case BOARD_FLYSKY_G11P:
+      return 0x4F78746F;
     case BOARD_HELLORADIOSKY_V14:
       return 0x4D78746F;
     case BOARD_HELLORADIOSKY_V16:
@@ -229,6 +231,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_FLYSKY_PL18EV:
     case BOARD_FLYSKY_PL18U:
     case BOARD_FLYSKY_ST16:
+    case BOARD_FLYSKY_G11P:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
       return 0;
@@ -292,6 +295,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_PL18EV:
     case BOARD_FLYSKY_PL18U:
     case BOARD_FLYSKY_ST16: // 8MB SDRAM
+    case BOARD_FLYSKY_G11P: // 8MB SDRAM
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V16:
       return FSIZE_HORUS;
@@ -390,7 +394,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case LcdHeight:
       if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board))
         return 480;
-      else if (IS_FAMILY_PL18(board) || IS_JUMPER_T15(board) || IS_FLYSKY_ST16(board))
+      else if (IS_FAMILY_PL18(board) || IS_JUMPER_T15(board) ||
+               IS_FLYSKY_ST16(board) || IS_FLYSKY_G11P(board))
         return 320;
       else if (IS_FLYSKY_PA01(board))
         return 240;
@@ -402,7 +407,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case LcdWidth:
       if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PA01(board)) 
         return 320;
-      else if (IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))
+      else if (IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board) || IS_FLYSKY_G11P(board))
         return 480;
       else if (IS_FAMILY_HORUS_OR_T16(board))
         return 480;
@@ -427,7 +432,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 250000;  //  less than 400K
 
     case Surface:
-      return IS_RADIOMASTER_MT12(board);
+      return IS_RADIOMASTER_MT12(board) || IS_FLYSKY_G11P(board);
 
     case FunctionSwitchColors:
       return IS_RADIOMASTER_GX12(board);
@@ -684,6 +689,8 @@ QString Boards::getBoardName(Board::Type board)
       return "FlySky PL18U";
     case BOARD_FLYSKY_ST16:
       return "FlySky ST16";
+    case BOARD_FLYSKY_G11P:
+      return "FlySky G11P";
     case BOARD_BETAFPV_LR3PRO:
       return "BETAFPV LR3PRO";
     case BOARD_IFLIGHT_COMMANDO8:
@@ -827,6 +834,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_FLYSKY_PL18U:
   case BOARD_FLYSKY_PA01: // ANT
   case BOARD_FLYSKY_ST16: // ANT
+  case BOARD_FLYSKY_G11P: // ANT
     return (int)MODULE_TYPE_FLYSKY_AFHDS3;
 
   default:
@@ -892,6 +900,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
       BR(35, 43, 37)
       break;
     case BOARD_FLYSKY_ST16:
+    case BOARD_FLYSKY_G11P:
     case BOARD_FLYSKY_PA01:
       BR(70, 86, 80)
       break;

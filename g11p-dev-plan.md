@@ -471,8 +471,8 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
    `MAX_RAWS`) — required by both radio and Companion. -> commit & push
 9. [x] Companion: `BOARD_FLYSKY_G11P` enum + `IS_FLYSKY_G11P` + family helpers (`boards.h`).
    -> commit & push
-10. [ ] Companion: `boards.cpp` (fourCC, flash/eeprom, LCD, Surface, default internal module,
-    batt range, name). -> commit & push
+10. [x] Companion: `boards.cpp` (fourCC `0x4F78746F`, flash/eeprom, LCD 480x320 readout,
+    Surface, default internal module AFHDS3, batt range, name). -> commit & push
 11. [ ] Companion: `opentxinterface.cpp` firmware registration + ST16-branch capabilities.
     -> commit & push
 12. [ ] Companion: `generalsettings.cpp` / `moduledata.cpp` G11P branches. -> commit & push
