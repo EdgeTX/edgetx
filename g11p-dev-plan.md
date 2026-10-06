@@ -442,24 +442,35 @@ Notes:
 
 ## 8. Task checklist
 
-1. [x] Extract and save `st16-vs-g11p-pinout.md`.
-2. [ ] Radio: `targets/st16/CMakeLists.txt` `PCBREV` branch + `RADIO_G11P`.
+**Commit/push policy:** when each checklist item is finished and verified, stage only the
+files for that item, commit with a conventional message (`feat(g11p): ...`, `fix(g11p): ...`,
+`docs(g11p): ...`, matching repo style), and `git push origin HEAD` on
+`richardclli/fs-g11p-2.11` before starting the next item. Do not batch unrelated items into
+one commit, and do not leave the tree dirty between tasks. If a task spans radio + Companion
++ tooling, split it into focused commits (e.g. one per subsystem) and push each.
+
+1. [x] Extract and save `st16-vs-g11p-pinout.md`. -> commit & push (done: `95e032d352`)
+2. [ ] Radio: `targets/st16/CMakeLists.txt` `PCBREV` branch + `RADIO_G11P`. -> commit & push
 3. [ ] Radio: `hal.h` / `board.h` / `board.cpp` / `usb_descriptor.h` G11P branches
    (LCD 320x480 portrait, touch via PL18 driver, `EXTMODULE` on UART7, no flysky gimbal,
-   battery reuse).
-4. [ ] Radio: `bsp_io` direct-GPIO (no expander) path.
-5. [ ] Confirm the logical input map (3.4 TODOs) from the product/hardware.
+   battery reuse). -> commit & push
+4. [ ] Radio: `bsp_io` direct-GPIO (no expander) path. -> commit & push
+5. [ ] Confirm the logical input map (3.4 TODOs) from the product/hardware. -> commit & push
 6. [ ] Radio: `g11p_key_driver.cpp` / `g11p_switch_driver.cpp` (custom ADC-ladder decode).
+   -> commit & push
 7. [ ] Tooling + CI registration (`build-common.sh`, `build-flysky.py`, generators,
-   `.github/workflows/actions.yml`, `fw.json`).
+   `.github/workflows/actions.yml`, `fw.json`). -> commit & push
 8. [ ] `hw_defs` entries (`hal_keys`, `switch_config`, `pot_config`, `legacy_names`) —
-   required by both radio and Companion.
+   required by both radio and Companion. -> commit & push
 9. [ ] Companion: `BOARD_FLYSKY_G11P` enum + `IS_FLYSKY_G11P` + family helpers (`boards.h`).
+   -> commit & push
 10. [ ] Companion: `boards.cpp` (fourCC, flash/eeprom, LCD, Surface, default internal module,
-    batt range, name).
+    batt range, name). -> commit & push
 11. [ ] Companion: `opentxinterface.cpp` firmware registration + ST16-branch capabilities.
-12. [ ] Companion: `generalsettings.cpp` / `moduledata.cpp` G11P branches.
+    -> commit & push
+12. [ ] Companion: `generalsettings.cpp` / `moduledata.cpp` G11P branches. -> commit & push
 13. [ ] Companion build: `companion/src/CMakeLists.txt` flavour + `build-companion.sh` plugin.
-14. [ ] Translations: run `companion_translations` (lupdate).
-15. [ ] Storage/YAML (`yaml_datastructs_g11p.cpp`).
-16. [ ] Build, flash, hardware + Companion validation.
+    -> commit & push
+14. [ ] Translations: run `companion_translations` (lupdate). -> commit & push
+15. [ ] Storage/YAML (`yaml_datastructs_g11p.cpp`). -> commit & push
+16. [ ] Build, flash, hardware + Companion validation. -> commit & push
