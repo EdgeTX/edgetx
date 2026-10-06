@@ -386,7 +386,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
              IS_RADIOMASTER_MT12(board);
 
     case HasAux2SerialMode:
-      return IS_FAMILY_T16(board);
+      return IS_FAMILY_T16(board) && !IS_RADIOMASTER_GX10(board);
 
     case HasBacklightColor:
       return IS_TARANIS_PLUS(board) || IS_TARANIS_X9DP_2019(board);

@@ -540,7 +540,6 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 //ROTARY emulation for trims as buttons
 #define ROTARY_ENCODER_NAVIGATION
 // Rotary Encoder
-// #define ROTARY_ENCODER_INVERTED
 #define ROTARY_ENCODER_GPIO_A           GPIOI
 #define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_7
 #define ROTARY_ENCODER_GPIO_B           GPIOJ
@@ -582,8 +581,6 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 #define LCD_PHYS_H                      LCD_H
 
 #define LCD_DEPTH                       16
-
-#define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
 
 // Keys held together to toggle the keyboard lock.
 #define KEYS_LOCK_KEY1                  KEY_SYS
