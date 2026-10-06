@@ -75,7 +75,11 @@ set(HARDWARE_TOUCH YES)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
 set(SOFTWARE_KEYBOARD ON)
-set(FUNCTION_SWITCHES ON)
+if(PCBREV STREQUAL G11P)
+  set(FUNCTION_SWITCHES OFF)
+else()
+  set(FUNCTION_SWITCHES ON)
+endif()
 
 
 add_definitions(
@@ -128,15 +132,17 @@ set(TARGET_SRC_DIR targets/${TARGET_DIR})
 if(PCBREV STREQUAL G11P)
   set(TOUCH_DRIVER_SRC ${RADIO_SRC_DIR}/targets/pl18/touch_driver.cpp)
   set(BSP_IO_SRC ${TARGET_SRC_DIR}/g11p_bsp_io.cpp)
+  set(KEY_DRIVER_SRC ${TARGET_SRC_DIR}/g11p_key_driver.cpp)
 else()
   set(TOUCH_DRIVER_SRC ${TARGET_SRC_DIR}/touch_driver.cpp)
   set(BSP_IO_SRC ${TARGET_SRC_DIR}/bsp_io.cpp)
+  set(KEY_DRIVER_SRC ${TARGET_SRC_DIR}/key_driver.cpp)
 endif()
 
 set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/board.cpp
   ${BSP_IO_SRC}
-  ${TARGET_SRC_DIR}/key_driver.cpp
+  ${KEY_DRIVER_SRC}
   ${TARGET_SRC_DIR}/system_init.cpp
   ${TARGET_SRC_DIR}/lcd_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
@@ -184,7 +190,9 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
 )
 add_dependencies(board board_lib)
 
-if(NOT PCBREV STREQUAL G11P)
+if(PCBREV STREQUAL G11P)
+  target_sources(board PRIVATE ${TARGET_SRC_DIR}/g11p_switch_driver.cpp)
+else()
   target_sources(board PRIVATE targets/common/arm/stm32/lsm6ds_driver.cpp)
 endif()
 

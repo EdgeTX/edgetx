@@ -21,7 +21,9 @@
 
 #include "bsp_io.h"
 
+#include "hal.h"
 #include "hal/gpio.h"
+#include "stm32_gpio.h"
 #include "stm32_gpio_driver.h"
 
 // G11P has no I/O expander: the BSP outputs are plain GPIOs.
