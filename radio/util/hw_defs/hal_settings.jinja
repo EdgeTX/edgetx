@@ -51,8 +51,10 @@
 #define {{ name | upper }}
 {% elif name == 'exti' %}
 {% for exti in val %}
+#if !defined(USE_{{ exti.irq }})
 #define USE_{{ exti.irq }}
 #define {{ exti.irq }}_Priority {{ exti.priority }}
+#endif
 {% endfor %}
 {% elif name.endswith('_line') %}
 #define {{ name[:name | length - 4 ] | upper }}Line {{ val }}
@@ -108,8 +110,10 @@
 #define {{ name | upper }}
 {% elif name == 'exti' %}
 {% for exti in val %}
+#if !defined(USE_{{ exti.irq }})
 #define USE_{{ exti.irq }}
 #define {{ exti.irq }}_Priority {{ exti.priority }}
+#endif
 {% endfor %}
 {% else %}
 #define {{ name | upper }} {{ val }}
@@ -128,8 +132,10 @@
 #define {{ name | upper }}
 {% elif name == 'exti' %}
 {% for exti in val %}
+#if !defined(USE_{{ exti.irq }})
 #define USE_{{ exti.irq }}
 #define {{ exti.irq }}_Priority {{ exti.priority }}
+#endif
 {% endfor %}
 {% elif name.endswith('_irqn') %}
 #define {{ name[:name | length - 1 ] | upper }}n {{ val }}
