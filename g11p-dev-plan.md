@@ -460,12 +460,13 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
    `g11p_bsp_io.cpp`). cmake configure verified. -> commit & push
 5. [~] Confirm the logical input map (3.4 TODOs): inferred from schematic + NB4P and
    marked TODO; to be confirmed on hardware. -> commit & push
-6. [ ] Radio: `g11p_key_driver.cpp` / `g11p_switch_driver.cpp` (custom ADC-ladder decode).
+6. [x] Radio: `g11p_key_driver.cpp` / `g11p_switch_driver.cpp` (custom ADC-ladder decode)
+   + `hal_g11p.h` ADC input map. G11P firmware compiles (docker build `FLAVOR` g11p).
    -> commit & push
 7. [ ] Tooling + CI registration (`build-common.sh`, `build-flysky.py`, generators,
    `.github/workflows/actions.yml`, `fw.json`). -> commit & push
-8. [ ] `hw_defs` entries (`hal_keys`, `switch_config`, `pot_config`, `legacy_names`) —
-   required by both radio and Companion. -> commit & push
+8. [x] `hw_defs` entries (`switch_config`, `pot_config`, `legacy_names`, `hal_adc`
+   `MAX_RAWS`) — required by both radio and Companion. -> commit & push
 9. [ ] Companion: `BOARD_FLYSKY_G11P` enum + `IS_FLYSKY_G11P` + family helpers (`boards.h`).
    -> commit & push
 10. [ ] Companion: `boards.cpp` (fourCC, flash/eeprom, LCD, Surface, default internal module,
@@ -476,5 +477,6 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
 13. [ ] Companion build: `companion/src/CMakeLists.txt` flavour + `build-companion.sh` plugin.
     -> commit & push
 14. [ ] Translations: run `companion_translations` (lupdate). -> commit & push
-15. [ ] Storage/YAML (`yaml_datastructs_g11p.cpp`). -> commit & push
+15. [x] Storage/YAML (`yaml_datastructs_g11p.cpp`) generated and wired for `RADIO_G11P`.
+    -> commit & push
 16. [ ] Build, flash, hardware + Companion validation. -> commit & push

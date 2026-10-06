@@ -49,7 +49,11 @@
 #elif defined(PCBNV14)
  #include "yaml_datastructs_nv14.cpp"
 #elif defined(PCBST16)
- #include "yaml_datastructs_st16.cpp"
+ #if defined(RADIO_G11P)
+  #include "yaml_datastructs_g11p.cpp"
+ #else
+  #include "yaml_datastructs_st16.cpp"
+ #endif
 #elif defined(PCBPA01)
  #include "yaml_datastructs_pa01.cpp"
 #elif defined(PCBX7)
