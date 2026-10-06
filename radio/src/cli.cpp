@@ -1524,6 +1524,110 @@ void printAudioVars()
 #include "disk_cache.h"
 #endif
 
+#if defined(CLI_INPUT_INJECT)
+static uint32_t injKeys, injKeysUntil;
+
+// toInt() for optional arguments, which are null when omitted
+static int toIntOpt(const char ** argv, int index, int * val)
+{
+  if (!argv[index]) return 0;
+  return toInt(argv, index, val);
+}
+
+uint32_t cliInjectedKeys()
+{
+  return (injKeys && (int32_t)(time_get_ms() - injKeysUntil) < 0) ? injKeys : 0;
+}
+
+static int cliKey(const char ** argv)
+{
+  int ms = 100;
+  if (!argv[1] || toIntOpt(argv, 2, &ms) < 0) {
+    cliSerialPrint("%s: usage: key <key label> [<ms>]", argv[0]);
+    return -1;
+  }
+  for (int i = 0; i <= MAX_KEYS; i++) {
+    if (keyIsSupported((EnumKeys)i) && !strcasecmp(keysGetLabel((EnumKeys)i), argv[1])) {
+      injKeysUntil = time_get_ms() + ms;
+      injKeys = 1u << i;
+      return 0;
+    }
+  }
+  cliSerialPrint("%s: unknown key \"%s\", available:", argv[0], argv[1]);
+  for (int i = 0; i <= MAX_KEYS; i++) {
+    if (keyIsSupported((EnumKeys)i)) cliSerialPrint("  %s", keysGetLabel((EnumKeys)i));
+  }
+  return -1;
+}
+
+static uint32_t injTrims, injTrimsUntil;
+
+uint32_t cliInjectedTrims()
+{
+  return (injTrims && (int32_t)(time_get_ms() - injTrimsUntil) < 0) ? injTrims : 0;
+}
+
+// trim <label><+|-> [<ms>], e.g. "trim T1- 100"
+static int cliTrim(const char ** argv)
+{
+  int ms = 100;
+  if (!argv[1] || toIntOpt(argv, 2, &ms) < 0) {
+    cliSerialPrint("%s: usage: trim <label><+|-> [<ms>]", argv[0]);
+    return -1;
+  }
+  for (int i = 0; i < keysGetMaxTrims() * 2; i++) {
+    const char * label = getTrimLabel(i / 2);
+    size_t len = strlen(label);
+    if (!strncasecmp(label, argv[1], len) && argv[1][len] == ((i & 1) ? '+' : '-') &&
+        argv[1][len + 1] == '\0') {
+      injTrimsUntil = time_get_ms() + ms;
+      injTrims = 1u << i;
+      return 0;
+    }
+  }
+  cliSerialPrint("%s: unknown trim \"%s\", available:", argv[0], argv[1]);
+  for (int i = 0; i < keysGetMaxTrims() * 2; i++) {
+    cliSerialPrint("  %s%c", getTrimLabel(i / 2), (i & 1) ? '+' : '-');
+  }
+  return -1;
+}
+
+#if defined(COLORLCD) && (defined(ROTARY_ENCODER_NAVIGATION) || defined(USE_HATS_AS_KEYS))
+void lvglInjectRotary(int steps);
+
+static int cliRotary(const char ** argv)
+{
+  int steps = 0;
+  if (!argv[1] || toInt(argv, 1, &steps) <= 0) {
+    cliSerialPrint("%s: usage: rotary <steps> (negative = counter-clockwise)", argv[0]);
+    return -1;
+  }
+  lvglInjectRotary(steps);
+  return 0;
+}
+#endif
+
+#if defined(HARDWARE_TOUCH)
+void lvglInjectTouch(int x1, int y1, int x2, int y2, uint32_t ms);
+
+static int cliTouch(const char ** argv)
+{
+  int x1 = 0, y1 = 0, ms = 100, x2 = 0, y2 = 0;
+  if (!argv[1] || !argv[2] || toInt(argv, 1, &x1) <= 0 || toInt(argv, 2, &y1) <= 0 ||
+      toIntOpt(argv, 3, &ms) < 0) {
+    cliSerialPrint("%s: usage: touch <x> <y> [<ms>] [<x2> <y2>]", argv[0]);
+    return -1;
+  }
+  x2 = x1; y2 = y1;
+  if (toIntOpt(argv, 4, &x2) < 0 || toIntOpt(argv, 5, &y2) < 0) return -1;
+  if (ms <= 0) ms = 100;
+  lvglInjectTouch(x1, y1, x2, y2, ms);
+  return 0;
+}
+#endif
+
+#endif // CLI_INPUT_INJECT
+
 int cliDisplay(const char ** argv)
 {
   long long int address = 0;
@@ -1895,6 +1999,16 @@ int cliResetGT911(const char** argv)
 #endif
 
 const CliCommand cliCommands[] = {
+#if defined(CLI_INPUT_INJECT)
+  { "key", cliKey, "<key label> [<ms>]" },
+  { "trim", cliTrim, "<label><+|-> [<ms>]" },
+#if defined(COLORLCD) && (defined(ROTARY_ENCODER_NAVIGATION) || defined(USE_HATS_AS_KEYS))
+  { "rotary", cliRotary, "<steps>" },
+#endif
+#if defined(HARDWARE_TOUCH)
+  { "touch", cliTouch, "<x> <y> [<ms>] [<x2> <y2>]" },
+#endif
+#endif // CLI_INPUT_INJECT
   { "beep", cliBeep, "[<frequency>] [<duration>]" },
   { "ls", cliLs, "<directory>" },
   { "read", cliRead, "<filename>" },
