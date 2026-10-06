@@ -333,14 +333,69 @@ A first-class Companion board type is added, not the NB4P "firmware-only" shortc
 
 ## 6. Verification
 
-1. Configure/build: `cmake -DPCB=ST16 -DPCBREV=G11P ... && make firmware`
-   (or via `tools/build-common.sh`).
-2. `make hardware_defs`, `make yaml_inputs` to validate the generated hardware definitions.
-3. Flash and bring up: boot, LCD init/touch, SD, audio (VS1053B), internal module bind,
+The firmware build runs in the pre-installed container image
+`ghcr.io/edgetx/edgetx-dev:2.11` (Arm GNU Toolchain 14.2 on `PATH`).
+
+Reference build scripts on the host under `/edgetx` (used by the nightly/release machinery):
+
+- `/edgetx/build/2.11-build-gh-release.sh` - target + language build; reads `FLAVOR`
+  (target) and `LANG` (translations), calls `get_target_build_options`, writes
+  `etx-*.bin`/`.uf2` to `/build/output`.
+- `/edgetx/build/2.11-build-all-release.sh` - exports `LANG`/`FLAVOR` then calls the above.
+- `/edgetx/start-build.sh`, `/edgetx/build-release.sh` - cron/release wrappers showing the
+  `docker run -v <repo>:/edgetx -v /edgetx/build:/build` mount pattern.
+
+### 6.1 Build commands
+
+Target + language build (mirrors the release flow):
+
+```sh
+cd /home/clli/edgetx
+docker run -t --rm \
+  -e GITHUB_REF='refs/heads/richardclli/fs-g11p-2.11' \
+  -v "/home/clli/edgetx:/edgetx" \
+  -v "/edgetx/build:/build" \
+  -w /edgetx \
+  --entrypoint /bin/bash \
+  ghcr.io/edgetx/edgetx-dev:2.11 \
+  -lc 'export LANG=EN FLAVOR=st16; /build/2.11-build-gh-release.sh'
+```
+
+Output: `/edgetx/build/output/etx-<tag>-st16-en.uf2` (host).
+
+CI-equivalent (repo script, EN default) - same as `.github/workflows/actions.yml`:
+
+```sh
+docker run -t --rm -e FLAVOR=st16 -e EDGETX_VERSION_SUFFIX=g11p-dev \
+  -v "/home/clli/edgetx:/src" -w /src --entrypoint /bin/bash \
+  ghcr.io/edgetx/edgetx-dev:2.11 -lc './tools/build-gh.sh'
+```
+
+Output: `/home/clli/edgetx/st16-<sha>.uf2`. Select a language with
+`-e EXTRA_OPTIONS="-DTRANSLATIONS=CN"` (appended to `COMMON_OPTIONS`).
+
+Once the G11P target exists, add the `g11p)` case to `tools/build-common.sh`
+(`-DPCB=ST16 -DPCBREV=G11P`) and build with `FLAVOR=g11p`.
+
+Notes:
+- `GITHUB_REF` only sets `EDGETX_VERSION_SUFFIX`; the release script uses
+  `git describe --tags` for the filename, so the repo must have reachable tags (it does).
+  Otherwise use the `tools/build-gh.sh` route.
+- Builds run as root in the container; artifacts land in the repo `build/` and the mounted
+  output dir (both ignored).
+
+### 6.2 Verification steps
+
+1. On this branch, build **st16** with the command above to confirm the toolchain/mounts
+   work before starting target work.
+2. Configure/build G11P: `-DPCB=ST16 -DPCBREV=G11P ... && make firmware`
+   (or the docker commands above with `FLAVOR=g11p`).
+3. `make hardware_defs`, `make yaml_inputs` to validate the generated hardware definitions.
+4. Flash and bring up: boot, LCD init/touch, SD, audio (VS1053B), internal module bind,
    keys/switches/trims/sticks, battery/charge, USB, LEDs, backlight.
-4. Companion: build with `g11p` and verify the board appears as "FlySky G11P" (surface UI,
+5. Companion: build with `g11p` and verify the board appears as "FlySky G11P" (surface UI,
    channel order ST/TH), loads `g11p.json`, and shows the expected inputs/keys/switches/trims.
-5. CI: add `g11p` to commit-tests and the build matrix in `.github/workflows/actions.yml`.
+6. CI: add `g11p` to commit-tests and the build matrix in `.github/workflows/actions.yml`.
 
 ---
 
