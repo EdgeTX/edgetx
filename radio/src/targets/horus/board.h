@@ -24,9 +24,6 @@
 #include "definitions.h"
 #include "edgetx_constants.h"
 
-// Defines used in board_common.h
-#define ROTARY_ENCODER_NAVIGATION
-
 #define BOOTLOADER_KEYS 0x42
 
 #include "board_common.h"

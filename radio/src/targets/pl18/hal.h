@@ -157,11 +157,6 @@
 
 // TODO! Check IOLL1 to PI.01 connectivity!
 
-// S.Port update connector
-#define SPORT_MAX_BAUDRATE              400000
-#define SPORT_UPDATE_RCC_AHB1Periph     0
-#define HAS_SPORT_UPDATE_CONNECTOR()    (false)
-
 // Serial Port (DEBUG)
 // We will temporarily used the PPM and the HEARTBEAT PINS
 #define AUX_SERIAL_RCC_AHB1Periph       (RCC_AHB1Periph_GPIOC | RCC_AHB1Periph_GPIOE)
@@ -225,20 +220,6 @@
 #define TELEMETRY_RX_FRAME_EXTI_LINE    LL_EXTI_LINE_4
 #define USE_EXTI4_IRQ
 #define EXTI4_IRQ_Priority 5
-
-// USB
-#define USB_RCC_AHB1Periph_GPIO         RCC_AHB1Periph_GPIOA
-#define USB_GPIO                        GPIOA
-#define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
-#define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
-#define USB_GPIO_AF                     GPIO_AF10
-
-#if defined(RADIO_NV14_FAMILY) 
-  #define USB_GPIO_VBUS                 GPIO_PIN(GPIOA, 9)  // PA.09
-  #define USB_SW_GPIO                   GPIO_PIN(GPIOI, 10) // PI.10
-#elif defined(RADIO_PL18U)
-  #define USB_SW_GPIO                   GPIO_PIN(GPIOI, 5)  // PI.05
-#endif
 
 // LCD
 #define LCD_NRST_GPIO                   GPIO_PIN(GPIOG, 9)  // PG.09
@@ -331,21 +312,6 @@
 #define I2C_B1_SDA_GPIO                 GPIO_PIN(GPIOB, 7)  // PB.07
 #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B1_CLK_RATE                 400000
-
-// Touch
-#define TOUCH_I2C_BUS                   I2C_Bus_1
-#define TOUCH_INT_GPIO                  GPIO_PIN(GPIOB, 9)   // PB.09
-#define TOUCH_RST_GPIO                  GPIO_PIN(GPIOB, 12)  // PB.12
-
-#define TOUCH_INT_EXTI_Line             LL_EXTI_LINE_9
-#define TOUCH_INT_EXTI_Port             LL_SYSCFG_EXTI_PORTB
-#define TOUCH_INT_EXTI_SysCfgLine       LL_SYSCFG_EXTI_LINE9
-
-// TOUCH_INT_EXTI IRQ
-#if !defined(USE_EXTI9_5_IRQ)
-  #define USE_EXTI9_5_IRQ
-  #define EXTI9_5_IRQ_Priority  9
-#endif
 
 // Flysky Hall Stick
 #define FLYSKY_HALL_SERIAL_USART                 UART4
@@ -491,20 +457,6 @@
 #define EXTMODULE_TX_INVERTED()            EXTMODULE_TX_INVERT_GPIO->BSRRL = EXTMODULE_TX_INVERT_GPIO_PIN
 #define EXTMODULE_RX_NORMAL()              EXTMODULE_RX_INVERT_GPIO->BSRRH = EXTMODULE_RX_INVERT_GPIO_PIN
 #define EXTMODULE_RX_INVERTED()            EXTMODULE_RX_INVERT_GPIO->BSRRL = EXTMODULE_RX_INVERT_GPIO_PIN
-
-// Trainer Port
-
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOD, 12) // PD.12
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOD, 13) // PD.13
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
-
-#define TRAINER_TIMER                   TIM4
-#define TRAINER_TIMER_IRQn              TIM4_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM4_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_2
-#define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 //ROTARY emulation for trims as buttons
 #define ROTARY_ENCODER_NAVIGATION

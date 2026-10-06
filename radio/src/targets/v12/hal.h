@@ -83,9 +83,6 @@ USART6: EXTMODULE_USART
 #define PWR_BUTTON_DUAL_KEY1          KEY_SYS
 #define PWR_BUTTON_DUAL_KEY2          KEY_MODEL
 
-// S.Port update connector
-#define HAS_SPORT_UPDATE_CONNECTOR()    (false)
-
 // Telemetry SPORT
 #define TELEMETRY_SET_INPUT             0
 #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOA, 9)
@@ -107,13 +104,6 @@ USART6: EXTMODULE_USART
 #define ETH_WKUP_IRQ_Priority 5
 #define CUSTOM_EXTI_IRQ_LINE 86
 #define TELEMETRY_RX_FRAME_EXTI_LINE    CUSTOM_EXTI_IRQ_LINE
-
-// USB
-#define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOB, 12)
-#define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11)
-#define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12)
-#define USB_GPIO_AF                     GPIO_AF10
 
 // Chargers (USB and wireless)
 #define UCHARGER_PW                     GPIO_PIN(GPIOJ, 5)  // charge power sw 0=DISABLE 1=ENABLE
@@ -253,18 +243,5 @@ USART6: EXTMODULE_USART
 #define EXTMODULE_TIMER_DMA_STREAM         LL_DMA_STREAM_3
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream3_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream3_IRQHandler
-
-// Trainer Port
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOD, 13)  // TIM4_CH2
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH2
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOD, 12)  // TIM4_CH1
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH1
-
-#define TRAINER_TIMER                   TIM4
-#define TRAINER_TIMER_IRQn              TIM4_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM4_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_2
-#define TRAINER_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
 
 #endif // _HAL_H_

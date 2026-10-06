@@ -43,9 +43,6 @@ if(NOT NATIVE_BUILD)
     ${STM32USB_DIR}/Core/Inc
     ${STM32USB_DIR}/Class/DFU/Inc)
 
-  set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32usb>)
-  set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32usb>)
-
   # Bootloader USB devices
   add_library(stm32usb_device_bl OBJECT EXCLUDE_FROM_ALL    
     ${STM32_DRIVER_DIR}/usbd_conf.c
@@ -61,10 +58,6 @@ if(NOT NATIVE_BUILD)
     ${STM32USB_DIR}/Class/DFU/Inc
     ${STM32USB_DIR}/Class/HID/Inc
     ${STM32USB_DIR}/Class/MSC/Inc)
-
-  add_dependencies(stm32usb_device_bl hal_usb_descriptor)
-
-  set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32usb_device_bl>)
 
   # Firmware USB devices
   add_library(stm32usb_device_fw OBJECT EXCLUDE_FROM_ALL
@@ -86,10 +79,6 @@ if(NOT NATIVE_BUILD)
     ${STM32USB_DIR}/Class/DFU/Inc
     ${STM32USB_DIR}/Class/HID/Inc
     ${STM32USB_DIR}/Class/MSC/Inc)
-
-  add_dependencies(stm32usb_device_fw hal_usb_descriptor)
-
-  set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32usb_device_fw>)
 
   # HAL/LL based driver library
   add_library(stm32_drivers OBJECT EXCLUDE_FROM_ALL
@@ -133,12 +122,18 @@ if(NOT NATIVE_BUILD)
   )
 
   add_dependencies(stm32_drivers hal_settings hal_pwm_sticks)
+  add_dependencies(stm32usb_device_bl hal_settings hal_usb_descriptor)
+  add_dependencies(stm32usb_device_fw hal_settings hal_usb_descriptor)
 
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_drivers>)
   set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32_drivers_w_dbg_fw>)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32usb>)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:stm32usb_device_fw>)
 
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_drivers>)
   set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32_drivers_w_dbg_bl>)
+  set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32usb>)
+  set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:stm32usb_device_bl>)
 endif()
 
 if(IMU)

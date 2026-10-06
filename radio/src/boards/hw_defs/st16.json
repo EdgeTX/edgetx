@@ -398,6 +398,23 @@
     "ltdc_irq_prio": 4,
     "dma_screen_irq_prio": 6
   },
+  "touch": {
+    "touch_i2c_bus": "I2C_Bus_1",
+    "touch_i2c_clk_rate": 100000,
+    "touch_int_gpio": "GPIOI",
+    "touch_int_gpio_pin": "LL_GPIO_PIN_11",
+    "touch_rst_gpio": "GPIOI",
+    "touch_rst_gpio_pin": "LL_GPIO_PIN_3",
+    "touch_int_exti_line": "LL_EXTI_LINE_11",
+    "touch_int_exti_port": "LL_SYSCFG_EXTI_PORTI",
+    "touch_int_exti_syscfgline": "LL_SYSCFG_EXTI_LINE11",
+    "exti": [
+      {
+        "irq": "EXTI15_10_IRQ",
+        "priority": 5
+      }
+    ]
+  },
   "backlight": {
     "backlight_gpio": "GPIO_PIN(GPIOC, 6)",
     "backlight_timer": "TIM3",
@@ -482,6 +499,23 @@
     "haptic_timer_output_enable": "TIM_CCER_CC2E | TIM_CCER_CC2NE",
     "haptic_timer_mode": "TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2PE",
     "haptic_timer_compare_value": "HAPTIC_GPIO_TIMER->CCR2"
+  },
+  "usb": {
+    "usb_gpio_vbus": "GPIO_PIN(GPIOC, 0)",
+    "usb_gpio_dm": "GPIO_PIN(GPIOA, 11)",
+    "usb_gpio_dp": "GPIO_PIN(GPIOA, 12)",
+    "usb_gpio_af": "GPIO_AF10"
+  },
+  "trainer": {
+    "trainer_in_gpio": "GPIO_PIN(GPIOE, 5)",
+    "trainer_in_timer_channel": "LL_TIM_CHANNEL_CH1",
+    "trainer_out_gpio": "GPIO_PIN(GPIOE, 6)",
+    "trainer_out_timer_channel": "LL_TIM_CHANNEL_CH2",
+    "trainer_timer": "TIM15",
+    "trainer_timer_irqn": "TIM15_IRQn",
+    "trainer_timer_irqhandler": "TIM15_IRQHandler",
+    "trainer_gpio_af": "LL_GPIO_AF_4",
+    "trainer_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)"
   },
   "key_lock_combo": [
     "KEY_EXIT",

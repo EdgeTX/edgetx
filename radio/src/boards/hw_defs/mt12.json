@@ -344,6 +344,31 @@
     "mixer_scheduler_timer_irqn": "TIM8_BRK_TIM12_IRQn",
     "mixer_scheduler_timer_irqhandler": "TIM8_BRK_TIM12_IRQHandler"
   },
+  "rotenc": {
+    "rotary_encoder_inverted": true,
+    "rotary_encoder_gpio": "GPIOE",
+    "rotary_encoder_gpio_pin_a": "LL_GPIO_PIN_9",
+    "rotary_encoder_gpio_pin_b": "LL_GPIO_PIN_10",
+    "rotary_encoder_position": "((ROTARY_ENCODER_GPIO->IDR >> 9) & 0x03)",
+    "rotary_encoder_exti_line1": "LL_EXTI_LINE_9",
+    "rotary_encoder_exti_line2": "LL_EXTI_LINE_10",
+    "exti": [
+      {
+        "irq": "EXTI9_5_IRQ",
+        "priority": 5
+      },
+      {
+        "irq": "EXTI15_10_IRQ",
+        "priority": 5
+      }
+    ],
+    "rotary_encoder_exti_port": "LL_SYSCFG_EXTI_PORTE",
+    "rotary_encoder_exti_sys_line1": "LL_SYSCFG_EXTI_LINE9",
+    "rotary_encoder_exti_sys_line2": "LL_SYSCFG_EXTI_LINE10",
+    "rotary_encoder_timer": "TIM5",
+    "rotary_encoder_timer_irqn": "TIM5_IRQn",
+    "rotary_encoder_timer_irqhandler": "TIM5_IRQHandler"
+  },
   "haptic": {
     "haptic_pwm": true,
     "haptic_gpio": "GPIO_PIN(GPIOB, 3)",
@@ -353,6 +378,25 @@
     "haptic_counter_register": "HAPTIC_TIMER->CCR2",
     "haptic_ccmr1": "TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2M_2",
     "haptic_ccer": "TIM_CCER_CC2E"
+  },
+  "usb": {
+    "usb_gpio_vbus": "GPIO_PIN(GPIOA, 9)",
+    "usb_gpio_dm": "GPIO_PIN(GPIOA, 11)",
+    "usb_gpio_dp": "GPIO_PIN(GPIOA, 12)",
+    "usb_gpio_af": "GPIO_AF10"
+  },
+  "trainer": {
+    "trainer_in_gpio": "GPIO_PIN(GPIOC, 8)",
+    "trainer_in_timer_channel": "LL_TIM_CHANNEL_CH3",
+    "trainer_out_gpio": "GPIO_PIN(GPIOC, 9)",
+    "trainer_out_timer_channel": "LL_TIM_CHANNEL_CH4",
+    "trainer_timer": "TIM3",
+    "trainer_timer_irqn": "TIM3_IRQn",
+    "trainer_timer_irqhandler": "TIM3_IRQHandler",
+    "trainer_gpio_af": "LL_GPIO_AF_2",
+    "trainer_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "trainer_detect_gpio": "GPIO_PIN(GPIOD, 14)",
+    "trainer_detect_inverted": true
   },
   "key_lock_combo": [
     "KEY_SYS",

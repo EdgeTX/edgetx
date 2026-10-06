@@ -42,6 +42,33 @@
 {% endfor %}
 {% endif -%}
 
+{% if touch %}
+
+// Touch
+{% for name, val in touch %}
+{% if val is not none and val is not sameas false %}
+{% if val is sameas true %}
+#define {{ name | upper }}
+{% elif name == 'exti' %}
+{% for exti in val %}
+#if !defined(USE_{{ exti.irq }})
+#define USE_{{ exti.irq }}
+#define {{ exti.irq }}_Priority {{ exti.priority }}
+#endif
+{% endfor %}
+{% elif name.endswith('_line') %}
+#define {{ name[:name | length - 4 ] | upper }}Line {{ val }}
+{% elif name.endswith('_port') %}
+#define {{ name[:name | length - 4 ] | upper }}Port {{ val }}
+{% elif name.endswith('_syscfgline') %}
+#define {{ name[:name | length - 10 ] | upper }}SysCfgLine {{ val }}
+{% else %}
+#define {{ name | upper }} {{ val }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif -%}
+
 {% if backlight %}
 
 // Backlight
@@ -83,8 +110,10 @@
 #define {{ name | upper }}
 {% elif name == 'exti' %}
 {% for exti in val %}
+#if !defined(USE_{{ exti.irq }})
 #define USE_{{ exti.irq }}
 #define {{ exti.irq }}_Priority {{ exti.priority }}
+#endif
 {% endfor %}
 {% else %}
 #define {{ name | upper }} {{ val }}
@@ -103,8 +132,10 @@
 #define {{ name | upper }}
 {% elif name == 'exti' %}
 {% for exti in val %}
+#if !defined(USE_{{ exti.irq }})
 #define USE_{{ exti.irq }}
 #define {{ exti.irq }}_Priority {{ exti.priority }}
+#endif
 {% endfor %}
 {% elif name.endswith('_irqn') %}
 #define {{ name[:name | length - 1 ] | upper }}n {{ val }}
@@ -129,4 +160,49 @@
 {% endif %}
 {% endif %}
 {% endfor %}
+{% endif -%}
+
+{% if usb %}
+
+// USB
+{% for name, val in usb %}
+{% if val is not none and val is not sameas false %}
+{% if val is sameas true %}
+#define {{ name | upper }}
+{% else %}
+#define {{ name | upper }} {{ val }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif -%}
+
+{% if trainer %}
+
+// Trainer
+{% for name, val in trainer %}
+{% if val is not none and val is not sameas false %}
+{% if val is sameas true %}
+#define {{ name | upper }}
+{% elif name.endswith('_irqn') %}
+#define {{ name[:name | length - 1 ] | upper }}n {{ val }}
+{% elif name.endswith('_irqhandler') %}
+#define {{ name[:name | length - 7 ] | upper }}Handler {{ val }}
+{% elif name.endswith('_channel') %}
+#define {{ name[:name | length - 7 ] | upper }}Channel {{ val }}
+{% else %}
+#define {{ name | upper }} {{ val }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif -%}
+
+{% if hardware %}
+
+// Hardware
+{% if hardware.sport_max_baudrate is not none %}
+#define SPORT_MAX_BAUDRATE {{ hardware.sport_max_baudrate }}
+{% endif %}
+{% if hardware.surface %}
+#define SURFACE_RADIO
+{% endif %}
 {% endif -%}

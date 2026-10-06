@@ -25,28 +25,6 @@
 
 #define TELEMETRY_EXTI_PRIO             0 // required for soft serial
 
-// Rotary Encoder
-#define ROTARY_ENCODER_GPIO             GPIOH
-#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_11 // PH.11
-#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_10 // PH.10
-#define ROTARY_ENCODER_POSITION         ((ROTARY_ENCODER_GPIO->IDR >> 10) & 0x03)
-#define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_11
-#define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_10
-#if !defined(USE_EXTI15_10_IRQ)
-  #define USE_EXTI15_10_IRQ
-  #define EXTI15_10_IRQ_Priority 5
-#endif
-#define ROTARY_ENCODER_EXTI_PORT        LL_SYSCFG_EXTI_PORTH
-#define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE11
-#define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE10
-#define ROTARY_ENCODER_TIMER            TIM12
-#define ROTARY_ENCODER_TIMER_IRQn       TIM8_BRK_TIM12_IRQn
-#define ROTARY_ENCODER_TIMER_IRQHandler TIM8_BRK_TIM12_IRQHandler
-
-#if defined(RADIO_T15)
-  #define ROTARY_ENCODER_INVERTED
-#endif
-
 // 6POS SW
 #if defined(RADIO_V16)
   #define SIXPOS_SWITCH_INDEX             5
@@ -104,13 +82,6 @@
 #if defined(USB_CHARGER)
   #define USB_CHARGER_GPIO              GPIO_PIN(GPIOG, 11) // PG.11
   #define USB_USBDet_GPIO               GPIO_PIN(GPIOG, 13) // PG.13
-#endif
-
-// S.Port update connector
-#if defined(RADIO_FAMILY_T16)
-  #define SPORT_MAX_BAUDRATE            400000
-#else
-  #define SPORT_MAX_BAUDRATE            250000 // < 400000
 #endif
 
 #if defined(PCBX10) && !defined(RADIO_FAMILY_T16) && !defined(RADIO_T15)
@@ -265,12 +236,6 @@
 #define USE_EXTI4_IRQ
 #define EXTI4_IRQ_Priority 5
 
-// USB
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOA, 9)  // PA.09
-#define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
-#define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
-#define USB_GPIO_AF                     GPIO_AF10
-
 // LCD
 #if defined(RADIO_T15)
   #define LCD_NRST_GPIO                   GPIOG
@@ -408,30 +373,6 @@
 #endif
   #define AUDIO_MUTE_DELAY              500  // ms
 #endif
-
-
-// Touch
-#if defined(HARDWARE_TOUCH)
-  #define TOUCH_I2C_BUS                   I2C_Bus_1
-  #define TOUCH_INT_GPIO                  GPIO_PIN(GPIOH, 2)  // PH.02
-#if defined(PCBX12S)
-  #define TOUCH_RST_GPIO                  GPIO_PIN(GPIOF, 7)  // PF.7
-#else
-  #define TOUCH_RST_GPIO                  GPIO_PIN(GPIOF, 10)  // PF.10
-#endif
-  #define TOUCH_INT_EXTI_Line             LL_EXTI_LINE_2
-  #define TOUCH_INT_EXTI_Port             LL_SYSCFG_EXTI_PORTH
-  #define TOUCH_INT_EXTI_SysCfgLine       LL_SYSCFG_EXTI_LINE2
-  // TOUCH_INT_EXTI IRQ
-#if !defined(USE_EXTI2_IRQ)
-  #define USE_EXTI2_IRQ
-  #define EXTI2_IRQ_Priority  9
-#endif
-
-#if defined(PCBX12S)
-  #define TOUCH_PANEL_INVERTED
-#endif
-#endif // HARDWARE_TOUCH
 
 // First I2C Bus
 #if defined(RADIO_TX16S) || defined(RADIO_F16) || defined(PCBX12S) || defined(RADIO_T15) || defined(RADIO_V16)
@@ -606,23 +547,6 @@
 #else
   #define INTMODULE_HEARTBEAT_TRIGGER           GPIO_RISING
 #endif
-
-// Trainer Port
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOC, 6) // PC.06
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH1
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOC, 7) // PC.07
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH2
-
-#define TRAINER_DETECT_GPIO             GPIO_PIN(GPIOB, 4) // PB.04
-#if !defined(PCBX10) || defined(RADIO_FAMILY_T16)
-  #define TRAINER_DETECT_INVERTED
-#endif
-
-#define TRAINER_TIMER                   TIM3
-#define TRAINER_TIMER_IRQn              TIM3_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM3_IRQHandler
-#define TRAINER_GPIO_AF                 GPIO_AF2
-#define TRAINER_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 // Trainer CPPM input on heartbeat pin
 #if !defined(RADIO_V16)

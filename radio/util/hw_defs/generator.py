@@ -98,6 +98,10 @@ def generate_from_template(json_filename, template_filename, target):
             imu=hw_def.imu,
             rotenc=hw_def.rotenc,
             haptic=hw_def.haptic,
+            touch=hw_def.touch,
+            usb=hw_def.usb,
+            trainer=hw_def.trainer,
+            hardware=hw_def.hardware,
             key_lock_combo=hw_def.key_lock_combo,
         )
 
