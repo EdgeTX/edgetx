@@ -457,7 +457,8 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
    battery reuse). New `hal_g11p.h` included from `hal.h` for `RADIO_G11P`; cmake configure
    verified for both G11P and ST16 (full compile after tasks 4/6). -> commit & push
 4. [x] Radio: `bsp_io` direct-GPIO (no expander) path (`bsp_io.h` G11P branch +
-   `g11p_bsp_io.cpp`). cmake configure verified. -> commit & push
+   `g11p_bsp_io.cpp`). cmake configure verified. **Superseded by section 9** (use PL18
+   direct-GPIO style, no BSP driver). -> commit & push
 5. [~] Confirm the logical input map (3.4 TODOs): inferred from schematic + NB4P and
    marked TODO; to be confirmed on hardware. -> commit & push
 6. [x] Radio: `g11p_key_driver.cpp` / `g11p_switch_driver.cpp` (custom ADC-ladder decode)
@@ -487,6 +488,48 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
     `libsimulator`, and Companion (`companion211`) all build. Hardware flash/bring-up
     still pending. -> commit & push
 
+17. [ ] Apply section 9 fix — delete `g11p_bsp_io.cpp`, PL18-style `bsp_io.h` stub, direct
+    GPIO in `board.cpp` / `lcd_driver.h`; rebuild G11P firmware. -> commit & push
+
 **Outstanding:** `.github/workflows/actions.yml` CI matrix needs `g11p` added, but the
 push token lacks `workflow` scope; apply manually or with a suitably-scoped token. Hardware
 bring-up items remain (input map, panel timings, etc. - see section 7).
+
+---
+
+## 9. Fix — replace the G11P BSP driver with direct GPIO (PL18 style)
+
+The initial G11P implementation added `g11p_bsp_io.cpp` and a `BSP_*` mapping. That is
+wrong: G11P has no I/O expander, and EdgeTX already has a direct-GPIO pattern in the PL18
+target. Reference: `radio/src/targets/pl18/bsp_io.h` is a **header-only stub**
+
+```cpp
+inline SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw, SwitchCategory cat, uint8_t idx)
+{ return SWITCH_HW_MID; }
+```
+
+and all real I/O is done with **direct GPIO**: macros in `hal.h` (`LCD_NRST_GPIO`,
+`AUDIO_RST_GPIO`, `AUDIO_MUTE_GPIO`, `UCHARGER_EN_GPIO`, module power, LED strip) plus
+`gpio_init`/`gpio_write` in `board.cpp`. There is **no BSP driver**.
+
+Fix steps:
+
+1. **Delete** `radio/src/targets/st16/g11p_bsp_io.cpp`.
+2. **`radio/src/targets/st16/bsp_io.h`** — make the `RADIO_G11P` branch a PL18-style
+   header-only stub (no enum, no `bsp_io_init`/`bsp_output_*`), only the inline
+   `bsp_get_switch_position()` (kept so `boards/generic_stm32/switches.cpp` still compiles).
+3. **`radio/src/targets/st16/CMakeLists.txt`** — for G11P compile **no** bsp source
+   (`BSP_IO_SRC` empty). Keep `g11p_switch_driver.cpp` in the firmware `board` library.
+4. **`radio/src/targets/st16/board.cpp`** — remove the ST16 expander calls from the G11P
+   path (`bsp_io_init()`, `bsp_output_set(BSP_PWR_LED)`), and instead `gpio_init(...)` the
+   direct outputs (`LCD_NRST_GPIO`, `LCD_SPI_CS_GPIO`, `CHARGE_EN_GPIO`, `AUDIO_RST_GPIO`,
+   `AUDIO_MUTE_GPIO`). The G11P `INTERNAL/EXTERNAL_MODULE_ON/OFF` and
+   `audio_set_rst_pin`/`audio_set_mute_pin` already use direct GPIO.
+5. **`radio/src/targets/st16/lcd_driver.h`** — for G11P define `LCD_NRST_HIGH/LOW` and
+   `LCD_CS_HIGH/LOW` with `gpio_set/gpio_clear` on `LCD_NRST_GPIO` / `GPIO_PIN(GPIOH, 8)`
+   instead of the `bsp_output_set(BSP_LCD_*)` versions.
+6. **`radio/src/targets/st16/hal_g11p.h`** — keep the direct GPIO macros
+   (`AUDIO_RST_GPIO`, `AUDIO_MUTE_GPIO`, `CHARGE_EN_GPIO`, `LCD_NRST_GPIO`,
+   `LCD_SPI_CS_GPIO`) and drop the unused expander `USE_EXTI9_5_IRQ`.
+7. Rebuild the G11P firmware and confirm no `bsp_*`/`BSP_*` references remain on the G11P
+   compile path. Commit as `fix(g11p): use direct GPIO I/O instead of a BSP driver`.
