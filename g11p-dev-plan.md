@@ -97,12 +97,22 @@ Notes / implications:
 
 - **No I/O expander on G11P.** ST16 uses a PCA9555/NCA9555 on I2C3 (PH7/PH8, INT PH6);
   G11P repurposes PH6/PH7/PH8 and drives inputs from the ADC ladders + direct GPIO.
-- **Inputs are surface-radio style (NB4P-like)**: `TH_ADC`/`ST_ADC` sticks, `SW1-4_ADC`
-  + `VR2A`, `K12_ADC`/`K34_ADC` keys, `TR1-4_ADC` trims.
-- **PPM moved** PE5/PE6 -> PF6/PF7; PE5/PE6 become RF power-on / touch interrupt.
+- **Inputs are surface-radio style (NB4P-like)**: `TH_ADC`/`ST_ADC` sticks (pure analog),
+  `SW1-4_ADC` + `VR2A`, `K12_ADC`/`K34_ADC` keys, `TR1-4_ADC` trims.
+- **LCD is 320x480 portrait**, not 480x320: the P4 note reads `320*480*32/8=614.4KB` and
+  the panel is `MS0621-32TFL11E` (same orientation model as NB4P).
+- **LEDs**: a single WS2812 chain of 2 logical LEDs (`LED_STRIP_LENGTH = 2`); the 4 physical
+  `HI-1204RGBC` parts are two parallel pairs. `LED_DATA_IN` (PA15) drives the chain;
+  `LED_DATA2` (PB13) role to confirm.
+- **PPM moved** PE5/PE6 -> PF6/PF7. **No external module bay**, but the trainer port
+  (`PPM_IN`/`PPM_OUT` = PF6/PF7 = **UART7**) is exposed as the **external module UART**.
+  PE5/PE6 become RF power-on / touch interrupt.
 - **SPORT UART5 (PB12/PB13)** is gone; PB12/PB13 are RF DFU / LED data.
-- **Touch** moves to PB9 (SDA) / PB8 (SCL) / PE6 (INT) / PI9 (reset); the old ST16
-  `SENSOR_*` (IMU) I2C lines on PB7/PB8 are not present the same way.
+- **Touch** moves to PB9 (SDA) / PB8 (SCL) / PE6 (INT) / PI9 (reset); reuse the PL18
+  standard FlySky touch driver. The old ST16 `SENSOR_*` (IMU) I2C lines on PB7/PB8 are not
+  present.
+- **Absent on G11P** (per schematic scan): external module bay, Bluetooth, wireless charger,
+  S.Port, IMU/gyro - so those ST16 features are dropped.
 - **Flash note (cross-validation finding)**: ST16 `hal.h` defines
   `FLASH_SPI = SPI6` on PG6/PG12/PG13/PG14, but the ST16 schematic routes the NOR as
   `FLASH_SPI2` on **PB4/PA9/PB14/PB15**, and `extflash_driver.cpp` actually drives the
@@ -136,16 +146,30 @@ Notes / implications:
 
 - `radio/src/targets/st16/hal.h`: wrap G11P-specific definitions in
   `#if defined(RADIO_G11P)` (module power/RF, touch, audio RST/MUTE, LCD CS/NRST/ID/SDA/SCL,
-  SPI NOR bank, ADC key/switch/trim channels, battery, PPM, trainer, LED strip, haptic/motor).
+  SPI NOR bank, ADC key/switch/trim channels, battery, PPM, external module UART, LED,
+  haptic/motor). Set `LCD_W=320`, `LCD_H=480` (portrait).
+- **LCD / LTDC**: keep the same RGB pin mapping but add 320x480 timings/polarity in
+  `lcd_driver.cpp` for G11P (exact porch/polarity from the `MS0621-32TFL11E` datasheet -
+  TODO).
+- **Touch**: reuse `targets/pl18/touch_driver.cpp` (standard FlySky touch) rather than
+  ST16's `tp_cst340`, wiring `TOUCH_*` to PB9/PB8 (I2C) + PE6 (INT) + PI9 (RST).
+- **External module**: **no bay**, but expose the trainer port as the ext-module UART -
+  `EXTMODULE` with `EXTMODULE_USART = UART7`, TX=PF7 / RX=PF6. This replaces ST16's UART4
+  ext module and its PE5/PE6 TIM15 trainer.
 - `radio/src/targets/st16/board.h`: G11P `NUM_TRIMS`, function-switch count, battery
-  thresholds/divider, stick dead-zone.
-- `radio/src/targets/st16/board.cpp`: branch module on/off, audio RST/MUTE, and init flow.
+  thresholds/divider (reuse the ST16 2S config), stick dead-zone.
+- `radio/src/targets/st16/board.cpp`: branch module on/off, audio RST/MUTE, and init flow;
+  **drop `flysky_gimbal_init()`** (sticks are pure analog).
 - `radio/src/targets/st16/usb_descriptor.h`: `#elif defined(RADIO_G11P)` with
   `USB_NAME "G11P"` and product string.
 - `radio/src/targets/st16/bsp_io.h` / `bsp_io.cpp`: G11P has **no PCA95xx**; add a
   `#if defined(RADIO_G11P)` direct-GPIO implementation (or `g11p_bsp_io.cpp`) mapping the
   `BSP_*` outputs (`BSP_INT_PWR`, `BSP_EXT_PWR`, `BSP_AUDIO_RST`, `BSP_PA_NMUTE`,
   `BSP_CHARGE_EN`, `BSP_PWR_LED`, `BSP_LCD_NRST`, `BSP_LCD_CS`) to the nets above.
+- **LEDs**: single WS2812 chain, `LED_STRIP_LENGTH = 2` logical LEDs (4 physical in two
+  parallel pairs); `LED_DATA_IN` (PA15); confirm `LED_DATA2` (PB13) role.
+- **Audio**: VS1053B on SPI1 with `INVERTED_MUTE_PIN` (`PA_NMUTE`=PD5, `VS1053B_RST`=PD6);
+  LM4890 speaker amp.
 - New `radio/src/targets/st16/g11p_key_driver.cpp` and `g11p_switch_driver.cpp`, modelled
   on `pl18/nb4p_key_driver.cpp` / `nb4p_switch_driver.cpp` (see 3.4).
 - `extflash_driver.*`: keep the QSPI implementation; do not port the stale `FLASH_SPI`/SPI6
@@ -405,12 +429,14 @@ Notes:
   names/types for SW1-SW4; trim axes and whether TR1 is a true 5-way; purpose of `TR_ADC`;
   whether `K5` / `VR1` exist and where they wire. Exact K12/K34 ladder resistor values to
   derive thresholds.
-- Presence/absence of external module bay, trainer, SPORT, Bluetooth, wireless charge, IMU
-  and their pin assignments (the relevant ST16 pins are repurposed on G11P).
-- Touch controller model/I2C address (moved to PB9/PB8, INT PE6).
-- LCD resolution/orientation (schematics suggest 480x320, same RGB pinout) and audio mute
-  polarity.
-- Companion fourCC: use a unique G11P magic (default) or share ST16's (see 5.5).
+- **Resolved**: LCD is 320x480 portrait; no external module bay / Bluetooth / wireless
+  charger / S.Port / IMU; trainer port exposed as the external module UART (UART7);
+  touch reuses the PL18 FlySky driver; battery reuses the ST16 2S config; unique G11P
+  fourCC.
+- `MS0621-32TFL11E` panel timing/polarity values for the G11P LTDC config.
+- `LED_DATA2` (PB13) role (second parallel LED group vs alternate data line).
+- Audio mute polarity (`INVERTED_MUTE_PIN`) on G11P.
+- Bootloader entry key/button on G11P.
 
 ---
 
@@ -418,7 +444,9 @@ Notes:
 
 1. [x] Extract and save `st16-vs-g11p-pinout.md`.
 2. [ ] Radio: `targets/st16/CMakeLists.txt` `PCBREV` branch + `RADIO_G11P`.
-3. [ ] Radio: `hal.h` / `board.h` / `board.cpp` / `usb_descriptor.h` G11P branches.
+3. [ ] Radio: `hal.h` / `board.h` / `board.cpp` / `usb_descriptor.h` G11P branches
+   (LCD 320x480 portrait, touch via PL18 driver, `EXTMODULE` on UART7, no flysky gimbal,
+   battery reuse).
 4. [ ] Radio: `bsp_io` direct-GPIO (no expander) path.
 5. [ ] Confirm the logical input map (3.4 TODOs) from the product/hardware.
 6. [ ] Radio: `g11p_key_driver.cpp` / `g11p_switch_driver.cpp` (custom ADC-ladder decode).
