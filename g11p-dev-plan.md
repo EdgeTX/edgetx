@@ -473,7 +473,7 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
    -> commit & push
 10. [x] Companion: `boards.cpp` (fourCC `0x4F78746F`, flash/eeprom, LCD 480x320 readout,
     Surface, default internal module AFHDS3, batt range, name). -> commit & push
-11. [ ] Companion: `opentxinterface.cpp` firmware registration + ST16-branch capabilities.
+11. [x] Companion: `opentxinterface.cpp` firmware registration + ST16-branch capabilities.
     -> commit & push
 12. [ ] Companion: `generalsettings.cpp` / `moduledata.cpp` G11P branches. -> commit & push
 13. [ ] Companion build: `companion/src/CMakeLists.txt` flavour + `build-companion.sh` plugin.

@@ -304,7 +304,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       else
         return 40;
     case HasAuxSerialMode:
-      return (IS_FAMILY_HORUS_OR_T16(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))) ||
+      return (IS_FAMILY_HORUS_OR_T16(board) && !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board) || IS_FLYSKY_G11P(board))) ||
              (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board)) ||
              IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board) || IS_RADIOMASTER_MT12(board);
     case HasAux2SerialMode:
@@ -333,7 +333,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
               IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_GX12(board) || IS_RADIOMASTER_MT12(board) ||
               IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_TX12(board) || IS_RADIOMASTER_TX12_MK2(board) ||
               IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_ZORRO(board) ||
-              IS_FLYSKY_PA01(board) || IS_FLYSKY_ST16(board));
+              IS_FLYSKY_PA01(board) || IS_FLYSKY_ST16(board) || IS_FLYSKY_G11P(board));
     case HasSoftwareSerialPower:
       return IS_RADIOMASTER_TX16S(board);
     case HasIntModuleMulti:
@@ -356,7 +356,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case BacklightLevelMin:
       if (IS_HORUS_X12S(board)) {
         return 5;
-      } else if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)) {
+      } else if (IS_FAMILY_T16(board) || IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board) || IS_FLYSKY_G11P(board)) {
         return 1;
       } else {
         return 46;
@@ -532,6 +532,13 @@ void registerOpenTxFirmwares()
 
   /* FlySky ST16 board */
   firmware = new OpenTxFirmware(FIRMWAREID("st16"), Firmware::tr("FlySky ST16"), BOARD_FLYSKY_ST16);
+  addOpenTxFrskyOptions(firmware);
+  firmware->addOption(opt_bt);
+  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
+  registerOpenTxFirmware(firmware);
+
+  /* FlySky G11P board */
+  firmware = new OpenTxFirmware(FIRMWAREID("g11p"), Firmware::tr("FlySky G11P"), BOARD_FLYSKY_G11P);
   addOpenTxFrskyOptions(firmware);
   firmware->addOption(opt_bt);
   addOpenTxRfOptions(firmware, FLEX + AFHDS3);
