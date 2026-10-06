@@ -49,6 +49,9 @@ POT_CONFIG = {
         "P1": {"default": "POT"},
         "P2": {"default": "POT"}
     },
+    "g11p": {
+        "P1": {"default": "POT"}
+    },
     "v12": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"},

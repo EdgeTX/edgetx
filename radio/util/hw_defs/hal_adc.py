@@ -3,7 +3,7 @@ from pot_config import pot_cfg_by_target
 MAX_POTS = 4
 MAX_SLIDERS = 4
 MAX_EXTS = 4
-MAX_RAWS = 4
+MAX_RAWS = 12
 
 
 def eprint(*args, **kwargs):

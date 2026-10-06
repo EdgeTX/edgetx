@@ -77,6 +77,12 @@ SWITCH_CONFIG = {
         "SA" : { "default": "TOGGLE" },
         "SB" : { "default": "TOGGLE" }
     },
+    "g11p": {
+        "SA": { "default": "TOGGLE" },
+        "SB": { "default": "3POS"   },
+        "SC": { "default": "3POS"   },
+        "SD": { "default": "3POS"   }
+    },
     "st16": {
         "SA": { "default": "2POS"   },
         "SB": { "default": "3POS"   },

@@ -709,6 +709,28 @@ LEGACY_NAMES = [
         }
     },
     {
+        "targets": {"g11p"},
+        "inputs": {
+            "ST": {
+                "yaml": "ST",
+                "lua": "ste",
+                "description": "Steering"
+            },
+            "TH": {
+                "yaml": "TH",
+                "lua": "thr",
+                "description": "Throttle"
+            },
+            "P1": {
+                "yaml": "POT1",
+                "lua": "s1",
+                "label": "VR2",
+                "short_label": "2",
+                "description": "Potentiometer VR2"
+            }
+        }
+    },
+    {
         "targets": {"v12", "v14"},
         "inputs": {
             "LH": {
