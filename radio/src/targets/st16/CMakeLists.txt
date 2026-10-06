@@ -123,16 +123,19 @@ set(CLI ON CACHE BOOL "Enable CLI")
 
 set(TARGET_SRC_DIR targets/${TARGET_DIR})
 
-# G11P reuses the PL18 standard FlySky touch driver
+# G11P reuses the PL18 standard FlySky touch driver and a direct-GPIO BSP
+# (no PCA95xx expander).
 if(PCBREV STREQUAL G11P)
   set(TOUCH_DRIVER_SRC ${RADIO_SRC_DIR}/targets/pl18/touch_driver.cpp)
+  set(BSP_IO_SRC ${TARGET_SRC_DIR}/g11p_bsp_io.cpp)
 else()
   set(TOUCH_DRIVER_SRC ${TARGET_SRC_DIR}/touch_driver.cpp)
+  set(BSP_IO_SRC ${TARGET_SRC_DIR}/bsp_io.cpp)
 endif()
 
 set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/board.cpp
-  ${TARGET_SRC_DIR}/bsp_io.cpp
+  ${BSP_IO_SRC}
   ${TARGET_SRC_DIR}/key_driver.cpp
   ${TARGET_SRC_DIR}/system_init.cpp
   ${TARGET_SRC_DIR}/lcd_driver.cpp

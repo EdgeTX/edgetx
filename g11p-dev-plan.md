@@ -456,8 +456,10 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
    (LCD 320x480 portrait, touch via PL18 driver, `EXTMODULE` on UART7, no flysky gimbal,
    battery reuse). New `hal_g11p.h` included from `hal.h` for `RADIO_G11P`; cmake configure
    verified for both G11P and ST16 (full compile after tasks 4/6). -> commit & push
-4. [ ] Radio: `bsp_io` direct-GPIO (no expander) path. -> commit & push
-5. [ ] Confirm the logical input map (3.4 TODOs) from the product/hardware. -> commit & push
+4. [x] Radio: `bsp_io` direct-GPIO (no expander) path (`bsp_io.h` G11P branch +
+   `g11p_bsp_io.cpp`). cmake configure verified. -> commit & push
+5. [~] Confirm the logical input map (3.4 TODOs): inferred from schematic + NB4P and
+   marked TODO; to be confirmed on hardware. -> commit & push
 6. [ ] Radio: `g11p_key_driver.cpp` / `g11p_switch_driver.cpp` (custom ADC-ladder decode).
    -> commit & push
 7. [ ] Tooling + CI registration (`build-common.sh`, `build-flysky.py`, generators,
