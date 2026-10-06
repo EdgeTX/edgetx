@@ -269,6 +269,11 @@ target_link_libraries(${COMPANION_NAME} PRIVATE
   prefsedit
 )
 
+# Companion can hand off to the standalone simulator (--simulator)
+target_compile_definitions(${COMPANION_NAME} PRIVATE
+  SIMULATOR_EXE_NAME="${SIMULATOR_NAME}"
+)
+
 PrintTargetReport("${COMPANION_NAME}")
 
 ############# Standalone simulator ###############
@@ -446,9 +451,18 @@ elseif(APPLE)
   set(companion_app_dir "${COMPANION_OSX_APP_BUNDLE_NAME}.app")
   set(companion_res_dir "${companion_app_dir}/Contents/Resources")
 
-  # Only Companion is distributed for macOS
   install(TARGETS ${COMPANION_NAME}
           BUNDLE DESTINATION . COMPONENT Runtime)
+
+  # The standalone simulator ships inside the Companion bundle as a plain executable,
+  # sharing its Qt frameworks, SDL and WASM modules
+  set_target_properties(${SIMULATOR_NAME} PROPERTIES
+      MACOSX_BUNDLE FALSE
+      INSTALL_RPATH "@executable_path/../Frameworks"
+      BUILD_WITH_INSTALL_RPATH TRUE
+  )
+  install(TARGETS ${SIMULATOR_NAME}
+          RUNTIME DESTINATION "${companion_app_dir}/Contents/MacOS" COMPONENT Runtime)
 
   # libsims
   install(DIRECTORY ${CMAKE_BINARY_DIR}/plugins/
@@ -559,6 +573,7 @@ elseif(APPLE)
     CONTENT "
       qt_deploy_runtime_dependencies(
         EXECUTABLE \"${companion_app_dir}\"
+        ADDITIONAL_EXECUTABLES \"${companion_app_dir}/Contents/MacOS/${SIMULATOR_NAME}\"
         NO_TRANSLATIONS
         NO_COMPILER_RUNTIME
         GENERATE_QT_CONF
