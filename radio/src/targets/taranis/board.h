@@ -110,10 +110,6 @@ enum {
 
 #endif
 
-#if defined(RADIO_MT12)
-  #define SURFACE_RADIO  true
-#endif
-
 #define HAS_HARDWARE_OPTIONS
 
 PACK(typedef struct {

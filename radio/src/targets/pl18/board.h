@@ -29,10 +29,6 @@
 #include "hal/serial_port.h"
 #include "hal/watchdog_driver.h"
 
-#if defined(RADIO_NB4P)
-  #define SURFACE_RADIO  true
-#endif
-
 #define FLASHSIZE                       0x200000
 #define FLASH_PAGESIZE                  256
 #define BOOTLOADER_SIZE                 0x20000

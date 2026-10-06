@@ -196,8 +196,13 @@
 {% endfor %}
 {% endif -%}
 
-{% if hardware and hardware.sport_max_baudrate is not none %}
+{% if hardware %}
 
 // Hardware
+{% if hardware.sport_max_baudrate is not none %}
 #define SPORT_MAX_BAUDRATE {{ hardware.sport_max_baudrate }}
+{% endif %}
+{% if hardware.surface %}
+#define SURFACE_RADIO
+{% endif %}
 {% endif -%}
