@@ -123,6 +123,13 @@ set(CLI ON CACHE BOOL "Enable CLI")
 
 set(TARGET_SRC_DIR targets/${TARGET_DIR})
 
+# G11P reuses the PL18 standard FlySky touch driver
+if(PCBREV STREQUAL G11P)
+  set(TOUCH_DRIVER_SRC ${RADIO_SRC_DIR}/targets/pl18/touch_driver.cpp)
+else()
+  set(TOUCH_DRIVER_SRC ${TARGET_SRC_DIR}/touch_driver.cpp)
+endif()
+
 set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/board.cpp
   ${TARGET_SRC_DIR}/bsp_io.cpp
@@ -159,10 +166,9 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:board_bl>)
 add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${TARGET_SRC_DIR}/led_driver.cpp
-  ${TARGET_SRC_DIR}/touch_driver.cpp
+  ${TOUCH_DRIVER_SRC}
   ${TARGET_SRC_DIR}/battery_driver.cpp  
   targets/common/arm/stm32/heartbeat_driver.cpp
-  targets/common/arm/stm32/lsm6ds_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp
   targets/common/arm/stm32/stm32_pulse_driver.cpp
@@ -174,6 +180,11 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/trainer_driver.cpp
 )
 add_dependencies(board board_lib)
+
+if(NOT PCBREV STREQUAL G11P)
+  target_sources(board PRIVATE targets/common/arm/stm32/lsm6ds_driver.cpp)
+endif()
+
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
 include_directories(${RADIO_SRC_DIR}/fonts/colorlcd gui/${GUI_DIR} gui/${GUI_DIR}/layouts)

@@ -75,10 +75,17 @@ void INTERNAL_MODULE_OFF();           /*gpio_clear(INTMODULE_PWR_GPIO);*/
 void EXTERNAL_MODULE_ON();            /*gpio_set(EXTMODULE_PWR_GPIO)*/
 void EXTERNAL_MODULE_OFF();           /*gpio_clear(EXTMODULE_PWR_GPIO)*/
 #define EXTERNAL_MODULE_PWR_OFF         EXTERNAL_MODULE_OFF
+#if defined(RADIO_G11P)
+#define BLUETOOTH_MODULE_ON()
+#define BLUETOOTH_MODULE_OFF()
+#define IS_INTERNAL_MODULE_ON()         (false)
+#define IS_EXTERNAL_MODULE_ON()         (false)
+#else
 #define BLUETOOTH_MODULE_ON()           gpio_clear(BLUETOOTH_ON_GPIO)
 #define BLUETOOTH_MODULE_OFF()          gpio_set(BLUETOOTH_ON_GPIO)
 #define IS_INTERNAL_MODULE_ON()         (false)
 #define IS_EXTERNAL_MODULE_ON()         (GPIO_ReadInputDataBit(EXTMODULE_PWR_GPIO, EXTMODULE_PWR_GPIO_PIN) == Bit_SET)
+#endif
 
 #else
 
@@ -114,7 +121,11 @@ void EXTERNAL_MODULE_OFF();           /*gpio_clear(EXTMODULE_PWR_GPIO)*/
 #define NUM_FUNCTIONS_SWITCHES 0
 #endif
 
+#if defined(RADIO_G11P)
+#define NUM_TRIMS                       4
+#else
 #define NUM_TRIMS                       8
+#endif
 #define DEFAULT_STICK_DEADZONE          2
 
 #define BATTERY_WARN                  74 // 7.4V
@@ -195,10 +206,17 @@ bool isBacklightEnabled();
                         : g_eeGeneral.blOffBright);                       \
   }
 
+#if defined(RADIO_G11P)
+#define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO) ? 1 : 0
+#define IS_UCHARGER_CHARGE_END_ACTIVE()   gpio_read(UCHARGER_CHARGE_END_GPIO) ? 0 : 1
+#define ENABLE_UCHARGER()                 gpio_set(CHARGE_EN_GPIO);
+#define DISABLE_UCHARGER()                gpio_clear(CHARGE_EN_GPIO)
+#else
 #define IS_UCHARGER_ACTIVE()              gpio_read(UCHARGER_GPIO) ? 1 : 0
 #define IS_UCHARGER_CHARGE_END_ACTIVE()   gpio_read(UCHARGER_CHARGE_END_GPIO) ? 0 : 1
 #define ENABLE_UCHARGER()                 bsp_output_set(BSP_CHARGE_EN);
 #define DISABLE_UCHARGER()                bsp_output_clear(BSP_CHARGE_EN)  
+#endif
 
 #if defined(__cplusplus) && !defined(SIMU)
 }

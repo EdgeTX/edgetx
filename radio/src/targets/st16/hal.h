@@ -21,6 +21,10 @@
 
 #pragma once
 
+#if defined(RADIO_G11P)
+#include "hal_g11p.h"
+#else
+
 // DMA streams:
 // 
 // - LEDs       TIM2_UP: DMA1 stream 0
@@ -532,3 +536,5 @@
 #define LCD_PHYS_H                      LCD_W
 
 #define LCD_DEPTH                       16
+
+#endif // !RADIO_G11P

@@ -452,9 +452,10 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
 1. [x] Extract and save `st16-vs-g11p-pinout.md`. -> commit & push (done: `95e032d352`)
 2. [x] Radio: `targets/st16/CMakeLists.txt` `PCBREV` branch + `RADIO_G11P` (cmake
    configure verified for `-DPCBREV=G11P` and plain ST16). -> commit & push
-3. [ ] Radio: `hal.h` / `board.h` / `board.cpp` / `usb_descriptor.h` G11P branches
+3. [x] Radio: `hal.h` / `board.h` / `board.cpp` / `usb_descriptor.h` G11P branches
    (LCD 320x480 portrait, touch via PL18 driver, `EXTMODULE` on UART7, no flysky gimbal,
-   battery reuse). -> commit & push
+   battery reuse). New `hal_g11p.h` included from `hal.h` for `RADIO_G11P`; cmake configure
+   verified for both G11P and ST16 (full compile after tasks 4/6). -> commit & push
 4. [ ] Radio: `bsp_io` direct-GPIO (no expander) path. -> commit & push
 5. [ ] Confirm the logical input map (3.4 TODOs) from the product/hardware. -> commit & push
 6. [ ] Radio: `g11p_key_driver.cpp` / `g11p_switch_driver.cpp` (custom ADC-ladder decode).

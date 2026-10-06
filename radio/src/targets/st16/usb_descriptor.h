@@ -21,6 +21,12 @@
 
 #pragma once
 
-#define USB_NAME                     "ST16"
-#define USB_MANUFACTURER             'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */
-#define USB_PRODUCT                  'S', 'T', '1', '6', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#if defined(RADIO_G11P)
+  #define USB_NAME                     "G11P"
+  #define USB_MANUFACTURER             'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'G', '1', '1', 'P', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#else
+  #define USB_NAME                     "ST16"
+  #define USB_MANUFACTURER             'F', 'l', 'y', 'S', 'k', 'y', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'S', 'T', '1', '6', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#endif

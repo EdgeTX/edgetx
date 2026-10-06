@@ -48,7 +48,9 @@
 #include "sdcard.h"
 #include "debug.h"
 
+#if !defined(RADIO_G11P)
 #include "flysky_gimbal_driver.h"
+#endif
 #include "timers_driver.h"
 
 #include "battery_driver.h"
@@ -75,6 +77,27 @@ extern "C" void initialise_monitor_handles();
 extern "C" void flushFTL();
 #endif
 
+#if defined(RADIO_G11P)
+// G11P: internal RF module (M0) power is on RF_PWR_ON (PE.05); there is no
+// external module bay and no expander.
+void INTERNAL_MODULE_ON()
+{
+  gpio_set(RF_PWR_ON_GPIO);
+}
+
+void INTERNAL_MODULE_OFF()
+{
+  gpio_clear(RF_PWR_ON_GPIO);
+}
+
+void EXTERNAL_MODULE_ON()
+{
+}
+
+void EXTERNAL_MODULE_OFF()
+{
+}
+#else
 void INTERNAL_MODULE_ON()
 {
   bsp_output_clear(BSP_INT_PWR);
@@ -94,6 +117,7 @@ void EXTERNAL_MODULE_OFF()
 {
   bsp_output_set(BSP_EXT_PWR);
 }
+#endif
 
 static stm32_spi_t audioSpi =
 {
@@ -109,11 +133,15 @@ static stm32_spi_t audioSpi =
 
 static void audio_set_rst_pin(bool set)
 {
+#if defined(RADIO_G11P)
+  gpio_write(AUDIO_RST_GPIO, set);
+#else
   if (set) {
     bsp_output_set(BSP_AUDIO_RST);
   } else {
     bsp_output_clear(BSP_AUDIO_RST);
   }
+#endif
 }
 
 static void audio_set_mute_pin(bool set)
@@ -121,11 +149,15 @@ static void audio_set_mute_pin(bool set)
 #if defined(INVERTED_MUTE_PIN)
   set = !set;  
 #endif
+#if defined(RADIO_G11P)
+  gpio_write(AUDIO_MUTE_GPIO, set);
+#else
   if (set) {
     bsp_output_set(BSP_PA_NMUTE);
   } else {
     bsp_output_clear(BSP_PA_NMUTE);
   }
+#endif
 }
 
 static vs1053b_t audioConfig =
@@ -201,7 +233,9 @@ void boardInit()
   battery_charge_init();
 
   // init_trainer();
+#if !defined(RADIO_G11P)
   flysky_gimbal_init();
+#endif
 
   usbInit();
 
