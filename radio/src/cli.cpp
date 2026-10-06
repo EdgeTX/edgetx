@@ -59,7 +59,13 @@
 #define CLI_COMMAND_MAX_LEN            256
 
 // CLI receive buffer size
+#if defined(CLI_FILE_ACCESS)
+// Holds one fput block (CLI_FPUT_MAX) while the SD card is busy
+#define CLI_FPUT_MAX 4096
+#define CLI_RX_BUFFER_SIZE (CLI_FPUT_MAX + 64)
+#else
 #define CLI_RX_BUFFER_SIZE 256
+#endif
 
 #define CLI_PRINT_BUFFER_SIZE 128
 
@@ -380,6 +386,186 @@ int cliLs(const char ** argv)
   }
   return 0;
 }
+
+#if defined(CLI_FILE_ACCESS)
+#if defined(USB_SERIAL)
+void usbSerialPutc(void*, uint8_t);
+uint32_t usbSerialFreeSpace();
+#endif
+
+// The USB TX ring overwrites instead of blocking: wait until it can take `need` more bytes
+static void cliTxWait(uint32_t need)
+{
+#if defined(USB_SERIAL)
+  if (cliSendCb == usbSerialPutc) {
+    for (int i = 0; i < 1000 && usbSerialFreeSpace() < need; i++) sleep_ms(1);
+  }
+#endif
+}
+
+static const char * cliArg(const char ** argv, int index)
+{
+  return argv[index] ? argv[index] : "";
+}
+
+static bool cliUInt(const char ** argv, int index, uint32_t * val)
+{
+  const char * s = cliArg(argv, index);
+  char * end = nullptr;
+  *val = strtoul(s, &end, 0);
+  if (end == s || *end != '\0') {
+    cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], s);
+    return false;
+  }
+  return true;
+}
+
+// lsl <dir>: "<d|f> <size> <name>" per entry
+int cliLsl(const char ** argv)
+{
+  FILINFO fno;
+  DIR dir;
+  FRESULT res = f_opendir(&dir, cliArg(argv, 1));
+  if (res != FR_OK) {
+    cliSerialPrint("%s: Invalid directory \"%s\"", argv[0], cliArg(argv, 1));
+    return 0;
+  }
+  for (;;) {
+    res = f_readdir(&dir, &fno);
+    if (res != FR_OK || fno.fname[0] == 0) break;
+    cliSerialPrint("%c %lu %s", (fno.fattrib & AM_DIR) ? 'd' : 'f',
+                   (unsigned long)fno.fsize, fno.fname);
+  }
+  f_closedir(&dir);
+  return 0;
+}
+
+// fread <path> <offset> <len>: one line of hex, len <= CLI_FPUT_MAX
+int cliFRead(const char ** argv)
+{
+  uint32_t offset, len;
+  if (!cliUInt(argv, 2, &offset) || !cliUInt(argv, 3, &len)) return 0;
+  if (len > CLI_FPUT_MAX) {
+    cliSerialPrint("%s: len > %d", argv[0], CLI_FPUT_MAX);
+    return 0;
+  }
+  FIL file;
+  if (f_open(&file, cliArg(argv, 1), FA_OPEN_EXISTING | FA_READ) != FR_OK) {
+    cliSerialPrint("%s: File not found \"%s\"", argv[0], cliArg(argv, 1));
+    return 0;
+  }
+  uint8_t buf[256];
+  static const char hex[] = "0123456789abcdef";
+  bool ok = f_lseek(&file, offset) == FR_OK;
+  cliTxWait(64);
+  cliSerialPrintf("OK ");
+  while (ok && len) {
+    UINT n = 0;
+    if (f_read(&file, buf, len < sizeof(buf) ? len : sizeof(buf), &n) != FR_OK || n == 0) break;
+    for (UINT i = 0; i < n; i++) {
+      if ((i & 63) == 0) cliTxWait(256);
+      cliSerialPutc(hex[buf[i] >> 4]);
+      cliSerialPutc(hex[buf[i] & 15]);
+    }
+    len -= n;
+  }
+  f_close(&file);
+  cliSerialCrlf();
+  return 0;
+}
+
+// fwrite <path> <offset> [<hex>]: offset 0 truncates the file first
+int cliFWrite(const char ** argv)
+{
+  uint32_t offset;
+  if (!cliUInt(argv, 2, &offset)) return 0;
+  const char * h = cliArg(argv, 3);
+  size_t hl = strlen(h);
+  if (hl & 1) {
+    cliSerialPrint("%s: odd hex length", argv[0]);
+    return 0;
+  }
+  uint8_t buf[CLI_COMMAND_MAX_LEN / 2];
+  size_t n = hl / 2;
+  if (n > sizeof(buf)) n = sizeof(buf);
+  for (size_t i = 0; i < n; i++) {
+    unsigned v;
+    char pair[3] = { h[2 * i], h[2 * i + 1], 0 };
+    char * end = nullptr;
+    v = strtoul(pair, &end, 16);
+    if (*end != '\0') {
+      cliSerialPrint("%s: bad hex", argv[0]);
+      return 0;
+    }
+    buf[i] = v;
+  }
+  FIL file;
+  BYTE mode = FA_WRITE | (offset == 0 ? FA_CREATE_ALWAYS : FA_OPEN_EXISTING);
+  FRESULT res = f_open(&file, cliArg(argv, 1), mode);
+  if (res == FR_OK) res = f_lseek(&file, offset);
+  UINT written = 0;
+  if (res == FR_OK && n) res = f_write(&file, buf, n, &written);
+  if (res == FR_OK) res = f_close(&file); else f_close(&file);
+  if (res != FR_OK || written != n)
+    cliSerialPrint("ERR %d", (int)res);
+  else
+    cliSerialPrint("OK %u", (unsigned)written);
+  return 0;
+}
+
+// fput <path> <offset> <len>: <len> raw bytes follow the command line; offset 0 truncates
+int cliFPut(const char ** argv)
+{
+  uint32_t offset, len;
+  if (!cliUInt(argv, 2, &offset) || !cliUInt(argv, 3, &len)) return 0;
+  if (len > CLI_FPUT_MAX) {
+    cliSerialPrint("ERR len > %d", CLI_FPUT_MAX);
+    return 0;
+  }
+  FIL file;
+  BYTE mode = FA_WRITE | (offset == 0 ? FA_CREATE_ALWAYS : FA_OPEN_EXISTING);
+  FRESULT res = f_open(&file, cliArg(argv, 1), mode);
+  bool open = res == FR_OK;
+  if (open) res = f_lseek(&file, offset);
+  uint32_t got = 0;
+  uint8_t buf[256];
+  // Always consume the whole block so a failed write does not leave data in the line parser
+  while (got < len) {
+    size_t n = xStreamBufferReceive(cliRxBuffer, buf, len - got < sizeof(buf) ? len - got : sizeof(buf),
+                                    1000 / portTICK_PERIOD_MS);
+    if (!n) break;
+    if (res == FR_OK) {
+      UINT w = 0;
+      res = f_write(&file, buf, n, &w);
+      if (res == FR_OK && w != n) res = FR_DENIED;
+    }
+    got += n;
+  }
+  if (open) {
+    FRESULT cr = f_close(&file);
+    if (res == FR_OK) res = cr;
+  }
+  if (res != FR_OK || got != len)
+    cliSerialPrint("ERR %d got %u of %u", (int)res, (unsigned)got, (unsigned)len);
+  else
+    cliSerialPrint("OK %u", (unsigned)got);
+  return 0;
+}
+
+int cliRm(const char ** argv)
+{
+  FRESULT res = f_unlink(cliArg(argv, 1));
+  if (res == FR_OK) cliSerialPrint("OK"); else cliSerialPrint("ERR %d", (int)res);
+  return 0;
+}
+
+int cliMkdir(const char ** argv)
+{
+  FRESULT res = f_mkdir(cliArg(argv, 1));
+  if (res == FR_OK) cliSerialPrint("OK"); else cliSerialPrint("ERR %d", (int)res);
+  return 0;
+}
+#endif // CLI_FILE_ACCESS
 
 int cliRead(const char ** argv)
 {
@@ -1524,6 +1710,110 @@ void printAudioVars()
 #include "disk_cache.h"
 #endif
 
+#if defined(CLI_INPUT_INJECT)
+static uint32_t injKeys, injKeysUntil;
+
+// toInt() for optional arguments, which are null when omitted
+static int toIntOpt(const char ** argv, int index, int * val)
+{
+  if (!argv[index]) return 0;
+  return toInt(argv, index, val);
+}
+
+uint32_t cliInjectedKeys()
+{
+  return (injKeys && (int32_t)(time_get_ms() - injKeysUntil) < 0) ? injKeys : 0;
+}
+
+static int cliKey(const char ** argv)
+{
+  int ms = 100;
+  if (!argv[1] || toIntOpt(argv, 2, &ms) < 0) {
+    cliSerialPrint("%s: usage: key <key label> [<ms>]", argv[0]);
+    return -1;
+  }
+  for (int i = 0; i <= MAX_KEYS; i++) {
+    if (keyIsSupported((EnumKeys)i) && !strcasecmp(keysGetLabel((EnumKeys)i), argv[1])) {
+      injKeysUntil = time_get_ms() + ms;
+      injKeys = 1u << i;
+      return 0;
+    }
+  }
+  cliSerialPrint("%s: unknown key \"%s\", available:", argv[0], argv[1]);
+  for (int i = 0; i <= MAX_KEYS; i++) {
+    if (keyIsSupported((EnumKeys)i)) cliSerialPrint("  %s", keysGetLabel((EnumKeys)i));
+  }
+  return -1;
+}
+
+static uint32_t injTrims, injTrimsUntil;
+
+uint32_t cliInjectedTrims()
+{
+  return (injTrims && (int32_t)(time_get_ms() - injTrimsUntil) < 0) ? injTrims : 0;
+}
+
+// trim <label><+|-> [<ms>], e.g. "trim T1- 100"
+static int cliTrim(const char ** argv)
+{
+  int ms = 100;
+  if (!argv[1] || toIntOpt(argv, 2, &ms) < 0) {
+    cliSerialPrint("%s: usage: trim <label><+|-> [<ms>]", argv[0]);
+    return -1;
+  }
+  for (int i = 0; i < keysGetMaxTrims() * 2; i++) {
+    const char * label = getTrimLabel(i / 2);
+    size_t len = strlen(label);
+    if (!strncasecmp(label, argv[1], len) && argv[1][len] == ((i & 1) ? '+' : '-') &&
+        argv[1][len + 1] == '\0') {
+      injTrimsUntil = time_get_ms() + ms;
+      injTrims = 1u << i;
+      return 0;
+    }
+  }
+  cliSerialPrint("%s: unknown trim \"%s\", available:", argv[0], argv[1]);
+  for (int i = 0; i < keysGetMaxTrims() * 2; i++) {
+    cliSerialPrint("  %s%c", getTrimLabel(i / 2), (i & 1) ? '+' : '-');
+  }
+  return -1;
+}
+
+#if defined(COLORLCD) && (defined(ROTARY_ENCODER_NAVIGATION) || defined(USE_HATS_AS_KEYS))
+void lvglInjectRotary(int steps);
+
+static int cliRotary(const char ** argv)
+{
+  int steps = 0;
+  if (!argv[1] || toInt(argv, 1, &steps) <= 0) {
+    cliSerialPrint("%s: usage: rotary <steps> (negative = counter-clockwise)", argv[0]);
+    return -1;
+  }
+  lvglInjectRotary(steps);
+  return 0;
+}
+#endif
+
+#if defined(HARDWARE_TOUCH)
+void lvglInjectTouch(int x1, int y1, int x2, int y2, uint32_t ms);
+
+static int cliTouch(const char ** argv)
+{
+  int x1 = 0, y1 = 0, ms = 100, x2 = 0, y2 = 0;
+  if (!argv[1] || !argv[2] || toInt(argv, 1, &x1) <= 0 || toInt(argv, 2, &y1) <= 0 ||
+      toIntOpt(argv, 3, &ms) < 0) {
+    cliSerialPrint("%s: usage: touch <x> <y> [<ms>] [<x2> <y2>]", argv[0]);
+    return -1;
+  }
+  x2 = x1; y2 = y1;
+  if (toIntOpt(argv, 4, &x2) < 0 || toIntOpt(argv, 5, &y2) < 0) return -1;
+  if (ms <= 0) ms = 100;
+  lvglInjectTouch(x1, y1, x2, y2, ms);
+  return 0;
+}
+#endif
+
+#endif // CLI_INPUT_INJECT
+
 int cliDisplay(const char ** argv)
 {
   long long int address = 0;
@@ -1895,8 +2185,26 @@ int cliResetGT911(const char** argv)
 #endif
 
 const CliCommand cliCommands[] = {
+#if defined(CLI_INPUT_INJECT)
+  { "key", cliKey, "<key label> [<ms>]" },
+  { "trim", cliTrim, "<label><+|-> [<ms>]" },
+#if defined(COLORLCD) && (defined(ROTARY_ENCODER_NAVIGATION) || defined(USE_HATS_AS_KEYS))
+  { "rotary", cliRotary, "<steps>" },
+#endif
+#if defined(HARDWARE_TOUCH)
+  { "touch", cliTouch, "<x> <y> [<ms>] [<x2> <y2>]" },
+#endif
+#endif // CLI_INPUT_INJECT
   { "beep", cliBeep, "[<frequency>] [<duration>]" },
   { "ls", cliLs, "<directory>" },
+#if defined(CLI_FILE_ACCESS)
+  { "lsl", cliLsl, "<directory>" },
+  { "fread", cliFRead, "<path> <offset> <len>" },
+  { "fwrite", cliFWrite, "<path> <offset> [<hex>]" },
+  { "fput", cliFPut, "<path> <offset> <len> (then <len> raw bytes)" },
+  { "rm", cliRm, "<path>" },
+  { "mkdir", cliMkdir, "<path>" },
+#endif
   { "read", cliRead, "<filename>" },
   { "readsd", cliReadSD, "<start sector> <sectors count> <read buffer size (sectors)>" },
   { "testsd", cliTestSD, "" },
