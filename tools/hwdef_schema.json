@@ -189,7 +189,7 @@
             "KEY_UP", "KEY_DOWN", "KEY_LEFT", "KEY_RIGHT",
             "KEY_PLUS", "KEY_MINUS",
             "KEY_MODEL", "KEY_SYS", "KEY_TELE",
-            "KEY_SHIFT"
+            "KEY_SHIFT", "KEY_BIND"
           ]
         },
         "name":  { "type": "string" },
