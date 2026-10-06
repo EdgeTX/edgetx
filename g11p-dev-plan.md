@@ -174,16 +174,96 @@ Reuse the ST16 bootloader flow. Confirm the boot/loader key source on G11P
 
 ## 5. Companion and storage
 
+### 5.1 Storage / YAML
+
 - `radio/src/storage/yaml/CMakeLists.txt`: add G11P branch emitting
   `storage/yaml/yaml_datastructs_g11p.cpp`.
 - `radio/src/datastructs.h`: G11P shares `PCBST16` ModelData size unless it diverges.
-- Companion:
-  - **Option A (NB4P precedent, least work)**: firmware-only; Companion treats G11P as
-    FlySky ST16. NB4P is not a Companion board type today.
-  - **Option B (full)**: add `BOARD_FLYSKY_G11P` in `companion/src/firmwares/boards.h` /
-    `boards.cpp`, a firmware entry in `opentxinterface.cpp`, and
-    `elseif(PCB STREQUAL ST16 AND PCBREV STREQUAL G11P) set(FLAVOR g11p)` in
-    `companion/src/CMakeLists.txt`.
+
+### 5.2 Companion — full board support
+
+A first-class Companion board type is added, not the NB4P "firmware-only" shortcut.
+
+**`companion/src/firmwares/boards.h`**
+
+- Add `BOARD_FLYSKY_G11P` to `Board::Type`, **appended at the end** (after
+  `BOARD_HELLORADIOSKY_V14`, before `BOARD_TYPE_COUNT`) so existing enum values stay stable.
+- Add `inline bool IS_FLYSKY_G11P(Board::Type board)`.
+- Add G11P to the family helpers where ST16 appears:
+  - `IS_FAMILY_HORUS_OR_T16` (color LCD/GUI, menus, model labels/list)
+  - `IS_STM32`
+  - `IS_STM32H7` (Sensors count, SPort baud rate)
+  - Optionally introduce `IS_FAMILY_ST16 = IS_FLYSKY_ST16 || IS_FLYSKY_G11P` and reuse it.
+
+**`companion/src/firmwares/boards.cpp`**
+
+| Function | Change |
+|---|---|
+| `getFourCC` | Give G11P a **unique** magic (e.g. `0x4F78746F`; `0x4D`/`0x4E` are taken). Do **not** share ST16's `0x4C78746F`, otherwise air/surface model files become cross-compatible. |
+| `getEEpromSize` | Add G11P to the `return 0` (Horus-class) group (also covered by the `default`). |
+| `getFlashSize` | Add G11P to `FSIZE_HORUS` (8 MB, same as ST16). |
+| `getCapability` `LcdHeight` | Add `IS_FLYSKY_G11P` to the `320` branch (same as ST16). |
+| `getCapability` `LcdWidth` | Add `IS_FLYSKY_G11P` to the `480` branch. |
+| `getCapability` **`Surface`** | **Critical**: `return IS_RADIOMASTER_MT12(board) || IS_FLYSKY_G11P(board);` — drives surface channel order, trim switches, flight-mode and virtual-joystick UI. |
+| `getCapability` `HasLedStripGPIO` | Decide; ST16 is currently excluded, so leave G11P excluded unless Companion needs the LED-strip options. |
+| `getDefaultInternalModules` | `BOARD_FLYSKY_G11P` → `MODULE_TYPE_FLYSKY_AFHDS3`. |
+| `getBattRange` | Add G11P; same 2S platform as ST16 (`BR(70,86,80)`) pending schematic confirmation. |
+| `getBoardName` | `case BOARD_FLYSKY_G11P: return "FlySky G11P";` |
+| default `getCapability` | Falls through to `getBoardJson(board)` → inputs/pots/sliders/switches/keys/trims read from `g11p.json`. |
+
+**`companion/src/firmwares/opentx/opentxinterface.cpp`**
+
+- Register the firmware after the ST16 entry:
+
+  ```cpp
+  /* FlySky G11P board */
+  firmware = new OpenTxFirmware(FIRMWAREID("g11p"), Firmware::tr("FlySky G11P"), BOARD_FLYSKY_G11P);
+  addOpenTxFrskyOptions(firmware);
+  firmware->addOption(opt_bt);
+  addOpenTxRfOptions(firmware, FLEX + AFHDS3);
+  registerOpenTxFirmware(firmware);
+  ```
+
+- Add G11P to the ST16 branches in `OpenTxFirmware::getCapability`:
+  - `HasAuxSerialMode` (ST16 is excluded → add G11P)
+  - `RotaryEncoderNavigation` (ST16 included → add G11P)
+  - `BacklightLevelMin` (ST16 included → add G11P)
+- `Sensors`/`SportMaxBaudRate` are covered via `IS_STM32H7`; `Heli` via `Surface`;
+  `HasBluetooth` via `IS_FAMILY_HORUS_OR_T16`.
+
+**Other Companion sources**
+
+- `companion/src/firmwares/generalsettings.cpp`: Bluetooth name → `"g11p"` for G11P.
+- `companion/src/firmwares/moduledata.cpp`: add `!IS_FLYSKY_G11P(board)` to both PXX gating
+  expressions (around lines 88/90).
+- No changes needed under `companion/src/tests` (no board-list assertions).
+
+### 5.3 Companion build system
+
+- `companion/src/CMakeLists.txt` (flavour selection near line 365): add
+  `elseif(PCB STREQUAL ST16 AND PCBREV STREQUAL G11P) set(FLAVOR g11p)` **before** the
+  plain ST16 case.
+- `tools/build-companion.sh`: add `g11p` to the `simulator_plugins` array so `g11p.json`
+  is generated into the build tree and swept into `hwdefs.qrc` by
+  `companion/util/generate_hwdefs_qrc.py`.
+- `tools/build-common.sh`: the `g11p)` case (shared with the radio plan) makes
+  `get_target_build_options g11p` resolve for the Companion build.
+- **Dependency**: the embedded JSON comes from the radio build (`AddHardwareDefTarget` →
+  `build/radio/src/g11p.json`). This requires the `"g11p"` entries in
+  `radio/util/hw_defs/{hal_keys,switch_config,pot_config,legacy_names}.py`; without them
+  `g11p.json` has no inputs/keys/switches/trims and Companion shows empty controls.
+
+### 5.4 Translations
+
+- The new `Firmware::tr("FlySky G11P")` string must be added to the 24 `companion_*.ts`
+  files. Run the `companion_translations` target (Qt `lupdate`) or hand-add to each file;
+  `companion_en.ts` already carries the ST16 entry under the `Firmware` context.
+
+### 5.5 Compatibility decision (open)
+
+- A **unique fourCC** means ST16 model files will not directly load on G11P (correct given
+  air vs surface). If shared models are desired, reuse ST16's `0x4C78746F` instead. This is
+  a product decision.
 
 ---
 
@@ -194,7 +274,9 @@ Reuse the ST16 bootloader flow. Confirm the boot/loader key source on G11P
 2. `make hardware_defs`, `make yaml_inputs` to validate the generated hardware definitions.
 3. Flash and bring up: boot, LCD init/touch, SD, audio (VS1053B), internal module bind,
    keys/switches/trims/sticks, battery/charge, USB, LEDs, backlight.
-4. CI: add `g11p` to commit-tests and the build matrix in `.github/workflows/actions.yml`.
+4. Companion: build with `g11p` and verify the board appears as "FlySky G11P" (surface UI,
+   channel order ST/TH), loads `g11p.json`, and shows the expected inputs/keys/switches/trims.
+5. CI: add `g11p` to commit-tests and the build matrix in `.github/workflows/actions.yml`.
 
 ---
 
@@ -207,19 +289,27 @@ Reuse the ST16 bootloader flow. Confirm the boot/loader key source on G11P
 - Touch controller model/I2C address (moved to PB9/PB8, INT PE6).
 - LCD resolution/orientation (schematics suggest 480x320, same RGB pinout) and audio mute
   polarity.
-- Companion board-id decision (Option A vs B).
+- Companion fourCC: use a unique G11P magic (default) or share ST16's (see 5.5).
 
 ---
 
 ## 8. Task checklist
 
 1. [x] Extract and save `st16-vs-g11p-pinout.md`.
-2. [ ] `targets/st16/CMakeLists.txt` `PCBREV` branch + `RADIO_G11P`.
-3. [ ] `hal.h` / `board.h` / `board.cpp` / `usb_descriptor.h` G11P branches.
-4. [ ] `bsp_io` direct-GPIO (no expander) path.
-5. [ ] `g11p_key_driver.cpp` / `g11p_switch_driver.cpp`.
+2. [ ] Radio: `targets/st16/CMakeLists.txt` `PCBREV` branch + `RADIO_G11P`.
+3. [ ] Radio: `hal.h` / `board.h` / `board.cpp` / `usb_descriptor.h` G11P branches.
+4. [ ] Radio: `bsp_io` direct-GPIO (no expander) path.
+5. [ ] Radio: `g11p_key_driver.cpp` / `g11p_switch_driver.cpp`.
 6. [ ] Tooling + CI registration (`build-common.sh`, `build-flysky.py`, generators,
    `.github/workflows/actions.yml`, `fw.json`).
-7. [ ] `hw_defs` entries (`hal_keys`, `switch_config`, `pot_config`, `legacy_names`).
-8. [ ] Storage/YAML and Companion (Option A or B).
-9. [ ] Build, flash, hardware validation.
+7. [ ] `hw_defs` entries (`hal_keys`, `switch_config`, `pot_config`, `legacy_names`) —
+   required by both radio and Companion.
+8. [ ] Companion: `BOARD_FLYSKY_G11P` enum + `IS_FLYSKY_G11P` + family helpers (`boards.h`).
+9. [ ] Companion: `boards.cpp` (fourCC, flash/eeprom, LCD, Surface, default internal module,
+   batt range, name).
+10. [ ] Companion: `opentxinterface.cpp` firmware registration + ST16-branch capabilities.
+11. [ ] Companion: `generalsettings.cpp` / `moduledata.cpp` G11P branches.
+12. [ ] Companion build: `companion/src/CMakeLists.txt` flavour + `build-companion.sh` plugin.
+13. [ ] Translations: run `companion_translations` (lupdate).
+14. [ ] Storage/YAML (`yaml_datastructs_g11p.cpp`).
+15. [ ] Build, flash, hardware + Companion validation.
