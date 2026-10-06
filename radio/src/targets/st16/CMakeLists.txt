@@ -26,10 +26,17 @@ set(USB_SERIAL ON CACHE BOOL "Enable USB serial (CDC)")
 set(HARDWARE_EXTERNAL_MODULE YES)
 set(INTERNAL_MODULE_AFHDS3 YES)
 set(ROTARY_ENCODER YES)
-set(FUNCTION_SWITCHES_WITH_RGB YES)
 
-# IMU support
-set(IMU ON)
+if(PCBREV STREQUAL G11P)
+  # G11P: surface radio, no I/O expander, no function switches, no serial
+  # gimbal and no IMU
+  set(FUNCTION_SWITCHES_WITH_RGB OFF)
+  set(IMU OFF)
+else()
+  set(FUNCTION_SWITCHES_WITH_RGB YES)
+  # IMU support
+  set(IMU ON)
+endif()
 
 # for size report script
 set(CPU_TYPE_FULL STM32H750xB)
@@ -46,7 +53,16 @@ add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 
 set(FLAVOUR st16)
-add_definitions(-DRADIO_ST16)
+set(FLYSKY_GIMBAL ON)
+
+if(PCBREV STREQUAL G11P)
+  # G11P is built as a PCBREV of the ST16 platform (like NB4P on PL18)
+  set(FLAVOUR g11p)
+  add_definitions(-DRADIO_G11P)
+  set(FLYSKY_GIMBAL OFF)
+else()
+  add_definitions(-DRADIO_ST16)
+endif()
 
 # Defines internal modules for PL18 via UART7
 # set(INTERNAL_MODULES MULTI CACHE STRING "Internal modules")
@@ -59,7 +75,6 @@ set(HARDWARE_TOUCH YES)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
 set(SOFTWARE_KEYBOARD ON)
-set(FLYSKY_GIMBAL ON)
 set(FUNCTION_SWITCHES ON)
 
 
