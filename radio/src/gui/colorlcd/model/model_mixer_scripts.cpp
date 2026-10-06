@@ -46,7 +46,9 @@ static const lv_coord_t e_col_dsc[] = {LV_GRID_FR(5), LV_GRID_FR(4),
 #endif
 
 // Line button grid
-static const lv_coord_t b_col_dsc[] = {40, 84, 84, LV_GRID_FR(1),
+static LAYOUT_VAL_SCALED(B_W1, 40)
+static LAYOUT_VAL_SCALED(B_W2, 84)
+static const lv_coord_t b_col_dsc[] = {B_W1, B_W2, B_W2, LV_GRID_FR(1),
                                        LV_GRID_TEMPLATE_LAST};
 
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
