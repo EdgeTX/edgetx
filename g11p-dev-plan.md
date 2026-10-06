@@ -147,8 +147,7 @@ Notes / implications:
   `BSP_*` outputs (`BSP_INT_PWR`, `BSP_EXT_PWR`, `BSP_AUDIO_RST`, `BSP_PA_NMUTE`,
   `BSP_CHARGE_EN`, `BSP_PWR_LED`, `BSP_LCD_NRST`, `BSP_LCD_CS`) to the nets above.
 - New `radio/src/targets/st16/g11p_key_driver.cpp` and `g11p_switch_driver.cpp`, modelled
-  on `pl18/nb4p_key_driver.cpp` / `nb4p_switch_driver.cpp`, using the G11P ADC ladder layout
-  (`K12_ADC`/`K34_ADC`, `SW1-4_ADC`, `TR1-4_ADC`, `VR2A`).
+  on `pl18/nb4p_key_driver.cpp` / `nb4p_switch_driver.cpp` (see 3.4).
 - `extflash_driver.*`: keep the QSPI implementation; do not port the stale `FLASH_SPI`/SPI6
   macros (optionally remove them from the ST16/G11P path).
 
@@ -156,6 +155,69 @@ Notes / implications:
 
 Reuse the ST16 bootloader flow. Confirm the boot/loader key source on G11P
 (ADC ladder like NB4P vs a GPIO).
+
+### 3.4 Input strategy (keys / switches / trims / encoder)
+
+Design decisions (confirmed):
+
+- **No port extender** on G11P (unlike ST16's PCA9555/NCA9555). I2C is used only for touch
+  (`TP_SDA`/`TP_SCL`) and `I2C1`; there is no I2C I/O expander, so `bsp_io` gets a
+  direct-GPIO path.
+- **G11P uses multi-level resistor-ladder inputs** (same class as NB4P), so plain hw_defs
+  pin mapping is not sufficient and custom drivers are required:
+  - The key board wires K1/K2 onto `K12_ADC` and K3/K4 onto `K34_ADC` (two buttons per line
+    via differing resistors, e.g. 5.1K vs 10K).
+  - `TR1_ADC` feeds a 5-way switch (`K1-5203UA-01`) through a resistor network.
+  - The SIDE sheet even prints the 3-resistor ladder math (R1=5.1K, R2=10K, R3=20K, R0=5.1K
+    -> 7 levels).
+- **Single rotary encoder** via the common HAL (`ROTARY_ENCODER_*`): `W-A`=PG2, `W-B`=PG3,
+  `W-KEY`=PG14 (push), with `ROTARY_ENCODER_NAVIGATION`. EdgeTX's common layer supports
+  exactly one encoder; the NB4P precedent is that extra hardware encoders (its `BM2A/BM2B`
+  on PB15/PC13) are left unmapped, and G11P exposes only one (`W-A/W-B/W-KEY`).
+- **`SW1` is a digital switch** on PH4 (the `_ADC` suffix is only the connector net name;
+  PH4 is not ADC-capable on STM32H750, the same quirk as ST16's unused `BAT2_ADC`).
+- **K5/VR1/SW1 are distinct inputs**, not swappable modules (they are only drawn separately
+  in the schematic). They must be treated as proper inputs.
+
+MCU input inventory (from the P2 MCU sheet):
+
+| Net | Pin | Electrical | Kind | Logical (inferred, TODO) |
+|---|---|---|---|---|
+| `TH_ADC` | PA0 | ADC | stick | Throttle (TH) |
+| `ST_ADC` | PA1 | ADC | stick | Steering (ST) |
+| `VR2A` | PC2 | ADC | pot | Pot VR2 |
+| `K12_ADC` | PB0 | ADC 2-level ladder | keys K1/K2 | 2 keys - TODO |
+| `K34_ADC` | PB1 | ADC 2-level ladder | keys K3/K4 | 2 keys - TODO |
+| `K6A` | PC7 | GPIO | digital key | TODO |
+| `K7A` | PA8 | GPIO | digital key | TODO |
+| `W-A` / `W-B` | PG2/PG3 | GPIO | encoder | Navigation |
+| `W-KEY` | PG14 | GPIO | key | Encoder push (K11?) |
+| `SW1_ADC` | PH4 | GPIO | digital switch | SW1 (2POS/toggle) |
+| `SW2_ADC` | PA6 | ADC | analog switch | SW2 - TODO type |
+| `SW3_ADC` | PA7 | ADC | analog switch | SW3 - TODO type |
+| `SW4_ADC` | PC3 | ADC | analog switch | SW4 - TODO type |
+| `TR1_ADC` | PF8 | ADC (5-way) | trim | TR1 - TODO |
+| `TR2_ADC` | PF9 | ADC | trim | TR2 - TODO |
+| `TR3_ADC` | PA2 | ADC | trim | TR3 - TODO |
+| `TR4_ADC` | PA3 | ADC | trim | TR4 - TODO |
+| `TR_ADC` | PC5 | ADC | trim | TR - TODO |
+| `MOTOR_PWM` | PB5 | PWM | haptic | Vibration motor |
+
+Notes:
+- `K5`, `VR1`, `K11` do not appear as separate MCU nets (only `K12_ADC`, `K34_ADC`,
+  `SW1_ADC`, `VR2A`, `K6A`/`K7A`, `W-KEY`); they either alias onto these lines or live on a
+  sub-board - TODO to confirm on hardware.
+- Logical names/types for K/SW/TR/VR are inferred from the schematic + NB4P conventions and
+  are TODO until confirmed from the product.
+
+Driver implementation:
+- `g11p_key_driver.cpp`: `readKeys()` decodes `K12_ADC`/`K34_ADC` into 4 keys (thresholds
+  from the ladder resistor values, in the NB4P `getAnalogValue()` style) and handles the
+  `K6A`/`K7A` GPIO keys; `readTrims()` handles the `TRx_ADC` lines.
+- `g11p_switch_driver.cpp`: `SW1` digital (PH4) plus analog `SW2/3/4`; switch names must
+  align with `switch_config.py`.
+- `g11p_bsp_io`: direct-GPIO (no PCA95xx) implementation for the `BSP_*` outputs.
+- Sticks (`TH`/`ST`), pot (`VR2`) and the encoder use the normal HAL paths.
 
 ---
 
@@ -168,7 +230,9 @@ Reuse the ST16 bootloader flow. Confirm the boot/loader key source on G11P
   - `radio/util/hw_defs/switch_config.py`
   - `radio/util/hw_defs/pot_config.py`
   - `radio/util/hw_defs/legacy_names.py` (analog input names/labels)
-  Model them on `nb4p` (surface) and `st16`, adjusted to the G11P nets.
+  Model them on `nb4p` (surface) and `st16`, adjusted to the G11P nets and the input map in
+  3.4. The switch names in `switch_config.py` must match the names returned by
+  `g11p_switch_driver.cpp`.
 
 ---
 
@@ -282,8 +346,10 @@ A first-class Companion board type is added, not the NB4P "firmware-only" shortc
 
 ## 7. Risks / open items
 
-- Exact G11P ADC ladder resistor values and channel assignments (keys/switches/trims)
-  need hardware or deeper schematic reading.
+- Input map TODOs (see 3.4): logical functions of K1-K4 / K6 / K7 / K5 / K11; switch
+  names/types for SW1-SW4; trim axes and whether TR1 is a true 5-way; purpose of `TR_ADC`;
+  whether `K5` / `VR1` exist and where they wire. Exact K12/K34 ladder resistor values to
+  derive thresholds.
 - Presence/absence of external module bay, trainer, SPORT, Bluetooth, wireless charge, IMU
   and their pin assignments (the relevant ST16 pins are repurposed on G11P).
 - Touch controller model/I2C address (moved to PB9/PB8, INT PE6).
@@ -299,17 +365,18 @@ A first-class Companion board type is added, not the NB4P "firmware-only" shortc
 2. [ ] Radio: `targets/st16/CMakeLists.txt` `PCBREV` branch + `RADIO_G11P`.
 3. [ ] Radio: `hal.h` / `board.h` / `board.cpp` / `usb_descriptor.h` G11P branches.
 4. [ ] Radio: `bsp_io` direct-GPIO (no expander) path.
-5. [ ] Radio: `g11p_key_driver.cpp` / `g11p_switch_driver.cpp`.
-6. [ ] Tooling + CI registration (`build-common.sh`, `build-flysky.py`, generators,
+5. [ ] Confirm the logical input map (3.4 TODOs) from the product/hardware.
+6. [ ] Radio: `g11p_key_driver.cpp` / `g11p_switch_driver.cpp` (custom ADC-ladder decode).
+7. [ ] Tooling + CI registration (`build-common.sh`, `build-flysky.py`, generators,
    `.github/workflows/actions.yml`, `fw.json`).
-7. [ ] `hw_defs` entries (`hal_keys`, `switch_config`, `pot_config`, `legacy_names`) —
+8. [ ] `hw_defs` entries (`hal_keys`, `switch_config`, `pot_config`, `legacy_names`) —
    required by both radio and Companion.
-8. [ ] Companion: `BOARD_FLYSKY_G11P` enum + `IS_FLYSKY_G11P` + family helpers (`boards.h`).
-9. [ ] Companion: `boards.cpp` (fourCC, flash/eeprom, LCD, Surface, default internal module,
-   batt range, name).
-10. [ ] Companion: `opentxinterface.cpp` firmware registration + ST16-branch capabilities.
-11. [ ] Companion: `generalsettings.cpp` / `moduledata.cpp` G11P branches.
-12. [ ] Companion build: `companion/src/CMakeLists.txt` flavour + `build-companion.sh` plugin.
-13. [ ] Translations: run `companion_translations` (lupdate).
-14. [ ] Storage/YAML (`yaml_datastructs_g11p.cpp`).
-15. [ ] Build, flash, hardware + Companion validation.
+9. [ ] Companion: `BOARD_FLYSKY_G11P` enum + `IS_FLYSKY_G11P` + family helpers (`boards.h`).
+10. [ ] Companion: `boards.cpp` (fourCC, flash/eeprom, LCD, Surface, default internal module,
+    batt range, name).
+11. [ ] Companion: `opentxinterface.cpp` firmware registration + ST16-branch capabilities.
+12. [ ] Companion: `generalsettings.cpp` / `moduledata.cpp` G11P branches.
+13. [ ] Companion build: `companion/src/CMakeLists.txt` flavour + `build-companion.sh` plugin.
+14. [ ] Translations: run `companion_translations` (lupdate).
+15. [ ] Storage/YAML (`yaml_datastructs_g11p.cpp`).
+16. [ ] Build, flash, hardware + Companion validation.
