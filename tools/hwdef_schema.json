@@ -439,7 +439,7 @@
         "trainer_timer_freq":         { "type": "string" },
         "trainer_gpio_af":            { "type": "string" },
         "trainer_detect_gpio":        { "type": "string" },
-        "trainer_detect_inverted":    { "type": "string" }
+        "trainer_detect_inverted":    { "type": "boolean" }
       }
     }
   }
