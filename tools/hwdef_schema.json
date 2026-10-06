@@ -30,7 +30,15 @@
     "imu":        { "$ref": "#/$defs/imu" },
     "rotenc":     { "$ref": "#/$defs/rotenc" },
     "usb":        { "$ref": "#/$defs/usb" },
-    "trainer":    { "$ref": "#/$defs/trainer" }
+    "haptic":     { "$ref": "#/$defs/haptic" },
+    "trainer":    { "$ref": "#/$defs/trainer" },
+    "key_lock_combo": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/key/properties/key" },
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true
+    }
   },
 
   "$defs": {
