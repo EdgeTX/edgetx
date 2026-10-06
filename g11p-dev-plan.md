@@ -469,7 +469,7 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
    -> commit & push
 8. [x] `hw_defs` entries (`switch_config`, `pot_config`, `legacy_names`, `hal_adc`
    `MAX_RAWS`) — required by both radio and Companion. -> commit & push
-9. [ ] Companion: `BOARD_FLYSKY_G11P` enum + `IS_FLYSKY_G11P` + family helpers (`boards.h`).
+9. [x] Companion: `BOARD_FLYSKY_G11P` enum + `IS_FLYSKY_G11P` + family helpers (`boards.h`).
    -> commit & push
 10. [ ] Companion: `boards.cpp` (fourCC, flash/eeprom, LCD, Surface, default internal module,
     batt range, name). -> commit & push

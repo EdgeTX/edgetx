@@ -96,6 +96,7 @@ namespace Board {
     BOARD_HELLORADIOSKY_V16,
     BOARD_RADIOMASTER_MT12,
     BOARD_HELLORADIOSKY_V14,
+    BOARD_FLYSKY_G11P,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -696,6 +697,11 @@ inline bool IS_FLYSKY_ST16(Board::Type board)
   return (board == Board::BOARD_FLYSKY_ST16);
 }
 
+inline bool IS_FLYSKY_G11P(Board::Type board)
+{
+  return (board == Board::BOARD_FLYSKY_G11P);
+}
+
 inline bool IS_FAMILY_PL18(Board::Type board)
 {
   return IS_FLYSKY_PL18(board) || IS_FLYSKY_PL18EV(board) || IS_FLYSKY_PL18U(board);
@@ -780,7 +786,8 @@ inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
 {
   return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) ||
     IS_FLYSKY_NV14(board)/*generally*/ || IS_FLYSKY_EL18(board)/*generally*/
-    || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)/*generally*/ || IS_FLYSKY_PA01(board)/*generally*/;
+    || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)/*generally*/
+    || IS_FLYSKY_G11P(board)/*generally*/ || IS_FLYSKY_PA01(board)/*generally*/;
 }
 
 inline bool IS_HORUS_OR_TARANIS(Board::Type board)
@@ -791,7 +798,8 @@ inline bool IS_HORUS_OR_TARANIS(Board::Type board)
 inline bool IS_STM32(Board::Type board)
 {
   return IS_TARANIS(board) || IS_FAMILY_HORUS_OR_T16(board) ||
-    IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board);
+    IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board) ||
+    IS_FLYSKY_ST16(board) || IS_FLYSKY_G11P(board);
 }
 
 inline bool IS_ARM(Board::Type board)
@@ -835,5 +843,6 @@ inline bool HAS_EEPROM_YAML(Board::Type board)
 inline bool IS_STM32H7(Board::Type board)
 {
   return IS_FLYSKY_PA01(board) ||
-         IS_FLYSKY_ST16(board);
+         IS_FLYSKY_ST16(board) ||
+         IS_FLYSKY_G11P(board);
 }
