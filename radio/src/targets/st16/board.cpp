@@ -179,7 +179,15 @@ void audioInit(){
 void boardBLEarlyInit()
 {
   timersInit();
+#if defined(RADIO_G11P)
+  // direct GPIO (no expander): LCD reset / chip-select
+  gpio_init(LCD_NRST_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(LCD_NRST_GPIO);
+  gpio_init(GPIO_PIN(GPIOH, 8), GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(GPIO_PIN(GPIOH, 8));
+#else
   bsp_io_init();
+#endif
 }
 
 void boardBLPreJump()
@@ -220,8 +228,19 @@ void boardInit()
   delaysInit();
   timersInit();
 
+#if defined(RADIO_G11P)
+  // direct GPIO (no expander)
+  gpio_init(LCD_NRST_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(LCD_NRST_GPIO);
+  gpio_init(GPIO_PIN(GPIOH, 8), GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(GPIO_PIN(GPIOH, 8));
+  gpio_init(CHARGE_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_init(AUDIO_RST_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
+  gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_MEDIUM);
+#else
   bsp_io_init();
   bsp_output_set(BSP_PWR_LED);
+#endif
 
   ExtFLASH_InitRuntime();
 

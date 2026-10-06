@@ -158,9 +158,6 @@
     0      /* RTC_BAT */                \
   }
 
-#define USE_EXTI9_5_IRQ // used for I2C port extender interrupt
-#define EXTI9_5_IRQ_Priority 5
-
 // Power
 #define PWR_SWITCH_GPIO             GPIO_PIN(GPIOB, 3)  // PB.03 PWR_SW
 #define PWR_ON_GPIO                 GPIO_PIN(GPIOI, 8)  // PI.08 PWR_CTR

@@ -131,7 +131,7 @@ set(TARGET_SRC_DIR targets/${TARGET_DIR})
 # (no PCA95xx expander).
 if(PCBREV STREQUAL G11P)
   set(TOUCH_DRIVER_SRC ${RADIO_SRC_DIR}/targets/pl18/touch_driver.cpp)
-  set(BSP_IO_SRC ${TARGET_SRC_DIR}/g11p_bsp_io.cpp)
+  set(BSP_IO_SRC "")
   set(KEY_DRIVER_SRC ${TARGET_SRC_DIR}/g11p_key_driver.cpp)
 else()
   set(TOUCH_DRIVER_SRC ${TARGET_SRC_DIR}/touch_driver.cpp)

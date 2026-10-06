@@ -50,11 +50,19 @@ extern lcdSpiInitFucPtr lcdOnFunction;
 #define SET_IO_INPUT( PORT, PIN )            LL_GPIO_SetPinMode( PORT, PIN, LL_GPIO_MODE_INPUT )
 #define SET_IO_OUTPUT( PORT, PIN )           LL_GPIO_SetPinMode( PORT, PIN, LL_GPIO_MODE_OUTPUT )
 
+#if defined(RADIO_G11P)
+#include "hal/gpio.h"
+#define LCD_NRST_HIGH()               gpio_set(LCD_NRST_GPIO)
+#define LCD_NRST_LOW()                gpio_clear(LCD_NRST_GPIO)
+#define LCD_CS_HIGH()                 gpio_set(GPIO_PIN(GPIOH, 8))
+#define LCD_CS_LOW()                  gpio_clear(GPIO_PIN(GPIOH, 8))
+#else
 #define LCD_NRST_HIGH()               bsp_output_set(BSP_LCD_NRST)
 #define LCD_NRST_LOW()                bsp_output_clear(BSP_LCD_NRST)
 
 #define LCD_CS_HIGH()                 bsp_output_set(BSP_LCD_CS)
 #define LCD_CS_LOW()                  bsp_output_clear(BSP_LCD_CS)
+#endif
 
 #define LCD_SCK_HIGH()                LL_GPIO_SetOutputPin(LCD_SPI_GPIO, LCD_SPI_SCK_GPIO_PIN)
 #define LCD_SCK_LOW()                 LL_GPIO_ResetOutputPin(LCD_SPI_GPIO, LCD_SPI_SCK_GPIO_PIN)

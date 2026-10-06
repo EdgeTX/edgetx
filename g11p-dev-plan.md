@@ -488,8 +488,9 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
     `libsimulator`, and Companion (`companion211`) all build. Hardware flash/bring-up
     still pending. -> commit & push
 
-17. [ ] Apply section 9 fix — delete `g11p_bsp_io.cpp`, PL18-style `bsp_io.h` stub, direct
-    GPIO in `board.cpp` / `lcd_driver.h`; rebuild G11P firmware. -> commit & push
+17. [x] Applied section 9 fix — deleted `g11p_bsp_io.cpp`, PL18-style header-only `bsp_io.h`
+    stub, direct GPIO in `board.cpp` / `lcd_driver.h`, no bsp source for G11P. G11P firmware
+    rebuilds. -> commit & push
 
 **Outstanding:** `.github/workflows/actions.yml` CI matrix needs `g11p` added, but the
 push token lacks `workflow` scope; apply manually or with a suitably-scoped token. Hardware

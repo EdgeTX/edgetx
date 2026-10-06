@@ -25,29 +25,16 @@
 
 #if defined(RADIO_G11P)
 
-// G11P has no I/O expander: BSP outputs are direct GPIOs.
-enum {
-  BSP_INT_PWR = 0,
-  BSP_EXT_PWR,
-  BSP_AUDIO_RST,
-  BSP_PA_NMUTE,
-  BSP_CHARGE_EN,
-  BSP_PWR_LED,
-  BSP_LCD_NRST,
-  BSP_LCD_CS,
-  BSP_USB_SW,
-  BSP_USB_SWB,
-  BSP_RF_BOOT0,
-};
+// G11P has no I/O expander and no BSP driver: all outputs are handled with
+// direct GPIO (see hal_g11p.h / board.cpp), following the PL18 pattern.
+// Only the weak switch fallback needs a definition here.
+#include "stm32_switch_driver.h"
 
-int bsp_io_init();
-
-void bsp_output_set(uint16_t pin);
-void bsp_output_clear(uint16_t pin);
-
-uint16_t bsp_input_get();
-struct stm32_switch_t;
-SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw, SwitchCategory cat, uint8_t idx);
+inline SwitchHwPos bsp_get_switch_position(const stm32_switch_t *sw, SwitchCategory cat, uint8_t idx)
+{
+  (void)sw; (void)cat; (void)idx;
+  return SWITCH_HW_MID;
+}
 
 #else
 
