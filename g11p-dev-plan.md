@@ -483,4 +483,10 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
     updates). -> commit & push
 15. [x] Storage/YAML (`yaml_datastructs_g11p.cpp`) generated and wired for `RADIO_G11P`.
     -> commit & push
-16. [ ] Build, flash, hardware + Companion validation. -> commit & push
+16. [~] Build verified: G11P firmware (docker `FLAVOR=g11p` -> `g11p-*.uf2`), g11p
+    `libsimulator`, and Companion (`companion211`) all build. Hardware flash/bring-up
+    still pending. -> commit & push
+
+**Outstanding:** `.github/workflows/actions.yml` CI matrix needs `g11p` added, but the
+push token lacks `workflow` scope; apply manually or with a suitably-scoped token. Hardware
+bring-up items remain (input map, panel timings, etc. - see section 7).
