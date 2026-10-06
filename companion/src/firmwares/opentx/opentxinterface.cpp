@@ -146,7 +146,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       // based on radio/src/gui/colorlcd/libui/etx_lv_theme.h
       return (!getCapability(IsNarrowLayout) && Boards::getCapability(board, Board::LcdWidth) >= 800);
     case KeyShortcuts:
-      return VERSION_MAJOR > 2 && Boards::getCapability(board, Board::HasColorLcd) ? MAX_KEYSHORTCUTS : 0;
+      return Boards::getCapability(board, Board::HasColorLcd) ? MAX_KEYSHORTCUTS : 0;
     case LogicalSwitches:
       return CPN_MAX_LOGICAL_SWITCHES;
     case LuaInputsPerScript:
@@ -189,7 +189,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case PPMFrameLength:
       return 40;
     case QMFavourites:
-      return VERSION_MAJOR > 2 && Boards::getCapability(board, Board::HasColorLcd) ? MAX_QMFAVOURITES : 0;
+      return Boards::getCapability(board, Board::HasColorLcd) ? MAX_QMFAVOURITES : 0;
     case SafetyChannelCustomFunction:
       return id.contains("nooverridech") ? 0 : 1;
     case Sensors:

@@ -108,12 +108,11 @@ class PageGroupHeaderBase : public Window
 
   void addTab(PageGroupItem* page);
 
-  void setCurrentIndex(uint8_t index);
-
   bool hasSubMenu(QMPage n);
 
   PageGroupItem* pageTab(uint8_t idx) const { return pages[idx]; }
   bool isCurrent(uint8_t idx) const { return currentIndex == idx; }
+  void setCurrentIndex(uint8_t idx) { if (idx < pages.size()) currentIndex = idx; }
   uint8_t tabCount() const { return pages.size(); }
 
  protected:

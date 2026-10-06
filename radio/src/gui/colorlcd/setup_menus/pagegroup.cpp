@@ -57,38 +57,31 @@ static void on_draw_end(lv_event_t* e)
 PageGroupHeaderBase::PageGroupHeaderBase(Window* parent, coord_t height, EdgeTxIcon icon, const char* parentTitle, PageGroupBase* menu) :
     Window(parent, {0, 0, LCD_W, height}), menu(menu)
 {
-    etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
+  etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
 
-    hdrIcon = new HeaderIcon(this, icon);
+  hdrIcon = new HeaderIcon(this, icon);
 
-    new HeaderBackIcon(this);
+  new HeaderBackIcon(this);
 
-    parentLabel = etx_label_create(lvobj);
-    etx_txt_color(parentLabel, COLOR_THEME_PRIMARY2_INDEX);
-    lv_obj_set_pos(parentLabel, PageHeader::PAGE_TITLE_LEFT, PageHeader::PAGE_TITLE_TOP);
-    lv_obj_set_size(parentLabel, LCD_W - PageHeader::PAGE_TITLE_LEFT - PageGroup::PAGE_GROUP_BACK_BTN_W * 2 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
-    lv_label_set_text(parentLabel, parentTitle);
+  parentLabel = etx_label_create(lvobj);
+  etx_txt_color(parentLabel, COLOR_THEME_PRIMARY2_INDEX);
+  lv_obj_set_pos(parentLabel, PageHeader::PAGE_TITLE_LEFT, PageHeader::PAGE_TITLE_TOP);
+  lv_obj_set_size(parentLabel, LCD_W - PageHeader::PAGE_TITLE_LEFT - PageGroup::PAGE_GROUP_BACK_BTN_W * 2 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
+  lv_label_set_text(parentLabel, parentTitle);
 
-    titleLabel = etx_label_create(lvobj);
-    etx_txt_color(titleLabel, COLOR_THEME_PRIMARY2_INDEX);
+  titleLabel = etx_label_create(lvobj);
+  etx_txt_color(titleLabel, COLOR_THEME_PRIMARY2_INDEX);
 
-    lv_obj_set_pos(titleLabel, PageHeader::PAGE_TITLE_LEFT, PageHeader::PAGE_TITLE_TOP + EdgeTxStyles::STD_FONT_HEIGHT);
-    lv_obj_set_size(titleLabel, LCD_W - PageHeader::PAGE_TITLE_LEFT - PageGroup::PAGE_GROUP_BACK_BTN_W * 2 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
+  lv_obj_set_pos(titleLabel, PageHeader::PAGE_TITLE_LEFT, PageHeader::PAGE_TITLE_TOP + EdgeTxStyles::STD_FONT_HEIGHT);
+  lv_obj_set_size(titleLabel, LCD_W - PageHeader::PAGE_TITLE_LEFT - PageGroup::PAGE_GROUP_BACK_BTN_W * 2 - PAD_LARGE * 2, EdgeTxStyles::STD_FONT_HEIGHT);
 
-    setTitle("");
+  setTitle("");
 
   onClosing([=]() {
     for (uint8_t i = 0; i < pages.size(); i += 1)
       delete pages[i];
     pages.clear();
   });
-}
-
-void PageGroupHeaderBase::setCurrentIndex(uint8_t index)
-{
-  if (index < pages.size()) {
-    currentIndex = index;
-  }
 }
 
 void PageGroupHeaderBase::setTitle(const char* title)
