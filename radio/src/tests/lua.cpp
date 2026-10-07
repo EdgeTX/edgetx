@@ -442,6 +442,21 @@ TEST(Lua, batterySensorFields)
 }
 #endif
 
+#if defined(VOICE_CONTROL_SENSOR)
+TEST(Lua, voiceControlFields)
+{
+  char lua[128];
+  for (auto f : {std::make_pair("vgr", (int)MIXSRC_VGR),
+                 std::make_pair("vfl", (int)MIXSRC_VFL)}) {
+    snprintf(lua, sizeof(lua),
+             "local info = getFieldInfo('%s')\n"
+             "if info == nil or info.id ~= %d then error('id') end",
+             f.first, f.second);
+    EXPECT_TRUE(__luaExecStr(lua)) << f.first;
+  }
+}
+#endif
+
 TEST(Lua, getSwitchInfoOutOfRange)
 {
   RADIO_RESET();

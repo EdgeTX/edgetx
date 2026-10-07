@@ -386,6 +386,11 @@ const LuaSingleField luaSingleFields[] = {
     {MIXSRC_LIGHT, "light", "Light Sensor"},
 #endif
 
+#if defined(VOICE_CONTROL_SENSOR)
+    {MIXSRC_VGR, "vgr", "Voice control gear"},
+    {MIXSRC_VFL, "vfl", "Voice control flaps"},
+#endif
+
 #if defined(PCBHORUS)
     {MIXSRC_SPACEMOUSE_A, "sma", "SpaceMouse A"},
     {MIXSRC_SPACEMOUSE_B, "smb", "SpaceMouse B"},
