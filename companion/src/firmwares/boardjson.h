@@ -122,6 +122,10 @@ class BoardJson
       int has_aux_serial_pwr           = 0;
       int has_aux2_serial              = 0;
       int has_aux2_serial_pwr          = 0;
+      int has_internal_gps             = 0;
+      int bluetooth_builtin            = 0;
+      int bluetooth_optional           = 0;
+      int bluetooth_aux_port           = 0;
       int has_bling_leds               = 0;
       int status_led_colors            = 0;   // bit 0 red, 1 green, 2 blue
       int status_led_pwm               = 0;

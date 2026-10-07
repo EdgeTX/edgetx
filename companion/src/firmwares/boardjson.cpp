@@ -205,6 +205,15 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::Gyros:
       return getCapability(Board::GyroAxes) / 2;
 
+    case Board::BluetoothAuxPort:
+      return m_hardware.bluetooth_aux_port;
+
+    case Board::BluetoothBuiltin:
+      return m_hardware.bluetooth_builtin;
+
+    case Board::BluetoothOptional:
+      return m_hardware.bluetooth_optional;
+
     case Board::HasAudioMuteGPIO:
       return m_hardware.has_audio_mute;
 
@@ -234,6 +243,9 @@ const int BoardJson::getCapability(const Board::Capability capability) const
 
     case Board::HasColorLcd:
       return m_display.color;
+
+    case Board::HasInternalGPS:
+      return m_hardware.has_internal_gps;
 
     case Board::HasExternalModuleSupport:
       return m_hardware.has_ext_module_support;
@@ -1318,6 +1330,10 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
     hardware.has_aux_serial_pwr = o.value("has_aux_serial_pwr").toBool();
     hardware.has_aux2_serial = o.value("has_aux2_serial").toBool();
     hardware.has_aux2_serial_pwr = o.value("has_aux2_serial_pwr").toBool();
+    hardware.has_internal_gps = o.value("has_internal_gps").toBool();
+    hardware.bluetooth_builtin = o.value("bluetooth").toString() == "builtin";
+    hardware.bluetooth_optional = o.value("bluetooth").toString() == "optional";
+    hardware.bluetooth_aux_port = o.value("bluetooth_aux_port").toInt();
     hardware.has_ext_module_support = o.value("has_ext_module_support").toBool();
     hardware.has_int_module_support = o.value("has_int_module_support").toBool();
     hardware.sport_max_baudrate = o.value("sport_max_baudrate").toInt();

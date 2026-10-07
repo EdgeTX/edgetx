@@ -222,6 +222,9 @@ namespace Board {
   enum Capability {
     Air,
     BacklightLevelMin,
+    BluetoothAuxPort,
+    BluetoothBuiltin,
+    BluetoothOptional,
     CPU,
     CPUType,
     FlexInputs,
@@ -240,7 +243,6 @@ namespace Board {
     HasBlingLEDS,
     HasStatusLedPwm,
     StatusLedColors,
-    HasBluetooth,
     HasColorLcd,
     HasExternalAntenna,
     HasExternalModuleSupport,
