@@ -554,6 +554,13 @@
 #define TR_BEEPCOUNTDOWN               "倒數"
 #define TR_PERSISTENT                  TR("關機保持", "關機保持")
 #define TR_BACKLIGHT_LABEL             "背光"
+#define TR_STATUS_LED                  "狀態指示燈"
+#define TR_STATUS_LED_ERROR            "錯誤"
+#define TR_STATUS_LED_READY            "就緒"
+#define TR_STATUS_LED_EMIT             "發射中"
+#define TR_STATUS_LED_COLORS_1         "紅色"
+#define TR_STATUS_LED_COLORS_2         "綠色"
+#define TR_STATUS_LED_COLORS_3         "藍色"
 #define TR_STATUS                      "狀態"
 #define TR_BLONBRIGHTNESS              "背光開"
 #define TR_BLOFFBRIGHTNESS             "背光關"

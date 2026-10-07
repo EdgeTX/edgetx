@@ -165,11 +165,7 @@ void boardInit()
 
 #if STATUS_LEDS
   ledInit();
-#if !defined(POWER_LED_BLUE)
-  ledBlue();
-#else
-  ledGreen();
-#endif
+  ledBoot();
 #endif
 
 #if defined(CSD203_SENSOR)

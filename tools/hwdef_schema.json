@@ -272,10 +272,15 @@
       "additionalProperties": false,
       "properties": {
         "status_leds":                      { "type": "boolean" },
+        "status_led_rgb_strip":             { "type": "boolean" },
         "led_red_gpio":                     { "type": "string" },
         "led_red2_gpio":                    { "type": "string" },
         "led_green_gpio":                   { "type": "string" },
         "led_blue_gpio":                    { "type": "string" },
+        "status_led_pwm_timer":             { "type": "string" },
+        "status_led_pwm_timer_freq":        { "type": "string" },
+        "status_led_pwm_timer_irqn":        { "type": "string" },
+        "status_led_pwm_timer_irqhandler":  { "type": "string" },
         "gpio_led_gpio_on":                 { "type": "string" },
         "gpio_led_gpio_off":                { "type": "string" },
 

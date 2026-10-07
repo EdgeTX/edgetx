@@ -398,6 +398,19 @@ class GeneralSettings {
     RawSource backlightSrc;
     RawSource volumeSrc;
 
+    unsigned int statusLedDim;
+    RawSource statusLedSrc;
+    enum StatusLedColor {
+      STATUS_LED_COLOR_DEFAULT,
+      STATUS_LED_COLOR_RED,
+      STATUS_LED_COLOR_GREEN,
+      STATUS_LED_COLOR_BLUE,
+    };
+
+    unsigned int statusLedError;
+    unsigned int statusLedReady;
+    unsigned int statusLedEmit;
+
     // Radio level tabs control (global settings)
     bool radioThemesDisabled;
     bool radioGFDisabled;

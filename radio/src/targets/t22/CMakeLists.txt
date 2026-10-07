@@ -28,6 +28,7 @@ set(INTERNAL_MODULE_AFHDS3 NO)
 set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
 add_definitions(-DRGB_LEDS_900NS)
+add_definitions(-DSTATUS_LED_PWM)
 
 # IMU support
 set(IMU ON)
