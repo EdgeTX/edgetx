@@ -397,6 +397,10 @@ const LuaSingleField luaSingleFields[] = {
     {MIXSRC_MAX, "max", "MAX"},
 
     {MIXSRC_TX_VOLTAGE, "tx-voltage", "Transmitter battery voltage [volts]"},
+#if defined(MODULE_BATTERY_SENSOR)
+    {MIXSRC_TX_BAT_CURRENT, "tx-current", "Transmitter battery current [amps]"},
+    {MIXSRC_TX_BAT_POWER, "tx-power", "Transmitter battery power [watts]"},
+#endif
     {MIXSRC_TX_TIME, "clock", "RTC clock [minutes from midnight]"},
 };
 
