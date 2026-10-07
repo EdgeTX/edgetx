@@ -2503,6 +2503,13 @@ static int luaSerialRead(lua_State * L)
 }
 
 #if defined(SWSERIALPOWER) && !defined(SIMU)
+// Only ports with a switchable power rail can report or change power state
+static bool luaSerialHasPowerCtrl(uint8_t port_nr)
+{
+  auto port = serialGetPort(port_nr);
+  return port && port->set_pwr;
+}
+
 /*luadoc
 @function serialGetPower(port_nr)
 
@@ -2521,22 +2528,10 @@ static int luaSerialGetPower(lua_State* L)
 {
   uint8_t port_nr = luaL_checkinteger(L, 1) & 0x3;
 
-  #if defined(AUX_SERIAL)
-    if (port_nr == SP_AUX1)
-    {
-      bool res = serialGetPower(SP_AUX1);
-      lua_pushboolean(L, res);
-      return 1;
-    }
-  #endif
-  #if defined(AUX2_SERIAL)
-    if (port_nr == SP_AUX2)
-    {
-      bool res = serialGetPower(SP_AUX2);
-      lua_pushboolean(L, res);
-      return 1;
-    }
-  #endif
+  if (luaSerialHasPowerCtrl(port_nr)) {
+    lua_pushboolean(L, serialGetPower(port_nr));
+    return 1;
+  }
   return 0;
 }
 
@@ -2560,24 +2555,10 @@ static int luaSerialSetPower(lua_State* L)
   uint8_t port_nr = luaL_checkinteger(L, 1) & 0x3;
   uint8_t value = luaL_checkinteger(L, 2) & 0x3;
 
-  if (value < 2)
-  {
-  #if defined(AUX_SERIAL)
-    if (port_nr == SP_AUX1)
-    {
-      serialSetPower(SP_AUX1, value);
-      lua_pushboolean(L, true);
-      return 1;
-    }
-  #endif
-  #if defined(AUX2_SERIAL)
-    if (port_nr == SP_AUX2)
-    {
-      serialSetPower(SP_AUX2, value);
-      lua_pushboolean(L, true);
-      return 1;
-    }
-  #endif
+  if (value < 2 && luaSerialHasPowerCtrl(port_nr)) {
+    serialSetPower(port_nr, value);
+    lua_pushboolean(L, true);
+    return 1;
   }
   lua_pushboolean(L, false);
   return 1;
