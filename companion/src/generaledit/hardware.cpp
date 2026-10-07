@@ -321,7 +321,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
     addParams();
 
-    if (!Boards::getCapability(board, Board::HasSoftwareSerialPower))
+    if (!Boards::getCapability(board, Board::HasAuxSerialPower))
       serialPortPower->setVisible(false);
   }
 
@@ -340,7 +340,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
     addParams();
 
-    if (!Boards::getCapability(board, Board::HasSoftwareSerialPower))
+    if (!Boards::getCapability(board, Board::HasAux2SerialPower))
       serialPortPower->setVisible(false);
   }
 

@@ -498,6 +498,10 @@
     "status_led_pwm_timer_irqhandler": "TIM7_IRQHandler"
   },
   "hardware": {
+    "has_aux_serial": true,
+    "has_aux_serial_pwr": true,
+    "has_aux2_serial": true,
+    "has_aux2_serial_pwr": true,
     "has_ext_module_support": true,
     "has_int_module_support": true,
     "cpu": "STM32H750xB",
