@@ -169,6 +169,10 @@ class Hardware(BaseModel):
     cpu: str
     cpu_type: str
     has_audio_mute: Optional[bool] = None
+    has_aux_serial: Optional[bool] = None
+    has_aux_serial_pwr: Optional[bool] = None
+    has_aux2_serial: Optional[bool] = None
+    has_aux2_serial_pwr: Optional[bool] = None
     has_ext_module_support: Optional[bool] = None
     has_int_module_support: Optional[bool] = None
     sport_max_baudrate: Optional[int] = None

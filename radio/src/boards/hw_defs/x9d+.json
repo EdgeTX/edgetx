@@ -371,6 +371,7 @@
     "has_backlight_color": true
   },
   "hardware": {
+    "has_aux_serial": true,
     "has_ext_module_support": true,
     "sport_max_baudrate": 400000,
     "cpu": "STM32F205xE",

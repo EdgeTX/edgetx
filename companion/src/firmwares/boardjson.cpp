@@ -208,6 +208,18 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::HasAudioMuteGPIO:
       return m_hardware.has_audio_mute;
 
+    case Board::HasAuxSerialMode:
+      return m_hardware.has_aux_serial;
+
+    case Board::HasAuxSerialPower:
+      return m_hardware.has_aux_serial_pwr;
+
+    case Board::HasAux2SerialMode:
+      return m_hardware.has_aux2_serial;
+
+    case Board::HasAux2SerialPower:
+      return m_hardware.has_aux2_serial_pwr;
+
     case Board::HasBacklightColor:
       return m_display.backlight_color;
 
@@ -1302,6 +1314,10 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
     const QJsonObject &o = obj.value("hardware").toObject();
 
     hardware.has_audio_mute = o.value("has_audio_mute").toBool();
+    hardware.has_aux_serial = o.value("has_aux_serial").toBool();
+    hardware.has_aux_serial_pwr = o.value("has_aux_serial_pwr").toBool();
+    hardware.has_aux2_serial = o.value("has_aux2_serial").toBool();
+    hardware.has_aux2_serial_pwr = o.value("has_aux2_serial_pwr").toBool();
     hardware.has_ext_module_support = o.value("has_ext_module_support").toBool();
     hardware.has_int_module_support = o.value("has_int_module_support").toBool();
     hardware.sport_max_baudrate = o.value("sport_max_baudrate").toInt();
