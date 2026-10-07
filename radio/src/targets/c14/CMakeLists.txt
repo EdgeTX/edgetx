@@ -86,10 +86,6 @@ if(PWR_BUTTON STREQUAL "MANAGED")
   add_definitions(-DPWR_BUTTON_PRESS)
 endif()
 
-if(INTERNAL_GPS)
-  add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
-endif()
-
 if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()

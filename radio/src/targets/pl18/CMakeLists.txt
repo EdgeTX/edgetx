@@ -140,10 +140,6 @@ if(PREFER_SDIO)
   endif()
 endif()
 
-if(INTERNAL_GPS)
-  add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
-endif()
-
 if(USE_RTC_CLOCK)
   message("-- RTC Clock enabled")
   add_definitions(-DRTCLOCK)
