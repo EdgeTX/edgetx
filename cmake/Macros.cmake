@@ -92,6 +92,13 @@ function(AddHardwareDefTarget output)
 
   set(HW_DEF_SRC ${RADIO_DIRECTORY}/src/targets/${TARGET_DIR}/hal.h)
 
+  # hal.h includes headers generated into the binary dir (hal_settings.h,
+  # hal_pwm_sticks.h), which is not yet an include directory at this point
+  set(HW_DEF_GENERATED
+    ${CMAKE_CURRENT_BINARY_DIR}/hal_settings.h
+    ${CMAKE_CURRENT_BINARY_DIR}/hal_pwm_sticks.h)
+  set(HW_DEF_ARGS ${HW_DEF_ARGS} -I${CMAKE_CURRENT_BINARY_DIR})
+
   separate_arguments(flags UNIX_COMMAND ${CMAKE_CXX_FLAGS})
   foreach(flag ${flags})
     set(HW_DEF_ARGS ${HW_DEF_ARGS} ${flag})
@@ -108,7 +115,7 @@ function(AddHardwareDefTarget output)
 
   add_custom_command(OUTPUT ${output}.h
     COMMAND ${GEN_HW_DEFS} > ${output}.h
-    DEPENDS ${HW_DEF_SRC} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
+    DEPENDS ${HW_DEF_SRC} ${HW_DEF_GENERATED} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py
   )
 endfunction()
 
