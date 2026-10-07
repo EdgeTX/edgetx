@@ -965,14 +965,12 @@ void AppData::convertSettings(QSettings & settings)
             settings.setValue(profilePath.arg(i) % "/fwOptions", newfwOpts);
           }
 
-          // invalid or non-existent language
-          if (!getCurrentFirmware()->getFirmwareBase()->languageList().contains(newfwLang)) {
-            // depending on the OS environment this does not always return a valid language
-            newfwLang = QLocale::languageToString(QLocale().language()).split("_").first();
-
-            if (!getCurrentFirmware()->getFirmwareBase()->languageList().contains(newfwLang))
-              newfwLang = "en"; // give up trying
-
+          // Firmwares are not registered yet when settings are converted, so the language cannot be
+          // checked against the firmware here. The profile settings fall back to a supported
+          // language if the stored one is not, so only fill in a missing language, and never
+          // overwrite one already split out by an earlier conversion.
+          if (newfwLang.isEmpty() && !settings.contains(profilePath.arg(i) % "/fwLanguage")) {
+            newfwLang = "en";
             settings.setValue(profilePath.arg(i) % "/fwLanguage", newfwLang);
           }
 
