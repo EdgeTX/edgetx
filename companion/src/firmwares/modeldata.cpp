@@ -2337,7 +2337,7 @@ void ModelData::initTopBar()
     zone.widgetName = "Radio Info";
   }
 
-  if (zones - 3 >= 0 && Boards::getCapability(getCurrentBoard(), Board::HasInternalGPS)) {
+  if (zones - 3 >= 0 && getCurrentFirmware()->getCapability(InternalGPSAvailable)) {
     ZonePersistentData & zone = topBarData.zones[zones - 3];
     zone.widgetName = "Internal GPS";
   }

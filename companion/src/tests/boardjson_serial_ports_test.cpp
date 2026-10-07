@@ -28,6 +28,7 @@
 #include "gtests.h"
 
 #include "firmwares/boards.h"
+#include "firmwares/eeprominterface.h"
 
 struct SerialPortCaps {
   Board::Type board;
@@ -64,5 +65,62 @@ TEST(BoardSerialPorts, MatchFirmware)
     EXPECT_EQ((bool)Boards::getCapability(e.board, Board::HasAuxSerialPower), e.aux1Power) << name;
     EXPECT_EQ((bool)Boards::getCapability(e.board, Board::HasAux2SerialMode), e.aux2) << name;
     EXPECT_EQ((bool)Boards::getCapability(e.board, Board::HasAux2SerialPower), e.aux2Power) << name;
+  }
+}
+
+static bool hasOption(const Firmware * firmware, const char * name)
+{
+  for (const auto & group : firmware->getFirmwareBase()->optionGroups()) {
+    for (const auto & opt : group) {
+      if (QString(opt.name) == name)
+        return true;
+    }
+  }
+  return false;
+}
+
+// The "bluetooth" and "nogps" build options offered in the radio profile must
+// match what the firmware can actually be built with, as recorded in hw_defs
+TEST(BoardSerialPorts, BuildOptionsMatchFirmware)
+{
+  for (Firmware * firmware : Firmware::getRegisteredFirmwares()) {
+    const Board::Type board = firmware->getBoard();
+    const std::string id = firmware->getId().toStdString();
+    EXPECT_EQ(hasOption(firmware, "bluetooth"),
+              (bool)Boards::getCapability(board, Board::BluetoothOptional)) << id;
+    EXPECT_EQ(hasOption(firmware, "nogps"),
+              (bool)Boards::getCapability(board, Board::HasInternalGPS)) << id;
+  }
+}
+
+struct VariantCaps {
+  const char * id;
+  bool bluetooth;
+  bool aux1;
+  bool aux2;
+  bool gps;
+};
+
+TEST(BoardSerialPorts, VariantOptions)
+{
+  const VariantCaps expected[] = {
+    {"edgetx-tx16s", false, true, true, true},
+    // Bluetooth takes AUX2, GPS still possible on AUX1
+    {"edgetx-tx16s-bluetooth", true, true, false, true},
+    {"edgetx-tx16s-nogps", false, true, true, false},
+    // Bluetooth takes AUX1, the only port, so no GPS either
+    {"edgetx-v16-bluetooth", true, false, false, false},
+    // Bluetooth always built in, on its own UART
+    {"edgetx-x12s", true, true, true, true},
+    {"edgetx-v12", false, true, false, false},
+  };
+
+  for (const auto & e : expected) {
+    Firmware * firmware = Firmware::getFirmwareForId(e.id);
+    ASSERT_NE(firmware, nullptr) << e.id;
+    EXPECT_EQ((bool)firmware->getCapability(BluetoothEnabled), e.bluetooth) << e.id;
+    EXPECT_EQ((bool)firmware->getCapability(AuxSerialAvailable), e.aux1) << e.id;
+    EXPECT_EQ((bool)firmware->getCapability(Aux2SerialAvailable), e.aux2) << e.id;
+    EXPECT_EQ((bool)firmware->getCapability(InternalGPSAvailable), e.gps) << e.id;
   }
 }

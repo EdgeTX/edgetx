@@ -295,6 +295,8 @@
   "hardware": {
     "has_audio_mute": true,
     "has_aux_serial": true,
+    "bluetooth": "optional",
+    "bluetooth_aux_port": 1,
     "has_ext_module_support": true,
     "has_int_module_support": true,
     "sport_max_baudrate": 400000,
