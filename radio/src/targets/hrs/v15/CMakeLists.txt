@@ -48,6 +48,7 @@ add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
+add_definitions(-DSTATUS_LED_PWM)
 # Logic measure borrows EXTI8 (rotary encoder B), so the encoder is polled meanwhile
 add_definitions(-DROTARY_ENCODER_POLLING)
 set(AUX_SERIAL YES)
@@ -158,7 +159,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_COMMON_SRC}
   ${TARGET_SRC_DIR}/batsenser.cpp
   ${TARGET_SRC_DIR}/csd203_driver.cpp
-  ${TARGET_SRC_DIR}/led_driver.cpp
   ${TARGET_SRC_DIR}/touch_driver.cpp
   drivers/icm42607C.cpp
   drivers/sc7u22.cpp

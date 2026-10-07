@@ -316,7 +316,7 @@ void boardInit()
 
   usbChargerInit();
   hr_exesenserInit();
-  gpio_set(LED_BLUE_GPIO);
+  ledBoot();
 
   ExtFLASH_InitRuntime();
 
