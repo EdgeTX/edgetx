@@ -24,11 +24,11 @@ STM32H750
 DMA1
 Stream0:  LED_STRIP_TIMER_DMA_STREAM
 Stream1:  INTMODULE_DMA_STREAM
-Stream2:  FLYSKY_HALL_DMA_Stream_RX
+Stream2:  AUX_SERIAL_DMA_RX_STREAM
 Stream3:  TELEMETRY_DMA_Stream_RX
 Stream4:  ADC_DMA_STREAM
 Stream5:  INTMODULE_RX_DMA_STREAM
-Stream6:
+Stream6:  AUX_SERIAL_DMA_TX_STREAM
 Stream7:  TELEMETRY_DMA_Stream_TX
 
 DMA2
@@ -59,7 +59,7 @@ USARTS
 USART1: INTMODULE_USART
 USART2: TELEMETRY_USART
 USART3: DGONE
-USART4: BT MODULE
+UART4:  AUX_SERIAL_USART (external 3-pin header, PH13/PH14)
 USART6: EXTMODULE_USART
 */
 
@@ -519,5 +519,21 @@ USART6: EXTMODULE_USART
 #define LCD_PHYS_H                      LCD_H
 
 #define LCD_DEPTH                       16
+
+// AUX ports
+// UART4 is broken out to the 3-pin GND/TXD/RXD header on the main board.
+// There is no switchable power rail on this connector, so AUX_SERIAL_PWR_GPIO
+// is deliberately not defined.
+#define AUX_SERIAL_TX_GPIO                 GPIO_PIN(GPIOH, 13) // PH.13
+#define AUX_SERIAL_RX_GPIO                 GPIO_PIN(GPIOH, 14) // PH.14
+#define AUX_SERIAL_USART                   UART4
+#define AUX_SERIAL_USART_IRQHandler        UART4_IRQHandler
+#define AUX_SERIAL_USART_IRQn              UART4_IRQn
+#define AUX_SERIAL_DMA_TX                  DMA1
+#define AUX_SERIAL_DMA_TX_STREAM           LL_DMA_STREAM_6
+#define AUX_SERIAL_DMA_TX_CHANNEL          LL_DMAMUX1_REQ_UART4_TX
+#define AUX_SERIAL_DMA_RX                  DMA1
+#define AUX_SERIAL_DMA_RX_STREAM           LL_DMA_STREAM_2
+#define AUX_SERIAL_DMA_RX_CHANNEL          LL_DMAMUX1_REQ_UART4_RX
 
 #endif // _HAL_H_
