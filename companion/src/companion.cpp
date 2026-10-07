@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
   }
 
   // force the Board definition to load by appending "-xxx"
-  Firmware::setCurrentVariant(Firmware::getFirmwareForId(g.profile[g.id()].fwType() % "-xxx"));
+  Firmware::setCurrentVariant(Firmware::getFirmwareForId(g.profile[g.id()].fwVariantId() % "-xxx"));
 
   MainWindow *mainWin = new MainWindow();
   mainWin->show();

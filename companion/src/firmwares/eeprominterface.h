@@ -47,6 +47,9 @@ const uint8_t modn12x3[8][4]= {
 };
 
 enum Capability {
+  Aux2SerialAvailable,
+  AuxSerialAvailable,
+  BluetoothEnabled,
   ChannelsName,
   CustomFunctions,
   DangerousFunctions,
@@ -76,6 +79,7 @@ enum Capability {
   HasVarioSink,
   Heli,
   InputsLength,
+  InternalGPSAvailable,
   IsLandscape,
   IsNarrowLayout,
   IsPortrait,

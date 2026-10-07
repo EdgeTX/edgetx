@@ -345,6 +345,8 @@
     "status_led_rgb_strip": true
   },
   "hardware": {
+    "has_aux_serial": true,
+    "bluetooth": "optional",
     "has_ext_module_support": true,
     "has_int_module_support": true,
     "sport_max_baudrate": 400000,

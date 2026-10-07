@@ -338,23 +338,6 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 46;
       }
 
-    case HasAuxSerialMode:
-      return (IS_FAMILY_HORUS_OR_T16(board) &&
-              !(IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) ||
-                IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))) ||
-             (IS_TARANIS_X9(board) && !IS_TARANIS_X9DP_2019(board)) ||
-             IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board) ||
-             IS_RADIOMASTER_MT12(board);
-
-    case HasAux2SerialMode:
-      return IS_FAMILY_T16(board);
-
-    case HasBluetooth:
-      return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS_X7(board) ||
-              IS_TARANIS_XLITE(board)|| IS_TARANIS_X9E(board) ||
-              IS_TARANIS_X9DP_2019(board) || IS_FLYSKY_NV14(board) ||
-              IS_FLYSKY_EL18(board) || IS_FAMILY_PL18(board));
-
     case HasExternalAntenna:
       return IS_FAMILY_HORUS(board) || IS_TARANIS_XLITE(board) ||
              getCapability(board, HasHardwareAntennaSwitch);
@@ -365,13 +348,6 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case HasIMU:
       return (IS_FAMILY_HORUS_OR_T16(board) || IS_TARANIS(board) ||
               IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board) || IS_RADIOMASTER_TX16SMK3(board));
-
-    case HasInternalGPS:
-      return ((IS_FAMILY_HORUS_OR_T16(board) && getCapability(board, HasAuxSerialMode)) ||
-              IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_TX16SMK3(board));
-
-    case HasSoftwareSerialPower:
-      return IS_RADIOMASTER_TX16S(board);
 
     case HasSwitchableJack:
       return IS_TARANIS_XLITES(board);
