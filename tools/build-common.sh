@@ -57,7 +57,7 @@ get_target_build_options() {
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=BUMBLEBEE"
             ;;
         t20)
-            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20"
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T20 -DUSE_FW_LTO=y"
             ;;
         t12max)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12MAX"
