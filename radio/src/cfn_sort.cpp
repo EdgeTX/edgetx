@@ -348,31 +348,6 @@ Functions cfn_sorted[] = {
   /* Vibreur */ FUNC_HAPTIC,
   /* Volume */ FUNC_VOLUME,
 #elif defined(TRANSLATIONS_HE)
-  /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
-  /* BgMusic */ FUNC_BACKGND_MUSIC,
-  /* BgMusic || */ FUNC_BACKGND_MUSIC_PAUSE,
-  /* Haptic */ FUNC_HAPTIC,
-  /* Inst. Trim */ FUNC_INSTANT_TRIM,
-#if defined(VIDEO_SWITCH)
-  /* LCD to Video */ FUNC_LCD_TO_VIDEO,
-#endif
-  /* Lua Script */ FUNC_PLAY_SCRIPT,
-  /* ModuleBind */ FUNC_BIND,
-#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
-  /* No Keys */ FUNC_DISABLE_KEYS,
-#endif
-  /* Override */ FUNC_OVERRIDE_CHANNEL,
-  /* Play Track */ FUNC_PLAY_TRACK,
-  /* Play Value */ FUNC_PLAY_VALUE,
-#if defined(FUNCTION_SWITCHES)
-  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
-#endif
-  /* RangeCheck */ FUNC_RANGECHECK,
-  /* RGB leds */ FUNC_RGB_LED,
-  /* SD Logs */ FUNC_LOGS,
-  /* Set */ FUNC_SET_TIMER,
-  /* SetFailsafe */ FUNC_SET_FAILSAFE,
-  /* Vario */ FUNC_VARIO,
 #if !OLED_SCREEN
   /* אור אחורי */ FUNC_BACKLIGHT,
 #endif
@@ -380,19 +355,44 @@ Functions cfn_sorted[] = {
 #if defined(DEBUG)
   /* בדיקה */ FUNC_TEST,
 #endif
+  /* בדיקת טווח */ FUNC_RANGECHECK,
 #if OLED_SCREEN
   /* בהירות */ FUNC_BACKLIGHT,
 #endif
+  /* הגדר */ FUNC_SET_TIMER,
+  /* הגדר כשל קליטה */ FUNC_SET_FAILSAFE,
   /* הגדרת מסך ראשי */ FUNC_SET_SCREEN,
   /* הפעל סאונד */ FUNC_PLAY_SOUND,
+  /* הפעל סקריפט Lua */ FUNC_PLAY_SCRIPT,
+  /* השהיית מוזיקת רקע */ FUNC_BACKGND_MUSIC_PAUSE,
+  /* השמע ערך */ FUNC_PLAY_VALUE,
   /* התאם */ FUNC_ADJUST_GVAR,
+  /* וריומטר */ FUNC_VARIO,
+  /* טריינר */ FUNC_TRAINER,
+  /* לוגים לכרטיס SD */ FUNC_LOGS,
+#if defined(FUNCTION_SWITCHES)
+  /* לחץ מתג מותאם */ FUNC_PUSH_CUST_SWITCH,
+#endif
 #if defined(COLORLCD)
   /* ללא מסך מגע */ FUNC_DISABLE_TOUCH,
 #endif
-  /* מדריך */ FUNC_TRAINER,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* ללא מקשים */ FUNC_DISABLE_KEYS,
+#endif
+  /* מגבר שמע כבוי */ FUNC_DISABLE_AUDIO_AMP,
+  /* מוזיקת רקע */ FUNC_BACKGND_MUSIC,
+#if defined(VIDEO_SWITCH)
+  /* מסך לוידאו */ FUNC_LCD_TO_VIDEO,
+#endif
   /* מצב תחרות */ FUNC_RACING_MODE,
+  /* נגן קובץ קול */ FUNC_PLAY_TRACK,
+  /* נורות RGB */ FUNC_RGB_LED,
   /* עוצמת קול */ FUNC_VOLUME,
+  /* עקיפה */ FUNC_OVERRIDE_CHANNEL,
   /* צילום מסך */ FUNC_SCREENSHOT,
+  /* צימוד מודול */ FUNC_BIND,
+  /* קיזוז מיידי */ FUNC_INSTANT_TRIM,
+  /* רטט */ FUNC_HAPTIC,
 #elif defined(TRANSLATIONS_IT)
   /* Amp Audio Off */ FUNC_DISABLE_AUDIO_AMP,
   /* Azzera */ FUNC_RESET,
@@ -761,6 +761,52 @@ Functions cfn_sorted[] = {
   /* Vario */ FUNC_VARIO,
   /* Volym */ FUNC_VOLUME,
   /* Återställ */ FUNC_RESET,
+#elif defined(TRANSLATIONS_SK)
+#if defined(COLORLCD)
+  /* Deaktivácia dotyku */ FUNC_DISABLE_TOUCH,
+#endif
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* Deaktivácia klávesov */ FUNC_DISABLE_KEYS,
+#endif
+  /* Hlasitosť */ FUNC_VOLUME,
+  /* Hlásiť stav */ FUNC_PLAY_VALUE,
+  /* Hudba */ FUNC_BACKGND_MUSIC,
+  /* Hudba pauza */ FUNC_BACKGND_MUSIC_PAUSE,
+#if OLED_SCREEN
+  /* Jas */ FUNC_BACKLIGHT,
+#endif
+  /* Kontrola dosahu */ FUNC_RANGECHECK,
+#if defined(VIDEO_SWITCH)
+  /* LCD na video */ FUNC_LCD_TO_VIDEO,
+#endif
+  /* Loguj na SD */ FUNC_LOGS,
+  /* Lua Skript */ FUNC_PLAY_SCRIPT,
+  /* Nastav */ FUNC_ADJUST_GVAR,
+  /* Nastaviť failsafe */ FUNC_SET_FAILSAFE,
+  /* Okamžitý trim */ FUNC_INSTANT_TRIM,
+  /* Párovanie modulu */ FUNC_BIND,
+#if !OLED_SCREEN
+  /* Podsvietenie */ FUNC_BACKLIGHT,
+#endif
+  /* Prehrať wav */ FUNC_PLAY_TRACK,
+  /* Prehrať zvuk */ FUNC_PLAY_SOUND,
+  /* Pretekársky režim */ FUNC_RACING_MODE,
+  /* Reset */ FUNC_RESET,
+  /* RGB svetlo */ FUNC_RGB_LED,
+  /* Snímka LCD */ FUNC_SCREENSHOT,
+#if defined(FUNCTION_SWITCHES)
+  /* Stlač CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
+#if defined(DEBUG)
+  /* Test */ FUNC_TEST,
+#endif
+  /* Tréner */ FUNC_TRAINER,
+  /* Vario */ FUNC_VARIO,
+  /* Vibrovať */ FUNC_HAPTIC,
+  /* Vybrať hlavnú obrazovku */ FUNC_SET_SCREEN,
+  /* Vypnutie zosilňovača zvuku */ FUNC_DISABLE_AUDIO_AMP,
+  /* Zámok */ FUNC_OVERRIDE_CHANNEL,
+  /* Zmena */ FUNC_SET_TIMER,
 #elif defined(TRANSLATIONS_TW)
   /* Lua腳本 */ FUNC_PLAY_SCRIPT,
 #if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)

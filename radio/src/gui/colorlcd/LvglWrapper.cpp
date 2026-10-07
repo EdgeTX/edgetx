@@ -24,6 +24,7 @@
 #include "edgetx.h"
 #include "etx_lv_theme.h"
 #include "hal/rotary_encoder.h"
+#include "cli.h"
 #include "keyboard_base.h"
 #include "mainwindow.h"
 #include "os/time.h"
@@ -206,10 +207,47 @@ void lvglRequestKeyboardEnter()
 }
 #endif
 
+#if defined(CLI_INPUT_INJECT) && defined(HARDWARE_TOUCH)
+static struct {
+  volatile bool active;
+  int x1, y1, x2, y2;
+  uint32_t start, dur;
+} injTouch;
+
+void lvglInjectTouch(int x1, int y1, int x2, int y2, uint32_t ms)
+{
+  injTouch.x1 = x1; injTouch.y1 = y1;
+  injTouch.x2 = x2; injTouch.y2 = y2;
+  injTouch.dur = ms ? ms : 1;
+  injTouch.start = time_get_ms();
+  injTouch.active = true;
+}
+
+static bool injectedTouchRead(lv_indev_data_t* data)
+{
+  if (!injTouch.active) return false;
+  uint32_t el = time_get_ms() - injTouch.start;
+  bool done = el >= injTouch.dur;
+  int t = done ? injTouch.dur : el;
+  data->point.x = injTouch.x1 + (injTouch.x2 - injTouch.x1) * t / (int)injTouch.dur;
+  data->point.y = injTouch.y1 + (injTouch.y2 - injTouch.y1) * t / (int)injTouch.dur;
+  data->state = done ? LV_INDEV_STATE_RELEASED : LV_INDEV_STATE_PRESSED;
+  if (done) injTouch.active = false; else reset_inactivity();
+  return true;
+}
+#endif
+
 extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
 #if defined(HARDWARE_TOUCH)
   static lv_indev_data_t touch_data_backup;
+
+#if defined(CLI_INPUT_INJECT)
+  if (injectedTouchRead(data)) {
+    memcpy(&touch_data_backup, data, sizeof(lv_indev_data_t));
+    return;
+  }
+#endif
 
   if(!touchPanelEventOccured()) {
     memcpy(data, &touch_data_backup, sizeof(lv_indev_data_t));
@@ -264,13 +302,23 @@ extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 #endif
 }
 
+#if defined(CLI_INPUT_INJECT)
+static volatile int32_t injRotary;
+
+void lvglInjectRotary(int steps) { __atomic_fetch_add(&injRotary, steps, __ATOMIC_RELAXED); }
+
+static int32_t takeInjectedRotary() { return __atomic_exchange_n(&injRotary, 0, __ATOMIC_RELAXED); }
+#else
+static int32_t takeInjectedRotary() { return 0; }
+#endif
+
 #if defined(USE_HATS_AS_KEYS)
 
 int16_t getEmuRotaryData();
 
 static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
-  int16_t diff = getEmuRotaryData();
+  int16_t diff = getEmuRotaryData() + takeInjectedRotary();
 
   if(diff != 0) {
     reset_inactivity();
@@ -296,6 +344,7 @@ static void rotaryDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 
   rotenc_t newPos = rotaryEncoderGetValue();
   rotenc_t diff = newPos - prevPos;
+  diff += takeInjectedRotary();
 
   data->enc_diff = (int16_t)diff;
   data->state = LV_INDEV_STATE_RELEASED;
@@ -332,6 +381,10 @@ int8_t rotaryEncoderGetAccel() { return _rotary_enc_accel; }
 int8_t rotaryEncoderGetAccel() { return 0; }
 
 #endif // defined(ROTARY_ENCODER_NAVIGATION)
+
+#if defined(SIMU)
+void simuGuiHook();  // targets/simu/simulib.cpp
+#endif
 
 static void init_lvgl_drivers()
 {
@@ -419,6 +472,11 @@ void LvglWrapper::run()
       lv_indev_read_timer_cb(indev->driver->read_timer);
     }
   }
+
+#if defined(SIMU)
+  // Simulator hosts observe the GUI loop here, outside any UI code.
+  simuGuiHook();
+#endif
 }
 
 void initLvgl()

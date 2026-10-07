@@ -165,6 +165,15 @@ class LuxInput(BaseModel):
     pin: Optional[str] = None
     channel: Optional[Union[str, int]] = None
 
+class Hardware(BaseModel):
+    cpu: str
+    cpu_type: str
+    has_audio_mute: Optional[bool] = None
+    has_ext_module_support: Optional[bool] = None
+    has_int_module_support: Optional[bool] = None
+    sport_max_baudrate: Optional[int] = None
+    surface: Optional[bool] = None
+
 class EXTI(BaseModel):
     irq: str
     priority: int
@@ -204,6 +213,20 @@ class Display(BaseModel):
     ltdc_irq_prio: Optional[int] = None
     dma_screen_irq_prio: Optional[int] = None
 
+class Touch(BaseModel):
+    touch_i2c_bus: str
+    touch_i2c_clk_rate: Optional[int] = None
+    touch_int_gpio: Optional[str] = None
+    touch_int_gpio_pin: Optional[str] = None
+    touch_rst_gpio: Optional[str] = None
+    touch_rst_gpio_pin: Optional[str] = None
+    touch_int_exti_line: Optional[str] = None
+    touch_int_exti_port: Optional[str] = None
+    touch_int_exti_syscfgline: Optional[str] = None
+    touch_panel_inverted: Optional[bool] = None
+    gt911_rotation_mode: Optional[int] = None
+    exti: Optional[List[EXTI]] = None
+
 class LEDS(BaseModel):
     led_strip_length: Optional[int] = None
     bling_led_strip_start: Optional[int] = None
@@ -223,12 +246,17 @@ class LEDS(BaseModel):
     led_strip_timer_dma_irqhandler: Optional[str] = None
     led_strip_refresh_period: Optional[int] = None
     status_leds: Optional[bool] = False
+    status_led_rgb_strip: Optional[bool] = None
     gpio_led_gpio_on: Optional[str] = None
     gpio_led_gpio_off: Optional[str] = None
     led_red_gpio: Optional[str] = None
     led_red2_gpio: Optional[str] = None
     led_green_gpio: Optional[str] = None
     led_blue_gpio: Optional[str] = None
+    status_led_pwm_timer: Optional[str] = None
+    status_led_pwm_timer_freq: Optional[str] = None
+    status_led_pwm_timer_irqn: Optional[str] = None
+    status_led_pwm_timer_irqhandler: Optional[str] = None
 
 class IMU(BaseModel):
     imu_i2c_bus: Optional[str] = None
@@ -256,6 +284,7 @@ class RotEnc(BaseModel):
     rotary_encoder_timer: Optional[str] = None
     rotary_encoder_timer_irqn: Optional[str] = None
     rotary_encoder_timer_irqhandler: Optional[str] = None
+    rotary_encoder_granularity: Optional[int] = 2
     exti: Optional[List[EXTI]] = None
 
 class Haptic(BaseModel):
@@ -272,6 +301,26 @@ class Haptic(BaseModel):
     haptic_ccmr1: Optional[str] = None
     haptic_ccmr2: Optional[str] = None
     haptic_ccer: Optional[str] = None
+
+class USB(BaseModel):
+    usb_gpio_vbus: Optional[str] = None
+    usb_gpio_dm: Optional[str] = None
+    usb_gpio_dp: Optional[str] = None
+    usb_gpio_af: Optional[str] = None
+    usb_sw_gpio: Optional[str] = None
+
+class Trainer(BaseModel):
+    trainer_in_gpio: Optional[str] = None
+    trainer_in_timer_channel: Optional[str] = None
+    trainer_out_gpio: Optional[str] = None
+    trainer_out_timer_channel: Optional[str] = None
+    trainer_timer: Optional[str] = None
+    trainer_timer_irqn: Optional[str] = None
+    trainer_timer_irqhandler: Optional[str] = None
+    trainer_timer_freq: Optional[str] = None
+    trainer_gpio_af: Optional[str] = None
+    trainer_detect_gpio: Optional[str] = None
+    trainer_detect_inverted: Optional[bool] = None
 
 Input = Union[StickInput, FlexInput, SwitchInput, RawInput, VBatInput, RTCBatInput, LuxInput]
 
@@ -423,6 +472,10 @@ class HardwareDefinition(BaseModel):
     imu: Optional[IMU] = None
     rotenc: Optional[RotEnc] = None
     haptic: Optional[Haptic] = None
+    touch: Optional[Touch] = None
+    usb: Optional[USB] = None
+    trainer: Optional[Trainer] = None
+    hardware: Hardware
     key_lock_combo: Optional[List[KeyEnum]] = None
 
     @model_validator(mode="after")

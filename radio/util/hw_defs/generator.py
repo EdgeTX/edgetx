@@ -58,6 +58,8 @@ def generate_from_template(json_filename, template_filename, target):
         trims = root_obj.get("trims")
         trim_gpios = json_index.build_trim_gpio_port_index(trims)
 
+        identity = root_obj.get("identity")
+
         legacy_inputs = legacy_names.inputs_by_target(target)
 
         template_dir = os.path.dirname(os.path.abspath(template_filename))
@@ -80,6 +82,7 @@ def generate_from_template(json_filename, template_filename, target):
             switches=hw_def.switches,
             keys=hw_def.keys,
             trims=trims,
+            identity=identity,
             adc_index=adc_index,
             adc_gpios=adc_gpios,
             switch_gpios=switch_gpios,
@@ -95,6 +98,10 @@ def generate_from_template(json_filename, template_filename, target):
             imu=hw_def.imu,
             rotenc=hw_def.rotenc,
             haptic=hw_def.haptic,
+            touch=hw_def.touch,
+            usb=hw_def.usb,
+            trainer=hw_def.trainer,
+            hardware=hw_def.hardware,
             key_lock_combo=hw_def.key_lock_combo,
         )
 

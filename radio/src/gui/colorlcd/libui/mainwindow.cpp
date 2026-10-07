@@ -97,7 +97,7 @@ void MainWindow::shutdown()
 
   // clear layer stack first
   for (Window* w = Window::topWindow(); w; w = Window::topWindow())
-    w->deleteLater();
+    w->closeWindow();
 
   clear();
   emptyTrash();
@@ -126,6 +126,9 @@ bool MainWindow::setBackgroundImage(std::string& fileName)
   return false;
 }
 
+// Note: windows closed while blocked are not destroyed until control returns
+// to the top-level loop. Callers poll the closed window (e.g. dialog->deleted())
+// and outer stack frames may still reference it.
 void MainWindow::blockUntilClose(bool checkPwr, std::function<bool(void)> closeCondition, bool isError)
 {
   // reset input devices to avoid

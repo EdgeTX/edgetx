@@ -19,11 +19,26 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _USB_DESCRIPTOR_H_
-#define _USB_DESCRIPTOR_H_
 
-#define USB_NAME                     "Senduwing H17"
-#define USB_MANUFACTURER             'S', 'E', 'N', 'D', ' ', ' ', ' ', ' '  /* 8 bytes */
-#define USB_PRODUCT                  'H', '1', '7', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#include "edgetx.h"
+#include "translations/translation_def.h"
+#include "translations/i18n/sk.h"
 
-#endif // _USB_DESCRIPTOR_H_
+// Static string
+#define STR(x) static const char LNG_STR_##x[] = TR_##x;
+// Static string array
+#define STRARRAY(x) static const char* const LNG_STR_##x[] = { TR_##x };
+
+#include "translations/string_list.h"
+
+#undef STR
+#undef STRARRAY
+
+// Static string
+#define STR(x) LNG_STR_##x,
+// Static string array
+#define STRARRAY(x) LNG_STR_##x,
+
+const LangStrings skLangStrings = {
+#include "translations/string_list.h"
+};

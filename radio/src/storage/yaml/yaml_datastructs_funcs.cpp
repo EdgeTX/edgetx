@@ -642,7 +642,8 @@ bool w_widget_name(void* user, uint8_t* data, uint32_t bitoffs,
 {
   auto zoneData = get_zoneData(user);
 
-  return wf(opaque, zoneData->widgetName.c_str(), zoneData->widgetName.size());
+  return yaml_output_string(zoneData->widgetName.c_str(),
+                            zoneData->widgetName.size(), wf, opaque);
 }
 
 static WidgetPersistentData* get_widgetData(void* user, uint16_t& option)
@@ -811,7 +812,8 @@ bool w_wov_string(void* user, uint8_t* data, uint32_t bitoffs,
   uint16_t option;
   auto widgetData = get_widgetData(user, option);
 
-  return wf(opaque, widgetData->getString(option).c_str(), widgetData->getString(option).size());
+  return yaml_output_string(widgetData->getString(option).c_str(),
+                            widgetData->getString(option).size(), wf, opaque, true);
 }
 
 void r_wov_unsigned(void* user, uint8_t* data, uint32_t bitoffs,
@@ -971,15 +973,13 @@ bool w_keyShortcut(void* user, uint8_t* data, uint32_t bitoffs,
   QMPage pg = g_eeGeneral.getKeyShortcut(ev);
 
   const char* str = yaml_output_enum(pg, enum_QMPage);
-  if (!wf(opaque, str, strlen(str))) return false;
 
   if (pg == QM_APP) {
-    auto s = g_eeGeneral.getKeyToolName(ev);
-    if (!wf(opaque, ",", 1)) return false;
-    return wf(opaque, s.c_str(), s.size());
+    auto s = std::string(str) + "," + g_eeGeneral.getKeyToolName(ev);
+    return yaml_output_string(s.c_str(), s.size(), wf, opaque);
   }
 
-  return true;
+  return wf(opaque, str, strlen(str));
 }
 
 void r_qmFavorite(void* user, uint8_t* data, uint32_t bitoffs,
@@ -1002,15 +1002,13 @@ bool w_qmFavorite(void* user, uint8_t* data, uint32_t bitoffs,
   QMPage pg = (QMPage)g_eeGeneral.qmFavorites[idx].shortcut;
 
   const char* str = yaml_output_enum(pg, enum_QMPage);
-  if (!wf(opaque, str, strlen(str))) return false;
 
   if (pg == QM_APP) {
-    auto s = g_eeGeneral.getFavoriteToolName(idx);
-    if (!wf(opaque, ",", 1)) return false;
-    return wf(opaque, s.c_str(), s.size());
+    auto s = std::string(str) + "," + g_eeGeneral.getFavoriteToolName(idx);
+    return yaml_output_string(s.c_str(), s.size(), wf, opaque);
   }
 
-  return true;
+  return wf(opaque, str, strlen(str));
 }
 #endif
 
@@ -1150,9 +1148,7 @@ static bool _write_analog_name(uint8_t type, void* user, uint8_t* data,
   uint16_t idx = tw->getElmts(1);
 
   const char* name = analogGetCustomLabel(type, idx);
-  if (!wf(opaque, "\"", 1)) return false;
-  if (!wf(opaque, name, strlen(name))) return false;
-  return wf(opaque, "\"", 1);
+  return yaml_output_string(name, strlen(name), wf, opaque);
 }
 
 static void r_stick_name(void* user, uint8_t* data, uint32_t bitoffs,
@@ -2748,7 +2744,7 @@ static void r_cfs_name(void* user, uint8_t* data, uint32_t bitoffs,
                          const char* val, uint8_t val_len)
 {
   uint16_t idx = getIdx(user);
-  strAppend(g_model.customSwitches[idx].name, val, LEN_SWITCH_NAME);
+  copyToUnTerminated(g_model.customSwitches[idx].name, val);
 }
 
 static const struct YamlNode struct_cfsNameConfig[] = {

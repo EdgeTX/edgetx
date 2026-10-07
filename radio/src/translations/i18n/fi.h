@@ -556,6 +556,13 @@
 #define TR_BEEPCOUNTDOWN               "Countdown"
 #define TR_PERSISTENT                  TR("Persist.", "Persistent")
 #define TR_BACKLIGHT_LABEL             "Backlight"
+#define TR_STATUS_LED                  "Tilan LED"
+#define TR_STATUS_LED_ERROR            "Virhe"
+#define TR_STATUS_LED_READY            "Valmis"
+#define TR_STATUS_LED_EMIT             "Lähettää"
+#define TR_STATUS_LED_COLORS_1         "Punainen"
+#define TR_STATUS_LED_COLORS_2         "Vihreä"
+#define TR_STATUS_LED_COLORS_3         "Sininen"
 #define TR_STATUS                      "Status"
 #define TR_BLONBRIGHTNESS              "ON Brightness"
 #define TR_BLOFFBRIGHTNESS             "OFF Brightness"

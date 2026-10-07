@@ -391,10 +391,7 @@ const static SetupLineDef setupLines[] = {
       new ModelTextEdit(parent, {x, y, ModelSetupPage::NAM_W, 0},
                         g_model.header.name, sizeof(g_model.header.name),
                         [=]() {
-                          auto model = modelslist.getCurrentModel();
-                          if (model) {
-                            model->setModelName(g_model.header.name);
-                          }
+                          modelCellManager.updateCurrentModelCell();
                           SET_DIRTY();
                         });
     }
@@ -403,29 +400,23 @@ const static SetupLineDef setupLines[] = {
     // Model labels
     STR_DEF(STR_LABELS),
     [](Window* parent, coord_t x, coord_t y) {
-      auto curmod = modelslist.getCurrentModel();
-      TextButton* btn = new TextButton(parent, {x, y, 0, 0}, modelslabels.getBulletLabelString(curmod, STR_UNLABELEDMODEL));
+      auto curmod = modelCellManager.getCurrentModel();
+      TextButton* btn = new TextButton(parent, {x, y, 0, 0}, curmod->getBulletLabelString(STR_UNLABELEDMODEL));
       btn->setPressHandler([=]() {
             Menu *menu = new Menu(true);
             menu->setTitle(STR_LABELS);
-            for (auto &label : modelslabels.getLabels()) {
+            for (auto &label : modelCellManager.getLabels()) {
               menu->addLineBuffered(
                   label,
                   [=]() {
-                    if (!modelslabels.isLabelSelected(label, curmod))
-                      modelslabels.addLabelToModel(label, curmod);
+                    if (!curmod->hasLabel(label))
+                      modelCellManager.addLabelToModel(label, curmod);
                     else
-                      modelslabels.removeLabelFromModel(label, curmod);
-                    btn->setText(modelslabels.getBulletLabelString(
-                        curmod, STR_UNLABELEDMODEL));
-                    strncpy(g_model.header.labels,
-                            ModelMap::toCSV(modelslabels.getLabelsByModel(curmod))
-                                .c_str(),
-                            sizeof(g_model.header.labels));
-                    g_model.header.labels[sizeof(g_model.header.labels) - 1] = '\0';
+                      modelCellManager.removeLabelFromModel(label, curmod);
+                    btn->setText(curmod->getBulletLabelString(STR_UNLABELEDMODEL));
                     SET_DIRTY();
                   },
-                  [=]() { return modelslabels.isLabelSelected(label, curmod); });
+                  [=]() { return curmod->hasLabel(label); });
             }
             menu->updateLines();
             return 0;
@@ -442,11 +433,7 @@ const static SetupLineDef setupLines[] = {
                      },
                      [=](std::string newValue) {
                        strncpy(g_model.header.bitmap, newValue.c_str(), LEN_BITMAP_NAME);
-                       auto model = modelslist.getCurrentModel();
-                       if (model) {
-                         strncpy(model->modelBitmap, newValue.c_str(), LEN_BITMAP_NAME);
-                         model->modelBitmap[LEN_BITMAP_NAME] = '\0';
-                       }
+                       modelCellManager.updateCurrentModelCell();
                        SET_DIRTY();
                      }, false, STR_BITMAP);
     }

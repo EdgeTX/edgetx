@@ -26,5 +26,19 @@
 // CLI task function
 void cliStart();
 
+// Input injection commands (key, trim, touch, rotary) are debug-only
+#if defined(CLI) && defined(DEBUG) && !defined(BOOT)
+#define CLI_INPUT_INJECT
+// File access commands (lsl, fread, fwrite, rm, mkdir) are debug-only too
+#define CLI_FILE_ACCESS
+#endif
+
+#if defined(CLI_INPUT_INJECT)
+// Key mask held by the "key" CLI command, 0 when none
+uint32_t cliInjectedKeys();
+// Trim switch mask held by the "trim" CLI command, 0 when none
+uint32_t cliInjectedTrims();
+#endif
+
 // Connect serial driver to CLI
 void cliSetSerialDriver(void* ctx, const etx_serial_driver_t* drv);

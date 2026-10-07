@@ -6,6 +6,7 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "identity",
     "adc_inputs",
     "switches",
     "keys",
@@ -15,17 +16,29 @@
     "timers"
   ],
   "properties": {
+    "identity":   { "$ref": "#/$defs/identity" },
     "adc_inputs": { "$ref": "#/$defs/adc_inputs" },
     "switches":   { "type": "array", "items": { "$ref": "#/$defs/switch" } },
     "keys":       { "type": "array", "items": { "$ref": "#/$defs/key" } },
     "trims":      { "type": "array", "items": { "$ref": "#/$defs/trim" } },
     "display":    { "$ref": "#/$defs/display" },
+    "touch":      { "$ref": "#/$defs/touch" },
     "leds":       { "$ref": "#/$defs/leds" },
     "backlight":  { "$ref": "#/$defs/backlight" },
     "hardware":   { "$ref": "#/$defs/hardware" },
     "timers":     { "$ref": "#/$defs/timers" },
     "imu":        { "$ref": "#/$defs/imu" },
-    "rotenc":     { "$ref": "#/$defs/rotenc" }
+    "rotenc":     { "$ref": "#/$defs/rotenc" },
+    "usb":        { "$ref": "#/$defs/usb" },
+    "haptic":     { "$ref": "#/$defs/haptic" },
+    "trainer":    { "$ref": "#/$defs/trainer" },
+    "key_lock_combo": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/key/properties/key" },
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true
+    }
   },
 
   "$defs": {
@@ -43,6 +56,19 @@
       "description": "Combined GPIO macro form GPIO_PIN(port, n) used by some LED fields.",
       "type": "string",
       "pattern": "^GPIO_PIN\\(GPIO[A-K],\\s*\\d+\\)$"
+    },
+
+    "identity": {
+      "description": "Board identity metadata, independent of any electrical/hardware detail. Consumed at build time (firmware) and runtime (Companion) so manufacturer/model/USB descriptor strings aren't hand-maintained separately in either.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manufacturer", "model", "usb_manufacturer", "usb_product"],
+      "properties": {
+        "manufacturer":     { "type": "string", "minLength": 1 },
+        "model":            { "type": "string", "minLength": 1 },
+        "usb_manufacturer": { "type": "string", "minLength": 1, "maxLength": 8, "description": "USB manufacturer string (USB_MANUFACTURER); space-padded to a fixed 8 bytes at codegen time." },
+        "usb_product":      { "type": "string", "minLength": 1, "maxLength": 8, "description": "USB product string (USB_PRODUCT); space-padded to a fixed 8 bytes at codegen time." }
+      }
     },
 
     "adc_inputs": {
@@ -163,7 +189,7 @@
             "KEY_UP", "KEY_DOWN", "KEY_LEFT", "KEY_RIGHT",
             "KEY_PLUS", "KEY_MINUS",
             "KEY_MODEL", "KEY_SYS", "KEY_TELE",
-            "KEY_SHIFT"
+            "KEY_SHIFT", "KEY_BIND"
           ]
         },
         "name":  { "type": "string" },
@@ -221,15 +247,40 @@
       }
     },
 
+    "touch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["touch_i2c_bus"],
+      "properties": {
+        "touch_i2c_bus":          { "type": "string" },
+        "touch_i2c_clk_rate":     { "type": "integer" },
+        "touch_int_gpio":         { "type": "string" },
+        "touch_int_gpio_pin":     { "type": "string" },
+        "touch_rst_gpio":         { "type": "string" },
+        "touch_rst_gpio_pin":     { "type": "string" },
+        "touch_int_exti_line":    { "type": "string" },
+        "touch_int_exti_port":    { "type": "string" },
+        "touch_int_exti_syscfgline": { "type": "string" },
+        "touch_panel_inverted":   { "type": "boolean" },
+        "gt911_rotation_mode":    { "type": "integer", "enum": [0, 90, 180, 270] },
+        "exti":                   { "type": "array", "items": { "$ref": "#/$defs/exti" } }
+      }
+    },
+
     "leds": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "status_leds":                      { "type": "boolean" },
+        "status_led_rgb_strip":             { "type": "boolean" },
         "led_red_gpio":                     { "type": "string" },
         "led_red2_gpio":                    { "type": "string" },
         "led_green_gpio":                   { "type": "string" },
         "led_blue_gpio":                    { "type": "string" },
+        "status_led_pwm_timer":             { "type": "string" },
+        "status_led_pwm_timer_freq":        { "type": "string" },
+        "status_led_pwm_timer_irqn":        { "type": "string" },
+        "status_led_pwm_timer_irqhandler":  { "type": "string" },
         "gpio_led_gpio_on":                 { "type": "string" },
         "gpio_led_gpio_off":                { "type": "string" },
 
@@ -278,7 +329,7 @@
         "has_audio_mute":          { "type": "boolean" },
         "has_ext_module_support":  { "type": "boolean" },
         "has_int_module_support":  { "type": "boolean" },
-        "sport_max_baudrate":      { "type": "integer", "minimum": 0 },
+        "sport_max_baudrate":      { "type": "integer", "enum": [250000, 400000] },
         "surface":                 { "type": "boolean" }
       }
     },
@@ -350,7 +401,20 @@
         "rotary_encoder_timer":              { "type": "string" },
         "rotary_encoder_timer_irqn":         { "type": "string" },
         "rotary_encoder_timer_irqhandler":   { "type": "string" },
+        "rotary_encoder_granularity":        { "type": "integer", "enum": [2, 4] },
         "exti":                              { "type": "array", "items": { "$ref": "#/$defs/exti" } }
+      }
+    },
+
+    "usb": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "usb_gpio_vbus":                     { "type": "string" },
+        "usb_gpio_dm":                       { "type": "string" },
+        "usb_gpio_dp":                       { "type": "string" },
+        "usb_gpio_af":                       { "type": "string" },
+        "usb_sw_gpio":                       { "type": "string" }
       }
     },
 
@@ -371,6 +435,24 @@
         "haptic_ccmr1":               { "type": "string" },
         "haptic_ccmr2":               { "type": "string" },
         "haptic_ccer":                { "type": "string" }
+      }
+    },
+
+    "trainer": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "trainer_in_gpio":            { "type": "string" },
+        "trainer_in_timer_channel":   { "type": "string" },
+        "trainer_out_gpio":           { "type": "string" },
+        "trainer_out_timer_channel":  { "type": "string" },
+        "trainer_timer":              { "type": "string" },
+        "trainer_timer_irqn":         { "type": "string" },
+        "trainer_timer_irqhandler":   { "type": "string" },
+        "trainer_timer_freq":         { "type": "string" },
+        "trainer_gpio_af":            { "type": "string" },
+        "trainer_detect_gpio":        { "type": "string" },
+        "trainer_detect_inverted":    { "type": "boolean" }
       }
     }
   }

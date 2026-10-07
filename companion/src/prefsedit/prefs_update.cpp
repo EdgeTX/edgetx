@@ -158,7 +158,7 @@ void PrefsUpdatePanel::sectionComponents()
     layComponents->addWidget(btnComponentOptions[i], row, col++);
   }
 
-  ui->csectComponents->finish(row, col, [this] { this->shrink(); });
+  ui->csectComponents->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 
   while (it.hasNext()) {
     it.next();
@@ -267,7 +267,7 @@ void PrefsUpdatePanel::sectionFolders()
   btnUpdateDir->addBuddyParentWidget(leUpdateDir);
   layFolders->addWidget(btnUpdateDir, row, col++);
 
-  ui->csectFolders->finish(-1, -1, [this] { this->shrink(); });
+  ui->csectFolders->finish(-1, -1, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsUpdatePanel::sectionOptions()
@@ -320,7 +320,7 @@ void PrefsUpdatePanel::sectionOptions()
   });
   layOptions->addWidget(cboLogLevel, row, col++);
 
-  ui->csectOptions->finish(row, col, [this] { this->shrink(); });
+  ui->csectOptions->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsUpdatePanel::sectionPostUpdate()
@@ -348,7 +348,7 @@ void PrefsUpdatePanel::sectionPostUpdate()
   });
   layPostUpdate->addWidget(chkPrmptCpnInstall, row, col++);
 
-  ui->csectPostUpdate->finish(row, col, [this] { this->shrink(); });
+  ui->csectPostUpdate->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsUpdatePanel::setValuesFromSettings()

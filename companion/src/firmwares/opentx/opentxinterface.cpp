@@ -95,7 +95,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board) ||
              IS_IFLIGHT_COMMANDO8(board) || IS_RADIOMASTER_BOXER(board) ||
              IS_RADIOMASTER_POCKET(board) || IS_JUMPER_T20(board) ||
-             IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T22(board) ||
+             IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T15H7(board) || IS_JUMPER_T22(board) ||
              IS_SENDUWING_H17(board);
     case HasIntModuleFlySky:
       return  id.contains("afhds2a") || id.contains("afhds3") ||
@@ -146,7 +146,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
       // based on radio/src/gui/colorlcd/libui/etx_lv_theme.h
       return (!getCapability(IsNarrowLayout) && Boards::getCapability(board, Board::LcdWidth) >= 800);
     case KeyShortcuts:
-      return VERSION_MAJOR > 2 && Boards::getCapability(board, Board::HasColorLcd) ? MAX_KEYSHORTCUTS : 0;
+      return Boards::getCapability(board, Board::HasColorLcd) ? MAX_KEYSHORTCUTS : 0;
     case LogicalSwitches:
       return CPN_MAX_LOGICAL_SWITCHES;
     case LuaInputsPerScript:
@@ -189,7 +189,7 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case PPMFrameLength:
       return 40;
     case QMFavourites:
-      return VERSION_MAJOR > 2 && Boards::getCapability(board, Board::HasColorLcd) ? MAX_QMFAVOURITES : 0;
+      return Boards::getCapability(board, Board::HasColorLcd) ? MAX_QMFAVOURITES : 0;
     case SafetyChannelCustomFunction:
       return id.contains("nooverridech") ? 0 : 1;
     case Sensors:
@@ -629,6 +629,12 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
 
+  /* Jumper T15-H7 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("t15h7"), Firmware::tr("T15-H7"), BOARD_JUMPER_T15H7);
+  addOpenTxFrskyOptions(firmware);
+  addOpenTxRfOptions(firmware, FLEX);
+  registerOpenTxFirmware(firmware);
+
   /* Jumper T22 board */
   firmware = new OpenTxFirmware(FIRMWAREID("t22"), Firmware::tr("T22"), BOARD_JUMPER_T22);
   addOpenTxFrskyOptions(firmware);
@@ -739,7 +745,7 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
 
   /* Radiomaster GX15 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("gx15"), Firmware::tr("Radiomaster GX15"), BOARD_RADIOMASTER_GX15);
+  firmware = new OpenTxFirmware(FIRMWAREID("gx15"), Firmware::tr("GX15"), BOARD_RADIOMASTER_GX15);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   firmware->addOptionsGroup({opt_bt, opt_internal_gps});
@@ -772,7 +778,7 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX + AFHDS2A + AFHDS3);
 
   /* Senduwing H17 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("h17"), Firmware::tr("Senduwing H17"), BOARD_SENDUWING_H17);
+  firmware = new OpenTxFirmware(FIRMWAREID("h17"), Firmware::tr("H17"), BOARD_SENDUWING_H17);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);

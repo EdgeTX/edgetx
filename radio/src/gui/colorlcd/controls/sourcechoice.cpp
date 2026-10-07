@@ -205,7 +205,7 @@ void SourceChoice::openMenu()
 
   // fillMenu(menu); - called by MenuToolbar
 
-  menu->setCloseHandler([=]() { setEditMode(false); });
+  menu->onClosing([=]() { setEditMode(false); });
 }
 
 SourceChoice::SourceChoice(Window *parent, const rect_t &rect, int16_t vmin,

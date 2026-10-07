@@ -210,7 +210,6 @@ void evalFunctionSwitches()
         }
 
         fsPreviousState ^= uint32_t(1) << i;  // Toggle state
-        storageDirty(EE_MODEL);
       }
 
       if (!pwrPressed()) {
@@ -756,7 +755,9 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
     result = isTrainerConnected();
   }
   else if (cs_idx >= SWSRC_FIRST_SENSOR) {
-    result = !telemetryItems[cs_idx-SWSRC_FIRST_SENSOR].isOld();
+    // Out of range switches behave like a switch that doesn't exist
+    result = cs_idx <= SWSRC_LAST_SENSOR &&
+             !telemetryItems[cs_idx - SWSRC_FIRST_SENSOR].isOld();
   }
   else if (cs_idx == SWSRC_TELEMETRY_STREAMING) {
     result = TELEMETRY_STREAMING();

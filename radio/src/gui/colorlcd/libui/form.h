@@ -78,29 +78,16 @@ class FormField : public Window
  public:
   FormField(Window* parent, const rect_t& rect, LvglCreate objConstruct = nullptr);
 
-  virtual void changeEnd(bool forceChanged = false)
-  {
-    if (changeHandler) {
-      changeHandler();
-    }
-  }
-
-  void setChangeHandler(std::function<void()> handler)
-  {
-    changeHandler = std::move(handler);
-  }
+  virtual void changeEnd() {}
 
   inline bool isEditMode() const { return editMode; }
   virtual void setEditMode(bool newEditMode);
 
   void onClicked() override;
   void onCancel() override;
-  void deleteLater() override;
 
  protected:
   bool editMode = false;
-  bool enabled = true;
-  std::function<void()> changeHandler = nullptr;
 };
 
 class FormLine : public Window

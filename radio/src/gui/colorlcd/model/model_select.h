@@ -55,11 +55,12 @@ class ModelLabelsWindow : public Page
   ModelsPageBody *mdlselector;
   ModelLayoutButton *mdlLayout;
   std::string currentLabel;
+  Messaging closeMessage;
 
   LabelsVector getLabels()
   {
-    auto labels = modelslabels.getLabels();
-    if (modelslabels.getUnlabeledModels().size() > 0)
+    auto labels = modelCellManager.getLabels();
+    if (modelCellManager.getUnlabeledModels().size() > 0)
       labels.emplace_back(STR_UNLABELEDMODEL);
     return labels;
   }

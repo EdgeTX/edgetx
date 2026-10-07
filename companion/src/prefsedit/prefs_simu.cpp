@@ -56,6 +56,8 @@ PrefsSimuPanel::PrefsSimuPanel(QWidget * parent, Firmware * fw, Board::Type & bd
 
   ui->btnScrnshotFldr->setup(tr("Select snapshot folder"), g.snapshotDir(), ui->leScrnshotPath);
   ui->btnScrnshotFldr->addBuddyParentWidget(ui->leScrnshotPath);
+  // setup() sets a Maximum policy; fill the column to match the other buttons
+  ui->btnScrnshotFldr->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
   ui->btnClearSavedPosn->setBindClicked([this] {
     SimulatorOptions opts = this->profile.simulatorOptions();

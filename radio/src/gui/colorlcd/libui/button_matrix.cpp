@@ -84,21 +84,27 @@ ButtonMatrix::ButtonMatrix(Window* parent, const rect_t& r) :
   setWindowFlag(NO_FOCUS);
 
   lv_obj_add_event_cb(lvobj, btn_matrix_event, LV_EVENT_VALUE_CHANGED, this);
-}
 
-ButtonMatrix::~ButtonMatrix() { deallocate(); }
+  onClosing([=]() {
+    deallocate();
+  });
+}
 
 void ButtonMatrix::deallocate()
 {
-  if (txt_cnt == 0) return;
-
   for (uint8_t i = 0; i < txt_cnt; i++) {
     char* txt = lv_btnm_map[i];
     if (txt != _filler && txt != _newline && txt != _map_end) free(txt);
   }
 
-  free(lv_btnm_map);
-  free(txt_index);
+  if (lv_btnm_map) {
+    free(lv_btnm_map);
+    lv_btnm_map = nullptr;
+  }
+  if (txt_index) {
+    free(txt_index);
+    txt_index = nullptr;
+  }
 
   txt_cnt = 0;
   btn_cnt = 0;

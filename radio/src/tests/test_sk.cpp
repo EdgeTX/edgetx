@@ -19,8 +19,15 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+// Test language translation file against English base
 
-#define USB_NAME                     "T22"
-#define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
-#define USB_PRODUCT                  'T', '2', '2', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
+#include "edgetx.h"
+#include "translations/translation_def.h"
+#include "translations/i18n/sk.h"
+
+// Static string
+#define STR(x) const char TST_STR_##x[] = TR_##x;
+// Static string array
+#define STRARRAY(x) const char* const TST_STR_##x[] = { TR_##x };
+
+#include "translations/string_list.h"

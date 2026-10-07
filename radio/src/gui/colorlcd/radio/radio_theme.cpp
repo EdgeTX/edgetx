@@ -148,7 +148,7 @@ class ThemeDetailsDialog : public BaseDialog
 
     auto button =
         new TextButton(line, rect_t{0, 0, lv_pct(30), 0}, STR_CANCEL, [=]() {
-          deleteLater();
+          closeWindow();
           return 0;
         });
     lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 0, 1,
@@ -163,7 +163,7 @@ class ThemeDetailsDialog : public BaseDialog
             if (!saveHandler(this->theme))
               return 0;
           }
-          deleteLater();
+          closeWindow();
           return 0;
         });
     lv_obj_set_grid_cell(button->getLvObj(), LV_GRID_ALIGN_CENTER, 1, 1,
@@ -190,6 +190,10 @@ class ColorEditPage : public Page
   {
     buildHead(header);
     buildBody(body);
+
+    onClosing([=]() {
+      if (_updateHandler != nullptr) _updateHandler();
+    });
   }
 
   void setActiveColorBar(int activeTab)
@@ -220,12 +224,6 @@ class ColorEditPage : public Page
   int _activeTab = 0;
   ColorSwatch *_colorSquare = nullptr;
   StaticText *_hexBox = nullptr;
-
-  void deleteLater() override
-  {
-    if (_updateHandler != nullptr) _updateHandler();
-    Page::deleteLater();
-  }
 
   void setHexStr(uint32_t rgb)
   {
@@ -347,11 +345,11 @@ class ThemeEditPage : public Page
             if (saveHandler != nullptr) {
               saveHandler(_theme);
             }
-            deleteLater();
+            closeWindow();
           },
-          [=]() { deleteLater(); });
+          [=]() { closeWindow(); });
     } else {
-      deleteLater();
+      closeWindow();
     }
   }
 

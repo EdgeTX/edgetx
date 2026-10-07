@@ -55,6 +55,9 @@ bool hpDetected = false;
 
 uint8_t currentBacklightBright = 0;
 uint8_t requiredBacklightBright = 0;
+#if defined(STATUS_LED_PWM)
+uint8_t requiredStatusLedBright = STATUS_LED_BRIGHT_MAX;
+#endif
 
 static bool _usbDisabled = false;
 
@@ -65,7 +68,7 @@ void closeUsbMenu()
 {
   if (_usbMenu && !usbPlugged()) {
     // USB has been unplugged meanwhile
-    _usbMenu->deleteLater();
+    _usbMenu->closeWindow();
   }
 }
 
@@ -75,7 +78,7 @@ void openUsbMenu()
 
   _usbMenu = new Menu();
 
-  _usbMenu->setCloseHandler([]() { _usbMenu = nullptr; });
+  _usbMenu->onClosing([=]() { _usbMenu = nullptr; });
 
   _usbMenu->setCancelHandler([]() {
     if (usbPlugged() && (getSelectedUsbMode() == USB_UNSELECTED_MODE)) {
@@ -218,7 +221,7 @@ void handleUsbConnection()
     TRACE("USB stopped");
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
 #if defined(COLORLCD)
-      usbConnectedWindow->deleteLater();
+      usbConnectedWindow->closeWindow();
       usbConnectedWindow = nullptr;
       // In case the SD card is removed during the session
       if (!SD_CARD_PRESENT()) {
@@ -227,7 +230,7 @@ void handleUsbConnection()
         MainWindow::instance()->blockUntilClose(true, []() {
           return SD_CARD_PRESENT();
         }, true);
-        w->deleteLater();
+        w->closeWindow();
       }
       edgeTxResume();
 #else
@@ -573,6 +576,9 @@ void perMain()
   DEBUG_TIMER_STOP(debugTimerPerMain1);
 
   checkBacklight();
+#if defined(STATUS_LED_COLORS)
+  checkStatusLed();
+#endif
 
 #if defined(USE_HATS_AS_KEYS)
   checkHatsAsKeys();

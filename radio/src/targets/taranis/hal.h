@@ -34,108 +34,6 @@
   #define KEYS_GPIO_PIN_BIND            LL_GPIO_PIN_9 // PD.09
 #endif
 
-// Rotary Encoder
-#if defined(PCBX9E)
-  #define ROTARY_ENCODER_NAVIGATION
-  #define ROTARY_ENCODER_GPIO           GPIOD
-  #define ROTARY_ENCODER_GPIO_PIN_A     LL_GPIO_PIN_12 // PD.12
-  #define ROTARY_ENCODER_GPIO_PIN_B     LL_GPIO_PIN_13 // PD.13
-  #define ROTARY_ENCODER_POSITION       (ROTARY_ENCODER_GPIO->IDR >> 12) & 0x03
-  #define ROTARY_ENCODER_EXTI_LINE1     LL_EXTI_LINE_12
-  #define ROTARY_ENCODER_EXTI_LINE2     LL_EXTI_LINE_13
-  #define ROTARY_ENCODER_EXTI_PORT      LL_SYSCFG_EXTI_PORTD
-  #define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE12
-  #define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE13
-  // ROTARY_ENCODER_EXTI IRQ
-  #if !defined(USE_EXTI15_10_IRQ)
-    #define USE_EXTI15_10_IRQ
-    #define EXTI15_10_IRQ_Priority 5
-  #endif
-#elif defined(RADIO_X9DP2019)
-  #define ROTARY_ENCODER_NAVIGATION
-  #define ROTARY_ENCODER_GPIO           GPIOE
-  #define ROTARY_ENCODER_GPIO_PIN_A     LL_GPIO_PIN_10 // PE.10
-  #define ROTARY_ENCODER_GPIO_PIN_B     LL_GPIO_PIN_11 // PE.11
-  #define ROTARY_ENCODER_POSITION       (((ROTARY_ENCODER_GPIO->IDR >> 9) & 0x02) + ((ROTARY_ENCODER_GPIO->IDR >> 11) & 0x01))
-  #define ROTARY_ENCODER_EXTI_LINE1     LL_EXTI_LINE_10
-  #define ROTARY_ENCODER_EXTI_LINE2     LL_EXTI_LINE_11
-  #define ROTARY_ENCODER_EXTI_PORT      LL_SYSCFG_EXTI_PORTE
-  #define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE10
-  #define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE11
-  // ROTARY_ENCODER_EXTI IRQ
-  #if !defined(USE_EXTI15_10_IRQ)
-    #define USE_EXTI15_10_IRQ
-    #define EXTI15_10_IRQ_Priority 5
-  #endif
-#elif defined(RADIO_X7) || defined(RADIO_X7ACCESS) || defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_FAMILY_T20) || defined(RADIO_BUMBLEBEE)
-  #define ROTARY_ENCODER_NAVIGATION
-  #define ROTARY_ENCODER_GPIO           GPIOE
-  #define ROTARY_ENCODER_GPIO_PIN_A     LL_GPIO_PIN_9  // PE.09
-  #define ROTARY_ENCODER_GPIO_PIN_B     LL_GPIO_PIN_11 // PE.11
-  #define ROTARY_ENCODER_POSITION       (((ROTARY_ENCODER_GPIO->IDR >> 10) & 0x02) + ((ROTARY_ENCODER_GPIO->IDR >> 9) & 0x01))
-  #define ROTARY_ENCODER_EXTI_LINE1     LL_EXTI_LINE_9
-  #define ROTARY_ENCODER_EXTI_LINE2     LL_EXTI_LINE_11
-  // ROTARY_ENCODER_EXTI_LINE1 IRQ
-  #if !defined(USE_EXTI9_5_IRQ)
-    #define USE_EXTI9_5_IRQ
-    #define EXTI9_5_IRQ_Priority 5
-  #endif
-  // ROTARY_ENCODER_EXTI_LINE2 IRQ
-  #if !defined(USE_EXTI15_10_IRQ)
-    #define USE_EXTI15_10_IRQ
-    #define EXTI15_10_IRQ_Priority 5
-  #endif
-  #define ROTARY_ENCODER_EXTI_PORT      LL_SYSCFG_EXTI_PORTE
-  #define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_SYSCFG_EXTI_LINE9
-  #define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_SYSCFG_EXTI_LINE11
-#elif defined(PCBX9LITE)
-  #define ROTARY_ENCODER_NAVIGATION
-  #define ROTARY_ENCODER_GPIO           GPIOE
-  #define ROTARY_ENCODER_GPIO_PIN_A     LL_GPIO_PIN_10 // PE.10
-  #define ROTARY_ENCODER_GPIO_PIN_B     LL_GPIO_PIN_12 // PE.12
-  #define ROTARY_ENCODER_POSITION       (((ROTARY_ENCODER_GPIO->IDR >> 12) & 0x01) + ((ROTARY_ENCODER_GPIO->IDR >> 9) & 0x02))
-  #define ROTARY_ENCODER_EXTI_LINE1     LL_EXTI_LINE_10
-  #define ROTARY_ENCODER_EXTI_LINE2     LL_EXTI_LINE_12
-  #define ROTARY_ENCODER_EXTI_PORT      LL_SYSCFG_EXTI_PORTE
-  #define ROTARY_ENCODER_EXTI_SYS_LINE1  LL_SYSCFG_EXTI_LINE10
-  #define ROTARY_ENCODER_EXTI_SYS_LINE2  LL_SYSCFG_EXTI_LINE12
-  // ROTARY_ENCODER_EXTI IRQ
-  #if !defined(USE_EXTI15_10_IRQ)
-    #define USE_EXTI15_10_IRQ
-    #define EXTI15_10_IRQ_Priority 5
-  #endif
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_MT12) || defined(RADIO_POCKET) || defined(RADIO_T14) || defined(RADIO_T12MAX)  || defined(RADIO_TPROS) || defined(RADIO_V14) || defined(RADIO_V14LCD) || defined(RADIO_GX12)
-  #define ROTARY_ENCODER_NAVIGATION
-  #define ROTARY_ENCODER_GPIO              GPIOE
-  #define ROTARY_ENCODER_GPIO_PIN_A        LL_GPIO_PIN_9 // PE.9
-  #define ROTARY_ENCODER_GPIO_PIN_B        LL_GPIO_PIN_10 // PE.10
-  #define ROTARY_ENCODER_POSITION          ((ROTARY_ENCODER_GPIO->IDR >> 9) & 0x03)
-  #define ROTARY_ENCODER_EXTI_LINE1        LL_EXTI_LINE_9
-  #define ROTARY_ENCODER_EXTI_LINE2        LL_EXTI_LINE_10
-  #define ROTARY_ENCODER_EXTI_PORT         LL_SYSCFG_EXTI_PORTE
-  #define ROTARY_ENCODER_EXTI_SYS_LINE1    LL_SYSCFG_EXTI_LINE9
-  #define ROTARY_ENCODER_EXTI_SYS_LINE2    LL_SYSCFG_EXTI_LINE10
-  // ROTARY_ENCODER_EXTI_LINE1 IRQ
-  #if !defined(USE_EXTI9_5_IRQ)
-    #define USE_EXTI9_5_IRQ
-    #define EXTI9_5_IRQ_Priority 5
-  #endif
-  // ROTARY_ENCODER_EXTI_LINE2 IRQ
-  #if !defined(USE_EXTI15_10_IRQ)
-    #define USE_EXTI15_10_IRQ
-    #define EXTI15_10_IRQ_Priority 5
-  #endif
-  #if defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_ZORRO) || defined(RADIO_MT12) || defined(RADIO_POCKET) || defined(RADIO_T14) || defined(RADIO_TPROS) || defined(RADIO_V14) || defined(RADIO_V14LCD)
-    #define ROTARY_ENCODER_INVERTED
-  #endif
-#endif
-
-#if defined(ROTARY_ENCODER_NAVIGATION)
-  #define ROTARY_ENCODER_TIMER            TIM5
-  #define ROTARY_ENCODER_TIMER_IRQn       TIM5_IRQn
-  #define ROTARY_ENCODER_TIMER_IRQHandler TIM5_IRQHandler
-#endif
-
 // 6POS SW
 #if defined(RADIO_V14) || defined(RADIO_V14LCD)
   #define SIXPOS_SWITCH_INDEX             6
@@ -489,48 +387,6 @@
   #define EXTMODULE_TIMER_FREQ                  (PERI2_FREQUENCY * TIMER_MULT_APB2)
 #endif
 
-// Trainer Port
-#if defined(PCBXLITES) || defined(PCBX9LITE)
-  // on these 2 radios the trainer port already uses DMA1_Stream6, we won't use the DMA
-  #define TRAINER_IN_GPIO               GPIO_PIN(GPIOD, 13) // PD.13
-  #define TRAINER_IN_TIMER_Channel      LL_TIM_CHANNEL_CH2
-  #define TRAINER_OUT_GPIO              GPIO_PIN(GPIOD, 12) // PD.12
-  #define TRAINER_OUT_TIMER_Channel     LL_TIM_CHANNEL_CH1
-  #if defined(PCBX9LITE)
-    #define TRAINER_DETECT_GPIO         GPIO_PIN(GPIOD, 11) // PD.11
-  #endif
-  #define TRAINER_TIMER                 TIM4
-  #define TRAINER_GPIO_AF               GPIO_AF2 // TIM4_CH1 (Out) + TIM4_CH2 (In)
-  #define TRAINER_TIMER_IRQn            TIM4_IRQn
-  #define TRAINER_TIMER_IRQHandler      TIM4_IRQHandler
-  #define TRAINER_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#elif defined(PCBXLITE)
-  #define TRAINER_TIMER                 TIM4
-  #define TRAINER_TIMER_IRQn            TIM4_IRQn
-  #define TRAINER_TIMER_IRQHandler      TIM4_IRQHandler
-#else
-  #define TRAINER_IN_GPIO               GPIO_PIN(GPIOC, 8) // PC.08
-  #define TRAINER_IN_TIMER_Channel      LL_TIM_CHANNEL_CH3
-  #define TRAINER_OUT_GPIO              GPIO_PIN(GPIOC, 9) // PC.09
-  #define TRAINER_OUT_TIMER_Channel     LL_TIM_CHANNEL_CH4
-#if defined(RADIO_FAMILY_T20) || defined(RADIO_BUMBLEBEE)
-  #define TRAINER_DETECT_GPIO           GPIO_PIN(GPIOE, 3) // PE.03
-#elif defined(RADIO_MT12)
-  #define TRAINER_DETECT_GPIO           GPIO_PIN(GPIOD, 14) // PD.14
-#else
-  #define TRAINER_DETECT_GPIO           GPIO_PIN(GPIOA, 8) // PA.08
-#endif
-#if !defined(RADIO_X9DP2019) && !defined(RADIO_X7ACCESS)
-  #define TRAINER_DETECT_INVERTED
-#endif
-  #define TRAINER_TIMER                 TIM3
-  #define TRAINER_TIMER_IRQn            TIM3_IRQn
-  #define TRAINER_GPIO_AF               LL_GPIO_AF_2
-  #define TRAINER_TIMER_IRQn            TIM3_IRQn
-  #define TRAINER_TIMER_IRQHandler      TIM3_IRQHandler
-  #define TRAINER_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#endif
-
 // Serial Port
 #if (defined(PCBX7) && !defined(AUX_SERIAL)) || defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_X9DP2019)
 #elif defined(RADIO_GX12)
@@ -614,22 +470,15 @@
 
 // S.Port update connector
 #if defined(PCBXLITE)
-  #define SPORT_MAX_BAUDRATE            250000 // not tested
   #define SPORT_UPDATE_PWR_GPIO         GPIO_PIN(GPIOD, 8) // PD.08
 #elif defined(PCBX7ACCESS)
-  #define SPORT_MAX_BAUDRATE            400000
   #define SPORT_UPDATE_PWR_GPIO         GPIO_PIN(GPIOB, 3) // PB.03
 #elif defined(RADIO_X7)
-  #define SPORT_MAX_BAUDRATE            250000 // < 400000
   #define SPORT_UPDATE_PWR_GPIO         GPIO_PIN(GPIOB, 2) // PB.02
 #elif defined(PCBX9LITE)
-  #define SPORT_MAX_BAUDRATE            250000 // not tested
   #define SPORT_UPDATE_PWR_GPIO         GPIO_PIN(GPIOE, 15) // PE.15
 #elif defined(RADIO_X9DP2019)
-  #define SPORT_MAX_BAUDRATE            400000
   #define SPORT_UPDATE_PWR_GPIO         GPIO_PIN(GPIOA, 14) // PA.14
-#else
-  #define SPORT_MAX_BAUDRATE            400000
 #endif
 
 // Heartbeat for iXJT / ISRM synchro
@@ -718,12 +567,6 @@
 #else
   // TODO: replace SBUS trainer with S.PORT pin
 #endif
-
-// USB
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOA, 9)  // PA.09
-#define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
-#define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
-#define USB_GPIO_AF                     GPIO_AF10
 
 // BackLight
 #if defined(PCBX9E)

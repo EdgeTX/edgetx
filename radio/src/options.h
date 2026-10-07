@@ -34,6 +34,9 @@ static const char * const options[] = {
 #if defined(GHOST)
   "ghost",
 #endif
+#if FF_FS_EXFAT
+  "exfat",
+#endif
 #if !defined(MODULE_PROTOCOL_D8)
   "eu",
 #endif
@@ -102,9 +105,6 @@ static const char * const options[] = {
 #endif
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
     "passthrough",
-#endif
-#if defined(POWER_LED_BLUE)
-    "power_led_blue",
 #endif
   nullptr //sentinel
 };

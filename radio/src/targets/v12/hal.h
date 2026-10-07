@@ -24,11 +24,11 @@ STM32H750
 DMA1
 Stream0:  LED_STRIP_TIMER_DMA_STREAM
 Stream1:  INTMODULE_DMA_STREAM
-Stream2:  (free)
+Stream2:  AUX_SERIAL_DMA_RX_STREAM
 Stream3:  TELEMETRY_DMA_Stream_RX
 Stream4:  LCD_SPI_TX_DMA_STREAM
 Stream5:  INTMODULE_RX_DMA_STREAM / LCD_SPI_RX_DMA_STREAM
-Stream6:
+Stream6:  AUX_SERIAL_DMA_TX_STREAM
 Stream7:  TELEMETRY_DMA_Stream_TX
 
 DMA2
@@ -46,7 +46,7 @@ TIM3:     EXTMODULE_TIMER
 TIM4:     TRAINER_TIMER
 TIM5:     (free)
 TIM6:     AUDIO_TIMER
-TIM7:     (free)
+TIM7:	STATUS_LED_PWM_TIMER
 TIM8:     BACKLIGHT_TIMER
 TIM12:    MIXER_SCHEDULER_TIMER
 TIM13:
@@ -59,6 +59,7 @@ USARTS
 USART1: TELEMETRY_USART
 USART2: INTMODULE_USART
 USART6: EXTMODULE_USART
+UART4:  AUX_SERIAL_USART (external 3-pin header, PH13/PH14)
 */
 
 #ifndef _HAL_H_
@@ -83,9 +84,6 @@ USART6: EXTMODULE_USART
 #define PWR_BUTTON_DUAL_KEY1          KEY_SYS
 #define PWR_BUTTON_DUAL_KEY2          KEY_MODEL
 
-// S.Port update connector
-#define HAS_SPORT_UPDATE_CONNECTOR()    (false)
-
 // Telemetry SPORT
 #define TELEMETRY_SET_INPUT             0
 #define TELEMETRY_TX_GPIO               GPIO_PIN(GPIOA, 9)
@@ -107,13 +105,6 @@ USART6: EXTMODULE_USART
 #define ETH_WKUP_IRQ_Priority 5
 #define CUSTOM_EXTI_IRQ_LINE 86
 #define TELEMETRY_RX_FRAME_EXTI_LINE    CUSTOM_EXTI_IRQ_LINE
-
-// USB
-#define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOB, 12)
-#define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11)
-#define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12)
-#define USB_GPIO_AF                     GPIO_AF10
 
 // Chargers (USB and wireless)
 #define UCHARGER_PW                     GPIO_PIN(GPIOJ, 5)  // charge power sw 0=DISABLE 1=ENABLE
@@ -254,17 +245,20 @@ USART6: EXTMODULE_USART
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream3_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream3_IRQHandler
 
-// Trainer Port
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOD, 13)  // TIM4_CH2
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH2
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOD, 12)  // TIM4_CH1
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH1
-
-#define TRAINER_TIMER                   TIM4
-#define TRAINER_TIMER_IRQn              TIM4_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM4_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_2
-#define TRAINER_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
+// AUX ports
+// UART4 is broken out to the 3-pin GND/TXD/RXD header on the main board.
+// There is no switchable power rail on this connector, so AUX_SERIAL_PWR_GPIO
+// is deliberately not defined.
+#define AUX_SERIAL_TX_GPIO                 GPIO_PIN(GPIOH, 13) // PH.13
+#define AUX_SERIAL_RX_GPIO                 GPIO_PIN(GPIOH, 14) // PH.14
+#define AUX_SERIAL_USART                   UART4
+#define AUX_SERIAL_USART_IRQHandler        UART4_IRQHandler
+#define AUX_SERIAL_USART_IRQn              UART4_IRQn
+#define AUX_SERIAL_DMA_TX                  DMA1
+#define AUX_SERIAL_DMA_TX_STREAM           LL_DMA_STREAM_6
+#define AUX_SERIAL_DMA_TX_CHANNEL          LL_DMAMUX1_REQ_UART4_TX
+#define AUX_SERIAL_DMA_RX                  DMA1
+#define AUX_SERIAL_DMA_RX_STREAM           LL_DMA_STREAM_2
+#define AUX_SERIAL_DMA_RX_CHANNEL          LL_DMAMUX1_REQ_UART4_RX
 
 #endif // _HAL_H_

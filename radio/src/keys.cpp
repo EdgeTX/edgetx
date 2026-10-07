@@ -19,6 +19,7 @@
  * GNU General Public License for more details.
  */
 #include "keys.h"
+#include "cli.h"
 
 #include "edgetx_helpers.h"
 #include "definitions.h"
@@ -510,6 +511,9 @@ uint8_t keysPollingCycle()
   uint32_t trims_input;
   pollKeys();
   uint32_t keys_input = readKeys();
+#if defined(CLI_INPUT_INJECT)
+  keys_input |= cliInjectedKeys();
+#endif
 
 #if defined(USE_HATS_AS_KEYS)
   transpose_trims(&keys_input);
@@ -521,6 +525,9 @@ uint8_t keysPollingCycle()
   }
 #else
   trims_input = READ_TRIMS();
+#endif
+#if defined(CLI_INPUT_INJECT)
+  trims_input |= cliInjectedTrims();
 #endif
 
 #if !defined(BOOT) && defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)

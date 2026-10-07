@@ -26,6 +26,7 @@ Selects the radio target.
 | `TX15` | RadioMaster TX15 |
 | `TX16SMK3` | RadioMaster TX16S Mark III |
 | `T15PRO` | Jumper T15 Pro |
+| `T15H7` | Jumper T15-H7 |
 | `ST16` | Siyi ST16 |
 | `PA01` | FrSky PA01 |
 | `H17` | Senduwing H17 |

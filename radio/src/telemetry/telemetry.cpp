@@ -22,6 +22,7 @@
 #include "edgetx.h"
 #include "multi.h"
 #include "os/async.h"
+#include "os/task.h"
 #include "os/timer.h"
 #include "pulses/afhds3.h"
 #include "pulses/flysky.h"
@@ -459,15 +460,30 @@ TelemetryQueue* luaInputTelemetryFifo = nullptr;
 #if defined(COLORLCD)
 std::list<TelemetryQueue*> telemetryQueues;
 
+// Scripts register / destroy their queue from the menus task, while frames are
+// pushed into them from the timer task (telemetry RX runs there, at a higher
+// priority). Both the list and the queue lifetime need to be serialised.
+static mutex_handle_t telemetryQueueMutex;
+
+void telemetryQueuesInit()
+{
+  mutex_create(&telemetryQueueMutex);
+}
+
 void registerTelemetryQueue(TelemetryQueue* queue)
 {
+  MutexLock lock = MutexLock::MakeInstance(&telemetryQueueMutex);
   telemetryQueues.emplace_back(queue);
 }
 
-void deregisterTelemetryQueue(TelemetryQueue* queue)
+void destroyTelemetryQueue(TelemetryQueue* queue)
 {
+  MutexLock lock = MutexLock::MakeInstance(&telemetryQueueMutex);
   telemetryQueues.remove(queue);
+  delete queue;
 }
+#else
+void telemetryQueuesInit() {}
 #endif
 
 static void pushDataToQueue(TelemetryQueue* queue, uint8_t* data, int length)
@@ -482,8 +498,11 @@ static void pushDataToQueue(TelemetryQueue* queue, uint8_t* data, int length)
 void pushTelemetryDataToQueues(uint8_t* data, int length)
 {
 #if defined(COLORLCD)
-  for (auto it = telemetryQueues.cbegin(); it != telemetryQueues.cend(); ++it)
-    pushDataToQueue(*it, data, length);
+  {
+    MutexLock lock = MutexLock::MakeInstance(&telemetryQueueMutex);
+    for (auto it = telemetryQueues.cbegin(); it != telemetryQueues.cend(); ++it)
+      pushDataToQueue(*it, data, length);
+  }
 #endif
   pushDataToQueue(luaInputTelemetryFifo, data, length);
 }

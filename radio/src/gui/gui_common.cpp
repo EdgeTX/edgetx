@@ -1076,12 +1076,11 @@ bool isExternalModuleAvailable(int moduleType)
     return false;
 #endif
 
-#if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_STD)
+#if !defined(HARDWARE_EXTERNAL_MODULE_SIZE_STD)  // Ignore Standard Size modules
   if (moduleType == MODULE_TYPE_R9M_PXX1 ||
       moduleType == MODULE_TYPE_R9M_PXX2 ||
       moduleType == MODULE_TYPE_XJT_PXX1 ||
-      moduleType == MODULE_TYPE_DSM2 ||
-      moduleType == MODULE_TYPE_LEMON_DSMP )
+      moduleType == MODULE_TYPE_DSM2)
     return false;
 #endif
 
@@ -1118,6 +1117,10 @@ bool isExternalModuleAvailable(int moduleType)
      return false;
 #endif
 
+#if !defined(DSMP)
+  if (moduleType == MODULE_TYPE_LEMON_DSMP) return false;
+#endif
+
 #if !defined(SBUS)
   if (moduleType == MODULE_TYPE_SBUS)
     return false;
@@ -1146,15 +1149,10 @@ bool isExternalModuleAvailable(int moduleType)
     return false;
 #endif
 
-#if !defined(AFHDS2)
+  // AFHDS2A is the NV14 internal RF chip protocol: no external module
+  // speaks it and the driver only supports the internal module
   if (moduleType == MODULE_TYPE_FLYSKY_AFHDS2A)
     return false;
-#endif
-  
-#if !defined(AFHDS3)
-  if (moduleType == MODULE_TYPE_FLYSKY_AFHDS3)
-    return false;
-#endif
 
   return true;
 }

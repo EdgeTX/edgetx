@@ -28,6 +28,7 @@ set(INTERNAL_MODULE_AFHDS3 NO)
 set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
 add_definitions(-DRGB_LEDS_900NS)
+add_definitions(-DSTATUS_LED_PWM)
 
 # IMU support
 set(IMU ON)
@@ -47,7 +48,6 @@ add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
 
 set(FLAVOUR t22)
-add_definitions(-DMANUFACTURER_JUMPER)
 
 # defines existing internal modules
 set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
@@ -65,7 +65,6 @@ set(FLYSKY_GIMBAL OFF)
 add_definitions(
   -DSTM32H750XBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
-  -DCOLORLCD -DLIBOPENUI
   -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
 )
 

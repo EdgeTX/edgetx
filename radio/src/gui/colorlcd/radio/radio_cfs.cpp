@@ -51,7 +51,7 @@ class RadioFunctionSwitch : public FunctionSwitchBase
         this, {TP_X, 0, TP_W, 0}, STR_SWTYPES, SWITCH_NONE, SWITCH_GLOBAL,
         [=]() { return g_eeGeneral.switchType(switchIndex); },
         [=](int val) {
-            g_eeGeneral.switchSetType(switchIndex, (SwitchConfig)val);
+          g_eeGeneral.switchSetType(switchIndex, (SwitchConfig)val);
           if (val == SWITCH_NONE) {
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
             if (g_model.getSwitchType(switchIndex) == SWITCH_NONE)
@@ -62,7 +62,6 @@ class RadioFunctionSwitch : public FunctionSwitchBase
             setFSLogicalState(switchIndex, 0);
             startChoice->setValue(startChoice->getIntValue());
           }
-          SET_DIRTY();
         });
     typeChoice->setAvailableHandler([=](int typ) -> bool {
       if (typ == SWITCH_3POS || typ == SWITCH_GLOBAL) return false;
@@ -76,8 +75,7 @@ class RadioFunctionSwitch : public FunctionSwitchBase
         this, {ST_X, 0, ST_W, 0}, _fct_sw_start, 0, 2,
         [=]() { return g_eeGeneral.switchStart(switchIndex); },
         [=](int val) {
-            g_eeGeneral.switchSetStart(switchIndex, (fsStartPositionType)val);
-          SET_DIRTY();
+          g_eeGeneral.switchSetStart(switchIndex, (fsStartPositionType)val);
         });
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
@@ -91,8 +89,8 @@ class RadioFunctionSwitch : public FunctionSwitchBase
           return g_eeGeneral.switchOffColor(switchIndex).getColor() | RGB888_FLAG;
         },
         [=](int newValue) {  // setValue
-            g_eeGeneral.switchOffColor(switchIndex) = offValue;
-            g_eeGeneral.switchOnColor(switchIndex) = onValue;
+          g_eeGeneral.switchOffColor(switchIndex) = offValue;
+          g_eeGeneral.switchOnColor(switchIndex) = onValue;
 
           // Convert color index to RGB
           newValue = color32ToRGB(newValue);
@@ -110,8 +108,8 @@ class RadioFunctionSwitch : public FunctionSwitchBase
           return g_eeGeneral.switchOnColor(switchIndex).getColor() | RGB888_FLAG;
         },
         [=](int newValue) {  // setValue
-            g_eeGeneral.switchOffColor(switchIndex) = offValue;
-            g_eeGeneral.switchOnColor(switchIndex) = onValue;
+          g_eeGeneral.switchOffColor(switchIndex) = offValue;
+          g_eeGeneral.switchOnColor(switchIndex) = onValue;
 
           // Convert color index to RGB
           newValue = color32ToRGB(newValue);

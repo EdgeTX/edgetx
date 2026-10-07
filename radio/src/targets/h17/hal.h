@@ -52,6 +52,7 @@ TIM1:   BACKLIGHT_TIMER
 TIM3:   HAPTIC_GPIO_TIMER
 TIM5:   EXTMODULE_TIMER
 TIM6:   AUDIO_TIMER
+TIM7:   STATUS_LED_PWM_TIMER
 TIM8:   TRAINER_TIMER
 TIM12:  MIXER_SCHEDULER_TIMER
 TIM14:  MS_TIMER
@@ -107,13 +108,6 @@ TIM17:  ROTARY_ENCODER_TIMER
 #define ETH_WKUP_IRQ_Priority 5
 #define CUSTOM_EXTI_IRQ_LINE 86
 #define TELEMETRY_RX_FRAME_EXTI_LINE    CUSTOM_EXTI_IRQ_LINE
-
-// USB
-#define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOH, 5)
-#define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11)
-#define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12)
-#define USB_GPIO_AF                     GPIO_AF10
 
 // LCD - parallel RGB (LTDC), no SPI configuration bus (see lcd_driver.cpp)
 #define LCD_RESET_GPIO                  GPIOJ
@@ -235,23 +229,6 @@ TIM17:  ROTARY_ENCODER_TIMER
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream3_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream3_IRQHandler
 
-// Trainer Port
-#define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOA)
-
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOI, 6)
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH2
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOI, 5)
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH1
-
-#define TRAINER_TIMER                   TIM8
-#define TRAINER_TIMER_IRQn              TIM8_CC_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM8_CC_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_3
-#define TRAINER_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
-
-#define TRAINER_DETECT_GPIO             GPIO_PIN(GPIOH, 4)
-
 // AUX ports
 #define AUX_SERIAL_TX_GPIO                  GPIO_PIN(GPIOB, 6) // PB.06
 #define AUX_SERIAL_RX_GPIO                  GPIO_PIN(GPIOB, 5) // PB.05
@@ -278,24 +255,5 @@ TIM17:  ROTARY_ENCODER_TIMER
 #define AUX2_SERIAL_DMA_RX_STREAM           LL_DMA_STREAM_6
 #define AUX2_SERIAL_DMA_RX_CHANNEL          LL_DMAMUX1_REQ_USART3_RX
 #define AUX2_SERIAL_PWR_GPIO                GPIO_PIN(GPIOC, 13) // PC.13
-
-// Touch
-#define TOUCH_I2C_BUS                   I2C_Bus_1
-#define TOUCH_INT_GPIO                  GPIO_PIN(GPIOE, 2) // PE.02
-#define TOUCH_RST_GPIO                  GPIO_PIN(GPIOJ, 13) // PJ.13
-
-// TOUCH_INT_EXTI IRQ
-#if !defined(USE_EXTI2_IRQ)
-#define USE_EXTI2_IRQ
-#define EXTI2_IRQ_Priority  9
-#endif
-
-// No I2C IO-expander here, so the rotenc exti list carries USE_EXTI9_5_IRQ.
-
-#define LANDSCAPE_LCD true
-#define PORTRAIT_LCD false
-#define LANDSCAPE_LCD_SML false
-#define LANDSCAPE_LCD_STD true
-#define LANDSCAPE_LCD_LRG false
 
 #endif // _HAL_H_

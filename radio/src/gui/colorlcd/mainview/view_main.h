@@ -25,6 +25,7 @@
 #include "window.h"
 
 class TopBar;
+class HeaderIcon;
 
 class ViewMain : public NavWindow
 {
@@ -32,8 +33,6 @@ class ViewMain : public NavWindow
   explicit ViewMain();
 
  public:
-  ~ViewMain() override;
-
   static ViewMain* instance();
 
 #if defined(DEBUG_WINDOWS)
@@ -77,6 +76,7 @@ class ViewMain : public NavWindow
   bool isVisible = true;
   lv_obj_t* tile_view = nullptr;
   TopBar* topbar = nullptr;
+  HeaderIcon* headerIcon = nullptr;
   bool widget_select = false;
   tmr10ms_t widgetSelectCancelTime = 0;
 

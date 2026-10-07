@@ -28,7 +28,6 @@
 #include "view_main.h"
 #include "widgets_setup.h"
 #include "pagegroup.h"
-#include "theme_manager.h"
 #include "widget.h"
 
 //-----------------------------------------------------------------------------
@@ -103,7 +102,7 @@ void SetupTopBarWidgetsPage::onClicked()
 
 void SetupTopBarWidgetsPage::onCancel()
 {
-  deleteLater();
+  closeWindow();
   // restore screen setting tab on top
   QuickMenu::openPage(QM_UI_SETUP);
 }
@@ -113,10 +112,8 @@ void SetupTopBarWidgetsPage::onCancel()
 TopBar::TopBar(Window * parent) :
   WidgetsContainer(parent, {0, 0, LCD_W, EdgeTxStyles::MENU_HEADER_HEIGHT}, MAX_TOPBAR_ZONES)
 {
-  setWindowFlag(NO_FOCUS);
+  setWindowFlag(NO_FOCUS | IS_TOP_BAR);
   etx_solid_bg(lvobj, COLOR_THEME_SECONDARY1_INDEX);
-
-  headerIcon = new HeaderIcon(parent, ICON_EDGETX, [=]() { QuickMenu::openQuickMenu(); });
 }
 
 unsigned int TopBar::getZonesCount() const
@@ -145,31 +142,20 @@ rect_t TopBar::getZone(unsigned int index) const
 void TopBar::setVisible(float visible) // 0.0 -> 1.0
 {
   coord_t y = 0;
-  if (visible == 0.0) {
+  if (visible == 0.0f) {
     y = -EdgeTxStyles::MENU_HEADER_HEIGHT;
-  } else if (visible > 0.0 && visible < 1.0){
-    y = -(float)EdgeTxStyles::MENU_HEADER_HEIGHT * (1.0 - visible);
+  } else if (visible > 0.0f && visible < 1.0f){
+    y = -(float)EdgeTxStyles::MENU_HEADER_HEIGHT * (1.0f - visible);
   }
   if (y != top()) setTop(y);
 }
 
-void TopBar::setEdgeTxButtonVisible(float visible) // 0.0 -> 1.0
-{
-  coord_t y = 0;
-  if (visible == 0.0) {
-    y = -EdgeTxStyles::MENU_HEADER_HEIGHT;
-  } else if (visible > 0.0 && visible < 1.0){
-    y = -(float)EdgeTxStyles::MENU_HEADER_HEIGHT * (1.0 - visible);
-  }
-  if (y != headerIcon->top()) headerIcon->setTop(y);
-}
-
 coord_t TopBar::getVisibleHeight(float visible) const // 0.0 -> 1.0
 {
-  if (visible == 0.0) {
+  if (visible == 0.0f) {
     return 0;
   }
-  else if (visible == 1.0) {
+  else if (visible == 1.0f) {
     return EdgeTxStyles::MENU_HEADER_HEIGHT;
   }
 
@@ -200,8 +186,6 @@ void TopBar::removeWidget(unsigned int index)
   g_model.getTopbarData()->clearZone(index);
 
   WidgetsContainer::removeWidget(index);
-
-  storageDirty(EE_MODEL);
 }
 
 void TopBar::load()
@@ -210,7 +194,7 @@ void TopBar::load()
   for (unsigned int i = 0; i < count; i++) {
     // remove old widget
     if (widgets[i]) {
-      widgets[i]->deleteLater();
+      widgets[i]->closeWindow();
       widgets[i] = nullptr;
     }
   }

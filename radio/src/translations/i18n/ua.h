@@ -558,6 +558,13 @@
 #define TR_BEEPCOUNTDOWN               "Відлік"
 #define TR_PERSISTENT                  TR("Присутн.", "Присутній")
 #define TR_BACKLIGHT_LABEL             "Підсвітка"
+#define TR_STATUS_LED                  "Світлодіод стану"
+#define TR_STATUS_LED_ERROR            "Помилка"
+#define TR_STATUS_LED_READY            "Готовий"
+#define TR_STATUS_LED_EMIT             "Передача"
+#define TR_STATUS_LED_COLORS_1         "Червоний"
+#define TR_STATUS_LED_COLORS_2         "Зелений"
+#define TR_STATUS_LED_COLORS_3         "Синій"
 #define TR_STATUS                      "Статус"
 #define TR_BLONBRIGHTNESS              "ON яскравість"
 #define TR_BLOFFBRIGHTNESS             "OFF яскравість"

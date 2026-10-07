@@ -22,6 +22,7 @@
 #include "debug.h"
 #include "etx_lv_theme.h"
 #include "form.h"
+#include "keyboard_base.h"
 #include "keys.h"
 #include "pagegroup.h"
 #include "static.h"
@@ -164,30 +165,40 @@ void Window::eventHandler(lv_event_t *e)
 {
   static bool _longPressed = false;
 
-  lv_obj_t *target = lv_event_get_target(e);
   lv_event_code_t code = lv_event_get_code(e);
 
   if (code == LV_EVENT_DELETE || deleted()) return;
 
-  if (customEventHandler(code)) return;
+  if (customEventHandler(code, e)) return;
 
   switch (code) {
     case LV_EVENT_SCROLL: {
+      lv_obj_t *target = lv_event_get_target(e);
       // exclude pointer based scrolling (only focus scrolling)
       if (!lv_obj_is_scrolling(target) && ((windowFlags & NO_FORCED_SCROLL) == 0)) {
         lv_point_t *p = (lv_point_t *)lv_event_get_param(e);
         lv_coord_t scroll_y = lv_obj_get_scroll_y(target);
         lv_coord_t scroll_bottom = lv_obj_get_scroll_bottom(target);
 
-        TRACE("SCROLL[x=%d;y=%d;top=%d;bottom=%d]", p->x, p->y, scroll_y,
-              scroll_bottom);
-
         // Force scroll to top or bottom when near either edge.
         // Only applies when using rotary encoder or keys.
-        if (scroll_y <= EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 && p->y > 0) {
-          lv_obj_scroll_by(target, 0, scroll_y, LV_ANIM_OFF);
-        } else if (scroll_bottom <= EdgeTxStyles::UI_ELEMENT_HEIGHT * 2 && p->y < 0) {
-          lv_obj_scroll_by(target, 0, -scroll_bottom, LV_ANIM_OFF);
+        // Limit is 2 standard size labels with some extra padding
+        constexpr lv_coord_t NEAR_LIMIT =
+            (EdgeTxStyles::STD_FONT_HEIGHT + PAD_TINY * 2 + PAD_OUTLINE * 2) * 2 + PAD_MEDIUM * 2;
+
+        TRACE("SCROLL[x=%d;y=%d;top=%d;bottom=%d,limit=%d]", p->x, p->y, scroll_y,
+              scroll_bottom,NEAR_LIMIT);
+
+        lv_coord_t scroll_by = 0;
+        if (scroll_y > 0 && scroll_y <= NEAR_LIMIT && p->y > 0) {
+          scroll_by = scroll_y;
+        } else if (scroll_bottom > 0 && scroll_bottom <= NEAR_LIMIT && p->y < 0) {
+          scroll_by = -scroll_bottom;
+        }
+        if (scroll_by != 0) {
+          lv_obj_scroll_by(target, 0, scroll_by, LV_ANIM_OFF);
+          // Don't call scrollHandler until next update
+          return;
         }
       }
 
@@ -199,6 +210,9 @@ void Window::eventHandler(lv_event_t *e)
     case LV_EVENT_CLICKED:
       if (!_longPressed) {
         TRACE("CLICKED[%p]", this);
+        // Close keyboard when clicking outside edit / keyboard windows
+        if (!isEditWindow())
+          Keyboard::hideKeyboard();
         onClicked();
       }
       _longPressed = false;
@@ -224,13 +238,6 @@ void Window::eventHandler(lv_event_t *e)
 
 //-----------------------------------------------------------------------------
 
-// Constructor to allow lvobj to be created separately - used by NumberEdit and
-// TextEdit
-Window::Window(const rect_t &rect) : rect(rect), parent(nullptr)
-{
-  lvobj = nullptr;
-}
-
 Window::Window(Window *parent, const rect_t &rect, LvglCreate objConstruct) :
     rect(rect), parent(parent)
 {
@@ -250,19 +257,6 @@ Window::Window(Window *parent, const rect_t &rect, LvglCreate objConstruct) :
 
   if (parent) {
     parent->addChild(this);
-  }
-}
-
-Window::~Window()
-{
-  TRACE_WINDOWS("Destroy %p %s", this, getWindowDebugString().c_str());
-
-  if (children.size() > 0) deleteChildren();
-
-  if (lvobj != nullptr) {
-    lv_obj_set_user_data(lvobj, nullptr);
-    lv_obj_del(lvobj);
-    lvobj = nullptr;
   }
 }
 
@@ -341,13 +335,6 @@ void Window::assignLvGroup(lv_group_t* g, bool setDefault)
   }
 }
 
-Window *Window::getFullScreenWindow()
-{
-  if (width() == LCD_W && height() == LCD_H) return this;
-  if (parent) return parent->getFullScreenWindow();
-  return nullptr;
-}
-
 void Window::setWindowFlag(WindowFlags flag)
 {
   windowFlags |= flag;
@@ -370,9 +357,9 @@ void Window::clearTextFlag(LcdFlags flag) { textFlags &= ~flag; }
 
 void Window::attach(Window *newParent)
 {
-  if (parent) detach();
-  parent = newParent;
+  detach();
   if (newParent) {
+    parent = newParent;
     newParent->addChild(this);
   }
 }
@@ -385,27 +372,45 @@ void Window::detach()
   }
 }
 
-void Window::deleteLater()
+void Window::onClosing(CloseHandler h)
 {
-  if (_deleted) return;
-  _deleted = true;
+  closeHandlers.push_back(std::move(h));
+}
 
-  TRACE_WINDOWS("Delete %p %s", this, getWindowDebugString().c_str());
+// Close the window, and all its children.
+// Remove from LVGL and save the window pointer for later destruction.
+void Window::closeWindow()
+{
+  TRACE_WINDOWS("Close %p %s %s", this, getWindowDebugString().c_str(), deleted() ? "DELETED" : "");
+  if (!deleted()) {
+    _deleted = true;
 
-  detach();
-  deleteChildren();
+    // Recursively delete child objects
+    deleteChildren();
 
-  popLayer();
+    // Remove from parent
+    detach();
 
-  if (closeHandler)
-    closeHandler();
+    // Remove layer (if needed) before calling handlers, so any windows
+    // created by a handler are added to the restored lv_group
+    popLayer();
 
-  Window::trash.push_back(this);
+    // Call onClosing handler functions (reverse order of creation)
+    for (auto it = closeHandlers.rbegin(); it != closeHandlers.rend(); ++it) {
+      (*it)();
+    }
+    closeHandlers.clear();
 
-  if (lvobj != nullptr) {
-    auto obj = lvobj;
-    lvobj = nullptr;
-    lv_obj_del(obj);
+    // Save for destructor call
+    trash.push_back(this);
+
+    // Remove from LVGL
+    if (lvobj != nullptr) {
+      auto obj = lvobj;
+      lvobj = nullptr;
+      lv_obj_set_user_data(obj, nullptr);
+      lv_obj_del(obj);
+    }
   }
 }
 
@@ -421,7 +426,7 @@ void Window::clear()
 void Window::deleteChildren()
 {
   while (!children.empty())
-    children.back()->deleteLater();
+    children.back()->closeWindow();
 }
 
 bool Window::hasFocus() const
@@ -516,7 +521,7 @@ FormLine *Window::newLine(FlexGridLayout &layout)
 
 void Window::show(bool visible)
 {
-  if (!_deleted && lvobj) {
+  if (!deleted() && lvobj) {
     if (lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN) == visible) {
       if (visible)
         lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
@@ -528,7 +533,7 @@ void Window::show(bool visible)
 
 bool Window::isVisible()
 {
-  return !_deleted && lvobj && !lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
+  return !deleted() && lvobj && !lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN);
 }
 
 bool Window::isOnScreen()
@@ -542,7 +547,7 @@ bool Window::isOnScreen()
 
 void Window::enable(bool enabled)
 {
-  if (!_deleted && lvobj) {
+  if (!deleted() && lvobj) {
     if (lv_obj_has_state(lvobj, LV_STATE_DISABLED) == enabled) {
       if (enabled)
         lv_obj_clear_state(lvobj, LV_STATE_DISABLED);
@@ -636,7 +641,7 @@ NavWindow::NavWindow(Window *parent, const rect_t &rect,
                      LvglCreate objConstruct) :
     Window(parent, rect, objConstruct)
 {
-  setWindowFlag(OPAQUE);
+  setWindowFlag(OPAQUE | IS_NAV_WINDOW);
 }
 
 #if defined(HARDWARE_KEYS)

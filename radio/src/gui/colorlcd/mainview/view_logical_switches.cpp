@@ -208,12 +208,6 @@ class LogicalSwitchDisplayFooter : public Window
   lv_obj_t* lsDelay = nullptr;
 };
 
-LogicalSwitchesViewPage::LogicalSwitchesViewPage() :
-    PageGroupItem(STR_MONITOR_SWITCHES, QM_TOOLS_LS_MON)
-{
-  setIcon(ICON_MONITOR_LOGICAL_SWITCHES);
-}
-
 LogicalSwitchesViewPage::LogicalSwitchesViewPage(const PageDef& pageDef) :
     PageGroupItem(pageDef)
 {

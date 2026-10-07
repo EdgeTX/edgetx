@@ -41,8 +41,8 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Typ
   ui->setupUi(this);
 
   panelItemModels->registerItemModel(new FilteredItemModel(GeneralSettings::templateSetupItemModel()), FIM_TEMPLATESETUP);
-  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir() ? GeneralSettings::RadioTypeContextAir :
-                                                                                     GeneralSettings::RadioTypeContextSurface);
+  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
+                                                                                          GeneralSettings::RadioTypeContextSurface);
 
   // name
   // The profile name may NEVER be empty
@@ -56,6 +56,9 @@ PrefsProfilePanel::PrefsProfilePanel(QWidget * parent, Firmware * fw, Board::Typ
 
     if (profile.name().isEmpty())
       profile.name(tr("My Radio"));
+  });
+  ui->leName->setBindPostChanged([this] {
+    emit this->nameChanged();
   });
 
   // radio
@@ -113,9 +116,24 @@ void PrefsProfilePanel::onFirmwareTypePressed()
 
 QString PrefsProfilePanel::getLanguage()
 {
-  return !profile.fwLanguage().isEmpty() ?
-    profile.fwLanguage() :
-    QLocale::languageToString(QLocale().language()).split("_").first();
+  QString lang;
+
+  if (!profile.fwLanguage().isEmpty() &&
+      firmware->getFirmwareBase()->languageList().contains(profile.fwLanguage()))
+    lang = profile.fwLanguage();
+  else {
+    // depending on the OS environment this does not always return a valid language
+    lang = QLocale::languageToString(QLocale().language()).split("_").first();
+
+    if (!firmware->getFirmwareBase()->languageList().contains(lang))
+      lang = "en";  // give up trying
+
+    // the signal is emitted in the ctor however the signal is not trapped by PrefsEditDialog
+    // until after the ctor has finish so delay emitting
+    QTimer::singleShot(100, [this] () { emit this->modified(); });
+  }
+
+  return lang;
 }
 
 QStringList PrefsProfilePanel::getSelectedOptions()
@@ -206,6 +224,7 @@ void PrefsProfilePanel::populateFirmwareOptions(QStringList opts)
         currOpts.append(it.key());    // keep previous selections
 
       layFirmwareBuildOpts->removeWidget(chk);
+      chk->hide();
       chk->deleteLater();
       it.remove();
     }
@@ -224,6 +243,7 @@ void PrefsProfilePanel::populateFirmwareOptions(QStringList opts)
         chk->setBindPostChanged([=] { this->onOptionChanged(opt.name); });
 
       layFirmwareBuildOpts->addWidget(chk, index / 4, index % 4);
+      chk->show();    // so the size hint counts it when panel already visible
       chkFirmwareBuildOpts.insert(opt.name, chk);
       QWidget::setTabOrder(prevFocus, chk);
       prevFocus = chk;
@@ -231,6 +251,8 @@ void PrefsProfilePanel::populateFirmwareOptions(QStringList opts)
     }
   }
 
+  // the number of option rows may have changed
+  ui->csectFirmwareOpts->contentChanged();
   shrink();
 }
 
@@ -253,7 +275,7 @@ void PrefsProfilePanel::sectionFirmwareOpts()
   QHBoxLayout *layLanguage = new QHBoxLayout();
   cboFirmwareLanguage = new AutoComboBox(this);
   cboFirmwareLanguage->setModel(languageModel());
-  cboFirmwareLanguage->setValue(profile.fwLanguage());
+  cboFirmwareLanguage->setValue(getLanguage());
   cboFirmwareLanguage->setBindSave([this] {
     this->profile.fwLanguage(this->cboFirmwareLanguage->currentData().toString());
   });
@@ -283,7 +305,7 @@ void PrefsProfilePanel::sectionFirmwareOpts()
   });
   layFirmwareOpts->addWidget(chkBackupBeforeFlash, row, col++);
 
-  ui->csectFirmwareOpts->finish(row, col, [this] { this->shrink(); });
+  ui->csectFirmwareOpts->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsProfilePanel::sectionFolders()
@@ -341,7 +363,7 @@ void PrefsProfilePanel::sectionFolders()
   layFolders->addWidget(btnModelsPath, row, col++);
  */
 
-  ui->csectFolders->finish(-1, -1, [this] { this->shrink(); });
+  ui->csectFolders->finish(-1, -1, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsProfilePanel::sectionNewFile()
@@ -382,7 +404,7 @@ void PrefsProfilePanel::sectionNewFile()
             (this->chkUseSettingsBackup->isChecked() &&
              this->profile.generalSettings().isEmpty()));
   });
-  lblStickMode->setBindVisible([this] { return Boards::isAir(); });
+  lblStickMode->setBindVisible([this] { return Boards::isAir(board); });
   layNewFile->addWidget(lblStickMode, row, col++);
 
   cboStickMode = new AutoComboBox(this);
@@ -396,7 +418,7 @@ void PrefsProfilePanel::sectionNewFile()
             (this->chkUseSettingsBackup->isChecked() &&
              this->profile.generalSettings().isEmpty()));
   });
-  cboStickMode->setBindVisible([this] { return Boards::isAir(); });
+  cboStickMode->setBindVisible([this] { return Boards::isAir(board); });
   layNewFile->addWidget(cboStickMode, row, col++);
   // Channel Order
   ++row; col = 0;
@@ -425,7 +447,7 @@ void PrefsProfilePanel::sectionNewFile()
   AutoLabel *lblModuleInternal = new AutoLabel(this, tr("Default Internal Module"));
   layNewFile->addWidget(lblModuleInternal, row, col++);
   cboModuleInternal = new AutoComboBox(this);
-  cboModuleInternal->setModel(ModuleData::internalModuleItemModel());
+  cboModuleInternal->setModel(ModuleData::internalModuleItemModel(board));
   cboModuleInternal->setValue(profile.defaultInternalModule());
   cboModuleInternal->setBindSave([this] {
     profile.defaultInternalModule(this->cboModuleInternal->currentData().toInt());
@@ -444,7 +466,7 @@ void PrefsProfilePanel::sectionNewFile()
   });
   layNewFile->addWidget(cboModuleExternal, row, col++);
 
-  ui->csectNewFile->finish(row, col, [this] { this->shrink(); });
+  ui->csectNewFile->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsProfilePanel::sectionSplash()
@@ -489,16 +511,34 @@ void PrefsProfilePanel::sectionSplash()
   });
   laySplash->addWidget(btnSplashClear, row, col++);
 
-  ui->csectSplash->finish(row, col, [this] { this->shrink(); });
+  ui->csectSplash->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 // called directly by PrefsEditDialog
 // slot not used due to risk of Qt events not being processed in required sequence
 void PrefsProfilePanel::onRadioChanged(Firmware * firmware, bool deferUpdate)
 {
+  const Board::Type prevBoard = board;
   PrefsPanel::onRadioChanged(firmware, true);
   fwTypeData->setText(firmware->getFirmwareBase()->getId());
-  populateFirmwareOptions(profile.fwOptions().split("-"));
+  populateFirmwareOptions();
+  panelItemModels->getItemModel(FIM_TEMPLATESETUP)->setFilterFlags(Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
+                                                                                          GeneralSettings::RadioTypeContextSurface);
+
+  if (board != prevBoard) {
+    // module choices and defaults depend on the radio; restore the saved
+    // profile values if changing back to the profile's radio
+    const bool profileBoard = (board == getCurrentBoard());
+
+    QAbstractItemModel *oldModel = cboModuleInternal->model();
+    cboModuleInternal->setModel(ModuleData::internalModuleItemModel(board));
+    delete oldModel;
+    cboModuleInternal->setValue(profileBoard ? profile.defaultInternalModule()
+                                             : Boards::getDefaultInternalModules(board));
+    cboModuleExternal->setValue(profileBoard ? profile.externalModuleSize()
+                                             : Boards::getDefaultExternalModuleSize(board));
+  }
+
   update();
 }
 

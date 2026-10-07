@@ -263,13 +263,12 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
     lv_obj_add_event_cb(lvobj, LuaWidget::redraw_cb, LV_EVENT_DRAW_MAIN,
                         nullptr);
   }
-}
 
-LuaWidget::~LuaWidget()
-{
-  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
-  if (errorMessage)
-    free(errorMessage);
+  onClosing([=]() {
+    luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
+    if (errorMessage)
+      free(errorMessage);
+  });
 }
 
 void LuaWidget::onClicked()
@@ -618,8 +617,7 @@ LuaScriptManager::~LuaScriptManager()
 {
   luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
   if (luaInputTelemetryFifo != nullptr) {
-    deregisterTelemetryQueue(luaInputTelemetryFifo);
-    delete luaInputTelemetryFifo;
+    destroyTelemetryQueue(luaInputTelemetryFifo);
     luaInputTelemetryFifo = nullptr;
   }
 }

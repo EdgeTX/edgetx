@@ -22,14 +22,13 @@
 #pragma once
 
 #include <stdint.h>
+#include "hal_settings.h"
 
 #define ROTENC_LOWSPEED   1
 #define ROTENC_MIDSPEED   5
 #define ROTENC_HIGHSPEED 50
 
-#if defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_T15) || defined(RADIO_T15PRO)  || defined(RADIO_T22) || defined(RADIO_BUMBLEBEE) || defined(RADIO_V12)
-#define ROTARY_ENCODER_GRANULARITY 4
-#else
+#if !defined(ROTARY_ENCODER_GRANULARITY)
 #define ROTARY_ENCODER_GRANULARITY 2
 #endif
 

@@ -121,7 +121,7 @@ class BubbleDialog : public Window
              bubble_popup_create),
       startTime(lv_tick_get()), timeout(timeout)
   {
-    setWindowFlag(OPAQUE);
+    setWindowFlag(OPAQUE | IS_BUBBLE_POPUP);
 
     lv_obj_set_parent(lvobj, lv_layer_top());
 
@@ -133,12 +133,10 @@ class BubbleDialog : public Window
     lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
   }
 
-  bool isBubblePopup() override { return true; }
-
   void checkEvents() override
   {
     if (lv_tick_elaps(startTime) >= timeout) {
-      deleteLater();
+      closeWindow();
     }
   }
 

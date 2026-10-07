@@ -45,9 +45,9 @@ add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
 add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
+add_definitions(-DSTATUS_LED_PWM)
 
 set(FLAVOUR v12)
-add_definitions(-DMANUFACTURER_HELLORADIOSKY)
 
 # defines existing internal modules
 set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
@@ -65,14 +65,14 @@ set(FLYSKY_GIMBAL OFF)
 add_definitions(
   -DSTM32H750XBTx -DSTM32H750xx
   -DSDRAM -DCCMRAM
-  -DCOLORLCD -DLIBOPENUI
   -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
   -DINTERNAL_EXTERNAL_ANT
 )
 
 set(SDRAM ON)
 
-set(AUX_SERIAL OFF CACHE BOOL "AUX serial port" FORCE)
+# UART4 on the internal 3-pin header (no switchable power rail)
+set(AUX_SERIAL YES)
 
 # Handset supports external antenna selection via hardware GPIO switch
 set(EXTERNAL_ANTENNA ON)

@@ -46,7 +46,7 @@ TIM3:     EXTMODULE_TIMER
 TIM4:	  (no pins)
 TIM5:     (free)
 TIM6:     AUDIO_TIMER
-TIM7:	  (no pins)
+TIM7:	STATUS_LED_PWM_TIMER
 TIM8:	  TRAINER_TIMER
 TIM12:	  MIXER_SCHEDULER_TIMER
 TIM13:
@@ -66,10 +66,6 @@ TIM17:	  ROTARY_ENCODER_TIMER
 // Power
 #define PWR_SWITCH_GPIO             GPIO_PIN(GPIOI, 3)
 #define PWR_ON_GPIO                 GPIO_PIN(GPIOD, 3)
-
-// S.Port update connector
-#define HAS_SPORT_UPDATE_CONNECTOR()    (false)
-
 
 // Telemetry
 #define TELEMETRY_SET_INPUT             0
@@ -95,13 +91,6 @@ TIM17:	  ROTARY_ENCODER_TIMER
 //#define USE_EXTI15_10_IRQ
 //#define CUSTOM_EXTI_IRQ_Priority 5
 #define TELEMETRY_RX_FRAME_EXTI_LINE    CUSTOM_EXTI_IRQ_LINE
-
-// USB
-#define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOA, 9)
-#define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11)
-#define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12)
-#define USB_GPIO_AF                     GPIO_AF10
 
 // LCD SPI1
 #define LCD_SPI_CS_GPIO                 GPIOG
@@ -234,33 +223,5 @@ TIM17:	  ROTARY_ENCODER_TIMER
 #define EXTMODULE_TIMER_DMA_STREAM         LL_DMA_STREAM_3
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream3_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream3_IRQHandler
-
-// Trainer Port
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOI, 6)  // TIM8_CH2
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH2
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOI, 7)  // TIM8_CH3
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH3
-
-#define TRAINER_TIMER                   TIM8
-#define TRAINER_TIMER_IRQn              TIM8_CC_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM8_CC_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_3
-#define TRAINER_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
-
-// Touch
-#define TOUCH_I2C_BUS                 I2C_Bus_2
-#define TOUCH_RST_GPIO                GPIO_PIN(GPIOJ, 1)  // PJ.01
-#define TOUCH_INT_GPIO                GPIO_PIN(GPIOD, 11)  // PD.11
-
-#define TOUCH_INT_EXTI_Line           LL_EXTI_LINE_11
-#define TOUCH_INT_EXTI_Port           LL_SYSCFG_EXTI_PORTD
-#define TOUCH_INT_EXTI_SysCfgLine     LL_SYSCFG_EXTI_LINE11
-
-// TOUCH_INT_EXTI IRQ
-#if !defined(USE_EXTI15_10_IRQ)
-#define USE_EXTI15_10_IRQ
-#define EXTI15_10_IRQ_Priority 9
-#endif
 
 #endif // _HAL_H_

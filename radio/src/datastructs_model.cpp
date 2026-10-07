@@ -92,8 +92,10 @@ SwitchConfig ModelData::cfsType(uint8_t n) {
 }
 
 void ModelData::cfsSetType(uint8_t n, SwitchConfig v) {
-  customSwitches[switchGetCustomSwitchIdx(n)].type = v;
-  storageDirty(EE_MODEL);
+  if (customSwitches[switchGetCustomSwitchIdx(n)].type != v) {
+    customSwitches[switchGetCustomSwitchIdx(n)].type = v;
+    storageDirty(EE_MODEL);
+  }
 }
 
 char* ModelData::cfsName(uint8_t n) {
@@ -105,8 +107,10 @@ uint8_t ModelData::cfsGroup(uint8_t n) {
 }
 
 void ModelData::cfsSetGroup(uint8_t n, uint8_t v) {
-  customSwitches[switchGetCustomSwitchIdx(n)].group = v;
-  storageDirty(EE_MODEL);
+  if (customSwitches[switchGetCustomSwitchIdx(n)].group != v) {
+    customSwitches[switchGetCustomSwitchIdx(n)].group = v;
+    storageDirty(EE_MODEL);
+  }
 }
 
 fsStartPositionType ModelData::cfsStart(uint8_t n) {
@@ -114,8 +118,10 @@ fsStartPositionType ModelData::cfsStart(uint8_t n) {
 }
 
 void ModelData::cfsSetStart(uint8_t n, fsStartPositionType v) {
-  customSwitches[switchGetCustomSwitchIdx(n)].start = v;
-  storageDirty(EE_MODEL);
+  if (customSwitches[switchGetCustomSwitchIdx(n)].start != v) {
+    customSwitches[switchGetCustomSwitchIdx(n)].start = v;
+    storageDirty(EE_MODEL);
+  }
 }
 
 bool ModelData::cfsState(uint8_t n) {
@@ -123,8 +129,10 @@ bool ModelData::cfsState(uint8_t n) {
 }
 
 void ModelData::cfsSetState(uint8_t n, bool v) {
-  customSwitches[switchGetCustomSwitchIdx(n)].state = v;
-  storageDirty(EE_MODEL);
+  if (customSwitches[switchGetCustomSwitchIdx(n)].state != v) {
+    customSwitches[switchGetCustomSwitchIdx(n)].state = v;
+    storageDirty(EE_MODEL);
+  }
 }
 
 bool ModelData::cfsSFState(uint8_t n) {
@@ -182,13 +190,17 @@ bool ModelData::cfsOffColorLuaOverride(uint8_t n) {
 }
 
 void ModelData::cfsSetOnColorLuaOverride(uint8_t n, bool v) {
-  customSwitches[switchGetCustomSwitchIdx(n)].onColorLuaOverride = v;
-  storageDirty(EE_MODEL);
+  if (customSwitches[switchGetCustomSwitchIdx(n)].onColorLuaOverride != v) {
+    customSwitches[switchGetCustomSwitchIdx(n)].onColorLuaOverride = v;
+    storageDirty(EE_MODEL);
+  }
 }
 
 void ModelData::cfsSetOffColorLuaOverride(uint8_t n, bool v) {
-  customSwitches[switchGetCustomSwitchIdx(n)].offColorLuaOverride = v;
-  storageDirty(EE_MODEL);
+  if (customSwitches[switchGetCustomSwitchIdx(n)].offColorLuaOverride != v) {
+    customSwitches[switchGetCustomSwitchIdx(n)].offColorLuaOverride = v;
+    storageDirty(EE_MODEL);
+  }
 }
 #endif
 #endif

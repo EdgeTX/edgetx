@@ -77,24 +77,19 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
   if (pauseRefresh)
     lv_obj_enable_style_refresh(false);
 
-  header = new PageHeader(this, icon);
-
-#if VERSION_MAJOR > 2
-  new HeaderBackIcon(header);
-#endif
-
-#if defined(HARDWARE_TOUCH)
-#if VERSION_MAJOR == 2
-  addCustomButton(0, 0, [=]() { onCancel(); });
-#else
-  addCustomButton(0, 0, [=]() { QuickMenu::openQuickMenu(); });
-  addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
-#endif
-#endif
-
+  // Create body first so header has higher Z order
   body = new Window(this,
                     {0, EdgeTxStyles::MENU_HEADER_HEIGHT, LCD_W, LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT});
   body->setWindowFlag(NO_FOCUS);
+
+  header = new PageHeader(this, icon);
+
+  new HeaderBackIcon(header);
+
+#if defined(HARDWARE_TOUCH)
+  header->addCustomButton(0, 0, [=]() { QuickMenu::openQuickMenu(); });
+  header->addCustomButton(LCD_W - EdgeTxStyles::MENU_HEADER_HEIGHT, 0, [=]() { onCancel(); });
+#endif
 
   etx_solid_bg(lvobj);
   lv_obj_set_style_max_height(body->getLvObj(), LCD_H - EdgeTxStyles::MENU_HEADER_HEIGHT,
@@ -113,11 +108,8 @@ Page::Page(EdgeTxIcon icon, PaddingSize padding, bool pauseRefresh) :
 
 void Page::onCancel()
 {
-  if (!_deleted)
-    deleteLater();
+  closeWindow();
 }
-
-void Page::onClicked() { Keyboard::hide(false); }
 
 void Page::enableRefresh()
 {

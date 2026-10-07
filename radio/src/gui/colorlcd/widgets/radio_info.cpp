@@ -77,7 +77,7 @@ class RadioInfoWidget : public Widget
 
     batteryFill = lv_obj_create(lvobj);
     lv_obj_set_pos(batteryFill, W_AUDIO_X + 1, W_BATT_Y + 1);
-    lv_obj_set_size(batteryFill, W_BATT_FILL_W, W_BATT_FILL_H);
+    lv_obj_set_size(batteryFill, 0, W_BATT_FILL_H);
     lv_obj_set_style_bg_opa(batteryFill, LV_OPA_COVER, LV_PART_MAIN);
     update();
 
@@ -104,7 +104,7 @@ class RadioInfoWidget : public Widget
 
   void update() override
   {
-    if (_deleted) return;
+    if (deleted()) return;
 
     auto widgetData = getPersistentData();
 
@@ -116,7 +116,7 @@ class RadioInfoWidget : public Widget
 
   void foreground() override
   {
-    if (_deleted) return;
+    if (deleted()) return;
 
     usbIcon->show(usbPlugged());
     if (getSelectedUsbMode() == USB_UNSELECTED_MODE)
@@ -246,14 +246,14 @@ class DateTimeWidget : public Widget
 
   void foreground() override
   {
-    if (_deleted) return;
+    if (deleted()) return;
 
     Widget::checkEvents();
   }
 
   void update() override
   {
-    if (_deleted) return;
+    if (deleted()) return;
 
     auto widgetData = getPersistentData();
 
@@ -302,7 +302,7 @@ class InternalGPSWidget : public Widget
 
   void foreground() override
   {
-    if (_deleted) return;
+    if (deleted()) return;
 
     bool hasGPS = serialGetModePort(UART_MODE_GPS) >= 0;
 

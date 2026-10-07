@@ -28,7 +28,6 @@ class LogicalSwitchDisplayFooter;
 class LogicalSwitchesViewPage : public PageGroupItem
 {
  public:
-  LogicalSwitchesViewPage();
   LogicalSwitchesViewPage(const PageDef& pageDef);
 
   static LAYOUT_ORIENTATION_SCALED(FOOTER_HEIGHT, 20, 40)

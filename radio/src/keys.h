@@ -58,26 +58,6 @@ constexpr event_t EVT_VIRTUAL_KEY(uint8_t key)
   return (key | _MSK_VIRTUAL_KEY);
 }
 
-constexpr event_t EVT_VIRTUAL_KEY_MIN = EVT_VIRTUAL_KEY('m');
-constexpr event_t EVT_VIRTUAL_KEY_MAX = EVT_VIRTUAL_KEY('M');
-constexpr event_t EVT_VIRTUAL_KEY_PLUS = EVT_VIRTUAL_KEY('+');
-constexpr event_t EVT_VIRTUAL_KEY_MINUS = EVT_VIRTUAL_KEY('-');
-constexpr event_t EVT_VIRTUAL_KEY_FORWARD = EVT_VIRTUAL_KEY('F');
-constexpr event_t EVT_VIRTUAL_KEY_BACKWARD = EVT_VIRTUAL_KEY('B');
-constexpr event_t EVT_VIRTUAL_KEY_DEFAULT = EVT_VIRTUAL_KEY('0');
-constexpr event_t EVT_VIRTUAL_KEY_UP = EVT_VIRTUAL_KEY('U');
-constexpr event_t EVT_VIRTUAL_KEY_DOWN = EVT_VIRTUAL_KEY('D');
-constexpr event_t EVT_VIRTUAL_KEY_LEFT = EVT_VIRTUAL_KEY('L');
-constexpr event_t EVT_VIRTUAL_KEY_RIGHT = EVT_VIRTUAL_KEY('R');
-constexpr event_t EVT_VIRTUAL_KEY_NEXT = EVT_VIRTUAL_KEY('N');
-constexpr event_t EVT_VIRTUAL_KEY_PREVIOUS = EVT_VIRTUAL_KEY('P');
-constexpr event_t EVT_VIRTUAL_KEY_SIGN = EVT_VIRTUAL_KEY(177);
-
-constexpr bool IS_VIRTUAL_KEY_EVENT(event_t event)
-{
-  return (event & 0xF000) == _MSK_VIRTUAL_KEY;
-}
-
 // Touch events for Lua widgets - assuming _MSK_KEY_* for PCBHORUS
 constexpr event_t EVT_TOUCH = EVT_VIRTUAL_KEY('t');
 constexpr event_t EVT_TOUCH_FIRST = EVT_TOUCH | _MSK_KEY_FIRST;

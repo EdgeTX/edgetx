@@ -190,7 +190,7 @@ class MenuBody : public TableField
       } else {
         // delete menu first to avoid
         // focus issues with onPress()
-        menu->deleteLater();
+        menu->closeWindow();
         lines[row]->onPress();
       }
     }
@@ -312,8 +312,6 @@ class MenuWindowContent : public NavWindow
     header->show();
   }
 
-  void onClicked() override { Keyboard::hide(false); }
-
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "MenuWindowContent"; }
 #endif
@@ -422,7 +420,7 @@ void Menu::removeLines()
 void Menu::onCancel()
 {
   if (cancelHandler) cancelHandler();
-  deleteLater();
+  closeWindow();
 }
 
 void Menu::setCancelHandler(std::function<void()> handler)

@@ -2039,11 +2039,7 @@ void menuModelSetup(event_t event)
                 else if (event == EVT_KEY_LONG(KEY_ENTER)) {
                   killEvents(event);
                   uint8_t newVal = 0;
-#if defined(STORAGE_MODELSLIST)
-                  newVal = modelslist.findNextUnusedModelId(moduleIdx);
-#else
                   newVal = findNextUnusedModelId(g_eeGeneral.currModel, moduleIdx);
-#endif
                   if (newVal != g_model.header.modelId[moduleIdx]) {
                     modelHeaders[g_eeGeneral.currModel].modelId[moduleIdx] = g_model.header.modelId[moduleIdx] = newVal;
                     storageDirty(EE_MODEL);
@@ -2452,8 +2448,10 @@ void menuModelSetup(event_t event)
 #if defined(AFHDS3) && defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS: 
 #endif
-#if (defined(MULTIMODULE) | defined(DSMP) | defined(AFHDS3)) && defined(HARDWARE_EXTERNAL_MODULE)
-      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_STATUS: 
+#if defined(DSMP) && defined(HARDWARE_EXTERNAL_MODULE)
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_STATUS:
+#endif
+#if defined(MULTIMODULE) || defined(AFHDS3) || defined(DSMP)
       {
         // MultiModule & LemonDSMP & AFHDS3 Status
         lcdDrawTextIndented(y, STR_MODULE_STATUS);

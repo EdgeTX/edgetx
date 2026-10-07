@@ -1,7 +1,7 @@
 include(CMakeForceCompiler)
 include(Bitmaps)
 
-set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO ST16 PA01 TX15 GX15 TX16SMK3 T22 V12 H17)
+set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO T15H7 ST16 PA01 TX15 GX15 TX16SMK3 T22 V12 H17)
 set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 set(TTS_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 
@@ -67,11 +67,6 @@ else()
   option(ALL_LANGUAGES "Enable runtime language selection" OFF)
 endif()
 
-if(PCB STREQUAL X7 AND PCBREV STREQUAL LR3PRO)
-  option(POWER_LED_BLUE  "Override Power LED to be normally Blue" ON)
-else()
-  option(POWER_LED_BLUE  "Override Power LED to be normally Blue" OFF)
-endif()
 
 # since we reset all default CMAKE compiler flags for firmware builds, provide an alternate way for user to specify additional flags.
 set(FIRMWARE_C_FLAGS "" CACHE STRING "Additional flags for firmware target c compiler (note: all CMAKE_C_FLAGS[_*] are ignored for firmware/bootloader).")
@@ -93,6 +88,8 @@ elseif(PCB STREQUAL PL18)
   include(targets/pl18/CMakeLists.txt)
 elseif(PCB STREQUAL T15PRO)
   include(targets/t15pro/CMakeLists.txt)
+elseif(PCB STREQUAL T15H7)
+  include(targets/t15h7/CMakeLists.txt)
 elseif(PCB STREQUAL ST16)
   include(targets/st16/CMakeLists.txt)
   elseif(PCB STREQUAL C14)
@@ -154,6 +151,7 @@ AddHWGenTarget(${HW_DESC_JSON} simu_keys simu_keys.inc)
 AddHWGenTarget(${HW_DESC_JSON} simu_switches simu_switches.inc)
 
 AddHWGenTarget(${HW_DESC_JSON} hal_keys_lock hal_keys_lock.h)
+AddHWGenTarget(${HW_DESC_JSON} hal_usb_descriptor usb_descriptor.h)
 
 add_dependencies(board hal_settings hal_pwm_sticks hal_keys hal_keys_lock hal_adc_inputs stm32_keys stm32_switches stm32_adc_inputs stm32_pwm_inputs yaml_inputs lua_inputs lua_mixsrc lua_keys)
 add_dependencies(board_bl hal_settings hal_pwm_sticks hal_keys stm32_keys)
@@ -549,6 +547,7 @@ if(ALL_LANGUAGES)
     translations/sim/lang_pt.cpp
     translations/sim/lang_ru.cpp
     translations/sim/lang_se.cpp
+    translations/sim/lang_sk.cpp
     translations/sim/lang_tw.cpp
     translations/sim/lang_ua.cpp
   )
@@ -561,9 +560,6 @@ if(USBJ_EX)
   )
 endif()
 
-if(POWER_LED_BLUE)
-  add_definitions(-DPOWER_LED_BLUE)
-endif()
 
 foreach(FILE ${TARGET_SRC})
   set(SRC targets/${TARGET_DIR}/${FILE} ${SRC})

@@ -287,5 +287,5 @@ void ModelOutputsPage::build(Window* window)
 
 void ModelOutputsPage::editOutput(uint8_t channel, OutputLineButton* btn)
 {
-  (new OutputEditWindow(channel))->setCloseHandler([=]() { btn->refresh(); });
+  (new OutputEditWindow(channel))->onClosing([=]() { btn->refresh(); });
 }

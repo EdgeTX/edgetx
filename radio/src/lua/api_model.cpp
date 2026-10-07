@@ -408,6 +408,38 @@ static int luaModelResetTimer(lua_State *L)
   return 0;
 }
 
+// Out of range switches are treated as no switch
+static swsrc_t luaCheckSwitch(lua_Integer swtch)
+{
+  return (swtch >= SWSRC_FIRST && swtch <= SWSRC_LAST) ? swtch : SWSRC_NONE;
+}
+
+// Curve function and custom curve values index arrays, so reset invalid ones
+static void luaCheckCurveRef(CurveRef& curve)
+{
+  SourceNumVal v;
+  v.rawValue = curve.value;
+
+  switch (curve.type) {
+    case CURVE_REF_DIFF:
+    case CURVE_REF_EXPO:
+      // value is limited when used
+      break;
+    case CURVE_REF_FUNC:
+      if (v.isSource || v.value < 0 || v.value >= CURVE_BASE)
+        curve.value = 0;
+      break;
+    case CURVE_REF_CUSTOM:
+      if (v.isSource || abs(v.value) > MAX_CURVES)
+        curve.value = 0;
+      break;
+    default:
+      curve.type = CURVE_REF_DIFF;
+      curve.value = 0;
+      break;
+  }
+}
+
 static unsigned int getFirstInput(unsigned int chn)
 {
   for (unsigned int i=0; i<MAX_EXPOS; i++) {
@@ -613,9 +645,9 @@ Return input data for given input and line number
  * `curveType` (number) curve type (function, expo, custom curve)
  * `curveValue` (number) curve index
  * `carryTrim` deprecated, please use trimSource instead. WARNING: carryTrim was getting negative values (carryTrim = - trimSource)
- * 'trimSource' (number) a positive number representing trim source
- * 'side' (number) input side (positive, negative or all)
- * 'flightModes' (number) bit-mask of active flight modes
+ * `trimSource` (number) a positive number representing trim source
+ * `side` (number) input side (positive, negative or all)
+ * `flightModes` (number) bit-mask of active flight modes
 
 @status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11, broken carryTrim replaced by trimSource in 2.8.1, scale added in 2.10, side added in 2.11
 */
@@ -705,7 +737,7 @@ static int luaModelInsertInput(lua_State *L)
         expo->offset = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "switch")) {
-        expo->swtch = luaL_checkinteger(L, -1);
+        expo->swtch = luaCheckSwitch(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "curveType")) {
         expo->curve.type = luaL_checkinteger(L, -1);
@@ -720,6 +752,7 @@ static int luaModelInsertInput(lua_State *L)
         expo->flightModes = luaL_checkinteger(L, -1);
       }
     }
+    luaCheckCurveRef(expo->curve);
   }
 
   return 0;
@@ -932,7 +965,7 @@ static int luaModelInsertMix(lua_State *L)
         mix->offset = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "switch")) {
-        mix->swtch = luaL_checkinteger(L, -1);
+        mix->swtch = luaCheckSwitch(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "curveType")) {
         mix->curve.type = luaL_checkinteger(L, -1);
@@ -941,7 +974,9 @@ static int luaModelInsertMix(lua_State *L)
         mix->curve.value = luaIntToSourceNumval(luaL_checkinteger(L, -1));
       }
       else if (!strcmp(key, "multiplex")) {
-        mix->mltpx = luaL_checkinteger(L, -1);
+        // Out of range values are treated as ADD (same as mixer and YAML load)
+        lua_Integer mltpx = luaL_checkinteger(L, -1);
+        mix->mltpx = (mltpx >= MLTPX_ADD && mltpx <= MLTPX_REPL) ? mltpx : MLTPX_ADD;
       }
       else if (!strcmp(key, "flightModes")) {
         mix->flightModes = luaL_checkinteger(L, -1);
@@ -971,6 +1006,7 @@ static int luaModelInsertMix(lua_State *L)
         mix->speedDown = luaL_checkinteger(L, -1);
       }
     }
+    luaCheckCurveRef(mix->curve);
   }
 
   return 0;
@@ -1072,7 +1108,9 @@ Set warning state for a switch
 2 = switch middle
 3 = switch down
 
-@retval nil when switch is a toggle or does not exist
+@retval boolean true when the warning state was set
+
+@retval nil when switch is a toggle or does not exist, or state is out of range
 
 @status current Introduced in 3.0.0
 */
@@ -1096,6 +1134,7 @@ static int luaModelSetSwitchWarning(lua_State *L)
 
   if (sw <= switchGetMaxAllSwitches() && SWITCH_WARNING_ALLOWED(sw) && newstate < 4) {
     g_model.setSwitchWarning(sw, newstate);
+    lua_pushboolean(L, true);
   }
   else {
     lua_pushnil(L);
@@ -1891,12 +1930,12 @@ Get heli swash parameters
 @retval table with heli swash parameters:
 * `type` (number) 0=---, 1=120, 2=120X, 3=140, 4=90
 * `value` (number) swash ring value (normally 0)
-* 'collectiveSource' (number) source index
-* 'aileronSource' (number) source index
-* 'elevatorSource' (number) source index
-* 'collectiveWeight'(value) -100 to 100
-* 'aileronWeight' (value) -100 to 100
-* 'elevatorWeight' (value) -100 to 100
+* `collectiveSource` (number) source index
+* `aileronSource` (number) source index
+* `elevatorSource` (number) source index
+* `collectiveWeight`(value) -100 to 100
+* `aileronWeight` (value) -100 to 100
+* `elevatorWeight` (value) -100 to 100
 
  @status current Introduced in 2.8.0
 */
@@ -2020,11 +2059,11 @@ static int luaGetUserData(lua_State *L)
 }
 
 /*luadoc
-@function model.getAllUserData()
+@function model.getAllUserData([app])
 
 Get a table of all User Data entries
 
-@param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
+@param app (string) (optional) name of Lua app / widget / script. App name cannot contain the '|' character.
 
 @retval table of all User Data entries for the named app. If the app name is not supplied returns all entries.
 
@@ -2133,6 +2172,8 @@ Delete User Data entry for given app + key
 @param app (string) name of Lua app / widget / script. App name cannot contain the '|' character.
 
 @param key (string) name of User Data entry
+
+@retval none
 
 @status current Introduced in 3.0.0
 */

@@ -125,7 +125,7 @@ void BluetoothTrainerWindow::refresh()
     } else if (bluetooth.state == BLUETOOTH_STATE_DISCOVER_START) {
       if(reusableBuffer.moduleSetup.bt.devicesCount && !menuopened) { // On first item found, open menu
         auto btdm = new BTDiscoverMenu();
-        btdm->setCloseHandler([=]() {
+        btdm->onClosing([=]() {
           menuopened = false;
           if(bluetooth.state != BLUETOOTH_STATE_BIND_REQUESTED)
             bluetooth.state = BLUETOOTH_STATE_IDLE;

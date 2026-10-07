@@ -103,7 +103,7 @@ void PrefsAppPanel::sectionFolders()
   layFolders->addWidget(btnModelsPath, row, col++);
  */
 
-  ui->csectFolders->finish(-1, -1, [this] { this->shrink(); });
+  ui->csectFolders->finish(-1, -1, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsAppPanel::sectionGeneral()
@@ -128,6 +128,16 @@ void PrefsAppPanel::sectionGeneral()
     g.promptProfile(this->chkProfPrmpt->isChecked());
   });
   layGeneral->addWidget(chkProfPrmpt, row, col++);
+
+  ++row; col = 0;
+  AutoLabel *lblExpSects = new AutoLabel(this, tr("Expand all preference sections on open"));
+  layGeneral->addWidget(lblExpSects, row, col++);
+  chkExpSects = new AutoCheckBox(this);
+  chkExpSects->setValue(g.expPrefsSects());
+  chkExpSects->setBindSave([this] {
+    g.expPrefsSects(this->chkExpSects->isChecked());
+  });
+  layGeneral->addWidget(chkExpSects, row, col++);
 
   ++row; col = 0;
   AutoLabel *lblRecentFiles = new AutoLabel(this, tr("Most recently used files"));
@@ -161,7 +171,7 @@ void PrefsAppPanel::sectionGeneral()
     g.removeModelSlots(this->chkModelDelete->isChecked());
   });
   layGeneral->addWidget(chkModelDelete, row, col++);
-  ui->csectGeneral->finish(row, col, [this] { this->shrink(); }, true);
+  ui->csectGeneral->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsAppPanel::sectionGoogleEarth()
@@ -183,7 +193,7 @@ void PrefsAppPanel::sectionGoogleEarth()
   btnGoogleExe->setup(tr("Select Google Earth executable"), g.gePath(), "", leGoogleExe);;
   layGoogle->addWidget(btnGoogleExe, row, col++);
 
-  ui->csectGoogleEarth->finish(-1, -1, [this] { this->shrink(); });
+  ui->csectGoogleEarth->finish(-1, -1, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsAppPanel::sectionLogging()
@@ -212,7 +222,7 @@ void PrefsAppPanel::sectionLogging()
   });
   layLogging->addWidget(chkLogFW, row, col++);
 
-  ui->csectLogging->finish(row, col, [this] { this->shrink(); });
+  ui->csectLogging->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsAppPanel::sectionRadioProfiles()
@@ -251,7 +261,7 @@ void PrefsAppPanel::sectionRadioProfiles()
   });
   layProfiles->addWidget(chkConfirmDeleteWrite, row, col++);
 
-  ui->csectProfiles->finish(row, col, [this] { this->shrink(); });
+  ui->csectProfiles->finish(row, col, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsAppPanel::sectionSplashScreens()
@@ -285,7 +295,7 @@ void PrefsAppPanel::sectionSplashScreens()
   btnSplashUser->setup(tr("Select user splash folder"), g.libDir(), leSplashUserPath);;
   laySplash->addWidget(btnSplashUser, row, col++);
 
-  ui->csectSplash->finish(-1, -1, [this] { this->shrink(); });
+  ui->csectSplash->finish(-1, -1, [this] { this->shrink(); }, g.expPrefsSects());
 }
 
 void PrefsAppPanel::update()

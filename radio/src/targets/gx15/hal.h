@@ -51,7 +51,7 @@ TIM2:	LED_STRIP_TIMER
 TIM3:	HAPTIC_GPIO_TIMER
 TIM4:
 TIM5:	EXTMODULE_TIMER
-TIM7:
+TIM7:	STATUS_LED_PWM_TIMER
 TIM8:	TRAINER_TIMER
 TIM12:	MIXER_SCHEDULER_TIMER
 TIM14:	MS_TIMER
@@ -111,13 +111,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ETH_WKUP_IRQ_Priority 5
 #define CUSTOM_EXTI_IRQ_LINE 86
 #define TELEMETRY_RX_FRAME_EXTI_LINE    CUSTOM_EXTI_IRQ_LINE
-
-// USB
-#define USB_GPIO                        GPIOA
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOH, 11)
-#define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11)
-#define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12)
-#define USB_GPIO_AF                     GPIO_AF10
 
 // LCD
 #define LCD_SPI_CS_GPIO                 GPIOD
@@ -186,11 +179,11 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define I2S_DMA_Stream_IRQHandler 		DMA1_Stream4_IRQHandler
 
 #if !defined(FLYSKY_GIMBAL)
-  #define PDM_CLOCK                     GPIO_PIN(GPIOE, 5)
-  #define PDM_CLOCK_GPIO_AF             LL_GPIO_AF_6
-  #define PDM_SAI_BLOCK                 SAI1_Block_A
-  #define PDM_SAI_KER_FREQ              48000000  // PLL1Q (see system_clock.c)
-  #define PDM_CLOCK_FREQ                1600000   // 1.6 MHz → MCKDIV=30, R=100 → 16 kHz PCM direct
+  #define PDM_CLOCK                     GPIO_PIN(GPIOD, 3) // V1.5+ board, DFSDM1_CKOUT
+  #define PDM_CLOCK_GPIO_AF             LL_GPIO_AF_3
+  #define PDM_CLOCK_DFSDM
+  #define PDM_SAI_KER_FREQ              48000000  // PLL1Q, DFSDM1 audio clock (see system_clock.c)
+  #define PDM_CLOCK_FREQ                1600000   // 1.6 MHz → ÷30, R=100 → 16 kHz PCM direct
   #define PDM_DATA                      GPIO_PIN(GPIOE, 4)
   #define PDM_DATA_GPIO_PORT            GPIOE
   #define PDM_DATA_GPIO_PIN             4
@@ -272,23 +265,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    DMA2_Stream6_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     DMA2_Stream6_IRQHandler
 
-// Trainer Port
-#define TRAINER_RCC_AHB1Periph          (RCC_AHB1Periph_GPIOA)
-
-#define TRAINER_IN_GPIO                 GPIO_PIN(GPIOI, 6)
-#define TRAINER_IN_TIMER_Channel        LL_TIM_CHANNEL_CH2
-
-#define TRAINER_OUT_GPIO                GPIO_PIN(GPIOI, 5)
-#define TRAINER_OUT_TIMER_Channel       LL_TIM_CHANNEL_CH1
-
-#define TRAINER_TIMER                   TIM8
-#define TRAINER_TIMER_IRQn              TIM8_CC_IRQn
-#define TRAINER_TIMER_IRQHandler        TIM8_CC_IRQHandler
-#define TRAINER_GPIO_AF                 LL_GPIO_AF_3
-#define TRAINER_TIMER_FREQ              (PERI2_FREQUENCY * TIMER_MULT_APB2)
-
-#define TRAINER_DETECT_GPIO             GPIO_PIN(GPIOH, 4)
-
 // AUX ports
 #define AUX_SERIAL_TX_GPIO                  GPIO_PIN(GPIOB, 6) // PB.06
 #define AUX_SERIAL_RX_GPIO                  GPIO_PIN(GPIOB, 5) // PB.05
@@ -315,16 +291,5 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define AUX2_SERIAL_DMA_RX_STREAM           LL_DMA_STREAM_6
 #define AUX2_SERIAL_DMA_RX_CHANNEL          LL_DMAMUX1_REQ_USART3_RX
 #define AUX2_SERIAL_PWR_GPIO                GPIO_PIN(GPIOC, 13) // PC.13
-
-// Touch
-#define TOUCH_I2C_BUS                   I2C_Bus_2
-#define TOUCH_INT_GPIO                  GPIO_PIN(GPIOE, 2) // PE.02
-#define TOUCH_RST_GPIO                  GPIO_PIN(GPIOJ, 13) // PJ.13
-
-// TOUCH_INT_EXTI IRQ
-#if !defined(USE_EXTI2_IRQ)
-#define USE_EXTI2_IRQ
-#define EXTI2_IRQ_Priority  9
-#endif
 
 #endif // _HAL_H_

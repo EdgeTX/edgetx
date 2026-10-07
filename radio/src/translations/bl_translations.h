@@ -64,6 +64,8 @@
     #define TR_BL_DIR_EMPTY               "Adresar je prazdny"
     #define TR_BL_WRITING_FW              "Nahravani firmware ..."
     #define TR_BL_WRITING_COMPL           "Nahravani dokonceno"
+    #define TR_BL_WRITING_FAILED          TR("Zapis selhal!", "Zapis se nezdaril!")
+    #define TR_BL_RETRY_OR_DFU            TR("Zkuste znovu / DFU", "Zkuste znovu, nebo pouzijte USB (DFU)")
     #define TR_BL_ENABLE                  "Povoleno"
     #define TR_BL_DISABLE                 "Zakazano"
 
@@ -84,7 +86,7 @@
     #define TR_BL_CURRENT_FW               "Aktualni firmware:"
 
     #define TR_BL_SELECT_KEY               BL_SELECT_KEY " pro vybrani souboru"
-    #define TR_BL_FLASH_KEY                "Drzet dlouze " BL_SELECT_KEY " pro nahrani"
+    #define TR_BL_FLASH_KEY                "Drzet dlouho " BL_SELECT_KEY " pro nahrani"
     #define TR_BL_ERASE_KEY                "Hold " BL_SELECT_KEY " long to erase"
     #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " to toggle"
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " pro ukonceni"
@@ -111,6 +113,8 @@
     #define TR_BL_DIR_EMPTY               "Katalog er tomt"
     #define TR_BL_WRITING_FW              "Installerer..."
     #define TR_BL_WRITING_COMPL           "Installation slut"
+    #define TR_BL_WRITING_FAILED          TR("Skrivning fejlede!", "Skrivning mislykkedes!")
+    #define TR_BL_RETRY_OR_DFU            TR("Prov igen / DFU", "Prov igen, eller brug USB (DFU)")
     #define TR_BL_ENABLE                  "Aktiver"
     #define TR_BL_DISABLE                 "Deaktiver"
 
@@ -158,6 +162,8 @@
     #define TR_BL_DIR_EMPTY               "Verzeichnis leer"
     #define TR_BL_WRITING_FW              "Schreibe..."
     #define TR_BL_WRITING_COMPL           TR("Schreiben fertig","Schreiben abgeschlossen")
+    #define TR_BL_WRITING_FAILED          TR("Schreiben Fehler!", "Schreiben fehlgeschlagen!")
+    #define TR_BL_RETRY_OR_DFU            TR("Neu vers. / DFU", "Erneut versuchen, oder USB (DFU)")
     #define TR_BL_ENABLE                  "Aktivieren"
     #define TR_BL_DISABLE                 "Deaktivieren"
 
@@ -206,6 +212,8 @@
     #define TR_BL_DIR_EMPTY               "Repertoire vide"
     #define TR_BL_WRITING_FW              "Ecriture Firmware ..."
     #define TR_BL_WRITING_COMPL           "Ecriture terminée"
+    #define TR_BL_WRITING_FAILED          TR("Echec ecriture!", "Echec de l'ecriture!")
+    #define TR_BL_RETRY_OR_DFU            TR("Reessayer / DFU", "Reessayez, ou utilisez USB (DFU)")
     #define TR_BL_ENABLE                  "Activer"
     #define TR_BL_DISABLE                 "Désactiver"
 
@@ -253,6 +261,8 @@
     #define TR_BL_DIR_EMPTY               "Cartella vuota"
     #define TR_BL_WRITING_FW              "Scrittura..."
     #define TR_BL_WRITING_COMPL           "Scrittura completata"
+    #define TR_BL_WRITING_FAILED          TR("Scrittura fallita!", "Scrittura fallita!")
+    #define TR_BL_RETRY_OR_DFU            TR("Riprova / DFU", "Riprova, oppure usa USB (DFU)")
     #define TR_BL_ENABLE                  "Abilita"
     #define TR_BL_DISABLE                 "Disabilita"
 
@@ -300,6 +310,8 @@
     #define TR_BL_DIR_EMPTY               "Katalog jest pusty"
     #define TR_BL_WRITING_FW              "Zapis firmware ..."
     #define TR_BL_WRITING_COMPL           "Zapis ukonczony"
+    #define TR_BL_WRITING_FAILED          TR("Zapis nieudany!", "Zapis nie powiodl sie!")
+    #define TR_BL_RETRY_OR_DFU            TR("Powtorz / DFU", "Powtorz, lub uzyj USB (DFU)")
     #define TR_BL_ENABLE                  "Enable"
     #define TR_BL_DISABLE                 "Disable"
 
@@ -347,6 +359,8 @@
     #define TR_BL_DIR_EMPTY                "Katalogen aer tom"
     #define TR_BL_WRITING_FW               "Skriver..."
     #define TR_BL_WRITING_COMPL            "Skrivning klar"
+    #define TR_BL_WRITING_FAILED           TR("Skrivning fel!", "Skrivningen misslyckades!")
+    #define TR_BL_RETRY_OR_DFU             TR("Forsok igen / DFU", "Forsok igen, eller anvand USB (DFU)")
     #define TR_BL_ENABLE                   "Aktivera"
     #define TR_BL_DISABLE                  "Inaktivera"
 
@@ -378,6 +392,54 @@
     #define TR_BL_COPY_UF2                "Kopiera firmware.uf2 till enhet EDGETX_UF2"
     #define TR_BL_NO_VERSION              "Ingen version"
 
+#elif defined(TRANSLATIONS_SK)
+
+    // Poznamka: nutne pouzitie textu bez diakritiky - obmedzenie velkosti pameti bootloader!
+    #define TR_BL_USB_CONNECTED           "USB pripojene"
+    #define TR_BL_USB_PLUGIN              "alebo pripojte USB kabel"
+    #define TR_BL_USB_MASS_STORE          "pre pouzitie uloziska"
+    #define TR_BL_WRITE_FW                "Nahrat firmware"
+    #define TR_BL_FORK                    "Fork:"
+    #define TR_BL_VERSION                 "Verzia:"
+    #define TR_BL_RADIO                   "Radio:"
+    #define TR_BL_EXIT                    "Ukoncit"
+    #define TR_BL_DIR_MISSING             "Adresar chyba"
+    #define TR_BL_DIR_EMPTY               "Adresar je prazdny"
+    #define TR_BL_WRITING_FW              "Nahravanie firmware ..."
+    #define TR_BL_WRITING_COMPL           "Nahravanie dokoncene"
+    #define TR_BL_WRITING_FAILED          TR("Zapis zlyhal!", "Zapis sa nepodaril!")
+    #define TR_BL_RETRY_OR_DFU            TR("Skuste znova / DFU", "Skuste znova, alebo pouzite USB (DFU)")
+    #define TR_BL_ENABLE                  "Povolene"
+    #define TR_BL_DISABLE                 "Zakazane"
+
+    #if !defined(COLORLCD)
+      #define TR_BL_HOLD_ENTER_TO_START    TR("Drzat [ENT] pre zahajenie", "Drzat [ENT] pre zahajenie nahravania")
+    #endif
+    #define TR_BL_INVALID_FIRMWARE         TR("Neplatny firmware!", "Neplatny subor s firmwerom")
+
+    // Bootloader Taranis specific - ASCII characters only
+    #define TR_BL_POWER_KEY                "Stlacte tlacitko napajanie."
+    #define TR_BL_FLASH_EXIT               "Ukoncit rezim nahravania."
+
+    // Bootloader Horus specific - ASCII characters only
+    #define TR_BL_ERASE_INT_FLASH          "Vymazat internu pamat Flash"
+    #define TR_BL_ERASE_FLASH              "Vymazat pamat Flash"
+    #define TR_BL_ERASE_FLASH_MSG          "Moze to trvat az 200s"
+    #define TR_BL_RF_USB_ACCESS            "RF USB access"
+    #define TR_BL_CURRENT_FW               "Aktualny firmware:"
+
+    #define TR_BL_SELECT_KEY               BL_SELECT_KEY " pre vybranie suboru"
+    #define TR_BL_FLASH_KEY                "Drzat dlho " BL_SELECT_KEY " pre nahranie"
+    #define TR_BL_ERASE_KEY                "Drzat " BL_SELECT_KEY " pre zmazanie"
+    #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " prepnut"
+    #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " pre ukoncenie"
+
+    // Bootloader UF2 specific - ASCII characters only
+    #define TR_BL_DFU_MODE                "DFU rezim"
+    #define TR_BL_PLUG_USB                "Pripojit USB kabel"
+    #define TR_BL_COPY_UF2                "Kopirovat firmware.uf2 na EDGETX_UF2 uloziste"
+    #define TR_BL_NO_VERSION              "Zadna verzia"
+
 #else  // EN
 
     // ASCII characters only
@@ -394,6 +456,8 @@
     #define TR_BL_DIR_EMPTY               "Directory is empty"
     #define TR_BL_WRITING_FW              "Writing..."
     #define TR_BL_WRITING_COMPL           "Writing complete"
+    #define TR_BL_WRITING_FAILED          TR("Writing failed!", "Writing failed!")
+    #define TR_BL_RETRY_OR_DFU            TR("Retry or use DFU", "Retry, or flash over USB (DFU)")
     #define TR_BL_ENABLE                  "Enable"
     #define TR_BL_DISABLE                 "Disable"
 

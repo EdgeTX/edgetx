@@ -63,6 +63,7 @@ namespace Board {
     BOARD_JUMPER_T14,
     BOARD_JUMPER_T15,
     BOARD_JUMPER_T15PRO,
+    BOARD_JUMPER_T15H7,
     BOARD_JUMPER_T22,
     BOARD_JUMPER_T16,
     BOARD_RADIOMASTER_TX16S,
@@ -233,6 +234,8 @@ namespace Board {
     HasAux2SerialMode,
     HasBacklightColor,
     HasBlingLEDS,
+    HasStatusLedPwm,
+    StatusLedColors,
     HasBluetooth,
     HasColorLcd,
     HasExternalAntenna,
@@ -262,6 +265,7 @@ namespace Board {
     LcdHeight,
     LcdOLED,
     LcdWidth,
+    Manufacturer,
     MaxContrast,
     MaxVolume,
     MinContrast,
@@ -572,6 +576,11 @@ inline bool IS_JUMPER_T15PRO(Board::Type board)
   return board == Board::BOARD_JUMPER_T15PRO;
 }
 
+inline bool IS_JUMPER_T15H7(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T15H7;
+}
+
 inline bool IS_JUMPER_T22(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T22;
@@ -694,6 +703,7 @@ inline bool IS_FAMILY_T16(Board::Type board)
          board == Board::BOARD_HELLORADIOSKY_V16 ||
          board == Board::BOARD_JUMPER_T15 ||
          board == Board::BOARD_JUMPER_T15PRO ||
+         board == Board::BOARD_JUMPER_T15H7 ||
          board == Board::BOARD_JUMPER_T16 ||
          board == Board::BOARD_JUMPER_T18 ||
          board == Board::BOARD_RADIOMASTER_TX15 ||
@@ -891,3 +901,4 @@ inline bool IS_ACCESS_RADIO(Board::Type board, const QString & id)
   return IS_ACCESS_RADIO(board) ||
          (IS_FAMILY_HORUS_OR_T16(board) && id.contains("internalaccess"));
 }
+

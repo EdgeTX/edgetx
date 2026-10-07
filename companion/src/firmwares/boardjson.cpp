@@ -73,6 +73,7 @@ BoardJson::BoardJson(Board::Type board, QString hwdefn) :
   m_display({0, 0, 0, 0, 0, 0, 0, 0}),
   m_cfs({0, 0}),
   m_hardware({0, 0, 0}),
+  m_identity({"", ""}),
   m_inputCnt({0, 0, 0, 0, 0, 0, 0, 0, 0}),
   m_switchCnt({0, 0, 0})
 {
@@ -212,6 +213,12 @@ const int BoardJson::getCapability(const Board::Capability capability) const
 
     case Board::HasBlingLEDS:
       return m_hardware.has_bling_leds;
+
+    case Board::StatusLedColors:
+      return m_hardware.status_led_colors;
+
+    case Board::HasStatusLedPwm:
+      return m_hardware.status_led_pwm;
 
     case Board::HasColorLcd:
       return m_display.color;
@@ -1005,7 +1012,7 @@ bool BoardJson::loadDefinition()
   if (m_board == Board::BOARD_UNKNOWN)
     return true;
 
-  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs, m_hardware, m_hasKeyLockCombo))
+  if (!loadFile(m_board, m_hwdefn, m_inputs, m_switches, m_keys, m_trims, m_display, m_cfs, m_hardware, m_identity, m_hasKeyLockCombo))
     return false;
 
   afterLoadFixups(m_board, m_inputs, m_switches, m_keys, m_trims);
@@ -1042,7 +1049,7 @@ bool BoardJson::loadDefinition()
 // static
 bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs, SwitchesTable * switches,
                          KeysTable * keys, TrimsTable * trims, DisplayDefn & display, CustomSwitchesDefn & cfs,
-                         HardwareDefn & hardware, bool & hasKeyLockCombo)
+                         HardwareDefn & hardware, IdentityDefn & identity, bool & hasKeyLockCombo)
 {
   if (board == Board::BOARD_UNKNOWN) {
     return false;
@@ -1279,6 +1286,16 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
     cfs.groups = cfs_leds_per_switch ? cfs_led_strip_length / (2 * cfs_leds_per_switch) : 0;
     cfs.rgb_led = cfs.groups > 0;
     hardware.has_bling_leds = o.value("bling_led_strip_length").toInt();
+
+    if (o.value("status_leds").toBool()) {
+      if (o.value("status_led_rgb_strip").toBool())
+        hardware.status_led_colors = 0b111;
+      else
+        hardware.status_led_colors = (o.contains("led_red_gpio") ? 0b001 : 0) |
+                                     (o.contains("led_green_gpio") ? 0b010 : 0) |
+                                     (o.contains("led_blue_gpio") ? 0b100 : 0);
+    }
+    hardware.status_led_pwm = o.contains("status_led_pwm_timer");
   }
 
   if (obj.value("hardware").isObject()) {
@@ -1291,6 +1308,13 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
     hardware.surface = o.value("surface").toBool();
     hardware.cpu = o.value("cpu").toString().toStdString();
     hardware.cpu_type = o.value("cpu_type").toString().toStdString();
+  }
+
+  if (obj.value("identity").isObject()) {
+    const QJsonObject &o = obj.value("identity").toObject();
+
+    identity.manufacturer = o.value("manufacturer").toString().toStdString();
+    identity.model = o.value("model").toString().toStdString();
   }
 
   delete json;
@@ -1342,6 +1366,8 @@ const QString BoardJson::getCapabilityStr(const Board::Capability capability) co
       return m_hardware.cpu.c_str();
     case Board::CPUType:
       return m_hardware.cpu_type.c_str();
+    case Board::Manufacturer:
+      return m_identity.manufacturer.c_str();
     default:
       return QString();
   }
