@@ -276,11 +276,16 @@ ui(new Ui::GeneralSetup)
 
   if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
     ui->backlightautoSB->setMinimum(5);
+    // colour LCDs have no contrast setting
+    ui->label_contrast->hide();
+    ui->contrastSB->hide();
+    ui->contrastSB->setDisabled(true);
   }
-
-  ui->contrastSB->setMinimum(firmware->getCapability(MinContrast));
-  ui->contrastSB->setMaximum(firmware->getCapability(MaxContrast));
-  ui->contrastSB->setValue(generalSettings.contrast);
+  else {
+    ui->contrastSB->setMinimum(firmware->getCapability(MinContrast));
+    ui->contrastSB->setMaximum(firmware->getCapability(MaxContrast));
+    ui->contrastSB->setValue(generalSettings.contrast);
+  }
 
   if (Boards::getCapability(board, Board::LcdOLED)) {
     // OLED radios have no backlight - "contrast" is the panel brightness
