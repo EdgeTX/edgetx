@@ -228,6 +228,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_JUMPER_T22:
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:
+    case BOARD_JUMPER_T18H7:
     case BOARD_RADIOMASTER_TX16S:
     case BOARD_RADIOMASTER_TX16SMK3:
     case BOARD_RADIOMASTER_TX15:
@@ -298,6 +299,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_JUMPER_T22:
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:
+    case BOARD_JUMPER_T18H7:
     case BOARD_RADIOMASTER_TX16S:
     case BOARD_RADIOMASTER_TX16SMK3:
     case BOARD_RADIOMASTER_TX15:
@@ -442,7 +444,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
              IS_HELLORADIOSKY_V14(board);
 
     case LcdDepth:
-      if (IS_FAMILY_HORUS_OR_T16(board))
+      if (IS_FAMILY_HORUS_OR_T16(board) || IS_JUMPER_T18H7(board))
         return 16;
       else if (IS_TARANIS_SMALL(board))
         return 1;
@@ -458,7 +460,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 320;
       else if (IS_FLYSKY_PA01(board) || IS_HELLORADIOSKY_V12(board))
         return 240;
-      else if (IS_FAMILY_HORUS_OR_T16(board))
+      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_JUMPER_T18H7(board))
         return 272;
       else
         return 64;
@@ -468,7 +470,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 800;
       else if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PA01(board) || IS_HELLORADIOSKY_V12(board))
         return 320;
-      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_TX15(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))
+      else if (IS_FAMILY_HORUS_OR_T16(board) || IS_JUMPER_T18H7(board) || IS_RADIOMASTER_TX15(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))
         return 480;
       else if (IS_TARANIS(board) && !IS_TARANIS_SMALL(board))
         return 212;
@@ -713,6 +715,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Jumper T16";
     case BOARD_JUMPER_T18:
       return "Jumper T18";
+    case BOARD_JUMPER_T18H7:
+      return "Jumper T18H7";
     case BOARD_JUMPER_T20:
       return "Jumper T20";
     case BOARD_JUMPER_T20V2:
@@ -898,6 +902,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_JUMPER_T15:
   case BOARD_JUMPER_T15PRO:
   case BOARD_JUMPER_T15H7:
+  case BOARD_JUMPER_T18H7:
   case BOARD_JUMPER_T22:
   case BOARD_JUMPER_T20:
   case BOARD_JUMPER_TPROS:

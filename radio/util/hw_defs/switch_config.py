@@ -431,6 +431,23 @@ SWITCH_CONFIG = {
         "SK": {"default": "2POS"},
         "SL": {"default": "2POS"},
     },
+    "t18h7": {
+        "SA": {"default": "3POS"},
+        "SB": {"default": "3POS"},
+        "SC": {"default": "3POS"},
+        "SD": {"default": "3POS"},
+        "SE": {"default": "3POS"},
+        "SF": {"default": "2POS"},
+        "SG": {"default": "3POS"},
+        "SH": {"default": "2POS"},
+        # custom switches
+        "SI": {"default": "2POS"},
+        "SJ": {"default": "2POS"},
+        "SK": {"default": "2POS"},
+        "SL": {"default": "2POS"},
+        "SM": {"default": "2POS"},
+        "SN": {"default": "2POS"},
+    },
     "t22": {
         "SA": {"default": "2POS"},
         "SB": {"default": "2POS"},
