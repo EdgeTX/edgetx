@@ -114,6 +114,13 @@ const struct YamlIdStr enum_booleanEnum[] = {
   {  BOOL_ON, "ON"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_StatusLedColor[] = {
+  {  STATUS_LED_COLOR_DEFAULT, "LED_COLOR_DEFAULT"  },
+  {  STATUS_LED_COLOR_RED, "LED_COLOR_RED"  },
+  {  STATUS_LED_COLOR_GREEN, "LED_COLOR_GREEN"  },
+  {  STATUS_LED_COLOR_BLUE, "LED_COLOR_BLUE"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_QMPage[] = {
   {  QM_NONE, "NONE"  },
   {  QM_OPEN_QUICK_MENU, "OPEN_QUICK_MENU"  },
@@ -480,6 +487,10 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_UNSIGNED( "radioThemesDisabled", 1 ),
   YAML_PADDING( 7 ),
   YAML_UNSIGNED( "pwrOffIfInactive", 8 ),
+  YAML_ENUM("statusLedError", 2, enum_StatusLedColor, NULL),
+  YAML_ENUM("statusLedReady", 2, enum_StatusLedColor, NULL),
+  YAML_ENUM("statusLedEmit", 2, enum_StatusLedColor, NULL),
+  YAML_PADDING( 2 ),
   YAML_ARRAY("keyShortcuts", 8, 6, struct_KeyShortcut, NULL),
   YAML_ARRAY("qmFavorites", 8, 12, struct_QMFavorite, NULL),
   YAML_END
@@ -937,6 +948,13 @@ static const struct YamlNode struct_USBJoystickChData[] = {
   YAML_UNSIGNED( "switch_npos", 3 ),
   YAML_END
 };
+static const struct YamlNode struct_UserData[] = {
+  YAML_IDX,
+  YAML_CUSTOM("key",r_userdata_key,w_userdata_key),
+  YAML_CUSTOM("type",r_userdata_type,w_userdata_type),
+  YAML_CUSTOM("value",r_userdata_value,w_userdata_value),
+  YAML_END
+};
 static const struct YamlNode struct_ModelData[] = {
   YAML_CUSTOM("semver",nullptr,w_semver),
   YAML_STRUCT("header", 1048, struct_ModelHeader, NULL),
@@ -1018,6 +1036,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ENUM("modelSFDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelCustomScriptsDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelTelemetryDisabled", 2, enum_ModelOverridableEnable, NULL),
+  YAML_ARRAY("userData", 0, 50, struct_UserData, userdata_is_active),
   YAML_END
 };
 static const struct YamlNode struct_PartialModel[] = {
