@@ -27,7 +27,10 @@
 
 void usbChargerInit()
 {
-  gpio_init(UCHARGER_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW); //charge status
+  // IP2363 LED1 drives this high (via 100R) while charging. When it stops
+  // driving, only the 2K + charge LED path to GND is left: with a pull-up
+  // that settles around 1.6V and can read high, so pull down instead.
+  gpio_init(UCHARGER_GPIO, GPIO_IN_PD, GPIO_PIN_SPEED_LOW); //charge status
 
 #if defined(UCHARGER_EN)
   gpio_init(UCHARGER_EN, GPIO_OUT, GPIO_PIN_SPEED_LOW);
