@@ -122,6 +122,9 @@ get_target_build_options() {
         t15h7)
             BUILD_OPTIONS+="-DPCB=T15H7"
             ;;
+        t18h7)
+            BUILD_OPTIONS+="-DPCB=T18H7"
+            ;;
         t22)
             BUILD_OPTIONS+="-DPCB=T22"
             ;;
