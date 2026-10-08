@@ -1166,6 +1166,9 @@ const static PageButtonDef radioSetupButtons[] = {
   {nullptr},
 };
 
+// Radio specific setup lines, added after the common ones
+__attribute__((weak)) void customRadioSetupLines(Window* window, PaddingSize padding) {}
+
 void RadioSetupPage::build(Window* window)
 {
   window->setFlexLayout(LV_FLEX_FLOW_COLUMN, padding);
@@ -1178,4 +1181,5 @@ void RadioSetupPage::build(Window* window)
   new SetupButtonGroup(window, {0, 0, LCD_W - padding * 2, 0}, BTN_COLS, radioSetupButtons, BTN_H);
 
   SetupLine::showLines(window, 0, SubPage::EDT_X, padding, setupLines);
+  customRadioSetupLines(window, padding);
 }

@@ -61,7 +61,7 @@ jobs:
           - id: color-3
             target: [tx15, tx16s, x12s, f16]
           - id: mixed-1
-            target: [v12, v14, v14lcd, v16, x10, x10express]
+            target: [v12, v14, v14lcd, v15, v16, x10, x10express]
           - id: bw-3
             target: [x7access, x9dp2019, x9e]
           - id: color-4

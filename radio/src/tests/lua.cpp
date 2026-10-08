@@ -425,6 +425,38 @@ TEST(Lua, getFieldInfoSensorBeforeSwitch)
   MODEL_RESET();
 }
 
+#if defined(MODULE_BATTERY_SENSOR)
+// Fixed names, so scripts work whatever language the source names are in
+TEST(Lua, batterySensorFields)
+{
+  char lua[256];
+  for (auto f : {std::make_pair("tx-current", (int)MIXSRC_TX_BAT_CURRENT),
+                 std::make_pair("tx-power", (int)MIXSRC_TX_BAT_POWER)}) {
+    snprintf(lua, sizeof(lua),
+             "local info = getFieldInfo('%s')\n"
+             "if info == nil or info.id ~= %d then error('id') end\n"
+             "if math.type(getValue('%s')) ~= 'float' then error('float') end",
+             f.first, f.second, f.first);
+    EXPECT_TRUE(__luaExecStr(lua)) << f.first;
+  }
+}
+#endif
+
+#if defined(VOICE_CONTROL_SENSOR)
+TEST(Lua, voiceControlFields)
+{
+  char lua[128];
+  for (auto f : {std::make_pair("vgr", (int)MIXSRC_VGR),
+                 std::make_pair("vfl", (int)MIXSRC_VFL)}) {
+    snprintf(lua, sizeof(lua),
+             "local info = getFieldInfo('%s')\n"
+             "if info == nil or info.id ~= %d then error('id') end",
+             f.first, f.second);
+    EXPECT_TRUE(__luaExecStr(lua)) << f.first;
+  }
+}
+#endif
+
 TEST(Lua, getSwitchInfoOutOfRange)
 {
   RADIO_RESET();

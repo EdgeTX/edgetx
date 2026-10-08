@@ -519,6 +519,21 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
 
   else if (i == MIXSRC_TX_VOLTAGE) {
     return g_vbat100mV;
+#if defined(MODULE_BATTERY_SENSOR)
+  } else if (i == MIXSRC_TX_BAT_CURRENT) {
+#if defined(SIMU)
+    return 0;
+#else
+    return divRoundClosest(batterySensorCurrent(), 100);
+#endif
+  } else if (i == MIXSRC_TX_BAT_POWER) {
+#if defined(SIMU)
+    return 0;
+#else
+    return divRoundClosest(batterySensorVoltage(), 100) *
+           divRoundClosest(batterySensorCurrent(), 100);
+#endif
+#endif
   } else if (i < MIXSRC_FIRST_TIMER) {
     // TX_TIME + SPARES
 #if defined(RTCLOCK)

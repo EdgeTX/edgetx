@@ -152,8 +152,28 @@ void rotaryEncoderStartDelay()
   ROTARY_ENCODER_TIMER->CR1 = TIM_CR1_CEN | TIM_CR1_URS;
 }
 
+#if defined(ROTARY_ENCODER_POLLING)
+// Continuous timer sampling, for when the encoder's EXTI lines are
+// temporarily needed by something else. rotaryEncoderInit() restores the
+// normal EXTI-triggered one-shot debounce.
+static volatile bool rotencPollMode = false;
+
+void rotaryEncoderStartPolling()
+{
+  rotencPollMode = true;
+  // ~500 us: catch detent edges without EXTI on both phases
+  ROTARY_ENCODER_TIMER->ARR = 499;
+  ROTARY_ENCODER_TIMER->EGR = TIM_EGR_UG;
+  ROTARY_ENCODER_TIMER->SR &= ~TIM_SR_UIF;
+  ROTARY_ENCODER_TIMER->CR1 = TIM_CR1_CEN | TIM_CR1_URS;
+}
+#endif
+
 void rotaryEncoderInit()
 {
+#if defined(ROTARY_ENCODER_POLLING)
+  rotencPollMode = false;
+#endif
 #if defined(ROTARY_ENCODER_GPIO)
   LL_GPIO_InitTypeDef pinInit;
   LL_GPIO_StructInit(&pinInit);
@@ -237,6 +257,11 @@ void rotaryEncoderInit()
 extern "C" void ROTARY_ENCODER_TIMER_IRQHandler(void)
 {
   ROTARY_ENCODER_TIMER->SR &= ~TIM_SR_UIF;
+#if defined(ROTARY_ENCODER_POLLING)
+  if (!rotencPollMode)
+    ROTARY_ENCODER_TIMER->CR1 = 0;
+#else
   ROTARY_ENCODER_TIMER->CR1 = 0;
+#endif
   rotaryEncoderCheck();
 }
