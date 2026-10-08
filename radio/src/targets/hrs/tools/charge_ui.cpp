@@ -408,7 +408,9 @@ class ChargeDashboardDialog : public Window
   void refreshUi(bool forceTxt)
   {
     uint16_t vmv = v15BatterySystemVoltage();
-    int16_t ima = v15BatterySystemCurrent();
+    // sensor reads + for radio draw, - for current into the battery; the HUD
+    // shows charge current (and power) as positive
+    int16_t ima = -v15BatterySystemCurrent();
     bool chgLed = usbChargerLed();
 
     uint8_t rawSoc = estimateSoc2s(vmv);
