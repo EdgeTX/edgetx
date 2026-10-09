@@ -2664,12 +2664,6 @@
         "type": "FLEX",
         "label": "S2",
         "default": "POT_CENTER"
-      },
-      {
-        "name": "P3",
-        "type": "FLEX",
-        "label": "S3",
-        "default": "MULTIPOS"
       }
     ],
     "switches": [
