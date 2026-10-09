@@ -547,6 +547,8 @@ USART6: EXTMODULE_USART
 // IMU
 #define IMU_I2C_BUS                     I2C_Bus_1
 #define IMU_I2C_ADDRESS                 0x69
+#define IMU_INVERT_X                    // X axis mounted reversed (default, user-overridable)
+#define IMU_INVERT_Y                    // Y axis mounted reversed (default, user-overridable)
 //#define IMU_INT_GPIO	                  GPIO_PIN(GPIOD, 4) // PD.04
 // IMU_INT_EXTI IRQ
 #if !defined(USE_EXTI4_IRQ)
