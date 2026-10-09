@@ -87,15 +87,12 @@
         "default": "POT_CENTER"
       },
       {
-        "name": "P3",
-        "type": "FLEX",
+        "name": "RAW1",
+        "type": "RAW",
         "adc": "MAIN",
         "gpio": "GPIOC",
         "pin": "LL_GPIO_PIN_5",
-        "channel": "LL_ADC_CHANNEL_8",
-        "label": "S3",
-        "short_label": "3",
-        "default": "MULTIPOS"
+        "channel": "LL_ADC_CHANNEL_8"
       },
       {
         "name": "VBAT",
