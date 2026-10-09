@@ -84,9 +84,30 @@ static const etx_imu_t _imu_candidates[] = {
 #endif
 };
 
+// The IMU is mounted upside down and rotated, so its X/Y axes are swapped
+// (and both reversed, see imu_invert_x/y in hw_defs). Swap them here, before
+// the generic inversion/calibration, so that TltX/TltY and their settings
+// line up
+static imu_read_fn _imuRead = nullptr;
+
+static int imuReadSwapXY(etx_imu_data_t* data)
+{
+  int ret = _imuRead(data);
+  if (ret >= 0) {
+    float t = data->accel_x;
+    data->accel_x = data->accel_y;
+    data->accel_y = t;
+    t = data->gyro_x;
+    data->gyro_x = data->gyro_y;
+    data->gyro_y = t;
+  }
+  return ret;
+}
+
 static void gyroInit()
 {
-  gyroStart(imuDetect(_imu_candidates, DIM(_imu_candidates)));
+  _imuRead = imuDetect(_imu_candidates, DIM(_imu_candidates));
+  gyroStart(_imuRead ? imuReadSwapXY : nullptr);
 }
 
 #if defined(SIXPOS_SWITCH_INDEX)
