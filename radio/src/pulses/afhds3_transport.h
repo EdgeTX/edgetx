@@ -185,6 +185,9 @@ class Transport
    * Current frame index
    */
   uint8_t frameIndex;
+  COMMAND pendingCommand;
+  FRAME_TYPE pendingFrameType;
+  uint8_t pendingFrameNumber;
 
   /**
    * Actual repeat count for requested command/operation - incremented by every

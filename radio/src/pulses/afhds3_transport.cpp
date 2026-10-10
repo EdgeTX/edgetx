@@ -229,7 +229,12 @@ void Transport::clear()
   // reset command layer
   fifo.clearCommandFifo();
 
-  frameIndex = 1;
+  // Keep request numbers moving across model/session resets so buffered
+  // replies from the previous slot do not match the new handshake.
+  frameIndex++;
+  pendingCommand = COMMAND::UNDEFINED;
+  pendingFrameType = FRAME_TYPE::NOT_USED;
+  pendingFrameNumber = 0;
   repeatCount = 0;
 
   // reset internal state
@@ -242,6 +247,9 @@ void Transport::putFrame(COMMAND command, FRAME_TYPE frameType, uint8_t* data,
   operationState = State::SENDING_COMMAND;
   repeatCount = 0;
 
+  pendingCommand = command;
+  pendingFrameType = frameType;
+  pendingFrameNumber = frameIndex;
   trsp.putFrame(command, frameType, data, dataLength, frameIndex);
   frameIndex++;
 
@@ -277,8 +285,12 @@ bool Transport::processQueue()
   auto f = fifo.getCommand();
   if (!f) return false;
 
-  trsp.putFrame(f->command, f->frameType, &f->payload, f->payloadSize,
-                f->useFrameNumber ? f->frameNumber : frameIndex);
+  if (f->useFrameNumber) {
+    trsp.putFrame(f->command, f->frameType, &f->payload, f->payloadSize,
+                  f->frameNumber);
+  } else {
+    putFrame(f->command, f->frameType, &f->payload, f->payloadSize);
+  }
 
 //   TRACE(
 //       "AFHDS3 [CMD QUEUE] cmd: 0x%02x frameType 0x%02x, useFrameNumber %d "
@@ -286,7 +298,6 @@ bool Transport::processQueue()
 //       f->command, f->frameType, f->useFrameNumber, f->frameNumber,
 //       f->payloadSize);
 
-  if (!f->useFrameNumber) frameIndex++;
   fifo.skip();
 
   return true;
@@ -345,7 +356,17 @@ bool Transport::handleReply(uint8_t* buffer, uint8_t len)
   } else if (responseFrame->frameType == FRAME_TYPE::RESPONSE_DATA ||
              responseFrame->frameType == FRAME_TYPE::RESPONSE_ACK) {
 
-    if (operationState == State::AWAITING_RESPONSE) {
+    // A response from the previous slot/request must not complete the current
+    // MODEL_ID/RUN handshake or be imported as the current model's config.
+    bool commandMatches = responseFrame->command == pendingCommand ||
+                          (pendingCommand == COMMAND::SEND_COMMAND &&
+                           responseFrame->command == COMMAND::COMMAND_RESULT);
+    if (operationState != State::AWAITING_RESPONSE || !commandMatches ||
+        responseFrame->frameNumber != pendingFrameNumber) {
+      return true;
+    }
+    if (responseFrame->frameType == FRAME_TYPE::RESPONSE_DATA ||
+        pendingFrameType == FRAME_TYPE::REQUEST_SET_EXPECT_ACK) {
       operationState = State::IDLE;
     }
   }

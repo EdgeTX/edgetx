@@ -116,9 +116,45 @@ uint8_t getMaxRxNum(uint8_t idx)
 void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
 {
   ModuleData & moduleData = g_model.moduleData[moduleIdx];
-  memclear(&moduleData, sizeof(ModuleData));
-  moduleData.type = moduleType;
-  moduleData.channelsCount = defaultModuleChannels_M8(moduleIdx);
+  bool restored = false;
+
+  // Selecting the currently active module type must not reset its settings.
+  if (moduleData.type == moduleType)
+    return;
+
+  if (moduleType == MODULE_TYPE_NONE) {
+    // Preserve settings while a module is disabled, so they can be restored
+    // when the same module type is enabled again.
+#if defined(PCBPA01) || defined(PCBPL18)
+    memcpy(&g_model.disabledModuleData[moduleIdx], &moduleData,
+           sizeof(ModuleData));
+    g_model.disabledModuleDataValid[moduleIdx] = true;
+#endif
+    memclear(&moduleData, sizeof(ModuleData));
+    moduleData.type = MODULE_TYPE_NONE;
+  }
+#if defined(PCBPA01) || defined(PCBPL18)
+  else if (g_model.disabledModuleDataValid[moduleIdx] &&
+           g_model.disabledModuleData[moduleIdx].type == moduleType) {
+    memcpy(&moduleData, &g_model.disabledModuleData[moduleIdx],
+           sizeof(ModuleData));
+    g_model.disabledModuleDataValid[moduleIdx] = false;
+    restored = true;
+  }
+#endif
+  else {
+    // A different protocol gets a fresh configuration.
+#if defined(PCBPA01) || defined(PCBPL18)
+    g_model.disabledModuleDataValid[moduleIdx] = false;
+#endif
+    memclear(&moduleData, sizeof(ModuleData));
+    moduleData.type = moduleType;
+    moduleData.channelsCount = defaultModuleChannels_M8(moduleIdx);
+  }
+
+  if (restored)
+    return;
+
   if (moduleData.type == MODULE_TYPE_SBUS)
     moduleData.sbus.refreshRate = -31;
   else if (moduleData.type == MODULE_TYPE_PPM)

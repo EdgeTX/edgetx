@@ -98,7 +98,9 @@ function(AddHardwareDefTarget output)
   set(GEN_HW_DEFS ${CMAKE_CXX_COMPILER} ${HW_DEF_ARGS} -x c++-header -E -dM ${HW_DEF_SRC})
   set(GEN_HW_DEFS ${GEN_HW_DEFS} | grep -v "^#define _" | sort)
 
-  set(GEN_JSON ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py)
+  # cmd.exe treats an unquoted forward-slash executable path after a pipe as switches.
+  file(TO_NATIVE_PATH "${PYTHON_EXECUTABLE}" HW_DEF_PYTHON)
+  set(GEN_JSON ${HW_DEF_PYTHON} ${RADIO_DIRECTORY}/util/hw_defs/generate_hw_def.py)
   set(GEN_JSON ${GEN_JSON} -i defines -T ${FLAVOUR} -)
 
   add_custom_command(OUTPUT ${output}

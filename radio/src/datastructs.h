@@ -108,16 +108,16 @@ static inline void check_struct()
   CHKSIZE(ModelData, 6329);
 #elif defined(PCBPL18)
   #if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
-    CHKSIZE(ModelData, 27331);
+    CHKSIZE(ModelData, 27391);
   #else
-    CHKSIZE(ModelData, 27693);
+    CHKSIZE(ModelData, 27753);
   #endif
 #elif defined(PCBNV14)
   CHKSIZE(ModelData, 27295);
 #elif defined(PCBST16)
   CHKSIZE(ModelData, 27964);
 #elif defined(PCBPA01)
-  CHKSIZE(ModelData, 27729);
+  CHKSIZE(ModelData, 27789);
 #elif defined(RADIO_T15)
   CHKSIZE(ModelData, 27682);
 #elif defined(PCBHORUS)

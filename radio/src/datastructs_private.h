@@ -789,6 +789,10 @@ PACK(struct ModelData {
   uint8_t spare1:1 SKIP;
 
   ModuleData moduleData[NUM_MODULES];
+#if defined(PCBPA01) || defined(PCBPL18)
+  ModuleData disabledModuleData[NUM_MODULES];
+  uint8_t disabledModuleDataValid[NUM_MODULES];
+#endif
   int16_t failsafeChannels[MAX_OUTPUT_CHANNELS];
   TrainerModuleData trainerData;
 

@@ -297,7 +297,9 @@ class ProtoState
 
     void clearFrameData();
 
-    bool isConnected();
+    bool isConnected() const;
+    void syncRfPower(uint16_t power);
+    void processRfPowerTelemetry(const uint8_t* packet, uint8_t len);
     bool hasTelemetry();
 
     Transport trsp;
@@ -315,7 +317,12 @@ class ProtoState
     //bool modelIDSet;
     //bool modelcfgGet;
     uint8_t modelID;
+    uint8_t pendingModelID;
+    uint8_t pendingMode;
+    bool modelRunConfirmed;
+    bool rfPowerSyncPending;
     bool rx_state; //false:disconnect; true:connect
+    bool bindInProgress;
 
     /**
      * Command count used for counting actual number of commands sent in run mode
@@ -388,8 +395,11 @@ void processTelemetryData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len
 
 void ProtoState::getStatusString(char* buffer) const
 {
-  strcpy(buffer, state <= ModuleState::STATE_READY ? moduleStateText[state]
-                                                   : "Unknown");
+  ModuleState displayedState = state;
+  if (state == ModuleState::STATE_SYNC_DONE && !isConnected())
+    displayedState = ModuleState::STATE_SYNC_RUNNING;
+  strcpy(buffer, displayedState <= ModuleState::STATE_READY
+                     ? moduleStateText[displayedState] : "Unknown");
 }
 
 void ProtoState::processTelemetryData(uint8_t byte, uint8_t* buffer, uint8_t* len)
@@ -402,9 +412,36 @@ void ProtoState::processTelemetryData(uint8_t byte, uint8_t* buffer, uint8_t* le
   *len = 0;
 }
 
-bool ProtoState::isConnected()
+bool ProtoState::isConnected() const
 {
-  return this->state == ModuleState::STATE_SYNC_DONE;
+  return modelRunConfirmed &&
+         modelID == g_model.header.modelId[module_index] % MAX_NO_OF_MODELS &&
+         this->state == ModuleState::STATE_SYNC_DONE;
+}
+
+void ProtoState::syncRfPower(uint16_t power)
+{
+  auto *cfg = this->getConfig();
+  if (!isConnected() || !rfPowerSyncPending || power == 0 ||
+      checkDirtyFlag(DC_RX_CMD_TX_PWR))
+    return;
+
+  RFCurrentPower = power;
+  uint8_t rfPower = get_current_rfpower_level(module_index);
+  if (moduleData->afhds3.rfPower != rfPower) {
+    moduleData->afhds3.rfPower = rfPower;
+    SET_DIRTY();
+  }
+  rfPowerSyncPending = false;
+  cfg->others.lastUpdated = get_tmr10ms();
+}
+
+void ProtoState::processRfPowerTelemetry(const uint8_t* packet, uint8_t len)
+{
+  // RF module sensor 0x0056 carries the current power in quarter-dBm at 8..9.
+  // Read the current session's packet, never the shared previous-model cache.
+  if (len >= 10 && packet[0] == 0 && packet[1] == 0x56)
+    syncRfPower((packet[9] << 8) | packet[8]);
 }
 
 bool ProtoState::hasTelemetry()
@@ -433,7 +470,7 @@ void ProtoState::setupFrame()
   if (trsp.handleRetransmissions(trsp_error)) return;
 
   if (trsp_error) {
-    this->state = ModuleState::STATE_NOT_READY;
+    setState(ModuleState::STATE_NOT_READY);
     clearFrameData();
   }
 
@@ -448,9 +485,42 @@ void ProtoState::setupFrame()
 
   ::ModuleSettingsMode moduleMode = getModuleMode(module_index);
 
+  if (this->state == ModuleState::STATE_READY) {
+    trsp.putFrame(MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
+    return;
+  }
+
+  // Select the slot before either running or binding. Sending MODEL_ID is not
+  // confirmation that the module has left the previous model's slot.
+  uint8_t newModelID = g_model.header.modelId[module_index] % MAX_NO_OF_MODELS;
+  if (modelID != newModelID) {
+    modelRunConfirmed = false;
+    rfPowerSyncPending = false;
+    rx_state = false;
+    RFCurrentPower = 0;
+    cfg.others.isConnected = false;
+    cfg.others.dirtyFlag = 0U;
+    cfg.others.lastUpdated = get_tmr10ms();
+    if (this->state != ModuleState::STATE_STANDBY) {
+      pendingMode = (uint8_t)MODULE_MODE_E::STANDBY;
+      trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
+                    &pendingMode, 1);
+    } else {
+      pendingModelID = newModelID;
+      TRACE("AFHDS3 [%u] select model ID %u", module_index, pendingModelID);
+      trsp.putFrame(COMMAND::MODEL_ID, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
+                    &pendingModelID, 1);
+    }
+    return;
+  }
+
   if (moduleMode == ::ModuleSettingsMode::MODULE_MODE_BIND) {
     if (state != STATE_BINDING) {
 //       TRACE("AFHDS3 [BIND]");
+      bindInProgress = true;
+      modelRunConfirmed = false;
+      rfPowerSyncPending = false;
+      pendingMode = (uint8_t)MODULE_MODE_E::BIND;
       applyConfigFromModel();
 
       trsp.putFrame(COMMAND::MODULE_SET_CONFIG,
@@ -467,36 +537,13 @@ void ProtoState::setupFrame()
   }
   else if (moduleMode == ::ModuleSettingsMode::MODULE_MODE_NORMAL) {
 
-    // If module is ready but not started
-    if (this->state == ModuleState::STATE_READY) {
-      trsp.putFrame(MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
-      return;
-    }
-
-    // ModelID change detection, if changed => STATE_STANDBY => Set ModelID => RUN mode => STATE_SYNC_XXX
-    uint8_t newModelID = g_model.header.modelId[module_index] % MAX_NO_OF_MODELS;  // Rotate the model ID when exceed no. of stored models
-    if (modelID != newModelID)
-    {
-      if (this->state != ModuleState::STATE_STANDBY) {
-//         TRACE("AFHDS3 [Model ID Changed] Switch to STATE_STANDBY");
-        auto mode = (uint8_t)MODULE_MODE_E::STANDBY;
-        trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
-        return;
-      } else {
-//         TRACE("AFHDS3 [Model ID Changed] Set ModelID to %d", newModelID);
-        modelID = newModelID;
-        trsp.putFrame(COMMAND::MODEL_ID, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
-                       &modelID, 1);
-        return;
-      }
-    }
-
-    // If standby or exit bind =>  RUN mode => STATE_SYNC_XXX
-    if (this->state == ModuleState::STATE_STANDBY || this->state == ModuleState::STATE_BINDING) {
+    // Start only after the module has acknowledged the current model ID.
+    if (!modelRunConfirmed || this->state == ModuleState::STATE_STANDBY ||
+        this->state == ModuleState::STATE_BINDING) {
       cmdCount = 0;
-//      requestInfoAndRun(true);
-      auto mode = (uint8_t)MODULE_MODE_E::RUN;
-      trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
+      pendingMode = (uint8_t)MODULE_MODE_E::RUN;
+      trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
+                    &pendingMode, 1);
       return;
     }
 
@@ -553,6 +600,7 @@ void ProtoState::setupFrame()
   auto *cfg = this->getConfig();
   if (checkDirtyFlag(DC_RX_CMD_TX_PWR))
   {
+    rfPowerSyncPending = false;
 //     TRACE("AFHDS3 [RX_CMD_TX_PWR] %d", AFHDS3_POWER[moduleData->afhds3.rfPower] / 4);
     uint8_t data[] = { (uint8_t)(RX_CMD_TX_PWR&0xFF), (uint8_t)((RX_CMD_TX_PWR>>8)&0xFF), 2,
                        (uint8_t)(AFHDS3_POWER[moduleData->afhds3.rfPower]&0xFF),  (uint8_t)((AFHDS3_POWER[moduleData->afhds3.rfPower]>>8)&0xFF)};
@@ -610,6 +658,16 @@ void ProtoState::init(uint8_t moduleIndex, void* buffer,
   moduleData = &g_model.moduleData[module_index];
   state = ModuleState::STATE_NOT_READY;
   modelID = 0xff;  // Valid range 0-19
+  pendingModelID = 0xff;
+  pendingMode = 0xff;
+  modelRunConfirmed = false;
+  rfPowerSyncPending = false;
+  rx_state = false;
+  bindInProgress = false;
+  RFCurrentPower = 0;
+  memclear(&cfg, sizeof(cfg));
+  memclear(&version, sizeof(version));
+  memclear(&rx_version, sizeof(rx_version));
 //  modelIDSet = false;
   clearFrameData();
 }
@@ -644,18 +702,26 @@ void ProtoState::setState(ModuleState state)
     setModuleMode(module_index, ::ModuleSettingsMode::MODULE_MODE_NORMAL);
   }
   if (state == ModuleState::STATE_NOT_READY) {
+    modelID = pendingModelID = pendingMode = 0xff;
+    modelRunConfirmed = false;
+    rfPowerSyncPending = false;
+    rx_state = false;
     trsp.clear();
   }
-  else if (state == ModuleState::STATE_SYNC_RUNNING || state == ModuleState::STATE_SYNC_DONE)
+  else if (modelRunConfirmed &&
+           modelID == g_model.header.modelId[module_index] % MAX_NO_OF_MODELS &&
+           (state == ModuleState::STATE_SYNC_RUNNING ||
+            state == ModuleState::STATE_SYNC_DONE))
   {
     // Get config when switched to STATE_SYNC_XXX
     trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
 
-    // Change connected state and refresh UI
-    cfg.others.isConnected = isConnected();
-    cfg.others.lastUpdated = get_tmr10ms();
     cfg.others.dirtyFlag = 0U;
   }
+
+  // Connection status belongs to this protocol session, not the previous model.
+  cfg.others.isConnected = isConnected();
+  cfg.others.lastUpdated = get_tmr10ms();
 }
 
 /*
@@ -692,12 +758,22 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
 //         TRACE("AFHDS3 [MODULE_GET_CONFIG]");
         size_t len = min<size_t>(sizeof(cfg.buffer), rxBufferCount);
         std::memcpy((void*) cfg.buffer, &responseFrame->value, len);
-        moduleData->afhds3.emi = cfg.v0.EMIStandard;
-        moduleData->afhds3.telemetry = cfg.v0.IsTwoWay;
-        moduleData->afhds3.phyMode = cfg.v0.PhyMode;
         cfg.others.ExternalBusType = cfg.v0.ExternalBusType;
-//         TRACE("PhyMode %d, emi %d", moduleData->afhds3.phyMode, moduleData->afhds3.emi);
-        SET_DIRTY();
+
+        // Searching may return stale module-slot settings. Only a connected
+        // receiver may override the current model's saved configuration.
+        uint8_t emi = cfg.version == 1 ? cfg.v1.EMIStandard : cfg.v0.EMIStandard;
+        if (isConnected() && emi >= LNK_ES_CE && emi <= LNK_ES_FCC &&
+            moduleData->afhds3.emi != emi) {
+          moduleData->afhds3.emi = emi;
+          SET_DIRTY();
+        }
+        uint8_t phyMode = cfg.version == 1 ? cfg.v1.PhyMode : cfg.v0.PhyMode;
+        if (isConnected() && phyMode <= PHYMODE_MAX &&
+            moduleData->afhds3.phyMode != phyMode) {
+          moduleData->afhds3.phyMode = phyMode;
+          SET_DIRTY();
+        }
         cfg.others.lastUpdated = get_tmr10ms();
       } break;
       case COMMAND::MODULE_VERSION:
@@ -707,20 +783,37 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
 //               version.bootloaderVersion, version.firmwareVersion);
         break;
       case COMMAND::MODULE_RFPOWER:
-        {  uint8_t* value = &responseFrame->value;
-          RFCurrentPower = (value[1]<<8) + value[0];
+        {
+          uint8_t* value = &responseFrame->value;
+          syncRfPower((value[1]<<8) + value[0]);
         }
         break;
       case COMMAND::MODULE_STATE:
 //        TRACE("AFHDS3 [MODULE_STATE] %02X", responseFrame->value);
         setState((ModuleState)responseFrame->value);
-        if(STATE_SYNC_DONE == (ModuleState)responseFrame->value){
+        if (isConnected()) {
           if( !this->rx_state )
           {
               auto *cfg = this->getConfig();
               this->rx_state = true;
+              rfPowerSyncPending = !bindInProgress;
               DIRTY_CMD( cfg, DC_RX_CMD_GET_RX_VERSION );
               trsp.enqueue( COMMAND::MODULE_VERSION, FRAME_TYPE::REQUEST_GET_DATA );
+              if (INTERNAL_MODULE == module_index) {
+                if (bindInProgress) {
+                  // Binding does not apply per-model power: send the selected
+                  // power instead of importing the previous module-slot value.
+                  bindInProgress = false;
+                  RFCurrentPower = AFHDS3_POWER[moduleData->afhds3.rfPower];
+                  DIRTY_CMD(cfg, DC_RX_CMD_TX_PWR);
+                }
+#if defined(PCBPA01)
+                else {
+                  trsp.enqueue(COMMAND::MODULE_RFPOWER,
+                               FRAME_TYPE::REQUEST_GET_DATA);
+                }
+#endif
+              }
               setIbusType(cfg->v1.NewPortTypes);
 //            modelcfgGet = true;
 //            cfg.others.isConnected = true;
@@ -738,10 +831,20 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
 //         TRACE("AFHDS3 [MODULE_MODE] %02X", responseFrame->value);
         if (responseFrame->value != CMD_RESULT::SUCCESS) {
           setState(ModuleState::STATE_NOT_READY);
-        }
-        else if( !RFCurrentPower && INTERNAL_MODULE==module_index )
-        {
-          trsp.enqueue( COMMAND::MODULE_RFPOWER, FRAME_TYPE::REQUEST_GET_DATA );
+        } else if (pendingMode == (uint8_t)MODULE_MODE_E::STANDBY) {
+          pendingMode = 0xff;
+          modelRunConfirmed = false;
+          setState(ModuleState::STATE_STANDBY);
+        } else if (pendingMode == (uint8_t)MODULE_MODE_E::BIND) {
+          pendingMode = 0xff;
+          setState(ModuleState::STATE_BINDING);
+        } else if (pendingMode == (uint8_t)MODULE_MODE_E::RUN &&
+                   modelID == g_model.header.modelId[module_index] % MAX_NO_OF_MODELS) {
+          pendingMode = 0xff;
+          modelRunConfirmed = true;
+          TRACE("AFHDS3 [%u] RUN confirmed for model ID %u", module_index, modelID);
+          setState(ModuleState::STATE_SYNC_RUNNING);
+          trsp.enqueue(COMMAND::MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
         }
         break;
       case COMMAND::MODULE_SET_CONFIG:
@@ -751,12 +854,16 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
 //         TRACE("AFHDS3 [MODULE_SET_CONFIG], %02X", responseFrame->value);
         break;
       case COMMAND::MODEL_ID:
-//         TRACE("AFHDS3 [MODEL_ID]");
-        if (responseFrame->value == CMD_RESULT::SUCCESS) {
-//         TRACE("Enqueue get config");
-//          trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
-//          trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
-//          modelcfgGet = true;
+        if (responseFrame->value == CMD_RESULT::SUCCESS &&
+            pendingModelID != 0xff &&
+            pendingModelID == g_model.header.modelId[module_index] % MAX_NO_OF_MODELS) {
+          modelID = pendingModelID;
+          TRACE("AFHDS3 [%u] model ID %u confirmed", module_index, modelID);
+          pendingModelID = 0xff;
+          modelRunConfirmed = false;
+          setState(ModuleState::STATE_STANDBY);
+        } else {
+          setState(ModuleState::STATE_NOT_READY);
         }
         break;
       case COMMAND::TELEMETRY_DATA:
@@ -773,6 +880,7 @@ void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
               break;
             }
             telemetry[0] = 0;
+            processRfPowerTelemetry(telemetry, len);
             uint8_t ibus_version = SES_NPT_IBUS1_IN;
             for(uint8_t i = 0; i < SES_NPT_NB_MAX_PORTS; i++) {
               // If ibus2 is configured, ignore ibus1.

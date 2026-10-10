@@ -98,14 +98,12 @@ AFHDS3Settings::AFHDS3Settings(Window* parent, const FlexGridLayout& g,
   #if defined(RADIO_PL18U) || defined(PCBPA01)
     hasPowerOption = true;
     maxPower = AFHDS3_POWER_500;
-  #if  defined(PCBPA01)
-    md->afhds3.rfPower = afhds3::get_current_rfpower_level(moduleIdx);
-  #endif
   #endif
   } else if (moduleIdx == EXTERNAL_MODULE) {
     hasPowerOption = true;
     maxPower = AFHDS3_FRM303_POWER_MAX;
-    md->afhds3.rfPower = afhds3::get_current_rfpower_level(moduleIdx);
+    if (afhds3::getConfig(moduleIdx)->others.isConnected)
+      md->afhds3.rfPower = afhds3::get_current_rfpower_level(moduleIdx);
   }
 
   if (hasPowerOption) {
@@ -141,7 +139,7 @@ void AFHDS3Settings::showAFHDS3Options()
   afhds3TypeForm->show();
   afhds3PhyMode->update();
   afhds3Emi->update();
-  if (moduleIdx == EXTERNAL_MODULE) {
+  if (afhds3RfPower != nullptr) {
     afhds3RfPower->update();
   }
   if (afhds3::getConfig(moduleIdx)->others.isConnected) {
