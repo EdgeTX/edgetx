@@ -229,9 +229,26 @@ __weak void ledInit()
 }
 
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
+#if !defined(CFS_LED_STRIP_START)
+  #define CFS_LED_STRIP_START 0
+#endif
+#if !defined(CFS_LEDS_PER_SWITCH)
+  #define CFS_LEDS_PER_SWITCH 1
+#endif
+
+// First strip LED of a custom switch, boards with a non-linear layout
+// override this
+__weak uint8_t fsLedFirstIndex(uint8_t index)
+{
+  return CFS_LED_STRIP_START + index * CFS_LEDS_PER_SWITCH;
+}
+
 __weak void fsLedRGB(uint8_t index, uint32_t color)
 {
-  rgbSetLedColor(index, GET_RED(color), GET_GREEN(color), GET_BLUE(color));
+  uint8_t led = fsLedFirstIndex(index);
+  for (uint8_t i = 0; i < CFS_LEDS_PER_SWITCH; i++) {
+    rgbSetLedColor(led + i, GET_RED(color), GET_GREEN(color), GET_BLUE(color));
+  }
   rgbLedColorApply();
 }
 
@@ -342,6 +359,6 @@ __weak void ledBoot()
 #if defined(FUNCTION_SWITCHES_RGB_LEDS)
 __weak uint32_t fsGetLedRGB(uint8_t index)
 {
-  return rgbGetLedColor(index + CFS_LED_STRIP_START);
+  return rgbGetLedColor(fsLedFirstIndex(index));
 }
 #endif

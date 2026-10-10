@@ -103,6 +103,7 @@ void fsLedOn(uint8_t index);
 bool fsLedState(uint8_t index);
 void fsLedRGB(uint8_t index, uint32_t color);
 uint32_t fsGetLedRGB(uint8_t index);
+uint8_t fsLedFirstIndex(uint8_t index);
 uint8_t getRGBColorIndex(uint32_t color);
 #endif
 
