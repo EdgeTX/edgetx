@@ -84,9 +84,30 @@ static const etx_imu_t _imu_candidates[] = {
 #endif
 };
 
+// The IMU is mounted upside down and rotated, so its X/Y axes are swapped
+// (and both reversed, see imu_invert_x/y in hw_defs). Swap them here, before
+// the generic inversion/calibration, so that TltX/TltY and their settings
+// line up
+static imu_read_fn _imuRead = nullptr;
+
+static int imuReadSwapXY(etx_imu_data_t* data)
+{
+  int ret = _imuRead(data);
+  if (ret >= 0) {
+    float t = data->accel_x;
+    data->accel_x = data->accel_y;
+    data->accel_y = t;
+    t = data->gyro_x;
+    data->gyro_x = data->gyro_y;
+    data->gyro_y = t;
+  }
+  return ret;
+}
+
 static void gyroInit()
 {
-  gyroStart(imuDetect(_imu_candidates, DIM(_imu_candidates)));
+  _imuRead = imuDetect(_imu_candidates, DIM(_imu_candidates));
+  gyroStart(_imuRead ? imuReadSwapXY : nullptr);
 }
 
 #if defined(SIXPOS_SWITCH_INDEX)
@@ -94,14 +115,63 @@ static void gyroInit()
 #if defined(FUNCTION_SWITCHES)
 
 extern const stm32_switch_t* boardGetSwitchDef(uint8_t idx);
+extern SwitchHwPos stm32_switch_get_position(const stm32_switch_t* sw);
+
 extern uint8_t isSwitch3Pos(uint8_t idx);
 struct _adckey_switches_expander {
     uint8_t state;
 };
-const uint8_t _adckeyidx[8] = {
-  0, 1,2,4,8,0x10, 0x20,0
-};
-static _adckey_switches_expander _adckey_switches;
+// Bitmask of all 6 function switch bits
+#define FS_ALL_BITS 0x3F
+
+// For each 6POS position (0=none, 1-6=SW1-SW6): bit of the active switch,
+// inverted so active switch pin reads low (DOWN) like real PCA95xx hardware.
+// position 0 (none): all bits set = all UP
+// position N: all bits set except SW_N's bit = SW_N is DOWN
+static uint8_t _pos_to_state(uint8_t pos)
+{
+  if (pos == 0) return FS_ALL_BITS;
+  uint8_t active_bit = (1 << (pos - 1));
+  return FS_ALL_BITS & ~active_bit;
+}
+static _adckey_switches_expander _adckey_switches = { FS_ALL_BITS };
+
+// Called whenever the sticky 6POS position changes. Boards that need to
+// map position to a switch-expander state (e.g. FUNCTION_SWITCHES) can
+// override this to react to position changes without polling adcValues[].
+void sixPosUpdateFromAdc()
+{
+  uint16_t* values = getAnalogValues();
+  uint16_t adcValue = values[SIXPOS_SWITCH_INDEX];
+
+  uint8_t current = 0;
+  if (adcValue > 3800) current = 1;
+  else if (adcValue > 3100) current = 2;
+  else if (adcValue > 2300) current = 3;
+  else if (adcValue > 1500) current = 4;
+  else if (adcValue > 1000) current = 5;
+  else if (adcValue > 400)  current = 6;
+
+  static uint8_t lastSeen = 0;
+  static uint8_t debounce = 0;
+  static uint8_t sixPosState = 0;
+
+  if (current != lastSeen) {
+    lastSeen = current;
+    debounce = 2;  // require this many more stable samples before committing
+  } else if (debounce > 0) {
+    if (--debounce == 0) {
+      // Switch state always reflects the true debounced position
+      _adckey_switches.state = _pos_to_state(current);
+      if (current != 0) {
+        // Indicator value stays sticky on the last active position
+        sixPosState = current;
+      }
+    }
+  }
+
+  values[SIXPOS_SWITCH_INDEX] = sixPosState ? (4096 / 5) * (7 - sixPosState) : 0;
+}
 
 static SwitchHwPos _get_switch_pos(uint8_t idx)
 {
@@ -110,10 +180,6 @@ static SwitchHwPos _get_switch_pos(uint8_t idx)
   const stm32_switch_t* def = boardGetSwitchDef(idx);
   uint8_t state = _adckey_switches.state;
 
-  if (def->GPIOx_high != nullptr) { // hardware-backed switches (SA-SF)
-    return stm32_switch_get_position(def);
-  }
-  //get adc key switch position
   if (def->isCustomSwitch) {
     if ((state & def->Pin_high) == 0) {
       return SWITCH_HW_DOWN;
@@ -162,78 +228,15 @@ SwitchHwPos boardSwitchGetPosition(uint8_t idx)
 {
   if (boardIsCustomSwitch(idx)) {
     return _get_fs_switch_pos(idx);
+  } else if (boardGetSwitchDef(idx)->GPIOx_high != nullptr) {
+    return stm32_switch_get_position(boardGetSwitchDef(idx));
   } else {
     return _get_switch_pos(idx);
   }
 }
+
 #endif
 
-uint8_t lastADCState = 0;
-uint8_t sixPosState = 0;
-
-uint8_t uploadPosState = 5;
-
-bool dirty = true;
-uint16_t getSixPosAnalogValue(uint16_t adcValue)
-{
-  uint8_t currentADCState = 0;
-  if(uploadPosState){
-    uploadPosState--;
-    goto __retposadc__;
-  }
-  else if (adcValue > 3800)
-    currentADCState = 1;
-  else if (adcValue > 3100)
-    currentADCState = 2;
-  else if (adcValue > 2300)
-    currentADCState = 3;
-  else if (adcValue > 1500)
-    currentADCState = 4;
-  else if (adcValue > 1000)
-    currentADCState = 5;
-  else if (adcValue > 400)
-    currentADCState = 6;
-  if (lastADCState != currentADCState) {
-    lastADCState = currentADCState;
-    uploadPosState=10;
-  }
-#if defined(FUNCTION_SWITCHES)
-  else if (lastADCState != sixPosState) {
-    sixPosState = lastADCState ;
-    dirty = true;
-  }
-#else
-  else if (lastADCState != 0 && lastADCState - 1 != sixPosState) {
-    sixPosState = lastADCState - 1;
-    dirty = true;
-  }
-#endif
-  if (dirty) {
-  #if !defined(FUNCTION_SWITCHES)
-    for (uint8_t i = 0; i < 6; i++) {
-      if (i == sixPosState) {
-        rgbSetLedColor(i, SIXPOS_LED_RED, SIXPOS_LED_GREEN, SIXPOS_LED_BLUE);
-      } else {
-        rgbSetLedColor(i, 0, 160, 0);
-      }
-    }
-    rgbLedColorApply();
-  #else
-    _adckey_switches.state=_adckeyidx[sixPosState];
-  #endif
-    dirty = false;
-  }
-__retposadc__:  
-
-  return (4096/5)*(sixPosState);
-}
-
-void sixPosUpdateFromAdc()
-{
-  uint16_t* values = getAnalogValues();
-  values[SIXPOS_SWITCH_INDEX] =
-      getSixPosAnalogValue(values[SIXPOS_SWITCH_INDEX]);
-}
 #endif
 
 static void led_strip_off()
