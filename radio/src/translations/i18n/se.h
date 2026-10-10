@@ -434,7 +434,7 @@
 #define TR_FONT_SIZES_5                 "L"
 #define TR_FONT_SIZES_6                 "XL"
 #define TR_FONT_SIZES_7                 "XXL"
-#define TR_FONT_SIZES_8                "LXL"
+#define TR_FONT_SIZES_8                 "LXL"
 
 #define TR_ENTER                        "[ENTER]"
 #define TR_OK                           TR_BW_COL(TR("\010\010\010[OK]", "\010\010\010\010\010[OK]"), "Ok")
@@ -652,7 +652,7 @@
 #define TR_BAD_RADIO_DATA               "Radiodata felaktig eller saknas"
 #define TR_RADIO_DATA_RECOVERED         TR3("Anv. backupradiodata","Anv. backupradioinställningar","Radioinställningar återställda från backup")
 #define TR_RADIO_DATA_UNRECOVERABLE     TR3("Ogiltiga radioinställn.","Ogiltiga radioinställningar", "Kan inte läsa giltiga radioinställningar")
-#define TR_STORAGE_FORMAT               "SD-Lagring förbereds"
+#define TR_STORAGE_FORMAT               "SD-lagring förbereds"
 #define TR_RADIO_SETUP                  "INSTÄLLNINGAR"
 #define TR_MENUVERSION                  "VERSION"
 #define TR_MENU_RADIO_ANALOGS_CALIB     "KALIBRERADE ANALOGA"
@@ -1038,11 +1038,11 @@
 #define TR_TELEMETRY_NEWSENSOR          "Lägg till..."
 #define TR_CHANNELRANGE                 TR("Kanalomr.", "Kanalområde")
 #define TR_AFHDS3_RX_FREQ               TR("Rx frekv.", "Rx frekvens")
-#define TR_AFHDS3_ONE_TO_ONE_TELEMETRY  TR("Unicast/Tel.", "Unicast/Telemetry")
+#define TR_AFHDS3_ONE_TO_ONE_TELEMETRY  TR("Unicast/Tel.", "Unicast/Telemetri")
 #define TR_AFHDS3_ONE_TO_MANY           "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER          TR("Act. pow", "Actual power")
 #define TR_AFHDS3_POWER_SOURCE          "Strömkälla"
-#define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
+#define TR_IBUS2_SENSORS_MODE_ONLY      "Sensorerna kan endast ställas in i iBUS2-läge."
 #define TR_ANTENNACONFIRM1              "EXT. ANTENN"
 
 #define TR_ANTENNA_MODES_1              "Intern"
@@ -1055,8 +1055,8 @@
 #define TR_USE_EXTERNAL_ANTENNA         TR("Anv ext. antenn", "Använd extern antenn")
 #define TR_ANTENNACONFIRM2              TR("Kontr. antenn", "Kontrollera att antennen är installerad!")
 #define TR_MODULE_PROTOCOL_FLEX_WARN_LINE1        "Kräver inte"
-#define TR_MODULE_PROTOCOL_FCC_WARN_LINE1         "Kräver FCC"
-#define TR_MODULE_PROTOCOL_EU_WARN_LINE1          "Kräver EU"
+#define TR_MODULE_PROTOCOL_FCC_WARN_LINE1         "Kräver FCC-"
+#define TR_MODULE_PROTOCOL_EU_WARN_LINE1          "Kräver EU-"
 #define TR_MODULE_PROTOCOL_WARN_LINE2             "certifierad firmware"
 #define TR_LOWALARM                     "Lågalarm"
 #define TR_CRITICALALARM                "Kritiskt alarm"
