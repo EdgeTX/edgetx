@@ -36,6 +36,10 @@
   #include "telemetry/crossfire.h"
 #endif
 
+#if defined(MAVLINK)
+  #include "pulses/mavlink.h"
+#endif
+
 uint8_t g_moduleIdx;
 
 uint8_t getSwitchWarningsCount()
@@ -128,6 +132,10 @@ enum MenuModelSetupItems {
 #if defined(CROSSFIRE)
   ITEM_MODEL_SETUP_ARMING_MODE,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_ARMING_TRIGGER,
+#endif
+#if defined(MAVLINK)
+  ITEM_MODEL_SETUP_EXTERNAL_MODULE_MAVLINK_BAUDRATE,
+  ITEM_MODEL_SETUP_EXTERNAL_MODULE_MAVLINK_STATUS,
 #endif
 #if defined (MULTIMODULE)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_PROTOCOL,
@@ -439,6 +447,12 @@ inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
 #define IF_MODULE_ARMED_TRIGGER(module, xxx)
 #endif
 
+#if defined(MAVLINK)
+#define MAVLINK_ROWS(module) (isModuleMavlink(module) ? (uint8_t)0 : HIDDEN_ROW), (isModuleMavlink(module) ? (uint8_t)0 : HIDDEN_ROW),
+#else
+#define MAVLINK_ROWS(module)
+#endif
+
 #if defined(PXX2)
 #define REGISTRATION_ID_ROWS          uint8_t((isDefaultModelRegistrationID() || (warningText && popupFunc == runPopupRegister)) ? HIDDEN_ROW : READONLY_ROW),
 #else
@@ -562,6 +576,7 @@ void menuModelSetup(event_t event)
       IF_MODULE_SYNCED(EXTERNAL_MODULE, 0),             // ITEM_MODEL_SETUP_EXTERNAL_MODULE_SERIALSTATUS
       IF_MODULE_ARMED(EXTERNAL_MODULE, 0),              // ITEM_MODEL_SETUP_ARMING_MODE
       IF_MODULE_ARMED_TRIGGER(EXTERNAL_MODULE, 0),      // ITEM_MODEL_SETUP_ARMING_TRIGGER
+      MAVLINK_ROWS(EXTERNAL_MODULE)
       MULTIMODULE_TYPE_ROW(EXTERNAL_MODULE)             // ITEM_MODEL_SETUP_EXTERNAL_MODULE_PROTOCOL
       MULTIMODULE_DSM_CLONED_RAW(EXTERNAL_MODULE),      // ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSM_CLONED
       MULTIMODULE_STATUS_ROWS(EXTERNAL_MODULE)          // ITEM_MODEL_SETUP_EXTERNAL_MODULE_STATUS + ITEM_MODEL_SETUP_EXTERNAL_MODULE_SYNCSTATUS
@@ -1270,6 +1285,27 @@ void menuModelSetup(event_t event)
       }
 
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_SERIALSTATUS:
+        lcdDrawTextIndented(y, STR_STATUS);
+        lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, 1000000 / getMixerSchedulerPeriod(), LEFT | attr);
+        lcdDrawText(lcdNextPos, y, "Hz ", attr);
+        break;
+#endif
+
+#if defined(MAVLINK)
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_MAVLINK_BAUDRATE: {
+        ModuleData &moduleData = g_model.moduleData[EXTERNAL_MODULE];
+        lcdDrawTextIndented(y, STR_BAUDRATE);
+        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_MAVLINK_BAUDRATE, moduleData.mavlink.telemetryBaudrate, attr | LEFT);
+        if (attr) {
+          moduleData.mavlink.telemetryBaudrate = checkIncDecModel(event, moduleData.mavlink.telemetryBaudrate, 0, MAVLINK_BAUDRATE_COUNT - 1);
+          if (checkIncDec_Ret) {
+            restartModule(EXTERNAL_MODULE);
+          }
+        }
+        break;
+      }
+
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_MAVLINK_STATUS:
         lcdDrawTextIndented(y, STR_STATUS);
         lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, 1000000 / getMixerSchedulerPeriod(), LEFT | attr);
         lcdDrawText(lcdNextPos, y, "Hz ", attr);
