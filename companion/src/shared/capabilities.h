@@ -22,7 +22,7 @@
 #pragma once
 
 // these are shared by Firmware and Boards
-// this allows Firmware::getCapability to call Boards::getCapability and vice versa
+// this allows Firmware::getCapability to call Boards::getCapability
 // Note: Firmware::getCapability falls thru to Boards::getCapability
 // Caution: need to watch out for cyclic references triggering an infinite loop
 // TODO add infinite loop test and exit
@@ -40,49 +40,30 @@ enum Capability {
   GvarsName,
   HasExpoNames,
   HasFailsafe,
-  HasFlySkyGimbals,
-  HasIntModuleCRSF,
-  HasIntModuleELRS,
-  HasIntModuleFlySky,
-  HasIntModuleMulti,
   HasMixerNames,
   HasModelImage,
   HasModelLabels,
   HasModelsList,
-  HasModuleR9MFlex,
-  HasModuleR9MMini,
-  HasSportConnector,
-  HasTopLcd,
   HasVario,
   HasVarioSink,
   Heli,
-  InputsCnt, // renamed to Inputs to InputsCnt as duplicate in Boards keep until move to std::vector
+  InputsCnt, // TODO fix reference as renamed to Inputs to InputsCnt as duplicate in Boards keep until move to std::vector
   InputsName,
   InputsLength,
-  IsLandscape,
-  IsNarrowLayout,
-  IsPortrait,
-  IsWideLayout,
   FailsafeChannels,
   KeyShortcuts,
   LogicalSwitches,
   LuaInputsPerScript,
   LuaOutputsPerScript,
   LuaScripts,
-  MavlinkTelemetry,
   Mixes,
-  ModelImageFilters,
   ModelImageKeepExtn,
   ModelImageNameLen,
   ModelName,
   Models,
   ModelTrainerEnable,
-  Modes,
-  ModesName,
   NumCurvePoints,
   NumCurves,
-  NumFirstUsableModule,
-  NumModules,
   OffsetWeight,
   Outputs,
   PPMCenter,
@@ -103,6 +84,12 @@ enum Capability {
   TrimsRange,
   VirtualInputs,
   VoicesMaxLength,
+
+  // build options to support hardware mods
+  // can be set in board definition
+  HasFlySkyGimbals,
+  HasModuleR9MFlex,
+
   // new
   // Fatfish F16
   HasLCDtoVideo,
@@ -113,7 +100,6 @@ enum Capability {
   // TODO boards start here but need to sort
   Air,
   BacklightLevelMin,
-  BluetoothName,
   Contrast,
   BacklightBright,
   BacklightDelay,
@@ -125,8 +111,6 @@ enum Capability {
   HatsMode,
   InactivityTimer,
   StickDeadZone,
-  CPU,
-  CPUType,
   EepromSize,
   DefaultInternalModule,
   ExternalModuleSize,
@@ -167,6 +151,11 @@ enum Capability {
   HasCPUF4,
   HasCPUH5,
   HasCPUH7,
+  HasIntModuleCRSF,
+  HasIntModuleELRS,
+  HasIntModuleFlySky,
+  HasIntModuleMulti,
+  HasModuleR9MMini,
   JoystickAxes,
   Joysticks,
   Keys,
@@ -174,7 +163,6 @@ enum Capability {
   LcdHeight,
   LcdOLED,
   LcdWidth,
-  Manufacturer,
   MaxContrast,
   MaxVolume,
   MinContrast,
@@ -193,6 +181,15 @@ enum Capability {
   Surface,
   Switches,
   SwitchesPositions,
+  HasSportConnector,
+  HasTopLcd,
+  IsLandscape,
+  IsNarrowLayout,
+  IsPortrait,
+  IsWideLayout,
+  NumFirstUsableModule,
+  NumModules,
+  MavlinkTelemetry,
   // NEW
   // "Charge while radio on" is only available on RadioMaster radios
   // that expose the charger-enable pin (rm-h750 based targets).
@@ -206,5 +203,13 @@ enum Capability {
   HasStickDeadZone,
   // IS_HELLORADIOSKY_V16
   HasVoiceControl,
+
+  // text
+  FirstText,
+  BluetoothName = FirstText,
+  CPU,
+  CPUType,
+  Manufacturer,
+  ModelImageFilters,
   Count,
 };

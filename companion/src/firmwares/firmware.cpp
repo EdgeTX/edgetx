@@ -80,28 +80,22 @@ QList<QString> Firmware::m_languages = {
   "ua"
 };
 
-// TODO some of these options are redundant as they are handled by firmware and board defs
-//      and others will be removed in Modules refactor so they are left here until cleaned up
-//
-// tooltip translation cannot be performed at runtime
-// so translate tooltip only and load mapping at compile time
-// key:   name    (Do not translate)
-// value: tooltip
+/*  Only use for options that are firmware related or are after market hardware mods
+    Additonal firmware and board definitions can be created for common mods though it does
+    increase the list of available firmwares
+
+    tooltip translation cannot be performed at runtime
+    key:   name    (Do not translate)
+    value: tooltip
+*/
+
 const Firmware::OptionTooltip Firmware::registeredOptions = {
-  { "afhds2a",          QT_TRANSLATE_NOOP("Firmware", "Enable AFHDS2A support") },
-  { "afhds3",           QT_TRANSLATE_NOOP("Firmware", "Enable AFHDS3 support") },
-  { "bluetooth",        QT_TRANSLATE_NOOP("Firmware", "Support for bluetooth module") },
   { "eu",               QT_TRANSLATE_NOOP("Firmware", "Removes D8 FrSky protocol support which is not legal for use in the EU on radios sold after Jan 1st, 2015") },
   { "faichoice",        QT_TRANSLATE_NOOP("Firmware", "Possibility to enable FAI MODE (no telemetry) at field") },
   { "faimode",          QT_TRANSLATE_NOOP("Firmware", "FAI MODE (no telemetry) always enabled") },
   { "flexr9m",          QT_TRANSLATE_NOOP("Firmware", "Enable non certified firmwares") },
   { "flyskygimbals",    QT_TRANSLATE_NOOP("Firmware", "Support hardware mod: FlySky Paladin EV Gimbals") },
-  { "haptic",           QT_TRANSLATE_NOOP("Firmware", "Haptic module installed") },
   { "horussticks",      QT_TRANSLATE_NOOP("Firmware", "Horus gimbals installed (Hall sensors)") },
-  { "internalaccess",   QT_TRANSLATE_NOOP("Firmware", "Support for ACCESS internal module replacement") },
-  { "internalelrs",     QT_TRANSLATE_NOOP("Firmware", "Select if internal ELRS module is installed") },
-  { "internalgps",      QT_TRANSLATE_NOOP("Firmware", "Support internal GPS") },
-  { "internalmulti",    QT_TRANSLATE_NOOP("Firmware", "Support for MULTI internal module") },
   { "lua",              QT_TRANSLATE_NOOP("Firmware", "Enable Lua custom scripts screen") },
   { "nogvars",          QT_TRANSLATE_NOOP("Firmware", "Disable Global variables") },
   { "noheli",           QT_TRANSLATE_NOOP("Firmware", "Disable HELI menu and cyclic mix support") },
@@ -114,8 +108,12 @@ const Firmware::OptionTooltip Firmware::registeredOptions = {
 
 void Firmware::dumpCapabilities()
 {
-  for (int i = 0; i < Capability::Count; i++) {
+  for (int i = 0; i < Capability::FirstText; i++) {
     qDebug() << i << getCapability((Capability)i);
+  }
+
+  for (int i = Capability::FirstText; i < Capability::Count; i++) {
+    qDebug() << i << getCapabilityStr((Capability)i);
   }
 }
 

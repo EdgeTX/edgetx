@@ -417,6 +417,7 @@ class Board
       int eepromSize                    = 0;
       bool externalAntenna              = false;
       int flashSize                     = 0;
+      bool flySkyGimbals                = false;
       int fourCC                        = 0;
       bool hardwareAntennaSwitch        = false;
       bool hats                         = false;

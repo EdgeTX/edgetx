@@ -1353,6 +1353,9 @@ bool Board::loadDefinition(const QString & path)
     else if (it.key() == "externalAntenna")
       m_hardware.externalAntenna = Json::valueBool(it, m_hardware.externalAntenna);
 
+    else if (it.key() == "flySkyGimbals")
+      m_hardware.flySkyGimbals = Json::valueBool(it, m_hardware.flySkyGimbals);
+
     else if (it.key() == "hardwareAntennaSwitch")
       m_hardware.hardwareAntennaSwitch = Json::valueBool(it, m_hardware.hardwareAntennaSwitch);
 
