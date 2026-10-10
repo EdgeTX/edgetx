@@ -104,6 +104,7 @@ namespace Board {
     BOARD_HELLORADIOSKY_V14LCD,
     BOARD_IFLIGHT_COMMANDO14,
     BOARD_SENDUWING_H17,
+    BOARD_JUMPER_T18H7,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -596,6 +597,11 @@ inline bool IS_JUMPER_T18(Board::Type board)
   return board == Board::BOARD_JUMPER_T18;
 }
 
+inline bool IS_JUMPER_T18H7(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T18H7;
+}
+
 inline bool IS_JUMPER_T20(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T20 || board == Board::BOARD_JUMPER_T20V2;
@@ -908,6 +914,7 @@ inline bool IS_STM32H7(Board::Type board)
          IS_HELLORADIOSKY_V12(board) ||
          IS_JUMPER_T15PRO(board) ||
          IS_JUMPER_T15H7(board) ||
+         IS_JUMPER_T18H7(board) ||
          IS_JUMPER_T22(board) ||
          IS_RADIOMASTER_TX15(board) ||
          IS_RADIOMASTER_TX16SMK3(board) ||

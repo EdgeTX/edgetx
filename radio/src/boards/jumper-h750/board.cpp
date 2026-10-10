@@ -54,7 +54,11 @@
 #include "colors.h"
 
 
-#include "touch_driver.h"
+#if defined(TOUCH_PANEL_GT911)
+  #include "tp_gt911.h"
+#else
+  #include "touch_driver.h"
+#endif
 
 #include <string.h>
 
