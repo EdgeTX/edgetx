@@ -33,6 +33,12 @@ static const YamlLookupTable spacemouseLut = {
   {  6, "SPACEMOUSE_F"  },
 };
 
+static const YamlLookupTable xfhtLut = {
+  {  1, "XFHT_ROLL"  },
+  {  2, "XFHT_PITCH"  },
+  {  3, "XFHT_YAW"  },
+};
+
 std::string YamlRawSourceEncode(const RawSource& rhs)
 {
   Board::Type board = getCurrentBoard();
@@ -127,6 +133,12 @@ std::string YamlRawSourceEncode(const RawSource& rhs)
       src_str += "SPACEMOUSE_";
       c += sval - 1;
       src_str += c;
+      break;
+    case SOURCE_TYPE_XFHT:
+      if (sval >= 1 && sval <= CPN_MAX_XFHT)
+        src_str += YAML::LookupValue(xfhtLut, sval);
+      else
+        src_str = "NONE";
       break;
     default:
       src_str = "NONE";
@@ -368,6 +380,15 @@ RawSource YamlRawSourceDecode(const std::string& src_str)
       if (sm_idx >= 0) {
         rhs.type = SOURCE_TYPE_SPACEMOUSE;
         rhs.index = sm_idx + 1;
+      }
+    }
+
+    if (node.IsScalar() && node.as<std::string>().substr(0, 5) == "XFHT_") {
+      int ht_idx = 0;
+      node >> xfhtLut >> ht_idx;
+      if (ht_idx > 0) {
+        rhs.type = SOURCE_TYPE_XFHT;
+        rhs.index = ht_idx;
       }
     }
   }

@@ -398,6 +398,9 @@ const LuaSingleField luaSingleFields[] = {
     {MIXSRC_SPACEMOUSE_D, "smd", "SpaceMouse D"},
     {MIXSRC_SPACEMOUSE_E, "sme", "SpaceMouse E"},
     {MIXSRC_SPACEMOUSE_F, "smf", "SpaceMouse F"},
+    {MIXSRC_XFHT_ROLL, "htr", "XF headtracker roll"},
+    {MIXSRC_XFHT_PITCH, "htp", "XF headtracker pitch"},
+    {MIXSRC_XFHT_YAW, "hty", "XF headtracker yaw"},
 #endif
 
     {MIXSRC_MIN, "min", "MIN"},

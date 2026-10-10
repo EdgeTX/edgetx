@@ -167,6 +167,7 @@ class GeneralSettings {
       AUX_SERIAL_DEBUG,
       AUX_SERIAL_SPACEMOUSE,
       AUX_SERIAL_EXT_MODULE,
+      AUX_SERIAL_XF_HEADTRACKER,
       AUX_SERIAL_COUNT
     };
 

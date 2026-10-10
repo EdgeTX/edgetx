@@ -280,6 +280,7 @@
 
 #if defined(PCBHORUS)
 #define STR_SM_VSRCRAW currentLangStrings->STR_SM_VSRCRAW
+#define STR_XFHT_VSRCRAW currentLangStrings->STR_XFHT_VSRCRAW
 #endif
 
 #if defined(FUNCTION_SWITCHES)

@@ -257,6 +257,12 @@ static void serialSetCallBacks(int mode, void* ctx, const etx_serial_port_t* por
     break;
 #endif
 
+#if defined(XF_HEADTRACKER)
+  case UART_MODE_XF_HEADTRACKER:
+    xfhtSetSerialDriver(ctx, drv);
+    break;
+#endif
+
 #if defined(CONFIGURABLE_MODULE_PORT) and !defined(BOOT)
   case UART_MODE_EXT_MODULE:
     if (port && !ctx) { // de-init
@@ -351,6 +357,13 @@ static void serialSetupPort(int mode, etx_serial_init& params)
   case UART_MODE_SPACEMOUSE:
     params.baudrate = SPACEMOUSE_BAUDRATE;
     params.direction = ETX_Dir_TX_RX;
+    break;
+#endif
+
+#if defined(XF_HEADTRACKER)
+  case UART_MODE_XF_HEADTRACKER:
+    params.baudrate = XFHT_BAUDRATE;
+    params.direction = ETX_Dir_RX;
     break;
 #endif
 

@@ -854,6 +854,10 @@ extern Clipboard clipboard;
   #include "spacemouse.h"
 #endif
 
+#if defined(XF_HEADTRACKER)
+  #include "xf_headtracker.h"
+#endif
+
 #if defined(JACK_DETECT_GPIO)
 enum JackMode {
   JACK_UNSELECTED_MODE,
