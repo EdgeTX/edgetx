@@ -24,6 +24,7 @@
 #include <QDir>
 #include <QFile>
 #include <QMessageBox>
+#include <QProcess>
 #include <QSplashScreen>
 
 #if defined(USE_SDL)
@@ -129,6 +130,7 @@ void printHelpText()
   printf(tmpl, "--import",   QCoreApplication::translate("Companion", "Load application settings from file or previous version...").toUtf8().constData());
   printf(tmpl, "--defaults", QCoreApplication::translate("Companion", "Reset ALL application settings to default and remove radio profiles...").toUtf8().constData());
   printf(tmpl, "--quit  ",   QCoreApplication::translate("Companion", "Exit before settings initialization and application startup.").toUtf8().constData());
+  printf(tmpl, "--simulator", QCoreApplication::translate("Companion", "Launch the standalone simulator instead, passing it any other arguments.").toUtf8().constData());
   printf(tmpl, "--version",  QCoreApplication::translate("Companion", "Print version number and exit.").toUtf8().constData());
   printf(tmpl, "--help|-h",  QCoreApplication::translate("Companion", "Print this help text.").toUtf8().constData());
   fflush(stdout);
@@ -143,6 +145,22 @@ int main(int argc, char *argv[])
   app.setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
   const QStringList args(QApplication::arguments());
+
+  // hand off to the standalone simulator installed next to Companion
+  if (args.contains("--simulator")) {
+    QString simuExe = QCoreApplication::applicationDirPath() % "/" % SIMULATOR_EXE_NAME;
+#if defined(_WIN32)
+    simuExe.append(".exe");
+#endif
+    QStringList simuArgs = args.mid(1);
+    simuArgs.removeAll("--simulator");
+    if (!QProcess::startDetached(simuExe, simuArgs)) {
+      QMessageBox::critical(nullptr, APP_COMPANION,
+                            QCoreApplication::translate("Companion", "Unable to launch the simulator: %1").arg(simuExe));
+      exit(1);
+    }
+    exit(0);
+  }
 
   if (args.contains("--help") || args.contains("-h") || args.contains("/?")) {
     printHelpText();
