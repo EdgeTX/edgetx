@@ -21,3 +21,7 @@ CMakeUserPresets.json
 output/
 *.dmg
 .devcontainer/devcontainer-lock.json
+
+.DS_Store
+
+.venv/
