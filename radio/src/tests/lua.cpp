@@ -198,6 +198,120 @@ TEST(Lua, Switches)
 #endif
 }
 
+TEST(Lua, getSwitchInfo)
+{
+  RADIO_RESET();
+  MODEL_RESET();
+  char name[32];
+  char lua[256];
+
+  // Unconfigured switches still return a table, with type SWITCH_NONE
+  int unconfigured = -1;
+  for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
+    if (!switchIsCustomSwitch(i)) {
+      g_eeGeneral.switchSetType(i, SWITCH_NONE);
+      unconfigured = i;
+      break;
+    }
+  }
+
+  for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
+    getSwitchName(name, i);
+    snprintf(lua, sizeof(lua),
+             "local info = getSwitchInfo(%d)\n"
+             "if info == nil then error('nil') end\n"
+             "if info.name ~= '%s' then error('name ' .. info.name) end\n"
+             "if info.type ~= %d then error('type ' .. info.type) end\n"
+             "if info.isCustomisableSwitch ~= %s then error('custom') end",
+             MIXSRC_FIRST_SWITCH + i, name, g_model.getSwitchType(i),
+             switchIsCustomSwitch(i) ? "true" : "false");
+    EXPECT_TRUE(__luaExecStr(lua)) << "switch " << i << " (" << name << ")";
+  }
+
+  if (unconfigured >= 0) {
+    EXPECT_EQ(SWITCH_NONE, g_model.getSwitchType(unconfigured));
+  }
+
+  RADIO_RESET();
+}
+
+TEST(Lua, getFieldInfoSwitches)
+{
+  RADIO_RESET();
+  MODEL_RESET();
+  char lower[8];
+  char lua[512];
+
+  for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
+    const char* name = switchGetDefaultName(i);
+    size_t len = strlen(name);
+    for (size_t n = 0; n <= len && n < sizeof(lower); n++)
+      lower[n] = tolower(name[n]);
+
+    // The lower case name can belong to another field first, e.g. the 'sl'
+    // slider on T22, but must never find a different switch
+    snprintf(lua, sizeof(lua),
+             "local id = %d\n"
+             "local first, last = %d, %d\n"
+             "local info = getFieldInfo('%s')\n"
+             "if info == nil or info.id ~= id then error('upper') end\n"
+             "info = getFieldInfo('%s')\n"
+             "if info == nil then error('lower') end\n"
+             "if info.id ~= id and info.id >= first and info.id <= last then\n"
+             "  error('lower finds switch ' .. info.id)\n"
+             "end\n"
+             "info = getFieldInfo(id)\n"
+             "if info == nil or info.name ~= '%s' then error('by id') end",
+             MIXSRC_FIRST_SWITCH + i, MIXSRC_FIRST_SWITCH,
+             MIXSRC_FIRST_SWITCH + switchGetMaxAllSwitches() - 1, name, lower,
+             name);
+    EXPECT_TRUE(__luaExecStr(lua)) << "switch " << i << " (" << name << ")";
+  }
+}
+
+TEST(Lua, getFieldInfoSensorBeforeSwitch)
+{
+  RADIO_RESET();
+  MODEL_RESET();
+  char lower[TELEM_LABEL_LEN + 1] = {};
+  char lua[256];
+
+  // A switch only found by its lower case default name, e.g. 'sw1'
+  for (int i = 0; i < switchGetMaxAllSwitches(); i++) {
+    const char* name = switchGetDefaultName(i);
+    size_t len = strlen(name);
+    if (len > 2 && len <= TELEM_LABEL_LEN) {
+      for (size_t n = 0; n < len; n++) lower[n] = tolower(name[n]);
+      break;
+    }
+  }
+  if (!lower[0]) return;  // no such switch on this target
+
+  // A sensor with the same name is still found first
+  strncpy(g_model.telemetrySensors[0].label, lower, TELEM_LABEL_LEN);
+  snprintf(lua, sizeof(lua),
+           "local info = getFieldInfo('%s')\n"
+           "if info == nil or info.id ~= %d then error('not sensor') end",
+           lower, MIXSRC_FIRST_TELEM);
+  EXPECT_TRUE(__luaExecStr(lua)) << lower;
+  MODEL_RESET();
+}
+
+TEST(Lua, getSwitchInfoOutOfRange)
+{
+  RADIO_RESET();
+  MODEL_RESET();
+  char lua[128];
+
+  for (int src : {MIXSRC_FIRST_SWITCH - 1, MIXSRC_FIRST_SWITCH - 1000,
+                  MIXSRC_FIRST_SWITCH + MAX_SWITCHES,
+                  MIXSRC_FIRST_SWITCH + SWSRC_COUNT - 1, -100000, 100000}) {
+    snprintf(lua, sizeof(lua),
+             "if getSwitchInfo(%d) ~= nil then error('not nil') end", src);
+    EXPECT_TRUE(__luaExecStr(lua)) << "source " << src;
+  }
+}
+
 TEST(Lua, testFloatIntegerEquality)
 {
   // 0.5 is not an integer, so it must not equal 0 (regression #7587)

@@ -20,7 +20,6 @@
 
 #include "modal_window.h"
 
-class Menu;
 class MenuWindowContent;
 class MenuToolbar;
 

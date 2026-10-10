@@ -86,11 +86,9 @@ MenuToolbar::~MenuToolbar() { lv_group_del(group); }
 
 void MenuToolbar::resetFilter()
 {
-  if (lv_group_get_focused(group) != lvobj) {
-    lv_group_focus_obj(lvobj);
-    choice->fillMenu(menu);
-    menu->setTitle(choice->getTitle());
-  }
+  // Nothing to do if no filter is active
+  if (allBtn && !allBtn->checked())
+    lv_event_send(allBtn->getLvObj(), LV_EVENT_CLICKED, nullptr);
 }
 
 void MenuToolbar::onEvent(event_t event)
@@ -173,6 +171,8 @@ void MenuToolbar::addButton(const char* picto, int16_t filtermin,
 
   rect_t r = getButtonRect(wideButton);
   auto button = new MenuToolbarButton(this, r, picto);
+
+  setHeight(r.y + r.h + PAD_LARGE);
 
   button->setPressHandler(std::bind(&MenuToolbar::filterMenu, this, button,
                                     filtermin, filtermax, filterFunc, title));
