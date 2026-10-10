@@ -109,6 +109,13 @@ PLAY_FUNCTION(playValue, mixsrc_t idx)
     PLAY_DURATION(val * 60, PLAY_TIME);
   } else if (idx == MIXSRC_TX_VOLTAGE) {
     PLAY_NUMBER(val, UNIT_VOLTS, PREC1);
+#if defined(MODULE_BATTERY_SENSOR)
+  } else if (idx == MIXSRC_TX_BAT_CURRENT) {
+    PLAY_NUMBER(val, UNIT_AMPS, PREC1);
+  } else if (idx == MIXSRC_TX_BAT_POWER) {
+    int32_t wattsDeci = (val >= 0) ? (val + 5) / 10 : (val - 5) / 10;
+    PLAY_NUMBER(wattsDeci, UNIT_WATTS, PREC1);
+#endif
 #if defined(LUMINOSITY_SENSOR)
   } else if (idx == MIXSRC_LIGHT) {
     PLAY_NUMBER(val, UNIT_RAW, 0);

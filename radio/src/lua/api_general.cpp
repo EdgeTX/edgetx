@@ -347,6 +347,14 @@ void luaGetValueAndPush(lua_State* L, int src)
   else if (src == MIXSRC_TX_VOLTAGE) {
     lua_pushnumber(L, float(value) * 0.1f);
   }
+#if defined(MODULE_BATTERY_SENSOR)
+  else if (src == MIXSRC_TX_BAT_CURRENT) {
+    lua_pushnumber(L, float(value) * 0.1f);
+  }
+  else if (src == MIXSRC_TX_BAT_POWER) {
+    lua_pushnumber(L, float(value) * 0.01f);
+  }
+#endif
   #if defined(GVARS)
   else if(src >= MIXSRC_FIRST_GVAR && src <= MIXSRC_LAST_GVAR) {
    if(g_model.gvars[src - MIXSRC_FIRST_GVAR].prec)
@@ -389,6 +397,10 @@ const LuaSingleField luaSingleFields[] = {
     {MIXSRC_MAX, "max", "MAX"},
 
     {MIXSRC_TX_VOLTAGE, "tx-voltage", "Transmitter battery voltage [volts]"},
+#if defined(MODULE_BATTERY_SENSOR)
+    {MIXSRC_TX_BAT_CURRENT, "tx-current", "Transmitter battery current [amps]"},
+    {MIXSRC_TX_BAT_POWER, "tx-power", "Transmitter battery power [watts]"},
+#endif
     {MIXSRC_TX_TIME, "clock", "RTC clock [minutes from midnight]"},
 };
 
@@ -847,6 +859,13 @@ static int luaGetSourceValue(lua_State * L)
     lua_pushboolean(L, true);
     lua_pushboolean(L, true);
   }
+#if defined(MODULE_BATTERY_SENSOR)
+  else if (src == MIXSRC_TX_BAT_CURRENT || src == MIXSRC_TX_BAT_POWER) {
+    lua_pushnumber(L, float(value) * (src == MIXSRC_TX_BAT_CURRENT ? 0.1f : 0.01f));
+    lua_pushboolean(L, true);
+    lua_pushboolean(L, true);
+  }
+#endif
   else {
     lua_pushinteger(L, value);
     lua_pushboolean(L, true);
