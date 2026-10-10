@@ -105,6 +105,7 @@ namespace Board {
     BOARD_IFLIGHT_COMMANDO14,
     BOARD_HELLORADIOSKY_V12,
     BOARD_SENDUWING_H17,
+    BOARD_JUMPER_T18H7,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -605,6 +606,11 @@ inline bool IS_JUMPER_T14(Board::Type board)
 inline bool IS_JUMPER_T18(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T18;
+}
+
+inline bool IS_JUMPER_T18H7(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T18H7;
 }
 
 inline bool IS_JUMPER_T20(Board::Type board)
