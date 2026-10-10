@@ -28,6 +28,10 @@
 #include "edgetx.h"
 #include "lua/lua_states.h"
 
+#if defined(SIMU_AUTOMATION)
+#include "targets/simu/automation_runtime.h"
+#endif
+
 #if defined(COLORLCD)
 #include "view_main.h"
 #include "startup_shutdown.h"
@@ -588,6 +592,10 @@ void perMain()
 
   checkKeysLock();
 
+#if defined(SIMU_AUTOMATION)
+  edgetx::automation::simuAutomationBeforeUi();
+#endif
+
 #if defined(COLORLCD)
   MainWindow::instance()->run();
 #endif
@@ -600,6 +608,9 @@ void perMain()
     lcdClear();
     menuMainView(0);
     lcdRefresh();
+#endif
+#if defined(SIMU_AUTOMATION)
+    edgetx::automation::simuAutomationAfterUi();
 #endif
     return;
   }
@@ -621,6 +632,9 @@ void perMain()
     lcdClear();
     menuMainView(0);
     lcdRefresh();
+#endif
+#if defined(SIMU_AUTOMATION)
+    edgetx::automation::simuAutomationAfterUi();
 #endif
     return;
   }
@@ -654,6 +668,10 @@ void perMain()
   guiMain(evt);
 #endif
   DEBUG_TIMER_STOP(debugTimerGuiMain);
+#endif
+
+#if defined(SIMU_AUTOMATION)
+  edgetx::automation::simuAutomationAfterUi();
 #endif
 
 #if defined(PCBX9E) && !defined(SIMU)
