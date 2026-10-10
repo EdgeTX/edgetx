@@ -40,6 +40,7 @@
 #include "firmwares/eeprominterface.h"
 #include "firmwares/edgetx/edgetxinterface.h"
 #include "firmwares/edgetx/yaml_moduledata.h"
+#include "firmwares/sourcenumref.h"
 
 namespace {
 
@@ -279,4 +280,114 @@ TEST_F(ModelYamlRoundTrip, UserDataMixedTypesRoundTrip)
     EXPECT_EQ(m2.userData[i].type, m.userData[i].type) << "entry " << i;
     EXPECT_EQ(m2.userData[i].value, m.userData[i].value) << "entry " << i;
   }
+}
+
+// Output limits are a number or any source. Old files wrote a gvar as GVn.
+TEST_F(ModelYamlRoundTrip, LimitSourcesRoundTrip)
+{
+  ModelData m;
+  m.clear();
+  m.used = true;
+  m.limitData[0].min = RawSource(SOURCE_TYPE_GVAR, 3).toValue();
+  m.limitData[0].max = -RawSource(SOURCE_TYPE_GVAR, 2).toValue();
+  m.limitData[0].offset = RawSource(SOURCE_TYPE_CH, 4).toValue();
+  m.limitData[1].min = -800;
+  m.limitData[1].max = 1200;
+  m.limitData[1].offset = -35;
+
+  QByteArray y;
+  ModelData m2 = roundTrip(m, y);
+
+  for (int i = 0; i < 2; i++) {
+    EXPECT_EQ(m2.limitData[i].min, m.limitData[i].min) << "channel " << i;
+    EXPECT_EQ(m2.limitData[i].max, m.limitData[i].max) << "channel " << i;
+    EXPECT_EQ(m2.limitData[i].offset, m.limitData[i].offset) << "channel " << i;
+  }
+}
+
+TEST_F(ModelYamlRoundTrip, LegacyLimitGVarDecodes)
+{
+  QByteArray y(
+      "limitData:\n"
+      "  0:\n"
+      "    min: GV1\n"
+      "    max: -GV9\n"
+      "    offset: 15\n");
+
+  ModelData m;
+  m.clear();
+  loadModelFromYaml(m, y);
+
+  EXPECT_EQ(m.limitData[0].min, RawSource(SOURCE_TYPE_GVAR, 1).toValue());
+  EXPECT_EQ(m.limitData[0].max, -RawSource(SOURCE_TYPE_GVAR, 9).toValue());
+  EXPECT_EQ(m.limitData[0].offset, 15);
+}
+
+// Text as written by the radio firmware (sources always quoted)
+TEST_F(ModelYamlRoundTrip, RadioWrittenLimitsDecode)
+{
+  QByteArray y(
+      "limitData:\n"
+      "   0:\n"
+      "      min: \"gv(2)\"\n"
+      "      max: \"!gv(8)\"\n"
+      "      ppmCenter: 0\n"
+      "      offset: \"ch(3)\"\n"
+      "   1:\n"
+      "      min: 200\n"
+      "      max: 200\n"
+      "      offset: -35\n");
+
+  ModelData m;
+  m.clear();
+  loadModelFromYaml(m, y);
+
+  EXPECT_EQ(m.limitData[0].min, RawSource(SOURCE_TYPE_GVAR, 3).toValue());
+  EXPECT_EQ(m.limitData[0].max, -RawSource(SOURCE_TYPE_GVAR, 9).toValue());
+  EXPECT_EQ(m.limitData[0].offset, RawSource(SOURCE_TYPE_CH, 4).toValue());
+  EXPECT_EQ(m.limitData[1].min, -800);
+  EXPECT_EQ(m.limitData[1].max, 1200);
+  EXPECT_EQ(m.limitData[1].offset, -35);
+}
+
+// What Companion writes is what the radio expects
+TEST_F(ModelYamlRoundTrip, WrittenLimitsUseRadioSyntax)
+{
+  ModelData m;
+  m.clear();
+  m.used = true;
+  m.limitData[0].min = RawSource(SOURCE_TYPE_GVAR, 3).toValue();
+  m.limitData[0].max = -RawSource(SOURCE_TYPE_GVAR, 9).toValue();
+  m.limitData[1].min = -800;
+
+  QByteArray y;
+  writeModelToYaml(m, y);
+  EXPECT_TRUE(y.contains("min: gv(2)"));
+  EXPECT_TRUE(y.contains("max: \"!gv(8)\""));
+  EXPECT_TRUE(y.contains("min: 200"));
+}
+
+// Limits that point at a gvar follow it when gvars are deleted or cleared
+TEST_F(ModelYamlRoundTrip, LimitGVarReferencesFollowGVarChanges)
+{
+  ModelData m;
+  m.clear();
+  m.used = true;
+  m.limitData[4].min = RawSource(SOURCE_TYPE_GVAR, 3).toValue();
+  m.limitData[4].max = -RawSource(SOURCE_TYPE_GVAR, 5).toValue();
+  m.limitData[4].offset = RawSource(SOURCE_TYPE_GVAR, 2).toValue();
+  m.limitData[5].min = -400;
+
+  // delete GV1: everything above moves down
+  m.updateAllReferences(ModelData::REF_UPD_TYPE_GLOBAL_VARIABLE, ModelData::REF_UPD_ACT_SHIFT, 0, 0, -1);
+  EXPECT_EQ(m.limitData[4].min, RawSource(SOURCE_TYPE_GVAR, 2).toValue());
+  EXPECT_EQ(m.limitData[4].max, -RawSource(SOURCE_TYPE_GVAR, 4).toValue());
+  EXPECT_EQ(m.limitData[4].offset, RawSource(SOURCE_TYPE_GVAR, 1).toValue());
+  EXPECT_EQ(m.limitData[5].min, -400);
+
+  // clear GV2: references to it are dropped, the others stay
+  m.updateAllReferences(ModelData::REF_UPD_TYPE_GLOBAL_VARIABLE, ModelData::REF_UPD_ACT_CLEAR, 1);
+  EXPECT_TRUE(SourceNumRef(m.limitData[4].min).isNumber());
+  EXPECT_EQ(m.limitData[4].max, -RawSource(SOURCE_TYPE_GVAR, 4).toValue());
+  EXPECT_EQ(m.limitData[4].offset, RawSource(SOURCE_TYPE_GVAR, 1).toValue());
 }

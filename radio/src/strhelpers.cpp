@@ -370,19 +370,26 @@ char *getGVarString(char *dest, int idx)
 }
 
 #if defined(COLORLCD)
-char *getValueOrGVarString(char *dest, size_t len, gvar_t value,
-                           LcdFlags flags, const char *suffix,
-                           gvar_t offset, bool usePPMUnit)
+static char *getSourceOrValueString(char *dest, size_t len, bool isSource,
+                                    int16_t value, LcdFlags flags,
+                                    const char *suffix, gvar_t offset,
+                                    bool usePPMUnit)
 {
-  if (GV_IS_GV_VALUE(value)) {
-    int index = GV_INDEX_FROM_VALUE(value);
-    return getGVarString(dest, index);
+  if (isSource) {
+    int idx = abs(value);
+    if (idx >= MIXSRC_FIRST_GVAR && idx <= MIXSRC_LAST_GVAR) {
+      int gvar = idx - MIXSRC_FIRST_GVAR;
+      getGVarString(dest, (value < 0) ? -gvar - 1 : gvar);
+    } else {
+      const char* s = getSourceString(value);
+      strncpy(dest, s, len);
+    }
+  } else {
+    value += offset;
+    if (usePPMUnit && g_eeGeneral.ppmunit == PPM_US)
+      value = value * 128 / 25;
+    formatNumberAsString(dest, len, value, flags, 0, nullptr, suffix);
   }
-
-  value += offset;
-  if (usePPMUnit && g_eeGeneral.ppmunit == PPM_US)
-    value = value * 128 / 25;
-  formatNumberAsString(dest, len, value, flags, 0, nullptr, suffix);
   return dest;
 }
 
@@ -392,20 +399,17 @@ char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value,
 {
   SourceNumVal v;
   v.rawValue = value;
-  if (v.isSource) {
-    if (abs(v.value) >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
-      getGVarString(dest, (v.value < 0) ? v.value + MIXSRC_FIRST_GVAR - 1 : v.value - MIXSRC_FIRST_GVAR);
-    } else {
-      const char* s = getSourceString(v.value);
-      strncpy(dest, s, len);
-    }
-  } else {
-    v.value += offset;
-    if (usePPMUnit && g_eeGeneral.ppmunit == PPM_US)
-      v.value = v.value * 128 / 25;
-    formatNumberAsString(dest, len, v.value, flags, 0, nullptr, suffix);
-  }
-  return dest;
+  return getSourceOrValueString(dest, len, v.isSource, v.value, flags, suffix,
+                                offset, usePPMUnit);
+}
+
+char *getLimitNumString(char *dest, size_t len, uint16_t value, LcdFlags flags,
+                        gvar_t offset, bool usePPMUnit)
+{
+  LimitNumVal v;
+  v.rawValue = value;
+  return getSourceOrValueString(dest, len, v.isSource, v.value, flags, nullptr,
+                                offset, usePPMUnit);
 }
 #endif
 

@@ -46,12 +46,10 @@ uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t 
                               int16_t min, int16_t max, LcdFlags attr, event_t event,
                               IsValueAvailable isValueAvailable, int16_t sourceMin, int16_t sourceMax);
 
-int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min,
-                           int16_t max, LcdFlags attr, uint8_t editflags,
-                           event_t event);
-
-#define GVAR_MENU_ITEM(x, y, v, min, max, attr, editflags, event) \
-  editGVarFieldValue(x, y, v, min, max, attr, editflags, event)
+// Long ENTER switches an output limit value between number and source.
+// Returns true when the value is a source, drawn and edited here.
+bool editLimitNumSource(coord_t x, coord_t y, uint16_t& value, LcdFlags attr,
+                        event_t event);
 
 #if defined(GVARS)
 void editGVarValue(coord_t x, coord_t y, event_t event, uint8_t gvar,

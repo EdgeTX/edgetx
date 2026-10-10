@@ -158,25 +158,13 @@ void OutputChannelBar::drawLimitLines(bool forced)
     int32_t ldMin;
     int32_t ldMax;
 
-    if (GV_IS_GV_VALUE(ld->min)) {
-      ldMin =
-          GET_GVAR_PREC1(ld->min, -CHANNELS_LIMIT, 0, mixerCurrentFlightMode) +
-          LIMIT_STD_MAX;
-    } else {
-      ldMin = ld->min;
-    }
+    ldMin = LIMIT_MIN(ld) + LIMIT_STD_MAX;
     if (limMin != ldMin) {
       changed = true;
       limMin = ldMin;
     }
 
-    if (GV_IS_GV_VALUE(ld->max)) {
-      ldMax =
-          GET_GVAR_PREC1(ld->max, 0, CHANNELS_LIMIT, mixerCurrentFlightMode) -
-          LIMIT_STD_MAX;
-    } else {
-      ldMax = ld->max;
-    }
+    ldMax = LIMIT_MAX(ld) - LIMIT_STD_MAX;
     if (limMax != ldMax) {
       changed = true;
       limMax = ldMax;
