@@ -122,6 +122,7 @@ if (PCB STREQUAL X10)
     set(FLEXSW "2" CACHE STRING "Max flex inputs usable as switches")
     set(AUX2_SERIAL OFF)
     set(CSD203_SENSOR ON)
+    set(CI1302_SENSOR ON)
     set(FLYSKY_GIMBAL ON)
     add_definitions(-DIMU_ICM42627)
     add_definitions(-DIMU_SC7U22)
@@ -356,6 +357,13 @@ set(FIRMWARE_SRC
 
 if (MULTIMODULE)
   add_definitions(-DMULTI_PROTOLIST)
+endif()
+
+if(CI1302_SENSOR)
+  # Only the V16 block above turns this on. Shared call sites are wrapped in
+  # VOICE_CONTROL_SENSOR, so other targets do not compile this driver.
+  set(SRC ${SRC} drivers/CI1302.cpp)
+  add_definitions(-DVOICE_CONTROL_SENSOR)
 endif()
 
 set(SRC ${SRC}

@@ -22,6 +22,10 @@
 #include "edgetx.h"
 #include "switches.h"
 
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
+
 #include "hal/audio_driver.h"
 
 #include "boards/generic_stm32/rgb_leds.h"
@@ -340,7 +344,13 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
 #endif
           {
             if (isRepeatDelayElapsed(functions, functionsContext, i)) {
+#if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
+              bool risingEdge = !(functionsContext.activeSwitches & ((MASK_CFN_TYPE)1 << i));
+              if (!CI1302_voiceSwitchShouldSuppressFunctionAudio(swtch, risingEdge) &&
+                  !IS_PLAYING(PLAY_INDEX)) {
+#else
               if (!IS_PLAYING(PLAY_INDEX)) {
+#endif
                 if (CFN_FUNC(cfn) == FUNC_PLAY_SOUND) {
                   AUDIO_PLAY(AU_SPECIAL_SOUND_FIRST + CFN_PARAM(cfn));
                 } else if (CFN_FUNC(cfn) == FUNC_PLAY_VALUE) {
@@ -362,7 +372,13 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
           case FUNC_BACKGND_MUSIC:
             if (!(newActiveFunctions & (1 << FUNCTION_BACKGND_MUSIC))) {
               newActiveFunctions |= (1 << FUNCTION_BACKGND_MUSIC);
+#if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
+              bool risingEdge = !(functionsContext.activeSwitches & ((MASK_CFN_TYPE)1 << i));
+              if (!CI1302_voiceSwitchShouldSuppressFunctionAudio(swtch, risingEdge) &&
+                  !IS_PLAYING(PLAY_INDEX)) {
+#else
               if (!IS_PLAYING(PLAY_INDEX)) {
+#endif
                 playCustomFunctionFile(cfn, PLAY_INDEX);
               }
             }

@@ -72,6 +72,10 @@
   #include "csd203_sensor.h"
 #endif
 
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
+
 #if !defined(SIMU)
 #include <malloc.h>
 #endif
@@ -235,6 +239,9 @@ void per10ms()
 #if defined(CSD203_SENSOR) && !defined(SIMU)
   readCSD203();
 #endif
+#if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
+  CI1302_voiceIntegrationPer10ms();
+#endif
 
   telemetryInterrupt10ms();
 
@@ -316,6 +323,10 @@ void generalDefaultSwitches()
 #endif
 #endif
   }
+
+#if defined(VOICE_CONTROL_SENSOR)
+  CI1302_voiceSwitchSetDefaults();
+#endif
 }
 
 void generalDefaultUILanguage()
@@ -1097,6 +1108,10 @@ void flightReset(uint8_t check)
   s_mixer_first_run_done = false;
 
   START_SILENCE_PERIOD();
+
+#if defined(VOICE_CONTROL_SENSOR) && !defined(SIMU)
+  CI1302_voiceIntegrationOnFlightReset();
+#endif
 
   RESET_THR_TRACE();
 

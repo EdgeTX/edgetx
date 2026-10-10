@@ -29,6 +29,9 @@
 #include "hal/switch_driver.h"
 #include "edgetx.h"
 #include "switches.h"
+#if defined(VOICE_CONTROL_SENSOR)
+#include "drivers/CI1302_voice_integration.h"
+#endif
 
 static char _static_str_buffer[32];
 static const char s_charTab[] = "_-.,";
@@ -743,6 +746,12 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
 #if defined(LUMINOSITY_SENSOR)
   else if (idx == MIXSRC_LIGHT) {
     strncpy(dest, STR_SRC_LIGHT, dest_len - 1);
+  }
+#endif
+#if defined(VOICE_CONTROL_SENSOR)
+  else if (idx >= MIXSRC_VGR && idx <= MIXSRC_LAST_VOICE) {
+    const char* voiceName = CI1302_voiceIntegrationMixSrcName(idx);
+    strncpy(dest, voiceName ? voiceName : "", dest_len - 1);
   }
 #endif
   else if (idx <= MIXSRC_LAST_HELI) {

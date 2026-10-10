@@ -19,37 +19,39 @@
  * GNU General Public License for more details.
  */
 
-#pragma once
+#ifndef _CI1302_H_
+#define _CI1302_H_
 
-#include <lvgl/lvgl.h>
-#include "edgetx_types.h"
+#include <stdint.h>
 
-void initLvglTheme();
-
-typedef std::function<lv_obj_t *(lv_obj_t *parent)> LvObjConstructor;
-
-class LvglWrapper
-{
-  static LvglWrapper *_instance;
-  static void pollInputs();
-
-  LvglWrapper();
-  ~LvglWrapper() {}
-
- public:
-  static LvglWrapper* instance();
-
-  // Called from UI task: executes the LVGL timer handler 
-  void run();
-
-  // Call it when running the loop manually from within
-  // the LVGL timer handler (blocking UI code)
-  static void runNested();
-};
-
-#if defined(VOICE_CONTROL_SENSOR)
-void lvglRequestKeyboardEnter();
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-// multiplication factor between 0 and 25
-int8_t rotaryEncoderGetAccel();
+void voiceControlPowerOn(void);
+void voiceControlPowerOff(void);
+void voiceSerialPutc(char c);
+int voiceGetByte(uint8_t* byte);
+int GetVoiceInput(uint8_t *rxchar);
+int dbgGetByte(uint8_t* byte);
+void voiceSerialPutstr(uint8_t* byte, uint32_t len);
+
+#ifdef __cplusplus
+}
+#endif
+
+#ifdef __cplusplus
+
+extern bool VoiceGearStatus;
+extern uint8_t VoiceFlapStatus;
+extern bool VoicePowerStatus;
+extern bool VoiceRunStatus;
+extern bool MotionControlStatus;
+
+void processUpdataInput(void);
+void processVoiceInput(void);
+void voiceControlInit(void);
+
+#endif
+
+#endif
