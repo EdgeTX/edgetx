@@ -740,6 +740,10 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     idx -= MIXSRC_FIRST_SPACEMOUSE;
     getStringAtIndex(dest, STR_SM_VSRCRAW, idx);
   }
+  else if (idx <= MIXSRC_LAST_XFHT) {
+    idx -= MIXSRC_FIRST_XFHT;
+    getStringAtIndex(dest, STR_XFHT_VSRCRAW, idx);
+  }
 #endif
   else if (idx == MIXSRC_MIN) {
     strncpy(dest, STR_MENU_MIN, dest_len - 1);

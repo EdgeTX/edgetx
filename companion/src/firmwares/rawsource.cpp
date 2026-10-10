@@ -318,6 +318,11 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
     case SOURCE_TYPE_SPACEMOUSE:
       return tr("sm%1").arg(QChar('A' + (index - 1)));
 
+    case SOURCE_TYPE_XFHT:
+      if (index >= 1 && index <= CPN_MAX_XFHT)
+        return tr("ht%1").arg(QChar("RPY"[index - 1]));
+      return QString(CPN_STR_UNKNOWN_ITEM);
+
     case SOURCE_TYPE_FUNCTIONSWITCH_GROUP:
       return tr("GR%1").arg(index);
 
@@ -466,6 +471,14 @@ bool RawSource::isAvailable(const ModelData * const model,
      (abs(index) > CPN_MAX_SPACEMOUSE ||
      (!(gs->serialPort[GeneralSettings::SP_AUX1] == GeneralSettings::AUX_SERIAL_SPACEMOUSE ||
         gs->serialPort[GeneralSettings::SP_AUX2] == GeneralSettings::AUX_SERIAL_SPACEMOUSE))))
+    return false;
+
+  if (type == SOURCE_TYPE_XFHT &&
+      (abs(index) > CPN_MAX_XFHT || !gs ||
+       !(gs->serialPort[GeneralSettings::SP_AUX1] ==
+             GeneralSettings::AUX_SERIAL_XF_HEADTRACKER ||
+         gs->serialPort[GeneralSettings::SP_AUX2] ==
+             GeneralSettings::AUX_SERIAL_XF_HEADTRACKER)))
     return false;
 
   if (type == SOURCE_TYPE_INPUT && (flags & AVAILABLE_CONTROLSRC) &&

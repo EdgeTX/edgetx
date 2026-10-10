@@ -194,6 +194,14 @@ static bool isSourceSpacemouseAvailable(int source) {
   return false;
 #endif
 }
+
+static bool isSourceXfhtAvailable(int source) {
+#if defined(XF_HEADTRACKER)
+  return serialGetModePort(UART_MODE_XF_HEADTRACKER) >= 0;
+#else
+  return false;
+#endif
+}
 #endif
 
 static bool isSourceHeliAvailable(int source) {
@@ -280,6 +288,7 @@ static struct sourceAvailableCheck sourceChecks[] = {
 #endif
 #if defined(PCBHORUS)
   { MIXSRC_FIRST_SPACEMOUSE, MIXSRC_LAST_SPACEMOUSE, SRC_SPACEMOUSE, isSourceSpacemouseAvailable },
+  { MIXSRC_FIRST_XFHT, MIXSRC_LAST_XFHT, SRC_XFHT, isSourceXfhtAvailable },
 #endif
   { MIXSRC_MIN, MIXSRC_MAX, SRC_MINMAX, sourceIsAvailable },
   { MIXSRC_FIRST_HELI, MIXSRC_LAST_HELI, SRC_HELI, isSourceHeliAvailable },
@@ -317,7 +326,7 @@ bool checkSourceAvailable(int source, uint32_t sourceTypes)
 }
 
 #define SRC_COMMON \
-            SRC_STICK | SRC_POT | SRC_TILT | SRC_LIGHT | SRC_SPACEMOUSE | SRC_MINMAX | SRC_TRIM | \
+            SRC_STICK | SRC_POT | SRC_TILT | SRC_LIGHT | SRC_SPACEMOUSE | SRC_XFHT | SRC_MINMAX | SRC_TRIM | \
             SRC_SWITCH | SRC_FUNC_SWITCH | SRC_LOGICAL_SWITCH | SRC_TRAINER | SRC_GVAR
 
 bool isSourceAvailable(int source)
@@ -577,6 +586,15 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
 #elif defined(USB_SERIAL)
   // SPACEMOUSE is not supported on VCP
   if (port_nr == SP_VCP && mode == UART_MODE_SPACEMOUSE)
+    return false;
+#endif
+
+#if !defined(XF_HEADTRACKER)
+  if (mode == UART_MODE_XF_HEADTRACKER)
+    return false;
+#elif defined(USB_SERIAL)
+  // XF_HEADTRACKER is not supported on VCP
+  if (port_nr == SP_VCP && mode == UART_MODE_XF_HEADTRACKER)
     return false;
 #endif
 

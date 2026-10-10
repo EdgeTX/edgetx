@@ -71,6 +71,7 @@
 #define TR_MODULE_PROTOCOLS             TR_OFF,"PPM","XJT","ISRM","DSM2","CRSF","MULTI","R9M","R9M ACCESS","R9MLite","R9ML ACCESS",\
                                         "GHST","R9MLP ACCESS","SBUS","XJT Lite","AFHDS2A","AFHDS3",TR("Lemon DSMP","LemonRx DSMP")
 #define TR_SM_VSRCRAW                   "smA","smB","smC","smD","smE","smF"
+#define TR_XFHT_VSRCRAW                 "htR","htP","htY"
 #define TR_XJT_ACCST_RF_PROTOCOLS       "D16","D8","LR12"
 #define TR_ISRM_RF_PROTOCOLS            "ACCESS","D16","LR12"
 #define TR_R9M_REGION                   "FCC","EU","868MHz","915MHz"
@@ -129,7 +130,7 @@
 
 #define TR_VCELLINDEX               SA11(TR_VCELLINDEX)
 
-#define TR_AUX_SERIAL_MODES         SA11(TR_AUX_SERIAL_MODES)
+#define TR_AUX_SERIAL_MODES         SA12(TR_AUX_SERIAL_MODES)
 
 #define TR_VFORMULAS                SA9(TR_VFORMULAS)
 #define TR_FS_COLOR_LIST            SA9(TR_FS_COLOR_LIST)

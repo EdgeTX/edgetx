@@ -135,6 +135,7 @@ These options enable or disable firmware features. Defaults are typically set by
 | `PPM_LIMITS_SYMETRICAL` | OFF | PPM limits symmetrical |
 | `RAS` | ON | RAS (SWR) measurement |
 | `SPACEMOUSE` | OFF | SpaceMouse support (Horus only) |
+| `XF_HEADTRACKER` | OFF | XF headtracker on an AUX port (Horus only) |
 | `TEMPLATES` | OFF | Model templates menu |
 | `UNEXPECTED_SHUTDOWN` | ON | Unexpected shutdown warning screen |
 | `USB_SERIAL` | ON | USB serial (CDC) |
