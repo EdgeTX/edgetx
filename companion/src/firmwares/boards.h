@@ -719,6 +719,7 @@ inline bool IS_FAMILY_T16(Board::Type board)
          board == Board::BOARD_JUMPER_T15H7 ||
          board == Board::BOARD_JUMPER_T16 ||
          board == Board::BOARD_JUMPER_T18 ||
+         board == Board::BOARD_JUMPER_T18H7 ||
          board == Board::BOARD_RADIOMASTER_TX15 ||
          board == Board::BOARD_RADIOMASTER_GX15 ||
          board == Board::BOARD_RADIOMASTER_TX16S ||
