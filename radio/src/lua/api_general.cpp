@@ -2128,6 +2128,7 @@ static int luaSetTelemetryValue(lua_State * L)
   int32_t value = luaL_checkinteger(L, 4);
   uint32_t unit = luaL_optinteger(L, 5, 0);
   uint32_t prec = luaL_optinteger(L, 6, 0);
+  if (unit > UNIT_TEXT) unit = UNIT_RAW;  // not a storable sensor unit
 
   char name_buf[TELEM_LABEL_LEN]; // 4
   const char* name = luaL_optstring(L, 7, NULL);

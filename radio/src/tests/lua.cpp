@@ -654,4 +654,22 @@ TEST(Lua, testUserDataEmbeddedNul)
   luaExecStr(userdata_nul_tst);
 }
 
+TEST(Lua, setTelemetryValueUnits)
+{
+  MODEL_RESET();
+  allowNewSensors = true;
+
+  luaExecStr("assert(setTelemetryValue(0x5000, 0, 1, 42, UNIT_SECONDS, 0, 'Tim'))");
+  EXPECT_EQ(g_model.telemetrySensors[0].unit, UNIT_SECONDS);
+  EXPECT_EQ(getValueWithUnit(42, UNIT_SECONDS, 0), "42s");
+  EXPECT_EQ(getValueWithUnit(3, UNIT_MINUTES, 0), "3min");
+  EXPECT_EQ(getValueWithUnit(1, UNIT_HOURS, 0), "1h");
+
+  // units that cannot be stored in a sensor fall back to raw
+  luaExecStr("assert(setTelemetryValue(0x5100, 0, 1, 7, 60, 0, 'Bad'))");
+  EXPECT_EQ(g_model.telemetrySensors[1].unit, UNIT_RAW);
+
+  allowNewSensors = false;
+}
+
 #endif   // #if defined(LUA)
