@@ -33,11 +33,5 @@
 #define HFP  ( 8 )
 #define VFP  ( 8 )
 
-typedef void (*lcdSpiInitFucPtr)(void);
-
-extern lcdSpiInitFucPtr lcdInitFunction;
-extern lcdSpiInitFucPtr lcdOffFunction;
-extern lcdSpiInitFucPtr lcdOnFunction;
-
 #define LCD_NRST_HIGH()               LL_GPIO_SetOutputPin(LCD_NRST_GPIO, LCD_NRST_GPIO_PIN)
 #define LCD_NRST_LOW()                LL_GPIO_ResetOutputPin(LCD_NRST_GPIO, LCD_NRST_GPIO_PIN)
