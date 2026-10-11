@@ -228,6 +228,9 @@ Board * Board::getBoard(const QString & id, bool forceLoad)
 int Board::getCapability(const Capability capability) const
 {
   switch (capability) {
+    case Capability::Air:
+      return !m_hardware.surface;
+
     case Capability::BacklightLevelMin:
       return m_hardware.backlightLevelMin;
 
@@ -238,63 +241,6 @@ int Board::getCapability(const Capability capability) const
     case Capability::ExternalModuleSize:
       return getCapability(Capability::HasExternalModuleSupport) ?
              m_hardware.externalModules.size : Board::EXTMODSIZE_NONE;
-
-    case Capability::Haptic:
-      return m_hardware.haptic;
-
-    case Capability::HasAuxSerialMode:
-      return m_hardware.auxSerialMode;
-
-    case Capability::HasAux2SerialMode:
-      return m_hardware.aux2SerialMode;
-
-    case Capability::HasBluetooth:
-      return !m_hardware.bluetoothName.empty();
-
-    case Capability::HasExternalAntenna:
-      return m_hardware.externalAntenna;
-
-    case Capability::HasHardwareAntennaSwitch:
-      return m_hardware.hardwareAntennaSwitch;
-
-    case Capability::HasIMU:
-      return m_hardware.imu;
-
-    case HasInternalGPS:
-      return m_hardware.internalGPS;
-
-    case Capability::HasSoftwareSerialPower:
-      return m_hardware.softwareSerialPower;
-
-    case Capability::HasSwitchableJack:
-      return m_hardware.switchableJack;
-
-    case Capability::HasTrainerModuleCPPM:
-      return m_hardware.trainerModule == Board::TR_MOD_TYPE_CPPM;
-
-    case Capability::HasTrainerModuleSBUS:
-      return m_hardware.trainerModule == Board::TR_MOD_TYPE_SBUS;
-
-    case Capability::HasVCPSerialMode:
-      return m_hardware.vcpSerialMode;
-
-    case Capability::MaxContrast:
-      return m_hardware.contrast.max;
-
-    case Capability::MaxVolume:
-      return m_hardware.maxVolume;
-
-    case Capability::MinContrast:
-      return m_hardware.contrast.min;
-
-    case Capability::PwrButtonPress:
-      return m_hardware.pwrButtonPress;
-
-    case Capability::RotaryEncoderNavigation:
-      return m_hardware.rotaryEncNav;
-
-    case Capability::Air:
-      return !m_hardware.surface;
 
     case Capability::FlexInputs:
       return (m_inputCnt.flexGyroAxes +
@@ -336,6 +282,9 @@ int Board::getCapability(const Capability capability) const
     case Capability::HasExternalModuleSupport:
       return m_hardware.has_ext_module_support;
 
+    case Capability::HasFlySkyGimbals:
+      return m_hardware.flySkyGimbals;
+
     case Capability::HasInternalModuleSupport:
       return m_hardware.has_int_module_support;
 
@@ -351,11 +300,44 @@ int Board::getCapability(const Capability capability) const
     case Capability::HasVBat:
       return m_inputCnt.vbat;
 
-    case Capability::Inputs:
-      return m_inputs.size();
+    case Capability::Haptic:
+      return m_hardware.haptic;
 
-    case Capability::InputSwitches:
-      return m_inputCnt.switches;
+    case Capability::HasAuxSerialMode:
+      return m_hardware.auxSerialMode;
+
+    case Capability::HasAux2SerialMode:
+      return m_hardware.aux2SerialMode;
+
+    case Capability::HasBluetooth:
+      return !m_hardware.bluetoothName.empty();
+
+    case Capability::HasExternalAntenna:
+      return m_hardware.externalAntenna;
+
+    case Capability::HasHardwareAntennaSwitch:
+      return m_hardware.hardwareAntennaSwitch;
+
+    case Capability::HasIMU:
+      return m_hardware.imu;
+
+    case Capability::HasInternalGPS:
+      return m_hardware.internalGPS;
+
+    case Capability::HasSoftwareSerialPower:
+      return m_hardware.softwareSerialPower;
+
+    case Capability::HasSwitchableJack:
+      return m_hardware.switchableJack;
+
+    case Capability::HasTrainerModuleCPPM:
+      return m_hardware.trainerModule == Board::TR_MOD_TYPE_CPPM;
+
+    case Capability::HasTrainerModuleSBUS:
+      return m_hardware.trainerModule == Board::TR_MOD_TYPE_SBUS;
+
+    case Capability::HasVCPSerialMode:
+      return m_hardware.vcpSerialMode;
 
     case Capability::HasCPUF4:
       return m_hardware.cpu_type == "STM32F4";
@@ -368,6 +350,12 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::HasVoiceControl:
       return m_hardware.voiceControl;
+
+    case Capability::Inputs:
+      return m_inputs.size();
+
+    case Capability::InputSwitches:
+      return m_inputCnt.switches;
 
     case Capability::JoystickAxes:
       return m_inputCnt.flexJoystickAxes;
@@ -386,6 +374,15 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::LcdWidth:
       return m_display.w;
+
+    case Capability::MaxContrast:
+      return m_hardware.contrast.max;
+
+    case Capability::MaxVolume:
+      return m_hardware.maxVolume;
+
+    case Capability::MinContrast:
+      return m_hardware.contrast.min;
 
     case Capability::MultiposPots:
       // assumes every input has potential to be one
@@ -406,6 +403,12 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::Pots:
       return m_inputCnt.flexPots;
+
+    case Capability::PwrButtonPress:
+      return m_hardware.pwrButtonPress;
+
+    case Capability::RotaryEncoderNavigation:
+      return m_hardware.rotaryEncNav;
 
     case Capability::Sliders:
       return m_inputCnt.flexSliders;

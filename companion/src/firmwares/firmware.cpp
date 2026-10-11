@@ -37,8 +37,13 @@ Firmware::Firmware(const QString & id) :
 
   if (Json::load(doc, QString("%1/%2.json").arg(FWDEFNSDIR).arg(id))) {
     QJsonObject obj = doc->object();
-    // ignore intermediate definitions
-    if (!Json::value(obj, "hidden", false, false).toBool()) {
+
+    if (id == "default") {
+      m_supported = false;
+      m_defn.name = id.toStdString();
+      m_defn.boardId = id.toStdString();
+      loadDefinition(QString("%1/%2.json").arg(FWDEFNSDIR).arg(id));
+    } else if (!Json::value(obj, "hidden", false, false).toBool()) {
       m_supported = Json::value(obj, "supported", false, true).toBool();
       m_defn.name = Json::value(obj, "name", false, "unknown").toString().toStdString();
       m_defn.boardId = Json::value(obj, "board", false, id).toString().toStdString();
@@ -53,6 +58,48 @@ Firmware::Firmware(const QString & id) :
   }
 
   delete doc;
+}
+
+Firmware& Firmware::operator=(const Firmware& other)
+{
+  if (this == &other)
+    return *this;
+
+  m_defn.categories = other.m_defn.categories;
+  m_defn.labels = other.m_defn.labels;
+  m_defn.modelsList = other.m_defn.modelsList;
+  m_defn.channels = other.m_defn.channels;
+  m_defn.curves = other.m_defn.curves;
+  m_defn.specialFuncs = other.m_defn.specialFuncs;
+  m_defn.expos = other.m_defn.expos;
+  m_defn.extTrimsRange = other.m_defn.extTrimsRange;
+  m_defn.failsafeChans = other.m_defn.failsafeChans;
+  m_defn.globalFuncs = other.m_defn.globalFuncs;
+  m_defn.globalVars = other.m_defn.globalVars;
+  m_defn.inputs = other.m_defn.inputs;
+  m_defn.lcdtoVideo = other.m_defn.lcdtoVideo;
+  m_defn.logicalSwitches = other.m_defn.logicalSwitches;
+  m_defn.luaScripts = other.m_defn.luaScripts;
+  m_defn.maxKeyShortcuts = other.m_defn.maxKeyShortcuts;
+  m_defn.mixes = other.m_defn.mixes;
+  m_defn.modelImage = other.m_defn.modelImage;
+  m_defn.maxModelName = other.m_defn.maxModelName;
+  m_defn.maxModelSlots = other.m_defn.maxModelSlots;
+  m_defn.flightModes = other.m_defn.flightModes;
+  m_defn.offsetWeight = other.m_defn.offsetWeight;
+  m_defn.outputs = other.m_defn.outputs;
+  m_defn.maxQuickMenuFavs = other.m_defn.maxQuickMenuFavs;
+  m_defn.sensors = other.m_defn.sensors;
+  m_defn.slowRange = other.m_defn.slowRange;
+  m_defn.slowScale = other.m_defn.slowScale;
+  m_defn.teleCstmScrns = other.m_defn.teleCstmScrns;
+  m_defn.timers = other.m_defn.timers;
+  m_defn.topBarZones = other.m_defn.topBarZones;
+  m_defn.maxTrainerInputs = other.m_defn.maxTrainerInputs;
+  m_defn.trimsRange = other.m_defn.trimsRange;
+  m_defn.maxVoicesFileLen = other.m_defn.maxVoicesFileLen;
+
+  return *this;
 }
 
 // static
@@ -103,7 +150,8 @@ const Firmware::OptionTooltip Firmware::registeredOptions = {
   { "noras",            QT_TRANSLATE_NOOP("Firmware", "Disable RAS (SWR)") },
   { "pcbdev",           QT_TRANSLATE_NOOP("Firmware", "Use ONLY with first DEV pcb version") },
   { "shutdownconfirm",  QT_TRANSLATE_NOOP("Firmware", "Confirmation before radio shutdown") },
-  { "sqt5font",         QT_TRANSLATE_NOOP("Firmware", "Use alternative SQT5 font") }
+  { "sqt5font",         QT_TRANSLATE_NOOP("Firmware", "Use alternative SQT5 font") },
+  { "danger",           QT_TRANSLATE_NOOP("Firmware", "Enable dangerous functions") }
 };
 
 void Firmware::dumpCapabilities()
@@ -138,14 +186,14 @@ int Firmware::getCapability(Capability value) const
     case Capability::ChannelsName:
       return m_defn.outputs.limits.name;
 
-    case Capability::SpecialFunctions:
-      return m_defn.specialFuncs.max;
-
     case Capability::DangerousFunctions:
       return opts.contains("danger") ? true : false;
 
     case Capability::ExtendedTrimsRange:
       return m_defn.extTrimsRange;
+
+    case Capability::FailsafeChannels:
+      return m_defn.failsafeChans;
 
     case Capability::FlightModes:
       return m_defn.flightModes.max;
@@ -163,10 +211,7 @@ int Firmware::getCapability(Capability value) const
       return m_defn.globalVars.name;
 
     case Capability::HasExpoNames:
-      return getCapability(Capability::InputsName);
-
-    case Capability::FailsafeChannels:
-      return m_defn.failsafeChans;
+      return getCapability(Capability::InputsLength);
 
     case Capability::HasFailsafe:
       return m_defn.failsafeChans;
@@ -195,14 +240,8 @@ int Firmware::getCapability(Capability value) const
     case Capability::Heli:
       return !(opts.contains("noheli") || getCapability(Capability::Surface));
 
-    case Capability::Inputs:
-      return m_defn.inputs.max;
-
-    case Capability::InputsName:
-      return m_defn.inputs.name;
-
     case Capability::InputsLength:
-      return getCapability(Capability::InputsName);
+      return m_defn.inputs.name;
 
     case Capability::KeyShortcuts:
       return m_defn.maxKeyShortcuts;
@@ -266,6 +305,9 @@ int Firmware::getCapability(Capability value) const
 
     case Capability::SlowScale:
       return m_defn.slowScale;
+
+    case Capability::SpecialFunctions:
+      return m_defn.specialFuncs.max;
 
     case Capability::TelemetryCustomScreens:
       return m_defn.teleCstmScrns.limits.max;
@@ -367,15 +409,15 @@ bool Firmware::loadDefinition()
 
   // load default.json first and allow subsequent file values to override
   // this avoids having to include default in basedOn tree
+  auto fwdflt = getFirmware("default");
+  *this = *fwdflt;
 
-  if (loadDefinition(QString("%1/%2.json").arg(FWDEFNSDIR).arg("default"))) {
-    if (loadDefinition(QString("%1/%2.json").arg(FWDEFNSDIR).arg(m_id))) {
-      if (postLoad()) {
-        m_loaded = true;
-        m_valid = true;
-        qDebug() << "Definition loaded:" << m_id;
-        return true;
-      }
+  if (loadDefinition(QString("%1/%2.json").arg(FWDEFNSDIR).arg(m_id))) {
+    if (postLoad()) {
+      m_loaded = true;
+      m_valid = true;
+      qDebug() << "Definition loaded:" << m_id;
+      return true;
     }
   }
 

@@ -47,8 +47,6 @@ enum Capability {
   HasVario,
   HasVarioSink,
   Heli,
-  InputsCnt, // TODO fix reference as renamed to Inputs to InputsCnt as duplicate in Boards keep until move to std::vector
-  InputsName,
   InputsLength,
   FailsafeChannels,
   KeyShortcuts,

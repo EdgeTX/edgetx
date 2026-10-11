@@ -44,6 +44,13 @@ class Firmware
     struct ArrayLimits {
       int max   {0};
       int name  {0};
+
+      ArrayLimits& operator=(const ArrayLimits& other)
+      {
+        max = other.max;
+        name = other.name;
+        return *this;
+      }
     };
 
     struct Curves {
@@ -51,12 +58,29 @@ class Firmware
       int         minPoints   {2};
       int         maxPoints   {17};
       int         totalPoints {512};
+
+      Curves& operator=(const Curves& other)
+      {
+        limits = other.limits;
+        minPoints = other.minPoints;
+        maxPoints = other.maxPoints;
+        totalPoints = other.totalPoints;
+        return *this;
+      }
     };
 
     struct LuaScripts{
       ArrayLimits limits     {CPN_MAX_SCRIPTS, 0};
       int         maxInputs  {CPN_MAX_SCRIPT_INPUTS};
       int         maxOutputs {CPN_MAX_SCRIPT_OUTPUTS};
+
+      LuaScripts& operator=(const LuaScripts& other)
+      {
+        limits = other.limits;
+        maxInputs = other.maxInputs;
+        maxOutputs = other.maxOutputs;
+        return *this;
+      }
     };
 
     struct ModelImage {
@@ -64,12 +88,29 @@ class Firmware
       std::string filters  {""};
       bool        image    {true}; // any radios where no image???
       bool        keepExtn {false};
+
+      ModelImage& operator=(const ModelImage& other)
+      {
+        limits = other.limits;
+        filters = other.filters;
+        image = other.image;
+        keepExtn = other.keepExtn;
+        return *this;
+      }
     };
 
     struct Outputs {
       ArrayLimits limits      {CPN_MAX_CHNOUT, 6};
       int         ppmCenter   {512};
       int         ppmFrameLen {40};
+
+      Outputs& operator=(const Outputs& other)
+      {
+        limits = other.limits;
+        ppmCenter = other.ppmCenter;
+        ppmFrameLen = other.ppmFrameLen;
+        return *this;
+      }
     };
 
     struct TeleCstmScrns {
@@ -77,6 +118,15 @@ class Firmware
       int         maxBars    {0};
       int         maxPerLine {0};
       int         maxLines   {0};
+
+      TeleCstmScrns& operator=(const TeleCstmScrns& other)
+      {
+        limits = other.limits;
+        maxBars = other.maxBars;
+        maxPerLine = other.maxPerLine;
+        maxLines = other.maxLines;
+        return *this;
+      }
     };
 
     // TODO constants
@@ -129,6 +179,8 @@ class Firmware
 
     explicit Firmware(const QString & id);
     virtual ~ Firmware() {}
+
+    Firmware& operator=(const Firmware& other);
 
     Board * getBoard(bool forceLoad = true) const;
     const QString getDownloadId() const { return m_defn.dwnldId.c_str(); }

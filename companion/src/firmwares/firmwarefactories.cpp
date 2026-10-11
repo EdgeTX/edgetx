@@ -106,7 +106,8 @@ void FirmwareFactories::registerAllFirmwares()
     delete doc;
   }
 
-  Firmware::setDefault(registeredFactories.first()->firmware());
+  // index 0 is default definition which is unsupported thus does not show in lists
+  Firmware::setDefault(registeredFactories.size() > 1 ? registeredFactories.at(1)->firmware() : nullptr);
   qDebug() << "Registered firmwares:" << registered;
 }
 
