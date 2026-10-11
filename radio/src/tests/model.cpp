@@ -79,3 +79,23 @@ TEST(Model, testModelNameParse)
   loadModelYamlStr(_model_config[4]);
   EXPECT_STREQ(modelName(), "\"Tst Name");
 }
+
+TEST(Model, legacySwitchWarningState)
+{
+  // switchWarningState is the legacy format (2.10 and older factory models).
+  // It must be decoded with the same 2-bit layout as ModelData::switchWarning.
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("switchWarningState: AuBuCuDu\n");
+  EXPECT_EQ(g_model.getSwitchWarning(0), 1);  // SA up
+  EXPECT_EQ(g_model.getSwitchWarning(1), 1);  // SB up
+  EXPECT_EQ(g_model.getSwitchWarning(2), 1);  // SC up
+  EXPECT_EQ(g_model.getSwitchWarning(3), 1);  // SD up
+  EXPECT_EQ(g_model.getSwitchWarning(4), 0);  // SE not checked
+
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("switchWarningState: AdB-Cu\n");
+  EXPECT_EQ(g_model.getSwitchWarning(0), 3);  // SA down
+  EXPECT_EQ(g_model.getSwitchWarning(1), 2);  // SB mid
+  EXPECT_EQ(g_model.getSwitchWarning(2), 1);  // SC up
+  EXPECT_EQ(g_model.getSwitchWarning(3), 0);  // SD not checked
+}
