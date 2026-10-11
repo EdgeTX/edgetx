@@ -401,6 +401,8 @@ const LuaSingleField luaSingleFields[] = {
     {MIXSRC_XFHT_ROLL, "htr", "XF headtracker roll"},
     {MIXSRC_XFHT_PITCH, "htp", "XF headtracker pitch"},
     {MIXSRC_XFHT_YAW, "hty", "XF headtracker yaw"},
+    {MIXSRC_XFHT_MODE, "htm", "XF headtracker mode"},
+    {MIXSRC_XFHT_SENS, "hts", "XF headtracker sensitivity"},
 #endif
 
     {MIXSRC_MIN, "min", "MIN"},

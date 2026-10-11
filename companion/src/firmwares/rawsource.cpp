@@ -320,7 +320,7 @@ QString RawSource::toString(const ModelData * model, const GeneralSettings * con
 
     case SOURCE_TYPE_XFHT:
       if (index >= 1 && index <= CPN_MAX_XFHT)
-        return tr("ht%1").arg(QChar("RPY"[index - 1]));
+        return tr("ht%1").arg(QChar("RPYMS"[index - 1]));
       return QString(CPN_STR_UNKNOWN_ITEM);
 
     case SOURCE_TYPE_FUNCTIONSWITCH_GROUP:

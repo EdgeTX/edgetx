@@ -37,6 +37,8 @@ static const YamlLookupTable xfhtLut = {
   {  1, "XFHT_ROLL"  },
   {  2, "XFHT_PITCH"  },
   {  3, "XFHT_YAW"  },
+  {  4, "XFHT_MODE"  },
+  {  5, "XFHT_SENS"  },
 };
 
 std::string YamlRawSourceEncode(const RawSource& rhs)

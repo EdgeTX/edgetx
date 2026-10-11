@@ -44,7 +44,8 @@ class XfHeadtracker : public ::testing::Test
 
 TEST_F(XfHeadtracker, MixSrcEncodeDecodeRoundTrips)
 {
-  const char* tags[] = {"XFHT_ROLL", "XFHT_PITCH", "XFHT_YAW"};
+  const char* tags[] = {"XFHT_ROLL", "XFHT_PITCH", "XFHT_YAW", "XFHT_MODE",
+                        "XFHT_SENS"};
   for (int i = 1; i <= CPN_MAX_XFHT; i++) {
     const RawSource src(SOURCE_TYPE_XFHT, i);
     EXPECT_EQ(YamlRawSourceEncode(src), tags[i - 1]);
@@ -67,6 +68,8 @@ TEST_F(XfHeadtracker, MixSrcNames)
   EXPECT_EQ(RawSource(SOURCE_TYPE_XFHT, 1).toString(), "htR");
   EXPECT_EQ(RawSource(SOURCE_TYPE_XFHT, 2).toString(), "htP");
   EXPECT_EQ(RawSource(SOURCE_TYPE_XFHT, 3).toString(), "htY");
+  EXPECT_EQ(RawSource(SOURCE_TYPE_XFHT, 4).toString(), "htM");
+  EXPECT_EQ(RawSource(SOURCE_TYPE_XFHT, 5).toString(), "htS");
 }
 
 TEST_F(XfHeadtracker, MixSrcAvailableOnlyWithAuxPortSet)

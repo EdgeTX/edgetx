@@ -193,6 +193,8 @@ const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_XFHT_ROLL, "XFHT_ROLL"  },
   {  MIXSRC_XFHT_PITCH, "XFHT_PITCH"  },
   {  MIXSRC_XFHT_YAW, "XFHT_YAW"  },
+  {  MIXSRC_XFHT_MODE, "XFHT_MODE"  },
+  {  MIXSRC_XFHT_SENS, "XFHT_SENS"  },
   {  MIXSRC_MIN, "MIN"  },
   {  MIXSRC_MAX, "MAX"  },
   {  MIXSRC_LIGHT, "LIGHT"  },

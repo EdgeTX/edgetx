@@ -100,6 +100,8 @@ TEST(Sources, getSourceString)
   EXPECT_STREQ(getSourceString(MIXSRC_XFHT_ROLL), "htR");
   EXPECT_STREQ(getSourceString(MIXSRC_XFHT_PITCH), "htP");
   EXPECT_STREQ(getSourceString(MIXSRC_XFHT_YAW), "htY");
+  EXPECT_STREQ(getSourceString(MIXSRC_XFHT_MODE), "htM");
+  EXPECT_STREQ(getSourceString(MIXSRC_XFHT_SENS), "htS");
 #endif
 
   EXPECT_STREQ(getSourceString(MIXSRC_MIN), STR_MENU_MIN);
