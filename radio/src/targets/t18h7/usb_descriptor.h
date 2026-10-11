@@ -23,4 +23,4 @@
 
 #define USB_NAME                     "T18H7"
 #define USB_MANUFACTURER             'J', 'U', 'M', 'P', 'E', 'R', ' ', ' '  /* 8 bytes */
-#define USB_PRODUCT                  'T', '1', '8', 'D', 'u', 'o', ' ', ' '  /* 8 Bytes */
+#define USB_PRODUCT                  'T', '1', '8', 'H', '7', ' ', ' ', ' '  /* 8 Bytes */

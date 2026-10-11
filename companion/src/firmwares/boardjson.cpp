@@ -89,11 +89,11 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
 {
   // TODO json files do not contain gyro defs
   // Radio cmake directive IMU is currently used
-  // H17 has no IMU
+  // H17 and T18H7 have no IMU
   if ((IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board) ||
        IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_TX16SMK3(board) ||
        IS_FLYSKY_PA01(board)) &&
-      !IS_SENDUWING_H17(board)) {
+      !IS_SENDUWING_H17(board) && !IS_JUMPER_T18H7(board)) {
     if (getInputIndex(inputs, "TILT_X", Board::LVT_TAG) < 0) {
       InputDefn defn;
       defn.type = AIT_FLEX;
