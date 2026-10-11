@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
 
   Profile & profile = g.currentProfile();
   if (profile.fwType().isEmpty()){
-    profile.fwType(Firmware::getDefault()->getId());
+    profile.fwType(Firmware::getFallback()->getId());
     profile.fwName("");
   }
 

@@ -53,8 +53,8 @@ Firmware * FirmwareFactories::getFirmware(const QString & id, bool forceLoad) co
     }
   }
 
-  qDebug() << "Error: firmware id:" << id << "not registered";
-  return Firmware::getDefault();
+  qDebug() << "Error: firmware id:" << id << "not registered. Using fallback firmware.";
+  return Firmware::getFallback();
 }
 
 QList<Firmware *> FirmwareFactories::getRegisteredFirmwares() const
@@ -82,6 +82,11 @@ bool FirmwareFactories::isAvailable(const QString & id) const
 
 void FirmwareFactories::registerAllFirmwares()
 {
+  if (!registerFirmware("default")) {
+    qCritical() << "CRITICAL: NO FIRMWARES LOADED!";
+    return;
+  }
+
   QStringList registered;
   QStringList filters = { "*.json" };
 
@@ -106,8 +111,8 @@ void FirmwareFactories::registerAllFirmwares()
     delete doc;
   }
 
-  // index 0 is default definition which is unsupported thus does not show in lists
-  Firmware::setDefault(registeredFactories.size() > 1 ? registeredFactories.at(1)->firmware() : nullptr);
+  // index 0 is default definition so skip
+  Firmware::setFallback(registeredFactories.size() > 1 ? registeredFactories.at(1)->firmware() : nullptr);
   qDebug() << "Registered firmwares:" << registered;
 }
 

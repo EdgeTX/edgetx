@@ -1313,7 +1313,7 @@ int MainWindow::newProfile(bool loadProfile)
     return -1;
   }
 
-  Firmware *newfw = Firmware::getDefault();
+  Firmware *newfw = Firmware::getFallback();
   g.profile[i].init();
   g.profile[i].name("New Radio");
   g.profile[i].fwType(newfw->getId());

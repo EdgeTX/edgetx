@@ -39,10 +39,10 @@ Firmware::Firmware(const QString & id) :
     QJsonObject obj = doc->object();
 
     if (id == "default") {
-      m_supported = false;
+      m_supported = false;  // so remains hidden
       m_defn.name = id.toStdString();
       m_defn.boardId = id.toStdString();
-      loadDefinition(QString("%1/%2.json").arg(FWDEFNSDIR).arg(id));
+      loadDefinition();
     } else if (!Json::value(obj, "hidden", false, false).toBool()) {
       m_supported = Json::value(obj, "supported", false, true).toBool();
       m_defn.name = Json::value(obj, "name", false, "unknown").toString().toStdString();
@@ -58,48 +58,6 @@ Firmware::Firmware(const QString & id) :
   }
 
   delete doc;
-}
-
-Firmware& Firmware::operator=(const Firmware& other)
-{
-  if (this == &other)
-    return *this;
-
-  m_defn.categories = other.m_defn.categories;
-  m_defn.labels = other.m_defn.labels;
-  m_defn.modelsList = other.m_defn.modelsList;
-  m_defn.channels = other.m_defn.channels;
-  m_defn.curves = other.m_defn.curves;
-  m_defn.specialFuncs = other.m_defn.specialFuncs;
-  m_defn.expos = other.m_defn.expos;
-  m_defn.extTrimsRange = other.m_defn.extTrimsRange;
-  m_defn.failsafeChans = other.m_defn.failsafeChans;
-  m_defn.globalFuncs = other.m_defn.globalFuncs;
-  m_defn.globalVars = other.m_defn.globalVars;
-  m_defn.inputs = other.m_defn.inputs;
-  m_defn.lcdtoVideo = other.m_defn.lcdtoVideo;
-  m_defn.logicalSwitches = other.m_defn.logicalSwitches;
-  m_defn.luaScripts = other.m_defn.luaScripts;
-  m_defn.maxKeyShortcuts = other.m_defn.maxKeyShortcuts;
-  m_defn.mixes = other.m_defn.mixes;
-  m_defn.modelImage = other.m_defn.modelImage;
-  m_defn.maxModelName = other.m_defn.maxModelName;
-  m_defn.maxModelSlots = other.m_defn.maxModelSlots;
-  m_defn.flightModes = other.m_defn.flightModes;
-  m_defn.offsetWeight = other.m_defn.offsetWeight;
-  m_defn.outputs = other.m_defn.outputs;
-  m_defn.maxQuickMenuFavs = other.m_defn.maxQuickMenuFavs;
-  m_defn.sensors = other.m_defn.sensors;
-  m_defn.slowRange = other.m_defn.slowRange;
-  m_defn.slowScale = other.m_defn.slowScale;
-  m_defn.teleCstmScrns = other.m_defn.teleCstmScrns;
-  m_defn.timers = other.m_defn.timers;
-  m_defn.topBarZones = other.m_defn.topBarZones;
-  m_defn.maxTrainerInputs = other.m_defn.maxTrainerInputs;
-  m_defn.trimsRange = other.m_defn.trimsRange;
-  m_defn.maxVoicesFileLen = other.m_defn.maxVoicesFileLen;
-
-  return *this;
 }
 
 // static
