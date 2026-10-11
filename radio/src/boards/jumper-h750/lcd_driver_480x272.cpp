@@ -33,8 +33,6 @@
 #include "hal/gpio.h"
 #include "stm32_gpio.h"
 
-uint8_t TouchControllerType = 0;  // 0: other; 1: CST836U
-
 static const uint16_t lcd_phys_w = LCD_PHYS_W;
 static const uint16_t lcd_phys_h = LCD_PHYS_H;
 
@@ -57,12 +55,6 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
 
   __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 }
-
-// The panel needs no SPI init sequence, but these are referenced by the
-// backlight driver, so keep them defined and unused.
-lcdSpiInitFucPtr lcdInitFunction;
-lcdSpiInitFucPtr lcdOffFunction;
-lcdSpiInitFucPtr lcdOnFunction;
 
 static void LCD_AF_GPIOConfig(void)
 {
