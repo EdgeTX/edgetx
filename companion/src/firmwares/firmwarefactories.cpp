@@ -82,11 +82,6 @@ bool FirmwareFactories::isAvailable(const QString & id) const
 
 void FirmwareFactories::registerAllFirmwares()
 {
-  if (!registerFirmware("default")) {
-    qCritical() << "CRITICAL: NO FIRMWARES LOADED!";
-    return;
-  }
-
   QStringList registered;
   QStringList filters = { "*.json" };
 
@@ -111,8 +106,7 @@ void FirmwareFactories::registerAllFirmwares()
     delete doc;
   }
 
-  // index 0 is default definition so skip
-  Firmware::setFallback(registeredFactories.size() > 1 ? registeredFactories.at(1)->firmware() : nullptr);
+  Firmware::setFallback(registeredFactories.size() > 1 ? registeredFactories.at(0)->firmware() : nullptr);
   qDebug() << "Registered firmwares:" << registered;
 }
 

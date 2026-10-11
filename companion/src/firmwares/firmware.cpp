@@ -38,12 +38,7 @@ Firmware::Firmware(const QString & id) :
   if (Json::load(doc, QString("%1/%2.json").arg(FWDEFNSDIR).arg(id))) {
     QJsonObject obj = doc->object();
 
-    if (id == "default") {
-      m_supported = false;  // so remains hidden
-      m_defn.name = id.toStdString();
-      m_defn.boardId = id.toStdString();
-      loadDefinition();
-    } else if (!Json::value(obj, "hidden", false, false).toBool()) {
+    if (!Json::value(obj, "hidden", false, false).toBool()) {
       m_supported = Json::value(obj, "supported", false, true).toBool();
       m_defn.name = Json::value(obj, "name", false, "unknown").toString().toStdString();
       m_defn.boardId = Json::value(obj, "board", false, id).toString().toStdString();
@@ -367,15 +362,14 @@ bool Firmware::loadDefinition()
 
   // load default.json first and allow subsequent file values to override
   // this avoids having to include default in basedOn tree
-  auto fwdflt = getFirmware("default");
-  *this = *fwdflt;
-
-  if (loadDefinition(QString("%1/%2.json").arg(FWDEFNSDIR).arg(m_id))) {
-    if (postLoad()) {
-      m_loaded = true;
-      m_valid = true;
-      qDebug() << "Definition loaded:" << m_id;
-      return true;
+  if (loadDefinition(QString("%1/%2.json").arg(FWDEFNSDIR).arg("default"))) {
+    if (loadDefinition(QString("%1/%2.json").arg(FWDEFNSDIR).arg(m_id))) {
+      if (postLoad()) {
+        m_loaded = true;
+        m_valid = true;
+        qDebug() << "Definition loaded:" << m_id;
+        return true;
+      }
     }
   }
 
