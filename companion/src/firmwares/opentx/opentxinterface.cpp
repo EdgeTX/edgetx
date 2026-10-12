@@ -643,7 +643,7 @@ void registerOpenTxFirmwares()
   registerOpenTxFirmware(firmware);
 
   /* Jumper T18H7 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("t18h7"), Firmware::tr("Jumper T18H7"), BOARD_JUMPER_T18H7);
+  firmware = new OpenTxFirmware(FIRMWAREID("t18h7"), Firmware::tr("T18H7"), BOARD_JUMPER_T18H7);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
