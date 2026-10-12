@@ -29,7 +29,7 @@
 #include "stm32_gpio_driver.h"
 
 // G11P switches: SW1 is a digital switch (PH4), SW2/SW3/SW4 are analog lines
-// (RAW3/RAW4/RAW5 - see hal_g11p.h for the input index map).
+// (RAW3/RAW4/RAW5 - see hal.h for the input index map).
 //
 // TODO(hardware): switch types and analog thresholds must be validated.
 

@@ -26,7 +26,7 @@
 #if defined(RADIO_G11P)
 
 // G11P has no I/O expander and no BSP driver: all outputs are handled with
-// direct GPIO (see hal_g11p.h / board.cpp), following the PL18 pattern.
+// direct GPIO (see hal.h / board.cpp), following the PL18 pattern.
 // Only the weak switch fallback needs a definition here.
 #include "stm32_switch_driver.h"
 

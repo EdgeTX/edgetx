@@ -172,8 +172,8 @@ Notes / implications:
   LM4890 speaker amp.
 - New `radio/src/targets/st16/g11p_key_driver.cpp` and `g11p_switch_driver.cpp`, modelled
   on `pl18/nb4p_key_driver.cpp` / `nb4p_switch_driver.cpp` (see 3.4).
-- `extflash_driver.*`: keep the QSPI implementation; do not port the stale `FLASH_SPI`/SPI6
-  macros (optionally remove them from the ST16/G11P path).
+- `extflash_driver.*`: keep the QSPI implementation; the stale `FLASH_SPI`/SPI6 macros
+  have been removed from `hal.h` (dead: `spi_flash.cpp` is not built for ST16/G11P).
 
 ### 3.3 Bootloader
 
@@ -454,15 +454,16 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
    configure verified for `-DPCBREV=G11P` and plain ST16). -> commit & push
 3. [x] Radio: `hal.h` / `board.h` / `board.cpp` / `usb_descriptor.h` G11P branches
    (LCD 320x480 portrait, touch via PL18 driver, `EXTMODULE` on UART7, no flysky gimbal,
-   battery reuse). New `hal_g11p.h` included from `hal.h` for `RADIO_G11P`; cmake configure
-   verified for both G11P and ST16 (full compile after tasks 4/6). -> commit & push
+   battery reuse). G11P-specific mappings guarded with `#if defined(RADIO_G11P)` in
+   `hal.h`; cmake configure verified for both G11P and ST16 (full compile after tasks 4/6).
+   -> commit & push
 4. [x] Radio: `bsp_io` direct-GPIO (no expander) path (`bsp_io.h` G11P branch +
    `g11p_bsp_io.cpp`). cmake configure verified. **Superseded by section 9** (use PL18
    direct-GPIO style, no BSP driver). -> commit & push
 5. [~] Confirm the logical input map (3.4 TODOs): inferred from schematic + NB4P and
    marked TODO; to be confirmed on hardware. -> commit & push
 6. [x] Radio: `g11p_key_driver.cpp` / `g11p_switch_driver.cpp` (custom ADC-ladder decode)
-   + `hal_g11p.h` ADC input map. G11P firmware compiles (docker build `FLAVOR` g11p).
+   + `hal.h` ADC input map. G11P firmware compiles (docker build `FLAVOR` g11p).
    -> commit & push
 7. [x] Tooling registration (`build-common.sh`, `build-flysky.py`, generators,
    `build-companion.sh`, `fw.json`). `FLAVOR=g11p` builds via `build-gh.sh`. CI matrix
@@ -491,6 +492,11 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
 17. [x] Applied section 9 fix — deleted `g11p_bsp_io.cpp`, PL18-style header-only `bsp_io.h`
     stub, direct GPIO in `board.cpp` / `lcd_driver.h`, no bsp source for G11P. G11P firmware
     rebuilds. -> commit & push
+
+18. [x] Merged `hal_g11p.h` back into `hal.h`: net-identical mappings unguarded, G11P
+    deltas under per-topic `#if defined(RADIO_G11P)`; removed the now-dead ST16
+    `FLASH_SPI`/SPI6 block. `-E -dM` dumps match the pre-merge ST16 (minus `FLASH_SPI*`)
+    and G11P outputs exactly. -> commit & push
 
 **Outstanding:** `.github/workflows/actions.yml` CI matrix needs `g11p` added, but the
 push token lacks `workflow` scope; apply manually or with a suitably-scoped token. Hardware
@@ -529,7 +535,7 @@ Fix steps:
 5. **`radio/src/targets/st16/lcd_driver.h`** — for G11P define `LCD_NRST_HIGH/LOW` and
    `LCD_CS_HIGH/LOW` with `gpio_set/gpio_clear` on `LCD_NRST_GPIO` / `GPIO_PIN(GPIOH, 8)`
    instead of the `bsp_output_set(BSP_LCD_*)` versions.
-6. **`radio/src/targets/st16/hal_g11p.h`** — keep the direct GPIO macros
+6. **`radio/src/targets/st16/hal.h`** — keep the direct GPIO macros
    (`AUDIO_RST_GPIO`, `AUDIO_MUTE_GPIO`, `CHARGE_EN_GPIO`, `LCD_NRST_GPIO`,
    `LCD_SPI_CS_GPIO`) and drop the unused expander `USE_EXTI9_5_IRQ`.
 7. Rebuild the G11P firmware and confirm no `bsp_*`/`BSP_*` references remain on the G11P

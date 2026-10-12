@@ -34,12 +34,12 @@
 //
 // The keys K1/K2 and K3/K4 share the analog lines K12_ADC (RAW1, index 3) and
 // K34_ADC (RAW2, index 4) through resistor ladders, and the trims are on the
-// TRx_ADC lines (see hal_g11p.h for the input index map).
+// TRx_ADC lines (see hal.h for the input index map).
 //
 // TODO(hardware): the logical key mapping and the ladder thresholds must be
 // validated against the real hardware.
 
-// Analog input indices (see hal_g11p.h ADC input order)
+// Analog input indices (see hal.h ADC input order)
 #define G11P_ADC_K12   3
 #define G11P_ADC_K34   4
 #define G11P_ADC_TR    8
