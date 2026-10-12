@@ -128,6 +128,12 @@ void boardInit()
 {
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 
+#if (defined(RADIO_V14) || defined(RADIO_V14LCD)) && defined(AUDIO_MUTE_GPIO)
+  // Amp SD is pulled low (amp on) until driven: mute before anything can pop
+  gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(AUDIO_MUTE_GPIO);
+#endif
+
   delaysInit();
   timersInit();
   __enable_irq();

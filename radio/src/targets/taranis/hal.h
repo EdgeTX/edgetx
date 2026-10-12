@@ -2849,6 +2849,11 @@
   #else
     #define AUDIO_UNMUTE_DELAY          150  // ms
   #endif
+#elif defined(RADIO_V14) || defined(RADIO_V14LCD)
+  // Audio_EN -> AD8002D SD (high = shutdown), pulled down: amp is on until driven
+  #define AUDIO_MUTE_GPIO               GPIO_PIN(GPIOE, 12) // PE.12
+  #define AUDIO_MUTE_DELAY              500  // ms
+  #define AUDIO_UNMUTE_DELAY            150  // ms
 #endif
 
 // Haptic
