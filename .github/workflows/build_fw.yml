@@ -47,6 +47,7 @@ jobs:
           - tx15 # RadioMaster
           - tx16s;tx16smk3 # RadioMaster
           - h17 # Senduwing
+          - t18h7 # Jumper
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
@@ -94,6 +95,7 @@ jobs:
           - tx15;tx16s;tx16smk3 # RadioMaster
           - zorro # RadioMaster
           - h17 # Senduwing
+          - t18h7 # Jumper
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
       volumes:
