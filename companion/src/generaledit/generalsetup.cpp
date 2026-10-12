@@ -168,6 +168,14 @@ ui(new Ui::GeneralSetup)
     ui->jackModeCB->hide();
   }
 
+  if (Boards::getCapability(board, Board::RotaryEncoderNavigation)) {
+    populateRotEncModeCB();
+  }
+  else {
+    ui->rotEncMode_label->hide();
+    ui->rotEncMode_CB->hide();
+  }
+
   ui->volume_SL->setMaximum(Boards::getCapability(board, Board::MaxVolume));
 
   if (!IS_FAMILY_HORUS_OR_T16(board)) {
@@ -598,6 +606,32 @@ void GeneralSetupPanel::showLabelSelectOptions()
     ui->labelMultiMode_CB->hide();
     ui->label_favMultiMode->hide();
     ui->favMultiMode_CB->hide();
+  }
+}
+
+void GeneralSetupPanel::populateRotEncModeCB()
+{
+  QComboBox * b = ui->rotEncMode_CB;
+  QString strings[] = { tr("Normal"), tr("Inverted"), tr("Vertical Inverted, Horizontal Normal"), tr("Vertical Inverted, Horizontal Alternate"),  tr("Normal, Edit Inverted") };
+  int itemCount = 5;
+
+  // colour LCD radios only support Normal and Inverted
+  if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
+    itemCount = 2;
+  }
+
+  b->clear();
+  for (int i = 0; i < itemCount; i++) {
+    b->addItem(strings[i], 0);
+  }
+  b->setCurrentIndex(generalSettings.rotEncMode);
+}
+
+void GeneralSetupPanel::on_rotEncMode_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.rotEncMode = index;
+    emit modified();
   }
 }
 
