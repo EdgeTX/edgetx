@@ -466,8 +466,8 @@ void ModulePanel::update()
   ui->ppmDelay->setValue(module.ppm.delay);
   ui->label_ppmFrameLength->setVisible(mask & MASK_SBUSPPM_FIELDS);
   ui->ppmFrameLength->setVisible(mask & MASK_SBUSPPM_FIELDS);
-  ui->ppmFrameLength->setMinimum(module.channelsCount * (model->extendedLimits ? 2.250 : 2)+3.5);
-  ui->ppmFrameLength->setMaximum(firmware->getCapability(PPMFrameLength));
+  ui->ppmFrameLength->setMinimum(module.channelsCount * (model->extendedLimits ? 2.250 : 2) + 3.5);
+  ui->ppmFrameLength->setMaximum(firmware->getCapability(PPMFrameLen));
   ui->ppmFrameLength->setValue(22.5 + ((double)module.ppm.frameLength) * 0.5);
 
   if (mask & MASK_ANTENNA) {

@@ -65,7 +65,7 @@ enum Capability {
   OffsetWeight,
   Outputs,
   PPMCenter,
-  PPMFrameLength,
+  PPMFrameLen,
   QMFavourites,
   SafetyChannelCustomFunction,
   Sensors,

@@ -5,7 +5,7 @@
   "modelsList": true,
   "modelImage": {
     "filters": "*.bmp|*.jpg|*.png",
-    "keepExtn": false,
+    "keepExtn": true,
     "name": 10
   },
   "keyShortcuts": 6,

@@ -59,10 +59,10 @@ class Firmware
       int         maxOutputs {CPN_MAX_SCRIPT_OUTPUTS};
     };
     struct ModelImage {
-      ArrayLimits limits   {0, 14};
-      std::string filters  {""};
-      bool        image    {true}; // any radios where no image???
-      bool        keepExtn {false};
+      int         name     {14};
+      std::string filters  {"*.bmp"};
+      bool        image    {true};  // b&w - true color - false ??
+      bool        keepExtn {false}; // b&w - false color - true
     };
 
     struct Outputs {

@@ -170,7 +170,8 @@ int Firmware::getCapability(Capability value) const
       return m_defn.failsafeChans;
 
     case Capability::HasFlySkyGimbals:
-      return opts.contains("flyskygimbals") || m_board->getCapability(Capability::HasFlySkyGimbals);
+      return opts.contains("flyskygimbals") ||
+             m_board->getCapability(Capability::HasFlySkyGimbals);
 
     case Capability::HasMixerNames:
       return m_defn.mixes.name;
@@ -191,7 +192,8 @@ int Firmware::getCapability(Capability value) const
       return getCapability(Capability::Air);
 
     case Capability::Heli:
-      return !(opts.contains("noheli") || getCapability(Capability::Surface));
+      return !(opts.contains("noheli") ||
+             m_board->getCapability(Capability::Surface));
 
     case Capability::InputsLength:
       return m_defn.inputs.name;
@@ -218,7 +220,7 @@ int Firmware::getCapability(Capability value) const
       return m_defn.modelImage.keepExtn;
 
     case Capability::ModelImageNameLen:
-      return m_defn.modelImage.limits.name;
+      return m_defn.modelImage.name;
 
     case Capability::ModelName:
       return m_defn.maxModelName;
@@ -241,7 +243,7 @@ int Firmware::getCapability(Capability value) const
     case Capability::PPMCenter:
       return m_defn.outputs.ppmCenter;
 
-    case Capability::PPMFrameLength:
+    case Capability::PPMFrameLen:
       return m_defn.outputs.ppmFrameLen;
 
     case Capability::QMFavourites:
@@ -638,7 +640,7 @@ void Firmware::loadModelImage(QJsonObject::const_iterator & oit)
       else if (it.key() == "keepExtn")
         mi.keepExtn = Json::valueBool(it, mi.keepExtn);
       else if (it.key() == "name")
-        mi.limits.name = Json::valueInt(it, mi.limits.name, 14);
+        mi.name = Json::valueInt(it, mi.name, 14);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }

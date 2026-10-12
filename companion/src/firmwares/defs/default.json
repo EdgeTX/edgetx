@@ -14,7 +14,7 @@
   "dwnldId": "",
   "simuId": "",
   "channels": {
-    "comments": "name HAS_LARGE_LCD 6 else 4",
+    "comments": "name: HAS_LARGE_LCD 6 else 4",
     "max": 32,
     "name": 6
   },
@@ -33,6 +33,7 @@
     "max": 64,
     "name": 10
   },
+  "failsafeChannels": 32,
   "flightModes": {
     "comments": "Flight Drive etc TODO rename operatingModes",
     "max": 9,
@@ -53,35 +54,51 @@
     "max": 32,
     "name": 4
   },
+  "keyShortcuts": 0,
   "lcdtoVideo": false,
   "logicalSw": {
     "comments": "",
     "max": 40,
     "name": 0
   },
+  "luaScripts": {
+    "comments": "",
+    "max": 9,
+    "inputs": 6,
+    "outputs": 6
+  },
+  "maxModelSlots": 60,
   "mixes": {
     "comments": "",
     "max": 64,
     "name": 3
   },
+  "modelName": 15,
+  "modelImage": {
+    "comments": "b&w defaults",
+    "filters": ".bmp",
+    "name": 8,
+    "image": true,
+    "keepExtn": false
+  },
   "outputs": {
     "comments": "TODO or use channels?",
     "max": 32,
-    "name": 6
+    "name": 6,
+    "ppmFrameLen": 40,
+    "ppmCenter": 512
   },
-  "luaScripts": {
-    "comments": "",
-    "max": 0
-  },
+  "quickMenuFavs": 0,
   "sensors": {
-    "comments": "h7 max: 99",
+    "comments": "max: b&w - 40 color - 60 h7 - 99",
     "max": 40,
     "name": 4
   },
+  "slowRange": 250,
+  "slowScale": 10,
   "specialFuncs": {
     "comments": "",
-    "max": 32,
-    "name": 0
+    "max": 32
   },
   "teleCstmScrns": {
     "comments": "only used for b&w radios",
@@ -94,5 +111,9 @@
     "comments": "",
     "max": 3,
     "name": 8
-  }
+  },
+  "topBarZones": 0,
+  "trainerInputs": 16,
+  "trimsRange": 128,
+  "maxVoicesFileLen": 16
 }
