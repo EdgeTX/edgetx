@@ -91,9 +91,9 @@ REM
 cd %EDGETX_REPO%
 
 if %BUILD_DEBUG%=="yes" (
-  set BUILD_TYPE="-DDEBUG=YES;-DCMAKE_BUILD_TYPE=Debug"
+  set "BUILD_TYPE=-DDEBUG=YES -DCMAKE_BUILD_TYPE=Debug"
 ) else (
-  set BUILD_TYPE="-DCMAKE_BUILD_TYPE=Release"
+  set "BUILD_TYPE=-DCMAKE_BUILD_TYPE=Release"
 )
 
 cd %EDGETX_MAIN_DIR%
@@ -163,7 +163,7 @@ Install Python package manager uv according to the installation instructions at:
 Continue on the command prompt at `C:\edgetx\build-tools`:
 ```
 uv venv
-uv pip install clang lz4 jinja2 pillow pyelftools aqtinstall pydantic
+uv pip install asciitree clang jinja2 lz4 pillow pydantic pyelftools typing_extensions aqtinstall
 ```
 
 ### Qt development framework
@@ -201,7 +201,7 @@ set EDGETX_REPO=C:\edgetx\edgetx
 set EDGETX_BUILD_TOOLS=C:\edgetx\build-tools
 
 set BUILD_RADIO="TX16s"
-set BUILD_OPTIONS="-DPCB=X10;-DPCBREV=TX16S"
+set "BUILD_OPTIONS=-DPCB=X10 -DPCBREV=TX16S"
 set BUILD_LANGUAGE="EN"
 set BUILD_DEBUG="no"
 set BUILD_FW="yes"
@@ -215,4 +215,6 @@ and start it.
 After the build finishes, you can find the binaries under `C:\edgetx\build-output-<BUILD_RADIO>` (firmware binary under subfolder `arm-none-eabi`, Companion and Simulator binaries together with simulator library under folder `native` and Companion installer under subfolder `native\companion`).
 Note! Be sure to wipe the `C:\edgetx\build-output-<BUILD_RADIO>` content every time you change the build options.
 
-See https://github.com/EdgeTX/edgetx/blob/main/tools/build-common.sh for BUILD_OPTIONS to use for various EdgeTX supported radios. Note that whereas the shell script at GitHub has spaces as delimeters between the keys, then in the Windows batch file, you neet to use semicolon as a delimeter.
+See https://github.com/EdgeTX/edgetx/blob/main/tools/build-common.sh for BUILD_OPTIONS to use for various EdgeTX supported radios. Separate the options with spaces, exactly as in that script, and keep the quotes around the whole `"BUILD_OPTIONS=..."` assignment so that cmake receives each option as a separate argument.
+
+Note! Do not separate the options with semicolons, e.g. `set BUILD_OPTIONS="-DPCB=X10;-DPCBREV=TX16S"`. This older form of the script passes all options to cmake as a single value and the build fails with an error such as `Unknown PCB 'X10 -DPCBREV=TX16S'`. If you have an existing build script written this way, change it to the form shown above, and do the same for any other variable holding more than one `-D` option (e.g. `PATHS` or `BUILD_TYPE`), then wipe the build output folder.
