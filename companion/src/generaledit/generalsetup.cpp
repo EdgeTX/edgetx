@@ -213,6 +213,14 @@ ui(new Ui::GeneralSetup)
     ui->jackModeCB->hide();
   }
 
+  if (firmware->getCapability(RotaryEncoderNavigation)) {
+    populateRotEncModeCB();
+  }
+  else {
+    ui->rotEncMode_label->hide();
+    ui->rotEncMode_CB->hide();
+  }
+
   if (!firmware->getCapability(OptrexDisplay)) {
     ui->label_displayType->hide();
     ui->displayTypeCB->setDisabled(true);
@@ -709,6 +717,32 @@ void GeneralSetupPanel::showLabelSelectOptions()
     ui->labelMultiMode_CB->hide();
     ui->label_favMultiMode->hide();
     ui->favMultiMode_CB->hide();
+  }
+}
+
+void GeneralSetupPanel::populateRotEncModeCB()
+{
+  QComboBox * b = ui->rotEncMode_CB;
+  QString strings[] = { tr("Normal"), tr("Inverted"), tr("Vertical Inverted, Horizontal Normal"), tr("Vertical Inverted, Horizontal Alternate"),  tr("Normal, Edit Inverted") };
+  int itemCount = 5;
+
+  // colour LCD radios only support Normal and Inverted
+  if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
+    itemCount = 2;
+  }
+
+  b->clear();
+  for (int i = 0; i < itemCount; i++) {
+    b->addItem(strings[i], 0);
+  }
+  b->setCurrentIndex(generalSettings.rotEncMode);
+}
+
+void GeneralSetupPanel::on_rotEncMode_CB_currentIndexChanged(int index)
+{
+  if (!lock) {
+    generalSettings.rotEncMode = index;
+    emit modified();
   }
 }
 
