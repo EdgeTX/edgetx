@@ -51,7 +51,13 @@ void backlightLowInit()
 
 void backlightInit()
 {
+#if defined(RADIO_T18H7)
+  // 10kHz PWM as on the T18: at 100Hz the backlight driver shuts off
+  // at low duty cycles
+  stm32_pulse_init(&_bl_timer, 1000000);
+#else
   stm32_pulse_init(&_bl_timer, 10000);
+#endif
   stm32_pulse_config_output(&_bl_timer, true, LL_TIM_OCMODE_PWM1, 100);
   LL_TIM_SetAutoReload(_bl_timer.TIMx, 100);
   LL_TIM_EnableCounter(_bl_timer.TIMx);
