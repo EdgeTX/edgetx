@@ -23,6 +23,14 @@
 
 #include "pagegroup.h"
 
+typedef void (*ToolExec)(Window* parent, const std::string& path);
+
+struct ToolEntry {
+  std::string label;
+  std::string path;
+  ToolExec exec;
+};
+
 class RadioToolsPage : public PageGroupItem
 {
  public:

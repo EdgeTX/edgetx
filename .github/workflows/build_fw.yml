@@ -103,7 +103,7 @@ jobs:
           - tx16s
           - tx16smk3
           - f16
-          - v12;v14;v16
+          - v12;v14;v15;v16
           - x10;x10express
           - x12s
           - x7access

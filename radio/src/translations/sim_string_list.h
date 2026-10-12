@@ -959,6 +959,8 @@
 #define STR_SPLASHSCREEN currentLangStrings->STR_SPLASHSCREEN
 #define STR_SPORT_UPDATE_POWER_MODE currentLangStrings->STR_SPORT_UPDATE_POWER_MODE
 #define STR_SRC_BATT currentLangStrings->STR_SRC_BATT
+#define STR_SRC_BAT_CURRENT currentLangStrings->STR_SRC_BAT_CURRENT
+#define STR_SRC_BAT_POWER currentLangStrings->STR_SRC_BAT_POWER
 #define STR_SRC_GPS currentLangStrings->STR_SRC_GPS
 #define STR_SRC_LIGHT currentLangStrings->STR_SRC_LIGHT
 #define STR_SRC_TIME currentLangStrings->STR_SRC_TIME

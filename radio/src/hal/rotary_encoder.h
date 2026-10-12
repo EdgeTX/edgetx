@@ -27,7 +27,7 @@
 #define ROTENC_MIDSPEED   5
 #define ROTENC_HIGHSPEED 50
 
-#if defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_T15) || defined(RADIO_T15PRO) || defined(RADIO_T15H7) || defined(RADIO_T22) || defined(RADIO_BUMBLEBEE) || defined(RADIO_V12)
+#if defined(RADIO_FAMILY_T20) || defined(RADIO_T14) || defined(RADIO_T12MAX) || defined(RADIO_T15) || defined(RADIO_T15PRO) || defined(RADIO_T15H7) || defined(RADIO_T22) || defined(RADIO_BUMBLEBEE) || defined(RADIO_V12) || defined(RADIO_V15)
 #define ROTARY_ENCODER_GRANULARITY 4
 #else
 #define ROTARY_ENCODER_GRANULARITY 2
@@ -36,6 +36,12 @@
 typedef int32_t rotenc_t;
 
 void rotaryEncoderInit();
+
+#if defined(ROTARY_ENCODER_POLLING)
+// Sample the encoder from its timer instead of EXTI, while the encoder's
+// EXTI lines are in use elsewhere. Call rotaryEncoderInit() to restore.
+void rotaryEncoderStartPolling();
+#endif
 
 // return impulses / granularity
 rotenc_t rotaryEncoderGetValue();

@@ -371,6 +371,8 @@
 #define TR_CYC_VSRCRAW_3             "CYC3"
 
 #define TR_SRC_BATT                    "Batt"	/* use english */
+#define TR_SRC_BAT_CURRENT             "BatI"	/* use english */
+#define TR_SRC_BAT_POWER               "BatP"	/* use english */
 #define TR_SRC_TIME                    "Час"
 #define TR_SRC_GPS                     "GPS"	/* use english */
 #define	TR_SRC_LIGHT                   "Ambient light"

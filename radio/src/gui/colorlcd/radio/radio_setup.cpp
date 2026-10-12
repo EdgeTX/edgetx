@@ -1017,6 +1017,9 @@ static bool hasShortcutKeys()
 }
 #endif
 
+// Radio specific setup lines, added after the common ones
+__attribute__((weak)) coord_t customRadioSetupLines(Window* window, coord_t y, PaddingSize padding) { return y; }
+
 void RadioSetupPage::build(Window* window)
 {
   coord_t y = 0;
@@ -1053,5 +1056,6 @@ void RadioSetupPage::build(Window* window)
   y = addKeyLockLine(window, y, SubPage::EDT_X, padding);
 #endif
 
-  SetupLine::showLines(window, y, SubPage::EDT_X, padding, setupLines, DIM(setupLines));
+  y = SetupLine::showLines(window, y, SubPage::EDT_X, padding, setupLines, DIM(setupLines));
+  customRadioSetupLines(window, y, padding);
 }
