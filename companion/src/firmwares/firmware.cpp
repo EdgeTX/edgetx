@@ -553,7 +553,7 @@ void Firmware::loadCurves(QJsonObject::const_iterator & oit)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
         continue;
-      else if (it.key() == "max")
+      else if (it.key() == "cnt")
         crv.sizes.cnt = Json::valueInt(it, crv.sizes.cnt, CPN_MAX_CURVES);
       else if (it.key() == "name")
         crv.sizes.name = Json::valueInt(it, crv.sizes.name, 5);
@@ -581,27 +581,6 @@ void Firmware::loadCurves(QJsonObject::const_iterator & oit)
         qWarning() << "Warning: curves is not an object";
 }
 
-void Firmware::loadSizes(QJsonObject::const_iterator & grpit, defn_sizes_t & sizes,
-                           const int cntMax, const int nameLenMax,
-                           const int cntMin, const int nameLenMin)
-{
-  if (grpit->isObject()) {
-    QJsonObject o = grpit->toObject();
-
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
-      else if (it.key() == "max")
-        sizes.cnt = Json::valueInt(it, sizes.cnt, cntMax, cntMin);
-      else if (it.key() == "name")
-        sizes.name = Json::valueInt(it, sizes.name, nameLenMax, nameLenMin);
-      else
-        qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
-    }
-  } else
-        qWarning() << "Warning: option group is not an object";
-}
-
 void Firmware::loadLuaScripts(QJsonObject::const_iterator & oit)
 {
   if (oit->isObject()) {
@@ -611,7 +590,7 @@ void Firmware::loadLuaScripts(QJsonObject::const_iterator & oit)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
         continue;
-      else if (it.key() == "max")
+      else if (it.key() == "cnt")
         lua.sizes.cnt = Json::valueInt(it, lua.sizes.cnt, CPN_MAX_SCRIPTS);
       else if (it.key() == "inputs")
         lua.maxInputs = Json::valueInt(it, lua.maxInputs, CPN_MAX_SCRIPT_INPUTS);
@@ -695,6 +674,27 @@ void Firmware::loadBuildOptionGroup(QJsonArray::const_iterator & it, OptionsGrou
     qWarning() << "Option is not a string:" << (*it);
 }
 
+void Firmware::loadSizes(QJsonObject::const_iterator & grpit, defn_sizes_t & sizes,
+                           const int cntMax, const int nameLenMax,
+                           const int cntMin, const int nameLenMin)
+{
+  if (grpit->isObject()) {
+    QJsonObject o = grpit->toObject();
+
+    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      if (it.key() == "comments")
+        continue;
+      else if (it.key() == "cnt")
+        sizes.cnt = Json::valueInt(it, sizes.cnt, cntMax, cntMin);
+      else if (it.key() == "name")
+        sizes.name = Json::valueInt(it, sizes.name, nameLenMax, nameLenMin);
+      else
+        qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
+    }
+  } else
+        qWarning() << "Warning: option group is not an object";
+}
+
 void Firmware::loadTeleCstmScrns(QJsonObject::const_iterator & oit)
 {
   if (oit->isObject()) {
@@ -704,7 +704,7 @@ void Firmware::loadTeleCstmScrns(QJsonObject::const_iterator & oit)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
         continue;
-      else if (it.key() == "max")
+      else if (it.key() == "cnt")
         tele.sizes.cnt = Json::valueInt(it, tele.sizes.cnt, 3);
       else if (it.key() == "bars")
         tele.maxBars = Json::valueInt(it, tele.maxBars, 4);
