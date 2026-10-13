@@ -221,22 +221,6 @@
       "key": "KEY_PAGEDN",
       "name": "PAGE",
       "label": "PAGE"
-    },
-    {
-      "gpio": null,
-      "pin": null,
-      "active_low": true,
-      "key": "KEY_PLUS",
-      "name": "PLUS",
-      "label": "PLUS"
-    },
-    {
-      "gpio": null,
-      "pin": null,
-      "active_low": true,
-      "key": "KEY_MINUS",
-      "name": "MINUS",
-      "label": "MINUS"
     }
   ],
   "trims": [
