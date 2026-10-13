@@ -137,28 +137,25 @@ int Firmware::getCapability(Capability value) const
 
   switch (value) {
     case Capability::ChannelsName:
-      return m_defn.outputs.limits.name;
+      return m_defn.outputs.name;
 
     case Capability::DangerousFunctions:
       return opts.contains("danger") ? true : false;
 
     case Capability::ExtendedTrimsRange:
-      return m_defn.extTrimsRange;
-
-    case Capability::FailsafeChannels:
-      return m_defn.failsafeChans;
+      return 512;
 
     case Capability::FlightModes:
-      return m_defn.flightModes.max;
+      return m_defn.flightModes.cnt;
 
     case Capability::FlightModesName:
       return m_defn.flightModes.name;
 
     case Capability::GlobalFunctions:
-      return m_defn.globalFuncs.max;
+      return m_defn.globalFuncs.cnt;
 
     case Capability::Gvars:
-      return opts.contains("nogvars") ? 0 : m_defn.globalVars.max;
+      return opts.contains("nogvars") ? 0 : m_defn.globalVars.cnt;
 
     case Capability::GvarsName:
       return m_defn.globalVars.name;
@@ -167,7 +164,7 @@ int Firmware::getCapability(Capability value) const
       return getCapability(Capability::InputsLength);
 
     case Capability::HasFailsafe:
-      return m_defn.failsafeChans;
+      return 32;
 
     case Capability::HasFlySkyGimbals:
       return opts.contains("flyskygimbals") ||
@@ -199,10 +196,10 @@ int Firmware::getCapability(Capability value) const
       return m_defn.inputs.name;
 
     case Capability::KeyShortcuts:
-      return m_defn.maxKeyShortcuts;
+      return m_defn.keyShortcuts;
 
     case Capability::LogicalSwitches:
-      return m_defn.logicalSwitches.max;
+      return m_defn.logicalSwitches.cnt;
 
     case Capability::LuaInputsPerScript:
       return m_defn.luaScripts.maxInputs;
@@ -211,10 +208,10 @@ int Firmware::getCapability(Capability value) const
       return m_defn.luaScripts.maxOutputs;
 
     case Capability::LuaScripts:
-      return opts.contains("lua") ? m_defn.luaScripts.limits.max : 0;
+      return opts.contains("lua") ? m_defn.luaScripts.sizes.cnt : 0;
 
     case Capability::Mixes:
-      return m_defn.mixes.max;
+      return m_defn.mixes.cnt;
 
     case Capability::ModelImageKeepExtn:
       return m_defn.modelImage.keepExtn;
@@ -223,49 +220,49 @@ int Firmware::getCapability(Capability value) const
       return m_defn.modelImage.name;
 
     case Capability::ModelName:
-      return m_defn.maxModelName;
+      return m_defn.modelName;
 
     case Capability::Models:
-      return m_defn.maxModelSlots;
-
-    case Capability::NumCurvePoints:
-      return m_defn.curves.maxPoints;
+      return m_defn.modelSlots;
 
     case Capability::NumCurves:
-      return m_defn.curves.limits.max;
+      return m_defn.curves.sizes.cnt;
+
+    case Capability::NumCurvePoints:
+      return 512;
 
     case Capability::OffsetWeight:
-      return m_defn.offsetWeight;
+      return 500;
 
     case Capability::Outputs:
-      return m_defn.outputs.limits.max;
+      return m_defn.outputs.cnt;
 
     case Capability::PPMCenter:
-      return m_defn.outputs.ppmCenter;
+      return 500;
 
     case Capability::PPMFrameLen:
-      return m_defn.outputs.ppmFrameLen;
+      return 40;
 
     case Capability::QMFavourites:
-      return m_defn.maxQuickMenuFavs;
+      return m_defn.quickMenuFavs;
 
     case Capability::SafetyChannelCustomFunction:
       return opts.contains("nooverridech") ? 0 : 1;
 
     case Capability::Sensors:
-      return m_defn.sensors.max;
+      return m_defn.sensors.cnt;
 
     case Capability::SlowRange:
-      return m_defn.slowRange;
+      return 250;
 
     case Capability::SlowScale:
-      return m_defn.slowScale;
+      return 10;
 
     case Capability::SpecialFunctions:
-      return m_defn.specialFuncs.max;
+      return m_defn.specialFuncs.cnt;
 
     case Capability::TelemetryCustomScreens:
-      return m_defn.teleCstmScrns.limits.max;
+      return m_defn.teleCstmScrns.sizes.cnt;
 
     case Capability::TelemetryCustomScreensBars:
       return m_defn.teleCstmScrns.maxBars;
@@ -277,7 +274,7 @@ int Firmware::getCapability(Capability value) const
       return m_defn.teleCstmScrns.maxLines;
 
     case Capability::Timers:
-      return m_defn.timers.max;
+      return m_defn.timers.cnt;
 
     case Capability::TimersName:
       return m_defn.timers.name;
@@ -286,13 +283,13 @@ int Firmware::getCapability(Capability value) const
       return m_defn.topBarZones;
 
     case Capability::TrainerInputs:
-      return m_defn.maxTrainerInputs;
+      return 16;
 
     case Capability::TrimsRange:
-      return m_defn.trimsRange;
+      return 128;
 
     case Capability::VoicesMaxLength:
-      return m_defn.maxVoicesFileLen;
+      return m_defn.voicesFileLen;
 
     // drop thru to Board
     default:
@@ -471,34 +468,34 @@ bool Firmware::loadDefinition(const QString & path)
       m_defn.modelsList = Json::valueBool(it, m_defn.modelsList);
 
     else if (it.key() == "channels")
-      loadArrayLimits(it, m_defn.channels, CPN_MAX_CHNOUT, 6);
+      loadSizes(it, m_defn.channels, CPN_MAX_CHNOUT, 6);
 
     else if (it.key() == "curves")
       loadCurves(it);
 
     else if (it.key() == "expos")
-      loadArrayLimits(it, m_defn.expos, CPN_MAX_EXPOS, 10);
+      loadSizes(it, m_defn.expos, CPN_MAX_EXPOS, 10);
 
     else if (it.key() == "flightModes")
-      loadArrayLimits(it, m_defn.flightModes, CPN_MAX_FLIGHT_MODES, 4);
+      loadSizes(it, m_defn.flightModes, CPN_MAX_FLIGHT_MODES, 4);
 
     else if (it.key() == "globalFuncs")
-      loadArrayLimits(it, m_defn.globalFuncs, CPN_MAX_GLOBAL_FUNCTIONS, 0);
+      loadSizes(it, m_defn.globalFuncs, CPN_MAX_GLOBAL_FUNCTIONS, 0);
 
     else if (it.key() == "globalVars")
-      loadArrayLimits(it, m_defn.globalVars, CPN_MAX_GVARS, 3);
+      loadSizes(it, m_defn.globalVars, CPN_MAX_GVARS, 3);
 
     else if (it.key() == "inputs")
-      loadArrayLimits(it, m_defn.inputs, CPN_MAX_INPUTS, 3);
+      loadSizes(it, m_defn.inputs, CPN_MAX_INPUTS, 3);
 
     else if (it.key() == "lcdtoVideo")
       m_defn.lcdtoVideo = Json::valueBool(it, m_defn.lcdtoVideo);
 
     else if (it.key() == "keyShortcuts")
-      m_defn.maxKeyShortcuts = Json::valueInt(it);
+      m_defn.keyShortcuts = Json::valueInt(it);
 
     else if (it.key() == "logicalSw")
-      loadArrayLimits(it, m_defn.logicalSwitches, CPN_MAX_LOGICAL_SWITCHES, 3);
+      loadSizes(it, m_defn.logicalSwitches, CPN_MAX_LOGICAL_SWITCHES, 3);
 
     else if (it.key() == "luaScripts")
       loadLuaScripts(it);
@@ -506,35 +503,38 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "modelImage")
       loadModelImage(it);
 
-    else if (it.key() == "modelNameLen")
-      m_defn.maxModelName = Json::valueInt(it);
+    else if (it.key() == "modelName")
+      m_defn.modelName = Json::valueInt(it);
 
     else if (it.key() == "modelSlots")
-      m_defn.maxModelSlots = Json::valueInt(it);
+      m_defn.modelSlots = Json::valueInt(it);
 
     else if (it.key() == "mixes")
-      loadArrayLimits(it, m_defn.mixes, CPN_MAX_MIXERS, 3);
+      loadSizes(it, m_defn.mixes, CPN_MAX_MIXERS, 3);
 
     else if (it.key() == "outputs")
-      loadOutputs(it);
+      loadSizes(it, m_defn.outputs, CPN_MAX_CHNOUT, 6);
 
     else if (it.key() == "quickMenuFavs")
-      m_defn.maxQuickMenuFavs = Json::valueInt(it);
+      m_defn.quickMenuFavs = Json::valueInt(it);
 
     else if (it.key() == "sensors")
-      loadArrayLimits(it, m_defn.sensors, CPN_MAX_SENSORS, 4);
+      loadSizes(it, m_defn.sensors, CPN_MAX_SENSORS, 4);
 
     else if (it.key() == "specialFuncs")
-      loadArrayLimits(it, m_defn.specialFuncs, CPN_MAX_SPECIAL_FUNCTIONS, 0);
+      loadSizes(it, m_defn.specialFuncs, CPN_MAX_SPECIAL_FUNCTIONS, 0);
 
     else if (it.key() == "teleCstmScrns")
       loadTeleCstmScrns(it);
 
     else if (it.key() == "timers")
-      loadArrayLimits(it, m_defn.timers, CPN_MAX_TIMERS, 8);
+      loadSizes(it, m_defn.timers, CPN_MAX_TIMERS, 8);
 
     else if (it.key() == "topBarZones")
       m_defn.topBarZones = Json::valueInt(it);
+
+    else if (it.key() == "voicesFileLen")
+      m_defn.voicesFileLen = Json::valueInt(it);
 
     else
       qWarning() << "Warning: No rule to process - path:" << path << "name:" << it.key() << "value:" << it.value();
@@ -548,15 +548,15 @@ void Firmware::loadCurves(QJsonObject::const_iterator & oit)
 {
   if (oit->isObject()) {
     QJsonObject o = oit->toObject();
-    Curves & crv = m_defn.curves;
+    CurvesDefn & crv = m_defn.curves;
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
         continue;
       else if (it.key() == "max")
-        crv.limits.max = Json::valueInt(it, crv.limits.max, CPN_MAX_CURVES);
+        crv.sizes.cnt = Json::valueInt(it, crv.sizes.cnt, CPN_MAX_CURVES);
       else if (it.key() == "name")
-        crv.limits.name = Json::valueInt(it, crv.limits.name, 5);
+        crv.sizes.name = Json::valueInt(it, crv.sizes.name, 5);
       else if (it.key() == "points") {
         if (it->isObject()) {
           QJsonObject po = it->toObject();
@@ -581,7 +581,7 @@ void Firmware::loadCurves(QJsonObject::const_iterator & oit)
         qWarning() << "Warning: curves is not an object";
 }
 
-void Firmware::loadArrayLimits(QJsonObject::const_iterator & grpit, ArrayLimits & grp,
+void Firmware::loadSizes(QJsonObject::const_iterator & grpit, defn_sizes_t & sizes,
                            const int cntMax, const int nameLenMax,
                            const int cntMin, const int nameLenMin)
 {
@@ -592,9 +592,9 @@ void Firmware::loadArrayLimits(QJsonObject::const_iterator & grpit, ArrayLimits 
       if (it.key() == "comments")
         continue;
       else if (it.key() == "max")
-        grp.max = Json::valueInt(it, grp.max, cntMax, cntMin);
+        sizes.cnt = Json::valueInt(it, sizes.cnt, cntMax, cntMin);
       else if (it.key() == "name")
-        grp.name = Json::valueInt(it, grp.name, nameLenMax, nameLenMin);
+        sizes.name = Json::valueInt(it, sizes.name, nameLenMax, nameLenMin);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -606,13 +606,13 @@ void Firmware::loadLuaScripts(QJsonObject::const_iterator & oit)
 {
   if (oit->isObject()) {
     QJsonObject o = oit->toObject();
-    LuaScripts & lua = m_defn.luaScripts;
+    LuaScriptsDefn & lua = m_defn.luaScripts;
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
         continue;
       else if (it.key() == "max")
-        lua.limits.max = Json::valueInt(it, lua.limits.max, CPN_MAX_SCRIPTS);
+        lua.sizes.cnt = Json::valueInt(it, lua.sizes.cnt, CPN_MAX_SCRIPTS);
       else if (it.key() == "inputs")
         lua.maxInputs = Json::valueInt(it, lua.maxInputs, CPN_MAX_SCRIPT_INPUTS);
       else if (it.key() == "outputs")
@@ -628,7 +628,7 @@ void Firmware::loadModelImage(QJsonObject::const_iterator & oit)
 {
   if (oit->isObject()) {
     QJsonObject o = oit->toObject();
-    ModelImage & mi = m_defn.modelImage;
+    ModelImageDefn & mi = m_defn.modelImage;
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
@@ -695,41 +695,17 @@ void Firmware::loadBuildOptionGroup(QJsonArray::const_iterator & it, OptionsGrou
     qWarning() << "Option is not a string:" << (*it);
 }
 
-void Firmware::loadOutputs(QJsonObject::const_iterator & oit)
-{
-  if (oit->isObject()) {
-    QJsonObject o = oit->toObject();
-    Outputs & out = m_defn.outputs;
-
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
-      else if (it.key() == "max")
-        out.limits.max = Json::valueInt(it, out.limits.max, CPN_MAX_CHNOUT);
-      else if (it.key() == "name")
-        out.limits.name = Json::valueInt(it, out.limits.name, 6);
-      else if (it.key() == "ppmCenter")
-        out.ppmCenter = Json::valueInt(it, out.ppmCenter, 512);
-      else if (it.key() == "ppmFrameLen")
-        out.ppmFrameLen = Json::valueInt(it, out.ppmFrameLen, 40);
-      else
-        qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
-    }
-  } else
-        qWarning() << "Warning: outputs is not an object";
-}
-
 void Firmware::loadTeleCstmScrns(QJsonObject::const_iterator & oit)
 {
   if (oit->isObject()) {
     QJsonObject o = oit->toObject();
-    TeleCstmScrns & tele = m_defn.teleCstmScrns;
+    TeleCstmScrnsDefn & tele = m_defn.teleCstmScrns;
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
         continue;
       else if (it.key() == "max")
-        tele.limits.max = Json::valueInt(it, tele.limits.max, 3);
+        tele.sizes.cnt = Json::valueInt(it, tele.sizes.cnt, 3);
       else if (it.key() == "bars")
         tele.maxBars = Json::valueInt(it, tele.maxBars, 4);
       else if (it.key() == "perLine")

@@ -41,85 +41,78 @@ class Firmware
     typedef QList<QString> OptionsGroup;
     typedef QList<OptionsGroup> OptionsList;
 
-    struct ArrayLimits {
-      int max   {0};
-      int name  {0};
+    struct defn_sizes_t {
+      int cnt  {0};
+      int name {0};
     };
 
-    struct Curves {
-      ArrayLimits limits      {CPN_MAX_CURVES, 5};
-      int         minPoints   {2};
-      int         maxPoints   {17};
-      int         totalPoints {512};
+    struct defn_range_t {
+      int min  {0};
+      int max  {0};
+      int dflt {0};
     };
 
-    struct LuaScripts{
-      ArrayLimits limits     {CPN_MAX_SCRIPTS, 0};
-      int         maxInputs  {CPN_MAX_SCRIPT_INPUTS};
-      int         maxOutputs {CPN_MAX_SCRIPT_OUTPUTS};
+    struct CurvesDefn {
+      defn_sizes_t sizes       {CPN_MAX_CURVES, 5};
+      int          minPoints   {2};
+      int          maxPoints   {17};
+      int          totalPoints {512};
     };
-    struct ModelImage {
+
+    struct LuaScriptsDefn {
+      defn_sizes_t sizes      {CPN_MAX_SCRIPTS, 0};
+      int          maxInputs  {CPN_MAX_SCRIPT_INPUTS};
+      int          maxOutputs {CPN_MAX_SCRIPT_OUTPUTS};
+    };
+    struct ModelImageDefn {
       int         name     {14};
       std::string filters  {"*.bmp"};
       bool        image    {true};  // b&w - true color - false ??
       bool        keepExtn {false}; // b&w - false color - true
     };
 
-    struct Outputs {
-      ArrayLimits limits      {CPN_MAX_CHNOUT, 6};
-      int         ppmCenter   {512};
-      int         ppmFrameLen {40};
-    };
-
-    struct TeleCstmScrns {
-      ArrayLimits limits     {0, 0};
-      int         maxBars    {0};
-      int         maxPerLine {0};
-      int         maxLines   {0};
+    struct TeleCstmScrnsDefn {
+      defn_sizes_t sizes      {0, 0};
+      int          maxBars    {0};
+      int          maxPerLine {0};
+      int          maxLines   {0};
     };
 
     // TODO constants
     struct FirmwareDefn {
-      std::string   id                {"unknown"};
-      std::string   name              {"unknown"};
-      std::string   boardId           {""};                 // default id
-      std::string   dwnldId           {""};                 // default id
-      std::string   simuId            {""};                 // default id
+      std::string       id                {"unknown"};
+      std::string       name              {"unknown"};
+      std::string       boardId           {""};                 // default id
+      std::string       dwnldId           {""};                 // default id
+      std::string       simuId            {""};                 // default id
 
-      bool          categories        {false};               // same thing?
-      bool          labels            {false};               // same thing?
-      bool          modelsList        {false};              // depreciated - read yaml but not write check
+      bool              categories        {false};               // same thing?
+      bool              labels            {false};               // same thing?
+      bool              modelsList        {false};               // depreciated - read yaml but not write check
 
-      ArrayLimits   channels          {CPN_MAX_CHNOUT, 6};
-      Curves        curves;
-      ArrayLimits   specialFuncs      {CPN_MAX_SPECIAL_FUNCTIONS, 0};
-      ArrayLimits   expos             {CPN_MAX_EXPOS, 10};
-      int           extTrimsRange     {512};
-      int           failsafeChans     {32};
-      ArrayLimits   globalFuncs       {CPN_MAX_SPECIAL_FUNCTIONS, 0};
-      ArrayLimits   globalVars        {CPN_MAX_GVARS, 3};
-      ArrayLimits   inputs            {CPN_MAX_INPUTS, 4};
-      bool          lcdtoVideo        {false};
-      ArrayLimits   logicalSwitches   {CPN_MAX_LOGICAL_SWITCHES, 3};
-      LuaScripts    luaScripts;
-      int           maxKeyShortcuts   {6};                        // MAX_KEYSHORTCUTS;
-      ArrayLimits   mixes             {CPN_MAX_MIXERS, 6};
-      ModelImage    modelImage;
-      int           maxModelName      {15};                       // 15, 12 or 10
-      int           maxModelSlots     {CPN_MAX_MODELS};           // B&W or 0 colour
-      ArrayLimits   flightModes       {CPN_MAX_FLIGHT_MODES, 10}; // rename to operatingModes
-      int           offsetWeight      {500};
-      Outputs       outputs;
-      int           maxQuickMenuFavs  {12};                       // MAX_QMFAVOURITES; // B&W 0
-      ArrayLimits   sensors           {CPN_MAX_SENSORS, 3};       // 40 or 60 and check len
-      int           slowRange         {250};
-      int           slowScale         {10};
-      TeleCstmScrns teleCstmScrns;
-      ArrayLimits   timers            {CPN_MAX_TIMERS, 8};
-      int           topBarZones       {0};
-      int           maxTrainerInputs  {16};
-      int           trimsRange        {128};
-      int           maxVoicesFileLen  {8};
+      defn_sizes_t      channels          {CPN_MAX_CHNOUT, 6};
+      CurvesDefn        curves;
+      defn_sizes_t      specialFuncs      {CPN_MAX_SPECIAL_FUNCTIONS, 0};
+      defn_sizes_t      expos             {CPN_MAX_EXPOS, 10};
+      defn_sizes_t      globalFuncs       {CPN_MAX_SPECIAL_FUNCTIONS, 0};
+      defn_sizes_t      globalVars        {CPN_MAX_GVARS, 3};
+      defn_sizes_t      inputs            {CPN_MAX_INPUTS, 4};
+      bool              lcdtoVideo        {false};
+      defn_sizes_t      logicalSwitches   {CPN_MAX_LOGICAL_SWITCHES, 3};
+      LuaScriptsDefn    luaScripts;
+      int               keyShortcuts      {6};                        // MAX_KEYSHORTCUTS;
+      defn_sizes_t      mixes             {CPN_MAX_MIXERS, 6};
+      ModelImageDefn    modelImage;
+      int               modelName         {15};                       // 15, 12 or 10
+      int               modelSlots        {CPN_MAX_MODELS};           // B&W or 0 colour
+      defn_sizes_t      flightModes       {CPN_MAX_FLIGHT_MODES, 10}; // rename to operatingModes
+      defn_sizes_t      outputs;
+      int               quickMenuFavs     {12};                       // MAX_QMFAVOURITES; // B&W 0
+      defn_sizes_t      sensors           {CPN_MAX_SENSORS, 3};       // 40 or 60 and check len
+      TeleCstmScrnsDefn teleCstmScrns;
+      defn_sizes_t      timers            {CPN_MAX_TIMERS, 8};
+      int               topBarZones       {0};
+      int               voicesFileLen     {8};
 
       OptionsList options;
     };
@@ -176,14 +169,13 @@ class Firmware
     bool isOptionDuplicate(const OptionsGroup & grp, const QString & val);
     bool isOptionDuplicate(const OptionsList & options, const QString & val);
     void loadCurves(QJsonObject::const_iterator & it);
-    void loadArrayLimits(QJsonObject::const_iterator & it, ArrayLimits & grp,
+    void loadSizes(QJsonObject::const_iterator & it, defn_sizes_t & sizes,
                     const int cntMax = 99999, const int nameMax = 100,
                     const int cntMin = 0, const int nameMin = 0);
     void loadLuaScripts(QJsonObject::const_iterator & it);
     void loadModelImage(QJsonObject::const_iterator & it);
     void loadBuildOptions(QJsonObject::const_iterator & it);
     void loadBuildOptionGroup(QJsonArray::const_iterator & it, OptionsGroup & grp);
-    void loadOutputs(QJsonObject::const_iterator & it);
     void loadTeleCstmScrns(QJsonObject::const_iterator & it);
     bool postLoad();
     void dumpCapabilities();

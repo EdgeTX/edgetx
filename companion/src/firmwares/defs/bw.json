@@ -5,14 +5,15 @@
     "keepExtn": false,
     "name": 10
   },
+  "modelName": 12,
   "modelSlots": 60,
   "keyShortcuts": 0,
   "quickMenuFavs": 0,
   "sensors": {
-    "max": 60
+    "cnt": 60
   },
   "teleCstmScrns": {
-    "max": 4,
+    "cnt": 4,
     "bars": 4,
     "perLine": 4,
     "lines": 4

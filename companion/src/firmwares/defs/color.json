@@ -11,8 +11,8 @@
   "keyShortcuts": 6,
   "quickMenuFavs": 12,
   "modelSlots": 0,
-  "modelNameLen": 15,
+  "modelName": 15,
   "sensors": {
-    "max": 60
+    "cnt": 60
   }
 }
