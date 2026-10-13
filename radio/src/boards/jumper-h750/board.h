@@ -124,8 +124,13 @@ void EXTERNAL_MODULE_OFF();
 // --- MOSFET ---- R1 --- MCU
 //                     |__ R2 --- GND
 //
+#if defined(RADIO_T18H7)
+#define VBAT_DIV_R1       499  // kOhms
+#define VBAT_DIV_R2       160  // kOhms
+#else
 #define VBAT_DIV_R1       680  // kOhms
 #define VBAT_DIV_R2       158  // kOhms
+#endif
 #define VBAT_MOSFET_DROP    0  // * 10mV
 
 // #define BATTERY_DIVIDER 1211 // = 2047 * 165k / (165k + 680k) * 10 / 3.3V

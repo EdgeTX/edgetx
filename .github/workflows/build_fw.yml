@@ -57,6 +57,7 @@ jobs:
           - st16
           - t15pro
           - t15h7
+          - t18h7
           - pa01
           - t22
           - h17
@@ -114,6 +115,7 @@ jobs:
           - st16
           - t15pro
           - t15h7
+          - t18h7
           - t22
           - c14
           - h17
