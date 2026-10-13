@@ -126,6 +126,9 @@ static void gyroInit()
 
 void boardInit()
 {
+#if defined(RADIO_MAMBO)
+  mamboEarlyInit();
+#endif
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 
 #if (defined(RADIO_V14) || defined(RADIO_V14LCD)) && defined(AUDIO_MUTE_GPIO)
@@ -287,6 +290,10 @@ void boardInit()
 
 void boardOff()
 {
+#if defined(MAMBO_EXTERNAL_CRSF)
+  // Cover emergency shutdown as well as the ordinary protocol-stop path.
+  mamboExternalModuleShutdown();
+#endif
 #if defined(LED_STRIP_GPIO) && !defined(BOOT)
   rgbLedStop();
   rgbLedClearAll();

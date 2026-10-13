@@ -288,6 +288,13 @@ uint8_t getModuleType(uint8_t module)
 uint8_t getRequiredProtocol(uint8_t module)
 {
   uint8_t protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
+#if defined(MAMBO_EXTERNAL_CRSF)
+  // Reject unsupported protocols in persisted/imported models as well as UI.
+  if (module != EXTERNAL_MODULE ||
+      (getModuleType(module) != MODULE_TYPE_NONE &&
+       getModuleType(module) != MODULE_TYPE_CROSSFIRE))
+    return PROTOCOL_CHANNELS_NONE;
+#endif
 
   switch (getModuleType(module)) {
     case MODULE_TYPE_PPM:

@@ -351,6 +351,18 @@
       "displayName": "Senduwing H17",
       "inherits": "firmware",
       "cacheVariables": { "PCB": "H17" }
+    },
+    {
+      "name": "mambo",
+      "displayName": "TBS Mambo experimental (RF disabled)",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "MAMBO", "BOOTLOADER": false }
+    },
+    {
+      "name": "mambo-external-crsf",
+      "displayName": "TBS Mambo experimental external Crossfire (Tracer disabled)",
+      "inherits": "mambo",
+      "cacheVariables": { "MAMBO_EXTERNAL_CRSF": true }
     }
   ],
   "buildPresets": [

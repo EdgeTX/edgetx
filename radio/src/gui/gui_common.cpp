@@ -1041,6 +1041,11 @@ bool isInternalModuleAvailable(int moduleType)
 #if defined(HARDWARE_EXTERNAL_MODULE)
 bool isExternalModuleAvailable(int moduleType)
 {
+#if defined(MAMBO_EXTERNAL_CRSF)
+  // Only the stock CRSF telemetry path is implemented on this target.
+  if (moduleType != MODULE_TYPE_NONE && moduleType != MODULE_TYPE_CROSSFIRE)
+    return false;
+#endif
 
 #if defined(MUTUALLY_EXCLUSIVE_MODULES)
   if (!isModuleNone(INTERNAL_MODULE))
