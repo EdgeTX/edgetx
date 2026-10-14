@@ -467,11 +467,11 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "modelsList")
       m_defn.modelsList = Json::valueBool(it, m_defn.modelsList);
 
-    else if (it.key() == "channels")
-      loadSizes(it, m_defn.channels, CPN_MAX_CHNOUT, LIMITDATA_NAME_LEN);
-
     else if (it.key() == "curves")
       loadCurves(it);
+
+    else if (it.key() == "customScreens")
+      loadCustomScreens(it);
 
     else if (it.key() == "expos")
       loadSizes(it, m_defn.expos, CPN_MAX_EXPOS, EXPODATA_NAME_LEN);
@@ -581,6 +581,43 @@ void Firmware::loadCurves(QJsonObject::const_iterator & oit)
         qWarning() << "Warning: curves is not an object";
 }
 
+void Firmware::loadCustomScreens(QJsonObject::const_iterator & oit)
+{
+  if (oit->isObject()) {
+    QJsonObject o = oit->toObject();
+    CustomScreensDefn & cs = m_defn.customScreens;
+
+    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      if (it.key() == "comments")
+        continue;
+      else if (it.key() == "cnt")
+        cs.sizes.cnt = Json::valueInt(it, cs.sizes.cnt, CPN_MAX_SCRIPTS);
+
+      else if (it.key() == "layoutOptions")
+        cs.layoutOptions = Json::valueInt(it, cs.layoutOptions, MAX_LAYOUT_OPTIONS);
+
+      else if (it.key() == "layoutZones")
+        cs.layoutZones = Json::valueInt(it, cs.layoutZones, MAX_LAYOUT_ZONES);
+
+      else if (it.key() == "topBarOptions")
+        cs.topBarOptions = Json::valueInt(it, cs.topBarOptions, MAX_TOPBAR_OPTIONS);
+
+      else if (it.key() == "topBarZones")
+        cs.topBarZones = Json::valueInt(it, cs.topBarZones, MAX_TOPBAR_ZONES);
+
+      else if (it.key() == "themeOptions")
+        cs.themeOptions = Json::valueInt(it, cs.themeOptions, MAX_THEME_OPTIONS);
+
+      else if (it.key() == "widgetOptions")
+        cs.widgetOptions = Json::valueInt(it, cs.widgetOptions, MAX_WIDGET_OPTIONS);
+
+      else
+        qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
+    }
+  } else
+        qWarning() << "Warning: luaScripts is not an object";
+}
+
 void Firmware::loadLuaScripts(QJsonObject::const_iterator & oit)
 {
   if (oit->isObject()) {
@@ -592,6 +629,8 @@ void Firmware::loadLuaScripts(QJsonObject::const_iterator & oit)
         continue;
       else if (it.key() == "cnt")
         lua.sizes.cnt = Json::valueInt(it, lua.sizes.cnt, CPN_MAX_SCRIPTS);
+      else if (it.key() == "name")
+        lua.sizes.name = Json::valueInt(it, lua.sizes.name, CPN_LEN_SCRIPT_NAME);
       else if (it.key() == "inputs")
         lua.maxInputs = Json::valueInt(it, lua.maxInputs, CPN_MAX_SCRIPT_INPUTS);
       else if (it.key() == "outputs")

@@ -59,8 +59,18 @@ class Firmware
       int          totalPoints {512};
     };
 
+    struct CustomScreensDefn {
+    defn_sizes_t sizes  {MAX_CUSTOM_SCREENS, 0};
+    int layoutOptions   {MAX_LAYOUT_OPTIONS};
+    int layoutZones     {MAX_LAYOUT_ZONES};
+    int topBarOptions   {MAX_TOPBAR_OPTIONS};
+    int topBarZones     {MAX_TOPBAR_ZONES};
+    int themeOptions    {MAX_THEME_OPTIONS};
+    int widgetOptions   {MAX_WIDGET_OPTIONS};
+    };
+
     struct LuaScriptsDefn {
-      defn_sizes_t sizes      {CPN_MAX_SCRIPTS, 0};
+      defn_sizes_t sizes      {CPN_MAX_SCRIPTS, CPN_LEN_SCRIPT_NAME};
       int          maxInputs  {CPN_MAX_SCRIPT_INPUTS};
       int          maxOutputs {CPN_MAX_SCRIPT_OUTPUTS};
     };
@@ -90,8 +100,8 @@ class Firmware
       bool              labels            {false};               // same thing?
       bool              modelsList        {false};               // depreciated - read yaml but not write check
 
-      defn_sizes_t      channels          {CPN_MAX_CHNOUT, LIMITDATA_NAME_LEN};
       CurvesDefn        curves;
+      CustomScreensDefn customScreens;
       defn_sizes_t      expos             {CPN_MAX_EXPOS, EXPODATA_NAME_LEN};
       defn_sizes_t      flightModes       {CPN_MAX_FLIGHT_MODES, FLIGHTMODE_NAME_LEN}; // rename to operatingModes
       defn_sizes_t      globalFuncs       {CPN_MAX_SPECIAL_FUNCTIONS, 0};
@@ -168,6 +178,7 @@ class Firmware
     bool isOptionDuplicate(const OptionsGroup & grp, const QString & val);
     bool isOptionDuplicate(const OptionsList & options, const QString & val);
     void loadCurves(QJsonObject::const_iterator & it);
+    void loadCustomScreens(QJsonObject::const_iterator & it);
     void loadSizes(QJsonObject::const_iterator & it, defn_sizes_t & sizes,
                     const int cntMax = 99999, const int nameMax = 100,
                     const int cntMin = 0, const int nameMin = 0);

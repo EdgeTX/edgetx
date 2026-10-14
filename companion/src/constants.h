@@ -107,28 +107,28 @@
 // curvedata
 #define CURVEDATA_NAME_LEN      3
 
-// customisation_data
+// customisation_data color radios
 constexpr int MAX_CUSTOM_SCREENS      {10};
-constexpr int MAX_THEME_OPTIONS       {5};
-constexpr int MAX_LAYOUT_ZONES        {10};
 constexpr int MAX_LAYOUT_OPTIONS      {10};
-constexpr int MAX_WIDGET_OPTIONS      {50};
-constexpr int MAX_TOPBAR_ZONES        {7};    // 4 for portrait LCD, 6 for standard LCD, 7 for wide screen LCD
+constexpr int MAX_LAYOUT_ZONES        {10};
+constexpr int MAX_THEME_OPTIONS       {5};
 constexpr int MAX_TOPBAR_OPTIONS      {1};
+constexpr int MAX_TOPBAR_ZONES        {7};    // 4 for portrait LCD, 6 for standard LCD, 7 for wide screen LCD
+constexpr int MAX_WIDGET_OPTIONS      {50};
 
 // flightmodedata
 #define FLIGHTMODE_NAME_LEN     10
 
 // generalsettings
+constexpr int BLUETOOTH_NAME_LEN      {10};
+constexpr int CURR_MODEL_FILENAME_LEN {16};
+constexpr int HARDWARE_NAME_LEN       {3};
 constexpr int MAX_KEYSHORTCUTS        {6};
 constexpr int MAX_QMFAVOURITES        {12};
-constexpr int CURR_MODEL_FILENAME_LEN {16};
 constexpr int OWNER_NAME_LEN          {10};
-constexpr int BLUETOOTH_NAME_LEN      {10};
-constexpr int TTS_LANGUAGE_LEN        {2};
-constexpr int HARDWARE_NAME_LEN       {3};
 constexpr int REGISTRATION_ID_LEN     {8};
 constexpr int SELECTED_THEME_NAME_LEN {26};
+constexpr int TTS_LANGUAGE_LEN        {2};
 
 // gvardata
 #define GVAR_NAME_LEN           3
@@ -158,7 +158,7 @@ constexpr int SENSOR_LABEL_LEN { 4 };
 // timerdata
 constexpr int TIMER_NAME_LEN {8};
 
-// new
+// new b&w radios
 constexpr int CPN_TELE_CUST_SCRNS { 4 };
 constexpr int CPN_TELE_CUST_SCRNS_BARS { 4 };
 constexpr int CPN_TELE_CUST_SCRNS_PERLINE { 3 };

@@ -13,11 +13,6 @@
   "board": "default",
   "dwnldId": "",
   "simuId": "",
-  "channels": {
-    "comments": "name: HAS_LARGE_LCD 6 else 4",
-    "cnt": 32,
-    "name": 6
-  },
   "curves": {
     "comments": "",
     "cnt": 32,
@@ -27,6 +22,16 @@
       "max": 17,
       "total": 512
     }
+  },
+  "customScreens": {
+    "comments": "color",
+    "cnt": 10,
+    "layoutOptions": 10,
+    "layoutZones": 10,
+    "themeOptions": 5,
+    "topBarOptions": 1,
+    "topBarZones": 7,
+    "widgetOptions": 50
   },
   "expos": {
     "comments": "input lines",
@@ -61,8 +66,9 @@
     "name": 0
   },
   "luaScripts": {
-    "comments": "",
+    "comments": "mixer scripts",
     "cnt": 9,
+    "name": 6,
     "inputs": 6,
     "outputs": 6
   },
@@ -81,7 +87,7 @@
     "keepExtn": false
   },
   "outputs": {
-    "comments": "TODO or use channels?",
+    "comments": "name: HAS_LARGE_LCD 6 else 4",
     "cnt": 32,
     "name": 6
   },
@@ -107,6 +113,5 @@
     "cnt": 3,
     "name": 8
   },
-  "topBarZones": 0,
   "voicesFileLen": 8
 }
