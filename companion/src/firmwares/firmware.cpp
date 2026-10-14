@@ -229,7 +229,7 @@ int Firmware::getCapability(Capability value) const
       return m_defn.curves.sizes.cnt;
 
     case Capability::NumCurvePoints:
-      return 512;
+      return 512; // Note: less than CPN_MAX_CURVES x CPN_MAX_POINTS
 
     case Capability::OffsetWeight:
       return 500;
@@ -468,25 +468,25 @@ bool Firmware::loadDefinition(const QString & path)
       m_defn.modelsList = Json::valueBool(it, m_defn.modelsList);
 
     else if (it.key() == "channels")
-      loadSizes(it, m_defn.channels, CPN_MAX_CHNOUT, 6);
+      loadSizes(it, m_defn.channels, CPN_MAX_CHNOUT, LIMITDATA_NAME_LEN);
 
     else if (it.key() == "curves")
       loadCurves(it);
 
     else if (it.key() == "expos")
-      loadSizes(it, m_defn.expos, CPN_MAX_EXPOS, 10);
+      loadSizes(it, m_defn.expos, CPN_MAX_EXPOS, EXPODATA_NAME_LEN);
 
     else if (it.key() == "flightModes")
-      loadSizes(it, m_defn.flightModes, CPN_MAX_FLIGHT_MODES, 4);
+      loadSizes(it, m_defn.flightModes, CPN_MAX_FLIGHT_MODES, FLIGHTMODE_NAME_LEN);
 
     else if (it.key() == "globalFuncs")
       loadSizes(it, m_defn.globalFuncs, CPN_MAX_GLOBAL_FUNCTIONS, 0);
 
     else if (it.key() == "globalVars")
-      loadSizes(it, m_defn.globalVars, CPN_MAX_GVARS, 3);
+      loadSizes(it, m_defn.globalVars, CPN_MAX_GVARS, GVAR_NAME_LEN);
 
     else if (it.key() == "inputs")
-      loadSizes(it, m_defn.inputs, CPN_MAX_INPUTS, 3);
+      loadSizes(it, m_defn.inputs, CPN_MAX_INPUTS, INPUT_NAME_LEN);
 
     else if (it.key() == "lcdtoVideo")
       m_defn.lcdtoVideo = Json::valueBool(it, m_defn.lcdtoVideo);
@@ -495,7 +495,7 @@ bool Firmware::loadDefinition(const QString & path)
       m_defn.keyShortcuts = Json::valueInt(it);
 
     else if (it.key() == "logicalSw")
-      loadSizes(it, m_defn.logicalSwitches, CPN_MAX_LOGICAL_SWITCHES, 3);
+      loadSizes(it, m_defn.logicalSwitches, CPN_MAX_LOGICAL_SWITCHES, MIXDATA_NAME_LEN);
 
     else if (it.key() == "luaScripts")
       loadLuaScripts(it);
@@ -510,16 +510,16 @@ bool Firmware::loadDefinition(const QString & path)
       m_defn.modelSlots = Json::valueInt(it);
 
     else if (it.key() == "mixes")
-      loadSizes(it, m_defn.mixes, CPN_MAX_MIXERS, 3);
+      loadSizes(it, m_defn.mixes, CPN_MAX_MIXERS, MIXDATA_NAME_LEN);
 
     else if (it.key() == "outputs")
-      loadSizes(it, m_defn.outputs, CPN_MAX_CHNOUT, 6);
+      loadSizes(it, m_defn.outputs, CPN_MAX_CHNOUT, LIMITDATA_NAME_LEN);
 
     else if (it.key() == "quickMenuFavs")
       m_defn.quickMenuFavs = Json::valueInt(it);
 
     else if (it.key() == "sensors")
-      loadSizes(it, m_defn.sensors, CPN_MAX_SENSORS, 4);
+      loadSizes(it, m_defn.sensors, CPN_MAX_SENSORS, SENSOR_LABEL_LEN);
 
     else if (it.key() == "specialFuncs")
       loadSizes(it, m_defn.specialFuncs, CPN_MAX_SPECIAL_FUNCTIONS, 0);
@@ -528,7 +528,7 @@ bool Firmware::loadDefinition(const QString & path)
       loadTeleCstmScrns(it);
 
     else if (it.key() == "timers")
-      loadSizes(it, m_defn.timers, CPN_MAX_TIMERS, 8);
+      loadSizes(it, m_defn.timers, CPN_MAX_TIMERS, TIMER_NAME_LEN);
 
     else if (it.key() == "topBarZones")
       m_defn.topBarZones = Json::valueInt(it);
@@ -556,7 +556,7 @@ void Firmware::loadCurves(QJsonObject::const_iterator & oit)
       else if (it.key() == "cnt")
         crv.sizes.cnt = Json::valueInt(it, crv.sizes.cnt, CPN_MAX_CURVES);
       else if (it.key() == "name")
-        crv.sizes.name = Json::valueInt(it, crv.sizes.name, 5);
+        crv.sizes.name = Json::valueInt(it, crv.sizes.name, CURVEDATA_NAME_LEN);
       else if (it.key() == "points") {
         if (it->isObject()) {
           QJsonObject po = it->toObject();
@@ -566,7 +566,7 @@ void Firmware::loadCurves(QJsonObject::const_iterator & oit)
             else if (pit.key() == "min")
               crv.minPoints = Json::valueInt(pit, crv.minPoints, 2);
             else if (pit.key() == "max")
-              crv.maxPoints = Json::valueInt(pit, crv.maxPoints, 17);
+              crv.maxPoints = Json::valueInt(pit, crv.maxPoints, CPN_MAX_POINTS);
             else if (pit.key() == "total")
               crv.totalPoints = Json::valueInt(pit, crv.totalPoints, 512);
             else
@@ -619,7 +619,7 @@ void Firmware::loadModelImage(QJsonObject::const_iterator & oit)
       else if (it.key() == "keepExtn")
         mi.keepExtn = Json::valueBool(it, mi.keepExtn);
       else if (it.key() == "name")
-        mi.name = Json::valueInt(it, mi.name, 14);
+        mi.name = Json::valueInt(it, mi.name, CPN_MAX_BITMAP_LEN);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }
@@ -705,13 +705,13 @@ void Firmware::loadTeleCstmScrns(QJsonObject::const_iterator & oit)
       if (it.key() == "comments")
         continue;
       else if (it.key() == "cnt")
-        tele.sizes.cnt = Json::valueInt(it, tele.sizes.cnt, 3);
+        tele.sizes.cnt = Json::valueInt(it, tele.sizes.cnt, CPN_TELE_CUST_SCRNS);
       else if (it.key() == "bars")
-        tele.maxBars = Json::valueInt(it, tele.maxBars, 4);
+        tele.maxBars = Json::valueInt(it, tele.maxBars, CPN_TELE_CUST_SCRNS_BARS);
       else if (it.key() == "perLine")
-        tele.maxPerLine = Json::valueInt(it, tele.maxPerLine, 3);
+        tele.maxPerLine = Json::valueInt(it, tele.maxPerLine, CPN_TELE_CUST_SCRNS_PERLINE);
       else if (it.key() == "lines")
-        tele.maxLines = Json::valueInt(it, tele.maxLines, 4);
+        tele.maxLines = Json::valueInt(it, tele.maxLines, CPN_TELE_CUST_SCRNS_LINES);
       else
         qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
     }

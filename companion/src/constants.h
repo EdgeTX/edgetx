@@ -100,3 +100,66 @@
 #define EDGETX_ISSUES_URL              QStringLiteral("https://github.com/EdgeTX/edgetx/issues/new/choose")
 
 #define CPN_ADC_REFACTOR_VERSION       "2.10.0"
+
+// moved from various data structs as part of firmware and boards refactor
+// to be replaced by firmware definitions when fixed arrays refactored to std::string and std::vector
+
+// curvedata
+#define CURVEDATA_NAME_LEN      3
+
+// customisation_data
+constexpr int MAX_CUSTOM_SCREENS      {10};
+constexpr int MAX_THEME_OPTIONS       {5};
+constexpr int MAX_LAYOUT_ZONES        {10};
+constexpr int MAX_LAYOUT_OPTIONS      {10};
+constexpr int MAX_WIDGET_OPTIONS      {50};
+constexpr int MAX_TOPBAR_ZONES        {7};    // 4 for portrait LCD, 6 for standard LCD, 7 for wide screen LCD
+constexpr int MAX_TOPBAR_OPTIONS      {1};
+
+// flightmodedata
+#define FLIGHTMODE_NAME_LEN     10
+
+// generalsettings
+constexpr int MAX_KEYSHORTCUTS        {6};
+constexpr int MAX_QMFAVOURITES        {12};
+constexpr int CURR_MODEL_FILENAME_LEN {16};
+constexpr int OWNER_NAME_LEN          {10};
+constexpr int BLUETOOTH_NAME_LEN      {10};
+constexpr int TTS_LANGUAGE_LEN        {2};
+constexpr int HARDWARE_NAME_LEN       {3};
+constexpr int REGISTRATION_ID_LEN     {8};
+constexpr int SELECTED_THEME_NAME_LEN {26};
+
+// gvardata
+#define GVAR_NAME_LEN           3
+
+// input_data
+#define EXPODATA_NAME_LEN       10
+
+// mixdata
+#define MIXDATA_NAME_LEN        10
+
+// modeldata
+#define MODEL_NAME_LEN 15
+#define MODEL_FILENAME_LEN 16  // must match radio LEN_MODEL_FILENAME (dataconstants.h)
+#define MODEL_SEMVER_LEN 8
+#define MODEL_LABELS_LEN 99    // CSV of labels; was char labels[100]
+#define INPUT_NAME_LEN 4
+#define CPN_MAX_BITMAP_LEN 14
+
+#define CPN_USBJ_MAX_JOYSTICK_CHANNELS 26
+
+// output_data
+#define LIMITDATA_NAME_LEN      6
+
+// sensordata
+constexpr int SENSOR_LABEL_LEN { 4 };
+
+// timerdata
+constexpr int TIMER_NAME_LEN {8};
+
+// new
+constexpr int CPN_TELE_CUST_SCRNS { 4 };
+constexpr int CPN_TELE_CUST_SCRNS_BARS { 4 };
+constexpr int CPN_TELE_CUST_SCRNS_PERLINE { 3 };
+constexpr int CPN_TELE_CUST_SCRNS_LINES { 4 };

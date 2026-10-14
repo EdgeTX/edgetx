@@ -52,9 +52,6 @@ constexpr char AIM_GS_QUICKMENU[]          {"gs.quickmenu"};
 constexpr char AIM_TRAINERMIX_MODE[]       {"trainermix.mode"};
 constexpr char AIM_TRAINERMIX_SRC[]        {"trainermix.src"};
 
-constexpr int MAX_KEYSHORTCUTS             {6};
-constexpr int MAX_QMFAVOURITES             {12};
-
 static const QStringList moduleBaudratesList({"115K", "400K", "921K", "1.87M",
                                               "3.75M", "5.25M"});
 
@@ -117,13 +114,6 @@ class TrainerData {
     void clear() { memset(reinterpret_cast<void *>(this), 0, sizeof(TrainerData)); }
 };
 
-constexpr int CURR_MODEL_FILENAME_LEN {16};
-constexpr int OWNER_NAME_LEN          {10};
-constexpr int BLUETOOTH_NAME_LEN      {10};
-constexpr int TTS_LANGUAGE_LEN        {2};
-constexpr int HARDWARE_NAME_LEN       {3};
-constexpr int REGISTRATION_ID_LEN     {8};
-constexpr int SELECTED_THEME_NAME_LEN {26};
 constexpr int SWITCH_INPUTINDEX_NONE  {-1};
 
 class GeneralSettings {

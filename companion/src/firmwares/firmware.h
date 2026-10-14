@@ -53,9 +53,9 @@ class Firmware
     };
 
     struct CurvesDefn {
-      defn_sizes_t sizes       {CPN_MAX_CURVES, 5};
+      defn_sizes_t sizes       {CPN_MAX_CURVES, CURVEDATA_NAME_LEN};
       int          minPoints   {2};
-      int          maxPoints   {17};
+      int          maxPoints   {CPN_MAX_POINTS};
       int          totalPoints {512};
     };
 
@@ -65,17 +65,17 @@ class Firmware
       int          maxOutputs {CPN_MAX_SCRIPT_OUTPUTS};
     };
     struct ModelImageDefn {
-      int         name     {14};
+      int         name     {CPN_MAX_BITMAP_LEN};
       std::string filters  {"*.bmp"};
       bool        image    {true};  // b&w - true color - false ??
       bool        keepExtn {false}; // b&w - false color - true
     };
 
     struct TeleCstmScrnsDefn {
-      defn_sizes_t sizes      {0, 0};
-      int          maxBars    {0};
-      int          maxPerLine {0};
-      int          maxLines   {0};
+      defn_sizes_t sizes      {CPN_TELE_CUST_SCRNS, 0};
+      int          maxBars    {CPN_TELE_CUST_SCRNS_BARS};
+      int          maxPerLine {CPN_TELE_CUST_SCRNS_PERLINE};
+      int          maxLines   {CPN_TELE_CUST_SCRNS_LINES};
     };
 
     // TODO constants
@@ -90,31 +90,30 @@ class Firmware
       bool              labels            {false};               // same thing?
       bool              modelsList        {false};               // depreciated - read yaml but not write check
 
-      defn_sizes_t      channels          {CPN_MAX_CHNOUT, 6};
+      defn_sizes_t      channels          {CPN_MAX_CHNOUT, LIMITDATA_NAME_LEN};
       CurvesDefn        curves;
-      defn_sizes_t      specialFuncs      {CPN_MAX_SPECIAL_FUNCTIONS, 0};
-      defn_sizes_t      expos             {CPN_MAX_EXPOS, 10};
+      defn_sizes_t      expos             {CPN_MAX_EXPOS, EXPODATA_NAME_LEN};
+      defn_sizes_t      flightModes       {CPN_MAX_FLIGHT_MODES, FLIGHTMODE_NAME_LEN}; // rename to operatingModes
       defn_sizes_t      globalFuncs       {CPN_MAX_SPECIAL_FUNCTIONS, 0};
-      defn_sizes_t      globalVars        {CPN_MAX_GVARS, 3};
-      defn_sizes_t      inputs            {CPN_MAX_INPUTS, 4};
+      defn_sizes_t      globalVars        {CPN_MAX_GVARS, GVAR_NAME_LEN};
+      defn_sizes_t      inputs            {CPN_MAX_INPUTS, INPUT_NAME_LEN};
       bool              lcdtoVideo        {false};
-      defn_sizes_t      logicalSwitches   {CPN_MAX_LOGICAL_SWITCHES, 3};
+      defn_sizes_t      logicalSwitches   {CPN_MAX_LOGICAL_SWITCHES, 0};
       LuaScriptsDefn    luaScripts;
-      int               keyShortcuts      {6};                        // MAX_KEYSHORTCUTS;
-      defn_sizes_t      mixes             {CPN_MAX_MIXERS, 6};
+      int               keyShortcuts      {MAX_KEYSHORTCUTS};
+      defn_sizes_t      mixes             {CPN_MAX_MIXERS, MIXDATA_NAME_LEN};
       ModelImageDefn    modelImage;
-      int               modelName         {15};                       // 15, 12 or 10
-      int               modelSlots        {CPN_MAX_MODELS};           // B&W or 0 colour
-      defn_sizes_t      flightModes       {CPN_MAX_FLIGHT_MODES, 10}; // rename to operatingModes
-      defn_sizes_t      outputs;
-      int               quickMenuFavs     {12};                       // MAX_QMFAVOURITES; // B&W 0
-      defn_sizes_t      sensors           {CPN_MAX_SENSORS, 3};       // 40 or 60 and check len
+      int               modelName         {MODEL_NAME_LEN};                          // 15, 12 or 10
+      int               modelSlots        {CPN_MAX_MODELS};                          // B&W or 0 colour
+      OptionsList       options;
+      defn_sizes_t      outputs           {CPN_MAX_CHNOUT, LIMITDATA_NAME_LEN};
+      int               quickMenuFavs     {MAX_QMFAVOURITES};                        // B&W 0
+      defn_sizes_t      sensors           {CPN_MAX_SENSORS, SENSOR_LABEL_LEN};       // 40, 60 or 99 and check len
+      defn_sizes_t      specialFuncs      {CPN_MAX_SPECIAL_FUNCTIONS, 0};
       TeleCstmScrnsDefn teleCstmScrns;
-      defn_sizes_t      timers            {CPN_MAX_TIMERS, 8};
-      int               topBarZones       {0};
+      defn_sizes_t      timers            {CPN_MAX_TIMERS, TIMER_NAME_LEN};
+      int               topBarZones       {MAX_TOPBAR_ZONES};
       int               voicesFileLen     {8};
-
-      OptionsList options;
     };
 
     explicit Firmware(const QString & id);
@@ -122,7 +121,7 @@ class Firmware
 
     Board * getBoard(bool forceLoad = true) const;
     const QString getDownloadId() const { return m_defn.dwnldId.c_str(); }
-    const QString getId() const { return m_id; } // do not use m_defn.id as it does not have edgetx- prefix
+    const QString getId() const { return m_id; }
     const QString getFullName() const;
     const QString getName() const { return m_defn.name.c_str(); }
     const QString getSimulatorId() const { return m_defn.simuId.c_str(); }
