@@ -116,6 +116,7 @@ static const StringTagMappingTable switchTypesLookupTable = {
 };
 
 // not used for yaml
+// TODO remove in modules refactor
 static const StringTagMappingTable extModuleSizeLookupTable = {
     {std::to_string(Board::EXTMODSIZE_NONE),   "none"},
     {std::to_string(Board::EXTMODSIZE_STD),    "std"},
@@ -124,6 +125,7 @@ static const StringTagMappingTable extModuleSizeLookupTable = {
 };
 
 // not used for yaml
+// TODO elrs and crsf both resolve to crossfire split in modules refactor
 static const StringTagMappingTable intModuleTypesLookupTable = {
     {std::to_string(MODULE_TYPE_NONE),              "none"},
     {std::to_string(MODULE_TYPE_CROSSFIRE),         "crsf"},
@@ -235,7 +237,8 @@ int Board::getCapability(const Capability capability) const
       return m_hardware.backlightLevelMin;
 
     case Capability::DefaultInternalModule:
-      return m_hardware.internalModules.dflt;
+      return DataHelpers::getStringTagMappingIndex(intModuleTypesLookupTable,
+                                                   m_hardware.internalModules.dflt.data());
 
     // TODO remove when Modules refactored and use extModules
     case Capability::ExternalModuleSize:
@@ -312,6 +315,15 @@ int Board::getCapability(const Capability capability) const
     case Capability::HasBluetooth:
       return !m_hardware.bluetoothName.empty();
 
+    case Capability::HasCPUF4:
+      return m_hardware.cpu_type == "STM32F4";
+
+    case Capability::HasCPUH5:
+      return m_hardware.cpu_type == "STM32H5";
+
+    case Capability::HasCPUH7:
+      return m_hardware.cpu_type == "STM32H7";
+
     case Capability::HasExternalAntenna:
       return m_hardware.externalAntenna;
 
@@ -323,6 +335,22 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::HasInternalGPS:
       return m_hardware.internalGPS;
+
+    case Capability::HasIntModuleCRSF:
+      return IS_IN_ARRAY(m_hardware.internalModules.available, "crsf");
+
+    case Capability::HasIntModuleELRS:
+      return IS_IN_ARRAY(m_hardware.internalModules.available, "elrs");
+
+    case Capability::HasIntModuleFlySky:
+      return IS_IN_ARRAY(m_hardware.internalModules.available, "afhds2a") ||
+             IS_IN_ARRAY(m_hardware.internalModules.available, "afhds3");
+
+    case Capability::HasIntModuleMulti:
+      return IS_IN_ARRAY(m_hardware.internalModules.available, "multi");
+
+    case Capability::HasModuleR9MMini:
+      return m_id == "xlite" || m_id == "xlites";
 
     case Capability::HasSoftwareSerialPower:
       return m_hardware.softwareSerialPower;
@@ -338,15 +366,6 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::HasVCPSerialMode:
       return m_hardware.vcpSerialMode;
-
-    case Capability::HasCPUF4:
-      return m_hardware.cpu_type == "STM32F4";
-
-    case Capability::HasCPUH5:
-      return m_hardware.cpu_type == "STM32H5";
-
-    case Capability::HasCPUH7:
-      return m_hardware.cpu_type == "STM32H7";
 
     case Capability::HasVoiceControl:
       return m_hardware.voiceControl;
@@ -383,6 +402,9 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::MinContrast:
       return m_hardware.contrast.min;
+
+    case ModelTrainerEnable:
+      return m_id != "xlite";
 
     case Capability::MultiposPots:
       // assumes every input has potential to be one
@@ -519,8 +541,16 @@ AbstractStaticItemModel * Board::switchTypeItemModel()
 
 const QList<int> Board::supportedInternalModules() const
 {
-  QList<int> modules(m_hardware.internalModules.available.begin(), m_hardware.internalModules.available.end());
-  modules.prepend((int)MODULE_TYPE_NONE);
+  QList<int> modules;
+  modules.append((int)MODULE_TYPE_NONE);
+
+  for (const auto &mod : m_hardware.internalModules.available) {
+    int idx = DataHelpers::getStringTagMappingIndex(intModuleTypesLookupTable, mod.data());
+
+    // TODO elrs and crsf both map to crossfire module split in modules refactor
+    if (!modules.contains(idx))
+      modules.append(idx);
+  }
 
   return modules;
 }
@@ -1643,10 +1673,11 @@ void Board::loadModules(QJsonObject::const_iterator & oit, Board::ModulesDefn & 
             int idx = 0;
             try {
               idx = std::stoi(DataHelpers::getStringTagMappingName(intModuleTypesLookupTable,
-                                                                     mod.toString().toLatin1().constData()));
+                                                                   mod.toString().toLatin1().constData()));
             } catch (...) { idx = -1; }
+
             if (idx > -1) {
-              modules.available.push_back(idx);
+              modules.available.push_back(mod.toString().toStdString());
             } else {
               qWarning() << "Warning: unsupported module:" << mod.toString();
             }
@@ -1659,7 +1690,7 @@ void Board::loadModules(QJsonObject::const_iterator & oit, Board::ModulesDefn & 
         idx = std::stoi(DataHelpers::getStringTagMappingName(intModuleTypesLookupTable,
                                                              Json::valueStdString(it).c_str()));
         } catch (...) { idx = -1; }
-        modules.dflt = idx > -1 ? idx : MODULE_TYPE_NONE;
+        modules.dflt = idx > -1 ? Json::valueStdString(it) : "";
       }
       // TODO remove in modules refactor
       else if (it.key() == "size") {
@@ -1937,7 +1968,7 @@ bool Board::postLoad()
 {
   // ensure the default internal module is set in case default is not parsed
   if (m_hardware.internalModules.available.size() > 0 &&
-      m_hardware.internalModules.dflt == 0)
+      m_hardware.internalModules.dflt == "")
     m_hardware.internalModules.dflt = m_hardware.internalModules.available.at(0);
 
   // Set default labels for LUX inputs if not provided by JSON

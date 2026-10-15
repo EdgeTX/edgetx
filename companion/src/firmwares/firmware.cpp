@@ -136,6 +136,21 @@ int Firmware::getCapability(Capability value) const
   const QStringList opts = g.currentProfile().fwOptions().split("-");
 
   switch (value) {
+    case Capability::BacklightLevelMin:
+      return m_defn.backlight.min;
+
+    case Capability::BacklightBright:
+      return m_defn.backlight.onBrightness;
+
+    case Capability::BacklightDelay:
+      return m_defn.backlight.delay;
+
+    case Capability::BacklightMode:
+      return m_defn.backlight.mode;
+
+    case Capability::BacklightOffBright:
+      return m_defn.backlight.offBrightness;
+
     case Capability::ChannelsName:
       return m_defn.outputs.name;
 
@@ -160,6 +175,9 @@ int Firmware::getCapability(Capability value) const
     case Capability::GvarsName:
       return m_defn.globalVars.name;
 
+    case Capability::HasBacklightKeys:
+      return m_defn.backlight.keys;
+
     case Capability::HasExpoNames:
       return getCapability(Capability::InputsLength);
 
@@ -179,8 +197,17 @@ int Firmware::getCapability(Capability value) const
     case Capability::HasModelLabels:
       return m_defn.labels;
 
+    case Capability::HasLCDtoVideo:
+      return m_defn.lcdToVideo;
+
     case Capability::HasModelsList:
       return m_defn.modelsList;
+
+    case Capability::HasModuleR9MFlex:
+      return opts.contains("flexr9m");
+
+    case Capability::HasPowerOnDelay:
+      return m_defn.powerOnDelay;
 
     case Capability::HasVario:
       return getCapability(Capability::Air);
@@ -288,8 +315,12 @@ int Firmware::getCapability(Capability value) const
     case Capability::TrimsRange:
       return 128;
 
+    // TODO use Inputs
+    case VirtualInputs:
+      return CPN_MAX_INPUTS;
+
     case Capability::VoicesMaxLength:
-      return m_defn.voicesFileLen;
+      return 8;
 
     // drop thru to Board
     default:
@@ -467,6 +498,9 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "modelsList")
       m_defn.modelsList = Json::valueBool(it, m_defn.modelsList);
 
+    else if (it.key() == "backlight")
+      loadBacklight(it);
+
     else if (it.key() == "curves")
       loadCurves(it);
 
@@ -488,8 +522,8 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "inputs")
       loadSizes(it, m_defn.inputs, CPN_MAX_INPUTS, INPUT_NAME_LEN);
 
-    else if (it.key() == "lcdtoVideo")
-      m_defn.lcdtoVideo = Json::valueBool(it, m_defn.lcdtoVideo);
+    else if (it.key() == "lcdToVideo")
+      m_defn.lcdToVideo = Json::valueBool(it, m_defn.lcdToVideo);
 
     else if (it.key() == "keyShortcuts")
       m_defn.keyShortcuts = Json::valueInt(it);
@@ -533,15 +567,53 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "topBarZones")
       m_defn.topBarZones = Json::valueInt(it);
 
-    else if (it.key() == "voicesFileLen")
-      m_defn.voicesFileLen = Json::valueInt(it);
-
     else
       qWarning() << "Warning: No rule to process - path:" << path << "name:" << it.key() << "value:" << it.value();
   }
 
   delete doc;
   return true;
+}
+
+void Firmware::loadBacklight(QJsonObject::const_iterator & oit)
+{
+  if (oit->isObject()) {
+    QJsonObject o = oit->toObject();
+    BacklightDefn & bd = m_defn.backlight;
+      bool keys          {false};
+      int  min           {0};
+      int  onBrightness  {0};
+      int  delay         {0};
+      int  mode          {0};
+      int  offBrightness {0};
+
+    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      if (it.key() == "comments")
+        continue;
+
+      else if (it.key() == "delay")
+        bd.delay = Json::valueInt(it, bd.delay);
+
+      else if (it.key() == "keys")
+        bd.keys = Json::valueBool(it, bd.keys);
+
+      else if (it.key() == "min")
+        bd.min = Json::valueInt(it, bd.min);
+
+      else if (it.key() == "mode")
+        bd.mode = Json::valueInt(it, bd.mode);
+
+      else if (it.key() == "offBrightness")
+        bd.offBrightness = Json::valueInt(it, bd.offBrightness);
+
+      else if (it.key() == "onBrightness")
+        bd.onBrightness = Json::valueInt(it, bd.onBrightness);
+
+      else
+        qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
+    }
+  } else
+        qWarning() << "Warning: brightness is not an object";
 }
 
 void Firmware::loadCurves(QJsonObject::const_iterator & oit)

@@ -52,6 +52,15 @@ class Firmware
       int dflt {0};
     };
 
+    struct BacklightDefn {
+      int  delay         {0};
+      bool keys          {false};
+      int  min           {0};
+      int  mode          {0};
+      int  offBrightness {0};
+      int  onBrightness  {0};
+    };
+
     struct CurvesDefn {
       defn_sizes_t sizes       {CPN_MAX_CURVES, CURVEDATA_NAME_LEN};
       int          minPoints   {2};
@@ -100,6 +109,7 @@ class Firmware
       bool              labels            {false};               // same thing?
       bool              modelsList        {false};               // depreciated - read yaml but not write check
 
+      BacklightDefn     backlight;
       CurvesDefn        curves;
       CustomScreensDefn customScreens;
       defn_sizes_t      expos             {CPN_MAX_EXPOS, EXPODATA_NAME_LEN};
@@ -107,7 +117,7 @@ class Firmware
       defn_sizes_t      globalFuncs       {CPN_MAX_SPECIAL_FUNCTIONS, 0};
       defn_sizes_t      globalVars        {CPN_MAX_GVARS, GVAR_NAME_LEN};
       defn_sizes_t      inputs            {CPN_MAX_INPUTS, INPUT_NAME_LEN};
-      bool              lcdtoVideo        {false};
+      bool              lcdToVideo        {false};
       defn_sizes_t      logicalSwitches   {CPN_MAX_LOGICAL_SWITCHES, 0};
       LuaScriptsDefn    luaScripts;
       int               keyShortcuts      {MAX_KEYSHORTCUTS};
@@ -117,13 +127,13 @@ class Firmware
       int               modelSlots        {CPN_MAX_MODELS};                          // B&W or 0 colour
       OptionsList       options;
       defn_sizes_t      outputs           {CPN_MAX_CHNOUT, LIMITDATA_NAME_LEN};
+      bool              powerOnDelay      {false};
       int               quickMenuFavs     {MAX_QMFAVOURITES};                        // B&W 0
       defn_sizes_t      sensors           {CPN_MAX_SENSORS, SENSOR_LABEL_LEN};       // 40, 60 or 99 and check len
       defn_sizes_t      specialFuncs      {CPN_MAX_SPECIAL_FUNCTIONS, 0};
       TeleCstmScrnsDefn teleCstmScrns;
       defn_sizes_t      timers            {CPN_MAX_TIMERS, TIMER_NAME_LEN};
       int               topBarZones       {MAX_TOPBAR_ZONES};
-      int               voicesFileLen     {8};
     };
 
     explicit Firmware(const QString & id);
@@ -177,6 +187,7 @@ class Firmware
 
     bool isOptionDuplicate(const OptionsGroup & grp, const QString & val);
     bool isOptionDuplicate(const OptionsList & options, const QString & val);
+    void loadBacklight(QJsonObject::const_iterator & it);
     void loadCurves(QJsonObject::const_iterator & it);
     void loadCustomScreens(QJsonObject::const_iterator & it);
     void loadSizes(QJsonObject::const_iterator & it, defn_sizes_t & sizes,

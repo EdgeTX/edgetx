@@ -13,6 +13,14 @@
   "board": "default",
   "dwnldId": "",
   "simuId": "",
+  "backlight": {
+    "delay": 0,
+    "keys": false,
+    "min ": 0,
+    "mode": 0,
+    "offBrightness": 0,
+    "onBrightness": 0
+  },
   "curves": {
     "comments": "",
     "cnt": 32,
@@ -59,7 +67,7 @@
     "name": 4
   },
   "keyShortcuts": 0,
-  "lcdtoVideo": false,
+  "lcdToVideo": false,
   "logicalSw": {
     "comments": "",
     "cnt": 40,
@@ -91,6 +99,7 @@
     "cnt": 32,
     "name": 6
   },
+  "powerOnDelay": false,
   "quickMenuFavs": 0,
   "sensors": {
     "comments": "cnt: b&w - 40 color - 60 h7 - 99",
@@ -112,6 +121,5 @@
     "comments": "",
     "cnt": 3,
     "name": 8
-  },
-  "voicesFileLen": 8
+  }
 }

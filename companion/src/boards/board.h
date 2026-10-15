@@ -380,9 +380,9 @@ class Board
     };
 
     struct ModulesDefn {
-      std::vector<int> available = {};
-      int dflt                   = 0;
-      int size                   = EXTMODSIZE_NONE;  // TODO remove in Modules refactor
+      std::vector<std::string> available;
+      std::string dflt                   = "";
+      int size                           = EXTMODSIZE_NONE;  // TODO remove in Modules refactor
     };
 
     struct IdentityDefn {
