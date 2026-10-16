@@ -234,7 +234,19 @@ int Board::getCapability(const Capability capability) const
       return !m_hardware.surface;
 
     case Capability::BacklightLevelMin:
-      return m_hardware.backlightLevelMin;
+      return m_hardware.backlight.min;
+
+    case Capability::BacklightBright:
+      return m_hardware.backlight.onBrightness;
+
+    case Capability::BacklightDelay:
+      return m_hardware.backlight.delay;
+
+    case Capability::BacklightMode:
+      return m_hardware.backlight.mode;
+
+    case Capability::BacklightOffBright:
+      return m_hardware.backlight.offBrightness;
 
     case Capability::DefaultInternalModule:
       return DataHelpers::getStringTagMappingIndex(intModuleTypesLookupTable,
@@ -272,6 +284,9 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::HasAudioMuteGPIO:
       return m_hardware.has_audio_mute;
+
+    case Capability::HasBacklightKeys:
+      return m_hardware.backlight.keys;
 
     case Capability::HasBacklightColor:
       return m_display.backlight_color;
@@ -1360,7 +1375,7 @@ bool Board::loadDefinition(const QString & path)
       loadTrims(it);
 
     else if (it.key() == "backlight")
-      m_display.backlight_color = true;
+      loadBacklight(it);
 
     else if (it.key() == "key_lock_combo")
       m_hardware.hasKeyLockCombo = (it->isArray() && it->toArray().size() == 2 ? true : m_hardware.hasKeyLockCombo);
@@ -1476,6 +1491,41 @@ void Board::loadADCInputs(QJsonObject::const_iterator & oit)
         qWarning() << "Warning: adc_inputs is not an object" << *oit;
 }
 
+void Board::loadBacklight(QJsonObject::const_iterator & oit)
+{
+  if (oit->isObject()) {
+    QJsonObject o = oit->toObject();
+    BacklightDefn & bd = m_hardware.backlight;
+
+    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      if (it.key() == "comments")
+        continue;
+
+      else if (it.key() == "delay")
+        bd.delay = Json::valueInt(it, bd.delay);
+
+      else if (it.key() == "keys")
+        bd.keys = Json::valueBool(it, bd.keys);
+
+      else if (it.key() == "min")
+        bd.min = Json::valueInt(it, bd.min);
+
+      else if (it.key() == "mode")
+        bd.mode = Json::valueInt(it, bd.mode);
+
+      else if (it.key() == "offBrightness")
+        bd.offBrightness = Json::valueInt(it, bd.offBrightness);
+
+      else if (it.key() == "onBrightness")
+        bd.onBrightness = Json::valueInt(it, bd.onBrightness);
+
+      else
+        qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
+    }
+  } else
+        qWarning() << "Warning: brightness is not an object";
+}
+
 void Board::loadBattery(QJsonObject::const_iterator & oit)
 {
   if (oit->isObject()) {
@@ -1515,6 +1565,8 @@ void Board::loadContrast(QJsonObject::const_iterator & oit)
         m_hardware.contrast.min = Json::valueInt(it, m_hardware.contrast.min);
       else if (it.key() == "max")
         m_hardware.contrast.max = Json::valueInt(it, m_hardware.contrast.max);
+      else if (it.key() == "dft")
+        m_hardware.contrast.dflt = Json::valueInt(it, m_hardware.contrast.dflt);
       else
         qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
     }

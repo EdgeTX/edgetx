@@ -293,14 +293,14 @@ class Board
     };
 
     struct InputDefn {
-      AnalogInputType type      = AIT_NONE;
-      std::string tag           = "";
-      std::string name          = "";
-      std::string shortName     = "";
-      FlexType flexType         = FLEX_NONE;
-      bool inverted             = false;
-      LookupValueType cfgYaml   = LVT_TAG;
-      LookupValueType refYaml   = LVT_TAG;
+      AnalogInputType type      {AIT_NONE};
+      std::string tag           {""};
+      std::string name          {""};
+      std::string shortName     {""};
+      FlexType flexType         {FLEX_NONE};
+      bool inverted             {false};
+      LookupValueType cfgYaml   {LVT_TAG};
+      LookupValueType refYaml   {LVT_TAG};
 
       InputDefn() = default;
     };
@@ -308,22 +308,22 @@ class Board
     typedef std::vector<InputDefn> InputsTable;
 
     struct Display {
-      unsigned int x = 0;
-      unsigned int y = 0;
+      unsigned int x {0};
+      unsigned int y {0};
     };
 
     struct SwitchDefn {
-      std::string tag           = "";
-      SwitchType type           = SWITCH_NOT_AVAILABLE;
-      std::string name          = "";
-      int flags                 = 0;
-      bool inverted             = false;
-      SwitchType dflt           = SWITCH_NOT_AVAILABLE;
+      std::string tag           {""};
+      SwitchType type           {SWITCH_NOT_AVAILABLE};
+      std::string name          {""};
+      int flags                 {0};
+      bool inverted             {false};
+      SwitchType dflt           {SWITCH_NOT_AVAILABLE};
       Display display;
-      bool isCustomSwitch       = false;
-      int customSwitchIdx       = -1;
-      LookupValueType cfgYaml   = LVT_TAG;
-      LookupValueType refYaml   = LVT_NAME;
+      bool isCustomSwitch       {false};
+      int customSwitchIdx       {-1};
+      LookupValueType cfgYaml   {LVT_TAG};
+      LookupValueType refYaml   {LVT_NAME};
 
       SwitchDefn() = default;
     };
@@ -331,12 +331,12 @@ class Board
     typedef std::vector<SwitchDefn> SwitchesTable;
 
     struct KeyDefn {
-      std::string tag           = "";
-      std::string name          = "";
-      std::string key           = "";
-      std::string label         = "";
-      LookupValueType cfgYaml   = LVT_TAG;
-      LookupValueType refYaml   = LVT_NAME;
+      std::string tag           {""};
+      std::string name          {""};
+      std::string key           {""};
+      std::string label         {""};
+      LookupValueType cfgYaml   {LVT_TAG};
+      LookupValueType refYaml   {LVT_NAME};
 
       KeyDefn() = default;
     };
@@ -344,95 +344,122 @@ class Board
     typedef std::vector<KeyDefn> KeysTable;
 
     struct TrimDefn {
-      std::string tag           = "";
-      std::string name          = "";
-      LookupValueType cfgYaml   = LVT_TAG;
-      LookupValueType refYaml   = LVT_NAME;
+      std::string tag          {""};
+      std::string name         {""};
+      LookupValueType cfgYaml  {LVT_TAG};
+      LookupValueType refYaml  {LVT_NAME};
 
       TrimDefn() = default;
     };
 
     struct DisplayDefn {
-      int w                            = 0;
-      int h                            = 0;
-      int phys_w                       = 0;
-      int phys_h                       = 0;
-      int depth                        = 0;
-      int color                        = 0;
-      int oled                         = 0;
-      int backlight_color              = 0;
+      int w               {0};
+      int h               {0};
+      int phys_w          {0};
+      int phys_h          {0};
+      int depth           {0};
+      int color           {0};
+      int oled            {0};
+      int backlight_color {0};
+
+      DisplayDefn() = default;
     };
 
     struct CustomSwitchesDefn {
-      int rgb_led                      = 0;
-      int groups                       = 0;
+      int rgb_led {0};
+      int groups  {0};
+
+      CustomSwitchesDefn() = default;
+    };
+
+    struct RangeDefn {
+      int min  {0};
+      int max  {0};
+      int dflt {0};
+
+      RangeDefn() = default;
+    };
+
+    struct BacklightDefn {
+      int  delay         {0};
+      bool keys          {false};
+      int  min           {0};
+      int  mode          {0};
+      int  offBrightness {0};
+      int  onBrightness  {0};
+
+      BacklightDefn() = default;
     };
 
     struct BatteryDefn {
-      int min   = 0;
-      int max   = 0;
-      int warn  = 0;
-    };
+      int min   {0};
+      int max   {0};
+      int warn  {0};
 
-    struct ContrastDefn {
-      int min = 0;
-      int max = 0;
+      BatteryDefn() = default;
     };
 
     struct ModulesDefn {
       std::vector<std::string> available;
-      std::string dflt                   = "";
-      int size                           = EXTMODSIZE_NONE;  // TODO remove in Modules refactor
+      std::string dflt                   {""};
+      int size                           {EXTMODSIZE_NONE};  // TODO remove in Modules refactor
+
+      ModulesDefn() = default;
     };
 
     struct IdentityDefn {
-      std::string manufacturer      = "";
-      std::string model             = "";
-      std::string usb_manufacturer  = "";
-      std::string usb_product       = "";
+      std::string manufacturer      {""};
+      std::string model             {""};
+      std::string usb_manufacturer  {""};
+      std::string usb_product       {""};
+
+      IdentityDefn() = default;
     };
 
     struct HardwareDefn {
-      int has_audio_mute                = 0;
-      int has_bling_leds                = 0;
-      int has_ext_module_support        = 0;
-      int has_int_module_support        = 0;
-      int sport_max_baudrate            = 0;
-      int surface                       = 0;
-      std::string cpu                   = "unknown";
-      std::string cpu_type              = "unknown";
-      bool hasKeyLockCombo              = false;
-      bool haptic                       = false;
-      bool statusLeds                   = false;
+      int has_audio_mute                {0};
+      int has_bling_leds                {0};
+      int has_ext_module_support        {0};
+      int has_int_module_support        {0};
+      int sport_max_baudrate            {0};
+      int surface                       {0};
+      std::string cpu                   {"unknown"};
+      std::string cpu_type              {"unknown"};
+      bool hasKeyLockCombo              {false};
+      bool haptic                       {false};
+      bool statusLeds                   {false};
 
       // these sourced from board definitions
+      BacklightDefn backlight;
       BatteryDefn battery;
-      bool auxSerialMode                = false;
-      bool aux2SerialMode               = false;
-      int backlightLevelMin             = 0;
-      std::string bluetoothName         = "unknown";
-      bool chargeWhileOn                = false;
-      ContrastDefn contrast;
-      bool stickDeadZone                = false;
-      int eepromSize                    = 0;
-      bool externalAntenna              = false;
-      int flashSize                     = 0;
-      bool flySkyGimbals                = false;
-      int fourCC                        = 0;
-      bool hardwareAntennaSwitch        = false;
-      bool hats                         = false;
-      bool imu                          = false;
-      bool internalGPS                  = false;
+      bool auxSerialMode                {false};
+      bool aux2SerialMode               {false};
+      int backlightLevelMin             {0};
+      std::string bluetoothName         {"unknown"};
+      bool chargeWhileOn                {false};
+      RangeDefn contrast;
+      bool stickDeadZone                {false};
+      int eepromSize                    {0};
+      bool externalAntenna              {false};
+      int flashSize                     {0};
+      bool flySkyGimbals                {false};
+      int fourCC                        {0};
+      bool hardwareAntennaSwitch        {false};
+      bool hats                         {false};
+      bool imu                          {false};
+      bool internalGPS                  {false};
       ModulesDefn internalModules;
       ModulesDefn externalModules;
-      int maxVolume                     = 0;
-      bool pwrButtonPress               = false;
-      bool rotaryEncNav                 = false;
-      bool softwareSerialPower          = false;
-      bool switchableJack               = false;
-      int  trainerModule                = Board::TR_MOD_TYPE_NONE;
-      bool vcpSerialMode                = false;
-      bool voiceControl                 = false;
+      int maxVolume                     {0};
+      bool pwrButtonPress               {false};
+      bool rotaryEncNav                 {false};
+      bool softwareSerialPower          {false};
+      bool switchableJack               {false};
+      int  trainerModule                {Board::TR_MOD_TYPE_NONE};
+      bool vcpSerialMode                {false};
+      bool voiceControl                 {false};
+
+      HardwareDefn() = default;
     };
 
     typedef std::vector<TrimDefn> TrimsTable;
@@ -588,6 +615,7 @@ class Board
     bool loadDefinition(const QString & path);
 
     void loadADCInputs(QJsonObject::const_iterator & it);
+    void loadBacklight(QJsonObject::const_iterator & it);
     void loadBattery(QJsonObject::const_iterator & it);
     void loadContrast(QJsonObject::const_iterator & it);
     void loadDisplay(QJsonObject::const_iterator & it);

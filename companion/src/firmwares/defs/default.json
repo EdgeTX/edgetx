@@ -4,7 +4,8 @@
     "hidden: true prevents the name being displayed in any ui lists",
     "supported: false prevents the name being displayed in any ui list however available for data conversion",
     "Hardcoded CPN_MAX_xxx limits/sizes applied to char[] and data arrays until refactoring to std::string and std::vector respectively",
-    "Some entries are future proofing and for parsing consistency"
+    "Some entries are future proofing and for parsing consistency",
+    "Some values are used for field initialisation only"
   ],
   "hidden": true,
   "basedOn": "",
@@ -13,14 +14,6 @@
   "board": "default",
   "dwnldId": "",
   "simuId": "",
-  "backlight": {
-    "delay": 0,
-    "keys": false,
-    "min ": 0,
-    "mode": 0,
-    "offBrightness": 0,
-    "onBrightness": 0
-  },
   "curves": {
     "comments": "",
     "cnt": 32,

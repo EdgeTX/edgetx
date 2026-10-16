@@ -136,21 +136,6 @@ int Firmware::getCapability(Capability value) const
   const QStringList opts = g.currentProfile().fwOptions().split("-");
 
   switch (value) {
-    case Capability::BacklightLevelMin:
-      return m_defn.backlight.min;
-
-    case Capability::BacklightBright:
-      return m_defn.backlight.onBrightness;
-
-    case Capability::BacklightDelay:
-      return m_defn.backlight.delay;
-
-    case Capability::BacklightMode:
-      return m_defn.backlight.mode;
-
-    case Capability::BacklightOffBright:
-      return m_defn.backlight.offBrightness;
-
     case Capability::ChannelsName:
       return m_defn.outputs.name;
 
@@ -174,9 +159,6 @@ int Firmware::getCapability(Capability value) const
 
     case Capability::GvarsName:
       return m_defn.globalVars.name;
-
-    case Capability::HasBacklightKeys:
-      return m_defn.backlight.keys;
 
     case Capability::HasExpoNames:
       return getCapability(Capability::InputsLength);
@@ -498,9 +480,6 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "modelsList")
       m_defn.modelsList = Json::valueBool(it, m_defn.modelsList);
 
-    else if (it.key() == "backlight")
-      loadBacklight(it);
-
     else if (it.key() == "curves")
       loadCurves(it);
 
@@ -573,47 +552,6 @@ bool Firmware::loadDefinition(const QString & path)
 
   delete doc;
   return true;
-}
-
-void Firmware::loadBacklight(QJsonObject::const_iterator & oit)
-{
-  if (oit->isObject()) {
-    QJsonObject o = oit->toObject();
-    BacklightDefn & bd = m_defn.backlight;
-      bool keys          {false};
-      int  min           {0};
-      int  onBrightness  {0};
-      int  delay         {0};
-      int  mode          {0};
-      int  offBrightness {0};
-
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
-
-      else if (it.key() == "delay")
-        bd.delay = Json::valueInt(it, bd.delay);
-
-      else if (it.key() == "keys")
-        bd.keys = Json::valueBool(it, bd.keys);
-
-      else if (it.key() == "min")
-        bd.min = Json::valueInt(it, bd.min);
-
-      else if (it.key() == "mode")
-        bd.mode = Json::valueInt(it, bd.mode);
-
-      else if (it.key() == "offBrightness")
-        bd.offBrightness = Json::valueInt(it, bd.offBrightness);
-
-      else if (it.key() == "onBrightness")
-        bd.onBrightness = Json::valueInt(it, bd.onBrightness);
-
-      else
-        qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
-    }
-  } else
-        qWarning() << "Warning: brightness is not an object";
 }
 
 void Firmware::loadCurves(QJsonObject::const_iterator & oit)

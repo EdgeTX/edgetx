@@ -2,7 +2,8 @@
   "comments": [
     "This file is always loaded first, then hwdefn, then variations overlaid in basedOn sequence",
     "hidden: true prevents the name being displayed in any ui lists",
-    "Some entries are future proofing eg external modules and for parsing consistency"
+    "Some entries are future proofing eg external modules and for parsing consistency",
+    "Some values are used for field initialisation only"
   ],
   "hidden": true,
   "name": "Default",
@@ -36,7 +37,15 @@
   ],
   "auxSerialMode": false,
   "aux2SerialMode": false,
-  "backlightLevelMin": 0,
+  "backlight": {
+    "comments": "initialisation values",
+    "delay": 2,
+    "keys": false,
+    "min": 0,
+    "mode": 0,
+    "offBrightness": 0,
+    "onBrightness": 0
+  },
   "battery": {
     "min": 0,
     "max": 0,
@@ -45,8 +54,10 @@
   "bluetoothName": "unknown",
   "chargeWhileOn": false,
   "contrast": {
+    "comments": "dflt IS_TARANIS 25 or 0",
     "min": 0,
-    "max": 0
+    "max": 0,
+    "dflt": 0
   },
   "externalAntenna": false,
   "hardwareAntennaSwitch": false,

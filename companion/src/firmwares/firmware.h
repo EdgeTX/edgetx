@@ -44,21 +44,16 @@ class Firmware
     struct defn_sizes_t {
       int cnt  {0};
       int name {0};
+
+      defn_sizes_t() = default;
     };
 
     struct defn_range_t {
       int min  {0};
       int max  {0};
       int dflt {0};
-    };
 
-    struct BacklightDefn {
-      int  delay         {0};
-      bool keys          {false};
-      int  min           {0};
-      int  mode          {0};
-      int  offBrightness {0};
-      int  onBrightness  {0};
+      defn_range_t() = default;
     };
 
     struct CurvesDefn {
@@ -66,28 +61,37 @@ class Firmware
       int          minPoints   {2};
       int          maxPoints   {CPN_MAX_POINTS};
       int          totalPoints {512};
+
+      CurvesDefn() = default;
     };
 
     struct CustomScreensDefn {
-    defn_sizes_t sizes  {MAX_CUSTOM_SCREENS, 0};
-    int layoutOptions   {MAX_LAYOUT_OPTIONS};
-    int layoutZones     {MAX_LAYOUT_ZONES};
-    int topBarOptions   {MAX_TOPBAR_OPTIONS};
-    int topBarZones     {MAX_TOPBAR_ZONES};
-    int themeOptions    {MAX_THEME_OPTIONS};
-    int widgetOptions   {MAX_WIDGET_OPTIONS};
+      defn_sizes_t sizes  {MAX_CUSTOM_SCREENS, 0};
+      int layoutOptions   {MAX_LAYOUT_OPTIONS};
+      int layoutZones     {MAX_LAYOUT_ZONES};
+      int topBarOptions   {MAX_TOPBAR_OPTIONS};
+      int topBarZones     {MAX_TOPBAR_ZONES};
+      int themeOptions    {MAX_THEME_OPTIONS};
+      int widgetOptions   {MAX_WIDGET_OPTIONS};
+
+      CustomScreensDefn() = default;
     };
 
     struct LuaScriptsDefn {
       defn_sizes_t sizes      {CPN_MAX_SCRIPTS, CPN_LEN_SCRIPT_NAME};
       int          maxInputs  {CPN_MAX_SCRIPT_INPUTS};
       int          maxOutputs {CPN_MAX_SCRIPT_OUTPUTS};
+
+      LuaScriptsDefn() = default;
     };
+
     struct ModelImageDefn {
       int         name     {CPN_MAX_BITMAP_LEN};
       std::string filters  {"*.bmp"};
       bool        image    {true};  // b&w - true color - false ??
       bool        keepExtn {false}; // b&w - false color - true
+
+      ModelImageDefn() = default;
     };
 
     struct TeleCstmScrnsDefn {
@@ -95,6 +99,8 @@ class Firmware
       int          maxBars    {CPN_TELE_CUST_SCRNS_BARS};
       int          maxPerLine {CPN_TELE_CUST_SCRNS_PERLINE};
       int          maxLines   {CPN_TELE_CUST_SCRNS_LINES};
+
+      TeleCstmScrnsDefn() = default;
     };
 
     // TODO constants
@@ -109,7 +115,6 @@ class Firmware
       bool              labels            {false};               // same thing?
       bool              modelsList        {false};               // depreciated - read yaml but not write check
 
-      BacklightDefn     backlight;
       CurvesDefn        curves;
       CustomScreensDefn customScreens;
       defn_sizes_t      expos             {CPN_MAX_EXPOS, EXPODATA_NAME_LEN};
@@ -134,6 +139,8 @@ class Firmware
       TeleCstmScrnsDefn teleCstmScrns;
       defn_sizes_t      timers            {CPN_MAX_TIMERS, TIMER_NAME_LEN};
       int               topBarZones       {MAX_TOPBAR_ZONES};
+
+      FirmwareDefn() = default;
     };
 
     explicit Firmware(const QString & id);
@@ -187,7 +194,6 @@ class Firmware
 
     bool isOptionDuplicate(const OptionsGroup & grp, const QString & val);
     bool isOptionDuplicate(const OptionsList & options, const QString & val);
-    void loadBacklight(QJsonObject::const_iterator & it);
     void loadCurves(QJsonObject::const_iterator & it);
     void loadCustomScreens(QJsonObject::const_iterator & it);
     void loadSizes(QJsonObject::const_iterator & it, defn_sizes_t & sizes,
