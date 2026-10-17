@@ -26,6 +26,9 @@ TARGET = 0xEA  # Controller application; never the internal RF device.
 ORIGIN = 0x10
 CHUNK = 48
 MAX_RANGE = 128 * CHUNK
+# Match the pacing used by successful full application/recovery transfers.
+# The former 20 ms default failed a live transfer; slower is not proven safer.
+DEFAULT_CHUNK_DELAY_MS = 15
 REPORT_DESCRIPTOR = bytes.fromhex("0600ff0901a1011901294015012540750895408100190129409100c0")
 
 
@@ -278,7 +281,7 @@ def discover(transport, expected_serial=None, event=lambda **kw: None):
 
 
 def upload(transport, image, event=lambda **kw: None, pause=time.sleep,
-           chunk_delay=0.020):
+           chunk_delay=DEFAULT_CHUNK_DELAY_MS / 1000):
     if not 0.010 <= chunk_delay <= 0.100:
         raise ValueError("chunk delay must be between 10 and 100 ms")
     # One application header initiates erasure. No automatic restart or resume.
@@ -475,8 +478,8 @@ def main(argv=None):
     logs.add_argument("--log-root", type=Path,
                       help="create a fresh transfer directory under this path")
     parser.add_argument("--hid-library", help="explicit native HIDAPI 0.14+ library path")
-    parser.add_argument("--chunk-delay-ms", type=int, default=20,
-                        help="data pacing, 10..100 ms (default: 20)")
+    parser.add_argument("--chunk-delay-ms", type=int, default=DEFAULT_CHUNK_DELAY_MS,
+                        help=f"data pacing, 10..100 ms (default: {DEFAULT_CHUNK_DELAY_MS})")
     args = parser.parse_args(argv)
     if args.probe and (args.image or args.elf or args.expected_sha256 or
                        args.log_dir or args.log_root):

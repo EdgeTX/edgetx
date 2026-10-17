@@ -130,6 +130,14 @@ class FlashTests(unittest.TestCase):
         self.assertEqual(packets[-1][8:-1],image[96:])
         self.assertEqual(packets[-1][6:8],bytes([2,3]))
 
+    def test_default_upload_pacing_matches_successful_full_transfer(self):
+        image = bytes(range(96))
+        transport = MockTransport([ask(0, 96),
+            ask(0, 0, flash.legacy_crc32(image)), reply(bytes([6]))])
+        delays = []
+        flash.upload(transport, image, pause=delays.append)
+        self.assertEqual(delays, [0.015, 0.015])
+
     def test_bench_header_version_and_upload_metadata(self):
         image=bytes(range(96))
         transport=MockTransport([ask(0,96),ask(0,0,flash.legacy_crc32(image)),reply(bytes([6]))])
@@ -282,9 +290,13 @@ class CliTests(unittest.TestCase):
     def test_completed_transfer_writes_evidence_without_reset(self):
         transport = MockTransport([identity(), ask(0, 96), report(0, 96),
             ask(0, 0, flash.legacy_crc32(self.image)), bytes.fromhex("c8053810ea0600")])
-        with mock.patch.object(flash, "load_image", return_value=self.image):
+        with mock.patch.object(flash, "load_image", return_value=self.image), \
+                mock.patch.object(flash, "upload", wraps=flash.upload) as upload:
             result, _, error, _ = self.run_main(self.live, transport)
         self.assertEqual((result, error), (0, ""))
+        self.assertEqual(upload.call_args.kwargs["chunk_delay"], 0.015)
+        plan_data = json.loads((self.path / "logs/plan.json").read_text())
+        self.assertEqual(plan_data["chunk_delay_ms"], 15)
         result_data = json.loads((self.path / "logs/result.json").read_text())
         self.assertTrue(result_data["terminal_checksum_verified"])
         self.assertFalse(result_data["reset_command_sent"])

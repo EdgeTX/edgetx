@@ -102,8 +102,11 @@ the following from its directory (Python/pyelftools/HIDAPI are still needed):
 
 Without --execute or --probe, the CLI is an offline verifier only. Probe and
 execute modes cannot be combined. No firmware/RF profile selector exists.
-The default data pacing is 20 ms per chunk; --chunk-delay-ms accepts 10..100.
-The CMake targets deliberately use the default pacing.
+The default data pacing is 15 ms per chunk, matching successful full recovery
+transfers; --chunk-delay-ms accepts 10..100 for diagnostics. Other pacing is
+not hardware-qualified. Slower sending is not necessarily safer: a live test
+with the former 20 ms default exhausted its missing-chunk retries. The CMake
+targets deliberately use the same default as the direct CLI.
 
 Failure / recovery
 ------------------
