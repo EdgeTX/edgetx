@@ -14,6 +14,8 @@ def inside(start, size, bounds):
 
 
 def verify(elf_path, binary_path):
+    if sys.flags.optimize:
+        raise ValueError("Verification requires Python assertions enabled")
     flash = (0x0800C000, 0x080C0000)
     ram = (0x20000000, 0x20015000)
     ccm = (0x10000400, 0x10010000)

@@ -821,7 +821,9 @@ else()
     )
 endif()
 
-if(CPU_FAMILY STREQUAL STM32 AND NOT PCB STREQUAL MAMBO)
+if(CPU_FAMILY STREQUAL STM32 AND PCB STREQUAL MAMBO)
+  include(${CMAKE_SOURCE_DIR}/cmake/MamboFlash.cmake)
+elseif(CPU_FAMILY STREQUAL STM32)
   # FIRMWARE_QSPI boards can only be firmware-flashed via flash-uf2 below;
   # the bootloader doesn't expose external QSPI/XSPI flash as a DFU segment.
   if(NOT FIRMWARE_QSPI)

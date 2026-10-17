@@ -8,7 +8,7 @@ cmake --build /tmp/mambo-board-tests
 ctest --test-dir /tmp/mambo-board-tests --output-on-failure
 ```
 
-Requires a C++17 compiler, CMake 3.20+ and Python 3. The eight suites exercise
+Requires a C++17 compiler, CMake 3.20+ and Python 3. The nine suites exercise
 production code using only synthetic data and register/GPIO fakes:
 
 - Encoder: APB2 timer rate, EXTI release, interrupt-mask restoration,
@@ -22,16 +22,21 @@ production code using only synthetic data and register/GPIO fakes:
   power-off and emergency-shutdown inhibition.
 - Power button: active-high Mambo and unchanged active-low behavior.
 - Battery: full filtered-ADC range, calibration and absent-input behavior.
+- Flashing: mocked HID, controller identity before erase, image/hash gates,
+  chunk retries/timeouts, terminal verification, logging failures and CMake
+  argument/mode handling. All flashing tests are synthetic and never open USB.
 
 These are host tests, not physical timing measurements. The calibration
 fixtures are artificial and must never be installed on a radio.
 
-`verify_firmware.py` checks an application ELF and its matching binary against
-the flash/SRAM/CCM reservations and verifies the real external CRSF UART/DMA
+`tools/mambo-flash/verify_firmware.py` checks an application ELF and its matching
+binary against the flash/SRAM/CCM reservations and verifies the external CRSF UART/DMA
 interrupt vectors and board/bay symbols in the default Mambo build. It requires
 `pyelftools` (included in the repository's Python dependencies). It never opens
 USB or writes to a radio. `.github/workflows/mambo.yml` runs the host tests and
-builds/checks default Mambo without adding a nightly/release target.
+builds/checks default Mambo and its offline `flash-plan` target without adding
+a nightly/release target. The verified firmware and standalone uploader are
+packaged as a CI artifact for bench testers; no private files are included.
 
 `mambo-support` retains the standalone board and external CRSF support, direct
 Hall input/calibration, Lua rotary navigation events and encoder polling fix.

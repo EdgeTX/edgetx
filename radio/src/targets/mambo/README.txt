@@ -24,9 +24,19 @@ Installation and calibration
 The application starts at 0x0800C000 and must stay below 0x080C0000. The linker
 also reserves shared SRAM and the first 1 KiB of CCM. Firmware images must not
 contain a bootloader or internal RF payload. Generic DFU flashing and a USB
-firmware-write drive are deliberately not enabled for this target. Installation
-and rollback require a separately verified, original-bootloader-compatible
-application uploader; no uploader or stock firmware is included in this PR.
+firmware-write drive are deliberately not enabled for this target. The Mambo
+flash target instead uses the original TBS USB HID controller bootloader:
+
+  cmake --build build/mambo --target flash-plan
+  cmake --build build/mambo --target flash-probe
+
+The first command builds and verifies an offline image plan without opening
+USB; the second queries controller identity after PAGE-held USB connection.
+Then set MAMBO_FLASH_SERIAL and MAMBO_FLASH_SHA256 from those results and run
+the flash target. See tools/mambo-flash/README.txt for complete instructions,
+dependencies, local transfer logs and stock-recovery precautions. The tool
+checks the selected controller and image before application erase and never
+updates the bootloader/internal RF. No stock firmware or private data is bundled.
 
 Preserve the original firmware, SD contents and the radio's own calibration
 backup before testing. The direct Hall backend can READ /CROSSFIRE/EEPROM.bin
@@ -63,7 +73,7 @@ APB2/TIM10 polling are retained. Earlier internal-RF diagnostic results are
 separate evidence, not testing of these standalone applications.
 
 Local verification covers the default Mambo firmware, application memory
-boundaries and bay UART/DMA vectors, eight standalone host suites, hardware
+boundaries and bay UART/DMA vectors, nine standalone host suites, hardware
 schema/template generation, and a TX12 Mark II firmware regression using its
 normal USE_FW_LTO=YES build setting. See tools/mambo-tests/README.md for the
 reproducible tests; no private calibration files or captured firmware required.
@@ -73,4 +83,6 @@ charging/off-state behavior, physical emergency-shutdown bay checks, faster
 CRSF negotiation/interoperability and Companion/release support remain open.
 This is bench evidence, not flight validation. No nightly or release target
 is added, and no private calibration, captured binaries or RF research tooling
-belongs in the patch.
+belongs in the patch. The new public application-only flash target is separate
+from internal-RF research tooling; its exact entry point still needs a live
+hardware test even though the underlying transfer logic was used previously.
