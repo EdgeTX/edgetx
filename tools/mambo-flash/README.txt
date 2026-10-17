@@ -26,8 +26,11 @@ The public flash-plan, flash-probe and default CMake flash path were tested
 on macOS with one Mambo at revision d1277a6043. A full 478368-byte application
 transfer completed at the default 15 ms pacing with no retries, a matching
 terminal checksum and DownloadFinished. This is not flash readback or proof
-of startup/flight safety; perform the battery-only checks below. Linux needs
-native hidraw access permissions, and Windows a matching HIDAPI DLL. Neither
+of flight safety. After being asked to check battery-only startup, encoder,
+sticks and external bay, the owner reported "Everything looks good"; no
+individual measurements or repeat-boot count were supplied. Perform the
+battery-only checks below on each installation. Linux needs native hidraw
+access permissions, and Windows a matching HIDAPI DLL. Neither
 Windows nor Linux is hardware-qualified here. Do not detach/replace USB
 drivers, change option bytes or disable readout protection to use this tool.
 

@@ -87,5 +87,9 @@ belongs in the patch. The public application-only flash target is separate
 from internal-RF research tooling. Its default CMake path completed a full
 controller application transfer on one macOS/Mambo bench at d1277a6043, using
 15 ms pacing with no retries and a matching terminal checksum. This verifies
-transfer completion, not flash readback or startup; Windows/Linux flashing
-remains unqualified. See tools/mambo-flash/README.txt for the test scope.
+transfer completion, not flash readback. After being asked to check battery-only
+startup, encoder, sticks and external bay, the owner reported "Everything looks
+good" for that flashed build. This is an overall post-flash bench report, not
+individual measurements, repeated-boot evidence or flight validation.
+Windows/Linux flashing remains unqualified. See tools/mambo-flash/README.txt
+for the test scope.
