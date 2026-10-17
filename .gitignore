@@ -33,3 +33,6 @@ __pycache__/
 output/
 *.dmg
 .devcontainer/devcontainer-lock.json
+
+# Private radio recovery artifacts must remain local across branch switches.
+/tools/mambo-runtime-harness/local-recovery/

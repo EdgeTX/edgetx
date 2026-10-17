@@ -11,7 +11,8 @@ set(RTC_BACKUP_RAM OFF CACHE BOOL "Preserve TBS bootloader backup SRAM metadata"
 set(TEST_BUILD_WARNING ON CACHE BOOL "Experimental Mambo bench build" FORCE)
 include(targets/taranis/CMakeLists.txt)
 target_sources(board PRIVATE targets/mambo/inputs.cpp targets/mambo/gimbals.cpp
-  targets/mambo/gimbals_stm32.cpp targets/mambo/calibration.cpp)
+  targets/mambo/gimbals_stm32.cpp targets/mambo/calibration.cpp
+  targets/mambo/encoder.cpp)
 if(MAMBO_EXTERNAL_CRSF)
   target_sources(board PRIVATE targets/mambo/external_rf.cpp)
 endif()

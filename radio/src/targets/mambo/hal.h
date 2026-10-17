@@ -57,6 +57,9 @@ void mamboExternalModuleShutdown();
 #endif
 #define TELEMETRY_EXTI_PRIO             0
 
+// Use continuous TIM10 sampling for the Mambo wheel in every board profile.
+#define ROTARY_ENCODER_POLLING
+
 #define BACKLIGHT_GPIO                  GPIO_PIN(GPIOD, 15)
 #define BACKLIGHT_GPIO_AF               GPIO_AF2
 #define BACKLIGHT_TIMER                 TIM4

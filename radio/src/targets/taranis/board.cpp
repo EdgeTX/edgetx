@@ -33,6 +33,9 @@
 #include "hal/rgbleds.h"
 
 #include "board.h"
+#if defined(RADIO_MAMBO)
+#include "targets/mambo/encoder.h"
+#endif
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
 #include "boards/generic_stm32/analog_inputs.h"
@@ -230,6 +233,9 @@ void boardInit()
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotaryEncoderInit();
+#if defined(RADIO_MAMBO)
+  mambo::encoderStartPolling();
+#endif
 #endif
 
   gimbalsDetect();
