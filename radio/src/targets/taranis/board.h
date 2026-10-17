@@ -36,13 +36,17 @@ void rotaryEncoderInit();
 void rotaryEncoderCheck();
 #endif
 
+#if !defined(FLASHSIZE)
 #if defined(STM32F413xx) || defined(STM32F407xG)
 #define FLASHSIZE                       0x100000 // 1M
 #else
 #define FLASHSIZE                       0x80000  // 512k
 #endif
+#endif
 #define FLASH_PAGESIZE                  256
+#if !defined(BOOTLOADER_SIZE)
 #define BOOTLOADER_SIZE                 0x8000
+#endif
 #define FIRMWARE_ADDRESS                0x08000000
 #define FIRMWARE_LEN(fsize)             (fsize - BOOTLOADER_SIZE)
 #define FIRMWARE_MAX_LEN                (FLASHSIZE - BOOTLOADER_SIZE)
@@ -76,8 +80,13 @@ enum {
 };
 
 // Pulses driver
+#if defined(INTMODULE_PWR_GPIO)
 #define INTERNAL_MODULE_ON()   gpio_set(INTMODULE_PWR_GPIO)
 #define INTERNAL_MODULE_OFF()  gpio_clear(INTMODULE_PWR_GPIO)
+#else
+#define INTERNAL_MODULE_ON()            do {} while (0)
+#define INTERNAL_MODULE_OFF()           do {} while (0)
+#endif
 
 #if (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)) && (!defined(PCBX9LITE) || defined(PCBX9LITES))
   #define HARDWARE_INTERNAL_RAS
@@ -119,6 +128,7 @@ PACK(typedef struct {
 extern HardwareOptions hardwareOptions;
 
 // Battery driver
+#if !defined(BATTERY_WARN)
 #if defined(PCBX9E)
   // NI-MH 9.6V
   #define BATTERY_WARN                  87 // 8.7V
@@ -144,7 +154,9 @@ extern HardwareOptions hardwareOptions;
   #define BATTERY_MIN                   60 // 6.0V
   #define BATTERY_MAX                   80 // 8.0V
 #endif
+#endif
 
+#if !defined(BATT_SCALE)
 #if defined(PCBXLITE)
   #define BATT_SCALE                    131
 #elif defined(PCBX7)
@@ -155,6 +167,7 @@ extern HardwareOptions hardwareOptions;
   #define BATT_SCALE                    117
 #else
   #define BATT_SCALE                    150
+#endif
 #endif
 
 #if defined(__cplusplus) && !defined(SIMU)
@@ -246,6 +259,7 @@ void ledBlue();
 void ledBoot();
 
 // LCD driver
+#if !defined(LCD_CONTRAST_MIN)
 #if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
 #define LCD_CONTRAST_MIN                0
 #define LCD_CONTRAST_MAX                45
@@ -278,6 +292,7 @@ void ledBoot();
 #if OLED_SCREEN
   // add offset 2px because driver (SH1106) of the 1.3 OLED is for a 132 display
   #define LCD_W_OFFSET                  0x02
+#endif
 #endif
 #endif
 
@@ -345,6 +360,8 @@ void setTopBatteryValue(uint32_t volts);
   #else
     #define VBAT_MOSFET_DROP   25 // * 10mV
   #endif
+#elif defined(RADIO_MAMBO)
+  // Battery scaling is defined by the Mambo HAL; there is no MOSFET offset.
 #else
   #if defined (RADIO_T8) || defined(RADIO_COMMANDO8)
     #define BATTERY_DIVIDER 50000

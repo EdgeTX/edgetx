@@ -1,0 +1,75 @@
+name: Experimental Mambo checks
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/mambo.yml'
+      - 'CMakeLists.txt'
+      - 'CMakePresets.json'
+      - 'cmake/**'
+      - 'radio/**'
+      - 'tools/hwdef_schema.json'
+      - 'tools/mambo-tests/**'
+      - 'tools/mambo-flash/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host:
+    name: Standalone Mambo board tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - run: cmake -S tools/mambo-tests -B build/mambo-tests
+      - run: cmake --build build/mambo-tests --parallel 2
+      - run: ctest --test-dir build/mambo-tests --output-on-failure
+
+  firmware:
+    name: Build default Mambo with external CRSF
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: |
+      github.event_name != 'pull_request' ||
+      !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw')
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:latest
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: astral-sh/setup-uv@v10.0.1
+      - run: uv sync --locked
+      - name: Configure the default Mambo build with Lua enabled
+        run: >-
+          uv run cmake --preset mambo
+          -DPython3_EXECUTABLE="$GITHUB_WORKSPACE/.venv/bin/python"
+          -DLUA=ON -DLUA_COMPILER=ON -DLUA_MIXER=ON
+      - run: cmake --build build/mambo --target firmware --parallel 4
+      - name: Check memory boundaries and external CRSF interrupt vectors
+        run: >-
+          uv run python tools/mambo-flash/verify_firmware.py
+          build/mambo/firmware.elf build/mambo/firmware.bin
+      - name: Validate the offline flashing target (no USB access)
+        run: cmake --build build/mambo --target flash-plan
+      - name: Assemble the verified bench-test bundle
+        run: |
+          mkdir -p build/mambo/tester-bundle
+          cp build/mambo/firmware.bin build/mambo/firmware.elf LICENSE build/mambo/tester-bundle/
+          cp tools/mambo-flash/mambo_flash.py tools/mambo-flash/verify_firmware.py tools/mambo-flash/README.txt build/mambo/tester-bundle/
+          git rev-parse HEAD > build/mambo/tester-bundle/SOURCE_REVISION.txt
+          uv run python tools/mambo-flash/mambo_flash.py \
+            --image build/mambo/firmware.bin --elf build/mambo/firmware.elf \
+            > build/mambo/tester-bundle/flash-plan.json
+      - name: Upload the Mambo bench-test bundle
+        uses: actions/upload-artifact@v7
+        with:
+          name: mambo-bench-${{ github.sha }}
+          path: build/mambo/tester-bundle/
+          if-no-files-found: error
+          retention-days: 14

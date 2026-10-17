@@ -350,8 +350,13 @@ static void _sport_set_inverted(uint8_t enable)
   stm32_usart_tx_inversion(&sportUSART, !enable);
 #endif
 #else
+#if defined(TELEMETRY_INVERTER_ACTIVE_HIGH)
+  gpio_write(TELEMETRY_TX_REV_GPIO, enable);
+  gpio_write(TELEMETRY_RX_REV_GPIO, enable);
+#else
   gpio_write(TELEMETRY_TX_REV_GPIO, !enable);
   gpio_write(TELEMETRY_RX_REV_GPIO, !enable);
+#endif
 #endif
 }
 

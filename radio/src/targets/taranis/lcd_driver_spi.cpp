@@ -39,6 +39,8 @@
   #define LCD_CONTRAST_OFFSET            0
 #elif defined(RADIO_FAMILY_JUMPER_T12) || defined(MANUFACTURER_RADIOMASTER) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO) || defined(RADIO_T12MAX) || defined(RADIO_V14LCD)
   #define LCD_CONTRAST_OFFSET            -10
+#elif defined(RADIO_MAMBO)
+  #define LCD_CONTRAST_OFFSET            127
 #else
   #define LCD_CONTRAST_OFFSET            160
 #endif
@@ -181,6 +183,17 @@ void lcdStart()
    delay_ms(100);
    gpio_set(OLED_VCC_CS);
 #endif
+
+#elif defined(RADIO_MAMBO)
+  // Mambo panel sequence from FreedomTX, not the generic inverted X7 panel.
+  const uint8_t commands[] = {0xAE, 0xA2, 0xA0, 0xC8, 0x24, 0x81, 0x1F,
+      0x24, 0x2F, 0xA6, 0xA4, 0x40, 0xB0, 0x10, 0x01, 0xAF};
+  for (uint8_t command : commands) lcdWriteCommand(command);
+#if defined(BOOT)
+  lcdSetRefVolt(LCD_CONTRAST_DEFAULT);
+#else
+  lcdSetRefVolt(g_eeGeneral.contrast);
+#endif
 #else
 #if LCD_VERTICAL_INVERT
   // T12 and TX12 have the screen inverted.
@@ -304,6 +317,9 @@ void lcdRefresh(bool wait)
     lcdColumnSet(0);
 #else
     lcdWriteCommand(0x10); // Column addr 0
+#if defined(RADIO_MAMBO)
+    lcdWriteCommand(0x00);
+#endif
     lcdWriteCommand(0xB0 | y); // Page addr y
 #if !LCD_VERTICAL_INVERT
     lcdWriteCommand(0x04);
@@ -469,6 +485,11 @@ void lcdSetRefVolt(uint8_t val)
 #if defined(RADIO_V14LCD)
   lcdWriteCommand(0x81);                      // Set Vop
   lcdWriteCommand(val+LCD_CONTRAST_OFFSET+20);// 0-255
+#elif defined(RADIO_MAMBO)
+  const uint16_t value = val + LCD_CONTRAST_OFFSET;
+  lcdWriteCommand(0x81);
+  lcdWriteCommand(value & 0x3F);
+  lcdWriteCommand(0x20 | (value >> 6));
 #else
   lcdWriteCommand(0x81); // Set Vop
   lcdWriteCommand(val+LCD_CONTRAST_OFFSET); // 0-255

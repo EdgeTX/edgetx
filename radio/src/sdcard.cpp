@@ -27,6 +27,9 @@
 
 #include "edgetx.h"
 #include "lib_file.h"
+#if defined(RADIO_MAMBO)
+  #include "targets/mambo/calibration.h"
+#endif
 
 #if FF_MAX_SS != FF_MIN_SS
 #error "Variable sector size is not supported"
@@ -517,6 +520,9 @@ void sdMount()
     // call sdGetFreeSectors() now because f_getfree() takes a long time first time it's called
     _g_FATFS_init = true;
     sdGetFreeSectors();
+#if defined(RADIO_MAMBO)
+    mamboGimbalsLoadCalibration();
+#endif
 
 #if defined(LOG_TELEMETRY)
     f_open(&g_telemetryFile, LOGS_PATH "/telemetry.log", FA_OPEN_ALWAYS | FA_WRITE);
