@@ -430,10 +430,17 @@ uint32_t isFirmwareStart(const uint8_t * buffer)
   }
 #elif defined(STM32H743xx)
   // Internal Flash execution (STM32H743)
-  if ((block[1] & 0xFF000000) != 0x08000000) {
+  // block[] = {stack, reset_handler, length, version_ptr}
+  // 1. Reset Handler in internal flash (Bank 1 or Bank 2: 0x08000000 - 0x081FFFFF)
+  if ((block[1] & 0xFFE00000) != 0x08000000) {
     return 0;
   }
-  if ((block[2] & 0xFF000000) != 0x08000000) {
+  // 2. Length must be non-zero and fit inside available firmware flash (1920 KB)
+  if (block[2] == 0 || block[2] > (1920 * 1024)) {
+    return 0;
+  }
+  // 3. Version string pointer in internal flash
+  if ((block[3] & 0xFFE00000) != 0x08000000) {
     return 0;
   }
 #else
