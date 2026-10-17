@@ -26,10 +26,8 @@
 #include "tasks.h"
 #include "tasks/mixer_task.h"
 #include "timers_driver.h"
-#if defined(MAMBO_EXTERNAL_CRSF)
 #include "hal/module_port.h"
 #include "targets/mambo/external_rf.h"
-#endif
 
 static const char* mamboCalibrationLabel(MamboCalibrationStatus status)
 {
@@ -102,13 +100,9 @@ static void drawMamboBench()
 {
   auto data = mamboBenchDiagnostics();
   coord_t y = MENU_HEADER_HEIGHT + 1;
-#if defined(MAMBO_EXTERNAL_CRSF)
   lcdDrawText(
       0, y,
       modulePortPowered(EXTERNAL_MODULE) ? "Ext ON Cal:" : "Ext OFF Cal:");
-#else
-  lcdDrawText(0, y, "RF OFF  Cal:");
-#endif
   lcdDrawText(78, y, mamboCalibrationLabel(data.calibration));
   y += FH;
   lcdDrawText(0, y, "Hall us:");
@@ -128,7 +122,6 @@ static void drawMamboBench()
   lcdDrawText(0, y, "Reset mask:");
   lcdDrawHexNumber(99, y, data.resetFlags >> 24);
 }
-#if defined(MAMBO_EXTERNAL_CRSF)
 static void drawMamboExternal()
 {
   auto data = mamboExternalDiagnostics();
@@ -155,7 +148,6 @@ static void drawMamboExternal()
   lcdDrawNumber(128, y, data.pins, RIGHT);
 }
 #endif
-#endif
 
 #define HOLDANAVALUEFRAMES 4 /* 4* 50ms = 200 ms update rate */
 
@@ -172,12 +164,8 @@ void menuRadioDiagAnalogs(event_t event)
        ANAVIEW_MAMBO_LEFT,
        ANAVIEW_MAMBO_RIGHT,
        ANAVIEW_MAMBO_BENCH,
-#if defined(MAMBO_EXTERNAL_CRSF)
        ANAVIEW_MAMBO_EXTERNAL,
        ANAVIEW_LAST=ANAVIEW_MAMBO_EXTERNAL
-#else
-       ANAVIEW_LAST=ANAVIEW_MAMBO_BENCH
-#endif
 #else
        ANAVIEW_LAST=ANAVIEW_RAWLOWFPS
 #endif
@@ -228,12 +216,10 @@ void menuRadioDiagAnalogs(event_t event)
       SIMPLE_SUBMENU("Mambo Bench", HEADER_LINE+1);
       drawMamboBench();
       return;
-#if defined(MAMBO_EXTERNAL_CRSF)
     case ANAVIEW_MAMBO_EXTERNAL:
       SIMPLE_SUBMENU("Mambo External", HEADER_LINE+1);
       drawMamboExternal();
       return;
-#endif
 #endif
   }
 

@@ -354,15 +354,9 @@
     },
     {
       "name": "mambo",
-      "displayName": "TBS Mambo experimental (RF disabled)",
+      "displayName": "TBS Mambo experimental (external CRSF; internal RF disabled)",
       "inherits": "firmware",
       "cacheVariables": { "PCB": "MAMBO", "BOOTLOADER": false }
-    },
-    {
-      "name": "mambo-external-crsf",
-      "displayName": "TBS Mambo experimental external Crossfire (Tracer disabled)",
-      "inherits": "mambo",
-      "cacheVariables": { "MAMBO_EXTERNAL_CRSF": true }
     }
   ],
   "buildPresets": [

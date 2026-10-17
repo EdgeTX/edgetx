@@ -22,7 +22,6 @@
 #define PWR_ON_GPIO                     GPIO_PIN(GPIOB, 12)
 
 #define EXTMODULE_PWR_GPIO              GPIO_PIN(GPIOE, 2)
-#if defined(MAMBO_EXTERNAL_CRSF)
 void mamboExternalModulePower(bool enable);
 void mamboExternalModuleShutdown();
 #define EXTERNAL_MODULE_PWR_ON()        mamboExternalModulePower(true)
@@ -50,11 +49,6 @@ void mamboExternalModuleShutdown();
 #define TELEMETRY_RX_FRAME_EXTI_LINE   LL_EXTI_LINE_4
 #define USE_EXTI4_IRQ
 #define EXTI4_IRQ_Priority             5
-#else
-#define EXTERNAL_MODULE_PWR_ON()        do {} while (0)
-#define EXTERNAL_MODULE_PWR_OFF()       gpio_clear(EXTMODULE_PWR_GPIO)
-#define IS_EXTERNAL_MODULE_ON()         false
-#endif
 #define TELEMETRY_EXTI_PRIO             0
 
 // Use continuous TIM10 sampling for the Mambo wheel in every board profile.

@@ -296,7 +296,7 @@ void boardInit()
 
 void boardOff()
 {
-#if defined(MAMBO_EXTERNAL_CRSF)
+#if defined(RADIO_MAMBO)
   // Cover emergency shutdown as well as the ordinary protocol-stop path.
   mamboExternalModuleShutdown();
 #endif

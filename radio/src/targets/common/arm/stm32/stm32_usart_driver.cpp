@@ -27,7 +27,7 @@
 #include "stm32_hal_ll.h"
 
 #include <string.h>
-#if defined(MAMBO_EXTERNAL_CRSF)
+#if defined(RADIO_MAMBO)
 #include "targets/mambo/external_rf.h"
 #endif
 
@@ -777,7 +777,7 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
 
       // This will clear the RXNE/error bits in USART_SR register
       uint8_t data = LL_USART_ReceiveData8(usart->USARTx);
-#if defined(MAMBO_EXTERNAL_CRSF)
+#if defined(RADIO_MAMBO)
       if (usart->USARTx == USART2)
         mamboExternalRxObserved(data, (status & USART_FLAG_ERRORS) != 0);
 #endif
@@ -811,7 +811,7 @@ void stm32_usart_isr(const stm32_usart_t* usart, etx_serial_callbacks_t* cb)
   }
 
   if (LL_USART_IsEnabledIT_IDLE(usart->USARTx) && idle) {
-#if defined(MAMBO_EXTERNAL_CRSF)
+#if defined(RADIO_MAMBO)
     if (usart->USARTx == USART2) mamboExternalIdleObserved();
 #endif
     // ISR clear sequence

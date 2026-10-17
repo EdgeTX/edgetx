@@ -288,7 +288,7 @@ uint8_t getModuleType(uint8_t module)
 uint8_t getRequiredProtocol(uint8_t module)
 {
   uint8_t protocol = PROTOCOL_CHANNELS_UNINITIALIZED;
-#if defined(MAMBO_EXTERNAL_CRSF)
+#if defined(RADIO_MAMBO)
   // Reject unsupported protocols in persisted/imported models as well as UI.
   if (module != EXTERNAL_MODULE ||
       (getModuleType(module) != MODULE_TYPE_NONE &&
