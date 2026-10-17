@@ -53,10 +53,14 @@ Hall sticks with the RF-disabled b618ccbe89 build. Its separate external-CRSF
 build was subsequently flashed with a matching terminal checksum and the
 owner confirmed that the external bay works. That already-working bay path
 is now included in the default Mambo build, with model-level Off/CRSF control.
-The new default build has not yet been flashed/tested on hardware. Direct Hall
-acquisition and continuous APB2/TIM10 encoder polling are retained. Earlier
-repeated cold-boot/centering/direction reports for an internal-RF diagnostic image must
-not be presented as testing of these standalone applications.
+The unified default 8773d9a5f7 build was then flashed successfully (478368 bytes,
+matching terminal checksum, zero retries). After receiving a regression checklist
+covering battery-only startup, encoder/Hall inputs, model Off/CRSF bay behavior,
+receiver channels, shutdown power and repeated cold boots, the owner reported
+"Everything looks good". This is an owner-reported overall bench pass; individual
+measurements and an exact cold-boot count were not provided. Direct Hall and
+APB2/TIM10 polling are retained. Earlier internal-RF diagnostic results are
+separate evidence, not testing of these standalone applications.
 
 Local verification covers the default Mambo firmware, application memory
 boundaries and bay UART/DMA vectors, eight standalone host suites, hardware
@@ -65,7 +69,7 @@ normal USE_FW_LTO=YES build setting. See tools/mambo-tests/README.md for the
 reproducible tests; no private calibration files or captured firmware required.
 
 Keep PR #7907 experimental/draft. Receiver failsafe, long-duration stability,
-charging/off-state behavior, physical emergency/power-off bay checks, faster
+charging/off-state behavior, physical emergency-shutdown bay checks, faster
 CRSF negotiation/interoperability and Companion/release support remain open.
 This is bench evidence, not flight validation. No nightly or release target
 is added, and no private calibration, captured binaries or RF research tooling
