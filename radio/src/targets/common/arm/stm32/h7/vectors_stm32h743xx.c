@@ -89,7 +89,6 @@ WEAK_DEFAULT void OTG_HS_EP1_IN_IRQHandler();
 WEAK_DEFAULT void OTG_HS_WKUP_IRQHandler();
 WEAK_DEFAULT void OTG_HS_IRQHandler();
 WEAK_DEFAULT void DCMI_IRQHandler();
-WEAK_DEFAULT void CRYP_IRQHandler();
 WEAK_DEFAULT void HASH_RNG_IRQHandler();
 WEAK_DEFAULT void FPU_IRQHandler();
 WEAK_DEFAULT void UART7_IRQHandler();
@@ -248,7 +247,6 @@ const isr_t g_pnfVectors[] ISR_VECTOR = {
   [OTG_HS_WKUP_IRQn + 16              ] = OTG_HS_WKUP_IRQHandler,
   [OTG_HS_IRQn + 16                   ] = OTG_HS_IRQHandler,
   [DCMI_IRQn + 16                     ] = DCMI_IRQHandler,
-  [CRYP_IRQn + 16                     ] = CRYP_IRQHandler,
   [HASH_RNG_IRQn + 16                 ] = HASH_RNG_IRQHandler,
   [FPU_IRQn + 16                      ] = FPU_IRQHandler,
   [UART7_IRQn + 16                    ] = UART7_IRQHandler,
