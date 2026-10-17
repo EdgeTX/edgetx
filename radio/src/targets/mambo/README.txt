@@ -83,6 +83,9 @@ charging/off-state behavior, physical emergency-shutdown bay checks, faster
 CRSF negotiation/interoperability and Companion/release support remain open.
 This is bench evidence, not flight validation. No nightly or release target
 is added, and no private calibration, captured binaries or RF research tooling
-belongs in the patch. The new public application-only flash target is separate
-from internal-RF research tooling; its exact entry point still needs a live
-hardware test even though the underlying transfer logic was used previously.
+belongs in the patch. The public application-only flash target is separate
+from internal-RF research tooling. Its default CMake path completed a full
+controller application transfer on one macOS/Mambo bench at d1277a6043, using
+15 ms pacing with no retries and a matching terminal checksum. This verifies
+transfer completion, not flash readback or startup; Windows/Linux flashing
+remains unqualified. See tools/mambo-flash/README.txt for the test scope.
