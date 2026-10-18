@@ -1616,7 +1616,7 @@ static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
     }
 
     // 2 bits per switch, same layout as ModelData::switchWarning
-    swtchWarn |= (state << (2 * swtch));
+    swtchWarn = bfSet<swarnstate_t>(swtchWarn, state, swtch * 2, 2);
   }
   memcpy(data, &swtchWarn, sizeof(swtchWarn));
 
