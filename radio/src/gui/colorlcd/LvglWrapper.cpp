@@ -30,6 +30,10 @@
 #include "os/time.h"
 #include "view_main.h"
 
+#if defined(SIMU_AUTOMATION)
+#include "targets/simu/automation_capture.h"
+#endif
+
 LvglWrapper* LvglWrapper::_instance = nullptr;
 
 static lv_indev_drv_t touchDriver;
@@ -454,6 +458,11 @@ void LvglWrapper::run()
   if (!updating) {
     // Normal UI loop - call lgvl timer handler
     updating = true;
+#if defined(SIMU_AUTOMATION)
+    if (edgetx::automation::consumeAutomationLcdInvalidation()) {
+      lv_obj_invalidate(lv_scr_act());
+    }
+#endif
 #if defined(VOICE_CONTROL_SENSOR)
     if (voiceEnterPending) {
       voiceEnterPending = false;
