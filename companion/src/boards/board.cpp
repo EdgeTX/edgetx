@@ -23,7 +23,6 @@
 #include "macros.h"
 #include "compounditemmodels.h"
 #include "helpers.h"
-#include "helpers_json.h"
 #include "boardfactories.h"
 #include "generalsettings.h"
 #include "modeldata.h"
@@ -1339,7 +1338,7 @@ bool Board::loadDefinition(const QString & path)
         it.key() == "trainer" || it.key() == "usb" || it.key() == "touch" )
       continue;
 
-    //qDebug() << "key:" << it.key() << "value:" << it.value();
+    //JSON_KEY_VAL(it);
 
     if (it.key() == "adc_inputs")
       loadADCInputs(it);
@@ -1438,7 +1437,7 @@ bool Board::loadDefinition(const QString & path)
       m_hardware.chargeWhileOn = Json::valueBool(it, m_hardware.chargeWhileOn);
 
     else if (it.key() == "contrast")
-      loadContrast(it);
+      Json::loadRange(it, m_hardware.contrast);
 
     else if (it.key() == "maxVolume")
       m_hardware.maxVolume = Json::valueInt(it, m_hardware.maxVolume);
@@ -1462,7 +1461,7 @@ bool Board::loadDefinition(const QString & path)
       m_hardware.flashSize = Json::valueInt(it, m_hardware.flashSize);
 
     else
-      qWarning() << "Warning: No rule to process - path:" << path << "key:" << it.key() << "value:" << it.value();
+      JSON_NO_RULE(it);
   }
 
   delete doc;
@@ -1478,17 +1477,18 @@ void Board::loadADCInputs(QJsonObject::const_iterator & oit)
       if (it.key() == "comments")
         continue;
 
-      //qDebug() << "key:" << it.key() << "value:" << it.value();
+      //JSON_KEY_VAL(it);
 
       if (it.key() == "acds")
         continue;
+
       else if (it.key() == "inputs")
         loadInputs(it);
       //else
-      //  qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+      //  JSON_NO_RULE(it);
     }
   } else
-        qWarning() << "Warning: adc_inputs is not an object" << *oit;
+    JSON_NOT_OBJ(oit);
 }
 
 void Board::loadBacklight(QJsonObject::const_iterator & oit)
@@ -1500,6 +1500,8 @@ void Board::loadBacklight(QJsonObject::const_iterator & oit)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
         continue;
+
+      //JSON_KEY_VAL(it);
 
       else if (it.key() == "delay")
         bd.delay = Json::valueInt(it, bd.delay);
@@ -1520,10 +1522,10 @@ void Board::loadBacklight(QJsonObject::const_iterator & oit)
         bd.onBrightness = Json::valueInt(it, bd.onBrightness);
 
       else
-        qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
+        JSON_NO_RULE(it);
     }
   } else
-        qWarning() << "Warning: brightness is not an object";
+    JSON_NOT_OBJ(oit);
 }
 
 void Board::loadBattery(QJsonObject::const_iterator & oit)
@@ -1535,43 +1537,22 @@ void Board::loadBattery(QJsonObject::const_iterator & oit)
       if (it.key() == "comments")
         continue;
 
-      //qDebug() << "key:" << it.key() << "value:" << it.value();
+      //JSON_KEY_VAL(it);
 
       if (it.key() == "min")
         m_hardware.battery.min = Json::valueInt(it, m_hardware.battery.min);
+
       else if (it.key() == "max")
         m_hardware.battery.max = Json::valueInt(it, m_hardware.battery.max);
+
       else if (it.key() == "warn")
         m_hardware.battery.warn = Json::valueInt(it, m_hardware.battery.warn);
+
       else
-        qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+        JSON_NO_RULE(it);
     }
   } else
-        qWarning() << "Warning: battery is not an object" << *oit;
-}
-
-void Board::loadContrast(QJsonObject::const_iterator & oit)
-{
-  if (oit->isObject()) {
-    const QJsonObject &o = oit->toObject();
-
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
-
-      //qDebug() << "key:" << it.key() << "value:" << it.value();
-
-      if (it.key() == "min")
-        m_hardware.contrast.min = Json::valueInt(it, m_hardware.contrast.min);
-      else if (it.key() == "max")
-        m_hardware.contrast.max = Json::valueInt(it, m_hardware.contrast.max);
-      else if (it.key() == "dft")
-        m_hardware.contrast.dflt = Json::valueInt(it, m_hardware.contrast.dflt);
-      else
-        qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
-    }
-  } else
-        qWarning() << "Warning: contrast is not an object" << *oit;
+    JSON_NOT_OBJ(oit);
 }
 
 void Board::loadHaptic(QJsonObject::const_iterator & oit)
@@ -1583,16 +1564,16 @@ void Board::loadHaptic(QJsonObject::const_iterator & oit)
       if (it.key() == "comments")
         continue;
 
-      //qDebug() << "key:" << it.key() << "value:" << it.value();
+      //JSON_KEY_VAL(it);
 
       if (it.key() == "haptic_pwm")
         m_hardware.haptic = Json::valueBool(it, m_hardware.haptic);
 
       //else
-      //  qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+      //  JSON_NO_RULE(it);
     }
   } else
-        qWarning() << "Warning: haptic is not an object" << *oit;
+    JSON_NOT_OBJ(oit);
 }
 
 void Board::loadIdentity(QJsonObject::const_iterator & oit)
@@ -1604,21 +1585,25 @@ void Board::loadIdentity(QJsonObject::const_iterator & oit)
       if (it.key() == "comments")
         continue;
 
-      //qDebug() << "key:" << it.key() << "value:" << it.value();
+      //JSON_KEY_VAL(it);
 
       if (it.key() == "manufacturer")
         m_identity.manufacturer = Json::valueStdString(it, m_identity.manufacturer);
+
       else if (it.key() == "model")
         m_identity.model = Json::valueStdString(it, m_identity.model);
+
       else if (it.key() == "usb_manufacturer")
         m_identity.usb_manufacturer = Json::valueStdString(it, m_identity.usb_manufacturer);
+
       else if (it.key() == "usb_product")
         m_identity.usb_product = Json::valueStdString(it, m_identity.usb_product);
+
       else
-        qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+        JSON_NO_RULE(it);
     }
   } else
-        qWarning() << "Warning: identity is not an object" << *oit;
+    JSON_NOT_OBJ(oit);
 }
 
 void Board::loadInputs(QJsonObject::const_iterator & oit)
@@ -1635,7 +1620,7 @@ void Board::loadInputs(QJsonObject::const_iterator & oit)
           if (it.key() == "comments")
             continue;
 
-          //qDebug() << "key:" << it.key() << "value:" << it.value();
+          //JSON_KEY_VAL(it);
 
           if (it.key() == "name")
             defn.name = Json::valueStdString(it, defn.name);
@@ -1666,15 +1651,15 @@ void Board::loadInputs(QJsonObject::const_iterator & oit)
           }
 
           //else
-          //  qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+          //  JSON_NO_RULE(it);
         }
 
         m_inputs.insert(m_inputs.end(), defn);
       } else
-        qWarning() << "Warning: input is not an object" << *it;
+        JSON_NOT_OBJ(it);
     }
   } else
-        qWarning() << "Warning: inputs is not an array" << *oit;
+    JSON_NOT_ARRAY(oit);
 }
 
 void Board::loadModules(QJsonValue obj)
@@ -1690,7 +1675,7 @@ void Board::loadModules(QJsonValue obj)
           if (it.key() == "comments")
             continue;
 
-          //qDebug() << "key:" << it.key() << "value:" << it.value();
+          //JSON_KEY_VAL(it);
 
           if (it.key() == "external")
             loadModules(it, m_hardware.externalModules);
@@ -1699,13 +1684,13 @@ void Board::loadModules(QJsonValue obj)
             loadModules(it, m_hardware.internalModules);
 
           else
-            qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+            JSON_NO_RULE(it);
         }
       } else
-        qWarning() << "Warning: module is not an object" << obj;
+        JSON_NOT_OBJ(it);
     }
   } else
-        qWarning() << "Warning: modules is not an array" << obj;
+    qCritical() << "Error: not an array" << obj;
 }
 
 void Board::loadModules(QJsonObject::const_iterator & oit, Board::ModulesDefn & modules)
@@ -1717,7 +1702,7 @@ void Board::loadModules(QJsonObject::const_iterator & oit, Board::ModulesDefn & 
       if (it.key() == "comments")
         continue;
 
-      //qDebug() << "key:" << it.key() << "value:" << it.value();
+      //JSON_KEY_VAL(it);
 
       if (it.key() == "available") {
         if (it.value().isArray()) {
@@ -1751,10 +1736,10 @@ void Board::loadModules(QJsonObject::const_iterator & oit, Board::ModulesDefn & 
         modules.size = idx > -1 ? idx : EXTMODSIZE_NONE;
       }
       else
-        qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+        JSON_NO_RULE(it);
     }
   } else
-        qWarning() << "Warning: intModules is not an object" << *oit;
+    JSON_NOT_OBJ(oit);
 }
 
 void Board::loadSwitches(QJsonObject::const_iterator & oit)
@@ -1771,7 +1756,7 @@ void Board::loadSwitches(QJsonObject::const_iterator & oit)
           if (it.key() == "comments")
             continue;
 
-          //qDebug() << "key:" << it.key() << "value:" << it.value();
+          //JSON_KEY_VAL(it);
 
           if (it.key() == "name")
             sw.name = Json::valueStdString(it, sw.name);
@@ -1814,7 +1799,7 @@ void Board::loadSwitches(QJsonObject::const_iterator & oit)
             sw.customSwitchIdx = Json::valueInt(it, sw.customSwitchIdx);
 
           //else
-          //  qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+          //  JSON_NO_RULE(it);
         }
 
         // special handing for ADC
@@ -1831,10 +1816,10 @@ void Board::loadSwitches(QJsonObject::const_iterator & oit)
         sw.tag = sw.name;
         m_switches.insert(m_switches.end(), sw);
       } else
-        qWarning() << "Warning: switch is not an object" << *it;
+        JSON_NOT_OBJ(it);
     }
   } else
-        qWarning() << "Warning: switches is not an array" << *oit;
+    JSON_NOT_ARRAY(oit);
 }
 
 void Board::loadKeys(QJsonObject::const_iterator & oit)
@@ -1851,7 +1836,7 @@ void Board::loadKeys(QJsonObject::const_iterator & oit)
           if (it.key() == "comments")
             continue;
 
-          //qDebug() << "key:" << it.key() << "value:" << it.value();
+          //JSON_KEY_VAL(it);
 
           if (it.key() == "name")
             k.name = Json::valueStdString(it, k.name);
@@ -1863,16 +1848,16 @@ void Board::loadKeys(QJsonObject::const_iterator & oit)
             k.label = Json::valueStdString(it, k.label);
 
           //else
-          //  qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+          //  JSON_NO_RULE(it);
         }
 
         k.tag = k.name;
         m_keys.insert(m_keys.end(), k);
       } else
-        qWarning() << "Warning: key is not an object" << *it;
+        JSON_NOT_OBJ(it);
     }
   } else
-        qWarning() << "Warning: keys is not an array" << *oit;
+    JSON_NOT_ARRAY(oit);
 }
 
 void Board::loadTrims(QJsonObject::const_iterator & oit)
@@ -1889,22 +1874,22 @@ void Board::loadTrims(QJsonObject::const_iterator & oit)
           if (it.key() == "comments")
             continue;
 
-          //qDebug() << "key:" << it.key() << "value:" << it.value();
+          //JSON_KEY_VAL(it);
 
           if (it.key() == "name")
             t.name = Json::valueStdString(it, t.name);
 
           //else
-          //  qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+          //  JSON_NO_RULE(it);
         }
 
         t.tag = t.name;
         m_trims.insert(m_trims.end(), t);
       } else
-        qWarning() << "Warning: trim is not an object" << *it;
+        JSON_NOT_OBJ(it);
     }
   } else
-        qWarning() << "Warning: trims is not an array" << *oit;
+    JSON_NOT_ARRAY(oit);
 }
 
 void Board::loadDisplay(QJsonObject::const_iterator & it)
@@ -1916,7 +1901,7 @@ void Board::loadDisplay(QJsonObject::const_iterator & it)
       if (it.key() == "comments")
         continue;
 
-      //qDebug() << "key:" << it.key() << "value:" << it.value();
+      //JSON_KEY_VAL(it);
 
       if (it.key() == "lcd_depth")
         m_display.depth = Json::valueInt(it, m_display.depth);
@@ -1937,13 +1922,13 @@ void Board::loadDisplay(QJsonObject::const_iterator & it)
         m_display.oled = Json::valueBool(it, m_display.oled);
 
       //else
-      //  qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+      //  JSON_NO_RULE(it);
     }
 
     m_display.color = m_display.depth == 16 ? 1 : 0;
 
   } else
-        qWarning() << "Warning: display is not an object" << *it;
+    JSON_NOT_OBJ(it);
 }
 
 void Board::loadLEDS(QJsonObject::const_iterator & it)
@@ -1955,7 +1940,7 @@ void Board::loadLEDS(QJsonObject::const_iterator & it)
     int cfs_leds_per_switch = 0;
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      //qDebug() << "key:" << it.key() << "value:" << it.value();
+      //JSON_KEY_VAL(it);
 
       if (it.key() == "bling_led_strip_length")
         m_hardware.has_bling_leds = Json::valueInt(it, m_hardware.has_bling_leds);
@@ -1970,14 +1955,14 @@ void Board::loadLEDS(QJsonObject::const_iterator & it)
         m_hardware.statusLeds = Json::valueBool(it, m_hardware.statusLeds);
 
       //else
-      //  qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+      //  JSON_NO_RULE(it);
     }
 
     m_cfs.groups = cfs_leds_per_switch ? cfs_led_strip_length / (2 * cfs_leds_per_switch) : 0;
     m_cfs.rgb_led = m_cfs.groups > 0;
 
   } else
-        qWarning() << "Warning: leds is not an object" << *it;
+    JSON_NOT_OBJ(it);
 }
 
 void Board::loadHardware(QJsonObject::const_iterator & it)
@@ -1986,7 +1971,7 @@ void Board::loadHardware(QJsonObject::const_iterator & it)
     const QJsonObject &o = it->toObject();
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      //qDebug() << "key:" << it.key() << "value:" << it.value();
+      //JSON_KEY_VAL(it);
 
       if (it.key() == "has_audio_mute")
         m_hardware.has_audio_mute = Json::valueBool(it, m_hardware.has_audio_mute);
@@ -2010,10 +1995,10 @@ void Board::loadHardware(QJsonObject::const_iterator & it)
         m_hardware.cpu_type = Json::valueStdString(it, m_hardware.cpu_type);
 
       else
-        qWarning() << "Warning: No rule to process - key:" << it.key() << "value:" << it.value();
+        JSON_NO_RULE(it);
     }
   } else
-        qWarning() << "Warning: hardware is not an object" << *it;
+    JSON_NOT_OBJ(it);
 }
 
 bool Board::postLoad()

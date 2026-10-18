@@ -23,6 +23,7 @@
 
 #include "../shared/capabilities.h"
 #include "constants.h"
+#include "../helpers/helpers_json.h"
 
 #include <QtCore>
 
@@ -41,23 +42,8 @@ class Firmware
     typedef QList<QString> OptionsGroup;
     typedef QList<OptionsGroup> OptionsList;
 
-    struct defn_sizes_t {
-      int cnt  {0};
-      int name {0};
-
-      defn_sizes_t() = default;
-    };
-
-    struct defn_range_t {
-      int min  {0};
-      int max  {0};
-      int dflt {0};
-
-      defn_range_t() = default;
-    };
-
     struct CurvesDefn {
-      defn_sizes_t sizes       {CPN_MAX_CURVES, CURVEDATA_NAME_LEN};
+      Json::sizes_t sizes       {CPN_MAX_CURVES, CURVEDATA_NAME_LEN};
       int          minPoints   {2};
       int          maxPoints   {CPN_MAX_POINTS};
       int          totalPoints {512};
@@ -66,7 +52,7 @@ class Firmware
     };
 
     struct CustomScreensDefn {
-      defn_sizes_t sizes  {MAX_CUSTOM_SCREENS, 0};
+      Json::sizes_t sizes  {MAX_CUSTOM_SCREENS, 0};
       int layoutOptions   {MAX_LAYOUT_OPTIONS};
       int layoutZones     {MAX_LAYOUT_ZONES};
       int topBarOptions   {MAX_TOPBAR_OPTIONS};
@@ -78,7 +64,7 @@ class Firmware
     };
 
     struct LuaScriptsDefn {
-      defn_sizes_t sizes      {CPN_MAX_SCRIPTS, CPN_LEN_SCRIPT_NAME};
+      Json::sizes_t sizes      {CPN_MAX_SCRIPTS, CPN_LEN_SCRIPT_NAME};
       int          maxInputs  {CPN_MAX_SCRIPT_INPUTS};
       int          maxOutputs {CPN_MAX_SCRIPT_OUTPUTS};
 
@@ -95,7 +81,7 @@ class Firmware
     };
 
     struct TeleCstmScrnsDefn {
-      defn_sizes_t sizes      {CPN_TELE_CUST_SCRNS, 0};
+      Json::sizes_t sizes      {CPN_TELE_CUST_SCRNS, 0};
       int          maxBars    {CPN_TELE_CUST_SCRNS_BARS};
       int          maxPerLine {CPN_TELE_CUST_SCRNS_PERLINE};
       int          maxLines   {CPN_TELE_CUST_SCRNS_LINES};
@@ -117,27 +103,27 @@ class Firmware
 
       CurvesDefn        curves;
       CustomScreensDefn customScreens;
-      defn_sizes_t      expos             {CPN_MAX_EXPOS, EXPODATA_NAME_LEN};
-      defn_sizes_t      flightModes       {CPN_MAX_FLIGHT_MODES, FLIGHTMODE_NAME_LEN}; // rename to operatingModes
-      defn_sizes_t      globalFuncs       {CPN_MAX_SPECIAL_FUNCTIONS, 0};
-      defn_sizes_t      globalVars        {CPN_MAX_GVARS, GVAR_NAME_LEN};
-      defn_sizes_t      inputs            {CPN_MAX_INPUTS, INPUT_NAME_LEN};
+      Json::sizes_t      expos             {CPN_MAX_EXPOS, EXPODATA_NAME_LEN};
+      Json::sizes_t      flightModes       {CPN_MAX_FLIGHT_MODES, FLIGHTMODE_NAME_LEN}; // rename to operatingModes
+      Json::sizes_t      globalFuncs       {CPN_MAX_SPECIAL_FUNCTIONS, 0};
+      Json::sizes_t      globalVars        {CPN_MAX_GVARS, GVAR_NAME_LEN};
+      Json::sizes_t      inputs            {CPN_MAX_INPUTS, INPUT_NAME_LEN};
       bool              lcdToVideo        {false};
-      defn_sizes_t      logicalSwitches   {CPN_MAX_LOGICAL_SWITCHES, 0};
+      Json::sizes_t      logicalSwitches   {CPN_MAX_LOGICAL_SWITCHES, 0};
       LuaScriptsDefn    luaScripts;
       int               keyShortcuts      {MAX_KEYSHORTCUTS};
-      defn_sizes_t      mixes             {CPN_MAX_MIXERS, MIXDATA_NAME_LEN};
+      Json::sizes_t      mixes             {CPN_MAX_MIXERS, MIXDATA_NAME_LEN};
       ModelImageDefn    modelImage;
       int               modelName         {MODEL_NAME_LEN};                          // 15, 12 or 10
       int               modelSlots        {CPN_MAX_MODELS};                          // B&W or 0 colour
       OptionsList       options;
-      defn_sizes_t      outputs           {CPN_MAX_CHNOUT, LIMITDATA_NAME_LEN};
+      Json::sizes_t      outputs           {CPN_MAX_CHNOUT, LIMITDATA_NAME_LEN};
       bool              powerOnDelay      {false};
       int               quickMenuFavs     {MAX_QMFAVOURITES};                        // B&W 0
-      defn_sizes_t      sensors           {CPN_MAX_SENSORS, SENSOR_LABEL_LEN};       // 40, 60 or 99 and check len
-      defn_sizes_t      specialFuncs      {CPN_MAX_SPECIAL_FUNCTIONS, 0};
+      Json::sizes_t      sensors           {CPN_MAX_SENSORS, SENSOR_LABEL_LEN};       // 40, 60 or 99 and check len
+      Json::sizes_t      specialFuncs      {CPN_MAX_SPECIAL_FUNCTIONS, 0};
       TeleCstmScrnsDefn teleCstmScrns;
-      defn_sizes_t      timers            {CPN_MAX_TIMERS, TIMER_NAME_LEN};
+      Json::sizes_t      timers            {CPN_MAX_TIMERS, TIMER_NAME_LEN};
       int               topBarZones       {MAX_TOPBAR_ZONES};
 
       FirmwareDefn() = default;
@@ -174,8 +160,8 @@ class Firmware
     static QList<Firmware *> getRegisteredFirmwares();
 
     static Firmware * getCurrent() { return m_current; }
-    static void setCurrent(Firmware * firmware);
-    static void setCurrent(const QString & id);
+    static bool setCurrent(Firmware * firmware);
+    static bool setCurrent(const QString & id);
 
     static Firmware * getFallback() { return m_fallback; }
     static void setFallback(Firmware * firmware) { m_fallback = firmware; }
@@ -192,20 +178,17 @@ class Firmware
     FirmwareDefn m_defn;
     Board *m_board;     // pointer to BoardFactories Board
 
+    void dumpCapabilities();
     bool isOptionDuplicate(const OptionsGroup & grp, const QString & val);
     bool isOptionDuplicate(const OptionsList & options, const QString & val);
-    void loadCurves(QJsonObject::const_iterator & it);
-    void loadCustomScreens(QJsonObject::const_iterator & it);
-    void loadSizes(QJsonObject::const_iterator & it, defn_sizes_t & sizes,
-                    const int cntMax = 99999, const int nameMax = 100,
-                    const int cntMin = 0, const int nameMin = 0);
-    void loadLuaScripts(QJsonObject::const_iterator & it);
-    void loadModelImage(QJsonObject::const_iterator & it);
     void loadBuildOptions(QJsonObject::const_iterator & it);
     void loadBuildOptionGroup(QJsonArray::const_iterator & it, OptionsGroup & grp);
+    void loadCurves(QJsonObject::const_iterator & it);
+    void loadCustomScreens(QJsonObject::const_iterator & it);
+    void loadLuaScripts(QJsonObject::const_iterator & it);
+    void loadModelImage(QJsonObject::const_iterator & it);
     void loadTeleCstmScrns(QJsonObject::const_iterator & it);
     bool postLoad();
-    void dumpCapabilities();
 
     inline static Firmware * m_current = nullptr;
     inline static Firmware * m_fallback = nullptr;

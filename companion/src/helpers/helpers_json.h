@@ -27,17 +27,44 @@
 
 #include <string>
 
+#define JSON_KEY_VAL(jsonit)   qInfo() << "key:" << jsonit.key() << "value:" << jsonit.value()
+#define JSON_NO_RULE(jsonit)   qWarning() << "Warning: No rule to process - key:" << jsonit.key() << "value:" << jsonit.value()
+#define JSON_NOT_ARRAY(jsonit) qCritical() << "Error: not an array" << *jsonit
+#define JSON_NOT_OBJ(jsonit)   qCritical() << "Error: not an object" << *jsonit
+
 class Json {
 
   Q_DECLARE_TR_FUNCTIONS(Json)
 
   public:
+
+    struct range_t {
+      int min  {0};
+      int max  {0};
+      int dflt {0};
+
+      range_t() = default;
+    };
+
+    struct sizes_t {
+      int cnt  {0};
+      int name {0};
+
+      sizes_t() = default;
+    };
+
     explicit Json() {}
     virtual ~Json() {}
 
     static bool load(QJsonDocument * doc, const QString & path);
 
     static const bool exists(const QJsonObject & obj, const QString & key);
+
+    static void loadRange(QJsonObject::const_iterator & it, range_t & range);
+
+    static void loadSizes(QJsonObject::const_iterator & it, sizes_t & sizes,
+                          const int cntMax = 99999, const int nameMax = 100,
+                          const int cntMin = 0, const int nameMin = 0);
 
     static const QVariant value(const QJsonObject & obj, const QString & key,
                                 const bool manditory = true, const QVariant & dflt = QVariant());

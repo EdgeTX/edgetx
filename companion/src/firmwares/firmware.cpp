@@ -22,7 +22,6 @@
 #include "firmware.h"
 #include "firmwarefactories.h"
 #include "../boards/boardfactories.h"
-#include "helpers_json.h"
 #include "appdata.h"
 
 Firmware::Firmware(const QString & id) :
@@ -458,7 +457,7 @@ bool Firmware::loadDefinition(const QString & path)
         it.key() == "board")
       continue;
 
-    //qDebug() << "key:" << it.key() << "value:" << it.value();
+    //JSON_KEY_VAL(it);
 
     if (it.key() == "dwnldId")
       m_defn.dwnldId = Json::valueStdString(it);
@@ -487,19 +486,19 @@ bool Firmware::loadDefinition(const QString & path)
       loadCustomScreens(it);
 
     else if (it.key() == "expos")
-      loadSizes(it, m_defn.expos, CPN_MAX_EXPOS, EXPODATA_NAME_LEN);
+      Json::loadSizes(it, m_defn.expos, CPN_MAX_EXPOS, EXPODATA_NAME_LEN);
 
     else if (it.key() == "flightModes")
-      loadSizes(it, m_defn.flightModes, CPN_MAX_FLIGHT_MODES, FLIGHTMODE_NAME_LEN);
+      Json::loadSizes(it, m_defn.flightModes, CPN_MAX_FLIGHT_MODES, FLIGHTMODE_NAME_LEN);
 
     else if (it.key() == "globalFuncs")
-      loadSizes(it, m_defn.globalFuncs, CPN_MAX_GLOBAL_FUNCTIONS, 0);
+      Json::loadSizes(it, m_defn.globalFuncs, CPN_MAX_GLOBAL_FUNCTIONS, 0);
 
     else if (it.key() == "globalVars")
-      loadSizes(it, m_defn.globalVars, CPN_MAX_GVARS, GVAR_NAME_LEN);
+      Json::loadSizes(it, m_defn.globalVars, CPN_MAX_GVARS, GVAR_NAME_LEN);
 
     else if (it.key() == "inputs")
-      loadSizes(it, m_defn.inputs, CPN_MAX_INPUTS, INPUT_NAME_LEN);
+      Json::loadSizes(it, m_defn.inputs, CPN_MAX_INPUTS, INPUT_NAME_LEN);
 
     else if (it.key() == "lcdToVideo")
       m_defn.lcdToVideo = Json::valueBool(it, m_defn.lcdToVideo);
@@ -508,7 +507,7 @@ bool Firmware::loadDefinition(const QString & path)
       m_defn.keyShortcuts = Json::valueInt(it);
 
     else if (it.key() == "logicalSw")
-      loadSizes(it, m_defn.logicalSwitches, CPN_MAX_LOGICAL_SWITCHES, MIXDATA_NAME_LEN);
+      Json::loadSizes(it, m_defn.logicalSwitches, CPN_MAX_LOGICAL_SWITCHES, MIXDATA_NAME_LEN);
 
     else if (it.key() == "luaScripts")
       loadLuaScripts(it);
@@ -523,31 +522,31 @@ bool Firmware::loadDefinition(const QString & path)
       m_defn.modelSlots = Json::valueInt(it);
 
     else if (it.key() == "mixes")
-      loadSizes(it, m_defn.mixes, CPN_MAX_MIXERS, MIXDATA_NAME_LEN);
+      Json::loadSizes(it, m_defn.mixes, CPN_MAX_MIXERS, MIXDATA_NAME_LEN);
 
     else if (it.key() == "outputs")
-      loadSizes(it, m_defn.outputs, CPN_MAX_CHNOUT, LIMITDATA_NAME_LEN);
+      Json::loadSizes(it, m_defn.outputs, CPN_MAX_CHNOUT, LIMITDATA_NAME_LEN);
 
     else if (it.key() == "quickMenuFavs")
       m_defn.quickMenuFavs = Json::valueInt(it);
 
     else if (it.key() == "sensors")
-      loadSizes(it, m_defn.sensors, CPN_MAX_SENSORS, SENSOR_LABEL_LEN);
+      Json::loadSizes(it, m_defn.sensors, CPN_MAX_SENSORS, SENSOR_LABEL_LEN);
 
     else if (it.key() == "specialFuncs")
-      loadSizes(it, m_defn.specialFuncs, CPN_MAX_SPECIAL_FUNCTIONS, 0);
+      Json::loadSizes(it, m_defn.specialFuncs, CPN_MAX_SPECIAL_FUNCTIONS, 0);
 
     else if (it.key() == "teleCstmScrns")
       loadTeleCstmScrns(it);
 
     else if (it.key() == "timers")
-      loadSizes(it, m_defn.timers, CPN_MAX_TIMERS, TIMER_NAME_LEN);
+      Json::loadSizes(it, m_defn.timers, CPN_MAX_TIMERS, TIMER_NAME_LEN);
 
     else if (it.key() == "topBarZones")
       m_defn.topBarZones = Json::valueInt(it);
 
     else
-      qWarning() << "Warning: No rule to process - path:" << path << "name:" << it.key() << "value:" << it.value();
+      JSON_NO_RULE(it);
   }
 
   delete doc;
@@ -563,32 +562,42 @@ void Firmware::loadCurves(QJsonObject::const_iterator & oit)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
         continue;
+
+        //JSON_KEY_VAL(it);
+
       else if (it.key() == "cnt")
         crv.sizes.cnt = Json::valueInt(it, crv.sizes.cnt, CPN_MAX_CURVES);
+
       else if (it.key() == "name")
         crv.sizes.name = Json::valueInt(it, crv.sizes.name, CURVEDATA_NAME_LEN);
+
       else if (it.key() == "points") {
         if (it->isObject()) {
           QJsonObject po = it->toObject();
           for (QJsonObject::const_iterator pit = po.constBegin(); pit != po.constEnd(); ++pit) {
             if (pit.key() == "comments")
               continue;
+
+            //JSON_KEY_VAL(pit);
+
             else if (pit.key() == "min")
               crv.minPoints = Json::valueInt(pit, crv.minPoints, 2);
+
             else if (pit.key() == "max")
               crv.maxPoints = Json::valueInt(pit, crv.maxPoints, CPN_MAX_POINTS);
+
             else if (pit.key() == "total")
               crv.totalPoints = Json::valueInt(pit, crv.totalPoints, 512);
             else
-            qWarning() << "Warning: No rule to process - name:" << pit.key() << "value:" << pit.value();
+            JSON_NO_RULE(pit);
           }
         } else
           qWarning() << "Warning: curve points is not an object";
       } else
-        qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
+        JSON_NO_RULE(it);
     }
   } else
-        qWarning() << "Warning: curves is not an object";
+    JSON_NOT_OBJ(oit);
 }
 
 void Firmware::loadCustomScreens(QJsonObject::const_iterator & oit)
@@ -600,6 +609,9 @@ void Firmware::loadCustomScreens(QJsonObject::const_iterator & oit)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
         continue;
+
+      //JSON_KEY_VAL(it);
+
       else if (it.key() == "cnt")
         cs.sizes.cnt = Json::valueInt(it, cs.sizes.cnt, CPN_MAX_SCRIPTS);
 
@@ -622,10 +634,10 @@ void Firmware::loadCustomScreens(QJsonObject::const_iterator & oit)
         cs.widgetOptions = Json::valueInt(it, cs.widgetOptions, MAX_WIDGET_OPTIONS);
 
       else
-        qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
+        JSON_NO_RULE(it);
     }
   } else
-        qWarning() << "Warning: luaScripts is not an object";
+    JSON_NOT_OBJ(oit);
 }
 
 void Firmware::loadLuaScripts(QJsonObject::const_iterator & oit)
@@ -637,19 +649,26 @@ void Firmware::loadLuaScripts(QJsonObject::const_iterator & oit)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
         continue;
+
+      //JSON_KEY_VAL(it);
+
       else if (it.key() == "cnt")
         lua.sizes.cnt = Json::valueInt(it, lua.sizes.cnt, CPN_MAX_SCRIPTS);
+
       else if (it.key() == "name")
         lua.sizes.name = Json::valueInt(it, lua.sizes.name, CPN_LEN_SCRIPT_NAME);
+
       else if (it.key() == "inputs")
         lua.maxInputs = Json::valueInt(it, lua.maxInputs, CPN_MAX_SCRIPT_INPUTS);
+
       else if (it.key() == "outputs")
         lua.maxOutputs = Json::valueInt(it, lua.maxOutputs, CPN_MAX_SCRIPT_OUTPUTS);
+
       else
-        qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
+        JSON_NO_RULE(it);
     }
   } else
-        qWarning() << "Warning: luaScripts is not an object";
+    JSON_NOT_OBJ(oit);
 }
 
 void Firmware::loadModelImage(QJsonObject::const_iterator & oit)
@@ -661,19 +680,26 @@ void Firmware::loadModelImage(QJsonObject::const_iterator & oit)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
         continue;
+
+      //JSON_KEY_VAL(it);
+
       else if (it.key() == "filters")
         mi.filters = Json::valueStdString(it, mi.filters);
+
       else if (it.key() == "image")
         mi.image = Json::valueBool(it, mi.image);
+
       else if (it.key() == "keepExtn")
         mi.keepExtn = Json::valueBool(it, mi.keepExtn);
+
       else if (it.key() == "name")
         mi.name = Json::valueInt(it, mi.name, CPN_MAX_BITMAP_LEN);
+
       else
-        qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
+        JSON_NO_RULE(it);
     }
   } else
-        qWarning() << "Warning: modelImage is not an object";
+    JSON_NOT_OBJ(oit);
 }
 
 void Firmware::loadBuildOptions(QJsonObject::const_iterator & it)
@@ -701,7 +727,7 @@ void Firmware::loadBuildOptions(QJsonObject::const_iterator & it)
         m_defn.options.append(grp);
     }
   } else
-    qWarning() << "Warning: buildOpts is not an array";
+    JSON_NOT_ARRAY(it);
 }
 
 void Firmware::loadBuildOptionGroup(QJsonArray::const_iterator & it, OptionsGroup & grp)
@@ -711,7 +737,6 @@ void Firmware::loadBuildOptionGroup(QJsonArray::const_iterator & it, OptionsGrou
 
     if (registeredOptions.contains((*it).toString())) {
       if (!isOptionDuplicate(m_defn.options, opt)) {
-        // TODO do not store a duplicate copy of the tooltip
         grp.append(opt);
       } else {
         qWarning() << "Duplicate option:" << opt;
@@ -723,27 +748,6 @@ void Firmware::loadBuildOptionGroup(QJsonArray::const_iterator & it, OptionsGrou
     qWarning() << "Option is not a string:" << (*it);
 }
 
-void Firmware::loadSizes(QJsonObject::const_iterator & grpit, defn_sizes_t & sizes,
-                           const int cntMax, const int nameLenMax,
-                           const int cntMin, const int nameLenMin)
-{
-  if (grpit->isObject()) {
-    QJsonObject o = grpit->toObject();
-
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
-      else if (it.key() == "cnt")
-        sizes.cnt = Json::valueInt(it, sizes.cnt, cntMax, cntMin);
-      else if (it.key() == "name")
-        sizes.name = Json::valueInt(it, sizes.name, nameLenMax, nameLenMin);
-      else
-        qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
-    }
-  } else
-        qWarning() << "Warning: option group is not an object";
-}
-
 void Firmware::loadTeleCstmScrns(QJsonObject::const_iterator & oit)
 {
   if (oit->isObject()) {
@@ -753,19 +757,26 @@ void Firmware::loadTeleCstmScrns(QJsonObject::const_iterator & oit)
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
         continue;
+
+      //JSON_KEY_VAL(it);
+
       else if (it.key() == "cnt")
         tele.sizes.cnt = Json::valueInt(it, tele.sizes.cnt, CPN_TELE_CUST_SCRNS);
+
       else if (it.key() == "bars")
         tele.maxBars = Json::valueInt(it, tele.maxBars, CPN_TELE_CUST_SCRNS_BARS);
+
       else if (it.key() == "perLine")
         tele.maxPerLine = Json::valueInt(it, tele.maxPerLine, CPN_TELE_CUST_SCRNS_PERLINE);
+
       else if (it.key() == "lines")
         tele.maxLines = Json::valueInt(it, tele.maxLines, CPN_TELE_CUST_SCRNS_LINES);
+
       else
-        qWarning() << "Warning: No rule to process - name:" << it.key() << "value:" << it.value();
+        JSON_NO_RULE(oit);
     }
   } else
-        qWarning() << "Warning: teleCstmScrns is not an object";
+    JSON_NOT_OBJ(oit);
 }
 
 bool Firmware::postLoad()
@@ -783,27 +794,27 @@ bool Firmware::postLoad()
   return true;
 }
 
-void Firmware::setCurrent(const QString & id)
+bool Firmware::setCurrent(const QString & id)
 {
-  setCurrent(FirmwareFactories::getInstance().getFirmware(id));
+  return setCurrent(FirmwareFactories::getInstance().getFirmware(id));
 }
 
-void Firmware::setCurrent(Firmware * firmware)
+bool Firmware::setCurrent(Firmware * firmware)
 {
   bool result = false;
 
   if (firmware && firmware->loadDefinition()) {
     result = true;
     m_current = firmware;
-    // force loading board definition as it may only be a skeleton
-    // if not loaded previously
-    m_current->getBoard(true);
+    m_current->getBoard(true);  // ensure board definition is loaded as it may only be a skeleton
   }
 
+  // call after board definition loaded as Firmware::getCapabilities falls thru to Board::getCapabilities
   m_current->dumpCapabilities();
 
   if (!result)
-    qCritical() << "ERROR - Set current firmware to instance:" << (firmware ? firmware->getId() : "unknown");
+    qCritical() << "ERROR - Setting current firmware:"
+                << (firmware ? firmware->getId() : "unknown");
 
+  return result;
 }
-

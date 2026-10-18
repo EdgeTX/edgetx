@@ -23,6 +23,7 @@
 
 #include "../shared/capabilities.h"
 #include "datahelpers.h"
+#include "../helpers/helpers_json.h"
 
 #include <QtCore>
 #include <QObject>
@@ -372,14 +373,6 @@ class Board
       CustomSwitchesDefn() = default;
     };
 
-    struct RangeDefn {
-      int min  {0};
-      int max  {0};
-      int dflt {0};
-
-      RangeDefn() = default;
-    };
-
     struct BacklightDefn {
       int  delay         {0};
       bool keys          {false};
@@ -437,7 +430,7 @@ class Board
       int backlightLevelMin             {0};
       std::string bluetoothName         {"unknown"};
       bool chargeWhileOn                {false};
-      RangeDefn contrast;
+      Json::range_t contrast;
       bool stickDeadZone                {false};
       int eepromSize                    {0};
       bool externalAntenna              {false};
@@ -617,7 +610,6 @@ class Board
     void loadADCInputs(QJsonObject::const_iterator & it);
     void loadBacklight(QJsonObject::const_iterator & it);
     void loadBattery(QJsonObject::const_iterator & it);
-    void loadContrast(QJsonObject::const_iterator & it);
     void loadDisplay(QJsonObject::const_iterator & it);
     void loadHaptic(QJsonObject::const_iterator & it);
     void loadHardware(QJsonObject::const_iterator & it);

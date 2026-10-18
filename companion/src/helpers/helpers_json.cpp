@@ -29,6 +29,48 @@ const bool Json::exists(const QJsonObject & obj, const QString & key)
   return !obj.value(key).isUndefined();
 }
 
+void Json::loadRange(QJsonObject::const_iterator & it, range_t & range)
+{
+  if (it->isObject()) {
+    QJsonObject o = it->toObject();
+
+    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      if (it.key() == "comments")
+        continue;
+      else if (it.key() == "min")
+        range.min = Json::valueInt(it, range.min);
+      else if (it.key() == "max")
+        range.max = Json::valueInt(it, range.max);
+      else if (it.key() == "dflt")
+        range.dflt = Json::valueInt(it, range.dflt);
+      else
+        JSON_NO_RULE(it);
+    }
+  } else
+    JSON_NOT_OBJ(it);
+}
+
+void Json::loadSizes(QJsonObject::const_iterator & it, sizes_t & sizes,
+                     const int cntMax, const int nameLenMax,
+                     const int cntMin, const int nameLenMin)
+{
+  if (it->isObject()) {
+    QJsonObject o = it->toObject();
+
+    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      if (it.key() == "comments")
+        continue;
+      else if (it.key() == "cnt")
+        sizes.cnt = Json::valueInt(it, sizes.cnt, cntMax, cntMin);
+      else if (it.key() == "name")
+        sizes.name = Json::valueInt(it, sizes.name, nameLenMax, nameLenMin);
+      else
+        JSON_NO_RULE(it);
+    }
+  } else
+    JSON_NOT_OBJ(it);
+}
+
 const QVariant Json::value(const QJsonObject & obj, const QString & key, bool manditory,
                            const QVariant & dflt)
 {
