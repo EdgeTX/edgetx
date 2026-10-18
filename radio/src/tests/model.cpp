@@ -99,4 +99,16 @@ TEST(Model, legacySwitchWarningState)
   loadModelYamlStr("switchWarningState: Bd\n");
   EXPECT_EQ(g_model.getSwitchWarning(0), 0);  // SA not checked
   EXPECT_EQ(g_model.getSwitchWarning(1), 3);  // SB down
+
+  // trailing switch without state is ignored
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("switchWarningState: AuB\n");
+  EXPECT_EQ(g_model.getSwitchWarning(0), 1);  // SA up
+  EXPECT_EQ(g_model.getSwitchWarning(1), 0);  // SB not checked
+
+  // unknown switches are skipped, following entries are still decoded
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("switchWarningState: AuZuBd\n");
+  EXPECT_EQ(g_model.getSwitchWarning(0), 1);  // SA up
+  EXPECT_EQ(g_model.getSwitchWarning(1), 3);  // SB down
 }
