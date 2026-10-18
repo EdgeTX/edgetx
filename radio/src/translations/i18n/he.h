@@ -147,6 +147,7 @@
 #define TR_AUX_SERIAL_MODES_9          "ניפוי שגיאות"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "מודול חיצוני"
+#define TR_AUX_SERIAL_MODES_12         "XF Headtracker"
 #define TR_SWTYPES_1                   "ללא"
 #define TR_SWTYPES_2                   "החלפה"
 #define TR_SWTYPES_3                   "2POS"

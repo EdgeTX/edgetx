@@ -100,6 +100,7 @@ const YamlLookupTable uartModeLut = {
   {  GeneralSettings::AUX_SERIAL_DEBUG, "DEBUG"  },
   {  GeneralSettings::AUX_SERIAL_SPACEMOUSE, "SPACEMOUSE"  },
   {  GeneralSettings::AUX_SERIAL_EXT_MODULE, "EXT_MODULE"  },
+  {  GeneralSettings::AUX_SERIAL_XF_HEADTRACKER, "XF_HEADTRACKER"  },
 };
 
 const YamlLookupTable antennaModeLut = {

@@ -404,6 +404,13 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
     return 0;
 #endif
   }
+  else if (i >= MIXSRC_FIRST_XFHT && i <= MIXSRC_LAST_XFHT) {
+#if defined(XF_HEADTRACKER)
+    return get_xfht_value(i - MIXSRC_FIRST_XFHT);
+#else
+    return 0;
+#endif
+  }
 #endif
 
 #if defined(VOICE_CONTROL_SENSOR)
