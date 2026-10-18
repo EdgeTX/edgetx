@@ -236,8 +236,9 @@ Notes:
 
 Driver implementation:
 - `g11p_key_driver.cpp`: `readKeys()` decodes `K12_ADC`/`K34_ADC` into 4 keys (thresholds
-  from the ladder resistor values, in the NB4P `getAnalogValue()` style) and handles the
-  `K6A`/`K7A` GPIO keys; `readTrims()` handles the `TRx_ADC` lines.
+  from the ladder resistor values, in the NB4P `getAnalogValue()` style); the `K6A`/`K7A`/
+  `W-KEY` GPIO keys are mapped directly in `hal.h` and read via the generated keys (see
+  section 10); `readTrims()` handles the `TRx_ADC` lines.
 - `g11p_switch_driver.cpp`: ~~`SW1` digital (PH4) plus analog `SW2/3/4`~~ **Superseded by
   section 10** — switches are mapped directly in `hal.h` and handled by the generic
   `stm32_switch_driver`.
@@ -502,10 +503,13 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
     `FLASH_SPI`/SPI6 block. `-E -dM` dumps match the pre-merge ST16 (minus `FLASH_SPI*`)
     and G11P outputs exactly. -> commit & push
 
-19. [ ] Radio: apply section 10 — direct ADC/GPIO input map in `hal.h` (ADC1=8/ADC3=6,
-    `RAW1..RAW6`, `SWB/C/D`, direct keys/SW1), delete `g11p_switch_driver.cpp`, rework
-    `g11p_key_driver.cpp`; regenerate `hardware_defs` and verify `g11p.json` /
-    `stm32_adc_inputs.inc`. -> commit & push
+19. [x] Radio: applied section 10 — direct ADC/GPIO input map in `hal.h` (ADC1=8/ADC3=6,
+    `RAW1..RAW6`, `SWB/C/D`, direct keys/SW1), deleted `g11p_switch_driver.cpp`, reworked
+    `g11p_key_driver.cpp`. Verified `g11p.json` (MAIN=8, EXT=6, keys with gpio, SW SA/ADC)
+    and `stm32_adc_inputs.inc` (correct ports, no PB0/PC0 collision); G11P firmware and
+    `libedgetx-g11p-simulator.so` both build. Also fixed a latent
+    `luaKillEvents()`/`KEYS_GPIO_REG_MENU` build break (guard with `!COLORLCD`).
+    -> commit & push (`f4a2a7f9f2`)
 
 **Outstanding:** `.github/workflows/actions.yml` CI matrix needs `g11p` added, but the
 push token lacks `workflow` scope; apply manually or with a suitably-scoped token. Hardware
