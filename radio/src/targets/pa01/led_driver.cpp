@@ -31,13 +31,18 @@
 #define GET_BLUE(color) (((color) & 0xF8))
 
 // used to map switch number to led number in the rgbled chain
-uint8_t ledMapping[] = {4, 6, 0, 2};
+static const uint8_t ledMapping[] = {4, 6, 0, 2};
+
+uint8_t fsLedFirstIndex(uint8_t index)
+{
+  return ledMapping[index];
+}
 
 void fsLedRGB(uint8_t index, uint32_t color)
 {
-  rgbSetLedColor(ledMapping[index], GET_RED(color),
+  rgbSetLedColor(fsLedFirstIndex(index), GET_RED(color),
      GET_GREEN(color),GET_BLUE(color));
-  rgbSetLedColor(ledMapping[index]+1, GET_RED(color),
+  rgbSetLedColor(fsLedFirstIndex(index)+1, GET_RED(color),
      GET_GREEN(color),GET_BLUE(color));
   rgbLedColorApply();
 }
