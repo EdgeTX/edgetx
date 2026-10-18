@@ -172,6 +172,11 @@ void drawSleepBitmap()
 void cancelShutdownAnimation()
 {
   if (shutdownWindow) {
+    if (shutdownSplashImg) {
+      shutdownSplashImg->removeCanvas();
+      delete shutdownSplashImg;
+      shutdownSplashImg = nullptr;
+    }
     shutdownWindow->closeWindow();
     shutdownWindow = nullptr;
     for (int i = 0; i < 4; i += 1) shutdownAnim[i] = nullptr;
