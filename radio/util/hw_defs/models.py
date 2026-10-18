@@ -227,10 +227,33 @@ class Touch(BaseModel):
     gt911_rotation_mode: Optional[int] = None
     exti: Optional[List[EXTI]] = None
 
+
+class LedGroup(BaseModel):
+    # e.g. 'gimbal_left', exposed to Lua by getRGBLedInfo()
+    name: str
+    # first LED, as a Lua setRGBLedColor() index (0 = first bling LED)
+    first: int
+    count: int
+    # evenly spaced ring: angle of the first LED in degrees (0 = right,
+    # 90 = up), following LEDs go counter clockwise (1) or clockwise (-1)
+    start_angle: Optional[int] = None
+    direction: Optional[Literal[-1, 1]] = None
+
+    @model_validator(mode="after")
+    def check_ring(self: "LedGroup") -> "LedGroup":
+        if (self.start_angle is None) != (self.direction is None):
+            raise PydanticCustomError(
+                "LedGroupError",
+                "LED group needs both 'start_angle' and 'direction', or neither",
+            )
+        return self
+
+
 class LEDS(BaseModel):
     led_strip_length: Optional[int] = None
     bling_led_strip_start: Optional[int] = None
     bling_led_strip_length: Optional[int] = None
+    bling_groups: Optional[List[LedGroup]] = None
     cfs_led_strip_start: Optional[int] = None
     cfs_led_strip_length: Optional[int] = None
     cfs_leds_per_switch: Optional[int] = None
@@ -257,6 +280,18 @@ class LEDS(BaseModel):
     status_led_pwm_timer_freq: Optional[str] = None
     status_led_pwm_timer_irqn: Optional[str] = None
     status_led_pwm_timer_irqhandler: Optional[str] = None
+
+    @model_validator(mode="after")
+    def check_bling_groups(self: "LEDS") -> "LEDS":
+        for group in self.bling_groups or []:
+            if group.first < 0 or group.count <= 0 or \
+               group.first + group.count > (self.bling_led_strip_length or 0):
+                raise PydanticCustomError(
+                    "LedGroupError",
+                    "LED group '{name}' is outside the bling LEDs",
+                    {"name": group.name},
+                )
+        return self
 
 class IMU(BaseModel):
     imu_i2c_bus: Optional[str] = None

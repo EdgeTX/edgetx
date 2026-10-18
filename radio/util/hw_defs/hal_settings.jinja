@@ -87,7 +87,7 @@
 
 // LEDS
 {% for name, val in leds %}
-{% if val is not none %}
+{% if val is not none and (val is string or val is not iterable) %}
 {% if val is sameas true or val is sameas false %}
 #define {{ name | upper }} {{ val | tojson }}
 {% elif name.endswith('_irqn') %}

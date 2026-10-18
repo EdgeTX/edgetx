@@ -464,6 +464,10 @@
     "led_strip_length": 26,
     "bling_led_strip_start": 6,
     "bling_led_strip_length": 20,
+    "bling_groups": [
+      { "name": "gimbal_right", "first": 0, "count": 10, "start_angle": 190, "direction": -1 },
+      { "name": "gimbal_left", "first": 10, "count": 10, "start_angle": 350, "direction": 1 }
+    ],
     "cfs_led_strip_start": 0,
     "cfs_led_strip_length": 6,
     "cfs_leds_per_switch": 1,
