@@ -33,6 +33,10 @@
   #include "ghost.h"
 #endif
 
+#if defined(MAVLINK)
+  #include "mavlink.h"
+#endif
+
 #if defined(RADIO_NV14_FAMILY)
   #include "telemetry/flysky_nv14.h"
 #endif
@@ -548,6 +552,12 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
 #if defined(GHOST)
       case PROTOCOL_TELEMETRY_GHOST:
         ghostSetDefault(index, id, instance);
+        break;
+#endif
+
+#if defined(MAVLINK)
+      case PROTOCOL_TELEMETRY_MAVLINK:
+        mavlinkSetDefault(index, id, subId, instance);
         break;
 #endif
 
