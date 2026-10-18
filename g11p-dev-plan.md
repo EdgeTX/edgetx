@@ -238,8 +238,9 @@ Driver implementation:
 - `g11p_key_driver.cpp`: `readKeys()` decodes `K12_ADC`/`K34_ADC` into 4 keys (thresholds
   from the ladder resistor values, in the NB4P `getAnalogValue()` style) and handles the
   `K6A`/`K7A` GPIO keys; `readTrims()` handles the `TRx_ADC` lines.
-- `g11p_switch_driver.cpp`: `SW1` digital (PH4) plus analog `SW2/3/4`; switch names must
-  align with `switch_config.py`.
+- `g11p_switch_driver.cpp`: ~~`SW1` digital (PH4) plus analog `SW2/3/4`~~ **Superseded by
+  section 10** — switches are mapped directly in `hal.h` and handled by the generic
+  `stm32_switch_driver`.
 - `g11p_bsp_io`: direct-GPIO (no PCA95xx) implementation for the `BSP_*` outputs.
 - Sticks (`TH`/`ST`), pot (`VR2`) and the encoder use the normal HAL paths.
 
@@ -255,8 +256,8 @@ Driver implementation:
   - `radio/util/hw_defs/pot_config.py`
   - `radio/util/hw_defs/legacy_names.py` (analog input names/labels)
   Model them on `nb4p` (surface) and `st16`, adjusted to the G11P nets and the input map in
-  3.4. The switch names in `switch_config.py` must match the names returned by
-  `g11p_switch_driver.cpp`.
+  3.4. The switch names in `switch_config.py` must match the canonical `SA..SD` names
+  generated from `hal.h` (see section 10).
 
 ---
 
@@ -464,7 +465,7 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
    marked TODO; to be confirmed on hardware. -> commit & push
 6. [x] Radio: `g11p_key_driver.cpp` / `g11p_switch_driver.cpp` (custom ADC-ladder decode)
    + `hal.h` ADC input map. G11P firmware compiles (docker build `FLAVOR` g11p).
-   -> commit & push
+   **Superseded by section 10** (direct map + minimal driver). -> commit & push
 7. [x] Tooling registration (`build-common.sh`, `build-flysky.py`, generators,
    `build-companion.sh`, `fw.json`). `FLAVOR=g11p` builds via `build-gh.sh`. CI matrix
    (`.github/workflows/actions.yml`) pending: push token lacks `workflow` scope.
@@ -497,6 +498,10 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
     deltas under per-topic `#if defined(RADIO_G11P)`; removed the now-dead ST16
     `FLASH_SPI`/SPI6 block. `-E -dM` dumps match the pre-merge ST16 (minus `FLASH_SPI*`)
     and G11P outputs exactly. -> commit & push
+
+19. [ ] Radio: apply section 10 — direct ADC/GPIO input map in `hal.h`, delete
+    `g11p_switch_driver.cpp`, rework `g11p_key_driver.cpp`; regenerate `hardware_defs` and
+    verify `g11p.json` / `stm32_adc_inputs.inc`. -> commit & push
 
 **Outstanding:** `.github/workflows/actions.yml` CI matrix needs `g11p` added, but the
 push token lacks `workflow` scope; apply manually or with a suitably-scoped token. Hardware
@@ -540,3 +545,128 @@ Fix steps:
    `LCD_SPI_CS_GPIO`) and drop the unused expander `USE_EXTI9_5_IRQ`.
 7. Rebuild the G11P firmware and confirm no `bsp_*`/`BSP_*` references remain on the G11P
    compile path. Commit as `fix(g11p): use direct GPIO I/O instead of a BSP driver`.
+
+---
+
+## 10. Fix — G11P ADC / input mapping (direct map + minimal driver)
+
+The initial G11P input implementation declared every key/switch/trim line as a generic
+`RAW1..RAW11` ADC input and decoded all of them in `g11p_key_driver.cpp` /
+`g11p_switch_driver.cpp`. That is wrong: only genuinely multi-voltage inputs need a driver.
+Everything else must be mapped directly in `hal.h` (PL18 style), exactly as PL18/NB4P do.
+
+### 10.1 Rules
+
+1. **One ADC line → several keys** (resistor ladder / key matrix) ⇒ keep a key driver
+   (NB4P pattern, `getAnalogValue()` + thresholds).
+2. **Analog trims** (one line → several buttons/positions) ⇒ key driver.
+3. **Single ADC / GPIO I/O** (one switch/key) ⇒ direct map in `hal.h`:
+   - analog switch/pot/stick: `ADC_GPIO_PIN_*` + `ADC_CHANNEL_*`
+   - digital switch: `SWITCHES_GPIO_REG_x` / `SWITCHES_GPIO_PIN_x`
+   - digital key: `KEYS_GPIO_REG_*` / `KEYS_GPIO_PIN_*`
+
+Reference: `pl18/hal.h` maps SWA/SWC as GPIO switches and SWB/SWD/SWE/... as ADC switches;
+`pl18/bsp_io.h` is a header-only stub and there is no switch/key driver beyond the matrix
+`key_driver.cpp`.
+
+### 10.2 Current defects (generated artifacts)
+
+- 11 bogus `RAW1..RAW11` analog channels exposed to the UI/Companion.
+- Switches are "custom" with `gpio:null`; driver names `SW1..SW4` do not match the
+  `switch_config.py` names `SA..SD`.
+- Keys are driver-only with `gpio:null`.
+- `ADC3` scans 9 channels (ST16 note: max 8 per ADC).
+- Duplicate pin-bit collision: `RAW1=PB0` and `RAW11=PC0` share `LL_GPIO_PIN_0`, so `RAW1`
+  is mis-assigned to **GPIOC** and PB0 is never configured analog.
+- Channel numbers for ST/TH/POT1/SW2..SW4/TR3/TR4/TR are wrong, inherited from ST16
+  (`PA0=INP14`, `PA1=INP15`, `PA2=INP16`, `PA3=INP17`), which contradicts the datasheet and
+  the working `pa01` target (`PA3=INP15`, `PA5=INP19`, `PC5=INP8`, `PC1=INP11`,
+  `PF7=ADC3_INP3`).
+
+### 10.3 Target input map (parse order = `ADC_DIRECTION` order)
+
+| Idx | Name | Net | Pin | Class | HAL macros | Handled by |
+|---|---|---|---|---|---|---|
+| 0 | ST | ST_ADC | PA1 | STICK | `ADC_CHANNEL_STICK_ST` = `INP17` | generic |
+| 1 | TH | TH_ADC | PA0 | STICK | `ADC_CHANNEL_STICK_TH` = `INP16` | generic |
+| 2 | P1 (VR2) | VR2A | PC2 | FLEX | `ADC_CHANNEL_POT1` = `INP12` | generic |
+| 3 | RAW1 (K12) | K12_ADC | PB0 | RAW | `ADC_CHANNEL_RAW1` = `INP9` | key driver |
+| 4 | RAW2 (K34) | K34_ADC | PB1 | RAW | `ADC_CHANNEL_RAW2` = `INP5` | key driver |
+| 5 | RAW3 (TR1) | TR1_ADC | PF8 | RAW | `ADC_CHANNEL_RAW3` = ADC3 `INP8` | key driver |
+| 6 | RAW4 (TR2) | TR2_ADC | PF9 | RAW | `ADC_CHANNEL_RAW4` = ADC3 `INP2` | key driver |
+| 7 | RAW5 (TR3) | TR3_ADC | PA2 | RAW | `ADC_CHANNEL_RAW5` = `INP14` | key driver |
+| 8 | RAW6 (TR4) | TR4_ADC | PA3 | RAW | `ADC_CHANNEL_RAW6` = `INP15` | key driver |
+| 9 | RAW7 (TR) | TR_ADC | PC5 | RAW | `ADC_CHANNEL_RAW7` = `INP8` | key driver |
+| 10 | VBAT | LIBAT_ADC | PC1 | VBAT | `ADC_CHANNEL_BATT` = `INP11` | generic |
+| 11 | RTC_BAT | internal | — | RTC | `ADC_CHANNEL_RTC_BAT` | generic |
+| 12 | SWB (SW2) | SW2_ADC | PA6 | ADC sw | `ADC_CHANNEL_SWB` = `INP3` | generic ADC |
+| 13 | SWC (SW3) | SW3_ADC | PA7 | ADC sw | `ADC_CHANNEL_SWC` = `INP7` | generic ADC |
+| 14 | SWD (SW4) | SW4_ADC | PC3 | ADC sw | `ADC_CHANNEL_SWD` = `INP13` | generic ADC |
+
+GPIO switch / keys (direct, generated `stm32_keys.inc` / `stm32_switches.inc`):
+
+- `SWITCHES_GPIO_REG_A = GPIOH`, `SWITCHES_GPIO_PIN_A = LL_GPIO_PIN_4` (SW1, 2POS)
+- `KEYS_GPIO_REG_MENU  = GPIOC`, `KEYS_GPIO_PIN_MENU  = LL_GPIO_PIN_7`  (K6A)
+- `KEYS_GPIO_REG_EXIT  = GPIOA`, `KEYS_GPIO_PIN_EXIT  = LL_GPIO_PIN_8`  (K7A)
+- `KEYS_GPIO_REG_ENTER = GPIOG`, `KEYS_GPIO_PIN_ENTER = LL_GPIO_PIN_14` (W-KEY)
+
+ADC partitioning. The ST16 "max 8 channels per ADC" comment is treated as **stale** (the
+generic driver supports up to 16 sequencer ranks — `_rank_lookup[]` in `stm32_adc.cpp`), so
+the 9 ADC1-only lines below are kept:
+
+- `ADC1` (9): ST, TH, SW2, SW3, K12, K34, TR3, TR4, TR.
+- `ADC3` (6): POT1, SW4, TR1, TR2, BATT, RTC_BAT.
+- `2S_ADC` (PC0) is dropped (removes the PB0/PC0 pin-bit collision); re-add later as `RAW8`
+  only if confirmed.
+
+```
+ADC_EXT_CHANNELS = { ADC_CHANNEL_POT1, ADC_CHANNEL_SWD, ADC_CHANNEL_RAW3,
+                     ADC_CHANNEL_RAW4, ADC_CHANNEL_BATT, ADC_CHANNEL_RTC_BAT }
+```
+
+### 10.4 Changes per file
+
+**`radio/src/targets/st16/hal.h`** (G11P branch only)
+
+- Keys: replace the empty `KEYS_GPIO_REG_ENTER/PAGEDN/EXIT` with the MENU/EXIT/ENTER entries
+  above.
+- Switches: remove `SWITCHES_A_2POS/_B_3POS/_C_3POS/_D_3POS`; add
+  `SWITCHES_GPIO_REG_A`/`SWITCHES_GPIO_PIN_A`; delete `G11P_K6_GPIO`, `G11P_K7_GPIO`,
+  `G11P_SW1_GPIO`.
+- ADC: replace the old `ST/TH/POT1/RAW1..RAW11` block with the map in 10.3 (corrected
+  channels); add `ADC_GPIO_PIN_SWB/SWC/SWD` + `ADC_CHANNEL_SWB/SWC/SWD`; keep `RAW1..RAW7`
+  for the ladder/trim lines; rebuild `ADC_GPIO{A,B,C,F}_PINS`, `ADC_EXT_CHANNELS` and
+  `ADC_DIRECTION` (15 entries, in the 10.3 order; switch signs TODO-hardware).
+
+**`radio/src/targets/st16/g11p_key_driver.cpp`**
+
+- `#include "stm32_keys.inc"`; `keysInit()` = `_init_keys()` (+ any ladder GPIO setup);
+  `readKeys()` = `_read_keys() | ladder_decode()`.
+- Update the hardcoded analog indices to the new order (`K12=3, K34=4, TR1=5, TR2=6, TR3=7,
+  TR4=8, TR=9`) with the input-order comment; keep NB4P-style thresholds and
+  `readTrims()`; keep the `#if !defined(BOOT)` behaviour.
+
+**`radio/src/targets/st16/g11p_switch_driver.cpp`** — **delete**; remove
+`target_sources(... g11p_switch_driver.cpp)` at `radio/src/targets/st16/CMakeLists.txt:194`.
+All switches are now direct (PH4 GPIO + SWB/SWC/SWD ADC) and handled by
+`boards/generic_stm32/switches.cpp`.
+
+**`radio/util/hw_defs`** — verify `switch_config.py` "g11p" (`SA` TOGGLE, `SB/SC/SD` 3POS)
+and the `legacy_names.py` `P1` label match the final types; no new labels needed.
+
+### 10.5 Verification
+
+1. `make hardware_defs`; inspect `g11p.json`: expect `ST/TH`, `P1`, `RAW1..RAW7`, keys
+   **with** gpio, switches `SA`(gpio) + `SB/SC/SD`(ADC), no `RAW8..RAW11`, no null-GPIO keys.
+2. Inspect generated `stm32_adc_inputs.inc`: correct ports (PB0 stays GPIOB), ≤8 ch/ADC.
+3. Rebuild firmware, `libsimulator` and Companion.
+4. On hardware: ladder thresholds, `ADC_DIRECTION` switch signs, stick/pot directions, trim
+   axes.
+
+### 10.6 Open hardware items
+
+- Logical key map confirmed as K6A=MENU, K7A=EXIT, W-KEY=ENTER; K1/K2=PAGEUP/PAGEDN,
+  K3/K4=UP/DOWN (driver).
+- Confirm SW2/3/4 are 3-pos analog and SW1 is 2-pos.
+- Confirm `TR_ADC` (PC5) and `2S_ADC` (PC0) purpose; trim axes / whether TR1 is a true 5-way.
+- Final ADC3 channel for PF8/PF9 against the H750 datasheet.
