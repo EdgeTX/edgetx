@@ -1161,6 +1161,16 @@ void checkTrims()
       int16_t tMax = g_model.extendedTrims ? TRIM_EXTENDED_MAX : TRIM_MAX;
       int16_t tMin = g_model.extendedTrims ? TRIM_EXTENDED_MIN : TRIM_MIN;
 
+      // With extended trims, also stop at the normal limit so that holding the
+      // trim does not run straight into the extended range. Releasing and
+      // pressing again continues. Only the normal trim beep is played here, as
+      // the min/max trim announcement is reserved for the extended limits.
+      if (g_model.extendedTrims &&
+          ((before < TRIM_MAX && after >= TRIM_MAX) ||
+           (before > TRIM_MIN && after <= TRIM_MIN))) {
+        killTrimEvents(event);
+      }
+
       // Play warning whe going past limits and remove any buffered trim moves
       if (before >= tMin && after <= tMin) {
         beepTrim = false;
