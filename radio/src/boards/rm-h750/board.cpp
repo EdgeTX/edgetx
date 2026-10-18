@@ -115,6 +115,9 @@ void boardBLEarlyInit()
   gpio_init(AUDIO_RESET_PIN, GPIO_OUT, GPIO_PIN_SPEED_LOW);
   gpio_clear(AUDIO_RESET_PIN);
 
+  // keep the backlight off until the LCD is driven
+  backlightLowInit();
+
   timersInit();
   delaysInit();
   bsp_io_init();
@@ -154,6 +157,8 @@ void boardInit()
 {
   // enable interrupts
   __enable_irq();
+
+  backlightLowInit();
 
 #if defined(KCX_BTAUDIO)
   btAudioInit();
