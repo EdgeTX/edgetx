@@ -191,7 +191,8 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
 add_dependencies(board board_lib)
 
 if(PCBREV STREQUAL G11P)
-  target_sources(board PRIVATE ${TARGET_SRC_DIR}/g11p_switch_driver.cpp)
+  # G11P switches are mapped directly in hal.h (SW1 GPIO + SW2/3/4 ADC switches)
+  # and handled by the generic stm32 switch driver; no extra board sources.
 else()
   target_sources(board PRIVATE targets/common/arm/stm32/lsm6ds_driver.cpp)
 endif()

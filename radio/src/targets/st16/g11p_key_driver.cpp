@@ -23,30 +23,32 @@
 
 #include "hal.h"
 #include "hal/adc_driver.h"
-#include "hal/gpio.h"
 #include "stm32_hal_ll.h"
-#include "stm32_gpio.h"
 #include "stm32_gpio_driver.h"
-#include "delays_driver.h"
 #include "keys.h"
+
+#include "stm32_keys.inc"
 
 // G11P key/trim decoding.
 //
-// The keys K1/K2 and K3/K4 share the analog lines K12_ADC (RAW1, index 3) and
-// K34_ADC (RAW2, index 4) through resistor ladders, and the trims are on the
-// TRx_ADC lines (see hal.h for the input index map).
+// The plain GPIO keys (K6A, K7A, W-KEY) are mapped directly in hal.h and read by
+// the generated _read_keys() below. Only the multi-voltage lines need custom
+// decoding:
+//
+//   - K1/K2 share K12_ADC (RAW1) through a resistor ladder
+//   - K3/K4 share K34_ADC (RAW2) through a resistor ladder
+//   - the trims are on the TRx_ADC lines (RAW3..RAW6), see hal.h for the indices
 //
 // TODO(hardware): the logical key mapping and the ladder thresholds must be
 // validated against the real hardware.
 
-// Analog input indices (see hal.h ADC input order)
+// Analog input indices (see the input order in hal.h)
 #define G11P_ADC_K12   3
 #define G11P_ADC_K34   4
-#define G11P_ADC_TR    8
-#define G11P_ADC_TR1   9
-#define G11P_ADC_TR2   10
-#define G11P_ADC_TR3   11
-#define G11P_ADC_TR4   12
+#define G11P_ADC_TR1   5
+#define G11P_ADC_TR2   6
+#define G11P_ADC_TR3   7
+#define G11P_ADC_TR4   8
 
 // TODO(hardware): ladder thresholds (12-bit)
 #define G11P_KEY_LEVEL_LOW   1365
@@ -57,19 +59,12 @@
 
 void keysInit()
 {
-  gpio_init(GPIO_PIN(GPIOC, 7), GPIO_IN_PU, GPIO_PIN_SPEED_LOW); // K6A
-  gpio_init(GPIO_PIN(GPIOA, 8), GPIO_IN_PU, GPIO_PIN_SPEED_LOW); // K7A
-  gpio_init(GPIO_PIN(GPIOG, 14), GPIO_IN_PU, GPIO_PIN_SPEED_LOW); // W-KEY
+  _init_keys();
 }
 
 uint32_t readKeys()
 {
-  uint32_t result = 0;
-
-  // Digital keys (active low)
-  if (!gpio_read(GPIO_PIN(GPIOC, 7))) result |= 1 << KEY_MENU;   // K6A  (TODO)
-  if (!gpio_read(GPIO_PIN(GPIOA, 8))) result |= 1 << KEY_EXIT;   // K7A  (TODO)
-  if (!gpio_read(GPIO_PIN(GPIOG, 14))) result |= 1 << KEY_ENTER; // W-KEY
+  uint32_t result = _read_keys();
 
 #if !defined(BOOT)
   // K1/K2 on K12_ADC
@@ -91,7 +86,6 @@ uint32_t readTrims()
   uint32_t result = 0;
 
 #if !defined(BOOT)
-  // Physical order: T1(ST) dec/inc, T2(TH) dec/inc, T3, T4
   // TODO(hardware): confirm the trim axes and voltages.
   uint16_t t1 = getAnalogValue(G11P_ADC_TR1);
   uint16_t t2 = getAnalogValue(G11P_ADC_TR2);

@@ -50,14 +50,14 @@
 
 // Keys
 #if defined(RADIO_G11P)
-// Keys are decoded by g11p_key_driver.cpp from ADC ladders (K12_ADC/K34_ADC,
-// K6A/K7A GPIO); no generic GPIO keys.
-#define KEYS_GPIO_REG_ENTER
-#define KEYS_GPIO_PIN_ENTER
-#define KEYS_GPIO_REG_PAGEDN
-#define KEYS_GPIO_PIN_PAGEDN
-#define KEYS_GPIO_REG_EXIT
-#define KEYS_GPIO_PIN_EXIT
+// Direct GPIO keys (active low, pull-up): K6A, K7A and the encoder push (W-KEY).
+// K1/K2 (K12_ADC) and K3/K4 (K34_ADC) are ADC ladders decoded by g11p_key_driver.cpp.
+#define KEYS_GPIO_REG_MENU            GPIOC
+#define KEYS_GPIO_PIN_MENU            LL_GPIO_PIN_7  // PC.07 K6A
+#define KEYS_GPIO_REG_EXIT            GPIOA
+#define KEYS_GPIO_PIN_EXIT            LL_GPIO_PIN_8  // PA.08 K7A
+#define KEYS_GPIO_REG_ENTER           GPIOG
+#define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_14 // PG.14 W-KEY
 #else
 #define KEYS_GPIO_REG_ENTER           GPIOG
 #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_14  // PG.14
@@ -99,19 +99,11 @@
 
 // Digital keys / switches
 #if defined(RADIO_G11P)
-// Switches (positions are provided by g11p_switch_driver.cpp)
-#define SWITCHES_A_2POS
-#define SWITCHES_B_3POS
-#define SWITCHES_C_3POS
-#define SWITCHES_D_3POS
-
-// Digital keys / switch
-#define G11P_K6_GPIO                    GPIOC
-#define G11P_K6_PIN                     LL_GPIO_PIN_7   // PC.07 K6A
-#define G11P_K7_GPIO                    GPIOA
-#define G11P_K7_PIN                     LL_GPIO_PIN_8   // PA.08 K7A
-#define G11P_SW1_GPIO                   GPIOH
-#define G11P_SW1_PIN                    LL_GPIO_PIN_4   // PH.04 SW1 (digital)
+// SW1 is a digital 2-position switch on PH4 (the "_ADC" suffix is only the connector
+// net name). SW2/SW3/SW4 are analog and are mapped as ADC switches (SWB/SWC/SWD) in
+// the ADC section below, handled by the generic stm32 switch driver.
+#define SWITCHES_GPIO_REG_A             GPIOH
+#define SWITCHES_GPIO_PIN_A             LL_GPIO_PIN_4  // PH.04 SW1
 #else
 // function switches
 #define FUNCTION_SWITCH_1               I2C
@@ -155,65 +147,67 @@
 #if defined(RADIO_G11P)
 //
 // Analog input order (this defines the getAnalogValue() indices used by the
-// custom g11p_key_driver / g11p_switch_driver):
+// custom g11p_key_driver):
 //
-//   0  ST        PA1        8  RAW6 = TR    PC5
-//   1  TH        PA0        9  RAW7 = TR1   PF8
-//   2  POT1=VR2  PC2       10  RAW8 = TR2   PF9
-//   3  RAW1=K12  PB0       11  RAW9 = TR3   PA2
-//   4  RAW2=K34  PB1       12  RAW10= TR4   PA3
-//   5  RAW3=SW2  PA6       13  RAW11= 2S    PC0
-//   6  RAW4=SW3  PA7       14  BATT = LIBAT PC1
-//   7  RAW5=SW4  PC3       15  RTC_BAT
+//   0  ST        PA1        6  RAW4 = TR2   PF9    (ADC3)
+//   1  TH        PA0        7  RAW5 = TR3   PA2
+//   2  POT1=VR2  PC2        8  RAW6 = TR4   PA3
+//   3  RAW1=K12  PB0        9  BATT = LIBAT PC1
+//   4  RAW2=K34  PB1       10  RTC_BAT
+//   5  RAW3=TR1  PF8 (ADC3) 11 SWB = SW2   PA6
+//                          12  SWC = SW3   PA7
+//                          13  SWD = SW4   PC3
 //
-// TODO(hardware): all channel assignments below are derived from the ST16 map
-// and must be validated (PC0/PC5 channels are guesses).
+// ADC1 (8): ST, TH, K12, K34, TR3, TR4, SW2, SW3
+// ADC3 (6): POT1, TR1, TR2, SW4, LIBAT, RTC_BAT
+//
+// TR_ADC (PC5) and 2S_ADC (PC0) are intentionally not mapped; see
+// g11p-dev-plan.md section 10.
+//
+// TODO(hardware): validate the analog input ordering/inversion and the switch
+// directions on G11P.
 #define ADC_GPIO_PIN_STICK_ST           LL_GPIO_PIN_1      // PA.01 ST_ADC
 #define ADC_GPIO_PIN_STICK_TH           LL_GPIO_PIN_0      // PA.00 TH_ADC
-#define ADC_CHANNEL_STICK_ST            LL_ADC_CHANNEL_15  // ADC12_INP15
-#define ADC_CHANNEL_STICK_TH            LL_ADC_CHANNEL_14  // ADC12_INP14
+#define ADC_CHANNEL_STICK_ST            LL_ADC_CHANNEL_17  // ADC1_INP17
+#define ADC_CHANNEL_STICK_TH            LL_ADC_CHANNEL_16  // ADC1_INP16
 
 #define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_2      // PC.02 VR2A
-#define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_0   // ADC3_INP0
+#define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_12  // ADC123_INP12
 
 #define ADC_GPIO_PIN_RAW1               LL_GPIO_PIN_0      // PB.00 K12_ADC
 #define ADC_GPIO_PIN_RAW2               LL_GPIO_PIN_1      // PB.01 K34_ADC
-#define ADC_GPIO_PIN_RAW3               LL_GPIO_PIN_6      // PA.06 SW2_ADC
-#define ADC_GPIO_PIN_RAW4               LL_GPIO_PIN_7      // PA.07 SW3_ADC
-#define ADC_GPIO_PIN_RAW5               LL_GPIO_PIN_3      // PC.03 SW4_ADC
-#define ADC_GPIO_PIN_RAW6               LL_GPIO_PIN_5      // PC.05 TR_ADC
-#define ADC_GPIO_PIN_RAW7               LL_GPIO_PIN_8      // PF.08 TR1_ADC
-#define ADC_GPIO_PIN_RAW8               LL_GPIO_PIN_9      // PF.09 TR2_ADC
-#define ADC_GPIO_PIN_RAW9               LL_GPIO_PIN_2      // PA.02 TR3_ADC
-#define ADC_GPIO_PIN_RAW10              LL_GPIO_PIN_3      // PA.03 TR4_ADC
-#define ADC_GPIO_PIN_RAW11              LL_GPIO_PIN_0      // PC.00 2S_ADC
+#define ADC_GPIO_PIN_RAW3               LL_GPIO_PIN_8      // PF.08 TR1_ADC
+#define ADC_GPIO_PIN_RAW4               LL_GPIO_PIN_9      // PF.09 TR2_ADC
+#define ADC_GPIO_PIN_RAW5               LL_GPIO_PIN_2      // PA.02 TR3_ADC
+#define ADC_GPIO_PIN_RAW6               LL_GPIO_PIN_3      // PA.03 TR4_ADC
 #define ADC_CHANNEL_RAW1                LL_ADC_CHANNEL_9   // ADC12_INP9
 #define ADC_CHANNEL_RAW2                LL_ADC_CHANNEL_5   // ADC12_INP5
-#define ADC_CHANNEL_RAW3                LL_ADC_CHANNEL_3   // ADC12_INP3
-#define ADC_CHANNEL_RAW4                LL_ADC_CHANNEL_7   // ADC12_INP7
-#define ADC_CHANNEL_RAW5                LL_ADC_CHANNEL_1   // ADC3_INP1
-#define ADC_CHANNEL_RAW6                LL_ADC_CHANNEL_3   // ADC3_INP3 (TODO)
-#define ADC_CHANNEL_RAW7                LL_ADC_CHANNEL_8   // ADC3_INP8
-#define ADC_CHANNEL_RAW8                LL_ADC_CHANNEL_2   // ADC3_INP2
-#define ADC_CHANNEL_RAW9                LL_ADC_CHANNEL_16  // ADC12_INP16
-#define ADC_CHANNEL_RAW10               LL_ADC_CHANNEL_17  // ADC12_INP17
-#define ADC_CHANNEL_RAW11               LL_ADC_CHANNEL_10  // ADC3_INP10 (TODO)
+#define ADC_CHANNEL_RAW3                LL_ADC_CHANNEL_8   // ADC3_INP8
+#define ADC_CHANNEL_RAW4                LL_ADC_CHANNEL_2   // ADC3_INP2
+#define ADC_CHANNEL_RAW5                LL_ADC_CHANNEL_14  // ADC12_INP14
+#define ADC_CHANNEL_RAW6                LL_ADC_CHANNEL_15  // ADC12_INP15
+
+#define ADC_GPIO_PIN_SWB                LL_GPIO_PIN_6      // PA.06 SW2_ADC
+#define ADC_GPIO_PIN_SWC                LL_GPIO_PIN_7      // PA.07 SW3_ADC
+#define ADC_GPIO_PIN_SWD                LL_GPIO_PIN_3      // PC.03 SW4_ADC
+#define ADC_CHANNEL_SWB                 LL_ADC_CHANNEL_3   // ADC12_INP3
+#define ADC_CHANNEL_SWC                 LL_ADC_CHANNEL_7   // ADC12_INP7
+#define ADC_CHANNEL_SWD                 LL_ADC_CHANNEL_13  // ADC123_INP13
 
 #define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_1      // PC.01 LIBAT_ADC
 
 #define ADC_GPIOA_PINS                                                \
-  (ADC_GPIO_PIN_STICK_ST | ADC_GPIO_PIN_STICK_TH | ADC_GPIO_PIN_RAW3 | \
-   ADC_GPIO_PIN_RAW4 | ADC_GPIO_PIN_RAW9 | ADC_GPIO_PIN_RAW10)
+  (ADC_GPIO_PIN_STICK_ST | ADC_GPIO_PIN_STICK_TH |                    \
+   ADC_GPIO_PIN_RAW5 | ADC_GPIO_PIN_RAW6 |                            \
+   ADC_GPIO_PIN_SWB | ADC_GPIO_PIN_SWC)
 #define ADC_GPIOB_PINS (ADC_GPIO_PIN_RAW1 | ADC_GPIO_PIN_RAW2)
-#define ADC_GPIOC_PINS                                                \
-  (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_RAW5 | ADC_GPIO_PIN_RAW6 |         \
-   ADC_GPIO_PIN_RAW11 | ADC_GPIO_PIN_BATT)
-#define ADC_GPIOF_PINS (ADC_GPIO_PIN_RAW7 | ADC_GPIO_PIN_RAW8)
+#define ADC_GPIOC_PINS (ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_SWD | ADC_GPIO_PIN_BATT)
+#define ADC_GPIOF_PINS (ADC_GPIO_PIN_RAW3 | ADC_GPIO_PIN_RAW4)
 
-#define ADC_EXT_CHANNELS                                                    \
-  {                                                                         \
-    ADC_CHANNEL_POT1, ADC_CHANNEL_RAW5, ADC_CHANNEL_RAW6, ADC_CHANNEL_RAW7, \
-    ADC_CHANNEL_RAW8, ADC_CHANNEL_RAW11, ADC_CHANNEL_BATT, ADC_CHANNEL_RTC_BAT \
+#define ADC_EXT_CHANNELS                                                   \
+  {                                                                        \
+    ADC_CHANNEL_POT1, ADC_CHANNEL_SWD, ADC_CHANNEL_RAW3, ADC_CHANNEL_RAW4, \
+    ADC_CHANNEL_BATT, ADC_CHANNEL_RTC_BAT                                  \
   }
 
 // TODO(hardware): validate the analog input ordering/inversion on G11P.
@@ -221,9 +215,9 @@
     0,0,   /* ST, TH */                 \
     0,     /* POT1 = VR2 */             \
     0,0,0,0,0,0, /* RAW1..RAW6 */       \
-    0,0,0,0,0,   /* RAW7..RAW11 */      \
     0,     /* BATT */                   \
-    0      /* RTC_BAT */                \
+    0,     /* RTC_BAT */                \
+    0,0,0  /* SWB, SWC, SWD */          \
   }
 #else
 #define ADC_GPIO_PIN_STICK_LH           LL_GPIO_PIN_0      // PA.00

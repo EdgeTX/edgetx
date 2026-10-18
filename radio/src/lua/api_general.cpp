@@ -1692,7 +1692,7 @@ Stops key state machine. See [Key Events](../key_events.md) for the detailed des
 */
 static int luaKillEvents(lua_State * L)
 {
-#if defined(KEYS_GPIO_REG_MENU)
+#if defined(KEYS_GPIO_REG_MENU) && !defined(COLORLCD)
   #define IS_MASKABLE(key)                                      \
     ((key) != KEY_EXIT && (key) != KEY_ENTER &&                 \
      ((scriptInternalData[0].reference == SCRIPT_STANDALONE) || \
