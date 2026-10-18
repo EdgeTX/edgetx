@@ -430,6 +430,9 @@ Notes:
   names/types for SW1-SW4; trim axes and whether TR1 is a true 5-way; purpose of `TR_ADC`;
   whether `K5` / `VR1` exist and where they wire. Exact K12/K34 ladder resistor values to
   derive thresholds.
+- **Resolved (section 10)**: direct map in `hal.h`; `ADC1`=8 / `ADC3`=6 split; the "max
+  8/ADC" note is F4 field experience, not an H750 datasheet limit; `TR_ADC` deferred,
+  `2S_ADC` dropped.
 - **Resolved**: LCD is 320x480 portrait; no external module bay / Bluetooth / wireless
   charger / S.Port / IMU; trainer port exposed as the external module UART (UART7);
   touch reuses the PL18 FlySky driver; battery reuses the ST16 2S config; unique G11P
@@ -499,9 +502,10 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
     `FLASH_SPI`/SPI6 block. `-E -dM` dumps match the pre-merge ST16 (minus `FLASH_SPI*`)
     and G11P outputs exactly. -> commit & push
 
-19. [ ] Radio: apply section 10 — direct ADC/GPIO input map in `hal.h`, delete
-    `g11p_switch_driver.cpp`, rework `g11p_key_driver.cpp`; regenerate `hardware_defs` and
-    verify `g11p.json` / `stm32_adc_inputs.inc`. -> commit & push
+19. [ ] Radio: apply section 10 — direct ADC/GPIO input map in `hal.h` (ADC1=8/ADC3=6,
+    `RAW1..RAW6`, `SWB/C/D`, direct keys/SW1), delete `g11p_switch_driver.cpp`, rework
+    `g11p_key_driver.cpp`; regenerate `hardware_defs` and verify `g11p.json` /
+    `stm32_adc_inputs.inc`. -> commit & push
 
 **Outstanding:** `.github/workflows/actions.yml` CI matrix needs `g11p` added, but the
 push token lacks `workflow` scope; apply manually or with a suitably-scoped token. Hardware
@@ -575,10 +579,10 @@ Reference: `pl18/hal.h` maps SWA/SWC as GPIO switches and SWB/SWD/SWE/... as ADC
 - Switches are "custom" with `gpio:null`; driver names `SW1..SW4` do not match the
   `switch_config.py` names `SA..SD`.
 - Keys are driver-only with `gpio:null`.
-- `ADC3` scans 9 channels (ST16 note: max 8 per ADC).
+- `ADC3` scans 9 channels (exceeds the 8/ADC design guideline; see 10.3).
 - Duplicate pin-bit collision: `RAW1=PB0` and `RAW11=PC0` share `LL_GPIO_PIN_0`, so `RAW1`
   is mis-assigned to **GPIOC** and PB0 is never configured analog.
-- Channel numbers for ST/TH/POT1/SW2..SW4/TR3/TR4/TR are wrong, inherited from ST16
+- Channel numbers for ST/TH/POT1/SW2..SW4/TR3/TR4 are wrong, inherited from ST16
   (`PA0=INP14`, `PA1=INP15`, `PA2=INP16`, `PA3=INP17`), which contradicts the datasheet and
   the working `pa01` target (`PA3=INP15`, `PA5=INP19`, `PC5=INP8`, `PC1=INP11`,
   `PF7=ADC3_INP3`).
@@ -596,12 +600,11 @@ Reference: `pl18/hal.h` maps SWA/SWC as GPIO switches and SWB/SWD/SWE/... as ADC
 | 6 | RAW4 (TR2) | TR2_ADC | PF9 | RAW | `ADC_CHANNEL_RAW4` = ADC3 `INP2` | key driver |
 | 7 | RAW5 (TR3) | TR3_ADC | PA2 | RAW | `ADC_CHANNEL_RAW5` = `INP14` | key driver |
 | 8 | RAW6 (TR4) | TR4_ADC | PA3 | RAW | `ADC_CHANNEL_RAW6` = `INP15` | key driver |
-| 9 | RAW7 (TR) | TR_ADC | PC5 | RAW | `ADC_CHANNEL_RAW7` = `INP8` | key driver |
-| 10 | VBAT | LIBAT_ADC | PC1 | VBAT | `ADC_CHANNEL_BATT` = `INP11` | generic |
-| 11 | RTC_BAT | internal | — | RTC | `ADC_CHANNEL_RTC_BAT` | generic |
-| 12 | SWB (SW2) | SW2_ADC | PA6 | ADC sw | `ADC_CHANNEL_SWB` = `INP3` | generic ADC |
-| 13 | SWC (SW3) | SW3_ADC | PA7 | ADC sw | `ADC_CHANNEL_SWC` = `INP7` | generic ADC |
-| 14 | SWD (SW4) | SW4_ADC | PC3 | ADC sw | `ADC_CHANNEL_SWD` = `INP13` | generic ADC |
+| 9 | VBAT | LIBAT_ADC | PC1 | VBAT | `ADC_CHANNEL_BATT` = `INP11` | generic |
+| 10 | RTC_BAT | internal | — | RTC | `ADC_CHANNEL_RTC_BAT` | generic |
+| 11 | SWB (SW2) | SW2_ADC | PA6 | ADC sw | `ADC_CHANNEL_SWB` = `INP3` | generic ADC |
+| 12 | SWC (SW3) | SW3_ADC | PA7 | ADC sw | `ADC_CHANNEL_SWC` = `INP7` | generic ADC |
+| 13 | SWD (SW4) | SW4_ADC | PC3 | ADC sw | `ADC_CHANNEL_SWD` = `INP13` | generic ADC |
 
 GPIO switch / keys (direct, generated `stm32_keys.inc` / `stm32_switches.inc`):
 
@@ -610,19 +613,24 @@ GPIO switch / keys (direct, generated `stm32_keys.inc` / `stm32_switches.inc`):
 - `KEYS_GPIO_REG_EXIT  = GPIOA`, `KEYS_GPIO_PIN_EXIT  = LL_GPIO_PIN_8`  (K7A)
 - `KEYS_GPIO_REG_ENTER = GPIOG`, `KEYS_GPIO_PIN_ENTER = LL_GPIO_PIN_14` (W-KEY)
 
-ADC partitioning. The ST16 "max 8 channels per ADC" comment is treated as **stale** (the
-generic driver supports up to 16 sequencer ranks — `_rank_lookup[]` in `stm32_adc.cpp`), so
-the 9 ADC1-only lines below are kept:
+ADC partitioning. The "max 8 channels per ADC" note originates from **F4 field experience,
+not an H750 datasheet limit**; H7 behaviour is unverified. To stay safe without squeezing,
+G11P spreads the inputs over both ADCs so that neither exceeds 8:
 
-- `ADC1` (9): ST, TH, SW2, SW3, K12, K34, TR3, TR4, TR.
-- `ADC3` (6): POT1, SW4, TR1, TR2, BATT, RTC_BAT.
-- `2S_ADC` (PC0) is dropped (removes the PB0/PC0 pin-bit collision); re-add later as `RAW8`
+- `ADC1` (**8**): ST, TH, SW2, SW3, K12, K34, TR3, TR4.
+- `ADC3` (**6**): POT1, SW4, TR1, TR2, BATT, RTC_BAT.
+- `TR_ADC` (PC5) is **dropped/deferred** (purpose unconfirmed) to keep ADC1 at 8 — all
+  remaining ADC1 lines are ADC1/2-only, so none can be moved to ADC3 on this pinout.
+- `2S_ADC` (PC0) is dropped (removes the PB0/PC0 pin-bit collision); re-add later as `RAW7`
   only if confirmed.
 
 ```
 ADC_EXT_CHANNELS = { ADC_CHANNEL_POT1, ADC_CHANNEL_SWD, ADC_CHANNEL_RAW3,
                      ADC_CHANNEL_RAW4, ADC_CHANNEL_BATT, ADC_CHANNEL_RTC_BAT }
 ```
+
+If the H750 datasheet confirms ADC3 can reach PA2/PA3, `TR_ADC` can be reinstated later by
+moving TR3/TR4 to ADC3 (ADC1=7, ADC3=8).
 
 ### 10.4 Changes per file
 
@@ -634,16 +642,16 @@ ADC_EXT_CHANNELS = { ADC_CHANNEL_POT1, ADC_CHANNEL_SWD, ADC_CHANNEL_RAW3,
   `SWITCHES_GPIO_REG_A`/`SWITCHES_GPIO_PIN_A`; delete `G11P_K6_GPIO`, `G11P_K7_GPIO`,
   `G11P_SW1_GPIO`.
 - ADC: replace the old `ST/TH/POT1/RAW1..RAW11` block with the map in 10.3 (corrected
-  channels); add `ADC_GPIO_PIN_SWB/SWC/SWD` + `ADC_CHANNEL_SWB/SWC/SWD`; keep `RAW1..RAW7`
+  channels); add `ADC_GPIO_PIN_SWB/SWC/SWD` + `ADC_CHANNEL_SWB/SWC/SWD`; keep `RAW1..RAW6`
   for the ladder/trim lines; rebuild `ADC_GPIO{A,B,C,F}_PINS`, `ADC_EXT_CHANNELS` and
-  `ADC_DIRECTION` (15 entries, in the 10.3 order; switch signs TODO-hardware).
+  `ADC_DIRECTION` (14 entries, in the 10.3 order; switch signs TODO-hardware).
 
 **`radio/src/targets/st16/g11p_key_driver.cpp`**
 
 - `#include "stm32_keys.inc"`; `keysInit()` = `_init_keys()` (+ any ladder GPIO setup);
   `readKeys()` = `_read_keys() | ladder_decode()`.
 - Update the hardcoded analog indices to the new order (`K12=3, K34=4, TR1=5, TR2=6, TR3=7,
-  TR4=8, TR=9`) with the input-order comment; keep NB4P-style thresholds and
+  TR4=8`) with the input-order comment; keep NB4P-style thresholds and
   `readTrims()`; keep the `#if !defined(BOOT)` behaviour.
 
 **`radio/src/targets/st16/g11p_switch_driver.cpp`** — **delete**; remove
@@ -656,8 +664,8 @@ and the `legacy_names.py` `P1` label match the final types; no new labels needed
 
 ### 10.5 Verification
 
-1. `make hardware_defs`; inspect `g11p.json`: expect `ST/TH`, `P1`, `RAW1..RAW7`, keys
-   **with** gpio, switches `SA`(gpio) + `SB/SC/SD`(ADC), no `RAW8..RAW11`, no null-GPIO keys.
+1. `make hardware_defs`; inspect `g11p.json`: expect `ST/TH`, `P1`, `RAW1..RAW6`, keys
+   **with** gpio, switches `SA`(gpio) + `SB/SC/SD`(ADC), no `RAW7..RAW11`, no null-GPIO keys.
 2. Inspect generated `stm32_adc_inputs.inc`: correct ports (PB0 stays GPIOB), ≤8 ch/ADC.
 3. Rebuild firmware, `libsimulator` and Companion.
 4. On hardware: ladder thresholds, `ADC_DIRECTION` switch signs, stick/pot directions, trim
@@ -668,5 +676,7 @@ and the `legacy_names.py` `P1` label match the final types; no new labels needed
 - Logical key map confirmed as K6A=MENU, K7A=EXIT, W-KEY=ENTER; K1/K2=PAGEUP/PAGEDN,
   K3/K4=UP/DOWN (driver).
 - Confirm SW2/3/4 are 3-pos analog and SW1 is 2-pos.
-- Confirm `TR_ADC` (PC5) and `2S_ADC` (PC0) purpose; trim axes / whether TR1 is a true 5-way.
+- `TR_ADC` (PC5): **deferred** — confirm purpose; reinstating it needs an ADC1 slot freed
+  (move TR3/TR4 to ADC3 if the H750 datasheet confirms ADC3 reaches PA2/PA3).
+- `2S_ADC` (PC0): confirm purpose (dropped to avoid the PB0/PC0 pin-bit collision).
 - Final ADC3 channel for PF8/PF9 against the H750 datasheet.
