@@ -285,6 +285,32 @@ void menuModelSensor(event_t event)
       {
         drawStringWithIndex(0, y, STR_SOURCE, k-SENSOR_FIELD_PARAM1+1);
         int8_t * source = &sensor->calc.sources[k-SENSOR_FIELD_PARAM1];
+#if defined(GVARS)
+        if (attr && modelGVEnabled() && event == EVT_KEY_LONG(KEY_ENTER)) {
+          killEvents(event);
+          s_editMode = !s_editMode;
+          *source = calcSourceIsGVar(*source) ? 0 : calcSourceFromGVar(0, false);
+          storageDirty(EE_MODEL);
+        }
+        if (calcSourceIsGVar(*source)) {
+          bool negative = *source < 0;
+          int8_t idx = calcSourceGVarIndex(*source);
+          if (negative) idx = -idx - 1;
+          if (attr) {
+            CHECK_INCDEC_MODELVAR(event, idx, -MAX_GVARS, MAX_GVARS-1);
+            negative = idx < 0;
+            *source = calcSourceFromGVar(negative ? -idx - 1 : idx, negative);
+          }
+          if (negative && sensor->formula == TELEM_FORMULA_MULTIPLY) {
+            lcdDrawChar(SENSOR_2ND_COLUMN, y, '/', attr);
+            drawGVarName(lcdNextPos, y, -idx - 1, attr);
+          }
+          else {
+            drawGVarName(SENSOR_2ND_COLUMN, y, idx, attr);
+          }
+          break;
+        }
+#endif
         if (attr) {
           *source = checkIncDec(event, *source, -MAX_TELEMETRY_SENSORS, MAX_TELEMETRY_SENSORS, EE_MODEL|NO_INCDEC_MARKS, isSensorAvailable);
         }
