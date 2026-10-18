@@ -856,9 +856,9 @@ int ModelData::updateReference()
   for (int i = 0; i < CPN_MAX_CHNOUT; i++) {
     LimitData *ld = &limitData[i];
     if (!ld->isEmpty()) {
-      updateAdjustRef(ld->min);
-      updateAdjustRef(ld->max);
-      updateAdjustRef(ld->offset);
+      updateSourceNumRef(ld->min);
+      updateSourceNumRef(ld->max);
+      updateSourceNumRef(ld->offset);
       updateLimitCurveRef(ld->curve);
     }
   }
@@ -1165,17 +1165,6 @@ void ModelData::updateLimitCurveRef(CurveReference & crv)
   updateCurveRef(src);
   if (crv.value != src.value)
     crv.value = src.value;
-}
-
-void ModelData::updateAdjustRef(int & value)
-{
-  if (updRefInfo.type != REF_UPD_TYPE_GLOBAL_VARIABLE)
-    return;
-
-  AdjustmentReference adj = AdjustmentReference(value);
-  updateTypeValueRef<AdjustmentReference, AdjustmentReference::AdjustRefType>(adj, AdjustmentReference::ADJUST_REF_GVAR, 1);
-  if (value != adj.toValue())
-    value = adj.toValue();
 }
 
 void ModelData::updateAssignFunc(CustomFunctionData * cfd)

@@ -35,6 +35,7 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
     vmin(vmin),
     vmax(vmax),
     sourceMin(sourceMin),
+    sourceDefault(sourceMin),
     getValue(getValue),
     setValue(setValue),
     voffset(voffset)
@@ -49,27 +50,13 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
   // Source field
   source_field = new SourceChoice(
       this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, sourceMin, INPUTSRC_LAST,
-      [=]() {
-        SourceNumVal v;
-        v.rawValue = getValue();
-        return v.value;
-      },
-      [=](int newValue) {
-        SourceNumVal v = {(int16_t)newValue, true};
-        setValue(v.rawValue);
-      }, true);
+      [=]() { return decode(); },
+      [=](int newValue) { setValue(encode(newValue, true)); }, true);
 
   num_field = new NumberEdit(
       this, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, vmin, vmax,
-      [=]() {
-        SourceNumVal v;
-        v.rawValue = getValue();
-        return v.value;
-      },
-      [=](int newValue) {
-        SourceNumVal v = {(int16_t)newValue, false};
-        setValue(v.rawValue);
-      },
+      [=]() { return decode() + voffset; },
+      [=](int newValue) { setValue(encode(newValue - voffset, false)); },
       textFlags);
   num_field->setDefault(vdefault);
 
@@ -78,6 +65,12 @@ SourceNumberEdit::SourceNumberEdit(Window* parent,
     switchSourceMode();
     return isSource();
   });
+
+  delayLoad();
+}
+
+void SourceNumberEdit::delayedInit()
+{
   m_srcBtn->check(isSource());
 
   // update field type based on value
@@ -91,14 +84,22 @@ bool SourceNumberEdit::isSource()
   return v.isSource;
 }
 
-void SourceNumberEdit::switchSourceMode()
+int16_t SourceNumberEdit::decode()
 {
   SourceNumVal v;
   v.rawValue = getValue();
-  v.isSource = !v.isSource;
+  return v.value;
+}
+
+int32_t SourceNumberEdit::encode(int16_t value, bool isSource)
+{
+  return makeSourceNumVal(value, isSource);
+}
+
+void SourceNumberEdit::switchSourceMode()
+{
   // TODO: convert value???
-  v.value = v.isSource ? sourceMin : 0;
-  setValue(v.rawValue);
+  setValue(encode(isSource() ? 0 : sourceDefault, !isSource()));
 
   // update field type based on value
   update();
@@ -107,6 +108,12 @@ void SourceNumberEdit::switchSourceMode()
 void SourceNumberEdit::setSuffix(const std::string& value)
 {
   num_field->setSuffix(value);
+}
+
+void SourceNumberEdit::setDisplayHandler(
+    std::function<std::string(int value)> function)
+{
+  num_field->setDisplayHandler(function);
 }
 
 void SourceNumberEdit::update()
@@ -133,4 +140,23 @@ void SourceNumberEdit::update()
   if (has_focus) {
     lv_group_focus_obj(act_field->getLvObj());
   }
+}
+
+bool LimitNumberEdit::isSource()
+{
+  LimitNumVal v;
+  v.rawValue = getValue();
+  return v.isSource;
+}
+
+int16_t LimitNumberEdit::decode()
+{
+  LimitNumVal v;
+  v.rawValue = getValue();
+  return v.value;
+}
+
+int32_t LimitNumberEdit::encode(int16_t value, bool isSource)
+{
+  return makeLimitNumVal(value, isSource);
 }

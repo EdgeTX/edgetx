@@ -32,27 +32,36 @@ class CurveImageWidget;
 
 constexpr char MIMETYPE_CHANNEL[] = "application/x-companion-channel";
 
-class GVarGroup;
-
-class LimitsGroup
+class LimitsGroup : public QObject
 {
-  Q_DECLARE_TR_FUNCTIONS(LimitsGroup)
+  Q_OBJECT
 
   public:
-    LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row, int col, int & value, const ModelData & model, GeneralSettings & generalSettings,
-                int min, int max, int deflt, FilteredItemModel * gvarModel, ModelPanel * panel = nullptr);
-    ~LimitsGroup();
+    LimitsGroup(Firmware * firmware, TableLayout * tableLayout, int row, int col, int & value, GeneralSettings & generalSettings,
+                int min, int max, int deflt, FilteredItemModel * sourceModel, ModelPanel * panel = nullptr);
 
     void setValue(int val);
     void updateMinMax(int max);
 
+  signals:
+    void valueChanged();
+
+  protected slots:
+    void chkSourceChanged(int state);
+    void cboSourceChanged(int index);
+    void spinboxChanged();
+
   protected:
     Firmware *firmware;
     QDoubleSpinBox *spinbox;
-    GVarGroup *gvarGroup;
+    QCheckBox *chkSource;
+    QComboBox *cboSource;
     int &value;
+    int mini;
+    int maxi;
+    int deflt;
     double displayStep;
-    QCheckBox *gv;
+    bool lock;
 };
 
 class ChannelsPanel : public ModelPanel

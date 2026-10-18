@@ -47,16 +47,6 @@ int16_t getGVarValue(int8_t gv, int8_t fm)
   return GVAR_VALUE(gv, getGVarFlightMode(fm, gv)) * mul;
 }
 
-int32_t getGVarValuePrec1(int8_t gv, int8_t fm)
-{
-  int8_t idx = (gv >= 0 ? gv : -gv - 1);
-  int8_t mul = (g_model.gvars[idx].prec == 0 ? 10 : 1); // explicit cast to `int` needed, othervise gv is promoted to double!
-  if (gv < 0) {
-    mul = -mul;
-  }
-  return GVAR_VALUE(idx, getGVarFlightMode(fm, idx)) * mul;
-}
-
 void setGVarValue(uint8_t gv, int16_t value, int8_t fm)
 {
   fm = getGVarFlightMode(fm, gv);
@@ -68,27 +58,6 @@ void setGVarValue(uint8_t gv, int16_t value, int8_t fm)
       gvarDisplayTimer = GVAR_DISPLAY_TIME;
     }
   }
-}
-
-int16_t getGVarFieldValue(int16_t val, int16_t min, int16_t max, int8_t fm)
-{
-  if (GV_IS_GV_VALUE(val)) {
-    int8_t gv = GV_INDEX_FROM_VALUE(val);
-    val = getGVarValue(gv, fm);
-  }
-  return limit(min, val, max);
-}
-
-int32_t getGVarFieldValuePrec1(int16_t val, int16_t min, int16_t max, int8_t fm)
-{
-  if (GV_IS_GV_VALUE(val)) {
-    int8_t gv = GV_INDEX_FROM_VALUE(val);
-    val = getGVarValuePrec1(gv, fm);
-  }
-  else {
-    val *= 10;
-  }
-  return limit<int>(min*10, val, max*10);
 }
 
 void getGVarIncDecRange(int16_t & valMin, int16_t & valMax)
