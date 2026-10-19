@@ -25,7 +25,7 @@
 
 /* Signature format is multi-[board type]-[bootloader support][check for bootloader][multi telemetry type][telemetry inversion][debug]-[firmware version]
    Where:
-   [board type] is avr, stm, or orx
+   [board type] is avr, stm, or orx (v2 signature: also 3, CC2652 / MPM v2)
    [bootloader support] b for optiboot (AVR) / USB (STM) or u (unsupported)
    [check for bootloader] is c (CHECK_FOR_BOOTLOADER) or u (undefined)
    [telemetry type] is t (MULTI_TELEMETRY), s (MULTI_STATUS), or u (undefined) for neither
@@ -43,6 +43,7 @@ class MultiFirmwareInformation
       FIRMWARE_MULTI_AVR = 0,
       FIRMWARE_MULTI_STM,
       FIRMWARE_MULTI_ORX,
+      FIRMWARE_MULTI_CC2652,
     };
 
     enum MultiFirmwareTelemetryType
@@ -67,6 +68,12 @@ class MultiFirmwareInformation
       return boardType == FIRMWARE_MULTI_ORX;
     }
 
+    // MPM v2 (CC2652): its own boot loader, STK500 device signature 1E 55 26
+    bool isMultiCc2652Firmware() const
+    {
+      return boardType == FIRMWARE_MULTI_CC2652;
+    }
+
     bool isMultiWithBootloaderFirmware() const
     {
       return optibootSupport;
@@ -74,14 +81,16 @@ class MultiFirmwareInformation
 
     bool isMultiInternalFirmware() const
     {
-      return (boardType == FIRMWARE_MULTI_STM && optibootSupport &&
-              bootloaderCheck &&
+      return ((boardType == FIRMWARE_MULTI_STM ||
+               boardType == FIRMWARE_MULTI_CC2652) &&
+              optibootSupport && bootloaderCheck &&
               telemetryType == FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY);
     }
 
     bool isMultiExternalFirmware() const
     {
-      return ((telemetryInversion || boardType == FIRMWARE_MULTI_STM) &&
+      return ((telemetryInversion || boardType == FIRMWARE_MULTI_STM ||
+               boardType == FIRMWARE_MULTI_CC2652) &&
               optibootSupport && bootloaderCheck &&
               telemetryType == FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY);
     }
