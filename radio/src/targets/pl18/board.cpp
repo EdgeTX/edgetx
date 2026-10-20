@@ -255,8 +255,10 @@ void boardInit()
       } else {
         uint32_t press_end_touch = press_end;
         if (touchPanelEventOccured()) {
-          touchPanelRead();
-          press_end_touch = timersGetMsTick();
+          TouchState st = touchPanelRead();
+          if (st.event == TE_DOWN || st.event == TE_SLIDE) {
+            press_end_touch = timersGetMsTick();
+          }
         }
         press_start = 0;
         handle_battery_charge(press_end_touch);

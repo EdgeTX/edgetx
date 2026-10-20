@@ -73,7 +73,7 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
   br_box = parent->newLine(grid);
   br_box->padLeft(PAD_SMALL);
   new StaticText(br_box, rect_t{}, STR_BAUDRATE);
-  new Choice(
+  auto baudrateChoice = new Choice(
       br_box, rect_t{}, STR_CRSF_BAUDRATE, 0, CROSSFIRE_MAX_INTERNAL_BAUDRATE,
       [=]() {
         return CROSSFIRE_STORE_TO_INDEX(g_eeGeneral.internalModuleBaudrate);
@@ -83,6 +83,12 @@ InternalModuleWindow::InternalModuleWindow(Window *parent, FlexGridLayout& grid)
         restartModule(INTERNAL_MODULE);
         SET_DIRTY();
       });
+
+  #if 1
+  baudrateChoice->setAvailableHandler([](int index) {
+    return CROSSFIRE_BAUDRATES[index] != 3750000;
+  });
+  #endif
 
   updateBaudrateLine();
 #endif

@@ -115,7 +115,7 @@ enum TouchRotate
 struct TouchControllerDescriptor
 {
   bool (*hasTouchEvent)();
-  bool (*touchRead)(uint16_t * X, uint16_t * Y);
+  int (*touchRead)(uint16_t * X, uint16_t * Y);
   void (*printDebugInfo)();
   TouchRotate rotate;
 };
@@ -144,6 +144,22 @@ volatile static bool touchEventOccured;
 static tmr10ms_t downTime = 0;
 static tmr10ms_t tapTime = 0;
 static short tapCount = 0;
+
+static constexpr uint32_t TOUCH_POLL_MS = 30;
+static constexpr uint8_t TOUCH_ERROR_LIMIT = 3;
+
+static uint32_t lastTouchReadMs = 0;
+static bool touchRetryPending = false;
+static uint8_t touchReadErrors = 0;
+
+enum class TouchRecoveryStage : uint8_t {
+  Idle,
+  ResetLow,
+  BootWait
+};
+
+static TouchRecoveryStage touchRecoveryStage = TouchRecoveryStage::Idle;
+static uint32_t touchRecoveryStartedMs = 0;
 
 static void _touch_exti_isr(void)
 {
@@ -175,51 +191,53 @@ static void _i2c_reInit(void)
   if (i2c_deinit(TOUCH_I2C_BUS) < 0) {
     TRACE("I2C reinit WARNING: i2c_deinit failed, proceeding with reinit");
   }
-//  __HAL_RCC_I2C1_FORCE_RESET();
-//  __HAL_RCC_I2C1_RELEASE_RESET();
   delay_ms(1);
 
   if (i2c_init(TOUCH_I2C_BUS) < 0) {
     TRACE("I2C reinit ERROR: i2c_init failed");
     return;
   }
-//  _touch_reset();
   TRACE("I2C reinit: bus reset complete");
 }
 
 static int _i2c_read(uint8_t addr, uint32_t reg, uint8_t regSize, uint8_t* data, uint16_t len, uint32_t timeout)
 {
   if (touchController == TC_CST836U || regSize > 2) {
-    if(stm32_i2c_master_tx(TOUCH_I2C_BUS, addr, (uint8_t*) &reg, regSize, 3) < 0)
-      return false;
+    if (stm32_i2c_master_tx(TOUCH_I2C_BUS, addr,
+                            reinterpret_cast<uint8_t*>(&reg), regSize,
+                            timeout) < 0) {
+      return -1;
+    }
     delay_us(5);
-    if(stm32_i2c_master_rx(TOUCH_I2C_BUS, addr, data, len, I2C_TIMEOUT_MAX) < 0)
-      return false;
-    return true;
-  } else {
-    return stm32_i2c_read(TOUCH_I2C_BUS, addr, reg, regSize, data, len, timeout);
+    return stm32_i2c_master_rx(TOUCH_I2C_BUS, addr, data, len, timeout);
   }
+
+  return stm32_i2c_read(TOUCH_I2C_BUS, addr, reg, regSize, data, len, timeout);
 }
 
-static uint8_t _i2c_readRetry(uint8_t addr, uint32_t reg, uint8_t regSize)
+static int _i2c_readMultipleRetry(uint8_t addr, uint32_t reg, uint8_t regSize, uint8_t * buffer, uint16_t length)
 {
-  uint8_t result;
-  uint8_t tryCount = 3;
-  while (_i2c_read(addr, reg, regSize, &result, 1, I2C_TIMEOUT_MAX) < 0) {
-    if (--tryCount == 0) break;
-    _i2c_reInit();
+  for (uint8_t attempt = 0; attempt < 3; ++attempt) {
+    if (_i2c_read(addr, reg, regSize, buffer, length, I2C_TIMEOUT_MAX) == 0) {
+      return length;
+    }
+
+    if (attempt < 2) {
+      _i2c_reInit();
+    }
   }
+
+  return -1;
+}
+
+static int _i2c_readRetry(uint8_t addr, uint32_t reg, uint8_t regSize)
+{
+  uint8_t result = 0;
+  if (_i2c_readMultipleRetry(addr, reg, regSize, &result, 1) < 0) {
+    return -1;
+  }
+
   return result;
-}
-
-static uint16_t _i2c_readMultipleRetry(uint8_t addr, uint32_t reg, uint8_t regSize, uint8_t * buffer, uint16_t length)
-{
-  uint8_t tryCount = 3;
-  while (_i2c_read(addr, reg, regSize, buffer, length, I2C_TIMEOUT_MAX) < 0) {
-    if (--tryCount == 0) break;
-    _i2c_reInit();
-  }
-  return length;
 }
 
 static bool defaultHasTouchEvent()
@@ -227,17 +245,23 @@ static bool defaultHasTouchEvent()
   return touchEventOccured;
 }
 
-static bool ft6236TouchRead(uint16_t * X, uint16_t * Y)
+static int ft6236TouchRead(uint16_t * X, uint16_t * Y)
 {
   // Read register FT6206_TD_STAT_REG to check number of touches detection
-  uint8_t nbTouch = _i2c_readRetry(TOUCH_FT6236_I2C_ADDRESS, TOUCH_FT6206_REG_TD_STAT, 1);
+  int nbTouch = _i2c_readRetry(TOUCH_FT6236_I2C_ADDRESS, TOUCH_FT6206_REG_TD_STAT, 1);
+  if (nbTouch < 0) {
+    return -1;
+  }
   nbTouch &= TOUCH_FT6206_MASK_TD_STAT;
   bool hasTouch = nbTouch > 0;
 
   if (hasTouch) {
     uint8_t dataxy[4];
     // Read X and Y positions and event
-    _i2c_readMultipleRetry(TOUCH_FT6236_I2C_ADDRESS, TOUCH_FT6206_REG_P1_XH, 1, dataxy, sizeof(dataxy));
+    if (_i2c_readMultipleRetry(TOUCH_FT6236_I2C_ADDRESS, TOUCH_FT6206_REG_P1_XH,
+                               1, dataxy, sizeof(dataxy)) < 0) {
+      return -1;
+    }
     
     // Send back ready X position to caller
     *X = ((dataxy[0] & 0x0f) << 8) | dataxy[1];
@@ -265,16 +289,22 @@ static void ft6236PrintDebugInfo()
 
 }
 
-static bool cst836uTouchRead(uint16_t * X, uint16_t * Y)
+static int cst836uTouchRead(uint16_t * X, uint16_t * Y)
 {
   // Read register TOUCH_CST836U_REG_NUM to check number of touches detection
-  uint8_t nbTouch = _i2c_readRetry(TOUCH_CST836U_I2C_ADDRESS, TOUCH_CST836U_REG_NUM, 1);
+  int nbTouch = _i2c_readRetry(TOUCH_CST836U_I2C_ADDRESS, TOUCH_CST836U_REG_NUM, 1);
+  if (nbTouch < 0) {
+    return -1;
+  }
   bool hasTouch = nbTouch > 0;
 
   if (hasTouch) {
     uint8_t dataxy[4];
     // Read X and Y positions and event
-    _i2c_readMultipleRetry(TOUCH_CST836U_I2C_ADDRESS, TOUCH_CST836U_REG_P1_XH, 1, dataxy, sizeof(dataxy));
+    if (_i2c_readMultipleRetry(TOUCH_CST836U_I2C_ADDRESS, TOUCH_CST836U_REG_P1_XH,
+                               1, dataxy, sizeof(dataxy)) < 0) {
+      return -1;
+    }
     
     // Send back ready X position to caller
     *X = ((dataxy[0] & 0x0f) << 8) | dataxy[1];
@@ -297,12 +327,15 @@ static void cst836uPrintDebugInfo(void)
 #endif
 }
 
-static bool cst340TouchRead(uint16_t * X, uint16_t * Y)
+static int cst340TouchRead(uint16_t * X, uint16_t * Y)
 {
   uint8_t data[4];
 
   // Read X and Y positions
-  _i2c_readMultipleRetry(TOUCH_CST340_I2C_ADDRESS, TOUCH_CST340_REG_FINGER1, 1, data, sizeof(data));
+  if (_i2c_readMultipleRetry(TOUCH_CST340_I2C_ADDRESS, TOUCH_CST340_REG_FINGER1,
+                             1, data, sizeof(data)) < 0) {
+    return -1;
+  }
 
   // Send back X position to caller
   if (X) *X = ((data[1]<<4) + ((data[3]>>4)&0x0f));
@@ -314,19 +347,7 @@ static bool cst340TouchRead(uint16_t * X, uint16_t * Y)
 
 static bool cst340HasTouchEvent()
 {
-  static bool lastHasTouch = false;
-  bool ret = touchEventOccured;
-  if (ret) {
-    uint8_t hasTouch = cst340TouchRead(nullptr, nullptr);
-    if (!hasTouch && !lastHasTouch) {
-      TRACE("Interrupt occurs without touch event!!");
-      touchEventOccured = false;
-      ret = false;
-    }
-    lastHasTouch = hasTouch;
-  }
-
-  return ret;
+  return touchEventOccured;
 }
 
 static void cst340PrintDebugInfo()
@@ -334,7 +355,7 @@ static void cst340PrintDebugInfo()
   // TODO, when necessary
 }
 
-static bool chsc5448TouchRead(uint16_t * X, uint16_t * Y)
+static int chsc5448TouchRead(uint16_t * X, uint16_t * Y)
 {
   static uint8_t readbuffer[84];
   const uint8_t reportSize = ((TOUCH_CHSC5448_MAX_POINTS * 5 + 2) + 3) & 0xfc;
@@ -342,7 +363,10 @@ static bool chsc5448TouchRead(uint16_t * X, uint16_t * Y)
   int ptCnt = 0;
   union rpt_point_t* ppt;
 
-  _i2c_readMultipleRetry(TOUCH_CHSC5448_I2C_ADDRESS, TOUCH_CHSC5448_REG_ADDR, 4, readbuffer, reportSize);
+  if (_i2c_readMultipleRetry(TOUCH_CHSC5448_I2C_ADDRESS, TOUCH_CHSC5448_REG_ADDR,
+                             4, readbuffer, reportSize) < 0) {
+    return -1;
+  }
   ptCnt = readbuffer[1] & 0x0f;
   ppt = (union rpt_point_t*)&readbuffer[2];
   *X = ((ppt->rp.x_h4 & 0x0f) << 8) | ppt->rp.x_l8;
@@ -458,6 +482,10 @@ void _detect_touch_controller()
 void touchPanelDeInit()
 {
   gpio_int_disable(TOUCH_INT_GPIO);
+  touchRecoveryStage = TouchRecoveryStage::Idle;
+  touchRetryPending = false;
+  touchEventOccured = false;
+  tcd = nullptr;
 }
 
 bool touchPanelInit()
@@ -466,6 +494,18 @@ bool touchPanelInit()
   _i2c_init();
   _touch_reset();
   _detect_touch_controller();
+  internalTouchState = {};
+  touchEventOccured = false;
+  lastTouchReadMs = timersGetMsTick();
+  touchRetryPending = true;
+  touchReadErrors = 0;
+  touchRecoveryStage = TouchRecoveryStage::Idle;
+  touchRecoveryStartedMs = 0;
+  lastTouchKey = 0;
+  eventFired = false;
+  downTime = 0;
+  tapTime = 0;
+  tapCount = 0;
   gpio_init_int(TOUCH_INT_GPIO, GPIO_IN_PU, GPIO_FALLING, _touch_exti_isr);
 
   tcd->printDebugInfo();
@@ -475,47 +515,94 @@ bool touchPanelInit()
 
 bool touchPanelEventOccured()
 {
-  return tcd->hasTouchEvent();
+  if (!tcd) {
+    return false;
+  }
+
+  uint32_t now = timersGetMsTick();
+
+  if (touchRecoveryStage == TouchRecoveryStage::ResetLow) {
+    if (now - touchRecoveryStartedMs >= 10) {
+      gpio_set(TOUCH_RST_GPIO);
+      touchRecoveryStartedMs = now;
+      touchRecoveryStage = TouchRecoveryStage::BootWait;
+    }
+    return false;
+  }
+
+  if (touchRecoveryStage == TouchRecoveryStage::BootWait) {
+    if (now - touchRecoveryStartedMs < 300) {
+      return false;
+    }
+    _i2c_reInit();
+    touchRecoveryStage = TouchRecoveryStage::Idle;
+    touchRetryPending = true;
+  }
+
+  bool pressed = internalTouchState.event == TE_DOWN ||
+                 internalTouchState.event == TE_SLIDE;
+  bool needsPolling = pressed || lastTouchKey != 0 || touchRetryPending ||
+                      gpio_read(TOUCH_INT_GPIO) == 0;
+
+  return tcd->hasTouchEvent() ||
+         (needsPolling && now - lastTouchReadMs >= TOUCH_POLL_MS);
 }
 
 struct TouchState touchPanelRead()
 {
-#if 0
-  // For _i2c_reInit testing
-  static uint8_t reinitPollCnt = 0;
-  TRACE("Polling count: %d", reinitPollCnt);
-  if (++reinitPollCnt >= 50) {
-    reinitPollCnt = 0;
-    _i2c_reInit();
+  if (!touchPanelEventOccured()) {
+    return internalTouchState;
   }
-#endif
-
-  if (!touchEventOccured) return internalTouchState;
 
   touchEventOccured = false;
 
   uint32_t now = timersGetMsTick();
-  internalTouchState.tapCount = 0;
-  unsigned short touchX;
-  unsigned short touchY;
-  bool hasTouchContact = tcd->touchRead(&touchX, &touchY);
+  lastTouchReadMs = now;
+  uint16_t touchX = 0;
+  uint16_t touchY = 0;
+  int readResult = tcd->touchRead(&touchX, &touchY);
 
-  unsigned short tmp;
-  switch(tcd->rotate) {
-    case DEG_270:
-      tmp = touchY;
-      touchY = 319 - touchX;
-      touchX = tmp;
-      break;
-    case DEG_180:
-      touchY = 479 - touchY;
-      touchX = 319 - touchX;
-      break;
-    default:
-      break;
+  if (readResult < 0) {
+    touchRetryPending = true;
+
+    if (++touchReadErrors >= TOUCH_ERROR_LIMIT) {
+      touchReadErrors = 0;
+      lastTouchKey = 0;
+      eventFired = false;
+      gpio_clear(TOUCH_RST_GPIO);
+      touchRecoveryStartedMs = timersGetMsTick();
+      touchRecoveryStage = TouchRecoveryStage::ResetLow;
+    }
+
+    TouchState ret = internalTouchState;
+    ret.event = TE_NONE;
+    ret.tapCount = 0;
+    ret.deltaX = 0;
+    ret.deltaY = 0;
+    return ret;
   }
 
+  touchReadErrors = 0;
+  touchRetryPending = false;
+  internalTouchState.tapCount = 0;
+  bool hasTouchContact = readResult > 0;
+
   if (hasTouchContact) {
+    unsigned short tmp;
+    switch (tcd->rotate) {
+      case DEG_270:
+        tmp = touchY;
+        touchY = 319 - touchX;
+        touchX = tmp;
+        break;
+      case DEG_180:
+        touchY = 479 - touchY;
+        touchX = 319 - touchX;
+        break;
+      default:
+        break;
+    }
+
     int dx = touchX - internalTouchState.x;
     int dy = touchY - internalTouchState.y;
     internalTouchState.x = touchX;

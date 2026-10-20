@@ -177,55 +177,59 @@ static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 extern "C" void touchDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
 #if defined(HARDWARE_TOUCH)
-  static lv_indev_data_t touch_data_backup;
+  static lv_indev_data_t touch_data_backup = {};
+  static bool beepReady = true;
 
-  if(!touchPanelEventOccured()) {
-    memcpy(data, &touch_data_backup, sizeof(lv_indev_data_t));
+  memcpy(data, &touch_data_backup, sizeof(*data));
+
+  bool touchDisabled = isFunctionActive(FUNCTION_DISABLE_TOUCH);
+  if (touchDisabled) {
+    lv_indev_reset(touchDevice, nullptr);
+    data->state = LV_INDEV_STATE_RELEASED;
+    beepReady = true;
+    memcpy(&touch_data_backup, data, sizeof(*data));
+  }
+
+  if (!touchPanelEventOccured()) {
     return;
   }
 
   TouchState st = touchPanelRead();
 
-  // no touch input if backlight is disabled
-  if (!isBacklightEnabled()) {
-    reset_inactivity();
-    // assume press and wait for release
-    data->state = LV_INDEV_STATE_PRESSED;
+  if (touchDisabled) {
+    return;
+  }
+
+  if (st.event == TE_NONE) {
+#if defined(PCBPL18) && !defined(SIMU)
+    // PL18 reports failed samples as TE_NONE.
     lv_indev_wait_release(touchDevice);
+#endif
     return;
   }
 
-  // no touch input if special function is used
-  if (isFunctionActive(FUNCTION_DISABLE_TOUCH)) {
-    lv_indev_reset(touchDevice, nullptr);
+  bool pressed = st.event == TE_DOWN || st.event == TE_SLIDE;
+  data->state = pressed ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
+  data->point.x = st.x;
+  data->point.y = st.y;
+
+  if (!isBacklightEnabled() && pressed) {
+    reset_inactivity();
+    lv_indev_wait_release(touchDevice);
+    beepReady = false;
+    memcpy(&touch_data_backup, data, sizeof(*data));
     return;
   }
-  
-  if(st.event == TE_NONE) {
-    TRACE("TE_NONE");
-  } else {
-    if(st.event == TE_DOWN || st.event == TE_SLIDE) {
-      TRACE("TE_PRESSED");
-      data->state = LV_INDEV_STATE_PRESSED;
-    } else {
-      TRACE("TE_RELEASED");
-      data->state = LV_INDEV_STATE_RELEASED;
+
+  if (st.event == TE_DOWN) {
+    reset_inactivity();
+    if (beepReady) {
+      audioKeyPress();
     }
-    data->point.x = st.x;
-    data->point.y = st.y;
   }
 
-  static bool onebeep=true; // TODO... This probably needs to be fixed in the driver it's sending two events
-  if (st.event == TE_DOWN) { // on first touch (same logic as key down)
-      reset_inactivity();    // reset activity counter
-      if(onebeep)
-        audioKeyPress();       // provide acoustic and/or haptic feedback if requested in settings
-      onebeep = false;
-  } else {
-    onebeep = true;
-  }
-
-  memcpy(&touch_data_backup, data, sizeof(lv_indev_data_t));
+  beepReady = !pressed;
+  memcpy(&touch_data_backup, data, sizeof(*data));
 #endif
 }
 
