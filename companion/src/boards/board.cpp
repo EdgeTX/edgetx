@@ -1714,7 +1714,10 @@ void Board::loadModules(QJsonObject::const_iterator & oit, Board::ModulesDefn & 
             } catch (...) { idx = -1; }
 
             if (idx > -1) {
-              modules.available.push_back(mod.toString().toStdString());
+              if (IS_IN_ARRAY(modules.available, mod.toString().toStdString()))
+                qWarning() << "Warning: duplicate module ignored:" << mod.toString();
+              else
+                modules.available.push_back(mod.toString().toStdString());
             } else {
               qWarning() << "Warning: unsupported module:" << mod.toString();
             }
