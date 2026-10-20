@@ -38,7 +38,7 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
   if (moduleIdx == EXTERNAL_MODULE) {
     auto line = newLine(grid);
     new StaticText(line, rect_t{}, STR_BAUDRATE);
-    new Choice(
+    auto baudrateChoice = new Choice(
         line, rect_t{}, STR_CRSF_BAUDRATE, 0, CROSSFIRE_MAX_INTERNAL_BAUDRATE,
         [=]() -> int {
           return CROSSFIRE_STORE_TO_INDEX(md->crsf.telemetryBaudrate);
@@ -48,6 +48,9 @@ CrossfireSettings::CrossfireSettings(Window* parent, const FlexGridLayout& g,
           SET_DIRTY();
           restartModule(moduleIdx);
         });
+    baudrateChoice->setAvailableHandler([](int index) {
+      return CROSSFIRE_BAUDRATES[index] != 3750000;
+    });
   } else {
     //   char buf[6];
     //   new StaticText(this, grid.getFieldSlot(2, 1),
