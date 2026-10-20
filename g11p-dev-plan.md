@@ -177,8 +177,13 @@ Notes / implications:
 
 ### 3.3 Bootloader
 
-Reuse the ST16 bootloader flow. Confirm the boot/loader key source on G11P
-(ADC ladder like NB4P vs a GPIO).
+Reuse the ST16 bootloader flow. Bootloader entry on G11P is **K1 + K4 held while powering
+on** (see section 11). K1/K2 share `K12_ADC` and K3/K4 share `K34_ADC`, so the bootloader
+must initialise ADC1 and decode those two ladders. There is no dedicated boot button/GPIO
+on G11P.
+
+The boot decision itself stays in the common `bl_keys.cpp` path: `readTrims()` returns
+`BOOTLOADER_KEYS` (`0x42`) when the K1 + K4 combination is detected.
 
 ### 3.4 Input strategy (keys / switches / trims / encoder)
 
@@ -441,7 +446,8 @@ Notes:
 - `MS0621-32TFL11E` panel timing/polarity values for the G11P LTDC config.
 - `LED_DATA2` (PB13) role (second parallel LED group vs alternate data line).
 - Audio mute polarity (`INVERTED_MUTE_PIN`) on G11P.
-- Bootloader entry key/button on G11P.
+- **Resolved (section 11)**: bootloader entry is K1 + K4 held during power-on; the ADC1
+  ladder is initialised in `g11p_key_driver.cpp` using the H7 ADC bring-up sequence.
 
 ---
 
@@ -510,6 +516,10 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
     `libedgetx-g11p-simulator.so` both build. Also fixed a latent
     `luaKillEvents()`/`KEYS_GPIO_REG_MENU` build break (guard with `!COLORLCD`).
     -> commit & push (`f4a2a7f9f2`)
+
+20. [ ] Radio: apply section 11 — bootloader entry via K1 + K4, H7 ADC1 init in
+    `g11p_key_driver.cpp` `keysInit()` (BOOT), BOOT `readKeys()`/`readTrims()` ladder
+    decode, and `LL_ADC_Disable(ADC_MAIN)` in `boardBLPreJump()`. -> commit & push
 
 **Outstanding:** `.github/workflows/actions.yml` CI matrix needs `g11p` added, but the
 push token lacks `workflow` scope; apply manually or with a suitably-scoped token. Hardware
@@ -684,3 +694,89 @@ and the `legacy_names.py` `P1` label match the final types; no new labels needed
   (move TR3/TR4 to ADC3 if the H750 datasheet confirms ADC3 reaches PA2/PA3).
 - `2S_ADC` (PC0): confirm purpose (dropped to avoid the PB0/PC0 pin-bit collision).
 - Final ADC3 channel for PF8/PF9 against the H750 datasheet.
+
+---
+
+## 11. Fix — G11P bootloader entry (K1 + K4) and BOOT ADC init
+
+The G11P bootloader currently cannot enter via any key or trim combination: the BOOT build
+of `g11p_key_driver.cpp` compiles out the whole trim/key decode, so `readTrims()` always
+returns `0`. In addition, the ADC is never initialised in the bootloader.
+
+### 11.1 Entry gesture
+
+- **Hold K1 + K4, then power on.**
+- K1/K2 share `K12_ADC` (`PB0`, `ADC_CHANNEL_RAW1` = `INP9`, ADC1).
+- K3/K4 share `K34_ADC` (`PB1`, `ADC_CHANNEL_RAW2` = `INP5`, ADC1).
+- Current firmware decode (TODO-hardware):
+  - `K1` = `K12_ADC >= G11P_KEY_LEVEL_HIGH`
+  - `K2` = `K12_ADC >= G11P_KEY_LEVEL_LOW && < G11P_KEY_LEVEL_HIGH`
+  - `K3` = `K34_ADC >= G11P_KEY_LEVEL_HIGH`
+  - `K4` = `K34_ADC >= G11P_KEY_LEVEL_LOW && < G11P_KEY_LEVEL_HIGH`
+- The common `bl_keys.cpp` check is unchanged: `readTrims() == BOOTLOADER_KEYS` (`0x42`).
+  The BOOT implementation of `readTrims()` returns `BOOTLOADER_KEYS` only for K1 + K4, and
+  `0` otherwise.
+
+Only ADC1 is required for the gesture; ADC3/trim init is not needed for boot entry.
+
+### 11.2 ADC init belongs in the key driver (NB4P pattern, H7 implementation)
+
+Mirror NB4P: initialise the ADC from `keysInit()` in `g11p_key_driver.cpp` under
+`#if defined(BOOT)`. Do **not** copy the NB4P F4 init: PL18/NB4P is STM32F4, while G11P is
+STM32H750. Use the H7 sequence from `radio/src/targets/common/arm/stm32/stm32_adc.cpp`.
+
+H7 differences that matter:
+
+- Enable ADC1/ADC2 clock via AHB1 (`LL_AHB1_GRP1_PERIPH_ADC12`), not APB2.
+- Use `LL_ADC_CLOCK_ASYNC_DIV4` for the common ADC clock.
+- Exit ADC deep power-down if needed.
+- Enable the ADC internal voltage regulator and wait for stabilisation.
+- Run `LL_ADC_StartCalibration(..., LL_ADC_CALIB_OFFSET_LINEARITY, ...)` and wait.
+- Use `LL_ADC_REG_StartConversion()`; there is no `StartConversionSWStart` on H7.
+- Poll `LL_ADC_IsActiveFlag_EOC` (H7), not `EOCS` (F4).
+- Set channel preselection with `LL_ADC_SetChannelPreselection()`.
+
+Init steps:
+
+1. Configure `PB0`/`PB1` as analog, no pull, enable GPIOB clock.
+2. Enable ADC12 clock and initialise the common clock.
+3. Disable `ADC_MAIN` before configuration.
+4. H7 regulator + calibration sequence.
+5. `LL_ADC_Init` (12-bit, right-aligned) and `LL_ADC_REG_Init` (software trigger, single).
+6. Configure ADC1 sequence: rank 1 = `ADC_CHANNEL_RAW1` (K12), rank 2 =
+   `ADC_CHANNEL_RAW2` (K34), with `ADC_SAMPTIME` and channel preselection.
+7. Clear `ADRDY`, enable `ADC_MAIN`, wait for `ADRDY`.
+
+### 11.3 BOOT reads / decode
+
+In `g11p_key_driver.cpp`:
+
+- Add a BOOT-only helper to start the two-rank ADC1 sequence and read K12/K34.
+- Factor the K1–K4 ladder decode into a shared helper used by both the firmware
+  (`getAnalogValue`) and BOOT paths.
+- BOOT `readKeys()` = `_read_keys()` | ladder decode.
+- BOOT `readTrims()` = `BOOTLOADER_KEYS` when K1 + K4 are both decoded, else `0`.
+- Firmware `readKeys()` / `readTrims()` behaviour is unchanged.
+
+### 11.4 Disable ADC before jumping to firmware
+
+In `radio/src/targets/st16/board.cpp` `boardBLPreJump()`, add under `RADIO_G11P`:
+
+```cpp
+LL_ADC_Disable(ADC_MAIN);
+```
+
+`ADC_EXT` only needs disabling if ADC3 is also initialised in the bootloader (currently it
+is not). This leaves the ADC clean for the firmware's `adcInit()`.
+
+### 11.5 Verification
+
+1. Build the G11P bootloader and firmware.
+2. Hardware:
+   - Hold K1 + K4 and power on -> bootloader.
+   - Hold only K1 or only K4 -> normal firmware boot.
+   - No keys held -> normal firmware boot.
+   - No false entry at rest.
+   - Sticks/trims/switches/battery ADC still work after the jump to firmware.
+3. Measure the actual K12/K34 ladder voltages and adjust `G11P_KEY_LEVEL_LOW/HIGH` if the
+   K1/K4 windows differ from the assumed values.
