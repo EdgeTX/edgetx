@@ -517,9 +517,11 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
     `luaKillEvents()`/`KEYS_GPIO_REG_MENU` build break (guard with `!COLORLCD`).
     -> commit & push (`f4a2a7f9f2`)
 
-20. [ ] Radio: apply section 11 — bootloader entry via K1 + K4, H7 ADC1 init in
+20. [x] Radio: applied section 11 — bootloader entry via K1 + K4, H7 ADC1 init in
     `g11p_key_driver.cpp` `keysInit()` (BOOT), BOOT `readKeys()`/`readTrims()` ladder
-    decode, and `LL_ADC_Disable(ADC_MAIN)` in `boardBLPreJump()`. -> commit & push
+    decode, and `LL_ADC_Disable(ADC_MAIN)` in `boardBLPreJump()`. Bootloader and firmware
+    build with `FLAVOR=g11p`; bootloader disassembly shows `readTrims()` returning `0x42`
+    for K1 + K4. -> commit & push
 
 **Outstanding:** `.github/workflows/actions.yml` CI matrix needs `g11p` added, but the
 push token lacks `workflow` scope; apply manually or with a suitably-scoped token. Hardware

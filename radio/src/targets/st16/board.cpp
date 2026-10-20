@@ -195,6 +195,11 @@ void boardBLPreJump()
   ExtFLASH_Init();
   SDRAM_Init();
 
+#if defined(RADIO_G11P)
+  // ADC1 was initialised by g11p_key_driver for the K1+K4 boot check
+  LL_ADC_Disable(ADC_MAIN);
+#endif
+
   // Stop 1ms timer
   MS_TIMER->CR1 &= ~TIM_CR1_CEN;
 }
