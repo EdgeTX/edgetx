@@ -153,14 +153,11 @@ static BitmapBuffer* shutdownSplashImg = nullptr;
 
 void drawSleepBitmap()
 {
-  if (shutdownWindow) {
-    shutdownWindow->clear();
-  } else {
-    shutdownWindow =
-        new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
-    shutdownWindow->setWindowFlag(OPAQUE);
-    etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
-  }
+  cancelShutdownAnimation();
+
+  shutdownWindow = new Window(MainWindow::instance(), {0, 0, LCD_W, LCD_H});
+  shutdownWindow->setWindowFlag(OPAQUE);
+  etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
 
   (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
       ->center(LCD_W, LCD_H);
@@ -172,6 +169,8 @@ void drawSleepBitmap()
 void cancelShutdownAnimation()
 {
   if (shutdownWindow) {
+    // Detach before the parent deletes the canvas
+    if (shutdownSplashImg) shutdownSplashImg->removeCanvas();
     shutdownWindow->closeWindow();
     shutdownWindow = nullptr;
     for (int i = 0; i < 4; i += 1) shutdownAnim[i] = nullptr;
@@ -189,12 +188,11 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
     shutdownWindow->setWindowFlag(OPAQUE);
     etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
 
-    if (sdMounted() && !shutdownSplashImg) {
+    if (sdMounted() && !shutdownSplashImg)
       shutdownSplashImg = BitmapBuffer::loadBitmap(
           BITMAPS_PATH "/" SHUTDOWN_SPLASH_FILE, BMP_RGB565);
-      if (shutdownSplashImg)
-        shutdownSplashImg->addCanvas(shutdownWindow);
-    }
+    if (shutdownSplashImg)
+      shutdownSplashImg->addCanvas(shutdownWindow);
 
     (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
         ->center(LCD_W, LCD_H);
