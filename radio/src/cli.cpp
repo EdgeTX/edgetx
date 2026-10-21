@@ -1435,10 +1435,16 @@ int cliSet(const char **argv)
 static const etx_serial_driver_t* _sp_drv = nullptr;
 static void* _sp_ctx = nullptr;
 
+// TX side, if not the same as RX (external module)
+static const etx_serial_driver_t* _sp_tx_drv = nullptr;
+static void* _sp_tx_ctx = nullptr;
+
 static void _sp_Tx(uint8_t* buf, uint32_t len)
 {
+  auto drv = _sp_tx_drv ? _sp_tx_drv : _sp_drv;
+  auto ctx = _sp_tx_drv ? _sp_tx_ctx : _sp_ctx;
   while (len > 0) {
-    _sp_drv->sendByte(_sp_ctx, *(buf++));
+    drv->sendByte(ctx, *(buf++));
     len--;
   }
 }
@@ -1473,6 +1479,55 @@ static void spModuleDeInit(int port_n)
 }
 
 #endif // HARDWARE_INTERNAL_MODULE
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+static etx_module_state_t *spExtModuleState = nullptr;
+
+// As the MULTI firmware update (multi_firmware_update.cpp): TX on PPM,
+// RX on S.PORT, the module powered on once both are ready.
+static void spExtModuleInit(int port_n, int baudrate)
+{
+  etx_serial_init params = {
+      .baudrate = (uint32_t)baudrate,
+      .encoding = ETX_Encoding_8N1,
+      .direction = ETX_Dir_TX,
+      .polarity = ETX_Pol_Inverted,
+  };
+
+  // power cycle: the boot loader listens right after power on
+  modulePortSetPower(port_n, false);
+  delay_ms(500);
+
+  spExtModuleState =
+      modulePortInitSerial(port_n, ETX_MOD_PORT_UART, &params, true);
+  if (!spExtModuleState) return;
+
+  params.direction = ETX_Dir_RX;
+  if (!modulePortInitSerial(port_n, ETX_MOD_PORT_SPORT, &params, true)) {
+    modulePortDeInit(spExtModuleState);
+    spExtModuleState = nullptr;
+    return;
+  }
+
+  _sp_drv = modulePortGetSerialDrv(spExtModuleState->rx);
+  _sp_ctx = modulePortGetCtx(spExtModuleState->rx);
+  _sp_tx_drv = modulePortGetSerialDrv(spExtModuleState->tx);
+  _sp_tx_ctx = modulePortGetCtx(spExtModuleState->tx);
+
+  modulePortSetPower(port_n, true);
+}
+
+static void spExtModuleDeInit(int port_n)
+{
+  modulePortSetPower(port_n, false);
+  modulePortDeInit(spExtModuleState);
+  spExtModuleState = nullptr;
+  _sp_drv = nullptr;
+  _sp_tx_drv = nullptr;
+  _sp_tx_ctx = nullptr;
+  delay_ms(200);
+}
+#endif // HARDWARE_EXTERNAL_MODULE
 
 #if defined(FLYSKY_GIMBAL)
 #include "flysky_gimbal_driver.h"
@@ -1538,8 +1593,12 @@ int cliSerialPassthrough(const char **argv)
       deinitCB = spModuleDeInit;
       break;
 #endif
-    // TODO:
-    //  - external module (S.PORT?)
+#if defined(HARDWARE_EXTERNAL_MODULE)
+    case EXTERNAL_MODULE:
+      initCB = spExtModuleInit;
+      deinitCB = spExtModuleDeInit;
+      break;
+#endif
     default:
       cliSerialPrint("%s: invalid port # '%i'", argv[0], port_n);
       return -1;
@@ -1590,7 +1649,10 @@ int cliSerialPassthrough(const char **argv)
       uint32_t cli_br = cliGetBaudRate();
       if (cli_br && (cli_br != (uint32_t)baudrate)) {
         baudrate = cli_br;
-        _sp_drv->setBaudrate(_sp_ctx, baudrate);
+        // not supported by softserial
+        if (_sp_drv->setBaudrate) _sp_drv->setBaudrate(_sp_ctx, baudrate);
+        if (_sp_tx_drv && _sp_tx_drv->setBaudrate)
+          _sp_tx_drv->setBaudrate(_sp_tx_ctx, baudrate);
       }
 
       uint8_t data;
