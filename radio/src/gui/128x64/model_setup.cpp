@@ -189,6 +189,8 @@ enum MenuModelSetupItems {
 #endif
 #if defined(MAVLINK)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_MAVLINK_BAUDRATE,
+  ITEM_MODEL_SETUP_EXTERNAL_MODULE_MAVLINK_SRC_SYSID,
+  ITEM_MODEL_SETUP_EXTERNAL_MODULE_MAVLINK_DST_SYSID,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_MAVLINK_STATUS,
 #endif
 #if defined(MULTIMODULE)
@@ -318,7 +320,7 @@ static uint8_t VIEWOPT_ROW(uint8_t value) { return expandState.viewOpt ? value :
 #endif
 
 #if defined(MAVLINK)
-#define MAVLINK_ROWS(module) (isModuleMavlink(module) ? (uint8_t)0 : HIDDEN_ROW), (isModuleMavlink(module) ? (uint8_t)0 : HIDDEN_ROW),
+#define MAVLINK_ROWS(module) (isModuleMavlink(module) ? (uint8_t)0 : HIDDEN_ROW), (isModuleMavlink(module) ? (uint8_t)0 : HIDDEN_ROW), (isModuleMavlink(module) ? (uint8_t)0 : HIDDEN_ROW), (isModuleMavlink(module) ? (uint8_t)0 : HIDDEN_ROW),
 #else
 #define MAVLINK_ROWS(module)
 #endif
@@ -1664,6 +1666,22 @@ void menuModelSetup(event_t event)
             restartModule(moduleIdx);
           }
         }
+        break;
+      }
+
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_MAVLINK_SRC_SYSID: {
+        uint8_t id = mavlinkSrcSysId(moduleIdx);
+        lcdDrawTextIndented(y, STR_MAVLINK_SRC_SYSID);
+        lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, id, attr | LEFT);
+        if (attr) g_model.moduleData[moduleIdx].mavlink.srcSysId = checkIncDecModel(event, id, 1, 255);
+        break;
+      }
+
+      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_MAVLINK_DST_SYSID: {
+        uint8_t id = mavlinkDstSysId(moduleIdx);
+        lcdDrawTextIndented(y, STR_MAVLINK_DST_SYSID);
+        lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, id, attr | LEFT);
+        if (attr) g_model.moduleData[moduleIdx].mavlink.dstSysId = checkIncDecModel(event, id, 1, 255);
         break;
       }
 

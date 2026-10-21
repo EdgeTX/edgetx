@@ -32,11 +32,12 @@ extern const uint32_t MAVLINK_BAUDRATES[MAVLINK_BAUDRATE_COUNT];
 struct MavlinkModuleStatus {
   bool     linkUp;
   uint16_t framesPerSecond;
-  uint8_t  targetSysId;
-  uint8_t  targetCompId;
 };
 
 const MavlinkModuleStatus* mavlinkGetStatus(uint8_t module);
+
+uint8_t mavlinkSrcSysId(uint8_t module);
+uint8_t mavlinkDstSysId(uint8_t module);
 
 bool mavlinkTunnelStage(const uint8_t* frame, uint8_t len);
 bool mavlinkTunnelStageAvailable();

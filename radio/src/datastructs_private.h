@@ -588,6 +588,8 @@ PACK(struct ModuleData {
     NOBACKUP(struct {
       uint8_t telemetryBaudrate:3;
       uint8_t spare1:5 SKIP;
+      uint8_t srcSysId;
+      uint8_t dstSysId;
     } mavlink);
   } NAME(mod) FUNC(select_mod_type);
 

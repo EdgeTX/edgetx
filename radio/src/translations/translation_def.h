@@ -69,6 +69,8 @@
 #define TR_FUNCTION_SWITCH_GROUPS       "---", TR_SWITCH_GROUP" 1", TR_SWITCH_GROUP" 2", TR_SWITCH_GROUP" 3"
 #define TR_CRSF_BAUDRATE                "115k","400k","921k","1.87M","3.75M","5.25M"
 #define TR_MAVLINK_BAUDRATE             "115k","400k","921k"
+#define TR_MAVLINK_SRC_SYSID            TR("Src SysID","Source SysID")
+#define TR_MAVLINK_DST_SYSID            TR("Dst SysID","Target SysID")
 #define TR_MODULE_PROTOCOLS             TR_OFF,"PPM","XJT","ISRM","DSM2","CRSF","MULTI","R9M","R9M ACCESS","R9MLite","R9ML ACCESS",\
                                         "GHST","R9MLP ACCESS","SBUS","XJT Lite","AFHDS2A","AFHDS3",TR("Lemon DSMP","LemonRx DSMP"),"MAVLink"
 #define TR_SM_VSRCRAW                   "smA","smB","smC","smD","smE","smF"

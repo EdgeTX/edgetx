@@ -22,6 +22,7 @@
 #include "mavlink_settings.h"
 #include "choice.h"
 #include "edgetx.h"
+#include "numberedit.h"
 
 #include "mixer_scheduler.h"
 #include "pulses/mavlink.h"
@@ -48,6 +49,32 @@ MavlinkSettings::MavlinkSettings(Window* parent, const FlexGridLayout& g,
           md->mavlink.telemetryBaudrate = newValue;
           SET_DIRTY();
           restartModule(moduleIdx);
+        });
+  }
+
+  // Source SysID
+  {
+    auto line = newLine(grid);
+    new StaticText(line, rect_t{}, STR_MAVLINK_SRC_SYSID);
+    new NumberEdit(
+        line, rect_t{}, 1, 255,
+        [=]() -> int { return mavlinkSrcSysId(moduleIdx); },
+        [=](int newValue) {
+          md->mavlink.srcSysId = newValue;
+          SET_DIRTY();
+        });
+  }
+
+  // Target SysID
+  {
+    auto line = newLine(grid);
+    new StaticText(line, rect_t{}, STR_MAVLINK_DST_SYSID);
+    new NumberEdit(
+        line, rect_t{}, 1, 255,
+        [=]() -> int { return mavlinkDstSysId(moduleIdx); },
+        [=](int newValue) {
+          md->mavlink.dstSysId = newValue;
+          SET_DIRTY();
         });
   }
 

@@ -55,8 +55,9 @@ static const uint16_t MAVLINK_PERIODS[MAVLINK_BAUDRATE_COUNT] = {
 };
 
 #define MAVLINK_GCS_SYSID         255
-// #define MAVLINK_GCS_COMPID        MAV_COMP_ID_MISSIONPLANNER
-#define MAVLINK_GCS_COMPID        MAV_COMP_ID_RADIO
+#define MAVLINK_GCS_COMPID        MAV_COMP_ID_USER1
+#define MAVLINK_TARGET_SYSID      1
+#define MAVLINK_TARGET_COMPID     MAV_COMP_ID_AUTOPILOT1
 #define MAVLINK_HEARTBEAT_TIMEOUT 300
 
 // Cooperative half-duplex timing: the module sends a DEBUG_VECT tagged with
@@ -74,9 +75,6 @@ static const etx_serial_init mavlinkSerialParams = {
 };
 
 struct MavlinkState {
-  uint8_t   targetSysId;
-  uint8_t   targetCompId;
-  bool      targetKnown;
   uint8_t   brIdx;          // baud index, for the scheduler fallback period
 
   uint16_t  frameAccum;
@@ -92,6 +90,18 @@ static uint16_t channelToUs(int16_t value)
 {
   int32_t us = 1500 + ((int32_t)value * 500) / 1024;
   return (uint16_t)limit<int32_t>(1000, us, 2000);
+}
+
+uint8_t mavlinkSrcSysId(uint8_t module)
+{
+  uint8_t id = g_model.moduleData[module].mavlink.srcSysId;
+  return id ? id : MAVLINK_GCS_SYSID;
+}
+
+uint8_t mavlinkDstSysId(uint8_t module)
+{
+  uint8_t id = g_model.moduleData[module].mavlink.dstSysId;
+  return id ? id : MAVLINK_TARGET_SYSID;
 }
 
 #if !defined(SIMU) && defined(HARDWARE_EXTERNAL_MODULE)
@@ -114,8 +124,6 @@ static void* mavlinkInit(uint8_t module)
   memset(&st, 0, sizeof(st));
 
   st.brIdx = brIdx;
-  st.targetSysId = 1;
-  st.targetCompId = MAV_COMP_ID_AUTOPILOT1;
   st.lastRateCalc = get_tmr10ms();
 
   auto& rx_count = getTelemetryRxBufferCount(module);
@@ -198,15 +206,16 @@ bool mavlinkTunnelStage(const uint8_t* frame, uint8_t len)
 }
 
 static void mavlinkSendTunnel(etx_module_state_t* mod_st, uint8_t* buffer,
-                              MavlinkState& st)
+                              uint8_t module)
 {
   auto drv = modulePortGetSerialDrv(mod_st->tx);
   auto drv_ctx = modulePortGetCtx(mod_st->tx);
 
   mavlink_message_t msg;
   uint16_t framelen = mavlink_msg_tunnel_pack(
-      MAVLINK_GCS_SYSID, MAVLINK_GCS_COMPID, &msg, st.targetSysId,
-      st.targetCompId, MAV_TUNNEL_PAYLOAD_TYPE_ELRS_CRSF, mavlinkTunnelLen,
+      mavlinkSrcSysId(module), MAVLINK_GCS_COMPID, &msg,
+      mavlinkDstSysId(module), MAVLINK_TARGET_COMPID,
+      MAV_TUNNEL_PAYLOAD_TYPE_ELRS_CRSF, mavlinkTunnelLen,
       mavlinkTunnelBuf);
 
   if (drv && drv->sendBuffer && framelen <= MODULE_BUFFER_SIZE) {
@@ -227,7 +236,7 @@ static void mavlinkSendPulses(void* ctx, uint8_t* buffer, int16_t* channels,
   mavlinkSetupMixerScheduler(module);
 
   if (mavlinkTunnelLen) {
-    mavlinkSendTunnel(mod_st, buffer, st);
+    mavlinkSendTunnel(mod_st, buffer, module);
     return;
   }
 
@@ -245,10 +254,10 @@ static void mavlinkSendPulses(void* ctx, uint8_t* buffer, int16_t* channels,
 
   mavlink_message_t msg;
   mavlink_msg_rc_channels_override_pack(
-      MAVLINK_GCS_SYSID, MAVLINK_GCS_COMPID, &msg, st.targetSysId,
-      st.targetCompId, ch[0], ch[1], ch[2], ch[3], ch[4], ch[5], ch[6], ch[7],
-      ch[8], ch[9], ch[10], ch[11], ch[12], ch[13], ch[14], ch[15], ch[16],
-      ch[17]);
+      mavlinkSrcSysId(module), MAVLINK_GCS_COMPID, &msg,
+      mavlinkDstSysId(module), MAVLINK_TARGET_COMPID, ch[0], ch[1], ch[2],
+      ch[3], ch[4], ch[5], ch[6], ch[7], ch[8], ch[9], ch[10], ch[11], ch[12],
+      ch[13], ch[14], ch[15], ch[16], ch[17]);
 
   uint16_t len = mavlink_msg_to_send_buffer(buffer, &msg);
 
@@ -263,8 +272,6 @@ static void mavlinkSendPulses(void* ctx, uint8_t* buffer, int16_t* channels,
   if ((tmr10ms_t)(now - st.lastRateCalc) >= 100) {
     st.pub.framesPerSecond = st.frameAccum;
     st.pub.linkUp = (tmr10ms_t)(now - st.lastHeartbeat) < MAVLINK_HEARTBEAT_TIMEOUT;
-    st.pub.targetSysId = st.targetSysId;
-    st.pub.targetCompId = st.targetCompId;
     st.frameAccum = 0;
     st.lastRateCalc = now;
   }
@@ -276,17 +283,9 @@ static void mavlinkHandleMessage(uint8_t module, const mavlink_message_t* msg)
   st.frameAccum++;
 
   switch (msg->msgid) {
-    case MAVLINK_MSG_ID_HEARTBEAT: {
-      mavlink_heartbeat_t hb;
-      mavlink_msg_heartbeat_decode(msg, &hb);
-
-      if (hb.type != MAV_TYPE_GCS && msg->compid != MAV_COMP_ID_TELEMETRY_RADIO) {
-        st.targetSysId = msg->sysid;
-        st.targetCompId = msg->compid;
-        st.targetKnown = true;
-      }
+    case MAVLINK_MSG_ID_HEARTBEAT:
       st.lastHeartbeat = get_tmr10ms();
-    } break;
+      break;
 
     case MAVLINK_MSG_ID_DEBUG_VECT: {
       // Cooperative-timing sync frame from the module (name-tagged so real
