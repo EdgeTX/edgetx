@@ -1,6 +1,15 @@
 execute_process(COMMAND @CMAKE_MAKE_PROGRAM@ DESTDIR=@APPIMAGE_DIR@ install
                 WORKING_DIRECTORY @CMAKE_BINARY_DIR@)
 
+# linuxdeploy-plugin-qt only bundles the xcb platform plugin by default, so also
+# bundle the Wayland platform plugins and their shell/decoration integrations.
+# Set via ENV as the lists contain ';' which execute_process would split.
+set(ENV{EXTRA_PLATFORM_PLUGINS} "libqwayland-generic.so;libqwayland-egl.so")
+# "waylandcompositor" is the module name that triggers deployment of the
+# wayland-shell-integration, wayland-decoration-client and
+# wayland-graphics-integration-client plugins (needed by the client too)
+set(ENV{EXTRA_QT_MODULES} "waylandcompositor")
+
 # This is done by cmake install target
 # setup Companion application
 # add -v0 to linuxdeploy for debug info
