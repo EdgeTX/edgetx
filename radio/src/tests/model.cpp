@@ -79,3 +79,36 @@ TEST(Model, testModelNameParse)
   loadModelYamlStr(_model_config[4]);
   EXPECT_STREQ(modelName(), "\"Tst Name");
 }
+
+TEST(Model, legacySwitchWarningState)
+{
+  // switchWarningState is the legacy format (2.10 and older factory models).
+  // It must be decoded with the same 2-bit layout as ModelData::switchWarning.
+  // Only SA/SB are used, as some targets (e.g. nb4p) have no other switches.
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("switchWarningState: AuBu\n");
+  EXPECT_EQ(g_model.getSwitchWarning(0), 1);  // SA up
+  EXPECT_EQ(g_model.getSwitchWarning(1), 1);  // SB up
+
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("switchWarningState: AdB-\n");
+  EXPECT_EQ(g_model.getSwitchWarning(0), 3);  // SA down
+  EXPECT_EQ(g_model.getSwitchWarning(1), 2);  // SB mid
+
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("switchWarningState: Bd\n");
+  EXPECT_EQ(g_model.getSwitchWarning(0), 0);  // SA not checked
+  EXPECT_EQ(g_model.getSwitchWarning(1), 3);  // SB down
+
+  // trailing switch without state is ignored
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("switchWarningState: AuB\n");
+  EXPECT_EQ(g_model.getSwitchWarning(0), 1);  // SA up
+  EXPECT_EQ(g_model.getSwitchWarning(1), 0);  // SB not checked
+
+  // unknown switches are skipped, following entries are still decoded
+  memset(&g_model, 0, sizeof(g_model));
+  loadModelYamlStr("switchWarningState: AuZuBd\n");
+  EXPECT_EQ(g_model.getSwitchWarning(0), 1);  // SA up
+  EXPECT_EQ(g_model.getSwitchWarning(1), 3);  // SB down
+}
