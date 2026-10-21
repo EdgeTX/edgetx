@@ -1273,9 +1273,41 @@ static void spModuleDeInit(int port_n)
 #if defined(HARDWARE_EXTERNAL_MODULE)
 static etx_module_state_t *spExtModuleState = nullptr;
 
+// Power cycle: the module's boot loader listens right after power on,
+// the ports are opened while the module is off.
+static void spExtModulePowerOff(int port_n)
+{
+  modulePortSetPower(port_n, false);
+  delay_ms(500);
+}
+
+static void spExtModulePowerOn(int port_n)
+{
+  _sp_drv = modulePortGetSerialDrv(spExtModuleState->rx);
+  _sp_ctx = modulePortGetCtx(spExtModuleState->rx);
+  modulePortSetPower(port_n, true);
+}
+
+// Half-duplex on S.PORT, as the FrSky firmware update
+// (frsky_firmware_update.cpp): the driver switches direction
+static void spExtModuleSportInit(int port_n, int baudrate)
+{
+  etx_serial_init params = {
+      .baudrate = (uint32_t)baudrate,
+      .encoding = ETX_Encoding_8N1,
+      .direction = ETX_Dir_TX_RX,
+      .polarity = ETX_Pol_Normal,
+  };
+
+  spExtModulePowerOff(port_n);
+  spExtModuleState =
+      modulePortInitSerial(port_n, ETX_MOD_PORT_SPORT, &params, false);
+  if (spExtModuleState) spExtModulePowerOn(port_n);
+}
+
 // As the MULTI firmware update (multi_firmware_update.cpp): TX on PPM,
-// RX on S.PORT, the module powered on once both are ready.
-static void spExtModuleInit(int port_n, int baudrate)
+// RX on S.PORT
+static void spExtModulePpmInit(int port_n, int baudrate)
 {
   etx_serial_init params = {
       .baudrate = (uint32_t)baudrate,
@@ -1284,10 +1316,7 @@ static void spExtModuleInit(int port_n, int baudrate)
       .polarity = ETX_Pol_Inverted,
   };
 
-  // power cycle: the boot loader listens right after power on
-  modulePortSetPower(port_n, false);
-  delay_ms(500);
-
+  spExtModulePowerOff(port_n);
   spExtModuleState =
       modulePortInitSerial(port_n, ETX_MOD_PORT_UART, &params, true);
   if (!spExtModuleState) return;
@@ -1299,12 +1328,9 @@ static void spExtModuleInit(int port_n, int baudrate)
     return;
   }
 
-  _sp_drv = modulePortGetSerialDrv(spExtModuleState->rx);
-  _sp_ctx = modulePortGetCtx(spExtModuleState->rx);
   _sp_tx_drv = modulePortGetSerialDrv(spExtModuleState->tx);
   _sp_tx_ctx = modulePortGetCtx(spExtModuleState->tx);
-
-  modulePortSetPower(port_n, true);
+  spExtModulePowerOn(port_n);
 }
 
 static void spExtModuleDeInit(int port_n)
@@ -1371,21 +1397,36 @@ int cliSerialPassthrough(const char **argv)
       cliSerialPrint("%s: invalid or missing port number", argv[0]);
       return -1;
     }
-    // 3rd argument (baudrate is optional)
-    if (toInt(argv, 3, &baudrate) <= 0) {
-      baudrate = 0;
+    // optional: baudrate, then mode (external module only)
+    int arg = 3;
+    if (argv[arg] && isdigit(argv[arg][0])) {
+      if (toInt(argv, arg++, &baudrate) <= 0) {
+        baudrate = 0;
+      }
     }
+    const char* mode = (argv[arg] && argv[arg][0]) ? argv[arg] : nullptr;
 
     switch(port_n) {
 #if defined(HARDWARE_INTERNAL_MODULE)
     case INTERNAL_MODULE:
+      if (mode) {
+        cliSerialPrint("%s: invalid argument '%s'", argv[0], mode);
+        return -1;
+      }
       initCB = spModuleInit;
       deinitCB = spModuleDeInit;
       break;
 #endif
 #if defined(HARDWARE_EXTERNAL_MODULE)
     case EXTERNAL_MODULE:
-      initCB = spExtModuleInit;
+      if (!mode || !strcmp(mode, "sport")) {
+        initCB = spExtModuleSportInit;
+      } else if (!strcmp(mode, "ppm")) {
+        initCB = spExtModulePpmInit;
+      } else {
+        cliSerialPrint("%s: invalid mode '%s' (sport or ppm)", argv[0], mode);
+        return -1;
+      }
       deinitCB = spExtModuleDeInit;
       break;
 #endif
@@ -1931,7 +1972,7 @@ const CliCommand cliCommands[] = {
   { "reboot", cliReboot, "[wdt]" },
   { "set", cliSet, "<what> <value>" },
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
-  { "serialpassthrough", cliSerialPassthrough, "<port type> [<port number>] [<baudrate>]"},
+  { "serialpassthrough", cliSerialPassthrough, "<port type> [<port number>] [<baudrate>] [sport|ppm]"},
 #endif
 #if defined(DEBUG)
   { "print", cliDisplay, "<address> [<size>] | <what>" },
