@@ -1595,12 +1595,16 @@ static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
   //
   swarnstate_t swtchWarn = 0;
 
-  while (val_len--) {
+  // each entry is a pair: switch letter + state
+  for (; val_len >= 2; val_len -= 2) {
     signed swtch = switchLookupIdx(*(val++));
-    if (swtch < 0) break;
+    char c = *(val++);
+
+    // skip switches unknown on this radio (same as Companion)
+    if (swtch < 0) continue;
 
     swarnstate_t state = 0;
-    switch (*(val++)) {
+    switch (c) {
       case 'u':
         state = 1;
         break;
@@ -1615,8 +1619,8 @@ static void r_swtchWarn(void* user, uint8_t* data, uint32_t bitoffs,
         break;
     }
 
-    // 3 bits per switch
-    swtchWarn |= (state << (3 * swtch));
+    // 2 bits per switch, same layout as ModelData::switchWarning
+    swtchWarn = bfSet<swarnstate_t>(swtchWarn, state, swtch * 2, 2);
   }
   memcpy(data, &swtchWarn, sizeof(swtchWarn));
 
