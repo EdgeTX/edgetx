@@ -14,6 +14,27 @@
   "board": "default",
   "dwnldId": "",
   "simuId": "",
+  "backgroundVolume": {
+    "comments": "",
+    "min": 0,
+    "max": 0,
+    "dflt": 1
+  },
+  "backlight": {
+    "comments": "initialisation values",
+    "delay": 2,
+    "keys": false,
+    "min": 0,
+    "mode": 0,
+    "offBrightness": 0,
+    "onBrightness": 0
+  },
+  "contrast": {
+    "comments": "b&w",
+    "min": 0,
+    "max": 0,
+    "dflt": 25
+  },
   "curves": {
     "comments": "",
     "cnt": 32,
@@ -100,6 +121,12 @@
     "cnt": 40,
     "name": 4
   },
+  "speakerVolume": {
+    "comments": "",
+    "min": 0,
+    "max": 0,
+    "dflt": 0
+  },
   "specialFuncs": {
     "comments": "",
     "cnt": 32
@@ -115,6 +142,12 @@
     "comments": "",
     "cnt": 3,
     "name": 8
+  },
+  "wavVolume": {
+    "comments": "",
+    "min": 0,
+    "max": 0,
+    "dflt": 2
   },
   "eepromSize": 0,
   "flashSize": 0,

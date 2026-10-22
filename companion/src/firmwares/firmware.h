@@ -42,6 +42,17 @@ class Firmware
     typedef QList<QString> OptionsGroup;
     typedef QList<OptionsGroup> OptionsList;
 
+    struct BacklightDefn {
+      int  delay         {0};
+      bool keys          {false};
+      int  min           {0};
+      int  mode          {0};
+      int  offBrightness {0};
+      int  onBrightness  {0};
+
+      BacklightDefn() = default;
+    };
+
     struct CurvesDefn {
       Json::sizes_t sizes       {CPN_MAX_CURVES, CURVEDATA_NAME_LEN};
       int          minPoints   {2};
@@ -101,6 +112,9 @@ class Firmware
       bool              labels            {false};               // same thing?
       bool              modelsList        {false};               // depreciated - read yaml but not write check
 
+      BacklightDefn     backlight;
+      Json::range_t     backgroundVolume  {0, 0, 0};
+      Json::range_t     contrast          {0, 0, 25};
       CurvesDefn        curves;
       CustomScreensDefn customScreens;
       int               eepromSize        {0};
@@ -126,10 +140,12 @@ class Firmware
       bool              powerOnDelay      {false};
       int               quickMenuFavs     {MAX_QMFAVOURITES};                        // B&W 0
       Json::sizes_t     sensors           {CPN_MAX_SENSORS, SENSOR_LABEL_LEN};       // 40, 60 or 99 and check len
+      Json::range_t     speakerVolume     {0, 0, 0};
       Json::sizes_t     specialFuncs      {CPN_MAX_SPECIAL_FUNCTIONS, 0};
       TeleCstmScrnsDefn teleCstmScrns;
       Json::sizes_t     timers            {CPN_MAX_TIMERS, TIMER_NAME_LEN};
       int               topBarZones       {MAX_TOPBAR_ZONES};
+      Json::range_t     wavVolume         {0, 0, 0};
 
       FirmwareDefn() = default;
     };
@@ -186,6 +202,7 @@ class Firmware
     void dumpCapabilities();
     bool isOptionDuplicate(const OptionsGroup & grp, const QString & val);
     bool isOptionDuplicate(const OptionsList & options, const QString & val);
+    void loadBacklight(QJsonObject::const_iterator & it);
     void loadBuildOptions(QJsonObject::const_iterator & it);
     void loadBuildOptionGroup(QJsonArray::const_iterator & it, OptionsGroup & grp);
     void loadCurves(QJsonObject::const_iterator & it);

@@ -7,6 +7,21 @@
   ],
   "hidden": true,
   "name": "Default",
+  "auxSerialMode": false,
+  "aux2SerialMode": false,
+  "battery": {
+    "comments": "",
+    "min": 0,
+    "max": 0,
+    "warn": 0
+  },
+  "bluetoothName": "unknown",
+  "chargeWhileOn": false,
+  "externalAntenna": false,
+  "hardwareAntennaSwitch": false,
+  "hats": false,
+  "imu": false,
+  "internalGPS": false,
   "modules": [
     {
       "internal": {
@@ -35,62 +50,13 @@
       }
     }
   ],
-  "auxSerialMode": false,
-  "aux2SerialMode": false,
-  "backgroundVolume": {
-    "comments": "",
-    "min": 0,
-    "max": 0,
-    "dflt": 0
-  },
-  "backlight": {
-    "comments": "initialisation values",
-    "delay": 2,
-    "keys": false,
-    "min": 0,
-    "mode": 0,
-    "offBrightness": 0,
-    "onBrightness": 0
-  },
-  "battery": {
-    "comments": "",
-    "min": 0,
-    "max": 0,
-    "warn": 0
-  },
-  "bluetoothName": "unknown",
-  "chargeWhileOn": false,
-  "contrast": {
-    "comments": "b&w",
-    "min": 0,
-    "max": 0,
-    "dflt": 25
-  },
-  "externalAntenna": false,
-  "hardwareAntennaSwitch": false,
-  "hats": false,
-  "imu": false,
-  "internalGPS": false,
-  "maxVolume": 0,
   "pwrButtonPress": true,
   "rotaryEncNav": true,
   "softwareSerialPower": false,
-  "speakerVolume": {
-    "comments": "",
-    "min": 0,
-    "max": 0,
-    "dflt": 0
-  },
   "stickDeadZone": false,
   "switchableJack": false,
   "topLCD": false,
   "trainerModule": "none",
   "vcpSerialMode": false,
-  "voiceControl": false,
-  "wavVolume": {
-    "comments": "",
-    "min": 0,
-    "max": 0,
-    "dflt": 0
-  }
+  "voiceControl": false
 }

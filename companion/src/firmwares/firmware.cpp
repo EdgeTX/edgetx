@@ -135,8 +135,29 @@ int Firmware::getCapability(Capability value) const
   const QStringList opts = g.currentProfile().fwOptions().split("-");
 
   switch (value) {
+    case Capability::BackgroundVolumeDefault:
+      return m_defn.backgroundVolume.dflt;
+
+    case Capability::BacklightLevelMin:
+      return m_defn.backlight.min;
+
+    case Capability::BacklightBright:
+      return m_defn.backlight.onBrightness;
+
+    case Capability::BacklightDelay:
+      return m_defn.backlight.delay;
+
+    case Capability::BacklightMode:
+      return m_defn.backlight.mode;
+
+    case Capability::BacklightOffBright:
+      return m_defn.backlight.offBrightness;
+
     case Capability::ChannelsName:
       return m_defn.outputs.name;
+
+    case Capability::ContrastDefault:
+      return m_defn.contrast.dflt;
 
     case Capability::DangerousFunctions:
       return opts.contains("danger") ? true : false;
@@ -167,6 +188,9 @@ int Firmware::getCapability(Capability value) const
 
     case Capability::GvarsName:
       return m_defn.globalVars.name;
+
+    case Capability::HasBacklightKeys:
+      return m_defn.backlight.keys;
 
     case Capability::HasExpoNames:
       return getCapability(Capability::InputsLength);
@@ -233,6 +257,15 @@ int Firmware::getCapability(Capability value) const
     case Capability::LuaScripts:
       return opts.contains("lua") ? m_defn.luaScripts.sizes.cnt : 0;
 
+    case Capability::MaxContrast:
+      return m_defn.contrast.max;
+
+    case Capability::MaxVolume:
+      return m_defn.speakerVolume.max;
+
+    case Capability::MinContrast:
+      return m_defn.contrast.min;
+
     case Capability::Mixes:
       return m_defn.mixes.cnt;
 
@@ -281,6 +314,9 @@ int Firmware::getCapability(Capability value) const
     case Capability::SlowScale:
       return 10;
 
+    case Capability::SpeakerVolumeDefault:
+      return m_defn.speakerVolume.dflt;
+
     case Capability::SpecialFunctions:
       return m_defn.specialFuncs.cnt;
 
@@ -317,6 +353,9 @@ int Firmware::getCapability(Capability value) const
 
     case Capability::VoicesMaxLength:
       return 8;
+
+    case Capability::WavVolumeDefault:
+      return m_defn.wavVolume.dflt;
 
     // drop thru to Board
     default:
@@ -494,23 +533,44 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "modelsList")
       m_defn.modelsList = Json::valueBool(it, m_defn.modelsList);
 
+    else if (it.key() == "contrast")
+      Json::loadRange(it, m_defn.contrast);
+
+    else if (it.key() == "backgroundVolume")
+      Json::loadRange(it, m_defn.backgroundVolume);
+
+    else if (it.key() == "backlight")
+      loadBacklight(it);
+
     else if (it.key() == "curves")
       loadCurves(it);
 
     else if (it.key() == "customScreens")
       loadCustomScreens(it);
 
+    else if (it.key() == "eepromSize")
+      m_defn.eepromSize = Json::valueInt(it, m_defn.eepromSize);
+
     else if (it.key() == "expos")
       Json::loadSizes(it, m_defn.expos, CPN_MAX_EXPOS, EXPODATA_NAME_LEN);
 
+    else if (it.key() == "flashSize")
+      m_defn.flashSize = Json::valueInt(it, m_defn.flashSize);
+
     else if (it.key() == "flightModes")
       Json::loadSizes(it, m_defn.flightModes, CPN_MAX_FLIGHT_MODES, FLIGHTMODE_NAME_LEN);
+
+    else if (it.key() == "fourCC")
+      m_defn.fourCC = Json::valueInt(it, m_defn.fourCC);
 
     else if (it.key() == "globalFuncs")
       Json::loadSizes(it, m_defn.globalFuncs, CPN_MAX_GLOBAL_FUNCTIONS, 0);
 
     else if (it.key() == "globalVars")
       Json::loadSizes(it, m_defn.globalVars, CPN_MAX_GVARS, GVAR_NAME_LEN);
+
+    else if (it.key() == "inactivityTimer")
+      m_defn.inactivityTimer = Json::valueInt(it, m_defn.inactivityTimer);
 
     else if (it.key() == "inputs")
       Json::loadSizes(it, m_defn.inputs, CPN_MAX_INPUTS, INPUT_NAME_LEN);
@@ -551,6 +611,9 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "sensors")
       Json::loadSizes(it, m_defn.sensors, CPN_MAX_SENSORS, SENSOR_LABEL_LEN);
 
+    else if (it.key() == "speakerVolume")
+      Json::loadRange(it, m_defn.speakerVolume);
+
     else if (it.key() == "specialFuncs")
       Json::loadSizes(it, m_defn.specialFuncs, CPN_MAX_SPECIAL_FUNCTIONS, 0);
 
@@ -563,14 +626,8 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "topBarZones")
       m_defn.topBarZones = Json::valueInt(it);
 
-    else if (it.key() == "fourCC")
-      m_defn.fourCC = Json::valueInt(it, m_defn.fourCC);
-
-    else if (it.key() == "eepromSize")
-      m_defn.eepromSize = Json::valueInt(it, m_defn.eepromSize);
-
-    else if (it.key() == "flashSize")
-      m_defn.flashSize = Json::valueInt(it, m_defn.flashSize);
+    else if (it.key() == "wavVolume")
+      Json::loadRange(it, m_defn.wavVolume);
 
     else
       JSON_NO_RULE(it);
@@ -578,6 +635,40 @@ bool Firmware::loadDefinition(const QString & path)
 
   delete doc;
   return true;
+}
+
+void Firmware::loadBacklight(QJsonObject::const_iterator & oit)
+{
+  JSON_OBJ_INIT_R(oit, o);
+
+  BacklightDefn & bd = m_defn.backlight;
+
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments" || it.key() == "backlight_bdtr")
+      continue;
+
+    //JSON_KEY_VAL(it);
+    else if (it.key() == "delay")
+      bd.delay = Json::valueInt(it, bd.delay);
+
+    else if (it.key() == "keys")
+      bd.keys = Json::valueBool(it, bd.keys);
+
+    else if (it.key() == "min")
+      bd.min = Json::valueInt(it, bd.min);
+
+    else if (it.key() == "mode")
+      bd.mode = Json::valueInt(it, bd.mode);
+
+    else if (it.key() == "offBrightness")
+      bd.offBrightness = Json::valueInt(it, bd.offBrightness);
+
+    else if (it.key() == "onBrightness")
+      bd.onBrightness = Json::valueInt(it, bd.onBrightness);
+
+    else
+      JSON_NO_RULE(it);
+  }
 }
 
 void Firmware::loadCurves(QJsonObject::const_iterator & oit)

@@ -232,27 +232,6 @@ int Board::getCapability(const Capability capability) const
     case Capability::Air:
       return !m_hardware.surface;
 
-    case Capability::BackgroundVolumeDefault:
-      return m_hardware.backgroundVolume.dflt;
-
-    case Capability::BacklightLevelMin:
-      return m_hardware.backlight.min;
-
-    case Capability::BacklightBright:
-      return m_hardware.backlight.onBrightness;
-
-    case Capability::BacklightDelay:
-      return m_hardware.backlight.delay;
-
-    case Capability::BacklightMode:
-      return m_hardware.backlight.mode;
-
-    case Capability::BacklightOffBright:
-      return m_hardware.backlight.offBrightness;
-
-    case Capability::ContrastDefault:
-      return m_hardware.contrast.dflt;
-
     case Capability::DefaultInternalModule:
       {
         int idx = 0;
@@ -296,9 +275,6 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::HasAudioMuteGPIO:
       return m_hardware.has_audio_mute;
-
-    case Capability::HasBacklightKeys:
-      return m_hardware.backlight.keys;
 
     case Capability::HasBacklightColor:
       return m_display.backlight_color;
@@ -421,9 +397,6 @@ int Board::getCapability(const Capability capability) const
     case Capability::IsLandscape:
       return m_display.w > m_display.h;
 
-    case Capability::IsNarrowLayout:
-      return false;
-
     case Capability::IsPortrait:
       return m_display.w < m_display.h;
 
@@ -447,15 +420,6 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::LcdWidth:
       return m_display.w;
-
-    case Capability::MaxContrast:
-      return m_hardware.contrast.max;
-
-    case Capability::MaxVolume:
-      return m_hardware.maxVolume;
-
-    case Capability::MinContrast:
-      return m_hardware.contrast.min;
 
     case Capability::ModelTrainerEnable:
       return m_id != "xlite";
@@ -495,9 +459,6 @@ int Board::getCapability(const Capability capability) const
     case Capability::Sliders:
       return m_inputCnt.flexSliders;
 
-    case Capability::SpeakerVolumeDefault:
-      return m_hardware.speakerVolume.dflt;
-
     case Capability::SportMaxBaudRate:
       return m_hardware.sport_max_baudrate;
 
@@ -520,9 +481,6 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::SwitchesPositions:
       return getCapability(Capability::Switches) * 3;
-
-    case Capability::WavVolumeDefault:
-      return m_hardware.wavVolume.dflt;
 
     default:
       qWarning() << "Warning: unknown capability:" << capability << "returned 0";
@@ -1394,8 +1352,8 @@ bool Board::loadDefinition(const QString & path)
     // skip early to save processing time and avoid unknown key warning messages
     if (it.key() == "hidden"    || it.key() == "basedOn" || it.key() == "supported" ||
         it.key() == "hwdefn" || it.key() == "name" || it.key() == "comments" ||
-        it.key() == "modules" ||
-        it.key() == "trainer" || it.key() == "usb" || it.key() == "touch" )
+        it.key() == "modules" || it.key() == "backlight" ||
+        it.key() == "touch" || it.key() == "trainer" || it.key() == "usb" )
       continue;
 
     //JSON_KEY_VAL(it);
@@ -1433,9 +1391,6 @@ bool Board::loadDefinition(const QString & path)
     else if (it.key() == "trims")
       loadTrims(it);
 
-    else if (it.key() == "backlight")
-      loadBacklight(it);
-
     else if (it.key() == "key_lock_combo")
       m_hardware.hasKeyLockCombo = (it->isArray() && it->toArray().size() == 2 ? true : m_hardware.hasKeyLockCombo);
 
@@ -1447,9 +1402,6 @@ bool Board::loadDefinition(const QString & path)
 
     else if (it.key() == "battery")
       loadBattery(it);
-
-    else if (it.key() == "backlightLevelMin")
-      m_hardware.backlightLevelMin = Json::valueInt(it, m_hardware.backlightLevelMin);
 
     else if (it.key() == "bluetoothName")
       m_hardware.bluetoothName = Json::valueStdString(it, m_hardware.bluetoothName);
@@ -1496,26 +1448,14 @@ bool Board::loadDefinition(const QString & path)
     else if (it.key() == "chargeWhileOn")
       m_hardware.chargeWhileOn = Json::valueBool(it, m_hardware.chargeWhileOn);
 
-    else if (it.key() == "contrast")
-      Json::loadRange(it, m_hardware.contrast);
-
-    else if (it.key() == "backgroundVolume")
-      Json::loadRange(it, m_hardware.backgroundVolume);
-
-    else if (it.key() == "speakerVolume")
-      Json::loadRange(it, m_hardware.speakerVolume);
-
-    else if (it.key() == "wavVolume")
-      Json::loadRange(it, m_hardware.wavVolume);
-
-    else if (it.key() == "maxVolume")
-      m_hardware.maxVolume = Json::valueInt(it, m_hardware.maxVolume);
-
     else if (it.key() == "pwrButtonPress")
       m_hardware.pwrButtonPress = Json::valueBool(it, m_hardware.pwrButtonPress);
 
     else if (it.key() == "rotaryEncNav")
       m_hardware.rotaryEncNav = Json::valueBool(it, m_hardware.rotaryEncNav);
+
+    else if (it.key() == "topLCD")
+      m_hardware.topLCD = Json::valueBool(it, m_hardware.topLCD);
 
     else if (it.key() == "voiceControl")
       m_hardware.voiceControl = Json::valueBool(it, m_hardware.voiceControl);
@@ -1545,40 +1485,6 @@ void Board::loadADCInputs(QJsonObject::const_iterator & oit)
       loadInputs(it);
     //else
     //  JSON_NO_RULE(it);
-  }
-}
-
-void Board::loadBacklight(QJsonObject::const_iterator & oit)
-{
-  JSON_OBJ_INIT_R(oit, o);
-
-  BacklightDefn & bd = m_hardware.backlight;
-
-  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-    if (it.key() == "comments" || it.key() == "backlight_bdtr")
-      continue;
-
-    //JSON_KEY_VAL(it);
-    else if (it.key() == "delay")
-      bd.delay = Json::valueInt(it, bd.delay);
-
-    else if (it.key() == "keys")
-      bd.keys = Json::valueBool(it, bd.keys);
-
-    else if (it.key() == "min")
-      bd.min = Json::valueInt(it, bd.min);
-
-    else if (it.key() == "mode")
-      bd.mode = Json::valueInt(it, bd.mode);
-
-    else if (it.key() == "offBrightness")
-      bd.offBrightness = Json::valueInt(it, bd.offBrightness);
-
-    else if (it.key() == "onBrightness")
-      bd.onBrightness = Json::valueInt(it, bd.onBrightness);
-
-    else
-      JSON_NO_RULE(it);
   }
 }
 
