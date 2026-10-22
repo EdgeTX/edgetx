@@ -181,6 +181,7 @@
 #define STR_FLYSKY_PULSE_PROTO currentLangStrings->STR_FLYSKY_PULSE_PROTO
 #define STR_FLYSKY_SERIAL_PROTO currentLangStrings->STR_FLYSKY_SERIAL_PROTO
 #define STR_FONT_SIZES currentLangStrings->STR_FONT_SIZES
+#define STR_GPS_URI_TYPES currentLangStrings->STR_GPS_URI_TYPES
 #define STR_LABELS_MATCH_MODE currentLangStrings->STR_LABELS_MATCH_MODE
 #define STR_LABELS_SELECT_MODE currentLangStrings->STR_LABELS_SELECT_MODE
 #define STR_SORT_ORDERS currentLangStrings->STR_SORT_ORDERS
