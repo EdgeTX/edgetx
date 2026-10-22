@@ -17,7 +17,19 @@ compile_commands.json
 /.idea
 /.vs
 CMakeUserPresets.json
+.DS_Store
+_deps
+_wasi_sdk_fetch
+
+# MkDocs
 /site/
+
+# Python (uv / pip)
+.venv/
+*.egg-info/
+__pycache__/
+*.pyc
+
 output/
 *.dmg
 .devcontainer/devcontainer-lock.json
