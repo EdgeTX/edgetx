@@ -35,9 +35,6 @@
 #include "etx_lv_theme.h"
 #include "menu.h"
 #include "mainwindow.h"
-#if defined(V16_CHARGE_UI)
-#include "targets/horus/charge_ui.h"
-#endif
 #endif
 
 #if defined(CLI)
@@ -653,9 +650,6 @@ void perMain()
   customUIActions();
 
   guiMain(0);
-#if defined(V16_CHARGE_UI)
-  chargeUiTask();
-#endif
 #else
   guiMain(evt);
 #endif

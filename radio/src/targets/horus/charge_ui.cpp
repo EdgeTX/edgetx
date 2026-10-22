@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include "charge_ui.h"
-
 #if defined(V16_CHARGE_UI)
 
 #include "csd203_sensor.h"
@@ -718,12 +716,15 @@ void shutdownChargeWait()
 
 }  // namespace charge_ui_detail
 
-void chargeUiTask(void)
+// Radio specific UI actions (overrides weak default in main.cpp)
+void customUIActions()
 {
   charge_ui_detail::chargeUiTaskImpl();
 }
 
-void shutdownWaitIfCharging(void)
+// Radio specific shutdown actions (overrides weak default in tasks.cpp):
+// if charging at power-down, drive charge UI until it clears.
+void customShutdownActions()
 {
   charge_ui_detail::shutdownChargeWait();
 }
