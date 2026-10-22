@@ -100,13 +100,12 @@ void RadioGpsTool::init()
   }
 }
 
-// Format a coordinate stored in micro-degrees as a decimal string.
-// Integer arithmetic keeps the full 6 decimals (a float only has ~7
-// significant digits) and avoids depending on printf float support.
+// Coordinates are micro-degrees; integer math keeps all 6 decimals
 static void formatCoord(char* buf, size_t len, int32_t value)
 {
-  div_t d = div((int)value, 1000000);
-  snprintf(buf, len, "%s%d.%06d", value < 0 ? "-" : "", abs(d.quot), abs(d.rem));
+  uint32_t v = (value < 0) ? -(uint32_t)value : (uint32_t)value;
+  snprintf(buf, len, "%s%u.%06u", value < 0 ? "-" : "",
+           (unsigned)(v / 1000000), (unsigned)(v % 1000000));
 }
 
 void RadioGpsTool::refresh()
