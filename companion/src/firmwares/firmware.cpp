@@ -141,14 +141,23 @@ int Firmware::getCapability(Capability value) const
     case Capability::DangerousFunctions:
       return opts.contains("danger") ? true : false;
 
+    case Capability::EepromSize:
+      return m_defn.eepromSize;
+
     case Capability::ExtendedTrimsRange:
       return 512;
+
+    case Capability::FlashSize:
+      return m_defn.flashSize;
 
     case Capability::FlightModes:
       return m_defn.flightModes.cnt;
 
     case Capability::FlightModesName:
       return m_defn.flightModes.name;
+
+    case Capability::FourCC:
+      return m_defn.fourCC;
 
     case Capability::GlobalFunctions:
       return m_defn.globalFuncs.cnt;
@@ -196,9 +205,15 @@ int Firmware::getCapability(Capability value) const
     case Capability::HasVarioSink:
       return getCapability(Capability::Air);
 
+    case Capability::HatsModeDefault:
+      return m_defn.hatsMode;
+
     case Capability::Heli:
       return !(opts.contains("noheli") ||
              m_board->getCapability(Capability::Surface));
+
+    case Capability::InactivityTimer:
+      return m_defn.inactivityTimer;
 
     case Capability::InputsLength:
       return m_defn.inputs.name;
@@ -547,6 +562,15 @@ bool Firmware::loadDefinition(const QString & path)
 
     else if (it.key() == "topBarZones")
       m_defn.topBarZones = Json::valueInt(it);
+
+    else if (it.key() == "fourCC")
+      m_defn.fourCC = Json::valueInt(it, m_defn.fourCC);
+
+    else if (it.key() == "eepromSize")
+      m_defn.eepromSize = Json::valueInt(it, m_defn.eepromSize);
+
+    else if (it.key() == "flashSize")
+      m_defn.flashSize = Json::valueInt(it, m_defn.flashSize);
 
     else
       JSON_NO_RULE(it);

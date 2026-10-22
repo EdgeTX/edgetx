@@ -394,8 +394,8 @@ class Board
 
     struct ModulesDefn {
       std::vector<std::string> available;
-      std::string dflt                   {""};
-      int size                           {EXTMODSIZE_NONE};  // TODO remove in Modules refactor
+      std::string dflt                    {""};
+      int size                            {EXTMODSIZE_NONE};  // TODO remove in Modules refactor
 
       ModulesDefn() = default;
     };
@@ -410,47 +410,48 @@ class Board
     };
 
     struct HardwareDefn {
-      int has_audio_mute                {0};
-      int has_bling_leds                {0};
-      int has_ext_module_support        {0};
-      int has_int_module_support        {0};
-      int sport_max_baudrate            {0};
-      int surface                       {0};
-      std::string cpu                   {"unknown"};
-      std::string cpu_type              {"unknown"};
-      bool hasKeyLockCombo              {false};
-      bool haptic                       {false};
-      bool statusLeds                   {false};
+      int           has_audio_mute          {0};
+      int           has_bling_leds          {0};
+      int           has_ext_module_support  {0};
+      int           has_int_module_support  {0};
+      int           sport_max_baudrate      {0};
+      int           surface                 {0};
+      std::string   cpu                     {"unknown"};
+      std::string   cpu_type                {"unknown"};
+      bool          hasKeyLockCombo         {false};
+      bool          haptic                  {false};
+      bool          statusLeds              {false};
 
       // these sourced from board definitions
       BacklightDefn backlight;
-      BatteryDefn battery;
-      bool auxSerialMode                {false};
-      bool aux2SerialMode               {false};
-      int backlightLevelMin             {0};
-      std::string bluetoothName         {"unknown"};
-      bool chargeWhileOn                {false};
-      Json::range_t contrast;
-      bool stickDeadZone                {false};
-      int eepromSize                    {0};
-      bool externalAntenna              {false};
-      int flashSize                     {0};
-      bool flySkyGimbals                {false};
-      int fourCC                        {0};
-      bool hardwareAntennaSwitch        {false};
-      bool hats                         {false};
-      bool imu                          {false};
-      bool internalGPS                  {false};
-      ModulesDefn internalModules;
-      ModulesDefn externalModules;
-      int maxVolume                     {0};
-      bool pwrButtonPress               {false};
-      bool rotaryEncNav                 {false};
-      bool softwareSerialPower          {false};
-      bool switchableJack               {false};
-      int  trainerModule                {Board::TR_MOD_TYPE_NONE};
-      bool vcpSerialMode                {false};
-      bool voiceControl                 {false};
+      BatteryDefn   battery;
+      bool          auxSerialMode           {false};
+      bool          aux2SerialMode          {false};
+      Json::range_t backgroundVolume        {0, 0, 0};
+      int           backlightLevelMin       {0};
+      std::string   bluetoothName           {"unknown"};
+      bool          chargeWhileOn           {false};
+      Json::range_t contrast                {0, 0, 25};
+      bool          stickDeadZone           {false};
+      bool          externalAntenna         {false};
+      bool          flySkyGimbals           {false};
+      bool          hardwareAntennaSwitch   {false};
+      bool          hats                    {false};
+      bool          imu                     {false};
+      bool          internalGPS             {false};
+      ModulesDefn   internalModules;
+      ModulesDefn   externalModules;
+      int           maxVolume               {0};
+      bool          pwrButtonPress          {false};
+      bool          rotaryEncNav            {false};
+      bool          softwareSerialPower     {false};
+      Json::range_t speakerVolume           {0, 0, 0};
+      bool          switchableJack          {false};
+      bool          topLCD                  {false};
+      int           trainerModule           {Board::TR_MOD_TYPE_NONE};
+      bool          vcpSerialMode           {false};
+      bool          voiceControl            {false};
+      Json::range_t wavVolume               {0, 0, 0};
 
       HardwareDefn() = default;
     };

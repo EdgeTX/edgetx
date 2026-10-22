@@ -232,6 +232,9 @@ int Board::getCapability(const Capability capability) const
     case Capability::Air:
       return !m_hardware.surface;
 
+    case Capability::BackgroundVolumeDefault:
+      return m_hardware.backgroundVolume.dflt;
+
     case Capability::BacklightLevelMin:
       return m_hardware.backlight.min;
 
@@ -246,6 +249,9 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::BacklightOffBright:
       return m_hardware.backlight.offBrightness;
+
+    case Capability::ContrastDefault:
+      return m_hardware.contrast.dflt;
 
     case Capability::DefaultInternalModule:
       {
@@ -336,6 +342,9 @@ int Board::getCapability(const Capability capability) const
     case Capability::HasBluetooth:
       return !m_hardware.bluetoothName.empty();
 
+    case Capability::HasChargeWhileOn:
+      return m_hardware.chargeWhileOn;
+
     case Capability::HasCPUF4:
       return m_hardware.cpu_type == "STM32F4";
 
@@ -376,8 +385,17 @@ int Board::getCapability(const Capability capability) const
     case Capability::HasSoftwareSerialPower:
       return m_hardware.softwareSerialPower;
 
+    case Capability::HasSportConnector:
+      return m_hardware.sport_max_baudrate;
+
+    case Capability::HasStickDeadZone:
+      return m_hardware.stickDeadZone;
+
     case Capability::HasSwitchableJack:
       return m_hardware.switchableJack;
+
+    case Capability::HasTopLcd:
+      return m_hardware.topLCD;
 
     case Capability::HasTrainerModuleCPPM:
       return m_hardware.trainerModule == Board::TR_MOD_TYPE_CPPM;
@@ -391,11 +409,26 @@ int Board::getCapability(const Capability capability) const
     case Capability::HasVoiceControl:
       return m_hardware.voiceControl;
 
+    case Capability::HasHats:
+      return m_hardware.hats;
+
     case Capability::Inputs:
       return m_inputs.size();
 
     case Capability::InputSwitches:
       return m_inputCnt.switches;
+
+    case Capability::IsLandscape:
+      return m_display.w > m_display.h;
+
+    case Capability::IsNarrowLayout:
+      return false;
+
+    case Capability::IsPortrait:
+      return m_display.w < m_display.h;
+
+    case Capability::IsWideLayout:  // check
+      return m_display.w > 400;
 
     case Capability::JoystickAxes:
       return m_inputCnt.flexJoystickAxes;
@@ -424,7 +457,7 @@ int Board::getCapability(const Capability capability) const
     case Capability::MinContrast:
       return m_hardware.contrast.min;
 
-    case ModelTrainerEnable:
+    case Capability::ModelTrainerEnable:
       return m_id != "xlite";
 
     case Capability::MultiposPots:
@@ -435,11 +468,17 @@ int Board::getCapability(const Capability capability) const
     case Capability::MultiposPotsPositions:
       return 6;
 
+    case Capability::NumFirstUsableModule:
+      return m_hardware.has_int_module_support ? 0 : 1;
+
     case Capability::NumFunctionSwitchesPositions:
        return getCapability(Capability::FunctionSwitches) * 3;
 
     case Capability::NumTrims:
       return m_trims.size();
+
+    case Capability::NumModules:
+      return m_hardware.has_ext_module_support ? 2 : 1;
 
     case Capability::NumTrimSwitches:
       return getCapability(Capability::NumTrims) * 2;
@@ -456,11 +495,17 @@ int Board::getCapability(const Capability capability) const
     case Capability::Sliders:
       return m_inputCnt.flexSliders;
 
+    case Capability::SpeakerVolumeDefault:
+      return m_hardware.speakerVolume.dflt;
+
     case Capability::SportMaxBaudRate:
       return m_hardware.sport_max_baudrate;
 
     case Capability::StandardSwitches:
       return m_switchCnt.std;
+
+    case Capability::StickDeadZone:
+      return m_hardware.stickDeadZone;
 
     case Capability::Sticks:
       return m_inputCnt.sticks;
@@ -475,6 +520,9 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::SwitchesPositions:
       return getCapability(Capability::Switches) * 3;
+
+    case Capability::WavVolumeDefault:
+      return m_hardware.wavVolume.dflt;
 
     default:
       qWarning() << "Warning: unknown capability:" << capability << "returned 0";
@@ -1451,6 +1499,15 @@ bool Board::loadDefinition(const QString & path)
     else if (it.key() == "contrast")
       Json::loadRange(it, m_hardware.contrast);
 
+    else if (it.key() == "backgroundVolume")
+      Json::loadRange(it, m_hardware.backgroundVolume);
+
+    else if (it.key() == "speakerVolume")
+      Json::loadRange(it, m_hardware.speakerVolume);
+
+    else if (it.key() == "wavVolume")
+      Json::loadRange(it, m_hardware.wavVolume);
+
     else if (it.key() == "maxVolume")
       m_hardware.maxVolume = Json::valueInt(it, m_hardware.maxVolume);
 
@@ -1462,15 +1519,6 @@ bool Board::loadDefinition(const QString & path)
 
     else if (it.key() == "voiceControl")
       m_hardware.voiceControl = Json::valueBool(it, m_hardware.voiceControl);
-
-    else if (it.key() == "fourCC")
-      m_hardware.fourCC = Json::valueInt(it, m_hardware.fourCC);
-
-    else if (it.key() == "eepromSize")
-      m_hardware.eepromSize = Json::valueInt(it, m_hardware.eepromSize);
-
-    else if (it.key() == "flashSize")
-      m_hardware.flashSize = Json::valueInt(it, m_hardware.flashSize);
 
     else
       JSON_NO_RULE(it);

@@ -54,6 +54,7 @@
     "cnt": 9,
     "name": 3
   },
+  "inactivityTimer": 0,
   "inputs": {
     "comments": "",
     "cnt": 32,
@@ -114,5 +115,8 @@
     "comments": "",
     "cnt": 3,
     "name": 8
-  }
+  },
+  "eepromSize": 0,
+  "flashSize": 0,
+  "fourCC": 0
 }

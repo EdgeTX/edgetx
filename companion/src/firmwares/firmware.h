@@ -103,27 +103,32 @@ class Firmware
 
       CurvesDefn        curves;
       CustomScreensDefn customScreens;
-      Json::sizes_t      expos             {CPN_MAX_EXPOS, EXPODATA_NAME_LEN};
-      Json::sizes_t      flightModes       {CPN_MAX_FLIGHT_MODES, FLIGHTMODE_NAME_LEN}; // rename to operatingModes
-      Json::sizes_t      globalFuncs       {CPN_MAX_SPECIAL_FUNCTIONS, 0};
-      Json::sizes_t      globalVars        {CPN_MAX_GVARS, GVAR_NAME_LEN};
-      Json::sizes_t      inputs            {CPN_MAX_INPUTS, INPUT_NAME_LEN};
+      int               eepromSize        {0};
+      Json::sizes_t     expos             {CPN_MAX_EXPOS, EXPODATA_NAME_LEN};
+      int               flashSize         {0};
+      Json::sizes_t     flightModes       {CPN_MAX_FLIGHT_MODES, FLIGHTMODE_NAME_LEN}; // rename to operatingModes
+      int               fourCC            {0};
+      Json::sizes_t     globalFuncs       {CPN_MAX_SPECIAL_FUNCTIONS, 0};
+      Json::sizes_t     globalVars        {CPN_MAX_GVARS, GVAR_NAME_LEN};
+      int               hatsMode          {0};
+      int               inactivityTimer   {0};
+      Json::sizes_t     inputs            {CPN_MAX_INPUTS, INPUT_NAME_LEN};
       bool              lcdToVideo        {false};
-      Json::sizes_t      logicalSwitches   {CPN_MAX_LOGICAL_SWITCHES, 0};
+      Json::sizes_t     logicalSwitches   {CPN_MAX_LOGICAL_SWITCHES, 0};
       LuaScriptsDefn    luaScripts;
       int               keyShortcuts      {MAX_KEYSHORTCUTS};
-      Json::sizes_t      mixes             {CPN_MAX_MIXERS, MIXDATA_NAME_LEN};
+      Json::sizes_t     mixes             {CPN_MAX_MIXERS, MIXDATA_NAME_LEN};
       ModelImageDefn    modelImage;
       int               modelName         {MODEL_NAME_LEN};                          // 15, 12 or 10
       int               modelSlots        {CPN_MAX_MODELS};                          // B&W or 0 colour
       OptionsList       options;
-      Json::sizes_t      outputs           {CPN_MAX_CHNOUT, LIMITDATA_NAME_LEN};
+      Json::sizes_t     outputs           {CPN_MAX_CHNOUT, LIMITDATA_NAME_LEN};
       bool              powerOnDelay      {false};
       int               quickMenuFavs     {MAX_QMFAVOURITES};                        // B&W 0
-      Json::sizes_t      sensors           {CPN_MAX_SENSORS, SENSOR_LABEL_LEN};       // 40, 60 or 99 and check len
-      Json::sizes_t      specialFuncs      {CPN_MAX_SPECIAL_FUNCTIONS, 0};
+      Json::sizes_t     sensors           {CPN_MAX_SENSORS, SENSOR_LABEL_LEN};       // 40, 60 or 99 and check len
+      Json::sizes_t     specialFuncs      {CPN_MAX_SPECIAL_FUNCTIONS, 0};
       TeleCstmScrnsDefn teleCstmScrns;
-      Json::sizes_t      timers            {CPN_MAX_TIMERS, TIMER_NAME_LEN};
+      Json::sizes_t     timers            {CPN_MAX_TIMERS, TIMER_NAME_LEN};
       int               topBarZones       {MAX_TOPBAR_ZONES};
 
       FirmwareDefn() = default;

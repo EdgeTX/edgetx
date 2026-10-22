@@ -37,6 +37,12 @@
   ],
   "auxSerialMode": false,
   "aux2SerialMode": false,
+  "backgroundVolume": {
+    "comments": "",
+    "min": 0,
+    "max": 0,
+    "dflt": 0
+  },
   "backlight": {
     "comments": "initialisation values",
     "delay": 2,
@@ -47,6 +53,7 @@
     "onBrightness": 0
   },
   "battery": {
+    "comments": "",
     "min": 0,
     "max": 0,
     "warn": 0
@@ -54,10 +61,10 @@
   "bluetoothName": "unknown",
   "chargeWhileOn": false,
   "contrast": {
-    "comments": "dflt IS_TARANIS 25 or 0",
+    "comments": "b&w",
     "min": 0,
     "max": 0,
-    "dflt": 0
+    "dflt": 25
   },
   "externalAntenna": false,
   "hardwareAntennaSwitch": false,
@@ -68,12 +75,22 @@
   "pwrButtonPress": true,
   "rotaryEncNav": true,
   "softwareSerialPower": false,
+  "speakerVolume": {
+    "comments": "",
+    "min": 0,
+    "max": 0,
+    "dflt": 0
+  },
   "stickDeadZone": false,
   "switchableJack": false,
+  "topLCD": false,
   "trainerModule": "none",
   "vcpSerialMode": false,
   "voiceControl": false,
-  "eepromSize": 0,
-  "flashSize": 0,
-  "fourCC": 0
+  "wavVolume": {
+    "comments": "",
+    "min": 0,
+    "max": 0,
+    "dflt": 0
+  }
 }
