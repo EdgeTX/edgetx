@@ -727,6 +727,8 @@
 #define TR_REPEAT_AT_ZERO              TR("Opak. na nule", "Opakovanie na nule")
 #define TR_BATT_CALIB                  "Kalib. bat."
 #define TR_VOLTAGE                     "Napätie"
+#define TR_MODULE_SENSOR_VOLTAGE       "Napätie"
+#define TR_MODULE_SENSOR_CURRENT       "Prúd"
 #define TR_SELECT_MODEL                "Vyber model"
 #define TR_SELECT_MODE                 "Vybrať mód"
 #define TR_CREATE_MODEL                "Nový model"
