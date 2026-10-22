@@ -4,8 +4,8 @@
 /*.user
 /*.user.*
 /doc/
-build*/
-cmake-build-*/
+/build*/
+/cmake-build-*/
 /debian/
 /*.vscode
 radio/src/tests/googletest*
@@ -14,3 +14,22 @@ radio/src/tests/gtest*.tar.gz
 .cache
 compile_commands.json
 /ys_Doc
+/.idea
+/.vs
+CMakeUserPresets.json
+.DS_Store
+_deps
+_wasi_sdk_fetch
+
+# MkDocs
+/site/
+
+# Python (uv / pip)
+.venv/
+*.egg-info/
+__pycache__/
+*.pyc
+
+output/
+*.dmg
+.devcontainer/devcontainer-lock.json
