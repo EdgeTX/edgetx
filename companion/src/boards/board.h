@@ -615,7 +615,9 @@ class Board
     void loadHardware(QJsonObject::const_iterator & it);
     void loadIdentity(QJsonObject::const_iterator & it);
     void loadInputs(QJsonObject::const_iterator & it);
-    void loadModules(QJsonValue obj);
+    void loadModules(const QJsonValue & obj);
+    void loadModules(const QJsonArray & a);
+    void loadModules(QJsonObject::const_iterator & it);
     void loadModules(QJsonObject::const_iterator & it, ModulesDefn & modules);
     void loadKeys(QJsonObject::const_iterator & it);
     void loadLEDS(QJsonObject::const_iterator & it);

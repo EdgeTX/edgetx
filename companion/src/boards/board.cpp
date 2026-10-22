@@ -248,9 +248,16 @@ int Board::getCapability(const Capability capability) const
       return m_hardware.backlight.offBrightness;
 
     case Capability::DefaultInternalModule:
-      return DataHelpers::getStringTagMappingIndex(intModuleTypesLookupTable,
-                                                   m_hardware.internalModules.dflt.data());
+      {
+        int idx = 0;
 
+        try {
+          idx = std::stoi(DataHelpers::getStringTagMappingName(intModuleTypesLookupTable,
+                                                               m_hardware.internalModules.dflt.data()));
+        } catch (...) { idx = 0; }
+
+        return idx;
+      }
     // TODO remove when Modules refactored and use extModules
     case Capability::ExternalModuleSize:
       return getCapability(Capability::HasExternalModuleSupport) ?
@@ -559,13 +566,18 @@ const QList<int> Board::supportedInternalModules() const
   modules.append((int)MODULE_TYPE_NONE);
 
   for (const auto &mod : m_hardware.internalModules.available) {
-    int idx = DataHelpers::getStringTagMappingIndex(intModuleTypesLookupTable, mod.data());
+    int idx = -1;
+
+    try {
+      idx = std::stoi(DataHelpers::getStringTagMappingName(intModuleTypesLookupTable, mod.data()));
+    } catch (...) { idx = -1; }
 
     // TODO elrs and crsf both map to crossfire module split in modules refactor
-    if (!modules.contains(idx))
+    if (idx > -1 && !modules.contains(idx))
       modules.append(idx);
   }
 
+  qDebug() << modules;
   return modules;
 }
 
@@ -1470,233 +1482,198 @@ bool Board::loadDefinition(const QString & path)
 
 void Board::loadADCInputs(QJsonObject::const_iterator & oit)
 {
-  if (oit->isObject()) {
-    const QJsonObject &o = oit->toObject();
+  JSON_OBJ_INIT_R(oit, o);
 
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments")
+      continue;
 
-      //JSON_KEY_VAL(it);
+    //JSON_KEY_VAL(it);
 
-      if (it.key() == "acds")
-        continue;
+    if (it.key() == "acds")
+      continue;
 
-      else if (it.key() == "inputs")
-        loadInputs(it);
-      //else
-      //  JSON_NO_RULE(it);
-    }
-  } else
-    JSON_NOT_OBJ(oit);
+    else if (it.key() == "inputs")
+      loadInputs(it);
+    //else
+    //  JSON_NO_RULE(it);
+  }
 }
 
 void Board::loadBacklight(QJsonObject::const_iterator & oit)
 {
-  if (oit->isObject()) {
-    QJsonObject o = oit->toObject();
-    BacklightDefn & bd = m_hardware.backlight;
+  JSON_OBJ_INIT_R(oit, o);
 
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
+  BacklightDefn & bd = m_hardware.backlight;
 
-      //JSON_KEY_VAL(it);
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments")
+      continue;
 
-      else if (it.key() == "delay")
-        bd.delay = Json::valueInt(it, bd.delay);
+    //JSON_KEY_VAL(it);
 
-      else if (it.key() == "keys")
-        bd.keys = Json::valueBool(it, bd.keys);
+    else if (it.key() == "delay")
+      bd.delay = Json::valueInt(it, bd.delay);
 
-      else if (it.key() == "min")
-        bd.min = Json::valueInt(it, bd.min);
+    else if (it.key() == "keys")
+      bd.keys = Json::valueBool(it, bd.keys);
 
-      else if (it.key() == "mode")
-        bd.mode = Json::valueInt(it, bd.mode);
+    else if (it.key() == "min")
+      bd.min = Json::valueInt(it, bd.min);
 
-      else if (it.key() == "offBrightness")
-        bd.offBrightness = Json::valueInt(it, bd.offBrightness);
+    else if (it.key() == "mode")
+      bd.mode = Json::valueInt(it, bd.mode);
 
-      else if (it.key() == "onBrightness")
-        bd.onBrightness = Json::valueInt(it, bd.onBrightness);
+    else if (it.key() == "offBrightness")
+      bd.offBrightness = Json::valueInt(it, bd.offBrightness);
 
-      else
-        JSON_NO_RULE(it);
-    }
-  } else
-    JSON_NOT_OBJ(oit);
+    else if (it.key() == "onBrightness")
+      bd.onBrightness = Json::valueInt(it, bd.onBrightness);
+
+    else
+      JSON_NO_RULE(it);
+  }
 }
 
 void Board::loadBattery(QJsonObject::const_iterator & oit)
 {
-  if (oit->isObject()) {
-    const QJsonObject &o = oit->toObject();
+  JSON_OBJ_INIT_R(oit, o);
 
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments")
+      continue;
 
-      //JSON_KEY_VAL(it);
+    //JSON_KEY_VAL(it);
 
-      if (it.key() == "min")
-        m_hardware.battery.min = Json::valueInt(it, m_hardware.battery.min);
+    if (it.key() == "min")
+      m_hardware.battery.min = Json::valueInt(it, m_hardware.battery.min);
 
-      else if (it.key() == "max")
-        m_hardware.battery.max = Json::valueInt(it, m_hardware.battery.max);
+    else if (it.key() == "max")
+      m_hardware.battery.max = Json::valueInt(it, m_hardware.battery.max);
 
-      else if (it.key() == "warn")
-        m_hardware.battery.warn = Json::valueInt(it, m_hardware.battery.warn);
+    else if (it.key() == "warn")
+      m_hardware.battery.warn = Json::valueInt(it, m_hardware.battery.warn);
 
-      else
-        JSON_NO_RULE(it);
-    }
-  } else
-    JSON_NOT_OBJ(oit);
+    else
+      JSON_NO_RULE(it);
+  }
 }
 
 void Board::loadHaptic(QJsonObject::const_iterator & oit)
 {
-  if (oit->isObject()) {
-    const QJsonObject &o = oit->toObject();
+  JSON_OBJ_INIT_R(oit, o);
 
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments")
+      continue;
 
-      //JSON_KEY_VAL(it);
+    //JSON_KEY_VAL(it);
 
-      if (it.key() == "haptic_pwm")
-        m_hardware.haptic = Json::valueBool(it, m_hardware.haptic);
+    if (it.key() == "haptic_pwm")
+      m_hardware.haptic = Json::valueBool(it, m_hardware.haptic);
 
-      //else
-      //  JSON_NO_RULE(it);
-    }
-  } else
-    JSON_NOT_OBJ(oit);
+    //else
+    //  JSON_NO_RULE(it);
+  }
 }
 
 void Board::loadIdentity(QJsonObject::const_iterator & oit)
 {
-  if (oit->isObject()) {
-    const QJsonObject &o = oit->toObject();
+  JSON_OBJ_INIT_R(oit, o);
 
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments")
+      continue;
 
-      //JSON_KEY_VAL(it);
+    //JSON_KEY_VAL(it);
 
-      if (it.key() == "manufacturer")
-        m_identity.manufacturer = Json::valueStdString(it, m_identity.manufacturer);
+    if (it.key() == "manufacturer")
+      m_identity.manufacturer = Json::valueStdString(it, m_identity.manufacturer);
 
-      else if (it.key() == "model")
-        m_identity.model = Json::valueStdString(it, m_identity.model);
+    else if (it.key() == "model")
+      m_identity.model = Json::valueStdString(it, m_identity.model);
 
-      else if (it.key() == "usb_manufacturer")
-        m_identity.usb_manufacturer = Json::valueStdString(it, m_identity.usb_manufacturer);
+    else if (it.key() == "usb_manufacturer")
+      m_identity.usb_manufacturer = Json::valueStdString(it, m_identity.usb_manufacturer);
 
-      else if (it.key() == "usb_product")
-        m_identity.usb_product = Json::valueStdString(it, m_identity.usb_product);
+    else if (it.key() == "usb_product")
+      m_identity.usb_product = Json::valueStdString(it, m_identity.usb_product);
 
-      else
-        JSON_NO_RULE(it);
-    }
-  } else
-    JSON_NOT_OBJ(oit);
+    else
+      JSON_NO_RULE(it);
+  }
 }
 
 void Board::loadInputs(QJsonObject::const_iterator & oit)
 {
-  if (oit->isArray()) {
-    const QJsonArray &a = oit->toArray();
+  JSON_ARR_INIT_R(oit, a);
 
-    for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
-      if (it->isObject()) {
-        const QJsonObject &o = it->toObject();
-        InputDefn defn;
+  for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
+    JSON_OBJ_INIT_C(it, o);
 
-        for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-          if (it.key() == "comments")
-            continue;
+    InputDefn defn;
 
-          //JSON_KEY_VAL(it);
+    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      if (it.key() == "comments")
+        continue;
 
-          if (it.key() == "name")
-            defn.name = Json::valueStdString(it, defn.name);
+      //JSON_KEY_VAL(it);
 
-          else if (it.key() == "type") {
-            std::string type = Json::valueStdString(it);
-            defn.type = (Board::AnalogInputType)DataHelpers::getStringTagMappingIndex(inputTypesLookupTable, type.c_str());
-            if (defn.type == Board::AIT_STICK)
-              defn.refYaml = Board::LVT_NAME;
-          }
+      if (it.key() == "name")
+        defn.name = Json::valueStdString(it, defn.name);
 
-          else if (it.key() == "inverted")
-            defn.inverted = Json::valueBool(it, defn.inverted);
+      else if (it.key() == "type") {
+        std::string type = Json::valueStdString(it);
+        defn.type = (Board::AnalogInputType)DataHelpers::getStringTagMappingIndex(inputTypesLookupTable, type.c_str());
+        if (defn.type == Board::AIT_STICK)
+          defn.refYaml = Board::LVT_NAME;
+      }
 
-          else if (it.key() == "label")
-            defn.name = Json::valueStdString(it, defn.name);
+      else if (it.key() == "inverted")
+        defn.inverted = Json::valueBool(it, defn.inverted);
 
-          else if (it.key() == "short_label")
-            defn.shortName = Json::valueStdString(it, defn.shortName);
+      else if (it.key() == "label")
+        defn.name = Json::valueStdString(it, defn.name);
 
-          else if (it.key() == "default") {
-            std::string dflt = Json::valueStdString(it);
+      else if (it.key() == "short_label")
+        defn.shortName = Json::valueStdString(it, defn.shortName);
 
-            if (defn.type == Board::AIT_FLEX) {
-              int idx = DataHelpers::getStringTagMappingIndex(flexTypesLookupTable, dflt.c_str());
-              defn.flexType = (Board::FlexType)(idx < 0 ? Board::FLEX_NONE : idx);
-            }
-          }
+      else if (it.key() == "default") {
+        std::string dflt = Json::valueStdString(it);
 
-          //else
-          //  JSON_NO_RULE(it);
+        if (defn.type == Board::AIT_FLEX) {
+          int idx = DataHelpers::getStringTagMappingIndex(flexTypesLookupTable, dflt.c_str());
+          defn.flexType = (Board::FlexType)(idx < 0 ? Board::FLEX_NONE : idx);
         }
+      }
 
-        m_inputs.insert(m_inputs.end(), defn);
-      } else
-        JSON_NOT_OBJ(it);
+      //else
+      //  JSON_NO_RULE(it);
     }
-  } else
-    JSON_NOT_ARRAY(oit);
+
+    m_inputs.insert(m_inputs.end(), defn);
+  }
 }
 
-void Board::loadModules(QJsonValue obj)
+void Board::loadModules(const QJsonValue & obj)
 {
   if (obj.isArray()) {
     const QJsonArray &a = obj.toArray();
-
-    for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
-      if (it->isObject()) {
-        const QJsonObject &o = it->toObject();
-
-        for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-          if (it.key() == "comments")
-            continue;
-
-          //JSON_KEY_VAL(it);
-
-          if (it.key() == "external")
-            loadModules(it, m_hardware.externalModules);
-
-          else if (it.key() == "internal")
-            loadModules(it, m_hardware.internalModules);
-
-          else
-            JSON_NO_RULE(it);
-        }
-      } else
-        JSON_NOT_OBJ(it);
-    }
+    loadModules(a);
   } else
     qCritical() << "Error: not an array" << obj;
 }
 
-void Board::loadModules(QJsonObject::const_iterator & oit, Board::ModulesDefn & modules)
+void Board::loadModules(QJsonObject::const_iterator & oit)
 {
-  if (oit->isObject()) {
-    const QJsonObject &o = oit->toObject();
+  JSON_ARR_INIT_R(oit, a);
+  loadModules(a);
+}
+
+void Board::loadModules(const QJsonArray & a)
+{
+  for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
+    JSON_OBJ_INIT_C(it, o);
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
@@ -1704,201 +1681,75 @@ void Board::loadModules(QJsonObject::const_iterator & oit, Board::ModulesDefn & 
 
       //JSON_KEY_VAL(it);
 
-      if (it.key() == "available") {
-        if (it.value().isArray()) {
-          for (const auto &mod : it.value().toArray()) {
-            int idx = 0;
-            try {
-              idx = std::stoi(DataHelpers::getStringTagMappingName(intModuleTypesLookupTable,
-                                                                   mod.toString().toLatin1().constData()));
-            } catch (...) { idx = -1; }
+      if (it.key() == "external")
+        loadModules(it, m_hardware.externalModules);
 
-            if (idx > -1) {
-              if (IS_IN_ARRAY(modules.available, mod.toString().toStdString()))
-                qWarning() << "Warning: duplicate module ignored:" << mod.toString();
-              else
-                modules.available.push_back(mod.toString().toStdString());
-            } else {
-              qWarning() << "Warning: unsupported module:" << mod.toString();
-            }
-          }
-        }
-      }
-      else if (it.key() == "default") {
-        int idx = 0;
-        try {
-        idx = std::stoi(DataHelpers::getStringTagMappingName(intModuleTypesLookupTable,
-                                                             Json::valueStdString(it).c_str()));
-        } catch (...) { idx = -1; }
-        modules.dflt = idx > -1 ? Json::valueStdString(it) : "";
-      }
-      // TODO remove in modules refactor
-      else if (it.key() == "size") {
-        int idx = DataHelpers::getStringTagMappingIndex(extModuleSizeLookupTable,
-                                                        Json::valueStdString(it).c_str());
-        modules.size = idx > -1 ? idx : EXTMODSIZE_NONE;
-      }
+      else if (it.key() == "internal")
+        loadModules(it, m_hardware.internalModules);
+
       else
         JSON_NO_RULE(it);
     }
-  } else
-    JSON_NOT_OBJ(oit);
+  }
+}
+
+void Board::loadModules(QJsonObject::const_iterator & oit, Board::ModulesDefn & modules)
+{
+  JSON_OBJ_INIT_R(oit, o)
+
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments")
+      continue;
+
+    //JSON_KEY_VAL(it);
+
+    if (it.key() == "available") {
+      if (it.value().isArray()) {
+        for (const auto &mod : it.value().toArray()) {
+          int idx = 0;
+          try {
+            idx = std::stoi(DataHelpers::getStringTagMappingName(intModuleTypesLookupTable,
+                                                                 mod.toString().toLatin1().constData()));
+          } catch (...) { idx = -1; }
+
+          if (idx > -1) {
+            if (IS_IN_ARRAY(modules.available, mod.toString().toStdString()))
+              qWarning() << "Warning: duplicate module ignored:" << mod.toString();
+            else
+              modules.available.push_back(mod.toString().toStdString());
+          } else {
+            qWarning() << "Warning: unsupported module:" << mod.toString();
+          }
+        }
+      }
+    }
+    else if (it.key() == "default") {
+      int idx = 0;
+      try {
+      idx = std::stoi(DataHelpers::getStringTagMappingName(intModuleTypesLookupTable,
+                                                            Json::valueStdString(it).c_str()));
+      } catch (...) { idx = -1; }
+      modules.dflt = idx > -1 ? Json::valueStdString(it) : "";
+    }
+    // TODO remove in modules refactor
+    else if (it.key() == "size") {
+      int idx = DataHelpers::getStringTagMappingIndex(extModuleSizeLookupTable,
+                                                      Json::valueStdString(it).c_str());
+      modules.size = idx > -1 ? idx : EXTMODSIZE_NONE;
+    }
+    else
+      JSON_NO_RULE(it);
+  }
 }
 
 void Board::loadSwitches(QJsonObject::const_iterator & oit)
 {
-  if (oit->isArray()) {
-    const QJsonArray &a = oit->toArray();
+  JSON_ARR_INIT_R(oit, a);
 
-    for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
-      if (it->isObject()) {
-        const QJsonObject &o = it->toObject();
-        SwitchDefn sw;
+  for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
+    JSON_OBJ_INIT_C(it, o);
 
-        for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-          if (it.key() == "comments")
-            continue;
-
-          //JSON_KEY_VAL(it);
-
-          if (it.key() == "name")
-            sw.name = Json::valueStdString(it, sw.name);
-
-          else if (it.key() == "type") {
-            int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable,
-                                                            Json::valueStdString(it).c_str());
-            sw.type = idx < 0 ? Board::SWITCH_NOT_AVAILABLE : (Board::SwitchType)idx;
-          }
-
-          else if (it.key() == "flags")
-            sw.flags = o.value("flags").toInt();
-
-          else if (it.key() == "inverted")
-            sw.inverted = Json::valueBool(it);
-
-          else if (it.key() == "default") {
-            int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable,
-                                                            Json::valueStdString(it).c_str());
-            sw.dflt = idx < 0 ? Board::SWITCH_NOT_AVAILABLE : (Board::SwitchType)idx;
-          }
-
-          else if (it.key() == "display") {
-            if (it->isArray()) {
-              const QJsonArray &d = it->toArray();
-
-              if (d.size() >= 2) {
-                if (d.at(0).isDouble())
-                  sw.display.x = (unsigned int)d.at(0).toInt(0);
-                if (d.at(1).isDouble())
-                  sw.display.y = (unsigned int)d.at(1).toInt(0);
-              }
-            }
-          }
-
-          else if (it.key() == "is_cfs")
-            sw.isCustomSwitch = Json::valueBool(it, sw.isCustomSwitch);
-
-          else if (it.key() == "cfs_idx")
-            sw.customSwitchIdx = Json::valueInt(it, sw.customSwitchIdx);
-
-          //else
-          //  JSON_NO_RULE(it);
-        }
-
-        // special handing for ADC
-        if (sw.type == Board::SWITCH_ADC) {
-          if (sw.dflt == Board::SWITCH_TOGGLE) {
-            // this could be 2 or 3 position toggle so play safe
-            // it therefore has an impact on configuring hardware, available switches, simulator widget, yaml encode and decode
-            sw.dflt = Board::SWITCH_3POS;
-          }
-          // make the same
-          sw.type = sw.dflt;
-        }
-
-        sw.tag = sw.name;
-        m_switches.insert(m_switches.end(), sw);
-      } else
-        JSON_NOT_OBJ(it);
-    }
-  } else
-    JSON_NOT_ARRAY(oit);
-}
-
-void Board::loadKeys(QJsonObject::const_iterator & oit)
-{
-  if (oit->isArray()) {
-    const QJsonArray &a = oit->toArray();
-
-    for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
-      if (it->isObject()) {
-        const QJsonObject &o = it->toObject();
-        KeyDefn k;
-
-        for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-          if (it.key() == "comments")
-            continue;
-
-          //JSON_KEY_VAL(it);
-
-          if (it.key() == "name")
-            k.name = Json::valueStdString(it, k.name);
-
-          else if (it.key() == "key")
-            k.key = Json::valueStdString(it, k.key);
-
-          else if (it.key() == "label")
-            k.label = Json::valueStdString(it, k.label);
-
-          //else
-          //  JSON_NO_RULE(it);
-        }
-
-        k.tag = k.name;
-        m_keys.insert(m_keys.end(), k);
-      } else
-        JSON_NOT_OBJ(it);
-    }
-  } else
-    JSON_NOT_ARRAY(oit);
-}
-
-void Board::loadTrims(QJsonObject::const_iterator & oit)
-{
-  if (oit->isArray()) {
-    const QJsonArray &a = oit->toArray();
-
-    for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
-      if (it->isObject()) {
-        const QJsonObject &o = it->toObject();
-        TrimDefn t;
-
-        for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-          if (it.key() == "comments")
-            continue;
-
-          //JSON_KEY_VAL(it);
-
-          if (it.key() == "name")
-            t.name = Json::valueStdString(it, t.name);
-
-          //else
-          //  JSON_NO_RULE(it);
-        }
-
-        t.tag = t.name;
-        m_trims.insert(m_trims.end(), t);
-      } else
-        JSON_NOT_OBJ(it);
-    }
-  } else
-    JSON_NOT_ARRAY(oit);
-}
-
-void Board::loadDisplay(QJsonObject::const_iterator & it)
-{
-  if (it->isObject()) {
-    const QJsonObject &o = it->toObject();
+    SwitchDefn sw;
 
     for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
       if (it.key() == "comments")
@@ -1906,102 +1757,222 @@ void Board::loadDisplay(QJsonObject::const_iterator & it)
 
       //JSON_KEY_VAL(it);
 
-      if (it.key() == "lcd_depth")
-        m_display.depth = Json::valueInt(it, m_display.depth);
+      if (it.key() == "name")
+        sw.name = Json::valueStdString(it, sw.name);
 
-      else if (it.key() == "lcd_h")
-        m_display.h = Json::valueInt(it, m_display.h);
+      else if (it.key() == "type") {
+        int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable,
+                                                        Json::valueStdString(it).c_str());
+        sw.type = idx < 0 ? Board::SWITCH_NOT_AVAILABLE : (Board::SwitchType)idx;
+      }
 
-      else if (it.key() == "lcd_w")
-        m_display.w = Json::valueInt(it, m_display.w);
+      else if (it.key() == "flags")
+        sw.flags = o.value("flags").toInt();
 
-      else if (it.key() == "lcd_phys_h")
-        m_display.phys_h = Json::valueInt(it, m_display.phys_h);
+      else if (it.key() == "inverted")
+        sw.inverted = Json::valueBool(it);
 
-      else if (it.key() == "lcd_phys_w")
-        m_display.phys_w = Json::valueInt(it, m_display.phys_w);
+      else if (it.key() == "default") {
+        int idx = DataHelpers::getStringTagMappingIndex(switchTypesLookupTable,
+                                                        Json::valueStdString(it).c_str());
+        sw.dflt = idx < 0 ? Board::SWITCH_NOT_AVAILABLE : (Board::SwitchType)idx;
+      }
 
-      else if (it.key() == "oled_screen")
-        m_display.oled = Json::valueBool(it, m_display.oled);
+      else if (it.key() == "display") {
+        if (it->isArray()) {
+          const QJsonArray &d = it->toArray();
+
+          if (d.size() >= 2) {
+            if (d.at(0).isDouble())
+              sw.display.x = (unsigned int)d.at(0).toInt(0);
+            if (d.at(1).isDouble())
+              sw.display.y = (unsigned int)d.at(1).toInt(0);
+          }
+        }
+      }
+
+      else if (it.key() == "is_cfs")
+        sw.isCustomSwitch = Json::valueBool(it, sw.isCustomSwitch);
+
+      else if (it.key() == "cfs_idx")
+        sw.customSwitchIdx = Json::valueInt(it, sw.customSwitchIdx);
 
       //else
       //  JSON_NO_RULE(it);
     }
 
-    m_display.color = m_display.depth == 16 ? 1 : 0;
+    // special handing for ADC
+    if (sw.type == Board::SWITCH_ADC) {
+      if (sw.dflt == Board::SWITCH_TOGGLE) {
+        // this could be 2 or 3 position toggle so play safe
+        // it therefore has an impact on configuring hardware, available switches, simulator widget, yaml encode and decode
+        sw.dflt = Board::SWITCH_3POS;
+      }
+      // make the same
+      sw.type = sw.dflt;
+    }
 
-  } else
-    JSON_NOT_OBJ(it);
+    sw.tag = sw.name;
+    m_switches.insert(m_switches.end(), sw);
+  }
+}
+
+void Board::loadKeys(QJsonObject::const_iterator & oit)
+{
+  JSON_ARR_INIT_R(oit, a);
+
+  for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
+    JSON_OBJ_INIT_C(it, o);
+
+    KeyDefn k;
+
+    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      if (it.key() == "comments")
+        continue;
+
+      //JSON_KEY_VAL(it);
+
+      if (it.key() == "name")
+        k.name = Json::valueStdString(it, k.name);
+
+      else if (it.key() == "key")
+        k.key = Json::valueStdString(it, k.key);
+
+      else if (it.key() == "label")
+        k.label = Json::valueStdString(it, k.label);
+
+      //else
+      //  JSON_NO_RULE(it);
+    }
+
+    k.tag = k.name;
+    m_keys.insert(m_keys.end(), k);
+  }
+}
+
+void Board::loadTrims(QJsonObject::const_iterator & oit)
+{
+  JSON_ARR_INIT_R(oit, a);
+
+  for (QJsonArray::const_iterator it = a.constBegin(); it != a.constEnd(); ++it) {
+    JSON_OBJ_INIT_C(it, o);
+
+    TrimDefn t;
+
+    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+      if (it.key() == "comments")
+        continue;
+
+      //JSON_KEY_VAL(it);
+
+      if (it.key() == "name")
+        t.name = Json::valueStdString(it, t.name);
+
+      //else
+      //  JSON_NO_RULE(it);
+    }
+
+    t.tag = t.name;
+    m_trims.insert(m_trims.end(), t);
+  }
+}
+
+void Board::loadDisplay(QJsonObject::const_iterator & it)
+{
+  JSON_OBJ_INIT_R(it, o);
+
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments")
+      continue;
+
+    //JSON_KEY_VAL(it);
+
+    if (it.key() == "lcd_depth")
+      m_display.depth = Json::valueInt(it, m_display.depth);
+
+    else if (it.key() == "lcd_h")
+      m_display.h = Json::valueInt(it, m_display.h);
+
+    else if (it.key() == "lcd_w")
+      m_display.w = Json::valueInt(it, m_display.w);
+
+    else if (it.key() == "lcd_phys_h")
+      m_display.phys_h = Json::valueInt(it, m_display.phys_h);
+
+    else if (it.key() == "lcd_phys_w")
+      m_display.phys_w = Json::valueInt(it, m_display.phys_w);
+
+    else if (it.key() == "oled_screen")
+      m_display.oled = Json::valueBool(it, m_display.oled);
+
+    //else
+    //  JSON_NO_RULE(it);
+  }
+
+  m_display.color = m_display.depth == 16 ? 1 : 0;
 }
 
 void Board::loadLEDS(QJsonObject::const_iterator & it)
 {
-  if (it->isObject()) {
-    const QJsonObject &o = it->toObject();
+  JSON_OBJ_INIT_R(it, o);
 
-    int cfs_led_strip_length = 0;
-    int cfs_leds_per_switch = 0;
+  int cfs_led_strip_length = 0;
+  int cfs_leds_per_switch = 0;
 
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      //JSON_KEY_VAL(it);
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    //JSON_KEY_VAL(it);
 
-      if (it.key() == "bling_led_strip_length")
-        m_hardware.has_bling_leds = Json::valueInt(it, m_hardware.has_bling_leds);
+    if (it.key() == "bling_led_strip_length")
+      m_hardware.has_bling_leds = Json::valueInt(it, m_hardware.has_bling_leds);
 
-      else if (it.key() == "cfs_leds_per_switch")
-        cfs_leds_per_switch = Json::valueInt(it, 0);
+    else if (it.key() == "cfs_leds_per_switch")
+      cfs_leds_per_switch = Json::valueInt(it, 0);
 
-      else if (it.key() == "cfs_led_strip_length")
-        cfs_led_strip_length = Json::valueInt(it, 0);
+    else if (it.key() == "cfs_led_strip_length")
+      cfs_led_strip_length = Json::valueInt(it, 0);
 
-      else if (it.key() == "status_leds")
-        m_hardware.statusLeds = Json::valueBool(it, m_hardware.statusLeds);
+    else if (it.key() == "status_leds")
+      m_hardware.statusLeds = Json::valueBool(it, m_hardware.statusLeds);
 
-      //else
-      //  JSON_NO_RULE(it);
-    }
+    //else
+    //  JSON_NO_RULE(it);
+  }
 
-    m_cfs.groups = cfs_leds_per_switch ? cfs_led_strip_length / (2 * cfs_leds_per_switch) : 0;
-    m_cfs.rgb_led = m_cfs.groups > 0;
-
-  } else
-    JSON_NOT_OBJ(it);
+  m_cfs.groups = cfs_leds_per_switch ? cfs_led_strip_length / (2 * cfs_leds_per_switch) : 0;
+  m_cfs.rgb_led = m_cfs.groups > 0;
 }
 
 void Board::loadHardware(QJsonObject::const_iterator & it)
 {
-  if (it->isObject()) {
-    const QJsonObject &o = it->toObject();
+  JSON_OBJ_INIT_R(it, o);
 
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      //JSON_KEY_VAL(it);
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    //JSON_KEY_VAL(it);
 
-      if (it.key() == "has_audio_mute")
-        m_hardware.has_audio_mute = Json::valueBool(it, m_hardware.has_audio_mute);
+    if (it.key() == "has_audio_mute")
+      m_hardware.has_audio_mute = Json::valueBool(it, m_hardware.has_audio_mute);
 
-      else if (it.key() == "has_ext_module_support")
-        m_hardware.has_ext_module_support = Json::valueBool(it, m_hardware.has_ext_module_support);
+    else if (it.key() == "has_ext_module_support")
+      m_hardware.has_ext_module_support = Json::valueBool(it, m_hardware.has_ext_module_support);
 
-      else if (it.key() == "has_int_module_support")
-        m_hardware.has_int_module_support = Json::valueBool(it, m_hardware.has_int_module_support);
+    else if (it.key() == "has_int_module_support")
+      m_hardware.has_int_module_support = Json::valueBool(it, m_hardware.has_int_module_support);
 
-      else if (it.key() == "sport_max_baudrate")
-        m_hardware.sport_max_baudrate = Json::valueInt(it, m_hardware.sport_max_baudrate);
+    else if (it.key() == "sport_max_baudrate")
+      m_hardware.sport_max_baudrate = Json::valueInt(it, m_hardware.sport_max_baudrate);
 
-      else if (it.key() == "surface")
-        m_hardware.surface = Json::valueBool(it, m_hardware.surface);
+    else if (it.key() == "surface")
+      m_hardware.surface = Json::valueBool(it, m_hardware.surface);
 
-      else if (it.key() == "cpu")
-        m_hardware.cpu = Json::valueStdString(it, m_hardware.cpu);
+    else if (it.key() == "cpu")
+      m_hardware.cpu = Json::valueStdString(it, m_hardware.cpu);
 
-      else if (it.key() == "cpu_type")
-        m_hardware.cpu_type = Json::valueStdString(it, m_hardware.cpu_type);
+    else if (it.key() == "cpu_type")
+      m_hardware.cpu_type = Json::valueStdString(it, m_hardware.cpu_type);
 
-      else
-        JSON_NO_RULE(it);
-    }
-  } else
-    JSON_NOT_OBJ(it);
+    else
+      JSON_NO_RULE(it);
+  }
 }
 
 bool Board::postLoad()

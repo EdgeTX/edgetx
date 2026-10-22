@@ -727,7 +727,7 @@ void Firmware::loadBuildOptions(QJsonObject::const_iterator & it)
         m_defn.options.append(grp);
     }
   } else
-    JSON_NOT_ARRAY(it);
+    JSON_NOT_ARR(it);
 }
 
 void Firmware::loadBuildOptionGroup(QJsonArray::const_iterator & it, OptionsGroup & grp)

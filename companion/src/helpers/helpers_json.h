@@ -29,8 +29,27 @@
 
 #define JSON_KEY_VAL(jsonit)   qInfo() << "key:" << jsonit.key() << "value:" << jsonit.value()
 #define JSON_NO_RULE(jsonit)   qWarning() << "Warning: No rule to process - key:" << jsonit.key() << "value:" << jsonit.value()
-#define JSON_NOT_ARRAY(jsonit) qCritical() << "Error: not an array" << *jsonit
+#define JSON_NOT_ARR(jsonit) qCritical() << "Error: not an array" << *jsonit
 #define JSON_NOT_OBJ(jsonit)   qCritical() << "Error: not an object" << *jsonit
+
+#define JSON_ARR_INIT(jsonit, tmparray, action) \
+  if (!jsonit->isArray()) { \
+    JSON_NOT_ARR(jsonit); \
+    action; \
+  } \
+  const QJsonArray &tmparray = jsonit->toArray();
+
+#define JSON_OBJ_INIT(jsonit, tmpobj, action) \
+  if (!jsonit->isObject()) { \
+    JSON_NOT_OBJ(jsonit); \
+    action; \
+  } \
+  const QJsonObject &tmpobj = jsonit->toObject();
+
+#define JSON_ARR_INIT_C(jsonit, tmparray) JSON_ARR_INIT(jsonit, tmparray, continue)
+#define JSON_ARR_INIT_R(jsonit, tmparray) JSON_ARR_INIT(jsonit, tmparray, return)
+#define JSON_OBJ_INIT_C(jsonit, tmpobj) JSON_OBJ_INIT(jsonit, tmpobj, continue)
+#define JSON_OBJ_INIT_R(jsonit, tmpobj) JSON_OBJ_INIT(jsonit, tmpobj, return)
 
 class Json {
 
