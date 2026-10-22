@@ -577,7 +577,7 @@ const QList<int> Board::supportedInternalModules() const
       modules.append(idx);
   }
 
-  qDebug() << modules;
+  //qDebug() << modules;
   return modules;
 }
 

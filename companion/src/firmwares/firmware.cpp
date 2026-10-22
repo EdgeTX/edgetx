@@ -555,179 +555,166 @@ bool Firmware::loadDefinition(const QString & path)
 
 void Firmware::loadCurves(QJsonObject::const_iterator & oit)
 {
-  if (oit->isObject()) {
-    QJsonObject o = oit->toObject();
-    CurvesDefn & crv = m_defn.curves;
+  JSON_OBJ_INIT_R(oit, o);
 
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
+  CurvesDefn & crv = m_defn.curves;
 
-        //JSON_KEY_VAL(it);
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments")
+      continue;
 
-      else if (it.key() == "cnt")
-        crv.sizes.cnt = Json::valueInt(it, crv.sizes.cnt, CPN_MAX_CURVES);
+      //JSON_KEY_VAL(it);
 
-      else if (it.key() == "name")
-        crv.sizes.name = Json::valueInt(it, crv.sizes.name, CURVEDATA_NAME_LEN);
+    else if (it.key() == "cnt")
+      crv.sizes.cnt = Json::valueInt(it, crv.sizes.cnt, CPN_MAX_CURVES);
 
-      else if (it.key() == "points") {
-        if (it->isObject()) {
-          QJsonObject po = it->toObject();
-          for (QJsonObject::const_iterator pit = po.constBegin(); pit != po.constEnd(); ++pit) {
-            if (pit.key() == "comments")
-              continue;
+    else if (it.key() == "name")
+      crv.sizes.name = Json::valueInt(it, crv.sizes.name, CURVEDATA_NAME_LEN);
 
-            //JSON_KEY_VAL(pit);
+    else if (it.key() == "points") {
+      JSON_OBJ_INIT_C(it, po);
 
-            else if (pit.key() == "min")
-              crv.minPoints = Json::valueInt(pit, crv.minPoints, 2);
+      for (QJsonObject::const_iterator pit = po.constBegin(); pit != po.constEnd(); ++pit) {
+        if (pit.key() == "comments")
+          continue;
 
-            else if (pit.key() == "max")
-              crv.maxPoints = Json::valueInt(pit, crv.maxPoints, CPN_MAX_POINTS);
+        //JSON_KEY_VAL(pit);
 
-            else if (pit.key() == "total")
-              crv.totalPoints = Json::valueInt(pit, crv.totalPoints, 512);
-            else
-            JSON_NO_RULE(pit);
-          }
-        } else
-          qWarning() << "Warning: curve points is not an object";
-      } else
-        JSON_NO_RULE(it);
-    }
-  } else
-    JSON_NOT_OBJ(oit);
+        else if (pit.key() == "min")
+          crv.minPoints = Json::valueInt(pit, crv.minPoints, 2);
+
+        else if (pit.key() == "max")
+          crv.maxPoints = Json::valueInt(pit, crv.maxPoints, CPN_MAX_POINTS);
+
+        else if (pit.key() == "total")
+          crv.totalPoints = Json::valueInt(pit, crv.totalPoints, 512);
+        else
+        JSON_NO_RULE(pit);
+      }
+    } else
+      JSON_NO_RULE(it);
+  }
 }
 
 void Firmware::loadCustomScreens(QJsonObject::const_iterator & oit)
 {
-  if (oit->isObject()) {
-    QJsonObject o = oit->toObject();
-    CustomScreensDefn & cs = m_defn.customScreens;
+  JSON_OBJ_INIT_R(oit, o);
 
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
+  CustomScreensDefn & cs = m_defn.customScreens;
 
-      //JSON_KEY_VAL(it);
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments")
+      continue;
 
-      else if (it.key() == "cnt")
-        cs.sizes.cnt = Json::valueInt(it, cs.sizes.cnt, CPN_MAX_SCRIPTS);
+    //JSON_KEY_VAL(it);
 
-      else if (it.key() == "layoutOptions")
-        cs.layoutOptions = Json::valueInt(it, cs.layoutOptions, MAX_LAYOUT_OPTIONS);
+    else if (it.key() == "cnt")
+      cs.sizes.cnt = Json::valueInt(it, cs.sizes.cnt, CPN_MAX_SCRIPTS);
 
-      else if (it.key() == "layoutZones")
-        cs.layoutZones = Json::valueInt(it, cs.layoutZones, MAX_LAYOUT_ZONES);
+    else if (it.key() == "layoutOptions")
+      cs.layoutOptions = Json::valueInt(it, cs.layoutOptions, MAX_LAYOUT_OPTIONS);
 
-      else if (it.key() == "topBarOptions")
-        cs.topBarOptions = Json::valueInt(it, cs.topBarOptions, MAX_TOPBAR_OPTIONS);
+    else if (it.key() == "layoutZones")
+      cs.layoutZones = Json::valueInt(it, cs.layoutZones, MAX_LAYOUT_ZONES);
 
-      else if (it.key() == "topBarZones")
-        cs.topBarZones = Json::valueInt(it, cs.topBarZones, MAX_TOPBAR_ZONES);
+    else if (it.key() == "topBarOptions")
+      cs.topBarOptions = Json::valueInt(it, cs.topBarOptions, MAX_TOPBAR_OPTIONS);
 
-      else if (it.key() == "themeOptions")
-        cs.themeOptions = Json::valueInt(it, cs.themeOptions, MAX_THEME_OPTIONS);
+    else if (it.key() == "topBarZones")
+      cs.topBarZones = Json::valueInt(it, cs.topBarZones, MAX_TOPBAR_ZONES);
 
-      else if (it.key() == "widgetOptions")
-        cs.widgetOptions = Json::valueInt(it, cs.widgetOptions, MAX_WIDGET_OPTIONS);
+    else if (it.key() == "themeOptions")
+      cs.themeOptions = Json::valueInt(it, cs.themeOptions, MAX_THEME_OPTIONS);
 
-      else
-        JSON_NO_RULE(it);
-    }
-  } else
-    JSON_NOT_OBJ(oit);
+    else if (it.key() == "widgetOptions")
+      cs.widgetOptions = Json::valueInt(it, cs.widgetOptions, MAX_WIDGET_OPTIONS);
+
+    else
+      JSON_NO_RULE(it);
+  }
 }
 
 void Firmware::loadLuaScripts(QJsonObject::const_iterator & oit)
 {
-  if (oit->isObject()) {
-    QJsonObject o = oit->toObject();
-    LuaScriptsDefn & lua = m_defn.luaScripts;
+  JSON_OBJ_INIT_R(oit, o);
 
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
+  LuaScriptsDefn & lua = m_defn.luaScripts;
 
-      //JSON_KEY_VAL(it);
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments")
+      continue;
 
-      else if (it.key() == "cnt")
-        lua.sizes.cnt = Json::valueInt(it, lua.sizes.cnt, CPN_MAX_SCRIPTS);
+    //JSON_KEY_VAL(it);
 
-      else if (it.key() == "name")
-        lua.sizes.name = Json::valueInt(it, lua.sizes.name, CPN_LEN_SCRIPT_NAME);
+    else if (it.key() == "cnt")
+      lua.sizes.cnt = Json::valueInt(it, lua.sizes.cnt, CPN_MAX_SCRIPTS);
 
-      else if (it.key() == "inputs")
-        lua.maxInputs = Json::valueInt(it, lua.maxInputs, CPN_MAX_SCRIPT_INPUTS);
+    else if (it.key() == "name")
+      lua.sizes.name = Json::valueInt(it, lua.sizes.name, CPN_LEN_SCRIPT_NAME);
 
-      else if (it.key() == "outputs")
-        lua.maxOutputs = Json::valueInt(it, lua.maxOutputs, CPN_MAX_SCRIPT_OUTPUTS);
+    else if (it.key() == "inputs")
+      lua.maxInputs = Json::valueInt(it, lua.maxInputs, CPN_MAX_SCRIPT_INPUTS);
 
-      else
-        JSON_NO_RULE(it);
-    }
-  } else
-    JSON_NOT_OBJ(oit);
+    else if (it.key() == "outputs")
+      lua.maxOutputs = Json::valueInt(it, lua.maxOutputs, CPN_MAX_SCRIPT_OUTPUTS);
+
+    else
+      JSON_NO_RULE(it);
+  }
 }
 
 void Firmware::loadModelImage(QJsonObject::const_iterator & oit)
 {
-  if (oit->isObject()) {
-    QJsonObject o = oit->toObject();
-    ModelImageDefn & mi = m_defn.modelImage;
+  JSON_OBJ_INIT_R(oit, o);
 
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
+  ModelImageDefn & mi = m_defn.modelImage;
 
-      //JSON_KEY_VAL(it);
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments")
+      continue;
 
-      else if (it.key() == "filters")
-        mi.filters = Json::valueStdString(it, mi.filters);
+    //JSON_KEY_VAL(it);
 
-      else if (it.key() == "image")
-        mi.image = Json::valueBool(it, mi.image);
+    else if (it.key() == "filters")
+      mi.filters = Json::valueStdString(it, mi.filters);
 
-      else if (it.key() == "keepExtn")
-        mi.keepExtn = Json::valueBool(it, mi.keepExtn);
+    else if (it.key() == "image")
+      mi.image = Json::valueBool(it, mi.image);
 
-      else if (it.key() == "name")
-        mi.name = Json::valueInt(it, mi.name, CPN_MAX_BITMAP_LEN);
+    else if (it.key() == "keepExtn")
+      mi.keepExtn = Json::valueBool(it, mi.keepExtn);
 
-      else
-        JSON_NO_RULE(it);
-    }
-  } else
-    JSON_NOT_OBJ(oit);
+    else if (it.key() == "name")
+      mi.name = Json::valueInt(it, mi.name, CPN_MAX_BITMAP_LEN);
+
+    else
+      JSON_NO_RULE(it);
+  }
 }
 
 void Firmware::loadBuildOptions(QJsonObject::const_iterator & it)
 {
-  if (it->isArray()) {
-    QJsonArray arrOptions = it->toArray();
+  JSON_ARR_INIT_R(it, arrOptions);
 
-    for (QJsonArray::const_iterator itOptions = arrOptions.constBegin(); itOptions != arrOptions.constEnd(); ++itOptions) {
-      //qDebug() << "value:" << (*itOptions);
-      OptionsGroup grp;
+  for (QJsonArray::const_iterator itOptions = arrOptions.constBegin(); itOptions != arrOptions.constEnd(); ++itOptions) {
+    //qDebug() << "value:" << (*itOptions);
+    OptionsGroup grp;
 
-      if ((*itOptions).isArray()) {
-        QJsonArray arrOptGrp = itOptions->toArray();
+    if ((*itOptions).isArray()) {
+      QJsonArray arrOptGrp = itOptions->toArray();
 
-        for (QJsonArray::const_iterator itOptGrp = arrOptGrp.constBegin(); itOptGrp != arrOptGrp.constEnd(); ++itOptGrp) {
-          if (!isOptionDuplicate(grp,(*itOptGrp).toString()))
-            loadBuildOptionGroup(itOptGrp, grp);
-          else
-            qWarning() << "Warning: duplicate option:" << *itOptGrp;
-        }
-      } else
-        loadBuildOptionGroup(itOptions, grp);
+      for (QJsonArray::const_iterator itOptGrp = arrOptGrp.constBegin(); itOptGrp != arrOptGrp.constEnd(); ++itOptGrp) {
+        if (!isOptionDuplicate(grp,(*itOptGrp).toString()))
+          loadBuildOptionGroup(itOptGrp, grp);
+        else
+          qWarning() << "Warning: duplicate option:" << *itOptGrp;
+      }
+    } else
+      loadBuildOptionGroup(itOptions, grp);
 
-      if (grp.count())
-        m_defn.options.append(grp);
-    }
-  } else
-    JSON_NOT_ARR(it);
+    if (grp.count())
+      m_defn.options.append(grp);
+  }
 }
 
 void Firmware::loadBuildOptionGroup(QJsonArray::const_iterator & it, OptionsGroup & grp)
@@ -739,7 +726,7 @@ void Firmware::loadBuildOptionGroup(QJsonArray::const_iterator & it, OptionsGrou
       if (!isOptionDuplicate(m_defn.options, opt)) {
         grp.append(opt);
       } else {
-        qWarning() << "Duplicate option:" << opt;
+        qWarning() << "Duplicate option ignored:" << opt;
       }
     } else {
       qWarning() << "Invalid option:" << opt;
@@ -750,33 +737,31 @@ void Firmware::loadBuildOptionGroup(QJsonArray::const_iterator & it, OptionsGrou
 
 void Firmware::loadTeleCstmScrns(QJsonObject::const_iterator & oit)
 {
-  if (oit->isObject()) {
-    QJsonObject o = oit->toObject();
-    TeleCstmScrnsDefn & tele = m_defn.teleCstmScrns;
+  JSON_OBJ_INIT_R(oit, o);
 
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
+  TeleCstmScrnsDefn & tele = m_defn.teleCstmScrns;
 
-      //JSON_KEY_VAL(it);
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments")
+      continue;
 
-      else if (it.key() == "cnt")
-        tele.sizes.cnt = Json::valueInt(it, tele.sizes.cnt, CPN_TELE_CUST_SCRNS);
+    //JSON_KEY_VAL(it);
 
-      else if (it.key() == "bars")
-        tele.maxBars = Json::valueInt(it, tele.maxBars, CPN_TELE_CUST_SCRNS_BARS);
+    else if (it.key() == "cnt")
+      tele.sizes.cnt = Json::valueInt(it, tele.sizes.cnt, CPN_TELE_CUST_SCRNS);
 
-      else if (it.key() == "perLine")
-        tele.maxPerLine = Json::valueInt(it, tele.maxPerLine, CPN_TELE_CUST_SCRNS_PERLINE);
+    else if (it.key() == "bars")
+      tele.maxBars = Json::valueInt(it, tele.maxBars, CPN_TELE_CUST_SCRNS_BARS);
 
-      else if (it.key() == "lines")
-        tele.maxLines = Json::valueInt(it, tele.maxLines, CPN_TELE_CUST_SCRNS_LINES);
+    else if (it.key() == "perLine")
+      tele.maxPerLine = Json::valueInt(it, tele.maxPerLine, CPN_TELE_CUST_SCRNS_PERLINE);
 
-      else
-        JSON_NO_RULE(oit);
-    }
-  } else
-    JSON_NOT_OBJ(oit);
+    else if (it.key() == "lines")
+      tele.maxLines = Json::valueInt(it, tele.maxLines, CPN_TELE_CUST_SCRNS_LINES);
+
+    else
+      JSON_NO_RULE(oit);
+  }
 }
 
 bool Firmware::postLoad()
