@@ -145,8 +145,8 @@
 #define TR_VTMRMODES                SA6(TR_VTMRMODES)
 #define TR_VFSWRESET                SA6(TR_VFSWRESET)
 // App names left untranslated
-#define TR_GPS_URI_TYPES            TR_GPS_URI_STANDARD, "Android", "Google Maps (web)", \
-                                    "Google Maps (app)", "CoMaps", "Guru Maps"
+#define TR_GPS_URI_TYPES            TR_GPS_URI_STANDARD, "Android", "Google Maps", \
+                                    "CoMaps", "Guru Maps"
 
 #define TR_VBLMODE                  SA5(TR_VBLMODE)
 #if defined(FUNCTION_SWITCHES)
