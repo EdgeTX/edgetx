@@ -75,7 +75,12 @@
     "cnt": 9,
     "name": 3
   },
-  "inactivityTimer": 0,
+  "inactivityTimer": {
+    "comments": "",
+    "min": 0,
+    "max": 0,
+    "dflt": 10
+  },
   "inputs": {
     "comments": "",
     "cnt": 32,

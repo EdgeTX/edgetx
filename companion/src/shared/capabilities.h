@@ -61,7 +61,7 @@ enum Capability {
   HasVarioSink,
   HatsModeDefault,
   Heli,
-  InactivityTimer,
+  InactivityTimerDefault,
   InputsLength,
   KeyShortcuts,
   LogicalSwitches,
@@ -105,7 +105,7 @@ enum Capability {
   // Boards
   Air,
   DefaultInternalModule,
-  ExternalModuleSize,
+  ExternalModuleSize, // TODO remove in modules refactor
   FlexInputs,
   FlexSwitches,
   FunctionSwitchColors,

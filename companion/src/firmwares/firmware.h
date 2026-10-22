@@ -125,7 +125,7 @@ class Firmware
       Json::sizes_t     globalFuncs       {CPN_MAX_SPECIAL_FUNCTIONS, 0};
       Json::sizes_t     globalVars        {CPN_MAX_GVARS, GVAR_NAME_LEN};
       int               hatsMode          {0};
-      int               inactivityTimer   {0};
+      Json::range_t     inactivityTimer   {0, 0, 10};
       Json::sizes_t     inputs            {CPN_MAX_INPUTS, INPUT_NAME_LEN};
       bool              lcdToVideo        {false};
       Json::sizes_t     logicalSwitches   {CPN_MAX_LOGICAL_SWITCHES, 0};

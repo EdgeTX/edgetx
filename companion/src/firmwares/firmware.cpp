@@ -236,8 +236,8 @@ int Firmware::getCapability(Capability value) const
       return !(opts.contains("noheli") ||
              m_board->getCapability(Capability::Surface));
 
-    case Capability::InactivityTimer:
-      return m_defn.inactivityTimer;
+    case Capability::InactivityTimerDefault:
+      return m_defn.inactivityTimer.dflt;
 
     case Capability::InputsLength:
       return m_defn.inputs.name;
@@ -574,7 +574,7 @@ bool Firmware::loadDefinition(const QString & path)
       Json::loadSizes(it, m_defn.globalVars, CPN_MAX_GVARS, GVAR_NAME_LEN);
 
     else if (it.key() == "inactivityTimer")
-      m_defn.inactivityTimer = Json::valueInt(it, m_defn.inactivityTimer);
+      Json::loadRange(it, m_defn.inactivityTimer);
 
     else if (it.key() == "inputs")
       Json::loadSizes(it, m_defn.inputs, CPN_MAX_INPUTS, INPUT_NAME_LEN);

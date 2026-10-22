@@ -207,7 +207,7 @@ void GeneralSettings::init()
   speakerVolume = board->getCapability(Capability::SpeakerVolumeDefault);
   wavVolume = board->getCapability(Capability::WavVolumeDefault);
   hatsMode = board->getCapability(Capability::HatsModeDefault);
-  inactivityTimer = board->getCapability(Capability::InactivityTimer);
+  inactivityTimer = board->getCapability(Capability::InactivityTimerDefault);
   internalModule = g.profile[g.sessionId()].defaultInternalModule();
   stickMode = g.profile[g.sessionId()].defaultMode();
   templateSetup = g.profile[g.sessionId()].channelOrder();
