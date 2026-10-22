@@ -257,6 +257,10 @@ int Firmware::getCapability(Capability value) const
     case Capability::LuaScripts:
       return opts.contains("lua") ? m_defn.luaScripts.sizes.cnt : 0;
 
+    // TODO remove as mavlink option not used but ui feature
+    case Capability::MavlinkTelemetry:
+      return opts.contains("mavlink");
+
     case Capability::MaxContrast:
       return m_defn.contrast.max;
 

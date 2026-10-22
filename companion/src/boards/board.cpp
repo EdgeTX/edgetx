@@ -403,9 +403,6 @@ int Board::getCapability(const Capability capability) const
     case Capability::IsWideLayout:  // check
       return m_display.w > 400;
 
-    case Capability::JoystickAxes:
-      return m_inputCnt.flexJoystickAxes;
-
     case Capability::Keys:
       return m_keys.size();
 
@@ -1271,7 +1268,7 @@ bool Board::loadDefinition()
               "pots:" << getCapability(Capability::Pots) <<
               "sliders:" << getCapability(Capability::Sliders) <<
               "gyro axes:" << getCapability(Capability::GyroAxes) <<
-              "joystick axes:" << getCapability(Capability::JoystickAxes) <<
+              "joystick axes:" << m_inputCnt.flexJoystickAxes <<
               "flex inputs:" << getCapability(Capability::FlexInputs) <<
               "input switches:" << getCapability(Capability::InputSwitches) <<
               "trims:" << getCapability(Capability::NumTrims) <<
