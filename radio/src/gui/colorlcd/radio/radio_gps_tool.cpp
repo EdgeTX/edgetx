@@ -30,10 +30,9 @@
 
 // Every supported URI is "<prefix>lat,lon"
 static const char* const uriTypePrefixes[RadioGpsTool::URI_TYPE_COUNT] = {
-    "geo:",                       // RFC 5870, understood by iOS and Android
-    "geo:0,0?q=",                 // Android-only "search" form
-    "https://maps.google.com/?q=",
-    "comgooglemaps://?q=",        // Google Maps app URL scheme
+    "geo:",                       // RFC 5870
+    "geo:0,0?q=",                 // Android search form
+    "https://www.google.com/maps/search/?api=1&query=",  // Maps URLs API
     "cm://map?ll=",               // CoMaps
     "guru://show?place=",         // Guru Maps
 };
@@ -114,7 +113,7 @@ void RadioGpsTool::refresh()
 {
   if (gpsSensorID >= 0) {
     TelemetryItem& gpsItem = telemetryItems[gpsSensorID];
-    char lat[16], lon[16], gps_uri[64];
+    char lat[16], lon[16], gps_uri[96];
     formatCoord(lat, sizeof(lat), gpsItem.gps.latitude);
     formatCoord(lon, sizeof(lon), gpsItem.gps.longitude);
     if (uriType >= URI_TYPE_COUNT) uriType = URI_GEO_RFC5870;
