@@ -527,6 +527,9 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "outputs")
       Json::loadSizes(it, m_defn.outputs, CPN_MAX_CHNOUT, LIMITDATA_NAME_LEN);
 
+    else if (it.key() == "powerOnDelay")
+      m_defn.powerOnDelay = Json::valueBool(it);
+
     else if (it.key() == "quickMenuFavs")
       m_defn.quickMenuFavs = Json::valueInt(it);
 

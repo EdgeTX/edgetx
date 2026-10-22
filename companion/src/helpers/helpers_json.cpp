@@ -31,44 +31,38 @@ const bool Json::exists(const QJsonObject & obj, const QString & key)
 
 void Json::loadRange(QJsonObject::const_iterator & it, range_t & range)
 {
-  if (it->isObject()) {
-    QJsonObject o = it->toObject();
+  JSON_OBJ_INIT_R(it, o);
 
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
-      else if (it.key() == "min")
-        range.min = Json::valueInt(it, range.min);
-      else if (it.key() == "max")
-        range.max = Json::valueInt(it, range.max);
-      else if (it.key() == "dflt")
-        range.dflt = Json::valueInt(it, range.dflt);
-      else
-        JSON_NO_RULE(it);
-    }
-  } else
-    JSON_NOT_OBJ(it);
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments")
+      continue;
+    else if (it.key() == "min")
+      range.min = Json::valueInt(it, range.min);
+    else if (it.key() == "max")
+      range.max = Json::valueInt(it, range.max);
+    else if (it.key() == "dflt")
+      range.dflt = Json::valueInt(it, range.dflt);
+    else
+      JSON_NO_RULE(it);
+  }
 }
 
 void Json::loadSizes(QJsonObject::const_iterator & it, sizes_t & sizes,
                      const int cntMax, const int nameLenMax,
                      const int cntMin, const int nameLenMin)
 {
-  if (it->isObject()) {
-    QJsonObject o = it->toObject();
+  JSON_OBJ_INIT_R(it, o);
 
-    for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-      if (it.key() == "comments")
-        continue;
-      else if (it.key() == "cnt")
-        sizes.cnt = Json::valueInt(it, sizes.cnt, cntMax, cntMin);
-      else if (it.key() == "name")
-        sizes.name = Json::valueInt(it, sizes.name, nameLenMax, nameLenMin);
-      else
-        JSON_NO_RULE(it);
-    }
-  } else
-    JSON_NOT_OBJ(it);
+  for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
+    if (it.key() == "comments")
+      continue;
+    else if (it.key() == "cnt")
+      sizes.cnt = Json::valueInt(it, sizes.cnt, cntMax, cntMin);
+    else if (it.key() == "name")
+      sizes.name = Json::valueInt(it, sizes.name, nameLenMax, nameLenMin);
+    else
+      JSON_NO_RULE(it);
+  }
 }
 
 const QVariant Json::value(const QJsonObject & obj, const QString & key, bool manditory,
@@ -100,7 +94,7 @@ const bool Json::valueBool(const QJsonObject & obj, const QString & key,
   bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isBool());
 
   if (!isvalid)
-    qWarning() << "Warning: key:" << key << "not found and/or key value not a boolean";
+    qWarning() << "Warning: key:" << key << "not found or value:" << obj.value(key) << "is not a boolean";
 
   return isvalid ? obj.value(key).toBool() : dflt;
 }
@@ -112,7 +106,7 @@ const int Json::valueInt(const QJsonObject::const_iterator & it,
   int value = isvalid ? it.value().toInt() : 0;
 
   if (!isvalid)
-    qWarning() << "Warning: key value not an integer";
+    qWarning() << "Warning - key:" << it.key() << "value:" << it.value() << "is not an integer";
 
   if (min > max)
     qWarning() << "Warning: range check ignored as min:" << min << "exceeds max:" << max;
@@ -127,7 +121,7 @@ const int Json::valueInt(const QJsonObject & obj, const QString & key,
   int value = isvalid ? obj.value(key).toInt() : 0;
 
   if (!isvalid)
-    qWarning() << "Warning: key:" << key << "not found and/or key value not an integer";
+    qWarning() << "Warning - key:" << key << "value:" << obj.value(key) << "is not an integer";
 
   if (min > max)
     qWarning() << "Warning: range check ignored for:" << key << "as min:" << min << "exceeds max:" << max;
@@ -141,7 +135,7 @@ const std::string Json::valueStdString(const QJsonObject::const_iterator & it,
   bool isvalid = it.value().isString();
 
   if (!isvalid)
-    qWarning() << "Warning: key value not a string";
+    qWarning() << "Warning: key:" << it.key() << "value:" << it.value() << "is not a string";
 
   return isvalid ? it.value().toString().toStdString() : dflt;
 }
@@ -152,7 +146,7 @@ const std::string Json::valueStdString(const QJsonObject & obj, const QString & 
   bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isString());
 
   if (!isvalid)
-    qWarning() << "Warning: key:" << key << "not found and/or key value not a string";
+    qWarning() << "Warning: key:" << key << "not found or value:" << obj.value(key) << "is not a string";
 
   return isvalid ? obj.value(key).toString().toStdString() : dflt;
 }
@@ -163,7 +157,7 @@ const QString Json::valueString(const QJsonObject::const_iterator & it,
   bool isvalid = it.value().isString();
 
   if (!isvalid)
-    qWarning() << "Warning: key value not a string";
+    qWarning() << "Warning: key:" << it.key() << "value:" << it.value() << "is not a string";
 
   return isvalid ? it.value().toString() : dflt;
 }
@@ -174,7 +168,7 @@ const QString Json::valueString(const QJsonObject & obj, const QString & key,
   bool isvalid = (!obj.value(key).isUndefined() && obj.value(key).isString());
 
   if (!isvalid)
-    qWarning() << "Warning: key:" << key << "not found and/or key value not a string";
+    qWarning() << "Warning: key:" << key << "not found or value:" << obj.value(key) << "is not a string";
 
   return isvalid ? obj.value(key).toString() : dflt;
 }

@@ -1507,11 +1507,10 @@ void Board::loadBacklight(QJsonObject::const_iterator & oit)
   BacklightDefn & bd = m_hardware.backlight;
 
   for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
-    if (it.key() == "comments")
+    if (it.key() == "comments" || it.key() == "backlight_bdtr")
       continue;
 
     //JSON_KEY_VAL(it);
-
     else if (it.key() == "delay")
       bd.delay = Json::valueInt(it, bd.delay);
 
