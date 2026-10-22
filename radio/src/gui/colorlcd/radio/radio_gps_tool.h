@@ -33,6 +33,7 @@ public:
     URI_GEO_RFC5870,      // geo:lat,lon
     URI_GEO_ANDROID,      // geo:0,0?q=lat,lon
     URI_GOOGLE_MAPS,      // https://www.google.com/maps/search/?api=1&query=lat,lon
+    URI_APPLE_MAPS,       // https://maps.apple.com/place?coordinate=lat,lon
     URI_COMAPS,           // cm://map?ll=lat,lon
     URI_GURU_MAPS,        // guru://show?place=lat,lon
     URI_TYPE_COUNT

@@ -147,9 +147,9 @@
 #define TR_VBEEPCOUNTDOWN           SA6(TR_VBEEPCOUNTDOWN)
 #define TR_VTMRMODES                SA6(TR_VTMRMODES)
 #define TR_VFSWRESET                SA6(TR_VFSWRESET)
-// App names left untranslated
+// App names left untranslated, except Apple's own localised one
 #define TR_GPS_URI_TYPES            TR_GPS_URI_STANDARD, "Android", "Google Maps", \
-                                    "CoMaps", "Guru Maps"
+                                    TR_GPS_URI_APPLE_MAPS, "CoMaps", "Guru Maps"
 
 #define TR_VBLMODE                  SA5(TR_VBLMODE)
 #if defined(FUNCTION_SWITCHES)
