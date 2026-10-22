@@ -752,6 +752,8 @@ static const struct YamlNode struct_anonymous_13[] = {
 static const struct YamlNode struct_anonymous_14[] = {
   YAML_UNSIGNED( "telemetryBaudrate", 3 ),
   YAML_PADDING( 5 ),
+  YAML_UNSIGNED( "srcSysId", 8 ),
+  YAML_UNSIGNED( "dstSysId", 8 ),
   YAML_END
 };
 static const struct YamlNode union_anonymous_4_elmts[] = {
@@ -766,7 +768,7 @@ static const struct YamlNode union_anonymous_4_elmts[] = {
   YAML_STRUCT("ghost", 8, struct_anonymous_11, NULL),
   YAML_STRUCT("crsf", 24, struct_anonymous_12, NULL),
   YAML_STRUCT("dsmp", 16, struct_anonymous_13, NULL),
-  YAML_STRUCT("mavlink", 8, struct_anonymous_14, NULL),
+  YAML_STRUCT("mavlink", 24, struct_anonymous_14, NULL),
   YAML_END
 };
 static const struct YamlNode struct_ModuleData[] = {
