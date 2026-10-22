@@ -105,9 +105,6 @@ static void menusTask()
   toplcdOff();
 #endif
 
-#if defined(COLORLCD)
-  cancelShutdownAnimation();
-#endif
 #if !defined(PWR_BUTTON_MANAGED)
   drawSleepBitmap();
 #endif

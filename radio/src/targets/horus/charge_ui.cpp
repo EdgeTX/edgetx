@@ -20,6 +20,7 @@
 #include "mainwindow.h"
 #include "static.h"
 #include "LvglWrapper.h"
+#include "startup_shutdown.h"
 #include "os/sleep.h"
 #include "hal/watchdog_driver.h"
 
@@ -656,6 +657,9 @@ void shutdownChargeWait()
   if (!chargeCableConnected()) {
     return;
   }
+
+  // Remove shutdown animation / sleep bitmap before showing charge UI
+  cancelShutdownAnimation();
 
   shutdownChargeModulesOff();
 
