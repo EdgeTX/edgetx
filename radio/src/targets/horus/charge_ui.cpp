@@ -586,7 +586,7 @@ class ChargeDashboardDialog : public Window
         ++ledOffTicks;
       }
       if (ledOffTicks >= CHG_UI_OFF_TICKS) {
-        deleteLater();
+        closeWindow();
       }
     } else {
       ledOffTicks = 0;
@@ -600,7 +600,7 @@ class ChargeDashboardDialog : public Window
       return;
     }
     holdOffUntilUnplug();
-    deleteLater();
+    closeWindow();
   }
 };
 
@@ -631,7 +631,7 @@ static void chargeUiTaskImpl()
   if (!s_chargeDlg && led && stableOn >= CHG_LED_STABLE_TICKS &&
       !s_holdOffChargeUiUntilUnplug) {
     s_chargeDlg = new ChargeDashboardDialog();
-    s_chargeDlg->setCloseHandler([]() {
+    s_chargeDlg->onClosing([]() {
       if (!s_shutdownChargeBlocking) {
         s_holdOffChargeUiUntilUnplug = true;
       }
@@ -668,7 +668,7 @@ void shutdownChargeWait()
   s_shutdownChargeBlocking = true;
 
   if (s_chargeDlg) {
-    s_chargeDlg->deleteLater();
+    s_chargeDlg->closeWindow();
     s_chargeDlg = nullptr;
   }
 
@@ -684,7 +684,7 @@ void shutdownChargeWait()
   }
 
   s_chargeDlg = new ChargeDashboardDialog(true);
-  s_chargeDlg->setCloseHandler([]() { s_chargeDlg = nullptr; });
+  s_chargeDlg->onClosing([]() { s_chargeDlg = nullptr; });
 
   while (chargeCableConnected() && !s_shutdownChargeForceQuit) {
     WDG_RESET();
@@ -700,7 +700,7 @@ void shutdownChargeWait()
   }
 
   if (s_chargeDlg) {
-    s_chargeDlg->deleteLater();
+    s_chargeDlg->closeWindow();
     s_chargeDlg = nullptr;
     for (int i = 0; i < 20; ++i) {
       WDG_RESET();
