@@ -794,6 +794,7 @@
 #define TR_GHOST_MODULE_CONFIG          "Konfig Ghostmodul"
 #define TR_GPS_MODEL_LOCATOR            "GPS modellokalisering"
 #define TR_GPS_URI_STANDARD            "Standard"
+#define TR_GPS_URI_APPLE_MAPS          "Apple Maps"
 #define TR_REFRESH                      "Uppdatera"
 #define TR_SDCARD_FULL                  "SD-kortet fullt"
 #define TR_SDCARD_FULL_EXT               TR_BW_COL(TR_SDCARD_FULL "\036Loggar och " LCDW_128_LINEBREAK "skärmklipp inaktiverade", TR_SDCARD_FULL "\nLoggar och skärmklipp inaktiverade")

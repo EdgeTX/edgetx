@@ -32,6 +32,7 @@ static const char* const uriTypePrefixes[RadioGpsTool::URI_TYPE_COUNT] = {
     "geo:",                       // RFC 5870
     "geo:0,0?q=",                 // Android search form
     "https://www.google.com/maps/search/?api=1&query=",  // Maps URLs API
+    "https://maps.apple.com/place?coordinate=",  // iOS 18.4+
     "cm://map?ll=",               // CoMaps
     "guru://show?place=",         // Guru Maps
 };
