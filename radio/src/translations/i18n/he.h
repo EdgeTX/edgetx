@@ -788,6 +788,7 @@
 #define TR_SPECTRUM_ANALYSER_INT       "ספקטרום (פנימי)"
 #define TR_GHOST_MODULE_CONFIG         "הגדרות מודול Ghost"
 #define TR_GPS_MODEL_LOCATOR           "איתור מודל ב-GPS"
+#define TR_GPS_URI_STANDARD            "Standard"
 #define TR_REFRESH                     "רעננן"
 #define TR_SDCARD_FULL                 "הכרטיס מלא"
 #define TR_SDCARD_FULL_EXT             TR_BW_COL(TR_SDCARD_FULL "\036לוגים" LCDW_128_LINEBREAK "ושמירת צילומי מסך מושבתים", TR_SDCARD_FULL "\036לוגים ושמירת צילומי מסך מושבתים")

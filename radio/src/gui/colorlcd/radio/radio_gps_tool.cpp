@@ -28,17 +28,6 @@
 #include "edgetx.h"
 #include "fonts.h"
 
-// Labels shown in the dropdown, indexed by RadioGpsTool::UriType.
-// App names, so left untranslated.
-static const char* const uriTypeNames[RadioGpsTool::URI_TYPE_COUNT] = {
-    "Standard",
-    "Android",
-    "Google Maps (web)",
-    "Google Maps (app)",
-    "CoMaps",
-    "Guru Maps",
-};
-
 // Every supported URI is "<prefix>lat,lon"
 static const char* const uriTypePrefixes[RadioGpsTool::URI_TYPE_COUNT] = {
     "geo:",                       // RFC 5870, understood by iOS and Android
@@ -85,7 +74,7 @@ void RadioGpsTool::buildBody(Window* window)
   gpsQR = new QRCode(window, (window->width() - qrSz) / 2, qrAreaY + (qrAreaH - qrSz) / 2, qrSz, "");
 
   new Choice(window, {PAD_LARGE, bottomY, CHOICE_W, 0},
-             uriTypeNames, 0, URI_TYPE_COUNT - 1,
+             STR_GPS_URI_TYPES, 0, URI_TYPE_COUNT - 1,
              [=]() { return uriType; },
              [=](int value) {
                uriType = value;
