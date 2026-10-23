@@ -159,7 +159,6 @@ void usbInit()
   usbDriverStarted = false;
 }
 
-extern void usbInitLUNs();
 extern USBD_HandleTypeDef hUsbDevice;
 extern "C" USBD_StorageTypeDef USBD_Storage_Interface_fops;
 extern USBD_CDC_ItfTypeDef USBD_Interface_fops;
@@ -171,7 +170,6 @@ void usbStart()
   switch (getSelectedUsbMode()) {
     case USB_MASS_STORAGE_MODE:
       // initialize USB as MSC device
-      usbInitLUNs();
       USBD_RegisterClass(&hUsbDevice, &USBD_MSC);
       USBD_MSC_RegisterStorage(&hUsbDevice, &USBD_Storage_Interface_fops);
       break;
