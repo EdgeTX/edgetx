@@ -582,9 +582,9 @@
 #define TR_KEYS_BACKLIGHT              "Rétroéclairage touches"
 #define TR_BLCOLOR                     "Couleur"
 #define TR_ONE_LOG_PER_DAY             "Un log par jour"
-#define TR_KEY_LOCK_FMT                "Key lock (%s+%s hold)"
-#define TR_KEYS_LOCKED                 "Keys locked"
-#define TR_KEYS_LOCKED_FMT             TR_BW_COL("%s+%s to unlock", "Keys locked (%s+%s to unlock)")
+#define TR_KEY_LOCK_FMT                TR_BW_COL("Verr. %s+%s", "Verrouillage (maintenir %s+%s)")
+#define TR_KEYS_LOCKED                 TR("Touches verr.", "Touches verrouillées")
+#define TR_KEYS_LOCKED_FMT             TR_BW_COL("%s+%s : déverr.", "Verrouillé (%s+%s pour déverrouiller)")
 #define TR_KEYS_UNLOCKED               TR("Touches déverr.", "Touches déverrouillées")
 #define TR_TOUCH_ENABLED               "Touch screen enabled"
 #define TR_TOUCH_DISABLED              "Touch screen disabled"
