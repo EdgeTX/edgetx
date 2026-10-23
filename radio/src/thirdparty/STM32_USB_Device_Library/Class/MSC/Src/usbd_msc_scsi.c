@@ -235,7 +235,7 @@ static int8_t SCSI_TestUnitReady(USBD_HandleTypeDef *pdev, uint8_t lun, uint8_t 
     return -1;
   }
 
-  if (hmsc->scsi_medium_state == SCSI_MEDIUM_EJECTED)
+  if (hmsc->scsi_blk[lun].medium_state == SCSI_MEDIUM_EJECTED)
   {
     SCSI_SenseCode(pdev, lun, NOT_READY, MEDIUM_NOT_PRESENT);
     hmsc->bot_state = USBD_BOT_NO_DATA;
@@ -338,7 +338,7 @@ static int8_t SCSI_ReadCapacity10(USBD_HandleTypeDef *pdev, uint8_t lun, uint8_t
   ret = ((USBD_StorageTypeDef *)pdev->pUserData[pdev->classId])->GetCapacity(lun, &p_scsi_blk->nbr,
                                                                              &p_scsi_blk->size);
 
-  if ((ret != 0) || (hmsc->scsi_medium_state == SCSI_MEDIUM_EJECTED))
+  if ((ret != 0) || (hmsc->scsi_blk[lun].medium_state == SCSI_MEDIUM_EJECTED))
   {
     SCSI_SenseCode(pdev, lun, NOT_READY, MEDIUM_NOT_PRESENT);
     return -1;
@@ -383,7 +383,7 @@ static int8_t SCSI_ReadCapacity16(USBD_HandleTypeDef *pdev, uint8_t lun, uint8_t
   ret = ((USBD_StorageTypeDef *)pdev->pUserData[pdev->classId])->GetCapacity(lun, &p_scsi_blk->nbr,
                                                                              &p_scsi_blk->size);
 
-  if ((ret != 0) || (hmsc->scsi_medium_state == SCSI_MEDIUM_EJECTED))
+  if ((ret != 0) || (hmsc->scsi_blk[lun].medium_state == SCSI_MEDIUM_EJECTED))
   {
     SCSI_SenseCode(pdev, lun, NOT_READY, MEDIUM_NOT_PRESENT);
     return -1;
@@ -441,7 +441,7 @@ static int8_t SCSI_ReadFormatCapacity(USBD_HandleTypeDef *pdev, uint8_t lun, uin
 
   ret = ((USBD_StorageTypeDef *)pdev->pUserData[pdev->classId])->GetCapacity(lun, &blk_nbr, &blk_size);
 
-  if ((ret != 0) || (hmsc->scsi_medium_state == SCSI_MEDIUM_EJECTED))
+  if ((ret != 0) || (hmsc->scsi_blk[lun].medium_state == SCSI_MEDIUM_EJECTED))
   {
     SCSI_SenseCode(pdev, lun, NOT_READY, MEDIUM_NOT_PRESENT);
     return -1;
@@ -643,7 +643,6 @@ void SCSI_SenseCode(USBD_HandleTypeDef *pdev, uint8_t lun, uint8_t sKey, uint8_t
   */
 static int8_t SCSI_StartStopUnit(USBD_HandleTypeDef *pdev, uint8_t lun, uint8_t *params)
 {
-  UNUSED(lun);
   USBD_MSC_BOT_HandleTypeDef *hmsc = (USBD_MSC_BOT_HandleTypeDef *)pdev->pClassDataCmsit[pdev->classId];
 
   if (hmsc == NULL)
@@ -651,7 +650,7 @@ static int8_t SCSI_StartStopUnit(USBD_HandleTypeDef *pdev, uint8_t lun, uint8_t 
     return -1;
   }
 
-  if ((hmsc->scsi_medium_state == SCSI_MEDIUM_LOCKED) && ((params[4] & 0x3U) == 2U))
+  if ((hmsc->scsi_blk[lun].medium_state == SCSI_MEDIUM_LOCKED) && ((params[4] & 0x3U) == 2U))
   {
     SCSI_SenseCode(pdev, lun, ILLEGAL_REQUEST, INVALID_FIELD_IN_COMMAND);
 
@@ -660,15 +659,15 @@ static int8_t SCSI_StartStopUnit(USBD_HandleTypeDef *pdev, uint8_t lun, uint8_t 
 
   if ((params[4] & 0x3U) == 0x1U) /* START=1 */
   {
-    hmsc->scsi_medium_state = SCSI_MEDIUM_UNLOCKED;
+    hmsc->scsi_blk[lun].medium_state = SCSI_MEDIUM_UNLOCKED;
   }
   else if ((params[4] & 0x3U) == 0x2U) /* START=0 and LOEJ Load Eject=1 */
   {
-    hmsc->scsi_medium_state = SCSI_MEDIUM_EJECTED;
+    hmsc->scsi_blk[lun].medium_state = SCSI_MEDIUM_EJECTED;
   }
   else if ((params[4] & 0x3U) == 0x3U) /* START=1 and LOEJ Load Eject=1 */
   {
-    hmsc->scsi_medium_state = SCSI_MEDIUM_UNLOCKED;
+    hmsc->scsi_blk[lun].medium_state = SCSI_MEDIUM_UNLOCKED;
   }
   else
   {
@@ -689,7 +688,6 @@ static int8_t SCSI_StartStopUnit(USBD_HandleTypeDef *pdev, uint8_t lun, uint8_t 
   */
 static int8_t SCSI_AllowPreventRemovable(USBD_HandleTypeDef *pdev, uint8_t lun, uint8_t *params)
 {
-  UNUSED(lun);
   USBD_MSC_BOT_HandleTypeDef *hmsc = (USBD_MSC_BOT_HandleTypeDef *)pdev->pClassDataCmsit[pdev->classId];
 
   if (hmsc == NULL)
@@ -699,11 +697,11 @@ static int8_t SCSI_AllowPreventRemovable(USBD_HandleTypeDef *pdev, uint8_t lun, 
 
   if (params[4] == 0U)
   {
-    hmsc->scsi_medium_state = SCSI_MEDIUM_UNLOCKED;
+    hmsc->scsi_blk[lun].medium_state = SCSI_MEDIUM_UNLOCKED;
   }
   else
   {
-    hmsc->scsi_medium_state = SCSI_MEDIUM_LOCKED;
+    hmsc->scsi_blk[lun].medium_state = SCSI_MEDIUM_LOCKED;
   }
 
   hmsc->bot_data_length = 0U;
@@ -738,7 +736,7 @@ static int8_t SCSI_Read10(USBD_HandleTypeDef *pdev, uint8_t lun, uint8_t *params
       return -1;
     }
 
-    if (hmsc->scsi_medium_state == SCSI_MEDIUM_EJECTED)
+    if (hmsc->scsi_blk[lun].medium_state == SCSI_MEDIUM_EJECTED)
     {
       SCSI_SenseCode(pdev, lun, NOT_READY, MEDIUM_NOT_PRESENT);
 
@@ -804,7 +802,7 @@ static int8_t SCSI_Read12(USBD_HandleTypeDef *pdev, uint8_t lun, uint8_t *params
       return -1;
     }
 
-    if (hmsc->scsi_medium_state == SCSI_MEDIUM_EJECTED)
+    if (hmsc->scsi_blk[lun].medium_state == SCSI_MEDIUM_EJECTED)
     {
       SCSI_SenseCode(pdev, lun, NOT_READY, MEDIUM_NOT_PRESENT);
       return -1;

@@ -92,6 +92,7 @@ typedef struct
   uint32_t nbr;
   uint32_t addr;
   uint32_t len;
+  uint8_t  medium_state;  /* EdgeTX: per LUN (was one for all LUNs) */
 } USBD_MSC_BOT_LUN_TypeDef;
 
 typedef struct
@@ -108,7 +109,6 @@ typedef struct
   USBD_SCSI_SenseTypeDef   scsi_sense [SENSE_LIST_DEEPTH];
   uint8_t                  scsi_sense_head;
   uint8_t                  scsi_sense_tail;
-  uint8_t                  scsi_medium_state;
 
   USBD_MSC_BOT_LUN_TypeDef scsi_blk[MSC_BOT_MAX_LUN];
 } USBD_MSC_BOT_HandleTypeDef;
