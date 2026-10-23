@@ -1462,6 +1462,11 @@ int cliSerialPassthrough(const char **argv)
     return -1;
   }
 
+  // host events from now on end the passthrough, also those during the
+  // module power cycle below
+  uint32_t breaks = usbSerialBreakCount();
+  uint32_t hangups = usbSerialHangupCount();
+
   //  stop pulses
   watchdogSuspend(200/*2s*/);
   pulsesStop();
@@ -1491,8 +1496,6 @@ int cliSerialPassthrough(const char **argv)
     usbSerialSetLowLatency(true);
 
     // loop until cable disconnected, a break, or the port closed (hangup)
-    uint32_t breaks = usbSerialBreakCount();
-    uint32_t hangups = usbSerialHangupCount();
     while (usbPlugged() && usbSerialBreakCount() == breaks &&
            (!hangup || usbSerialHangupCount() == hangups)) {
 
