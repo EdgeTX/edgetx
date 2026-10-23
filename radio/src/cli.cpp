@@ -1386,6 +1386,16 @@ int cliSerialPassthrough(const char **argv)
     return -1;
   }
 
+  // optional last argument: also end when the host closes the port (DTR
+  // drop); off by default, tools close the port after starting passthrough
+  bool hangup = false;
+  int last = 1;
+  while (last + 1 < CLI_COMMAND_MAX_ARGS && argv[last + 1]) last++;
+  if (last > 1 && !strcmp(argv[last], "hangup")) {
+    hangup = true;
+    argv[last] = nullptr;
+  }
+
   int baudrate = 0;
   void (*initCB)(int, int) = nullptr;
   void (*deinitCB)(int) = nullptr;
@@ -1474,11 +1484,17 @@ int cliSerialPassthrough(const char **argv)
     auto backupCB = cliReceiveCallBack;
     cliReceiveCallBack = _sp_Tx;
 
+    // drop what the host sent before the switch, not for the CLI
+    xStreamBufferReset(cliRxBuffer);
+
     // flashing protocols wait for each reply: don't batch USB IN data
     usbSerialSetLowLatency(true);
 
-    // loop until cable disconnected
-    while (usbPlugged()) {
+    // loop until cable disconnected, a break, or the port closed (hangup)
+    uint32_t breaks = usbSerialBreakCount();
+    uint32_t hangups = usbSerialHangupCount();
+    while (usbPlugged() && usbSerialBreakCount() == breaks &&
+           (!hangup || usbSerialHangupCount() == hangups)) {
 
       uint32_t cli_br = cliGetBaudRate();
       if (cli_br && (cli_br != (uint32_t)baudrate)) {
@@ -1976,7 +1992,7 @@ const CliCommand cliCommands[] = {
   { "reboot", cliReboot, "[wdt]" },
   { "set", cliSet, "<what> <value>" },
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
-  { "serialpassthrough", cliSerialPassthrough, "<port type> [<port number>] [<baudrate>] [sport|ppm]"},
+  { "serialpassthrough", cliSerialPassthrough, "<port type> [<port number>] [<baudrate>] [sport|ppm] [hangup]"},
 #endif
 #if defined(DEBUG)
   { "print", cliDisplay, "<address> [<size>] | <what>" },
