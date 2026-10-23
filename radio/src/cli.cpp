@@ -2379,16 +2379,18 @@ const CliCommand cliCommands[] = {
 
 static int cliHelp(const char ** argv)
 {
+  // argv[1]: the command to describe, none (null) or empty: all commands
+  const char * name = argv[1] ? argv[1] : "";
   for (const CliCommand * command = cliCommands; command->name != nullptr; command++) {
-    if (argv[1][0] == '\0' || !strcmp(command->name, argv[0])) {
+    if (name[0] == '\0' || !strcmp(command->name, name)) {
       cliSerialPrint("%s %s", command->name, command->args);
-      if (argv[1][0] != '\0') {
+      if (name[0] != '\0') {
         return 0;
       }
     }
   }
-  if (argv[1][0] != '\0') {
-    cliSerialPrint("Invalid command \"%s\"", argv[0]);
+  if (name[0] != '\0') {
+    cliSerialPrint("Invalid command \"%s\"", name);
   }
   return -1;
 }
