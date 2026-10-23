@@ -59,6 +59,7 @@ void setSelectedUsbMode(int mode);
 
 // USB CDC
 uint32_t usbSerialFreeSpace();
+void usbSerialSetLowLatency(bool enable);
 extern const etx_serial_port_t UsbSerialPort;
 
 // USB HID

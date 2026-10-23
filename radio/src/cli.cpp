@@ -1684,6 +1684,9 @@ int cliSerialPassthrough(const char **argv)
     auto backupCB = cliReceiveCallBack;
     cliReceiveCallBack = _sp_Tx;
 
+    // flashing protocols wait for each reply: don't batch USB IN data
+    usbSerialSetLowLatency(true);
+
     // loop until cable disconnected
     while (usbPlugged()) {
 
@@ -1713,6 +1716,7 @@ int cliSerialPassthrough(const char **argv)
 
     // restore callsbacks
     cliReceiveCallBack = backupCB;
+    usbSerialSetLowLatency(false);
     if (deinitCB != nullptr) deinitCB(port_n);
   }
 
