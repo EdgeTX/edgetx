@@ -5,7 +5,7 @@
 # ///
 """
 Flash an external RF module through an EdgeTX radio's USB serial port,
-using the CLI `serialpassthrough rfmod 1 <baud> <sport|ppm>` command
+using the CLI `serialpassthrough rfmod 1 <baud> <sport|ppm> hangup` command
 (EdgeTX PR #7927).
 
 The flashing protocols mirror what the radio does natively when flashing
@@ -19,8 +19,8 @@ from the SD card:
                      FrSky S.PORT bootloader @ 57600, half-duplex S.PORT
 
 Radio setup: USB mode "Serial (VCP)" with the CLI assigned to the VCP
-port (or choose "Serial" when plugging in). The passthrough only ends when
-the USB cable is unplugged, so unplug/replug between runs.
+port (or choose "Serial" when plugging in). The passthrough ends when the
+script closes the port (`hangup`: the host drops DTR).
 
 Usage:
   uv run extmod_flash.py --list
@@ -115,7 +115,7 @@ class Port:
 def start_passthrough(port: Port, baud: int, mode: str) -> float:
     """Send the passthrough command; return the time the radio started
     executing it (the module is powered on ~500 ms later)."""
-    cmd = f"serialpassthrough rfmod 1 {baud} {mode}"
+    cmd = f"serialpassthrough rfmod 1 {baud} {mode} hangup"
     log(f"Starting passthrough: '{cmd}'")
     port.clear()
     # LF executes the line (CR is ignored by the EdgeTX CLI). Never send a bare
@@ -566,14 +566,12 @@ def main() -> int:
         return 1
 
     ok = False
-    in_passthrough = False
     t0 = time.monotonic()
     try:
         if args.no_passthrough:
             log("Power the module on now...")
         else:
             started = start_passthrough(port, args.baud, mode)
-            in_passthrough = True
             # The module is powered on boot-delay after the command starts;
             # bytes sent earlier would end up in the CLI's input buffer.
             wait_until(started + args.boot_delay)
@@ -598,9 +596,8 @@ def main() -> int:
         print()
         log("Aborted")
     finally:
+        # ends the passthrough on the radio (hangup)
         port.close()
-        if in_passthrough:
-            log("Unplug the USB cable to leave passthrough mode on the radio.")
     return 0 if ok else 1
 
 
