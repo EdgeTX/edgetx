@@ -54,6 +54,9 @@ uint8_t  UserTxBufferFS[APP_TX_DATA_SIZE];
 volatile uint32_t APP_Tx_ptr_in = 0;
 volatile uint32_t APP_Tx_ptr_out = 0;
 
+// Number of frames between IN transfers (0: every frame)
+static volatile uint8_t cdcInFrameInterval = CDC_IN_FRAME_INTERVAL;
+
 /**
   * @}
   */
@@ -256,7 +259,7 @@ static int8_t VCP_StartOfFrame_FS()
   uint8_t result = USBD_OK;
   static uint8_t FrameCount = 0;    // modified by OpenTX
 
-  if (FrameCount++ >= CDC_IN_FRAME_INTERVAL)     // modified by OpenTX
+  if (FrameCount++ >= cdcInFrameInterval)     // modified by OpenTX
   {
     /* Reset the frame counter */
     FrameCount = 0;
@@ -293,6 +296,13 @@ static int8_t VCP_StartOfFrame_FS()
   return result;
 }
 
+
+// Send buffered data on every frame (1ms) instead of batching it,
+// for request/response protocols (e.g. serial passthrough)
+void usbSerialSetLowLatency(bool enable)
+{
+  cdcInFrameInterval = enable ? 0 : CDC_IN_FRAME_INTERVAL;
+}
 
 // return the bytes free in the circular buffer
 uint32_t usbSerialFreeSpace()
