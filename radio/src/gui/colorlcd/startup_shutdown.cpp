@@ -57,11 +57,28 @@ void drawSplash()
 
   etx_solid_bg(splashScreen->getLvObj(), COLOR_BLACK_INDEX);
 
-  auto bg = new StaticImage(splashScreen, {0, 0, LCD_W, LCD_H},
-                            BITMAPS_PATH "/" SPLASH_FILE);
-  bg->show(bg->hasImage());
+  // Animated splash.gif takes precedence over splash.png
+  bool hasSplash = false;
+  if (isFileAvailable(BITMAPS_PATH "/" SPLASH_GIF_FILE)) {
+    lv_obj_t* gif = lv_gif_create(splashScreen->getLvObj());
+    lv_gif_set_src(gif, "A:" BITMAPS_PATH "/" SPLASH_GIF_FILE);
+    if (((lv_gif_t*)gif)->gif) {
+      lv_obj_center(gif);
+      hasSplash = true;
+    } else {
+      // Not decodable or not enough memory: fall back to splash.png
+      lv_obj_del(gif);
+    }
+  }
 
-  if (!bg->hasImage()) {
+  if (!hasSplash) {
+    auto bg = new StaticImage(splashScreen, {0, 0, LCD_W, LCD_H},
+                              BITMAPS_PATH "/" SPLASH_FILE);
+    bg->show(bg->hasImage());
+    hasSplash = bg->hasImage();
+  }
+
+  if (!hasSplash) {
     LZ4Bitmap* logo = (LZ4Bitmap*)__bmp_splash_logo;
     coord_t x = (LANDSCAPE ? LCD_W / 3 : LCD_W / 2) - logo->width / 2;
     coord_t y = (LANDSCAPE ? LCD_H / 2 : LCD_H * 2 / 5) - logo->height / 2;

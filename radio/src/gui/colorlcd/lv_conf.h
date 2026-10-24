@@ -789,7 +789,11 @@
 #define LV_USE_SJPG 0
 
 /*GIF decoder library*/
+#if defined(BOOT)
 #define LV_USE_GIF 0
+#else
+#define LV_USE_GIF 1   /* animated splash screen (/IMAGES/splash.gif) */
+#endif
 
 #if defined(BOOT)
 /*QR code library*/
