@@ -168,9 +168,13 @@ class TimerWidget : public Widget
         lv_obj_add_flag(timerArc, LV_OBJ_FLAG_HIDDEN);
         timerIcon->hide();
       }
+    }
 
-      // Set colors if timer has elapsed.
-      if (lastValue < 0 && lastValue % 2) {
+    // Set colors if timer has elapsed.
+    bool warning = (lastValue < 0) && BLINK_ON_PHASE;
+    if (warning != lastWarning) {
+      lastWarning = warning;
+      if (warning) {
         if (isLarge) {
           lv_obj_add_state(nameLabel, ETX_NAME_TXT_WARNING);
           lv_obj_add_state(digits0, ETX_NAME_TXT_WARNING);
@@ -222,6 +226,7 @@ class TimerWidget : public Widget
  protected:
   tmrval_t lastValue = 0;
   uint32_t lastStartValue = -1;
+  int8_t lastWarning = -1;
   bool isLarge = false;
   lv_style_t style;
   lv_obj_t* nameLabel = nullptr;
@@ -247,6 +252,9 @@ class TimerWidget : public Widget
     TimerData& timerData = g_model.timers[index];
 
     bool hasName = ZLEN(timerData.name) > 0;
+
+    // Force color refresh
+    lastWarning = -1;
 
     if (width() >= TMR_LRG_W && height() >= TMR_LRG_H) {
       isLarge = true;
