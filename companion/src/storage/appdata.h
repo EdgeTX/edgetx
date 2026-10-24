@@ -481,6 +481,8 @@ class Profile: public CompStoreObj
   public:
     Profile & operator=(const Profile & rhs);
     QString getVariantFromType() const { return fwType().section("-", 1, 1); }
+    // firmware id including the selected build options, as used to look up the firmware variant
+    QString fwVariantId() const { return fwOptions().isEmpty() ? fwType() : QString("%1-%2").arg(fwType(), fwOptions()); }
     ComponentReleaseData & getCompRelease(int index);
     const ComponentReleaseData & getCompRelease(int index) const;
 

@@ -1297,7 +1297,7 @@ void MainWindow::onChangeWindowAction(QAction * act)
 void MainWindow::onCurrentProfileChanged()
 {
   g.moveCurrentProfileToTop();
-  Firmware::setCurrentVariant(Firmware::getFirmwareForId(g.currentProfile().fwType()));
+  Firmware::setCurrentVariant(Firmware::getFirmwareForId(g.currentProfile().fwVariantId()));
   emit firmwareChanged();
   updateFactories->radioProfileChanged();
   QApplication::clipboard()->clear();
