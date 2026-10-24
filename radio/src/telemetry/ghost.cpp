@@ -88,7 +88,7 @@ const GhostSensor ghostSensors[] = {
   GS(GHOST_ID_GPS_LAT,         STR_GPS,                     UNIT_GPS_LATITUDE,      0),
   GS(GHOST_ID_GPS_LONG,        STR_GPS,                     UNIT_GPS_LONGITUDE,     0),
   GS(GHOST_ID_GPS_GSPD,        STR_SENSOR_GSPD,             UNIT_KMH,               1),
-  GS(GHOST_ID_GPS_HDG,         STR_SENSOR_HDG,              UNIT_DEGREE,            3),
+  GS(GHOST_ID_GPS_HDG,         STR_SENSOR_HDG,              UNIT_DEGREE,            1),
   GS(GHOST_ID_GPS_ALT,         STR_SENSOR_GPSALT,           UNIT_METERS,            0),
   GS(GHOST_ID_GPS_SATS,        STR_SENSOR_SATELLITES,       UNIT_RAW,               0),
 
@@ -302,7 +302,8 @@ void processGhostTelemetryFrame(uint8_t module, uint8_t* buffer, uint32_t length
         bluetooth.write(buffer, length);
       }
 #endif
-      processGhostTelemetryValue(GHOST_ID_GPS_HDG, _get_u16le(frame, 3) / 10);   
+      // ground course is passed via GHST in 0.1 degree
+      processGhostTelemetryValue(GHOST_ID_GPS_HDG, _get_u16le(frame, 3));
 
       // ground speed is passed via GHST as cm/s, converted to km/h for OpenTx
       processGhostTelemetryValue(GHOST_ID_GPS_GSPD, (_get_u16le(frame, 1) * 36 + 50) / 100);
