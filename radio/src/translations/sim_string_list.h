@@ -1083,6 +1083,9 @@
 #define STR_COUNTRY_CODES currentLangStrings->STR_COUNTRY_CODES
 #define STR_CRSF_ARMING_MODES currentLangStrings->STR_CRSF_ARMING_MODES
 #define STR_CRSF_BAUDRATE currentLangStrings->STR_CRSF_BAUDRATE
+#define STR_MAVLINK_BAUDRATE currentLangStrings->STR_MAVLINK_BAUDRATE
+#define STR_MAVLINK_SRC_SYSID currentLangStrings->STR_MAVLINK_SRC_SYSID
+#define STR_MAVLINK_DST_SYSID currentLangStrings->STR_MAVLINK_DST_SYSID
 #define STR_CURVE_TYPES currentLangStrings->STR_CURVE_TYPES
 #define STR_CYC_VSRCRAW currentLangStrings->STR_CYC_VSRCRAW
 #define STR_DSM_PROTOCOLS currentLangStrings->STR_DSM_PROTOCOLS
