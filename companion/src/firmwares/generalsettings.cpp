@@ -535,6 +535,8 @@ QString GeneralSettings::serialModeToString(int value)
       return tr("SpaceMouse");
     case AUX_SERIAL_EXT_MODULE:
       return tr("External module");
+    case AUX_SERIAL_XF_HEADTRACKER:
+      return tr("XF Headtracker");
     default:
       return CPN_STR_UNKNOWN_ITEM;
   }
@@ -617,6 +619,7 @@ AbstractStaticItemModel * GeneralSettings::serialModeItemModel()
              i == AUX_SERIAL_SBUS_TRAINER ||
              i == AUX_SERIAL_GPS ||
              i == AUX_SERIAL_SPACEMOUSE ||
+             i == AUX_SERIAL_XF_HEADTRACKER ||
              i == AUX_SERIAL_EXT_MODULE) {
       contexts &= ~VCPContext;
     }

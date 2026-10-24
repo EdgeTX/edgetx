@@ -97,6 +97,11 @@ TEST(Sources, getSourceString)
   EXPECT_STREQ(getSourceString(MIXSRC_SPACEMOUSE_D), "smD");
   EXPECT_STREQ(getSourceString(MIXSRC_SPACEMOUSE_E), "smE");
   EXPECT_STREQ(getSourceString(MIXSRC_SPACEMOUSE_F), "smF");
+  EXPECT_STREQ(getSourceString(MIXSRC_XFHT_ROLL), "htR");
+  EXPECT_STREQ(getSourceString(MIXSRC_XFHT_PITCH), "htP");
+  EXPECT_STREQ(getSourceString(MIXSRC_XFHT_YAW), "htY");
+  EXPECT_STREQ(getSourceString(MIXSRC_XFHT_MODE), "htM");
+  EXPECT_STREQ(getSourceString(MIXSRC_XFHT_SENS), "htS");
 #endif
 
   EXPECT_STREQ(getSourceString(MIXSRC_MIN), STR_MENU_MIN);
