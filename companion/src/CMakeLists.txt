@@ -364,8 +364,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
   if(OPENSSL_FOUND)
     get_filename_component(OPENSSL_SSL_LIBRARY_DIR ${OPENSSL_SSL_LIBRARY} DIRECTORY)
-    # install(DIRECTORY ... FILES_MATCHING) would also recreate every
-    # subdirectory of the system lib dir as an empty directory in the AppImage
+    # Not install(DIRECTORY): it would recreate every subdir as an empty dir
     file(GLOB OPENSSL_RUNTIME_LIBS
          "${OPENSSL_SSL_LIBRARY_DIR}/libcrypto.so.*"
          "${OPENSSL_SSL_LIBRARY_DIR}/libssl.so.*")
