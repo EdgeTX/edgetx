@@ -27,6 +27,13 @@
 
 constexpr int SENSOR_LABEL_LEN { 4 };
 
+// Calculated sensor sources (SensorData::sources):
+//   0                        none
+//   +/-(1 .. CPN_MAX_SENSORS)  sensor (negative: inverted)
+//   +/-(SENSOR_SOURCE_GV1 + idx) GVar idx (negative: inverted, or divide
+//                              for TELEM_FORMULA_MULTIPLY)
+constexpr int SENSOR_SOURCE_GV1 { 101 };
+
 constexpr int SENSOR_ISCONFIGURABLE   { 1 << 1 };
 constexpr int SENSOR_HAS_GPS          { 1 << 2 };
 constexpr int SENSOR_HAS_CELLS        { 1 << 3 };
@@ -149,6 +156,7 @@ class SensorData {
       SensorTypeFlagNeg      = 1 << 2,  // AbstractItemModel::IMDG_Negative
       SensorTypeFlagPos      = 1 << 3,  // AbstractItemModel::IMDG_Positive
       SensorTypeFlagVario    = 1 << 4,
+      SensorTypeFlagGVar     = 1 << 5,  // calculated sensor sources only
       SensorTypeContextNone  = SensorTypeFlagNone,
       SensorTypeContextNeg   = SensorTypeFlagNeg   | SensorTypeFlagNone,
       SensorTypeContextPos   = SensorTypeFlagPos   | SensorTypeFlagNone,
@@ -211,6 +219,13 @@ class SensorData {
     void unitChanged();
 
     static QString sourceToString(const ModelData * model, const int index, const bool positivesign = false);
+    static QString calcSourceToString(const ModelData * model, const int source, const unsigned int formula);
+    static bool isGVarSource(const int source) { return abs(source) >= SENSOR_SOURCE_GV1; }
+    static int gvarSourceIndex(const int source) { return abs(source) - SENSOR_SOURCE_GV1; }
+    static int gvarSource(const int idx, const bool negative)
+    {
+      return negative ? -(SENSOR_SOURCE_GV1 + idx) : SENSOR_SOURCE_GV1 + idx;
+    }
     static bool isSourceAvailable(const ModelData * model, const int index);
     static bool isSourceVario(const ModelData * model, const int index);
     static QString idToString(const int value);

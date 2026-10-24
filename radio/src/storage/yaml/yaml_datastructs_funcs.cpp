@@ -120,6 +120,48 @@ bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf,
   return wf(opaque, s, strlen(s));
 }
 
+// Calculated sensor source: sensor as signed number, GVar as GVn / -GVn
+static uint32_t r_calcSource(const YamlNode* node, const char* val,
+                             uint8_t val_len)
+{
+  bool neg = (val_len > 0 && val[0] == '-');
+  const char* p = val + (neg ? 1 : 0);
+  uint8_t len = val_len - (neg ? 1 : 0);
+
+  if (len > 2 && p[0] == 'G' && p[1] == 'V') {
+    for (uint8_t i = 2; i < len; i++) {
+      if (p[i] < '0' || p[i] > '9') return 0;
+    }
+    int32_t n = yaml_str2uint(p + 2, len - 2);
+    if (n < 1 || n > MAX_GVARS) return 0;
+    return (uint32_t)calcSourceFromGVar(n - 1, neg);
+  }
+
+  int32_t v = yaml_str2int(val, val_len);
+  if (v < -MAX_TELEMETRY_SENSORS || v > MAX_TELEMETRY_SENSORS) return 0;
+  return (uint32_t)v;
+}
+
+static bool w_calcSource(const YamlNode* node, uint32_t val,
+                         yaml_writer_func wf, void* opaque)
+{
+  int8_t source = (int8_t)yaml_to_signed(val, node->size);
+
+  if (calcSourceIsGVar(source)) {
+    char s[8] = "";
+    int ofst = 0;
+    if (source < 0) {
+      s[0] = '-';
+      ofst = 1;
+    }
+    strAppendStringWithIndex(s + ofst, "GV", calcSourceGVarIndex(source) + 1);
+    return wf(opaque, s, strlen(s));
+  }
+
+  char* s = yaml_signed2str(source);
+  return wf(opaque, s, strlen(s));
+}
+
 static int _legacy_input_idx(const char* val, uint8_t val_len)
 {
   for (uint8_t i = 0; i < DIM(_legacy_inputs); i++){
