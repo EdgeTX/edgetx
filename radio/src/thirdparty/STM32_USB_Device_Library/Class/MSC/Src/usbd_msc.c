@@ -334,7 +334,7 @@ uint8_t USBD_MSC_Setup(USBD_HandleTypeDef *pdev, USBD_SetupReqTypedef *req)
               ((req->bmRequest & 0x80U) == 0x80U))
           {
             max_lun = (uint32_t)((USBD_StorageTypeDef *)pdev->pUserData[pdev->classId])->GetMaxLun();
-            hmsc->max_lun = (max_lun > MSC_BOT_MAX_LUN) ? MSC_BOT_MAX_LUN : max_lun;
+            hmsc->max_lun = (max_lun >= MSC_BOT_MAX_LUN) ? (MSC_BOT_MAX_LUN - 1U) : max_lun;
             (void)USBD_CtlSendData(pdev, (uint8_t *)&hmsc->max_lun, 1U);
           }
           else
