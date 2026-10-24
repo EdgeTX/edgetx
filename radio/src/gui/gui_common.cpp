@@ -33,6 +33,7 @@
 #include "os/sleep.h"
 
 #undef CPN
+#include "../dataconstants.h"
 #include "MultiSubtypeDefs.h"
 
 uint8_t switchToMix(uint8_t source)
@@ -581,7 +582,7 @@ bool isSerialModeAvailable(uint8_t port_nr, int mode)
 #endif
 
 #if !defined(AUX_SERIAL_DMA_TX) || defined(EXTMODULE_USART)
-  if (mode == UART_MODE_EXT_MODULE)
+  if (mode == UART_MODE_EXT_MODULE && port_nr != SP_VCP)
     return false;
 #else // defined(AUX_SERIAL_DMA_TX) && !defined(EXTMODULE_USART)
   // UART_MODE_EXT_MODULE is only supported on AUX1, as AUX2 has no TX DMA
