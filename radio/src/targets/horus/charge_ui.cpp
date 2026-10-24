@@ -673,9 +673,6 @@ void shutdownChargeWait()
     return;
   }
 
-  // Remove shutdown animation / sleep bitmap before showing charge UI
-  cancelShutdownAnimation();
-
   shutdownChargeModulesOff();
 
   // edgeTxClose() sets suspendI2CTasks; re-enable for live charge telemetry.
@@ -684,22 +681,15 @@ void shutdownChargeWait()
   s_shutdownChargeForceQuit = false;
   s_shutdownChargeBlocking = true;
 
-  if (s_chargeDlg) {
-    s_chargeDlg->closeWindow();
-    s_chargeDlg = nullptr;
-  }
-
-  /* Let LVGL dispose any pending delete before attaching shutdown dialog */
-  for (int i = 0; i < 30; ++i) {
+  // edgeTxClose() has already removed the sleep bitmap and every window via
+  // MainWindow::shutdown(). Create the dialog before any LVGL refresh so the
+  // empty MainWindow background is never drawn. CSD203 reads were suspended
+  // during edgeTxClose(), so refresh them first (no LVGL, sleep bitmap stays).
+  for (int i = 0; i < 10; ++i) {
     WDG_RESET();
-    pollShutdownChargeRtnQuit();
     pollCsd203Sensors();
-    LvglWrapper::instance()->run();
-    MainWindow::instance()->run();
     sleep_ms(5);
-    checkBacklight();
   }
-
   s_chargeDlg = new ChargeDashboardDialog(true);
   s_chargeDlg->onClosing([]() { s_chargeDlg = nullptr; });
 
@@ -716,17 +706,13 @@ void shutdownChargeWait()
     checkBacklight();
   }
 
+  // Cover the charge UI with the sleep screen (drawn on top and refreshed
+  // immediately) rather than exposing the empty MainWindow background.
+  drawSleepBitmap();
+
   if (s_chargeDlg) {
     s_chargeDlg->closeWindow();
     s_chargeDlg = nullptr;
-    for (int i = 0; i < 20; ++i) {
-      WDG_RESET();
-      pollShutdownChargeRtnQuit();
-      pollCsd203Sensors();
-      LvglWrapper::instance()->run();
-      MainWindow::instance()->run();
-      sleep_ms(5);
-    }
   }
 
   s_shutdownChargeBlocking = false;
