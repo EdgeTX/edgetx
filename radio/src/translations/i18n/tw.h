@@ -545,6 +545,11 @@
 #define TR_BATTERY_RANGE               TR("電壓範圍", "電壓測量範圍")
 #define TR_BATTERYCHARGING             "充電中..."
 #define TR_BATTERYFULL                 "電量已滿"
+#define TR_CHARGE_DETECTING            "偵測中..."
+#define TR_CHARGE_TOPPING_OFF          "補充充電中..."
+#define TR_CHARGE_NOT_CHARGING         "未充電"
+#define TR_PRESS_RTN_TO_CLOSE          "按RTN關閉"
+#define TR_PRESS_RTN_TO_POWER_OFF      "按RTN關機"
 #define TR_BATTERYNONE                 "空!"
 #define TR_BATTERYWARNING              "低電壓報警值"
 #define TR_INACTIVITYALARM             "長時間無操作"
@@ -721,6 +726,8 @@
 #define TR_REPEAT_AT_ZERO              "無變化報警"
 #define TR_BATT_CALIB                  TR("電池校準", "電池電壓校準")
 #define TR_VOLTAGE                     TR("電壓源", "電壓來源")
+#define TR_MODULE_SENSOR_VOLTAGE       "電壓"
+#define TR_MODULE_SENSOR_CURRENT       "電流"
 #define TR_SELECT_MODEL                "選擇模型"
 #define TR_SELECT_MODE                 "選擇模式"
 #define TR_CREATE_MODEL                "創建模型"

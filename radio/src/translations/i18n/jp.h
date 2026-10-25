@@ -547,6 +547,11 @@
 #define TR_BATTERY_RANGE               TR("Batt. range", "バッテリー表示範囲")
 #define TR_BATTERYCHARGING             "充電中..."
 #define TR_BATTERYFULL                 "フル充電"
+#define TR_CHARGE_DETECTING            "検出中..."
+#define TR_CHARGE_TOPPING_OFF          "仕上げ充電中..."
+#define TR_CHARGE_NOT_CHARGING         "未充電"
+#define TR_PRESS_RTN_TO_CLOSE          "RTNを押して閉じる"
+#define TR_PRESS_RTN_TO_POWER_OFF      "RTNを押して電源オフ"
 #define TR_BATTERYNONE                 "バッテリー空!!"
 #define TR_BATTERYWARNING              "バッテリー低値"
 #define TR_INACTIVITYALARM             "無効な状態"
@@ -723,6 +728,8 @@
 #define TR_REPEAT_AT_ZERO              "ゼロ リピート"
 #define TR_BATT_CALIB                  TR("Batt. calib", "バッテリー\nキャリブレーション")
 #define TR_VOLTAGE                     TR("Voltage", "電圧ソース")
+#define TR_MODULE_SENSOR_VOLTAGE       "電圧"
+#define TR_MODULE_SENSOR_CURRENT       "電流"
 #define TR_SELECT_MODEL                "モデル選択"
 #define TR_SELECT_MODE                 "モード選択"
 #define TR_CREATE_MODEL                "モデル作成"

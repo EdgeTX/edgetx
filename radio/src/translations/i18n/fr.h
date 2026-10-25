@@ -550,6 +550,11 @@
 #define TR_BATTERY_RANGE               "Plage batterie"
 #define TR_BATTERYCHARGING             "En charge..."
 #define TR_BATTERYFULL                 "Batterie chargée"
+#define TR_CHARGE_DETECTING            "Détection..."
+#define TR_CHARGE_TOPPING_OFF          "Fin de charge..."
+#define TR_CHARGE_NOT_CHARGING         "Pas de charge"
+#define TR_PRESS_RTN_TO_CLOSE          "Appui RTN pour fermer"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Appui RTN pour éteindre"
 #define TR_BATTERYNONE                 "Pas de batterie !"
 #define TR_BATTERYWARNING              TR("Batterie", "Batterie faible")
 #define TR_INACTIVITYALARM             "Inactivité"
@@ -722,6 +727,8 @@
 #define TR_REPEAT_AT_ZERO              TR("Répét. zéro", "Répéter zéro")
 #define TR_BATT_CALIB                  TR("Calib. batt", "Calib. batterie")
 #define TR_VOLTAGE                     TR("Tension","Source tension")
+#define TR_MODULE_SENSOR_VOLTAGE       "Tension"
+#define TR_MODULE_SENSOR_CURRENT       "Courant"
 #define TR_SELECT_MODEL                "Sélection Modèle"
 #define TR_SELECT_MODE                 "Sélection mode"
 #define TR_CREATE_MODEL                "Créer modèle"

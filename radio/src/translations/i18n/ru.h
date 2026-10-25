@@ -550,6 +550,11 @@
 #define TR_BATTERY_RANGE               TR("Диапаз АКБ", "Диапаз АКБ")
 #define TR_BATTERYCHARGING             "Зарядка..."
 #define TR_BATTERYFULL                 "АКБ Заряжена"
+#define TR_CHARGE_DETECTING            "Определение..."
+#define TR_CHARGE_TOPPING_OFF          "Дозарядка..."
+#define TR_CHARGE_NOT_CHARGING         "Нет зарядки"
+#define TR_PRESS_RTN_TO_CLOSE          "Нажмите RTN для закрытия"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Нажмите RTN для выключения"
 #define TR_BATTERYNONE                 "АКБ Отсутст"
 #define TR_BATTERYWARNING              "АКБ Разряж"
 #define TR_INACTIVITYALARM             "Бездействие"
@@ -726,6 +731,8 @@
 #define TR_REPEAT_AT_ZERO              "Повт при нуле"
 #define TR_BATT_CALIB                  TR("Калибр АКБ", "Калибр АКБ")
 #define TR_VOLTAGE                     TR("Напряжение", "Напряжение")
+#define TR_MODULE_SENSOR_VOLTAGE       "Напряжение"
+#define TR_MODULE_SENSOR_CURRENT       "Ток"
 #define TR_SELECT_MODEL                "Выбор модели"
 #define TR_SELECT_MODE                 "Выбрать модель"
 #define TR_CREATE_MODEL                "Создать модель"

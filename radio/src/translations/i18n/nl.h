@@ -549,6 +549,11 @@
 #define TR_BATTERY_RANGE       TR("Accu Bereik", "Accu Spngs-Bereik") // Symbol Akku Ladezustand
 #define TR_BATTERYCHARGING     "Charging..."
 #define TR_BATTERYFULL         "Battery full"
+#define TR_CHARGE_DETECTING    "Detecteren..."
+#define TR_CHARGE_TOPPING_OFF  "Bijladen..."
+#define TR_CHARGE_NOT_CHARGING "Laadt niet"
+#define TR_PRESS_RTN_TO_CLOSE  "Druk op RTN om te sluiten"
+#define TR_PRESS_RTN_TO_POWER_OFF "Druk op RTN om uit te schakelen"
 #define TR_BATTERYNONE         "None!"
 #define TR_BATTERYWARNING      "Accu laag"
 #define TR_INACTIVITYALARM     TR("Inactiviteit", "Inactiviteit na")
@@ -720,6 +725,8 @@
 #define TR_REPEAT_AT_ZERO      "Herhalen bij 0"
 #define TR_BATT_CALIB          "Accu Calib"
 #define TR_VOLTAGE             TR("Spg", "Spanningsbron")  //9XR-Pro
+#define TR_MODULE_SENSOR_VOLTAGE       "Spanning"
+#define TR_MODULE_SENSOR_CURRENT       "Stroom"
 #define TR_SELECT_MODEL        "Kies Model"
 #define TR_SELECT_MODE         "Select mode"
 #define TR_CREATE_MODEL        "Nieuw Model"

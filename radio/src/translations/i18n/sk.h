@@ -554,6 +554,11 @@
 #define TR_BATTERY_RANGE               TR("Ukazovateľ bat.", "Ukazovateľ batérie")
 #define TR_BATTERYCHARGING             "Nabíjanie..."
 #define TR_BATTERYFULL                 "Batéria nabitá"
+#define TR_CHARGE_DETECTING            "Zisťovanie..."
+#define TR_CHARGE_TOPPING_OFF          "Dobíjanie..."
+#define TR_CHARGE_NOT_CHARGING         "Nenabíja sa"
+#define TR_PRESS_RTN_TO_CLOSE          "Stlač RTN pre zatvorenie"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Stlač RTN pre vypnutie"
 #define TR_BATTERYNONE                 "Žiadna batéria!"
 #define TR_BATTERYWARNING              "Vybitá batéria"
 #define TR_INACTIVITYALARM             TR("Nečinnosť", "Nečinnosť rádia")
@@ -727,6 +732,8 @@
 #define TR_REPEAT_AT_ZERO              TR("Opak. na nule", "Opakovanie na nule")
 #define TR_BATT_CALIB                  "Kalib. bat."
 #define TR_VOLTAGE                     "Napätie"
+#define TR_MODULE_SENSOR_VOLTAGE       "Napätie"
+#define TR_MODULE_SENSOR_CURRENT       "Prúd"
 #define TR_SELECT_MODEL                "Vyber model"
 #define TR_SELECT_MODE                 "Vybrať mód"
 #define TR_CREATE_MODEL                "Nový model"

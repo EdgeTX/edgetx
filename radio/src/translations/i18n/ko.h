@@ -554,6 +554,11 @@
 #define TR_BATTERY_RANGE                  TR("배터리 범위", "배터리 측정 범위")
 #define TR_BATTERYCHARGING                "충전 중..."
 #define TR_BATTERYFULL                    "배터리 충전 완료"
+#define TR_CHARGE_DETECTING               "감지 중..."
+#define TR_CHARGE_TOPPING_OFF             "보충 충전 중..."
+#define TR_CHARGE_NOT_CHARGING            "충전 안 됨"
+#define TR_PRESS_RTN_TO_CLOSE             "RTN을 눌러 닫기"
+#define TR_PRESS_RTN_TO_POWER_OFF         "RTN을 눌러 전원 끄기"
 #define TR_BATTERYNONE                    "배터리 없음!"
 #define TR_BATTERYWARNING                 "배터리 부족"
 #define TR_INACTIVITYALARM                "무작동 경고"
@@ -752,6 +757,8 @@
 #define TR_REPEAT_AT_ZERO               "제로에서 반복"
 #define TR_BATT_CALIB                   TR("배터리 보정", "배터리 전압 보정")
 #define TR_VOLTAGE                      TR("전압", "전압 소스")
+#define TR_MODULE_SENSOR_VOLTAGE       "전압"
+#define TR_MODULE_SENSOR_CURRENT       "전류"
 #define TR_SELECT_MODEL                 "모델 선택"
 #define TR_SELECT_MODE                  "모드 선택"
 #define TR_CREATE_MODEL                 "모델 생성"

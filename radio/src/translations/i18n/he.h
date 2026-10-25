@@ -551,6 +551,11 @@
 #define TR_BATTERY_RANGE               TR("Batt. range", "הטווח להתראת סוללה")
 #define TR_BATTERYCHARGING             "השלט מחובר להטענה..."
 #define TR_BATTERYFULL                 "סוללה מלאה"
+#define TR_CHARGE_DETECTING            "מזהה..."
+#define TR_CHARGE_TOPPING_OFF          "משלים טעינה..."
+#define TR_CHARGE_NOT_CHARGING         "לא בטעינה"
+#define TR_PRESS_RTN_TO_CLOSE          "לחץ RTN לסגירה"
+#define TR_PRESS_RTN_TO_POWER_OFF      "לחץ RTN לכיבוי"
 #define TR_BATTERYNONE                 "!אין"
 #define TR_BATTERYWARNING              "התראת סוללה חלשה"
 #define TR_INACTIVITYALARM             "התראת אי שימוש ממושכת"
@@ -727,6 +732,8 @@
 #define TR_REPEAT_AT_ZERO              "השהיית התראה"
 #define TR_BATT_CALIB                  TR("Batt. calib", "כיול מתח סוללה ידני")
 #define TR_VOLTAGE                     TR("מתח", "מקור מתח")
+#define TR_MODULE_SENSOR_VOLTAGE       "מתח"
+#define TR_MODULE_SENSOR_CURRENT       "זרם"
 #define TR_SELECT_MODEL                "בחירת מודל"
 #define TR_SELECT_MODE                 "בחירת מצב"
 #define TR_CREATE_MODEL                "יצירת מודל"

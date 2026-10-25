@@ -551,6 +551,11 @@
 #define TR_BATTERY_RANGE                TR("Batt. min-max", "Batteriindikator min-max")
 #define TR_BATTERYCHARGING              "Laddar..."
 #define TR_BATTERYFULL                  "Batteri fullt"
+#define TR_CHARGE_DETECTING             "Detekterar..."
+#define TR_CHARGE_TOPPING_OFF           "Toppladdar..."
+#define TR_CHARGE_NOT_CHARGING          "Laddar inte"
+#define TR_PRESS_RTN_TO_CLOSE           "Tryck RTN för att stänga"
+#define TR_PRESS_RTN_TO_POWER_OFF       "Tryck RTN för att stänga av"
 #define TR_BATTERYNONE                  "None!"
 #define TR_BATTERYWARNING               "Batteri"
 #define TR_INACTIVITYALARM              "Inaktivitet"
@@ -723,6 +728,8 @@
 #define TR_REPEAT_AT_ZERO               TR("Rep. vid noll", "Repetera vid noll")
 #define TR_BATT_CALIB                   TR("Kalib. batt." ,"Kalibrera batteri")
 #define TR_VOLTAGE                      "Volt"
+#define TR_MODULE_SENSOR_VOLTAGE       "Spänning"
+#define TR_MODULE_SENSOR_CURRENT       "Ström"
 #define TR_SELECT_MODEL                 "Välj modell"
 #define TR_SELECT_MODE                  "Välj läge"
 #define TR_CREATE_MODEL                 "Skapa modell"

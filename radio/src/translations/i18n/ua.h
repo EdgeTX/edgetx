@@ -549,6 +549,11 @@
 #define TR_BATTERY_RANGE               TR("Діапаз. акум.", "Діапазон акумулятора")
 #define TR_BATTERYCHARGING             "Заряджання..."
 #define TR_BATTERYFULL                 "Batt заряджено"
+#define TR_CHARGE_DETECTING            "Визначення..."
+#define TR_CHARGE_TOPPING_OFF          "Дозаряджання..."
+#define TR_CHARGE_NOT_CHARGING         "Немає заряджання"
+#define TR_PRESS_RTN_TO_CLOSE          "Натисніть RTN, щоб закрити"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Натисніть RTN, щоб вимкнути"
 #define TR_BATTERYNONE                 "Batt відсутня!"
 #define TR_BATTERYWARNING              "Batt розрядж."
 #define TR_INACTIVITYALARM             "Бездіяльність"
@@ -725,6 +730,8 @@
 #define TR_REPEAT_AT_ZERO              "Повтор"
 #define TR_BATT_CALIB                  TR("Калібр.акум", "Калібрування акумулятора")
 #define TR_VOLTAGE                     TR("Напруга", "Джерело напруги")
+#define TR_MODULE_SENSOR_VOLTAGE       "Напруга"
+#define TR_MODULE_SENSOR_CURRENT       "Струм"
 #define TR_SELECT_MODEL                "Оберіть модель"
 #define TR_SELECT_MODE                 "Оберіть режим"
 #define TR_CREATE_MODEL                "Створіть модель"
