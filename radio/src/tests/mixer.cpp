@@ -633,6 +633,53 @@ TEST_F(TrimsTest, ReversedInputTrim)
   EXPECT_EQ(channelOutputs[ch], stickOnly - normal);
 }
 
+static void setCurvePoints(int8_t p0, int8_t p1, int8_t p2, int8_t p3, int8_t p4)
+{
+  g_model.points[0] = p0;
+  g_model.points[1] = p1;
+  g_model.points[2] = p2;
+  g_model.points[3] = p3;
+  g_model.points[4] = p4;
+}
+
+TEST_F(TrimsTest, ReversedInputCurveTrim)
+{
+  int ch = expoDestChannel(AIL_STICK);
+  ASSERT_GE(ch, 0);
+
+  anaSetFiltered(AIL_STICK, 0);
+  setTrimValue(0, AIL_STICK, 32);
+  evalMixes(1);
+  auto normal = channelOutputs[ch];
+  EXPECT_GT(normal, 0);
+
+  ExpoData *expo = expoAddress(AIL_STICK);
+  expo->curve.type = CURVE_REF_CUSTOM;
+
+  // inverted curve reference (!CV1) reverses the trim
+  setCurvePoints(-100, -50, 0, 50, 100);
+  expo->curve.value = makeSourceNumVal(-1);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[ch], -normal);
+
+  // ... and combined with a negative weight cancels out
+  expo->weight = makeSourceNumVal(-100);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[ch], normal);
+
+  // a decreasing curve reverses the trim
+  expo->weight = makeSourceNumVal(100);
+  setCurvePoints(100, 50, 0, -50, -100);
+  expo->curve.value = makeSourceNumVal(1);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[ch], -normal);
+
+  // a symmetric (V) curve has no direction, trim is left as is
+  setCurvePoints(100, 50, 0, 50, 100);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[ch], normal);
+}
+
 TEST_F(TrimsTest, InstantTrimReversedInput)
 {
   int ch = expoDestChannel(AIL_STICK);

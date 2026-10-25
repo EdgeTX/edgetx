@@ -240,8 +240,13 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
           virtualInputsTrims[cur_chn] = src - MIXSRC_FIRST_STICK;
         else
           virtualInputsTrims[cur_chn] = -1;
-        // a negative weight reverses the input, so its trim must follow
-        virtualInputsTrimsReversed[cur_chn] = (weight < 0);
+        // a negative weight or a decreasing custom curve (incl. !CVn)
+        // reverses the input, so its trim must follow
+        bool reversed = (weight < 0);
+        if (ed->curve.type == CURVE_REF_CUSTOM && ed->curve.value &&
+            applyCurve(RESX, ed->curve) < applyCurve(-RESX, ed->curve))
+          reversed = !reversed;
+        virtualInputsTrimsReversed[cur_chn] = reversed;
         // if (srcRaw < 0) v = -v;
         anas[cur_chn] = v;
       } else {
