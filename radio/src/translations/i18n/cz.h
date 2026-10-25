@@ -549,6 +549,11 @@
 #define TR_BATTERY_RANGE               TR("Ukazatel bat.", "Ukazatel baterie")
 #define TR_BATTERYCHARGING             "Nabíjení..."
 #define TR_BATTERYFULL                 "Baterie nabitá"
+#define TR_CHARGE_DETECTING            "Zjišťování..."
+#define TR_CHARGE_TOPPING_OFF          "Dobíjení..."
+#define TR_CHARGE_NOT_CHARGING         "Nenabíjí se"
+#define TR_PRESS_RTN_TO_CLOSE          "Stiskni RTN pro zavření"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Stiskni RTN pro vypnutí"
 #define TR_BATTERYNONE                 "Žádná baterie!"
 #define TR_BATTERYWARNING              "Vybitá baterie"
 #define TR_INACTIVITYALARM             TR("Nečinnost", "Nečinnost rádia")

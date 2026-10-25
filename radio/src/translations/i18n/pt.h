@@ -547,6 +547,11 @@
 #define TR_BATTERY_RANGE               TR("Faixa Batt.", "Faixa Med. Bateria")
 #define TR_BATTERYCHARGING             "Carregando..."
 #define TR_BATTERYFULL                 "Batt. Cheia"
+#define TR_CHARGE_DETECTING            "Detectando..."
+#define TR_CHARGE_TOPPING_OFF          "Finalizando carga..."
+#define TR_CHARGE_NOT_CHARGING         "Sem carga"
+#define TR_PRESS_RTN_TO_CLOSE          "Pressione RTN para fechar"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Pressione RTN para desligar"
 #define TR_BATTERYNONE                 "Nenhum!"
 #define TR_BATTERYWARNING              "Bat. Baixa"
 #define TR_INACTIVITYALARM             "Inatividade"

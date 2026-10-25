@@ -547,6 +547,11 @@
 #define TR_BATTERY_RANGE               TR("电压范围", "电压测量范围")
 #define TR_BATTERYCHARGING             "充电中..."
 #define TR_BATTERYFULL                 "电量已满"
+#define TR_CHARGE_DETECTING            "检测中..."
+#define TR_CHARGE_TOPPING_OFF          "补充充电中..."
+#define TR_CHARGE_NOT_CHARGING         "未充电"
+#define TR_PRESS_RTN_TO_CLOSE          "按RTN关闭"
+#define TR_PRESS_RTN_TO_POWER_OFF      "按RTN关机"
 #define TR_BATTERYNONE                 "空!"
 #define TR_BATTERYWARNING              "低电压报警值"
 #define TR_INACTIVITYALARM             "长时间无操作"

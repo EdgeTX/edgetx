@@ -547,6 +547,11 @@
 #define TR_BATTERY_RANGE               TR("Battery range","Battery meter range")
 #define TR_BATTERYCHARGING             "Charging..."
 #define TR_BATTERYFULL                 "Battery full"
+#define TR_CHARGE_DETECTING            "Tunnistetaan..."
+#define TR_CHARGE_TOPPING_OFF          "Täydennetään..."
+#define TR_CHARGE_NOT_CHARGING         "Ei lataa"
+#define TR_PRESS_RTN_TO_CLOSE          "Paina RTN sulkeaksesi"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Paina RTN sammuttaaksesi"
 #define TR_BATTERYNONE                 "None!"
 #define TR_BATTERYWARNING              "Battery Low"
 #define TR_INACTIVITYALARM             "Inactivity"

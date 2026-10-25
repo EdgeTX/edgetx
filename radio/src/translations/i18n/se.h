@@ -551,6 +551,11 @@
 #define TR_BATTERY_RANGE                TR("Batt. min-max", "Batteriindikator min-max")
 #define TR_BATTERYCHARGING              "Laddar..."
 #define TR_BATTERYFULL                  "Batteri fullt"
+#define TR_CHARGE_DETECTING             "Detekterar..."
+#define TR_CHARGE_TOPPING_OFF           "Toppladdar..."
+#define TR_CHARGE_NOT_CHARGING          "Laddar inte"
+#define TR_PRESS_RTN_TO_CLOSE           "Tryck RTN för att stänga"
+#define TR_PRESS_RTN_TO_POWER_OFF       "Tryck RTN för att stänga av"
 #define TR_BATTERYNONE                  "None!"
 #define TR_BATTERYWARNING               "Batteri"
 #define TR_INACTIVITYALARM              "Inaktivitet"

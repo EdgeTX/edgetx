@@ -282,6 +282,14 @@
 #define STR_SM_VSRCRAW currentLangStrings->STR_SM_VSRCRAW
 #endif
 
+#if defined(V16_CHARGE_UI)
+#define STR_CHARGE_DETECTING currentLangStrings->STR_CHARGE_DETECTING
+#define STR_CHARGE_TOPPING_OFF currentLangStrings->STR_CHARGE_TOPPING_OFF
+#define STR_CHARGE_NOT_CHARGING currentLangStrings->STR_CHARGE_NOT_CHARGING
+#define STR_PRESS_RTN_TO_CLOSE currentLangStrings->STR_PRESS_RTN_TO_CLOSE
+#define STR_PRESS_RTN_TO_POWER_OFF currentLangStrings->STR_PRESS_RTN_TO_POWER_OFF
+#endif
+
 #if defined(FUNCTION_SWITCHES)
 #define STR_FUNCTION_SWITCHES currentLangStrings->STR_FUNCTION_SWITCHES
 #define STR_GROUP_ALWAYS_ON currentLangStrings->STR_GROUP_ALWAYS_ON

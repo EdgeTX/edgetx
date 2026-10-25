@@ -552,6 +552,11 @@
 #define TR_BATTERY_RANGE               TR("Bat. interval", "Batteri spændings interval")
 #define TR_BATTERYCHARGING             "Lader..."
 #define TR_BATTERYFULL                 "Fuldt batteri"
+#define TR_CHARGE_DETECTING            "Registrerer..."
+#define TR_CHARGE_TOPPING_OFF          "Topladning..."
+#define TR_CHARGE_NOT_CHARGING         "Lader ikke"
+#define TR_PRESS_RTN_TO_CLOSE          "Tryk RTN for at lukke"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Tryk RTN for at slukke"
 #define TR_BATTERYNONE                 "Intet!"
 #define TR_BATTERYWARNING              "Lavt batteri"
 #define TR_INACTIVITYALARM             "Inaktiv"

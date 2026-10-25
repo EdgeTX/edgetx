@@ -66,35 +66,13 @@ static bool chargeCableConnected()
 #endif
 }
 
-/** Latched/debounced charger LED for V16 CV-phase GPIO pulsing. */
-static bool chargeChargerLedDebounced()
+/** Raw charger STAT pin (active low); pulses during the CV phase on V16. */
+static bool chargerStatActive()
 {
 #if defined(SIMU)
   return usbChargerLed();
 #else
-  static bool debounced = false;
-  static tmr10ms_t inactiveSince = 0;
-
-  if (!gpio_read(USB_USBDet_GPIO)) {
-    debounced = false;
-    inactiveSince = 0;
-    return false;
-  }
-
-  const bool charging = !gpio_read(USB_CHARGER_GPIO);
-  if (charging) {
-    debounced = true;
-    inactiveSince = 0;
-  } else if (debounced) {
-    if (inactiveSince == 0) {
-      inactiveSince = get_tmr10ms();
-    } else if ((tmr10ms_t)(get_tmr10ms() - inactiveSince) >= 150) {
-      debounced = false;
-      inactiveSince = 0;
-    }
-  }
-
-  return debounced;
+  return !gpio_read(USB_CHARGER_GPIO);
 #endif
 }
 
@@ -159,12 +137,26 @@ constexpr coord_t IBUS_BAR_Y = LCD_H - MARGIN_H - IBUS_BAR_H - 6;
 constexpr coord_t STATUS_Y = SOC_BAR_Y + SOC_BAR_H + 8;
 constexpr coord_t STATUS_H = IBUS_BAR_Y - STATUS_Y - 6;
 
+/** RTN hint in the bottom margin, below the current strip */
+constexpr coord_t HINT_Y = IBUS_BAR_Y + IBUS_BAR_H + 2;
+constexpr coord_t HINT_H = LCD_H - HINT_Y - 4;
+
 constexpr int32_t IBUS_ABS_MAX_MA = 3500;
 
-/** Dismiss charge UI only after this many consecutive inactive samples (~50ms each). */
-constexpr uint8_t CHG_UI_OFF_TICKS = 40;
-
-bool s_holdOffChargeUiUntilUnplug = false;
+/** Monitor update period (10ms ticks) */
+constexpr tmr10ms_t MON_PERIOD = 5;
+/** Battery current that confirms the charger has started (mA) */
+constexpr int16_t CHARGE_MIN_MA = 50;
+/** Give up waiting for charge current after this long (10ms ticks) */
+constexpr tmr10ms_t DETECT_TIMEOUT = 500;
+/** STAT off this long ends a charge; it pulses during CV (10ms ticks) */
+constexpr tmr10ms_t STAT_OFF_TIMEOUT = 150;
+/** STAT on this long restarts a charge from Full/NoCharge (10ms ticks) */
+constexpr tmr10ms_t STAT_ON_STABLE = 15;
+/** Runtime HUD stays up this long showing Full/NoCharge (10ms ticks) */
+constexpr tmr10ms_t RESULT_SHOW_TIME = 300;
+/** Charger may not start at all on a near-full pack */
+constexpr uint16_t TX2S_NEAR_FULL_MV = 8200;
 
 static bool s_shutdownChargeBlocking = false;
 static bool s_shutdownChargeForceQuit = false;
@@ -235,6 +227,165 @@ static uint8_t estimateSoc2s(uint16_t totalMv)
     return 100;
   }
   return static_cast<uint8_t>(lifted);
+}
+
+enum class ChargePhase : uint8_t {
+  Idle,       // no USB power
+  Detecting,  // USB power present, waiting for the charger to start
+  Charging,
+  Topping,    // STAT pulsing: CV phase
+  Full,
+  NoCharge,   // USB power present but the charger never started
+};
+
+/**
+ * Charger phase and filtered battery readings. Outlives the dialog so the
+ * runtime and shutdown HUDs share one state; ticked from customUIActions()
+ * while running and from the shutdown loop.
+ */
+class ChargeMonitor
+{
+ public:
+  void update()
+  {
+    const tmr10ms_t now = get_tmr10ms();
+    if (updated_ && (tmr10ms_t)(now - lastUpdate_) < MON_PERIOD) {
+      return;
+    }
+    updated_ = true;
+    lastUpdate_ = now;
+
+    vmv_ = batterySystemVoltageMv();
+    ima_ = batterySystemCurrentMa();
+    updateSoc();
+
+    const bool stat = chargerStatActive();
+    if (stat != statOn_) {
+      statOn_ = stat;
+      statSince_ = now;
+    }
+    const tmr10ms_t statFor = now - statSince_;
+
+    if (!chargeCableConnected()) {
+      setPhase(ChargePhase::Idle);
+      return;
+    }
+
+    switch (phase_) {
+      case ChargePhase::Idle:
+        setPhase(ChargePhase::Detecting);
+        break;
+
+      case ChargePhase::Detecting:
+        if (stat && ima_ >= CHARGE_MIN_MA) {
+          setPhase(ChargePhase::Charging);
+        } else if (timeInPhase() >= DETECT_TIMEOUT) {
+          /* STAT on without net charge current: load exceeds charge rate */
+          if (stat) {
+            setPhase(ChargePhase::Charging);
+          } else if (vmv_ >= TX2S_NEAR_FULL_MV) {
+            setPhase(ChargePhase::Full);
+          } else {
+            setPhase(ChargePhase::NoCharge);
+          }
+        }
+        break;
+
+      case ChargePhase::Charging:
+      case ChargePhase::Topping:
+        if (!stat) {
+          if (statFor >= STAT_OFF_TIMEOUT) {
+            setPhase(ChargePhase::Full);
+          } else {
+            setPhase(ChargePhase::Topping);
+          }
+        }
+        break;
+
+      case ChargePhase::Full:
+      case ChargePhase::NoCharge:
+        if (stat && statFor >= STAT_ON_STABLE) {
+          setPhase(ChargePhase::Charging);
+        }
+        break;
+    }
+  }
+
+  ChargePhase phase() const { return phase_; }
+  tmr10ms_t timeInPhase() const { return get_tmr10ms() - phaseSince_; }
+  uint16_t voltageMv() const { return vmv_; }
+  int16_t currentMa() const { return ima_; }
+  uint8_t soc() const { return socDisplay_; }
+
+ private:
+  ChargePhase phase_ = ChargePhase::Idle;
+  tmr10ms_t phaseSince_ = 0;
+  bool updated_ = false;
+  tmr10ms_t lastUpdate_ = 0;
+  bool statOn_ = false;
+  tmr10ms_t statSince_ = 0;
+  uint16_t vmv_ = 0;
+  int16_t ima_ = 0;
+  bool socFilterInit_ = false;
+  uint16_t socDisplayX100_ = 0;
+  uint8_t socDisplay_ = 0;
+
+  void setPhase(ChargePhase phase)
+  {
+    if (phase != phase_) {
+      phase_ = phase;
+      phaseSince_ = get_tmr10ms();
+    }
+  }
+
+  void updateSoc()
+  {
+    uint8_t rawSoc = estimateSoc2s(vmv_);
+    if (!socFilterInit_) {
+      socDisplayX100_ = static_cast<uint16_t>(rawSoc) * 100u;
+      socDisplay_ = rawSoc;
+      socFilterInit_ = true;
+    } else {
+      /* IIR ~1/20: stable % against pack voltage ripple from charge current */
+      uint32_t blend = static_cast<uint32_t>(socDisplayX100_) * 19u +
+                       static_cast<uint32_t>(rawSoc) * 100u;
+      socDisplayX100_ = static_cast<uint16_t>((blend + 10u) / 20u);
+      socDisplay_ = static_cast<uint8_t>((socDisplayX100_ + 50u) / 100u);
+    }
+    if (rawSoc >= 100) {
+      socDisplay_ = 100;
+    } else if (rawSoc == 0) {
+      socDisplay_ = 0;
+    } else if (rawSoc >= 88 && rawSoc > socDisplay_) {
+      /* IIR is slow upward near full; voltage text updates while % lags (e.g. 8.3x V vs 92%). */
+      socDisplay_ = rawSoc;
+    }
+  }
+};
+
+static ChargeMonitor s_monitor;
+
+static const char* phaseLabel(ChargePhase phase)
+{
+  switch (phase) {
+    case ChargePhase::Detecting:
+      return STR_CHARGE_DETECTING;
+    case ChargePhase::Charging:
+      return STR_BATTERYCHARGING;
+    case ChargePhase::Topping:
+      return STR_CHARGE_TOPPING_OFF;
+    case ChargePhase::Full:
+      return STR_BATTERYFULL;
+    case ChargePhase::NoCharge:
+      return STR_CHARGE_NOT_CHARGING;
+    default:
+      return "";
+  }
+}
+
+static bool phaseIsCharging(ChargePhase phase)
+{
+  return phase == ChargePhase::Charging || phase == ChargePhase::Topping;
 }
 
 static void lockNoScroll(lv_obj_t* obj)
@@ -354,12 +505,21 @@ class ChargeDashboardDialog : public Window
     lblStatus =
         new StaticText(this,
                        {MARGIN_H, STATUS_Y, LCD_W - 2 * MARGIN_H, STATUS_H},
-                       "Charging ...",
+                       "",
                        COLOR_THEME_PRIMARY2_INDEX, CENTERED | FONT(XS));
     lockNoScroll(lblStatus->getLvObj());
     lv_obj_set_style_text_color(lblStatus->getLvObj(), colTextDim(),
                                 LV_PART_MAIN);
     lv_label_set_long_mode(lblStatus->getLvObj(), LV_LABEL_LONG_DOT);
+
+    auto lblHint = new StaticText(
+        this, {MARGIN_H, HINT_Y, LCD_W - 2 * MARGIN_H, HINT_H},
+        shutdownHold_ ? STR_PRESS_RTN_TO_POWER_OFF : STR_PRESS_RTN_TO_CLOSE,
+        COLOR_THEME_PRIMARY2_INDEX, CENTERED | FONT(XS));
+    lockNoScroll(lblHint->getLvObj());
+    lv_obj_set_style_text_color(lblHint->getLvObj(), colTextDim(),
+                                LV_PART_MAIN);
+    lv_label_set_long_mode(lblHint->getLvObj(), LV_LABEL_LONG_DOT);
 
     ibusBarBg = lv_obj_create(lvobj);
     lv_obj_set_pos(ibusBarBg, MARGIN_H, IBUS_BAR_Y);
@@ -404,13 +564,9 @@ class ChargeDashboardDialog : public Window
   StaticText* lblStatus = nullptr;
 
   const bool shutdownHold_;
-  uint8_t ledOffTicks = 0;
   uint16_t lastVmV = 0xFFFF;
   int16_t lastImA = INT16_MIN;
-  bool lastChgLed = false;
-  bool socFilterInit_ = false;
-  uint16_t socDisplayX100_ = 0;
-  uint8_t socDisplay_ = 0;
+  ChargePhase lastPhase = ChargePhase::Idle;
   uint8_t lastPaintedSoc_ = 255;
 
   void layoutFromSoc(uint8_t soc)
@@ -470,7 +626,7 @@ class ChargeDashboardDialog : public Window
     lv_obj_set_style_bg_grad_color(socBarFill, deep, LV_PART_MAIN);
   }
 
-  void updateAnimations(bool chgLed, int16_t ima, uint8_t soc)
+  void updateAnimations(ChargePhase phase, int16_t ima, uint8_t soc)
   {
     layoutFromSoc(soc);
 
@@ -478,7 +634,8 @@ class ChargeDashboardDialog : public Window
     lv_opa_t pulse = static_cast<lv_opa_t>(
         LV_OPA_20 + (uint8_t)((t % 18u) * (LV_OPA_60 - LV_OPA_20) / 17u));
     lv_obj_set_style_shadow_opa(batOutline,
-                                chgLed ? pulse : LV_OPA_30, LV_PART_MAIN);
+                                phaseIsCharging(phase) ? pulse : LV_OPA_30,
+                                LV_PART_MAIN);
 
     lv_coord_t iw = lv_obj_get_width(ibusBarBg) - 3;
     int32_t a = ima >= 0 ? ima : -ima;
@@ -491,58 +648,40 @@ class ChargeDashboardDialog : public Window
       ifw = (ima != 0) ? 3 : 1;
     }
     lv_obj_set_width(ibusBarFill, ifw);
-    lv_obj_set_style_bg_color(
-        ibusBarFill, ima >= 0 ? colFillBright() : colWarnLo(), LV_PART_MAIN);
+    /* Neutral while detecting: discharge before the charger ramps is expected */
+    lv_color_t ibusCol = phase == ChargePhase::Detecting ? colTextDim()
+                         : ima >= 0                      ? colFillBright()
+                                                         : colWarnLo();
+    lv_obj_set_style_bg_color(ibusBarFill, ibusCol, LV_PART_MAIN);
   }
 
   void refreshUi(bool forceTxt)
   {
-    uint16_t vmv = batterySystemVoltageMv();
-    int16_t ima = batterySystemCurrentMa();
-    bool chgLed = chargeChargerLedDebounced();
+    uint16_t vmv = s_monitor.voltageMv();
+    int16_t ima = s_monitor.currentMa();
+    ChargePhase phase = s_monitor.phase();
+    uint8_t soc = s_monitor.soc();
 
-    uint8_t rawSoc = estimateSoc2s(vmv);
-    if (!socFilterInit_) {
-      socDisplayX100_ = static_cast<uint16_t>(rawSoc) * 100u;
-      socDisplay_ = rawSoc;
-      socFilterInit_ = true;
-    } else {
-      /* IIR ~1/20: stable % against pack voltage ripple from charge current */
-      uint32_t blend = static_cast<uint32_t>(socDisplayX100_) * 19u +
-                       static_cast<uint32_t>(rawSoc) * 100u;
-      socDisplayX100_ = static_cast<uint16_t>((blend + 10u) / 20u);
-      socDisplay_ = static_cast<uint8_t>((socDisplayX100_ + 50u) / 100u);
-    }
-    if (rawSoc >= 100) {
-      socDisplay_ = 100;
-    } else if (rawSoc == 0) {
-      socDisplay_ = 0;
-    } else if (rawSoc >= 88 && rawSoc > socDisplay_) {
-      /* IIR is slow upward near full; voltage text updates while % lags (e.g. 8.3x V vs 92%). */
-      socDisplay_ = rawSoc;
-    }
-
-    updateAnimations(chgLed, ima, socDisplay_);
+    updateAnimations(phase, ima, soc);
 
     bool dataStale = forceTxt || vmv != lastVmV || ima != lastImA ||
-                     chgLed != lastChgLed ||
-                     socDisplay_ != lastPaintedSoc_;
+                     phase != lastPhase || soc != lastPaintedSoc_;
     if (!dataStale) {
       return;
     }
     lastVmV = vmv;
     lastImA = ima;
-    lastChgLed = chgLed;
+    lastPhase = phase;
 
-    char line[96];
-    snprintf(line, sizeof(line), "%u%%", static_cast<unsigned>(socDisplay_));
+    char line[128];
+    snprintf(line, sizeof(line), "%u%%", static_cast<unsigned>(soc));
     lblSocBig->setText(line);
 
-    lv_color_t pctCol = socDisplay_ < 18    ? colWarnLo()
-                        : socDisplay_ < 45 ? colWarnHi()
-                                           : colNeonOutline();
+    lv_color_t pctCol = soc < 18    ? colWarnLo()
+                        : soc < 45 ? colWarnHi()
+                                   : colNeonOutline();
     lv_obj_set_style_text_color(lblSocBig->getLvObj(), pctCol, LV_PART_MAIN);
-    lastPaintedSoc_ = socDisplay_;
+    lastPaintedSoc_ = soc;
 
     uint16_t vc = static_cast<uint16_t>((vmv + 5u) / 10u);
     int32_t im32 = static_cast<int32_t>(ima);
@@ -557,54 +696,20 @@ class ChargeDashboardDialog : public Window
     unsigned pw = static_cast<unsigned>(p_abs_mw / 1000u);
     unsigned pwf = static_cast<unsigned>((p_abs_mw % 1000u) / 10u);
 
-    const char* rtnHint =
-        shutdownHold_ ? "RTN: power off" : "RTN close";
-
     snprintf(line, sizeof(line),
-             "Charging ...  %u.%02u V | %s%u.%02u A | %s%u.%02u W | %s",
+             "%s  %u.%02u V | %s%u.%02u A | %s%u.%02u W",
+             phaseLabel(phase),
              static_cast<unsigned>(vc / 100u), static_cast<unsigned>(vc % 100u),
              negi ? "-" : "+",
              static_cast<unsigned>(imaAbs / 1000u),
-             static_cast<unsigned>((imaAbs % 1000u) / 10u), negp ? "-" : "+", pw, pwf,
-             rtnHint);
+             static_cast<unsigned>((imaAbs % 1000u) / 10u), negp ? "-" : "+", pw, pwf);
     lblStatus->setText(line);
-  }
-
-  void holdOffUntilUnplug()
-  {
-    if (!shutdownHold_) {
-      s_holdOffChargeUiUntilUnplug = true;
-    }
-  }
-
-  void onEvent(event_t event) override
-  {
-    if (event == EVT_KEY_FIRST(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_EXIT)) {
-      holdOffUntilUnplug();
-    }
-    Window::onEvent(event);
   }
 
   void checkEvents() override
   {
     Window::checkEvents();
     refreshUi(false);
-
-    if (shutdownHold_) {
-      ledOffTicks = 0;
-      return;
-    }
-
-    if (!chargeChargerLedDebounced()) {
-      if (ledOffTicks < 250) {
-        ++ledOffTicks;
-      }
-      if (ledOffTicks >= CHG_UI_OFF_TICKS) {
-        closeWindow();
-      }
-    } else {
-      ledOffTicks = 0;
-    }
   }
 
   void onCancel() override
@@ -613,7 +718,6 @@ class ChargeDashboardDialog : public Window
       s_shutdownChargeForceQuit = true;
       return;
     }
-    holdOffUntilUnplug();
     closeWindow();
   }
 };
@@ -625,32 +729,28 @@ static void chargeUiTaskImpl()
   if (s_shutdownChargeBlocking) {
     return;
   }
-  static uint8_t stableOn = 0;
-  constexpr uint8_t CHG_LED_STABLE_TICKS = 3;
+  static ChargePhase prevPhase = ChargePhase::Idle;
 
   if (s_chargeDlg && s_chargeDlg->deleted()) {
     s_chargeDlg = nullptr;
   }
 
-  bool led = chargeChargerLedDebounced();
-  if (!chargeCableConnected()) {
-    s_holdOffChargeUiUntilUnplug = false;
-  }
-  if (!led) {
-    stableOn = 0;
-  } else if (stableOn < 255) {
-    ++stableOn;
-  }
+  s_monitor.update();
+  const ChargePhase phase = s_monitor.phase();
 
-  if (!s_chargeDlg && led && stableOn >= CHG_LED_STABLE_TICKS &&
-      !s_holdOffChargeUiUntilUnplug) {
+  // Show once per plug-in; a dismissed HUD stays closed until the next one
+  if (!s_chargeDlg && prevPhase == ChargePhase::Idle &&
+      phase == ChargePhase::Detecting) {
     s_chargeDlg = new ChargeDashboardDialog();
-    s_chargeDlg->onClosing([]() {
-      if (!s_shutdownChargeBlocking) {
-        s_holdOffChargeUiUntilUnplug = true;
-      }
-      s_chargeDlg = nullptr;
-    });
+    s_chargeDlg->onClosing([]() { s_chargeDlg = nullptr; });
+  }
+  prevPhase = phase;
+
+  if (s_chargeDlg &&
+      (phase == ChargePhase::Idle ||
+       ((phase == ChargePhase::Full || phase == ChargePhase::NoCharge) &&
+        s_monitor.timeInPhase() >= RESULT_SHOW_TIME))) {
+    s_chargeDlg->closeWindow();
   }
 }
 
@@ -690,6 +790,7 @@ void shutdownChargeWait()
     pollCsd203Sensors();
     sleep_ms(5);
   }
+  s_monitor.update();
   s_chargeDlg = new ChargeDashboardDialog(true);
   s_chargeDlg->onClosing([]() { s_chargeDlg = nullptr; });
 
@@ -697,6 +798,7 @@ void shutdownChargeWait()
     WDG_RESET();
     pollShutdownChargeRtnQuit();
     pollCsd203Sensors();
+    s_monitor.update();
     if (s_chargeDlg) {
       s_chargeDlg->pumpShutdownUi();
     }
