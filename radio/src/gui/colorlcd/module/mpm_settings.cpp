@@ -299,6 +299,32 @@ struct MPMChannelMap : public FormLine {
   ToggleSwitch* cb;
 };
 
+struct MPMDisableTelem : public FormLine {
+  MPMDisableTelem(Window* form, FlexGridLayout& layout, uint8_t moduleIdx) :
+      FormLine(form, layout), moduleIdx(moduleIdx)
+  {
+    new StaticText(this, rect_t{}, STR_DISABLE_TELEM);
+
+    auto md = &g_model.moduleData[moduleIdx];
+    cb = new ToggleSwitch(this, rect_t{},
+                          GET_SET_DEFAULT(md->multi.disableTelemetry));
+  }
+
+  void update()
+  {
+    if (isMultiDisableTelemAvailable(moduleIdx)) {
+      show();
+      cb->update();
+    } else {
+      hide();
+    }
+  }
+
+ private:
+  uint8_t moduleIdx;
+  ToggleSwitch* cb;
+};
+
 MultimoduleSettings::MultimoduleSettings(Window* parent,
                                          const FlexGridLayout& g,
                                          uint8_t moduleIdx) :
@@ -341,13 +367,7 @@ MultimoduleSettings::MultimoduleSettings(Window* parent,
   lp_mode =
       new ToggleSwitch(line, rect_t{}, GET_SET_DEFAULT(md->multi.lowPowerMode));
 
-#if defined(MANUFACTURER_FRSKY)
-  // Disable telemetry
-  line = newLine(grid);
-  new StaticText(line, rect_t{}, STR_DISABLE_TELEM);
-  disable_telem = new ToggleSwitch(line, rect_t{},
-                                   GET_SET_DEFAULT(md->multi.disableTelemetry));
-#endif
+  dt_line = new MPMDisableTelem(this, grid, moduleIdx);
 
   cm_line = new MPMChannelMap(this, grid, moduleIdx);
 
@@ -382,8 +402,6 @@ void MultimoduleSettings::update()
   }
 
   lp_mode->update();
-#if defined(MANUFACTURER_FRSKY)
-  disable_telem->update();
-#endif
+  dt_line->update();
   cm_line->update(rfProto);
 }
