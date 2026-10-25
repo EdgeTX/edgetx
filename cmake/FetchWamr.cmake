@@ -33,13 +33,23 @@ if(NOT wamr_POPULATED)
 
   # WAMR 2.4.4 win_file.c has trailing backslashes in comments that
   # clang treats as line continuations, causing compile errors.
+  # Skip if a previous configure already patched the cached source.
+  set(_wamr_patch "${CMAKE_CURRENT_LIST_DIR}/wamr-fix-win-backslash-comments.patch")
   execute_process(
-    COMMAND git apply "${CMAKE_CURRENT_LIST_DIR}/wamr-fix-win-backslash-comments.patch"
+    COMMAND git apply --reverse --check "${_wamr_patch}"
     WORKING_DIRECTORY "${wamr_SOURCE_DIR}"
-    RESULT_VARIABLE _patch_result
+    RESULT_VARIABLE _patch_applied
+    OUTPUT_QUIET ERROR_QUIET
   )
-  if(_patch_result)
-    message(WARNING "WAMR win_file.c patch failed (may already be applied)")
+  if(NOT _patch_applied EQUAL 0)
+    execute_process(
+      COMMAND git apply "${_wamr_patch}"
+      WORKING_DIRECTORY "${wamr_SOURCE_DIR}"
+      RESULT_VARIABLE _patch_result
+    )
+    if(_patch_result)
+      message(WARNING "WAMR win_file.c patch failed")
+    endif()
   endif()
 
   add_subdirectory("${wamr_SOURCE_DIR}" "${wamr_BINARY_DIR}" EXCLUDE_FROM_ALL)
