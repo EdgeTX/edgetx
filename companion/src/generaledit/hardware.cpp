@@ -225,7 +225,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
-  if (Boards::getCapability(board, Board::HasBluetooth)) {
+  if (firmware->getCapability(BluetoothEnabled)) {
     addLabel(tr("Bluetooth"));
 
     AutoComboBox *bluetoothMode = new AutoComboBox(this);
@@ -301,12 +301,12 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
   ExclusiveComboGroup *exclGroup = new ExclusiveComboGroup(
       this, [=](const QVariant &value) { return value == 0; });
 
-  if (Boards::getCapability(board, Board::HasAuxSerialMode) ||
-      Boards::getCapability(board, Board::HasAux2SerialMode) ||
+  if (firmware->getCapability(AuxSerialAvailable) ||
+      firmware->getCapability(Aux2SerialAvailable) ||
       Boards::getCapability(board, Board::HasVCPSerialMode))
     addSection(tr("Serial ports"));
 
-  if (Boards::getCapability(board, Board::HasAuxSerialMode)) {
+  if (firmware->getCapability(AuxSerialAvailable)) {
     addLabel(tr("AUX1"));
     AutoComboBox *serialPortMode = new AutoComboBox(this);
     serialPortMode->setModel(tabFilteredModels->getItemModel(FIM_AUX1SERIALMODES));
@@ -321,11 +321,11 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
     addParams();
 
-    if (!Boards::getCapability(board, Board::HasSoftwareSerialPower))
+    if (!Boards::getCapability(board, Board::HasAuxSerialPower))
       serialPortPower->setVisible(false);
   }
 
-  if (Boards::getCapability(board, Board::HasAux2SerialMode)) {
+  if (firmware->getCapability(Aux2SerialAvailable)) {
     addLabel(tr("AUX2"));
     AutoComboBox *serialPortMode = new AutoComboBox(this);
     serialPortMode->setModel(tabFilteredModels->getItemModel(FIM_AUX2SERIALMODES));
@@ -340,7 +340,7 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
 
     addParams();
 
-    if (!Boards::getCapability(board, Board::HasSoftwareSerialPower))
+    if (!Boards::getCapability(board, Board::HasAux2SerialPower))
       serialPortPower->setVisible(false);
   }
 

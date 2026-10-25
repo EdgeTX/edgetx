@@ -461,6 +461,10 @@
     "status_leds": true
   },
   "hardware": {
+    "has_aux_serial": true,
+    "has_aux2_serial": true,
+    "bluetooth": "builtin",
+    "has_internal_gps": true,
     "has_ext_module_support": true,
     "has_int_module_support": true,
     "sport_max_baudrate": 250000,
