@@ -54,6 +54,8 @@ class Multiprotocols
         return protocol > MODULE_SUBTYPE_MULTI_LAST ? 8 : (unsigned int) subTypeStrings.length();
       }
 
+      bool hasSubTypes() const;
+
       MultiProtocolDefinition(const radio_mm_definition &rd) :
         protocol(rd.protocol),
         hasFailsafe(rd.hasFailsafe),
@@ -74,6 +76,7 @@ class Multiprotocols
     const MultiProtocolDefinition &getProtocol(int protocol) const;
     static QString protocolToString(int protocol);
     static QString subTypeToString(int protocol, unsigned int subType);
+    static bool isRxProtocol(int protocol);
     static AbstractStaticItemModel * protocolItemModel();
 
   private:
