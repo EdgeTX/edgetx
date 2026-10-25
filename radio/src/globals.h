@@ -73,6 +73,7 @@ extern int32_t act[MAX_MIXERS];
 // static variables used in evalFlightModeMixes - moved here so they don't interfere with the stack
 // It's also easier to initialize them here.
 extern int8_t  virtualInputsTrims[MAX_INPUTS];
+extern bool    virtualInputsTrimsReversed[MAX_INPUTS];
 
 extern int16_t anas [MAX_INPUTS];
 extern int16_t trims[MAX_TRIMS];

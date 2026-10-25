@@ -46,6 +46,7 @@
 uint8_t s_mixer_first_run_done = false;
 
 int8_t  virtualInputsTrims[MAX_INPUTS];
+bool    virtualInputsTrimsReversed[MAX_INPUTS];
 int16_t anas [MAX_INPUTS] = {0};
 int16_t trims[MAX_TRIMS] = {0};
 int32_t chans[MAX_OUTPUT_CHANNELS] = {0};
@@ -239,6 +240,8 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
           virtualInputsTrims[cur_chn] = src - MIXSRC_FIRST_STICK;
         else
           virtualInputsTrims[cur_chn] = -1;
+        // a negative weight reverses the input, so its trim must follow
+        virtualInputsTrimsReversed[cur_chn] = (weight < 0);
         // if (srcRaw < 0) v = -v;
         anas[cur_chn] = v;
       } else {
@@ -749,9 +752,15 @@ int getSourceTrimOrigin(int source)
 int getSourceTrimValue(int source, int stickValue=0)
 {
   int rv = 0;
-  auto origin = getSourceTrimOrigin(abs(source));
+  auto absSource = abs(source);
+  auto origin = getSourceTrimOrigin(absSource);
   if (origin >= 0) {
-    rv = getStickTrimValue(origin, stickValue);
+    if (absSource >= MIXSRC_FIRST_INPUT && absSource <= MIXSRC_LAST_INPUT &&
+        virtualInputsTrimsReversed[absSource - MIXSRC_FIRST_INPUT]) {
+      rv = -getStickTrimValue(origin, -stickValue);
+    } else {
+      rv = getStickTrimValue(origin, stickValue);
+    }
     if (source < 0) rv = -rv;
   }
   return rv;
