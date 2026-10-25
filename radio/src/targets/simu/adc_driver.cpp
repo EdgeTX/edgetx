@@ -55,6 +55,15 @@ uint16_t getRTCBatteryVoltage()
   return 300;
 }
 
+#if defined(CSD203_SENSOR)
+// No CSD203 current/voltage sensors in the simulator
+uint16_t getBatteryMidVoltage() { return 0; }
+uint16_t getExtModuleVoltage() { return 0; }
+int16_t getExtModuleCurrent() { return 0; }
+int16_t getSystemCurrent() { return 0; }
+int16_t getIntModuleCurrent() { return 0; }
+#endif
+
 extern uint16_t simuGetAnalog(uint8_t idx);
 
 // Negative = no override, fall back to the vBatWarn-derived default below.
