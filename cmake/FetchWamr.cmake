@@ -61,4 +61,19 @@ if(NOT wamr_POPULATED)
       WASM_API_EXTERN=
     )
   endif()
+
+  if(APPLE AND "arm64" IN_LIST CMAKE_OSX_ARCHITECTURES
+     AND "x86_64" IN_LIST CMAKE_OSX_ARCHITECTURES)
+    # WAMR picks a single BUILD_TARGET_* from the host CPU, so a universal
+    # build on an arm64 host compiles the x86_64 slice as AARCH64. That breaks
+    # native call argument marshalling (8 vs 6 integer registers) against
+    # invokeNative_em64.s. Set the correct target per slice; compile options
+    # follow the directory -D definitions on the command line, so these win.
+    target_compile_options(vmlib PRIVATE
+      "SHELL:-Xarch_x86_64 -UBUILD_TARGET_AARCH64"
+      "SHELL:-Xarch_x86_64 -DBUILD_TARGET_X86_64"
+      "SHELL:-Xarch_arm64 -UBUILD_TARGET_X86_64"
+      "SHELL:-Xarch_arm64 -DBUILD_TARGET_AARCH64"
+    )
+  endif()
 endif()
