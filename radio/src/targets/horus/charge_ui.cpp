@@ -161,8 +161,21 @@ constexpr tmr10ms_t STAT_OFF_TIMEOUT = 150;
 constexpr tmr10ms_t STAT_ON_STABLE = 15;
 /** Runtime HUD stays up this long showing Full/NoCharge (10ms ticks) */
 constexpr tmr10ms_t RESULT_SHOW_TIME = 300;
-/** Charger may not start at all on a near-full pack */
-constexpr uint16_t TX2S_NEAR_FULL_MV = 8200;
+/** Charger may not start at all on a near-full pack (full pack under radio
+ *  load reads ~8.2V) */
+constexpr uint16_t TX2S_NEAR_FULL_MV = 8100;
+/** STAT does not pulse during CV on V16, so detect it from the readings.
+ *  CV starts ~8.31V at ~1A and reads 8.31-8.36V while tapering (IR drop). */
+constexpr uint16_t TX2S_CV_MV = 8300;
+/** Lower bound for the taper test, for higher currents with more IR drop */
+constexpr uint16_t TX2S_CV_MIN_MV = 8250;
+/** Current below this % of the session peak means CV taper */
+constexpr int32_t TAPER_PCT = 70;
+/** CV condition must hold this long before entering Topping (10ms ticks) */
+constexpr tmr10ms_t TAPER_STABLE = 200;
+/** Keep showing 100% when Full while the pack stays above this; radio load
+ *  pulls it to ~8.2V after termination */
+constexpr uint16_t TX2S_FULL_HOLD_MV = 8000;
 
 static bool s_shutdownChargeBlocking = false;
 static bool s_shutdownChargeForceQuit = false;
@@ -305,6 +318,8 @@ class ChargeMonitor
           } else {
             setPhase(ChargePhase::Topping);
           }
+        } else if (phase_ == ChargePhase::Charging) {
+          updateTaper(now);
         }
         break;
 
@@ -321,7 +336,20 @@ class ChargeMonitor
   tmr10ms_t timeInPhase() const { return get_tmr10ms() - phaseSince_; }
   uint16_t voltageMv() const { return vmv_; }
   int16_t currentMa() const { return ima_; }
-  uint8_t soc() const { return socDisplay_; }
+  uint8_t soc() const
+  {
+    // Voltage alone reads ~99% well before termination and sags after it
+    if (phase_ == ChargePhase::Full && vmv_ >= TX2S_FULL_HOLD_MV) {
+      return 100;
+    }
+    if ((phase_ == ChargePhase::Detecting ||
+         phase_ == ChargePhase::Charging ||
+         phase_ == ChargePhase::Topping) &&
+        socDisplay_ > 99) {
+      return 99;
+    }
+    return socDisplay_;
+  }
 
  private:
   ChargePhase phase_ = ChargePhase::Idle;
@@ -335,12 +363,36 @@ class ChargeMonitor
   bool socFilterInit_ = false;
   uint16_t socDisplayX100_ = 0;
   uint8_t socDisplay_ = 0;
+  int16_t peakMa_ = 0;
+  tmr10ms_t taperSince_ = 0;
 
   void setPhase(ChargePhase phase)
   {
     if (phase != phase_) {
       phase_ = phase;
       phaseSince_ = get_tmr10ms();
+      if (phase == ChargePhase::Charging) {
+        peakMa_ = 0;
+        taperSince_ = phaseSince_;
+      }
+    }
+  }
+
+  void updateTaper(tmr10ms_t now)
+  {
+    if (ima_ > peakMa_) {
+      peakMa_ = ima_;
+    }
+    // Voltage alone also covers a near-full pack that starts straight in CV
+    const bool tapering =
+        vmv_ >= TX2S_CV_MV ||
+        (vmv_ >= TX2S_CV_MIN_MV &&
+         static_cast<int32_t>(ima_) * 100 <
+             static_cast<int32_t>(peakMa_) * TAPER_PCT);
+    if (!tapering) {
+      taperSince_ = now;
+    } else if ((tmr10ms_t)(now - taperSince_) >= TAPER_STABLE) {
+      setPhase(ChargePhase::Topping);
     }
   }
 
