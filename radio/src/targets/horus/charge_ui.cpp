@@ -34,6 +34,7 @@
 #include "fonts.h"
 #include "mainwindow.h"
 #include "static.h"
+#include "button.h"
 #include "LvglWrapper.h"
 #include "startup_shutdown.h"
 #include "os/sleep.h"
@@ -140,6 +141,11 @@ constexpr coord_t STATUS_H = IBUS_BAR_Y - STATUS_Y - 6;
 /** RTN hint in the bottom margin, below the current strip */
 constexpr coord_t HINT_Y = IBUS_BAR_Y + IBUS_BAR_H + 2;
 constexpr coord_t HINT_H = LCD_H - HINT_Y - 4;
+
+/** Touch close / power off button, top-right corner */
+constexpr coord_t CLOSE_BTN_SZ = 40;
+constexpr coord_t CLOSE_BTN_X = LCD_W - CLOSE_BTN_SZ - 12;
+constexpr coord_t CLOSE_BTN_Y = 12;
 
 constexpr int32_t IBUS_ABS_MAX_MA = 3500;
 
@@ -544,6 +550,23 @@ class ChargeDashboardDialog : public Window
 
     lv_obj_move_foreground(lblBolt);
     lv_obj_move_foreground(lblSocBig->getLvObj());
+
+    /* Same action as RTN; the symbols need no translation */
+    auto btnClose = new TextButton(
+        this, {CLOSE_BTN_X, CLOSE_BTN_Y, CLOSE_BTN_SZ, CLOSE_BTN_SZ},
+        shutdownHold_ ? LV_SYMBOL_POWER : LV_SYMBOL_CLOSE, [=]() -> uint8_t {
+          onCancel();
+          return 0;
+        });
+    lv_obj_t* btnObj = btnClose->getLvObj();
+    lv_group_remove_obj(btnObj);  // touch only, keep keys on RTN
+    lv_obj_set_style_radius(btnObj, CLOSE_BTN_SZ / 2, LV_PART_MAIN);
+    lv_obj_set_style_bg_color(btnObj, colEmptyCell(), LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(btnObj, LV_OPA_COVER, LV_PART_MAIN);
+    lv_obj_set_style_border_color(btnObj, colNeonOutline(), LV_PART_MAIN);
+    lv_obj_set_style_border_width(btnObj, 2, LV_PART_MAIN);
+    lv_obj_set_style_text_color(btnObj, colNeonOutline(), LV_PART_MAIN);
+    lv_obj_move_foreground(btnObj);
 
     refreshUi(true);
   }
