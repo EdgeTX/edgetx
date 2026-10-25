@@ -16,6 +16,8 @@ on:
       - 'tools/build-companion.sh'
       - 'tools/build-wasm-modules.sh'
       - 'cmake/wasm/CMakeLists.txt'
+      - 'cmake/FetchWamr.cmake'
+      - 'cmake/wamr-*.patch'
 
   pull_request:
     paths:
@@ -28,6 +30,8 @@ on:
       - 'tools/build-companion.sh'
       - 'tools/build-wasm-modules.sh'
       - 'cmake/wasm/CMakeLists.txt'
+      - 'cmake/FetchWamr.cmake'
+      - 'cmake/wamr-*.patch'
 
   workflow_dispatch:
     inputs:
