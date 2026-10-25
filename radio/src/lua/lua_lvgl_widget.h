@@ -675,9 +675,18 @@ class LvglWidgetImage : public LvglWidgetObject
  protected:
   LvglParamFuncOrString filename = { .function = LUA_REFNIL, .txt = ""};
   bool fillFrame = false;
+  int bitmapRef = LUA_REFNIL;
+  lv_img_dsc_t bitmapDescriptor = {};
+  uint8_t* bitmapPixels = nullptr;
+  uint32_t bitmapPixelsSize = 0;
+  lua_State* bitmapState = nullptr;
+  bool sourceChanged = false;
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
+  void refresh() override;
+  void clearBitmap(lua_State* L);
+  static void windowDeleted(lv_event_t* event);
 };
 
 //-----------------------------------------------------------------------------

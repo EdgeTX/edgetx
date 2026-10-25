@@ -24,5 +24,10 @@
 #include "definitions.h"
 #include "lua_states.h"
 
+#ifdef __cplusplus
+class BitmapBuffer;
+BitmapBuffer* checkBitmap(lua_State* L, int index);
+#endif
+
 EXTERN_C(LUALIB_API int luaopen_bitmap(lua_State * L));
 EXTERN_C(LUALIB_API int luaopen_lvgl(lua_State * L));

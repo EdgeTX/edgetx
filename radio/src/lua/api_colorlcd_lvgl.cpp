@@ -619,6 +619,9 @@ static int luaLvglGetPerf(lua_State *L)
 extern "C" {
 // lvgl functions
 LROT_BEGIN(lvgllib, NULL, 0)
+  // Capabilities
+  LROT_NUMENTRY(IMAGE_BITMAP_SUPPORTED, 1)
+
   LROT_FUNCENTRY(clear, luaLvglClear)
   LROT_FUNCENTRY(build, luaLvglBuild)
   LROT_FUNCENTRY(isAppMode, luaLvglIsAppMode)
@@ -823,12 +826,17 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @param params (table):
    @commonparams lvgl_object
-   * `file` (string) full path to the image file on the SD card, defaults to an empty string
+   * `file` (string or function) full path to the image file on the SD card, or a callback returning that path; mutually exclusive with `bitmap`, defaults to an empty string
+   * `bitmap` (Bitmap or false) existing Bitmap object assigned directly, not a callback; false clears the source and releases the image's Bitmap reference, defaults to nil
    * `fill` (boolean) if true the image is scaled to completely fill the frame (may be cropped); if false it is scaled to fit entirely within the frame (may have empty borders), defaults to false
 
   @retval table LVGL object
 
   @notice `w` and `h` are required.
+  @notice Detect Bitmap support with `lvgl.IMAGE_BITMAP_SUPPORTED == 1`.
+  @notice The image keeps its Bitmap alive until replaced, cleared, or deleted. Use `image:set({bitmap=false})` to release this reference immediately, including when hidden. A nil table field is absent and does not clear it. Drop script references and run `collectgarbage()` to reclaim unused Bitmap memory.
+  @notice RGB565 Bitmaps (including JPEGs) are borrowed without copying pixels. ARGB4444 Bitmaps require an RGB565-plus-alpha conversion, charged to the existing Lua bitmap memory budget.
+  @notice Invalid/unloaded Bitmaps and conversion allocation or budget failures raise a Lua error without replacing the previous source. Check `Bitmap.getSize()` after `Bitmap.open()`; a failed load returns zero width and height.
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */

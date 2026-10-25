@@ -145,6 +145,7 @@ class BitmapBuffer
   inline uint16_t height() const { return _height; }
 
   inline pixel_t* getData() const { return data; }
+  inline uint8_t getFormat() const { return format; }
 
   uint32_t getDataSize() const { return _width * _height * sizeof(pixel_t); }
 

@@ -540,7 +540,7 @@ static int luaOpenBitmap(lua_State *L)
   return 1;
 }
 
-static BitmapBuffer * checkBitmap(lua_State * L, int index)
+BitmapBuffer * checkBitmap(lua_State * L, int index)
 {
   BitmapBuffer ** b = (BitmapBuffer **)luaL_checkudata(L, index, BITMAP_METATABLE);
   return *b;
