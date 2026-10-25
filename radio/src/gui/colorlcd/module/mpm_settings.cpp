@@ -388,6 +388,9 @@ void MultimoduleSettings::update()
     sr_line->show();
     sr_line->update();
     ab_line->hide();
+  } else if (IS_RX_MULTI(moduleIdx)) {
+    sr_line->hide();
+    ab_line->hide();
   } else {
     sr_line->hide();
     ab_line->show();

@@ -841,6 +841,9 @@ void ModulePanel::onMultiProtocolChanged(int index)
     lock=true;
     module.multi.rfProtocol = (unsigned int)rfProtocol;
     module.multi.optionValue = 0;
+    // bind on channel is hidden for receiver protocols, don't leave it set
+    if (Multiprotocols::isRxProtocol(rfProtocol))
+      module.multi.autoBindMode = false;
     unsigned int maxSubTypes = multiProtocols.getProtocol(index).numSubTypes();
     if (rfProtocol > MODULE_SUBTYPE_MULTI_LAST)
       maxSubTypes = 8;
