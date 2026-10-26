@@ -89,7 +89,15 @@ class LuaBitmapImage : public ::testing::Test
       return 1;
     }, 1);
     lua_setglobal(L, "trackedImage");
-
+    ASSERT_TRUE(exec(
+        "function lateParams(key,value) "
+        "for i=1,1000 do "
+        "local n=8+i%64; local p={};"
+        "for j=1,n do p['padding'..j]=true end;"
+        "p['bad'..i]=1; p[key]=value;"
+        "for j=1,n do p['padding'..j]=nil end;"
+        "if next(p)==key then return p end end;"
+        "error('Cannot arrange source before invalid property') end"));
   }
 
   void TearDown() override
@@ -151,7 +159,16 @@ class LuaBitmapImage : public ::testing::Test
     return ref;
   }
 
-
+  int registryResources()
+  {
+    int count = 0;
+    lua_pushnil(L);
+    while (lua_next(L, LUA_REGISTRYINDEX)) {
+      if (lua_isfunction(L, -1) || lua_isuserdata(L, -1)) ++count;
+      lua_pop(L, 1);
+    }
+    return count;
+  }
 };
 
 TEST_F(LuaBitmapImage, BorrowsRgb565AndKeepsUserdataAlive)
@@ -201,6 +218,21 @@ TEST_F(LuaBitmapImage, UsesBitmapOpenResultWithoutCopying)
   ASSERT_NE(bitmap, nullptr);
   EXPECT_EQ(source()->data, (const uint8_t*)bitmap->getData());
   EXPECT_EQ(luaExtraMemoryUsage, initialUsage + 480 * 272 * 2);
+}
+
+TEST_F(LuaBitmapImage, BorrowsDecodedJpegWithoutCopying)
+{
+  ASSERT_TRUE(exec("bitmap=Bitmap.open('images/color/bitmap_2x2.jpg');"
+                   "local w,h=Bitmap.getSize(bitmap); assert(w==2 and h==2);"
+                   "image=lvgl.image({bitmap=bitmap,w=2,h=2})"));
+  lua_getglobal(L, "bitmap");
+  auto bitmap = checkBitmap(L, -1);
+  lua_pop(L, 1);
+  ASSERT_NE(bitmap, nullptr);
+  EXPECT_EQ(bitmap->getFormat(), BMP_RGB565);
+  EXPECT_EQ(source()->data, (const uint8_t*)bitmap->getData());
+  EXPECT_EQ(source()->header.cf, LV_IMG_CF_TRUE_COLOR);
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage + bitmap->getDataSize());
 }
 
 TEST_F(LuaBitmapImage, ConvertsArgb4444AndAccountsForPixels)
@@ -488,6 +520,57 @@ TEST_F(LuaBitmapImage, ParentCleanupDeletesWrapperExactlyOnceBeforeNativeClose)
   EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
 }
 
+TEST_F(LuaBitmapImage, RejectedUpdatesPreservePixelsAndReleaseCandidates)
+{
+  addBitmap("bitmap", BMP_ARGB4444);
+  addBitmap("second", BMP_ARGB4444);
+  ASSERT_TRUE(exec("image=lvgl.image({bitmap=bitmap,w=2,h=1})"));
+  auto descriptor = source();
+  auto pixels = descriptor->data;
+  auto usage = luaExtraMemoryUsage;
+  auto refs = registryResources();
+  ASSERT_TRUE(exec("image:set({x=1,y=2})"));
+  EXPECT_EQ(source(), descriptor);
+  EXPECT_EQ(source()->data, pixels);
+  ASSERT_TRUE(exec(
+      "for i=1,100 do "
+      "assert(not pcall(image.set,image,{file={}}));"
+      "assert(not pcall(image.set,image,{file=function() return '' end,bad=1}));"
+      "assert(not pcall(image.set,image,{bitmap=second,bad=1}));"
+      "assert(not pcall(image.set,image,lateParams('bitmap',second)));"
+      "assert(not pcall(image.set,image,{bitmap=second,x={}}));"
+      "assert(not pcall(image.set,image,{bitmap=false,borderPad={left={}}}));"
+      "end; collectgarbage()"));
+  EXPECT_EQ(source(), descriptor);
+  EXPECT_EQ(source()->data, pixels);
+  EXPECT_EQ(luaExtraMemoryUsage, usage);
+  EXPECT_EQ(registryResources(), refs);
+  const uint8_t expected[] = {0x00, 0xf8, 0x88, 0xe0, 0x07, 0xff};
+  EXPECT_EQ(memcmp(source()->data, expected, sizeof(expected)), 0);
+}
+
+TEST_F(LuaBitmapImage, RejectedUpdatePreservesFilenameCallback)
+{
+  ASSERT_TRUE(exec(
+      "calls=0; local old=function() calls=calls+1;"
+      "return 'images/color/edgetx.png' end;"
+      "weak=setmetatable({old},{__mode='v'});"
+      "image=lvgl.image({file=old,w=2,h=1}); old=nil;"
+      "for i=1,100 do "
+      "local rejected=function() return 'images/color/bitmap_320x240.png' end;"
+      "local params={file=rejected,x={}};"
+      "assert(not pcall(image.set,image,params)); end;"
+      "collectgarbage(); assert(weak[1]); calls=0"));
+  EXPECT_TRUE(manager.callRefs(L));
+  ASSERT_TRUE(exec("assert(calls==1)"));
+  EXPECT_STREQ((const char*)source(), "A/images/color/edgetx.png");
+  ASSERT_TRUE(exec("image:set({file='images/color/bitmap_320x240.png'});"
+                   "collectgarbage(); assert(weak[1]==nil); calls=0"));
+  EXPECT_TRUE(manager.callRefs(L));
+  ASSERT_TRUE(exec("assert(calls==0)"));
+  EXPECT_STREQ((const char*)source(), "A/images/color/bitmap_320x240.png");
+}
+
 TEST_F(LuaBitmapImage, WindowlessObjectsRemainValidParents)
 {
   ASSERT_TRUE(exec("parent=lvgl.label({text='parent'});"
@@ -496,6 +579,24 @@ TEST_F(LuaBitmapImage, WindowlessObjectsRemainValidParents)
                    "text='built'}}); assert(child and built.label)"));
   EXPECT_EQ(lv_obj_get_child_cnt(manager.root->getLvObj()), 3u);
   EXPECT_EQ(manager.getTempParent(), nullptr);
+}
+
+TEST_F(LuaBitmapImage, UpdatesIgnoreSourceMetamethods)
+{
+  addBitmap("first", BMP_ARGB4444);
+  addBitmap("second", BMP_ARGB4444);
+  ASSERT_TRUE(exec("image=lvgl.image({bitmap=first,w=2,h=1})"));
+  auto usage = luaExtraMemoryUsage;
+  ASSERT_TRUE(exec(
+      "calls=0; image:set(setmetatable({x=1},{__index=function(t,k)"
+      "calls=calls+1; image:set({bitmap=second}); return second end}));"
+      "assert(calls==0)"));
+  EXPECT_EQ(luaExtraMemoryUsage, usage);
+  ASSERT_TRUE(exec("image:set({bitmap=false})"));
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage + 8);
+  ASSERT_TRUE(exec("image:set({bitmap=first})"));
+  const uint8_t expected[] = {0x00, 0xf8, 0x88, 0xe0, 0x07, 0xff};
+  EXPECT_EQ(memcmp(source()->data, expected, sizeof(expected)), 0);
 }
 
 }  // namespace

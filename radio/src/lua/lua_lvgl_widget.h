@@ -692,6 +692,8 @@ class LvglWidgetImage : public LvglWidgetObject
   void build(lua_State *L) override;
   void getParams(lua_State *L, int index) override;
   void parseParam(lua_State *L, const char *key) override;
+  void parseSource(lua_State *L, int index);
+  void releaseSource(lua_State *L);
   void refresh() override;
   void clearBitmap(lua_State* L);
   static void windowDeleted(lv_event_t* event);
