@@ -676,6 +676,24 @@ TEST_F(LuaBitmapImage, FileAndFalseResolveIndependentlyOfIterationOrder)
   EXPECT_STREQ((const char*)source(), "A/images/color/bitmap_320x240.png");
 }
 
+TEST_F(LuaBitmapImage, ClearedImageChildrenCanBeReplacedAndReleased)
+{
+  auto bitmap = addBitmap("bitmap");
+  ASSERT_TRUE(exec("image=lvgl.image({bitmap=bitmap,w=2,h=1});"
+                   "lvgl.clear(image)"));
+  EXPECT_EQ(lv_obj_get_child_cnt(image()->getWindow()->getLvObj()), 0u);
+  ASSERT_TRUE(exec("image:set({bitmap=bitmap})"));
+  EXPECT_EQ(source()->data, (const uint8_t*)bitmap->getData());
+  ASSERT_TRUE(exec("lvgl.clear(image); image:set({bitmap=false});"
+                   "image:set({file='images/color/edgetx.png'});"
+                   "lvgl.clear(image); image:set({bitmap=bitmap});"
+                   "lvgl.clear(image)"));
+  EXPECT_EQ(lv_obj_get_child_cnt(image()->getWindow()->getLvObj()), 0u);
+  manager.clearRefs(L);
+  ASSERT_TRUE(exec("image=nil; bitmap=nil; collectgarbage()"));
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+}
+
 TEST_F(LuaBitmapImage, WindowlessObjectsRemainValidParents)
 {
   ASSERT_TRUE(exec("parent=lvgl.label({text='parent'});"

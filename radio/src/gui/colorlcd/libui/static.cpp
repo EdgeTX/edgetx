@@ -259,6 +259,13 @@ void StaticImage::clearSource()
   image = nullptr;
 }
 
+void StaticImage::clear()
+{
+  Window::clear();
+  // lv_obj_clean() has deleted the image object.
+  image = nullptr;
+}
+
 bool StaticImage::hasImage() const
 {
   lv_img_t* img = (lv_img_t*)image;

@@ -158,6 +158,8 @@ class StaticImage : public Window
   void clearSource();
   bool hasImage() const;
 
+  void clear() override;
+
  protected:
   bool fillFrame;
   bool dontEnlarge = false;
