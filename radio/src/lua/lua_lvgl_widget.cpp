@@ -2028,7 +2028,7 @@ void LvglWidgetImage::parseSource(lua_State* L, int index)
   bool hasFile = !lua_isnil(L, -2);
   bool hasBitmap = !lua_isnil(L, -1);
   bool clear = lua_isboolean(L, -1) && !lua_toboolean(L, -1);
-  if (hasFile && hasBitmap)
+  if (hasFile && hasBitmap && !clear)
     luaL_error(L, "Specify either file or bitmap, not both");
   if (!hasFile && !hasBitmap) {
     lua_pop(L, 2);

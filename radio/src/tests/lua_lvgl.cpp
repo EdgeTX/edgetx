@@ -647,6 +647,35 @@ TEST_F(LuaBitmapImage, FailedChildConstructionReleasesImageAndRestoresParent)
   EXPECT_EQ(lv_obj_get_child_cnt(manager.root->getLvObj()), 0);
 }
 
+TEST_F(LuaBitmapImage, FileAndFalseResolveIndependentlyOfIterationOrder)
+{
+  addBitmap("bitmap");
+  ASSERT_TRUE(exec(
+      "local tested={};"
+      "for i=8,256 do "
+      "local p={w=2,h=1};"
+      "for j=1,i do p['padding'..j]=true end;"
+      "if i%2==0 then p.bitmap=false; p.file='images/color/edgetx.png' "
+      "else p.file='images/color/edgetx.png'; p.bitmap=false end;"
+      "for j=1,i do p['padding'..j]=nil end;"
+      "local first; for key in pairs(p) do "
+      "if key=='file' or key=='bitmap' then first=key; break end end;"
+      "image=lvgl.image(p);"
+      "image:set({bitmap=bitmap}); image:set(p); tested[first]=true;"
+      "if tested.file and tested.bitmap then break end end;"
+      "assert(tested.file and tested.bitmap)"));
+  EXPECT_STREQ((const char*)source(), "A/images/color/edgetx.png");
+  ASSERT_TRUE(exec("image:set({bitmap=false,file=function()"
+                   "return 'images/color/bitmap_320x240.png' end})"));
+  EXPECT_TRUE(manager.callRefs(L));
+  EXPECT_STREQ((const char*)source(), "A/images/color/bitmap_320x240.png");
+  ASSERT_TRUE(exec("assert(not pcall(image.set,image,"
+                   "{bitmap=bitmap,file='images/color/edgetx.png'}));"
+                   "assert(not pcall(image.set,image,"
+                   "{file=function() return '' end,bitmap=bitmap}))"));
+  EXPECT_STREQ((const char*)source(), "A/images/color/bitmap_320x240.png");
+}
+
 TEST_F(LuaBitmapImage, WindowlessObjectsRemainValidParents)
 {
   ASSERT_TRUE(exec("parent=lvgl.label({text='parent'});"
