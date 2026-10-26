@@ -720,7 +720,7 @@ void LvglWidgetObjectBase::clearChildRefs(lua_State *L)
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
     auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
     lua_pop(L, 1);
-    if (p) p->clearRefs(L);
+    if (p) p->release(L);
   }
   lvglObjectRefs.clear();
 }
@@ -1984,6 +1984,12 @@ void LvglWidgetArc::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
+void LvglWidgetImage::getParams(lua_State* L, int index)
+{
+  if (hasDeletedWindow()) luaL_error(L, "Image window has been deleted");
+  LvglWidgetObjectBase::getParams(L, index);
+}
+
 void LvglWidgetImage::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "bitmap") || !strcmp(key, "file")) {
@@ -2061,6 +2067,7 @@ void LvglWidgetImage::parseParam(lua_State *L, const char *key)
 
 bool LvglWidgetImage::callRefs(lua_State *L)
 {
+  if (!window) return true;
   if (!LvglWidgetObject::callRefs(L)) return false;
 
   if (isVisible()) {
@@ -2088,7 +2095,6 @@ void LvglWidgetImage::clearRefs(lua_State *L)
     lv_obj_remove_event_cb_with_user_data(window->getLvObj(), windowDeleted,
                                           this);
   }
-  bitmapState = nullptr;
   filename.clearRef(L);
   LvglWidgetObject::clearRefs(L);
 }
@@ -2097,8 +2103,8 @@ void LvglWidgetImage::windowDeleted(lv_event_t* event)
 {
   auto self = (LvglWidgetImage*)lv_event_get_user_data(event);
   self->window = nullptr;
-  self->clearRefs(self->bitmapState);
-  delete self;
+  self->clearBitmap(self->bitmapState);
+  self->bitmapState = nullptr;
 }
 
 void LvglWidgetImage::clearBitmap(lua_State* L)
@@ -2117,6 +2123,7 @@ void LvglWidgetImage::clearBitmap(lua_State* L)
 
 void LvglWidgetImage::refresh()
 {
+  if (!window) return;
   LvglWidgetObject::refresh();
   if (!sourceChanged) return;
   sourceChanged = false;
@@ -2130,7 +2137,9 @@ void LvglWidgetImage::build(lua_State *L)
 {
   window = new StaticImage(lvglManager->getCurrentParent(), {x, y, w, h},
                            filename.chars(), fillFrame);
-  bitmapState = L;
+  lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_MAINTHREAD);
+  bitmapState = lua_tothread(L, -1);
+  lua_pop(L, 1);
   lv_obj_add_event_cb(window->getLvObj(), windowDeleted, LV_EVENT_DELETE, this);
   if (bitmapRef != LUA_REFNIL)
     ((StaticImage*)window)->setSource(&bitmapDescriptor);

@@ -27,6 +27,7 @@
 #include "lua/api_colorlcd.h"
 #include "lua/lua_widget.h"
 #include "mainwindow.h"
+#include "view_main.h"
 
 extern void lv_stb_init();
 
@@ -39,7 +40,8 @@ class ImageScriptManager : public LuaScriptManager
   Window* root = nullptr;
   Window* getCurrentParent() const override
   {
-    return tempParent ? tempParent->getWindow() : root;
+    return (tempParent && tempParent->getWindow()) ? tempParent->getWindow()
+                                                    : root;
   }
   void clear() override { root->clear(); }
   bool useLvglLayout() const override { return true; }
@@ -56,6 +58,16 @@ class LuaBitmapImage : public ::testing::Test
   LuaScriptManager* previousManager = nullptr;
   ImageScriptManager manager;
   uint32_t initialUsage = 0;
+  int destroyedImages = 0;
+
+  class TrackedImage : public LvglWidgetImage
+  {
+   public:
+    explicit TrackedImage(int* count) : count(count) {}
+    ~TrackedImage() override { ++*count; }
+   private:
+    int* count;
+  };
 
   static void SetUpTestSuite() { lv_stb_init(); }
 
@@ -68,6 +80,16 @@ class LuaBitmapImage : public ::testing::Test
     manager.root = new Window(nullptr, {0, 0, 100, 100});
     previousManager = luaScriptManager;
     luaScriptManager = &manager;
+    lua_pushlightuserdata(L, &destroyedImages);
+    lua_pushcclosure(L, [](lua_State* L) {
+      auto count = (int*)lua_touserdata(L, lua_upvalueindex(1));
+      auto obj = new TrackedImage(count);
+      obj->create(L, 1);
+      obj->push(L);
+      return 1;
+    }, 1);
+    lua_setglobal(L, "trackedImage");
+
   }
 
   void TearDown() override
@@ -114,6 +136,22 @@ class LuaBitmapImage : public ::testing::Test
     auto child = lv_obj_get_child(image()->getWindow()->getLvObj(), 0);
     return (const lv_img_dsc_t*)lv_img_get_src(child);
   }
+
+  int imageRef()
+  {
+    lua_getglobal(L, "image");
+    int ref = LUA_REFNIL;
+    lua_pushnil(L);
+    while (lua_next(L, LUA_REGISTRYINDEX)) {
+      if (lua_isinteger(L, -2) && lua_rawequal(L, -1, -3))
+        ref = lua_tointeger(L, -2);
+      lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+    return ref;
+  }
+
+
 };
 
 TEST_F(LuaBitmapImage, BorrowsRgb565AndKeepsUserdataAlive)
@@ -221,10 +259,15 @@ TEST_F(LuaBitmapImage, NativeDeletionReleasesStrongReference)
   image()->getWindow()->closeWindow();
   ASSERT_TRUE(
       exec("collectgarbage();"
+           "image:show(); image:hide(); lvgl.enable(image); lvgl.disable(image);"
            "assert(not pcall(image.set, image, {bitmap=false}))"));
+  EXPECT_NE(image(), nullptr);
+  EXPECT_EQ(image()->getWindow(), nullptr);
+  EXPECT_TRUE(manager.callRefs(L));
   EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
   manager.clearRefs(L);
-  ASSERT_TRUE(exec("image=nil; collectgarbage()"));
+  ASSERT_TRUE(exec("assert(not pcall(image.show, image));"
+                   "image=nil; collectgarbage()"));
 }
 
 TEST_F(LuaBitmapImage, WidgetTeardownReleasesStrongReference)
@@ -321,6 +364,138 @@ TEST_F(LuaBitmapImage, AlphaConversionIsReleasedOnNativeDeletion)
   ASSERT_TRUE(exec("collectgarbage()"));
   EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
   manager.clearRefs(L);
+}
+
+TEST_F(LuaBitmapImage, ParentClearPreservesRegistrySlotUntilDeferredCleanup)
+{
+  addBitmap("bitmap", BMP_ARGB4444);
+  ASSERT_TRUE(exec("box=lvgl.box({w=100,h=100})"));
+  lua_getglobal(L, "box");
+  manager.setTempParent(LvglWidgetObjectBase::checkLvgl(L, -1, true));
+  lua_pop(L, 1);
+  auto created = exec("image=trackedImage({bitmap=bitmap,w=2,h=1}); bitmap=nil");
+  manager.setTempParent(nullptr);
+  ASSERT_TRUE(created);
+  int ref = imageRef();
+  ASSERT_GT(ref, 0);
+  ASSERT_TRUE(exec("box:clear(); collectgarbage();"
+                   "label=lvgl.label({text='unrelated'});"
+                   "image:show(); image:hide()"));
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+  EXPECT_EQ(destroyedImages, 0);
+  EXPECT_EQ(imageRef(), ref);
+  EXPECT_TRUE(manager.callRefs(L));
+  EXPECT_EQ(destroyedImages, 1);
+  ASSERT_TRUE(exec("label:set({text='still valid'});"
+                   "assert(not pcall(image.show,image))"));
+  lua_pushboolean(L, true);
+  int reused = luaL_ref(L, LUA_REGISTRYINDEX);
+  EXPECT_EQ(reused, ref);
+  luaL_unref(L, LUA_REGISTRYINDEX, reused);
+}
+
+TEST_F(LuaBitmapImage, FilenameOnlyNativeDeletionKeepsDeferredHandle)
+{
+  ASSERT_TRUE(exec("image=trackedImage({file='images/color/edgetx.png',"
+                   "w=2,h=1})"));
+  int ref = imageRef();
+  image()->getWindow()->closeWindow();
+  EXPECT_EQ(imageRef(), ref);
+  EXPECT_EQ(destroyedImages, 0);
+  ASSERT_TRUE(exec("image:show(); image:hide(); lvgl.enable(image);"
+                   "lvgl.disable(image);"
+                   "assert(not pcall(image.set,image,{file=''}));"
+                   "label=lvgl.label({text='unrelated'})"));
+  EXPECT_TRUE(manager.callRefs(L));
+  manager.clearRefs(L);
+  EXPECT_EQ(destroyedImages, 1);
+  manager.clearRefs(L);
+  ASSERT_TRUE(exec("image=nil; collectgarbage(); collectgarbage()"));
+  EXPECT_EQ(destroyedImages, 1);
+}
+
+TEST_F(LuaBitmapImage, NativeDeletedImageRejectsSourcesAndSkipsCallbacks)
+{
+  addBitmap("bitmap");
+  ASSERT_TRUE(exec("calls=0; image=lvgl.image({bitmap=bitmap,w=2,h=1,"
+                   "visible=function() calls=calls+1; return true end});"
+                   "calls=0"));
+  image()->getWindow()->closeWindow();
+  ASSERT_TRUE(exec("assert(not pcall(image.set,image,{bitmap=bitmap}));"
+                   "assert(not pcall(lvgl.image,image,{bitmap=bitmap}));"
+                   "assert(not pcall(lvgl.build,image,"
+                   "{{type='image',bitmap=bitmap}}));"
+                   "bitmap=nil; collectgarbage()"));
+  EXPECT_TRUE(manager.callRefs(L));
+  ASSERT_TRUE(exec("assert(calls==0)"));
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+}
+
+TEST_F(LuaBitmapImage, CollectedCreatorCoroutineDoesNotOwnDeletionState)
+{
+  addBitmap("bitmap", BMP_ARGB4444);
+  auto co = lua_newthread(L);
+  lua_setglobal(L, "creator");
+  ASSERT_EQ(luaL_dostring(co,
+      "image=trackedImage({bitmap=bitmap,w=2,h=1})"), LUA_OK);
+  ASSERT_TRUE(exec("weak=setmetatable({creator},{__mode='v'});"
+                   "creator=nil; bitmap=nil; collectgarbage(); collectgarbage();"
+                   "assert(weak[1]==nil)"));
+  image()->getWindow()->closeWindow();
+  ASSERT_TRUE(exec("collectgarbage()"));
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+  manager.clearRefs(L);
+  EXPECT_EQ(destroyedImages, 1);
+}
+
+TEST_F(LuaBitmapImage, NativePageAndDialogCloseReleasePixelsBeforeHandles)
+{
+  ViewMain::instance();
+  for (const char* constructor : {"page", "dialog"}) {
+    addBitmap("bitmap", BMP_ARGB4444);
+    lua_pushstring(L, constructor);
+    lua_setglobal(L, "constructor");
+    ASSERT_TRUE(exec("container=lvgl[constructor]({title='Bitmap test'});"
+                     "image=lvgl.image(container,{bitmap=bitmap,w=2,h=1});"
+                     "bitmap=nil"));
+    int ref = imageRef();
+    lua_getglobal(L, "container");
+    auto container = LvglWidgetObjectBase::checkLvgl(L, -1, true);
+    lua_pop(L, 1);
+    container->getWindow()->getParent()->closeWindow();
+    ASSERT_TRUE(exec("collectgarbage(); image:show(); image:hide();"
+                     "assert(not pcall(image.set,image,{bitmap=false}))"));
+    EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+    EXPECT_EQ(imageRef(), ref);
+    EXPECT_EQ(image()->getWindow(), nullptr);
+    manager.clearRefs(L);
+    ASSERT_TRUE(exec("image=nil; container=nil; collectgarbage()"));
+    MainWindow::instance()->run();
+  }
+}
+
+TEST_F(LuaBitmapImage, ParentCleanupDeletesWrapperExactlyOnceBeforeNativeClose)
+{
+  addBitmap("bitmap", BMP_ARGB4444);
+  ASSERT_TRUE(exec("image=trackedImage({bitmap=bitmap,w=2,h=1}); bitmap=nil"));
+  auto window = image()->getWindow();
+  manager.clearRefs(L);
+  EXPECT_EQ(destroyedImages, 1);
+  window->closeWindow();
+  ASSERT_TRUE(exec("image=nil; collectgarbage(); collectgarbage()"));
+  manager.clearRefs(L);
+  EXPECT_EQ(destroyedImages, 1);
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+}
+
+TEST_F(LuaBitmapImage, WindowlessObjectsRemainValidParents)
+{
+  ASSERT_TRUE(exec("parent=lvgl.label({text='parent'});"
+                   "child=lvgl.label(parent,{text='child'});"
+                   "built=lvgl.build(parent,{{type='label',name='label',"
+                   "text='built'}}); assert(child and built.label)"));
+  EXPECT_EQ(lv_obj_get_child_cnt(manager.root->getLvObj()), 3u);
+  EXPECT_EQ(manager.getTempParent(), nullptr);
 }
 
 }  // namespace

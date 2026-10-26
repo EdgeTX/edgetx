@@ -248,6 +248,7 @@ class LvglWidgetObjectBase
 
   virtual bool callRefs(lua_State *L);
   virtual void clearRefs(lua_State *L);
+  virtual void release(lua_State *L) { clearRefs(L); }
   void clearChildRefs(lua_State *L);
 
   virtual void show() = 0;
@@ -270,6 +271,7 @@ class LvglWidgetObjectBase
   void update(lua_State *L);
 
   virtual Window *getWindow() const = 0;
+  virtual bool hasDeletedWindow() const { return false; }
 
   static LvglWidgetObjectBase *checkLvgl(lua_State *L, int index, bool required = false);
 
@@ -294,7 +296,7 @@ class LvglWidgetObjectBase
 
   virtual void parseParam(lua_State *L, const char *key);
 
-  void getParams(lua_State *L, int index);
+  virtual void getParams(lua_State *L, int index);
 
   void pcallSimpleFunc(lua_State *L, int funcRef);
   bool pcallUpdateBool(lua_State *L, int getFuncRef,
@@ -477,11 +479,11 @@ class LvglWidgetObject : public LvglWidgetObjectBase
  public:
   LvglWidgetObject(const char* meta = LVGL_METATABLE) : LvglWidgetObjectBase(meta) {}
 
-  void show() override { window->show(); }
-  void hide() override { window->hide(); }
-  bool isVisible() override { return window->isVisible(); }
-  void enable() override { window->enable(); }
-  void disable() override { window->disable(); }
+  void show() override { if (window) window->show(); }
+  void hide() override { if (window) window->hide(); }
+  bool isVisible() override { return window && window->isVisible(); }
+  void enable() override { if (window) window->enable(); }
+  void disable() override { if (window) window->disable(); }
 
   void setPos(coord_t x, coord_t y) override;
   void setSize(coord_t w, coord_t h) override;
@@ -671,6 +673,11 @@ class LvglWidgetImage : public LvglWidgetObject
 
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
+  void release(lua_State *L) override { clearRefs(L); delete this; }
+  bool hasDeletedWindow() const override
+  {
+    return !window && luaRef != LUA_REFNIL;
+  }
 
  protected:
   LvglParamFuncOrString filename = { .function = LUA_REFNIL, .txt = ""};
@@ -683,6 +690,7 @@ class LvglWidgetImage : public LvglWidgetObject
   bool sourceChanged = false;
 
   void build(lua_State *L) override;
+  void getParams(lua_State *L, int index) override;
   void parseParam(lua_State *L, const char *key) override;
   void refresh() override;
   void clearBitmap(lua_State* L);

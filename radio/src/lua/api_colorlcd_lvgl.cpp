@@ -427,6 +427,8 @@ static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
     LvglWidgetObjectBase* prevParent = nullptr;
     if (lua_gettop(L) == 2) {
       p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
+      if (p && p->hasDeletedWindow())
+        return luaL_error(L, "Parent window has been deleted");
       if (p) {
         prevParent = luaScriptManager->getTempParent();
         luaScriptManager->setTempParent(p);
@@ -478,6 +480,8 @@ static int luaLvglBuild(lua_State *L)
     LvglWidgetObjectBase* prevParent = nullptr;
     if (lua_gettop(L) == 2) {
       p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
+      if (p && p->hasDeletedWindow())
+        return luaL_error(L, "Parent window has been deleted");
       if (p) {
         prevParent = luaScriptManager->getTempParent();
         luaScriptManager->setTempParent(p);
