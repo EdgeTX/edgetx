@@ -175,8 +175,7 @@ TEST_F(LuaBitmapImage, BorrowsRgb565AndKeepsUserdataAlive)
 {
   auto bitmap = addBitmap("bitmap");
   ASSERT_TRUE(
-      exec("assert(lvgl.IMAGE_BITMAP_SUPPORTED == 1);"
-           "image = lvgl.image({bitmap=bitmap, w=2, h=1});"
+      exec("image = lvgl.image({bitmap=bitmap, w=2, h=1});"
            "weak = setmetatable({bitmap}, {__mode='v'});"
            "bitmap = nil; collectgarbage(); assert(weak[1])"));
   EXPECT_EQ(source()->data, (const uint8_t*)bitmap->getData());

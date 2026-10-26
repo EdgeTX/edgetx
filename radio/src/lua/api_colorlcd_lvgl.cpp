@@ -639,9 +639,6 @@ static int luaLvglGetPerf(lua_State *L)
 extern "C" {
 // lvgl functions
 LROT_BEGIN(lvgllib, NULL, 0)
-  // Capabilities
-  LROT_NUMENTRY(IMAGE_BITMAP_SUPPORTED, 1)
-
   LROT_FUNCENTRY(clear, luaLvglClear)
   LROT_FUNCENTRY(build, luaLvglBuild)
   LROT_FUNCENTRY(isAppMode, luaLvglIsAppMode)
@@ -853,12 +850,12 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @retval table LVGL object
 
   @notice `w` and `h` are required.
-  @notice Detect Bitmap support with `lvgl.IMAGE_BITMAP_SUPPORTED == 1`.
+  @notice `image:set({file=...})` changes the displayed source and replaces any previous filename callback.
   @notice The image keeps its Bitmap alive until replaced, cleared, or deleted. Use `image:set({bitmap=false})` to release this reference immediately, including when hidden. A nil table field is absent and does not clear it. Drop script references and run `collectgarbage()` to reclaim unused Bitmap memory.
   @notice RGB565 Bitmaps (including JPEGs) are borrowed without copying pixels. ARGB4444 Bitmaps require an RGB565-plus-alpha conversion, charged to the existing Lua bitmap memory budget.
   @notice Invalid source values or parameters and conversion allocation or budget failures raise a Lua error without replacing the previous source. Check `Bitmap.getSize()` after `Bitmap.open()`; a failed load returns zero width and height.
 
-  @status current Introduced in 2.11.0, floating added in 2.11.6
+  @status current Introduced in 2.11.0, floating added in 2.11.6, bitmap added in 3.0.0
   */
   LROT_FUNCENTRY(image, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetImage(); }); })
   /*luadoc
