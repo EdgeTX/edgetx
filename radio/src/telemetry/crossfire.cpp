@@ -355,20 +355,17 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
       break;
 
     case BATTERY_ID:
-    {
-        uint8_t sensorID = 0;
-        if (crsfPayloadLen > 10) {
-            sensorID = getCrossfireTelemetryValue(11, rxBuffer, 1, false);
-        }
-        processCrossfireTelemetryValue(BATT_VOLTAGE_INDEX,
-            getCrossfireTelemetryValue(3, rxBuffer, 2, true), sensorId);
-        processCrossfireTelemetryValue(BATT_CURRENT_INDEX,
-            getCrossfireTelemetryValue(5, rxBuffer, 2, true), sensorId);
-        processCrossfireTelemetryValue(BATT_CAPACITY_INDEX,
-            getCrossfireTelemetryValue(7, rxBuffer, 3, false), sensorId);
-        processCrossfireTelemetryValue(BATT_REMAINING_INDEX,
-            getCrossfireTelemetryValue(10, rxBuffer, 1, false), sensorId);
-    }
+      {
+      const uint8_t sensorID = (crsfPayloadLen > 10) ? getCrossfireTelemetryValue(11, rxBuffer, 1, false) : 0;
+      processCrossfireTelemetryValue(BATT_VOLTAGE_INDEX,
+        getCrossfireTelemetryValue(3, rxBuffer, 2, true), sensorID);
+      processCrossfireTelemetryValue(BATT_CURRENT_INDEX,
+        getCrossfireTelemetryValue(5, rxBuffer, 2, true), sensorID);
+      processCrossfireTelemetryValue(BATT_CAPACITY_INDEX,
+        getCrossfireTelemetryValue(7, rxBuffer, 3, false), sensorID);
+      processCrossfireTelemetryValue(BATT_REMAINING_INDEX,
+        getCrossfireTelemetryValue(10, rxBuffer, 1, false), sensorID);
+      }
       break;
 
     case ATTITUDE_ID:
