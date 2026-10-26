@@ -722,6 +722,21 @@ TEST_F(LuaBitmapImage, UpdatesIgnoreSourceMetamethods)
   EXPECT_EQ(memcmp(source()->data, expected, sizeof(expected)), 0);
 }
 
+TEST_F(LuaBitmapImage, FailedBuildChildrenRestoreParent)
+{
+  addBitmap("bitmap");
+  ASSERT_TRUE(exec("box=lvgl.box({w=100,h=100});"
+                   "assert(not pcall(lvgl.build,{{type='image',bitmap=bitmap,"
+                   "w=2,h=1,children={{type='label',bad=1}}}}));"
+                   "assert(not pcall(lvgl.build,box,{{type='box',"
+                   "children={{type='label',bad=1}}}}))"));
+  EXPECT_EQ(manager.getTempParent(), nullptr);
+  manager.clearRefs(L);
+  auto children = lv_obj_get_child_cnt(manager.root->getLvObj());
+  ASSERT_TRUE(exec("label=lvgl.label({text='after'})"));
+  EXPECT_EQ(lv_obj_get_child_cnt(manager.root->getLvObj()), children + 1);
+}
+
 }  // namespace
 
 #endif

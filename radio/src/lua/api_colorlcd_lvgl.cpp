@@ -390,14 +390,29 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
   }
 }
 
+// Calls fn with the top nargs values, restoring the temporary parent if it
+// raises so later objects are not attached to a failed build's parent.
+static void pcallRestoringParent(lua_State *L, int nargs, lua_CFunction fn,
+                                 LvglWidgetObjectBase* prevParent)
+{
+  lua_pushcfunction(L, fn);
+  lua_insert(L, -(nargs + 1));
+  if (lua_pcall(L, nargs, 0, 0) != LUA_OK) {
+    luaScriptManager->setTempParent(prevParent);
+    lua_error(L);
+  }
+}
+
 static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
 {
   if (obj->getWindow()) {
     lua_getfield(L, -1, "children");
     auto prevParent = luaScriptManager->getTempParent();
     luaScriptManager->setTempParent(obj);
-    buildLvgl(L, -1, 0);
-    lua_pop(L, 1);
+    pcallRestoringParent(L, 1, [](lua_State* L) {
+      buildLvgl(L, -1, 0);
+      return 0;
+    }, prevParent);
     luaScriptManager->setTempParent(prevParent);
   }
 }
@@ -493,23 +508,25 @@ static int luaLvglBuild(lua_State *L)
 {
   if (luaScriptManager) {
     LvglWidgetObjectBase* p = nullptr;
-    LvglWidgetObjectBase* prevParent = nullptr;
+    auto prevParent = luaScriptManager->getTempParent();
     if (lua_gettop(L) == 2) {
       p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
       if (p && p->hasDeletedWindow())
         return luaL_error(L, "Parent window has been deleted");
-      if (p) {
-        prevParent = luaScriptManager->getTempParent();
-        luaScriptManager->setTempParent(p);
-      }
     }
+
+    if (p) luaScriptManager->setTempParent(p);
 
     // Return array of lvgl object references
     lua_newtable(L);
-    buildLvgl(L, -2, -1);
+    lua_pushvalue(L, -2);
+    lua_pushvalue(L, -2);
+    pcallRestoringParent(L, 2, [](lua_State* L) {
+      buildLvgl(L, -2, -1);
+      return 0;
+    }, prevParent);
 
-    if (p)
-      luaScriptManager->setTempParent((prevParent));
+    luaScriptManager->setTempParent(prevParent);
   } else {
     lua_pushnil(L);
   }
