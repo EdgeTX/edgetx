@@ -424,23 +424,39 @@ static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
 {
   if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
     LvglWidgetObjectBase* p = nullptr;
-    LvglWidgetObjectBase* prevParent = nullptr;
+    auto prevParent = luaScriptManager->getTempParent();
     if (lua_gettop(L) == 2) {
       p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
       if (p && p->hasDeletedWindow())
         return luaL_error(L, "Parent window has been deleted");
-      if (p) {
-        prevParent = luaScriptManager->getTempParent();
-        luaScriptManager->setTempParent(p);
-      }
     }
 
     LvglWidgetParams params(L, -1);
 
+    if (p) luaScriptManager->setTempParent(p);
     auto obj = create();
-    obj->create(L, -1);
-
-    if (params.hasChildren) addChildren(L, obj);
+    bool created = false;
+    lua_pushlightuserdata(L, obj);
+    lua_pushlightuserdata(L, &created);
+    lua_pushboolean(L, params.hasChildren);
+    lua_pushcclosure(L, [](lua_State* L) {
+      auto obj =
+          (LvglWidgetObjectBase*)lua_touserdata(L, lua_upvalueindex(1));
+      obj->create(L, 1);
+      *(bool*)lua_touserdata(L, lua_upvalueindex(2)) = true;
+      if (lua_toboolean(L, lua_upvalueindex(3))) addChildren(L, obj);
+      return 0;
+    }, 3);
+    lua_pushvalue(L, -2);
+    if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+      luaScriptManager->setTempParent(prevParent);
+      if (created) {
+        auto window = obj->getWindow();
+        obj->release(L);
+        if (window) window->closeWindow();
+      }
+      return lua_error(L);
+    }
 
     obj->push(L);
 

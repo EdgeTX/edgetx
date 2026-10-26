@@ -1984,6 +1984,23 @@ void LvglWidgetArc::build(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
+void LvglWidgetImage::create(lua_State *L, int index)
+{
+  lua_pushlightuserdata(L, this);
+  lua_pushcclosure(L, [](lua_State* L) {
+    auto self = (LvglWidgetImage*)lua_touserdata(L, lua_upvalueindex(1));
+    self->LvglWidgetObjectBase::create(L, 1);
+    return 0;
+  }, 1);
+  lua_pushvalue(L, index < 0 ? index - 1 : index);
+  if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+    clearRefs(L);
+    if (window) window->closeWindow();
+    delete this;
+    lua_error(L);
+  }
+}
+
 void LvglWidgetImage::getParams(lua_State* L, int index)
 {
   if (hasDeletedWindow()) luaL_error(L, "Image window has been deleted");

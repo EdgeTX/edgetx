@@ -571,6 +571,83 @@ TEST_F(LuaBitmapImage, RejectedUpdatePreservesFilenameCallback)
   EXPECT_STREQ((const char*)source(), "A/images/color/bitmap_320x240.png");
 }
 
+TEST_F(LuaBitmapImage, FailedConstructorsReleaseRefsBudgetAndWrappers)
+{
+  for (auto format : {BMP_RGB565, BMP_ARGB4444}) {
+    addBitmap("bitmap", format);
+    auto refs = registryResources();
+    ASSERT_TRUE(exec(
+        "weak=setmetatable({bitmap},{__mode='v'});"
+        "for i=1,100 do "
+        "assert(not pcall(trackedImage,{bitmap=bitmap,badkey=1}));"
+        "assert(not pcall(trackedImage,lateParams('bitmap',bitmap)));"
+        "assert(not pcall(trackedImage,{bitmap=bitmap,x={}}));"
+        "assert(not pcall(trackedImage,{bitmap=bitmap,borderPad={left={}}}));"
+        "assert(not pcall(trackedImage,{bitmap=bitmap,w=2,h=1,"
+        "file=function() return '' end}));"
+        "assert(not pcall(trackedImage,{bitmap=bitmap,w=2,h=1,"
+        "size=function() return {} end}));"
+        "end; bitmap=nil; collectgarbage(); collectgarbage();"
+        "assert(weak[1]==nil)"));
+    EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+    EXPECT_EQ(registryResources(), refs);
+    EXPECT_EQ(lv_obj_get_child_cnt(manager.root->getLvObj()), 0);
+  }
+  EXPECT_EQ(destroyedImages, 1200);
+}
+
+TEST_F(LuaBitmapImage, FailedFilenameConstructorReleasesCapturedBitmap)
+{
+  addBitmap("bitmap", BMP_ARGB4444);
+  auto refs = registryResources();
+  ASSERT_TRUE(exec(
+      "weak=setmetatable({bitmap},{__mode='v'});"
+      "local function source(b) return function() return b end end;"
+      "for i=1,100 do "
+      "assert(not pcall(trackedImage,{file=source(bitmap),bad=1}));"
+      "assert(not pcall(trackedImage,{file=source(bitmap),w=2,h=1}));"
+      "end; bitmap=nil; collectgarbage(); collectgarbage();"
+      "assert(weak[1]==nil)"));
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+  EXPECT_EQ(destroyedImages, 200);
+  EXPECT_EQ(registryResources(), refs);
+}
+
+TEST_F(LuaBitmapImage, FailedLayoutConstructorsReleaseBitmapResources)
+{
+  addBitmap("bitmap", BMP_ARGB4444);
+  auto refs = registryResources();
+  ASSERT_TRUE(exec("for i=1,100 do "
+                   "assert(not pcall(lvgl.build,"
+                   "{{type='image',bitmap=bitmap,badkey=1}}));"
+                   "end; bitmap=nil; collectgarbage()"));
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+  EXPECT_EQ(registryResources(), refs);
+}
+
+TEST_F(LuaBitmapImage, FailedExplicitParentConstructorRestoresParent)
+{
+  addBitmap("bitmap", BMP_ARGB4444);
+  ASSERT_TRUE(exec("box=lvgl.box({w=100,h=100});"
+                   "assert(not pcall(lvgl.image,box,{bitmap=bitmap,bad=1}));"
+                   "image=lvgl.image({bitmap=bitmap,w=2,h=1})"));
+  EXPECT_EQ(image()->getWindow()->getParent(), manager.root);
+}
+
+TEST_F(LuaBitmapImage, FailedChildConstructionReleasesImageAndRestoresParent)
+{
+  addBitmap("bitmap", BMP_ARGB4444);
+  auto refs = registryResources();
+  ASSERT_TRUE(exec("for i=1,100 do "
+                   "assert(not pcall(lvgl.image,{bitmap=bitmap,w=2,h=1,"
+                   "children={{type='image',bitmap=bitmap,badkey=1}}}));"
+                   "end; bitmap=nil; collectgarbage()"));
+  EXPECT_EQ(manager.getTempParent(), nullptr);
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+  EXPECT_EQ(registryResources(), refs);
+  EXPECT_EQ(lv_obj_get_child_cnt(manager.root->getLvObj()), 0);
+}
+
 TEST_F(LuaBitmapImage, WindowlessObjectsRemainValidParents)
 {
   ASSERT_TRUE(exec("parent=lvgl.label({text='parent'});"

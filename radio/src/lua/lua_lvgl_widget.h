@@ -267,7 +267,7 @@ class LvglWidgetObjectBase
   virtual void setSize(coord_t w, coord_t h) {}
   virtual void setFloating(bool isFloating) {}
 
-  void create(lua_State *L, int index);
+  virtual void create(lua_State *L, int index);
   void update(lua_State *L);
 
   virtual Window *getWindow() const = 0;
@@ -674,6 +674,7 @@ class LvglWidgetImage : public LvglWidgetObject
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
   void release(lua_State *L) override { clearRefs(L); delete this; }
+  void create(lua_State *L, int index) override;
   bool hasDeletedWindow() const override
   {
     return !window && luaRef != LUA_REFNIL;
