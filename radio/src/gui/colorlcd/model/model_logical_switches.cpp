@@ -203,7 +203,13 @@ class LogicalSwitchEditPage : public Page
                                 GET_SET_DEFAULT(cs->v2));
 
         v2Edit->setDisplayHandler([=](int value) -> std::string {
+#if defined(LUA_INPUTS)
+          if (abs(cs->v1) <= MIXSRC_LAST_CH &&
+              (abs(cs->v1) < MIXSRC_FIRST_LUA) || (abs(cs->v1) > MIXSRC_LAST_LUA))
+            value = calc100toRESX(value);
+#else
           if (abs(cs->v1) <= MIXSRC_LAST_CH) value = calc100toRESX(value);
+#endif
           std::string txt = getSourceCustomValueString(cs->v1, value, 0);
           return txt;
         });
@@ -451,14 +457,18 @@ class LogicalSwitchButton : public ListLineButton
       case LS_FAMILY_COMP:
         lv_label_set_text(lsV2, getSourceString(ls->v2));
         break;
-      default:
-        lv_label_set_text(
-            lsV2,
-            getSourceCustomValueString(
-                ls->v1,
-                (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2),
-                0));
+      default: {
+        int value = ls->v2;
+#if defined(LUA_INPUTS)
+        if (abs(ls->v1) <= MIXSRC_LAST_CH &&
+            (abs(ls->v1) < MIXSRC_FIRST_LUA) || (abs(ls->v1) > MIXSRC_LAST_LUA))
+          value = calc100toRESX(value);
+#else
+        if (abs(ls->v1) <= MIXSRC_LAST_CH) value = calc100toRESX(value);
+#endif
+        lv_label_set_text(lsV2, getSourceCustomValueString(ls->v1, value, 0));
         break;
+      }
     }
 
     // AND switch
