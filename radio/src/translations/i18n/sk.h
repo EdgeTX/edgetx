@@ -150,6 +150,7 @@
 #define TR_AUX_SERIAL_MODES_9          "Ladenie"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "Externý modul"
+#define TR_AUX_SERIAL_MODES_12         "XF Headtracker"
 #define TR_SWTYPES_1                   "Žiadny"
 #define TR_SWTYPES_2                   "Bez aretácie"
 #define TR_SWTYPES_3                   "2-polohový"
