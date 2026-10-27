@@ -151,9 +151,6 @@ char *getFlightModeString(char *dest, int8_t idx);
 
 #endif
 
-void splitTimer(char *s0, char *s1, char *s2, char *s3, int tme,
-                bool bLowercase = true);
-
 template <size_t N>
 std::string stringFromNtString(const char (&a)[N])
 {
@@ -220,3 +217,8 @@ extern int timezoneIndex(int8_t tzHour, int8_t tzMinute);
 extern int8_t timezoneHour(int tz);
 extern int8_t timezoneMinute(int tz);
 extern int timezoneOffsetSeconds(int8_t tzHour, int8_t tzMinute);
+
+#define SECONDSPERMIN 60
+#define SECONDSPERHOUR (60 * SECONDSPERMIN)
+#define SECONDSPERDAY (24 * SECONDSPERHOUR)
+#define SECONDSPERYEAR (365 * SECONDSPERDAY)

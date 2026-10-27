@@ -139,11 +139,6 @@ char *strAppendStringWithIndex(char *dest, const char *s, int idx)
   return strAppendUnsigned(strAppend(dest, s), abs(idx));
 }
 
-#define SECONDSPERMIN 60
-#define SECONDSPERHOUR (60 * SECONDSPERMIN)
-#define SECONDSPERDAY (24 * SECONDSPERHOUR)
-#define SECONDSPERYEAR (365 * SECONDSPERDAY)
-
 char *getFormattedTimerString(char *dest, int32_t tme,
                               TimerOptions timerOptions)
 {
@@ -233,99 +228,6 @@ char *getFormattedTimerString(char *dest, int32_t tme,
   *s = 0;
 
   return dest;
-}
-
-void splitTimer(char *sDb0, char *sDb1, char *sUnit0, char *sUnit1, int tme,
-                bool bLowerCase)
-{
-  char *s0 = sDb0;
-  char *s1 = sDb1;
-  char *s2 = sUnit0;
-  char *s3 = sUnit1;
-  s0[0] = s1[0] = s0[1] = s1[1] = '0';
-  div_t qr;
-  int val = tme;
-  uint8_t digit_group = 0;
-
-  /*
-  if (tme < 0) {
-    tme = -tme;
-    *s++ = '-';
-  }
-  */
-  // years
-  qr = div((int)val, SECONDSPERYEAR);
-  if (qr.quot != 0) {
-    qr = div((int)val, SECONDSPERYEAR);
-    *s0++ += (qr.quot / 10);
-    *s0++ += (qr.quot % 10);
-    *s0 = 0;
-    ;
-    *s2++ = bLowerCase ? 'y' : 'Y';
-    *s2 = 0;
-    digit_group++;
-    val = qr.rem;
-  }
-  // days
-  qr = div((int)val, SECONDSPERDAY);
-  if (digit_group == 1) {
-    *s1++ += (qr.quot / 10);
-    *s1++ += (qr.quot % 10);
-    *s1 = 0;
-    *s3++ = bLowerCase ? 'd' : 'D';
-    *s3 = 0;
-    return;
-  }
-  if (qr.quot != 0) {
-    *s0++ += (qr.quot / 10);
-    *s0++ += (qr.quot % 10);
-    *s0 = 0;
-    ;
-    *s2++ = bLowerCase ? 'd' : 'D';
-    *s2 = 0;
-    digit_group++;
-    val = qr.rem;
-  }
-  // hours
-  qr = div((int)val, SECONDSPERHOUR);
-  if (digit_group == 1) {
-    *s1++ += (qr.quot / 10);
-    *s1++ += (qr.quot % 10);
-    *s1 = 0;
-    *s3++ = bLowerCase ? 'h' : 'H';
-    *s3 = 0;
-    return;
-  }
-  if (qr.quot != 0) {
-    *s0++ += (qr.quot / 10);
-    *s0++ += (qr.quot % 10);
-    *s0 = 0;
-    *s2++ = bLowerCase ? 'h' : 'H';
-    *s2 = 0;
-    digit_group++;
-    val = qr.rem;
-  }
-  // minutes
-  qr = div((int)val, SECONDSPERMIN);
-  if (digit_group == 1) {
-    *s1++ += (qr.quot / 10);
-    *s1++ += (qr.quot % 10);
-    *s1 = 0;
-    *s3++ = bLowerCase ? 'm' : 'M';
-    *s3 = 0;
-    return;
-  }
-  *s0++ += (qr.quot / 10);
-  *s0++ += (qr.quot % 10);
-  *s0 = 0;
-  *s2++ = bLowerCase ? 'm' : 'M';
-  *s2 = 0;
-  // seconds
-  *s1++ += (qr.rem / 10);
-  *s1++ += (qr.rem % 10);
-  *s1 = 0;
-  *s3++ = bLowerCase ? 's' : 'S';
-  *s3 = 0;
 }
 
 char *getCurveString(char *dest, int idx)

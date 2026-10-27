@@ -337,9 +337,6 @@ static const uint8_t mask_topmenu_gps[] __FLASH = {
 static const uint8_t mask_widget_timer[] __FLASH = {
 #include "mask_widget_timer.lbm"
 };
-static const uint8_t mask_widget_timer_bg[] __FLASH = {
-#include "mask_widget_timer_bg.lbm"
-};
 static const uint8_t mask_widget_txbatt[] __FLASH = {
 #include "mask_widget_txbat.lbm"
 };
@@ -479,7 +476,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
 
     BI(ICON_USB_PLUGGED, mask_info_usb_plugged),
 
-    BI(ICON_TIMER_BG, mask_widget_timer_bg),
     BI(ICON_TIMER, mask_widget_timer),
 
     BI(ICON_TEXTLINE_CURVE, mask_inline_curve),
