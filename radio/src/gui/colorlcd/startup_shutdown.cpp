@@ -59,6 +59,7 @@ void drawSplash()
 
   // Animated splash.gif takes precedence over splash.png
   bool hasSplash = false;
+#if LV_USE_GIF
   if (isFileAvailable(BITMAPS_PATH "/" SPLASH_GIF_FILE)) {
     lv_obj_t* gif = lv_gif_create(splashScreen->getLvObj());
     lv_gif_set_src(gif, "A:" BITMAPS_PATH "/" SPLASH_GIF_FILE);
@@ -70,6 +71,7 @@ void drawSplash()
       lv_obj_del(gif);
     }
   }
+#endif
 
   if (!hasSplash) {
     auto bg = new StaticImage(splashScreen, {0, 0, LCD_W, LCD_H},
