@@ -48,7 +48,6 @@ add_definitions(-DUSE_CUSTOM_EXTI_IRQ)
 add_definitions(-DUSB_CHARGER)
 
 set(FLAVOUR gx10)
-add_definitions(-DMANUFACTURER_RADIOMASTER)
 
 # defines existing internal modules
 set(INTERNAL_MODULES CRSF CACHE STRING "Internal modules")
