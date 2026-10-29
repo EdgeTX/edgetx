@@ -48,6 +48,11 @@
 #define SPI_NOR_REG2_ADDR3 0x00000300
 
 #define MEMORY_READY_MATCH_VALUE 0x00
+
+// A page program command wraps inside its own page: bytes past the page
+// boundary overwrite the start of the same page instead of continuing
+// into the next one (#7576).
+#define XSPI_NOR_PAGE_SIZE 256
 #define MEMORY_READY_MASK_VALUE 0x01
 
 #define WRITE_ENABLE_MATCH_VALUE 0x02
@@ -384,28 +389,45 @@ int stm32_xspi_nor_program(const stm32_xspi_nor_t* dev, uint32_t address,
     if (xspi_nor_abort(dev) != 0) return -1;
   }
 
-  if (xspi_nor_write_enable(dev) != 0) {
-    return -1;
-  }
-  
   uint8_t mode = dev->data_mode;
   uint8_t rate = dev->data_rate;
 
-  XSPI_RegularCmdTypeDef s_command = xspi_prepare_cmd(mode, rate);
-  s_command.Instruction = xspi_nor_page_prg_instr(mode);
-  s_command.Address = address;
-  s_command.DataLength = len;
-  s_command.DummyCycles = 0;
+  uint8_t* src = (uint8_t*)data;
 
-  if (HAL_XSPI_Command(dev->hxspi, &s_command,
-                       HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-    return -1;
+  while (len > 0) {
+    // Stop at the page boundary so a program command that starts mid-page
+    // cannot wrap around to the start of that page.
+    uint32_t page_room = XSPI_NOR_PAGE_SIZE - (address % XSPI_NOR_PAGE_SIZE);
+    uint32_t size = (len > page_room) ? page_room : len;
+
+    if (xspi_nor_write_enable(dev) != 0) {
+      return -1;
+    }
+
+    XSPI_RegularCmdTypeDef s_command = xspi_prepare_cmd(mode, rate);
+    s_command.Instruction = xspi_nor_page_prg_instr(mode);
+    s_command.Address = address;
+    s_command.DataLength = size;
+    s_command.DummyCycles = 0;
+
+    if (HAL_XSPI_Command(dev->hxspi, &s_command,
+                         HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+      return -1;
+    }
+
+    if (HAL_XSPI_Transmit(dev->hxspi, src,
+                          HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+      return -1;
+    }
+
+    if (xspi_nor_auto_polling_mem_ready(dev, mode, rate) != 0) {
+      return -1;
+    }
+
+    address += size;
+    src += size;
+    len -= size;
   }
 
-  if (HAL_XSPI_Transmit(dev->hxspi, (uint8_t*)data,
-                        HAL_XSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
-    return -1;
-  }
-
-  return xspi_nor_auto_polling_mem_ready(dev, mode, rate);
+  return 0;
 }
