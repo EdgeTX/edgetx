@@ -55,6 +55,8 @@
 #define MASK_CSRF_ARMING_MODE      (1<<23)
 #define MASK_CSRF_ARMING_TRIGGER   (1<<24)
 #define MASK_ENABLE_AETR           (1<<25)
+#define MASK_MULTI_AUTOBIND        (1<<26)
+#define MASK_MULTI_DISABLE_TELEM   (1<<27)
 
 quint8 ModulePanel::failsafesValueDisplayType = ModulePanel::FAILSAFE_DISPLAY_PERCENT;
 
@@ -372,17 +374,22 @@ void ModulePanel::update()
         mask |=  MASK_SUBTYPES | MASK_SBUSPPM_FIELDS| MASK_CHANNELS_RANGE;
         break;
       case PULSES_MULTIMODULE:
-        mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_MULTIMODULE | MASK_SUBTYPES;
+        mask |= MASK_CHANNELS_RANGE | MASK_RX_NUMBER | MASK_MULTIMODULE;
+        if (pdef.hasSubTypes())
+          mask |= MASK_SUBTYPES;
 
         switch (module.multi.rfProtocol) {
           case MODULE_SUBTYPE_MULTI_OLRS:
             max_rx_num = MODULE_SUBTYPE_MULTI_OLRS_RXNUM;
+            break;
           case MODULE_SUBTYPE_MULTI_BUGS:
             max_rx_num = MODULE_SUBTYPE_MULTI_BUGS_RXNUM;
+            break;
           case MODULE_SUBTYPE_MULTI_BUGS_MINI:
             max_rx_num = MODULE_SUBTYPE_MULTI_BUGS_MINI_RXNUM;
+            break;
           default:
-             max_rx_num = 63;
+            max_rx_num = 63;
         }
 
         if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
@@ -397,10 +404,19 @@ void ModulePanel::update()
           else
             mask |= MASK_MULTIOPTION;
         }
-        if (pdef.hasFailsafe || (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKY && (module.subType == 0 || module.subType == 2 || module.subType > 3 )))
+        if (pdef.hasFailsafe)
           mask |= MASK_FAILSAFES;
         if (pdef.disableChannelMap)
           mask |= MASK_CHANNELMAP;
+        if (!Multiprotocols::isRxProtocol(module.multi.rfProtocol)) {
+          if (module.multi.rfProtocol != MODULE_SUBTYPE_MULTI_DSM2)
+            mask |= MASK_MULTI_AUTOBIND;
+          // only needed on FrSky radios to avoid S.Port collisions with the internal module,
+          // elsewhere only shown while set so it can be cleared (same as the radio)
+          if (Boards::getManufacturer(board).compare("FrSky", Qt::CaseInsensitive) == 0 ||
+              module.multi.disableTelemetry)
+            mask |= MASK_MULTI_DISABLE_TELEM;
+        }
         break;
       case PULSES_FLYSKY_AFHDS3:
         mask |= MASK_RX_NUMBER;
@@ -543,14 +559,11 @@ void ModulePanel::update()
   ui->chkOption->setVisible(mask & MASK_MULTI_DSM_OPT);
   ui->lblCboOption->setVisible(mask & MASK_MULTI_DSM_OPT || mask & MASK_MULTI_BAYANG_OPT);
   ui->cboOption->setVisible(mask & MASK_MULTI_DSM_OPT || mask & MASK_MULTI_BAYANG_OPT);
-  ui->disableTelem->setVisible(mask & MASK_MULTIMODULE);
+  ui->disableTelem->setVisible(mask & MASK_MULTI_DISABLE_TELEM);
   ui->disableChMap->setVisible(mask & MASK_CHANNELMAP);
   ui->lowPower->setVisible(mask & MASK_MULTIMODULE);
-  ui->autoBind->setVisible(mask & MASK_MULTIMODULE);
-  if (module.multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
-    ui->autoBind->setVisible(false);
-  else
-    ui->autoBind->setText(tr("Bind on channel"));
+  ui->autoBind->setVisible(mask & MASK_MULTI_AUTOBIND);
+  ui->autoBind->setText(tr("Bind on channel"));
 
   if (mask & MASK_MULTIMODULE) {
     ui->multiProtocol->setCurrentIndex(ui->multiProtocol->findData(module.multi.rfProtocol));
@@ -828,6 +841,9 @@ void ModulePanel::onMultiProtocolChanged(int index)
     lock=true;
     module.multi.rfProtocol = (unsigned int)rfProtocol;
     module.multi.optionValue = 0;
+    // bind on channel is hidden for receiver protocols, don't leave it set
+    if (Multiprotocols::isRxProtocol(rfProtocol))
+      module.multi.autoBindMode = false;
     unsigned int maxSubTypes = multiProtocols.getProtocol(index).numSubTypes();
     if (rfProtocol > MODULE_SUBTYPE_MULTI_LAST)
       maxSubTypes = 8;

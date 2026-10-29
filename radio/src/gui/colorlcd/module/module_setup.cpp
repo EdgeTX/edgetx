@@ -133,6 +133,7 @@ class ModuleWindow : public Window
     clear();
 
     modOpts = nullptr;
+    chRangeLine = nullptr;
     chRange = nullptr;
     rxID = nullptr;
     bindButton = nullptr;
@@ -188,9 +189,9 @@ class ModuleWindow : public Window
   #endif
 
     // Channel Range
-    auto line = newLine(grid);
-    new StaticText(line, rect_t{}, STR_CHANNELRANGE);
-    chRange = new ModuleChannelRange(line, moduleIdx);
+    chRangeLine = newLine(grid);
+    new StaticText(chRangeLine, rect_t{}, STR_CHANNELRANGE);
+    chRange = new ModuleChannelRange(chRangeLine, moduleIdx);
 
     // Failsafe
     fsLine = newLine(grid);
@@ -307,34 +308,33 @@ class ModuleWindow : public Window
   #endif
         });
 
-        if (isModuleRangeAvailable(moduleIdx)) {
-          rangeButton = new TextButton(box, rect_t{}, STR_MODULE_RANGE);
-          rangeButton->setPressHandler([=]() -> uint8_t {
-            if (moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
-              bindButton->check(false);
-              moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+        // shown or hidden with the protocol in updateSubType()
+        rangeButton = new TextButton(box, rect_t{}, STR_MODULE_RANGE);
+        rangeButton->setPressHandler([=]() -> uint8_t {
+          if (moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
+            bindButton->check(false);
+            moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+          }
+          if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
+            moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+            return 0;
+          } else {
+            moduleState[moduleIdx].mode = MODULE_MODE_RANGECHECK;
+  #if defined(AFHDS2)
+            if (isModuleAFHDS2A(moduleIdx)) {
+              resetPulsesAFHDS2();
             }
-            if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
-              moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
-              return 0;
-            } else {
-              moduleState[moduleIdx].mode = MODULE_MODE_RANGECHECK;
+  #endif
+            startRSSIDialog([=]() {
   #if defined(AFHDS2)
               if (isModuleAFHDS2A(moduleIdx)) {
                 resetPulsesAFHDS2();
               }
   #endif
-              startRSSIDialog([=]() {
-  #if defined(AFHDS2)
-                if (isModuleAFHDS2A(moduleIdx)) {
-                  resetPulsesAFHDS2();
-                }
-  #endif
-              });
-              return 1;
-            }
-          });
-        }
+            });
+            return 1;
+          }
+        });
 
   #if defined(PXX2)
         if (isModuleISRM(moduleIdx)) {
@@ -460,6 +460,10 @@ class ModuleWindow : public Window
   {
     if (modOpts) modOpts->update();
     if (chRange) chRange->update();
+    // no channels are sent with MPM receiver protocols
+    if (chRangeLine) chRangeLine->show(!IS_RX_MULTI(moduleIdx));
+    if (rangeButton && !isModuleRFAccess(moduleIdx))
+      rangeButton->show(isModuleRangeAvailable(moduleIdx));
 
     updateRxID();
     updateFailsafe();
@@ -516,6 +520,7 @@ class ModuleWindow : public Window
   uint8_t moduleIdx;
 
   ModuleOptions* modOpts = nullptr;
+  Window* chRangeLine = nullptr;
   ChannelRange* chRange = nullptr;
   NumberEdit* rxID = nullptr;
   TextButton* bindButton = nullptr;
