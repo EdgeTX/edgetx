@@ -31,11 +31,11 @@ class TrimIcon : public SliderIcon
  public:
   TrimIcon(Window* parent, bool isVertical) : SliderIcon(parent)
   {
-    lv_coord_t x1 = MainViewSlider::SLIDER_ICON_SIZE / 5;
-    lv_coord_t x2 = MainViewSlider::SLIDER_ICON_SIZE - x1;
-    lv_coord_t y1 = (MainViewSlider::SLIDER_ICON_SIZE + 1) / 4;
-    lv_coord_t y2 = MainViewSlider::SLIDER_ICON_SIZE - 1 - y1;
-    lv_coord_t lw = MainViewSlider::SLIDER_ICON_SIZE > 15 ? 2 : 1;
+    lv_coord_t lw = SLIDER_MASK_SIZE > 15 ? 2 : 1;
+    lv_coord_t x1 = SLIDER_MASK_SIZE / 5 + 1;
+    lv_coord_t x2 = SLIDER_ICON_SIZE - x1;
+    lv_coord_t y1 = (SLIDER_MASK_SIZE - lw * 2) / 3 + 1;
+    lv_coord_t y2 = SLIDER_MASK_SIZE + 1 - y1;
     if (lw > 1) y2 += 1;
     if (isVertical) {
       barPoints[0] = {x1, y1};
@@ -100,24 +100,25 @@ MainViewTrim::MainViewTrim(Window* parent, const rect_t& rect, uint8_t idx,
   etx_solid_bg(trimBar, COLOR_THEME_SECONDARY1_INDEX);
   etx_obj_add_style(trimBar, styles->rounded, LV_PART_MAIN);
   if (isVertical) {
-    lv_obj_set_pos(trimBar, (MainViewSlider::SLIDER_BAR_SIZE - TRIM_LINE_WIDTH) / 2,
-                   MainViewSlider::SLIDER_BAR_SIZE / 2);
+    lv_obj_set_pos(trimBar, (SliderIcon::SLIDER_ICON_SIZE - TRIM_LINE_WIDTH) / 2,
+                   SliderIcon::SLIDER_ICON_SIZE / 2);
     lv_obj_set_size(trimBar, TRIM_LINE_WIDTH,
-                    MainViewSlider::VERTICAL_SLIDERS_HEIGHT - MainViewSlider::SLIDER_BAR_SIZE + 1);
+                    MainViewSlider::VERTICAL_SLIDERS_HEIGHT - SliderIcon::SLIDER_ICON_SIZE + 1);
   } else {
-    lv_obj_set_pos(trimBar, MainViewSlider::SLIDER_BAR_SIZE / 2,
-                   (MainViewSlider::SLIDER_BAR_SIZE - TRIM_LINE_WIDTH - 1) / 2);
-    lv_obj_set_size(trimBar, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH - MainViewSlider::SLIDER_BAR_SIZE + 1,
+    lv_obj_set_pos(trimBar, SliderIcon::SLIDER_ICON_SIZE / 2,
+                   (SliderIcon::SLIDER_ICON_SIZE - TRIM_LINE_WIDTH) / 2);
+    lv_obj_set_size(trimBar, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH - SliderIcon::SLIDER_ICON_SIZE + 1,
                     TRIM_LINE_WIDTH);
   }
 
   trimIcon = new TrimIcon(this, isVertical);
 
   trimValue = new DynamicNumber<int16_t>(
-      this, {0, 0, MainViewSlider::SLIDER_BAR_SIZE, 12},
+      this, {0, 0, SliderIcon::SLIDER_ICON_SIZE, SliderIcon::SLIDER_MASK_SIZE},
       [=]() { return divRoundClosest(abs(value) * 100, trimMax); },
       COLOR_THEME_PRIMARY2_INDEX, FONT(XXS) | CENTERED);
   etx_solid_bg(trimValue->getLvObj(), COLOR_THEME_SECONDARY1_INDEX);
+  trimValue->padTop(TRIM_VAL_YO);
   trimValue->hide();
 
   setRange();
@@ -150,13 +151,12 @@ void MainViewTrim::setPos()
     if (value) {
       if (isVertical) {
         x = 0;
-        y = (value > 0) ? MainViewSlider::VERTICAL_SLIDERS_HEIGHT * 4 / 5
-                        : MainViewSlider::VERTICAL_SLIDERS_HEIGHT / 5 - 11;
+        y = (value > 0) ? MainViewSlider::VERTICAL_SLIDERS_HEIGHT - SliderIcon::SLIDER_MASK_SIZE * 2
+                        : SliderIcon::SLIDER_MASK_SIZE;
       } else {
-        x = ((value < 0) ? MainViewSlider::HORIZONTAL_SLIDERS_WIDTH * 4 / 5
-                         : MainViewSlider::HORIZONTAL_SLIDERS_WIDTH / 5) -
-                         MainViewSlider::SLIDER_BAR_SIZE / 2;
-        y = (MainViewSlider::SLIDER_BAR_SIZE - 12) / 2;
+        x = ((value < 0) ? MainViewSlider::HORIZONTAL_SLIDERS_WIDTH - SliderIcon::SLIDER_MASK_SIZE - SliderIcon::SLIDER_ICON_SIZE
+                         : SliderIcon::SLIDER_MASK_SIZE);
+        y = 1;
       }
       lv_obj_set_pos(trimValue->getLvObj(), x, y);
       trimValue->show();
@@ -203,7 +203,7 @@ void MainViewTrim::checkEvents()
   int newValue = getTrimValue(mixerCurrentFlightMode, inputMappingConvertMode(idx));
 
   bool update = false;
-  
+
   if (extendedTrims != g_model.extendedTrims) {
     update = true;
     setRange();
@@ -222,7 +222,7 @@ coord_t MainViewTrim::sx()
   if (isVertical) return 0;
 
   return divRoundClosest(
-      (MainViewSlider::HORIZONTAL_SLIDERS_WIDTH - MainViewSlider::SLIDER_BAR_SIZE) * (value - trimMin),
+      (MainViewSlider::HORIZONTAL_SLIDERS_WIDTH - SliderIcon::SLIDER_ICON_SIZE) * (value - trimMin),
       trimMax - trimMin);
 }
 
@@ -231,20 +231,20 @@ coord_t MainViewTrim::sy()
   if (!isVertical) return 0;
 
   return divRoundClosest(
-             (MainViewSlider::VERTICAL_SLIDERS_HEIGHT - MainViewSlider::SLIDER_BAR_SIZE) * (trimMax - value),
+             (MainViewSlider::VERTICAL_SLIDERS_HEIGHT - SliderIcon::SLIDER_ICON_SIZE) * (trimMax - value),
              trimMax - trimMin);
 }
 
 MainViewHorizontalTrim::MainViewHorizontalTrim(Window* parent, uint8_t idx) :
     MainViewTrim(parent,
-                 rect_t{0, 0, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, MainViewSlider::SLIDER_BAR_SIZE}, idx,
+                 rect_t{0, 0, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, SliderIcon::SLIDER_ICON_SIZE}, idx,
                  false)
 {
 }
 
 MainViewVerticalTrim::MainViewVerticalTrim(Window* parent, uint8_t idx) :
     MainViewTrim(parent,
-                 rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, MainViewSlider::VERTICAL_SLIDERS_HEIGHT}, idx,
+                 rect_t{0, 0, SliderIcon::SLIDER_ICON_SIZE, MainViewSlider::VERTICAL_SLIDERS_HEIGHT}, idx,
                  true)
 {
 }
