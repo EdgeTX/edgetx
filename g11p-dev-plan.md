@@ -523,6 +523,10 @@ one commit, and do not leave the tree dirty between tasks. If a task spans radio
     build with `FLAVOR=g11p`; bootloader disassembly shows `readTrims()` returning `0x42`
     for K1 + K4. -> commit & push
 
+21. [x] Radio: applied section 11.6 — corrected the `decodeKeys()` ladder thresholds/direction
+    (5.1K key = lower voltage, 10K key = higher, rest = 3.3V). Bootloader entry via K1 + K4
+    now matches the hardware. Hardware verification of levels still pending. -> commit & push
+
 **Outstanding:** `.github/workflows/actions.yml` CI matrix needs `g11p` added, but the
 push token lacks `workflow` scope; apply manually or with a suitably-scoped token. Hardware
 bring-up items remain (input map, panel timings, etc. - see section 7).
@@ -710,11 +714,14 @@ returns `0`. In addition, the ADC is never initialised in the bootloader.
 - **Hold K1 + K4, then power on.**
 - K1/K2 share `K12_ADC` (`PB0`, `ADC_CHANNEL_RAW1` = `INP9`, ADC1).
 - K3/K4 share `K34_ADC` (`PB1`, `ADC_CHANNEL_RAW2` = `INP5`, ADC1).
-- Current firmware decode (TODO-hardware):
-  - `K1` = `K12_ADC >= G11P_KEY_LEVEL_HIGH`
-  - `K2` = `K12_ADC >= G11P_KEY_LEVEL_LOW && < G11P_KEY_LEVEL_HIGH`
-  - `K3` = `K34_ADC >= G11P_KEY_LEVEL_HIGH`
-  - `K4` = `K34_ADC >= G11P_KEY_LEVEL_LOW && < G11P_KEY_LEVEL_HIGH`
+- Ladder (from `FS-G11P-SIDE`/`FS-G11P-ENCOD`): 5.1K pull-up to 3.3V; each key pulls the
+  node to GND via **5.1K (K1/K3, lower)** or **10K (K2/K4, higher)**. 12-bit ADC @3.3V:
+  - no key -> ~4095
+  - 10K key (`K2`/`K4`) -> ~2712
+  - 5.1K key (`K1`/`K3`) -> ~2048
+- Decode (`g11p_key_driver.cpp`, corrected in 11.6):
+  - `k < G11P_KEY_LEVEL_NONE` means a key is pressed;
+  - within that, `k < G11P_KEY_LEVEL_SPLIT` -> 5.1K key (K1/K3), else 10K key (K2/K4).
 - The common `bl_keys.cpp` check is unchanged: `readTrims() == BOOTLOADER_KEYS` (`0x42`).
   The BOOT implementation of `readTrims()` returns `BOOTLOADER_KEYS` only for K1 + K4, and
   `0` otherwise.
@@ -780,5 +787,30 @@ is not). This leaves the ADC clean for the firmware's `adcInit()`.
    - No keys held -> normal firmware boot.
    - No false entry at rest.
    - Sticks/trims/switches/battery ADC still work after the jump to firmware.
-3. Measure the actual K12/K34 ladder voltages and adjust `G11P_KEY_LEVEL_LOW/HIGH` if the
-   K1/K4 windows differ from the assumed values.
+3. Measure the actual K12/K34 ladder voltages (firmware analog diag page) and adjust
+   `G11P_KEY_LEVEL_NONE` / `G11P_KEY_LEVEL_SPLIT` if the levels differ from the assumed
+   values.
+
+### 11.6 Fix — inverted key decode (bootloader never entered)
+
+The driver decoded the ladder assuming the **higher** voltage was K1/K3 and the lower
+K2/K4, with thresholds `LOW=1365`/`HIGH=2730`. Hardware is the opposite and different:
+
+- no key = 3.3V (~4095) — this was mis-decoded as `KEY_PAGEUP`;
+- 10K key (K2/K4) = ~2712 — just under `HIGH`, so also decoded as the "low" key;
+- 5.1K key (K1/K3) = ~2048 — decoded as the "low" key.
+
+Result: a real K1 press produced `KEY_PAGEDN`, never `KEY_PAGEUP`, so the K1+K4 combo
+(`PAGEUP && DOWN`) could never match and the bootloader could not be entered (and the
+firmware showed phantom K1/K3 at rest).
+
+Fix in `g11p_key_driver.cpp` `decodeKeys()`:
+
+- treat `k >= G11P_KEY_LEVEL_NONE (3400)` as "no key";
+- otherwise `k < G11P_KEY_LEVEL_SPLIT (2380)` -> 5.1K key (K1/K3), else 10K key (K2/K4);
+- keep the logical mapping K1=PAGEUP, K2=PAGEDN, K3=UP, K4=DOWN.
+
+Because `decodeKeys()` is shared, this fixes both the bootloader entry and the firmware
+key/phantom-key behaviour. `boardBLStartCondition()` / `bl_keys.cpp` / `boot.cpp` are
+unchanged.
+

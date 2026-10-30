@@ -54,9 +54,15 @@
 #define G11P_ADC_TR3   7
 #define G11P_ADC_TR4   8
 
-// TODO(hardware): ladder thresholds (12-bit)
-#define G11P_KEY_LEVEL_LOW   1365
-#define G11P_KEY_LEVEL_HIGH  2730
+// K1/K2 and K3/K4 are resistor ladders on the KEY sub-board: a 5.1K pull-up
+// to 3.3V with each key pulling the node to GND through 5.1K (K1/K3) or
+// 10K (K2/K4). With a 12-bit ADC at 3.3V this gives roughly:
+//   no key      -> 4095  (3.3V)
+//   10K key     -> 2712  (2.185V)  K2 / K4
+//   5.1K key    -> 2048  (1.65V)   K1 / K3
+// TODO(hardware): confirm the actual levels via the firmware analog diag page.
+#define G11P_KEY_LEVEL_NONE   3400  // >= : no key pressed
+#define G11P_KEY_LEVEL_SPLIT  2380  // >= : 10K key, < : 5.1K key
 
 #define G11P_TRIM_LOW        1500
 #define G11P_TRIM_HIGH       3500
@@ -65,13 +71,17 @@ static uint32_t decodeKeys(uint16_t k12, uint16_t k34)
 {
   uint32_t result = 0;
 
-  // K1/K2 on K12_ADC
-  if (k12 >= G11P_KEY_LEVEL_HIGH)       result |= 1 << KEY_PAGEUP; // (TODO)
-  else if (k12 >= G11P_KEY_LEVEL_LOW)   result |= 1 << KEY_PAGEDN; // (TODO)
+  // K1 (5.1K, lower) / K2 (10K, higher) on K12_ADC
+  if (k12 < G11P_KEY_LEVEL_NONE) {
+    if (k12 < G11P_KEY_LEVEL_SPLIT)     result |= 1 << KEY_PAGEUP; // K1
+    else                                result |= 1 << KEY_PAGEDN; // K2
+  }
 
-  // K3/K4 on K34_ADC
-  if (k34 >= G11P_KEY_LEVEL_HIGH)       result |= 1 << KEY_UP;     // (TODO)
-  else if (k34 >= G11P_KEY_LEVEL_LOW)   result |= 1 << KEY_DOWN;   // (TODO)
+  // K3 (5.1K, lower) / K4 (10K, higher) on K34_ADC
+  if (k34 < G11P_KEY_LEVEL_NONE) {
+    if (k34 < G11P_KEY_LEVEL_SPLIT)     result |= 1 << KEY_UP;     // K3
+    else                                result |= 1 << KEY_DOWN;   // K4
+  }
 
   return result;
 }
