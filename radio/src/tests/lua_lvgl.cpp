@@ -1082,6 +1082,41 @@ TEST_F(LuaBitmapImage, ReplacedFilenameCallbackResultIsDiscarded)
   }
 }
 
+TEST_F(LuaBitmapImage, DeletedImageReleasesChildrenOfPendingClear)
+{
+  addBitmap("bitmap", BMP_ARGB4444);
+  ASSERT_TRUE(exec("image=lvgl.image({bitmap=bitmap,w=20,h=20})"));
+  auto refs = registryResources();
+  lua_getglobal(L, "image");
+  manager.setTempParent(LvglWidgetObjectBase::checkLvgl(L, -1, true));
+  lua_pop(L, 1);
+  auto created = exec(
+      "calls=0; local function capture(b) return function()"
+      "calls=calls+1; return b~=nil end end;"
+      "child=trackedImage({bitmap=bitmap,w=2,h=1,visible=capture(bitmap)});"
+      "label=lvgl.label({text='child',visible=capture(bitmap)});"
+      "weak=setmetatable({bitmap},{__mode='v'}); bitmap=nil; calls=0");
+  manager.setTempParent(nullptr);
+  ASSERT_TRUE(created);
+  ASSERT_TRUE(exec("lvgl.clear(image)"));
+  image()->getWindow()->closeWindow();
+  EXPECT_TRUE(manager.callRefs(L));
+  EXPECT_TRUE(manager.callRefs(L));
+  ASSERT_TRUE(exec("collectgarbage(); assert(weak[1]==nil); assert(calls==0);"
+                   "assert(not pcall(child.show,child));"
+                   "assert(not pcall(label.set,label,{text='x'}))"));
+  // Only the image handle remains; native deletion released its Bitmap.
+  EXPECT_EQ(registryResources(), refs - 1);
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+  EXPECT_EQ(destroyedImages, 0);
+  MainWindow::instance()->run();
+  EXPECT_EQ(destroyedImages, 1);
+  manager.clearRefs(L);
+  MainWindow::instance()->run();
+  ASSERT_TRUE(exec("image=nil; child=nil; label=nil; collectgarbage()"));
+  EXPECT_EQ(destroyedImages, 1);
+}
+
 }  // namespace
 
 #endif

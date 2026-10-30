@@ -2142,7 +2142,15 @@ void LvglWidgetImage::parseParam(lua_State *L, const char *key)
 
 bool LvglWidgetImage::callRefs(lua_State *L)
 {
-  if (!window) return true;
+  if (!window) {
+    // Natively deleted: run no callbacks, but still release the children
+    // of a pending lvgl.clear(image).
+    if (clearRequest) {
+      clearRequest = false;
+      clearChildRefs(L);
+    }
+    return true;
+  }
   if (!LvglWidgetObject::callRefs(L)) return false;
 
   if (isVisible()) {
