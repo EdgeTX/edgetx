@@ -75,51 +75,6 @@ static bool w_board(void* user, uint8_t* data, uint32_t bitoffs,
   return wf(opaque, FLAVOUR, sizeof(FLAVOUR)-1);
 }
 
-static uint32_t in_read_weight(const YamlNode* node, const char* val, uint8_t val_len)
-{
-  if ((strncmp(val, "GV", 2) == 0) || (strncmp(val, "-GV", 3) == 0)) {
-    bool neg = false;
-    int ofst = 2;
-    if (val[0] == '-') {
-      neg = true;
-      ofst = 3;
-    }
-    int32_t idx = yaml_str2int(val + ofst, val_len - ofst);
-    // Convert to range -MAX_GVARS .. MAX_GVARS - 1
-    if (neg)
-      idx = -idx;
-    else
-      idx = idx - 1;
-    return GV_VALUE_FROM_INDEX(idx);
-  }
-
-  return (uint32_t)yaml_str2int(val, val_len);
-}
-
-bool in_write_weight(const YamlNode* node, uint32_t val, yaml_writer_func wf,
-                     void* opaque)
-{
-  int32_t sval = yaml_to_signed(val, node->size);
-
-  if (GV_IS_GV_VALUE(sval)) {
-    char s[8] = "";
-    int ofst = 0;
-    int idx = GV_INDEX_FROM_VALUE(sval);
-    if (idx < 0) {
-      s[0] = '-';
-      ofst = 1;
-      idx = -idx;
-    } else {
-      idx = idx + 1;
-    }
-    strAppendStringWithIndex(s + ofst, "GV", idx);
-    return wf(opaque, s, strlen(s));
-  }
-
-  char* s = yaml_signed2str(sval);
-  return wf(opaque, s, strlen(s));
-}
-
 static int _legacy_input_idx(const char* val, uint8_t val_len)
 {
   for (uint8_t i = 0; i < DIM(_legacy_inputs); i++){
@@ -471,15 +426,21 @@ static uint32_t r_mixSrcRawEx(const YamlNode* node, const char* val, uint8_t val
   return (uint32_t)rv;
 }
 
+static bool w_mixSrcRawSigned(const YamlNode* node, int32_t val, yaml_writer_func wf, void* opaque)
+{
+  if (val < 0) {
+    if (!wf(opaque, "!", 1)) return false;
+    val = -val;
+  }
+  return w_mixSrcRaw(node, val, wf, opaque);
+}
+
 static bool w_mixSrcRawExNoQuote(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
   // Check for negative 10 bit value. TODO: handle this better!
   val &= 0x3FF;
-  if (val >= 512) {
-    if (!wf(opaque, "!", 1)) return false;
-    val = 1024 - val;
-  }
-  return w_mixSrcRaw(node, val, wf, opaque);
+  if (val >= 512) val -= 1024;
+  return w_mixSrcRawSigned(node, (int32_t)val, wf, opaque);
 }
 
 static bool w_mixSrcRawEx(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
@@ -489,19 +450,38 @@ static bool w_mixSrcRawEx(const YamlNode* node, uint32_t val, yaml_writer_func w
   return wf(opaque, "\"", 1);
 }
 
+// Legacy 1-based "GVn" / "-GVn" form
+static bool r_legacyGVarSrc(const char* val, uint8_t val_len, int16_t& src)
+{
+  bool neg = val_len > 0 && val[0] == '-';
+  if (neg) {
+    val++;
+    val_len--;
+  }
+  if (val_len < 3 || val[0] != 'G' || val[1] != 'V') return false;
+
+  src = yaml_str2int(val + 2, val_len - 2) - 1 + MIXSRC_FIRST_GVAR;
+  if (neg) src = -src;
+  return true;
+}
+
+static bool isYamlNumber(const char* val, uint8_t val_len)
+{
+  if (val_len > 1 && val[0] == '-') val++;
+  return val[0] >= '0' && val[0] <= '9';
+}
+
 static uint32_t r_sourceNumVal(const YamlNode* node, const char* val, uint8_t val_len)
 {
   SourceNumVal v;
+  int16_t src;
 
-  if (((val[0] == '-') && (val[1] >= '0' && val[1] <= '9')) || (val[0] >= '0' && val[0] <= '9')) {
+  if (isYamlNumber(val, val_len)) {
     v.isSource = 0;
     v.value = (uint32_t)yaml_str2int(val, val_len);
-  } else if ((val[0] == '-') && (val[1] == 'G')) {
+  } else if (r_legacyGVarSrc(val, val_len, src)) {
     v.isSource = 1;
-    v.value = -((val[3] - '0') + MIXSRC_FIRST_GVAR - 1);
-  } else if (val[0] == 'G') {
-    v.isSource = 1;
-    v.value = (val[2] - '0') + MIXSRC_FIRST_GVAR - 1;
+    v.value = src;
   } else {
     v.isSource = 1;
     v.value = r_mixSrcRawEx(node, val, val_len);
@@ -518,6 +498,41 @@ bool w_sourceNumVal(const YamlNode* node, uint32_t val, yaml_writer_func wf,
 
   if (v.isSource)
     return w_mixSrcRawEx(node, v.value, wf, opaque);
+
+  char* s = yaml_signed2str(v.value);
+  return wf(opaque, s, strlen(s));
+}
+
+static uint32_t r_limitNumVal(const YamlNode* node, const char* val, uint8_t val_len)
+{
+  LimitNumVal v;
+  int16_t src;
+
+  if (isYamlNumber(val, val_len)) {
+    v.isSource = 0;
+    v.value = (uint32_t)yaml_str2int(val, val_len);
+  } else if (r_legacyGVarSrc(val, val_len, src)) {
+    v.isSource = 1;
+    v.value = src;
+  } else {
+    v.isSource = 1;
+    v.value = r_mixSrcRawEx(node, val, val_len);
+  }
+
+  return v.rawValue;
+}
+
+bool w_limitNumVal(const YamlNode* node, uint32_t val, yaml_writer_func wf,
+                   void* opaque)
+{
+  LimitNumVal v;
+  v.rawValue = val;
+
+  if (v.isSource) {
+    if (!wf(opaque, "\"", 1)) return false;
+    if (!w_mixSrcRawSigned(node, v.value, wf, opaque)) return false;
+    return wf(opaque, "\"", 1);
+  }
 
   char* s = yaml_signed2str(v.value);
   return wf(opaque, s, strlen(s));

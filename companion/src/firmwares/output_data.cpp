@@ -22,6 +22,7 @@
 #include "output_data.h"
 #include "radiodata.h"
 #include "radiodataconversionstate.h"
+#include "sourcenumref.h"
 
 void LimitData::clear()
 {
@@ -38,11 +39,15 @@ bool LimitData::isEmpty() const
 
 QString LimitData::minToString() const
 {
+  if (SourceNumRef(min).isSource())
+    return RawSource(min).toString();
   return QString::number((qreal)min / 10);
 }
 
 QString LimitData::maxToString() const
 {
+  if (SourceNumRef(max).isSource())
+    return RawSource(max).toString();
   return QString::number((qreal)max / 10);
 }
 
@@ -58,5 +63,7 @@ QString LimitData::nameToString(int index) const
 
 QString LimitData::offsetToString() const
 {
+  if (SourceNumRef(offset).isSource())
+    return RawSource(offset).toString();
   return QString::number((qreal)offset / 10, 'f', 1);
 }

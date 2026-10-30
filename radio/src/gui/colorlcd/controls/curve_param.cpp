@@ -24,7 +24,6 @@
 #include "curve.h"
 #include "edgetx.h"
 #include "getset_helpers.h"
-#include "gvar_numberedit.h"
 #include "model_curves.h"
 #include "source_numberedit.h"
 

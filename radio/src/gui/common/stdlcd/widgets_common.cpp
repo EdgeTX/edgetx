@@ -85,41 +85,33 @@ uint16_t editSrcVarFieldValue(coord_t x, coord_t y, const char* title, uint16_t 
   return value;
 }
 
-int16_t editGVarFieldValue(coord_t x, coord_t y, int16_t value, int16_t min, int16_t max, LcdFlags attr, uint8_t editflags, event_t event)
+bool editLimitNumSource(coord_t x, coord_t y, uint16_t& value, LcdFlags attr,
+                        event_t event)
 {
-#if defined(GVARS)
-  bool invers = (attr & INVERS);
+  LimitNumVal v;
+  v.rawValue = value;
 
-  // TRACE("editGVarFieldValue(val=%d min=%d max=%d)", value, min, max);
-
-  if (modelGVEnabled() && invers && event == EVT_KEY_LONG(KEY_ENTER)) {
+  if ((attr & INVERS) && event == EVT_KEY_LONG(KEY_ENTER)) {
     killEvents(event);
     s_editMode = !s_editMode;
-    if (attr & PREC1)
-      value = (GV_IS_GV_VALUE(value) ? GET_GVAR(value, min, max, mixerCurrentFlightMode)*10 : GV_VALUE_FROM_INDEX(0));
-    else
-      value = (GV_IS_GV_VALUE(value) ? GET_GVAR(value, min, max, mixerCurrentFlightMode) : GV_VALUE_FROM_INDEX(0));
+    value = v.isSource ? makeLimitNumVal(0)
+                       : makeLimitNumVal(modelGVEnabled() ? MIXSRC_FIRST_GVAR : 1, true);
+    v.rawValue = value;
     storageDirty(EE_MODEL);
   }
 
-  if (GV_IS_GV_VALUE(value)) {
-    attr &= ~PREC1;
-    int8_t idx = (int16_t)GV_INDEX_FROM_VALUE(value);
-    if (invers) {
-      CHECK_INCDEC_MODELVAR(event, idx, -MAX_GVARS, MAX_GVARS-1);
-    }
-    value = (int16_t)GV_VALUE_FROM_INDEX(idx);
-    drawGVarName(x, y, idx, attr);
+  if (!v.isSource) return false;
+
+  attr &= ~PREC1;
+  drawSource(x, y, v.value, attr);
+  if (attr & INVERS) {
+    v.value = checkIncDec(event, v.value, 1, MIXSRC_LAST,
+                          EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT |
+                              NO_INCDEC_MARKS,
+                          isSourceAvailable);
+    value = v.rawValue;
   }
-  else {
-    lcdDrawNumber(x, y, value, attr);
-    if (invers) value = checkIncDec(event, value, min, max, EE_MODEL | editflags);
-  }
-#else
-  lcdDrawNumber(x, y, value, attr);
-  if (attr&INVERS) value = checkIncDec(event, value, min, max, EE_MODEL);
-#endif
-  return value;
+  return true;
 }
 
 #if defined(GVARS)
