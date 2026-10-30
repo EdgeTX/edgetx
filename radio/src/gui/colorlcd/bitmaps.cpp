@@ -352,13 +352,6 @@ static const uint8_t mask_model_list_two[] __FLASH = {
 #include "mask_model_list_two.lbm"
 };
 
-static const uint8_t mask_trim[] __FLASH = {
-#include "mask_trim.lbm"
-};
-static const uint8_t mask_trim_shadow[] __FLASH = {
-#include "mask_trim_shadow.lbm"
-};
-
 static const uint8_t mask_tools_apps[] __FLASH = {
 #include "mask_tools_apps.lbm"
 };
@@ -495,9 +488,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] __FLASH = {
     BI(ICON_MODEL_GRID_SMALL, mask_model_grid_small),
     BI(ICON_MODEL_LIST_TWO, mask_model_list_two),
     BI(ICON_MODEL_LIST_ONE, mask_model_list_one),
-
-    BI(ICON_TRIM, mask_trim),
-    BI(ICON_TRIM_SHADOW, mask_trim_shadow),
 
     BI(ICON_TOOLS_APPS, mask_tools_apps),
     BI(ICON_TOOLS_RESET, mask_tools_reset),
