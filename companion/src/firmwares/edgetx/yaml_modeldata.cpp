@@ -138,6 +138,14 @@ static const YamlLookupTable globalOnOffFilterLut = {
   {  2, "ON"  },
 };
 
+static const YamlLookupTable usbModeLut = {
+  {  0, "GLOBAL"  },
+  {  1, "ASK"  },
+  {  2, "JOYSTICK"  },
+  {  3, "STORAGE"  },
+  {  4, "SERIAL"  },
+};
+
 static const YamlLookupTable usbJoystickIfModeLut = {
   {  0, "JOYSTICK"  },
   {  1, "GAMEPAD"  },
@@ -1163,6 +1171,7 @@ Node convert<ModelData>::encode(const ModelData& rhs)
   node["potsWarnEnabled"] = potsWarnEnabled.value;
 
   node["jitterFilter"] = globalOnOffFilterLut << rhs.jitterFilter;
+  node["usbMode"] = usbModeLut << rhs.usbMode;
 
   for (int i = 0; i < CPN_MAX_POTS + CPN_MAX_SLIDERS; i++) {
     if (rhs.potsWarnPosition[i] != 0)
@@ -1448,6 +1457,7 @@ bool convert<ModelData>::decode(const Node& node, ModelData& rhs)
   node["thrTrimSw"] >> rhs.thrTrimSwitch;
   node["potsWarnMode"] >> potsWarningModeLut >> rhs.potsWarningMode;
   node["jitterFilter"] >> globalOnOffFilterLut >> rhs.jitterFilter;
+  node["usbMode"] >> usbModeLut >> rhs.usbMode;
 
   YamlPotsWarnEnabled potsWarnEnabled;
   node["potsWarnEnabled"] >> potsWarnEnabled.value;

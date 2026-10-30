@@ -144,6 +144,7 @@
 #define TR_AUX_SERIAL_MODES_9           "Debug"
 #define TR_AUX_SERIAL_MODES_10          "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11          "Modulo esterno"
+#define TR_GLOBAL                       "Globale"
 #define TR_SWTYPES_1                    "Disab."
 #define TR_SWTYPES_2                    "Toggle"
 #define TR_SWTYPES_3                    "2POS"
@@ -167,6 +168,11 @@
 #define TR_USBMODES_2                   TR("Joyst","Joystick")
 #define TR_USBMODES_3                   TR("SDCard","Storage")
 #define TR_USBMODES_4                   TR("Serial","Seriale")
+#define TR_MODEL_USBMODES_1             TR_GLOBAL
+#define TR_MODEL_USBMODES_2             TR_USBMODES_1
+#define TR_MODEL_USBMODES_3             TR_USBMODES_2
+#define TR_MODEL_USBMODES_4             TR_USBMODES_3
+#define TR_MODEL_USBMODES_5             TR_USBMODES_4
 #define TR_JACK_MODES_1                 "Chiedi"
 #define TR_JACK_MODES_2                 "Audio"
 #define TR_JACK_MODES_3                 "Trainer"
@@ -346,7 +352,7 @@
 #define TR_HATSOPT_1                    "Solo trims"
 #define TR_HATSOPT_2                    "Solo keys"
 #define TR_HATSOPT_3                    "Commutabile"
-#define TR_HATSOPT_4                    "Globale"
+#define TR_HATSOPT_4                    TR_GLOBAL
 #define TR_HATSMODE_TRIMS               "Modo joystick: trims"
 #define TR_HATSMODE_KEYS                "Modo joystick: keys"
 #define TR_HATSMODE_KEYS_HELP           "Lato sinistro:\n"\

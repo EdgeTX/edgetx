@@ -144,11 +144,12 @@
 #define TR_AUX_SERIAL_MODES_9          "Debug"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "External module"
+#define TR_GLOBAL                      "Global"
 #define TR_SWTYPES_1                   "None"
 #define TR_SWTYPES_2                   "Toggle"
 #define TR_SWTYPES_3                   "2POS"
 #define TR_SWTYPES_4                   "3POS"
-#define TR_SWTYPES_5                   "Global"
+#define TR_SWTYPES_5                   TR_GLOBAL
 #define TR_POTTYPES_1                  "None"
 #define TR_POTTYPES_2                  "Pot"
 #define TR_POTTYPES_3                  TR("Pot w. det","Pot with detent")
@@ -167,6 +168,11 @@
 #define TR_USBMODES_2                  TR("Joyst","Joystick")
 #define TR_USBMODES_3                  TR("SDCard","Storage")
 #define TR_USBMODES_4                  "Serial"
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "Ask"
 #define TR_JACK_MODES_2                "Audio"
 #define TR_JACK_MODES_3                "Trainer"
@@ -197,7 +203,7 @@
 #define TR_CURVE_TYPES_1               "Standard"
 #define TR_CURVE_TYPES_2               "Custom"
 
-#define TR_ADCFILTERVALUES_1           "Global"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "Off"
 #define TR_ADCFILTERVALUES_3           "On"
 
@@ -346,7 +352,7 @@
 #define TR_HATSOPT_1                   "Trims only"
 #define TR_HATSOPT_2                   "Keys only"
 #define TR_HATSOPT_3                   "Switchable"
-#define TR_HATSOPT_4                   "Global"
+#define TR_HATSOPT_4                   TR_GLOBAL
 #define TR_HATSMODE_TRIMS              "Hats mode: Trims"
 #define TR_HATSMODE_KEYS               "Hats mode: Keys"
 #define TR_HATSMODE_KEYS_HELP          "Left side:\n"\

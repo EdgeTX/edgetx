@@ -150,11 +150,12 @@
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "Module externe"
 
+#define TR_GLOBAL                      "Global"
 #define TR_SWTYPES_1                   "Rien"
 #define TR_SWTYPES_2                   "Monostable"
 #define TR_SWTYPES_3                   "2-POS"
 #define TR_SWTYPES_4                   "3-POS"
-#define TR_SWTYPES_5                   "Global"
+#define TR_SWTYPES_5                   TR_GLOBAL
 
 #define TR_POTTYPES_1                  "Rien"
 #define TR_POTTYPES_2                  TR("Pots","Potentiomètre")
@@ -175,6 +176,11 @@
 #define TR_USBMODES_2                  TR("Joyst","Joystick")
 #define TR_USBMODES_3                  TR("SDCard","Stockage")
 #define TR_USBMODES_4                  "Série"
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "Demander"
 #define TR_JACK_MODES_2                "Audio"
 #define TR_JACK_MODES_3                "Écolage"
@@ -201,7 +207,7 @@
 #define TR_CURVE_TYPES_1               "Standard"
 #define TR_CURVE_TYPES_2               "Libre"
 
-#define TR_ADCFILTERVALUES_1           "Global"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "Off"
 #define TR_ADCFILTERVALUES_3           "On"
 
@@ -349,7 +355,7 @@
 #define TR_HATSOPT_1                   "Trims uniquement"
 #define TR_HATSOPT_2                   "Touches uniquement"
 #define TR_HATSOPT_3                   "Commutable"
-#define TR_HATSOPT_4                   "Global"
+#define TR_HATSOPT_4                   TR_GLOBAL
 #define TR_HATSMODE_TRIMS              "Mode joystick: trims"
 #define TR_HATSMODE_KEYS               "Mode joystick: touches"
 #define TR_HATSMODE_KEYS_HELP          "Left side:\n"\

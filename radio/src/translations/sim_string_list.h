@@ -1102,6 +1102,7 @@
 #define STR_ISRM_RF_PROTOCOLS currentLangStrings->STR_ISRM_RF_PROTOCOLS
 #define STR_JACK_MODES currentLangStrings->STR_JACK_MODES
 #define STR_MMMINV currentLangStrings->STR_MMMINV
+#define STR_MODEL_USBMODES currentLangStrings->STR_MODEL_USBMODES
 #define STR_MODULE_PROTOCOLS currentLangStrings->STR_MODULE_PROTOCOLS
 #define STR_MONTHS currentLangStrings->STR_MONTHS
 #define STR_OFFON currentLangStrings->STR_OFFON

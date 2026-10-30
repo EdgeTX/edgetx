@@ -143,11 +143,12 @@
 #define TR_AUX_SERIAL_MODES_9           "調試"
 #define TR_AUX_SERIAL_MODES_10          "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11          "外置發射"
+#define TR_GLOBAL                       "全局"
 #define TR_SWTYPES_1                    "無"
 #define TR_SWTYPES_2                    "回彈"
 #define TR_SWTYPES_3                    "2段"
 #define TR_SWTYPES_4                    "3段"
-#define TR_SWTYPES_5                    "全局"
+#define TR_SWTYPES_5                    TR_GLOBAL
 #define TR_POTTYPES_1                   "無"
 #define TR_POTTYPES_2                   "無中點旋鈕"
 #define TR_POTTYPES_3                   TR("中點旋鈕","有中點旋鈕")
@@ -166,6 +167,11 @@
 #define TR_USBMODES_2                   "遊戲柄"
 #define TR_USBMODES_3                   "U盤"
 #define TR_USBMODES_4                   "串行"
+#define TR_MODEL_USBMODES_1             TR_GLOBAL
+#define TR_MODEL_USBMODES_2             TR_USBMODES_1
+#define TR_MODEL_USBMODES_3             TR_USBMODES_2
+#define TR_MODEL_USBMODES_4             TR_USBMODES_3
+#define TR_MODEL_USBMODES_5             TR_USBMODES_4
 #define TR_JACK_MODES_1                 "詢問"
 #define TR_JACK_MODES_2                 "音頻"
 #define TR_JACK_MODES_3                 "教練"
@@ -196,7 +202,7 @@
 #define TR_CURVE_TYPES_1                "標準"
 #define TR_CURVE_TYPES_2                "自定義"
 
-#define TR_ADCFILTERVALUES_1            "全局"
+#define TR_ADCFILTERVALUES_1            TR_GLOBAL
 #define TR_ADCFILTERVALUES_2            "禁用"
 #define TR_ADCFILTERVALUES_3            "开启"
 
@@ -345,7 +351,7 @@
 #define TR_HATSOPT_1                   "微調"
 #define TR_HATSOPT_2                   "導航鍵"
 #define TR_HATSOPT_3                   "可切換"
-#define TR_HATSOPT_4                   "全局"
+#define TR_HATSOPT_4                   TR_GLOBAL
 #define TR_HATSMODE_TRIMS              "按鍵帽: 微調"
 #define TR_HATSMODE_KEYS               "按鍵帽: 導航鍵"
 #define TR_HATSMODE_KEYS_HELP          "左側按鍵帽:\n"\

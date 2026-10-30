@@ -144,11 +144,12 @@
 #define TR_AUX_SERIAL_MODES_9          "デバッグ"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "外部モジュール"
+#define TR_GLOBAL                      "グローバル"
 #define TR_SWTYPES_1                   "なし"
 #define TR_SWTYPES_2                   "トグル"
 #define TR_SWTYPES_3                   "2POS"
 #define TR_SWTYPES_4                   "3POS"
-#define TR_SWTYPES_5                   "グローバル"
+#define TR_SWTYPES_5                   TR_GLOBAL
 #define TR_POTTYPES_1                  "なし"
 #define TR_POTTYPES_2                  "ダイヤル"
 #define TR_POTTYPES_3                  TR("Pot w. det","ダイヤル(ノッチ)")
@@ -167,6 +168,11 @@
 #define TR_USBMODES_2                  TR("Joyst","JoyStick")
 #define TR_USBMODES_3                  TR("SDカード","ストレージ")
 #define TR_USBMODES_4                  "シリアル"
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "確認"
 #define TR_JACK_MODES_2                "音声"
 #define TR_JACK_MODES_3                "トレーナー"
@@ -197,7 +203,7 @@
 #define TR_CURVE_TYPES_1               "スタンダード"
 #define TR_CURVE_TYPES_2               "カスタム"
 
-#define TR_ADCFILTERVALUES_1           "グローバル"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "OFF"
 #define TR_ADCFILTERVALUES_3           "ON"
 

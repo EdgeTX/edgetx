@@ -150,11 +150,12 @@
 #define TR_AUX_SERIAL_MODES_9          "Debug"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "Externí modul"
+#define TR_GLOBAL                      "Globální"
 #define TR_SWTYPES_1                   "Žádný"
 #define TR_SWTYPES_2                   "Bez aretace"
 #define TR_SWTYPES_3                   "2-polohový"
 #define TR_SWTYPES_4                   "3-polohový"
-#define TR_SWTYPES_5                   "Globální"
+#define TR_SWTYPES_5                   TR_GLOBAL
 #define TR_POTTYPES_1                  "Žádný"
 #define TR_POTTYPES_2                  TR("Pot","Potenciometr")
 #define TR_POTTYPES_3                  TR("Pot s aret.","Pot s aretací")
@@ -173,6 +174,11 @@
 #define TR_USBMODES_2                  TR("Joyst","Joystick")
 #define TR_USBMODES_3                  TR("SDkarta","Úložiště")
 #define TR_USBMODES_4                  "Serial"
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "Zeptat"
 #define TR_JACK_MODES_2                "Audio"
 #define TR_JACK_MODES_3                "Trenér"
@@ -199,7 +205,7 @@
 #define TR_CURVE_TYPES_1               "Rastr-X"
 #define TR_CURVE_TYPES_2               "Volná-XY"
 
-#define TR_ADCFILTERVALUES_1           "Globální"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "Vyp"
 #define TR_ADCFILTERVALUES_3           "Zap"
 
@@ -347,7 +353,7 @@
 #define TR_HATSOPT_1                   "Pouze trimy"
 #define TR_HATSOPT_2                   "Pouze tlačítka"
 #define TR_HATSOPT_3                   "Přepinatelné"
-#define TR_HATSOPT_4                   "Globální"
+#define TR_HATSOPT_4                   TR_GLOBAL
 #define TR_HATSMODE_TRIMS              "Režim kloboučků: Trimy"
 #define TR_HATSMODE_KEYS               "Režim kloboučků: Tlačítka"
 #define TR_HATSMODE_KEYS_HELP          "Levá strana:\n"\

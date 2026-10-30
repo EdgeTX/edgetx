@@ -615,6 +615,53 @@
          </item>
         </widget>
        </item>
+       <item row="1" column="4">
+        <widget class="QLabel" name="label_usbMode">
+         <property name="font">
+          <font>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>USB mode</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="5">
+        <widget class="QComboBox" name="usbMode">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <item>
+          <property name="text">
+           <string>Global</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Ask on Connect</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Joystick (HID)</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>USB Mass Storage</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>USB Serial (CDC)</string>
+          </property>
+         </item>
+        </widget>
+       </item>
        <item row="1" column="0">
         <widget class="AutoComboBox" name="cboHatsMode"/>
        </item>

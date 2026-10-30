@@ -708,6 +708,15 @@ enum ModelOverridableEnable {
   OVERRIDE_ON
 };
 
+// Model USB mode: GLOBAL uses the radio setting, others are USB mode + 1
+enum ModelUsbMode {
+  USBMODE_GLOBAL,
+  USBMODE_ASK,
+  USBMODE_JOYSTICK,
+  USBMODE_STORAGE,
+  USBMODE_SERIAL
+};
+
 #define SELECTED_THEME_NAME_LEN 26
 
 // PPM Units

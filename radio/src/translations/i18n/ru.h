@@ -147,11 +147,12 @@
 #define TR_AUX_SERIAL_MODES_9          "Отлад"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "Внеш модуль"
+#define TR_GLOBAL                      "Глоб"
 #define TR_SWTYPES_1                   "Нет"
 #define TR_SWTYPES_2                   "тумбл"
 #define TR_SWTYPES_3                   "2Х-поз пер"
 #define TR_SWTYPES_4                   "3Х-поз пер"
-#define TR_SWTYPES_5                   "Глоб"
+#define TR_SWTYPES_5                   TR_GLOBAL
 #define TR_POTTYPES_1                  "Нет"
 #define TR_POTTYPES_2                  "Потенц"
 #define TR_POTTYPES_3                  TR("Потенц с фикс","Потенц с фиксацией")
@@ -170,6 +171,11 @@
 #define TR_USBMODES_2                  TR("Джойс","Джойстик")
 #define TR_USBMODES_3                  TR("SD-карта","Хранил")
 #define TR_USBMODES_4                  "Серийн"
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "Выбор"
 #define TR_JACK_MODES_2                "Аудио"
 #define TR_JACK_MODES_3                "Трен"
@@ -200,7 +206,7 @@
 #define TR_CURVE_TYPES_1               "Стд"
 #define TR_CURVE_TYPES_2               "Выбор"
 
-#define TR_ADCFILTERVALUES_1           "Глоб"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "Вык"
 #define TR_ADCFILTERVALUES_3           "Вкл"
 
@@ -349,7 +355,7 @@
 #define TR_HATSOPT_1                   "Тримы"
 #define TR_HATSOPT_2                   "Кнопки"
 #define TR_HATSOPT_3                   "Тумбл"
-#define TR_HATSOPT_4                   "Глоб"
+#define TR_HATSOPT_4                   TR_GLOBAL
 #define TR_HATSMODE_TRIMS              "Hats mode: Тримы"
 #define TR_HATSMODE_KEYS               "Hats mode: Кнопки"
 #define TR_HATSMODE_KEYS_HELP          "Left side:\n"\

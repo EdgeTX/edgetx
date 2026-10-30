@@ -148,6 +148,13 @@ const static SetupLineDef setupLines[] = {
     STR_DEF(STR_JITTER_FILTER),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_INVERTED(g_eeGeneral.noJitterFilter));
+      if (g_model.jitterFilter != OVERRIDE_GLOBAL) {
+        std::string s(STR_MODEL);
+        s += " - ";
+        s += STR_ADCFILTERVALUES[g_model.jitterFilter];
+        new StaticText(parent, {x + ToggleSwitch::TOGGLE_W + PAD_MEDIUM, y + PAD_SMALL + 1, 0, 0},
+                       s.c_str(), COLOR_THEME_SECONDARY1_INDEX);
+      }
     }
   },
 #if defined(AUDIO_MUTE_GPIO)

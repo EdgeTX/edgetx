@@ -161,6 +161,7 @@ class ModelData {
     bool      enableCustomThrottleWarning;
     int       customThrottleWarningPosition;
     unsigned int jitterFilter;       // Added in EdgeTx 2.7 (#870)
+    unsigned int usbMode;            // 0 = global, otherwise radio USB mode + 1
 
     unsigned int beepANACenter;      // 1<<0->A1.. 1<<6->A7
 

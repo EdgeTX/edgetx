@@ -147,11 +147,12 @@
 #define TR_AUX_SERIAL_MODES_9          "ניפוי שגיאות"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "מודול חיצוני"
+#define TR_GLOBAL                      "גלובלי"
 #define TR_SWTYPES_1                   "ללא"
 #define TR_SWTYPES_2                   "החלפה"
 #define TR_SWTYPES_3                   "2POS"
 #define TR_SWTYPES_4                   "3POS"
-#define TR_SWTYPES_5                   "גלובלי"
+#define TR_SWTYPES_5                   TR_GLOBAL
 #define TR_POTTYPES_1                  "ללא"
 #define TR_POTTYPES_2                  "גלגלת"
 #define TR_POTTYPES_3                  TR("גלגלת עם נקישות", "גלגלת עם נקישות")
@@ -170,6 +171,11 @@
 #define TR_USBMODES_2                  TR("Joyst","חיבור משחק קבוע")
 #define TR_USBMODES_3                  TR("SDCard","העברת נתונים קבוע")
 #define TR_USBMODES_4                  "חיבור סיריילי קבוע"
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "שאל"
 #define TR_JACK_MODES_2                "סאונד"
 #define TR_JACK_MODES_3                "טריינר"
@@ -200,7 +206,7 @@
 #define TR_CURVE_TYPES_1               "סטנדרטי"
 #define TR_CURVE_TYPES_2               "עיצוב מיוחד"
 
-#define TR_ADCFILTERVALUES_1           "גלובלי"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "כבוי"
 #define TR_ADCFILTERVALUES_3           "דלוק"
 
@@ -349,7 +355,7 @@
 #define TR_HATSOPT_1                  "קיזוזים בלבד"
 #define TR_HATSOPT_2                  "ניווט בלבד"
 #define TR_HATSOPT_3                  "משולב"
-#define TR_HATSOPT_4                  "גלובלי"
+#define TR_HATSOPT_4                  TR_GLOBAL
 #define TR_HATSMODE_TRIMS             "מצב כובעונים: קיזוזים"
 #define TR_HATSMODE_KEYS              "מצב כובעונים: ניווט"
 #define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
