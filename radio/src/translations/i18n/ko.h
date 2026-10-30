@@ -144,11 +144,12 @@
 #define TR_AUX_SERIAL_MODES_9         "디버그"
 #define TR_AUX_SERIAL_MODES_10        "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11        "외부 모듈"
+#define TR_GLOBAL                     "전역"
 #define TR_SWTYPES_1                  "없음"
 #define TR_SWTYPES_2                  "토글"
 #define TR_SWTYPES_3                  "2단"
 #define TR_SWTYPES_4                  "3단"
-#define TR_SWTYPES_5                  "Global"
+#define TR_SWTYPES_5                  TR_GLOBAL
 #define TR_POTTYPES_1                 "없음"
 #define TR_POTTYPES_2                 "다이얼"
 #define TR_POTTYPES_3                 TR("클릭 다이얼", "중심 클릭 다이얼")
@@ -167,6 +168,11 @@
 #define TR_USBMODES_2                 TR("조이스틱", "조이스틱")
 #define TR_USBMODES_3                 TR("SD카드", "저장소")
 #define TR_USBMODES_4                 "시리얼"
+#define TR_MODEL_USBMODES_1           TR_GLOBAL
+#define TR_MODEL_USBMODES_2           TR_USBMODES_1
+#define TR_MODEL_USBMODES_3           TR_USBMODES_2
+#define TR_MODEL_USBMODES_4           TR_USBMODES_3
+#define TR_MODEL_USBMODES_5           TR_USBMODES_4
 #define TR_JACK_MODES_1               "선택 요청"
 #define TR_JACK_MODES_2               "오디오"
 #define TR_JACK_MODES_3               "트레이너"
@@ -197,7 +203,7 @@
 #define TR_CURVE_TYPES_1              "표준"
 #define TR_CURVE_TYPES_2              "사용자 정의"
 
-#define TR_ADCFILTERVALUES_1           "전역"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "끔"
 #define TR_ADCFILTERVALUES_3           "켬"
 

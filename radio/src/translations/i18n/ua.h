@@ -146,11 +146,12 @@
 #define TR_AUX_SERIAL_MODES_9          "Відлаг."
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "Зовн. модуль"	/* for untranslated - use english */
+#define TR_GLOBAL                      "Global"
 #define TR_SWTYPES_1                   "Немає"
 #define TR_SWTYPES_2                   "Перемик."
 #define TR_SWTYPES_3                   "2поз. пер."
 #define TR_SWTYPES_4                   "3поз. пер."
-#define TR_SWTYPES_5                   "Global"
+#define TR_SWTYPES_5                   TR_GLOBAL
 #define TR_POTTYPES_1                  "Немає"
 #define TR_POTTYPES_2                  "Потенц."
 #define TR_POTTYPES_3                  TR("Пот. з крок.","Потенц. з кроком")
@@ -169,6 +170,11 @@
 #define TR_USBMODES_2                  TR("Джойст.","Джойстик")
 #define TR_USBMODES_3                  TR("SD карт.","SD картка")
 #define TR_USBMODES_4                  "Послід."	/* for untranslated - use english */
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "Вибір"
 #define TR_JACK_MODES_2                "Аудіо"
 #define TR_JACK_MODES_3                "Трен."
@@ -199,7 +205,7 @@
 #define TR_CURVE_TYPES_1               "Стандарт"
 #define TR_CURVE_TYPES_2               "Вибір"
 
-#define TR_ADCFILTERVALUES_1           "Global"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "Off"
 #define TR_ADCFILTERVALUES_3           "On"	/* use english */
 
@@ -348,7 +354,7 @@
 #define TR_HATSOPT_1                   "Тільки Трим."
 #define TR_HATSOPT_2                   "Тільки Кнопки"
 #define TR_HATSOPT_3                   "Перемик."
-#define TR_HATSOPT_4                   "Global"	/* for untranslated - use english */
+#define TR_HATSOPT_4                   TR_GLOBAL	/* for untranslated - use english */
 #define TR_HATSMODE_TRIMS              "Hats mode: Трим."
 #define TR_HATSMODE_KEYS               "Hats mode: Кнопки"
 #define TR_HATSMODE_KEYS_HELP          "Ліва сторона:\n"\

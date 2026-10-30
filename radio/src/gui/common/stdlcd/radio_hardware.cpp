@@ -93,6 +93,7 @@ enum {
   ITEM_RADIO_HARDWARE_SERIAL_PORT,
   ITEM_RADIO_HARDWARE_SERIAL_PORT_END = ITEM_RADIO_HARDWARE_SERIAL_PORT + MAX_SERIAL_PORTS - 1,
   ITEM_RADIO_HARDWARE_JITTER_FILTER,
+  ITEM_RADIO_HARDWARE_JITTER_FILTER_OVERRIDE,
   ITEM_RADIO_HARDWARE_RAS,
   ITEM_RADIO_HARDWARE_SPORT_UPDATE_POWER,
 #if (defined(BACKLIGHT_GPIO) || OLED_SCREEN) && (LCD_W == 128)
@@ -366,6 +367,8 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   }
   tab[ITEM_RADIO_HARDWARE_SERIAL_PORT_LABEL] = has_serial ? READONLY_ROW : HIDDEN_ROW;
   tab[ITEM_RADIO_HARDWARE_JITTER_FILTER] = 0;
+  tab[ITEM_RADIO_HARDWARE_JITTER_FILTER_OVERRIDE] =
+      g_model.jitterFilter != OVERRIDE_GLOBAL ? READONLY_ROW : HIDDEN_ROW;
 #if defined(HARDWARE_INTERNAL_RAS)
   tab[ITEM_RADIO_HARDWARE_RAS] = READONLY_ROW;
 #else
@@ -601,6 +604,13 @@ void menuRadioHardware(event_t event)
                              HW_SETTINGS_COLUMN2, y, STR_JITTER_FILTER, attr,
                              event);
         break;
+
+      case ITEM_RADIO_HARDWARE_JITTER_FILTER_OVERRIDE: {
+        std::string s(STR_MODEL);
+        s += " - ";
+        s += STR_ADCFILTERVALUES[g_model.jitterFilter];
+        lcdDrawText(LCD_W - MENUS_SCROLLBAR_WIDTH, y, s.c_str(), RIGHT);
+      } break;
 
       case ITEM_RADIO_HARDWARE_RAS:
 #if defined(HARDWARE_INTERNAL_RAS)

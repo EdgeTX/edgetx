@@ -930,6 +930,8 @@ PACK(struct ModelData {
   uint8_t modelCustomScriptsDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelTelemetryDisabled:2 ENUM(ModelOverridableEnable);
 
+  NOBACKUP(uint8_t usbMode:3 ENUM(ModelUsbMode));
+
   SwitchConfig getSwitchType(uint8_t n);
   void setSwitchType(uint8_t n, SwitchConfig v);
   char* getSwitchCustomName(uint8_t n);

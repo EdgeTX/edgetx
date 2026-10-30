@@ -145,11 +145,12 @@
 #define TR_AUX_SERIAL_MODES_9  "Debug"
 #define TR_AUX_SERIAL_MODES_10 "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11 "Moduł zewnętrzny"
+#define TR_GLOBAL              "Globalne"
 #define TR_SWTYPES_1           "Brak"
 #define TR_SWTYPES_2           "Chwil."
 #define TR_SWTYPES_3           "2POZ"
 #define TR_SWTYPES_4           "3POZ"
-#define TR_SWTYPES_5           "Globalne"
+#define TR_SWTYPES_5           TR_GLOBAL
 #define TR_POTTYPES_1          "Brak"
 #define TR_POTTYPES_2          "Pot."
 #define TR_POTTYPES_3          TR("Pot. z. zap.","Pot. z zapadką")
@@ -168,6 +169,11 @@
 #define TR_USBMODES_2          TR("Joyst","Joystick")
 #define TR_USBMODES_3          TR("SDCard","Storage")
 #define TR_USBMODES_4          "Serial"
+#define TR_MODEL_USBMODES_1    TR_GLOBAL
+#define TR_MODEL_USBMODES_2    TR_USBMODES_1
+#define TR_MODEL_USBMODES_3    TR_USBMODES_2
+#define TR_MODEL_USBMODES_4    TR_USBMODES_3
+#define TR_MODEL_USBMODES_5    TR_USBMODES_4
 #define TR_JACK_MODES_1        "Ask"
 #define TR_JACK_MODES_2        "Audio"
 #define TR_JACK_MODES_3        "Trainer"
@@ -197,7 +203,7 @@
 #define TR_VVARIOCENTER_2      "Cicho"
 #define TR_CURVE_TYPES_1       "Standard"
 #define TR_CURVE_TYPES_2       "Własny"
-#define TR_ADCFILTERVALUES_1   "Globalne"
+#define TR_ADCFILTERVALUES_1   TR_GLOBAL
 #define TR_ADCFILTERVALUES_2   "WYŁ"
 #define TR_ADCFILTERVALUES_3   "ZAŁ"
 
@@ -345,7 +351,7 @@
 #define TR_HATSOPT_1            "Tylko trymy"
 #define TR_HATSOPT_2            "Tylko przyciski"
 #define TR_HATSOPT_3            "Przełączane"
-#define TR_HATSOPT_4            "Globalne"
+#define TR_HATSOPT_4            TR_GLOBAL
 #define TR_HATSMODE_TRIMS       "Tryb grzybków: trymy"
 #define TR_HATSMODE_KEYS        "Tryb grzybków: przyciski"
 #define TR_HATSMODE_KEYS_HELP          "Lewa strona:\n"\

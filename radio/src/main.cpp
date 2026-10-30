@@ -163,6 +163,17 @@ class UsbSDConnected : public Window
 static UsbSDConnected* usbConnectedWindow = nullptr;
 #endif
 
+#if defined(STM32) && !defined(SIMU)
+// Model USB mode takes priority, falling back to the radio setting
+static uint8_t getModelUsbMode()
+{
+  uint8_t mode = g_model.usbMode == USBMODE_GLOBAL ? g_eeGeneral.USBMode
+                                                   : g_model.usbMode - 1;
+  // e.g. serial selected on a target without USB serial
+  return mode > USB_MAX_MODE ? USB_UNSELECTED_MODE : mode;
+}
+#endif
+
 void handleUsbConnection()
 {
 #if defined(STM32) && !defined(SIMU)
@@ -189,10 +200,11 @@ void handleUsbConnection()
 
   if (!_usbDisabled && !usbStarted() && usbPlugged()) {
     if (getSelectedUsbMode() == USB_UNSELECTED_MODE) {
-      if (g_eeGeneral.USBMode == USB_UNSELECTED_MODE) {
+      uint8_t usbMode = getModelUsbMode();
+      if (usbMode == USB_UNSELECTED_MODE) {
         openUsbMenu();
       } else {
-        setSelectedUsbMode(g_eeGeneral.USBMode);
+        setSelectedUsbMode(usbMode);
       }
     }
 

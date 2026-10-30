@@ -147,11 +147,12 @@
 #define TR_AUX_SERIAL_MODES_9          "Debug"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "Externes Modul"
+#define TR_GLOBAL                      "Global"
 #define TR_SWTYPES_1                   "Kein"
 #define TR_SWTYPES_2                   "Taster"
 #define TR_SWTYPES_3                   "2POS"
 #define TR_SWTYPES_4                   "3POS"
-#define TR_SWTYPES_5                   "Global"
+#define TR_SWTYPES_5                   TR_GLOBAL
 #define TR_POTTYPES_1                  "Kein"
 #define TR_POTTYPES_2                  "Poti"
 #define TR_POTTYPES_3                  TR("Pot m. Ras","Poti mit Raste")
@@ -170,6 +171,11 @@
 #define TR_USBMODES_2                  TR("Joyst","Joystick")
 #define TR_USBMODES_3                  TR("SDCard","Speicher")
 #define TR_USBMODES_4                  TR("Serial","Seriell")
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "Popup"
 #define TR_JACK_MODES_2                "Audio"
 #define TR_JACK_MODES_3                "Trainer"
@@ -200,7 +206,7 @@
 #define TR_CURVE_TYPES_1               "Standard"
 #define TR_CURVE_TYPES_2               "Eigene"
 
-#define TR_ADCFILTERVALUES_1           "Global"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "Aus"
 #define TR_ADCFILTERVALUES_3           "Ein"
 
@@ -348,7 +354,7 @@
 #define TR_HATSOPT_1                   "nur Trimmer"
 #define TR_HATSOPT_2                   "nur Tasten"
 #define TR_HATSOPT_3                   "Umschaltbar"
-#define TR_HATSOPT_4                   "Global"
+#define TR_HATSOPT_4                   TR_GLOBAL
 #define TR_HATSMODE_TRIMS              "Joystick Modus: Trimmer"
 #define TR_HATSMODE_KEYS               "Joystick Modus: Tasten"
 #define TR_HATSMODE_KEYS_HELP          "Linke Seite:\n"\

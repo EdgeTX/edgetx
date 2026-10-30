@@ -67,6 +67,7 @@ void ModelData::copy(const ModelData & src)
   enableCustomThrottleWarning = src.enableCustomThrottleWarning;
   customThrottleWarningPosition = src.customThrottleWarningPosition;
   jitterFilter = src.jitterFilter;
+  usbMode = src.usbMode;
   beepANACenter = src.beepANACenter;
   extendedLimits = src.extendedLimits;
   extendedTrims = src.extendedTrims;
@@ -251,6 +252,7 @@ void ModelData::clear()
   enableCustomThrottleWarning = false;
   customThrottleWarningPosition = 0;
   jitterFilter = 0;
+  usbMode = 0;
   beepANACenter = 0;
   extendedLimits = false;
   extendedTrims = false;

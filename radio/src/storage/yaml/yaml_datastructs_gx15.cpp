@@ -286,6 +286,14 @@ const struct YamlIdStr enum_USBJoystickCh[] = {
   {  USBJOYS_CH_SIM, "CH_SIM"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_ModelUsbMode[] = {
+  {  USBMODE_GLOBAL, "GLOBAL"  },
+  {  USBMODE_ASK, "ASK"  },
+  {  USBMODE_JOYSTICK, "JOYSTICK"  },
+  {  USBMODE_STORAGE, "STORAGE"  },
+  {  USBMODE_SERIAL, "SERIAL"  },
+  {  0, NULL  }
+};
 
 //
 // Structs last
@@ -1045,6 +1053,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ENUM("modelSFDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelCustomScriptsDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelTelemetryDisabled", 2, enum_ModelOverridableEnable, NULL),
+  YAML_ENUM("usbMode", 3, enum_ModelUsbMode, NULL),
   YAML_ARRAY("userData", 0, 50, struct_UserData, userdata_is_active),
   YAML_END
 };
