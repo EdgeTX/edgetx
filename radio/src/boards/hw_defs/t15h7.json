@@ -1,9 +1,9 @@
 {
   "identity": {
     "manufacturer": "Jumper",
-    "model": "T15-H7",
+    "model": "T15 H7",
     "usb_manufacturer": "JUMPER",
-    "usb_product": "T15-H7"
+    "usb_product": "T15 H7"
   },
   "adc_inputs": {
     "adcs": [
