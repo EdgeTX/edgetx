@@ -625,7 +625,7 @@ QString Boards::getBoardName(Board::Type board)
     case BOARD_JUMPER_T15PRO:
       return "Jumper T15 Pro";
     case BOARD_JUMPER_T15H7:
-      return "Jumper T15-H7";
+      return "Jumper T15 H7";
     case BOARD_JUMPER_T22:
       return "Jumper T22";
     case BOARD_JUMPER_T16:
@@ -633,7 +633,7 @@ QString Boards::getBoardName(Board::Type board)
     case BOARD_JUMPER_T18:
       return "Jumper T18";
     case BOARD_JUMPER_T18H7:
-      return "Jumper T18H7";
+      return "Jumper T18 H7";
     case BOARD_JUMPER_T20:
       return "Jumper T20";
     case BOARD_JUMPER_T20V2:

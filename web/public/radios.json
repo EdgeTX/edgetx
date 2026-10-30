@@ -3898,7 +3898,7 @@
     ]
   },
   {
-    "name": "Jumper T15-H7",
+    "name": "Jumper T15 H7",
     "wasm": "edgetx-t15h7-simulator.wasm",
     "display": {
       "w": 480,
@@ -4419,7 +4419,7 @@
     ]
   },
   {
-    "name": "Jumper T18H7",
+    "name": "Jumper T18 H7",
     "wasm": "edgetx-t18h7-simulator.wasm",
     "display": {
       "w": 480,
