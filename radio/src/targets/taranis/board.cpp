@@ -33,6 +33,9 @@
 #include "hal/rgbleds.h"
 
 #include "board.h"
+#if defined(RADIO_MAMBO)
+#include "targets/mambo/encoder.h"
+#endif
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
 #include "boards/generic_stm32/analog_inputs.h"
@@ -126,6 +129,9 @@ static void gyroInit()
 
 void boardInit()
 {
+#if defined(RADIO_MAMBO)
+  mamboEarlyInit();
+#endif
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 
 #if (defined(RADIO_V14) || defined(RADIO_V14LCD)) && defined(AUDIO_MUTE_GPIO)
@@ -227,6 +233,9 @@ void boardInit()
 
 #if defined(ROTARY_ENCODER_NAVIGATION)
   rotaryEncoderInit();
+#if defined(RADIO_MAMBO)
+  mambo::encoderStartPolling();
+#endif
 #endif
 
   gimbalsDetect();
@@ -287,6 +296,10 @@ void boardInit()
 
 void boardOff()
 {
+#if defined(RADIO_MAMBO)
+  // Cover emergency shutdown as well as the ordinary protocol-stop path.
+  mamboExternalModuleShutdown();
+#endif
 #if defined(LED_STRIP_GPIO) && !defined(BOOT)
   rgbLedStop();
   rgbLedClearAll();

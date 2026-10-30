@@ -23,6 +23,8 @@
 
 #include "hal_settings.h"
 
+#if !defined(RADIO_MAMBO)
+
 #define TELEMETRY_EXTI_PRIO             0 // required for soft serial
 
 // Keys
@@ -908,3 +910,7 @@
     #define STORAGE_BLUETOOTH
   #endif
 #endif
+
+#else
+#include "../mambo/hal.h"
+#endif // RADIO_MAMBO

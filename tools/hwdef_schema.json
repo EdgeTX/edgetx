@@ -111,7 +111,7 @@
           "type": "string",
           "enum": ["STICK", "FLEX", "VBAT", "RTC_BAT", "SWITCH", "LUX", "RAW"]
         },
-        "adc":         { "type": "string" },
+        "adc":         { "type": ["string", "null"] },
         "gpio":        { "anyOf": [ { "$ref": "#/$defs/gpio_port" }, { "type": "null" } ] },
         "pin":         { "anyOf": [ { "$ref": "#/$defs/gpio_pin"  }, { "type": "null" } ] },
         "channel":     {
