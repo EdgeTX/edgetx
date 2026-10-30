@@ -42,7 +42,7 @@ LAYOUT_VAL_SCALED(LS_C1, 60)
 LAYOUT_VAL_SCALED(LS_C3, 112)
 LAYOUT_VAL_SCALED(LS_C5, 50)
 static const lv_coord_t f_col_dsc[] = {
-    LS_C1, LV_GRID_FR(1), LS_C3, LV_GRID_FR(1), LS_C5, LS_C5, LV_GRID_TEMPLATE_LAST};
+    LS_C1, LV_GRID_FR(5), LS_C3, LV_GRID_FR(4), LS_C5, LS_C5, LV_GRID_TEMPLATE_LAST};
 
 #endif
 
@@ -80,6 +80,7 @@ class LogicalSwitchDisplayFooter : public Window
     etx_txt_color(lsV1, COLOR_THEME_PRIMARY2_INDEX);
     lv_obj_set_grid_cell(lsV1, LV_GRID_ALIGN_STRETCH, 1, 1,
                          LV_GRID_ALIGN_CENTER, 0, 1);
+    lv_label_set_long_mode(lsV1, LV_LABEL_LONG_DOT);
 
     lsV2 = etx_label_create(lvobj);
     etx_obj_add_style(lsV2, styles->text_align_left, LV_PART_MAIN);
@@ -156,14 +157,12 @@ class LogicalSwitchDisplayFooter : public Window
       case LS_FAMILY_COMP:
         lv_label_set_text(lsV2, getSourceString(ls->v2));
         break;
-      default:
-        lv_label_set_text(
-            lsV2,
-            getSourceCustomValueString(
-                ls->v1,
-                (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2),
-                0));
+      default: {
+        extern int getLSV2DispVal(int, int);
+        int v2 = getLSV2DispVal(ls->v1, ls->v2);
+        lv_label_set_text(lsV2, getSourceCustomValueString(ls->v1, v2, 0));
         break;
+      }
     }
 
     // AND switch
