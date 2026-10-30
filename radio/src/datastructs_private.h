@@ -802,11 +802,14 @@ PACK(struct ModelData {
   uint8_t   disableTelemetryWarning:1;
   uint8_t   showInstanceIds:1;
   uint8_t   checklistInteractive:1;
+  uint8_t   potsWarnMode:2 ENUM(PotsWarnMode);
+  NOBACKUP(uint8_t jitterFilter:2 ENUM(ModelOverridableEnable));
+  uint8_t   thrTrimSw:3;
+  NOBACKUP(uint8_t usbMode:3 ENUM(ModelUsbMode));
 #if defined(USE_HATS_AS_KEYS)
   NOBACKUP(uint8_t hatsMode:2 ENUM(HatsMode));
-  uint8_t   spare3:2 SKIP;  // padding to 8-bit aligment
 #else
-  uint8_t   spare3:4 SKIP;  // padding to 8-bit aligment
+  uint8_t   spare3:2 SKIP;  // padding to 8-bit aligment
 #endif
   int8_t    customThrottleWarningPosition;
   BeepANACenter beepANACenter;
@@ -837,11 +840,6 @@ PACK(struct ModelData {
   RssiAlarmData rssiAlarms;
 #endif
   NOBACKUP(RFAlarmData rfAlarms);
-
-  uint8_t thrTrimSw:3;
-  uint8_t potsWarnMode:2 ENUM(PotsWarnMode);
-  NOBACKUP(uint8_t jitterFilter:2 ENUM(ModelOverridableEnable));
-  uint8_t spare1:1 SKIP;
 
   ModuleData moduleData[NUM_MODULES];
   int16_t failsafeChannels[MAX_OUTPUT_CHANNELS];
@@ -929,8 +927,11 @@ PACK(struct ModelData {
   uint8_t modelSFDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelCustomScriptsDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelTelemetryDisabled:2 ENUM(ModelOverridableEnable);
-
-  NOBACKUP(uint8_t usbMode:3 ENUM(ModelUsbMode));
+#if defined(COLORLCD)
+  uint8_t   spare1:2 SKIP;  // padding to 8-bit aligment
+#else
+  uint8_t   spare1:4 SKIP;  // padding to 8-bit aligment
+#endif
 
   SwitchConfig getSwitchType(uint8_t n);
   void setSwitchType(uint8_t n, SwitchConfig v);

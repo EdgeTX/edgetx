@@ -161,6 +161,26 @@ const struct YamlIdStr enum_TimerModes[] = {
   {  TMRMODE_THR_START, "THR_START"  },
   {  0, NULL  }
 };
+const struct YamlIdStr enum_PotsWarnMode[] = {
+  {  POTS_WARN_OFF, "WARN_OFF"  },
+  {  POTS_WARN_MANUAL, "WARN_MANUAL"  },
+  {  POTS_WARN_AUTO, "WARN_AUTO"  },
+  {  0, NULL  }
+};
+const struct YamlIdStr enum_ModelOverridableEnable[] = {
+  {  OVERRIDE_GLOBAL, "GLOBAL"  },
+  {  OVERRIDE_OFF, "OFF"  },
+  {  OVERRIDE_ON, "ON"  },
+  {  0, NULL  }
+};
+const struct YamlIdStr enum_ModelUsbMode[] = {
+  {  USBMODE_GLOBAL, "GLOBAL"  },
+  {  USBMODE_ASK, "ASK"  },
+  {  USBMODE_JOYSTICK, "JOYSTICK"  },
+  {  USBMODE_STORAGE, "STORAGE"  },
+  {  USBMODE_SERIAL, "SERIAL"  },
+  {  0, NULL  }
+};
 const struct YamlIdStr enum_MixerMultiplex[] = {
   {  MLTPX_ADD, "ADD"  },
   {  MLTPX_MUL, "MUL"  },
@@ -215,18 +235,6 @@ const struct YamlIdStr enum_SwitchSources[] = {
   {  SWSRC_OFF, "OFF"  },
   {  0, NULL  }
 };
-const struct YamlIdStr enum_PotsWarnMode[] = {
-  {  POTS_WARN_OFF, "WARN_OFF"  },
-  {  POTS_WARN_MANUAL, "WARN_MANUAL"  },
-  {  POTS_WARN_AUTO, "WARN_AUTO"  },
-  {  0, NULL  }
-};
-const struct YamlIdStr enum_ModelOverridableEnable[] = {
-  {  OVERRIDE_GLOBAL, "GLOBAL"  },
-  {  OVERRIDE_OFF, "OFF"  },
-  {  OVERRIDE_ON, "ON"  },
-  {  0, NULL  }
-};
 const struct YamlIdStr enum_FailsafeModes[] = {
   {  FAILSAFE_NOT_SET, "NOT_SET"  },
   {  FAILSAFE_HOLD, "HOLD"  },
@@ -263,14 +271,6 @@ const struct YamlIdStr enum_USBJoystickCh[] = {
   {  USBJOYS_CH_BUTTON, "CH_BUTTON"  },
   {  USBJOYS_CH_AXIS, "CH_AXIS"  },
   {  USBJOYS_CH_SIM, "CH_SIM"  },
-  {  0, NULL  }
-};
-const struct YamlIdStr enum_ModelUsbMode[] = {
-  {  USBMODE_GLOBAL, "GLOBAL"  },
-  {  USBMODE_ASK, "ASK"  },
-  {  USBMODE_JOYSTICK, "JOYSTICK"  },
-  {  USBMODE_STORAGE, "STORAGE"  },
-  {  USBMODE_SERIAL, "SERIAL"  },
   {  0, NULL  }
 };
 
@@ -940,7 +940,11 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED( "disableTelemetryWarning", 1 ),
   YAML_UNSIGNED( "showInstanceIds", 1 ),
   YAML_UNSIGNED( "checklistInteractive", 1 ),
-  YAML_PADDING( 4 ),
+  YAML_ENUM("potsWarnMode", 2, enum_PotsWarnMode, NULL),
+  YAML_ENUM("jitterFilter", 2, enum_ModelOverridableEnable, NULL),
+  YAML_UNSIGNED( "thrTrimSw", 3 ),
+  YAML_ENUM("usbMode", 3, enum_ModelUsbMode, NULL),
+  YAML_PADDING( 2 ),
   YAML_SIGNED( "customThrottleWarningPosition", 8 ),
   YAML_UNSIGNED( "beepANACenter", 16 ),
   YAML_ARRAY("mixData", 160, 64, struct_MixData, NULL),
@@ -960,10 +964,6 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_UNSIGNED_CUST( "rssiSource", 8, r_tele_sensor, w_tele_sensor ),
   YAML_STRUCT("rssiAlarms", 0, struct_RssiAlarmData, NULL),
   YAML_STRUCT("rfAlarms", 16, struct_RFAlarmData, NULL),
-  YAML_UNSIGNED( "thrTrimSw", 3 ),
-  YAML_ENUM("potsWarnMode", 2, enum_PotsWarnMode, NULL),
-  YAML_ENUM("jitterFilter", 2, enum_ModelOverridableEnable, NULL),
-  YAML_PADDING( 1 ),
   YAML_ARRAY("moduleData", 232, 2, struct_ModuleData, NULL),
   YAML_ARRAY("failsafeChannels", 16, 32, struct_signed_16, NULL),
   YAML_STRUCT("trainerData", 40, struct_TrainerModuleData, NULL),
@@ -992,7 +992,7 @@ static const struct YamlNode struct_ModelData[] = {
   YAML_ENUM("modelSFDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelCustomScriptsDisabled", 2, enum_ModelOverridableEnable, NULL),
   YAML_ENUM("modelTelemetryDisabled", 2, enum_ModelOverridableEnable, NULL),
-  YAML_ENUM("usbMode", 3, enum_ModelUsbMode, NULL),
+  YAML_PADDING( 2 ),
   YAML_ARRAY("userData", 0, 50, struct_UserData, userdata_is_active),
   YAML_END
 };
