@@ -2091,6 +2091,7 @@ void LvglWidgetImage::parseSource(lua_State* L, int index)
     bitmapDescriptor.data_size = pixels ? size : bitmap->getDataSize();
     bitmapDescriptor.data =
         pixels ? pixels : (const uint8_t*)bitmap->getData();
+    sourceChanged = true;
   } else {
     int ref = LUA_REFNIL;
     const char* path = "";
@@ -2104,8 +2105,10 @@ void LvglWidgetImage::parseSource(lua_State* L, int index)
     filename.function = ref;
     filename.txt = path;
     filename.forceUpdate();
+    // A callback replaces the displayed file when it first runs; keep the
+    // current pixels until then. A Bitmap source was released above.
+    sourceChanged = ref == LUA_REFNIL;
   }
-  sourceChanged = true;
   lua_pop(L, 2);
 }
 

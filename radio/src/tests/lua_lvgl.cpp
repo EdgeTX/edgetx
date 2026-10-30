@@ -929,6 +929,38 @@ TEST_F(LuaBitmapImage, StandaloneScriptClearFromImageCallback)
   luaState = savedState;
 }
 
+TEST_F(LuaBitmapImage, FilenameCallbackKeepsPixelsUntilItRuns)
+{
+  ASSERT_TRUE(exec("image=lvgl.image({file='images/color/edgetx.png',w=2,h=1});"
+                   "image:set({file=function()"
+                   "return 'images/color/bitmap_320x240.png' end})"));
+  EXPECT_STREQ((const char*)source(), "A/images/color/edgetx.png");
+  EXPECT_TRUE(manager.callRefs(L));
+  EXPECT_STREQ((const char*)source(), "A/images/color/bitmap_320x240.png");
+  ASSERT_TRUE(exec("image:set({file=function()"
+                   "return 'images/color/edgetx.png' end}); image:hide()"));
+  EXPECT_STREQ((const char*)source(), "A/images/color/bitmap_320x240.png");
+  EXPECT_TRUE(manager.callRefs(L));
+  EXPECT_STREQ((const char*)source(), "A/images/color/bitmap_320x240.png");
+  ASSERT_TRUE(exec("image:show()"));
+  EXPECT_TRUE(manager.callRefs(L));
+  EXPECT_STREQ((const char*)source(), "A/images/color/edgetx.png");
+}
+
+TEST_F(LuaBitmapImage, FilenameCallbackReleasesBitmapImmediately)
+{
+  addBitmap("bitmap", BMP_ARGB4444);
+  ASSERT_TRUE(exec("image=lvgl.image({bitmap=bitmap,w=2,h=1});"
+                   "weak=setmetatable({bitmap},{__mode='v'}); bitmap=nil;"
+                   "image:set({file=function()"
+                   "return 'images/color/edgetx.png' end}); collectgarbage();"
+                   "assert(weak[1]==nil)"));
+  EXPECT_EQ(lv_obj_get_child_cnt(image()->getWindow()->getLvObj()), 0u);
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+  EXPECT_TRUE(manager.callRefs(L));
+  EXPECT_STREQ((const char*)source(), "A/images/color/edgetx.png");
+}
+
 }  // namespace
 
 #endif
