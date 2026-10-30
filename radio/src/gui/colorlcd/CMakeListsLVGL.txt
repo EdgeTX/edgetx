@@ -158,8 +158,8 @@ set(LVGL_SOURCES
   extra/layouts/flex/lv_flex.c
   # extra/libs/bmp/lv_bmp.c
   # extra/libs/ffmpeg/lv_ffmpeg.c
-  # extra/libs/gif/lv_gif.c
-  # extra/libs/gif/gifdec.c
+  extra/libs/gif/lv_gif.c
+  extra/libs/gif/gifdec.c
   # extra/libs/freetype/lv_freetype.c
   extra/libs/qrcode/lv_qrcode.c
   extra/libs/qrcode/qrcodegen.c
