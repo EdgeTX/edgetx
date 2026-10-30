@@ -868,8 +868,8 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @notice `w` and `h` are required.
   @notice `image:set({file=...})` changes the displayed source and replaces any previous filename callback. If combined with `bitmap=false`, the filename source is used.
-  @notice The image keeps its Bitmap alive until replaced, cleared, or deleted. Use `image:set({bitmap=false})` to release this reference immediately, including when hidden. A nil table field is absent and does not clear it. Drop script references and run `collectgarbage()` to reclaim unused Bitmap memory.
-  @notice RGB565 Bitmaps (including JPEGs) are borrowed without copying pixels. ARGB4444 Bitmaps require an RGB565-plus-alpha conversion, charged to the existing Lua bitmap memory budget.
+  @notice The image keeps its Bitmap alive until replaced or deleted; `lvgl.clear(image)` removes only the image's children. Use `image:set({bitmap=false})` to release this reference immediately, including when hidden. A nil table field is absent and does not clear it. Drop script references and run `collectgarbage()` to reclaim unused Bitmap memory.
+  @notice RGB565 Bitmaps (including JPEGs) are borrowed without copying pixels. ARGB4444 Bitmaps require an RGB565-plus-alpha conversion, charged to the existing Lua bitmap memory budget. Replacing one ARGB4444 Bitmap with another briefly needs budget for both conversions; near the limit, set `bitmap=false` first.
   @notice Invalid source values or parameters and conversion allocation or budget failures raise a Lua error without replacing the previous source. Check `Bitmap.getSize()` after `Bitmap.open()`; a failed load returns zero width and height.
 
   @status current Introduced in 2.11.0, floating added in 2.11.6, bitmap added in 3.0.0
