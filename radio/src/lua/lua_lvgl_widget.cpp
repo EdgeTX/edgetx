@@ -2005,9 +2005,24 @@ void LvglWidgetImage::create(lua_State *L, int index)
 void LvglWidgetImage::getParams(lua_State* L, int index)
 {
   if (hasDeletedWindow()) luaL_error(L, "Image window has been deleted");
-  LvglWidgetObjectBase::getParams(L, index);
-  // Parsed last, so a rejected property never replaces the source.
-  parseSource(L, index);
+  // GC steps while parsing can run finalizers that clear the UI or close
+  // this image's window. Parse in a protected call so anything acquired
+  // after that can be dropped, whether parsing succeeds or fails.
+  lua_pushlightuserdata(L, this);
+  lua_pushcclosure(L, [](lua_State* L) {
+    auto self = (LvglWidgetImage*)lua_touserdata(L, lua_upvalueindex(1));
+    self->LvglWidgetObjectBase::getParams(L, 1);
+    // Parsed last, so a rejected property never replaces the source.
+    self->parseSource(L, 1);
+    return 0;
+  }, 1);
+  lua_pushvalue(L, index < 0 ? index - 1 : index);
+  int status = lua_pcall(L, 1, 0, 0);
+  if (released)
+    clearRefs(L);
+  else if (hasDeletedWindow())
+    clearBitmap(L);
+  if (status != LUA_OK) lua_error(L);
 }
 
 void LvglWidgetImage::releaseSource(lua_State* L)
@@ -2161,6 +2176,7 @@ void LvglWidgetImage::clearRefs(lua_State *L)
 
 void LvglWidgetImage::release(lua_State* L)
 {
+  released = true;
   clearRefs(L);
   // A callback of this image (or its parent) may have cleared the UI, so
   // callers further up the stack can still be using this object. Detach it

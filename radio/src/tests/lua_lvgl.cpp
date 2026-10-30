@@ -30,6 +30,11 @@
 #include "view_main.h"
 #include "standalone_lua.h"
 
+extern "C" {
+#include "thirdparty/Lua/src/lgc.h"
+#include "thirdparty/Lua/src/lstate.h"
+}
+
 extern lua_State* lsStandalone;
 
 extern void lv_stb_init();
@@ -167,6 +172,30 @@ class LuaBitmapImage : public ::testing::Test
     }
     lua_pop(L, 1);
     return ref;
+  }
+
+  // Calls image:set(<global params>) with a queued __gc finalizer that runs
+  // `action` at the first GC check inside the call.
+  int setWithPendingFinalizer(const char* params, const char* action)
+  {
+    std::string code = std::string(
+        "finalized=false; collectgarbage('stop');"
+        "do local t=setmetatable({},{__gc=function() finalized=true;") +
+        action + " end}) end";
+    if (!exec(code.c_str())) return LUA_ERRRUN;
+    lua_getglobal(L, "image");
+    lua_getfield(L, -1, "set");
+    lua_insert(L, -2);
+    lua_getglobal(L, params);
+    luaC_runtilstate(L, ~bitmask(GCSpause));
+    luaC_runtilstate(L, bitmask(GCScallfin));
+    EXPECT_NE(G(L)->tobefnz, nullptr);
+    G(L)->gcrunning = 1;
+    luaE_setdebt(G(L), 1);
+    int status = lua_pcall(L, 2, 0, 0);
+    if (status != LUA_OK) lua_pop(L, 1);
+    EXPECT_TRUE(exec("assert(finalized)"));
+    return status;
   }
 
   int registryResources()
@@ -959,6 +988,56 @@ TEST_F(LuaBitmapImage, FilenameCallbackReleasesBitmapImmediately)
   EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
   EXPECT_TRUE(manager.callRefs(L));
   EXPECT_STREQ((const char*)source(), "A/images/color/edgetx.png");
+}
+
+TEST_F(LuaBitmapImage, FinalizerClearingDuringUpdateReleasesNewSources)
+{
+  struct Case { const char* params; bool ok; };
+  const Case cases[] = {
+      {"params={bitmap=bitmap}", true},
+      {"params={bitmap=bitmap,visible=function() return true end,"
+       "color=function() return 0 end}", true},
+      {"params={file=function() return 'images/color/edgetx.png' end}", true},
+      {"params={visible=function() return true end,bitmap=bitmap,x={}}", false},
+  };
+  for (auto format : {BMP_RGB565, BMP_ARGB4444}) {
+    for (const auto& c : cases) {
+      SCOPED_TRACE(c.params);
+      addBitmap("bitmap", format);
+      auto refs = registryResources();
+      ASSERT_TRUE(exec("image=trackedImage({bitmap=false,w=2,h=1})"));
+      ASSERT_TRUE(exec(c.params));
+      auto destroyed = destroyedImages;
+      EXPECT_EQ(setWithPendingFinalizer("params", "lvgl.clear()") == LUA_OK,
+                c.ok);
+      EXPECT_EQ(registryResources(), refs);
+      EXPECT_EQ(luaExtraMemoryUsage, initialUsage + 4);
+      ASSERT_TRUE(exec("assert(not pcall(image.show,image))"));
+      EXPECT_EQ(destroyedImages, destroyed);
+      MainWindow::instance()->run();
+      EXPECT_EQ(destroyedImages, destroyed + 1);
+      ASSERT_TRUE(exec("image=nil; params=nil; bitmap=nil;"
+                       "collectgarbage(); collectgarbage()"));
+      EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+    }
+  }
+}
+
+TEST_F(LuaBitmapImage, FinalizerClosingWindowDuringUpdateReleasesNewBitmap)
+{
+  ViewMain::instance();
+  addBitmap("bitmap", BMP_ARGB4444);
+  ASSERT_TRUE(exec("dialog=lvgl.dialog({title='Bitmap test'});"
+                   "image=lvgl.image(dialog,{bitmap=false,w=2,h=1});"
+                   "params={bitmap=bitmap}"));
+  EXPECT_EQ(setWithPendingFinalizer("params", "lvgl.close(dialog)"), LUA_OK);
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage + 4);
+  ASSERT_TRUE(exec("assert(not pcall(image.set,image,{bitmap=bitmap}));"
+                   "params=nil; bitmap=nil; collectgarbage()"));
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+  manager.clearRefs(L);
+  MainWindow::instance()->run();
+  ASSERT_TRUE(exec("image=nil; dialog=nil; collectgarbage()"));
 }
 
 }  // namespace
