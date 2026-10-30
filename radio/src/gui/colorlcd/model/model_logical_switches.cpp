@@ -33,6 +33,21 @@
 #include "switches.h"
 #include "toggleswitch.h"
 
+// Adjusted V2 value based on V1 type
+int getLSV2DispVal(int v1, int v2)
+{
+  v1 = abs(v1);
+#if defined(LUA_INPUTS)
+  if ((v1 <= MIXSRC_LAST_CH) &&
+      ((v1 < MIXSRC_FIRST_LUA) || (v1 > MIXSRC_LAST_LUA)))
+    return calc100toRESX(v2);
+#else
+  if (v1 <= MIXSRC_LAST_CH)
+    return calc100toRESX(v2);
+#endif
+  return v2;
+}
+
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 #define ETX_STATE_LS_ACTIVE LV_STATE_USER_1
@@ -203,7 +218,7 @@ class LogicalSwitchEditPage : public Page
                                 GET_SET_DEFAULT(cs->v2));
 
         v2Edit->setDisplayHandler([=](int value) -> std::string {
-          if (abs(cs->v1) <= MIXSRC_LAST_CH) value = calc100toRESX(value);
+          value = getLSV2DispVal(cs->v1, value);
           std::string txt = getSourceCustomValueString(cs->v1, value, 0);
           return txt;
         });
@@ -451,14 +466,11 @@ class LogicalSwitchButton : public ListLineButton
       case LS_FAMILY_COMP:
         lv_label_set_text(lsV2, getSourceString(ls->v2));
         break;
-      default:
-        lv_label_set_text(
-            lsV2,
-            getSourceCustomValueString(
-                ls->v1,
-                (ls->v1 <= MIXSRC_LAST_CH ? calc100toRESX(ls->v2) : ls->v2),
-                0));
+      default: {
+        int v2 = getLSV2DispVal(ls->v1, ls->v2);
+        lv_label_set_text(lsV2, getSourceCustomValueString(ls->v1, v2, 0));
         break;
+      }
     }
 
     // AND switch
