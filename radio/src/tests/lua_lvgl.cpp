@@ -28,6 +28,9 @@
 #include "lua/lua_widget.h"
 #include "mainwindow.h"
 #include "view_main.h"
+#include "standalone_lua.h"
+
+extern lua_State* lsStandalone;
 
 extern void lv_stb_init();
 
@@ -43,7 +46,13 @@ class ImageScriptManager : public LuaScriptManager
     return (tempParent && tempParent->getWindow()) ? tempParent->getWindow()
                                                     : root;
   }
-  void clear() override { root->clear(); }
+  lua_State* L = nullptr;
+  // Mirrors LuaWidget::clear() and StandaloneLuaWindow::clear().
+  void clear() override
+  {
+    if (L) clearRefs(L);
+    root->clear();
+  }
   bool useLvglLayout() const override { return true; }
   bool isAppMode() const override { return false; }
   bool isWidget() override { return true; }
@@ -78,6 +87,7 @@ class LuaBitmapImage : public ::testing::Test
     ASSERT_NE(L, nullptr);
     luaRegisterLibraries(L);
     manager.root = new Window(nullptr, {0, 0, 100, 100});
+    manager.L = L;
     previousManager = luaScriptManager;
     luaScriptManager = &manager;
     lua_pushlightuserdata(L, &destroyedImages);
@@ -416,6 +426,8 @@ TEST_F(LuaBitmapImage, ParentClearPreservesRegistrySlotUntilDeferredCleanup)
   EXPECT_EQ(destroyedImages, 0);
   EXPECT_EQ(imageRef(), ref);
   EXPECT_TRUE(manager.callRefs(L));
+  EXPECT_EQ(destroyedImages, 0);
+  MainWindow::instance()->run();
   EXPECT_EQ(destroyedImages, 1);
   ASSERT_TRUE(exec("label:set({text='still valid'});"
                    "assert(not pcall(image.show,image))"));
@@ -439,9 +451,11 @@ TEST_F(LuaBitmapImage, FilenameOnlyNativeDeletionKeepsDeferredHandle)
                    "label=lvgl.label({text='unrelated'})"));
   EXPECT_TRUE(manager.callRefs(L));
   manager.clearRefs(L);
+  MainWindow::instance()->run();
   EXPECT_EQ(destroyedImages, 1);
   manager.clearRefs(L);
   ASSERT_TRUE(exec("image=nil; collectgarbage(); collectgarbage()"));
+  MainWindow::instance()->run();
   EXPECT_EQ(destroyedImages, 1);
 }
 
@@ -476,6 +490,7 @@ TEST_F(LuaBitmapImage, CollectedCreatorCoroutineDoesNotOwnDeletionState)
   ASSERT_TRUE(exec("collectgarbage()"));
   EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
   manager.clearRefs(L);
+  MainWindow::instance()->run();
   EXPECT_EQ(destroyedImages, 1);
 }
 
@@ -511,10 +526,13 @@ TEST_F(LuaBitmapImage, ParentCleanupDeletesWrapperExactlyOnceBeforeNativeClose)
   ASSERT_TRUE(exec("image=trackedImage({bitmap=bitmap,w=2,h=1}); bitmap=nil"));
   auto window = image()->getWindow();
   manager.clearRefs(L);
-  EXPECT_EQ(destroyedImages, 1);
+  EXPECT_EQ(destroyedImages, 0);
   window->closeWindow();
+  MainWindow::instance()->run();
+  EXPECT_EQ(destroyedImages, 1);
   ASSERT_TRUE(exec("image=nil; collectgarbage(); collectgarbage()"));
   manager.clearRefs(L);
+  MainWindow::instance()->run();
   EXPECT_EQ(destroyedImages, 1);
   EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
 }
@@ -735,6 +753,142 @@ TEST_F(LuaBitmapImage, FailedBuildChildrenRestoreParent)
   auto children = lv_obj_get_child_cnt(manager.root->getLvObj());
   ASSERT_TRUE(exec("label=lvgl.label({text='after'})"));
   EXPECT_EQ(lv_obj_get_child_cnt(manager.root->getLvObj()), children + 1);
+}
+
+TEST_F(LuaBitmapImage, ScriptClearFromImageCallbacksDefersDeletion)
+{
+  struct Case { const char* create; const char* callback; };
+  const Case cases[] = {
+      {"{bitmap=bitmap,w=2,h=1}", "visible=function() CLEAR return true end"},
+      {"{bitmap=bitmap,w=2,h=1}", "color=function() CLEAR return 0 end"},
+      {"{bitmap=bitmap,w=2,h=1}", "opacity=function() CLEAR return 255 end"},
+      {"{bitmap=bitmap,w=2,h=1}", "size=function() CLEAR return 2,1 end"},
+      {"{bitmap=bitmap,w=2,h=1}", "pos=function() CLEAR return 0,0 end"},
+      {"{file='images/color/edgetx.png',w=2,h=1}",
+       "file=function() CLEAR return 'images/color/bitmap_320x240.png' end"},
+  };
+  for (const auto& c : cases) {
+    SCOPED_TRACE(c.callback);
+    addBitmap("bitmap", BMP_ARGB4444);
+    auto refs = registryResources();
+    std::string callback = c.callback;
+    callback.replace(callback.find("CLEAR"), 5,
+                     "lvgl.clear(); lvgl.clear();"
+                     "after=lvgl.label({text='after'});");
+    std::string code = std::string("image=trackedImage(") + c.create +
+                       "); image:set({" + callback + "})";
+    ASSERT_TRUE(exec(code.c_str()));
+    auto destroyed = destroyedImages;
+    EXPECT_TRUE(manager.callRefs(L));
+    EXPECT_EQ(destroyedImages, destroyed);
+    ASSERT_TRUE(exec("assert(not pcall(image.show,image));"
+                     "after:set({text='still valid'})"));
+    MainWindow::instance()->run();
+    EXPECT_EQ(destroyedImages, destroyed + 1);
+    EXPECT_TRUE(manager.callRefs(L));
+    manager.clearRefs(L);
+    MainWindow::instance()->run();
+    ASSERT_TRUE(exec("image=nil; after=nil; bitmap=nil; collectgarbage()"));
+    EXPECT_EQ(destroyedImages, destroyed + 1);
+    EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+    EXPECT_LE(registryResources(), refs);
+  }
+}
+
+TEST_F(LuaBitmapImage, ChildCallbackClearsParentImage)
+{
+  addBitmap("bitmap", BMP_ARGB4444);
+  ASSERT_TRUE(exec(
+      "image=trackedImage({bitmap=bitmap,w=20,h=20});"
+      "child=lvgl.image(image,{bitmap=bitmap,w=2,h=1});"
+      "child:set({visible=function() lvgl.clear(); lvgl.clear();"
+      "after=lvgl.label({text='after'}); return true end})"));
+  EXPECT_TRUE(manager.callRefs(L));
+  EXPECT_EQ(destroyedImages, 0);
+  MainWindow::instance()->run();
+  EXPECT_EQ(destroyedImages, 1);
+  ASSERT_TRUE(exec("assert(not pcall(child.show,child));"
+                   "after:set({text='still valid'});"
+                   "image=nil; child=nil; bitmap=nil; collectgarbage()"));
+  manager.clearRefs(L);
+  MainWindow::instance()->run();
+  EXPECT_EQ(destroyedImages, 1);
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+}
+
+TEST_F(LuaBitmapImage, ImageCallbackErrorAfterScriptClear)
+{
+  addBitmap("bitmap", BMP_ARGB4444);
+  ASSERT_TRUE(exec("image=trackedImage({bitmap=bitmap,w=2,h=1});"
+                   "image:set({visible=function() lvgl.clear();"
+                   "error('after clear') end})"));
+  EXPECT_FALSE(manager.callRefs(L));
+  EXPECT_EQ(destroyedImages, 0);
+  MainWindow::instance()->run();
+  EXPECT_EQ(destroyedImages, 1);
+  ASSERT_TRUE(exec("image=nil; bitmap=nil; collectgarbage()"));
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+}
+
+TEST_F(LuaBitmapImage, FileCallbackClosingItsDialog)
+{
+  ViewMain::instance();
+  ASSERT_TRUE(exec(
+      "dialog=lvgl.dialog({title='Bitmap test'});"
+      "image=lvgl.image(dialog,{file='images/color/edgetx.png',w=2,h=1});"
+      "image:set({file=function() lvgl.close(dialog);"
+      "return 'images/color/bitmap_320x240.png' end})"));
+  EXPECT_TRUE(manager.callRefs(L));
+  ASSERT_TRUE(exec("assert(not pcall(image.show,image))"));
+  manager.clearRefs(L);
+  MainWindow::instance()->run();
+  ASSERT_TRUE(exec("image=nil; dialog=nil; collectgarbage()"));
+}
+
+TEST_F(LuaBitmapImage, StandaloneScriptClearFromImageCallback)
+{
+  ViewMain::instance();
+  auto S = luaL_newstate();
+  ASSERT_NE(S, nullptr);
+  luaRegisterLibraries(S);
+  lua_pushlightuserdata(S, &destroyedImages);
+  lua_pushcclosure(S, [](lua_State* L) {
+    auto obj = new TrackedImage((int*)lua_touserdata(L, lua_upvalueindex(1)));
+    obj->create(L, 1);
+    obj->push(L);
+    return 1;
+  }, 1);
+  lua_setglobal(S, "trackedImage");
+  ASSERT_EQ(luaL_dostring(S,
+      "frames=0;"
+      "function run(event) frames=frames+1;"
+      "if frames==1 then bitmap=Bitmap.open('images/color/bitmap_2x2.jpg');"
+      "image=trackedImage({bitmap=bitmap,w=2,h=2});"
+      "image:set({visible=function() lvgl.clear();"
+      "after=lvgl.label({text='after'}); return true end}) end;"
+      "return 0 end"), LUA_OK);
+  lua_getglobal(S, "run");
+  int runRef = luaL_ref(S, LUA_REGISTRYINDEX);
+  auto savedState = luaState;
+  lsStandalone = S;
+  StandaloneLuaWindow::setup(true, LUA_REFNIL, runRef);
+  auto window = StandaloneLuaWindow::instance();
+  ASSERT_NE(window, nullptr);
+  MainWindow::instance()->run();
+  EXPECT_EQ(destroyedImages, 1);
+  MainWindow::instance()->run();
+  lua_getglobal(S, "frames");
+  EXPECT_EQ(lua_tointeger(S, -1), 2);
+  lua_pop(S, 1);
+  EXPECT_EQ(luaL_dostring(S, "after:set({text='still valid'});"
+                             "assert(not pcall(image.show,image))"), LUA_OK);
+  window->closeWindow();
+  MainWindow::instance()->run();
+  EXPECT_EQ(lsStandalone, nullptr);
+  EXPECT_EQ(destroyedImages, 1);
+  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+  luaScriptManager = &manager;
+  luaState = savedState;
 }
 
 }  // namespace

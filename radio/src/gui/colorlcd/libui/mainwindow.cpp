@@ -46,12 +46,23 @@ MainWindow::MainWindow() : Window(nullptr, {0, 0, LCD_W, LCD_H})
   etx_solid_bg(lvobj);
 }
 
+std::vector<std::function<void()>> MainWindow::deferredDeletes;
+
+void MainWindow::deleteLater(std::function<void()> deleter)
+{
+  deferredDeletes.push_back(std::move(deleter));
+}
+
 void MainWindow::emptyTrash()
 {
   for (auto window : trash) {
     delete window;
   }
   trash.clear();
+
+  auto deleters = std::move(deferredDeletes);
+  deferredDeletes.clear();
+  for (auto& deleter : deleters) deleter();
 }
 
 void MainWindow::run(bool trash)

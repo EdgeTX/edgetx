@@ -55,11 +55,16 @@ class MainWindow: public Window
 
   void blockUntilClose(bool checkPwr, std::function<bool(void)> closeCondition, bool isError = false);
 
+  // Runs deleter with the next top-level emptyTrash(), like closed windows,
+  // once outer stack frames can no longer reference the object.
+  static void deleteLater(std::function<void()> deleter);
+
  protected:
   BitmapBuffer *backgroundBitmap = nullptr;
   bool widgetRefreshEnable = true;
 
   static MainWindow * _instance;
+  static std::vector<std::function<void()>> deferredDeletes;
 
   void emptyTrash();
 };

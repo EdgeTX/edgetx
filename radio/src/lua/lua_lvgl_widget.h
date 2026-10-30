@@ -673,7 +673,7 @@ class LvglWidgetImage : public LvglWidgetObject
 
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
-  void release(lua_State *L) override { clearRefs(L); delete this; }
+  void release(lua_State *L) override;
   void create(lua_State *L, int index) override;
   bool hasDeletedWindow() const override
   {

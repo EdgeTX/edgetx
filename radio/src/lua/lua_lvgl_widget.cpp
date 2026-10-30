@@ -27,6 +27,7 @@
 #include "keyboard_base.h"
 #include "lua_event.h"
 #include "lua_widget.h"
+#include "mainwindow.h"
 #include "menu.h"
 #include "numberedit.h"
 #include "page.h"
@@ -2130,7 +2131,8 @@ bool LvglWidgetImage::callRefs(lua_State *L)
     if (filename.function != LUA_REFNIL) {
       if (pcallFunc(L, filename.function, 1)) {
         const char *s = luaL_checkstring(L, -1);
-        if (filename.changedText(s)) {
+        // The callback may have deleted the window.
+        if (filename.changedText(s) && window) {
           ((StaticImage*)window)->setSource(filename.chars());
         }
         lua_settop(L, t);
@@ -2152,6 +2154,16 @@ void LvglWidgetImage::clearRefs(lua_State *L)
   }
   filename.clearRef(L);
   LvglWidgetObject::clearRefs(L);
+}
+
+void LvglWidgetImage::release(lua_State* L)
+{
+  clearRefs(L);
+  // A callback of this image (or its parent) may have cleared the UI, so
+  // callers further up the stack can still be using this object. Detach it
+  // from its window (closed by the caller) and delete it from the main loop.
+  window = nullptr;
+  MainWindow::deleteLater([this]() { delete this; });
 }
 
 void LvglWidgetImage::windowDeleted(lv_event_t* event)
