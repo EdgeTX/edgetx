@@ -1040,6 +1040,48 @@ TEST_F(LuaBitmapImage, FinalizerClosingWindowDuringUpdateReleasesNewBitmap)
   ASSERT_TRUE(exec("image=nil; dialog=nil; collectgarbage()"));
 }
 
+TEST_F(LuaBitmapImage, ReplacedFilenameCallbackResultIsDiscarded)
+{
+  // Expected display after the first and second callRefs(): nullptr means
+  // no image, "bitmap" the Bitmap, otherwise a file path. The obsolete
+  // outer result (bitmap_480x272.png) must never be shown.
+  struct Case { const char* replace; const char* first; const char* second; };
+  const char* bitmapSource = "bitmap";
+  const Case cases[] = {
+      {"image:set({bitmap=bitmap})", bitmapSource, bitmapSource},
+      {"image:set({bitmap=false})", nullptr, nullptr},
+      {"image:set({file='images/color/edgetx.png'})",
+       "A/images/color/edgetx.png", "A/images/color/edgetx.png"},
+      // A new callback keeps the current image until it first runs.
+      {"image:set({file=function() return 'images/color/edgetx.png' end})",
+       "A/images/color/bitmap_320x240.png", "A/images/color/edgetx.png"},
+  };
+  for (const auto& c : cases) {
+    SCOPED_TRACE(c.replace);
+    auto bitmap = addBitmap("bitmap", BMP_ARGB4444);
+    std::string code = std::string(
+        "image=lvgl.image({file='images/color/bitmap_320x240.png',w=2,h=1});"
+        "outer=0; image:set({file=function() outer=outer+1;") +
+        c.replace + " return 'images/color/bitmap_480x272.png' end})";
+    ASSERT_TRUE(exec(code.c_str()));
+    for (auto expected : {c.first, c.second}) {
+      EXPECT_TRUE(manager.callRefs(L));
+      auto lvobj = image()->getWindow()->getLvObj();
+      EXPECT_EQ(lv_obj_get_child_cnt(lvobj), expected ? 1u : 0u);
+      if (expected == bitmapSource) {
+        EXPECT_EQ(lv_img_src_get_type(source()), LV_IMG_SRC_VARIABLE);
+        EXPECT_EQ(luaExtraMemoryUsage,
+                  initialUsage + bitmap->getDataSize() + 6u);
+      } else if (expected) {
+        EXPECT_STREQ((const char*)source(), expected);
+      }
+    }
+    ASSERT_TRUE(exec("assert(outer==1); image:set({bitmap=false});"
+                     "image=nil; bitmap=nil; collectgarbage()"));
+    EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+  }
+}
+
 }  // namespace
 
 #endif

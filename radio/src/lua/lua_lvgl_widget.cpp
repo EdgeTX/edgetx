@@ -2124,6 +2124,7 @@ void LvglWidgetImage::parseSource(lua_State* L, int index)
     // current pixels until then. A Bitmap source was released above.
     sourceChanged = ref == LUA_REFNIL;
   }
+  sourceGeneration += 1;
   lua_pop(L, 2);
 }
 
@@ -2147,10 +2148,13 @@ bool LvglWidgetImage::callRefs(lua_State *L)
   if (isVisible()) {
     int t = lua_gettop(L);
     if (filename.function != LUA_REFNIL) {
+      auto generation = sourceGeneration;
       if (pcallFunc(L, filename.function, 1)) {
         const char *s = luaL_checkstring(L, -1);
-        // The callback may have deleted the window.
-        if (filename.changedText(s) && window) {
+        // The callback may have replaced the source or deleted the window;
+        // then its result is obsolete.
+        if (generation == sourceGeneration && window &&
+            filename.changedText(s)) {
           ((StaticImage*)window)->setSource(filename.chars());
         }
         lua_settop(L, t);

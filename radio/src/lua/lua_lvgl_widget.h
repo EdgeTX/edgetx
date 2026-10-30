@@ -690,6 +690,7 @@ class LvglWidgetImage : public LvglWidgetObject
   lua_State* bitmapState = nullptr;
   bool sourceChanged = false;
   bool released = false;
+  uint32_t sourceGeneration = 0;
 
   void build(lua_State *L) override;
   void getParams(lua_State *L, int index) override;
