@@ -390,14 +390,29 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
   }
 }
 
+// Calls fn with the top nargs values, restoring the temporary parent if it
+// raises so later objects are not attached to a failed build's parent.
+static void pcallRestoringParent(lua_State *L, int nargs, lua_CFunction fn,
+                                 LvglWidgetObjectBase* prevParent)
+{
+  lua_pushcfunction(L, fn);
+  lua_insert(L, -(nargs + 1));
+  if (lua_pcall(L, nargs, 0, 0) != LUA_OK) {
+    luaScriptManager->setTempParent(prevParent);
+    lua_error(L);
+  }
+}
+
 static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
 {
   if (obj->getWindow()) {
     lua_getfield(L, -1, "children");
     auto prevParent = luaScriptManager->getTempParent();
     luaScriptManager->setTempParent(obj);
-    buildLvgl(L, -1, 0);
-    lua_pop(L, 1);
+    pcallRestoringParent(L, 1, [](lua_State* L) {
+      buildLvgl(L, -1, 0);
+      return 0;
+    }, prevParent);
     luaScriptManager->setTempParent(prevParent);
   }
 }
@@ -424,21 +439,39 @@ static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
 {
   if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
     LvglWidgetObjectBase* p = nullptr;
-    LvglWidgetObjectBase* prevParent = nullptr;
+    auto prevParent = luaScriptManager->getTempParent();
     if (lua_gettop(L) == 2) {
       p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
-      if (p) {
-        prevParent = luaScriptManager->getTempParent();
-        luaScriptManager->setTempParent(p);
-      }
+      if (p && p->hasDeletedWindow())
+        return luaL_error(L, "Parent window has been deleted");
     }
 
     LvglWidgetParams params(L, -1);
 
+    if (p) luaScriptManager->setTempParent(p);
     auto obj = create();
-    obj->create(L, -1);
-
-    if (params.hasChildren) addChildren(L, obj);
+    bool created = false;
+    lua_pushlightuserdata(L, obj);
+    lua_pushlightuserdata(L, &created);
+    lua_pushboolean(L, params.hasChildren);
+    lua_pushcclosure(L, [](lua_State* L) {
+      auto obj =
+          (LvglWidgetObjectBase*)lua_touserdata(L, lua_upvalueindex(1));
+      obj->create(L, 1);
+      *(bool*)lua_touserdata(L, lua_upvalueindex(2)) = true;
+      if (lua_toboolean(L, lua_upvalueindex(3))) addChildren(L, obj);
+      return 0;
+    }, 3);
+    lua_pushvalue(L, -2);
+    if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+      luaScriptManager->setTempParent(prevParent);
+      if (created) {
+        auto window = obj->getWindow();
+        obj->release(L);
+        if (window) window->closeWindow();
+      }
+      return lua_error(L);
+    }
 
     obj->push(L);
 
@@ -475,21 +508,25 @@ static int luaLvglBuild(lua_State *L)
 {
   if (luaScriptManager) {
     LvglWidgetObjectBase* p = nullptr;
-    LvglWidgetObjectBase* prevParent = nullptr;
+    auto prevParent = luaScriptManager->getTempParent();
     if (lua_gettop(L) == 2) {
       p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
-      if (p) {
-        prevParent = luaScriptManager->getTempParent();
-        luaScriptManager->setTempParent(p);
-      }
+      if (p && p->hasDeletedWindow())
+        return luaL_error(L, "Parent window has been deleted");
     }
+
+    if (p) luaScriptManager->setTempParent(p);
 
     // Return array of lvgl object references
     lua_newtable(L);
-    buildLvgl(L, -2, -1);
+    lua_pushvalue(L, -2);
+    lua_pushvalue(L, -2);
+    pcallRestoringParent(L, 2, [](lua_State* L) {
+      buildLvgl(L, -2, -1);
+      return 0;
+    }, prevParent);
 
-    if (p)
-      luaScriptManager->setTempParent((prevParent));
+    luaScriptManager->setTempParent(prevParent);
   } else {
     lua_pushnil(L);
   }
@@ -823,14 +860,19 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @param params (table):
    @commonparams lvgl_object
-   * `file` (string) full path to the image file on the SD card, defaults to an empty string
+   * `file` (string or function) full path to the image file on the SD card, or a callback returning that path; mutually exclusive with a Bitmap source, but may be combined with `bitmap=false`, defaults to an empty string
+   * `bitmap` (Bitmap or false) existing Bitmap object assigned directly, not a callback; false clears the source and releases the image's Bitmap reference, defaults to nil
    * `fill` (boolean) if true the image is scaled to completely fill the frame (may be cropped); if false it is scaled to fit entirely within the frame (may have empty borders), defaults to false
 
   @retval table LVGL object
 
   @notice `w` and `h` are required.
+  @notice `image:set({file=...})` changes the displayed source and replaces any previous filename callback. If combined with `bitmap=false`, the filename source is used.
+  @notice The image keeps its Bitmap alive until replaced or deleted; `lvgl.clear(image)` removes only the image's children. Use `image:set({bitmap=false})` to release this reference immediately, including when hidden. A nil table field is absent and does not clear it. Drop script references and run `collectgarbage()` to reclaim unused Bitmap memory.
+  @notice RGB565 Bitmaps (including JPEGs) are borrowed without copying pixels. ARGB4444 Bitmaps require an RGB565-plus-alpha conversion, charged to the existing Lua bitmap memory budget. Replacing one ARGB4444 Bitmap with another briefly needs budget for both conversions; near the limit, set `bitmap=false` first.
+  @notice Invalid source values or parameters and conversion allocation or budget failures raise a Lua error without replacing the previous source. Check `Bitmap.getSize()` after `Bitmap.open()`; a failed load returns zero width and height.
 
-  @status current Introduced in 2.11.0, floating added in 2.11.6
+  @status current Introduced in 2.11.0, floating added in 2.11.6, bitmap added in 3.0.0
   */
   LROT_FUNCENTRY(image, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetImage(); }); })
   /*luadoc

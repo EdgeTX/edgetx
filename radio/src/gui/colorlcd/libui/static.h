@@ -154,8 +154,11 @@ class StaticImage : public Window
 
   void setZoom();
   void setSource(std::string filename);
+  void setSource(const lv_img_dsc_t* bitmap);
   void clearSource();
   bool hasImage() const;
+
+  void clear() override;
 
  protected:
   bool fillFrame;

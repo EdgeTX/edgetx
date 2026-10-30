@@ -589,7 +589,7 @@ void LuaScriptManager::clearRefs(lua_State *L)
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
     auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
     lua_pop(L, 1);
-    if (p) p->clearRefs(L);
+    if (p) p->release(L);
   }
   lvglObjectRefs.clear();
 }
