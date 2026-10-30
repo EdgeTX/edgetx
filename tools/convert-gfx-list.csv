@@ -81,7 +81,6 @@ mask_ui_btn_prev,26,26,2026-01-13 11:36:16
 mask_widget_antenna,18,17,2026-01-13 11:36:16
 mask_widget_gps,18,18,2026-01-13 11:36:16
 mask_widget_timer,62,62,2026-01-13 11:36:16
-mask_widget_timer_bg,180,70,2026-01-13 11:36:16
 mask_widget_txbat,24,12,2026-01-13 11:36:16
 mask_widget_txbat_charging,5,15,2026-01-13 11:36:16
 mask_widget_usb,22,10,2026-01-13 11:36:16

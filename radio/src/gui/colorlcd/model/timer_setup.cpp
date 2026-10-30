@@ -41,7 +41,8 @@ TimerWindow::TimerWindow(uint8_t timer) :
   // Timer name
   setupLine(STR_NAME,
     [=](Window* parent, coord_t x, coord_t y) {
-      new ModelTextEdit(parent, {x, y, 0, 0}, p_timer->name, LEN_TIMER_NAME);
+      new ModelTextEdit(parent, {x, y, COUNTDOWN_W, 0}, p_timer->name, LEN_TIMER_NAME,
+                        [=]() { Messaging::send(Messaging::UPDATE_TIMER, timer); });
     });
 
   // Timer mode
