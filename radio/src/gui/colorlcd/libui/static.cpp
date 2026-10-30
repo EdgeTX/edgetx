@@ -261,9 +261,15 @@ void StaticImage::clearSource()
 
 void StaticImage::clear()
 {
-  Window::clear();
-  // lv_obj_clean() has deleted the image object.
-  image = nullptr;
+  // Only remove content added on top; the displayed image is not a child.
+  deleteChildren();
+  if (lvobj) {
+    for (int i = (int)lv_obj_get_child_cnt(lvobj) - 1; i >= 0; i -= 1) {
+      auto child = lv_obj_get_child(lvobj, i);
+      if (child != image) lv_obj_del(child);
+    }
+  }
+  invalidate();
 }
 
 bool StaticImage::hasImage() const

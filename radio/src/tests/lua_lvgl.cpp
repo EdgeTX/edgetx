@@ -694,22 +694,60 @@ TEST_F(LuaBitmapImage, FileAndFalseResolveIndependentlyOfIterationOrder)
   EXPECT_STREQ((const char*)source(), "A/images/color/bitmap_320x240.png");
 }
 
-TEST_F(LuaBitmapImage, ClearedImageChildrenCanBeReplacedAndReleased)
+TEST_F(LuaBitmapImage, ClearingImageChildrenKeepsItsSource)
 {
-  auto bitmap = addBitmap("bitmap");
-  ASSERT_TRUE(exec("image=lvgl.image({bitmap=bitmap,w=2,h=1});"
+  for (auto format : {BMP_RGB565, BMP_ARGB4444}) {
+    SCOPED_TRACE(format);
+    auto bitmap = addBitmap("bitmap", format);
+    ASSERT_TRUE(exec(
+        "image=trackedImage({bitmap=bitmap,w=20,h=20});"
+        "label=lvgl.label(image,{text='child'});"
+        "child=lvgl.image(image,{bitmap=bitmap,w=2,h=1})"));
+    auto descriptor = source();
+    auto pixels = descriptor->data;
+    auto usage = luaExtraMemoryUsage;
+    ASSERT_TRUE(exec("lvgl.clear(image)"));
+    EXPECT_TRUE(manager.callRefs(L));
+    EXPECT_TRUE(manager.callRefs(L));
+    EXPECT_EQ(lv_obj_get_child_cnt(image()->getWindow()->getLvObj()), 1u);
+    EXPECT_EQ(source(), descriptor);
+    EXPECT_EQ(source()->data, pixels);
+    if (format == BMP_RGB565)
+      EXPECT_EQ(source()->data, (const uint8_t*)bitmap->getData());
+    // Only the child's conversion buffer is released.
+    EXPECT_EQ(luaExtraMemoryUsage,
+              usage - (format == BMP_ARGB4444 ? 6u : 0u));
+    ASSERT_TRUE(exec("assert(not pcall(child.show,child));"
+                     "assert(not pcall(label.set,label,{text='x'}));"
+                     "image:set({bitmap=bitmap}); lvgl.clear(image);"
+                     "image:set({bitmap=false})"));
+    EXPECT_EQ(lv_obj_get_child_cnt(image()->getWindow()->getLvObj()), 0u);
+    manager.clearRefs(L);
+    MainWindow::instance()->run();
+    ASSERT_TRUE(exec("image=nil; child=nil; label=nil; bitmap=nil;"
+                     "collectgarbage()"));
+    EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+  }
+  EXPECT_EQ(destroyedImages, 2);
+}
+
+TEST_F(LuaBitmapImage, ClearingImageChildrenKeepsFilenameSources)
+{
+  ASSERT_TRUE(exec("image=lvgl.image({file='images/color/edgetx.png',w=2,h=1});"
                    "lvgl.clear(image)"));
-  EXPECT_EQ(lv_obj_get_child_cnt(image()->getWindow()->getLvObj()), 0u);
-  ASSERT_TRUE(exec("image:set({bitmap=bitmap})"));
-  EXPECT_EQ(source()->data, (const uint8_t*)bitmap->getData());
-  ASSERT_TRUE(exec("lvgl.clear(image); image:set({bitmap=false});"
-                   "image:set({file='images/color/edgetx.png'});"
-                   "lvgl.clear(image); image:set({bitmap=bitmap});"
+  EXPECT_TRUE(manager.callRefs(L));
+  EXPECT_STREQ((const char*)source(), "A/images/color/edgetx.png");
+  ASSERT_TRUE(exec("image:set({file=function()"
+                   "return 'images/color/bitmap_320x240.png' end})"));
+  EXPECT_TRUE(manager.callRefs(L));
+  EXPECT_STREQ((const char*)source(), "A/images/color/bitmap_320x240.png");
+  ASSERT_TRUE(exec("lvgl.clear(image)"));
+  EXPECT_TRUE(manager.callRefs(L));
+  EXPECT_TRUE(manager.callRefs(L));
+  EXPECT_STREQ((const char*)source(), "A/images/color/bitmap_320x240.png");
+  ASSERT_TRUE(exec("image:set({file='images/color/edgetx.png'});"
                    "lvgl.clear(image)"));
-  EXPECT_EQ(lv_obj_get_child_cnt(image()->getWindow()->getLvObj()), 0u);
-  manager.clearRefs(L);
-  ASSERT_TRUE(exec("image=nil; bitmap=nil; collectgarbage()"));
-  EXPECT_EQ(luaExtraMemoryUsage, initialUsage);
+  EXPECT_STREQ((const char*)source(), "A/images/color/edgetx.png");
 }
 
 TEST_F(LuaBitmapImage, WindowlessObjectsRemainValidParents)
