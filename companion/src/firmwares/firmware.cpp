@@ -23,6 +23,7 @@
 #include "firmwarefactories.h"
 #include "../boards/boardfactories.h"
 #include "appdata.h"
+#include "helpers.h"
 
 Firmware::Firmware(const QString & id) :
   m_id(id),
@@ -422,13 +423,14 @@ bool Firmware::loadDefinition()
     each file can override previously set values or set new values
     though some overrides are rejected as not practical to apply
   */
+  Stopwatch s1("Load Firmware");
 
   if (loadDefinition(QString("%1/%2.json").arg(FWDEFNSDIR).arg("default"))) {
     if (loadDefinition(QString("%1/%2.json").arg(FWDEFNSDIR).arg(m_id))) {
       if (postLoad()) {
         m_loaded = true;
         m_valid = true;
-        qDebug() << "Definition loaded:" << m_id;
+        s1.report(m_id);
         return true;
       }
     }
@@ -486,15 +488,6 @@ bool Firmware::loadDefinition(const QString & path)
   // if an earlier definition contained "supported": false
   // we need to override with true if it is omitted in a later file
   m_supported = Json::valueBool(o, "supported", true, false);
-
-  /*
-    TODO revisit after refactor is stable with some timings
-    iterators are faster for overlay files as only a small subset of keys per file to process
-    but slower for defaults though const iterators are faster than per key lookups
-    ideally parse the defaults once into a cache and copy to each firmware
-    however the copy would need to be a selective deep copy
-    cache provides no performance benefit if only one firmware loaded
-  */
 
   // keys not processed in iteration
   const QStringList skipKeys {"basedOn", "board", "comments", "hidden", "id",

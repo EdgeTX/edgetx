@@ -21,6 +21,7 @@
 
 #include "boardfactories.h"
 #include "helpers_json.h"
+#include "helpers.h"
 
 BoardFactory::BoardFactory(const QString & id) :
   m_board(new Board(id))
@@ -87,6 +88,7 @@ bool BoardFactories::registerBoard(const QString & id)
 
 void BoardFactories::registerAllBoards()
 {
+  Stopwatch s1("Register All Boards");
   QStringList registered;
   QStringList filters = { "*.json" };
 
@@ -112,4 +114,5 @@ void BoardFactories::registerAllBoards()
   }
 
   qDebug() << "Registered boards:" << registered;
+  s1.report();
 }

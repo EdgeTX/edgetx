@@ -1300,13 +1300,12 @@ bool Board::loadDefinition()
     each file can override previously set values or set new values
     though some overrides are rejected as not practical to apply
   */
+  Stopwatch s1("Load Board");
 
   if (loadDefinition(QString("%1/%2.json").arg(BDDEFNSDIR).arg("default"))) {
     if (loadDefinition(QString("%1/%2.json").arg(HWDEFNSDIR).arg(m_hwdefn))) {
       if (loadDefinition(QString("%1/%2.json").arg(BDDEFNSDIR).arg(m_id))) {
-        if (postLoad())
-          qDebug() << "Definition loaded:" << m_id;
-        else
+        if (!postLoad())
           return false;
       } else
         return false;
@@ -1334,6 +1333,7 @@ bool Board::loadDefinition()
 
   m_loaded = true;
   m_valid = true;
+  s1.report(m_id);
   return true;
 }
 
@@ -1385,15 +1385,6 @@ bool Board::loadDefinition(const QString & path)
   // if an earlier definition contained "supported": false
   // we need to override with true if it is omitted in a later file
   m_supported = Json::valueBool(o, "supported", true, false);
-
-  /*
-    TODO revisit after refactor is stable with some timings
-    iterators are faster for overlay files as only a small subset of keys per file to process
-    but slower for defaults though const iterators are faster than per key lookups
-    ideally parse the defaults once into a cache and copy to each firmware
-    however the copy would need to be a selective deep copy
-    cache provides no performance benefit if only one firmware loaded
-  */
 
   // keys not processed in iteration
   const QStringList skipKeys {"backlight", "basedOn", "comments", "hidden", "hwdefn",

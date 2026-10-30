@@ -21,6 +21,7 @@
 
 #include "firmwarefactories.h"
 #include "helpers_json.h"
+#include "helpers.h"
 
 #include <QFileInfo>
 
@@ -82,6 +83,7 @@ bool FirmwareFactories::isAvailable(const QString & id) const
 
 void FirmwareFactories::registerAllFirmwares()
 {
+  Stopwatch s1("Register All Firmwares");
   QStringList registered;
   QStringList filters = { "*.json" };
 
@@ -108,6 +110,7 @@ void FirmwareFactories::registerAllFirmwares()
 
   Firmware::setFallback(registeredFactories.size() > 1 ? registeredFactories.at(0)->firmware() : nullptr);
   qDebug() << "Registered firmwares:" << registered;
+  s1.report();
 }
 
 bool FirmwareFactories::registerFirmware(const QString & id)
