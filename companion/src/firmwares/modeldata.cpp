@@ -1003,7 +1003,7 @@ int ModelData::updateReference()
       }
       else {
         for (unsigned int i = 0; i < 4; i++) {
-          updateTelemetryRef(sd->sources[i]);
+          updateSensorCalcSourceRef(sd->sources[i]);
         }
       }
     }
@@ -1396,6 +1396,61 @@ void ModelData::updateTelemetryRef(int & curRef)
     //qDebug() << "Updated reference:" << curRef << " -> " << newRef;
     curRef = newRef;
     updRefInfo.updcnt++;
+  }
+}
+
+void ModelData::updateSensorCalcSourceRef(int & curRef)
+{
+  if (!curRef)
+    return;
+
+  const bool isGVar = SensorData::isGVarSource(curRef);
+  const bool negative = curRef < 0;
+  // 1 based sensor or GVar number
+  int newRef = isGVar ? SensorData::gvarSourceIndex(curRef) + 1 : abs(curRef);
+
+  if (isGVar) {
+    if (updRefInfo.type != REF_UPD_TYPE_GLOBAL_VARIABLE)
+      return;
+
+    const int idxAdj = 1;
+
+    switch (updRefInfo.action)
+    {
+      case REF_UPD_ACT_CLEAR:
+        if (newRef != (updRefInfo.index1 + idxAdj))
+          return;
+        newRef = 0;
+        break;
+      case REF_UPD_ACT_SHIFT:
+        if (newRef < (updRefInfo.index1 + idxAdj))
+          return;
+
+        newRef += updRefInfo.shift;
+
+        if (newRef < (updRefInfo.index1 + idxAdj) || newRef > (updRefInfo.maxindex + idxAdj))
+          newRef = 0;
+        break;
+      case REF_UPD_ACT_SWAP:
+        if (newRef == updRefInfo.index1 + idxAdj)
+          newRef = updRefInfo.index2 + idxAdj;
+        else if (newRef == updRefInfo.index2 + idxAdj)
+          newRef = updRefInfo.index1 + idxAdj;
+        break;
+      default:
+        qDebug() << "Error - unhandled action:" << updRefInfo.action;
+        return;
+    }
+
+    newRef = newRef ? SensorData::gvarSource(newRef - 1, negative) : 0;
+    if (newRef != curRef) {
+      curRef = newRef;
+      updRefInfo.updcnt++;
+    }
+  }
+  else {
+    updateTelemetryRef(newRef);
+    curRef = negative ? -newRef : newRef;
   }
 }
 
