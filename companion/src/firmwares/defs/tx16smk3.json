@@ -1,0 +1,7 @@
+{
+  "basedOn": [
+    "tx16s",
+    "cpuh7"
+  ],
+  "name": "TX16S Mark 3"
+}

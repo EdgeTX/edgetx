@@ -28,8 +28,8 @@
 #include "joystickdialog.h"
 #endif
 
-PrefsSimuPanel::PrefsSimuPanel(QWidget * parent, Firmware * fw, Board::Type & bd, Profile & prof) :
-  PrefsPanel(parent, fw, bd, prof),
+PrefsSimuPanel::PrefsSimuPanel(QWidget * parent, Firmware * firmware, Board * board, Profile & prof) :
+  PrefsPanel(parent, firmware, board, prof),
   ui(new Ui::PrefsSimu)
 {
   lock = true;
@@ -83,12 +83,12 @@ PrefsSimuPanel::PrefsSimuPanel(QWidget * parent, Firmware * fw, Board::Type & bd
   ui->dsbVolumeGain->setValue(profile.volumeGain() / 10.0, this);
   ui->dsbVolumeGain->setBindSave([this] { this->profile.volumeGain(ui->dsbVolumeGain->value() * 10.0); });
 
-  ui->lblBackLightColor->setBindVisible([this] { return Boards::getCapability(board, Board::HasBacklightColor); });
+  ui->lblBackLightColor->setBindVisible([this] { return this->board->getCapability(Capability::HasBacklightColor); });
 
   ui->cboBackLightColor->addItems(AppData::simuBackLightColorList());
   ui->cboBackLightColor->setValue((int)g.backLight(), this);
   ui->cboBackLightColor->setBindSave([this] { g.backLight(ui->cboBackLightColor->currentIndex()); });
-  ui->cboBackLightColor->setBindVisible([this] { return Boards::getCapability(board, Board::HasBacklightColor); });
+  ui->cboBackLightColor->setBindVisible([this] { return this->board->getCapability(Capability::HasBacklightColor); });
 
   ui->lblCaseColorSample->setBindSave([this] {
     this->profile.radioSimCaseColor(ui->lblCaseColorSample->palette().button().color());

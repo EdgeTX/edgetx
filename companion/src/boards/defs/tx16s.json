@@ -1,0 +1,6 @@
+{
+  "basedOn": [
+    "switches_flex"
+  ],
+  "name": "TX16S"
+}

@@ -69,7 +69,7 @@ bool YamlFormat::load(RadioData & radioData)
   std::istringstream data_istream(data.toStdString());
   YAML::Node node = YAML::Load(data_istream);
 
-  board = getCurrentBoard();
+  board = getCurrentBoard()->getId();
 
   if (!node.IsMap()) {
     setError(tr("File %1 is not a valid format").arg(filename));
@@ -106,7 +106,10 @@ bool YamlFormat::load(RadioData & radioData)
 
     //  without knowing the radio this model came from the old to new radio conversion can cause more issues than it tries to solve
     //  so leave fixing incompatibilities to the user
-    radioData.generalSettings.variant = getCurrentBoard();
+    std::strncpy(radioData.generalSettings.boardId,
+                 board.toLatin1().constData(),
+                 sizeof(radioData.generalSettings.boardId) - 1);
+    radioData.generalSettings.boardId[sizeof(radioData.generalSettings.boardId) - 1] = '\0'; // Enforce null termination
 
     setWarning(tr("Please check all model settings as minimal conversion performed."));
     return true;

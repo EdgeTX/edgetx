@@ -971,14 +971,11 @@ void UpdateInterface::setFirmwareFlavour()
 
 void UpdateInterface::setLanguage()
 {
-  const Firmware * baseFw = getCurrentFirmware()->getFirmwareBase();
-  const QStringList currVariant = getCurrentFirmware()->getId().split('-');
-
   m_params->language = "";
 
-  for (const char *lang : baseFw->languageList()) {
-    if (currVariant.last() == lang) {
-      m_params->language = currVariant.last();
+  for (const QString &lang : Firmware::getLanguageList()) {
+    if (g.currentProfile().fwLanguage() == lang) {
+      m_params->language = lang;
       break;
     }
   }

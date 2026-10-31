@@ -21,7 +21,7 @@
 
 #include "yaml_calibdata.h"
 #include "eeprominterface.h"
-#include "boardjson.h"
+#include "board.h"
 
 YamlCalibData::YamlCalibData()
 {
@@ -30,8 +30,10 @@ YamlCalibData::YamlCalibData()
 
 YamlCalibData::YamlCalibData(const GeneralSettings::InputConfig* rhs)
 {
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Inputs); i++) {
-    if (Boards::isInputCalibrated(i)) {
+  Board *board = getCurrentBoard();
+
+  for (int i = 0; i < board->getCapability(Capability::Inputs); i++) {
+    if (board->isInputCalibrated(i)) {
       calib[i].mid = rhs[i].calib.mid;
       calib[i].spanNeg = rhs[i].calib.spanNeg;
       calib[i].spanPos = rhs[i].calib.spanPos;
@@ -41,8 +43,10 @@ YamlCalibData::YamlCalibData(const GeneralSettings::InputConfig* rhs)
 
 void YamlCalibData::copy(GeneralSettings::InputConfig* rhs) const
 {
-  for (int i = 0; i < Boards::getCapability(getCurrentBoard(), Board::Inputs); i++) {
-    if (Boards::isInputCalibrated(i)) {
+  Board *board = getCurrentBoard();
+
+  for (int i = 0; i < board->getCapability(Capability::Inputs); i++) {
+    if (board->isInputCalibrated(i)) {
       rhs[i].calib.mid = calib[i].mid;
       rhs[i].calib.spanNeg = calib[i].spanNeg;
       rhs[i].calib.spanPos = calib[i].spanPos;
@@ -74,11 +78,12 @@ bool convert<GeneralSettings::InputCalib>::decode(const Node& node, GeneralSetti
 Node convert<YamlCalibData>::encode(const YamlCalibData& rhs)
 {
   Node node;
-  const int analogs = Boards::getCapability(getCurrentBoard(), Board::Inputs);
+  Board *board = getCurrentBoard();
+  const int analogs = board->getCapability(Capability::Inputs);
 
   for (int i = 0; i < analogs; i++) {
-    if (Boards::isInputCalibrated(i)) {
-      std::string tag = Boards::getInputYamlName(i, BoardJson::YLT_CONFIG).toStdString();
+    if (board->isInputCalibrated(i)) {
+      std::string tag = board->getInputYamlName(i, Board::YLT_CONFIG).toStdString();
       node[tag] = rhs.calib[i];
     }
   }
@@ -90,14 +95,16 @@ bool convert<YamlCalibData>::decode(const Node& node, YamlCalibData& rhs)
 {
   if (!node.IsMap()) return false;
 
+  Board *board = getCurrentBoard();
+
   for (const auto& kv : node) {
     std::string tag;
     kv.first >> tag;
 
     if (radioSettingsVersion < SemanticVersion(QString(CPN_ADC_REFACTOR_VERSION)))
-      tag = Boards::getLegacyAnalogMappedInputTag(tag.c_str());
+      tag = board->getLegacyAnalogMappedInputTag(tag.c_str());
 
-    int idx = Boards::getInputYamlIndex(tag.c_str(), BoardJson::YLT_CONFIG);
+    int idx = board->getInputYamlIndex(tag.c_str(), Board::YLT_CONFIG);
 
     if (idx >= 0)
       kv.second >> rhs.calib[idx];
