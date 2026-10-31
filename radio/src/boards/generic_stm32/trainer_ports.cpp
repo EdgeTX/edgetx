@@ -29,12 +29,13 @@
 #include "dataconstants.h"
 
 #include "hal.h"
+#include "edgetx.h"
 
 __WEAK void board_trainer_init()
 {
 #if defined(TRAINER_DETECT_GPIO)
   gpio_init(TRAINER_DETECT_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
-#endif  
+#endif
 
   trainer_init();
 }
@@ -63,8 +64,44 @@ static const stm32_pulse_timer_t trainerOutputTimer = {
   .DMA_TC_CallbackPtr = nullptr,
 };
 
+#if defined(TRAINER_JACK_CROSSOVER)
+// Trainer in and out are on different jack contacts, meant for the crossover
+// lead the radio ships with. A mono lead grounds the ring, so offer to run
+// both directions on the tip instead.
+#if defined(TRAINER_JACK_TIP_IS_OUT)
+  #define TRAINER_TIP_GPIO              TRAINER_OUT_GPIO
+  #define TRAINER_TIP_TIMER_Channel     TRAINER_OUT_TIMER_Channel
+#else
+  #define TRAINER_TIP_GPIO              TRAINER_IN_GPIO
+  #define TRAINER_TIP_TIMER_Channel     TRAINER_IN_TIMER_Channel
+#endif
+
+static_assert(__IS_TRAINER_TIMER_OUT_CHANNEL_SUPPORTED(TRAINER_TIP_TIMER_Channel),
+              "Unsupported trainer timer tip channel");
+
+static const stm32_pulse_timer_t trainerTipTimer = {
+  .GPIO = TRAINER_TIP_GPIO,
+  .GPIO_Alternate = TRAINER_GPIO_AF,
+  .TIMx = TRAINER_TIMER,
+  .TIM_Freq = TRAINER_TIMER_FREQ,
+  .TIM_Channel = TRAINER_TIP_TIMER_Channel,
+  .TIM_IRQn = TRAINER_TIMER_IRQn,
+  .DMAx = nullptr,
+  .DMA_Stream = 0,
+  .DMA_Channel = 0,
+  .DMA_IRQn = (IRQn_Type)0,
+  .DMA_TC_CallbackPtr = nullptr,
+};
+#endif
+
 void trainer_init_dsc_out()
 {
+#if defined(TRAINER_JACK_CROSSOVER)
+  if (g_eeGeneral.trainerTipOnly) {
+    trainer_init_output(&trainerTipTimer);
+    return;
+  }
+#endif
   trainer_init_output(&trainerOutputTimer);
 }
 
@@ -84,6 +121,12 @@ static const stm32_pulse_timer_t trainerInputTimer = {
 
 void trainer_init_dsc_in()
 {
+#if defined(TRAINER_JACK_CROSSOVER)
+  if (g_eeGeneral.trainerTipOnly) {
+    trainer_init_capture(&trainerTipTimer);
+    return;
+  }
+#endif
   trainer_init_capture(&trainerInputTimer);
 }
 

@@ -567,6 +567,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("Trainer ao desl", "Checar trainer ao desligar")
 #define TR_MODEL_STILL_POWERED         "Modelo ainda ligado"
 #define TR_TRAINER_STILL_CONNECTED     "Trainer ainda conectado"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB ainda ligado"
 #define TR_MODEL_SHUTDOWN              "Desligar?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Press enter p/ confirmar"

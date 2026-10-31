@@ -570,6 +570,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("Trainer shutdown", "Vérifier écolage avant extinction")
 #define TR_MODEL_STILL_POWERED         TR("Modèle alimenté", "Modèle encore alimenté")
 #define TR_TRAINER_STILL_CONNECTED     "Élève encore connecté"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB encore connecté"
 #define TR_MODEL_SHUTDOWN              "Éteindre ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Appui [Enter] pour confirmer"

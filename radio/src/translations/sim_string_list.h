@@ -1010,6 +1010,8 @@
 #define STR_TOUCH_PANEL currentLangStrings->STR_TOUCH_PANEL
 #define STR_TRAINER_SHUTDOWN_ALARM currentLangStrings->STR_TRAINER_SHUTDOWN_ALARM
 #define STR_TRAINER_STILL_CONNECTED currentLangStrings->STR_TRAINER_STILL_CONNECTED
+#define STR_TRAINER_JACK_MODE currentLangStrings->STR_TRAINER_JACK_MODE
+#define STR_TRAINER_JACK_MODES currentLangStrings->STR_TRAINER_JACK_MODES
 #define STR_TRAINER currentLangStrings->STR_TRAINER
 #define STR_TRIM currentLangStrings->STR_TRIM
 #define STR_TRIMINC currentLangStrings->STR_TRIMINC

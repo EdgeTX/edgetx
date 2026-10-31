@@ -574,6 +574,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM         TR("트레이너 상태 확인", "종료 시 트레이너 확인")
 #define TR_MODEL_STILL_POWERED            "모델 전원이 켜져 있음"
 #define TR_TRAINER_STILL_CONNECTED        TR("트레이너 연결됨", "트레이너 아직 연결됨")
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED            "USB 연결 중"
 
 #define TR_MODEL_SHUTDOWN                 "모델을 종료할까요?"

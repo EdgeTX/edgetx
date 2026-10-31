@@ -567,6 +567,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("Trainer shutdown", "シャットダウン時にトレーナーをチェック")
 #define TR_MODEL_STILL_POWERED         "電源が入ったままです"
 #define TR_TRAINER_STILL_CONNECTED     "トレーナー通信はまだ継続しています"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USBが接続されたままです"
 #define TR_MODEL_SHUTDOWN              "シャットダウンしますか？"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Enterを押して確認してください"

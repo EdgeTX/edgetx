@@ -569,6 +569,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("Тренер при вимк.", "Перевіряти тренер при вимиканні")
 #define TR_MODEL_STILL_POWERED         "Модель досі під живленням"
 #define TR_TRAINER_STILL_CONNECTED     "Трен. досі підключено"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB досі підключено"
 #define TR_MODEL_SHUTDOWN              "Вимкнути?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Тисни enter для підтвердження"

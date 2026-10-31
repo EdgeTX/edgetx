@@ -22,6 +22,7 @@
 #include "radio_hardware.h"
 
 #include "edgetx.h"
+#include "choice.h"
 #include "getset_helpers.h"
 #include "hal/adc_driver.h"
 #include "hw_extmodule.h"
@@ -163,6 +164,21 @@ const static SetupLineDef setupLines[] = {
     STR_DEF(STR_AUDIO_MUTE),
     [](Window* parent, coord_t x, coord_t y) {
       new ToggleSwitch(parent, {x, y, 0, 0}, GET_SET_DEFAULT(g_eeGeneral.audioMuteEnable));
+    }
+  },
+#endif
+#if defined(TRAINER_JACK_CROSSOVER)
+  {
+    // Trainer jack wiring: crossover lead vs mono / straight lead
+    STR_DEF(STR_TRAINER_JACK_MODE),
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, 0}, STR_TRAINER_JACK_MODES, 0, 1,
+                 GET_DEFAULT(g_eeGeneral.trainerTipOnly), [=](int32_t newValue) {
+                   g_eeGeneral.trainerTipOnly = newValue;
+                   SET_DIRTY();
+                   // restarted on the new contacts by checkTrainerSettings()
+                   stopTrainer();
+                 });
     }
   },
 #endif
