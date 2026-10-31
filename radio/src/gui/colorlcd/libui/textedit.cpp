@@ -177,6 +177,8 @@ void TextEdit::preview(bool edited, char* text, uint8_t length)
                       text, length, nullptr);
   edit->setWindowFlag(NO_CLICK);
   lv_group_focus_obj(edit->getLvObj());
+  // Show focus outline around this field since TextArea will be clipped
+  lv_obj_add_state(lvobj, LV_STATE_USER_1);
   lv_obj_add_state(edit->getLvObj(), LV_STATE_FOCUSED);
   if (edited) lv_obj_add_state(edit->getLvObj(), LV_STATE_EDITED);
 }
