@@ -225,6 +225,16 @@ HardwarePanel::HardwarePanel(QWidget * parent, GeneralSettings & generalSettings
     addParams();
   }
 
+  if (Boards::getCapability(board, Board::HasTrainerJackCrossover)) {
+    addLabel(tr("Trainer lead"));
+    AutoComboBox *trainerLead = new AutoComboBox(this);
+    trainerLead->addItem(tr("Crossover"), 0);
+    trainerLead->addItem(tr("Standard"), 1);
+    trainerLead->setField(generalSettings.trainerTipOnly, this);
+    params->append(trainerLead);
+    addParams();
+  }
+
   if (firmware->getCapability(BluetoothEnabled)) {
     addLabel(tr("Bluetooth"));
 
