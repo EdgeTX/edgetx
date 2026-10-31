@@ -100,6 +100,9 @@ class TextArea : public FormField
 
   void changeEnd() override
   {
+    // Clear extra focus outline setting from parent field
+    lv_obj_clear_state(parent->getLvObj(), LV_STATE_USER_1);
+
     setEditMode(false);
     hide();
 
@@ -127,8 +130,9 @@ TextEdit::TextEdit(Window* parent, const rect_t& rect, char* text,
     }),
     updateHandler(updateHandler), text(text), length(length)
 {
-  // Prevent TextArea focus outline from clipping
-  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_OVERFLOW_VISIBLE);
+  // Extra focus outline setting to show outline border around TextArea
+  etx_obj_add_style(lvobj, styles->outline, LV_PART_MAIN | LV_STATE_USER_1);
+  etx_obj_add_style(lvobj, styles->outline_color_focus, LV_PART_MAIN | LV_STATE_USER_1);
 
   if (rect.w == 0) setWidth(EdgeTxStyles::EDIT_FLD_WIDTH);
 
@@ -158,6 +162,8 @@ void TextEdit::openEdit()
                           if (updateHandler) updateHandler();
                         });
   }
+  // Show focus outline around this field since TextArea will be clipped
+  lv_obj_add_state(lvobj, LV_STATE_USER_1);
   edit->setExcludedChars(excludedChars);
   edit->openKeyboard();
 }
