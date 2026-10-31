@@ -91,26 +91,25 @@ bool editLimitNumSource(coord_t x, coord_t y, uint16_t& value, LcdFlags attr,
   LimitNumVal v;
   v.rawValue = value;
 
-  if ((attr & INVERS) && event == EVT_KEY_LONG(KEY_ENTER)) {
-    killEvents(event);
-    s_editMode = !s_editMode;
-    value = v.isSource ? makeLimitNumVal(0)
-                       : makeLimitNumVal(modelGVEnabled() ? MIXSRC_FIRST_GVAR : 1, true);
-    v.rawValue = value;
-    storageDirty(EE_MODEL);
+  // Constants are edited by the caller, only handle the source popup here
+  if ((attr & INVERS) && (v.isSource || event == EVT_KEY_LONG(KEY_ENTER) ||
+                          checkIncDecSelection != 0)) {
+    SourceNumVal s;
+    s.rawValue = checkIncDec(event, makeSourceNumVal(v.isSource ? v.value : 0, v.isSource),
+                             0, 0, 1, MIXSRC_LAST,
+                             EE_MODEL | INCDEC_SOURCE_VALUE | INCDEC_SOURCE_INVERT |
+                                 NO_INCDEC_MARKS,
+                             isSourceAvailable);
+    if (v.isSource || s.isSource) {
+      value = makeLimitNumVal(s.isSource ? s.value : 0, s.isSource);
+      v.rawValue = value;
+    }
   }
 
   if (!v.isSource) return false;
 
   attr &= ~PREC1;
   drawSource(x, y, v.value, attr);
-  if (attr & INVERS) {
-    v.value = checkIncDec(event, v.value, 1, MIXSRC_LAST,
-                          EE_MODEL | INCDEC_SOURCE | INCDEC_SOURCE_INVERT |
-                              NO_INCDEC_MARKS,
-                          isSourceAvailable);
-    value = v.rawValue;
-  }
   return true;
 }
 
