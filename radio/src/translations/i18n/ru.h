@@ -570,6 +570,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("ВЫК Тренер", "Проверьте работу тренера при ВЫКЛ")
 #define TR_MODEL_STILL_POWERED         "Модель работает"
 #define TR_TRAINER_STILL_CONNECTED     "Тренер подкл"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB подкл"
 #define TR_MODEL_SHUTDOWN              "Отключение?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Нажмите [Enter] для подтв"

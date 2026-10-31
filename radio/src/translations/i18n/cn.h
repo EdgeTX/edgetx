@@ -567,6 +567,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("关机检查教练", "关机时检查教练信号")
 #define TR_MODEL_STILL_POWERED         "模型未断电"
 #define TR_TRAINER_STILL_CONNECTED     "教练信号未断开"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB未断开"
 #define TR_MODEL_SHUTDOWN              "关机 ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "确认"

@@ -569,6 +569,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("Trenér vypnutí", "Kontrola trenéra při vypnutí")
 #define TR_MODEL_STILL_POWERED         "Model stále spuštěn"
 #define TR_TRAINER_STILL_CONNECTED     "Trenér stále připojen"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB stále připojeno"
 #define TR_MODEL_SHUTDOWN              "Vypnout?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Zmáčkni ENTER pro potvrzení"
