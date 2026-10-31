@@ -290,10 +290,18 @@ int main(int argc, char *argv[])
   }
 #endif
 
+  Q_INIT_RESOURCE(fwdefs);
   Q_INIT_RESOURCE(hwdefs);
-  gBoardFactories = new BoardFactories();
+  Q_INIT_RESOURCE(bddefs);
+
   registerStorageFactories();
-  gFirmwareFactories = new FirmwareFactories();
+
+  // IMPORTANT load boards before firmware
+  // instantiate singleton
+  BoardFactories::getInstance();
+  // instantiate singleton
+  FirmwareFactories::getInstance();
+
   SimulatorLoader::registerSimulators();
 
   if (!SimulatorLoader::getAvailableSimulators().size()) {
@@ -412,9 +420,7 @@ int main(int argc, char *argv[])
 int finish(int exitCode)
 {
   SimulatorLoader::unregisterSimulators();
-  gFirmwareFactories->unregisterFactories();
   unregisterStorageFactories();
-  gBoardFactories->unregisterBoardFactories();
 
 #if defined(USE_SDL)
   SDL_Quit();
