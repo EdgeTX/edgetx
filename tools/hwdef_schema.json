@@ -481,8 +481,7 @@
         "trainer_gpio_af":            { "type": "string" },
         "trainer_detect_gpio":        { "type": "string" },
         "trainer_detect_inverted":    { "type": "boolean" },
-        "trainer_jack_crossover":     { "type": "boolean" },
-        "trainer_jack_tip_is_out":    { "type": "boolean" }
+        "trainer_jack_crossover":     { "type": "boolean" }
       }
     }
   }
