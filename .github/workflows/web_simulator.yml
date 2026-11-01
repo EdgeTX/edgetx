@@ -1,0 +1,156 @@
+name: Web Simulator
+
+on:
+  schedule:
+    - cron: '0 3 * * *' # run at 3 AM UTC
+  pull_request:
+    paths:
+      - '.github/workflows/web_simulator.yml'
+      - 'web/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  check:
+    name: Check web build
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Build
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+
+  modules:
+    name: Modules
+    # Repositories synced from this one get the schedule too
+    if: github.event_name != 'pull_request' && github.repository == 'EdgeTX/edgetx'
+    uses: ./.github/workflows/wasm_modules.yml
+
+  build:
+    name: Build site
+    needs: modules
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Download WASM modules
+        uses: actions/download-artifact@v8
+        with:
+          pattern: wasm-modules-*
+          path: wasm-modules
+          merge-multiple: true
+
+      # The artifacts also contain build logs, which must not be published
+      - name: Copy WASM modules
+        run: cp wasm-modules/*.wasm web/public/
+
+      - name: Check that every radio has a module
+        shell: bash
+        run: |
+          missing=0
+          while read -r module; do
+            if [[ ! -f "web/public/${module}" ]]; then
+              echo "::error::Missing module ${module}"
+              missing=1
+            fi
+          done < <(jq -r '.[].wasm' web/public/radios.json)
+          exit "${missing}"
+
+      - name: Build
+        working-directory: web
+        run: |
+          npm ci
+          npm run build
+
+      # Before the deploy job, which only runs if this one succeeds
+      - name: Start every radio
+        working-directory: web
+        run: |
+          npx playwright-core install --with-deps chromium
+          npm run smoke-test
+
+      - name: Archive site
+        uses: actions/upload-artifact@v7
+        with:
+          name: web-simulator-dist
+          path: web/dist
+          if-no-files-found: error
+          retention-days: 3
+
+  # Separate from the build, so that the Cloudflare token is only available to
+  # wrangler. The environment only accepts runs from the deployed branches.
+  deploy:
+    name: Deploy site
+    needs: build
+    runs-on: ubuntu-latest
+    environment: web-simulator
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install wrangler
+        working-directory: web
+        run: npm ci --ignore-scripts
+
+      - name: Download site
+        uses: actions/download-artifact@v8
+        with:
+          name: web-simulator-dist
+          path: web/dist
+
+      - name: Deploy
+        id: deploy
+        working-directory: web
+        shell: bash
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx wrangler deploy | tee "${RUNNER_TEMP}/deploy.log"
+          url=$(grep -oE 'https://[^ ]+\.workers\.dev' "${RUNNER_TEMP}/deploy.log" | head -n 1)
+          if [[ -z "${url}" ]]; then
+            echo "::error::Could not find the deployed URL in the wrangler output"
+            exit 1
+          fi
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+
+      - name: Check deployed site
+        env:
+          SITE_URL: ${{ steps.deploy.outputs.url }}
+        run: node web/scripts/check-deployment.js "${SITE_URL}"

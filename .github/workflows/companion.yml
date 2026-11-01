@@ -8,10 +8,12 @@ on:
       - v*
     paths:
       - '.github/workflows/companion.yml'
+      - '.github/workflows/wasm_modules.yml'
       - '.github/actions/python_dependencies/**'
       - '.github/actions/wasi_sdk/**'
       - '.github/actions/build_companion/**'
       - 'companion/**'
+      - 'fw.json'
       - 'pyproject.toml'
       - 'tools/build-companion.sh'
       - 'tools/build-wasm-modules.sh'
@@ -22,10 +24,12 @@ on:
   pull_request:
     paths:
       - '.github/workflows/companion.yml'
+      - '.github/workflows/wasm_modules.yml'
       - '.github/actions/python_dependencies/**'
       - '.github/actions/wasi_sdk/**'
       - '.github/actions/build_companion/**'
       - 'companion/**'
+      - 'fw.json'
       - 'pyproject.toml'
       - 'tools/build-companion.sh'
       - 'tools/build-wasm-modules.sh'
@@ -49,58 +53,8 @@ on:
 
 jobs:
   modules:
-    name: WASM Modules (${{ matrix.group.id }})
-    runs-on: macos-15
-    strategy:
-      matrix:
-        group:
-          - id: color-1
-            target: [nv14, el18, pl18, pl18ev]
-          - id: color-2
-            target: [pl18u, t15, t16, t18, t22]
-          - id: bw-1
-            target: [zorro, pocket, commando8, tprov2, tpros, bumblebee, t14]
-          - id: bw-2
-            target: [mt12, gx12, t20, t20v2, t12max, tx12mk2, boxer]
-          - id: color-3
-            target: [tx15, tx16s, x12s, f16]
-          - id: mixed-1
-            target: [v12, v14, v14lcd, v15, v16, x10, x10express]
-          - id: bw-3
-            target: [x7access, x9dp2019, x9e]
-          - id: color-4
-            target: [nb4p, st16, pa01, c14]
-          - id: color-5
-            target: [t15pro, tx16smk3, gx15, h17, t15h7]
-
-    steps:
-      - name: Check out the repo
-        uses: actions/checkout@v7
-        with:
-          submodules: true
-
-      - name: Setup Python Dependencies
-        uses: ./.github/actions/python_dependencies
-
-      - name: Setup WASI SDK
-        uses: ./.github/actions/wasi_sdk
-
-      - name: Build modules
-        shell: bash
-        env:
-          FLAVOR: ${{ join(matrix.group.target, ';') }}
-          CMAKE_BUILD_TYPE: 'Release'
-        run: |
-          mkdir output && \
-          tools/build-wasm-modules.sh "$(pwd)" "$(pwd)/output/"
-
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: wasm-modules-${{ matrix.group.id }}
-          path:  ${{github.workspace}}/output
-          if-no-files-found: error
-          retention-days: 15
+    name: Modules
+    uses: ./.github/workflows/wasm_modules.yml
 
   build-linux:
     name: Linux Companion
