@@ -343,15 +343,11 @@ void getADC();
 
 void resetBacklightTimeout();
 void checkBacklight();
-#if defined(STATUS_LED_PWM)
 void calcStatusLedBright(int16_t source);
-#endif
-#if defined(STATUS_LED_COLORS)
 void checkStatusLed();
 void statusLedSetPhase(uint8_t phase);
 uint8_t statusLedPhaseColor(uint8_t phase);
 bool statusLedColorAvailable(int color);
-#endif
 
 uint16_t isqrt32(uint32_t n);
 
