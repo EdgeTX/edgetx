@@ -70,6 +70,7 @@ class LvglWidgetParams
     if (strcasecmp(s, "triangle") == 0) return ETX_TRIANGLE;
     if (strcasecmp(s, "image") == 0) return ETX_IMAGE;
     if (strcasecmp(s, "qrcode") == 0) return ETX_QRCODE;
+    if (strcasecmp(s, "bitmap") == 0) return ETX_BITMAP;
     if (strcasecmp(s, "box") == 0) return ETX_BOX;
     if (strcasecmp(s, "button") == 0) return ETX_BUTTON;
     if (strcasecmp(s, "momentaryButton") == 0) return ETX_MOMENTARY_BUTTON;
@@ -311,6 +312,9 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         break;
       case ETX_QRCODE:
         obj = new LvglWidgetQRCode();
+        break;
+      case ETX_BITMAP:
+        obj = new LvglWidgetBitmap();
         break;
       case ETX_BOX:
         obj = new LvglWidgetBox();
@@ -852,6 +856,27 @@ LROT_BEGIN(lvgllib, NULL, 0)
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
   LROT_FUNCENTRY(qrcode, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetQRCode(); }); })
+  /*luadoc
+  @function lvgl.bitmap([parent, ]params)
+
+  Display an image that is decoded and scaled to the frame when its source changes. Unlike `lvgl.image` the decoded pixels belong to the object, so they stay valid for as long as the object keeps its source and are not evicted by other images. Use this for sets of images that must all stay decoded, such as map tiles. The object keeps its pixels while it is hidden.
+
+  @param parent (object) optional LVGL object to attach the new object to; if omitted the object is created in the top-level script window
+
+  @param params (table):
+   @commonparams lvgl_object
+   * `file` (string or function) full path to the image file on the SD card, defaults to an empty string; an empty string clears the image
+
+  @retval table LVGL object
+
+  @notice `w` and `h` are required. The image is scaled to fit entirely within the frame at load time, keeping its aspect ratio, and centered. Changing the frame size reloads the file.
+  @notice The file is only decoded when the source changes. Replacing it with the same path does nothing. A file that cannot be loaded leaves the object blank.
+  @notice If `file` is a function it is only called while the object is visible.
+  @notice While it holds an image, each object uses 2 bytes per pixel for opaque images (such as JPEG) and 3 bytes per pixel for images with transparency, measured at the scaled size. This memory is not counted against the Lua bitmap memory limit. Images with transparency are reduced to 4 bits per color channel.
+
+  @status current Introduced in 3.0.0
+  */
+  LROT_FUNCENTRY(bitmap, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetBitmap(); }); })
   // Objects - standalone scripts and full screen widgets only
   /*luadoc
   @function lvgl.button([parent, ]params)
@@ -1416,6 +1441,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_NUMENTRY(TRIANGLE, ETX_TRIANGLE)
   LROT_NUMENTRY(IMAGE, ETX_IMAGE)
   LROT_NUMENTRY(QRCODE, ETX_QRCODE)
+  LROT_NUMENTRY(BITMAP, ETX_BITMAP)
   LROT_NUMENTRY(BOX, ETX_BOX)
   LROT_NUMENTRY(BUTTON, ETX_BUTTON)
   LROT_NUMENTRY(MOMENTARY_BUTTON, ETX_MOMENTARY_BUTTON)
@@ -1463,6 +1489,7 @@ LROT_BEGIN(lvgl_mt, NULL, LROT_MASK_GC_INDEX)
   LROT_FUNCENTRY(arc, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetArc(); }); })
   LROT_FUNCENTRY(image, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetImage(); }); })
   LROT_FUNCENTRY(qrcode, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetQRCode(); }); })
+  LROT_FUNCENTRY(bitmap, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetBitmap(); }); })
   // Objects - standalone scripts and full screen widgets only
   LROT_FUNCENTRY(button, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextButton(); }, true); })
   LROT_FUNCENTRY(momentaryButton, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetMomentaryButton(); }, true); })

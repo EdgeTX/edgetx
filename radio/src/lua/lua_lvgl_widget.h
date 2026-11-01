@@ -44,6 +44,7 @@ enum LuaLvglType
   ETX_TRIANGLE,
   ETX_IMAGE,
   ETX_QRCODE,
+  ETX_BITMAP,
 
   // Contianers
   ETX_BOX,
@@ -678,6 +679,31 @@ class LvglWidgetImage : public LvglWidgetObject
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
+// Image decoded and scaled when the source changes. The decoded pixels are
+// owned by the object, so they never depend on the LVGL image cache.
+class LvglWidgetBitmap : public LvglWidgetObject
+{
+ public:
+  LvglWidgetBitmap() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
+
+  void setSize(coord_t w, coord_t h) override;
+
+  bool callRefs(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
+
+ protected:
+  LvglParamFuncOrString filename = { .function = LUA_REFNIL, .txt = ""};
+  std::string loaded;
+
+  void build(lua_State *L) override;
+  void refresh() override;
+  void parseParam(lua_State *L, const char *key) override;
+
+  void setSource(const char *s);
 };
 
 //-----------------------------------------------------------------------------

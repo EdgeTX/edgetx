@@ -26,6 +26,7 @@
 #include "edgetx.h"
 #include "filechoice.h"
 #include "keyboard_base.h"
+#include "lib_file.h"
 #include "lua_event.h"
 #include "menu.h"
 #include "numberedit.h"
@@ -2028,6 +2029,79 @@ void LvglWidgetImage::build(lua_State *L)
   window = new StaticImage(lvglManager->getCurrentParent(), {x, y, w, h},
                            filename.chars(), fillFrame);
   setFloating(floating);
+}
+
+//-----------------------------------------------------------------------------
+
+void LvglWidgetBitmap::parseParam(lua_State *L, const char *key)
+{
+  if (!strcmp(key, "file")) {
+    // A new file replaces any previous source, string or function
+    filename.clearRef(L);
+    filename.parse(L);
+  } else {
+    LvglWidgetObject::parseParam(L, key);
+  }
+}
+
+void LvglWidgetBitmap::setSource(const char *s)
+{
+  loaded = s;
+  auto bmp = (StaticBitmap*)window;
+  if (loaded.empty()) {
+    bmp->clearSource();
+    return;
+  }
+  char path[FF_MAX_LFN + 1];
+  etxNormalizePath(s, path, sizeof(path));
+  bmp->setSource(path);
+}
+
+// Pixels are scaled to the frame when decoded, so a new size needs a reload
+void LvglWidgetBitmap::setSize(coord_t w, coord_t h)
+{
+  bool resized = window && (window->width() != w || window->height() != h);
+  LvglWidgetObject::setSize(w, h);
+  if (resized && !loaded.empty()) {
+    std::string file = loaded;
+    setSource(file.c_str());
+  }
+}
+
+bool LvglWidgetBitmap::callRefs(lua_State *L)
+{
+  if (!LvglWidgetObject::callRefs(L)) return false;
+
+  if (isVisible() && filename.function != LUA_REFNIL) {
+    int t = lua_gettop(L);
+    if (!pcallFunc(L, filename.function, 1)) return false;
+    const char *s = luaL_checkstring(L, -1);
+    if (loaded != s) setSource(s);
+    lua_settop(L, t);
+  }
+
+  return true;
+}
+
+void LvglWidgetBitmap::refresh()
+{
+  LvglWidgetObject::refresh();
+  if (filename.function == LUA_REFNIL && loaded != filename.chars())
+    setSource(filename.chars());
+}
+
+void LvglWidgetBitmap::clearRefs(lua_State *L)
+{
+  filename.clearRef(L);
+  LvglWidgetObject::clearRefs(L);
+}
+
+void LvglWidgetBitmap::build(lua_State *L)
+{
+  window = new StaticBitmap(lvglManager->getCurrentParent(), {x, y, w, h});
+  setFloating(floating);
+  if (filename.function == LUA_REFNIL && !filename.txt.empty())
+    setSource(filename.chars());
 }
 
 //-----------------------------------------------------------------------------
