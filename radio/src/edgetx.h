@@ -662,12 +662,10 @@ union ReusableBuffer
     BindInformation bindInformation;
     PXX2ModuleSetup pxx2;
 #endif
-#if defined(COLORLCD) || defined(BLUETOOTH)
     struct {
       char devices[MAX_BLUETOOTH_DISTANT_ADDR][LEN_BLUETOOTH_ADDR+1];
       uint8_t devicesCount;
     } bt;
-#endif
   } moduleSetup;
 
   struct {
