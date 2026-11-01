@@ -157,9 +157,10 @@
   let lcdSize = 0;
 
   let isPortrait = $derived(lcdHeight > lcdWidth);
-  // Higher density LCDs are scaled down, to keep their size in proportion on the
-  // page: 550px makes the 5" 800x480 LCD match the scale of a 4.3" 480x272 one.
-  let cssWidth = $derived(Math.max(Math.min(lcdWidth, 550), 150 * lcdWidth / lcdHeight, 320));
+  // Same as LAYOUT_SCALE in etx_lv_theme.h: this LCD has a higher density, and showing
+  // it at this scale makes the UI the same size on the page as on other radios.
+  let lcdScale = $derived(lcdWidth === 800 ? 1.375 : 1);
+  let cssWidth = $derived(Math.max(lcdWidth / lcdScale, 150 * lcdWidth / lcdHeight, 320));
   let cssHeight = $derived(cssWidth * lcdHeight / lcdWidth);
 
   // Stick mode: 0=Mode1(thr=RV), 1=Mode2(thr=LV), 2=Mode3(thr=RV), 3=Mode4(thr=LV)
