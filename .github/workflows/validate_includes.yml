@@ -1,0 +1,24 @@
+---
+name: Validate includes
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+  workflow_dispatch:
+
+# No 'paths' filter: any source edit can add an include. Pure stdlib, runs in
+# about a second.
+
+jobs:
+  validate:
+    name: Includes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+
+      - name: Check that edgetx.h does not spread
+        run: python3 tools/check_includes.py

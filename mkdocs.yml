@@ -98,6 +98,7 @@ nav:
     - External Module Protocols: development/external-module-protocols.md
     - YAML Parser/Generator: development/yaml-parser-generator.md
     - Mixer Synchronisation: development/mixer-synchronisation.md
+    - Header Guidelines: development/header-guidelines.md
 
 exclude_docs: |
   README.md
