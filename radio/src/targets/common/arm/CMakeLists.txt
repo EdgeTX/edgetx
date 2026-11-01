@@ -277,7 +277,6 @@ endif()
 
 add_definitions(-g)
 
-add_definitions(-DCPUARM)
 add_definitions(-DGPS)
 add_definitions(-DBATTGRAPH -DTHRTRACE)
 

@@ -1,4 +1,3 @@
-option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(STICK_DEAD_ZONE "Enable sticks dead zone" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
@@ -39,8 +38,7 @@ set(RF_BAUD_RATE 921600 230400 115200 57600 38400 19200 9600 4800 2400 1200)
 set(PCB_RF_BAUD 921600 CACHE STRING "INTERNAL_MODULE_BAUDRATE: ${RF_BAUD_RATE}")
 set_property(CACHE PCB_RF_BAUD PROPERTY STRINGS ${RF_BAUD_RATE})
 
-add_definitions(-DPCBPL18 -DPCBFLYSKY)
-add_definitions(-DBATTERY_CHARGE)
+add_definitions(-DPCBPL18)
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 
 if(PCBREV STREQUAL PL18U)
@@ -69,7 +67,7 @@ elseif (PCBREV STREQUAL EL18)
 elseif(PCBREV STREQUAL NV14)
     set(FLAVOUR nv14)
     add_definitions(-DRADIO_NV14_FAMILY)
-    add_definitions(-DUSE_HATS_AS_KEYS -DAFHDS2_BAUDRATE=${PCB_RF_BAUD})
+    add_definitions(-DUSE_HATS_AS_KEYS)
     set(HAS_SDIO ON)
     set(FLYSKY_GIMBAL ON)
     set(USE_VS1053B ON)
@@ -120,18 +118,15 @@ set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
 
 set(HARDWARE_TOUCH ON)
-set(SOFTWARE_KEYBOARD ON)
 
 add_definitions(
-  -DSTM32F429_439xx -DSTM32F429xx
+  -DSTM32F429xx
   -DSDRAM
-  -DHARDWARE_TOUCH -DHARDWARE_KEYS
-  -DSOFTWARE_KEYBOARD)
+  -DHARDWARE_TOUCH -DHARDWARE_KEYS)
 
 set(SDRAM ON)
 
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
-add_definitions(-DCROSSFIRE_NATIVE)
 add_definitions(-DHARDWARE_EXTERNAL_MODULE)
 
 if(PREFER_SDIO)
@@ -153,9 +148,6 @@ if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 
-if(NOT UNEXPECTED_SHUTDOWN)
-  add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
-endif()
 
 # VCP CLI
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")

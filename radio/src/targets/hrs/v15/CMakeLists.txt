@@ -1,4 +1,3 @@
-option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
 option(AFHDS3 "AFHDS3 TX Module" ON)
@@ -32,8 +31,8 @@ set(FUNCTION_SWITCHES_WITH_RGB YES)
 
 # IMU support
 set(IMU ON)
-add_definitions(-DIMU_ICM4207C)
-add_definitions(-DIMU_SC7U22)
+list(APPEND BOARD_DEFINITIONS IMU_ICM4207C)
+list(APPEND BOARD_DEFINITIONS IMU_SC7U22)
 
 # for size report script
 set(CPU_TYPE_FULL STM32H750xB)
@@ -42,7 +41,7 @@ set(TARGET_EXTRAM_START 0xC0000000)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM1=8192")
 set(FIRMWARE_STRIP_BOOTLOADER YES)
 
-add_definitions(-DPCBV15 -DPCBHORUS -DPCBFLYSKY)
+add_definitions(-DPCBV15 -DPCBHORUS)
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
@@ -66,20 +65,18 @@ set(LCD_DRIVER lcd_driver.cpp)
 set(HARDWARE_TOUCH YES)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
-set(SOFTWARE_KEYBOARD ON)
 set(FLYSKY_GIMBAL OFF)
 set(FUNCTION_SWITCHES_WITH_RGB ON)
 
 add_definitions(
-  -DSTM32H750XBTx -DSTM32H750xx
-  -DSDRAM -DCCMRAM
-  -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
-  -DWS2812_MAX_LEDS=38
+  -DSTM32H750xx
+  -DSDRAM
+  -DHARDWARE_TOUCH -DHARDWARE_KEYS
 )
 
 set(SDRAM ON)
 
-add_definitions(-DAUDIO -DVOICE)
+add_definitions(-DAUDIO)
 add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DRTCLOCK)
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
@@ -89,9 +86,6 @@ if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 
-if(NOT UNEXPECTED_SHUTDOWN)
-  add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
-endif()
 
 if(DISK_CACHE)
   set(SRC ${SRC} disk_cache.cpp)
@@ -252,3 +246,7 @@ add_definitions(-DTHREADSAFE_MALLOC)
 set_source_files_properties(
   ${RADIO_SRC_DIR}/boards/generic_stm32/rgb_6pos.cpp
   PROPERTIES HEADER_FILE_ONLY TRUE)
+
+# Only the board code reads these
+target_compile_definitions(board PRIVATE ${BOARD_DEFINITIONS})
+target_compile_definitions(board_bl PRIVATE ${BOARD_DEFINITIONS})
