@@ -27,7 +27,7 @@ typedef struct __mavlink_message mavlink_message_t;
 
 enum MavlinkSensorId {
   MAV_ID_NONE = 0,
-  MAV_ID_RSSI,
+  MAV_ID_TQLY,
   MAV_ID_BATT_V,
   MAV_ID_BATT_A,
   MAV_ID_BATT_PCT,
@@ -43,7 +43,12 @@ enum MavlinkSensorId {
   MAV_ID_VSPD,
   MAV_ID_ASPD,
   MAV_ID_FLIGHT_MODE,
-  MAV_ID_RRSSI,
+  MAV_ID_RQLY,
+  MAV_ID_CAPACITY,
+  MAV_ID_CELLS,
+  MAV_ID_TEMP,
+  MAV_ID_DATETIME,
+  MAV_ID_RPM,
 };
 
 void mavlinkTelemetryDecode(uint8_t module, const mavlink_message_t* msg);

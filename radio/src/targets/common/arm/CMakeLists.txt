@@ -15,6 +15,7 @@ option(DSMP "DSMP LemonRX TX Module" ON)
 option(SBUS "SBUS TX Module" ON)
 option(CROSSFIRE "Crossfire TX Module" ON)
 option(MAVLINK "MAVLink 2 RF protocol support" OFF)
+option(MAVLINK_ARDUPILOT "ArduPilot flight mode names for MAVLink telemetry" OFF)
 option(AFHDS2 "Support for AFHDS2" OFF)
 option(AFHDS3 "Support for AFHDS3" OFF)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
@@ -278,6 +279,9 @@ endif()
 
 if(MAVLINK)
   add_definitions(-DMAVLINK)
+  if(MAVLINK_ARDUPILOT)
+    add_definitions(-DMAVLINK_ARDUPILOT)
+  endif()
   include_directories(${THIRDPARTY_DIR}/mavlink)
   set(PULSES_SRC
     ${PULSES_SRC}

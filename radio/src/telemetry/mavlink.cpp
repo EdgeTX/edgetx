@@ -41,7 +41,7 @@ struct MavlinkSensor {
 };
 
 static const MavlinkSensor mavlinkSensors[] = {
-  MS(MAV_ID_RSSI,        STR_SENSOR_RX_RSSI_PERC,          UNIT_PERCENT,            0),
+  MS(MAV_ID_TQLY,        STR_SENSOR_TX_QUALITY,            UNIT_PERCENT,            0),
   MS(MAV_ID_BATT_V,      STR_SENSOR_BATT,                  UNIT_VOLTS,              2),
   MS(MAV_ID_BATT_A,      STR_SENSOR_CURR,                  UNIT_AMPS,               2),
   MS(MAV_ID_BATT_PCT,    STR_SENSOR_BATT_PERCENT,          UNIT_PERCENT,            0),
@@ -57,7 +57,12 @@ static const MavlinkSensor mavlinkSensors[] = {
   MS(MAV_ID_VSPD,        STR_SENSOR_VSPD,                  UNIT_METERS_PER_SECOND,  2),
   MS(MAV_ID_ASPD,        STR_SENSOR_ASPD,                  UNIT_KMH,                1),
   MS(MAV_ID_FLIGHT_MODE, STR_SENSOR_FLIGHT_MODE,           UNIT_TEXT,               0),
-  MS(MAV_ID_RRSSI,       STR_SENSOR_TX_RSSI_PERC,          UNIT_PERCENT,            0),
+  MS(MAV_ID_RQLY,        STR_SENSOR_RX_QUALITY,            UNIT_PERCENT,            0),
+  MS(MAV_ID_CAPACITY,    STR_SENSOR_CAPACITY,              UNIT_MAH,                0),
+  MS(MAV_ID_CELLS,       STR_SENSOR_CELLS,                 UNIT_CELLS,              2),
+  MS(MAV_ID_TEMP,        STR_SENSOR_TEMP,                  UNIT_CELSIUS,            1),
+  MS(MAV_ID_DATETIME,    STR_SENSOR_GPSDATETIME,           UNIT_DATETIME,           0),
+  MS(MAV_ID_RPM,         STR_SENSOR_RPM,                   UNIT_RPMS,               0),
   MS(MAV_ID_NONE,        STR_SENSOR_UNKNOWN,               UNIT_RAW,                0),
 };
 
@@ -69,10 +74,88 @@ static const MavlinkSensor& getMavlinkSensor(uint8_t id)
   return mavlinkSensors[DIM(mavlinkSensors) - 1];
 }
 
-static inline void pushVal(uint8_t id, int32_t value, TelemetryUnit unit, uint8_t prec)
+static inline void pushVal(uint8_t id, int32_t value, TelemetryUnit unit, uint8_t prec, uint8_t instance = 0)
 {
-  setTelemetryValue(PROTOCOL_TELEMETRY_MAVLINK, id, 0, 0, value, unit, prec);
+  setTelemetryValue(PROTOCOL_TELEMETRY_MAVLINK, id, 0, instance, value, unit, prec);
 }
+
+static const char * const standardModes[] = {
+  nullptr, "POSHOLD", "ORBIT", "CRUISE", "ALT HOLD", "RTL", "MISSION", "LAND", "TAKEOFF"
+};
+
+template <size_t N>
+static const char * modeName(const char * const (&table)[N], uint32_t mode)
+{
+  return mode < N ? table[mode] : nullptr;
+}
+
+#if defined(MAVLINK_ARDUPILOT)
+static const char * const planeModes[] = {
+  "MANUAL", "CIRCLE", "STABILIZE", "TRAINING", "ACRO", "FBWA", "FBWB", "CRUISE", "AUTOTUNE",
+  nullptr, "AUTO", "RTL", "LOITER", "TAKEOFF", "AVOID ADSB", "GUIDED", "INITIALISING",
+  "QSTABILIZE", "QHOVER", "QLOITER", "QLAND", "QRTL", "QAUTOTUNE", "QACRO", "THERMAL",
+  "LOITER2QLAND", "AUTOLAND"
+};
+
+static const char * const copterModes[] = {
+  "STABILIZE", "ACRO", "ALT HOLD", "AUTO", "GUIDED", "LOITER", "RTL", "CIRCLE", nullptr, "LAND",
+  nullptr, "DRIFT", nullptr, "SPORT", "FLIP", "AUTOTUNE", "POSHOLD", "BRAKE", "THROW",
+  "AVOID ADSB", "GUIDED NOGPS", "SMARTRTL", "FLOWHOLD", "FOLLOW", "ZIGZAG", "SYSTEMID",
+  "AUTOROTATE", "AUTO RTL", "TURTLE", "RATE_ACRO"
+};
+
+static const char * const roverModes[] = {
+  "MANUAL", "ACRO", nullptr, "STEERING", "HOLD", "LOITER", "FOLLOW", "SIMPLE", "DOCK", "CIRCLE",
+  "AUTO", "RTL", "SMART RTL", nullptr, nullptr, "GUIDED", "INITIALISING"
+};
+
+static const char * const subModes[] = {
+  "STABILIZE", "ACRO", "ALT HOLD", "AUTO", "GUIDED", nullptr, nullptr, "CIRCLE", nullptr,
+  "SURFACE", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, "POSHOLD", nullptr, nullptr,
+  "MANUAL", "MOTORDETECT", "SURFTRAK"
+};
+
+static const char * const trackerModes[] = {
+  "MANUAL", "STOP", "SCAN", "SERVO TEST", "GUIDED", nullptr, nullptr, nullptr, nullptr, nullptr,
+  "AUTO", nullptr, nullptr, nullptr, nullptr, nullptr, "INITIALISING"
+};
+
+static const char * ardupilotModeName(uint8_t type, uint32_t mode)
+{
+  switch (type) {
+    case MAV_TYPE_FIXED_WING:
+    case MAV_TYPE_VTOL_TAILSITTER_DUOROTOR:
+    case MAV_TYPE_VTOL_TAILSITTER_QUADROTOR:
+    case MAV_TYPE_VTOL_TILTROTOR:
+    case MAV_TYPE_VTOL_FIXEDROTOR:
+    case MAV_TYPE_VTOL_TAILSITTER:
+    case MAV_TYPE_VTOL_TILTWING:
+    case MAV_TYPE_VTOL_RESERVED5:
+      return modeName(planeModes, mode);
+    case MAV_TYPE_QUADROTOR:
+    case MAV_TYPE_COAXIAL:
+    case MAV_TYPE_HELICOPTER:
+    case MAV_TYPE_HEXAROTOR:
+    case MAV_TYPE_OCTOROTOR:
+    case MAV_TYPE_TRICOPTER:
+    case MAV_TYPE_DECAROTOR:
+    case MAV_TYPE_DODECAROTOR:
+      return modeName(copterModes, mode);
+    case MAV_TYPE_GROUND_ROVER:
+    case MAV_TYPE_SURFACE_BOAT:
+      return modeName(roverModes, mode);
+    case MAV_TYPE_SUBMARINE:
+      return modeName(subModes, mode);
+    case MAV_TYPE_ANTENNA_TRACKER:
+      return modeName(trackerModes, mode);
+    default:
+      return nullptr;
+  }
+}
+#endif
+
+static uint32_t currentModeCustom;
+static uint8_t currentModeStandard;
 
 void mavlinkSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance)
 {
@@ -95,22 +178,44 @@ void mavlinkTelemetryDecode(uint8_t module, const mavlink_message_t* msg)
 {
   (void)module;
 
-  // in case there won't be RADIO_STATUS received
-  if (telemetryStreaming == 0) {
-    telemetryData.rssi.reset();
-    telemetryData.rssi.set(MAVLINK_DEFAULT_RSSI);
-  }
+  if (msg->msgid == MAVLINK_MSG_ID_HEARTBEAT && msg->compid == MAV_COMP_ID_TELEMETRY_RADIO)
+    return;
 
-  telemetryStreaming = TELEMETRY_TIMEOUT10ms;
+  if (msg->msgid != MAVLINK_MSG_ID_RADIO_STATUS) {
+    // in case there won't be RADIO_STATUS received
+    if (telemetryStreaming == 0) {
+      telemetryData.rssi.reset();
+      telemetryData.rssi.set(MAVLINK_DEFAULT_RSSI);
+    }
+    telemetryStreaming = TELEMETRY_TIMEOUT10ms;
+  }
 
   switch (msg->msgid) {
     case MAVLINK_MSG_ID_HEARTBEAT: {
-      if (msg->compid == MAV_COMP_ID_TELEMETRY_RADIO)
-        break;
       mavlink_heartbeat_t hb;
       mavlink_msg_heartbeat_decode(msg, &hb);
-      bool armed = (hb.base_mode & MAV_MODE_FLAG_SAFETY_ARMED) != 0;
-      setTelemetryText(PROTOCOL_TELEMETRY_MAVLINK, MAV_ID_FLIGHT_MODE, 0, 0, armed ? "Armed" : "Disarm");
+      if (hb.autopilot == MAV_AUTOPILOT_INVALID)
+        break;
+      const char * name = nullptr;
+      if (currentModeStandard && hb.custom_mode == currentModeCustom)
+        name = modeName(standardModes, currentModeStandard);
+#if defined(MAVLINK_ARDUPILOT)
+      if (!name && hb.autopilot == MAV_AUTOPILOT_ARDUPILOTMEGA)
+        name = ardupilotModeName(hb.type, hb.custom_mode);
+#endif
+      char text[24];
+      char * p = name ? strAppend(text, name) : strAppendUnsigned(strAppend(text, "Mode "), hb.custom_mode);
+      if (!(hb.base_mode & MAV_MODE_FLAG_SAFETY_ARMED))
+        strAppend(p, "*");
+      text[TELEMETRY_SENSOR_TEXT_LENGTH - 1] = ' ';
+      setTelemetryText(PROTOCOL_TELEMETRY_MAVLINK, MAV_ID_FLIGHT_MODE, 0, 0, text);
+    } break;
+
+    case MAVLINK_MSG_ID_CURRENT_MODE: {
+      mavlink_current_mode_t cm;
+      mavlink_msg_current_mode_decode(msg, &cm);
+      currentModeCustom = cm.custom_mode;
+      currentModeStandard = cm.standard_mode;
     } break;
 
     case MAVLINK_MSG_ID_SYS_STATUS: {
@@ -159,13 +264,59 @@ void mavlinkTelemetryDecode(uint8_t module, const mavlink_message_t* msg)
       mavlink_radio_status_t rs;
       mavlink_msg_radio_status_decode(msg, &rs);
       if (rs.rssi != UINT8_MAX) {
-        int32_t rssiPercent = ((int32_t)rs.rssi * 100) / 254; // 0-254 -> 0-100%
-        pushVal(MAV_ID_RSSI, rssiPercent, UNIT_PERCENT, 0);
-        telemetryData.rssi.set((uint8_t)rssiPercent);
+        pushVal(MAV_ID_TQLY, ((int32_t)rs.rssi * 100) / 254, UNIT_PERCENT, 0);
       }
       if (rs.remrssi != UINT8_MAX) {
-        pushVal(MAV_ID_RRSSI, ((int32_t)rs.remrssi * 100) / 254, UNIT_PERCENT, 0);
+        int32_t rqly = ((int32_t)rs.remrssi * 100) / 254;
+        pushVal(MAV_ID_RQLY, rqly, UNIT_PERCENT, 0);
+        if (rs.remrssi) {
+          telemetryData.rssi.set((uint8_t)rqly);
+          telemetryStreaming = TELEMETRY_TIMEOUT10ms;
+        } else {
+          telemetryData.rssi.reset();
+          telemetryStreaming = 0;
+        }
       }
+    } break;
+
+    case MAVLINK_MSG_ID_BATTERY_STATUS: {
+      mavlink_battery_status_t b;
+      mavlink_msg_battery_status_decode(msg, &b);
+      if (b.current_consumed != -1)
+        pushVal(MAV_ID_CAPACITY, b.current_consumed, UNIT_MAH, 0, b.id);
+      if (b.temperature != INT16_MAX)
+        pushVal(MAV_ID_TEMP, b.temperature / 10, UNIT_CELSIUS, 1, b.id);
+      uint8_t cells = 0;
+      while (cells < DIM(b.voltages) && b.voltages[cells] != UINT16_MAX)
+        cells++;
+      if (cells >= 2 && b.voltages[0] != UINT16_MAX - 1) {
+        cells = min<uint8_t>(cells, MAX_CELLS);
+        for (uint8_t i = 0; i < cells; i++)
+          pushVal(MAV_ID_CELLS, ((uint32_t)cells << 24) | ((uint32_t)i << 16) | (b.voltages[i] / 10),
+                  UNIT_CELLS, 2, b.id);
+      }
+    } break;
+
+#if defined(RTCLOCK)
+    case MAVLINK_MSG_ID_SYSTEM_TIME: {
+      mavlink_system_time_t t;
+      mavlink_msg_system_time_decode(msg, &t);
+      gtime_t secs = (gtime_t)(t.time_unix_usec / 1000000);
+      struct gtm tm;
+      filltm(&secs, &tm);
+      if (tm.tm_year < 100)
+        break;
+      pushVal(MAV_ID_DATETIME, ((uint32_t)(tm.tm_year - 100) << 24) | ((uint32_t)(tm.tm_mon + 1) << 16) |
+              ((uint32_t)tm.tm_mday << 8) | 0xFF, UNIT_DATETIME, 0);
+      pushVal(MAV_ID_DATETIME, ((uint32_t)tm.tm_hour << 24) | ((uint32_t)tm.tm_min << 16) |
+              ((uint32_t)tm.tm_sec << 8), UNIT_DATETIME, 0);
+    } break;
+#endif
+
+    case MAVLINK_MSG_ID_RAW_RPM: {
+      mavlink_raw_rpm_t r;
+      mavlink_msg_raw_rpm_decode(msg, &r);
+      pushVal(MAV_ID_RPM, (int32_t)r.frequency, UNIT_RPMS, 0, r.index);
     } break;
 
     default:
