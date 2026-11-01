@@ -97,15 +97,6 @@ enum EdgeTxIcon {
   ICON_TOPMENU_VOLUME_4,
   ICON_TOPMENU_VOLUME_SCALE,
   ICON_TOPMENU_TXBATT,
-#if defined(USB_CHARGER)
-  ICON_TOPMENU_TXBATT_CHARGE,
-#endif
-#if defined(EXTERNAL_ANTENNA)
-  ICON_TOPMENU_ANTENNA,
-#endif
-#if defined(INTERNAL_GPS)
-  ICON_TOPMENU_GPS,
-#endif
 
   ICON_ERROR,
   ICON_BUSY,
@@ -134,6 +125,12 @@ enum EdgeTxIcon {
   ICON_BTN_PREV,
 
   ICON_TOP_LOGO,
+
+  // Only on the radios with the hardware. They come last so that the other
+  // values stay the same across radios.
+  ICON_TOPMENU_TXBATT_CHARGE,
+  ICON_TOPMENU_ANTENNA,
+  ICON_TOPMENU_GPS,
 
   EDGETX_ICONS_COUNT
 };
