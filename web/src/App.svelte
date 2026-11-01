@@ -1078,16 +1078,6 @@
     <div class="logo-title">
       <img src={edgetxLogo} alt="EdgeTX" class="logo" />
       <span class="subtitle">Simulator</span>
-      {#if __BUILD_COMMIT__}
-        <a
-          class="build-info"
-          href="https://github.com/EdgeTX/edgetx/commit/{__BUILD_COMMIT__}"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {__BUILD_COMMIT__.slice(0, 8)} · {__BUILD_DATE__}
-        </a>
-      {/if}
     </div>
     <div class="toolbar">
       <select
@@ -1610,6 +1600,18 @@
     <summary class="trace-summary">Trace output{#if running}<span class="fps">{fps} fps</span>{/if}</summary>
     <pre class="trace">{traceLog}</pre>
   </details>
+
+  {#if __BUILD_COMMIT__}
+    <footer class="build-info">
+      <a
+        href="https://github.com/EdgeTX/edgetx/commit/{__BUILD_COMMIT__}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {__BUILD_COMMIT__.slice(0, 8)} · {__BUILD_DATE__}
+      </a>
+    </footer>
+  {/if}
 </main>
 
 <style>
@@ -1774,7 +1776,12 @@
   }
 
   .build-info {
+    margin-top: 0.75rem;
+    text-align: center;
     font-size: 0.75rem;
+  }
+
+  .build-info a {
     color: var(--text-muted);
   }
 
