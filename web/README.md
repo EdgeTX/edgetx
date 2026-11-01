@@ -129,6 +129,7 @@ Passing flavour names as arguments limits generation to those radios only — th
 npm run dev      # Start dev server with HMR
 npm run build    # Production build to dist/
 npm run preview  # Preview production build
+npm run smoke-test  # Start every radio of the production build in a browser
 ```
 
 ### Debugging

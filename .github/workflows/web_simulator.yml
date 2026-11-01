@@ -91,6 +91,13 @@ jobs:
           npm ci
           npm run build
 
+      # Before the deploy job, which only runs if this one succeeds
+      - name: Start every radio
+        working-directory: web
+        run: |
+          npx playwright-core install --with-deps chromium
+          npm run smoke-test
+
       - name: Archive site
         uses: actions/upload-artifact@v7
         with:
