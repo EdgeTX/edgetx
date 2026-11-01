@@ -87,7 +87,6 @@ SwitchConfig switchGetMaxType(uint8_t idx);
 // Restore switch state
 void logicalSwitchesInit(bool force);
 
-#if defined(FUNCTION_SWITCHES)
 void setFSStartupPosition();
 void evalFunctionSwitches();
 void setFSLogicalState(uint8_t index, uint8_t value);
@@ -105,6 +104,5 @@ void fsLedRGB(uint8_t index, uint32_t color);
 uint32_t fsGetLedRGB(uint8_t index);
 uint8_t fsLedFirstIndex(uint8_t index);
 uint8_t getRGBColorIndex(uint32_t color);
-#endif
 
 void setAllPreflightSwitchStates();
