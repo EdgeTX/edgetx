@@ -273,12 +273,12 @@ void StaticImage::setZoom()
 // Display image from file system with software scaling
 //  - uglier but much faster than LVGL scaling
 StaticBitmap::StaticBitmap(Window* parent, const rect_t& rect,
-                           const char* filename) :
+                           const char* filename, BitmapFormats fmt) :
     Window(parent, rect)
 {
   setWindowFlag(NO_FOCUS | NO_CLICK);
 
-  setSource(filename);
+  setSource(filename, fmt);
 
   onClosing([=]() {
     if (img) delete img;
@@ -286,15 +286,31 @@ StaticBitmap::StaticBitmap(Window* parent, const rect_t& rect,
   });
 }
 
-void StaticBitmap::setSource(const char *filename)
+void StaticBitmap::setSource(const char *filename, BitmapFormats fmt)
 {
-  if (filename) {
-    clearSource();
-    img = BitmapBuffer::loadBitmap(filename, BMP_ARGB4444);
-    if (img) {
-      img->resizeToLVGL(width(), height());
-      img->addCanvas(this, LV_IMG_CF_TRUE_COLOR_ALPHA);
+  if (!filename) return;
+
+  clearSource();
+  img = BitmapBuffer::loadBitmap(filename, fmt);
+  if (!img) return;
+
+  if (img->getFormat() == BMP_RGB565) {
+    // Scale to fit the frame, as resizeToLVGL does for images with alpha
+    float scale = min(float(width()) / img->width(),
+                      float(height()) / img->height());
+    coord_t w = img->width() * scale;
+    coord_t h = img->height() * scale;
+    if (w != img->width() || h != img->height()) {
+      auto scaled = new BitmapBuffer(BMP_RGB565, w, h);
+      scaled->clear();
+      scaled->drawScaledBitmap(img, 0, 0, w, h);
+      delete img;
+      img = scaled;
     }
+    img->addCanvas(this, LV_IMG_CF_TRUE_COLOR);
+  } else {
+    img->resizeToLVGL(width(), height());
+    img->addCanvas(this, LV_IMG_CF_TRUE_COLOR_ALPHA);
   }
 }
 
