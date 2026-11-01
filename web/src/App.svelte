@@ -157,7 +157,9 @@
   let lcdSize = 0;
 
   let isPortrait = $derived(lcdHeight > lcdWidth);
-  let cssWidth = $derived(Math.max(lcdWidth, 150 * lcdWidth / lcdHeight, 320));
+  // Higher density LCDs are scaled down, to keep their size in proportion on the
+  // page: 550px makes the 5" 800x480 LCD match the scale of a 4.3" 480x272 one.
+  let cssWidth = $derived(Math.max(Math.min(lcdWidth, 550), 150 * lcdWidth / lcdHeight, 320));
   let cssHeight = $derived(cssWidth * lcdHeight / lcdWidth);
 
   // Stick mode: 0=Mode1(thr=RV), 1=Mode2(thr=LV), 2=Mode3(thr=RV), 3=Mode4(thr=LV)
@@ -1160,7 +1162,8 @@
         bind:this={canvas}
         class="lcd"
         style:width="{cssWidth}px"
-        style:height="{cssHeight}px"
+        style:aspect-ratio="{lcdWidth} / {lcdHeight}"
+        style:image-rendering={lcdDepth >= 16 && lcdWidth > cssWidth ? 'auto' : null}
         style:background="{lcdDepth > 0 && lcdDepth < 16 ? 'rgb(47, 123, 227)' : '#000'}"
         onmousedown={handleCanvasMouseDown}
         ontouchstart={handleCanvasTouchStart}
@@ -1874,6 +1877,7 @@
     border-radius: 4px;
     border: none;
     max-width: 100%;
+    height: auto;
   }
 
   .key-column {
