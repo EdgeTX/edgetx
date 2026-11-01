@@ -568,6 +568,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM       TR("Spegnimento Trainer", "Controlla trainer spegnendo")
 #define TR_MODEL_STILL_POWERED          "Radio ancora\nconnessa"
 #define TR_TRAINER_STILL_CONNECTED      "Trainer ancora\nconnesso"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED          "USB ancora\nconnesso"
 #define TR_MODEL_SHUTDOWN               "Spegnimento?"
 #define TR_PRESS_ENTER_TO_CONFIRM       "Premi [ENT] per confermare"

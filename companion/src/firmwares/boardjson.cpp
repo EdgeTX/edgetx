@@ -238,6 +238,9 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::StatusLedColors:
       return m_hardware.status_led_colors;
 
+    case Board::HasTrainerJackCrossover:
+      return m_hardware.trainer_jack_crossover;
+
     case Board::HasStatusLedPwm:
       return m_hardware.status_led_pwm;
 
@@ -1340,6 +1343,12 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
     hardware.surface = o.value("surface").toBool();
     hardware.cpu = o.value("cpu").toString().toStdString();
     hardware.cpu_type = o.value("cpu_type").toString().toStdString();
+  }
+
+  if (obj.value("trainer").isObject()) {
+    const QJsonObject &o = obj.value("trainer").toObject();
+
+    hardware.trainer_jack_crossover = o.value("trainer_jack_crossover").toBool();
   }
 
   if (obj.value("identity").isObject()) {

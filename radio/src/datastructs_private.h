@@ -1219,13 +1219,16 @@ PACK(struct RadioData {
   // Radio level tabs control (global settings)
   NOBACKUP(uint8_t modelSelectLayout:2);
   NOBACKUP(uint8_t radioThemesDisabled:1);
+  // 0 = trainer in/out on their own jack contacts (crossover lead, default),
+  // 1 = both on the tip (mono / straight lead). TRAINER_JACK_CROSSOVER only
+  NOBACKUP(uint8_t trainerTipOnly:1);
 #if defined(USB_CHARGE_CONTROL)
   // 0 = charge while USB active (default), 1 = hold the charger off while USB
   // is plugged in SD/Joystick/VCP mode
   NOBACKUP(uint8_t usbChargeDisabled:1);
-  NOBACKUP(uint8_t spare:6 SKIP);
+  NOBACKUP(uint8_t spare:5 SKIP);
 #else
-  NOBACKUP(uint8_t spare:7 SKIP);
+  NOBACKUP(uint8_t spare:6 SKIP);
 #endif
 #elif LCD_W == 128
   uint8_t invertLCD:1;          // Invert B&W LCD display

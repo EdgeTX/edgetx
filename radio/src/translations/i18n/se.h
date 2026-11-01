@@ -571,6 +571,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM       TR("Lärare alarm", "Kolla läraranslutningen")
 #define TR_MODEL_STILL_POWERED          TR("Modell på","Modellen är på")
 #define TR_TRAINER_STILL_CONNECTED      "Lärare fortfarande ansluten"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED          "USB är ansluten"
 #define TR_MODEL_SHUTDOWN               "Stänga av?"
 #define TR_PRESS_ENTER_TO_CONFIRM       "Tryck [ENTER] för att bekräfta"

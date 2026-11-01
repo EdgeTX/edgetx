@@ -363,6 +363,7 @@ class Trainer(BaseModel):
     trainer_gpio_af: Optional[str] = None
     trainer_detect_gpio: Optional[str] = None
     trainer_detect_inverted: Optional[bool] = None
+    trainer_jack_crossover: Optional[bool] = None
 
 Input = Union[StickInput, FlexInput, SwitchInput, RawInput, VBatInput, RTCBatInput, LuxInput]
 

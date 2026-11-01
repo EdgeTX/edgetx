@@ -29,12 +29,13 @@
 #include "dataconstants.h"
 
 #include "hal.h"
+#include "edgetx.h"
 
 __WEAK void board_trainer_init()
 {
 #if defined(TRAINER_DETECT_GPIO)
   gpio_init(TRAINER_DETECT_GPIO, GPIO_IN_PU, GPIO_PIN_SPEED_LOW);
-#endif  
+#endif
 
   trainer_init();
 }
@@ -63,11 +64,6 @@ static const stm32_pulse_timer_t trainerOutputTimer = {
   .DMA_TC_CallbackPtr = nullptr,
 };
 
-void trainer_init_dsc_out()
-{
-  trainer_init_output(&trainerOutputTimer);
-}
-
 static const stm32_pulse_timer_t trainerInputTimer = {
   .GPIO = TRAINER_IN_GPIO,
   .GPIO_Alternate = TRAINER_GPIO_AF,
@@ -81,6 +77,25 @@ static const stm32_pulse_timer_t trainerInputTimer = {
   .DMA_IRQn = (IRQn_Type)0,
   .DMA_TC_CallbackPtr = nullptr,
 };
+
+#if defined(TRAINER_JACK_CROSSOVER)
+// Trainer in is on the jack tip and out on the ring, for the crossover lead
+// the radio ships with. A mono lead grounds the ring, so optionally send on
+// the tip (the input pin) as well.
+static_assert(__IS_TRAINER_TIMER_OUT_CHANNEL_SUPPORTED(TRAINER_IN_TIMER_Channel),
+              "Unsupported trainer timer input channel for tip-only output");
+#endif
+
+void trainer_init_dsc_out()
+{
+#if defined(TRAINER_JACK_CROSSOVER)
+  if (g_eeGeneral.trainerTipOnly) {
+    trainer_init_output(&trainerInputTimer);
+    return;
+  }
+#endif
+  trainer_init_output(&trainerOutputTimer);
+}
 
 void trainer_init_dsc_in()
 {

@@ -319,6 +319,7 @@ class GeneralSettings {
     bool disableTrainerPoweroffAlarm;
     unsigned int usbMode;
     bool usbChargeDisabled;
+    unsigned int trainerTipOnly;
     unsigned int hatsMode;
     unsigned int stickDeadZone;
     unsigned int jackMode;

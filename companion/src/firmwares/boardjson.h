@@ -133,6 +133,7 @@ class BoardJson
       int has_int_module_support       = 0;
       int sport_max_baudrate           = 0;
       int surface                      = 0;
+      int trainer_jack_crossover       = 0;
       std::string cpu                  = "";
       std::string cpu_type             = "";
     };
