@@ -6,7 +6,7 @@ on:
   workflow_call:
 
 env:
-  # Each group takes one macOS runner
+  # Each group takes one runner
   GROUPS_COUNT: 9
 
 jobs:
@@ -35,7 +35,7 @@ jobs:
   modules:
     name: WASM Modules (${{ matrix.group.id }})
     needs: plan
-    runs-on: macos-15
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         group: ${{ fromJSON(needs.plan.outputs.groups) }}
@@ -51,6 +51,8 @@ jobs:
 
       - name: Setup WASI SDK
         uses: ./.github/actions/wasi_sdk
+        with:
+          arch: x86_64-linux
 
       - name: Build modules
         shell: bash
