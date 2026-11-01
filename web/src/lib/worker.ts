@@ -1,6 +1,7 @@
 import { ThreadMessageHandler, WASIThreads } from '@emnapi/wasi-threads';
 import { WASI } from '@tybys/wasm-util';
 import { FsProxyClient } from './fs-proxy-client';
+import { auxSerialStubs } from './aux-serial-stubs';
 
 // Catch all errors for debugging
 globalThis.addEventListener('error', (e) => {
@@ -63,6 +64,7 @@ const handler = new ThreadMessageHandler({
             Atomics.notify(lcdSync, 0);
           }
         },
+        ...auxSerialStubs,
       },
       wasi_snapshot_preview1: wasi.wasiImport,
       wasi: { ...wasiThreads.getImportObject().wasi },
