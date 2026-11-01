@@ -1,6 +1,12 @@
 execute_process(COMMAND @CMAKE_MAKE_PROGRAM@ DESTDIR=@APPIMAGE_DIR@ install
                 WORKING_DIRECTORY @CMAKE_BINARY_DIR@)
 
+# appimagetool creates .DirIcon from a PNG or XPM at the top of the AppDir, and
+# fails without one. linuxdeploy only puts the scalable SVG there.
+file(COPY_FILE
+     "@APPIMAGE_DIR@@CMAKE_INSTALL_PREFIX@/share/icons/hicolor/256x256/apps/@COMPANION_NAME@.png"
+     "@APPIMAGE_DIR@/@COMPANION_NAME@.png")
+
 # linuxdeploy-plugin-qt only bundles the xcb platform plugin by default, so also
 # bundle the Wayland platform plugins and their shell/decoration integrations.
 # Set via ENV as the lists contain ';' which execute_process would split.
