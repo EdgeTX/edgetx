@@ -37,6 +37,8 @@
     KEY_SHIFT: 14, KEY_BIND: 15,
   };
 
+  const DEFAULT_RADIO = 'edgetx-tx16s-simulator.wasm';
+
   interface DisplayDef {
     w: number;
     h: number;
@@ -342,7 +344,7 @@
         });
         selectedRadio = match ? match.wasm
           : (saved && avail.some((r) => r.wasm === saved)) ? saved
-          : avail[0].wasm;
+          : (avail.find((r) => r.wasm === DEFAULT_RADIO) ?? avail[0]).wasm;
         status = `${avail.length} radio(s) available`;
       } else {
         status = 'No .wasm files found in public/';
