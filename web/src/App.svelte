@@ -1073,6 +1073,16 @@
     <div class="logo-title">
       <img src={edgetxLogo} alt="EdgeTX" class="logo" />
       <span class="subtitle">Simulator</span>
+      {#if __BUILD_COMMIT__}
+        <a
+          class="build-info"
+          href="https://github.com/EdgeTX/edgetx/commit/{__BUILD_COMMIT__}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {__BUILD_COMMIT__.slice(0, 8)} · {__BUILD_DATE__}
+        </a>
+      {/if}
     </div>
     <div class="toolbar">
       <select
@@ -1755,6 +1765,11 @@
     font-weight: 300;
     letter-spacing: 0.05em;
     text-transform: uppercase;
+  }
+
+  .build-info {
+    font-size: 0.75rem;
+    color: var(--text-muted);
   }
 
   .toolbar {
