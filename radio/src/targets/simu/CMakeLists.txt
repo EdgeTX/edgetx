@@ -95,6 +95,14 @@ if(WASI)
   target_compile_options(radiolib_native PUBLIC ${WASI_COMPILE_OPTIONS})
   target_compile_options(simu_drivers PUBLIC ${WASI_COMPILE_OPTIONS})
 
+  option(USE_PCH "Precompile the standard library headers" ON)
+  if(USE_PCH)
+    target_precompile_headers(radiolib_native PRIVATE
+      "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/pch_std.h>"
+    )
+    target_precompile_headers(simu_drivers REUSE_FROM radiolib_native)
+  endif()
+
   add_executable(wasi-module EXCLUDE_FROM_ALL
     ${SIMU_SRC}
   )
