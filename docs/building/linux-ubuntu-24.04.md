@@ -149,4 +149,5 @@ Build the radio simulator library for your target, then Companion and Simulator:
 cmake --build build-output --parallel --target libsimulator --target companion --target simulator
 ```
 
-Companion only picks up the list of radios when it is first built. If you have already built Companion and want to add another radio, build its simulator library as above, then delete `build-output/native/companion/src/hwdefs.qrc` before building Companion and Simulator again. Alternatively, start again with a new build folder.
+!!! note "Adding radios later"
+    Companion only picks up the list of radios when it is first built. If you have already built Companion and want to add another radio, build its simulator library as above, then delete `build-output/native/companion/src/hwdefs.qrc` before building Companion and Simulator again. Alternatively, start again with a new build folder.

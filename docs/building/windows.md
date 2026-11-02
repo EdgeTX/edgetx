@@ -1,6 +1,7 @@
 # Build Instructions under Windows
 
-Note: The instructions on this page apply only for building V3.0.0-dev and later versions of EdgeTX.
+!!! note
+    The instructions on this page apply only for building V3.0.0-dev and later versions of EdgeTX.
 
 ## Table of Contents
 
@@ -216,8 +217,11 @@ call "%EDGETX_MAIN_DIR%\edgetx_build.cmd"
 and start it.
 
 After the build finishes, you can find the binaries under `C:\edgetx\build-output-<BUILD_RADIO>` (firmware binary under subfolder `arm-none-eabi`, Companion and Simulator binaries together with the WASM simulator module under folder `native` and Companion installer under subfolder `native\companion`).
-Note! Be sure to wipe the `C:\edgetx\build-output-<BUILD_RADIO>` content every time you change the build options.
+
+!!! warning "Changing build options"
+    Be sure to wipe the `C:\edgetx\build-output-<BUILD_RADIO>` content every time you change the build options.
 
 See https://github.com/EdgeTX/edgetx/blob/main/tools/build-common.sh for BUILD_OPTIONS to use for various EdgeTX supported radios. Separate the options with spaces, exactly as in that script, and keep the quotes around the whole `"BUILD_OPTIONS=..."` assignment so that cmake receives each option as a separate argument.
 
-Note! Do not separate the options with semicolons, e.g. `set BUILD_OPTIONS="-DPCB=X10;-DPCBREV=TX16S"`. This older form of the script passes all options to cmake as a single value and the build fails with an error such as `Unknown PCB 'X10 -DPCBREV=TX16S'`. If you have an existing build script written this way, change it to the form shown above, and do the same for any other variable holding more than one `-D` option (e.g. `PATHS` or `BUILD_TYPE`), then wipe the build output folder.
+!!! warning "Separate options with spaces, not semicolons"
+    Do not separate the options with semicolons, e.g. `set BUILD_OPTIONS="-DPCB=X10;-DPCBREV=TX16S"`. This older form of the script passes all options to cmake as a single value and the build fails with an error such as `Unknown PCB 'X10 -DPCBREV=TX16S'`. If you have an existing build script written this way, change it to the form shown above, and do the same for any other variable holding more than one `-D` option (e.g. `PATHS` or `BUILD_TYPE`), then wipe the build output folder.
