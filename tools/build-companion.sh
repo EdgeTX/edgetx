@@ -60,7 +60,8 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-rm -rf build && mkdir build && cd build || exit
+BUILD_ROOT="${BUILD_ROOT:-build}"
+rm -rf "${BUILD_ROOT}" && mkdir -p "${BUILD_ROOT}" && cd "${BUILD_ROOT}" || exit
 
 get_platform_config() {
     local platform
@@ -113,7 +114,7 @@ fi
 
 error_status=0
 
-if ! cmake -B native -S "${SRCDIR}" --toolchain cmake/toolchain/native.cmake ${BUILD_OPTIONS} >> "$LOG_FILE" 2>&1; then
+if ! cmake -B native -S "${SRCDIR}" --toolchain "${SRCDIR}/cmake/toolchain/native.cmake" ${BUILD_OPTIONS} >> "$LOG_FILE" 2>&1; then
     echo "    ❌ CMake configuration failed"
     cat "$LOG_FILE"
     error_status=1
