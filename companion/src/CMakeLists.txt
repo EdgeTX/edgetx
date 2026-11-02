@@ -137,26 +137,19 @@ endif()
 ############# Import radio hardware definitions ###############
 
 set(HWDEFS_DIR "${CMAKE_SOURCE_DIR}/radio/src/boards/hw_defs")
-set(HWDEFS_TMPL "${COMPANION_SRC_DIRECTORY}/boards/defs/hwdefs.qrc.in")
-set(HWDEFS_PHDR "DEFS_JSON_LIST")
 set(HWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/hwdefs.qrc")
-set(HWDEFS_CMD "${COMPANION_SRC_DIRECTORY}/../util/generate_defs_qrc.py")
 
-############# Import board definitions ###############
-
-set(BDDEFS_DIR "${COMPANION_SRC_DIRECTORY}/boards/defs")
-set(BDDEFS_TMPL "${COMPANION_SRC_DIRECTORY}/boards/defs/bddefs.qrc.in")
-set(BDDEFS_PHDR "DEFS_JSON_LIST")
-set(BDDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/bddefs.qrc")
-set(BDDEFS_CMD "${COMPANION_SRC_DIRECTORY}/../util/generate_defs_qrc.py")
-
-############# Import firmware definitions ###############
-
-set(FWDEFS_DIR "${COMPANION_SRC_DIRECTORY}/firmwares/defs")
-set(FWDEFS_TMPL "${COMPANION_SRC_DIRECTORY}/firmwares/defs/fwdefs.qrc.in")
-set(FWDEFS_PHDR "DEFS_JSON_LIST")
-set(FWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/fwdefs.qrc")
-set(FWDEFS_CMD "${COMPANION_SRC_DIRECTORY}/../util/generate_defs_qrc.py")
+# CONFIGURE_DEPENDS re-runs the glob on each build, so adding or removing
+# a definition regenerates the qrc in an existing build folder
+file(GLOB HWDEF_JSON_FILES CONFIGURE_DEPENDS "${HWDEFS_DIR}/*.json")
+list(SORT HWDEF_JSON_FILES)
+set(HWDEF_JSON_ENTRIES "")
+foreach(json_file ${HWDEF_JSON_FILES})
+  get_filename_component(json_file_name ${json_file} NAME)
+  list(APPEND HWDEF_JSON_ENTRIES "    <file alias=\"${json_file_name}\">${json_file}</file>")
+endforeach()
+list(JOIN HWDEF_JSON_ENTRIES "\n" HWDEF_JSON_LIST)
+configure_file(${COMPANION_SRC_DIRECTORY}/hwdefs.qrc.in ${HWDEFS_QRC} @ONLY)
 
 ############# Common lib ###############
 
@@ -172,34 +165,6 @@ set(common_MOC_HDRS
   )
 
 qt_wrap_cpp(common_SRCS ${common_MOC_HDRS})
-
-# qrc used by Companion and Simulator
-add_custom_command(OUTPUT ${HWDEFS_QRC}
-  COMMAND ${PYTHON_EXECUTABLE} ${HWDEFS_CMD}
-      -d ${HWDEFS_DIR}
-      -t ${HWDEFS_TMPL}
-      -p ${HWDEFS_PHDR}
-      -o ${HWDEFS_QRC}
-  DEPENDS ${HWDEFS_TMPL}
-)
-
-add_custom_command(OUTPUT ${BDDEFS_QRC}
-  COMMAND ${PYTHON_EXECUTABLE} ${BDDEFS_CMD}
-      -d ${BDDEFS_DIR}
-      -t ${BDDEFS_TMPL}
-      -p ${BDDEFS_PHDR}
-      -o ${BDDEFS_QRC}
-  DEPENDS ${BDDEFS_TMPL}
-)
-
-add_custom_command(OUTPUT ${FWDEFS_QRC}
-  COMMAND ${PYTHON_EXECUTABLE} ${FWDEFS_CMD}
-      -d ${FWDEFS_DIR}
-      -t ${FWDEFS_TMPL}
-      -p ${FWDEFS_PHDR}
-      -o ${FWDEFS_QRC}
-  DEPENDS ${FWDEFS_TMPL}
-)
 
 set(common_RESOURCES
   companion.qrc
