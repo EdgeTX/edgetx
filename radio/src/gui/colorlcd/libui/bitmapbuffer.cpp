@@ -23,6 +23,7 @@
 
 #include "bitmaps.h"
 #include "board.h"
+#include "debug.h"
 #include "dma2d.h"
 #include "fonts.h"
 #include "edgetx_helpers.h"
@@ -43,8 +44,15 @@ BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height) :
     leakReported(false)
 #endif
 {
-  data = (uint16_t *)malloc(align32(width * height * sizeof(uint16_t)));
-  data_end = data + (width * height);
+  size_t pixels = (size_t)width * height;
+  if (pixels > (std::numeric_limits<unsigned>::max() - 3u) / sizeof(pixel_t)) {
+    TRACE_ERROR("BitmapBuffer: invalid allocation dimensions %u x %u\n",
+                width, height);
+    data = nullptr;
+  } else {
+    data = (uint16_t*)malloc(align32(pixels * sizeof(pixel_t)));
+  }
+  data_end = data ? data + pixels : nullptr;
 }
 
 BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height,
@@ -55,7 +63,7 @@ BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height,
     xmax(width),
     ymax(height),
     data(data),
-    data_end(data + (width * height)),
+    data_end(data ? data + (size_t)width * height : nullptr),
     dataAllocated(false)
 #if defined(DEBUG)
     ,
@@ -94,7 +102,7 @@ void BitmapBuffer::setData(uint16_t *d)
 {
   if (!dataAllocated) {
     data = d;
-    data_end = d + (_width * _height);
+    data_end = d ? d + (size_t)_width * _height : nullptr;
   }
 }
 
