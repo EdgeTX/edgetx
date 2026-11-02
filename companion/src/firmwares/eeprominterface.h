@@ -121,6 +121,7 @@ enum Capability {
   TrimsRange,
   VirtualInputs,
   VoicesMaxLength,
+  CapabilityCount,
 };
 
 float ValToTim(int value);

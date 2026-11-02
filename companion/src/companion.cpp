@@ -59,6 +59,105 @@ class MyProxyStyle : public QProxyStyle
  };
 #endif
 
+bool dump()
+{
+  QFile regfw("regfw.txt");
+  if (!regfw.open(QIODevice::WriteOnly | QIODevice::Text))
+    return 1;
+
+  QTextStream regfwout(&regfw);
+  regfwout << "id;shortname;manufacturer;buildopts\n";
+
+  QFile fwcap("fwcap.txt");
+  if (!fwcap.open(QIODevice::WriteOnly | QIODevice::Text))
+    return 1;
+
+  QTextStream fwcapout(&fwcap);
+  fwcapout << "id;capability;value\n";
+
+  QFile regbd("regbd.txt");
+  if (!regbd.open(QIODevice::WriteOnly | QIODevice::Text))
+    return 1;
+
+  QTextStream regbdout(&regbd);
+  regbdout << "id;idtxt;name;fourcc;eepromsize;flashsize;extmodsize;suppintmods;dfltintmod;vmin;vmax;vwarn;txbat\n";
+
+  QFile bdcap("bdcap.txt");
+  if (!bdcap.open(QIODevice::WriteOnly | QIODevice::Text))
+    return 1;
+
+  QTextStream bdcapout(&bdcap);
+  bdcapout << "id;capability;value\n";
+
+  foreach(Firmware * firmware, Firmware::getRegisteredFirmwares()) {
+    if (firmware->isBase()) {
+      auto buildopts = firmware->optionGroups();
+      QStringList strlopts;
+      // NEED TO BRACKET MUTUALLY EXCLUSIVE OPTS
+      for (auto grp : buildopts) {
+        QStringList grpopts;
+        for (auto opt : grp) {
+          grpopts.append(opt.name);
+        }
+        strlopts.append(grpopts.join("-")) ;
+      }
+      QString stropts = strlopts.join("|");
+
+      regfwout << firmware->getId().remove("edgetx-") << ";" << firmware->getShortName() << ";" << Boards::getManufacturer(firmware->getBoard())
+               << ";" << stropts  << "\n";
+
+      for (int i = 0; i < CapabilityCount; i++) {
+        if (i != ModelImageFilters)
+          fwcapout << firmware->getId().remove("edgetx-") << ";" << i << ";" << firmware->getCapability((::Capability)i) << "\n";
+      }
+
+      fwcapout << firmware->getId().remove("edgetx-") << ";" << ModelImageFilters << ";" << firmware->getCapabilityStr(ModelImageFilters) << "\n";
+    }
+  }
+
+  for (int i = 0; i < Board::BOARD_TYPE_COUNT; i++) {
+    Board::Type board = (Board::Type)i;
+    int vmin;
+    int vmax;
+    unsigned int vwarn;
+    Boards::getBattRange(board, vmin, vmax, vwarn);
+    auto intmods = Boards::getSupportedInternalModules(board);
+    QStringList strlmods;
+    for (int val : intmods) {
+        strlmods.append(QString::number(val));
+    }
+    QString strmods = strlmods.join("|");
+
+    regbdout << board << ";" << Boards::getBoardName(board).remove("Radiomaster").remove("FlySky").remove("Jumper").remove("BETAFPV").remove("iFlight").remove("HelloRadioSky").remove("Senduwing").remove("Fatfish").remove("Taranis").remove("Horus").remove(" ").remove("-").toLower()
+              << ";" << Boards::getBoardName(board)
+              << ";" << Boards::getFourCC(board)
+              << ";" << Boards::getEEpromSize(board)
+              << ";" << Boards::getFlashSize(board)
+              << ";" << Boards::externalModuleSizeToString(Boards::getDefaultExternalModuleSize(board))
+              << ";" << strmods
+              << ";" << Boards::getDefaultInternalModules(board)
+              << ";" << vmin + 90 << ";" << vmax + 120 << ";" << vwarn
+              << ";" << vmin + 90 << "|" << vmax + 120 << "|" << vwarn << "\n";
+
+    for (int i = 0; i < Board::Capability::Count; i++) {
+      if (i != Board::CPU && i != Board::CPUType && i != Board::Manufacturer) {
+        bdcapout << board << ";" << i << ";" << Boards::getCapability(board, (Board::Capability)i) << "\n";
+      }
+    }
+
+    bdcapout << board << ";" << Board::CPU << ";" << Boards::getCapabilityStr(board, Board::CPU) << "\n";
+    bdcapout << board << ";" << Board::CPUType << ";" << Boards::getCapabilityStr(board, Board::CPUType) << "\n";
+    bdcapout << board << ";" << Board::Manufacturer << ";" << Boards::getCapabilityStr(board, Board::Manufacturer) << "\n";
+  }
+
+  regfw.close();
+  fwcap.close();
+  regbd.close();
+  bdcap.close();
+
+  return true;
+}
+
 void importError()
 {
   QMessageBox::critical(nullptr, CPN_STR_APP_NAME, QCoreApplication::translate("Companion", "The saved settings could not be imported, please try again or continue with current settings."), QMessageBox::Ok, QMessageBox::NoButton);
@@ -265,13 +364,15 @@ int main(int argc, char *argv[])
   }
 
   Profile & profile = g.currentProfile();
-  if (profile.fwType().isEmpty()){
+  if (profile.fwType().isEmpty()) {
     profile.fwType(Firmware::getDefaultVariant()->getId());
     profile.fwName("");
   }
 
   // force the Board definition to load by appending "-xxx"
   Firmware::setCurrentVariant(Firmware::getFirmwareForId(g.profile[g.id()].fwVariantId() % "-xxx"));
+
+  if (!dump()) return 1;
 
   MainWindow *mainWin = new MainWindow();
   mainWin->show();
