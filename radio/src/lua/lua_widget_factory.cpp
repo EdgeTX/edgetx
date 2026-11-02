@@ -26,8 +26,6 @@
 #include "lua_states.h"
 #include "strhelpers.h"
 
-#define MAX_INSTRUCTIONS       (20000/100)
-
 LuaWidgetFactory::LuaWidgetFactory(const char* name, WidgetOption* widgetOptions, int optionDefinitionsReference,
                                    int createFunction, int updateFunction, int refreshFunction,
                                    int backgroundFunction, int translateFunction, bool lvglLayout,
@@ -75,7 +73,8 @@ Widget* LuaWidgetFactory::createNew(Window* parent, const rect_t& rect,
 
   auto widgetData = g_model.getWidgetData(screenNum, zoneNum);
 
-  luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
+  bool appMode = static_cast<WidgetsContainer*>(parent)->isAppMode();
+  luaSetInstructionsLimit(lsWidgets, luaWidgetInstructionsLimit(appMode));
 
   // Make 'zone' table for 'create' call
   lua_newtable(lsWidgets);

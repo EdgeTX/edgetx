@@ -28,6 +28,53 @@
 #include "lua/lua_states.h"
 
 #include <filesystem>
+#include <memory>
+
+#if defined(COLORLCD)
+#include "lua/lua_widget.h"
+
+TEST(Lua, WidgetInstructionLimits)
+{
+  EXPECT_EQ(200, luaWidgetInstructionsLimit(false));
+  EXPECT_EQ(1600, luaWidgetInstructionsLimit(true));
+
+  std::unique_ptr<lua_State, decltype(&lua_close)> state(luaL_newstate(), lua_close);
+  auto L = state.get();
+  ASSERT_NE(nullptr, L);
+
+  for (bool appMode : {false, true}) {
+    luaSetInstructionsLimit(L, luaWidgetInstructionsLimit(appMode));
+    EXPECT_EQ(appMode ? 1600 : 200, lua_gethookcount(L));
+    EXPECT_EQ(0, instructionsPercent);
+
+    ASSERT_EQ(LUA_OK, luaL_dostring(
+        L, "local n = 0; for i = 1, 1000 do n = n + i end"));
+    EXPECT_GT(instructionsPercent, 0);
+  }
+
+#if !defined(DEBUG)
+  const char* work = "local n = 0; for i = 1, 30000 do n = n + i end";
+
+  luaSetInstructionsLimit(L, luaWidgetInstructionsLimit(false));
+  ASSERT_EQ(LUA_OK, luaL_loadstring(L, work));
+  ASSERT_EQ(LUA_ERRRUN, lua_pcall(L, 0, 0, 0));
+  EXPECT_NE(std::string::npos, std::string(lua_tostring(L, -1)).find("CPU limit"));
+  EXPECT_EQ(101, instructionsPercent);
+  lua_pop(L, 1);
+
+  luaSetInstructionsLimit(L, luaWidgetInstructionsLimit(true));
+  EXPECT_EQ(LUA_OK, luaL_dostring(L, work));
+
+  luaSetInstructionsLimit(L, luaWidgetInstructionsLimit(true));
+  ASSERT_EQ(LUA_OK, luaL_loadstring(
+      L, "local n = 0; for i = 1, 100000 do n = n + i end"));
+  ASSERT_EQ(LUA_ERRRUN, lua_pcall(L, 0, 0, 0));
+  EXPECT_NE(std::string::npos, std::string(lua_tostring(L, -1)).find("CPU limit"));
+  EXPECT_EQ(101, instructionsPercent);
+  lua_pop(L, 1);
+#endif
+}
+#endif
 
 #define MIXSRC_THR     (MIXSRC_FIRST_STICK + inputMappingGetThrottle())
 #define MIXSRC_TRIMTHR (MIXSRC_FIRST_TRIM + inputMappingGetThrottle())
