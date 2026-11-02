@@ -106,9 +106,10 @@ clean_build() {
 
 clean_build && mkdir -p native/plugins
 
-# Copy WASM simulator modules if available
-if [[ -d "${SRCDIR}/wasm-modules" ]]; then
-  cp "${SRCDIR}"/wasm-modules/*.wasm native/plugins/ 2>/dev/null && \
+# Copy WASM simulator modules if available (WASM_DIR overrides the default location)
+WASM_DIR="${WASM_DIR:-${SRCDIR}/wasm-modules}"
+if [[ -d "${WASM_DIR}" ]]; then
+  cp "${WASM_DIR}"/*.wasm native/plugins/ 2>/dev/null && \
     echo "    🔌 Copied WASM modules to plugins/" || true
 fi
 
