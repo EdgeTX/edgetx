@@ -122,7 +122,9 @@ GOTO exit_script
 
 :build_cpn
 ninja native-configure
-ninja -C native libsimulator
+ninja wasi-module
+if not exist native\plugins mkdir native\plugins
+copy /y wasm\wasm-build\*.wasm native\plugins\
 ninja -C native simulator
 ninja -C native companion
 
@@ -136,6 +138,7 @@ if %BUILD_INSTALLER%=="yes" (
 REM The following is in order to be able to run companion and simulator binaries directly in build output folder
 %QT_DIR%\bin\windeployqt --libdir native --plugindir native\plugins --no-compiler-runtime --no-translations --release native
 copy %EDGETX_BUILD_TOOLS%\SDL2\lib\x64\SDL2.dll %EDGETX_MAIN_DIR%\%BUILD_FOLDER%\native\
+copy /y wasm\wasm-build\*.wasm native\
 
 REM
 REM done
@@ -212,7 +215,7 @@ call "%EDGETX_MAIN_DIR%\edgetx_build.cmd"
 ```
 and start it.
 
-After the build finishes, you can find the binaries under `C:\edgetx\build-output-<BUILD_RADIO>` (firmware binary under subfolder `arm-none-eabi`, Companion and Simulator binaries together with simulator library under folder `native` and Companion installer under subfolder `native\companion`).
+After the build finishes, you can find the binaries under `C:\edgetx\build-output-<BUILD_RADIO>` (firmware binary under subfolder `arm-none-eabi`, Companion and Simulator binaries together with the WASM simulator module under folder `native` and Companion installer under subfolder `native\companion`).
 Note! Be sure to wipe the `C:\edgetx\build-output-<BUILD_RADIO>` content every time you change the build options.
 
 See https://github.com/EdgeTX/edgetx/blob/main/tools/build-common.sh for BUILD_OPTIONS to use for various EdgeTX supported radios. Separate the options with spaces, exactly as in that script, and keep the quotes around the whole `"BUILD_OPTIONS=..."` assignment so that cmake receives each option as a separate argument.
