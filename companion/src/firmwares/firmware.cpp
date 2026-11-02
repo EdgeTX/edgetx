@@ -176,9 +176,6 @@ int Firmware::getCapability(Capability value) const
     case Capability::FlightModesName:
       return m_defn.flightModes.name;
 
-    case Capability::FourCC:
-      return m_defn.fourCC;
-
     case Capability::GlobalFunctions:
       return m_defn.globalFuncs.cnt;
 
@@ -528,9 +525,6 @@ bool Firmware::loadDefinition(const QString & path)
 
     else if (it.key() == "flightModes")
       Json::loadSizes(it, m_defn.flightModes, CPN_MAX_FLIGHT_MODES, FLIGHTMODE_NAME_LEN);
-
-    else if (it.key() == "fourCC")
-      m_defn.fourCC = Json::valueInt(it, m_defn.fourCC);
 
     else if (it.key() == "globalFuncs")
       Json::loadSizes(it, m_defn.globalFuncs, CPN_MAX_GLOBAL_FUNCTIONS, 0);

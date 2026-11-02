@@ -81,7 +81,7 @@ class Firmware
     };
 
     struct TeleCstmScrnsDefn {
-      Json::sizes_t sizes      {CPN_TELE_CUST_SCRNS, 0};
+      Json::sizes_t sizes     {CPN_TELE_CUST_SCRNS, 0};
       int          maxBars    {CPN_TELE_CUST_SCRNS_BARS};
       int          maxPerLine {CPN_TELE_CUST_SCRNS_PERLINE};
       int          maxLines   {CPN_TELE_CUST_SCRNS_LINES};
@@ -106,7 +106,6 @@ class Firmware
       Json::sizes_t     expos             {CPN_MAX_EXPOS, EXPODATA_NAME_LEN};
       int               flashSize         {0};
       Json::sizes_t     flightModes       {CPN_MAX_FLIGHT_MODES, FLIGHTMODE_NAME_LEN}; // rename to operatingModes
-      int               fourCC            {0};
       Json::sizes_t     globalFuncs       {CPN_MAX_SPECIAL_FUNCTIONS, 0};
       Json::sizes_t     globalVars        {CPN_MAX_GVARS, GVAR_NAME_LEN};
       int               hatsMode          {2};                                        // GeneralSettings::HATSMODE_SWITCHABLE

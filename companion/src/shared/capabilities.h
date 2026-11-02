@@ -39,7 +39,6 @@ enum Capability {
   FlashSize,
   FlightModes,
   FlightModesName,
-  FourCC,
   GlobalFunctions,
   Gvars,
   GvarsName,
