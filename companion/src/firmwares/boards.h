@@ -292,6 +292,7 @@ namespace Board {
     Surface,
     Switches,
     SwitchesPositions,
+    Count,
   };
 
   struct SwitchPosition {
