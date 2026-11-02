@@ -145,6 +145,7 @@ enum Capability {
   HasSDCard,
   HasStickDeadZone,
   HasSwitchableJack,
+  HasTrainerJackCrossover,
   HasTrainerModuleCPPM,
   HasTrainerModuleSBUS,
   HasVBat,

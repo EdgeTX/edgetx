@@ -433,6 +433,7 @@ class Board
       int           status_led_pwm          {0};
       int           sport_max_baudrate      {false};
       bool          surface                 {false};
+      int           trainer_jack_crossover  {0};
 
       // sourced from board definitions
       bool          auxSerialMode           {false};
@@ -629,6 +630,7 @@ class Board
     void loadKeys(QJsonObject::const_iterator & it);
     void loadLEDS(QJsonObject::const_iterator & it);
     void loadSwitches(QJsonObject::const_iterator & it);
+    void loadTrainer(QJsonObject::const_iterator & it);
     void loadTrims(QJsonObject::const_iterator & it);
 
     bool postLoad();

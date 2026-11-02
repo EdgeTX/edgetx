@@ -409,6 +409,9 @@ int Board::getCapability(const Capability capability) const
     case Capability::HasTopLcd:
       return m_hardware.topLCD;
 
+    case Capability::HasTrainerJackCrossover:
+      return m_hardware.trainer_jack_crossover;
+
     case Capability::HasTrainerModuleCPPM:
       return m_hardware.trainerModule == Board::TR_MOD_TYPE_CPPM;
 
@@ -1387,7 +1390,7 @@ bool Board::loadDefinition(const QString & path)
 
   // keys not processed in iteration
   const QStringList skipKeys {"backlight", "basedOn", "comments", "hidden", "hwdefn",
-                              "modules", "name", "supported", "touch", "trainer", "usb"};
+                              "modules", "name", "supported", "touch", "usb"};
 
   for (QJsonObject::const_iterator it = o.constBegin(); it != o.constEnd(); ++it) {
     //JSON_KEY_VAL(it);
@@ -1476,7 +1479,10 @@ bool Board::loadDefinition(const QString & path)
     else if (it.key() == "topLCD")
       m_hardware.topLCD = Json::valueBool(it, m_hardware.topLCD);
 
-    // hwdefn "trainer" is ignored as it does not provide anything Companion can use
+    else if (it.key() == "trainer")
+      loadTrainer(it);
+
+    // not in hwdef trainer
     else if (it.key() == "trainerModule") {
       int idx = DataHelpers::getStringTagMappingIndex(trainerModuleLookupTable,
                                                       Json::valueStdString(it).c_str());
@@ -1852,6 +1858,13 @@ void Board::loadSwitches(QJsonObject::const_iterator & oit)
       qWarning() << "Switch overridden:" << sw.tag;
     }
   }
+}
+
+void Board::loadTrainer(QJsonObject::const_iterator & oit)
+{
+  //JSON_ITER_VAL(oit);
+  JSON_OBJ_INIT_R(oit, o);
+  m_hardware.trainer_jack_crossover = Json::valueBool(o, "trainer_jack_crossover", m_hardware.trainer_jack_crossover);
 }
 
 void Board::loadTrims(QJsonObject::const_iterator & oit)
