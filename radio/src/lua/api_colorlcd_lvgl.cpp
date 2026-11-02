@@ -32,8 +32,10 @@ class LvglWidgetParams
  public:
   LvglWidgetParams(lua_State *L, int index = 1)
   {
+    index = lua_absindex(L, index);
     luaL_checktype(L, index, LUA_TTABLE);
-    for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+    for (lua_pushnil(L); lua_next(L, index); lua_pop(L, 1)) {
+      luaL_checktype(L, -2, LUA_TSTRING);
       const char *key = lua_tostring(L, -2);
       if (!strcmp(key, "type")) {
         if (lua_isinteger(L, -1)) {
@@ -96,20 +98,25 @@ class LvglWidgetParams
   bool hasChildren = false;
 };
 
+static int createLvglObject(lua_State* L, LvglWidgetObjectBase* obj,
+                            int paramsIndex, bool hasChildren,
+                            LvglWidgetObjectBase* prevParent,
+                            int childRefs = 0);
+
 static int luaLvglPopup(lua_State *L, std::function<LvglWidgetObjectBase*()> create)
 {
-  auto obj = create();
-  obj->create(L, 1);
+  if (!luaScriptManager) return 0;
+  luaL_checktype(L, 1, LUA_TTABLE);
+  createLvglObject(L, create(), 1, false,
+                   luaScriptManager->getTempParent());
+  lua_pop(L, 1);
   return 0;
 }
 
 static int luaDestroyLvglWidget(lua_State *L)
 {
-  auto p = LvglWidgetObjectBase::checkLvgl(L, 1);
-  if (p) {
-    p->clearRefs(L);
-    delete p;
-  }
+  LvglWidgetObjectBase::destroy(
+      L, LvglWidgetObjectBase::getOwnedObject(L, 1));
   return 0;
 }
 
@@ -146,13 +153,16 @@ Delete LVGL objects.
 
 @notice If `parent` is not set, the entire script UI is deleted -- use this when the UI changes dramatically (e.g. widget size changes).
 @notice If `parent` is set, only its child LVGL objects are deleted -- use this to remove and replace a specific set of objects.
-@notice Do not call from inside a callback (e.g. `set`, `edited`, `press`). Callbacks can run while EdgeTX is still processing a touch or focus change, and deleting objects at that point can crash the radio. Update the script's state in the callback, then clear and rebuild the UI from `run()` (One-Time scripts) or `update()` (widgets).
+@notice Handles to deleted objects become invalid immediately. Retaining such a handle does not retain the deleted object's native window.
+@notice Calling this from inside a callback (e.g. `set`, `edited`, `press`) raises an error. Update the script's state in the callback, then clear and rebuild the UI from `run()` (One-Time scripts) or `update()` (widgets).
 
 @status current Introduced in 2.11.0
 */
 static int luaLvglClear(lua_State *L)
 {
   if (luaScriptManager) {
+    if (luaScriptManager->inCallback())
+      return luaL_error(L, "lvgl.clear cannot be called from a callback");
     if (lua_gettop(L) == 1) {
       auto p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
       if (p) {
@@ -259,27 +269,36 @@ Close an LVGL object that represents a closable container or dialog.
 
 @retval none
 
+@notice A close requested inside an LVGL callback is deferred until the native event returns, so the active control is not deleted while processing that event.
+
 @status current Introduced in 2.11.0
 */
 static int luaLvglClose(lua_State *L)
 {
   auto p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
   if (p) {
-    p->close();
+    p->requestClose(L);
   }
   return 0;
 }
 
 static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
 {
+  srcIndex = lua_absindex(L, srcIndex);
+  if (refIndex != 0) refIndex = lua_absindex(L, refIndex);
   luaL_checktype(L, srcIndex, LUA_TTABLE);
-  for (lua_pushnil(L); lua_next(L, srcIndex - 1); lua_pop(L, 1)) {
+  for (lua_pushnil(L); lua_next(L, srcIndex); lua_pop(L, 1)) {
     auto t = lua_gettop(L);
     LvglWidgetParams p(L, -1);
     if (p.type == ETX_UNDEF)
       luaL_error(L, "Missing or bad type");
     if (p.type >= ETX_FIRST_CONTROL && !luaScriptManager->isFullscreen())
       continue;
+    int nameIndex = 0;
+    if (p.name && refIndex != 0) {
+      lua_pushstring(L, p.name);
+      nameIndex = lua_gettop(L);
+    }
     LvglWidgetObjectBase *obj = nullptr;
     switch (p.type) {
       case ETX_LABEL:
@@ -367,87 +386,109 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         obj = new LvglWidgetSetting();
         break;
       default:
+        lua_settop(L, t);
         continue;
     }
     if (obj) {
-      obj->create(L, -1);
-      auto ref = obj->getRef(L);
-      if (p.name && refIndex != 0) {
-        lua_pushstring(L, p.name);
-        lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-        lua_settable(L, refIndex - 4);
-      }
-      if (p.hasChildren && obj->getWindow()) {
-        lua_getfield(L, -1, "children");
-        auto prevParent = luaScriptManager->getTempParent();
-        luaScriptManager->setTempParent(obj);
-        buildLvgl(L, -1, (refIndex != 0) ? refIndex - 3 : LUA_REFNIL);
-        lua_pop(L, 1);
-        luaScriptManager->setTempParent(prevParent);
+      createLvglObject(L, obj, t, p.hasChildren,
+                       luaScriptManager->getTempParent(), refIndex);
+      if (nameIndex) {
+        lua_pushvalue(L, nameIndex);
+        lua_pushvalue(L, -2);
+        lua_settable(L, refIndex);
       }
     }
     lua_settop(L, t); // In case of errors in build functions
   }
 }
 
-static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
+static void addChildren(lua_State *L, LvglWidgetObjectBase* obj,
+                         int paramsIndex, int refIndex)
 {
   if (obj->getWindow()) {
-    lua_getfield(L, -1, "children");
+    lua_getfield(L, paramsIndex, "children");
     auto prevParent = luaScriptManager->getTempParent();
     luaScriptManager->setTempParent(obj);
-    buildLvgl(L, -1, 0);
+    buildLvgl(L, -1, refIndex);
     lua_pop(L, 1);
     luaScriptManager->setTempParent(prevParent);
   }
 }
 
+// Lua errors unwind with longjmp, which skips C++ cleanup code. Run the code
+// that can raise them in a protected call, so that the temporary parent can be
+// restored and the error re-raised with the location of the calling script.
+struct LvglCreateContext
+{
+  LvglWidgetObjectBase *obj;
+  bool hasChildren;
+  bool hasRefs;
+};
+
+// Stack: context, params, optional result table
+static int protectedCreate(lua_State *L)
+{
+  auto ctx = (LvglCreateContext *)lua_touserdata(L, 1);
+  ctx->obj->create(L, 2);
+  if (ctx->hasChildren)
+    addChildren(L, ctx->obj, 2, ctx->hasRefs ? 3 : 0);
+  ctx->obj->push(L);
+  return 1;
+}
+
+// Create obj from the params table at paramsIndex and push the new object.
+// On failure, release its references and remove its LVGL objects before freeing
+// the C++ wrapper, which may own buffers or callbacks still used by LVGL.
+static int createLvglObject(lua_State *L, LvglWidgetObjectBase *obj,
+                            int paramsIndex, bool hasChildren,
+                            LvglWidgetObjectBase *prevParent, int childRefs)
+{
+  paramsIndex = lua_absindex(L, paramsIndex);
+  if (childRefs != 0) childRefs = lua_absindex(L, childRefs);
+  LvglCreateContext ctx = {obj, hasChildren, childRefs != 0};
+  lua_pushcfunction(L, protectedCreate);
+  lua_pushlightuserdata(L, &ctx);
+  lua_pushvalue(L, paramsIndex);
+  if (childRefs != 0)
+    lua_pushvalue(L, childRefs);
+  else
+    lua_pushnil(L);
+  int status = lua_pcall(L, 3, 1, 0);
+  luaScriptManager->setTempParent(prevParent);
+  if (status != LUA_OK) {
+    LvglWidgetObjectBase::destroy(L, obj);
+    return LvglWidgetObjectBase::rethrowError(L);
+  }
+  return 1;
+}
+
 static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly = false)
 {
   if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
+    auto prevParent = luaScriptManager->getTempParent();
     LvglWidgetParams params(L, 1);
-
-    auto obj = create();
-    obj->create(L, 1);
-
-    if (params.hasChildren) addChildren(L, obj);
-
-    obj->push(L);
-  } else {
-    lua_pushnil(L);
+    return createLvglObject(L, create(), 1, params.hasChildren, prevParent);
   }
 
+  lua_pushnil(L);
   return 1;
 }
 
 static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> create, bool fullscreenOnly = false)
 {
   if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
-    LvglWidgetObjectBase* p = nullptr;
-    LvglWidgetObjectBase* prevParent = nullptr;
+    auto prevParent = luaScriptManager->getTempParent();
+    LvglWidgetObjectBase* parent = nullptr;
     if (lua_gettop(L) == 2) {
-      p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
-      if (p) {
-        prevParent = luaScriptManager->getTempParent();
-        luaScriptManager->setTempParent(p);
-      }
+      parent = LvglWidgetObjectBase::checkLvgl(L, 1, true);
     }
 
     LvglWidgetParams params(L, -1);
-
-    auto obj = create();
-    obj->create(L, -1);
-
-    if (params.hasChildren) addChildren(L, obj);
-
-    obj->push(L);
-
-    if (p)
-      luaScriptManager->setTempParent((prevParent));
-  } else {
-    lua_pushnil(L);
+    if (parent) luaScriptManager->setTempParent(parent);
+    return createLvglObject(L, create(), -1, params.hasChildren, prevParent);
   }
 
+  lua_pushnil(L);
   return 1;
 }
 
@@ -471,25 +512,34 @@ Build a complex UI in a single operation from a table of object definitions.
 
 @status current Introduced in 2.11.0, named type constants added in 2.11.4
 */
+// Stack: params, optional parent
+static int protectedBuild(lua_State *L)
+{
+  auto parent =
+      static_cast<LvglWidgetObjectBase*>(lua_touserdata(L, 2));
+  if (parent) luaScriptManager->setTempParent(parent);
+  lua_newtable(L);
+  buildLvgl(L, 1, -1);
+  return 1;
+}
+
 static int luaLvglBuild(lua_State *L)
 {
   if (luaScriptManager) {
-    LvglWidgetObjectBase* p = nullptr;
-    LvglWidgetObjectBase* prevParent = nullptr;
+    luaL_checktype(L, -1, LUA_TTABLE);
+    auto prevParent = luaScriptManager->getTempParent();
+    LvglWidgetObjectBase* parent = nullptr;
     if (lua_gettop(L) == 2) {
-      p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
-      if (p) {
-        prevParent = luaScriptManager->getTempParent();
-        luaScriptManager->setTempParent(p);
-      }
+      parent = LvglWidgetObjectBase::checkLvgl(L, 1, true);
     }
 
     // Return array of lvgl object references
-    lua_newtable(L);
-    buildLvgl(L, -2, -1);
-
-    if (p)
-      luaScriptManager->setTempParent((prevParent));
+    lua_pushcfunction(L, protectedBuild);
+    lua_pushvalue(L, -2);
+    lua_pushlightuserdata(L, parent);
+    int status = lua_pcall(L, 2, 1, 0);
+    luaScriptManager->setTempParent(prevParent);
+    if (status != LUA_OK) return LvglWidgetObjectBase::rethrowError(L);
   } else {
     lua_pushnil(L);
   }

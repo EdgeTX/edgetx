@@ -21,6 +21,8 @@
 
 #include "lua_widget.h"
 
+#include <algorithm>
+
 #include "lua_api.h"
 #include "lua_event.h"
 #include "lua_widget_factory.h"
@@ -265,7 +267,10 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
   }
 
   onClosing([=]() {
-    luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
+    if (lsWidgets) {
+      clearRefs(lsWidgets);
+      luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
+    }
     if (errorMessage)
       free(errorMessage);
   });
@@ -583,24 +588,38 @@ void LuaScriptManager::saveLvglObjectRef(int ref)
     lvglObjectRefs.push_back(ref);
 }
 
+void LuaScriptManager::removeLvglObjectRef(int ref)
+{
+  lvglObjectRefs.erase(
+      std::remove(lvglObjectRefs.begin(), lvglObjectRefs.end(), ref),
+      lvglObjectRefs.end());
+}
+
 void LuaScriptManager::clearRefs(lua_State *L)
 {
-  for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
-    lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
-    auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
+  while (!lvglObjectRefs.empty()) {
+    int ref = lvglObjectRefs.back();
+    lvglObjectRefs.pop_back();
+    lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+    auto p = LvglWidgetObjectBase::getOwnedObject(L, -1);
     lua_pop(L, 1);
     if (p) p->clearRefs(L);
   }
-  lvglObjectRefs.clear();
 }
 
 bool LuaScriptManager::callRefs(lua_State *L)
 {
-  for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
-    lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
-    auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
+  for (size_t i = 0; i < lvglObjectRefs.size();) {
+    int ref = lvglObjectRefs[i];
+    luaL_checkstack(L, 3, "LVGL object callbacks");
+    lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+    auto p = LvglWidgetObjectBase::getOwnedObject(L, -1);
+    if (p && !p->callRefs(L)) {
+      lua_remove(L, -2);
+      return false;
+    }
     lua_pop(L, 1);
-    if (p) if (!p->callRefs(L)) return false;
+    if (i < lvglObjectRefs.size() && lvglObjectRefs[i] == ref) ++i;
   }
   return true;
 }
@@ -615,7 +634,8 @@ void LuaScriptManager::createTelemetryQueue()
 
 LuaScriptManager::~LuaScriptManager()
 {
-  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
+  if (lsWidgets)
+    luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
   if (luaInputTelemetryFifo != nullptr) {
     destroyTelemetryQueue(luaInputTelemetryFifo);
     luaInputTelemetryFifo = nullptr;

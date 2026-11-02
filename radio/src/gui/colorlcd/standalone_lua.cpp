@@ -182,6 +182,7 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
 
     luaL_unref(lsStandalone, LUA_REGISTRYINDEX, initFunction);
     luaL_unref(lsStandalone, LUA_REGISTRYINDEX, runFunction);
+    clearRefs(lsStandalone);
     luaLcdBuffer = nullptr;
 
     luaClose(&lsStandalone);

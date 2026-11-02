@@ -70,11 +70,15 @@ class LuaScriptManager : public LuaEventHandler
 
   std::vector<int> getLvglObjectRefs() const { return lvglObjectRefs; }
   void saveLvglObjectRef(int ref);
+  void removeLvglObjectRef(int ref);
   void clearRefs(lua_State *L);
   bool callRefs(lua_State *L);
 
   void setTempParent(LvglWidgetObjectBase *p) { tempParent = p; }
   LvglWidgetObjectBase* getTempParent() const { return tempParent; }
+  bool inCallback() const { return callbackDepth != 0; }
+  void beginCallback() { ++callbackDepth; }
+  void endCallback() { --callbackDepth; }
 
   int getContext() const { return luaScriptContextRef; }
 
@@ -97,6 +101,7 @@ class LuaScriptManager : public LuaEventHandler
   int luaScriptContextRef = LUA_REFNIL;
   std::vector<int> lvglObjectRefs;
   LvglWidgetObjectBase* tempParent = nullptr;
+  unsigned callbackDepth = 0;
 #if defined(LUA)
   TelemetryQueue* luaInputTelemetryFifo = nullptr;
 #endif
