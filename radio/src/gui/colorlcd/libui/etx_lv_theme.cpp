@@ -430,7 +430,7 @@ void etx_solid_bg(lv_obj_t* obj, LcdColorIndex bg_color,
 void etx_font(lv_obj_t* obj, FontIndex fontIdx, lv_style_selector_t selector)
 {
   // Remove old style first
-  for (int i = 0; i < TOTAL_COLOR_COUNT; i += 1)
+  for (int i = 0; i < FONTS_COUNT; i += 1)
     lv_obj_remove_style(obj, &styles->font[i], selector);
   etx_obj_add_style(obj, styles->font[fontIdx], selector);
 }
