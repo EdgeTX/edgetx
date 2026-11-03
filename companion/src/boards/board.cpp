@@ -1864,7 +1864,7 @@ void Board::loadTrainer(QJsonObject::const_iterator & oit)
 {
   //JSON_ITER_VAL(oit);
   JSON_OBJ_INIT_R(oit, o);
-  m_hardware.trainer_jack_crossover = Json::valueBool(o, "trainer_jack_crossover", m_hardware.trainer_jack_crossover);
+  m_hardware.trainer_jack_crossover = Json::valueBool(o, "trainer_jack_crossover", m_hardware.trainer_jack_crossover, false);
 }
 
 void Board::loadTrims(QJsonObject::const_iterator & oit)
