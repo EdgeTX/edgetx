@@ -124,6 +124,8 @@ Update the settings of an existing LVGL object. Can also be used to change setti
 
 @retval none
 
+@notice For properties that accept a literal or a function, setting a literal replaces the previous function. Subsequent refreshes no longer call it.
+
 @status current Introduced in 2.11.0
 */
 static int luaLvglSet(lua_State *L)
