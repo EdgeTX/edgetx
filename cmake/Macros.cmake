@@ -171,8 +171,11 @@ function(CollectCommandLineArgs out_var)
       continue()
     endif()
     get_property(_help CACHE ${_var} PROPERTY HELPSTRING)
-    if(_help STREQUAL "No help, variable specified on the command line.")
-      get_property(_type CACHE ${_var} PROPERTY TYPE)
+    get_property(_type CACHE ${_var} PROPERTY TYPE)
+    # Untyped -D values are UNINITIALIZED. Check that as well as the help string,
+    # because CMake gives some built-in variables (e.g. CMAKE_PREFIX_PATH) their
+    # own help string even when they are set on the command line.
+    if(_help STREQUAL "No help, variable specified on the command line." OR _type STREQUAL "UNINITIALIZED")
       if(_type STREQUAL "UNINITIALIZED")
         set(_type)
       else()
