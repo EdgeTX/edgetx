@@ -29,7 +29,7 @@
 #include "dataconstants.h"
 
 #include "hal.h"
-#include "edgetx.h"
+#include "myeeprom.h"
 
 __WEAK void board_trainer_init()
 {
