@@ -75,9 +75,11 @@ void LvglParamFuncOrValue::parse(lua_State *L)
 {
   if (lua_isfunction(L, -1)) {
     function = ::getRef(L, LUA_REGISTRYINDEX);
+  } else if (lua_isboolean(L, -1)) {
+    value = lua_toboolean(L, -1);
+    clearRef(L);
   } else {
-    value = lua_isboolean(L, -1) ? lua_toboolean(L, -1)
-                                : luaL_checkunsigned(L, -1);
+    value = luaL_checkunsigned(L, -1);
     clearRef(L);
   }
 }
