@@ -353,14 +353,12 @@ uint8_t statusLedPhaseColor(uint8_t phase);
 bool statusLedColorAvailable(int color);
 #endif
 
-uint16_t isqrt32(uint32_t n);
+#include "maths.h"
 
 void setDefaultOwnerId();
 void generalDefault();
 void generalDefaultSwitches();
 void generalDefaultUILanguage();
-
-uint32_t hash(const void * ptr, uint32_t size);
 
 #define calc100to256_16Bits(x) calc100to256(x)
 #define calc100toRESX_16Bits(x) calc100toRESX(x)
