@@ -402,46 +402,53 @@ static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
   }
 }
 
-template <typename Build>
-static int luaLvglProtected(lua_State *L, Build build)
+using LuaLvglOperation = std::function<int(lua_State*)>;
+
+static int luaLvglInvokeOperation(lua_State *L)
 {
-  if (!luaScriptManager) return build(L);
+  auto operation = static_cast<LuaLvglOperation*>(
+      lua_touserdata(L, lua_upvalueindex(1)));
+  return (*operation)(L);
+}
+
+static int luaLvglConstructionError(lua_State *L)
+{
+  lua_Debug frame;
+  if (lua_getstack(L, 1, &frame) && lua_getinfo(L, "f", &frame)) {
+    bool directError = lua_tocfunction(L, -1) == luaLvglInvokeOperation;
+    lua_pop(L, 1);
+    if (directError && lua_type(L, 1) == LUA_TSTRING) {
+      // The protected C frame hides the script caller from luaL_error.
+      luaL_where(L, 3);
+      lua_pushvalue(L, 1);
+      lua_concat(L, 2);
+      return 1;
+    }
+  }
+  lua_pushvalue(L, 1);
+  return 1;
+}
+
+static int luaLvglProtected(lua_State *L, LuaLvglOperation operation)
+{
+  if (!luaScriptManager) return operation(L);
 
   auto manager = luaScriptManager;
   auto prevParent = manager->getTempParent();
   int nargs = lua_gettop(L);
-  lua_CFunction invoke = [](lua_State *L) {
-    auto build = static_cast<Build*>(lua_touserdata(L, lua_upvalueindex(1)));
-    return (*build)(L);
-  };
+  constexpr int errorHandlerIndex = 1;
+  constexpr int operationIndex = 2;
 
-  lua_pushcfunction(L, invoke);
-  lua_pushcclosure(L, [](lua_State *L) {
-    lua_Debug frame;
-    if (lua_getstack(L, 1, &frame) && lua_getinfo(L, "f", &frame)) {
-      bool directError = lua_tocfunction(L, -1) ==
-                         lua_tocfunction(L, lua_upvalueindex(1));
-      lua_pop(L, 1);
-      if (directError && lua_type(L, 1) == LUA_TSTRING) {
-        // The protected C frame hides the script caller from luaL_error.
-        luaL_where(L, 3);
-        lua_pushvalue(L, 1);
-        lua_concat(L, 2);
-        return 1;
-      }
-    }
-    lua_pushvalue(L, 1);
-    return 1;
-  }, 1);
-  lua_insert(L, 1);
-  lua_pushlightuserdata(L, &build);
-  lua_pushcclosure(L, invoke, 1);
-  lua_insert(L, 2);
+  lua_pushcfunction(L, luaLvglConstructionError);
+  lua_insert(L, errorHandlerIndex);
+  lua_pushlightuserdata(L, &operation);
+  lua_pushcclosure(L, luaLvglInvokeOperation, 1);
+  lua_insert(L, operationIndex);
 
-  int status = lua_pcall(L, nargs, LUA_MULTRET, 1);
+  int status = lua_pcall(L, nargs, LUA_MULTRET, errorHandlerIndex);
   // Lua errors longjmp past the normal parent restoration, including children.
   manager->setTempParent(prevParent);
-  lua_remove(L, 1);
+  lua_remove(L, errorHandlerIndex);
   if (status != LUA_OK) return lua_error(L);
   return lua_gettop(L);
 }

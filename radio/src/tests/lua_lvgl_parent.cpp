@@ -194,6 +194,28 @@ TEST_F(LuaLvglParent, MissingManagerKeepsNilReturn)
   EXPECT_EQ(lv_obj_get_child_cnt(rootObject()), 0u);
 }
 
+static void raiseConstructionErrorObject(lua_State* L, lua_Debug* frame)
+{
+  lua_getinfo(L, "Su", frame);
+  if (!strcmp(frame->what, "C") && frame->nups == 1) {
+    // Interrupt the protected invocation, not the public entry point.
+    lua_sethook(L, nullptr, 0, 0);
+    lua_getglobal(L, "constructionError");
+    lua_error(L);
+  }
+}
+
+TEST_F(LuaLvglParent, NonStringErrorKeepsIdentity)
+{
+  run("constructionError = {}\n");
+  lua_sethook(L, raiseConstructionErrorObject, LUA_MASKCALL, 0);
+  run("local ok, err = pcall(function() lvgl.label({text='unused'}) end)\n"
+      "assert(not ok and rawequal(err, constructionError))\n");
+  lua_sethook(L, nullptr, 0, 0);
+  EXPECT_EQ(manager.getTempParent(), nullptr);
+  EXPECT_EQ(lv_obj_get_child_cnt(rootObject()), 0u);
+}
+
 TEST_F(LuaLvglParent, StandaloneReproducer)
 {
   std::ifstream file(TESTS_PATH "/lua_lvgl_parent.lua");
