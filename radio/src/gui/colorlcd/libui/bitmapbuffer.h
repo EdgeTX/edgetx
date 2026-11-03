@@ -116,7 +116,11 @@ class BitmapBuffer
   static BitmapBuffer* loadBitmap(const char* filename,
                                   BitmapFormats fmt = BMP_INVALID);
 
-  void resizeToLVGL(coord_t w, coord_t h);
+  // Scale to fit the frame, keeping RGB565 or converting ARGB4444 to LVGL alpha.
+  // Returns false, leaving the bitmap unchanged, for invalid geometry or OOM.
+  // Scaled dimensions must fit LVGL's 11-bit image descriptor.
+  static constexpr coord_t MAX_LVGL_IMAGE_DIMENSION = (1 << 11) - 1;
+  bool resizeToLVGL(coord_t w, coord_t h);
 
   coord_t drawSizedText(coord_t x, coord_t y, const char* s, uint8_t len,
                         LcdFlags flags = 0);
@@ -143,6 +147,7 @@ class BitmapBuffer
 
   inline uint16_t width() const { return _width; }
   inline uint16_t height() const { return _height; }
+  inline uint8_t getFormat() const { return format; }
 
   inline pixel_t* getData() const { return data; }
 
@@ -150,6 +155,7 @@ class BitmapBuffer
 
 #if !defined(BOOT)
   lv_obj_t* addCanvas(Window* parent, lv_img_cf_t fmt = LV_IMG_CF_TRUE_COLOR);
+  lv_obj_t* getCanvas() const { return canvas; }
   void removeCanvas();
 #endif
 

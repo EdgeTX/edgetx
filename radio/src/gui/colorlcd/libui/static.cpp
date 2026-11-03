@@ -273,12 +273,12 @@ void StaticImage::setZoom()
 // Display image from file system with software scaling
 //  - uglier but much faster than LVGL scaling
 StaticBitmap::StaticBitmap(Window* parent, const rect_t& rect,
-                           const char* filename) :
+                           const char* filename, BitmapFormats fmt) :
     Window(parent, rect)
 {
   setWindowFlag(NO_FOCUS | NO_CLICK);
 
-  setSource(filename);
+  setSource(filename, fmt);
 
   onClosing([=]() {
     if (img) delete img;
@@ -286,16 +286,26 @@ StaticBitmap::StaticBitmap(Window* parent, const rect_t& rect,
   });
 }
 
-void StaticBitmap::setSource(const char *filename)
+void StaticBitmap::setSource(const char *filename, BitmapFormats fmt)
 {
-  if (filename) {
-    clearSource();
-    img = BitmapBuffer::loadBitmap(filename, BMP_ARGB4444);
-    if (img) {
-      img->resizeToLVGL(width(), height());
-      img->addCanvas(this, LV_IMG_CF_TRUE_COLOR_ALPHA);
-    }
+  if (!filename) return;
+
+  clearSource();
+  img = BitmapBuffer::loadBitmap(filename, fmt);
+  if (!img) return;
+
+  if (!img->resizeToLVGL(width(), height())) {
+    TRACE_ERROR("StaticBitmap: unable to scale '%s' to %d x %d\n",
+                filename, width(), height());
+    delete img;
+    img = nullptr;
+    return;
   }
+  auto canvas = img->addCanvas(this, img->getFormat() == BMP_RGB565
+                                         ? LV_IMG_CF_TRUE_COLOR
+                                         : LV_IMG_CF_TRUE_COLOR_ALPHA);
+  // Keep the image behind any child objects
+  lv_obj_move_background(canvas);
 }
 
 void StaticBitmap::clearSource()
@@ -310,6 +320,19 @@ void StaticBitmap::clearSource()
 bool StaticBitmap::hasImage() const
 {
   return img;
+}
+
+void StaticBitmap::clear()
+{
+  deleteChildren();
+  // Also delete plain LVGL children, but keep the image canvas
+  lv_obj_t* canvas = img ? img->getCanvas() : nullptr;
+  for (int i = lvobj ? (int)lv_obj_get_child_cnt(lvobj) - 1 : -1; i >= 0;
+       i -= 1) {
+    auto child = lv_obj_get_child(lvobj, i);
+    if (child != canvas) lv_obj_del(child);
+  }
+  invalidate();
 }
 
 //-----------------------------------------------------------------------------

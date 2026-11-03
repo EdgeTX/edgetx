@@ -23,6 +23,8 @@
 #include "edgetx_helpers.h"
 #include "debug.h"
 
+#include <limits>
+
 FIL imgFile __DMA;
 
 // #define TRACE_STB_MALLOC
@@ -95,6 +97,15 @@ int stbc_eof(void *user)
 // callbacks for stb-image
 const stbi_io_callbacks stbCallbacks = {stbc_read, stbc_skip, stbc_eof};
 
+static bool validBitmapDimensions(int w, int h)
+{
+  return w > 0 && h > 0 &&
+         w <= std::numeric_limits<uint16_t>::max() &&
+         h <= std::numeric_limits<uint16_t>::max() &&
+         (size_t)w <=
+             (std::numeric_limits<unsigned>::max() - 3u) / sizeof(pixel_t) / h;
+}
+
 BitmapBuffer *BitmapBuffer::loadBitmap(const char *filename, BitmapFormats fmt)
 {
   if ((filename == nullptr) || (filename[0] == 0)) return nullptr;
@@ -104,8 +115,14 @@ BitmapBuffer *BitmapBuffer::loadBitmap(const char *filename, BitmapFormats fmt)
     return nullptr;
   }
 
-  int x, y, nn;
-  stbi_info_from_callbacks(&stbCallbacks, &imgFile, &x, &y, &nn);
+  int x = 0, y = 0, nn;
+  if (!stbi_info_from_callbacks(&stbCallbacks, &imgFile, &x, &y, &nn) ||
+      !validBitmapDimensions(x, y)) {
+    f_close(&imgFile);
+    TRACE_ERROR("loadBitmap(%s): invalid image dimensions %d x %d\n",
+                filename, x, y);
+    return nullptr;
+  }
   f_lseek(&imgFile, 0);
 
   int w, h, n;
@@ -117,11 +134,17 @@ BitmapBuffer *BitmapBuffer::loadBitmap(const char *filename, BitmapFormats fmt)
     TRACE_ERROR("loadBitmap(%s) failed: %s\n", filename, stbi_failure_reason());
     return nullptr;
   }
+  if (!validBitmapDimensions(w, h)) {
+    stbi_image_free(img);
+    TRACE_ERROR("loadBitmap(%s): invalid decoded dimensions %d x %d\n",
+                filename, w, h);
+    return nullptr;
+  }
 
   // convert to RGB565 or ARGB4444 format
   BitmapFormats dst_fmt = fmt;
   if (dst_fmt == BMP_INVALID) {
-    dst_fmt = (n == 4 ? BMP_ARGB4444 : BMP_RGB565);
+    dst_fmt = (n == 2 || n == 4) ? BMP_ARGB4444 : BMP_RGB565;
   }
 
   BitmapBuffer *bmp = new BitmapBuffer(dst_fmt, w, h);
