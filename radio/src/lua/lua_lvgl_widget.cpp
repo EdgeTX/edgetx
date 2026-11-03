@@ -661,9 +661,11 @@ void LvglWidgetObjectBase::parseParam(lua_State *L, const char *key)
   }
 }
 
-void LvglWidgetObjectBase::clear()
+void LvglWidgetObjectBase::clear(lua_State *L)
 {
   clearRequest = true;
+  // Invalidate only the children that exist at the time of the clear.
+  clearChildRefs(L);
   if (getWindow())
     getWindow()->clear();
 }
@@ -672,7 +674,6 @@ bool LvglWidgetObjectBase::callRefs(lua_State *L)
 {
   if (clearRequest) {
     clearRequest = false;
-    clearChildRefs(L);
     return true;
   }
 
@@ -700,7 +701,6 @@ bool LvglWidgetObjectBase::callRefs(lua_State *L)
       if (p) if (!p->callRefs(L)) return false;
       if (clearRequest) {
         clearRequest = false;
-        clearChildRefs(L);
         return true;
       }
     }
@@ -2704,10 +2704,10 @@ void LvglWidgetDialog::build(lua_State *L)
   setFlex();
 }
 
-void LvglWidgetDialog::close()
+void LvglWidgetDialog::close(lua_State *L)
 {
   dialog->onCancel();
-  clear();
+  clear(L);
 }
 
 //-----------------------------------------------------------------------------

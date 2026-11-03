@@ -146,6 +146,7 @@ Delete LVGL objects.
 
 @notice If `parent` is not set, the entire script UI is deleted -- use this when the UI changes dramatically (e.g. widget size changes).
 @notice If `parent` is set, only its child LVGL objects are deleted -- use this to remove and replace a specific set of objects.
+@notice Handles to deleted children become invalid immediately. The parent remains valid, and replacement children can be created before the next refresh.
 @notice Do not call from inside a callback (e.g. `set`, `edited`, `press`). Callbacks can run while EdgeTX is still processing a touch or focus change, and deleting objects at that point can crash the radio. Update the script's state in the callback, then clear and rebuild the UI from `run()` (One-Time scripts) or `update()` (widgets).
 
 @status current Introduced in 2.11.0
@@ -156,7 +157,7 @@ static int luaLvglClear(lua_State *L)
     if (lua_gettop(L) == 1) {
       auto p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
       if (p) {
-        p->clear();
+        p->clear(L);
       }
     } else {
       luaScriptManager->clear();
@@ -265,7 +266,7 @@ static int luaLvglClose(lua_State *L)
 {
   auto p = LvglWidgetObjectBase::checkLvgl(L, 1, true);
   if (p) {
-    p->close();
+    p->close(L);
   }
   return 0;
 }
