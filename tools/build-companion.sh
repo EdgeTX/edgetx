@@ -60,7 +60,8 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-rm -rf build && mkdir build && cd build || exit
+BUILD_ROOT="${BUILD_ROOT:-build}"
+rm -rf "${BUILD_ROOT}" && mkdir -p "${BUILD_ROOT}" && cd "${BUILD_ROOT}" || exit
 
 get_platform_config() {
     local platform
@@ -105,15 +106,16 @@ clean_build() {
 
 clean_build && mkdir -p native/plugins
 
-# Copy WASM simulator modules if available
-if [[ -d "${SRCDIR}/wasm-modules" ]]; then
-  cp "${SRCDIR}"/wasm-modules/*.wasm native/plugins/ 2>/dev/null && \
+# Copy WASM simulator modules if available (WASM_DIR overrides the default location)
+WASM_DIR="${WASM_DIR:-${SRCDIR}/wasm-modules}"
+if [[ -d "${WASM_DIR}" ]]; then
+  cp "${WASM_DIR}"/*.wasm native/plugins/ 2>/dev/null && \
     echo "    🔌 Copied WASM modules to plugins/" || true
 fi
 
 error_status=0
 
-if ! cmake -B native -S "${SRCDIR}" --toolchain cmake/toolchain/native.cmake ${BUILD_OPTIONS} >> "$LOG_FILE" 2>&1; then
+if ! cmake -B native -S "${SRCDIR}" --toolchain "${SRCDIR}/cmake/toolchain/native.cmake" ${BUILD_OPTIONS} >> "$LOG_FILE" 2>&1; then
     echo "    ❌ CMake configuration failed"
     cat "$LOG_FILE"
     error_status=1
