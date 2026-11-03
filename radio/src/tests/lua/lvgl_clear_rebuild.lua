@@ -24,4 +24,4 @@ local function run(event)
   return 0
 end
 
-return {init=init, run=run}
+return {init=init, run=run, useLvgl=true}

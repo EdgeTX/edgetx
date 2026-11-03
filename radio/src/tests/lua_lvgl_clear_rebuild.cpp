@@ -106,6 +106,7 @@ TEST_F(LuaLvglClearRebuild, StandaloneReproducer)
   ASSERT_EQ(LUA_OK, lua_pcall(lsWidgets, 0, 1, 0));
   lua_setglobal(lsWidgets, "script");
 
+  ASSERT_TRUE(exec("assert(script.useLvgl == true)"));
   ASSERT_TRUE(exec("script.init(); assert(script.run(0) == 0)"));
   ASSERT_TRUE(manager->callRefs(lsWidgets));
   ASSERT_TRUE(exec("assert(script.run(0) == 1)"));
