@@ -402,7 +402,51 @@ static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
   }
 }
 
-static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly = false)
+template <typename Build>
+static int luaLvglProtected(lua_State *L, Build build)
+{
+  if (!luaScriptManager) return build(L);
+
+  auto manager = luaScriptManager;
+  auto prevParent = manager->getTempParent();
+  int nargs = lua_gettop(L);
+  lua_CFunction invoke = [](lua_State *L) {
+    auto build = static_cast<Build*>(lua_touserdata(L, lua_upvalueindex(1)));
+    return (*build)(L);
+  };
+
+  lua_pushcfunction(L, invoke);
+  lua_pushcclosure(L, [](lua_State *L) {
+    lua_Debug frame;
+    if (lua_getstack(L, 1, &frame) && lua_getinfo(L, "f", &frame)) {
+      bool directError = lua_tocfunction(L, -1) ==
+                         lua_tocfunction(L, lua_upvalueindex(1));
+      lua_pop(L, 1);
+      if (directError && lua_type(L, 1) == LUA_TSTRING) {
+        // The protected C frame hides the script caller from luaL_error.
+        luaL_where(L, 3);
+        lua_pushvalue(L, 1);
+        lua_concat(L, 2);
+        return 1;
+      }
+    }
+    lua_pushvalue(L, 1);
+    return 1;
+  }, 1);
+  lua_insert(L, 1);
+  lua_pushlightuserdata(L, &build);
+  lua_pushcclosure(L, invoke, 1);
+  lua_insert(L, 2);
+
+  int status = lua_pcall(L, nargs, LUA_MULTRET, 1);
+  // Lua errors longjmp past the normal parent restoration, including children.
+  manager->setTempParent(prevParent);
+  lua_remove(L, 1);
+  if (status != LUA_OK) return lua_error(L);
+  return lua_gettop(L);
+}
+
+static int luaLvglObjImpl(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly)
 {
   if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
     LvglWidgetParams params(L, 1);
@@ -420,7 +464,14 @@ static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, b
   return 1;
 }
 
-static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> create, bool fullscreenOnly = false)
+static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly = false)
+{
+  return luaLvglProtected(L, [&](lua_State *L) {
+    return luaLvglObjImpl(L, create, fullscreenOnly);
+  });
+}
+
+static int luaLvglObjExImpl(lua_State *L, std::function<LvglWidgetObjectBase*()> create, bool fullscreenOnly)
 {
   if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
     LvglWidgetObjectBase* p = nullptr;
@@ -451,6 +502,13 @@ static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
   return 1;
 }
 
+static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> create, bool fullscreenOnly = false)
+{
+  return luaLvglProtected(L, [&](lua_State *L) {
+    return luaLvglObjExImpl(L, create, fullscreenOnly);
+  });
+}
+
 /*luadoc
 @function lvgl.build([parent, ]params)
 
@@ -471,7 +529,7 @@ Build a complex UI in a single operation from a table of object definitions.
 
 @status current Introduced in 2.11.0, named type constants added in 2.11.4
 */
-static int luaLvglBuild(lua_State *L)
+static int luaLvglBuildImpl(lua_State *L)
 {
   if (luaScriptManager) {
     LvglWidgetObjectBase* p = nullptr;
@@ -494,6 +552,11 @@ static int luaLvglBuild(lua_State *L)
     lua_pushnil(L);
   }
   return 1;
+}
+
+static int luaLvglBuild(lua_State *L)
+{
+  return luaLvglProtected(L, luaLvglBuildImpl);
 }
 
 /*luadoc
