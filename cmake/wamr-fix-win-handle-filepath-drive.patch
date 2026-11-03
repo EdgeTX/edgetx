@@ -1,0 +1,37 @@
+diff --git a/core/shared/platform/windows/win_file.c b/core/shared/platform/windows/win_file.c
+index 55ea77a..0071c0c 100644
+--- a/core/shared/platform/windows/win_file.c
++++ b/core/shared/platform/windows/win_file.c
+@@ -135,16 +135,29 @@ convert_to_wchar(const char *str, wchar_t *buf, size_t buf_size)
+ static __wasi_errno_t
+ get_handle_filepath(HANDLE handle, wchar_t *buf, DWORD buf_size)
+ {
+-    DWORD bufsize_in_chars = buf_size * (sizeof(wchar_t) / sizeof(char));
++    // VOLUME_NAME_DOS keeps the drive letter. VOLUME_NAME_NONE returns a
++    // drive-less path (no drive letter) that Win32 resolves against the process's
++    // current drive, breaking any preopen that is not on that drive.
++    // buf_size is already in wchars.
+     DWORD size = GetFinalPathNameByHandleW(
+-        handle, buf, bufsize_in_chars, FILE_NAME_NORMALIZED | VOLUME_NAME_NONE);
++        handle, buf, buf_size, FILE_NAME_NORMALIZED | VOLUME_NAME_DOS);
+ 
+-    if (size > bufsize_in_chars)
++    if (size >= buf_size)
+         return __WASI_ENAMETOOLONG;
+ 
+     if (size == 0)
+         return convert_windows_error_code(GetLastError());
+ 
++    // Strip the extended-length prefix: callers combine this with WASI relative paths
++    // using '/' separators, which Win32 only normalises on non-prefixed paths.
++    if (size >= 8 && wcsncmp(buf, L"\\\\?\\UNC\\", 8) == 0) {
++        // extended UNC form -> plain UNC server/share form
++        memmove(buf + 2, buf + 8, (size - 8 + 1) * sizeof(wchar_t));
++    }
++    else if (size >= 4 && wcsncmp(buf, L"\\\\?\\", 4) == 0) {
++        memmove(buf, buf + 4, (size - 4 + 1) * sizeof(wchar_t));
++    }
++
+     return __WASI_ESUCCESS;
+ }
+ 

@@ -31,26 +31,35 @@ FetchContent_GetProperties(wamr)
 if(NOT wamr_POPULATED)
   FetchContent_Populate(wamr)
 
-  # WAMR 2.4.4 win_file.c has trailing backslashes in comments that
-  # clang treats as line continuations, causing compile errors.
-  # Skip if a previous configure already patched the cached source.
-  set(_wamr_patch "${CMAKE_CURRENT_LIST_DIR}/wamr-fix-win-backslash-comments.patch")
-  execute_process(
-    COMMAND git apply --reverse --check "${_wamr_patch}"
-    WORKING_DIRECTORY "${wamr_SOURCE_DIR}"
-    RESULT_VARIABLE _patch_applied
-    OUTPUT_QUIET ERROR_QUIET
-  )
-  if(NOT _patch_applied EQUAL 0)
+  # Local fixes for WAMR 2.4.4 win_file.c:
+  #  - backslash-comments: trailing backslashes in comments that clang treats
+  #    as line continuations, causing compile errors.
+  #  - handle-filepath-drive: paths were rebuilt without the drive letter, so
+  #    any WASI preopen (e.g. the SD card folder) not on the process's current
+  #    drive was unreachable.
+  # Each patch is skipped if a previous configure already applied it to the
+  # cached source.
+  foreach(_wamr_patch_name
+      wamr-fix-win-backslash-comments.patch
+      wamr-fix-win-handle-filepath-drive.patch)
+    set(_wamr_patch "${CMAKE_CURRENT_LIST_DIR}/${_wamr_patch_name}")
     execute_process(
-      COMMAND git apply "${_wamr_patch}"
+      COMMAND git apply --reverse --check "${_wamr_patch}"
       WORKING_DIRECTORY "${wamr_SOURCE_DIR}"
-      RESULT_VARIABLE _patch_result
+      RESULT_VARIABLE _patch_applied
+      OUTPUT_QUIET ERROR_QUIET
     )
-    if(_patch_result)
-      message(WARNING "WAMR win_file.c patch failed")
+    if(NOT _patch_applied EQUAL 0)
+      execute_process(
+        COMMAND git apply "${_wamr_patch}"
+        WORKING_DIRECTORY "${wamr_SOURCE_DIR}"
+        RESULT_VARIABLE _patch_result
+      )
+      if(_patch_result)
+        message(WARNING "WAMR patch ${_wamr_patch_name} failed")
+      endif()
     endif()
-  endif()
+  endforeach()
 
   add_subdirectory("${wamr_SOURCE_DIR}" "${wamr_BINARY_DIR}" EXCLUDE_FROM_ALL)
 
