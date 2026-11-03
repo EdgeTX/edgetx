@@ -105,6 +105,7 @@ if(EdgeTX_SUPERBUILD)
 
   add_custom_target(wasi-module
     COMMAND ${CMAKE_COMMAND}
+      -G ${CMAKE_GENERATOR}
       -S ${CMAKE_SOURCE_DIR}/cmake/wasm
       -B ${CMAKE_BINARY_DIR}/wasm
       -DEDGETX_SOURCE_DIR=${CMAKE_SOURCE_DIR}
