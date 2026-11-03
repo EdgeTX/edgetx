@@ -265,6 +265,7 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
   }
 
   onClosing([=]() {
+    clearLvglPopups(lsWidgets);
     luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
     if (errorMessage)
       free(errorMessage);
@@ -585,6 +586,7 @@ void LuaScriptManager::saveLvglObjectRef(int ref)
 
 void LuaScriptManager::clearRefs(lua_State *L)
 {
+  clearLvglPopups(L);
   for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
     auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
@@ -596,6 +598,16 @@ void LuaScriptManager::clearRefs(lua_State *L)
 
 bool LuaScriptManager::callRefs(lua_State *L)
 {
+  for (auto it = lvglPopups.begin(); it != lvglPopups.end();) {
+    if (it->closed) {
+      it->object->clearRefs(L);
+      delete it->object;
+      it = lvglPopups.erase(it);
+    } else {
+      ++it;
+    }
+  }
+
   for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
     auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
@@ -603,6 +615,26 @@ bool LuaScriptManager::callRefs(lua_State *L)
     if (p) if (!p->callRefs(L)) return false;
   }
   return true;
+}
+
+void LuaScriptManager::saveLvglPopup(LvglWidgetObjectBase* object)
+{
+  lvglPopups.push_back({object});
+  auto popup = &lvglPopups.back();
+  // Only mark closure here: ConfirmDialog invokes its callback after closing.
+  object->getWindow()->onClosing([popup]() { popup->closed = true; });
+}
+
+void LuaScriptManager::clearLvglPopups(lua_State* L)
+{
+  for (auto it = lvglPopups.rbegin(); it != lvglPopups.rend(); ++it) {
+    auto& popup = *it;
+    if (!popup.closed)
+      popup.object->getWindow()->closeWindow();
+    popup.object->clearRefs(L);
+    delete popup.object;
+  }
+  lvglPopups.clear();
 }
 
 void LuaScriptManager::createTelemetryQueue()

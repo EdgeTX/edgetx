@@ -100,6 +100,7 @@ static int luaLvglPopup(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
 {
   auto obj = create();
   obj->create(L, 1);
+  luaScriptManager->saveLvglPopup(obj);
   return 0;
 }
 
