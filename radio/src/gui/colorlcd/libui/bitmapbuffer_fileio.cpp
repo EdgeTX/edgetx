@@ -158,6 +158,9 @@ BitmapBuffer *BitmapBuffer::loadBitmap(const char *filename, BitmapFormats fmt)
 
 //-----------------------------------------------------------------------------
 
+// LVGL image descriptors store each dimension in 11 bits.
+static constexpr int MAX_LVGL_IMAGE_DIMENSION = (1 << 11) - 1;
+
 static lv_res_t decoder_info(struct _lv_img_decoder_t *decoder, const void *src,
                              lv_img_header_t *header)
 {
@@ -181,8 +184,8 @@ static lv_res_t decoder_info(struct _lv_img_decoder_t *decoder, const void *src,
         return LV_RES_INV;
       }
       if (x <= 0 || y <= 0 ||
-          x > BitmapBuffer::MAX_LVGL_IMAGE_DIMENSION ||
-          y > BitmapBuffer::MAX_LVGL_IMAGE_DIMENSION) {
+          x > MAX_LVGL_IMAGE_DIMENSION ||
+          y > MAX_LVGL_IMAGE_DIMENSION) {
         TRACE_ERROR("decoder_info(%s): image dimensions %d x %d do not fit\n",
                     fn, x, y);
         return LV_RES_INV;
@@ -265,8 +268,8 @@ static lv_res_t decoder_open(lv_img_decoder_t *decoder,
         return LV_RES_INV;
       }
       if (w <= 0 || h <= 0 ||
-          w > BitmapBuffer::MAX_LVGL_IMAGE_DIMENSION ||
-          h > BitmapBuffer::MAX_LVGL_IMAGE_DIMENSION) {
+          w > MAX_LVGL_IMAGE_DIMENSION ||
+          h > MAX_LVGL_IMAGE_DIMENSION) {
         stbi_image_free(img);
         TRACE_ERROR("decoder_open(%s): decoded dimensions %d x %d do not fit\n",
                     fn, w, h);

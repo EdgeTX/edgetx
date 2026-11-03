@@ -18,6 +18,7 @@
 
 #include "bitmapbuffer.h"
 
+#include <limits>
 #include <math.h>
 #include <string>
 

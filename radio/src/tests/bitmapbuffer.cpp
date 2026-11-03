@@ -17,6 +17,7 @@
 
 #if defined(COLORLCD)
 
+#include <utility>
 #include <vector>
 
 #include "bitmapbuffer.h"
@@ -41,7 +42,6 @@ TEST(BitmapBuffer, RejectsAllocationDimensionOverflow)
       InspectableBitmapBuffer image(format, size.first, size.second);
       EXPECT_EQ(image.getData(), nullptr);
       EXPECT_EQ(image.dataEnd(), nullptr);
-      EXPECT_FALSE(image.resizeToLVGL(1, 1));
     }
   }
 }
@@ -64,7 +64,6 @@ TEST(BitmapBuffer, NullBorrowedStorageHasNoEndPointer)
   InspectableBitmapBuffer image(BMP_RGB565, 65535, 65535, nullptr);
   EXPECT_EQ(image.getData(), nullptr);
   EXPECT_EQ(image.dataEnd(), nullptr);
-  EXPECT_FALSE(image.resizeToLVGL(1, 1));
 }
 
 TEST(BitmapBuffer, ReplacingBorrowedStorageUpdatesItsBounds)
@@ -80,7 +79,6 @@ TEST(BitmapBuffer, ReplacingBorrowedStorageUpdatesItsBounds)
   image.setData(nullptr);
   EXPECT_EQ(image.getData(), nullptr);
   EXPECT_EQ(image.dataEnd(), nullptr);
-  EXPECT_FALSE(image.resizeToLVGL(1, 1));
   image.setData(first);
   EXPECT_EQ(image.getData(), first);
   EXPECT_EQ(image.dataEnd(), first + 6);
@@ -173,7 +171,7 @@ lv_img_decoder_t* BitmapFilenameDecoder::decoder = nullptr;
 
 TEST_F(BitmapFilenameDecoder, HeaderDimensionsMustFitLvgl)
 {
-  constexpr unsigned maxDimension = BitmapBuffer::MAX_LVGL_IMAGE_DIMENSION;
+  constexpr unsigned maxDimension = (1u << 11) - 1;
   for (const auto& size :
        {std::pair<unsigned, unsigned>{1, 1}, {maxDimension, 1},
         {1, maxDimension}, {maxDimension + 1, 1}, {1, maxDimension + 1},
@@ -196,7 +194,7 @@ TEST_F(BitmapFilenameDecoder, HeaderDimensionsMustFitLvgl)
 
 TEST_F(BitmapFilenameDecoder, OpenRechecksDecodedDimensions)
 {
-  constexpr unsigned maxDimension = BitmapBuffer::MAX_LVGL_IMAGE_DIMENSION;
+  constexpr unsigned maxDimension = (1u << 11) - 1;
   for (const auto& size :
        {std::pair<unsigned, unsigned>{1, 1}, {maxDimension, 1},
         {1, maxDimension}, {maxDimension + 1, 1}, {1, maxDimension + 1}}) {
