@@ -248,6 +248,8 @@ class LvglWidgetObjectBase
 
   virtual bool callRefs(lua_State *L);
   virtual void clearRefs(lua_State *L);
+  virtual void deleteNativeObject();
+  void rollback(lua_State *L);
   void clearChildRefs(lua_State *L);
 
   virtual void show() = 0;
@@ -327,6 +329,7 @@ class LvglSimpleWidgetObject : public LvglWidgetObjectBase
   void setFloating(bool isFloating) override;
 
   Window *getWindow() const override { return nullptr; }
+  void deleteNativeObject() override;
 
  protected:
   lv_obj_t* lvobj = nullptr;
@@ -884,6 +887,7 @@ class LvglWidgetPage : public LvglWidgetObject, public LvglTitleParam, public Lv
 
   bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
+  void deleteNativeObject() override;
 
   coord_t getScrollX() override;
   coord_t getScrollY() override;
@@ -917,6 +921,7 @@ class LvglWidgetDialog : public LvglWidgetObject, public LvglTitleParam
   LvglWidgetDialog() : LvglWidgetObject() {}
 
   void clearRefs(lua_State *L) override;
+  void deleteNativeObject() override;
   void close() override;
 
  protected:

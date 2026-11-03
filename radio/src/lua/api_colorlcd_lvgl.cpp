@@ -270,10 +270,51 @@ static int luaLvglClose(lua_State *L)
   return 0;
 }
 
+static void buildLvgl(lua_State *L, int srcIndex, int refIndex);
+
+static void createLvglObject(lua_State *L, LvglWidgetObjectBase* obj,
+                            int index, int refIndex = 0)
+{
+  index = lua_absindex(L, index);
+  if (refIndex) refIndex = lua_absindex(L, refIndex);
+  auto prevParent = luaScriptManager->getTempParent();
+  lua_pushlightuserdata(L, obj);
+  if (refIndex) lua_pushvalue(L, refIndex);
+  else lua_pushnil(L);
+  lua_pushcclosure(L, [](lua_State* L) {
+    auto obj = static_cast<LvglWidgetObjectBase*>(
+        lua_touserdata(L, lua_upvalueindex(1)));
+    LvglWidgetParams params(L, 1);
+    obj->create(L, 1);
+    if (params.hasChildren && obj->getWindow()) {
+      lua_getfield(L, 1, "children");
+      luaScriptManager->setTempParent(obj);
+      if (lua_istable(L, lua_upvalueindex(2))) {
+        lua_pushvalue(L, lua_upvalueindex(2));
+        buildLvgl(L, -2, -1);
+      } else {
+        buildLvgl(L, -1, 0);
+      }
+    }
+    return 0;
+  }, 2);
+  lua_pushvalue(L, index);
+  // Lua errors longjmp, so roll back outside the protected construction frame.
+  int status = lua_pcall(L, 1, 0, 0);
+  luaScriptManager->setTempParent(prevParent);
+  if (status != LUA_OK) {
+    obj->rollback(L);
+    delete obj;
+    lua_error(L);
+  }
+}
+
 static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
 {
+  srcIndex = lua_absindex(L, srcIndex);
+  if (refIndex) refIndex = lua_absindex(L, refIndex);
   luaL_checktype(L, srcIndex, LUA_TTABLE);
-  for (lua_pushnil(L); lua_next(L, srcIndex - 1); lua_pop(L, 1)) {
+  for (lua_pushnil(L); lua_next(L, srcIndex); lua_pop(L, 1)) {
     auto t = lua_gettop(L);
     LvglWidgetParams p(L, -1);
     if (p.type == ETX_UNDEF)
@@ -370,35 +411,15 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         continue;
     }
     if (obj) {
-      obj->create(L, -1);
+      createLvglObject(L, obj, -1, refIndex);
       auto ref = obj->getRef(L);
       if (p.name && refIndex != 0) {
         lua_pushstring(L, p.name);
         lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-        lua_settable(L, refIndex - 4);
-      }
-      if (p.hasChildren && obj->getWindow()) {
-        lua_getfield(L, -1, "children");
-        auto prevParent = luaScriptManager->getTempParent();
-        luaScriptManager->setTempParent(obj);
-        buildLvgl(L, -1, (refIndex != 0) ? refIndex - 3 : LUA_REFNIL);
-        lua_pop(L, 1);
-        luaScriptManager->setTempParent(prevParent);
+        lua_settable(L, refIndex);
       }
     }
     lua_settop(L, t); // In case of errors in build functions
-  }
-}
-
-static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
-{
-  if (obj->getWindow()) {
-    lua_getfield(L, -1, "children");
-    auto prevParent = luaScriptManager->getTempParent();
-    luaScriptManager->setTempParent(obj);
-    buildLvgl(L, -1, 0);
-    lua_pop(L, 1);
-    luaScriptManager->setTempParent(prevParent);
   }
 }
 
@@ -408,9 +429,7 @@ static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, b
     LvglWidgetParams params(L, 1);
 
     auto obj = create();
-    obj->create(L, 1);
-
-    if (params.hasChildren) addChildren(L, obj);
+    createLvglObject(L, obj, 1);
 
     obj->push(L);
   } else {
@@ -436,9 +455,7 @@ static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
     LvglWidgetParams params(L, -1);
 
     auto obj = create();
-    obj->create(L, -1);
-
-    if (params.hasChildren) addChildren(L, obj);
+    createLvglObject(L, obj, -1);
 
     obj->push(L);
 
@@ -467,6 +484,7 @@ Build a complex UI in a single operation from a table of object definitions.
 @retval table named LVGL objects (only entries whose definition included a `name` are included)
 
 @notice Objects can be nested via `children`, another table of tables using the same shape as the top-level `params`.
+@notice If an object or its children cannot be constructed, that object's subtree is removed before the error is raised. Previously completed top-level objects are kept.
 @notice Very large or deeply nested tables may fail to compile to `.luac` -- if a script works from `.lua` but fails from `.luac`, split the call into multiple smaller `lvgl.build()` calls.
 
 @status current Introduced in 2.11.0, named type constants added in 2.11.4
