@@ -29,7 +29,8 @@
 #include "storage.h"
 #include "opentxinterface.h"
 #include "customdebug.h"
-#include "firmwares/boardfactories.h"
+#include "boardfactories.h"
+#include "firmwarefactories.h"
 
 
 using ::testing::TestEventListener;
@@ -131,11 +132,17 @@ int main(int argc, char **argv)
   QCoreApplication app(argc, argv);
 
   Q_INIT_RESOURCE(hwdefs);
+  Q_INIT_RESOURCE(bddefs);
+  Q_INIT_RESOURCE(fwdefs);
 
   CustomDebug::setFilterRules();
-  gBoardFactories = new BoardFactories();
   registerStorageFactories();
-  registerOpenTxFirmwares();
+
+  // IMPORTANT load boards before firmware
+  // instantiate singleton
+  BoardFactories::getInstance();
+  // instantiate singleton
+  FirmwareFactories::getInstance();
 
   InitGoogleTest(&argc, argv);
 

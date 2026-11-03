@@ -27,11 +27,11 @@
 
 #include "gtests.h"
 
-#include "firmwares/boards.h"
-#include "firmwares/eeprominterface.h"
+#include "boards/board.h"
+#include "firmwares/opentx/opentxinterface.h"
 
 struct SerialPortCaps {
-  Board::Type board;
+  Board * board;
   bool aux1;
   bool aux1Power;
   bool aux2;
@@ -42,37 +42,37 @@ TEST(BoardSerialPorts, MatchFirmware)
 {
   const SerialPortCaps expected[] = {
     // AUX1 only, no power control
-    {Board::BOARD_HELLORADIOSKY_V12, true, false, false, false},
+    {Board::getBoard("v12"), true, false, false, false},
     // AUX1 unswitched, AUX2 switched
-    {Board::BOARD_JUMPER_T16, true, false, true, true},
+    {Board::getBoard("t16"), true, false, true, true},
     // both ports switched
-    {Board::BOARD_RADIOMASTER_TX16S, true, true, true, true},
+    {Board::getBoard("tx16s"), true, true, true, true},
     // AUX1 switched, no AUX2
-    {Board::BOARD_JUMPER_T15H7, true, true, false, false},
+    {Board::getBoard("t15h7"), true, true, false, false},
     // both ports, no power control
-    {Board::BOARD_HORUS_X12S, true, false, true, false},
+    {Board::getBoard("x12s"), true, false, true, false},
     // no AUX ports at all
-    {Board::BOARD_JUMPER_T15PRO, false, false, false, false},
-    {Board::BOARD_X10_EXPRESS, false, false, false, false},
-    {Board::BOARD_TARANIS_X7, false, false, false, false},
+    {Board::getBoard("t15pro"), false, false, false, false},
+    {Board::getBoard("x10"), false, false, false, false},
+    {Board::getBoard("x7"), false, false, false, false},
     // AUX1 the old rules missed
-    {Board::BOARD_FLYSKY_NV14, true, false, false, false},
+    {Board::getBoard("nv14"), true, false, false, false},
   };
 
   for (const auto& e : expected) {
-    const std::string name = Boards::getBoardName(e.board).toStdString();
-    EXPECT_EQ((bool)Boards::getCapability(e.board, Board::HasAuxSerialMode), e.aux1) << name;
-    EXPECT_EQ((bool)Boards::getCapability(e.board, Board::HasAuxSerialPower), e.aux1Power) << name;
-    EXPECT_EQ((bool)Boards::getCapability(e.board, Board::HasAux2SerialMode), e.aux2) << name;
-    EXPECT_EQ((bool)Boards::getCapability(e.board, Board::HasAux2SerialPower), e.aux2Power) << name;
+    const std::string name = e.board->getName().toStdString();
+    EXPECT_EQ((bool)e.board->getCapability(Capability::HasAuxSerialMode), e.aux1) << name;
+    EXPECT_EQ((bool)e.board->getCapability(Capability::HasAuxSerialPower), e.aux1Power) << name;
+    EXPECT_EQ((bool)e.board->getCapability(Capability::HasAux2SerialMode), e.aux2) << name;
+    EXPECT_EQ((bool)e.board->getCapability(Capability::HasAux2SerialPower), e.aux2Power) << name;
   }
 }
 
-static bool hasOption(const Firmware * firmware, const char * name)
+static bool hasOption(const Firmware * firmware, const QString name)
 {
-  for (const auto & group : firmware->getFirmwareBase()->optionGroups()) {
+  for (const auto & group : firmware->optionGroups()) {
     for (const auto & opt : group) {
-      if (QString(opt.name) == name)
+      if (opt == name)
         return true;
     }
   }
@@ -84,12 +84,12 @@ static bool hasOption(const Firmware * firmware, const char * name)
 TEST(BoardSerialPorts, BuildOptionsMatchFirmware)
 {
   for (Firmware * firmware : Firmware::getRegisteredFirmwares()) {
-    const Board::Type board = firmware->getBoard();
+    const auto board = firmware->getBoard();
     const std::string id = firmware->getId().toStdString();
     EXPECT_EQ(hasOption(firmware, "bluetooth"),
-              (bool)Boards::getCapability(board, Board::BluetoothOptional)) << id;
+              (bool)board->getCapability(Capability::BluetoothOptional)) << id;
     EXPECT_EQ(hasOption(firmware, "nogps"),
-              (bool)Boards::getCapability(board, Board::HasInternalGPS)) << id;
+              (bool)board->getCapability(Capability::HasInternalGPS)) << id;
   }
 }
 
@@ -116,7 +116,7 @@ TEST(BoardSerialPorts, VariantOptions)
   };
 
   for (const auto & e : expected) {
-    Firmware * firmware = Firmware::getFirmwareForId(e.id);
+    Firmware * firmware = Firmware::getFirmware(e.id);
     ASSERT_NE(firmware, nullptr) << e.id;
     EXPECT_EQ((bool)firmware->getCapability(BluetoothEnabled), e.bluetooth) << e.id;
     EXPECT_EQ((bool)firmware->getCapability(AuxSerialAvailable), e.aux1) << e.id;

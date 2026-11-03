@@ -29,13 +29,13 @@
 #include "gtests.h"
 
 #include "constants.h"
-#include "firmwares/boards.h"
-#include "firmwares/eeprominterface.h"
+#include "boards/board.h"
+#include "firmwares/opentx/opentxinterface.h"
 
 TEST(BoardManufacturer, NoRegisteredBoardIsUnknown)
 {
   for (Firmware *firmware : Firmware::getRegisteredFirmwares()) {
-    const QString manufacturer = Boards::getManufacturer(firmware->getBoard());
+    const QString manufacturer = firmware->getCapabilityStr(Capability::Manufacturer);
     EXPECT_FALSE(manufacturer.isEmpty()) << "board: " << firmware->getId().toStdString();
     EXPECT_NE(manufacturer, QString(CPN_STR_UNKNOWN_ITEM))
         << "board: " << firmware->getId().toStdString();
@@ -44,14 +44,14 @@ TEST(BoardManufacturer, NoRegisteredBoardIsUnknown)
 
 TEST(BoardManufacturer, KnownBoardsMatchExpectedManufacturer)
 {
-  EXPECT_EQ(Boards::getManufacturer(Board::BOARD_RADIOMASTER_TX16S), QString("RadioMaster"));
-  EXPECT_EQ(Boards::getManufacturer(Board::BOARD_RADIOMASTER_GX15), QString("RadioMaster"));
-  EXPECT_EQ(Boards::getManufacturer(Board::BOARD_FLYSKY_NV14), QString("Flysky"));
-  EXPECT_EQ(Boards::getManufacturer(Board::BOARD_HELLORADIOSKY_V12), QString("HelloRadioSky"));
-  EXPECT_EQ(Boards::getManufacturer(Board::BOARD_SENDUWING_H17), QString("Senduwing"));
-  EXPECT_EQ(Boards::getManufacturer(Board::BOARD_JUMPER_T16), QString("Jumper"));
-  EXPECT_EQ(Boards::getManufacturer(Board::BOARD_IFLIGHT_COMMANDO14), QString("iFlight"));
-  EXPECT_EQ(Boards::getManufacturer(Board::BOARD_TARANIS_X9E), QString("FrSky"));
-  EXPECT_EQ(Boards::getManufacturer(Board::BOARD_BETAFPV_LR3PRO), QString("BETAFPV"));
-  EXPECT_EQ(Boards::getManufacturer(Board::BOARD_FATFISH_F16), QString("Fatfish"));
+  EXPECT_EQ(Board::getBoard("tx16s")->getCapabilityStr(Capability::Manufacturer), QString("RadioMaster"));
+  EXPECT_EQ(Board::getBoard("gx15")->getCapabilityStr(Capability::Manufacturer), QString("RadioMaster"));
+  EXPECT_EQ(Board::getBoard("nv14")->getCapabilityStr(Capability::Manufacturer), QString("Flysky"));
+  EXPECT_EQ(Board::getBoard("v12")->getCapabilityStr(Capability::Manufacturer), QString("HelloRadioSky"));
+  EXPECT_EQ(Board::getBoard("h17")->getCapabilityStr(Capability::Manufacturer), QString("Senduwing"));
+  EXPECT_EQ(Board::getBoard("t16")->getCapabilityStr(Capability::Manufacturer), QString("Jumper"));
+  EXPECT_EQ(Board::getBoard("commando14")->getCapabilityStr(Capability::Manufacturer), QString("iFlight"));
+  EXPECT_EQ(Board::getBoard("x9e")->getCapabilityStr(Capability::Manufacturer), QString("FrSky"));
+  EXPECT_EQ(Board::getBoard("lr3pro")->getCapabilityStr(Capability::Manufacturer), QString("BETAFPV"));
+  EXPECT_EQ(Board::getBoard("f16")->getCapabilityStr(Capability::Manufacturer), QString("Fatfish"));
 }

@@ -53,7 +53,7 @@ class Board
 
   public:
 
-    inline static QString BOARD_UNKNOWN { "unknown"} ;
+    inline static QString BOARD_UNKNOWN { "unknown" } ;
 
     enum PotType
     {

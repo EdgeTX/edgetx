@@ -340,10 +340,17 @@ bool RawSource::isAvailable(const ModelData * const model,
                             QString boardId,
                             const int flags) const
 {
+  return isAvailable(model, gs, boardId == Board::BOARD_UNKNOWN ? getCurrentBoard() : Board::getBoard(boardId), flags);
+}
+
+bool RawSource::isAvailable(const ModelData * const model,
+                            const GeneralSettings * const gs,
+                            Board * board,
+                            const int flags) const
+{
   if (type == SOURCE_TYPE_NONE && index == 0)
     return true;
 
-  Board *board = boardId == Board::BOARD_UNKNOWN ? getCurrentBoard() : Board::getBoard(boardId);
   // TODO fix as this can create a mismatch if boardId does not match firmware board
   Firmware *firmware = getCurrentFirmware();
 

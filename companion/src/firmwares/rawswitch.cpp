@@ -171,8 +171,11 @@ QString RawSwitch::toString(QString boardId, const GeneralSettings * const gener
 
 bool RawSwitch::isAvailable(const ModelData * const model, const GeneralSettings * const gs, QString boardId) const
 {
-  Board *board = boardId == Board::BOARD_UNKNOWN ? getCurrentBoard() : Board::getBoard(boardId);
+  return isAvailable(model, gs, boardId == Board::BOARD_UNKNOWN ? getCurrentBoard() : Board::getBoard(boardId));
+}
 
+bool RawSwitch::isAvailable(const ModelData * const model, const GeneralSettings * const gs, Board * board) const
+{
   div_t sw = {0, 0};
 
   if (type == SWITCH_TYPE_SWITCH && abs(index) > board->getCapability(Capability::SwitchesPositions))

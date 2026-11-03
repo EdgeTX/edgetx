@@ -290,6 +290,10 @@ class RawSource {
                      const GeneralSettings * const gs = nullptr,
                      QString board = Board::BOARD_UNKNOWN,
                      const int flags = 0) const;
+    bool isAvailable(const ModelData * const model = nullptr,
+                     const GeneralSettings * const gs = nullptr,
+                     Board * board = nullptr,
+                     const int flags = 0) const;
     bool isSet() const { return type != SOURCE_TYPE_NONE || index != 0; }
     void clear() { type = SOURCE_TYPE_NONE; index = 0; }
     static StringTagMappingTable getSpecialTypesLookupTable();

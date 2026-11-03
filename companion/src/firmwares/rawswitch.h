@@ -89,6 +89,7 @@ class RawSwitch {
     RawSwitch convert(RadioDataConversionState & cstate);
     QString toString(QString board = Board::BOARD_UNKNOWN, const GeneralSettings * const generalSettings = nullptr, const ModelData * const modelData = nullptr, bool prefixCustomName = true) const;
     bool isAvailable(const ModelData * const model = nullptr, const GeneralSettings * const gs = nullptr, QString board = Board::BOARD_UNKNOWN) const;
+    bool isAvailable(const ModelData * const model = nullptr, const GeneralSettings * const gs = nullptr, Board * board = nullptr) const;
     bool isSet() const { return type != SWITCH_TYPE_NONE || index != 0; }
     void clear() { type = SWITCH_TYPE_NONE; index = 0; }
     static StringTagMappingTable getRawSwitchTypesLookupTable();
