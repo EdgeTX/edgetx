@@ -1,6 +1,7 @@
 # Build Instructions under Windows
 
-Note: The instructions on this page apply only for building V3.0.0-dev and later versions of EdgeTX.
+!!! note
+    The instructions on this page apply only for building V3.0.0-dev and later versions of EdgeTX.
 
 ## Table of Contents
 
@@ -25,7 +26,7 @@ Note: The instructions on this page apply only for building V3.0.0-dev and later
 
 Download and start Visual Studio 2022 Community installer: https://visualstudio.microsoft.com/downloads/
 
-To start the installer in English to more easily follow the selection below, open a command prompt and add `--locale en-US` to the installer executable when starting it. Under `Individual components` tab, minimally select the following components:
+To start the installer in English to more easily follow the selection below, open a command prompt or PowerShell window in the folder you downloaded it to, and add `--locale en-US` when starting the installer executable. In PowerShell, prefix the file name with `.\`, e.g. `.\VisualStudioSetup.exe --locale en-US`. Under `Individual components` tab, minimally select the following components:
 ```
   Under Code tools:
     Git for Windows
@@ -55,14 +56,23 @@ Create a folder to hold the development environment and the project, e.g. `C:\ed
 
 Create a subfolder `C:\edgetx\build-tools`.
 
-Download https://github.com/libsdl-org/SDL/releases/download/release-2.32.8/SDL2-devel-2.32.8-VC.zip and unpack it to `C:\edgetx\build-tools\SDL2`
+Download https://github.com/libsdl-org/SDL/releases/download/release-2.32.8/SDL2-devel-2.32.8-VC.zip and unpack it to `C:\edgetx\build-tools\SDL2`.
+
+The zip file contains a versioned top-level folder, `SDL2-2.32.8`. Move its contents up one level, so that the `cmake`, `include` and `lib` folders are directly inside `C:\edgetx\build-tools\SDL2`. Check that `C:\edgetx\build-tools\SDL2\cmake\sdl2-config.cmake` exists. If it doesn't, CMake reports `SDL not found!` and the build fails.
 
 ### Build script
 
-Create `C:\edgetx\edgetx_build.cmd` with following contents:
+Create `C:\edgetx\edgetx_build.cmd` with following contents. This is a shared script that is called by the radio specific build scripts described in [Target specific build script](#target-specific-build-script), so do not run it directly:
 
 ```
 @echo off
+
+if not defined BUILD_RADIO (
+  echo This script is not meant to be run directly.
+  echo Run a radio specific build script instead, e.g. build_tx16s.cmd.
+  pause
+  exit /b 1
+)
 
 time /t
 
@@ -73,7 +83,7 @@ set NSIS_EXE=c:\Program Files (x86)\NSIS\makensis.exe
 set SDL2=%EDGETX_BUILD_TOOLS%\SDL2\cmake
 set QT_DIR=%EDGETX_BUILD_TOOLS%\Qt\6.9.3\msvc2022_64
 set PATHS="-DSDL2_DIR=%SDL2%"
-set CMAKE_PREFIX_PATH="-DCMAKE_PREFIX_PATH=%QT_DIR%"
+set PREFIX_PATH="-DCMAKE_PREFIX_PATH=%QT_DIR%"
 set LANGUAGE="-DTRANSLATIONS=%BUILD_LANGUAGE%"
 
 echo ********************************************
@@ -106,7 +116,7 @@ call "%EDGETX_BUILD_TOOLS%\.venv\Scripts\activate.bat"
 REM
 REM start build
 REM
-cmake -G Ninja %BUILD_OPTIONS% %PATHS% %CMAKE_PREFIX_PATH% %LANGUAGE% %BUILD_TYPE% %EDGETX_REPO%
+cmake -G Ninja %BUILD_OPTIONS% %PATHS% %PREFIX_PATH% %LANGUAGE% %BUILD_TYPE% %EDGETX_REPO%
 
 if %BUILD_FW%=="yes" (
   ninja arm-none-eabi-configure
@@ -122,7 +132,9 @@ GOTO exit_script
 
 :build_cpn
 ninja native-configure
-ninja -C native libsimulator
+ninja wasi-module
+if not exist native\plugins mkdir native\plugins
+copy /y wasm\wasm-build\*.wasm native\plugins\
 ninja -C native simulator
 ninja -C native companion
 
@@ -136,6 +148,7 @@ if %BUILD_INSTALLER%=="yes" (
 REM The following is in order to be able to run companion and simulator binaries directly in build output folder
 %QT_DIR%\bin\windeployqt --libdir native --plugindir native\plugins --no-compiler-runtime --no-translations --release native
 copy %EDGETX_BUILD_TOOLS%\SDL2\lib\x64\SDL2.dll %EDGETX_MAIN_DIR%\%BUILD_FOLDER%\native\
+copy /y wasm\wasm-build\*.wasm native\
 
 REM
 REM done
@@ -154,13 +167,13 @@ Install the NSIS compiler from https://nsis.sourceforge.io/Download
 
 ### Python package manager uv
 
-Open a command prompt and navigate to `C:\edgetx\build-tools`.
+Open a command prompt or PowerShell window and navigate to `C:\edgetx\build-tools`.
 
 Install Python package manager uv according to the installation instructions at: https://docs.astral.sh/uv/getting-started/installation/#__tabbed_1_2
 
 ### Python virtual environment
 
-Continue on the command prompt at `C:\edgetx\build-tools`:
+Continue at `C:\edgetx\build-tools`:
 ```
 uv venv
 uv pip install asciitree clang jinja2 lz4 pillow pydantic pyelftools typing_extensions aqtinstall
@@ -168,22 +181,22 @@ uv pip install asciitree clang jinja2 lz4 pillow pydantic pyelftools typing_exte
 
 ### Qt development framework
 
-Continue on the command prompt at `C:\edgetx\build-tools` to install Qt 6.9.3 into the Python virtual environment:
+Continue at `C:\edgetx\build-tools` to install Qt 6.9.3 into `C:\edgetx\build-tools\Qt`, using the `aqt` tool from the Python virtual environment:
 ```
 mkdir Qt
 cd Qt
-call "C:\edgetx\build-tools\.venv\Scripts\activate.bat"
-aqt install-qt windows desktop 6.9.3 win64_msvc2022_64 -m qtmultimedia qtserialport
-call "C:\edgetx\build-tools\.venv\Scripts\deactivate.bat"
+uv run aqt install-qt windows desktop 6.9.3 win64_msvc2022_64 -m qtmultimedia qtserialport
 ```
-Reboot your computer.
+These commands work in both the command prompt and PowerShell. `uv run` finds the virtual environment in the parent folder, so there is no need to activate it first.
+
+Close any open command prompt or PowerShell windows before continuing. New windows will pick up the PATH changes made by the ARM toolchain and uv installers.
 
 
 ## Building
 
 ### Fetch the EdgeTX project
 
-Open command prompt at `C:\edgetx` and clone the EdgeTX repo:
+Open a command prompt or PowerShell window at `C:\edgetx` and clone the EdgeTX repo:
 ```
 git clone --recursive -b <branch> https://github.com/EdgeTX/edgetx.git
 ```
@@ -210,11 +223,14 @@ set BUILD_INSTALLER="yes"
 
 call "%EDGETX_MAIN_DIR%\edgetx_build.cmd"
 ```
-and start it.
+and run it, either by double-clicking it in File Explorer, or by entering its full path (e.g. `C:\edgetx\build_tx16s.cmd`) in a command prompt or PowerShell window. It runs under the command prompt either way.
 
-After the build finishes, you can find the binaries under `C:\edgetx\build-output-<BUILD_RADIO>` (firmware binary under subfolder `arm-none-eabi`, Companion and Simulator binaries together with simulator library under folder `native` and Companion installer under subfolder `native\companion`).
-Note! Be sure to wipe the `C:\edgetx\build-output-<BUILD_RADIO>` content every time you change the build options.
+After the build finishes, you can find the binaries under `C:\edgetx\build-output-<BUILD_RADIO>` (firmware binary under subfolder `arm-none-eabi`, Companion and Simulator binaries together with the WASM simulator module under folder `native` and Companion installer under subfolder `native\companion`).
+
+!!! warning "Changing build options"
+    Be sure to wipe the `C:\edgetx\build-output-<BUILD_RADIO>` content every time you change the build options.
 
 See https://github.com/EdgeTX/edgetx/blob/main/tools/build-common.sh for BUILD_OPTIONS to use for various EdgeTX supported radios. Separate the options with spaces, exactly as in that script, and keep the quotes around the whole `"BUILD_OPTIONS=..."` assignment so that cmake receives each option as a separate argument.
 
-Note! Do not separate the options with semicolons, e.g. `set BUILD_OPTIONS="-DPCB=X10;-DPCBREV=TX16S"`. This older form of the script passes all options to cmake as a single value and the build fails with an error such as `Unknown PCB 'X10 -DPCBREV=TX16S'`. If you have an existing build script written this way, change it to the form shown above, and do the same for any other variable holding more than one `-D` option (e.g. `PATHS` or `BUILD_TYPE`), then wipe the build output folder.
+!!! warning "Separate options with spaces, not semicolons"
+    Do not separate the options with semicolons, e.g. `set BUILD_OPTIONS="-DPCB=X10;-DPCBREV=TX16S"`. This older form of the script passes all options to cmake as a single value and the build fails with an error such as `Unknown PCB 'X10 -DPCBREV=TX16S'`. If you have an existing build script written this way, change it to the form shown above, and do the same for any other variable holding more than one `-D` option (e.g. `PATHS` or `BUILD_TYPE`), then wipe the build output folder.
