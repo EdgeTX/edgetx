@@ -272,35 +272,44 @@ static int luaLvglClose(lua_State *L)
 
 static void buildLvgl(lua_State *L, int srcIndex, int refIndex);
 
-static void createLvglObject(lua_State *L, LvglWidgetObjectBase* obj,
-                            int index, int refIndex = 0)
+static void addChildren(lua_State *L, LvglWidgetObjectBase* obj,
+                        int paramsIndex, int refIndex)
 {
-  index = lua_absindex(L, index);
+  lua_getfield(L, paramsIndex, "children");
+  luaScriptManager->setTempParent(obj);
+  buildLvgl(L, -1, refIndex);
+  lua_pop(L, 1);
+}
+
+static int constructLvglObject(lua_State *L)
+{
+  constexpr int objectIndex = 1;
+  constexpr int refsIndex = 2;
+  constexpr int paramsIndex = 3;
+  auto obj = static_cast<LvglWidgetObjectBase*>(
+      lua_touserdata(L, objectIndex));
+  LvglWidgetParams params(L, paramsIndex);
+  obj->create(L, paramsIndex);
+  if (params.hasChildren && obj->getWindow()) {
+    addChildren(L, obj, paramsIndex,
+                lua_istable(L, refsIndex) ? refsIndex : 0);
+  }
+  return 0;
+}
+
+static void createLvglObject(lua_State *L, LvglWidgetObjectBase* obj,
+                            int paramsIndex, int refIndex = 0)
+{
+  paramsIndex = lua_absindex(L, paramsIndex);
   if (refIndex) refIndex = lua_absindex(L, refIndex);
   auto prevParent = luaScriptManager->getTempParent();
+  lua_pushcfunction(L, constructLvglObject);
   lua_pushlightuserdata(L, obj);
   if (refIndex) lua_pushvalue(L, refIndex);
   else lua_pushnil(L);
-  lua_pushcclosure(L, [](lua_State* L) {
-    auto obj = static_cast<LvglWidgetObjectBase*>(
-        lua_touserdata(L, lua_upvalueindex(1)));
-    LvglWidgetParams params(L, 1);
-    obj->create(L, 1);
-    if (params.hasChildren && obj->getWindow()) {
-      lua_getfield(L, 1, "children");
-      luaScriptManager->setTempParent(obj);
-      if (lua_istable(L, lua_upvalueindex(2))) {
-        lua_pushvalue(L, lua_upvalueindex(2));
-        buildLvgl(L, -2, -1);
-      } else {
-        buildLvgl(L, -1, 0);
-      }
-    }
-    return 0;
-  }, 2);
-  lua_pushvalue(L, index);
+  lua_pushvalue(L, paramsIndex);
   // Lua errors longjmp, so roll back outside the protected construction frame.
-  int status = lua_pcall(L, 1, 0, 0);
+  int status = lua_pcall(L, 3, 0, 0);
   luaScriptManager->setTempParent(prevParent);
   if (status != LUA_OK) {
     obj->rollback(L);
