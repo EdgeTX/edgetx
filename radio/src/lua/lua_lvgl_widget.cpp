@@ -429,7 +429,7 @@ bool LvglWidgetObjectBase::pcallUpdateBool(lua_State *L, int getFuncRef,
       lvglManager->luaShowError();
     }
     UNPROTECT_LUA();
-    lua_settop(L, t);
+    if (res) lua_settop(L, t);
     luaScriptManager = save;
   }
   return res;
@@ -455,7 +455,7 @@ bool LvglWidgetObjectBase::pcallUpdate1Int(lua_State *L, int getFuncRef,
       lvglManager->luaShowError();
     }
     UNPROTECT_LUA();
-    lua_settop(L, t);
+    if (res) lua_settop(L, t);
     luaScriptManager = save;
   }
   return res;
@@ -482,7 +482,7 @@ bool LvglWidgetObjectBase::pcallUpdate2Int(lua_State *L, int getFuncRef,
       lvglManager->luaShowError();
     }
     UNPROTECT_LUA();
-    lua_settop(L, t);
+    if (res) lua_settop(L, t);
     luaScriptManager = save;
   }
   return res;
@@ -508,7 +508,7 @@ bool LvglWidgetObjectBase::pcallUpdateStringVal(lua_State *L, int getFuncRef,
       lvglManager->luaShowError();
     }
     UNPROTECT_LUA();
-    lua_settop(L, t);
+    if (res) lua_settop(L, t);
     luaScriptManager = save;
   }
   return res;
@@ -753,11 +753,17 @@ void LvglWidgetObjectBase::refresh()
   setFloating(floating);
 }
 
-void LvglWidgetObjectBase::create(lua_State *L, int index)
+void LvglWidgetObjectBase::deleteNativeObject()
+{
+  if (auto window = getWindow())
+    window->closeWindow();
+}
+
+bool LvglWidgetObjectBase::create(lua_State *L, int index)
 {
   getParams(L, index);
   build(L);
-  callRefs(L);
+  return callRefs(L);
 }
 
 void LvglWidgetObjectBase::update(lua_State *L)
@@ -767,6 +773,14 @@ void LvglWidgetObjectBase::update(lua_State *L)
 }
 
 //-----------------------------------------------------------------------------
+
+void LvglSimpleWidgetObject::deleteNativeObject()
+{
+  if (lvobj) {
+    lv_obj_del(lvobj);
+    lvobj = nullptr;
+  }
+}
 
 void LvglSimpleWidgetObject::setPos(coord_t x, coord_t y)
 {
@@ -2624,6 +2638,11 @@ void LvglWidgetPage::clearRefs(lua_State *L)
   LvglWidgetObject::clearRefs(L);
 }
 
+void LvglWidgetPage::deleteNativeObject()
+{
+  if (page) page->closeWindow();
+}
+
 void LvglWidgetPage::build(lua_State *L)
 {
   w = LCD_W;
@@ -2690,6 +2709,11 @@ void LvglWidgetDialog::clearRefs(lua_State *L)
   clearTitleRefs(L);
   clearRef(L, closeFunction);
   LvglWidgetObject::clearRefs(L);
+}
+
+void LvglWidgetDialog::deleteNativeObject()
+{
+  if (dialog) dialog->closeWindow();
 }
 
 void LvglWidgetDialog::build(lua_State *L)
