@@ -148,6 +148,10 @@ if(CROSSFIRE)
   add_gui_src(module/crossfire_settings.cpp)
 endif()
 
+if(MAVLINK)
+  add_gui_src(module/mavlink_settings.cpp)
+endif()
+
 if(AFHDS2)
   add_gui_src(module/afhds2a_settings.cpp)
 endif()

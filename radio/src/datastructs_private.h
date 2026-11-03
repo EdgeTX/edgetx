@@ -585,6 +585,12 @@ PACK(struct ModuleData {
       uint8_t flags;
       uint8_t enableAETR : 1;
     } dsmp);
+    NOBACKUP(struct {
+      uint8_t telemetryBaudrate:3;
+      uint8_t spare1:5 SKIP;
+      uint8_t srcSysId;
+      uint8_t dstSysId;
+    } mavlink);
   } NAME(mod) FUNC(select_mod_type);
 
   NOBACKUP(inline uint8_t getChannelsCount() const
