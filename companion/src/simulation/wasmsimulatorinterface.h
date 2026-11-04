@@ -126,7 +126,9 @@ class WasmSimulatorInterface : public SimulatorInterface
 
     // Host-side analog values (polled by WASM via simuGetAnalog)
     static constexpr int MAX_ANALOGS = 32;
-    int16_t m_analogValues[MAX_ANALOGS] = {};
+    // Read by firmware threads through host_simuGetAnalog, so kept out of
+    // m_mutex: stop() holds that across simuStop(), which joins those threads.
+    std::atomic<int16_t> m_analogValues[MAX_ANALOGS] = {};
 
     // Cached output values for change detection
     TxOutputs m_lastOutputs;
