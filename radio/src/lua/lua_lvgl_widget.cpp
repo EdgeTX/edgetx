@@ -345,7 +345,7 @@ void LvglScrollableParams::clearScrollableRefs(lua_State *L)
 LvglWidgetObjectBase *LvglWidgetObjectBase::checkLvgl(lua_State *L, int index, bool required)
 {
   LvglWidgetObjectBase **p;
-  
+
   p = (LvglWidgetObjectBase **)luaL_testudata(L, index, LVGL_METATABLE);
   if (p && *p) return *p;
 
@@ -1288,7 +1288,7 @@ void LvglWidgetTriangle::fillTriangle()
 
   dx1 = (coord_t)(x2 - x1); if(dx1 < 0) { dx1 = -dx1; signx1 = -1; } else signx1 = 1;
   dy1 = (coord_t)(y2 - y1);
- 
+
   dx2 = (coord_t)(x3 - x1); if(dx2 < 0) { dx2 = -dx2; signx2 = -1; } else signx2 = 1;
   dy2 = (coord_t)(y3 - y1);
 
@@ -1413,7 +1413,7 @@ void LvglWidgetTriangle::build(lua_State *L)
   y = min(min(pts[0].y, pts[1].y), pts[2].y);
   w = max(max(pts[0].x, pts[1].x), pts[2].x) - x + 1;
   h = max(max(pts[0].y, pts[1].y), pts[2].y) - y + 1;
-  
+
   // Allocate mask
   size_t size = w * h;
   mask = (MaskBitmap*)malloc(size + 4);
@@ -2435,7 +2435,7 @@ void LvglWidgetVerticalSlider::build(lua_State *L)
 class WidgetPage : public NavWindow, public LuaEventHandler
 {
  public:
-  WidgetPage(Window *parent, 
+  WidgetPage(Window *parent,
              std::function<void()> backAction,
              std::function<void()> menuAction,
              std::function<void()> prevAction,
