@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # /// script
 # requires-python = ">=3.9"
-# dependencies = ["pyserial>=3.5"]
+# dependencies = ["pyserial>=3.5", "pyusb>=1.2", "libusb-package>=1.0"]
 # ///
 """
 Flash an external RF module through an EdgeTX radio's USB serial port,
@@ -24,6 +24,7 @@ script closes the port (`hangup`: the host drops DTR).
 
 Usage:
   uv run extmod_flash.py --list
+  uv run extmod_flash.py --probe COM5
   uv run extmod_flash.py multi /dev/ttyACM0 multi-stm-serial-aetr-v1.3.4.0.bin
   uv run extmod_flash.py frsky COM5 XJT_build151.frk
   uv run extmod_flash.py elrs /dev/cu.usbmodem1 firmware.elrs
@@ -504,6 +505,114 @@ def list_serial_ports() -> None:
         log(f"{p.device:20} {p.description}{ids}")
 
 
+# --------------------------------------------------------------------------
+# USB descriptor check (CDC ACM bmCapabilities)
+# --------------------------------------------------------------------------
+
+EDGETX_VCP_ID = (0x0483, 0x5740)  # USBD_CDC_VID/PID, the same on every radio
+
+CS_INTERFACE = 0x24
+ACM_FUNCTIONAL = 0x02
+ACM_CAP_SEND_BREAK = 0x04
+
+ACM_CAP_BITS = {
+    0x01: "Comm_Feature",
+    0x02: "Line_Coding/Control_Line_State/Serial_State",
+    0x04: "Send_Break",
+    0x08: "Network_Connection",
+}
+
+
+def acm_capabilities(dev) -> int | None:
+    """Return bmCapabilities of the first ACM functional descriptor."""
+    for cfg in dev:
+        for intf in cfg:
+            extra = bytes(intf.extra_descriptors)
+            i = 0
+            while i + 2 < len(extra):
+                length = extra[i]
+                if length < 2:
+                    break
+                if (extra[i + 1] == CS_INTERFACE and extra[i + 2] == ACM_FUNCTIONAL
+                        and length >= 4):
+                    return extra[i + 3]
+                i += length
+    return None
+
+
+def parse_usb_location(location: str | None) -> tuple[int, tuple[int, ...]] | None:
+    """pyserial location '1-1.1.1' (Linux adds ':1.0') -> (bus, port path)."""
+    if not location:
+        return None
+    try:
+        bus, _, ports = location.split(":")[0].partition("-")
+        return int(bus), tuple(int(p) for p in ports.split("."))
+    except ValueError:
+        return None
+
+
+def probe_radios(port_name: str | None) -> int:
+    """Read the CDC ACM descriptor of the radio's USB serial port, telling
+    whether a break ends the passthrough (EdgeTX PR #7927) without sending
+    anything on the port. Works even while the radio is in passthrough."""
+    try:
+        import libusb_package
+        import usb.core
+    except ImportError as e:
+        log(f"Error: {e} (run with 'uv run' to get pyusb and libusb-package)")
+        return 1
+
+    target = None
+    if port_name:
+        target = next((p for p in list_ports.comports()
+                       if p.device.lower() == port_name.lower()), None)
+        if target is None:
+            log(f"Error: {port_name} not found")
+            return 1
+        if (target.vid, target.pid) != EDGETX_VCP_ID:
+            log(f"Error: {port_name} is not an EdgeTX radio serial port (0483:5740)")
+            return 1
+
+    backend = libusb_package.get_libusb1_backend()
+    devices = list(usb.core.find(find_all=True, backend=backend,
+                                 idVendor=EDGETX_VCP_ID[0], idProduct=EDGETX_VCP_ID[1]))
+    if target:
+        # Every radio has the same VID:PID and serial number, so match the USB
+        # port the radio is plugged into.
+        loc = parse_usb_location(target.location)
+        by_loc = [d for d in devices if loc and (d.bus, d.port_numbers) == loc]
+        if by_loc:
+            devices = by_loc
+        elif len(devices) > 1:
+            log(f"Warning: can't match {port_name} by USB location "
+                f"({target.location!r}); showing every radio")
+
+    found = 0
+    for dev in devices:
+        try:
+            caps = acm_capabilities(dev)
+        except usb.core.USBError as e:
+            debug(f"{dev.idVendor:04X}:{dev.idProduct:04X}: {e}")
+            continue
+        if caps is None:
+            continue
+        found += 1
+        names = [n for bit, n in ACM_CAP_BITS.items() if caps & bit] or ["none"]
+        ids = f"{dev.idVendor:04X}:{dev.idProduct:04X}"
+        path = ".".join(map(str, dev.port_numbers or ()))
+        log(f"{ids} (USB location {dev.bus}-{path})")
+        log(f"  ACM bmCapabilities: 0x{caps:02X} ({', '.join(names)})")
+        if caps & ACM_CAP_SEND_BREAK:
+            log("  Send_Break advertised: a break from the host ends the passthrough")
+        else:
+            log("  No Send_Break: older firmware, unplug the cable to end the passthrough")
+
+    if not found:
+        log("No EdgeTX radio (0483:5740) found" + (f" for {port_name}" if port_name else ""))
+        return 1
+    return 0
+
+
 def main() -> int:
     global VERBOSE
     ap = argparse.ArgumentParser(
@@ -515,6 +624,9 @@ def main() -> int:
     ap.add_argument("port", nargs="?", help="radio serial port (COM5, /dev/ttyACM0, ...)")
     ap.add_argument("firmware", nargs="?", type=Path, help="firmware file (.bin, .elrs, .frk, .frsk)")
     ap.add_argument("--list", action="store_true", help="list serial ports and exit")
+    ap.add_argument("--probe", nargs="?", const="", metavar="PORT",
+                    help="show the passthrough capabilities of all radios, or PORT "
+                         "(from the USB descriptor: whether a break ends it), and exit")
     ap.add_argument("--baud", type=int, default=DEFAULT_BAUD,
                     help=f"module baud rate (default {DEFAULT_BAUD})")
     ap.add_argument("--no-passthrough", action="store_true",
@@ -533,6 +645,8 @@ def main() -> int:
     if args.list:
         list_serial_ports()
         return 0
+    if args.probe is not None:
+        return probe_radios(args.probe or None)
     if not args.module or not args.port or not args.firmware:
         ap.error("module, port and firmware are required (or use --list)")
 
