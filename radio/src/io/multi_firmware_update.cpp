@@ -75,8 +75,9 @@ class MultiFirmwareUpdateDriver
   {
   }
 
-  const char* flashFirmware(FIL* file, const char* label,
-                            ProgressHandler progressHandler, bool cc2652);
+  const char* flashFirmware(
+      FIL* file, const char* label, ProgressHandler progressHandler,
+      MultiFirmwareInformation::MultiFirmwareBoardType boardType);
 };
 
 static const etx_serial_init serialInitParams = {
@@ -305,7 +306,8 @@ void MultiFirmwareUpdateDriver::leaveProgMode()
 }
 
 const char* MultiFirmwareUpdateDriver::flashFirmware(
-    FIL* file, const char* label, ProgressHandler progressHandler, bool cc2652)
+    FIL* file, const char* label, ProgressHandler progressHandler,
+    MultiFirmwareInformation::MultiFirmwareBoardType boardType)
 {
 #if defined(SIMU)
   for (uint16_t i = 0; i < 100; i++) {
@@ -318,11 +320,14 @@ const char* MultiFirmwareUpdateDriver::flashFirmware(
   const char * result = nullptr;
   if (!init()) return "Initialisation error";
 
+  bool mpmV2File =
+      boardType == MultiFirmwareInformation::FIRMWARE_MULTI_MPM_V2;
+
   /* wait 500ms for power on; the MPM v2 boot loader only listens for a
      short time after power on (the module must start fast after a radio
      reboot): sync at once */
   watchdogSuspend(500 /*5s*/);
-  sleep_ms(cc2652 ? 10 : 500);
+  sleep_ms(mpmV2File ? 10 : 500);
 
   result = waitForInitialSync();
   if (result) {
@@ -346,14 +351,14 @@ const char* MultiFirmwareUpdateDriver::flashFirmware(
     return STR_DEVICE_FILE_WRONG_SIG;
   }
 
-  // MPM v2 (CC2652) boot loader: 1E 55 26, the STM32 layout
-  bool cc2652Device = signature[1] == 0x55 && signature[2] == 0x26;
-  if (cc2652Device != cc2652) {
+  // MPM v2 boot loader (CC26xx, CC27xx): 1E 55 26, the STM32 layout
+  bool mpmV2Device = signature[1] == 0x55 && signature[2] == 0x26;
+  if (mpmV2Device != mpmV2File) {
     leaveProgMode();
     return STR_DEVICE_FILE_WRONG_SIG;
   }
 
-  if (signature[1] == 0x55 && (signature[2] == 0xAA || cc2652Device)) {
+  if (signature[1] == 0x55 && (signature[2] == 0xAA || mpmV2Device)) {
     pageSize = 256;
     writeOffset = 0x1000; // start offset (word address)
   }
@@ -516,7 +521,9 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
     return false;
   }
 
-  bool cc2652 = false;
+  // ELRS files carry no board type: written like STM32 ones, to anything but
+  // the MPM v2 boot loader
+  auto boardType = MultiFirmwareInformation::FIRMWARE_MULTI_STM;
   if (type == MULTI_TYPE_MULTIMODULE) {
     MultiFirmwareInformation firmwareFile;
     if (firmwareFile.readMultiFirmwareInformation(&file)) {
@@ -525,7 +532,7 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
       return false;
     }
     f_lseek(&file, 0);
-    cc2652 = firmwareFile.isMultiCc2652Firmware();
+    boardType = firmwareFile.getBoardType();
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
     if (module == EXTERNAL_MODULE) {
@@ -566,7 +573,7 @@ bool MultiDeviceFirmwareUpdate::flashFirmware(const char * filename, ProgressHan
   sleep_ms(3000);
 
   MultiFirmwareUpdateDriver driver(module, type);
-  const char * result = driver.flashFirmware(&file, getBasename(filename), progressHandler, cc2652);
+  const char * result = driver.flashFirmware(&file, getBasename(filename), progressHandler, boardType);
   f_close(&file);
 
   AUDIO_PLAY(AU_SPECIAL_SOUND_BEEP1);
