@@ -225,5 +225,40 @@ class Transport
 
   bool processTelemetryData(uint8_t byte, uint8_t* rxBuffer,
                             uint8_t& rxBufferCount, uint8_t maxSize);
+
+#if defined(AFHDS3_FRM301_EXT)
+  // FRM301: the device address byte of outgoing frames (dest << 4 | TRANSMITTER)
+  uint8_t getAddress() const { return trsp.frameAddress; }
+  void setAddress(uint8_t fAddr) { trsp.frameAddress = fAddr; }
+  // closed (FlySkyOS) handshake: answer requests coming from the module
+  bool closedMode;
+
+  // request received from the module, answered in the next setupFrame()
+  struct ModuleRequest {
+    volatile bool valid;
+    uint8_t address;
+    uint8_t command;
+    uint8_t frameNumber;
+    uint8_t frameType;
+    uint8_t len;
+    uint8_t data[8];
+  } modReq;
+
+  // true if the serial port finished sending (or cannot tell)
+  bool txIdle();
+  bool isAwaiting() const { return operationState == State::AWAITING_RESPONSE; }
+  // build a response into a separate buffer and send it right away
+  void sendResponseNow(uint8_t* buf, uint8_t command, uint8_t frameNumber,
+                       uint8_t* data, uint8_t len,
+                       FRAME_TYPE type = FRAME_TYPE::RESPONSE_DATA);
+
+  // response to a module request (does not touch the own request state)
+  void putResponse(uint8_t command, uint8_t frameNumber, uint8_t* data,
+                   uint8_t len, FRAME_TYPE type = FRAME_TYPE::RESPONSE_DATA)
+  {
+    trsp.putFrame((enum COMMAND)command, type, data, len, frameNumber);
+  }
+#endif
 };
+
 };  // namespace afhds3

@@ -92,6 +92,14 @@ extern "C" void SDRAM_Init();
     else                                        \
       gpio_set(INTMODULE_PWR_GPIO);             \
   } while (0)
+#elif defined(PL18EV_INTERNAL_CRSF) && defined(PL18EV_INTMODULE_PWR_PI8)
+  // internal module on the Bluetooth port, power switched via PI.08 (high = on)
+  #define INTERNAL_MODULE_ON()            gpio_set(INTMODULE_PWR_GPIO)
+  #define INTERNAL_MODULE_OFF()           gpio_clear(INTMODULE_PWR_GPIO)
+#elif defined(PL18EV_INTERNAL_CRSF)
+  // internal module on the Bluetooth port: no power switching
+  #define INTERNAL_MODULE_ON()
+  #define INTERNAL_MODULE_OFF()
 #elif defined(RADIO_NB4P) || defined(RADIO_PL18U)
   #define INTERNAL_MODULE_ON()            gpio_clear(INTMODULE_PWR_GPIO)
   #define INTERNAL_MODULE_OFF()           gpio_set(INTMODULE_PWR_GPIO);

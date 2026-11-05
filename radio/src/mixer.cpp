@@ -591,6 +591,44 @@ void evalTrims()
 }
 
 // TODO: move to analogs.cpp
+#if defined(RADIO_PL18EV)
+/*
+ * The buttons on top of the Paladin EV sticks (inputs EXT3 / EXT4) are
+ * 3-state resistor buttons, read like pots. Calibrated values:
+ *   not pressed = +100 %, pressed down = 0 %, pressed up = -100 %.
+ * Turned into a centered value here: rest 0, up +100 %, down -100 %.
+ * Debounced (50 ms), because the signal passes the "down" level on its way
+ * from rest to up. The buttons must be calibrated (press up and down while
+ * calibrating).
+ */
+#define STICKBTN_DEBOUNCE 5  // 10 ms steps
+
+static int16_t stickButtonValue(uint8_t k, int16_t v)
+{
+  static int8_t state[2], cand[2];
+  static tmr10ms_t candTime[2];
+
+  // v = calibrated value -1024..1024: pick the nearest of +100/0/-100 %
+  int8_t c;
+  if (v > RESX / 2)
+    c = 0;   // not pressed (+100 %)
+  else if (v < -RESX / 2)
+    c = 1;   // pressed up (-100 %)
+  else
+    c = -1;  // pressed down (0 %)
+
+  tmr10ms_t now = get_tmr10ms();
+  if (c != cand[k]) {
+    cand[k] = c;
+    candTime[k] = now;
+  }
+  if (cand[k] != state[k] && (tmr10ms_t)(now - candTime[k]) >= STICKBTN_DEBOUNCE)
+    state[k] = cand[k];
+
+  return state[k] * RESX;
+}
+#endif
+
 void evalInputs(uint8_t mode)
 {
   BeepANACenter anaCenter = 0;
@@ -608,6 +646,18 @@ void evalInputs(uint8_t mode)
 
     // [0..2048] -> [-1024..1024]
     v -= RESX;
+
+#if defined(RADIO_PL18EV)
+    {
+      static int8_t btnIdx[2] = {-2, -2};
+      if (btnIdx[0] == -2) {
+        btnIdx[0] = adcGetInputIdx("EXT3", 4);
+        btnIdx[1] = adcGetInputIdx("EXT4", 4);
+      }
+      if (i == btnIdx[0]) v = stickButtonValue(0, v);
+      else if (i == btnIdx[1]) v = stickButtonValue(1, v);
+    }
+#endif
 
 #if defined(STICK_DEAD_ZONE)
     // dead zone invented by FlySky in my opinion it should goes into ADC

@@ -149,7 +149,7 @@
         "channel": "LL_ADC_CHANNEL_4",
         "label": "EXT3",
         "short_label": "E3",
-        "default": "MULTIPOS"
+        "default": "POT_CENTER"
       },
       {
         "name": "EXT4",
@@ -160,7 +160,7 @@
         "channel": "LL_ADC_CHANNEL_3",
         "label": "EXT4",
         "short_label": "E4",
-        "default": "MULTIPOS"
+        "default": "POT_CENTER"
       },
       {
         "name": "VBAT",
