@@ -96,7 +96,7 @@ bool editLimitNumSource(coord_t x, coord_t y, uint16_t& value, LcdFlags attr,
                           checkIncDecSelection != 0)) {
     SourceNumVal s;
     s.rawValue = checkIncDec(event, makeSourceNumVal(v.isSource ? v.value : 0, v.isSource),
-                             0, 0, 1, MIXSRC_LAST,
+                             0, 0, MIXSRC_FIRST, INPUTSRC_LAST,
                              EE_MODEL | INCDEC_SOURCE_VALUE | INCDEC_SOURCE_INVERT |
                                  NO_INCDEC_MARKS,
                              isSourceAvailable);

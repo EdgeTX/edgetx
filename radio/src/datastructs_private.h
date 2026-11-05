@@ -82,6 +82,17 @@ PACK(union SourceNumVal {
   uint16_t rawValue:11;
 });
 
+// Inverted sources are stored negated, so every source must fit the signed
+// 10-bit value. B&W also edits output limit sources through this field.
+// TODO: H7 targets are skipped because 99 telemetry sensors put the last
+// source above 511 (581 on TX16S MK3), so sensors from about 76 up wrap to a
+// different source when used as an input source or a weight, offset or curve
+// value. Widen SourceNumVal and ExpoData::srcRaw, then remove this guard.
+#if !defined(STM32H7)
+static_assert(INPUTSRC_LAST <= (1 << 9) - 1,
+              "Sources no longer fit in SourceNumVal");
+#endif
+
 inline uint16_t makeSourceNumVal(int16_t val, bool isSource = false)
 {
   SourceNumVal v;
@@ -98,6 +109,9 @@ PACK(union LimitNumVal {
   };
   uint16_t rawValue:12;
 });
+
+static_assert(INPUTSRC_LAST <= (1 << 10) - 1,
+              "Sources no longer fit in LimitNumVal");
 
 inline uint16_t makeLimitNumVal(int16_t val, bool isSource = false)
 {
