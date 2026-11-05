@@ -24,7 +24,11 @@
 #include <stdint.h>
 #include "hal.h"
 
+#if defined(AFHDS3_FRM301_EXT)
+#define AFHDS_MAX_PULSES 400  // FRM301 config responses up to 169 bytes payload
+#else
 #define AFHDS_MAX_PULSES 128
+#endif
 
 // max number of transitions measured so far 290 + 10%
 // TODO: define as a function of MAX_PULSES

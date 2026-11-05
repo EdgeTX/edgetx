@@ -147,6 +147,9 @@ extern TrainerPulsesData trainerPulsesData;
 
 #if !defined(AFHDS3)
   #define MODULE_BUFFER_SIZE 64
+#elif defined(AFHDS3_FRM301_EXT)
+  // FRM301 config responses (closed protocol) are up to ~180 bytes
+  #define MODULE_BUFFER_SIZE 400
 #else
   #define MODULE_BUFFER_SIZE 128
 #endif
