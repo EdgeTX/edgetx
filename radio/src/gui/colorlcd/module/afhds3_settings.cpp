@@ -64,6 +64,33 @@ AFHDS3Settings::AFHDS3Settings(Window* parent, const FlexGridLayout& g,
     return std::string(msg);
   });
 
+#if defined(AFHDS3_FRM301_EXT)
+  if (moduleIdx == EXTERNAL_MODULE) {
+    // module type in the bay (stored in afhds3.reserved)
+    line = newLine(grid);
+    new StaticText(line, rect_t{}, "RF module");
+    static const char* const frmTypes[] = {"Auto", "FRM303", "FRM301"};
+    new Choice(line, rect_t{}, frmTypes, 0, 2,
+               [=]() -> int { return md->afhds3.reserved; },
+               [=](int v) {
+                 md->afhds3.reserved = v;
+                 SET_DIRTY();
+               });
+
+    // FRM301 two way (telemetry): sent in the receiver block, without it the
+    // module binds one way
+    line = newLine(grid);
+    new StaticText(line, rect_t{}, "Two way");
+    static const char* const twTypes[] = {"No (one way)", "Yes"};
+    new Choice(line, rect_t{}, twTypes, 0, 1,
+               [=]() -> int { return md->afhds3.telemetry; },
+               [=](int v) {
+                 md->afhds3.telemetry = v;
+                 SET_DIRTY();
+               });
+  }
+#endif
+
   // TYPE
   line = newLine(grid);
   afhds3TypeLabel =
