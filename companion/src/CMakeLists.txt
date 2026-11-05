@@ -188,6 +188,7 @@ target_link_libraries(common
   Qt::Xml
   Qt::Widgets
   Qt::SerialPort
+  Qt::Network
   ${SDL2_LIBRARIES}
 )
 
