@@ -195,6 +195,12 @@ TEST(getSwitch, inputWithTrim)
   evalMixes(1);
   evalLogicalSwitches();
   EXPECT_TRUE(getSwitch(SWSRC_SW1));
+
+  // a negative input weight reverses the trim along with the stick
+  expoAddress(0)->weight = makeSourceNumVal(-100);
+  evalMixes(1);
+  evalLogicalSwitches();
+  EXPECT_FALSE(getSwitch(SWSRC_SW1));
 }
 
 TEST(evalLogicalSwitches, playFile)

@@ -1374,6 +1374,8 @@ void instantTrim()
             continue;
           }
           auto newDelta = anas[expo->chn] - anas_0[expo->chn];
+          // trim is reversed along with the input, see getSourceTrimValue()
+          if (virtualInputsTrimsReversed[expo->chn]) newDelta = -newDelta;
           if (addTrim && delta != newDelta) {
             // avoid 2 different delta values
             addTrim = false;

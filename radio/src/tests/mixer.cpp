@@ -593,6 +593,110 @@ TEST_F(TrimsTest, InstantTrimNegativeCurve)
   EXPECT_EQ(128, getTrimValue(0, AIL_STICK));
 #endif
 }
+
+// output channel fed by the input on expo line `expo`
+static int expoDestChannel(uint8_t expo)
+{
+  auto input = expoAddress(expo)->chn;
+  for (uint8_t i = 0; i < MAX_MIXERS; i++) {
+    MixData *md = &g_model.mixData[i];
+    if (md->srcRaw == MIXSRC_FIRST_INPUT + input) return md->destCh;
+  }
+  return -1;
+}
+
+TEST_F(TrimsTest, ReversedInputTrim)
+{
+  int ch = expoDestChannel(AIL_STICK);
+  ASSERT_GE(ch, 0);
+
+  anaSetFiltered(AIL_STICK, 0);
+  setTrimValue(0, AIL_STICK, 32);
+  evalMixes(1);
+  auto normal = channelOutputs[ch];
+  EXPECT_GT(normal, 0);
+
+  // a negative input weight reverses the trim along with the stick
+  ExpoData *expo = expoAddress(AIL_STICK);
+  expo->weight = makeSourceNumVal(-100);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[ch], -normal);
+
+  // trim adds in the same direction as the reversed stick
+  anaSetFiltered(AIL_STICK, 512);
+  setTrimValue(0, AIL_STICK, 0);
+  evalMixes(1);
+  auto stickOnly = channelOutputs[ch];
+  EXPECT_LT(stickOnly, 0);
+  setTrimValue(0, AIL_STICK, 32);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[ch], stickOnly - normal);
+}
+
+static void setCurvePoints(int8_t p0, int8_t p1, int8_t p2, int8_t p3, int8_t p4)
+{
+  g_model.points[0] = p0;
+  g_model.points[1] = p1;
+  g_model.points[2] = p2;
+  g_model.points[3] = p3;
+  g_model.points[4] = p4;
+}
+
+TEST_F(TrimsTest, ReversedInputCurveTrim)
+{
+  int ch = expoDestChannel(AIL_STICK);
+  ASSERT_GE(ch, 0);
+
+  anaSetFiltered(AIL_STICK, 0);
+  setTrimValue(0, AIL_STICK, 32);
+  evalMixes(1);
+  auto normal = channelOutputs[ch];
+  EXPECT_GT(normal, 0);
+
+  ExpoData *expo = expoAddress(AIL_STICK);
+  expo->curve.type = CURVE_REF_CUSTOM;
+
+  // inverted curve reference (!CV1) reverses the trim
+  setCurvePoints(-100, -50, 0, 50, 100);
+  expo->curve.value = makeSourceNumVal(-1);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[ch], -normal);
+
+  // ... and combined with a negative weight cancels out
+  expo->weight = makeSourceNumVal(-100);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[ch], normal);
+
+  // a decreasing curve reverses the trim
+  expo->weight = makeSourceNumVal(100);
+  setCurvePoints(100, 50, 0, -50, -100);
+  expo->curve.value = makeSourceNumVal(1);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[ch], -normal);
+
+  // a symmetric (V) curve has no direction, trim is left as is
+  setCurvePoints(100, 50, 0, 50, 100);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[ch], normal);
+}
+
+TEST_F(TrimsTest, InstantTrimReversedInput)
+{
+  int ch = expoDestChannel(AIL_STICK);
+  ASSERT_GE(ch, 0);
+
+  ExpoData *expo = expoAddress(AIL_STICK);
+  expo->weight = makeSourceNumVal(-100);
+  anaSetFiltered(AIL_STICK, 50);
+  evalMixes(1);
+  auto held = channelOutputs[ch];
+
+  instantTrim();
+  anaSetFiltered(AIL_STICK, 0);
+  evalMixes(1);
+  // releasing the stick keeps (about) the same output
+  EXPECT_NEAR(channelOutputs[ch], held, 4);
+}
 #endif
 
 TEST(Curves, LinearIntpol)
