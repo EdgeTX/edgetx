@@ -96,10 +96,21 @@ class LvglWidgetParams
   bool hasChildren = false;
 };
 
+static void createLvglObject(lua_State *L, LvglWidgetObjectBase *obj, int index)
+{
+  if (!obj->create(L, index)) {
+    // The failed object has not been registered with its script manager yet.
+    obj->clearRefs(L);
+    obj->deleteNativeObject();
+    delete obj;
+    lua_error(L);
+  }
+}
+
 static int luaLvglPopup(lua_State *L, std::function<LvglWidgetObjectBase*()> create)
 {
   auto obj = create();
-  obj->create(L, 1);
+  createLvglObject(L, obj, 1);
   return 0;
 }
 
@@ -370,7 +381,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         continue;
     }
     if (obj) {
-      obj->create(L, -1);
+      createLvglObject(L, obj, -1);
       auto ref = obj->getRef(L);
       if (p.name && refIndex != 0) {
         lua_pushstring(L, p.name);
@@ -408,7 +419,7 @@ static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, b
     LvglWidgetParams params(L, 1);
 
     auto obj = create();
-    obj->create(L, 1);
+    createLvglObject(L, obj, 1);
 
     if (params.hasChildren) addChildren(L, obj);
 
@@ -436,7 +447,7 @@ static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
     LvglWidgetParams params(L, -1);
 
     auto obj = create();
-    obj->create(L, -1);
+    createLvglObject(L, obj, -1);
 
     if (params.hasChildren) addChildren(L, obj);
 
