@@ -29,6 +29,7 @@ constexpr char MIMETYPE_TELE_SENSOR[] {"application/x-companion-tele-sensor"};
 
 class AutoComboBox;
 class TimerEdit;
+class CalcSourceProxyModel;
 
 namespace Ui {
   class TelemetrySensor;
@@ -76,6 +77,7 @@ class TelemetrySensorPanel: public ModelPanel
   private:
     Ui::TelemetrySensor * ui;
     SensorData & sensor;
+    CalcSourceProxyModel * calcSourceModel;
     int sensorIndex = 0;
     int selectedIndex = 0;
     int sensorCapability;

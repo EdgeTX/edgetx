@@ -28,6 +28,34 @@ constexpr int8_t TELEMETRY_SENSOR_TIMEOUT_OLD = -1;
 constexpr int8_t TELEMETRY_SENSOR_TIMEOUT_START = 125; // * 160ms = 20s
 constexpr uint8_t TELEMETRY_SENSOR_TEXT_LENGTH = 16;
 
+// Calculated sensor sources (TelemetrySensor::calc.sources):
+//   0                              none
+//   +/-(1 .. MAX_TELEMETRY_SENSORS)  sensor (negative: inverted)
+//   +/-(TELEM_CALC_SRC_GV1 + idx)    GVar idx (negative: inverted, or divide
+//                                    for TELEM_FORMULA_MULTIPLY)
+constexpr int8_t TELEM_CALC_SRC_GV1 = 101;
+static_assert(MAX_TELEMETRY_SENSORS < TELEM_CALC_SRC_GV1,
+              "calc source GVar range overlaps sensors");
+static_assert(TELEM_CALC_SRC_GV1 + MAX_GVARS - 1 <= INT8_MAX,
+              "calc source GVar range exceeds int8_t");
+
+inline bool calcSourceIsGVar(int8_t source)
+{
+  return source >= TELEM_CALC_SRC_GV1 || source <= -TELEM_CALC_SRC_GV1;
+}
+
+// Returns the 0-based GVar index of a GVar calc source
+inline uint8_t calcSourceGVarIndex(int8_t source)
+{
+  return (source < 0 ? -source : source) - TELEM_CALC_SRC_GV1;
+}
+
+inline int8_t calcSourceFromGVar(uint8_t idx, bool negative)
+{
+  int8_t source = TELEM_CALC_SRC_GV1 + idx;
+  return negative ? -source : source;
+}
+
 class TelemetryItem
 {
   public:
