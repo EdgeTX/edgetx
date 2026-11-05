@@ -34,7 +34,6 @@
 
 #include "lua_states.h"
 
-#define MAX_INSTRUCTIONS       (20000/100)
 #define LUA_WARNING_INFO_LEN    64
 
 lua_State * lsWidgets = NULL;
@@ -161,7 +160,7 @@ static void luaLoadFile(const char * filename, std::function<void()> callback)
 
   TRACE("luaLoadFile(%s)", filename);
 
-  luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
+  luaSetInstructionsLimit(lsWidgets, luaWidgetInstructionsLimit(false));
 
   PROTECT_LUA() {
     if (luaLoadScriptFileToState(lsWidgets, filename, LUA_SCRIPT_LOAD_MODE) == SCRIPT_OK) {
