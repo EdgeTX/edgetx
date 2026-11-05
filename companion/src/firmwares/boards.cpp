@@ -753,6 +753,8 @@ QList<int> Boards::getSupportedInternalModules(Board::Type board)
   } else if (IS_RADIOMASTER_MT12(board)) {
     modules.append((int)MODULE_TYPE_CROSSFIRE);
     modules.append((int)MODULE_TYPE_MULTIMODULE);
+  } else if (IS_JUMPER_T22(board)) {
+    modules.append((int)MODULE_TYPE_CROSSFIRE);
   } else if (IS_FAMILY_HORUS_OR_T16(board) || IS_FAMILY_T12(board) ||
              (IS_TARANIS_SMALL(board) && IS_ACCESS_RADIO(board))) {
     modules.append((int)MODULE_TYPE_XJT_PXX1);
