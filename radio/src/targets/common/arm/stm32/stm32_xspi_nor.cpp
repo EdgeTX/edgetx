@@ -48,15 +48,15 @@
 #define SPI_NOR_REG2_ADDR3 0x00000300
 
 #define MEMORY_READY_MATCH_VALUE 0x00
-
-// A page program command wraps inside its own page: bytes past the page
-// boundary overwrite the start of the same page instead of continuing
-// into the next one (#7576).
-#define XSPI_NOR_PAGE_SIZE 256
 #define MEMORY_READY_MASK_VALUE 0x01
 
 #define WRITE_ENABLE_MATCH_VALUE 0x02
 #define WRITE_ENABLE_MASK_VALUE 0x02
+
+// A page program command wraps inside its own page: bytes past the page
+// boundary overwrite the start of the same page instead of continuing
+// into the next one.
+#define XSPI_NOR_PAGE_SIZE 256
 
 static uint32_t xspi_nor_read_instr(const uint8_t mode, const uint8_t rate)
 {
