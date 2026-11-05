@@ -1,4 +1,3 @@
-option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" ON)
 option(AFHDS3 "AFHDS3 TX Module" ON)
@@ -58,15 +57,14 @@ set(LCD_DRIVER lcd_driver.cpp)
 set(HARDWARE_TOUCH YES)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
-set(SOFTWARE_KEYBOARD ON)
 set(FLYSKY_GIMBAL OFF)
 set(AUX_SERIAL YES)
 set(AUX2_SERIAL YES)
 
 add_definitions(
-  -DSTM32H750XBTx -DSTM32H750xx
-  -DSDRAM -DCCMRAM
-  -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
+  -DSTM32H750xx
+  -DSDRAM
+  -DHARDWARE_TOUCH -DHARDWARE_KEYS
 )
 
 set(SDRAM ON)
@@ -80,9 +78,6 @@ if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 
-if(NOT UNEXPECTED_SHUTDOWN)
-  add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
-endif()
 
 if(DISK_CACHE)
   set(SRC ${SRC} disk_cache.cpp)

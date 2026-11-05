@@ -1,4 +1,3 @@
-option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
 option(AFHDS3 "AFHDS3 TX Module" ON)
@@ -34,7 +33,7 @@ set(MODULE_SIZE_SML YES)
 
 # IMU support
 set(IMU ON)
-add_definitions(-DIMU_ICM4207C)
+list(APPEND BOARD_DEFINITIONS IMU_ICM4207C)
 add_definitions(-DIMU_INVERT_TILT_X)
 add_definitions(-DIMU_INVERT_TILT_Y)
 add_definitions(-DIMU_SWAP_TILT_XY)
@@ -47,8 +46,7 @@ set(TARGET_EXTRAM_START 0xC0000000)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM1=8192")
 set(FIRMWARE_STRIP_BOOTLOADER YES)
 
-add_definitions(-DPCBC14 -DPCBHORUS -DPCBFLYSKY)
-add_definitions(-DBATTERY_CHARGE)
+add_definitions(-DPCBC14 -DPCBHORUS)
 add_definitions(-DUSB_CHARGER)
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 add_definitions(-DFIRMWARE_QSPI)
@@ -67,20 +65,18 @@ set(LCD_DRIVER lcd_driver.cpp)
 set(HARDWARE_TOUCH YES)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
-set(SOFTWARE_KEYBOARD ON)
 set(FLYSKY_GIMBAL NO)
 
 
 add_definitions(
-  -DSTM32H750IBTx -DSTM32H750xx
-  -DSDRAM -DCCMRAM
-  -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
-  -DWS2812_MAX_LEDS=24
+  -DSTM32H750xx
+  -DSDRAM
+  -DHARDWARE_TOUCH -DHARDWARE_KEYS
 )
 
 set(SDRAM ON)
 
-add_definitions(-DAUDIO -DVOICE -DRTCLOCK -DSOFTWARE_VOLUME)
+add_definitions(-DAUDIO -DRTCLOCK -DSOFTWARE_VOLUME)
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 if(PWR_BUTTON STREQUAL "MANAGED")
   add_definitions(-DPWR_BUTTON_PRESS)
@@ -90,9 +86,6 @@ if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 
-if(NOT UNEXPECTED_SHUTDOWN)
-  add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
-endif()
 
 if(DISK_CACHE)
   set(SRC ${SRC} disk_cache.cpp)
@@ -196,3 +189,7 @@ endif()
 
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)
+
+# Only the board code reads these
+target_compile_definitions(board PRIVATE ${BOARD_DEFINITIONS})
+target_compile_definitions(board_bl PRIVATE ${BOARD_DEFINITIONS})

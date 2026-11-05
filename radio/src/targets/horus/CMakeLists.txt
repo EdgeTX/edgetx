@@ -1,5 +1,4 @@
 option(DISK_CACHE "Enable SD card disk cache" ON)
-option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(IMU_LSM6DS33 "Enable I2C2 and LSM6DS33 IMU" OFF)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
@@ -55,7 +54,6 @@ if (PCB STREQUAL X10)
     set(BLUETOOTH ON)
     set(AUX_SERIAL OFF)
     set(EXTERNAL_ANTENNA ON)
-    add_definitions(-DHARDWARE_POWER_MANAGEMENT_UNIT)
   elseif (PCBREV STREQUAL T15)
     set(FLAVOUR t15)
     add_definitions(-DRADIO_FAMILY_T16)
@@ -114,8 +112,8 @@ if (PCB STREQUAL X10)
     set(USB_CHARGER YES)
     set(V16_CHARGE_UI ON)
     set(FLYSKY_GIMBAL ON)
-    add_definitions(-DIMU_ICM42627)
-    add_definitions(-DIMU_SC7U22)
+    list(APPEND BOARD_DEFINITIONS IMU_ICM42627)
+    list(APPEND BOARD_DEFINITIONS IMU_SC7U22)
     if (BLUETOOTH)
       set(AUX_SERIAL OFF)
     endif()
@@ -174,7 +172,7 @@ set(RADIO_DEPENDENCIES
   ${BITMAPS_TARGET}
   )
 
-add_definitions(-DPCBHORUS -DSTM32F429_439xx -DSTM32F429xx -DSDRAM -DHARDWARE_KEYS)
+add_definitions(-DPCBHORUS -DSTM32F429xx -DSDRAM -DHARDWARE_KEYS)
 add_definitions(-DRTCLOCK)
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
@@ -192,9 +190,6 @@ if(FUNCTION_SWITCHES)
   add_definitions(-DFUNCTION_SWITCHES)
 endif()
 
-if(NOT UNEXPECTED_SHUTDOWN)
-  add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
-endif()
 
 if(IMU_LSM6DS33)
   add_definitions(-DIMU_LSM6DS33)
@@ -205,10 +200,6 @@ if(AUX_SERIAL)
   add_definitions(-DCONFIGURABLE_MODULE_PORT)
 endif()
 
-if(NOT INTERNAL_MODULE_PXX1)
-  option(ALLOW_TRAINER_MULTI "Allow multimodule to be use as trainer input" OFF)
-endif()
-
 if("PXX2" IN_LIST INTERNAL_MODULES)
   if (NOT PCBREV STREQUAL EXPRESS)
     set(ACCESS_DENIED ON)
@@ -216,9 +207,6 @@ if("PXX2" IN_LIST INTERNAL_MODULES)
   endif()
 endif()
 
-if(ALLOW_TRAINER_MULTI)
-  add_definitions(-DALLOW_TRAINER_MULTI)
-endif()
 
 if(DISK_CACHE)
   add_definitions(-DDISK_CACHE)
@@ -327,7 +315,7 @@ if(USE_ADS79xx)
 endif()
 
 if(USB_CHARGE_LED)
-  add_definitions(-DUSB_CHARGE_LED)
+  list(APPEND BOARD_DEFINITIONS USB_CHARGE_LED)
 endif()
 
 if(USB_CHARGER)
@@ -362,3 +350,7 @@ set(SRC ${SRC}
   io/multi_firmware_update.cpp
   io/multi_protolist.cpp
 )
+
+# Only the board code reads these
+target_compile_definitions(board PRIVATE ${BOARD_DEFINITIONS})
+target_compile_definitions(board_bl PRIVATE ${BOARD_DEFINITIONS})

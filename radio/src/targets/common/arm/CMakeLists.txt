@@ -280,7 +280,6 @@ if(NOT WASI)
   add_definitions(-g)
 endif()
 
-add_definitions(-DCPUARM)
 add_definitions(-DGPS)
 add_definitions(-DBATTGRAPH -DTHRTRACE)
 
