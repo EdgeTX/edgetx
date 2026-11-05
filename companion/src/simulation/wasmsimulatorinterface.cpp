@@ -444,9 +444,11 @@ void WasmSimulatorInterface::init()
 
   m_stopRequested = false;
 
+  for (auto & value : m_analogValues)
+    value.store(0, std::memory_order_relaxed);
+
   // Call simuInit
   QMutexLocker lckr(&m_mutex);
-  memset(m_analogValues, 0, sizeof(m_analogValues));
   wasm_runtime_call_wasm(m_execEnv, m_fnInit, 0, nullptr);
 
   // Query LCD dimensions
@@ -584,12 +586,15 @@ void WasmSimulatorInterface::stop()
     return;
 
   m_stopRequested = true;
-  deinitAudio();
 
   {
     QMutexLocker lckr(&m_mutex);
     wasm_runtime_call_wasm(m_execEnv, m_fnStop, 0, nullptr);
   }
+
+  // Close audio only once simuStop() has joined the firmware threads, so the
+  // audio task cannot be inside SDL_QueueAudio() while the device closes.
+  deinitAudio();
 
   // Fully destroy the WASM module so the next init()/start() gets a clean
   // instance.  WASI threads created by the firmware's RTOS layer cannot be
@@ -614,16 +619,15 @@ void WasmSimulatorInterface::setVolumeGain(const int value)
 
 void WasmSimulatorInterface::setAnalogValue(uint8_t index, int16_t value)
 {
-  QMutexLocker lckr(&m_mutex);
   if (index < MAX_ANALOGS)
-    m_analogValues[index] = value;
+    m_analogValues[index].store(value, std::memory_order_relaxed);
 }
 
+// Called from firmware threads; must not take m_mutex (see header).
 int16_t WasmSimulatorInterface::getAnalogValue(uint8_t index)
 {
-  QMutexLocker lckr(&m_mutex);
   if (index < MAX_ANALOGS)
-    return m_analogValues[index];
+    return m_analogValues[index].load(std::memory_order_relaxed);
   return 0;
 }
 
