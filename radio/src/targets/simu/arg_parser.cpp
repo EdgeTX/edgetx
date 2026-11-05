@@ -4,11 +4,26 @@
 #include <cstdlib>
 #include <cctype>
 #include <climits>
+#include <cstdarg>
+#if defined(SIMU_AUTOMATION)
+#include <filesystem>
+#endif
 
 ArgumentParser::ArgumentParser(const std::string &prog_name)
     : program_name(prog_name) {}
 
 bool ArgumentParser::parse(int argc, char *argv[]) {
+#if defined(SIMU_AUTOMATION)
+  // Reserve stdout for protocol records as soon as automation is requested,
+  // including parse failures that occur before the flag's position.
+  for (int i = 1; i < argc; ++i) {
+    if (std::string(argv[i]) == "--automation-stdio") {
+      automation_stdio = true;
+      break;
+    }
+  }
+#endif
+
   for (int i = 1; i < argc; ++i) {
     std::string arg = argv[i];
 
@@ -24,32 +39,52 @@ bool ArgumentParser::parse(int argc, char *argv[]) {
     } else if (arg == "--settings") {
       if (!getNextArg(argc, argv, i, settings_path, "settings"))
         return false;
+#if defined(SIMU_AUTOMATION)
+    } else if (arg == "--automation-stdio") {
+      // Already recorded by the pre-scan above.
+    } else if (arg == "--automation-output") {
+      if (!getNextArg(argc, argv, i, automation_output_path,
+                      "automation-output"))
+        return false;
+#endif
     } else if (arg == "-h" || arg == "--help") {
       help_requested = true;
       return true;
     } else {
-      printf("Unknown option: %s\n", arg.c_str());
+      printMessage("Unknown option: %s\n", arg.c_str());
       printUsage();
       return false;
     }
   }
+#if defined(SIMU_AUTOMATION)
+  return validateAutomationOptions();
+#else
   return true;
+#endif
 }
 
 void ArgumentParser::printUsage() const {
-  printf("usage: %s [--width width] [--height height] [--storage path] "
-         "[--settings path] [-h | --help]\n",
-         program_name.c_str());
+  printMessage("usage: %s [--width width] [--height height] [--storage path] "
+               "[--settings path] "
+#if defined(SIMU_AUTOMATION)
+               "[--automation-stdio --automation-output path] "
+#endif
+               "[-h | --help]\n",
+               program_name.c_str());
 }
 
 void ArgumentParser::printHelp() const {
   printUsage();
-  printf("\nOptions:\n");
-  printf("  --width width      Set the width (integer)\n");
-  printf("  --height height    Set the height (integer)\n");
-  printf("  --storage path     Set the storage path\n");
-  printf("  --settings path    Set the settings path\n");
-  printf("  -h, --help         Show this help message\n");
+  printMessage("\nOptions:\n");
+  printMessage("  --width width             Set the width (integer)\n");
+  printMessage("  --height height           Set the height (integer)\n");
+  printMessage("  --storage path            Set the storage path\n");
+  printMessage("  --settings path           Set the settings path\n");
+#if defined(SIMU_AUTOMATION)
+  printMessage("  --automation-stdio        Enable the stdio automation protocol\n");
+  printMessage("  --automation-output path  Set the automation artifact root\n");
+#endif
+  printMessage("  -h, --help                Show this help message\n");
 }
 
 bool ArgumentParser::isHelpRequested() const { return help_requested; }
@@ -66,6 +101,14 @@ const std::string &ArgumentParser::getSettingsPath() const {
   return settings_path;
 }
 
+#if defined(SIMU_AUTOMATION)
+const std::string &ArgumentParser::getAutomationOutputPath() const {
+  return automation_output_path;
+}
+
+bool ArgumentParser::isAutomationStdio() const { return automation_stdio; }
+#endif
+
 bool ArgumentParser::hasWidth() const { return width != -1; }
 
 bool ArgumentParser::hasHeight() const { return height != -1; }
@@ -74,11 +117,50 @@ bool ArgumentParser::hasStoragePath() const { return !storage_path.empty(); }
 
 bool ArgumentParser::hasSettingsPath() const { return !settings_path.empty(); }
 
+#if defined(SIMU_AUTOMATION)
+bool ArgumentParser::hasAutomationOutputPath() const {
+  return !automation_output_path.empty();
+}
+
+bool ArgumentParser::validateAutomationOptions() {
+  if (automation_stdio != hasAutomationOutputPath()) {
+    printMessage("Options --automation-stdio and --automation-output must be "
+                 "used together\n");
+    return false;
+  }
+
+  if (!automation_stdio)
+    return true;
+
+  std::error_code error;
+  std::filesystem::path output =
+      std::filesystem::canonical(automation_output_path, error);
+  if (error || !std::filesystem::is_directory(output, error) || error) {
+    printMessage("Option --automation-output must name an existing directory\n");
+    return false;
+  }
+
+  automation_output_path = output.string();
+  return true;
+}
+#endif
+
+void ArgumentParser::printMessage(const char *format, ...) const {
+  va_list arguments;
+  va_start(arguments, format);
+#if defined(SIMU_AUTOMATION)
+  vfprintf(automation_stdio ? stderr : stdout, format, arguments);
+#else
+  vfprintf(stdout, format, arguments);
+#endif
+  va_end(arguments);
+}
+
 bool ArgumentParser::getNextArg(int argc, char *argv[], int &i,
                                 std::string &value,
                                 const std::string &option_name) {
   if (i + 1 >= argc) {
-    printf("Option --%s requires an argument\n", option_name.c_str());
+    printMessage("Option --%s requires an argument\n", option_name.c_str());
     printUsage();
     return false;
   }
@@ -89,7 +171,7 @@ bool ArgumentParser::getNextArg(int argc, char *argv[], int &i,
 bool ArgumentParser::parseIntOption(int argc, char *argv[], int &i, int &value,
                                     const std::string &option_name) {
   if (i + 1 >= argc) {
-    printf("Option --%s requires an argument\n", option_name.c_str());
+    printMessage("Option --%s requires an argument\n", option_name.c_str());
     printUsage();
     return false;
   }
@@ -99,7 +181,7 @@ bool ArgumentParser::parseIntOption(int argc, char *argv[], int &i, int &value,
 
   // Check if string is empty or starts with non-digit (except for optional '+')
   if (!str || *str == '\0' || (!isdigit(*str) && *str != '+')) {
-    printf("Option --%s requires a valid integer\n", option_name.c_str());
+    printMessage("Option --%s requires a valid integer\n", option_name.c_str());
     return false;
   }
 
@@ -107,8 +189,8 @@ bool ArgumentParser::parseIntOption(int argc, char *argv[], int &i, int &value,
 
   // Check for conversion errors
   if (*endptr != '\0' || result <= 0 || result > INT_MAX) {
-    printf("Option --%s requires a valid positive integer\n",
-           option_name.c_str());
+    printMessage("Option --%s requires a valid positive integer\n",
+                 option_name.c_str());
     return false;
   }
 

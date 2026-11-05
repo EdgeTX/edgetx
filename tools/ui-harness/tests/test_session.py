@@ -1,0 +1,929 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import subprocess
+import sys
+import tempfile
+import time
+import unittest
+from pathlib import Path
+from unittest import mock
+
+
+HARNESS_ROOT = Path(__file__).resolve().parents[1]
+FAKE_SIMULATOR = Path(__file__).with_name("fake_simulator.py")
+LAUNCHER = HARNESS_ROOT / "edgetx-ui"
+sys.path.insert(0, str(HARNESS_ROOT))
+
+from edgetx_ui.ppm import read_png  # noqa: E402
+from edgetx_ui.session import (  # noqa: E402
+    MAX_PROTOCOL_RECORDS,
+    MAX_STDERR_BYTES,
+    MAX_STDERR_LINES,
+    CommandFailed,
+    ProcessExited,
+    ProtocolFailure,
+    RequestTimeout,
+    SessionError,
+    SimulatorSession,
+    StartupMismatch,
+)
+
+
+class _FailsSecondWrite:
+    def __init__(self, path: Path) -> None:
+        self.stream = path.open("wb")
+        self.calls = 0
+
+    def write(self, payload: bytes) -> int:
+        self.calls += 1
+        if self.calls == 2:
+            raise OSError("injected evidence sink failure")
+        return self.stream.write(payload)
+
+    def flush(self) -> None:
+        self.stream.flush()
+
+    def fileno(self) -> int:
+        return self.stream.fileno()
+
+    def close(self) -> None:
+        self.stream.close()
+
+
+class SimulatorSessionTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temporary_directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary_directory.cleanup)
+        self.output_root = Path(self.temporary_directory.name)
+
+    def session(self, mode: str, **overrides: object) -> SimulatorSession:
+        options = {
+            "request_timeout": 1.0,
+            "stop_timeout": 0.5,
+            "terminate_timeout": 0.5,
+            "kill_timeout": 0.5,
+            "reader_join_timeout": 0.5,
+        }
+        options.update(overrides)
+        return SimulatorSession(
+            sys.executable,
+            self.output_root,
+            simulator_args=(str(FAKE_SIMULATOR), mode),
+            **options,
+        )
+
+    def assert_reaped(self, session: SimulatorSession) -> None:
+        self.assertIsNotNone(session.returncode)
+        self.assertFalse(session.reader_threads_alive)
+        self.assertFalse(session.writer_thread_alive)
+
+    def test_fragmented_start_ping_stop_is_correlated_and_reaped(self) -> None:
+        session = self.session("fragmented")
+        ready = session.start()
+        stop = session.stop()
+
+        self.assertEqual(session.startup_ping.id, 1)
+        self.assertEqual(session.description_response.id, 2)
+        self.assertEqual(ready.id, 3)
+        self.assertEqual(ready.result["phase"], "ready")
+        self.assertEqual(stop.id, 4)
+        self.assertEqual(session.returncode, 0)
+        self.assertEqual(session.termination_stage, "graceful")
+        self.assert_reaped(session)
+
+    def test_event_does_not_steal_correlated_response(self) -> None:
+        session = self.session("event")
+        try:
+            ready = session.start()
+            self.assertEqual(ready.id, 3)
+            self.assertEqual(session.events[-1].code, "queue_full")
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_stderr_is_separate_and_bounded(self) -> None:
+        session = self.session("stderr-flood", request_timeout=3.0)
+        session.start()
+        session.stop()
+
+        line_count, byte_count = session.stderr_counts
+        self.assertLessEqual(line_count, MAX_STDERR_LINES)
+        self.assertLessEqual(byte_count, MAX_STDERR_BYTES)
+        self.assertIn("diagnostic-299", session.recent_stderr)
+        self.assert_reaped(session)
+
+    def test_malformed_stdout_fails_and_cleans_up(self) -> None:
+        session = self.session("malformed")
+        with self.assertRaisesRegex(ProtocolFailure, "valid JSON"):
+            session.start()
+        self.assert_reaped(session)
+
+    def test_mismatched_response_id_fails_and_cleans_up(self) -> None:
+        session = self.session("wrong-id")
+        with self.assertRaisesRegex(ProtocolFailure, "does not match"):
+            session.start()
+        self.assert_reaped(session)
+
+    def test_repeated_response_id_poisoning_is_detected(self) -> None:
+        session = self.session("duplicate")
+        try:
+            try:
+                session.start()
+            except ProtocolFailure:
+                pass
+            else:
+                with self.assertRaisesRegex(
+                    ProtocolFailure, "repeated|does not match"
+                ):
+                    session.ping()
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_command_error_keeps_code_and_diagnostics(self) -> None:
+        session = self.session("command-error")
+        with self.assertRaises(CommandFailed) as raised:
+            session.start()
+        self.assertEqual(raised.exception.response.error_code, "unsupported_command")
+        self.assertIn("fake simulator started", str(raised.exception))
+        self.assert_reaped(session)
+
+    def test_timeout_terminates_and_reaps_child(self) -> None:
+        session = self.session(
+            "hang",
+            request_timeout=0.1,
+            stop_timeout=0.1,
+            terminate_timeout=0.5,
+        )
+        started = time.monotonic()
+        with self.assertRaises(RequestTimeout):
+            session.start()
+        self.assertLess(time.monotonic() - started, 2.0)
+        self.assertIn(session.termination_stage, ("terminated", "killed"))
+        self.assert_reaped(session)
+
+    def test_stdin_backpressure_is_bounded_by_the_request_deadline(self) -> None:
+        session = self.session(
+            "ready-no-read",
+            request_timeout=0.2,
+            stop_timeout=0.2,
+            terminate_timeout=0.5,
+            kill_timeout=0.5,
+        )
+        try:
+            session.start(timeout=1.0)
+            started = time.monotonic()
+            with self.assertRaisesRegex(RequestTimeout, "writing request"):
+                session.request("ping", "x" * 12_000, timeout=0.2)
+            self.assertLess(time.monotonic() - started, 1.0)
+            self.assertIsNotNone(session.returncode)
+            self.assertFalse(session.writer_thread_alive)
+            self.assertFalse(session.reader_threads_alive)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_protocol_transcript_ring_is_bounded_and_sink_is_verifiable(
+        self,
+    ) -> None:
+        sink = self.output_root / "protocol-evidence.jsonl"
+        session = self.session("normal", protocol_sink=sink)
+        request_count = MAX_PROTOCOL_RECORDS // 2 + 32
+        try:
+            session.start()
+            for _ in range(request_count):
+                session.ping()
+            session.stop()
+        finally:
+            session.close()
+
+        evidence = sink.read_bytes()
+        lines = evidence.splitlines(keepends=True)
+        self.assertEqual(len(lines), session.protocol_record_count)
+        self.assertEqual(hashlib.sha256(evidence).hexdigest(), session.protocol_sha256)
+        self.assertEqual(len(session.protocol_records), MAX_PROTOCOL_RECORDS)
+        self.assertEqual(
+            session.protocol_records_dropped,
+            session.protocol_record_count - MAX_PROTOCOL_RECORDS,
+        )
+        for line in lines:
+            record = json.loads(line)
+            self.assertIn(record["direction"], ("request", "response", "event"))
+        self.assert_reaped(session)
+
+    def test_protocol_evidence_bounds_one_hundred_thousand_records(self) -> None:
+        sink = self.output_root / "protocol-100k.jsonl"
+        session = self.session("normal")
+        session._protocol_sink = sink.open("wb", buffering=64 * 1024)
+        for index in range(100_000):
+            session._record_protocol("event", {"index": index})
+        self.assertIsNone(session._close_protocol_sink())
+
+        digest = hashlib.sha256()
+        line_count = 0
+        with sink.open("rb") as stream:
+            for index, line in enumerate(stream):
+                digest.update(line)
+                record = json.loads(line)
+                self.assertEqual(record, {
+                    "direction": "event",
+                    "message": {"index": index},
+                })
+                line_count += 1
+        self.assertEqual(line_count, 100_000)
+        self.assertEqual(session.protocol_record_count, 100_000)
+        self.assertEqual(len(session.protocol_records), MAX_PROTOCOL_RECORDS)
+        self.assertEqual(
+            session.protocol_records_dropped, 100_000 - MAX_PROTOCOL_RECORDS
+        )
+        self.assertEqual(session.protocol_sha256, digest.hexdigest())
+
+    def test_protocol_sink_failure_wakes_the_pending_request(self) -> None:
+        session = self.session("normal")
+        try:
+            session.start()
+            session._protocol_sink = _FailsSecondWrite(
+                self.output_root / "failing-protocol.jsonl"
+            )
+            with self.assertRaisesRegex(
+                ProtocolFailure, "injected evidence sink failure"
+            ):
+                session.ping(timeout=0.5)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_child_crash_reports_exit_and_recent_stderr(self) -> None:
+        session = self.session("crash")
+        with self.assertRaises(ProcessExited) as raised:
+            session.start()
+        self.assertIn("code 17", str(raised.exception))
+        self.assertIn("fixture crash", str(raised.exception))
+        self.assert_reaped(session)
+
+    def test_partial_record_at_eof_is_rejected(self) -> None:
+        session = self.session("partial-eof")
+        with self.assertRaisesRegex(ProtocolFailure, "partial record"):
+            session.start()
+        self.assert_reaped(session)
+
+    def test_local_validation_error_does_not_poison_next_request(self) -> None:
+        session = self.session("normal")
+        try:
+            session.start()
+            with self.assertRaises(ValueError):
+                session.request("key-down", "ENTER extra")
+            ping = session.ping()
+            self.assertEqual(ping.id, 5)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_exit_after_ping_is_not_reported_as_a_clean_stop(self) -> None:
+        session = self.session("exit-after-ping")
+        with self.assertRaises(ProcessExited):
+            session.start()
+        self.assert_reaped(session)
+
+    def test_stop_escalates_when_child_acknowledges_but_does_not_exit(self) -> None:
+        session = self.session(
+            "ignore-stop", stop_timeout=0.1, terminate_timeout=0.5
+        )
+        session.start()
+        stop = session.stop()
+
+        self.assertEqual(stop.id, 4)
+        self.assertEqual(session.termination_stage, "terminated")
+        self.assert_reaped(session)
+
+    def test_stop_kills_and_waits_when_terminate_does_not_reap(self) -> None:
+        session = self.session(
+            "ignore-stop",
+            stop_timeout=0.1,
+            terminate_timeout=0.1,
+            kill_timeout=0.5,
+        )
+        session.start()
+        process = session.process
+        assert process is not None
+        process.terminate = lambda: None  # type: ignore[method-assign]
+
+        stop = session.stop()
+
+        self.assertEqual(stop.id, 4)
+        self.assertEqual(session.termination_stage, "killed")
+        self.assert_reaped(session)
+
+    def test_start_polls_status_until_a_real_first_frame(self) -> None:
+        session = self.session("starting-then-ready")
+        try:
+            ready = session.start()
+            self.assertEqual(ready.id, 5)
+            self.assertEqual(session.status.phase, "ready")
+            self.assertEqual(session.status.epoch, 1)
+            self.assertEqual(session.status.display_sequence, 1)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_startup_deadline_bounds_a_never_ready_simulator(self) -> None:
+        session = self.session("never-ready")
+        with self.assertRaisesRegex(RequestTimeout, "readiness"):
+            session.start(timeout=1.0)
+        self.assert_reaped(session)
+
+    def test_discovery_schema_and_status_identity_are_strict(self) -> None:
+        bad_description = self.session("bad-description")
+        with self.assertRaisesRegex(ProtocolFailure, "capture.*boolean"):
+            bad_description.start()
+        self.assert_reaped(bad_description)
+
+        mismatched_status = self.session("status-mismatch")
+        with self.assertRaisesRegex(ProtocolFailure, "target differs"):
+            mismatched_status.start()
+        self.assert_reaped(mismatched_status)
+
+    def test_target_lcd_and_required_capabilities_are_validated(self) -> None:
+        matching = self.session(
+            "normal",
+            expected_target="test-target",
+            expected_lcd=(480, 272, 16),
+        )
+        matching.start()
+        matching.stop()
+        self.assert_reaped(matching)
+
+        missing = self.session("normal", required_capabilities=("capture",))
+        with self.assertRaisesRegex(StartupMismatch, "capture"):
+            missing.start()
+        self.assert_reaped(missing)
+
+    def test_phase4_discovery_and_primitives_are_validated(self) -> None:
+        session = self.session("phase4")
+        try:
+            session.start()
+            assert session.description is not None
+            self.assertTrue(session.description.capabilities.rotary)
+            self.assertTrue(session.description.capabilities.touch)
+            self.assertEqual(session.description.keys, ("EXIT", "ENTER"))
+
+            session.key_down("ENTER")
+            self.assertEqual(session.read_status().active_key_count, 1)
+            with self.assertRaises(CommandFailed) as duplicate:
+                session.key_down("ENTER")
+            self.assertEqual(
+                duplicate.exception.response.error_code, "key_already_down"
+            )
+            session.key_up("ENTER")
+
+            session.rotate(-128)
+            session.rotate(128)
+            session.touch_down(0, 0)
+            session.touch_move(479, 271)
+            session.touch_up()
+            session.release_all()
+            status = session.read_status()
+            self.assertEqual(status.active_key_count, 0)
+            self.assertFalse(status.touch_active)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase4_host_composites_release_owned_inputs(self) -> None:
+        session = self.session("phase4")
+        try:
+            session.start()
+            session.press("ENTER", duration=0)
+            session.long_press("EXIT", duration=0)
+            session.tap(0, 0, duration=0)
+            session.drag(((0, 0), (240, 136), (479, 271)), duration=0)
+            status = session.read_status()
+            self.assertEqual(status.active_key_count, 0)
+            self.assertFalse(status.touch_active)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase4_composite_release_failure_falls_back_to_release_all(
+        self,
+    ) -> None:
+        session = self.session("phase4-release-error")
+        try:
+            session.start()
+            with self.assertRaises(CommandFailed):
+                session.press("ENTER", duration=0)
+            self.assertEqual(session.read_status().active_key_count, 0)
+
+            with self.assertRaises(CommandFailed):
+                session.tap(1, 1, duration=0)
+            self.assertFalse(session.read_status().touch_active)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase4_local_validation_does_not_consume_request_ids(self) -> None:
+        session = self.session("phase4")
+        try:
+            session.start()
+            for invalid_call in (
+                lambda: session.key_down("UNKNOWN"),
+                lambda: session.rotate(0),
+                lambda: session.rotate(129),
+                lambda: session.touch_down(-1, 0),
+                lambda: session.touch_move(480, 0),
+                lambda: session.drag(((0, 0),), duration=0),
+            ):
+                with self.subTest(call=invalid_call):
+                    with self.assertRaises(ValueError):
+                        invalid_call()
+            self.assertEqual(session.ping().id, 4)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase4_wait_frame_uses_fresh_status_and_strict_result(self) -> None:
+        session = self.session("phase4")
+        try:
+            session.start()
+            current = session.wait_frame(1)
+            self.assertEqual(current.display_sequence, 1)
+            next_frame = session.wait_next_frame()
+            self.assertEqual(next_frame.display_sequence, 2)
+            self.assertEqual(next_frame.epoch, 1)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+        malformed = self.session("phase4-bad-frame")
+        try:
+            malformed.start()
+            with self.assertRaisesRegex(ProtocolFailure, "below"):
+                malformed.wait_frame(2)
+        finally:
+            malformed.close()
+        self.assert_reaped(malformed)
+
+    def test_phase4_wait_timeout_poisons_and_reaps_session(self) -> None:
+        session = self.session(
+            "phase4-wait-hang",
+            request_timeout=0.1,
+            stop_timeout=0.1,
+            terminate_timeout=0.5,
+        )
+        session.start(timeout=1.0)
+        with self.assertRaises(RequestTimeout):
+            session.wait_frame(2)
+        with self.assertRaises(SessionError):
+            session.ping()
+        session.close()
+        self.assertIn(session.termination_stage, ("terminated", "killed"))
+        self.assert_reaped(session)
+
+    def test_phase5_capture_ppm_is_fresh_and_preserves_safe_spaces(self) -> None:
+        capture_dir = self.output_root / "check points"
+        capture_dir.mkdir()
+        session = self.session("phase5")
+        try:
+            session.start()
+            artifact = session.capture_ppm("check points/home  screen.ppm")
+
+            self.assertEqual(artifact.path, "check points/home  screen.ppm")
+            self.assertEqual(artifact.display_sequence, 2)
+            self.assertEqual((artifact.width, artifact.height), (480, 272))
+            self.assertEqual(artifact.depth, 16)
+            capture_path = self.output_root / "check points" / "home  screen.ppm"
+            self.assertEqual(capture_path.stat().st_size, artifact.byte_count)
+            self.assertTrue(
+                capture_path.read_bytes().startswith(b"P6\n480 272\n255\n")
+            )
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase5_local_path_rejection_does_not_consume_request_ids(self) -> None:
+        existing = self.output_root / "existing.ppm"
+        existing.write_bytes(b"keep")
+        session = self.session("phase5")
+        try:
+            session.start()
+            invalid_paths = [
+                "../escape.ppm",
+                "/absolute.ppm",
+                "C:/rooted.ppm",
+                "missing/parent.ppm",
+                "existing.ppm",
+                "wrong.PNG",
+                "double//separator.ppm",
+                "back\\slash.ppm",
+                "a" * 1021 + ".ppm",
+            ]
+            if sys.platform == "win32":
+                invalid_paths.append("CON.ppm")
+            for path in invalid_paths:
+                with self.subTest(path=path), self.assertRaises(ValueError):
+                    session.capture_ppm(path)
+            self.assertEqual(session.ping().id, 4)
+            self.assertEqual(existing.read_bytes(), b"keep")
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase5_png_bundle_has_verified_hashes_and_stable_metadata(self) -> None:
+        (self.output_root / "captures").mkdir()
+        session = self.session("phase5")
+        try:
+            session.start()
+            bundle = session.capture_png("captures/home screen.png")
+
+            manifest_path = (
+                self.output_root / "captures" / "home screen.capture.json"
+            )
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            png_path = self.output_root / "captures" / "home screen.png"
+            ppm_path = self.output_root / "captures" / "home screen.ppm"
+            self.assertEqual(
+                bundle.png.sha256,
+                hashlib.sha256(png_path.read_bytes()).hexdigest(),
+            )
+            self.assertEqual(
+                bundle.ppm.sha256,
+                hashlib.sha256(ppm_path.read_bytes()).hexdigest(),
+            )
+            self.assertEqual(manifest["schema_version"], 1)
+            self.assertEqual(
+                manifest["display_seq"], bundle.capture.display_sequence
+            )
+            self.assertEqual(
+                manifest["artifacts"]["png"]["sha256"], bundle.png.sha256
+            )
+            self.assertEqual(
+                manifest["artifacts"]["ppm"]["sha256"], bundle.ppm.sha256
+            )
+            self.assertEqual(
+                (read_png(png_path).width, read_png(png_path).height),
+                (480, 272),
+            )
+            self.assertFalse(list(self.output_root.rglob("*.tmp-ui-harness")))
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase5_static_hashes_match_and_visible_state_changes_hash(self) -> None:
+        session = self.session("phase5")
+        try:
+            session.start()
+            static_hashes = []
+            for index in range(3):
+                artifact = session.capture_ppm(f"static-{index}.ppm")
+                path = self.output_root / artifact.path
+                static_hashes.append(hashlib.sha256(path.read_bytes()).hexdigest())
+            self.assertEqual(len(set(static_hashes)), 1)
+
+            session.key_down("ENTER")
+            changed = session.capture_ppm("changed.ppm")
+            changed_hash = hashlib.sha256(
+                (self.output_root / changed.path).read_bytes()
+            ).hexdigest()
+            self.assertNotEqual(changed_hash, static_hashes[0])
+            session.key_up("ENTER")
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase5_rejects_a_stale_capture_result(self) -> None:
+        session = self.session("phase5-bad-capture")
+        try:
+            session.start()
+            with self.assertRaisesRegex(ProtocolFailure, "newer"):
+                session.capture_ppm("stale.ppm")
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase6_state_injection_and_lua_generation_are_strict(self) -> None:
+        session = self.session("phase6")
+        try:
+            session.start()
+            assert session.description is not None
+            self.assertTrue(session.description.capabilities.switches)
+            self.assertTrue(session.description.capabilities.analog)
+            self.assertTrue(session.description.capabilities.telemetry)
+            self.assertTrue(session.description.capabilities.lua)
+            self.assertTrue(session.description.capabilities.warm_restart)
+            self.assertEqual(
+                tuple(item.name for item in session.description.switches),
+                ("SA", "SH"),
+            )
+            self.assertEqual(
+                tuple(item.name for item in session.description.analogs),
+                ("AIL", "P1"),
+            )
+
+            for position in (-1, 0, 1):
+                session.set_switch("SA", position)
+            session.set_switch("SH", -1)
+            session.set_switch("SH", 1)
+            with self.assertRaises(CommandFailed) as neutral:
+                session.set_switch("SH", 0)
+            self.assertEqual(neutral.exception.response.error_code, "out_of_range")
+
+            session.set_analog("AIL", 1)
+            session.set_analog("AIL", 4096)
+            self.assertEqual(session.read_status().analog_override_count, 1)
+            session.set_analog("P1", 2048)
+            self.assertEqual(session.read_status().analog_override_count, 2)
+            session.clear_analog("AIL")
+            self.assertEqual(session.read_status().analog_override_count, 1)
+            session.clear_analog()
+            self.assertEqual(session.read_status().analog_override_count, 0)
+
+            session.set_telemetry(61696, 0, 1, -115, 1, 1, "RSSI")
+            first = session.reload_lua()
+            second = session.reload_lua()
+            self.assertEqual((first.generation, second.generation), (1, 2))
+            self.assertEqual(session.read_status().lua_state, "running")
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase6_local_validation_preserves_the_next_request_id(self) -> None:
+        session = self.session("phase6")
+        try:
+            session.start()
+            for invalid_call in (
+                lambda: session.set_switch("UNKNOWN", 1),
+                lambda: session.set_switch("SA", 2),
+                lambda: session.set_analog("UNKNOWN", 1),
+                lambda: session.set_analog("AIL", 4097),
+                lambda: session.clear_analog("UNKNOWN"),
+                lambda: session.set_telemetry(0, 0, 0, 0, 0, 0),
+                lambda: session.set_telemetry(1, 8, 0, 0, 0, 0),
+                lambda: session.set_telemetry(1, 0, 0, 0, 30, 0),
+                lambda: session.set_telemetry(1, 0, 0, 0, 0, 3),
+                lambda: session.set_telemetry(1, 0, 0, 0, 0, 0, "bad name"),
+            ):
+                with self.subTest(call=invalid_call), self.assertRaises(ValueError):
+                    invalid_call()
+            self.assertEqual(session.ping().id, 4)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase6_warm_restart_advances_epoch_and_cleans_inputs(self) -> None:
+        session = self.session("phase6")
+        try:
+            session.start()
+            process = session.process
+            assert process is not None
+            original_pid = process.pid
+            session.key_down("ENTER")
+            session.touch_down(10, 20)
+            session.set_analog("AIL", 2048)
+            before = session.read_status()
+
+            restarted = session.restart()
+            after = session.read_status()
+
+            assert session.process is not None
+            self.assertEqual(session.process.pid, original_pid)
+            self.assertEqual(restarted.epoch, before.epoch + 1)
+            self.assertGreater(restarted.display_sequence, before.display_sequence)
+            self.assertEqual(after.epoch, restarted.epoch)
+            self.assertEqual(after.active_key_count, 0)
+            self.assertFalse(after.touch_active)
+            self.assertEqual(after.analog_override_count, 0)
+            self.assertTrue(session.ping().ok)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+    def test_phase6_rejects_unproven_restart_and_lua_completion(self) -> None:
+        bad_restart = self.session("phase6-bad-restart")
+        try:
+            bad_restart.start()
+            with self.assertRaisesRegex(ProtocolFailure, "advance the session epoch"):
+                bad_restart.restart()
+        finally:
+            bad_restart.close()
+        self.assert_reaped(bad_restart)
+
+        bad_lua = self.session("phase6-bad-lua")
+        try:
+            bad_lua.start()
+            with self.assertRaisesRegex(ProtocolFailure, "nonzero"):
+                bad_lua.reload_lua()
+        finally:
+            bad_lua.close()
+        self.assert_reaped(bad_lua)
+
+        lua_panic = self.session("phase6-lua-panic")
+        try:
+            lua_panic.start()
+            with self.assertRaises(CommandFailed) as panic:
+                lua_panic.reload_lua()
+            self.assertEqual(panic.exception.response.error_code, "lua_panic")
+        finally:
+            lua_panic.close()
+        self.assert_reaped(lua_panic)
+
+    def test_phase6_cold_restart_uses_new_process_and_fixture_copy(self) -> None:
+        fixture = self.output_root / "fixture"
+        template_settings = fixture / "settings"
+        template_storage = fixture / "sdcard"
+        template_settings.mkdir(parents=True)
+        template_storage.mkdir()
+        (template_settings / "radio.yml").write_text("template\n", encoding="utf-8")
+        (template_storage / "README.txt").write_text("template\n", encoding="utf-8")
+
+        old_run = self.output_root / "old-run"
+        old_settings = old_run / "settings"
+        old_storage = old_run / "sdcard"
+        old_artifacts = old_run / "artifacts"
+        old_settings.mkdir(parents=True)
+        old_storage.mkdir()
+        old_artifacts.mkdir()
+        (old_settings / "radio.yml").write_text("old\n", encoding="utf-8")
+
+        session = SimulatorSession(
+            sys.executable,
+            old_artifacts,
+            simulator_args=(
+                str(FAKE_SIMULATOR),
+                "phase6",
+                "--settings",
+                str(old_settings),
+                "--storage",
+                str(old_storage),
+            ),
+            request_timeout=1.0,
+            stop_timeout=0.5,
+            terminate_timeout=0.5,
+            kill_timeout=0.5,
+            reader_join_timeout=0.5,
+        )
+        replacement = None
+        try:
+            session.start()
+            assert session.process is not None
+            old_pid = session.process.pid
+            session.set_telemetry(61696, 0, 1, 115, 1, 1, "RSSI")
+            self.assertTrue((old_settings / "telemetry.marker").exists())
+            self.assertFalse((template_settings / "telemetry.marker").exists())
+
+            runs = self.output_root / "runs"
+            replacement = session.restart_process(fixture, runs)
+            assert replacement.process is not None
+            run_directory = replacement.fixture_run_directory
+            assert run_directory is not None
+
+            self.assertNotEqual(replacement.process.pid, old_pid)
+            self.assert_reaped(session)
+            self.assertEqual(run_directory.parent, runs.resolve())
+            self.assertEqual(
+                (run_directory / "settings" / "radio.yml").read_text(
+                    encoding="utf-8"
+                ),
+                "template\n",
+            )
+            self.assertFalse(
+                (run_directory / "settings" / "telemetry.marker").exists()
+            )
+            self.assertEqual(replacement.read_status().analog_override_count, 0)
+        finally:
+            if replacement is not None:
+                replacement.close()
+            else:
+                session.close()
+        if replacement is not None:
+            self.assert_reaped(replacement)
+
+    def test_phase6_cold_restart_preflight_and_failure_cleanup(self) -> None:
+        incomplete_fixture = self.output_root / "incomplete-fixture"
+        (incomplete_fixture / "settings").mkdir(parents=True)
+        session = self.session("phase6")
+        try:
+            session.start()
+            with self.assertRaisesRegex(ValueError, "fixture directory"):
+                session.restart_process(
+                    incomplete_fixture, self.output_root / "unused-runs"
+                )
+            self.assertTrue(session.ping().ok)
+        finally:
+            session.close()
+        self.assert_reaped(session)
+
+        failing_fixture = self.output_root / "failing-fixture"
+        failing_settings = failing_fixture / "settings"
+        failing_storage = failing_fixture / "sdcard"
+        failing_settings.mkdir(parents=True)
+        failing_storage.mkdir()
+        (failing_settings / "startup-fail").write_text("fail\n", encoding="utf-8")
+        runs = self.output_root / "failed-runs"
+
+        failing_session = self.session("phase6")
+        failing_session.start()
+        with self.assertRaises(ProcessExited):
+            failing_session.restart_process(failing_fixture, runs)
+        self.assert_reaped(failing_session)
+        self.assertEqual(list(runs.iterdir()), [])
+
+    def test_one_hundred_lifecycle_cycles_leave_no_reader_or_child(self) -> None:
+        for cycle in range(100):
+            with self.subTest(cycle=cycle):
+                session = self.session("normal")
+                session.start()
+                session.stop()
+                self.assert_reaped(session)
+
+    def test_cli_probe_uses_the_same_session_lifecycle(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(LAUNCHER),
+                "probe",
+                "--output",
+                str(self.output_root),
+                "--timeout",
+                "1",
+                sys.executable,
+                "--",
+                str(FAKE_SIMULATOR),
+                "normal",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["ping"]["id"], 1)
+        self.assertEqual(payload["describe"]["id"], 2)
+        self.assertEqual(payload["ready"]["id"], 3)
+        self.assertEqual(payload["stop"]["id"], 4)
+        self.assertEqual(payload["returncode"], 0)
+
+    def test_cli_returns_nonzero_for_a_protocol_command_failure(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(LAUNCHER),
+                "probe",
+                "--output",
+                str(self.output_root),
+                "--timeout",
+                "1",
+                sys.executable,
+                "--",
+                str(FAKE_SIMULATOR),
+                "command-error",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("unsupported_command", result.stderr)
+
+    def test_cli_probe_closes_session_when_start_raises_base_exception(self) -> None:
+        from edgetx_ui import cli
+
+        class ProbeAbort(BaseException):
+            pass
+
+        class AbortingSession:
+            instance = None
+
+            def __init__(self, *args: object, **kwargs: object) -> None:
+                self.closed = False
+                type(self).instance = self
+
+            def start(self, **kwargs: object) -> object:
+                raise ProbeAbort("abort probe")
+
+            def close(self) -> None:
+                self.closed = True
+
+        with mock.patch.object(cli, "SimulatorSession", AbortingSession):
+            with self.assertRaises(ProbeAbort):
+                cli.main(
+                    [
+                        "probe",
+                        "--output",
+                        str(self.output_root),
+                        "fake-simulator",
+                    ]
+                )
+        assert AbortingSession.instance is not None
+        self.assertTrue(AbortingSession.instance.closed)
+
+
+if __name__ == "__main__":
+    unittest.main()
