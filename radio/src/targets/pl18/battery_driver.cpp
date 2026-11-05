@@ -20,6 +20,7 @@
  */
 
 #include "battery_driver.h"
+#include "hal/adc_driver.h"
 
 #include "boards/generic_stm32/rgb_leds.h"
 #include "edgetx.h"
@@ -280,6 +281,182 @@ uint16_t get_wCharger_state(uint16_t state)
   return state;
 }
 
+#if defined(RADIO_PL18EV)
+/*
+ * PL18EV: charge state like the FlySky firmware (charger task every 100 ms)
+ * - charge pin (USB PB13 / wireless PI10): a change counts after 10 equal
+ *   samples (1 s)
+ * - "full" only if the pin reports charge end AND the battery voltage
+ *   (5 samples without min/max) is >= 4.15 V; once full it stays full until
+ *   the charger is removed. On the PL18EV the pin is high while charging
+ *   too, so the pin alone cannot tell "full".
+ * - the charger IC is enabled for 97 s, then switched off for 3 s (restarts
+ *   the charge cycle); the pin is not evaluated during the pause
+ * - only one charger is enabled: USB has priority, the wireless charger is
+ *   only used without USB
+ * - wireless charge current: high after 240 s on the pad, low again after
+ *   60 s without
+ */
+#define EV_STEP_MS          100
+#define EV_DEBOUNCE         10    // 1 s
+#define EV_RUN_STEPS        970   // 97 s charger on
+#define EV_PAUSE_STEPS      30    // 3 s charger off
+#define EV_FULL_VOLTAGE     415   // 4.15 V (10 mV)
+#define EV_WL_HIGH_STEPS    2400  // 240 s
+#define EV_WL_LOW_STEPS     600   // 60 s
+
+struct EvChargeEnd {
+  bool end;      // charge pin reports "end"
+  bool ready;    // pin state confirmed since the charger was enabled
+  uint8_t cntLow;
+  uint8_t cntHigh;
+};
+
+static EvChargeEnd evUsbEnd;
+static EvChargeEnd evWlEnd;
+static uint32_t evLastStep = 0;
+static bool evRun = false;        // charger IC enabled (false = off / pause)
+static uint16_t evRunCnt = EV_PAUSE_STEPS;
+static bool evFull = false;
+static uint16_t evVolt[5];
+static uint8_t evVoltIdx = 0;
+static uint8_t evVoltCnt = 0;
+static uint16_t evWlOn = 0;
+static uint16_t evWlOff = 0;
+static bool evWlHigh = false;
+static uint16_t evState = CHARGE_UNKNOWN;
+static bool evAdcReady = false;   // ADC initialised for the charge screen
+
+void battery_charge_adc_ready(bool ready) { evAdcReady = ready; }
+
+static void evEndReset(EvChargeEnd& e)
+{
+  e.end = false;
+  e.ready = false;
+  e.cntLow = 0;
+  e.cntHigh = 0;
+}
+
+static void evEndDetect(EvChargeEnd& e, bool pinHigh)
+{
+  uint8_t& same = pinHigh ? e.cntHigh : e.cntLow;
+  (pinHigh ? e.cntLow : e.cntHigh) = 0;
+  if (e.end == pinHigh) {
+    // pin confirms the current state
+    if (!e.ready && ++same >= EV_DEBOUNCE) {
+      same = 0;
+      e.ready = true;
+    }
+  } else if (++same >= EV_DEBOUNCE) {
+    same = 0;
+    e.end = pinHigh;
+    e.ready = true;
+  }
+}
+
+// average of 5 voltage samples without the highest and the lowest one
+static uint16_t evVoltage()
+{
+  if (evVoltCnt < 5) return 0;
+  uint32_t sum = 0;
+  uint16_t vmin = 0xFFFF, vmax = 0;
+  for (uint8_t i = 0; i < 5; i++) {
+    sum += evVolt[i];
+    if (evVolt[i] < vmin) vmin = evVolt[i];
+    if (evVolt[i] > vmax) vmax = evVolt[i];
+  }
+  return (sum - vmin - vmax) / 3;
+}
+
+static void evStep()
+{
+  bool usb = uCharger.isChargerDetectionReady && uCharger.hasCharger;
+  bool wl = !usb && wCharger.isChargerDetectionReady && wCharger.hasCharger;
+
+  if (evAdcReady) {
+    adcRead();
+    evVolt[evVoltIdx] = getBatteryVoltage();
+    evVoltIdx = (evVoltIdx + 1) % 5;
+    if (evVoltCnt < 5) evVoltCnt++;
+  }
+
+  // charge pin only while the charger IC is enabled
+  if (!usb || !evRun) evEndReset(evUsbEnd);
+  else evEndDetect(evUsbEnd, gpio_read(UCHARGER_CHARGE_END_GPIO));
+  if (!wl || !evRun) evEndReset(evWlEnd);
+  else evEndDetect(evWlEnd, gpio_read(WCHARGER_CHARGE_END_GPIO));
+
+  if (!usb && !wl) {
+    evFull = false;
+  } else {
+    EvChargeEnd& e = usb ? evUsbEnd : evWlEnd;
+    if (e.ready && e.end && evVoltage() >= EV_FULL_VOLTAGE) evFull = true;
+  }
+
+  // enable cycle: 97 s on, 3 s off
+  if (usb || wl) {
+    if (evRun) {
+      if (++evRunCnt >= EV_RUN_STEPS) { evRunCnt = 0; evRun = false; }
+    } else if (++evRunCnt >= EV_PAUSE_STEPS) {
+      evRunCnt = 0;
+      evRun = true;
+    }
+  } else {
+    evRun = false;
+    evRunCnt = EV_PAUSE_STEPS;  // enable at once when a charger appears
+  }
+  if (evRun && usb) {
+    ENABLE_UCHARGER();
+    DISABLE_WCHARGER();
+  } else if (evRun && wl) {
+    DISABLE_UCHARGER();
+    ENABLE_WCHARGER();
+  } else {
+    DISABLE_UCHARGER();
+    DISABLE_WCHARGER();
+  }
+
+  // wireless charge current
+  if (wl) {
+    evWlOff = 0;
+    if (evWlOn < EV_WL_HIGH_STEPS) evWlOn++;
+    else evWlHigh = true;
+  } else if (evWlHigh) {
+    if (++evWlOff >= EV_WL_LOW_STEPS) { evWlHigh = false; evWlOn = 0; }
+  } else {
+    evWlOn = 0;
+  }
+  wCharger.isHighCurrent = evWlHigh;
+  if (evWlHigh) gpio_set(WCHARGER_I_CONTROL_GPIO);
+  else gpio_clear(WCHARGER_I_CONTROL_GPIO);
+
+  if (!usb && !wl)
+    evState = CHARGE_NONE;
+  else
+    evState = evFull ? CHARGE_FINISHED : CHARGE_STARTED;
+}
+
+uint16_t get_battery_charge_state()
+{
+  // charger presence: every call (10 ms), 10 equal samples
+  chargerDetection(&uCharger, IS_UCHARGER_ACTIVE(), UCHARGER_SAMPLING_CNT);
+  if (uCharger.isChargerDetectionReady && uCharger.hasCharger) {
+    // with USB the wireless charger is not used
+    wCharger.hasCharger = false;
+    wCharger.isChargerDetectionReady = true;
+    wCharger.chargerSamplingCount = 0;
+  } else {
+    chargerDetection(&wCharger, IS_WCHARGER_ACTIVE(), WCHARGER_SAMPLING_CNT);
+  }
+
+  uint32_t now = timersGetMsTick();
+  if (evLastStep == 0 || (uint32_t)(now - evLastStep) >= EV_STEP_MS) {
+    evLastStep = now ? now : 1;
+    evStep();
+  }
+  return evState;
+}
+#else
 uint16_t get_battery_charge_state()
 {
   uint16_t state = CHARGE_UNKNOWN;
@@ -295,6 +472,7 @@ uint16_t get_battery_charge_state()
 
   return state;
 }
+#endif  // defined(RADIO_PL18EV)
 
 bool isChargerActive()
 {  
@@ -336,7 +514,8 @@ void battery_charge_init()
 #endif
 
   // USB charger state init
-#if defined(RADIO_PL18U)  
+#if defined(RADIO_PL18U) || defined(RADIO_PL18EV)
+  // PL18EV: the charger is enabled once it is detected
   DISABLE_UCHARGER();
 #else
   ENABLE_UCHARGER();
@@ -354,8 +533,14 @@ void battery_charge_init()
 #endif  // defined(WCHARGER_I_CONTROL_GPIO)
 
   // Wireless charger state init
+#if defined(RADIO_PL18EV)
+  // the charger is enabled once it is detected, low current first
+  DISABLE_WCHARGER();
+  gpio_clear(WCHARGER_I_CONTROL_GPIO);
+#else
   ENABLE_WCHARGER();
   WCHARGER_CURRENT_LOW();
+#endif
   wCharger.hasCharger = !IS_WCHARGER_ACTIVE();  // Init for sampling count works
   wCharger.isChargerDetectionReady = false;
   resetChargeEndDetection(&wCharger);

@@ -54,3 +54,7 @@ extern uint16_t get_battery_charge_state();
 extern uint16_t getBatteryVoltage();   // returns current battery voltage in 10mV steps
 extern bool isChargerActive();
 extern void battery_charge_end();
+#if defined(RADIO_PL18EV)
+// the ADC is initialised for the charge screen (battery voltage)
+extern void battery_charge_adc_ready(bool ready);
+#endif
