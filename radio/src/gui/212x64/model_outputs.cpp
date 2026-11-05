@@ -160,50 +160,61 @@ void menuModelLimits(event_t event)
                    0, old_editMode);
           break;
 
-        case ITEM_LIMITS_OFFSET:
-          if (GV_IS_GV_VALUE(ld->offset) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
-            if (event == EVT_KEY_LONG(KEY_ENTER))
-              killEvents(event);
-            ld->offset = GVAR_MENU_ITEM(LIMITS_OFFSET_POS, y, ld->offset, -1000, 1000, RIGHT|attr|PREC1, 0, event);
+        case ITEM_LIMITS_OFFSET: {
+          uint16_t raw = ld->offset;
+          if (editLimitNumSource(LIMITS_OFFSET_POS, y, raw, RIGHT|attr, event)) {
+            ld->offset = raw;
             break;
           }
 
+          LimitNumVal v;
+          v.rawValue = raw;
           if (g_eeGeneral.ppmunit == PPM_US) {
-            lcdDrawNumber(LIMITS_OFFSET_POS, y, ((int32_t)ld->offset*128) / 25, attr|PREC1|RIGHT);
+            lcdDrawNumber(LIMITS_OFFSET_POS, y, ((int32_t)v.value*128) / 25, attr|PREC1|RIGHT);
           } else {
-            lcdDrawNumber(LIMITS_OFFSET_POS, y, ld->offset, attr|PREC1|RIGHT);
+            lcdDrawNumber(LIMITS_OFFSET_POS, y, v.value, attr|PREC1|RIGHT);
           }
           if (active) {
-            ld->offset = checkIncDec(event, ld->offset, -1000, 1000, EE_MODEL, nullptr, stops1000);
+            raw = makeLimitNumVal(checkIncDec(event, v.value, -1000, 1000, EE_MODEL, nullptr, stops1000));
           }
           else if (attr && event==EVT_KEY_LONG(KEY_MENU)) {
             killEvents(event);
             copySticksToOffset(k);
             s_editMode = 0;
           }
+          ld->offset = raw;
           break;
+        }
 
-        case ITEM_LIMITS_MIN:
-          if (GV_IS_GV_VALUE(ld->min) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
-            if (event == EVT_KEY_LONG(KEY_ENTER))
-              killEvents(event);
-            ld->min = GVAR_MENU_ITEM(LIMITS_MIN_POS, y, ld->min, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1|RIGHT, 0, event);
+        case ITEM_LIMITS_MIN: {
+          uint16_t raw = ld->min;
+          if (editLimitNumSource(LIMITS_MIN_POS, y, raw, RIGHT|attr, event)) {
+            ld->min = raw;
             break;
           }
-          lcdDrawNumber(LIMITS_MIN_POS, y, minMaxDisplay(ld->min-LIMITS_MIN_MAX_OFFSET), attr|PREC1|RIGHT);
-          if (active) ld->min = LIMITS_MIN_MAX_OFFSET + checkIncDec(event, ld->min-LIMITS_MIN_MAX_OFFSET, -limit, 0, EE_MODEL, nullptr, stops1000);
-          break;
 
-        case ITEM_LIMITS_MAX:
-          if (GV_IS_GV_VALUE(ld->max) || (attr && event == EVT_KEY_LONG(KEY_ENTER))) {
-            if (event == EVT_KEY_LONG(KEY_ENTER))
-              killEvents(event);
-            ld->max = GVAR_MENU_ITEM(LIMITS_MAX_POS, y, ld->max, -LIMIT_EXT_MAX, LIMIT_EXT_MAX, attr|PREC1|RIGHT, 0, event);
+          LimitNumVal v;
+          v.rawValue = raw;
+          lcdDrawNumber(LIMITS_MIN_POS, y, minMaxDisplay(v.value-LIMITS_MIN_MAX_OFFSET), attr|PREC1|RIGHT);
+          if (active) raw = makeLimitNumVal(LIMITS_MIN_MAX_OFFSET + checkIncDec(event, v.value-LIMITS_MIN_MAX_OFFSET, -limit, 0, EE_MODEL, nullptr, stops1000));
+          ld->min = raw;
+          break;
+        }
+
+        case ITEM_LIMITS_MAX: {
+          uint16_t raw = ld->max;
+          if (editLimitNumSource(LIMITS_MAX_POS, y, raw, RIGHT|attr, event)) {
+            ld->max = raw;
             break;
           }
-          lcdDrawNumber(LIMITS_MAX_POS, y, minMaxDisplay(ld->max+LIMITS_MIN_MAX_OFFSET), attr|PREC1|RIGHT);
-          if (active) ld->max = -LIMITS_MIN_MAX_OFFSET + checkIncDec(event, ld->max+LIMITS_MIN_MAX_OFFSET, 0, +limit, EE_MODEL, nullptr, stops1000);
+
+          LimitNumVal v;
+          v.rawValue = raw;
+          lcdDrawNumber(LIMITS_MAX_POS, y, minMaxDisplay(v.value+LIMITS_MIN_MAX_OFFSET), attr|PREC1|RIGHT);
+          if (active) raw = makeLimitNumVal(-LIMITS_MIN_MAX_OFFSET + checkIncDec(event, v.value+LIMITS_MIN_MAX_OFFSET, 0, +limit, EE_MODEL, nullptr, stops1000));
+          ld->max = raw;
           break;
+        }
 
         case ITEM_LIMITS_DIRECTION:
         {

@@ -27,7 +27,6 @@
 #include "etx_lv_theme.h"
 #include "fm_matrix.h"
 #include "getset_helpers.h"
-#include "gvar_numberedit.h"
 #include "input_source.h"
 #include "source_numberedit.h"
 #include "switchchoice.h"
