@@ -65,6 +65,9 @@ class NumberArea : public FormField
 
   void changeEnd() override
   {
+    // Clear extra focus outline setting from parent field
+    lv_obj_clear_state(parent->getLvObj(), LV_STATE_USER_1);
+
     setEditMode(false);
     hide();
     if (changeHandler) changeHandler();
@@ -117,8 +120,9 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
     vmin(vmin),
     vmax(vmax)
 {
-  // Prevent NumberArea focus outline from clipping
-  lv_obj_add_flag(lvobj, LV_OBJ_FLAG_OVERFLOW_VISIBLE);
+  // Extra focus outline setting to show outline border around NumberArea
+  etx_obj_add_style(lvobj, styles->outline, LV_PART_MAIN | LV_STATE_USER_1);
+  etx_obj_add_style(lvobj, styles->outline_color_focus, LV_PART_MAIN | LV_STATE_USER_1);
 
   if (rect.w == 0 || rect.w == LV_SIZE_CONTENT) setWidth(EdgeTxStyles::EDIT_FLD_WIDTH);
 
@@ -198,6 +202,8 @@ void NumberEdit::onClicked()
             if (onEdited) onEdited(currentValue);
           });
     }
+    // Show focus outline around this field since NumberArea will be clipped
+    lv_obj_add_state(lvobj, LV_STATE_USER_1);
     edit->openKeyboard();
   }
 }
