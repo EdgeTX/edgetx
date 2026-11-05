@@ -37,6 +37,12 @@
 #define QSPI_MAX_FREQ 100000000U // 100 MHz
 #endif
 
+// A page program command wraps inside its own page: bytes that would land past
+// the page boundary overwrite the start of the same page instead of continuing
+// into the next one. Every board's extflash_driver.cpp reuses this function, so
+// the page limit belongs here (#7576).
+#define QSPI_NOR_PAGE_SIZE 256
+
 #define QSPI_PRESCALER_MAX 255
 
 #define SPI_NOR_WIP_BIT (1 << 0)
@@ -403,32 +409,46 @@ int stm32_qspi_nor_program(uint32_t address, void* data, uint32_t len)
     if (qspi_abort(&hqspi) != 0) return -1;
   }
 
-  // write enable
-  int ret = HAL_QSPI_Command(&hqspi, (QSPI_CommandTypeDef*)&cmd_write_en,
-                             HAL_QSPI_TIMEOUT_DEFAULT_VALUE);
+  int ret = HAL_OK;
+  uint8_t* src = (uint8_t*)data;
 
-  // page program
-  if (ret == HAL_OK) {
-    QSPI_CommandTypeDef s_command = {
-        .Instruction = SPI_NOR_CMD_PP_1_1_4,
-        .Address = address,
-        .AddressSize = QSPI_ADDRESS_24_BITS,
-        .InstructionMode = QSPI_INSTRUCTION_1_LINE,
-        .AddressMode = QSPI_ADDRESS_1_LINE,
-        .DataMode = QSPI_DATA_4_LINES,
-        .NbData = len,
-    };
-    ret = HAL_QSPI_Command(&hqspi, &s_command, HAL_QSPI_TIMEOUT_DEFAULT_VALUE);
-  }
+  while ((len > 0) && (ret == HAL_OK)) {
+    // Stop at the page boundary so a program command that starts mid-page
+    // cannot wrap around to the start of that page.
+    uint32_t page_room = QSPI_NOR_PAGE_SIZE - (address % QSPI_NOR_PAGE_SIZE);
+    uint32_t size = (len > page_room) ? page_room : len;
 
-  // xmit data
-  if (ret == HAL_OK) {
-    ret = HAL_QSPI_Transmit(&hqspi, (uint8_t*)data,
-                            HAL_QSPI_TIMEOUT_DEFAULT_VALUE);
-  }
+    // write enable
+    ret = HAL_QSPI_Command(&hqspi, (QSPI_CommandTypeDef*)&cmd_write_en,
+                           HAL_QSPI_TIMEOUT_DEFAULT_VALUE);
 
-  if (ret == HAL_OK) {
-    ret = qspi_wait_until_ready();
+    // page program
+    if (ret == HAL_OK) {
+      QSPI_CommandTypeDef s_command = {
+          .Instruction = SPI_NOR_CMD_PP_1_1_4,
+          .Address = address,
+          .AddressSize = QSPI_ADDRESS_24_BITS,
+          .InstructionMode = QSPI_INSTRUCTION_1_LINE,
+          .AddressMode = QSPI_ADDRESS_1_LINE,
+          .DataMode = QSPI_DATA_4_LINES,
+          .NbData = size,
+      };
+      ret = HAL_QSPI_Command(&hqspi, &s_command, HAL_QSPI_TIMEOUT_DEFAULT_VALUE);
+    }
+
+    // xmit data
+    if (ret == HAL_OK) {
+      ret = HAL_QSPI_Transmit(&hqspi, src,
+                              HAL_QSPI_TIMEOUT_DEFAULT_VALUE);
+    }
+
+    if (ret == HAL_OK) {
+      ret = qspi_wait_until_ready();
+    }
+
+    address += size;
+    src += size;
+    len -= size;
   }
 
   if (qspi_ccr_backup) {
