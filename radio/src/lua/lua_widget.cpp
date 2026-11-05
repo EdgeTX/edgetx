@@ -265,7 +265,8 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
   }
 
   onClosing([=]() {
-    luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
+    if (lsWidgets)
+      luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
     if (errorMessage)
       free(errorMessage);
   });
@@ -297,6 +298,8 @@ void LuaWidget::foreground()
     closeFS = false;
     setFullscreen(false);
   }
+
+  if (lsWidgets == nullptr) return;
 
   // Check widget is at least partially visible
   if (isOnScreen()) {
@@ -371,6 +374,8 @@ void LuaWidget::update()
   updateWithoutRefresh();
 
   Widget::update();
+
+  if (lsWidgets == nullptr) return;
 
   auto save = luaScriptManager;
   luaScriptManager = this;
@@ -585,6 +590,11 @@ void LuaScriptManager::saveLvglObjectRef(int ref)
 
 void LuaScriptManager::clearRefs(lua_State *L)
 {
+  if (L == nullptr) {
+    lvglObjectRefs.clear();
+    return;
+  }
+
   for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
     lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
     auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
@@ -615,7 +625,8 @@ void LuaScriptManager::createTelemetryQueue()
 
 LuaScriptManager::~LuaScriptManager()
 {
-  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
+  if (lsWidgets)
+    luaL_unref(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
   if (luaInputTelemetryFifo != nullptr) {
     destroyTelemetryQueue(luaInputTelemetryFifo);
     luaInputTelemetryFifo = nullptr;
