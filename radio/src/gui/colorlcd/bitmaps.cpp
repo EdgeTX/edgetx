@@ -461,15 +461,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_TOPMENU_VOLUME_4, mask_widget_volume4),
     BI(ICON_TOPMENU_VOLUME_SCALE, mask_widget_volume_scale),
     BI(ICON_TOPMENU_TXBATT, mask_widget_txbatt),
-#if defined(USB_CHARGER)
-    BI(ICON_TOPMENU_TXBATT_CHARGE, mask_widget_txbatt_charging),
-#endif
-#if defined(EXTERNAL_ANTENNA)
-    BI(ICON_TOPMENU_ANTENNA, mask_topmenu_antenna),
-#endif
-#if defined(INTERNAL_GPS)
-    BI(ICON_TOPMENU_GPS, mask_topmenu_gps),
-#endif
 
     BI(ICON_ERROR, mask_info_error),
     BI(ICON_BUSY, mask_info_busy),
@@ -497,6 +488,22 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_BTN_NEXT, mask_btn_next),
     BI(ICON_BTN_PREV, mask_btn_prev),
     BI(ICON_TOP_LOGO, mask_menu_logo),
+
+#if defined(USB_CHARGER)
+    BI(ICON_TOPMENU_TXBATT_CHARGE, mask_widget_txbatt_charging),
+#else
+    BI(ICON_TOPMENU_TXBATT_CHARGE, nullptr),
+#endif
+#if defined(EXTERNAL_ANTENNA)
+    BI(ICON_TOPMENU_ANTENNA, mask_topmenu_antenna),
+#else
+    BI(ICON_TOPMENU_ANTENNA, nullptr),
+#endif
+#if defined(INTERNAL_GPS)
+    BI(ICON_TOPMENU_GPS, mask_topmenu_gps),
+#else
+    BI(ICON_TOPMENU_GPS, nullptr),
+#endif
 };
 
 static MaskBitmap* _builtinIconsDecompressed[EDGETX_ICONS_COUNT] = {0};
