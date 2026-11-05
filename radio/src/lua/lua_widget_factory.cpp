@@ -49,12 +49,14 @@ LuaWidgetFactory::LuaWidgetFactory(const char* name, WidgetOption* widgetOptions
 LuaWidgetFactory::~LuaWidgetFactory() {
   unregisterWidget(this);
 
-  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, optionDefinitionsReference);
-  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, createFunction);
-  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, updateFunction);
-  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, refreshFunction);
-  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, backgroundFunction);
-  luaL_unref(lsWidgets, LUA_REGISTRYINDEX, translateFunction);
+  if (lsWidgets) {
+    luaL_unref(lsWidgets, LUA_REGISTRYINDEX, optionDefinitionsReference);
+    luaL_unref(lsWidgets, LUA_REGISTRYINDEX, createFunction);
+    luaL_unref(lsWidgets, LUA_REGISTRYINDEX, updateFunction);
+    luaL_unref(lsWidgets, LUA_REGISTRYINDEX, refreshFunction);
+    luaL_unref(lsWidgets, LUA_REGISTRYINDEX, backgroundFunction);
+    luaL_unref(lsWidgets, LUA_REGISTRYINDEX, translateFunction);
+  }
 
   if (name) delete name;
   if (displayName) delete displayName;
@@ -196,7 +198,7 @@ static int sourceValue()
 // for current loaded model.
 const void LuaWidgetFactory::parseOptionDefaults() const
 {
-  if (optionDefinitionsReference == LUA_REFNIL) {
+  if (lsWidgets == nullptr || optionDefinitionsReference == LUA_REFNIL) {
     // TRACE("parseOptionDefaults() no options");
     return;
   }
