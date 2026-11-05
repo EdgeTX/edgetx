@@ -461,9 +461,14 @@ void serialInit(uint8_t port_nr, int mode)
       .hw_def = port->hw_def,
       .set_inverted = nullptr,
     };
+    state->usart_ctx = port->uart->init(port->hw_def, nullptr);
     modulePortConfigExtra(&mod_port);
     state->mode = mode;
     state->port = port;
+
+    mixerTaskStop();
+    pulsesStopModule(EXTERNAL_MODULE);
+    pulsesStart();
     return;
   }
 #endif
@@ -532,7 +537,7 @@ bool serialGetPortCtx(uint8_t port_nr, void** ctx,
 
 void initSerialPorts()
 {
-  for (uint8_t port_nr = 0; port_nr < MAX_AUX_SERIAL; port_nr++) {
+  for (uint8_t port_nr = 0; port_nr < MAX_SERIAL_PORTS; port_nr++) {
     auto mode = getSerialPortMode(port_nr);
     serialInit(port_nr, mode);
   }

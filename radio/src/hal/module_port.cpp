@@ -22,11 +22,24 @@
 #include "module_port.h"
 #include "dataconstants.h" // MAX_MODULES
 #include "myeeprom.h"      // g_eeGeneral
+#include "serial.h"
+#include "hal/usb_driver.h"
 
 #include <string.h>
 
 extern const etx_module_t* const _modules[];
 extern const uint8_t _n_modules;
+
+#if defined(USB_SERIAL)
+static const etx_module_port_t _usb_module_port = {
+  .port       = ETX_MOD_PORT_UART,
+  .type       = ETX_MOD_TYPE_SERIAL,
+  .dir_flags  = ETX_MOD_DIR_TX_RX | ETX_MOD_FULL_DUPLEX,
+  .drv        = { .serial = UsbSerialPort.uart },
+  .hw_def     = UsbSerialPort.hw_def,
+  .set_inverted = nullptr,
+};
+#endif
 
 static etx_module_state_t _module_states[MAX_MODULES];
 static uint8_t _module_power;
@@ -139,6 +152,16 @@ static const etx_module_port_t* _find_port(uint8_t module, uint8_t type,
                                            uint8_t direction,
                                            bool softserial_fallback)
 {
+#if defined(USB_SERIAL)
+  if (module == EXTERNAL_MODULE &&
+      type == ETX_MOD_TYPE_SERIAL &&
+      polarity == ETX_Pol_Normal &&
+      (port == ETX_MOD_PORT_UART || port == ETX_MOD_PORT_SPORT) &&
+      serialGetMode(SP_VCP) == UART_MODE_EXT_MODULE) {
+    return &_usb_module_port;
+  }
+#endif
+
   if (module >= MAX_MODULES || module >= _n_modules || !_modules[module])
     return nullptr;
 
