@@ -244,10 +244,32 @@ void StaticImage::setSource(std::string filename)
   }
 }
 
+void StaticImage::setSource(const lv_img_dsc_t* bitmap)
+{
+  if (!image) image = lv_img_create(lvobj);
+  lv_obj_set_size(image, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+  lv_img_set_src(image, bitmap);
+  lv_obj_center(image);
+  setZoom();
+}
+
 void StaticImage::clearSource()
 {
   if (image) lv_obj_del(image);
   image = nullptr;
+}
+
+void StaticImage::clear()
+{
+  // Only remove content added on top; the displayed image is not a child.
+  deleteChildren();
+  if (lvobj) {
+    for (int i = (int)lv_obj_get_child_cnt(lvobj) - 1; i >= 0; i -= 1) {
+      auto child = lv_obj_get_child(lvobj, i);
+      if (child != image) lv_obj_del(child);
+    }
+  }
+  invalidate();
 }
 
 bool StaticImage::hasImage() const
