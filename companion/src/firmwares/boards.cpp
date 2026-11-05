@@ -849,6 +849,8 @@ QList<int> Boards::getSupportedInternalModules(Board::Type board)
     modules.append((int)MODULE_TYPE_MULTIMODULE);
   } else if (IS_IFLIGHT_C14(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T15H7(board)) {
     modules.append((int)MODULE_TYPE_CROSSFIRE);
+  } else if (IS_JUMPER_T22(board)) {
+    modules.append((int)MODULE_TYPE_CROSSFIRE);
   } else if (IS_FAMILY_HORUS_OR_T16(board) || IS_FAMILY_T12(board) ||
              (IS_TARANIS_SMALL(board) && IS_ACCESS_RADIO(board))) {
     modules.append((int)MODULE_TYPE_XJT_PXX1);
