@@ -111,14 +111,17 @@ void waitSplash()
     inactivityCheckInputs();
     splashStartTime += SPLASH_TIMEOUT;
 
-#if defined(PWR_BUTTON_DUAL)
-    // Wait for dual power buttons to be released
+#if defined(PWR_BUTTON_PRESS)
+    // Wait for the power button(s) to be released,
+    // otherwise pwrCheck() starts the shutdown countdown
     while (pwrPressed()) {
       WDG_RESET();
       sleep_ms(10);
     }
+#if defined(PWR_BUTTON_DUAL)
     // Kill SYS and/or MDL events
     killAllEvents();
+#endif
     MainWindow::instance()->run();
 #endif
 
