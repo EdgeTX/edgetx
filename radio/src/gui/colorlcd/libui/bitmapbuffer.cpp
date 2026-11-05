@@ -17,6 +17,7 @@
  */
 
 #include "bitmapbuffer.h"
+#include <limits>
 
 #include <math.h>
 #include <string>
@@ -545,10 +546,11 @@ coord_t BitmapBuffer::drawText(coord_t x, coord_t y, const char* s, LcdFlags fla
   return drawSizedText(x, y, s, strlen(s), flags);
 }
 
-// Resize and convert to LVGL image data format with alpha blending to
-// background color
-void BitmapBuffer::resizeToLVGL(coord_t w, coord_t h)
+// Resize and convert to LVGL true color, with alpha for ARGB4444 images.
+bool BitmapBuffer::resizeToLVGL(coord_t w, coord_t h)
 {
+  if (w <= 0 || h <= 0 || !width() || !height() || !data) return false;
+
   // Scale values from ARGB4444 to RGB565 with alpha
   static uint8_t rbcnv[16] = {0,  2,  4,  6,  8,  10, 12, 14,
                               17, 19, 21, 23, 25, 27, 29, 31};
@@ -562,35 +564,61 @@ void BitmapBuffer::resizeToLVGL(coord_t w, coord_t h)
   float scale;
   coord_t scaledw, scaledh;
   if (vscale < hscale) {
+    if (h > MAX_LVGL_IMAGE_DIMENSION) return false;
     scale = vscale;
     scaledw = width() * scale;
     scaledh = h;
   } else {
+    if (w > MAX_LVGL_IMAGE_DIMENSION) return false;
     scale = hscale;
     scaledw = w;
     scaledh = height() * scale;
   }
+  scaledw = max(scaledw, 1);
+  scaledh = max(scaledh, 1);
+  if (scaledw > MAX_LVGL_IMAGE_DIMENSION ||
+      scaledh > MAX_LVGL_IMAGE_DIMENSION)
+    return false;
 
-  uint8_t *ndata =
-      (uint8_t *)malloc(align32(scaledw * scaledh * 3));
+  bool opaque = format == BMP_RGB565;
+  if (opaque && scaledw == width() && scaledh == height()) return true;
+
+  size_t bytesPerPixel = opaque ? sizeof(pixel_t) : 3;
+  size_t maxPixels =
+      (std::numeric_limits<unsigned>::max() - 3u) / bytesPerPixel;
+  if ((size_t)scaledw > maxPixels / scaledh) return false;
+  size_t byteCount = (size_t)scaledw * scaledh * bytesPerPixel;
+  uint8_t *ndata = (uint8_t *)malloc(align32(byteCount));
 
   if (ndata) {
     uint8_t *dst = ndata;
     for (int i = 0; i < scaledh; i += 1) {
-      pixel_t *src = &data[(coord_t)(i / scale) * width()];
+      const pixel_t *src =
+          &data[(size_t)min((coord_t)(i / scale), (coord_t)height() - 1) *
+                width()];
       for (int j = 0; j < scaledw; j += 1) {
-        ARGB_SPLIT(src[(coord_t)(j / scale)], a, r, g, b);
-        auto c = RGB_JOIN(rbcnv[r], gcnv[g], rbcnv[b]);
-        *dst++ = c & 0xFF;
-        *dst++ = c >> 8;
-        *dst++ = alpha[a];
+        auto pixel = src[min((coord_t)(j / scale), (coord_t)width() - 1)];
+        if (opaque) {
+          memcpy(dst, &pixel, sizeof(pixel));
+          dst += sizeof(pixel);
+        } else {
+          ARGB_SPLIT(pixel, a, r, g, b);
+          auto c = RGB_JOIN(rbcnv[r], gcnv[g], rbcnv[b]);
+          *dst++ = c & 0xFF;
+          *dst++ = c >> 8;
+          *dst++ = alpha[a];
+        }
       }
     }
 
-    delete data;
+    if (dataAllocated) free(data);
     data = (pixel_t*)ndata;
+    dataAllocated = true;
     _width = scaledw;
     _height = scaledh;
-    data_end = data + ((scaledw * scaledh * 3 + 1) / 2);
+    data_end = data + ((byteCount + sizeof(pixel_t) - 1) / sizeof(pixel_t));
+    return true;
   }
+
+  return false;
 }

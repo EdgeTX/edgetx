@@ -44,6 +44,7 @@ enum LuaLvglType
   ETX_TRIANGLE,
   ETX_IMAGE,
   ETX_QRCODE,
+  ETX_BITMAP,
 
   // Contianers
   ETX_BOX,
@@ -267,7 +268,7 @@ class LvglWidgetObjectBase
   virtual void setFloating(bool isFloating) {}
 
   void create(lua_State *L, int index);
-  void update(lua_State *L);
+  virtual void update(lua_State *L);
 
   virtual Window *getWindow() const = 0;
 
@@ -678,6 +679,44 @@ class LvglWidgetImage : public LvglWidgetObject
 
   void build(lua_State *L) override;
   void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
+// Image decoded and scaled when the source changes. The decoded pixels are
+// owned by the object, so they never depend on the LVGL image cache.
+class LvglWidgetBitmap : public LvglWidgetObject
+{
+ public:
+  LvglWidgetBitmap() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
+
+  void setSize(coord_t w, coord_t h) override;
+
+  void update(lua_State *L) override;
+  bool callRefs(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
+
+ protected:
+  LvglParamFuncOrString filename = { .function = LUA_REFNIL, .txt = ""};
+  std::string loaded;
+
+  // A new `file` is only parsed here. It replaces the current source once all
+  // the parameters of an update have been accepted.
+  bool fileStaged = false;
+  int stagedFunction = LUA_REFNIL;
+  std::string stagedText;
+
+  bool needsLoad = false;
+
+  void build(lua_State *L) override;
+  void refresh() override;
+  void parseParam(lua_State *L, const char *key) override;
+
+  void discardStagedFile(lua_State *L);
+  void applyStagedFile(lua_State *L);
+  virtual void load();
+  void setSource(const char *s);
+  static int protectedParams(lua_State* L);
 };
 
 //-----------------------------------------------------------------------------
