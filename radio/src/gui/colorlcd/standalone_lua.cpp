@@ -184,6 +184,7 @@ StandaloneLuaWindow::StandaloneLuaWindow(bool useLvgl, int initFn, int runFn) :
     luaL_unref(lsStandalone, LUA_REGISTRYINDEX, runFunction);
     luaLcdBuffer = nullptr;
 
+    clearLvglPopups(lsStandalone);
     luaClose(&lsStandalone);
 
     if (lcdBuffer) delete lcdBuffer;

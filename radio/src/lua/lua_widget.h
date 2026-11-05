@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <list>
 #include <vector>
 
 #include "window.h"
@@ -70,6 +71,8 @@ class LuaScriptManager : public LuaEventHandler
 
   std::vector<int> getLvglObjectRefs() const { return lvglObjectRefs; }
   void saveLvglObjectRef(int ref);
+  void saveLvglPopup(LvglWidgetObjectBase* object);
+  void clearLvglPopups(lua_State* L);
   void clearRefs(lua_State *L);
   bool callRefs(lua_State *L);
 
@@ -96,6 +99,11 @@ class LuaScriptManager : public LuaEventHandler
  protected:
   int luaScriptContextRef = LUA_REFNIL;
   std::vector<int> lvglObjectRefs;
+  struct LvglPopup {
+    LvglWidgetObjectBase* object;
+    bool closed = false;
+  };
+  std::list<LvglPopup> lvglPopups;
   LvglWidgetObjectBase* tempParent = nullptr;
 #if defined(LUA)
   TelemetryQueue* luaInputTelemetryFifo = nullptr;
