@@ -447,6 +447,23 @@ elseif(PCB STREQUAL XLITES)
   set(PXX2 ON)
   set(BLUETOOTH YES)
   set(IMU YES)
+elseif(PCB STREQUAL MAMBO)
+  set(CPU_TYPE_FULL STM32F407xG)
+  set(FLAVOUR mambo)
+  set(HSE_VALUE 8000000)
+  # Avoid reinitialising the original TBS backup domain in the bench target.
+  set(USE_RTC_CLOCK NO)
+  set(HAPTIC YES)
+  set(ROTARY_ENCODER YES)
+  set(PWR_BUTTON "PRESS")
+  set(GUI_DIR 128x64)
+  set(BITMAPS_DIR 128x64)
+  set(BITMAPS_TARGET 9x_bitmaps)
+  set(FONTS_TARGET 9x_fonts_1bit)
+  set(LCD_DRIVER lcd_driver_spi.cpp)
+  set(HARDWARE_EXTERNAL_MODULE YES)
+  set(MODULE_SIZE_SML YES)
+  add_definitions(-DPCBX7 -DPCBMAMBO -DSOFTWARE_VOLUME -DPWR_BUTTON_PRESS)
 endif()
 
 message("CPU_TYPE_FULL = ${CPU_TYPE_FULL}")
@@ -473,7 +490,12 @@ else()
   message(FATAL_ERROR "Unknown CPU_TYPE_FULL" )
 endif()
 
-if ((CPU_TYPE_FULL STREQUAL STM32F407xG) AND (NOT PCBREV STREQUAL MT12))
+if(PCB STREQUAL MAMBO)
+  set(TARGET_LINKER_DIR mambo)
+  unset(TARGET_FLASH_SIZE)
+endif()
+
+if ((CPU_TYPE_FULL STREQUAL STM32F407xG) AND (NOT PCBREV STREQUAL MT12) AND (NOT PCB STREQUAL MAMBO))
   set(RTC_BACKUP_RAM YES)
 endif()
 
@@ -494,7 +516,7 @@ if(ENABLE_SERIAL_PASSTHROUGH)
   set(CLI ON "Enable CLI")
 endif()
 
-if(INTERNAL_MODULE_SERIAL)
+if(INTERNAL_MODULE_SERIAL AND NOT PCB STREQUAL MAMBO)
 
   # defines default internal modules
   if(DEFAULT_INTERNAL_MODULE STREQUAL XJT_PXX1)
@@ -510,6 +532,8 @@ if(INTERNAL_MODULE_SERIAL)
     add_definitions(-DPXX_FREQUENCY_HIGH)
   endif()
 
+elseif(PCB STREQUAL MAMBO)
+  set(INTERNAL_MODULES "" CACHE STRING "Internal Tracer is not supported" FORCE)
 else()
 
   # defines existing internal modules
@@ -649,9 +673,11 @@ if(PCB STREQUAL XLITE OR PCB STREQUAL XLITES OR PCBREV STREQUAL COMMANDO8)
     targets/common/arm/stm32/sticks_pwm_driver.cpp)
 endif()
 
-set(FIRMWARE_SRC
-  ${FIRMWARE_SRC}
-  bootloader/loadboot.cpp
-  )
+if(BOOTLOADER)
+  set(FIRMWARE_SRC
+    ${FIRMWARE_SRC}
+    bootloader/loadboot.cpp
+    )
+endif()
 
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})

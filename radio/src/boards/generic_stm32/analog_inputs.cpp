@@ -26,6 +26,9 @@
 #include "flysky_gimbal_driver.h"
 
 #include "hal.h"
+#if defined(RADIO_MAMBO)
+  #include "targets/mambo/gimbals.h"
+#endif
 
 #if defined(USE_ADS79XX)
   #include "ads79xx.h"
@@ -59,6 +62,9 @@ static_assert(n_inputs <= MAX_ANALOG_INPUTS, "Too many analog inputs");
 static bool adc_init()
 {
   bool success = stm32_hal_adc_init(_ADC_adc, n_ADC, _ADC_inputs, _ADC_GPIOs, n_GPIO);
+#if defined(RADIO_MAMBO)
+  mamboGimbalsInit();
+#endif
 #if defined(USE_ADS79XX)
   if (n_ADC_spi > 0) ads79xx_init(&_ADC_spi[0]);
 #endif
@@ -67,6 +73,9 @@ static bool adc_init()
 
 static void adc_deinit()
 {
+#if defined(RADIO_MAMBO)
+  mamboGimbalsDeinit();
+#endif
   stm32_hal_adc_deinit(_ADC_adc, n_ADC);
 }
 
@@ -89,6 +98,9 @@ static void adc_wait_completion()
   if (n_ADC_spi > 0) ads79xx_adc_wait_completion(&_ADC_spi[0], _ADC_inputs);
 #endif
   stm32_hal_adc_wait_completion(_ADC_adc, n_ADC, _ADC_inputs, n_inputs);
+#if defined(RADIO_MAMBO)
+  mamboGimbalsRead();
+#endif
 #if defined(SIXPOS_SWITCH_INDEX)
   sixPosUpdateFromAdc();
 #endif

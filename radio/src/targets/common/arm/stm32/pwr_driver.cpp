@@ -139,7 +139,11 @@ bool pwrPressed()
   #endif
 
 #elif defined(PWR_SWITCH_GPIO)
+#if defined(PWR_SWITCH_PIN_ACTIVE_HIGH)
+  return gpio_read(PWR_SWITCH_GPIO);
+#else
   return !gpio_read(PWR_SWITCH_GPIO);
+#endif
 #else
   return true;
 #endif

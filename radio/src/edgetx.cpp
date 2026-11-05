@@ -799,6 +799,7 @@ void checkMultiLowPower()
 
 static void checkRTCBattery()
 {
+  if (adcGetMaxInputs(ADC_INPUT_RTC_BAT) < 1) return;
   if (!mixerTaskRunning()) getADC();
   if (getRTCBatteryVoltage() < 200) {
     ALERT(STR_BATTERY, STR_WARN_RTC_BATTERY_LOW, AU_ERROR);
