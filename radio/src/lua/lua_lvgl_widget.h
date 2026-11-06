@@ -257,8 +257,8 @@ class LvglWidgetObjectBase
   LvglWidgetObjectBase(const char* meta);
   virtual ~LvglWidgetObjectBase() {}
 
-  int getRef(lua_State *L);
-  void push(lua_State *L);
+  int getRef(lua_State *L, bool saveRef = true);
+  void push(lua_State *L, bool saveRef = true);
   void saveLvglObjectRef(int ref);
 
   virtual bool callRefs(lua_State *L);
