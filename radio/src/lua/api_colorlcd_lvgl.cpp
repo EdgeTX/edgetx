@@ -401,7 +401,7 @@ static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
   }
 }
 
-static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly = false)
+static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly = false, bool saveRef = true)
 {
   if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
     LvglWidgetParams params(L, 1);
@@ -411,7 +411,7 @@ static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, b
 
     if (params.hasChildren) addChildren(L, obj);
 
-    obj->push(L);
+    obj->push(L, saveRef);
   } else {
     lua_pushnil(L);
   }
@@ -1301,7 +1301,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @status current Introduced in 2.11.0
   */
-  LROT_FUNCENTRY(dialog, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetDialog(); }, true); })
+  LROT_FUNCENTRY(dialog, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetDialog(); }, true, false); })
   // Dialogs
   /*luadoc
   @function lvgl.confirm(params)
