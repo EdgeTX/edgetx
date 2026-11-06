@@ -2692,6 +2692,11 @@ void LvglWidgetDialog::clearRefs(lua_State *L)
   LvglWidgetObject::clearRefs(L);
 }
 
+bool LvglWidgetDialog::callRefs(lua_State *L)
+{
+  return !dialog || LvglWidgetObject::callRefs(L);
+}
+
 void LvglWidgetDialog::build(lua_State *L)
 {
   if (w == LV_SIZE_CONTENT) w = DIALOG_DEFAULT_WIDTH;
@@ -2700,14 +2705,19 @@ void LvglWidgetDialog::build(lua_State *L)
       [=]() { pcallSimpleFunc(L, closeFunction); });
   dialog = dlg;
   window = dlg->getBody();
+  // The Lua wrapper remains registered after the native dialog is destroyed.
+  dlg->onClosing([=]() {
+    dialog = nullptr;
+    window = nullptr;
+  });
   window->setWidth(w);
   setFlex();
 }
 
 void LvglWidgetDialog::close()
 {
-  dialog->onCancel();
-  clear();
+  if (dialog)
+    dialog->onCancel();
 }
 
 //-----------------------------------------------------------------------------

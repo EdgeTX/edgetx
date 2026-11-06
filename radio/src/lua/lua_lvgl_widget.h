@@ -916,6 +916,7 @@ class LvglWidgetDialog : public LvglWidgetObject, public LvglTitleParam
  public:
   LvglWidgetDialog() : LvglWidgetObject() {}
 
+  bool callRefs(lua_State *L) override;
   void clearRefs(lua_State *L) override;
   void close() override;
 
