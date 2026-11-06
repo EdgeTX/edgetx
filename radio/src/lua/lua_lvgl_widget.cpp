@@ -62,6 +62,12 @@ static int getRef(lua_State *L, int t)
   return luaL_ref(L, t);
 }
 
+static void replaceRef(lua_State *L, int& ref)
+{
+  clearRef(L, ref);
+  ref = getRef(L, LUA_REGISTRYINDEX);
+}
+
 static bool getLuaBool(lua_State *L)
 {
   if (lua_isboolean(L, -1))
@@ -74,7 +80,7 @@ static bool getLuaBool(lua_State *L)
 void LvglParamFuncOrValue::parse(lua_State *L)
 {
   if (lua_isfunction(L, -1)) {
-    function = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, function);
   } else if (lua_isboolean(L, -1)) {
     value = lua_toboolean(L, -1);
     clearRef(L);
@@ -112,7 +118,7 @@ void LvglParamFuncOrValue::clearRef(lua_State *L)
 void LvglParamFuncOrString::parse(lua_State *L)
 {
   if (lua_isfunction(L, -1)) {
-    function = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, function);
   } else {
     txt = luaL_checkstring(L, -1);
     clearRef(L);
@@ -140,11 +146,11 @@ void LvglParamFuncOrString::clearRef(lua_State *L)
 bool LvglGetSetParams::parseGetSetParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "get")) {
-    getFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, getFunction);
     return true;
   }
   if (!strcmp(key, "set")) {
-    setFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, setFunction);
     return true;
   }
   return false;
@@ -267,11 +273,11 @@ bool LvglScrollableParams::parseScrollableParam(lua_State *L, const char *key)
     return true;
   }
   if (!strcmp(key, "scrollTo")) {
-    scrollToFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, scrollToFunction);
     return true;
   }
   if (!strcmp(key, "scrolled")) {
-    scrolledFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, scrolledFunction);
     return true;
   }
   return false;
@@ -652,11 +658,11 @@ void LvglWidgetObjectBase::parseParam(lua_State *L, const char *key)
   } else if (!strcmp(key, "opacity")) {
     opacity.parse(L);
   } else if (!strcmp(key, "visible")) {
-    getVisibleFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, getVisibleFunction);
   } else if (!strcmp(key, "size")) {
-    getSizeFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, getSizeFunction);
   } else if (!strcmp(key, "pos")) {
-    getPosFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, getPosFunction);
   } else if (!strcmp(key, "floating")) {
     floating = getLuaBool(L);
   } else if (strcmp(key, "children") && strcmp(key, "type") && strcmp(key, "name")) {
@@ -1037,7 +1043,7 @@ void LvglWidgetLine::parseParam(lua_State *L, const char *key)
   if (parseThicknessParam(L, key)) return;
   if (!strcmp(key, "pts")) {
     if (lua_isfunction(L, -1)) {
-      getPointsFunction = ::getRef(L, LUA_REGISTRYINDEX);
+      replaceRef(L, getPointsFunction);
     } else {
       ptsHash = getPts(L);
     }
@@ -1181,7 +1187,7 @@ void LvglWidgetTriangle::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "pts")) {
     if (lua_isfunction(L, -1)) {
-      getPointsFunction = ::getRef(L, LUA_REGISTRYINDEX);
+      replaceRef(L, getPointsFunction);
     } else {
       luaL_checktype(L, -1, LUA_TTABLE);
       getPt(L, 0);
@@ -1474,7 +1480,7 @@ void LvglWidgetObject::parseParam(lua_State *L, const char *key)
       }
     }
   } else if (!strcmp(key, "active")) {
-    getActiveFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, getActiveFunction);
   } else {
     LvglWidgetObjectBase::parseParam(L, key);
   }
@@ -2061,7 +2067,7 @@ void LvglWidgetTextButtonBase::parseParam(lua_State *L, const char *key)
   } else if (!strcmp(key, "textColor")) {
     textColor.parse(L);
   } else if (!strcmp(key, "press")) {
-    pressFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, pressFunction);
   } else if (!parseTextParam(L, key)) {
     LvglWidgetObject::parseParam(L, key);
   }
@@ -2126,7 +2132,7 @@ void LvglWidgetTextButton::parseParam(lua_State *L, const char *key)
   if (!strcmp(key, "checked")) {
     checked = getLuaBool(L);
   } else if (!strcmp(key, "longpress")) {
-    longPressFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, longPressFunction);
   } else {
     LvglWidgetTextButtonBase::parseParam(L, key);
   }
@@ -2182,7 +2188,7 @@ void LvglWidgetTextButton::build(lua_State *L)
 void LvglWidgetMomentaryButton::parseParam(lua_State *L, const char *key)
 {
   if (!strcmp(key, "release")) {
-    releaseFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, releaseFunction);
   } else {
     LvglWidgetTextButtonBase::parseParam(L, key);
   }
@@ -2258,7 +2264,7 @@ void LvglWidgetTextEdit::parseParam(lua_State *L, const char *key)
     if (maxLen > MAX_TEXT_EDIT_LEN) maxLen = MAX_TEXT_EDIT_LEN;
     if (maxLen <= 0) maxLen = DEFAULT_TEXT_EDIT_LEN;
   } else if (!strcmp(key, "set")) {
-    setFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, setFunction);
   } else {
     LvglWidgetObject::parseParam(L, key);
   }
@@ -2322,9 +2328,9 @@ void LvglWidgetNumberEdit::parseParam(lua_State *L, const char *key)
   if (parseGetSetParam(L, key)) return;
 
   if (!strcmp(key, "display")) {
-    dispFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, dispFunction);
   } else if (!strcmp(key, "edited")) {
-    editedFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, editedFunction);
   } else {
     LvglWidgetObject::parseParam(L, key);
   }
@@ -2534,18 +2540,18 @@ void LvglWidgetPage::parseParam(lua_State *L, const char *key)
   if (parseTitleParam(L, key)) return;
   if (parseScrollableParam(L, key)) return;
   if (!strcmp(key, "back")) {
-    backActionFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, backActionFunction);
   } else if (!strcmp(key, "menu")) {
-    menuActionFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, menuActionFunction);
   } else if (!strcmp(key, "prevButton")) {
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
       const char *key = lua_tostring(L, -2);
       if (!strcmp(key, "press")) {
-        prevActionFunction = ::getRef(L, LUA_REGISTRYINDEX);
+        replaceRef(L, prevActionFunction);
         lua_pushnil(L);
       } else if (!strcmp(key, "active")) {
-        prevActiveFunction = ::getRef(L, LUA_REGISTRYINDEX);
+        replaceRef(L, prevActiveFunction);
         lua_pushnil(L);
       }
     }
@@ -2554,10 +2560,10 @@ void LvglWidgetPage::parseParam(lua_State *L, const char *key)
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
       const char *key = lua_tostring(L, -2);
       if (!strcmp(key, "press")) {
-        nextActionFunction = ::getRef(L, LUA_REGISTRYINDEX);
+        replaceRef(L, nextActionFunction);
         lua_pushnil(L);
       } else if (!strcmp(key, "active")) {
-        nextActiveFunction = ::getRef(L, LUA_REGISTRYINDEX);
+        replaceRef(L, nextActiveFunction);
         lua_pushnil(L);
       }
     }
@@ -2682,7 +2688,7 @@ void LvglWidgetDialog::parseParam(lua_State *L, const char *key)
 {
   if (parseTitleParam(L, key)) return;
   if (!strcmp(key, "close")) {
-    closeFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, closeFunction);
   } else {
     LvglWidgetObject::parseParam(L, key);
   }
@@ -2720,9 +2726,9 @@ void LvglWidgetConfirmDialog::parseParam(lua_State *L, const char *key)
   if (parseTitleParam(L, key)) return;
   if (parseMessageParam(L, key)) return;
   if (!strcmp(key, "confirm")) {
-    confirmFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, confirmFunction);
   } else if (!strcmp(key, "cancel")) {
-    cancelFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, cancelFunction);
   } else {
     LvglWidgetObject::parseParam(L, key);
   }
@@ -2789,7 +2795,7 @@ void LvglWidgetChoice::parseParam(lua_State *L, const char *key)
   if (parseTitleParam(L, key)) return;
   if (parseValuesParam(L, key)) return;
   if (!strcmp(key, "filter")) {
-    filterFunction = ::getRef(L, LUA_REGISTRYINDEX);
+    replaceRef(L, filterFunction);
   } else if (!strcmp(key, "popupWidth")) {
     popupWidth = luaL_checkinteger(L, -1);
   } else {

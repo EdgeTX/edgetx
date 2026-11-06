@@ -9,6 +9,7 @@
 #if defined(LUA) && defined(COLORLCD)
 
 #include <filesystem>
+#include <string>
 
 #include "standalone_lua.h"
 #include "view_main.h"
@@ -45,13 +46,60 @@ class LuaLvgl : public ::testing::Test
         StandaloneLuaWindow::instance()->getLvObj(), 0);
   }
 
-  ::testing::AssertionResult exec(const char* source)
+  ::testing::AssertionResult exec(const std::string& source)
   {
-    if (luaL_dostring(lsStandalone, source) != LUA_OK)
+    if (luaL_dostring(lsStandalone, source.c_str()) != LUA_OK)
       return ::testing::AssertionFailure() << lua_tostring(lsStandalone, -1);
     return ::testing::AssertionSuccess();
   }
+
+  // Create an object with a function for 'key', rebind it several times via
+  // set(), then check that only the current function is still reachable.
+  // Superseded functions are tracked in a weak table, so they only survive a
+  // full GC if something (e.g. a leaked registry ref) still holds them.
+  void expectRebindReleases(const char* create, const char* key,
+                            const char* body)
+  {
+    std::string fn = std::string("tracked(function() ") + body + " end)";
+    ASSERT_TRUE(exec(
+        "rebindTracked = setmetatable({}, {__mode = 'k'})\n"
+        "function tracked(f) rebindTracked[f] = true return f end\n"
+        "rebindObject = lvgl." + std::string(create) + "({" + key + " = " +
+        fn + "})\n"
+        "for i = 1, 5 do rebindObject:set({" + key + " = " + fn +
+        "}) end\n"));
+    ASSERT_TRUE(exec(
+        "collectgarbage('collect') collectgarbage('collect')\n"
+        "local alive = 0\n"
+        "for _ in pairs(rebindTracked) do alive = alive + 1 end\n"
+        "assert(alive == 1, alive .. ' functions alive after rebinding')\n"));
+  }
 };
+
+TEST_F(LuaLvgl, RebindTextReleasesPrevious)
+{
+  expectRebindReleases("label", "text", "return 'DYNAMIC'");
+}
+
+TEST_F(LuaLvgl, RebindOpacityReleasesPrevious)
+{
+  expectRebindReleases("rectangle", "opacity", "return 255");
+}
+
+TEST_F(LuaLvgl, RebindVisibleReleasesPrevious)
+{
+  expectRebindReleases("label", "visible", "return true");
+}
+
+TEST_F(LuaLvgl, RebindPosReleasesPrevious)
+{
+  expectRebindReleases("label", "pos", "return 10, 10");
+}
+
+TEST_F(LuaLvgl, RebindPressReleasesPrevious)
+{
+  expectRebindReleases("button", "press", "return 0");
+}
 
 TEST_F(LuaLvgl, LiteralTextStopsCallback)
 {
