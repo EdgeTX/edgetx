@@ -42,6 +42,7 @@
 #define TEMP_ID                        0x0D
 #define CELLS_ID                       0x0E
 #define VOLT_ARRAY_ID                  0xFE  // Pseudo sensor out of 0x0E frame
+#define ACCGYRO_ID                     0x13
 #define LINK_ID                        0x14
 #define CHANNELS_ID                    0x16
 #define LINK_RX_ID                     0x1C
@@ -102,6 +103,13 @@ enum CrossfireSensorIndexes {
   ATTITUDE_PITCH_INDEX,
   ATTITUDE_ROLL_INDEX,
   ATTITUDE_YAW_INDEX,
+  ACCGYRO_GYRO_X_INDEX,
+  ACCGYRO_GYRO_Y_INDEX,
+  ACCGYRO_GYRO_Z_INDEX,
+  ACCGYRO_ACC_X_INDEX,
+  ACCGYRO_ACC_Y_INDEX,
+  ACCGYRO_ACC_Z_INDEX,
+  ACCGYRO_TEMP_INDEX,
   FLIGHT_MODE_INDEX,
   VERTICAL_SPEED_INDEX,
   BARO_ALTITUDE_INDEX,

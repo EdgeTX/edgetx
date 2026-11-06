@@ -72,6 +72,7 @@
 #define STR_SENSOR_GYROX                     "GYRX"
 #define STR_SENSOR_GYROY                     "GYRY"
 #define STR_SENSOR_GYROZ                     "GYRZ"
+#define STR_SENSOR_IMU_TEMP                  "IMUT"
 #define STR_SENSOR_CURR                      "Curr"
 #define STR_SENSOR_CAPACITY                  "Capa"
 #define STR_SENSOR_VFAS                      "VFAS"

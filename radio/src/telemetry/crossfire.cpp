@@ -82,6 +82,13 @@ const CrossfireSensor crossfireSensors[] = {
   CS(ATTITUDE_ID,    0, STR_SENSOR_PITCH,         UNIT_RADIANS,           3),
   CS(ATTITUDE_ID,    1, STR_SENSOR_ROLL,          UNIT_RADIANS,           3),
   CS(ATTITUDE_ID,    2, STR_SENSOR_YAW,           UNIT_RADIANS,           3),
+  CS(ACCGYRO_ID,     0, STR_SENSOR_GYROX,         UNIT_DEGREE,            1),
+  CS(ACCGYRO_ID,     1, STR_SENSOR_GYROY,         UNIT_DEGREE,            1),
+  CS(ACCGYRO_ID,     2, STR_SENSOR_GYROZ,         UNIT_DEGREE,            1),
+  CS(ACCGYRO_ID,     3, STR_SENSOR_ACCX,          UNIT_G,                 3),
+  CS(ACCGYRO_ID,     4, STR_SENSOR_ACCY,          UNIT_G,                 3),
+  CS(ACCGYRO_ID,     5, STR_SENSOR_ACCZ,          UNIT_G,                 3),
+  CS(ACCGYRO_ID,     6, STR_SENSOR_IMU_TEMP,      UNIT_CELSIUS,           2),
   CS(FLIGHT_MODE_ID, 0, STR_SENSOR_FLIGHT_MODE,   UNIT_TEXT,              0),
   CS(CF_VARIO_ID,    0, STR_SENSOR_VSPD,          UNIT_METERS_PER_SECOND, 2),
   CS(BARO_ALT_ID,    0, STR_SENSOR_ALT,           UNIT_METERS,            2),
@@ -116,6 +123,8 @@ const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
     return crossfireSensors[VERTICAL_SPEED_INDEX];
   else if (id == ATTITUDE_ID)
     return crossfireSensors[ATTITUDE_PITCH_INDEX + subId];
+  else if (id == ACCGYRO_ID)
+    return crossfireSensors[ACCGYRO_GYRO_X_INDEX + subId];
   else if (id == FLIGHT_MODE_ID)
     return crossfireSensors[FLIGHT_MODE_INDEX];
   else if (id == BARO_ALT_ID)
@@ -411,6 +420,24 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         getCrossfireTelemetryValue(5, rxBuffer, 2, true)/10);
       processCrossfireTelemetryValue(ATTITUDE_YAW_INDEX,
         getCrossfireTelemetryValue(7, rxBuffer, 2, true)/10);
+      break;
+
+    case ACCGYRO_ID:
+      // sample_time (4B, us, unused)
+      processCrossfireTelemetryValue(ACCGYRO_GYRO_X_INDEX,
+        getCrossfireTelemetryValue(7, rxBuffer, 2, true) * 20000 / INT16_MAX);
+      processCrossfireTelemetryValue(ACCGYRO_GYRO_Y_INDEX,
+        getCrossfireTelemetryValue(9, rxBuffer, 2, true) * 20000 / INT16_MAX);
+      processCrossfireTelemetryValue(ACCGYRO_GYRO_Z_INDEX,
+        getCrossfireTelemetryValue(11, rxBuffer, 2, true) * 20000 / INT16_MAX);
+      processCrossfireTelemetryValue(ACCGYRO_ACC_X_INDEX,
+        getCrossfireTelemetryValue(13, rxBuffer, 2, true) * 16000 / INT16_MAX);
+      processCrossfireTelemetryValue(ACCGYRO_ACC_Y_INDEX,
+        getCrossfireTelemetryValue(15, rxBuffer, 2, true) * 16000 / INT16_MAX);
+      processCrossfireTelemetryValue(ACCGYRO_ACC_Z_INDEX,
+        getCrossfireTelemetryValue(17, rxBuffer, 2, true) * 16000 / INT16_MAX);
+      processCrossfireTelemetryValue(ACCGYRO_TEMP_INDEX,
+        getCrossfireTelemetryValue(19, rxBuffer, 2, true));
       break;
 
     case FLIGHT_MODE_ID:
