@@ -33,6 +33,7 @@
 // Frame id
 #define GPS_ID                         0x02
 #define GPS_TIME_ID                    0x03
+#define GPS_EXT_ID                     0x06
 #define CF_VARIO_ID                    0x07
 #define BATTERY_ID                     0x08
 #define BARO_ALT_ID                    0x09
@@ -87,6 +88,17 @@ enum CrossfireSensorIndexes {
   GPS_ALTITUDE_INDEX,
   GPS_SATELLITES_INDEX,
   GPS_TIME_INDEX,
+  GPS_FIX_INDEX,
+  GPS_NSPEED_INDEX,
+  GPS_ESPEED_INDEX,
+  GPS_VSPEED_INDEX,
+  GPS_HSPEED_ACC_INDEX,
+  GPS_TRACK_ACC_INDEX,
+  GPS_ALT_ELLIPSOID_INDEX,
+  GPS_HACC_INDEX,
+  GPS_VACC_INDEX,
+  GPS_HDOP_INDEX,
+  GPS_VDOP_INDEX,
   ATTITUDE_PITCH_INDEX,
   ATTITUDE_ROLL_INDEX,
   ATTITUDE_YAW_INDEX,

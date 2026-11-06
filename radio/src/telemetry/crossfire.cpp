@@ -68,6 +68,17 @@ const CrossfireSensor crossfireSensors[] = {
   CS(GPS_ID,         4, STR_SENSOR_GPSALT,        UNIT_METERS,            0),
   CS(GPS_ID,         5, STR_SENSOR_SATELLITES,    UNIT_RAW,               0),
   CS(GPS_TIME_ID,    0, STR_SENSOR_GPSDATETIME,   UNIT_DATETIME,          0),
+  CS(GPS_EXT_ID,     0, STR_SENSOR_GPS_FIX,       UNIT_RAW,               0),
+  CS(GPS_EXT_ID,     1, STR_SENSOR_GPS_NSPEED,    UNIT_METERS_PER_SECOND, 2),
+  CS(GPS_EXT_ID,     2, STR_SENSOR_GPS_ESPEED,    UNIT_METERS_PER_SECOND, 2),
+  CS(GPS_EXT_ID,     3, STR_SENSOR_GPS_VSPEED,    UNIT_METERS_PER_SECOND, 2),
+  CS(GPS_EXT_ID,     4, STR_SENSOR_GPS_SPD_ACC,   UNIT_METERS_PER_SECOND, 2),
+  CS(GPS_EXT_ID,     5, STR_SENSOR_GPS_TRACK_ACC, UNIT_DEGREE,            1),
+  CS(GPS_EXT_ID,     6, STR_SENSOR_GPS_ALT_ELL,   UNIT_METERS,            0),
+  CS(GPS_EXT_ID,     7, STR_SENSOR_GPS_HACC,      UNIT_METERS,            2),
+  CS(GPS_EXT_ID,     8, STR_SENSOR_GPS_VACC,      UNIT_METERS,            2),
+  CS(GPS_EXT_ID,     9, STR_SENSOR_GPS_HDOP,      UNIT_RAW,               1),
+  CS(GPS_EXT_ID,    10, STR_SENSOR_GPS_VDOP,      UNIT_RAW,               1),
   CS(ATTITUDE_ID,    0, STR_SENSOR_PITCH,         UNIT_RADIANS,           3),
   CS(ATTITUDE_ID,    1, STR_SENSOR_ROLL,          UNIT_RADIANS,           3),
   CS(ATTITUDE_ID,    2, STR_SENSOR_YAW,           UNIT_RADIANS,           3),
@@ -99,6 +110,8 @@ const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
     return crossfireSensors[GPS_LATITUDE_INDEX + subId];
   else if (id == GPS_TIME_ID)
     return crossfireSensors[GPS_TIME_INDEX];
+  else if (id == GPS_EXT_ID)
+    return crossfireSensors[GPS_FIX_INDEX + subId];
   else if (id == CF_VARIO_ID)
     return crossfireSensors[VERTICAL_SPEED_INDEX];
   else if (id == ATTITUDE_ID)
@@ -198,6 +211,32 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                         (int32_t)timeVal, UNIT_DATETIME, 0);
       break;
     }
+
+    case GPS_EXT_ID:
+      processCrossfireTelemetryValue(GPS_FIX_INDEX,
+        getCrossfireTelemetryValue(3, rxBuffer, 1, false));
+      processCrossfireTelemetryValue(GPS_NSPEED_INDEX,
+        getCrossfireTelemetryValue(4, rxBuffer, 2, true));
+      processCrossfireTelemetryValue(GPS_ESPEED_INDEX,
+        getCrossfireTelemetryValue(6, rxBuffer, 2, true));
+      processCrossfireTelemetryValue(GPS_VSPEED_INDEX,
+        getCrossfireTelemetryValue(8, rxBuffer, 2, true));
+      processCrossfireTelemetryValue(GPS_HSPEED_ACC_INDEX,
+        getCrossfireTelemetryValue(10, rxBuffer, 2, true));
+      processCrossfireTelemetryValue(GPS_TRACK_ACC_INDEX,
+        getCrossfireTelemetryValue(12, rxBuffer, 2, true));
+      processCrossfireTelemetryValue(GPS_ALT_ELLIPSOID_INDEX,
+        getCrossfireTelemetryValue(14, rxBuffer, 2, true));
+      processCrossfireTelemetryValue(GPS_HACC_INDEX,
+        getCrossfireTelemetryValue(16, rxBuffer, 2, true));
+      processCrossfireTelemetryValue(GPS_VACC_INDEX,
+        getCrossfireTelemetryValue(18, rxBuffer, 2, true));
+      // byte 20 is reserved
+      processCrossfireTelemetryValue(GPS_HDOP_INDEX,
+        getCrossfireTelemetryValue(21, rxBuffer, 1, false));
+      processCrossfireTelemetryValue(GPS_VDOP_INDEX,
+        getCrossfireTelemetryValue(22, rxBuffer, 1, false));
+      break;
 
     case BARO_ALT_ID:
       value = getCrossfireTelemetryValue(3, rxBuffer, 2, false);
