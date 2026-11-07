@@ -36,8 +36,6 @@ int8_t  checkIncDec_Ret;
 
 tmr10ms_t menuEntryTime;
 
-extern int checkIncDecSelection;
-
 INIT_STOPS(stops100, 3, -100, 0, 100)
 INIT_STOPS(stops1000, 3, -1000, 0, 1000)
 INIT_STOPS(stopsSwitch, 15, SWSRC_FIRST,

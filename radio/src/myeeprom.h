@@ -112,21 +112,17 @@ enum CurveRefType {
 #define LIMIT_EXT_MAX       (LIMIT_EXT_PERCENT*10)
 #define LIMIT_STD_MAX       (LIMIT_STD_PERCENT*10)
 #define PPM_CENTER_MAX      500
-#define LIMIT_MAX(lim)                                            \
-  (GV_IS_GV_VALUE(lim->max)                                       \
-       ? GET_GVAR_PREC1(lim->max, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX, \
-                        mixerCurrentFlightMode)                   \
-       : lim->max + LIMIT_STD_MAX)
-#define LIMIT_MIN(lim)                                            \
-  (GV_IS_GV_VALUE(lim->min)                                       \
-       ? GET_GVAR_PREC1(lim->min, -LIMIT_EXT_MAX, +LIMIT_EXT_MAX, \
-                        mixerCurrentFlightMode)                   \
-       : lim->min - LIMIT_STD_MAX)
-#define LIMIT_OFS(lim)                                               \
-  (GV_IS_GV_VALUE(lim->offset)                                       \
-       ? GET_GVAR_PREC1(lim->offset, -LIMIT_STD_MAX, +LIMIT_STD_MAX, \
-                        mixerCurrentFlightMode)                      \
-       : lim->offset)
+int32_t getLimitNumFieldValue(uint16_t val, int32_t numOffset, int32_t min,
+                              int32_t max);
+#define LIMIT_MAX(lim)                                              \
+  getLimitNumFieldValue((lim)->max, LIMIT_STD_MAX, -LIMIT_EXT_MAX, \
+                        +LIMIT_EXT_MAX)
+#define LIMIT_MIN(lim)                                               \
+  getLimitNumFieldValue((lim)->min, -LIMIT_STD_MAX, -LIMIT_EXT_MAX, \
+                        +LIMIT_EXT_MAX)
+#define LIMIT_OFS(lim)                                      \
+  getLimitNumFieldValue((lim)->offset, 0, -LIMIT_STD_MAX, \
+                        +LIMIT_STD_MAX)
 #define LIMIT_MAX_RESX(lim) calc1000toRESX(LIMIT_MAX(lim))
 #define LIMIT_MIN_RESX(lim) calc1000toRESX(LIMIT_MIN(lim))
 #define LIMIT_OFS_RESX(lim) calc1000toRESX(LIMIT_OFS(lim))

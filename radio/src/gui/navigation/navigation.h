@@ -151,6 +151,7 @@ extern const CheckIncDecStops &stopsSwitch;
   (val), (val+1)
 
 extern int8_t checkIncDec_Ret;  // global helper vars
+extern int checkIncDecSelection;  // pending source/switch popup choice
 
 #define CURSOR_ON_LINE() (menuHorizontalPosition < 0)
 
