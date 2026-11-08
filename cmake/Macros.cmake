@@ -1,5 +1,14 @@
 find_package(Git)
 
+# Flag that silences author (formerly "dev") warnings in sub-builds. CMake 4.4
+# deprecated -Wno-dev in favour of -Wno-author, which older versions accept but
+# ignore, so the flag has to follow the running CMake version.
+if(CMAKE_VERSION VERSION_GREATER_EQUAL 4.4)
+  set(NO_AUTHOR_WARNINGS_FLAG -Wno-author)
+else()
+  set(NO_AUTHOR_WARNINGS_FLAG -Wno-dev)
+endif()
+
 macro(git_id RESULT)
   set(${RESULT} 0)
   if (GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")

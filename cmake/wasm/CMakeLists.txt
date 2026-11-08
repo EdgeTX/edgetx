@@ -29,7 +29,7 @@ ExternalProject_Add(wasm
   LIST_SEPARATOR |
   CMAKE_ARGS
     ${_forwarded_args}
-    -Wno-dev
+    ${NO_AUTHOR_WARNINGS_FLAG}
     -DCMAKE_BUILD_TYPE=${EDGETX_BUILD_TYPE}
     -DWASI_SDK_PREFIX=${WASI_SDK_PATH}
     -DCMAKE_TOOLCHAIN_FILE=${EDGETX_SOURCE_DIR}/cmake/toolchain/wasi-threads.cmake

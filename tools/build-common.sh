@@ -231,3 +231,16 @@ cmake_build_parallel() {
     cmake --build "${args[@]}" --parallel ${native_flags}
   fi
 }
+
+# Flag that silences CMake author (formerly "dev") warnings. CMake 4.4 deprecated
+# -Wno-dev in favour of -Wno-author, which older versions accept but ignore.
+cmake_no_author_warnings_flag() {
+  local major minor
+  IFS=. read -r major minor _ < <(cmake --version 2>/dev/null | sed -n '1s/^[^0-9]*//p')
+  if (( ${major:-0} > 4 || (${major:-0} == 4 && ${minor:-0} >= 4) )); then
+    echo "-Wno-author"
+  else
+    echo "-Wno-dev"
+  fi
+}
+CMAKE_NO_AUTHOR_WARNINGS=$(cmake_no_author_warnings_flag)
