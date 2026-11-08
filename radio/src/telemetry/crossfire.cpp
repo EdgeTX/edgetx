@@ -89,6 +89,8 @@ const CrossfireSensor crossfireSensors[] = {
   CS(ACCGYRO_ID,     4, STR_SENSOR_ACCY,          UNIT_G,                 3),
   CS(ACCGYRO_ID,     5, STR_SENSOR_ACCZ,          UNIT_G,                 3),
   CS(ACCGYRO_ID,     6, STR_SENSOR_IMU_TEMP,      UNIT_CELSIUS,           2),
+  CS(BAROMETER_ID,   0, STR_SENSOR_PRES,          UNIT_RAW,               2),
+  CS(BAROMETER_ID,   1, STR_SENSOR_BARO_TEMP,     UNIT_CELSIUS,           2),
   CS(FLIGHT_MODE_ID, 0, STR_SENSOR_FLIGHT_MODE,   UNIT_TEXT,              0),
   CS(CF_VARIO_ID,    0, STR_SENSOR_VSPD,          UNIT_METERS_PER_SECOND, 2),
   CS(BARO_ALT_ID,    0, STR_SENSOR_ALT,           UNIT_METERS,            2),
@@ -125,6 +127,8 @@ const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
     return crossfireSensors[ATTITUDE_PITCH_INDEX + subId];
   else if (id == ACCGYRO_ID)
     return crossfireSensors[ACCGYRO_GYRO_X_INDEX + subId];
+  else if (id == BAROMETER_ID)
+    return crossfireSensors[BAROMETER_PRESSURE_INDEX + subId];
   else if (id == FLIGHT_MODE_ID)
     return crossfireSensors[FLIGHT_MODE_INDEX];
   else if (id == BARO_ALT_ID)
@@ -420,6 +424,13 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         getCrossfireTelemetryValue(5, rxBuffer, 2, true)/10);
       processCrossfireTelemetryValue(ATTITUDE_YAW_INDEX,
         getCrossfireTelemetryValue(7, rxBuffer, 2, true)/10);
+      break;
+
+    case BAROMETER_ID:
+      processCrossfireTelemetryValue(BAROMETER_PRESSURE_INDEX,
+        getCrossfireTelemetryValue(3, rxBuffer, 4, true));
+      processCrossfireTelemetryValue(BAROMETER_TEMP_INDEX,
+        getCrossfireTelemetryValue(7, rxBuffer, 4, true));
       break;
 
     case ACCGYRO_ID:
