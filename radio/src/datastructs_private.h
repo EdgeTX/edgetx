@@ -186,11 +186,10 @@ PACK(struct MixData {
   uint16_t spare:1 SKIP;
   uint32_t weight:12 CUST(r_sourceNumVal,w_sourceNumVal);
   uint32_t offset:12 CUST(r_sourceNumVal,w_sourceNumVal);
-  uint32_t spare2:8 SKIP;
+  uint8_t  delayUp;
   int16_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
   uint16_t spare3:6 SKIP;
   CurveRef curve;
-  uint8_t  delayUp;
   uint8_t  delayDown;
   uint8_t  speedUp;
   uint8_t  speedDown;
@@ -204,18 +203,18 @@ PACK(struct MixData {
 PACK(struct ExpoData {
   uint16_t mode:2;
   uint16_t scale:14;
-  CUST_ATTR(carryTrim, r_carryTrim, nullptr); //pre 2.9
-  int32_t  trimSource:6;
+  uint32_t flightModes:9 CUST(r_flightModes, w_flightModes);
   int32_t  srcRaw:11 ENUM(MixSources) CUST(r_mixSrcRawEx,w_mixSrcRawEx);
   uint32_t weight:12 CUST(r_sourceNumVal,w_sourceNumVal);
-  uint32_t spare2:3 SKIP;
+  // r_carryTrim writes at its own offset, keep it just before trimSource
+  CUST_ATTR(carryTrim, r_carryTrim, nullptr); //pre 2.9
+  int32_t  trimSource:6;
   uint32_t offset:12 CUST(r_sourceNumVal,w_sourceNumVal);
   int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
-  uint32_t spare3:10 SKIP;
+  uint32_t spare3:4 SKIP;
   CurveRef curve;
-  uint16_t chn:5;
-  uint16_t flightModes:9 CUST(r_flightModes, w_flightModes);
-  uint16_t spare:2 SKIP;
+  uint8_t  chn:5;
+  uint8_t  spare:3 SKIP;
   NOBACKUP(char name[LEN_EXPOMIX_NAME]);
 });
 

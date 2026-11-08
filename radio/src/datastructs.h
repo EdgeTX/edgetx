@@ -41,8 +41,8 @@ static inline void check_struct()
 {
   CHKSIZE(CurveRef, 2);
   CHKSIZE(VarioData, 5);
-  CHKSIZE(MixData, 22);
-  CHKSIZE(ExpoData, 20);
+  CHKSIZE(MixData, 21);
+  CHKSIZE(ExpoData, 19);
   CHKSIZE(SwashRingData, 8);
   CHKSIZE(CurveHeader, 4);
   CHKSIZE(LogicalSwitchData, 10);
@@ -108,39 +108,39 @@ static inline void check_struct()
 #endif
 
 #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)
-  CHKSIZE(ModelData, 6675);
+  CHKSIZE(ModelData, 6547);
 #elif defined(RADIO_FAMILY_T20)
-  CHKSIZE(ModelData, 6711);
+  CHKSIZE(ModelData, 6583);
 #elif defined(RADIO_GX12)
-  CHKSIZE(ModelData, 6739);
+  CHKSIZE(ModelData, 6611);
 #elif defined(PCBX9E)
-  CHKSIZE(ModelData, 7091);
+  CHKSIZE(ModelData, 6963);
 #elif defined(PCBX9D) || defined(PCBX9DP)
-  CHKSIZE(ModelData, 7090);
+  CHKSIZE(ModelData, 6962);
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_T14) || defined(RADIO_T12MAX)
-  CHKSIZE(ModelData, 6649);
+  CHKSIZE(ModelData, 6521);
 #elif defined(PCBPL18)
   #if defined(RADIO_NB4P) || defined(RADIO_NV14_FAMILY)
-    CHKSIZE(ModelData, 7195);
+    CHKSIZE(ModelData, 7067);
   #else
-    CHKSIZE(ModelData, 7197);
+    CHKSIZE(ModelData, 7069);
   #endif
 #elif defined(PCBST16) || defined(RADIO_T15PRO) || defined(RADIO_T15H7) || defined(RADIO_T18H7) || defined(RADIO_TX15) || defined(RADIO_GX15) || defined(RADIO_V15) || defined(RADIO_T22)
-  CHKSIZE(ModelData, 7961);
+  CHKSIZE(ModelData, 7833);
 #elif defined(RADIO_V12)
-  CHKSIZE(ModelData, 7960);
+  CHKSIZE(ModelData, 7832);
 #elif defined(PCBC14) || defined(RADIO_H17)
-  CHKSIZE(ModelData, 7893);
+  CHKSIZE(ModelData, 7765);
 #elif defined(PCBPA01)
-  CHKSIZE(ModelData, 7902);
+  CHKSIZE(ModelData, 7774);
 #elif defined(RADIO_T15)
-  CHKSIZE(ModelData, 7187);
+  CHKSIZE(ModelData, 7059);
 #elif defined(RADIO_TX16SMK3)
-  CHKSIZE(ModelData, 7962);
+  CHKSIZE(ModelData, 7834);
 #elif defined(RADIO_H7RS)
   // CHKSIZE()
 #elif defined(PCBHORUS)
-  CHKSIZE(ModelData, 7161);
+  CHKSIZE(ModelData, 7033);
 #else
   #error CHKSIZE not set up
 #endif
