@@ -715,7 +715,24 @@ endif()
 
 set(LINKER_SCRIPT firmware.ld)
 
-if(USE_FW_LTO)
+# LTO for the firmware: AUTO enables it on 512KB STM32F4 targets
+# (STM32F4xxxE), which are otherwise too tight on flash.
+set(USE_FW_LTO AUTO CACHE STRING "Use LTO to compile firmware (AUTO, ON, OFF)")
+set_property(CACHE USE_FW_LTO PROPERTY STRINGS AUTO ON OFF)
+
+if(USE_FW_LTO STREQUAL AUTO)
+  if(CPU_TYPE_FULL MATCHES "^STM32F4.*xE$")
+    set(FW_LTO ON)
+  else()
+    set(FW_LTO OFF)
+  endif()
+elseif(USE_FW_LTO)
+  set(FW_LTO ON)
+else()
+  set(FW_LTO OFF)
+endif()
+
+if(FW_LTO)
   message("-- Use LTO to compile firmware")
   target_compile_options(firmware PRIVATE -flto)
   target_link_options(firmware PRIVATE -Wl,-u,SystemCoreClockUpdate)
