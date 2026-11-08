@@ -6,6 +6,7 @@ option(PXX2 "PXX2 protocol support" OFF)
 option(AFHDS3 "AFHDS3 TX Module" ON)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(GHOST "Ghost TX Module" ON)
+option(MAVLINK "MAVLink 2 RF protocol support" ON)
 option(SPACEMOUSE "Support for SpaceMouse" OFF)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
 
