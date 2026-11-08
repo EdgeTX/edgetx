@@ -139,6 +139,7 @@
 #define TR_FS_COLOR_LIST            SA9(TR_FS_COLOR_LIST)
 
 #define TR_STATUS_LED_COLORS        SA3(TR_STATUS_LED_COLORS)
+#define TR_TRAINER_JACK_MODES       SA2(TR_TRAINER_JACK_MODES)
 #define TR_VUSBJOYSTICK_CH_AXIS     SA9(TR_VUSBJOYSTICK_CH_AXIS)
 
 #define TR_POTTYPES                 SA8(TR_POTTYPES)
@@ -150,6 +151,9 @@
 #define TR_VBEEPCOUNTDOWN           SA6(TR_VBEEPCOUNTDOWN)
 #define TR_VTMRMODES                SA6(TR_VTMRMODES)
 #define TR_VFSWRESET                SA6(TR_VFSWRESET)
+// App names left untranslated, except Apple's own localised one
+#define TR_GPS_URI_TYPES            TR_GPS_URI_STANDARD, "Android", "Google Maps", \
+                                    TR_GPS_URI_APPLE_MAPS, "CoMaps", "Guru Maps"
 
 #define TR_VBLMODE                  SA5(TR_VBLMODE)
 #if defined(FUNCTION_SWITCHES)
@@ -171,6 +175,7 @@
 #define TR_VBEEPMODE                SA4(TR_VBEEPMODE)
 #define TR_TRNCHN                   SA4(TR_TRNCHN)
 #define TR_USBMODES                 SA4(TR_USBMODES)
+#define TR_MODEL_USBMODES           SA5(TR_MODEL_USBMODES)
 #define TR_COUNTDOWNVALUES          SA4(TR_COUNTDOWNVALUES)
 #define TR_VCURVETYPE               SA4(TR_VCURVETYPE)
 #define TR_VTELEMSCREENTYPE         SA4(TR_VTELEMSCREENTYPE)
@@ -188,7 +193,7 @@
 #define TR_TRNMODE                  SA3(TR_TRNMODE)
 #define TR_VPERSISTENT              SA3(TR_VPERSISTENT)
 #define TR_COUNTRY_CODES            SA3(TR_COUNTRY_CODES)
-#define TR_JACK_MODES               SA3(TR_COUNTRY_CODES)
+#define TR_JACK_MODES               SA3(TR_JACK_MODES)
 #define TR_VDISPLAYTRIMS            SA3(TR_VDISPLAYTRIMS)
 #define TR_ADCFILTERVALUES          SA3(TR_ADCFILTERVALUES)
 #define TR_VMLTPX                   SA3(TR_VMLTPX)

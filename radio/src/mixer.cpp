@@ -46,6 +46,7 @@
 uint8_t s_mixer_first_run_done = false;
 
 int8_t  virtualInputsTrims[MAX_INPUTS];
+bool    virtualInputsTrimsReversed[MAX_INPUTS];
 int16_t anas [MAX_INPUTS] = {0};
 int16_t trims[MAX_TRIMS] = {0};
 int32_t chans[MAX_OUTPUT_CHANNELS] = {0};
@@ -64,24 +65,38 @@ int16_t ex_chans[MAX_OUTPUT_CHANNELS] = {0}; // Outputs (before LIMITS) of the l
 int16_t cyc_anas[3] = {0};
 #endif
 
+// Source value in tenths of a percent
+static int32_t getSourceValuePrec1(int16_t src)
+{
+  int32_t result = getValue(src);
+  int idx = abs(src);
+  if (idx >= MIXSRC_FIRST_GVAR && idx <= MIXSRC_LAST_GVAR) {
+    // Gvars without decimal precision are whole percent
+    if (g_model.gvars[idx - MIXSRC_FIRST_GVAR].prec == 0)
+      result = result * 10;
+    return result;
+  }
+  return calcRESXto1000(result);
+}
+
 // TOOD: find better home for this.
 int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max)
 {
   int32_t result;
   SourceNumVal v; v.rawValue = val;
-  if (v.isSource) {
-    result = getValue(v.value);
-    if (abs(v.value) >= MIXSRC_FIRST_GVAR && v.value <= MIXSRC_LAST_GVAR) {
-      // Mimic behviour of GET_GVAR_PREC1
-      if (g_model.gvars[abs(v.value) - MIXSRC_FIRST_GVAR].prec == 0)
-        result = result * 10;
-    } else {
-      result = calcRESXto1000(result);
-    }
-  } else {
+  if (v.isSource)
+    result = getSourceValuePrec1(v.value);
+  else
     result = v.value * 10;
-  }
   return limit<int>(min * 10, result, max * 10);
+}
+
+int32_t getLimitNumFieldValue(uint16_t val, int32_t numOffset, int32_t min,
+                              int32_t max)
+{
+  LimitNumVal v; v.rawValue = val;
+  if (!v.isSource) return v.value + numOffset;
+  return limit<int32_t>(min, getSourceValuePrec1(v.value), max);
 }
 
 // #define EXTENDED_EXPO
@@ -239,6 +254,13 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
           virtualInputsTrims[cur_chn] = src - MIXSRC_FIRST_STICK;
         else
           virtualInputsTrims[cur_chn] = -1;
+        // a negative weight or a decreasing custom curve (incl. !CVn)
+        // reverses the input, so its trim must follow
+        bool reversed = (weight < 0);
+        if (ed->curve.type == CURVE_REF_CUSTOM && ed->curve.value &&
+            applyCurve(RESX, ed->curve) < applyCurve(-RESX, ed->curve))
+          reversed = !reversed;
+        virtualInputsTrimsReversed[cur_chn] = reversed;
         // if (srcRaw < 0) v = -v;
         anas[cur_chn] = v;
       } else {
@@ -749,9 +771,15 @@ int getSourceTrimOrigin(int source)
 int getSourceTrimValue(int source, int stickValue=0)
 {
   int rv = 0;
-  auto origin = getSourceTrimOrigin(abs(source));
+  auto absSource = abs(source);
+  auto origin = getSourceTrimOrigin(absSource);
   if (origin >= 0) {
-    rv = getStickTrimValue(origin, stickValue);
+    if (absSource >= MIXSRC_FIRST_INPUT && absSource <= MIXSRC_LAST_INPUT &&
+        virtualInputsTrimsReversed[absSource - MIXSRC_FIRST_INPUT]) {
+      rv = -getStickTrimValue(origin, -stickValue);
+    } else {
+      rv = getStickTrimValue(origin, stickValue);
+    }
     if (source < 0) rv = -rv;
   }
   return rv;

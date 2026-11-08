@@ -1,0 +1,72 @@
+name: WASM Modules
+
+# Builds one simulator module per target in fw.json and uploads them as
+# wasm-modules-* artifacts. Shared by the Companion and web simulator workflows.
+on:
+  workflow_call:
+
+env:
+  # Each group takes one runner
+  GROUPS_COUNT: 9
+
+jobs:
+  plan:
+    name: Plan WASM module groups
+    runs-on: ubuntu-latest
+    outputs:
+      groups: ${{ steps.groups.outputs.groups }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+
+      - name: Split fw.json targets into groups
+        id: groups
+        shell: bash
+        run: |
+          groups=$(jq -c --argjson n "${GROUPS_COUNT}" '
+            [.targets[][1] | rtrimstr("-")] as $t
+            | [range($n) as $i
+               | {id: "group-\($i + 1)",
+                  target: [range($i; $t | length; $n) as $j | $t[$j]]}]
+            | map(select(.target | length > 0))
+          ' fw.json)
+          echo "groups=${groups}" >> "$GITHUB_OUTPUT"
+
+  modules:
+    name: WASM Modules (${{ matrix.group.id }})
+    needs: plan
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        group: ${{ fromJSON(needs.plan.outputs.groups) }}
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+        with:
+          submodules: true
+
+      - name: Setup Python Dependencies
+        uses: ./.github/actions/python_dependencies
+
+      - name: Setup WASI SDK
+        uses: ./.github/actions/wasi_sdk
+        with:
+          arch: x86_64-linux
+
+      - name: Build modules
+        shell: bash
+        env:
+          FLAVOR: ${{ join(matrix.group.target, ';') }}
+          CMAKE_BUILD_TYPE: 'Release'
+        run: |
+          mkdir output && \
+          tools/build-wasm-modules.sh "$(pwd)" "$(pwd)/output/"
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: wasm-modules-${{ matrix.group.id }}
+          path:  ${{github.workspace}}/output
+          if-no-files-found: error
+          retention-days: 15

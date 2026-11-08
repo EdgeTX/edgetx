@@ -30,6 +30,7 @@
 #include "filechoice.h"
 #include "getset_helpers.h"
 #include "hal/adc_driver.h"
+#include "hal/usb_driver.h"
 #include "menu.h"
 #include "model_heli.h"
 #include "module_setup.h"
@@ -262,6 +263,13 @@ const static SetupLineDef otherPageSetupLines[] = {
     [](Window* parent, coord_t x, coord_t y) {
       new Choice(parent, {x, y, 0, 0}, STR_ADCFILTERVALUES, 0, 2,
                 GET_SET_DEFAULT(g_model.jitterFilter));
+    }
+  },
+  {
+    STR_DEF(STR_USBMODE),
+    [](Window* parent, coord_t x, coord_t y) {
+      new Choice(parent, {x, y, 0, 0}, STR_MODEL_USBMODES, USBMODE_GLOBAL,
+                USB_MAX_MODE + 1, GET_SET_DEFAULT(g_model.usbMode));
     }
   },
   {

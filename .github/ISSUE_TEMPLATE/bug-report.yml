@@ -124,10 +124,11 @@ body:
         - Jumper T12 MAX
         - Jumper T14
         - Jumper T15
+        - Jumper T15 H7
         - Jumper T15 Pro
-        - Jumper T15-H7
         - Jumper T16
         - Jumper T18
+        - Jumper T18 H7
         - Jumper T20/T20S
         - Jumper T20 V2
         - Jumper T22

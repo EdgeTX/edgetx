@@ -205,8 +205,29 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::Gyros:
       return getCapability(Board::GyroAxes) / 2;
 
+    case Board::BluetoothAuxPort:
+      return m_hardware.bluetooth_aux_port;
+
+    case Board::BluetoothBuiltin:
+      return m_hardware.bluetooth_builtin;
+
+    case Board::BluetoothOptional:
+      return m_hardware.bluetooth_optional;
+
     case Board::HasAudioMuteGPIO:
       return m_hardware.has_audio_mute;
+
+    case Board::HasAuxSerialMode:
+      return m_hardware.has_aux_serial;
+
+    case Board::HasAuxSerialPower:
+      return m_hardware.has_aux_serial_pwr;
+
+    case Board::HasAux2SerialMode:
+      return m_hardware.has_aux2_serial;
+
+    case Board::HasAux2SerialPower:
+      return m_hardware.has_aux2_serial_pwr;
 
     case Board::HasBacklightColor:
       return m_display.backlight_color;
@@ -217,11 +238,17 @@ const int BoardJson::getCapability(const Board::Capability capability) const
     case Board::StatusLedColors:
       return m_hardware.status_led_colors;
 
+    case Board::HasTrainerJackCrossover:
+      return m_hardware.trainer_jack_crossover;
+
     case Board::HasStatusLedPwm:
       return m_hardware.status_led_pwm;
 
     case Board::HasColorLcd:
       return m_display.color;
+
+    case Board::HasInternalGPS:
+      return m_hardware.has_internal_gps;
 
     case Board::HasExternalModuleSupport:
       return m_hardware.has_ext_module_support;
@@ -1302,12 +1329,26 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
     const QJsonObject &o = obj.value("hardware").toObject();
 
     hardware.has_audio_mute = o.value("has_audio_mute").toBool();
+    hardware.has_aux_serial = o.value("has_aux_serial").toBool();
+    hardware.has_aux_serial_pwr = o.value("has_aux_serial_pwr").toBool();
+    hardware.has_aux2_serial = o.value("has_aux2_serial").toBool();
+    hardware.has_aux2_serial_pwr = o.value("has_aux2_serial_pwr").toBool();
+    hardware.has_internal_gps = o.value("has_internal_gps").toBool();
+    hardware.bluetooth_builtin = o.value("bluetooth").toString() == "builtin";
+    hardware.bluetooth_optional = o.value("bluetooth").toString() == "optional";
+    hardware.bluetooth_aux_port = o.value("bluetooth_aux_port").toInt();
     hardware.has_ext_module_support = o.value("has_ext_module_support").toBool();
     hardware.has_int_module_support = o.value("has_int_module_support").toBool();
     hardware.sport_max_baudrate = o.value("sport_max_baudrate").toInt();
     hardware.surface = o.value("surface").toBool();
     hardware.cpu = o.value("cpu").toString().toStdString();
     hardware.cpu_type = o.value("cpu_type").toString().toStdString();
+  }
+
+  if (obj.value("trainer").isObject()) {
+    const QJsonObject &o = obj.value("trainer").toObject();
+
+    hardware.trainer_jack_crossover = o.value("trainer_jack_crossover").toBool();
   }
 
   if (obj.value("identity").isObject()) {

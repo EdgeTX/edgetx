@@ -146,11 +146,12 @@
 #define TR_AUX_SERIAL_MODES_9          "Відлаг."
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "Зовн. модуль"	/* for untranslated - use english */
+#define TR_GLOBAL                      "Global"
 #define TR_SWTYPES_1                   "Немає"
 #define TR_SWTYPES_2                   "Перемик."
 #define TR_SWTYPES_3                   "2поз. пер."
 #define TR_SWTYPES_4                   "3поз. пер."
-#define TR_SWTYPES_5                   "Global"
+#define TR_SWTYPES_5                   TR_GLOBAL
 #define TR_POTTYPES_1                  "Немає"
 #define TR_POTTYPES_2                  "Потенц."
 #define TR_POTTYPES_3                  TR("Пот. з крок.","Потенц. з кроком")
@@ -169,6 +170,11 @@
 #define TR_USBMODES_2                  TR("Джойст.","Джойстик")
 #define TR_USBMODES_3                  TR("SD карт.","SD картка")
 #define TR_USBMODES_4                  "Послід."	/* for untranslated - use english */
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "Вибір"
 #define TR_JACK_MODES_2                "Аудіо"
 #define TR_JACK_MODES_3                "Трен."
@@ -199,7 +205,7 @@
 #define TR_CURVE_TYPES_1               "Стандарт"
 #define TR_CURVE_TYPES_2               "Вибір"
 
-#define TR_ADCFILTERVALUES_1           "Global"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "Off"
 #define TR_ADCFILTERVALUES_3           "On"	/* use english */
 
@@ -348,7 +354,7 @@
 #define TR_HATSOPT_1                   "Тільки Трим."
 #define TR_HATSOPT_2                   "Тільки Кнопки"
 #define TR_HATSOPT_3                   "Перемик."
-#define TR_HATSOPT_4                   "Global"	/* for untranslated - use english */
+#define TR_HATSOPT_4                   TR_GLOBAL	/* for untranslated - use english */
 #define TR_HATSMODE_TRIMS              "Hats mode: Трим."
 #define TR_HATSMODE_KEYS               "Hats mode: Кнопки"
 #define TR_HATSMODE_KEYS_HELP          "Ліва сторона:\n"\
@@ -549,6 +555,11 @@
 #define TR_BATTERY_RANGE               TR("Діапаз. акум.", "Діапазон акумулятора")
 #define TR_BATTERYCHARGING             "Заряджання..."
 #define TR_BATTERYFULL                 "Batt заряджено"
+#define TR_CHARGE_DETECTING            "Визначення..."
+#define TR_CHARGE_TOPPING_OFF          "Дозаряджання..."
+#define TR_CHARGE_NOT_CHARGING         "Немає заряджання"
+#define TR_PRESS_RTN_TO_CLOSE          "Натисніть RTN, щоб закрити"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Натисніть RTN, щоб вимкнути"
 #define TR_BATTERYNONE                 "Batt відсутня!"
 #define TR_BATTERYWARNING              "Batt розрядж."
 #define TR_INACTIVITYALARM             "Бездіяльність"
@@ -558,6 +569,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("Тренер при вимк.", "Перевіряти тренер при вимиканні")
 #define TR_MODEL_STILL_POWERED         "Модель досі під живленням"
 #define TR_TRAINER_STILL_CONNECTED     "Трен. досі підключено"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB досі підключено"
 #define TR_MODEL_SHUTDOWN              "Вимкнути?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Тисни enter для підтвердження"
@@ -725,6 +739,8 @@
 #define TR_REPEAT_AT_ZERO              "Повтор"
 #define TR_BATT_CALIB                  TR("Калібр.акум", "Калібрування акумулятора")
 #define TR_VOLTAGE                     TR("Напруга", "Джерело напруги")
+#define TR_MODULE_SENSOR_VOLTAGE       "Напруга"
+#define TR_MODULE_SENSOR_CURRENT       "Струм"
 #define TR_SELECT_MODEL                "Оберіть модель"
 #define TR_SELECT_MODE                 "Оберіть режим"
 #define TR_CREATE_MODEL                "Створіть модель"
@@ -786,6 +802,8 @@
 #define TR_SPECTRUM_ANALYSER_INT       "Спектр (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
 #define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_GPS_URI_STANDARD            "Standard"
+#define TR_GPS_URI_APPLE_MAPS          "Apple Maps"
 #define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD карта повна"
 #define TR_SDCARD_FULL_EXT              TR_BW_COL(TR_SDCARD_FULL "\036Логи і скріншоти" LCDW_128_LINEBREAK "вимкнені", TR_SDCARD_FULL "\nЛоги і скріншоти вимкнені")

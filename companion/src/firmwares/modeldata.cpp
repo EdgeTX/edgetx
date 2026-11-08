@@ -67,6 +67,7 @@ void ModelData::copy(const ModelData & src)
   enableCustomThrottleWarning = src.enableCustomThrottleWarning;
   customThrottleWarningPosition = src.customThrottleWarningPosition;
   jitterFilter = src.jitterFilter;
+  usbMode = src.usbMode;
   beepANACenter = src.beepANACenter;
   extendedLimits = src.extendedLimits;
   extendedTrims = src.extendedTrims;
@@ -251,6 +252,7 @@ void ModelData::clear()
   enableCustomThrottleWarning = false;
   customThrottleWarningPosition = 0;
   jitterFilter = 0;
+  usbMode = 0;
   beepANACenter = 0;
   extendedLimits = false;
   extendedTrims = false;
@@ -856,9 +858,9 @@ int ModelData::updateReference()
   for (int i = 0; i < CPN_MAX_CHNOUT; i++) {
     LimitData *ld = &limitData[i];
     if (!ld->isEmpty()) {
-      updateAdjustRef(ld->min);
-      updateAdjustRef(ld->max);
-      updateAdjustRef(ld->offset);
+      updateSourceNumRef(ld->min);
+      updateSourceNumRef(ld->max);
+      updateSourceNumRef(ld->offset);
       updateLimitCurveRef(ld->curve);
     }
   }
@@ -1165,17 +1167,6 @@ void ModelData::updateLimitCurveRef(CurveReference & crv)
   updateCurveRef(src);
   if (crv.value != src.value)
     crv.value = src.value;
-}
-
-void ModelData::updateAdjustRef(int & value)
-{
-  if (updRefInfo.type != REF_UPD_TYPE_GLOBAL_VARIABLE)
-    return;
-
-  AdjustmentReference adj = AdjustmentReference(value);
-  updateTypeValueRef<AdjustmentReference, AdjustmentReference::AdjustRefType>(adj, AdjustmentReference::ADJUST_REF_GVAR, 1);
-  if (value != adj.toValue())
-    value = adj.toValue();
 }
 
 void ModelData::updateAssignFunc(CustomFunctionData * cfd)
@@ -2337,7 +2328,7 @@ void ModelData::initTopBar()
     zone.widgetName = "Radio Info";
   }
 
-  if (zones - 3 >= 0 && Boards::getCapability(getCurrentBoard(), Board::HasInternalGPS)) {
+  if (zones - 3 >= 0 && getCurrentFirmware()->getCapability(InternalGPSAvailable)) {
     ZonePersistentData & zone = topBarData.zones[zones - 3];
     zone.widgetName = "Internal GPS";
   }

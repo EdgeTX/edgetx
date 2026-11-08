@@ -23,6 +23,7 @@
 #include "mixer_scheduler.h"
 #include "hal/adc_driver.h"
 #include "hal/switch_driver.h"
+#include "hal/usb_driver.h"
 #include "hal/module_port.h"
 #include "hal/rgbleds.h"
 #include "switches.h"
@@ -133,6 +134,7 @@ enum MenuModelSetupItems {
 #endif
   ITEM_MODEL_SETUP_BEEP_CENTER,
   ITEM_MODEL_SETUP_USE_JITTER_FILTER,
+  ITEM_MODEL_SETUP_USB_MODE,
 #if defined(PXX2)
   ITEM_MODEL_SETUP_REGISTRATION_ID,
 #endif
@@ -160,9 +162,7 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_INTERNAL_MODULE_OPTIONS,
 #if defined(MULTIMODULE)
   ITEM_MODEL_SETUP_INTERNAL_MODULE_AUTOBIND,
-#if defined(MANUFACTURER_FRSKY)
   ITEM_MODEL_SETUP_INTERNAL_MODULE_DISABLE_TELEM,
-#endif
   ITEM_MODEL_SETUP_INTERNAL_MODULE_DISABLE_MAPPING,
 #endif
 #if defined(EXTERNAL_ANTENNA)
@@ -220,9 +220,7 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_OPTIONS,
 #if defined(MULTIMODULE)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_AUTOBIND,
-#if defined(MANUFACTURER_FRSKY)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_DISABLE_TELEM,
-#endif
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_DISABLE_MAPPING,
 #endif
 
@@ -860,6 +858,7 @@ void menuModelSetup(event_t event)
     uint8_t(NAVIGATION_LINE_BY_LINE | (adcGetInputOffset(ADC_INPUT_FLEX + 1) - 1)), // Center beeps
 
     0, // ADC Jitter filter
+    0, // USB mode
 
     REGISTRATION_ID_ROWS
 
@@ -1432,6 +1431,10 @@ void menuModelSetup(event_t event)
 
       case ITEM_MODEL_SETUP_USE_JITTER_FILTER:
         g_model.jitterFilter = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_JITTER_FILTER, STR_ADCFILTERVALUES, g_model.jitterFilter, 0, 2, attr, event);
+        break;
+
+      case ITEM_MODEL_SETUP_USB_MODE:
+        g_model.usbMode = editChoice(MODEL_SETUP_2ND_COLUMN, y, STR_USBMODE, STR_MODEL_USBMODES, g_model.usbMode, USBMODE_GLOBAL, USB_MAX_MODE + 1, attr, event);
         break;
 
 
@@ -2456,13 +2459,15 @@ void menuModelSetup(event_t event)
         }
         break;
 
-#if defined(MANUFACTURER_FRSKY)
+#if defined(HARDWARE_INTERNAL_MODULE)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_DISABLE_TELEM:
+#endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_DISABLE_TELEM:
+#endif
 
         g_model.moduleData[moduleIdx].multi.disableTelemetry = editCheckBox(g_model.moduleData[moduleIdx].multi.disableTelemetry, MODEL_SETUP_2ND_COLUMN, y, STR_DISABLE_TELEM, attr, event, INDENT_WIDTH);
         break;
-#endif
 
 #if defined(HARDWARE_INTERNAL_MODULE)
       case ITEM_MODEL_SETUP_INTERNAL_MODULE_DISABLE_MAPPING:

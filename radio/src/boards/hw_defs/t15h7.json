@@ -1,9 +1,9 @@
 {
   "identity": {
     "manufacturer": "Jumper",
-    "model": "T15-H7",
+    "model": "T15 H7",
     "usb_manufacturer": "JUMPER",
-    "usb_product": "T15-H7"
+    "usb_product": "T15 H7"
   },
   "adc_inputs": {
     "adcs": [
@@ -418,6 +418,8 @@
   },
   "hardware": {
     "has_audio_mute": true,
+    "has_aux_serial": true,
+    "has_aux_serial_pwr": true,
     "has_ext_module_support": true,
     "has_int_module_support": true,
     "cpu": "STM32H750xB",

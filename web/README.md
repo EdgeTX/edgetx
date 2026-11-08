@@ -4,7 +4,7 @@ Browser-based EdgeTX radio simulator using WebAssembly + WASI threads.
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 22+
 - Pre-built `.wasm` modules in `public/` (see [Building WASM Modules](#building-wasm-modules))
 
 ## Quick Start
@@ -113,6 +113,8 @@ Passing flavour names as arguments limits generation to those radios only — th
 | `public/radios.json` | Radio definitions (generated — do not edit manually) |
 | `public/_headers` | COOP/COEP headers for production deployment |
 | `scripts/gen-radios-json.js` | Generates `radios.json` from `radio/src/boards/hw_defs/` |
+| `scripts/check-deployment.js` | Checks a deployed site: modules, content types and COOP/COEP headers |
+| `wrangler.jsonc` | Cloudflare Workers configuration |
 
 ## Browser Requirements
 
@@ -127,6 +129,7 @@ Passing flavour names as arguments limits generation to those radios only — th
 npm run dev      # Start dev server with HMR
 npm run build    # Production build to dist/
 npm run preview  # Preview production build
+npm run smoke-test  # Start every radio of the production build in a browser
 ```
 
 ### Debugging
@@ -136,16 +139,28 @@ npm run preview  # Preview production build
 
 ## Production Deployment
 
-The dev server sets the required COOP/COEP headers automatically. For production, `public/_headers` provides them for platforms like Cloudflare Pages. For other hosts, configure your web server to set:
+The dev server sets the required COOP/COEP headers automatically. For production, `public/_headers` provides them on Cloudflare Workers. For other hosts, configure your web server to set:
 
 ```
 Cross-Origin-Embedder-Policy: require-corp
 Cross-Origin-Opener-Policy: same-origin
 ```
 
-### Cloudflare Pages
+### Cloudflare Workers
+
+The site is deployed as a Worker with static assets, configured in `wrangler.jsonc`. The [Web Simulator workflow](../.github/workflows/web_simulator.yml) builds all modules and deploys `main` every night. It can also be started manually from the Actions tab.
+
+To deploy by hand, with every module in `public/`:
 
 ```bash
 npm run build
-npx wrangler pages deploy dist --project-name=edgetx-simulator
+npx wrangler deploy
+node scripts/check-deployment.js <deployed-url>
 ```
+
+`wrangler deploy` goes live immediately.
+
+CI uses two secrets from the `web-simulator` GitHub environment, which only accepts runs from `main`:
+
+- `CLOUDFLARE_API_TOKEN`: an account API token with the Editor role on this Worker only. It cannot create a Worker, so the first deployment has to be done by hand.
+- `CLOUDFLARE_ACCOUNT_ID`

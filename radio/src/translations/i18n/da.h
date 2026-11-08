@@ -145,11 +145,12 @@
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "Eksternt modul"
 
+#define TR_GLOBAL                      "Global"
 #define TR_SWTYPES_1                   "Ingen"
 #define TR_SWTYPES_2                   "2 pos skift"
 #define TR_SWTYPES_3                   "2 position"
 #define TR_SWTYPES_4                   "3 position"
-#define TR_SWTYPES_5                   "Global"
+#define TR_SWTYPES_5                   TR_GLOBAL
 
 #define TR_POTTYPES_1                  "Ingen"
 #define TR_POTTYPES_2                  TR("Drejek.", "Drejekontakt")
@@ -169,6 +170,11 @@
 #define TR_USBMODES_2                  TR("Joyst","Joystik")
 #define TR_USBMODES_3                  TR("Lager","USB lager")
 #define TR_USBMODES_4                  TR("Data", "USB data")
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "Spørg"
 #define TR_JACK_MODES_2                "Audio"
 #define TR_JACK_MODES_3                "Træner"
@@ -199,7 +205,7 @@
 #define TR_CURVE_TYPES_1               "Standard"
 #define TR_CURVE_TYPES_2               "Tilpasset"
 
-#define TR_ADCFILTERVALUES_1           "Global"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "Fra"
 #define TR_ADCFILTERVALUES_3           "Til"
 
@@ -348,7 +354,7 @@
 #define TR_HATSOPT_1                   "Kun trim"
 #define TR_HATSOPT_2                   "Kun knap"
 #define TR_HATSOPT_3                   "Trim / Knap"
-#define TR_HATSOPT_4                   "Global"
+#define TR_HATSOPT_4                   TR_GLOBAL
 #define TR_HATSMODE_TRIMS              "Joystik: Trim"
 #define TR_HATSMODE_KEYS               "Joystik: Knap"
 #define TR_HATSMODE_KEYS_HELP          "Venstre side:\n"\
@@ -552,6 +558,11 @@
 #define TR_BATTERY_RANGE               TR("Bat. interval", "Batteri spændings interval")
 #define TR_BATTERYCHARGING             "Lader..."
 #define TR_BATTERYFULL                 "Fuldt batteri"
+#define TR_CHARGE_DETECTING            "Registrerer..."
+#define TR_CHARGE_TOPPING_OFF          "Topladning..."
+#define TR_CHARGE_NOT_CHARGING         "Lader ikke"
+#define TR_PRESS_RTN_TO_CLOSE          "Tryk RTN for at lukke"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Tryk RTN for at slukke"
 #define TR_BATTERYNONE                 "Intet!"
 #define TR_BATTERYWARNING              "Lavt batteri"
 #define TR_INACTIVITYALARM             "Inaktiv"
@@ -561,6 +572,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("Træner alarm", "Kontroller træner forbindelse")
 #define TR_MODEL_STILL_POWERED         "Model stadig med strøm"
 #define TR_TRAINER_STILL_CONNECTED     "Træner fortsat forbundet"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB stadig forbundet"
 #define TR_MODEL_SHUTDOWN              "Luk ned?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Tryk enter for bekræft"
@@ -729,6 +743,8 @@
 #define TR_REPEAT_AT_ZERO              "Gentag nul"
 #define TR_BATT_CALIB                  TR("Bat. kalib", "Batteri kalibering")
 #define TR_VOLTAGE                     TR("Spænding", "Spænding kilde")
+#define TR_MODULE_SENSOR_VOLTAGE       "Spænding"
+#define TR_MODULE_SENSOR_CURRENT       "Strøm"
 #define TR_SELECT_MODEL                "Vælg model"
 #define TR_SELECT_MODE                 "Vælg tilstand"
 #define TR_CREATE_MODEL                "Opret model"
@@ -790,6 +806,8 @@
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
 #define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_GPS_URI_STANDARD            "Standard"
+#define TR_GPS_URI_APPLE_MAPS          "Apple Maps"
 #define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD kort fuldt"
 #define   TR_SDCARD_FULL_EXT            TR_BW_COL(TR_SDCARD_FULL "\036Log & skærmklip" LCDW_128_LINEBREAK "deaktiveret", TR_SDCARD_FULL "\nLog & skærmklip deaktiveret")
@@ -971,7 +989,7 @@
 #define TR_MENU_POWER_METER            "STRØM MÅLER"
 #define TR_SENSOR                      "SENSOR"
 #define TR_COUNTRY_CODE                "Lande kode"
-#define TR_USBMODE                     "USB tilstand"
+#define TR_USBMODE                     TR("USB tilst.", "USB tilstand")
 #define TR_USB_CHARGE                  "Oplad med radio tændt"
 #define TR_JACK_MODE                   "Jack tilstand"
 #define TR_VOICE_LANGUAGE              "Stemme sprog"

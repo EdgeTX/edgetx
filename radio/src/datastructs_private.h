@@ -82,12 +82,63 @@ PACK(union SourceNumVal {
   uint16_t rawValue:11;
 });
 
+// Inverted sources are stored negated, so every source must fit the signed
+// 10-bit value. B&W also edits output limit sources through this field.
+// TODO: H7 targets are skipped because 99 telemetry sensors put the last
+// source above 511 (581 on TX16S MK3), so sensors from about 76 up wrap to a
+// different source when used as an input source or a weight, offset or curve
+// value. Widen SourceNumVal and ExpoData::srcRaw, then remove this guard.
+#if !defined(STM32H7)
+static_assert(INPUTSRC_LAST <= (1 << 9) - 1,
+              "Sources no longer fit in SourceNumVal");
+#endif
+
 inline uint16_t makeSourceNumVal(int16_t val, bool isSource = false)
 {
   SourceNumVal v;
   v.value = val;
   v.isSource = isSource;
   return v.rawValue;
+}
+
+// Value or source for output limits (0.1% units, range does not fit SourceNumVal)
+PACK(union LimitNumVal {
+  struct {
+    int16_t value:11;
+    uint16_t isSource:1;
+  };
+  uint16_t rawValue:12;
+});
+
+static_assert(INPUTSRC_LAST <= (1 << 10) - 1,
+              "Sources no longer fit in LimitNumVal");
+
+inline uint16_t makeLimitNumVal(int16_t val, bool isSource = false)
+{
+  LimitNumVal v;
+  v.value = val;
+  v.isSource = isSource;
+  return v.rawValue;
+}
+
+// Conversion for Lua API, numeric limits reach +/-1500 so sources start at 2048
+constexpr int LIMIT_LUA_SRC_BASE = 2048;
+
+inline int limitNumValToLuaInt(uint16_t val, int numOffset)
+{
+  LimitNumVal v;
+  v.rawValue = val;
+  if (!v.isSource) return v.value + numOffset;
+  return v.value + ((v.value < 0) ? -LIMIT_LUA_SRC_BASE : LIMIT_LUA_SRC_BASE);
+}
+
+inline uint16_t luaIntToLimitNumVal(int val, int numOffset)
+{
+  if (val >= LIMIT_LUA_SRC_BASE)
+    return makeLimitNumVal(val - LIMIT_LUA_SRC_BASE, true);
+  if (val <= -LIMIT_LUA_SRC_BASE)
+    return makeLimitNumVal(val + LIMIT_LUA_SRC_BASE, true);
+  return makeLimitNumVal(val - numOffset);
 }
 
 // Conversion for Lua API
@@ -169,13 +220,12 @@ PACK(struct ExpoData {
  */
 
 PACK(struct LimitData {
-  int32_t min:11 CUST(in_read_weight,in_write_weight);
-  int32_t max:11 CUST(in_read_weight,in_write_weight);
+  uint32_t min:12 CUST(r_limitNumVal,w_limitNumVal);
+  uint32_t max:12 CUST(r_limitNumVal,w_limitNumVal);
   int32_t ppmCenter:10; // TODO can be reduced to 8 bits
-  int16_t offset:11 CUST(in_read_weight,in_write_weight);
+  uint16_t offset:12 CUST(r_limitNumVal,w_limitNumVal);
   uint16_t symetrical:1;
   uint16_t revert:1;
-  uint16_t spare:3 SKIP;
   int8_t curve;
   NOBACKUP(char name[LEN_CHANNEL_NAME]);
 });
@@ -808,11 +858,14 @@ PACK(struct ModelData {
   uint8_t   disableTelemetryWarning:1;
   uint8_t   showInstanceIds:1;
   uint8_t   checklistInteractive:1;
+  uint8_t   potsWarnMode:2 ENUM(PotsWarnMode);
+  NOBACKUP(uint8_t jitterFilter:2 ENUM(ModelOverridableEnable));
+  uint8_t   thrTrimSw:3;
+  NOBACKUP(uint8_t usbMode:3 ENUM(ModelUsbMode));
 #if defined(USE_HATS_AS_KEYS)
   NOBACKUP(uint8_t hatsMode:2 ENUM(HatsMode));
-  uint8_t   spare3:2 SKIP;  // padding to 8-bit aligment
 #else
-  uint8_t   spare3:4 SKIP;  // padding to 8-bit aligment
+  uint8_t   spare3:2 SKIP;  // padding to 8-bit aligment
 #endif
   int8_t    customThrottleWarningPosition;
   BeepANACenter beepANACenter;
@@ -843,11 +896,6 @@ PACK(struct ModelData {
   RssiAlarmData rssiAlarms;
 #endif
   NOBACKUP(RFAlarmData rfAlarms);
-
-  uint8_t thrTrimSw:3;
-  uint8_t potsWarnMode:2 ENUM(PotsWarnMode);
-  NOBACKUP(uint8_t jitterFilter:2 ENUM(ModelOverridableEnable));
-  uint8_t spare1:1 SKIP;
 
   ModuleData moduleData[NUM_MODULES];
   int16_t failsafeChannels[MAX_OUTPUT_CHANNELS];
@@ -935,6 +983,11 @@ PACK(struct ModelData {
   uint8_t modelSFDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelCustomScriptsDisabled:2 ENUM(ModelOverridableEnable);
   uint8_t modelTelemetryDisabled:2 ENUM(ModelOverridableEnable);
+#if defined(COLORLCD)
+  uint8_t   spare1:2 SKIP;  // padding to 8-bit aligment
+#else
+  uint8_t   spare1:4 SKIP;  // padding to 8-bit aligment
+#endif
 
   SwitchConfig getSwitchType(uint8_t n);
   void setSwitchType(uint8_t n, SwitchConfig v);
@@ -1222,13 +1275,16 @@ PACK(struct RadioData {
   // Radio level tabs control (global settings)
   NOBACKUP(uint8_t modelSelectLayout:2);
   NOBACKUP(uint8_t radioThemesDisabled:1);
+  // 0 = trainer in/out on their own jack contacts (crossover lead, default),
+  // 1 = both on the tip (mono / straight lead). TRAINER_JACK_CROSSOVER only
+  NOBACKUP(uint8_t trainerTipOnly:1);
 #if defined(USB_CHARGE_CONTROL)
   // 0 = charge while USB active (default), 1 = hold the charger off while USB
   // is plugged in SD/Joystick/VCP mode
   NOBACKUP(uint8_t usbChargeDisabled:1);
-  NOBACKUP(uint8_t spare:6 SKIP);
+  NOBACKUP(uint8_t spare:5 SKIP);
 #else
-  NOBACKUP(uint8_t spare:7 SKIP);
+  NOBACKUP(uint8_t spare:6 SKIP);
 #endif
 #elif LCD_W == 128
   uint8_t invertLCD:1;          // Invert B&W LCD display

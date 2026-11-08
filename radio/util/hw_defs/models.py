@@ -169,6 +169,13 @@ class Hardware(BaseModel):
     cpu: str
     cpu_type: str
     has_audio_mute: Optional[bool] = None
+    has_aux_serial: Optional[bool] = None
+    has_aux_serial_pwr: Optional[bool] = None
+    has_aux2_serial: Optional[bool] = None
+    has_aux2_serial_pwr: Optional[bool] = None
+    has_internal_gps: Optional[bool] = None
+    bluetooth: Optional[Literal["builtin", "optional"]] = None
+    bluetooth_aux_port: Optional[Literal[1, 2]] = None
     has_ext_module_support: Optional[bool] = None
     has_int_module_support: Optional[bool] = None
     sport_max_baudrate: Optional[int] = None
@@ -356,6 +363,7 @@ class Trainer(BaseModel):
     trainer_gpio_af: Optional[str] = None
     trainer_detect_gpio: Optional[str] = None
     trainer_detect_inverted: Optional[bool] = None
+    trainer_jack_crossover: Optional[bool] = None
 
 Input = Union[StickInput, FlexInput, SwitchInput, RawInput, VBatInput, RTCBatInput, LuxInput]
 

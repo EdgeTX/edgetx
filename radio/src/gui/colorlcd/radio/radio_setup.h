@@ -33,4 +33,5 @@ class RadioSetupPage: public PageGroupItem
   static LAYOUT_ORIENTATION(BTN_COLS, 3, 2)
   static LAYOUT_VAL_SCALED(BTN_H, 62)
   static LAYOUT_VAL_SCALED(HATS_MODE_W, 120)
+  static LAYOUT_VAL_SCALED(USB_MODE_W, 120)
 };

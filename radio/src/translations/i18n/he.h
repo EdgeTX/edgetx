@@ -147,11 +147,12 @@
 #define TR_AUX_SERIAL_MODES_9          "ניפוי שגיאות"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "מודול חיצוני"
+#define TR_GLOBAL                      "גלובלי"
 #define TR_SWTYPES_1                   "ללא"
 #define TR_SWTYPES_2                   "החלפה"
 #define TR_SWTYPES_3                   "2POS"
 #define TR_SWTYPES_4                   "3POS"
-#define TR_SWTYPES_5                   "גלובלי"
+#define TR_SWTYPES_5                   TR_GLOBAL
 #define TR_POTTYPES_1                  "ללא"
 #define TR_POTTYPES_2                  "גלגלת"
 #define TR_POTTYPES_3                  TR("גלגלת עם נקישות", "גלגלת עם נקישות")
@@ -170,6 +171,11 @@
 #define TR_USBMODES_2                  TR("Joyst","חיבור משחק קבוע")
 #define TR_USBMODES_3                  TR("SDCard","העברת נתונים קבוע")
 #define TR_USBMODES_4                  "חיבור סיריילי קבוע"
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "שאל"
 #define TR_JACK_MODES_2                "סאונד"
 #define TR_JACK_MODES_3                "טריינר"
@@ -200,7 +206,7 @@
 #define TR_CURVE_TYPES_1               "סטנדרטי"
 #define TR_CURVE_TYPES_2               "עיצוב מיוחד"
 
-#define TR_ADCFILTERVALUES_1           "גלובלי"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "כבוי"
 #define TR_ADCFILTERVALUES_3           "דלוק"
 
@@ -349,7 +355,7 @@
 #define TR_HATSOPT_1                  "קיזוזים בלבד"
 #define TR_HATSOPT_2                  "ניווט בלבד"
 #define TR_HATSOPT_3                  "משולב"
-#define TR_HATSOPT_4                  "גלובלי"
+#define TR_HATSOPT_4                  TR_GLOBAL
 #define TR_HATSMODE_TRIMS             "מצב כובעונים: קיזוזים"
 #define TR_HATSMODE_KEYS              "מצב כובעונים: ניווט"
 #define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
@@ -551,6 +557,11 @@
 #define TR_BATTERY_RANGE               TR("Batt. range", "הטווח להתראת סוללה")
 #define TR_BATTERYCHARGING             "השלט מחובר להטענה..."
 #define TR_BATTERYFULL                 "סוללה מלאה"
+#define TR_CHARGE_DETECTING            "מזהה..."
+#define TR_CHARGE_TOPPING_OFF          "משלים טעינה..."
+#define TR_CHARGE_NOT_CHARGING         "לא בטעינה"
+#define TR_PRESS_RTN_TO_CLOSE          "לחץ RTN לסגירה"
+#define TR_PRESS_RTN_TO_POWER_OFF      "לחץ RTN לכיבוי"
 #define TR_BATTERYNONE                 "!אין"
 #define TR_BATTERYWARNING              "התראת סוללה חלשה"
 #define TR_INACTIVITYALARM             "התראת אי שימוש ממושכת"
@@ -560,6 +571,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM          TR("התראת טריינר", "בדוק חיבור טריינר")
 #define TR_MODEL_STILL_POWERED         "מודל עדיין פעיל"
 #define TR_TRAINER_STILL_CONNECTED     "מצב חניך עדיין מחובר"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "חיבור עדיין מחובר"
 #define TR_MODEL_SHUTDOWN              "?לכבות"
 #define TR_PRESS_ENTER_TO_CONFIRM      "לחץ אנטר לאישור"
@@ -727,6 +741,8 @@
 #define TR_REPEAT_AT_ZERO              "השהיית התראה"
 #define TR_BATT_CALIB                  TR("Batt. calib", "כיול מתח סוללה ידני")
 #define TR_VOLTAGE                     TR("מתח", "מקור מתח")
+#define TR_MODULE_SENSOR_VOLTAGE       "מתח"
+#define TR_MODULE_SENSOR_CURRENT       "זרם"
 #define TR_SELECT_MODEL                "בחירת מודל"
 #define TR_SELECT_MODE                 "בחירת מצב"
 #define TR_CREATE_MODEL                "יצירת מודל"
@@ -788,6 +804,8 @@
 #define TR_SPECTRUM_ANALYSER_INT       "ספקטרום (פנימי)"
 #define TR_GHOST_MODULE_CONFIG         "הגדרות מודול Ghost"
 #define TR_GPS_MODEL_LOCATOR           "איתור מודל ב-GPS"
+#define TR_GPS_URI_STANDARD            "Standard"
+#define TR_GPS_URI_APPLE_MAPS          "Apple Maps"
 #define TR_REFRESH                     "רעננן"
 #define TR_SDCARD_FULL                 "הכרטיס מלא"
 #define TR_SDCARD_FULL_EXT             TR_BW_COL(TR_SDCARD_FULL "\036לוגים" LCDW_128_LINEBREAK "ושמירת צילומי מסך מושבתים", TR_SDCARD_FULL "\036לוגים ושמירת צילומי מסך מושבתים")

@@ -357,6 +357,8 @@
     "lcd_depth": 4
   },
   "hardware": {
+    "has_aux_serial": true,
+    "bluetooth": "optional",
     "has_ext_module_support": true,
     "sport_max_baudrate": 400000,
     "cpu": "STM32F205xE",

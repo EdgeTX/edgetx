@@ -86,6 +86,7 @@ class SetupPanel : public ModelPanel
     void onModuleUpdateItemModels();
     void onFunctionSwitchesUpdateItemModels();
     void on_jitterFilter_currentIndexChanged(int index);
+    void on_usbMode_currentIndexChanged(int index);
 
   private:
     Ui::Setup *ui;

@@ -144,11 +144,12 @@
 #define TR_AUX_SERIAL_MODES_9          "Debug"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "External module"
+#define TR_GLOBAL                      "Global"
 #define TR_SWTYPES_1                   "Nenhum"
 #define TR_SWTYPES_2                   "Tátil"
 #define TR_SWTYPES_3                   "2POS"
 #define TR_SWTYPES_4                   "3POS"
-#define TR_SWTYPES_5                   "Global"
+#define TR_SWTYPES_5                   TR_GLOBAL
 #define TR_POTTYPES_1                  "Nenhum"
 #define TR_POTTYPES_2                  "Pot"
 #define TR_POTTYPES_3                  TR("Pot c. trav","Pot com trava")
@@ -167,6 +168,11 @@
 #define TR_USBMODES_2                  TR("Joyst","Joystick")
 #define TR_USBMODES_3                  TR("SDCard","Storage")
 #define TR_USBMODES_4                  "Serial"
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "Pergunta"
 #define TR_JACK_MODES_2                "Audio"
 #define TR_JACK_MODES_3                "Trainer"
@@ -197,7 +203,7 @@
 #define TR_CURVE_TYPES_1               "Normal"
 #define TR_CURVE_TYPES_2               "Custom"
 
-#define TR_ADCFILTERVALUES_1           "Global"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "DESL"
 #define TR_ADCFILTERVALUES_3           "LIG"
 
@@ -346,7 +352,7 @@
 #define TR_HATSOPT_1                   "Só Trims"
 #define TR_HATSOPT_2                   "Só menu"
 #define TR_HATSOPT_3                   "Chaveável"
-#define TR_HATSOPT_4                   "Global"
+#define TR_HATSOPT_4                   TR_GLOBAL
 #define TR_HATSMODE_TRIMS              "Modo trim: Trims"
 #define TR_HATSMODE_KEYS               "Modo trim: Menu"
 #define TR_HATSMODE_KEYS_HELP          "Lado Esq:\n"\
@@ -547,6 +553,11 @@
 #define TR_BATTERY_RANGE               TR("Faixa Batt.", "Faixa Med. Bateria")
 #define TR_BATTERYCHARGING             "Carregando..."
 #define TR_BATTERYFULL                 "Batt. Cheia"
+#define TR_CHARGE_DETECTING            "Detectando..."
+#define TR_CHARGE_TOPPING_OFF          "Finalizando carga..."
+#define TR_CHARGE_NOT_CHARGING         "Sem carga"
+#define TR_PRESS_RTN_TO_CLOSE          "Pressione RTN para fechar"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Pressione RTN para desligar"
 #define TR_BATTERYNONE                 "Nenhum!"
 #define TR_BATTERYWARNING              "Bat. Baixa"
 #define TR_INACTIVITYALARM             "Inatividade"
@@ -556,6 +567,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("Trainer ao desl", "Checar trainer ao desligar")
 #define TR_MODEL_STILL_POWERED         "Modelo ainda ligado"
 #define TR_TRAINER_STILL_CONNECTED     "Trainer ainda conectado"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB ainda ligado"
 #define TR_MODEL_SHUTDOWN              "Desligar?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Press enter p/ confirmar"
@@ -723,6 +737,8 @@
 #define TR_REPEAT_AT_ZERO              "Repeat zero"
 #define TR_BATT_CALIB                  TR("Calib batt.", "Calibração bateria")
 #define TR_VOLTAGE                     TR("Tensão", "Origem tensão")
+#define TR_MODULE_SENSOR_VOLTAGE       "Tensão"
+#define TR_MODULE_SENSOR_CURRENT       "Corrente"
 #define TR_SELECT_MODEL                "Selec. modelo"
 #define TR_SELECT_MODE                 "Seleção de modo"
 #define TR_CREATE_MODEL                "Criar Modelo"
@@ -784,6 +800,8 @@
 #define TR_SPECTRUM_ANALYSER_INT       "Espectro (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
 #define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_GPS_URI_STANDARD            "Standard"
+#define TR_GPS_URI_APPLE_MAPS          "Apple Maps"
 #define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "Cart SD cheio"
 #define TR_SDCARD_FULL_EXT              TR_BW_COL(TR_SDCARD_FULL "\036Logs e captura" LCDW_128_LINEBREAK "de tela desativados", TR_SDCARD_FULL "\nLogs e captura de tela desativados")

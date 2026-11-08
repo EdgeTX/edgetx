@@ -26,20 +26,34 @@
 #include "edgetx.h"
 #include "switches.h"
 
+bool SliderIcon::maskCreated = false;
+uint8_t SliderIcon::maskBuffer[];
+
 SliderIcon::SliderIcon(Window* parent) :
-    Window(parent, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, MainViewSlider::SLIDER_BAR_SIZE})
+    Window(parent, rect_t{0, 0, SLIDER_ICON_SIZE, SLIDER_ICON_SIZE})
 {
   setWindowFlag(NO_FOCUS);
 
-  auto icon = getBuiltinIcon(ICON_TRIM_SHADOW);
   shadow = lv_canvas_create(lvobj);
-  lv_canvas_set_buffer(shadow, (void*)icon->data, icon->width, icon->height, LV_IMG_CF_ALPHA_8BIT);
+  lv_canvas_set_buffer(shadow, maskBuffer, SLIDER_MASK_SIZE, SLIDER_MASK_SIZE, LV_IMG_CF_ALPHA_8BIT);
   etx_img_color(shadow, COLOR_THEME_PRIMARY1_INDEX);
+  lv_obj_set_style_img_opa(shadow, LV_OPA_40, LV_PART_MAIN);
+  lv_obj_set_pos(shadow, 2, 2);
 
-  icon = getBuiltinIcon(ICON_TRIM);
   mask = lv_canvas_create(lvobj);
-  lv_canvas_set_buffer(mask, (void*)icon->data, icon->width, icon->height, LV_IMG_CF_ALPHA_8BIT);
+  lv_canvas_set_buffer(mask, maskBuffer, SLIDER_MASK_SIZE, SLIDER_MASK_SIZE, LV_IMG_CF_ALPHA_8BIT);
   etx_img_color(mask, COLOR_THEME_FOCUS_INDEX);
+  lv_obj_set_pos(mask, 1, 1);
+
+  if (!maskCreated) {
+    maskCreated = true;
+    lv_canvas_fill_bg(mask, lv_color_black(), LV_OPA_TRANSP);
+    lv_draw_rect_dsc_t rect_dsc;
+    lv_draw_rect_dsc_init(&rect_dsc);
+    rect_dsc.bg_opa = LV_OPA_COVER;
+    rect_dsc.radius = PAD_THREE;
+    lv_canvas_draw_rect(mask, 0, 0, SLIDER_MASK_SIZE, SLIDER_MASK_SIZE, &rect_dsc);
+  }
 }
 
 std::vector<MaskBitmap*> MainViewSlider::tickMasks;
@@ -58,9 +72,9 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
     lv_canvas_set_buffer(maskCanvas, mask->data, mask->width, mask->height, LV_IMG_CF_ALPHA_8BIT);
 
     if (isVertical) {
-      lv_obj_set_pos(maskCanvas, PAD_TINY, SLIDER_BAR_SIZE / 2);
+      lv_obj_set_pos(maskCanvas, 2, SliderIcon::SLIDER_ICON_SIZE / 2);
     } else {
-      lv_obj_set_pos(maskCanvas, SLIDER_BAR_SIZE / 2, PAD_TINY);
+      lv_obj_set_pos(maskCanvas, SliderIcon::SLIDER_ICON_SIZE / 2, 2);
     }
   }
 
@@ -75,11 +89,11 @@ MaskBitmap* MainViewSlider::getTicksMask()
 
   // Mask size
   if (isVertical) {
-    h = height() - SLIDER_BAR_SIZE + 1;
+    h = height() - SliderIcon::SLIDER_ICON_SIZE + 1;
     if ((h & 1) == 0) h += 1;
     w = MASK_SHORT_DIM;
   } else {
-    w = width() - SLIDER_BAR_SIZE + 1;
+    w = width() - SliderIcon::SLIDER_ICON_SIZE + 1;
     if ((w & 1) == 0) w += 1;
     h = MASK_SHORT_DIM;
   }
@@ -142,10 +156,10 @@ void MainViewSlider::setPos()
 {
   coord_t x = 0, y = 0;
   if (isVertical) {
-    y = divRoundClosest((height() - SLIDER_BAR_SIZE) * (-value + RESX),
+    y = divRoundClosest((height() - SliderIcon::SLIDER_ICON_SIZE) * (-value + RESX),
                         2 * RESX);
   } else {
-    x = divRoundClosest((width() - SLIDER_BAR_SIZE) * (value + RESX),
+    x = divRoundClosest((width() - SliderIcon::SLIDER_ICON_SIZE) * (value + RESX),
                         2 * RESX);
   }
   lv_obj_set_pos(sliderIcon->getLvObj(), x, y);
@@ -165,7 +179,7 @@ void MainViewSlider::checkEvents()
 MainViewHorizontalSlider::MainViewHorizontalSlider(Window* parent,
                                                    uint8_t idx) :
     MainViewSlider(parent,
-                   rect_t{0, 0, HORIZONTAL_SLIDERS_WIDTH, SLIDER_BAR_SIZE},
+                   rect_t{0, 0, HORIZONTAL_SLIDERS_WIDTH, SliderIcon::SLIDER_ICON_SIZE},
                    idx, false)
 {
 }
@@ -178,10 +192,10 @@ MainViewVerticalSlider::MainViewVerticalSlider(Window* parent,
 }
 
 MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
-    Window(parent, rect_t{0, 0, MULTIPOS_W, MainViewSlider::SLIDER_BAR_SIZE}), idx(idx)
+    Window(parent, rect_t{0, 0, MULTIPOS_W, SliderIcon::SLIDER_ICON_SIZE}), idx(idx)
 {
   char num[] = " ";
-  coord_t x = MULTIPOS_W_SPACING / 4 + MainViewSlider::SLIDER_BAR_SIZE / 4;
+  coord_t x = MULTIPOS_W_SPACING / 4 + SliderIcon::SLIDER_ICON_SIZE / 4;
   for (uint8_t value = 0; value < XPOTS_MULTIPOS_COUNT; value++) {
     num[0] = value + '1';
     auto p = etx_label_create(lvobj, FONT_XS_INDEX);
@@ -194,7 +208,7 @@ MainView6POS::MainView6POS(Window* parent, uint8_t idx) :
 
   posIcon = new SliderIcon(this);
   posVal = etx_label_create(posIcon->getLvObj(), FONT_BOLD_INDEX);
-  lv_obj_set_pos(posVal, PAD_THREE, -PAD_TINY);
+  lv_obj_set_pos(posVal, PAD_SMALL, -PAD_TINY);
   lv_obj_set_size(posVal, MULTIPOS_SZ, MULTIPOS_SZ);
   etx_txt_color(posVal, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
 
@@ -208,7 +222,7 @@ void MainView6POS::checkEvents()
   if (value != newValue) {
     value = newValue;
 
-    coord_t x = MULTIPOS_W_SPACING / 4 + MULTIPOS_W_SPACING * value;
+    coord_t x = MULTIPOS_W_SPACING / 4 + MULTIPOS_W_SPACING * value - 1;
     lv_obj_set_pos(posIcon->getLvObj(), x, 0);
 
     char num[] = " ";

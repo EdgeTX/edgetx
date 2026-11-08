@@ -148,6 +148,8 @@ bool PrefsEditDialog::save()
       }
     }
 
+    const QString oldFwOptions = profile.fwOptions();
+
     // save preferences for every tab
     for (const auto panel : panels)
       panel->save();
@@ -169,6 +171,9 @@ bool PrefsEditDialog::save()
       profile.timeStamp(QString());
       // used by flash firmware so no longer applicable
       profile.fwName(QString());
+      emit profileFirmwareChanged();
+    } else if (profile.fwOptions() != oldFwOptions) {
+      // build options change the firmware variant's capabilities
       emit profileFirmwareChanged();
     }
   }

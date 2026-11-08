@@ -145,11 +145,12 @@
 #define TR_AUX_SERIAL_MODES_9  "Debug"
 #define TR_AUX_SERIAL_MODES_10 "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11 "Moduł zewnętrzny"
+#define TR_GLOBAL              "Globalne"
 #define TR_SWTYPES_1           "Brak"
 #define TR_SWTYPES_2           "Chwil."
 #define TR_SWTYPES_3           "2POZ"
 #define TR_SWTYPES_4           "3POZ"
-#define TR_SWTYPES_5           "Globalne"
+#define TR_SWTYPES_5           TR_GLOBAL
 #define TR_POTTYPES_1          "Brak"
 #define TR_POTTYPES_2          "Pot."
 #define TR_POTTYPES_3          TR("Pot. z. zap.","Pot. z zapadką")
@@ -168,6 +169,11 @@
 #define TR_USBMODES_2          TR("Joyst","Joystick")
 #define TR_USBMODES_3          TR("SDCard","Storage")
 #define TR_USBMODES_4          "Serial"
+#define TR_MODEL_USBMODES_1    TR_GLOBAL
+#define TR_MODEL_USBMODES_2    TR_USBMODES_1
+#define TR_MODEL_USBMODES_3    TR_USBMODES_2
+#define TR_MODEL_USBMODES_4    TR_USBMODES_3
+#define TR_MODEL_USBMODES_5    TR_USBMODES_4
 #define TR_JACK_MODES_1        "Ask"
 #define TR_JACK_MODES_2        "Audio"
 #define TR_JACK_MODES_3        "Trainer"
@@ -197,7 +203,7 @@
 #define TR_VVARIOCENTER_2      "Cicho"
 #define TR_CURVE_TYPES_1       "Standard"
 #define TR_CURVE_TYPES_2       "Własny"
-#define TR_ADCFILTERVALUES_1   "Globalne"
+#define TR_ADCFILTERVALUES_1   TR_GLOBAL
 #define TR_ADCFILTERVALUES_2   "WYŁ"
 #define TR_ADCFILTERVALUES_3   "ZAŁ"
 
@@ -345,7 +351,7 @@
 #define TR_HATSOPT_1            "Tylko trymy"
 #define TR_HATSOPT_2            "Tylko przyciski"
 #define TR_HATSOPT_3            "Przełączane"
-#define TR_HATSOPT_4            "Globalne"
+#define TR_HATSOPT_4            TR_GLOBAL
 #define TR_HATSMODE_TRIMS       "Tryb grzybków: trymy"
 #define TR_HATSMODE_KEYS        "Tryb grzybków: przyciski"
 #define TR_HATSMODE_KEYS_HELP          "Lewa strona:\n"\
@@ -547,6 +553,11 @@
 #define TR_BATTERY_RANGE       TR("PokażPasBat.", "Pokaż pasek bateri")
 #define TR_BATTERYCHARGING     "Ładowanie..."
 #define TR_BATTERYFULL         "Bateria naładowana"
+#define TR_CHARGE_DETECTING    "Wykrywanie..."
+#define TR_CHARGE_TOPPING_OFF  "Doładowywanie..."
+#define TR_CHARGE_NOT_CHARGING "Brak ładowania"
+#define TR_PRESS_RTN_TO_CLOSE  "Naciśnij RTN, aby zamknąć"
+#define TR_PRESS_RTN_TO_POWER_OFF "Naciśnij RTN, aby wyłączyć"
 #define TR_BATTERYNONE         "Brak!"
 #define TR_BATTERYWARNING      "Bateria rozładowana"
 #define TR_INACTIVITYALARM     "Alarm bezczynności"
@@ -556,6 +567,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("Trener wyłączanie", "Sprawdzaj trener przy wyłączaniu")
 #define TR_MODEL_STILL_POWERED "Model jest włączony"
 #define TR_TRAINER_STILL_CONNECTED     "Uczeń ciągle podłączony"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB jest podłączone"
 #define TR_MODEL_SHUTDOWN              "Wyłączyć?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Press enter to confirm"
@@ -717,6 +731,8 @@
 #define TR_REPEAT_AT_ZERO      "Powtórz przy Zerze"
 #define TR_BATT_CALIB          "Kalib:Baterii"
 #define TR_VOLTAGE             TR ("Napięcie","Źródło Napięcia")
+#define TR_MODULE_SENSOR_VOLTAGE       "Napięcie"
+#define TR_MODULE_SENSOR_CURRENT       "Prąd"
 #define TR_SELECT_MODEL        "Wybór modelu"
 #define TR_SELECT_MODE         "Wybierz tryb"
 #define TR_CREATE_MODEL        "Nowy model"
@@ -778,6 +794,8 @@
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
 #define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_GPS_URI_STANDARD            "Standard"
+#define TR_GPS_URI_APPLE_MAPS          "Apple Maps"
 #define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "Pełna karta SD"
 #define TR_SDCARD_FULL_EXT              TR_BW_COL(TR_SDCARD_FULL "\036Logi i zrzuty ekranu" LCDW_128_LINEBREAK "wyłączone", TR_SDCARD_FULL "\nLogi i zrzuty ekranu wyłączone")

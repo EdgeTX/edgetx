@@ -161,6 +161,7 @@ class ModelData {
     bool      enableCustomThrottleWarning;
     int       customThrottleWarningPosition;
     unsigned int jitterFilter;       // Added in EdgeTx 2.7 (#870)
+    unsigned int usbMode;            // 0 = global, otherwise radio USB mode + 1
 
     unsigned int beepANACenter;      // 1<<0->A1.. 1<<6->A7
 
@@ -427,7 +428,6 @@ class ModelData {
     void updateTypeIndexRef(R & curref, const T type, const int idxAdj = 0, const bool defClear = true, const int defType = 0, const int defIndex = 0);
     template <class R, typename T>
     void updateTypeValueRef(R & curref, const T type, const int idxAdj = 0, const bool defClear = true, const int defType = 0, const int defValue = 0);
-    void updateAdjustRef(int & adj);
     void updateAssignFunc(CustomFunctionData * cfd);
     void updateCurveRef(CurveReference & crv);
     void updateDestCh(MixData * md);

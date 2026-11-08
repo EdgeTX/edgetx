@@ -54,6 +54,15 @@ uint8_t  UserTxBufferFS[APP_TX_DATA_SIZE];
 volatile uint32_t APP_Tx_ptr_in = 0;
 volatile uint32_t APP_Tx_ptr_out = 0;
 
+// Number of frames between IN transfers (0: every frame)
+static volatile uint8_t cdcInFrameInterval = CDC_IN_FRAME_INTERVAL;
+
+// Host events, counted so that a poller sees each one:
+// DTR dropped (port closed) and break requests
+static bool cdcDtr = false;
+static volatile uint32_t cdcHangups = 0;
+static volatile uint32_t cdcBreaks = 0;
+
 /**
   * @}
   */
@@ -207,17 +216,17 @@ static int8_t VCP_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
     }
     break;
 
-  case CDC_SET_CONTROL_LINE_STATE:
-    // If a callback is provided, tell the upper driver of changes in DTR/RTS state
-    // if (plc && (Len == sizeof (uint16_t))) {
-    //   if (ctrlLineStateCb) {
-    //     ctrlLineStateCb(*((uint16_t *)Buf));
-    //   }
-    // }
+  case CDC_SET_CONTROL_LINE_STATE: {
+    // no data stage: pbuf is the setup request, DTR is bit 0 of wValue
+    bool dtr = ((USBD_SetupReqTypedef*)pbuf)->wValue & 0x01;
+    if (cdcDtr && !dtr) cdcHangups++;
+    cdcDtr = dtr;
     break;
+  }
 
   case CDC_SEND_BREAK:
-    /* Not  needed for this driver */
+    // wValue: duration in ms (0xFFFF: until cleared), 0: break off
+    if (((USBD_SetupReqTypedef*)pbuf)->wValue) cdcBreaks++;
     break;
 
   default:
@@ -256,7 +265,7 @@ static int8_t VCP_StartOfFrame_FS()
   uint8_t result = USBD_OK;
   static uint8_t FrameCount = 0;    // modified by OpenTX
 
-  if (FrameCount++ >= CDC_IN_FRAME_INTERVAL)     // modified by OpenTX
+  if (FrameCount++ >= cdcInFrameInterval)     // modified by OpenTX
   {
     /* Reset the frame counter */
     FrameCount = 0;
@@ -293,6 +302,17 @@ static int8_t VCP_StartOfFrame_FS()
   return result;
 }
 
+
+// Send buffered data on every frame (1ms) instead of batching it,
+// for request/response protocols (e.g. serial passthrough)
+void usbSerialSetLowLatency(bool enable)
+{
+  cdcInFrameInterval = enable ? 0 : CDC_IN_FRAME_INTERVAL;
+}
+
+uint32_t usbSerialHangupCount() { return cdcHangups; }
+
+uint32_t usbSerialBreakCount() { return cdcBreaks; }
 
 // return the bytes free in the circular buffer
 uint32_t usbSerialFreeSpace()

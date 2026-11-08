@@ -75,7 +75,6 @@ set(SDRAM ON)
 
 add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DRTCLOCK)
-add_definitions(-DGPS_USART_BAUDRATE=${INTERNAL_GPS_BAUDRATE})
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
 
 if(STICK_DEAD_ZONE)

@@ -37,6 +37,7 @@ class Messaging
     REFRESH,
     REFRESH_OUTPUTS_WIDGET,
     ON_CLOSE,
+    UPDATE_TIMER,
   };
 
   Messaging() {}

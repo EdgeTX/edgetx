@@ -147,11 +147,12 @@
 #define TR_AUX_SERIAL_MODES_9          "Отлад"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "Внеш модуль"
+#define TR_GLOBAL                      "Глоб"
 #define TR_SWTYPES_1                   "Нет"
 #define TR_SWTYPES_2                   "тумбл"
 #define TR_SWTYPES_3                   "2Х-поз пер"
 #define TR_SWTYPES_4                   "3Х-поз пер"
-#define TR_SWTYPES_5                   "Глоб"
+#define TR_SWTYPES_5                   TR_GLOBAL
 #define TR_POTTYPES_1                  "Нет"
 #define TR_POTTYPES_2                  "Потенц"
 #define TR_POTTYPES_3                  TR("Потенц с фикс","Потенц с фиксацией")
@@ -170,6 +171,11 @@
 #define TR_USBMODES_2                  TR("Джойс","Джойстик")
 #define TR_USBMODES_3                  TR("SD-карта","Хранил")
 #define TR_USBMODES_4                  "Серийн"
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "Выбор"
 #define TR_JACK_MODES_2                "Аудио"
 #define TR_JACK_MODES_3                "Трен"
@@ -200,7 +206,7 @@
 #define TR_CURVE_TYPES_1               "Стд"
 #define TR_CURVE_TYPES_2               "Выбор"
 
-#define TR_ADCFILTERVALUES_1           "Глоб"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "Вык"
 #define TR_ADCFILTERVALUES_3           "Вкл"
 
@@ -349,7 +355,7 @@
 #define TR_HATSOPT_1                   "Тримы"
 #define TR_HATSOPT_2                   "Кнопки"
 #define TR_HATSOPT_3                   "Тумбл"
-#define TR_HATSOPT_4                   "Глоб"
+#define TR_HATSOPT_4                   TR_GLOBAL
 #define TR_HATSMODE_TRIMS              "Hats mode: Тримы"
 #define TR_HATSMODE_KEYS               "Hats mode: Кнопки"
 #define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
@@ -550,6 +556,11 @@
 #define TR_BATTERY_RANGE               TR("Диапаз АКБ", "Диапаз АКБ")
 #define TR_BATTERYCHARGING             "Зарядка..."
 #define TR_BATTERYFULL                 "АКБ Заряжена"
+#define TR_CHARGE_DETECTING            "Определение..."
+#define TR_CHARGE_TOPPING_OFF          "Дозарядка..."
+#define TR_CHARGE_NOT_CHARGING         "Нет зарядки"
+#define TR_PRESS_RTN_TO_CLOSE          "Нажмите RTN для закрытия"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Нажмите RTN для выключения"
 #define TR_BATTERYNONE                 "АКБ Отсутст"
 #define TR_BATTERYWARNING              "АКБ Разряж"
 #define TR_INACTIVITYALARM             "Бездействие"
@@ -559,6 +570,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("ВЫК Тренер", "Проверьте работу тренера при ВЫКЛ")
 #define TR_MODEL_STILL_POWERED         "Модель работает"
 #define TR_TRAINER_STILL_CONNECTED     "Тренер подкл"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB подкл"
 #define TR_MODEL_SHUTDOWN              "Отключение?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Нажмите [Enter] для подтв"
@@ -726,6 +740,8 @@
 #define TR_REPEAT_AT_ZERO              "Повт при нуле"
 #define TR_BATT_CALIB                  TR("Калибр АКБ", "Калибр АКБ")
 #define TR_VOLTAGE                     TR("Напряжение", "Напряжение")
+#define TR_MODULE_SENSOR_VOLTAGE       "Напряжение"
+#define TR_MODULE_SENSOR_CURRENT       "Ток"
 #define TR_SELECT_MODEL                "Выбор модели"
 #define TR_SELECT_MODE                 "Выбрать модель"
 #define TR_CREATE_MODEL                "Создать модель"
@@ -787,6 +803,8 @@
 #define TR_SPECTRUM_ANALYSER_INT       "Спек анализ (Внут)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
 #define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_GPS_URI_STANDARD            "Standard"
+#define TR_GPS_URI_APPLE_MAPS          "Apple Maps"
 #define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD карта заполнена"
 #define TR_SDCARD_FULL_EXT              TR_BW_COL(TR_SDCARD_FULL "\036Логи и скриншоты" LCDW_128_LINEBREAK "Откл", TR_SDCARD_FULL "\nЛоги и скриншоты откл")

@@ -118,6 +118,14 @@ class BoardJson
 
     struct HardwareDefn {
       int has_audio_mute               = 0;
+      int has_aux_serial               = 0;
+      int has_aux_serial_pwr           = 0;
+      int has_aux2_serial              = 0;
+      int has_aux2_serial_pwr          = 0;
+      int has_internal_gps             = 0;
+      int bluetooth_builtin            = 0;
+      int bluetooth_optional           = 0;
+      int bluetooth_aux_port           = 0;
       int has_bling_leds               = 0;
       int status_led_colors            = 0;   // bit 0 red, 1 green, 2 blue
       int status_led_pwm               = 0;
@@ -125,6 +133,7 @@ class BoardJson
       int has_int_module_support       = 0;
       int sport_max_baudrate           = 0;
       int surface                      = 0;
+      int trainer_jack_crossover       = 0;
       std::string cpu                  = "";
       std::string cpu_type             = "";
     };

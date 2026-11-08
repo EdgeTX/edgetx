@@ -51,6 +51,8 @@ endif()
 if(EdgeTX_SUPERBUILD)
   include(Macros)
   CollectCommandLineArgs(CMAKE_ARGS)
+  # SDL2 is only used by the native build (simulator audio and joystick)
+  CollectCommandLineArgs(ARM_CMAKE_ARGS EXCLUDE "^SDL2_DIR$")
   message("-- CMAKE_ARGS: ${CMAKE_ARGS}")
   message("-- CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 
@@ -77,7 +79,7 @@ if(EdgeTX_SUPERBUILD)
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
     BINARY_DIR ${CMAKE_BINARY_DIR}/arm-none-eabi
     LIST_SEPARATOR |
-    CMAKE_ARGS ${CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+    CMAKE_ARGS ${ARM_CMAKE_ARGS} -Wno-dev -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
     CMAKE_CACHE_ARGS
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_SOURCE_DIR}/cmake/toolchain/arm-none-eabi.cmake
       -DEdgeTX_SUPERBUILD:BOOL=0
@@ -105,6 +107,7 @@ if(EdgeTX_SUPERBUILD)
 
   add_custom_target(wasi-module
     COMMAND ${CMAKE_COMMAND}
+      -G ${CMAKE_GENERATOR}
       -S ${CMAKE_SOURCE_DIR}/cmake/wasm
       -B ${CMAKE_BINARY_DIR}/wasm
       -DEDGETX_SOURCE_DIR=${CMAKE_SOURCE_DIR}

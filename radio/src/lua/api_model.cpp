@@ -51,10 +51,11 @@ Get current Model information
  * `name` (string) model name
  * `extendedLimits` (boolean) extended limits enabled
  * `jitterFilter` (number) model level ADC filter
+ * `usbMode` (number) model level USB mode (0 = global, 1 = ask, 2 = joystick, 3 = storage, 4 = serial)
  * `bitmap` (string) bitmap name (not present on X7)
  * `filename` (string) model filename
 
-@status current Introduced in 2.0.6, changed in 2.2.0, filename added in 2.6.0, extendedLimits, jitterFilter, and labels added in 2.8.0
+@status current Introduced in 2.0.6, changed in 2.2.0, filename added in 2.6.0, extendedLimits, jitterFilter, and labels added in 2.8.0, usbMode added in 3.0.0
 */
 static int luaModelGetInfo(lua_State *L)
 {
@@ -62,6 +63,7 @@ static int luaModelGetInfo(lua_State *L)
   lua_pushtablenstring(L, "name", g_model.header.name);
   lua_pushtableboolean(L, "extendedLimits", g_model.extendedLimits);
   lua_pushtableinteger(L, "jitterFilter", g_model.jitterFilter);
+  lua_pushtableinteger(L, "usbMode", g_model.usbMode);
 #if LCD_DEPTH > 1
   lua_pushtablenstring(L, "bitmap", g_model.header.bitmap);
 #endif
@@ -90,7 +92,7 @@ Set the current Model information
 @notice If a parameter is missing from the value, then
 that parameter remains unchanged.
 
-@status current Introduced in 2.0.6, extendedLimits and jitterFilter added in 2.8.0
+@status current Introduced in 2.0.6, extendedLimits and jitterFilter added in 2.8.0, usbMode added in 3.0.0
 */
 static int luaModelSetInfo(lua_State *L)
 {
@@ -109,6 +111,11 @@ static int luaModelSetInfo(lua_State *L)
       auto j = lua_tointeger(L, -1);
       if (j > OVERRIDE_ON) j = OVERRIDE_ON;
       g_model.jitterFilter = j;
+    }
+    else if (!strcmp(key, "usbMode")) {
+      auto m = lua_tointeger(L, -1);
+      if (m < USBMODE_GLOBAL || m > USBMODE_SERIAL) m = USBMODE_GLOBAL;
+      g_model.usbMode = m;
     }
 #if LCD_DEPTH > 1
     else if (!strcmp(key, "bitmap")) {
@@ -1622,9 +1629,9 @@ Get servo parameters
 
 @retval table output parameters:
  * `name` (string) name
- * `min` (number) Minimum % * 10
- * `max` (number) Maximum % * 10
- * `offset` (number) Subtrim * 10
+ * `min` (number) Minimum % * 10, or source (>= 2048 or <= -2048)
+ * `max` (number) Maximum % * 10, or source (>= 2048 or <= -2048)
+ * `offset` (number) Subtrim * 10, or source (>= 2048 or <= -2048)
  * `ppmCenter` (number) offset from PPM Center. 0 = 1500
  * `symetrical` (number) linear Subtrim 0 = Off, 1 = On
  * `revert` (number) irection 0 = ­­­---, 1 = INV
@@ -1641,9 +1648,9 @@ static int luaModelGetOutput(lua_State *L)
     LimitData * limit = limitAddress(idx);
     lua_newtable(L);
     lua_pushtablenstring(L, "name", limit->name);
-    lua_pushtableinteger(L, "min", limit->min-1000);
-    lua_pushtableinteger(L, "max", limit->max+1000);
-    lua_pushtableinteger(L, "offset", limit->offset);
+    lua_pushtableinteger(L, "min", limitNumValToLuaInt(limit->min, -1000));
+    lua_pushtableinteger(L, "max", limitNumValToLuaInt(limit->max, 1000));
+    lua_pushtableinteger(L, "offset", limitNumValToLuaInt(limit->offset, 0));
     lua_pushtableinteger(L, "ppmCenter", limit->ppmCenter);
     lua_pushtableinteger(L, "symetrical", limit->symetrical);
     lua_pushtableinteger(L, "revert", limit->revert);
@@ -1685,13 +1692,13 @@ static int luaModelSetOutput(lua_State *L)
         strncpy(limit->name, name, sizeof(limit->name));
       }
       else if (!strcmp(key, "min")) {
-        limit->min = luaL_checkinteger(L, -1)+1000;
+        limit->min = luaIntToLimitNumVal(luaL_checkinteger(L, -1), -1000);
       }
       else if (!strcmp(key, "max")) {
-        limit->max = luaL_checkinteger(L, -1)-1000;
+        limit->max = luaIntToLimitNumVal(luaL_checkinteger(L, -1), 1000);
       }
       else if (!strcmp(key, "offset")) {
-        limit->offset = luaL_checkinteger(L, -1);
+        limit->offset = luaIntToLimitNumVal(luaL_checkinteger(L, -1), 0);
       }
       else if (!strcmp(key, "ppmCenter")) {
         limit->ppmCenter = luaL_checkinteger(L, -1);

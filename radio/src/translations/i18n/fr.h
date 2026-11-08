@@ -64,9 +64,9 @@
 #define TR_QM_SCREEN_8                  "Screen 8"
 #define TR_QM_SCREEN_9                  "Screen 9"
 #define TR_QM_SCREEN_10                 "Screen 10"
-#define TR_QM_ADD_SCREEN                "Add\nScreen"
+#define TR_QM_ADD_SCREEN                "Ajouter\nÉcran"
 #define TR_QM_APPS                      "Apps"
-#define TR_QM_STORAGE                   "Storage"
+#define TR_QM_STORAGE                   "Stockage"
 #define TR_QM_RESET                     TR_SFC_AIR("Drive\nReset", "Flight\nReset")
 #define TR_QM_CHAN_MON                  "Channel\nMonitor"
 #define TR_QM_LS_MON                    "LS\nMonitor"
@@ -74,7 +74,7 @@
 #define TR_QM_DEBUG                     "Debug"
 #define TR_MAIN_MODEL_SETTINGS          "Param. Modèle"
 #define TR_MAIN_RADIO_SETTINGS          "Param. Radio"
-#define TR_MAIN_MENU_MANAGE_MODELS      "Gestion Modèles"
+#define TR_MAIN_MENU_MANAGE_MODELS      "Modèles"
 #define TR_MAIN_MENU_MODEL_NOTES        "Notes Modèles"
 #define TR_MAIN_MENU_CHANNEL_MONITOR    "Moniteur Voies"
 #define TR_MONITOR_SWITCHES            "INTERS LOGIQUES"
@@ -150,11 +150,12 @@
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "Module externe"
 
+#define TR_GLOBAL                      "Global"
 #define TR_SWTYPES_1                   "Rien"
 #define TR_SWTYPES_2                   "Monostable"
 #define TR_SWTYPES_3                   "2-POS"
 #define TR_SWTYPES_4                   "3-POS"
-#define TR_SWTYPES_5                   "Global"
+#define TR_SWTYPES_5                   TR_GLOBAL
 
 #define TR_POTTYPES_1                  "Rien"
 #define TR_POTTYPES_2                  TR("Pots","Potentiomètre")
@@ -175,6 +176,11 @@
 #define TR_USBMODES_2                  TR("Joyst","Joystick")
 #define TR_USBMODES_3                  TR("SDCard","Stockage")
 #define TR_USBMODES_4                  "Série"
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "Demander"
 #define TR_JACK_MODES_2                "Audio"
 #define TR_JACK_MODES_3                "Écolage"
@@ -201,7 +207,7 @@
 #define TR_CURVE_TYPES_1               "Standard"
 #define TR_CURVE_TYPES_2               "Libre"
 
-#define TR_ADCFILTERVALUES_1           "Global"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "Off"
 #define TR_ADCFILTERVALUES_3           "On"
 
@@ -222,7 +228,7 @@
 #define TR_SF_RESET                    "Remise à 0"
 #define TR_SF_SET_TIMER                "Déf."
 #define TR_SF_VOLUME                   "Volume"
-#define TR_SF_FAILSAFE                 "Règle Failsafe"
+#define TR_SF_FAILSAFE                 "Régler Failsafe"
 #define TR_SF_RANGE_CHECK              "Test Port."
 #define TR_SF_MOD_BIND                 "Bind"
 #define TR_SF_RGBLEDS                  "RGB leds"
@@ -349,7 +355,7 @@
 #define TR_HATSOPT_1                   "Trims uniquement"
 #define TR_HATSOPT_2                   "Touches uniquement"
 #define TR_HATSOPT_3                   "Commutable"
-#define TR_HATSOPT_4                   "Global"
+#define TR_HATSOPT_4                   TR_GLOBAL
 #define TR_HATSMODE_TRIMS              "Mode joystick: trims"
 #define TR_HATSMODE_KEYS               "Mode joystick: touches"
 #define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
@@ -451,8 +457,8 @@
 #define TR_NO                          "Non"
 #define TR_DELETEMODEL                 "SUPPR. MODÈLE"
 #define TR_COPYINGMODEL                "Copie modèle"
-#define TR_MOVINGMODEL                 "Déplacement modèle"
-#define TR_LOADINGMODEL                "Chargement modèle"
+#define TR_MOVINGMODEL                 "Déplacer modèle"
+#define TR_LOADINGMODEL                "Charger modèle"
 #define TR_UNLABELEDMODEL              "Non catégorisé"
 #define TR_NAME                        "Nom"
 #define TR_MODELNAME                   TR("Nom Modèle", "Nom du Modèle")
@@ -463,7 +469,7 @@
 #define TR_BITMAP                      "Image Modèle"
 #define TR_NO_PICTURE                  "Pas d'image"
 #define TR_TIMER                       "Chrono "
-#define TR_NO_TIMERS                   "No timers"
+#define TR_NO_TIMERS                   "Pas de chronos"
 #define TR_START                       "Start"
 #define TR_NEXT                        "Suivant"
 #define TR_ELIMITS                     TR("Limites ét.", "Limites étendues")
@@ -481,20 +487,20 @@
 #define TR_WARN_5VOLTS                 "Attention: niveau de sortie 5 volts"
 #define TR_MS                          "ms"
 #define TR_SWITCH                      TR("Inter", "Interrupteur")
-#define TR_FS_COLOR_LIST_1             "Custom"
+#define TR_FS_COLOR_LIST_1             "Perso"
 #define TR_FS_COLOR_LIST_2             "Off"
-#define TR_FS_COLOR_LIST_3             "White"
-#define TR_FS_COLOR_LIST_4             "Red"
-#define TR_FS_COLOR_LIST_5             "Green"
-#define TR_FS_COLOR_LIST_6             "Yellow"
+#define TR_FS_COLOR_LIST_3             "Blanc"
+#define TR_FS_COLOR_LIST_4             "Rouge"
+#define TR_FS_COLOR_LIST_5             "Vert"
+#define TR_FS_COLOR_LIST_6             "Jaune"
 #define TR_FS_COLOR_LIST_7             "Orange"
-#define TR_FS_COLOR_LIST_8             "Blue"
-#define TR_FS_COLOR_LIST_9             "Pink"
+#define TR_FS_COLOR_LIST_8             "Bleu"
+#define TR_FS_COLOR_LIST_9             "Rose"
 #define TR_GROUP                       "Group"
 #define TR_GROUP_ALWAYS_ON             "Always on"
 #define TR_LUA_OVERRIDE                "Allow Lua override"
 #define TR_LAST                        "Last"
-#define TR_MORE_INFO                   "More info"
+#define TR_MORE_INFO                   "Plus d'infos"
 #define TR_SWITCH_TYPE                 "Type"
 #define TR_SWITCH_STARTUP              "Startup"
 #define TR_SWITCH_GROUP                "Group"
@@ -550,6 +556,11 @@
 #define TR_BATTERY_RANGE               "Plage batterie"
 #define TR_BATTERYCHARGING             "En charge..."
 #define TR_BATTERYFULL                 "Batterie chargée"
+#define TR_CHARGE_DETECTING            "Détection..."
+#define TR_CHARGE_TOPPING_OFF          "Fin de charge..."
+#define TR_CHARGE_NOT_CHARGING         "Pas de charge"
+#define TR_PRESS_RTN_TO_CLOSE          "Appui RTN pour fermer"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Appui RTN pour éteindre"
 #define TR_BATTERYNONE                 "Pas de batterie !"
 #define TR_BATTERYWARNING              TR("Batterie", "Batterie faible")
 #define TR_INACTIVITYALARM             "Inactivité"
@@ -559,6 +570,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("Trainer shutdown", "Vérifier écolage avant extinction")
 #define TR_MODEL_STILL_POWERED         TR("Modèle alimenté", "Modèle encore alimenté")
 #define TR_TRAINER_STILL_CONNECTED     "Élève encore connecté"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB encore connecté"
 #define TR_MODEL_SHUTDOWN              "Éteindre ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Appui [Enter] pour confirmer"
@@ -582,10 +596,10 @@
 #define TR_KEYS_BACKLIGHT              "Rétroéclairage touches"
 #define TR_BLCOLOR                     "Couleur"
 #define TR_ONE_LOG_PER_DAY             "Un log par jour"
-#define TR_KEY_LOCK_FMT                "Key lock (%s+%s hold)"
-#define TR_KEYS_LOCKED                 "Keys locked"
-#define TR_KEYS_LOCKED_FMT             TR_BW_COL("%s+%s to unlock", "Keys locked (%s+%s to unlock)")
-#define TR_KEYS_UNLOCKED               "Keys unlocked"
+#define TR_KEY_LOCK_FMT                TR_BW_COL("Verr. %s+%s", "Verrouillage (maintenir %s+%s)")
+#define TR_KEYS_LOCKED                 TR("Touches verr.", "Touches verrouillées")
+#define TR_KEYS_LOCKED_FMT             TR_BW_COL("%s+%s : déverr.", "Verrouillé (%s+%s pour déverrouiller)")
+#define TR_KEYS_UNLOCKED               TR("Touches déverr.", "Touches déverrouillées")
 #define TR_TOUCH_ENABLED               "Touch screen enabled"
 #define TR_TOUCH_DISABLED              "Touch screen disabled"
 #define TR_SPLASHSCREEN                "Écran d'accueil"
@@ -722,6 +736,8 @@
 #define TR_REPEAT_AT_ZERO              TR("Répét. zéro", "Répéter zéro")
 #define TR_BATT_CALIB                  TR("Calib. batt", "Calib. batterie")
 #define TR_VOLTAGE                     TR("Tension","Source tension")
+#define TR_MODULE_SENSOR_VOLTAGE       "Tension"
+#define TR_MODULE_SENSOR_CURRENT       "Courant"
 #define TR_SELECT_MODEL                "Sélection Modèle"
 #define TR_SELECT_MODE                 "Sélection mode"
 #define TR_CREATE_MODEL                "Créer modèle"
@@ -783,6 +799,8 @@
 #define TR_SPECTRUM_ANALYSER_INT       TR("Spectre (INT)", "Analyseur Spectre (INT)")
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
 #define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_GPS_URI_STANDARD            "Standard"
+#define TR_GPS_URI_APPLE_MAPS          "Apple Maps"
 #define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD carte pleine"
 #define TR_SDCARD_FULL_EXT              TR_BW_COL(TR_SDCARD_FULL "\036Journaux et" LCDW_128_LINEBREAK "Impr. écran désactivé", TR_SDCARD_FULL "\nJournaux et Impr. écran désactivé")

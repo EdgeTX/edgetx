@@ -1435,10 +1435,16 @@ int cliSet(const char **argv)
 static const etx_serial_driver_t* _sp_drv = nullptr;
 static void* _sp_ctx = nullptr;
 
+// TX side, if not the same as RX (external module)
+static const etx_serial_driver_t* _sp_tx_drv = nullptr;
+static void* _sp_tx_ctx = nullptr;
+
 static void _sp_Tx(uint8_t* buf, uint32_t len)
 {
+  auto drv = _sp_tx_drv ? _sp_tx_drv : _sp_drv;
+  auto ctx = _sp_tx_drv ? _sp_tx_ctx : _sp_ctx;
   while (len > 0) {
-    _sp_drv->sendByte(_sp_ctx, *(buf++));
+    drv->sendByte(ctx, *(buf++));
     len--;
   }
 }
@@ -1473,6 +1479,81 @@ static void spModuleDeInit(int port_n)
 }
 
 #endif // HARDWARE_INTERNAL_MODULE
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+static etx_module_state_t *spExtModuleState = nullptr;
+
+// Power cycle: the module's boot loader listens right after power on,
+// the ports are opened while the module is off.
+static void spExtModulePowerOff(int port_n)
+{
+  modulePortSetPower(port_n, false);
+  delay_ms(500);
+}
+
+static void spExtModulePowerOn(int port_n)
+{
+  _sp_drv = modulePortGetSerialDrv(spExtModuleState->rx);
+  _sp_ctx = modulePortGetCtx(spExtModuleState->rx);
+  modulePortSetPower(port_n, true);
+}
+
+// Half-duplex on S.PORT, as the FrSky firmware update
+// (frsky_firmware_update.cpp): the driver switches direction
+static void spExtModuleSportInit(int port_n, int baudrate)
+{
+  etx_serial_init params = {
+      .baudrate = (uint32_t)baudrate,
+      .encoding = ETX_Encoding_8N1,
+      .direction = ETX_Dir_TX_RX,
+      .polarity = ETX_Pol_Normal,
+  };
+
+  spExtModulePowerOff(port_n);
+  spExtModuleState =
+      modulePortInitSerial(port_n, ETX_MOD_PORT_SPORT, &params, false);
+  if (spExtModuleState) spExtModulePowerOn(port_n);
+}
+
+// As the MULTI firmware update (multi_firmware_update.cpp): TX on PPM,
+// RX on S.PORT
+static void spExtModulePpmInit(int port_n, int baudrate)
+{
+  etx_serial_init params = {
+      .baudrate = (uint32_t)baudrate,
+      .encoding = ETX_Encoding_8N1,
+      .direction = ETX_Dir_TX,
+      .polarity = ETX_Pol_Inverted,
+  };
+
+  spExtModulePowerOff(port_n);
+  spExtModuleState =
+      modulePortInitSerial(port_n, ETX_MOD_PORT_UART, &params, true);
+  if (!spExtModuleState) return;
+
+  params.direction = ETX_Dir_RX;
+  if (!modulePortInitSerial(port_n, ETX_MOD_PORT_SPORT, &params, true)) {
+    modulePortDeInit(spExtModuleState);
+    spExtModuleState = nullptr;
+    return;
+  }
+
+  _sp_tx_drv = modulePortGetSerialDrv(spExtModuleState->tx);
+  _sp_tx_ctx = modulePortGetCtx(spExtModuleState->tx);
+  spExtModulePowerOn(port_n);
+}
+
+static void spExtModuleDeInit(int port_n)
+{
+  modulePortSetPower(port_n, false);
+  modulePortDeInit(spExtModuleState);
+  spExtModuleState = nullptr;
+  _sp_drv = nullptr;
+  _sp_tx_drv = nullptr;
+  _sp_tx_ctx = nullptr;
+  delay_ms(200);
+}
+#endif // HARDWARE_EXTERNAL_MODULE
 
 #if defined(FLYSKY_GIMBAL)
 #include "flysky_gimbal_driver.h"
@@ -1515,6 +1596,16 @@ int cliSerialPassthrough(const char **argv)
     return -1;
   }
 
+  // optional last argument: also end when the host closes the port (DTR
+  // drop); off by default, tools close the port after starting passthrough
+  bool hangup = false;
+  int last = 1;
+  while (last + 1 < CLI_COMMAND_MAX_ARGS && argv[last + 1]) last++;
+  if (last > 1 && !strcmp(argv[last], "hangup")) {
+    hangup = true;
+    argv[last] = nullptr;
+  }
+
   int baudrate = 0;
   void (*initCB)(int, int) = nullptr;
   void (*deinitCB)(int) = nullptr;
@@ -1526,20 +1617,39 @@ int cliSerialPassthrough(const char **argv)
       cliSerialPrint("%s: invalid or missing port number", argv[0]);
       return -1;
     }
-    // 3rd argument (baudrate is optional)
-    if (toInt(argv, 3, &baudrate) <= 0) {
-      baudrate = 0;
+    // optional: baudrate, then mode (external module only)
+    int arg = 3;
+    if (argv[arg] && isdigit(argv[arg][0])) {
+      if (toInt(argv, arg++, &baudrate) <= 0) {
+        baudrate = 0;
+      }
     }
+    const char* mode = (argv[arg] && argv[arg][0]) ? argv[arg] : nullptr;
 
     switch(port_n) {
 #if defined(HARDWARE_INTERNAL_MODULE)
     case INTERNAL_MODULE:
+      if (mode) {
+        cliSerialPrint("%s: invalid argument '%s'", argv[0], mode);
+        return -1;
+      }
       initCB = spModuleInit;
       deinitCB = spModuleDeInit;
       break;
 #endif
-    // TODO:
-    //  - external module (S.PORT?)
+#if defined(HARDWARE_EXTERNAL_MODULE)
+    case EXTERNAL_MODULE:
+      if (!mode || !strcmp(mode, "sport")) {
+        initCB = spExtModuleSportInit;
+      } else if (!strcmp(mode, "ppm")) {
+        initCB = spExtModulePpmInit;
+      } else {
+        cliSerialPrint("%s: invalid mode '%s' (sport or ppm)", argv[0], mode);
+        return -1;
+      }
+      deinitCB = spExtModuleDeInit;
+      break;
+#endif
     default:
       cliSerialPrint("%s: invalid port # '%i'", argv[0], port_n);
       return -1;
@@ -1561,6 +1671,11 @@ int cliSerialPassthrough(const char **argv)
     cliSerialPrint("%s: invalid port type '%s'", argv[0], port_type);
     return -1;
   }
+
+  // host events from now on end the passthrough, also those during the
+  // module power cycle below
+  uint32_t breaks = usbSerialBreakCount();
+  uint32_t hangups = usbSerialHangupCount();
 
   //  stop pulses
   watchdogSuspend(200/*2s*/);
@@ -1584,13 +1699,23 @@ int cliSerialPassthrough(const char **argv)
     auto backupCB = cliReceiveCallBack;
     cliReceiveCallBack = _sp_Tx;
 
-    // loop until cable disconnected
-    while (usbPlugged()) {
+    // drop what the host sent before the switch, not for the CLI
+    xStreamBufferReset(cliRxBuffer);
+
+    // flashing protocols wait for each reply: don't batch USB IN data
+    usbSerialSetLowLatency(true);
+
+    // loop until cable disconnected, a break, or the port closed (hangup)
+    while (usbPlugged() && usbSerialBreakCount() == breaks &&
+           (!hangup || usbSerialHangupCount() == hangups)) {
 
       uint32_t cli_br = cliGetBaudRate();
       if (cli_br && (cli_br != (uint32_t)baudrate)) {
         baudrate = cli_br;
-        _sp_drv->setBaudrate(_sp_ctx, baudrate);
+        // not supported by softserial
+        if (_sp_drv->setBaudrate) _sp_drv->setBaudrate(_sp_ctx, baudrate);
+        if (_sp_tx_drv && _sp_tx_drv->setBaudrate)
+          _sp_tx_drv->setBaudrate(_sp_tx_ctx, baudrate);
       }
 
       uint8_t data;
@@ -1610,6 +1735,7 @@ int cliSerialPassthrough(const char **argv)
 
     // restore callsbacks
     cliReceiveCallBack = backupCB;
+    usbSerialSetLowLatency(false);
     if (deinitCB != nullptr) deinitCB(port_n);
   }
 
@@ -2215,7 +2341,7 @@ const CliCommand cliCommands[] = {
   { "reboot", cliReboot, "[wdt]" },
   { "set", cliSet, "<what> <value>" },
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
-  { "serialpassthrough", cliSerialPassthrough, "<port type> [<port number>] [<baudrate>]"},
+  { "serialpassthrough", cliSerialPassthrough, "<port type> [<port number>] [<baudrate>] [sport|ppm] [hangup]"},
 #endif
 #if defined(DEBUG)
   { "print", cliDisplay, "<address> [<size>] | <what>" },
@@ -2253,16 +2379,18 @@ const CliCommand cliCommands[] = {
 
 static int cliHelp(const char ** argv)
 {
+  // argv[1]: the command to describe, none (null) or empty: all commands
+  const char * name = argv[1] ? argv[1] : "";
   for (const CliCommand * command = cliCommands; command->name != nullptr; command++) {
-    if (argv[1][0] == '\0' || !strcmp(command->name, argv[0])) {
+    if (name[0] == '\0' || !strcmp(command->name, name)) {
       cliSerialPrint("%s %s", command->name, command->args);
-      if (argv[1][0] != '\0') {
+      if (name[0] != '\0') {
         return 0;
       }
     }
   }
-  if (argv[1][0] != '\0') {
-    cliSerialPrint("Invalid command \"%s\"", argv[0]);
+  if (name[0] != '\0') {
+    cliSerialPrint("Invalid command \"%s\"", name);
   }
   return -1;
 }

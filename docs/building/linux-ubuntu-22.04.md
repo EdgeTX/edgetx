@@ -117,9 +117,9 @@ If you want to build simulator modules for multiple radio targets (so they are a
 ```
 tools/build-wasm-modules.sh . ./wasm-modules/
 ```
-The `.wasm` files are output to `./wasm-modules/`. Copy them to `build-output/native/` before building Companion.
+The `.wasm` files are output to `./wasm-modules/`. Copy them to `build-output/native/` before launching Companion.
 
-Change into the `native` directory, where `<ver>` is the EdgeTX version as digits (e.g. `212` for 2.12):
+Change into the `native` directory, where `<ver>` is the EdgeTX version as digits (e.g. `30` for 3.0, or `212` for 2.12):
 ```
 cd build-output/native
 ```
@@ -141,7 +141,7 @@ In the dialog that pops up, select _SD Path_ as data source and under _SD Image 
 
 ### Legacy: EdgeTX 2.10 to 2.12
 
-From 2.10 onwards, Companion and Simulator only incorporate hardware definitions for radio simulator libraries built before they themselves are built. You need to build a `libsimulator` for each radio target you want to include.
+In EdgeTX 2.10 to 2.12, Companion and Simulator only incorporate hardware definitions for radio simulator libraries built before they themselves are built. You need to build a `libsimulator` for each radio target you want to include.
 
 To include additional radio targets, re-run the `cmake --fresh` configure command from above with different `PCB` and `PCBREV` values, then build `libsimulator` again for each **before** building Companion.
 
@@ -149,3 +149,6 @@ Build the radio simulator library for your target, then Companion and Simulator:
 ```
 cmake --build build-output --parallel --target libsimulator --target companion --target simulator
 ```
+
+!!! note "Adding radios later"
+    Companion only picks up the list of radios when it is first built. If you have already built Companion and want to add another radio, build its simulator library as above, then delete `build-output/native/companion/src/hwdefs.qrc` before building Companion and Simulator again. Alternatively, start again with a new build folder.

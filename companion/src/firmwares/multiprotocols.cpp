@@ -39,6 +39,21 @@ const Multiprotocols::MultiProtocolDefinition & Multiprotocols::getProtocol(int 
   return *protocols.rbegin();
 }
 
+bool Multiprotocols::MultiProtocolDefinition::hasSubTypes() const
+{
+  return protocol > MODULE_SUBTYPE_MULTI_LAST || subTypeStrings != NO_SUBTYPE;
+}
+
+// static
+bool Multiprotocols::isRxProtocol(int protocol)
+{
+  // keep in sync with IS_RX_MULTI() in radio/src/pulses/modules_helpers.h
+  return protocol == MODULE_SUBTYPE_MULTI_AFHDS2A_RX ||
+         protocol == MODULE_SUBTYPE_MULTI_FRSKYX_RX ||
+         protocol == MODULE_SUBTYPE_MULTI_BAYANG_RX ||
+         protocol == MODULE_SUBTYPE_MULTI_DSM_RX;
+}
+
 // static
 QString Multiprotocols::protocolToString(int protocol)
 {

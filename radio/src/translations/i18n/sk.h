@@ -150,11 +150,12 @@
 #define TR_AUX_SERIAL_MODES_9          "Ladenie"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "Externý modul"
+#define TR_GLOBAL                      "Globálny"
 #define TR_SWTYPES_1                   "Žiadny"
 #define TR_SWTYPES_2                   "Bez aretácie"
 #define TR_SWTYPES_3                   "2-polohový"
 #define TR_SWTYPES_4                   "3-polohový"
-#define TR_SWTYPES_5                   "Globálny"
+#define TR_SWTYPES_5                   TR_GLOBAL
 #define TR_POTTYPES_1                  "Žiadny"
 #define TR_POTTYPES_2                  TR("Pot","Potenciometer")
 #define TR_POTTYPES_3                  TR("Pot s aret.","Pot s aretáciou")
@@ -173,6 +174,11 @@
 #define TR_USBMODES_2                  TR("Joyst","Joystick")
 #define TR_USBMODES_3                  TR("SDkarta","Úložisko")
 #define TR_USBMODES_4                  "Serial"
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "Spýtať"
 #define TR_JACK_MODES_2                "Audio"
 #define TR_JACK_MODES_3                "Trenér"
@@ -554,6 +560,11 @@
 #define TR_BATTERY_RANGE               TR("Ukazovateľ bat.", "Ukazovateľ batérie")
 #define TR_BATTERYCHARGING             "Nabíjanie..."
 #define TR_BATTERYFULL                 "Batéria nabitá"
+#define TR_CHARGE_DETECTING            "Zisťovanie..."
+#define TR_CHARGE_TOPPING_OFF          "Dobíjanie..."
+#define TR_CHARGE_NOT_CHARGING         "Nenabíja sa"
+#define TR_PRESS_RTN_TO_CLOSE          "Stlač RTN pre zatvorenie"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Stlač RTN pre vypnutie"
 #define TR_BATTERYNONE                 "Žiadna batéria!"
 #define TR_BATTERYWARNING              "Vybitá batéria"
 #define TR_INACTIVITYALARM             TR("Nečinnosť", "Nečinnosť rádia")
@@ -563,6 +574,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("Tréner vypnutý", "Kontrola trénera pri vypnutí")
 #define TR_MODEL_STILL_POWERED         "Model stále spustený"
 #define TR_TRAINER_STILL_CONNECTED     "Tréner stále pripojený"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB stále pripojené"
 #define TR_MODEL_SHUTDOWN              "Vypnúť?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Stlač ENTER pre potvrdenie"
@@ -727,6 +741,8 @@
 #define TR_REPEAT_AT_ZERO              TR("Opak. na nule", "Opakovanie na nule")
 #define TR_BATT_CALIB                  "Kalib. bat."
 #define TR_VOLTAGE                     "Napätie"
+#define TR_MODULE_SENSOR_VOLTAGE       "Napätie"
+#define TR_MODULE_SENSOR_CURRENT       "Prúd"
 #define TR_SELECT_MODEL                "Vyber model"
 #define TR_SELECT_MODE                 "Vybrať mód"
 #define TR_CREATE_MODEL                "Nový model"
@@ -788,6 +804,8 @@
 #define TR_SPECTRUM_ANALYSER_INT       "Spektrálny an. (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
 #define TR_GPS_MODEL_LOCATOR           "GPS model lokátor"
+#define TR_GPS_URI_STANDARD            "Standard"
+#define TR_GPS_URI_APPLE_MAPS          "Apple Maps"
 #define TR_REFRESH                     "Obnovenie"
 #define TR_SDCARD_FULL                 "Plná karta SD"
 #define TR_SDCARD_FULL_EXT  TR_BW_COL(TR_SDCARD_FULL "\036Logy a " LCDW_128_LINEBREAK " Snímky obrazovky vypnuté", TR_SDCARD_FULL "\nLogovanie dát a snímky obrazovky vypnuté")

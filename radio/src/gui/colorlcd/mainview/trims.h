@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "sliders.h"
 #include "static.h"
 
 class TrimIcon;
@@ -32,6 +33,13 @@ class MainViewTrim : public Window
                bool isVertical);
 
   void setVisible(bool visible);
+
+  static constexpr coord_t TRIM_LINE_WIDTH = (SliderIcon::SLIDER_MASK_SIZE) - PAD_SMALL * 2;
+#if LCD_W == 320
+  static constexpr coord_t TRIM_VAL_YO = 1;
+#else
+  static constexpr coord_t TRIM_VAL_YO = 2;
+#endif
 
  protected:
   uint8_t idx;
@@ -54,8 +62,6 @@ class MainViewTrim : public Window
 
   coord_t sx();
   coord_t sy();
-
-  static LAYOUT_VAL_SCALED(TRIM_LINE_WIDTH, 8)
 };
 
 class MainViewHorizontalTrim : public MainViewTrim

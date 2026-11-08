@@ -361,6 +361,8 @@
   },
   "hardware": {
     "has_audio_mute": true,
+    "has_aux_serial": true,
+    "bluetooth": "optional",
     "has_ext_module_support": true,
     "has_int_module_support": true,
     "sport_max_baudrate": 400000,
@@ -405,6 +407,7 @@
     "trainer_timer_irqn": "TIM4_IRQn",
     "trainer_timer_irqhandler": "TIM4_IRQHandler",
     "trainer_gpio_af": "LL_GPIO_AF_2",
-    "trainer_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)"
+    "trainer_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "trainer_jack_crossover": true
   }
 }

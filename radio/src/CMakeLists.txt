@@ -189,8 +189,9 @@ if(ARCH STREQUAL ARM)
 endif()
 
 # Generate hardware definitions from hal.h
-# Must be after all add_definitions() so the preprocessor sees all flags
-AddHardwareDefTarget(${HW_DESC_JSON})
+# Deferred to the end of this directory so the preprocessor sees all flags,
+# including those added further down (e.g. BLUETOOTH)
+cmake_language(DEFER CALL AddHardwareDefTarget ${HW_DESC_JSON})
 add_custom_target(hardware_defs DEPENDS ${HW_DESC_JSON}.h)
 
 include_directories(targets/${TARGET_DIR} ${THIRDPARTY_DIR})
@@ -714,7 +715,24 @@ endif()
 
 set(LINKER_SCRIPT firmware.ld)
 
-if(USE_FW_LTO)
+# LTO for the firmware: AUTO enables it on 512KB STM32F4 targets
+# (STM32F4xxxE), which are otherwise too tight on flash.
+set(USE_FW_LTO AUTO CACHE STRING "Use LTO to compile firmware (AUTO, ON, OFF)")
+set_property(CACHE USE_FW_LTO PROPERTY STRINGS AUTO ON OFF)
+
+if(USE_FW_LTO STREQUAL AUTO)
+  if(CPU_TYPE_FULL MATCHES "^STM32F4.*xE$")
+    set(FW_LTO ON)
+  else()
+    set(FW_LTO OFF)
+  endif()
+elseif(USE_FW_LTO)
+  set(FW_LTO ON)
+else()
+  set(FW_LTO OFF)
+endif()
+
+if(FW_LTO)
   message("-- Use LTO to compile firmware")
   target_compile_options(firmware PRIVATE -flto)
   target_link_options(firmware PRIVATE -Wl,-u,SystemCoreClockUpdate)

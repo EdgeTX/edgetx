@@ -1045,8 +1045,16 @@ const static SetupLineDef setupLines[] = {
     // USB mode
     STR_DEF(STR_USBMODE),
     [](Window* parent, coord_t x, coord_t y) {
-      new Choice(parent, {x, y, 0, 0}, STR_USBMODES, USB_UNSELECTED_MODE, USB_MAX_MODE,
+      new Choice(parent, {x, y, RadioSetupPage::USB_MODE_W, 0}, STR_USBMODES,
+                USB_UNSELECTED_MODE, USB_MAX_MODE,
                 GET_SET_DEFAULT(g_eeGeneral.USBMode));
+      if (g_model.usbMode != USBMODE_GLOBAL) {
+        std::string s(STR_MODEL);
+        s += " - ";
+        s += STR_MODEL_USBMODES[g_model.usbMode];
+        new StaticText(parent, {x + RadioSetupPage::USB_MODE_W + PAD_MEDIUM, y + PAD_SMALL + 1, 0, 0},
+                       s.c_str(), COLOR_THEME_SECONDARY1_INDEX);
+      }
     }
   },
 #if defined(USB_CHARGE_CONTROL)

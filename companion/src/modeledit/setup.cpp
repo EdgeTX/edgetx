@@ -425,6 +425,7 @@ void SetupPanel::update()
   ui->checklistInteractive->setChecked(model->checklistInteractive);
   ui->gfEnabled->setChecked(!model->noGlobalFunctions);
   ui->jitterFilter->setCurrentIndex(model->jitterFilter);
+  ui->usbMode->setCurrentIndex(model->usbMode);
 
   updateBeepCenter();
   updateStartupSwitches();
@@ -565,6 +566,14 @@ void SetupPanel::on_jitterFilter_currentIndexChanged(int index)
 {
   if (!lock) {
     model->jitterFilter = ui->jitterFilter->currentIndex();
+    emit modified();
+  }
+}
+
+void SetupPanel::on_usbMode_currentIndexChanged(int index)
+{
+  if (!lock) {
+    model->usbMode = ui->usbMode->currentIndex();
     emit modified();
   }
 }

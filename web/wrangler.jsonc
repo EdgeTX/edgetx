@@ -1,0 +1,13 @@
+// Static assets only, there is no Worker script.
+//
+// Routes and custom domains are deliberately left out: they are set once in the
+// Cloudflare dashboard, as the per-Worker CI token is not allowed to change them.
+{
+  "name": "edgetx-simulator",
+  "compatibility_date": "2026-10-30",
+  "assets": {
+    "directory": "./dist"
+  },
+  "workers_dev": true,
+  "preview_urls": false
+}

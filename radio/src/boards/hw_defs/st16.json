@@ -511,15 +511,16 @@
     "usb_gpio_af": "GPIO_AF10"
   },
   "trainer": {
-    "trainer_in_gpio": "GPIO_PIN(GPIOE, 5)",
-    "trainer_in_timer_channel": "LL_TIM_CHANNEL_CH1",
-    "trainer_out_gpio": "GPIO_PIN(GPIOE, 6)",
-    "trainer_out_timer_channel": "LL_TIM_CHANNEL_CH2",
+    "trainer_in_gpio": "GPIO_PIN(GPIOE, 6)",
+    "trainer_in_timer_channel": "LL_TIM_CHANNEL_CH2",
+    "trainer_out_gpio": "GPIO_PIN(GPIOE, 5)",
+    "trainer_out_timer_channel": "LL_TIM_CHANNEL_CH1",
     "trainer_timer": "TIM15",
     "trainer_timer_irqn": "TIM15_IRQn",
     "trainer_timer_irqhandler": "TIM15_IRQHandler",
     "trainer_gpio_af": "LL_GPIO_AF_4",
-    "trainer_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)"
+    "trainer_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "trainer_jack_crossover": true
   },
   "key_lock_combo": [
     "KEY_EXIT",

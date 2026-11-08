@@ -146,11 +146,12 @@
 #define TR_AUX_SERIAL_MODES_9  "Debug"
 #define TR_AUX_SERIAL_MODES_10 "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11 "External module"
+#define TR_GLOBAL              "Globale"
 #define TR_SWTYPES_1           "Geen"
 #define TR_SWTYPES_2           "Wissel"
 #define TR_SWTYPES_3           "2POS"
 #define TR_SWTYPES_4           "3POS"
-#define TR_SWTYPES_5           "Globale"
+#define TR_SWTYPES_5           TR_GLOBAL
 #define TR_POTTYPES_1          "Geen"
 #define TR_POTTYPES_2          TR("Pot", "Pot zonder Klik")
 #define TR_POTTYPES_3          TR("Pot w. det","Pot met Klik")
@@ -169,6 +170,11 @@
 #define TR_USBMODES_2          TR("Joyst","Joystick")
 #define TR_USBMODES_3          TR("SDCard","Storage")
 #define TR_USBMODES_4          "Serial"
+#define TR_MODEL_USBMODES_1    TR_GLOBAL
+#define TR_MODEL_USBMODES_2    TR_USBMODES_1
+#define TR_MODEL_USBMODES_3    TR_USBMODES_2
+#define TR_MODEL_USBMODES_4    TR_USBMODES_3
+#define TR_MODEL_USBMODES_5    TR_USBMODES_4
 #define TR_JACK_MODES_1        "Ask"
 #define TR_JACK_MODES_2        "Audio"
 #define TR_JACK_MODES_3        "Trainer"
@@ -198,7 +204,7 @@
 #define TR_VVARIOCENTER_2      "Stilte"
 #define TR_CURVE_TYPES_1       "Standaard"
 #define TR_CURVE_TYPES_2       "Custom"
-#define TR_ADCFILTERVALUES_1   "Globale"
+#define TR_ADCFILTERVALUES_1   TR_GLOBAL
 #define TR_ADCFILTERVALUES_2   "Off"
 #define TR_ADCFILTERVALUES_3   "On"
 
@@ -346,7 +352,7 @@
 #define TR_HATSOPT_1                   "Trims only"
 #define TR_HATSOPT_2                   "Keys only"
 #define TR_HATSOPT_3                   "Switchable"
-#define TR_HATSOPT_4                   "Global"
+#define TR_HATSOPT_4                   TR_GLOBAL
 #define TR_HATSMODE_TRIMS              "Hats mode: Trims"
 #define TR_HATSMODE_KEYS               "Hats mode: Keys"
 #define TR_HATSMODE_KEYS_HELP          "Left side:\n"\
@@ -549,6 +555,11 @@
 #define TR_BATTERY_RANGE       TR("Accu Bereik", "Accu Spngs-Bereik") // Symbol Akku Ladezustand
 #define TR_BATTERYCHARGING     "Charging..."
 #define TR_BATTERYFULL         "Battery full"
+#define TR_CHARGE_DETECTING    "Detecteren..."
+#define TR_CHARGE_TOPPING_OFF  "Bijladen..."
+#define TR_CHARGE_NOT_CHARGING "Laadt niet"
+#define TR_PRESS_RTN_TO_CLOSE  "Druk op RTN om te sluiten"
+#define TR_PRESS_RTN_TO_POWER_OFF "Druk op RTN om uit te schakelen"
 #define TR_BATTERYNONE         "None!"
 #define TR_BATTERYWARNING      "Accu laag"
 #define TR_INACTIVITYALARM     TR("Inactiviteit", "Inactiviteit na")
@@ -558,6 +569,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM          TR("Trainer alarm", "check trainer connection")
 #define TR_MODEL_STILL_POWERED "Model still powered"
 #define TR_TRAINER_STILL_CONNECTED     "Trainer still connected"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED "USB still connected"
 #define TR_MODEL_SHUTDOWN      "Shutdown ?"
 #define TR_PRESS_ENTER_TO_CONFIRM "Press enter to confirm"
@@ -720,6 +734,8 @@
 #define TR_REPEAT_AT_ZERO      "Herhalen bij 0"
 #define TR_BATT_CALIB          "Accu Calib"
 #define TR_VOLTAGE             TR("Spg", "Spanningsbron")  //9XR-Pro
+#define TR_MODULE_SENSOR_VOLTAGE       "Spanning"
+#define TR_MODULE_SENSOR_CURRENT       "Stroom"
 #define TR_SELECT_MODEL        "Kies Model"
 #define TR_SELECT_MODE         "Select mode"
 #define TR_CREATE_MODEL        "Nieuw Model"
@@ -781,6 +797,8 @@
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
 #define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_GPS_URI_STANDARD            "Standard"
+#define TR_GPS_URI_APPLE_MAPS          "Apple Maps"
 #define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD-Kaart vol"
 #define TR_SDCARD_FULL_EXT              TR_BW_COL(TR_SDCARD_FULL "\036Logs and " LCDW_128_LINEBREAK "Screenshots disabled", TR_SDCARD_FULL "\nLogs and Screenshots disabled")

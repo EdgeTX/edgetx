@@ -2,6 +2,7 @@ import { WASIThreads } from '@emnapi/wasi-threads';
 import type { WASIInstance } from '@emnapi/wasi-threads';
 import { WASI } from '@tybys/wasm-util';
 import { CTRL_BUFFER_SIZE, DATA_BUFFER_SIZE, WAKE_BUFFER_SIZE } from './fs-proxy-protocol';
+import { auxSerialStubs } from './aux-serial-stubs';
 
 /**
  * Minimal fs stub for the main thread's WASI instance.
@@ -307,6 +308,7 @@ export class WasmRunner {
             Atomics.add(this.lcdSync, 0, 1);
             Atomics.notify(this.lcdSync, 0);
           },
+          ...auxSerialStubs,
         },
       }
     );

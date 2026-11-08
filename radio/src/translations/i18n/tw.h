@@ -143,11 +143,12 @@
 #define TR_AUX_SERIAL_MODES_9           "調試"
 #define TR_AUX_SERIAL_MODES_10          "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11          "外置發射"
+#define TR_GLOBAL                       "全局"
 #define TR_SWTYPES_1                    "無"
 #define TR_SWTYPES_2                    "回彈"
 #define TR_SWTYPES_3                    "2段"
 #define TR_SWTYPES_4                    "3段"
-#define TR_SWTYPES_5                    "全局"
+#define TR_SWTYPES_5                    TR_GLOBAL
 #define TR_POTTYPES_1                   "無"
 #define TR_POTTYPES_2                   "無中點旋鈕"
 #define TR_POTTYPES_3                   TR("中點旋鈕","有中點旋鈕")
@@ -166,6 +167,11 @@
 #define TR_USBMODES_2                   "遊戲柄"
 #define TR_USBMODES_3                   "U盤"
 #define TR_USBMODES_4                   "串行"
+#define TR_MODEL_USBMODES_1             TR_GLOBAL
+#define TR_MODEL_USBMODES_2             TR_USBMODES_1
+#define TR_MODEL_USBMODES_3             TR_USBMODES_2
+#define TR_MODEL_USBMODES_4             TR_USBMODES_3
+#define TR_MODEL_USBMODES_5             TR_USBMODES_4
 #define TR_JACK_MODES_1                 "詢問"
 #define TR_JACK_MODES_2                 "音頻"
 #define TR_JACK_MODES_3                 "教練"
@@ -196,7 +202,7 @@
 #define TR_CURVE_TYPES_1                "標準"
 #define TR_CURVE_TYPES_2                "自定義"
 
-#define TR_ADCFILTERVALUES_1            "全局"
+#define TR_ADCFILTERVALUES_1            TR_GLOBAL
 #define TR_ADCFILTERVALUES_2            "禁用"
 #define TR_ADCFILTERVALUES_3            "开启"
 
@@ -345,7 +351,7 @@
 #define TR_HATSOPT_1                   "微調"
 #define TR_HATSOPT_2                   "導航鍵"
 #define TR_HATSOPT_3                   "可切換"
-#define TR_HATSOPT_4                   "全局"
+#define TR_HATSOPT_4                   TR_GLOBAL
 #define TR_HATSMODE_TRIMS              "按鍵帽: 微調"
 #define TR_HATSMODE_KEYS               "按鍵帽: 導航鍵"
 #define TR_HATSMODE_KEYS_HELP          "左側按鍵帽:\n"\
@@ -545,6 +551,11 @@
 #define TR_BATTERY_RANGE               TR("電壓範圍", "電壓測量範圍")
 #define TR_BATTERYCHARGING             "充電中..."
 #define TR_BATTERYFULL                 "電量已滿"
+#define TR_CHARGE_DETECTING            "偵測中..."
+#define TR_CHARGE_TOPPING_OFF          "補充充電中..."
+#define TR_CHARGE_NOT_CHARGING         "未充電"
+#define TR_PRESS_RTN_TO_CLOSE          "按RTN關閉"
+#define TR_PRESS_RTN_TO_POWER_OFF      "按RTN關機"
 #define TR_BATTERYNONE                 "空!"
 #define TR_BATTERYWARNING              "低電壓報警值"
 #define TR_INACTIVITYALARM             "長時間無操作"
@@ -554,6 +565,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("關機檢查教練", "關機時檢查教練信號")
 #define TR_MODEL_STILL_POWERED         "模型未斷電"
 #define TR_TRAINER_STILL_CONNECTED     "教練信號未斷開"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB未斷開"
 #define TR_MODEL_SHUTDOWN              "關機 ?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "確認"
@@ -721,6 +735,8 @@
 #define TR_REPEAT_AT_ZERO              "無變化報警"
 #define TR_BATT_CALIB                  TR("電池校準", "電池電壓校準")
 #define TR_VOLTAGE                     TR("電壓源", "電壓來源")
+#define TR_MODULE_SENSOR_VOLTAGE       "電壓"
+#define TR_MODULE_SENSOR_CURRENT       "電流"
 #define TR_SELECT_MODEL                "選擇模型"
 #define TR_SELECT_MODE                 "選擇模式"
 #define TR_CREATE_MODEL                "創建模型"
@@ -782,6 +798,8 @@
 #define TR_SPECTRUM_ANALYSER_INT       "頻譜儀 (內置)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
 #define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_GPS_URI_STANDARD            "Standard"
+#define TR_GPS_URI_APPLE_MAPS          "Apple Maps"
 #define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "SD卡已滿"
 #define TR_SDCARD_FULL_EXT              TR_BW_COL(TR_SDCARD_FULL "\036日誌和 " LCDW_128_LINEBREAK "截屏功能將被禁用", TR_SDCARD_FULL "\n日誌和截屏功能將被禁用")

@@ -118,8 +118,8 @@ char *getCurveString(char *dest, int idx);
 char *getCurveString(int idx);
 char *getGVarString(char *dest, int idx);
 char *getGVarString(int idx);
-char *getValueOrGVarString(char *dest, size_t len, gvar_t value, LcdFlags flags = 0,
-                           const char *suffix = nullptr, gvar_t offset = 0, bool usePPMUnit = false);
+char *getLimitNumString(char *dest, size_t len, uint16_t value, LcdFlags flags = 0,
+                        gvar_t offset = 0, bool usePPMUnit = false);
 char *getValueOrSrcVarString(char *dest, size_t len, gvar_t value, LcdFlags flags = 0,
                              const char *suffix = nullptr, gvar_t offset = 0, bool usePPMUnit = false);
 const char *getSwitchWarnSymbol(uint8_t pos);
@@ -150,9 +150,6 @@ char *getSourceCustomValueString(mixsrc_t source, int32_t val, LcdFlags flags);
 char *getFlightModeString(char *dest, int8_t idx);
 
 #endif
-
-void splitTimer(char *s0, char *s1, char *s2, char *s3, int tme,
-                bool bLowercase = true);
 
 template <size_t N>
 std::string stringFromNtString(const char (&a)[N])
@@ -220,3 +217,8 @@ extern int timezoneIndex(int8_t tzHour, int8_t tzMinute);
 extern int8_t timezoneHour(int tz);
 extern int8_t timezoneMinute(int tz);
 extern int timezoneOffsetSeconds(int8_t tzHour, int8_t tzMinute);
+
+#define SECONDSPERMIN 60
+#define SECONDSPERHOUR (60 * SECONDSPERMIN)
+#define SECONDSPERDAY (24 * SECONDSPERHOUR)
+#define SECONDSPERYEAR (365 * SECONDSPERDAY)

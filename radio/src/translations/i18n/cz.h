@@ -150,11 +150,12 @@
 #define TR_AUX_SERIAL_MODES_9          "Debug"
 #define TR_AUX_SERIAL_MODES_10         "SpaceMouse"
 #define TR_AUX_SERIAL_MODES_11         "Externí modul"
+#define TR_GLOBAL                      "Globální"
 #define TR_SWTYPES_1                   "Žádný"
 #define TR_SWTYPES_2                   "Bez aretace"
 #define TR_SWTYPES_3                   "2-polohový"
 #define TR_SWTYPES_4                   "3-polohový"
-#define TR_SWTYPES_5                   "Globální"
+#define TR_SWTYPES_5                   TR_GLOBAL
 #define TR_POTTYPES_1                  "Žádný"
 #define TR_POTTYPES_2                  TR("Pot","Potenciometr")
 #define TR_POTTYPES_3                  TR("Pot s aret.","Pot s aretací")
@@ -173,6 +174,11 @@
 #define TR_USBMODES_2                  TR("Joyst","Joystick")
 #define TR_USBMODES_3                  TR("SDkarta","Úložiště")
 #define TR_USBMODES_4                  "Serial"
+#define TR_MODEL_USBMODES_1            TR_GLOBAL
+#define TR_MODEL_USBMODES_2            TR_USBMODES_1
+#define TR_MODEL_USBMODES_3            TR_USBMODES_2
+#define TR_MODEL_USBMODES_4            TR_USBMODES_3
+#define TR_MODEL_USBMODES_5            TR_USBMODES_4
 #define TR_JACK_MODES_1                "Zeptat"
 #define TR_JACK_MODES_2                "Audio"
 #define TR_JACK_MODES_3                "Trenér"
@@ -199,7 +205,7 @@
 #define TR_CURVE_TYPES_1               "Rastr-X"
 #define TR_CURVE_TYPES_2               "Volná-XY"
 
-#define TR_ADCFILTERVALUES_1           "Globální"
+#define TR_ADCFILTERVALUES_1           TR_GLOBAL
 #define TR_ADCFILTERVALUES_2           "Vyp"
 #define TR_ADCFILTERVALUES_3           "Zap"
 
@@ -347,7 +353,7 @@
 #define TR_HATSOPT_1                   "Pouze trimy"
 #define TR_HATSOPT_2                   "Pouze tlačítka"
 #define TR_HATSOPT_3                   "Přepinatelné"
-#define TR_HATSOPT_4                   "Globální"
+#define TR_HATSOPT_4                   TR_GLOBAL
 #define TR_HATSMODE_TRIMS              "Režim kloboučků: Trimy"
 #define TR_HATSMODE_KEYS               "Režim kloboučků: Tlačítka"
 #define TR_HATSMODE_KEYS_HELP          "Levá strana:\n"\
@@ -549,6 +555,11 @@
 #define TR_BATTERY_RANGE               TR("Ukazatel bat.", "Ukazatel baterie")
 #define TR_BATTERYCHARGING             "Nabíjení..."
 #define TR_BATTERYFULL                 "Baterie nabitá"
+#define TR_CHARGE_DETECTING            "Zjišťování..."
+#define TR_CHARGE_TOPPING_OFF          "Dobíjení..."
+#define TR_CHARGE_NOT_CHARGING         "Nenabíjí se"
+#define TR_PRESS_RTN_TO_CLOSE          "Stiskni RTN pro zavření"
+#define TR_PRESS_RTN_TO_POWER_OFF      "Stiskni RTN pro vypnutí"
 #define TR_BATTERYNONE                 "Žádná baterie!"
 #define TR_BATTERYWARNING              "Vybitá baterie"
 #define TR_INACTIVITYALARM             TR("Nečinnost", "Nečinnost rádia")
@@ -558,6 +569,9 @@
 #define TR_TRAINER_SHUTDOWN_ALARM      TR("Trenér vypnutí", "Kontrola trenéra při vypnutí")
 #define TR_MODEL_STILL_POWERED         "Model stále spuštěn"
 #define TR_TRAINER_STILL_CONNECTED     "Trenér stále připojen"
+#define TR_TRAINER_JACK_MODE           "Trainer lead"
+#define TR_TRAINER_JACK_MODES_1        "Crossover"
+#define TR_TRAINER_JACK_MODES_2        "Standard"
 #define TR_USB_STILL_CONNECTED         "USB stále připojeno"
 #define TR_MODEL_SHUTDOWN              "Vypnout?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Zmáčkni ENTER pro potvrzení"
@@ -722,6 +736,8 @@
 #define TR_REPEAT_AT_ZERO              TR("Opak. na nule", "Opakování na nule")
 #define TR_BATT_CALIB                  "Kalib. bat."
 #define TR_VOLTAGE                     "Napětí"
+#define TR_MODULE_SENSOR_VOLTAGE       "Napětí"
+#define TR_MODULE_SENSOR_CURRENT       "Proud"
 #define TR_SELECT_MODEL                "Vyber model"
 #define TR_SELECT_MODE                 "Vybrat mód"
 #define TR_CREATE_MODEL                "Nový model"
@@ -783,6 +799,8 @@
 #define TR_SPECTRUM_ANALYSER_INT       "Spektální an. (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
 #define TR_GPS_MODEL_LOCATOR           "GPS model locator"
+#define TR_GPS_URI_STANDARD            "Standard"
+#define TR_GPS_URI_APPLE_MAPS          "Apple Maps"
 #define TR_REFRESH                     "Refresh"
 #define TR_SDCARD_FULL                 "Plná karta SD"
 #define TR_SDCARD_FULL_EXT  TR_BW_COL(TR_SDCARD_FULL "\036Logy a " LCDW_128_LINEBREAK " Snímky obrazovky vypnuty", TR_SDCARD_FULL "\nLogování dat a snímky obrazovky vypnuty")

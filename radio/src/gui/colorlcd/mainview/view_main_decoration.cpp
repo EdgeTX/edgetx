@@ -120,28 +120,28 @@ rect_t ViewMainDecoration::getWidgetsZone(bool showTopBar) const
 
   if (showSliders) {
     if (hasVerticalSliders) {
-      x += MainViewSlider::SLIDER_BAR_SIZE;
-      w -= 2 * MainViewSlider::SLIDER_BAR_SIZE;
+      x += SliderIcon::SLIDER_ICON_SIZE;
+      w -= 2 * SliderIcon::SLIDER_ICON_SIZE;
     }
-    bh += MainViewSlider::SLIDER_BAR_SIZE;
+    bh += SliderIcon::SLIDER_ICON_SIZE;
   }
 
   if (showTrims) {
     if (canTrimShow(TRIMS_LV)) {
-      x += MainViewSlider::SLIDER_BAR_SIZE;
-      w -= MainViewSlider::SLIDER_BAR_SIZE;
+      x += SliderIcon::SLIDER_ICON_SIZE;
+      w -= SliderIcon::SLIDER_ICON_SIZE;
     }
     if (canTrimShow(TRIMS_RV)) {
-      w -= MainViewSlider::SLIDER_BAR_SIZE;
+      w -= SliderIcon::SLIDER_ICON_SIZE;
     }
     if (showFM && (has6POS || !showSliders))
       bh += EdgeTxStyles::STD_FONT_HEIGHT;
     else if (canTrimShow(TRIMS_LH) || canTrimShow(TRIMS_RH))
-      bh += MainViewSlider::SLIDER_BAR_SIZE;
+      bh += SliderIcon::SLIDER_ICON_SIZE;
   } else if (showFM) {
     bh += EdgeTxStyles::STD_FONT_HEIGHT;
     if (!has6POS && showSliders)
-      bh -= MainViewSlider::SLIDER_BAR_SIZE;
+      bh -= SliderIcon::SLIDER_ICON_SIZE;
   }
 
   if (showSliders || showTrims || showFM) {
@@ -217,12 +217,12 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
 
     for (auto p : {left, left2}) {
       if (p >= 0)
-        sliders[p] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, lsh}, p);
+        sliders[p] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, SliderIcon::SLIDER_ICON_SIZE, lsh}, p);
     }
 
     for (auto p : {right, right2}) {
       if (p >= 0)
-        sliders[p] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, rsh}, p);
+        sliders[p] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, SliderIcon::SLIDER_ICON_SIZE, rsh}, p);
     }
   }
 }
@@ -291,22 +291,22 @@ void ViewMainDecoration::createSliders(Window* ml, Window* mr, Window* bl, Windo
     coord_t rsh = (IS_POT_AVAILABLE(pot + 3)) ? MainViewSlider::VERTICAL_SLIDERS_HEIGHT / 2 : MainViewSlider::VERTICAL_SLIDERS_HEIGHT;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[pot] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, lsh}, pot);
+      sliders[pot] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, SliderIcon::SLIDER_ICON_SIZE, lsh}, pot);
     }
     pot += 1;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[pot] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, rsh}, pot);
+      sliders[pot] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, SliderIcon::SLIDER_ICON_SIZE, rsh}, pot);
     }
     pot += 1;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[pot] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, lsh}, pot);
+      sliders[pot] = new MainViewVerticalSlider(leftPots, rect_t{0, 0, SliderIcon::SLIDER_ICON_SIZE, lsh}, pot);
     }
     pot += 1;
 
     if (IS_POT_AVAILABLE(pot)) {
-      sliders[pot] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, MainViewSlider::SLIDER_BAR_SIZE, rsh}, pot);
+      sliders[pot] = new MainViewVerticalSlider(rightPots, rect_t{0, 0, SliderIcon::SLIDER_ICON_SIZE, rsh}, pot);
     }
   }
 }

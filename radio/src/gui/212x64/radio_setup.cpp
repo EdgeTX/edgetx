@@ -115,6 +115,7 @@ enum MenuRadioSetupItems {
   IF_FAI_CHOICE(ITEM_RADIO_SETUP_FAI)
   ITEM_RADIO_SETUP_SWITCHES_DELAY,
   ITEM_RADIO_SETUP_USB_MODE,
+  ITEM_RADIO_SETUP_USB_MODE_OVERRIDE,
   ITEM_RADIO_SETUP_RX_CHANNEL_ORD,
   CASE_ROTARY_ENCODER(ITEM_RADIO_SETUP_ROTARY_ENC_MODE)
   ITEM_RADIO_SETUP_STICK_MODE_LABELS,
@@ -146,6 +147,7 @@ static struct RadioSetupExpandState expandState;
 static uint8_t SOUND_ROW(uint8_t value) { return expandState.sound ? value : HIDDEN_ROW; }
 static uint8_t SOUND_WARNING_ROW(uint8_t value) { return expandState.sound && isFunctionActive(FUNCTION_VOLUME) ? value : HIDDEN_ROW; }
 static uint8_t BACKLIGHT_WARNING_ROW(uint8_t value) { return isFunctionActive(FUNCTION_BACKLIGHT) ? value : HIDDEN_ROW; }
+static uint8_t USB_MODE_OVERRIDE_ROW(uint8_t value) { return g_model.usbMode != USBMODE_GLOBAL ? value : HIDDEN_ROW; }
 
 static uint8_t ALARMS_ROW(uint8_t value) { return expandState.alarms ? value : HIDDEN_ROW; }
 
@@ -263,6 +265,7 @@ void menuRadioSetup(event_t event)
     IF_FAI_CHOICE(0)
     0, // switches delay
     0, // USB mode
+    USB_MODE_OVERRIDE_ROW(LABEL(0)), // model USB mode override
     0, // RX channels order
     CASE_ROTARY_ENCODER(0)  // Invert rotary encoder
     LABEL(TX_MODE),
@@ -789,6 +792,13 @@ void menuRadioSetup(event_t event)
       case ITEM_RADIO_SETUP_USB_MODE:
         g_eeGeneral.USBMode = editChoice(RADIO_SETUP_2ND_COLUMN, y, STR_USBMODE, STR_USBMODES, g_eeGeneral.USBMode, USB_UNSELECTED_MODE, USB_MAX_MODE, attr, event);
         break;
+
+      case ITEM_RADIO_SETUP_USB_MODE_OVERRIDE: {
+        std::string s(STR_MODEL);
+        s += " - ";
+        s += STR_MODEL_USBMODES[g_model.usbMode];
+        lcdDrawText(LCD_W - MENUS_SCROLLBAR_WIDTH, y, s.c_str(), RIGHT);
+      } break;
 
       case ITEM_RADIO_SETUP_RX_CHANNEL_ORD:
         lcdDrawTextAlignedLeft(y, STR_DEF_CHAN_ORD); // RAET->AETR

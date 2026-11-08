@@ -173,6 +173,7 @@
 #define STR_FLYSKY_PULSE_PROTO currentLangStrings->STR_FLYSKY_PULSE_PROTO
 #define STR_FLYSKY_SERIAL_PROTO currentLangStrings->STR_FLYSKY_SERIAL_PROTO
 #define STR_FONT_SIZES currentLangStrings->STR_FONT_SIZES
+#define STR_GPS_URI_TYPES currentLangStrings->STR_GPS_URI_TYPES
 #define STR_LABELS_MATCH_MODE currentLangStrings->STR_LABELS_MATCH_MODE
 #define STR_LABELS_SELECT_MODE currentLangStrings->STR_LABELS_SELECT_MODE
 #define STR_SORT_ORDERS currentLangStrings->STR_SORT_ORDERS
@@ -280,6 +281,14 @@
 
 #if defined(PCBHORUS)
 #define STR_SM_VSRCRAW currentLangStrings->STR_SM_VSRCRAW
+#endif
+
+#if defined(V16_CHARGE_UI)
+#define STR_CHARGE_DETECTING currentLangStrings->STR_CHARGE_DETECTING
+#define STR_CHARGE_TOPPING_OFF currentLangStrings->STR_CHARGE_TOPPING_OFF
+#define STR_CHARGE_NOT_CHARGING currentLangStrings->STR_CHARGE_NOT_CHARGING
+#define STR_PRESS_RTN_TO_CLOSE currentLangStrings->STR_PRESS_RTN_TO_CLOSE
+#define STR_PRESS_RTN_TO_POWER_OFF currentLangStrings->STR_PRESS_RTN_TO_POWER_OFF
 #endif
 
 #if defined(FUNCTION_SWITCHES)
@@ -711,6 +720,8 @@
 #define STR_MODULE_UPGRADE currentLangStrings->STR_MODULE_UPGRADE
 #define STR_MODULE_WAITFORBIND currentLangStrings->STR_MODULE_WAITFORBIND
 #define STR_MODULE currentLangStrings->STR_MODULE
+#define STR_MODULE_SENSOR_VOLTAGE currentLangStrings->STR_MODULE_SENSOR_VOLTAGE
+#define STR_MODULE_SENSOR_CURRENT currentLangStrings->STR_MODULE_SENSOR_CURRENT
 #define STR_MODULES_RX_VERSION currentLangStrings->STR_MODULES_RX_VERSION
 #define STR_MONITOR_CHANNELS currentLangStrings->STR_MONITOR_CHANNELS
 #define STR_MONITOR_MIXER_DESC currentLangStrings->STR_MONITOR_MIXER_DESC
@@ -999,6 +1010,8 @@
 #define STR_TOUCH_PANEL currentLangStrings->STR_TOUCH_PANEL
 #define STR_TRAINER_SHUTDOWN_ALARM currentLangStrings->STR_TRAINER_SHUTDOWN_ALARM
 #define STR_TRAINER_STILL_CONNECTED currentLangStrings->STR_TRAINER_STILL_CONNECTED
+#define STR_TRAINER_JACK_MODE currentLangStrings->STR_TRAINER_JACK_MODE
+#define STR_TRAINER_JACK_MODES currentLangStrings->STR_TRAINER_JACK_MODES
 #define STR_TRAINER currentLangStrings->STR_TRAINER
 #define STR_TRIM currentLangStrings->STR_TRIM
 #define STR_TRIMINC currentLangStrings->STR_TRIMINC
@@ -1094,6 +1107,7 @@
 #define STR_ISRM_RF_PROTOCOLS currentLangStrings->STR_ISRM_RF_PROTOCOLS
 #define STR_JACK_MODES currentLangStrings->STR_JACK_MODES
 #define STR_MMMINV currentLangStrings->STR_MMMINV
+#define STR_MODEL_USBMODES currentLangStrings->STR_MODEL_USBMODES
 #define STR_MODULE_PROTOCOLS currentLangStrings->STR_MODULE_PROTOCOLS
 #define STR_MONTHS currentLangStrings->STR_MONTHS
 #define STR_OFFON currentLangStrings->STR_OFFON

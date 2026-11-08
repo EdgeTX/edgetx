@@ -33,6 +33,7 @@ struct MPMDSMCloned;
 struct MPMServoRate;
 struct MPMAutobind;
 struct MPMChannelMap;
+struct MPMDisableTelem;
 
 class MultimoduleSettings : public Window, public ModuleOptions
 {
@@ -45,9 +46,7 @@ class MultimoduleSettings : public Window, public ModuleOptions
   MPMServoRate* sr_line;
   MPMAutobind* ab_line;
   ToggleSwitch* lp_mode;
-#if defined(MANUFACTURER_FRSKY)
-  ToggleSwitch* disable_telem;
-#endif
+  MPMDisableTelem* dt_line;
   MPMChannelMap* cm_line;
 
  public:

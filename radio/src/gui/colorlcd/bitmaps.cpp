@@ -337,15 +337,6 @@ static const uint8_t mask_topmenu_gps[] __FLASH = {
 static const uint8_t mask_widget_timer[] __FLASH = {
 #include "mask_widget_timer.lbm"
 };
-static const uint8_t mask_widget_timer_bg[] __FLASH = {
-#include "mask_widget_timer_bg.lbm"
-};
-static const uint8_t mask_widget_trim[] __FLASH = {
-#include "mask_widget_trim.lbm"
-};
-static const uint8_t mask_widget_trim_shadow[] __FLASH = {
-#include "mask_widget_trim_shadow.lbm"
-};
 static const uint8_t mask_widget_txbatt[] __FLASH = {
 #include "mask_widget_txbat.lbm"
 };
@@ -485,7 +476,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
 
     BI(ICON_USB_PLUGGED, mask_info_usb_plugged),
 
-    BI(ICON_TIMER_BG, mask_widget_timer_bg),
     BI(ICON_TIMER, mask_widget_timer),
 
     BI(ICON_TEXTLINE_CURVE, mask_inline_curve),
@@ -499,9 +489,6 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_MODEL_GRID_SMALL, mask_btn_grid_small),
     BI(ICON_MODEL_LIST_TWO, mask_btn_list_two),
     BI(ICON_MODEL_LIST_ONE, mask_btn_list_one),
-
-    BI(ICON_TRIM, mask_widget_trim),
-    BI(ICON_TRIM_SHADOW, mask_widget_trim_shadow),
 
     BI(ICON_TOOLS_APPS, mask_tools_apps),
     BI(ICON_TOOLS_RESET, mask_tools_reset),

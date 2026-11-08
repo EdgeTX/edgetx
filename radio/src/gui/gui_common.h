@@ -188,11 +188,20 @@ extern bool MULTIMODULE_HAS_SUBTYPE(uint8_t moduleIdx);
 extern uint8_t MULTIMODULE_RFPROTO_COLUMNS(uint8_t moduleIdx);
 extern uint8_t MULTIMODULE_HASOPTIONS(uint8_t moduleIdx);
 
+// Disable telemetry only exists to avoid S.Port collisions with the internal
+// module on FrSky hardware. Other radios only get it while set, so it can be cleared.
+inline bool isMultiDisableTelemAvailable(uint8_t moduleIdx)
+{
+  if (IS_RX_MULTI(moduleIdx))
+    return false;
 #if defined(MANUFACTURER_FRSKY)
-  #define MULTIMODULE_MODULE_ROWS(moduleIdx)      (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MULTI(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MULTI(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, MULTI_DISABLE_CHAN_MAP_ROW(moduleIdx), // AUTOBIND, DISABLE TELEM, DISABLE CN.MAP
+  return true;
 #else
-  #define MULTIMODULE_MODULE_ROWS(moduleIdx)      (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MULTI(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, MULTI_DISABLE_CHAN_MAP_ROW(moduleIdx), // AUTOBIND, DISABLE CN.MAP
+  return g_model.moduleData[moduleIdx].multi.disableTelemetry;
 #endif
+}
+
+#define MULTIMODULE_MODULE_ROWS(moduleIdx)      (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && !IS_RX_MULTI(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, (MULTIMODULE_PROTOCOL_KNOWN(moduleIdx) && isMultiDisableTelemAvailable(moduleIdx)) ? (uint8_t) 0 : HIDDEN_ROW, MULTI_DISABLE_CHAN_MAP_ROW(moduleIdx), // AUTOBIND, DISABLE TELEM, DISABLE CN.MAP
 #define MULTIMODULE_DSM_CLONED_RAW(moduleIdx)   isMultiProtocolDSMCloneAvailable(moduleIdx) ? (uint8_t) 0 : HIDDEN_ROW
 #define MULTIMODULE_TYPE_ROW(moduleIdx)         isModuleMultimodule(moduleIdx) ? MULTIMODULE_RFPROTO_COLUMNS(moduleIdx) : HIDDEN_ROW,
 #define MULTIMODULE_STATUS_ROWS(moduleIdx)      isModuleMultimodule(moduleIdx) ? TITLE_ROW : HIDDEN_ROW, (isModuleMultimodule(moduleIdx) && getModuleSyncStatus(moduleIdx).isValid()) ? TITLE_ROW : HIDDEN_ROW,

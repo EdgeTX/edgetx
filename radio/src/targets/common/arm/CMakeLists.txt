@@ -293,7 +293,10 @@ if(MAVLINK)
     )
 endif()
 
-add_definitions(-g)
+# The WASM modules are stripped at link time, so this would be wasted work
+if(NOT WASI)
+  add_definitions(-g)
+endif()
 
 add_definitions(-DCPUARM)
 add_definitions(-DGPS)

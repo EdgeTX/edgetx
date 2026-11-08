@@ -76,6 +76,10 @@
 #include "dsmp_settings.h"
 #endif
 
+#if defined(CSD203_SENSOR)
+#include "csd203_sensor.h"
+#endif
+
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
 #define ETX_STATE_UNIQUE_ID_WARN LV_STATE_USER_1
@@ -133,6 +137,7 @@ class ModuleWindow : public Window
     clear();
 
     modOpts = nullptr;
+    chRangeLine = nullptr;
     chRange = nullptr;
     rxID = nullptr;
     bindButton = nullptr;
@@ -193,9 +198,9 @@ class ModuleWindow : public Window
   #endif
 
     // Channel Range
-    auto line = newLine(grid);
-    new StaticText(line, rect_t{}, STR_CHANNELRANGE);
-    chRange = new ModuleChannelRange(line, moduleIdx);
+    chRangeLine = newLine(grid);
+    new StaticText(chRangeLine, rect_t{}, STR_CHANNELRANGE);
+    chRange = new ModuleChannelRange(chRangeLine, moduleIdx);
 
     // Failsafe
     fsLine = newLine(grid);
@@ -312,34 +317,33 @@ class ModuleWindow : public Window
   #endif
         });
 
-        if (isModuleRangeAvailable(moduleIdx)) {
-          rangeButton = new TextButton(box, rect_t{}, STR_MODULE_RANGE);
-          rangeButton->setPressHandler([=]() -> uint8_t {
-            if (moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
-              bindButton->check(false);
-              moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+        // shown or hidden with the protocol in updateSubType()
+        rangeButton = new TextButton(box, rect_t{}, STR_MODULE_RANGE);
+        rangeButton->setPressHandler([=]() -> uint8_t {
+          if (moduleState[moduleIdx].mode == MODULE_MODE_BIND) {
+            bindButton->check(false);
+            moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+          }
+          if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
+            moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
+            return 0;
+          } else {
+            moduleState[moduleIdx].mode = MODULE_MODE_RANGECHECK;
+  #if defined(AFHDS2)
+            if (isModuleAFHDS2A(moduleIdx)) {
+              resetPulsesAFHDS2();
             }
-            if (moduleState[moduleIdx].mode == MODULE_MODE_RANGECHECK) {
-              moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
-              return 0;
-            } else {
-              moduleState[moduleIdx].mode = MODULE_MODE_RANGECHECK;
+  #endif
+            startRSSIDialog([=]() {
   #if defined(AFHDS2)
               if (isModuleAFHDS2A(moduleIdx)) {
                 resetPulsesAFHDS2();
               }
   #endif
-              startRSSIDialog([=]() {
-  #if defined(AFHDS2)
-                if (isModuleAFHDS2A(moduleIdx)) {
-                  resetPulsesAFHDS2();
-                }
-  #endif
-              });
-              return 1;
-            }
-          });
-        }
+            });
+            return 1;
+          }
+        });
 
   #if defined(PXX2)
         if (isModuleISRM(moduleIdx)) {
@@ -465,6 +469,10 @@ class ModuleWindow : public Window
   {
     if (modOpts) modOpts->update();
     if (chRange) chRange->update();
+    // no channels are sent with MPM receiver protocols
+    if (chRangeLine) chRangeLine->show(!IS_RX_MULTI(moduleIdx));
+    if (rangeButton && !isModuleRFAccess(moduleIdx))
+      rangeButton->show(isModuleRangeAvailable(moduleIdx));
 
     updateRxID();
     updateFailsafe();
@@ -521,6 +529,7 @@ class ModuleWindow : public Window
   uint8_t moduleIdx;
 
   ModuleOptions* modOpts = nullptr;
+  Window* chRangeLine = nullptr;
   ChannelRange* chRange = nullptr;
   NumberEdit* rxID = nullptr;
   TextButton* bindButton = nullptr;
@@ -775,6 +784,47 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   });
 
   auto subTypeChoice = new ModuleSubTypeChoice(box, moduleIdx);
+
+#if defined(CSD203_SENSOR)
+  FormLine* sensorVoltLine = nullptr;
+  FormLine* sensorCurrLine = nullptr;
+  if (moduleIdx == INTERNAL_MODULE) {
+    sensorCurrLine = body->newLine(grid);
+    new StaticText(sensorCurrLine, rect_t{}, STR_MODULE_SENSOR_CURRENT);
+    new DynamicNumber<int16_t>(
+        sensorCurrLine, rect_t{},
+        []() { return getIntModuleCurrent(); },
+        COLOR_THEME_PRIMARY1_INDEX, 0, "", "mA");
+  } else if (moduleIdx == EXTERNAL_MODULE) {
+    sensorVoltLine = body->newLine(grid);
+    new StaticText(sensorVoltLine, rect_t{}, STR_MODULE_SENSOR_VOLTAGE);
+    new DynamicNumber<uint16_t>(
+        sensorVoltLine, rect_t{},
+        []() { return getExtModuleVoltage(); },
+        COLOR_THEME_PRIMARY1_INDEX, PREC2, "", "V");
+
+    sensorCurrLine = body->newLine(grid);
+    new StaticText(sensorCurrLine, rect_t{}, STR_MODULE_SENSOR_CURRENT);
+    new DynamicNumber<int16_t>(
+        sensorCurrLine, rect_t{},
+        []() { return getExtModuleCurrent(); },
+        COLOR_THEME_PRIMARY1_INDEX, 0, "", "mA");
+  }
+
+  auto updateSensorVisibility = [=]() {
+    const bool on = g_model.moduleData[moduleIdx].type != MODULE_TYPE_NONE;
+    if (sensorVoltLine) {
+      if (on) sensorVoltLine->show();
+      else sensorVoltLine->hide();
+    }
+    if (sensorCurrLine) {
+      if (on) sensorCurrLine->show();
+      else sensorCurrLine->hide();
+    }
+  };
+  updateSensorVisibility();
+#endif
+
   auto moduleWindow = new ModuleWindow(body, moduleIdx);
 
   // This needs to be after moduleWindow has been created
@@ -783,6 +833,10 @@ ModulePage::ModulePage(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
 
     moduleWindow->updateModule();
     subTypeChoice->updateLayout();
+
+#if defined(CSD203_SENSOR)
+    updateSensorVisibility();
+#endif
 
     SET_DIRTY();
   });

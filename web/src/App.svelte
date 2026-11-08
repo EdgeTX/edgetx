@@ -37,6 +37,8 @@
     KEY_SHIFT: 14, KEY_BIND: 15,
   };
 
+  const DEFAULT_RADIO = 'edgetx-tx16s-simulator.wasm';
+
   interface DisplayDef {
     w: number;
     h: number;
@@ -155,7 +157,10 @@
   let lcdSize = 0;
 
   let isPortrait = $derived(lcdHeight > lcdWidth);
-  let cssWidth = $derived(Math.max(lcdWidth, 150 * lcdWidth / lcdHeight, 320));
+  // Same as LAYOUT_SCALE in etx_lv_theme.h: this LCD has a higher density, and showing
+  // it at this scale makes the UI the same size on the page as on other radios.
+  let lcdScale = $derived(lcdWidth === 800 ? 1.375 : 1);
+  let cssWidth = $derived(Math.max(lcdWidth / lcdScale, 150 * lcdWidth / lcdHeight, 320));
   let cssHeight = $derived(cssWidth * lcdHeight / lcdWidth);
 
   // Stick mode: 0=Mode1(thr=RV), 1=Mode2(thr=LV), 2=Mode3(thr=RV), 3=Mode4(thr=LV)
@@ -342,7 +347,7 @@
         });
         selectedRadio = match ? match.wasm
           : (saved && avail.some((r) => r.wasm === saved)) ? saved
-          : avail[0].wasm;
+          : (avail.find((r) => r.wasm === DEFAULT_RADIO) ?? avail[0]).wasm;
         status = `${avail.length} radio(s) available`;
       } else {
         status = 'No .wasm files found in public/';
@@ -1148,7 +1153,8 @@
         bind:this={canvas}
         class="lcd"
         style:width="{cssWidth}px"
-        style:height="{cssHeight}px"
+        style:aspect-ratio="{lcdWidth} / {lcdHeight}"
+        style:image-rendering={lcdDepth >= 16 && lcdWidth > cssWidth ? 'auto' : null}
         style:background="{lcdDepth > 0 && lcdDepth < 16 ? 'rgb(47, 123, 227)' : '#000'}"
         onmousedown={handleCanvasMouseDown}
         ontouchstart={handleCanvasTouchStart}
@@ -1594,6 +1600,18 @@
     <summary class="trace-summary">Trace output{#if running}<span class="fps">{fps} fps</span>{/if}</summary>
     <pre class="trace">{traceLog}</pre>
   </details>
+
+  {#if __BUILD_COMMIT__}
+    <footer class="build-info">
+      <a
+        href="https://github.com/EdgeTX/edgetx/commit/{__BUILD_COMMIT__}"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {__BUILD_COMMIT__.slice(0, 8)} · {__BUILD_DATE__}
+      </a>
+    </footer>
+  {/if}
 </main>
 
 <style>
@@ -1757,6 +1775,16 @@
     text-transform: uppercase;
   }
 
+  .build-info {
+    margin-top: 0.75rem;
+    text-align: center;
+    font-size: 0.75rem;
+  }
+
+  .build-info a {
+    color: var(--text-muted);
+  }
+
   .toolbar {
     display: flex;
     gap: 0.5rem;
@@ -1857,6 +1885,7 @@
     border-radius: 4px;
     border: none;
     max-width: 100%;
+    height: auto;
   }
 
   .key-column {

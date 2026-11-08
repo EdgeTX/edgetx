@@ -31,16 +31,35 @@ FetchContent_GetProperties(wamr)
 if(NOT wamr_POPULATED)
   FetchContent_Populate(wamr)
 
-  # WAMR 2.4.4 win_file.c has trailing backslashes in comments that
-  # clang treats as line continuations, causing compile errors.
-  execute_process(
-    COMMAND git apply "${CMAKE_CURRENT_LIST_DIR}/wamr-fix-win-backslash-comments.patch"
-    WORKING_DIRECTORY "${wamr_SOURCE_DIR}"
-    RESULT_VARIABLE _patch_result
-  )
-  if(_patch_result)
-    message(WARNING "WAMR win_file.c patch failed (may already be applied)")
-  endif()
+  # Local fixes for WAMR 2.4.4 win_file.c:
+  #  - backslash-comments: trailing backslashes in comments that clang treats
+  #    as line continuations, causing compile errors.
+  #  - handle-filepath-drive: paths were rebuilt without the drive letter, so
+  #    any WASI preopen (e.g. the SD card folder) not on the process's current
+  #    drive was unreachable.
+  # Each patch is skipped if a previous configure already applied it to the
+  # cached source.
+  foreach(_wamr_patch_name
+      wamr-fix-win-backslash-comments.patch
+      wamr-fix-win-handle-filepath-drive.patch)
+    set(_wamr_patch "${CMAKE_CURRENT_LIST_DIR}/${_wamr_patch_name}")
+    execute_process(
+      COMMAND git apply --reverse --check "${_wamr_patch}"
+      WORKING_DIRECTORY "${wamr_SOURCE_DIR}"
+      RESULT_VARIABLE _patch_applied
+      OUTPUT_QUIET ERROR_QUIET
+    )
+    if(NOT _patch_applied EQUAL 0)
+      execute_process(
+        COMMAND git apply "${_wamr_patch}"
+        WORKING_DIRECTORY "${wamr_SOURCE_DIR}"
+        RESULT_VARIABLE _patch_result
+      )
+      if(_patch_result)
+        message(WARNING "WAMR patch ${_wamr_patch_name} failed")
+      endif()
+    endif()
+  endforeach()
 
   add_subdirectory("${wamr_SOURCE_DIR}" "${wamr_BINARY_DIR}" EXCLUDE_FROM_ALL)
 
@@ -59,6 +78,21 @@ if(NOT wamr_POPULATED)
     target_compile_definitions(vmlib PUBLIC
       WASM_RUNTIME_API_EXTERN=
       WASM_API_EXTERN=
+    )
+  endif()
+
+  if(APPLE AND "arm64" IN_LIST CMAKE_OSX_ARCHITECTURES
+     AND "x86_64" IN_LIST CMAKE_OSX_ARCHITECTURES)
+    # WAMR picks a single BUILD_TARGET_* from the host CPU, so a universal
+    # build on an arm64 host compiles the x86_64 slice as AARCH64. That breaks
+    # native call argument marshalling (8 vs 6 integer registers) against
+    # invokeNative_em64.s. Set the correct target per slice; compile options
+    # follow the directory -D definitions on the command line, so these win.
+    target_compile_options(vmlib PRIVATE
+      "SHELL:-Xarch_x86_64 -UBUILD_TARGET_AARCH64"
+      "SHELL:-Xarch_x86_64 -DBUILD_TARGET_X86_64"
+      "SHELL:-Xarch_arm64 -UBUILD_TARGET_X86_64"
+      "SHELL:-Xarch_arm64 -DBUILD_TARGET_AARCH64"
     )
   endif()
 endif()

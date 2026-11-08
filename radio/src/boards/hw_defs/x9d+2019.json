@@ -365,6 +365,7 @@
     "led_red_gpio": "GPIO_PIN(GPIOA, 13)"
   },
   "hardware": {
+    "bluetooth": "builtin",
     "has_ext_module_support": true,
     "sport_max_baudrate": 400000,
     "cpu": "STM32F407xE",
