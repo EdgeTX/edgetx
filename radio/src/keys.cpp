@@ -307,29 +307,7 @@ bool waitKeysReleased()
   return true;
 }
 
-#if defined(PCBXLITE) && !defined(BOOT)
-uint32_t _readTrims()
-{
-  uint32_t trims = readTrims();
-
-  uint8_t lr = trims & 0x3;
-  uint8_t ud = trims & 0xc;
-  bool shift = readKeys() & (1 << KEY_SHIFT);
-  // Mode 1 or 2 - AIL on right stick
-  bool ailRight = g_eeGeneral.stickMode < 2;
-  // Mode 2 or 4 - ELE on right stick
-  bool eleRight = (g_eeGeneral.stickMode & 1) == 1;
-  // Ensure non-shifted trims are AIL and ELE
-  if (ailRight == !shift) lr <<= 6;
-  if (eleRight == !shift) ud <<= 2;
-
-  return lr | ud;
-}
-
-#define READ_TRIMS() _readTrims()
-#else
 #define READ_TRIMS() readTrims()
-#endif
 
 bool keyDown()
 {

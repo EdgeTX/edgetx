@@ -678,7 +678,7 @@ static_assert(sizeof(potconfig_t) * 8 >= ((MAX_POTS - 1) / 4) + 1,
 static_assert(sizeof(potwarnen_t) * 8 >= MAX_POTS,
               "MAX_POTS must fit potwarnen_t");
 
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
+#if defined(PCBX9DP) || defined(PCBX9E)
   // telemetry sensor idx + 1
   #define TOPBAR_DATA \
     NOBACKUP(uint8_t voltsSource CUST(r_tele_sensor,w_tele_sensor)); \
@@ -1218,7 +1218,7 @@ PACK(struct RadioData {
   CUST_ATTR(rotEncDirection, r_rotEncDirection, nullptr);
   NOBACKUP(uint8_t  rotEncMode:3);
 
-#if defined(STM32F2) || defined(STM32F4)
+#if defined(STM32F4)
   NOBACKUP(int8_t uartSampleMode:2); // See UartSampleModes
 #else
   NOBACKUP(uint8_t uartSampleModeSpare:2 SKIP);

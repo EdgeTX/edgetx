@@ -1,7 +1,7 @@
 include(CMakeForceCompiler)
 include(Bitmaps)
 
-set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO T15H7 T18H7 ST16 PA01 TX15 GX15 TX16SMK3 T22 V12 H17 V15)
+set(PCB_TYPES X7 X9D+ X9E X10 X12S PL18 T15PRO T15H7 T18H7 ST16 PA01 TX15 GX15 TX16SMK3 T22 V12 H17 V15)
 set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 set(TTS_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 
@@ -53,7 +53,7 @@ option(BOOTLOADER "Include Bootloader" ON)
 option(FWDRIVE "Attach also firmware drive with USB" OFF)
 option(DISABLE_MCUCHECK "Disable MCU check at start" OFF)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
-if(PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019)
+if(PCB STREQUAL X9D+)
   option(USBJ_EX "Enable USB Joystick Extension" OFF)
 else()
   option(USBJ_EX "Enable USB Joystick Extension" ON)
@@ -114,7 +114,7 @@ elseif(PCB STREQUAL T22)
   include(targets/t22/CMakeLists.txt)
 elseif(PCB STREQUAL STM32H7S78_DK)
   include(targets/stm32h7s78-dk/CMakeLists.txt)
-elseif(PCB STREQUAL X9E OR PCB STREQUAL X9D+ OR PCB STREQUAL X9D OR PCB STREQUAL X7 OR PCB STREQUAL X9LITE OR PCB STREQUAL X9LITES OR PCB STREQUAL XLITE OR PCB STREQUAL XLITES)
+elseif(PCB STREQUAL X9E OR PCB STREQUAL X9D+ OR PCB STREQUAL X7)
   include(targets/taranis/CMakeLists.txt)
 else()
   message(FATAL_ERROR "Unknown PCB '${PCB}'")
@@ -173,10 +173,6 @@ endif()
 
 if(CPU_TYPE STREQUAL STM32F4)
   include(targets/common/arm/stm32/f4/CMakeLists.txt)
-endif()
-
-if(CPU_TYPE STREQUAL STM32F2)
-  include(targets/common/arm/stm32/f2/CMakeLists.txt)
 endif()
 
 if(CPU_FAMILY STREQUAL STM32)
@@ -665,7 +661,8 @@ set(COMMON_FLAGS "${COMMON_FLAGS} ${WARNING_FLAGS}")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COMMON_FLAGS} -Wimplicit")
 
-# "-Wno-register" because ${THIRDPARTY_DIR}/STM32F2xx_HAL_Driver uses invalid C++17 storage class specifier
+# "-Wno-register" was added for the (since removed) STM32F2 HAL, which used the
+# C++17-removed 'register' storage class; kept as a safeguard for other third-party code
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_FLAGS} -fno-rtti -Wno-register")
 
 if(SDRAM)

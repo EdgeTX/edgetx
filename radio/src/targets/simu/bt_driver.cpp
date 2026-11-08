@@ -26,5 +26,4 @@ void bluetoothWrite(const void*, uint32_t) {}
 int bluetoothRead(uint8_t*) { return 0; }
 void bluetoothDisable() {}
 uint8_t bluetoothIsWriting() { return false; }
-volatile uint8_t btChipPresent;
 

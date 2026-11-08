@@ -72,5 +72,4 @@ targets/st16/battery_driver.cpp
 targets/taranis/bind_button_driver.cpp
 targets/taranis/board.cpp
 targets/taranis/lcd_driver_spi.cpp
-targets/taranis/shared_dsc_headphone.cpp
 targets/taranis/top_lcd_driver.cpp

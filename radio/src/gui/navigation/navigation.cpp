@@ -263,8 +263,6 @@ void finishCheckIncDec(event_t event, int i_min, int i_max,
 
 #if defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
   #include "navigation_x7.cpp"
-#elif defined(NAVIGATION_9X) || defined(NAVIGATION_XLITE)
-  #include "navigation_9x.cpp"
 #else
   static_assert("navigation not defined");
 #endif

@@ -50,9 +50,7 @@ void rotaryEncoderCheck();
 
 #define LUA_MEM_MAX                     (0)    // max allowed memory usage for complete Lua  (in bytes), 0 means unlimited
 
-#if defined(PCBXLITE)
-# define BOOTLOADER_KEYS                0x0F
-#elif defined(RADIO_MT12)
+#if defined(RADIO_MT12)
 # define BOOTLOADER_KEYS                0x06
 #else
 # define BOOTLOADER_KEYS                0x42
@@ -68,18 +66,11 @@ extern uint16_t sessionTimer;
 void boardInit();
 void boardOff();
 
-// PCBREV driver
-enum {
-  // X7
-  PCBREV_X7_STD = 0,
-  PCBREV_X7_40 = 1,
-};
-
 // Pulses driver
 #define INTERNAL_MODULE_ON()   gpio_set(INTMODULE_PWR_GPIO)
 #define INTERNAL_MODULE_OFF()  gpio_clear(INTMODULE_PWR_GPIO)
 
-#if (defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)) && (!defined(PCBX9LITE) || defined(PCBX9LITES))
+#if defined(INTERNAL_MODULE_PXX1) || defined(INTERNAL_MODULE_PXX2)
   #define HARDWARE_INTERNAL_RAS
 #endif
 
@@ -124,16 +115,11 @@ extern HardwareOptions hardwareOptions;
   #define BATTERY_WARN                  87 // 8.7V
   #define BATTERY_MIN                   85 // 8.5V
   #define BATTERY_MAX                   115 // 11.5V
-#elif defined(PCBXLITE) || defined(RADIO_FAMILY_T20)
+#elif defined(RADIO_FAMILY_T20)
   // 2 x Li-Ion
   #define BATTERY_WARN                  66 // 6.6V
   #define BATTERY_MIN                   67 // 6.7V
   #define BATTERY_MAX                   83 // 8.3V
-#elif defined(RADIO_T8) || defined(RADIO_TLITE) || defined(RADIO_LR3PRO)
-  // 1S Li-ion /  Lipo, LDO for 3.3V
-  #define BATTERY_WARN                  35 // 3.5V
-  #define BATTERY_MIN                   34 // 3.4V
-  #define BATTERY_MAX                   42 // 4.2V
 #elif defined(RADIO_COMMANDO8)
   #define BATTERY_WARN                  32 // 3.5V
   #define BATTERY_MIN                   30 // 3.0V
@@ -145,12 +131,8 @@ extern HardwareOptions hardwareOptions;
   #define BATTERY_MAX                   80 // 8.0V
 #endif
 
-#if defined(PCBXLITE)
-  #define BATT_SCALE                    131
-#elif defined(PCBX7)
+#if defined(PCBX7)
   #define BATT_SCALE                    123
-#elif defined(PCBX9LITE)
-  #define BATT_SCALE                    117
 #elif defined(RADIO_X9DP2019)
   #define BATT_SCALE                    117
 #else
@@ -212,11 +194,6 @@ void debugPutc(const char c);
 // Audio driver
 void audioInit();
 
-#if defined(PCBXLITES)
-#define SHARED_DSC_HEADPHONE_JACK
-void handleJackConnection();
-#endif
-
 // Haptic driver
 void hapticInit();
 void hapticOff();
@@ -246,7 +223,7 @@ void ledBlue();
 void ledBoot();
 
 // LCD driver
-#if defined(PCBX9D) || defined(PCBX9DP) || defined(PCBX9E)
+#if defined(PCBX9DP) || defined(PCBX9E)
 #define LCD_CONTRAST_MIN                0
 #define LCD_CONTRAST_MAX                45
 #define LCD_CONTRAST_DEFAULT            25
@@ -268,9 +245,9 @@ void ledBoot();
 
 #if OLED_SCREEN
   #define LCD_CONTRAST_DEFAULT          254 // full brightness
-#elif defined(RADIO_TX12) || defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12)
+#elif defined(RADIO_TX12MK2) || defined(RADIO_BOXER) || defined(RADIO_MT12)
   #define LCD_CONTRAST_DEFAULT          20
-#elif defined(RADIO_TPRO) || defined(RADIO_FAMILY_JUMPER_T12) || defined(RADIO_TPRO) || defined(RADIO_COMMANDO8) || defined(RADIO_T12MAX)
+#elif defined(RADIO_COMMANDO8) || defined(RADIO_T12MAX)
   #define LCD_CONTRAST_DEFAULT          25
 #else
   #define LCD_CONTRAST_DEFAULT          15
@@ -281,7 +258,7 @@ void ledBoot();
 #endif
 #endif
 
-#if defined(PCBX9D) || defined(PCBX9E) || (defined(PCBX9DP) && PCBREV < 2019)
+#if defined(PCBX9E)
 #define IS_LCD_RESET_NEEDED()           (!WAS_RESET_BY_WATCHDOG_OR_SOFTWARE())
 #else
 #define IS_LCD_RESET_NEEDED()           true
@@ -297,7 +274,7 @@ void lcdRefreshWait();
 #else
 #define lcdRefreshWait()
 #endif
-#if defined(PCBX9D) || defined(SIMU) || !defined(__cplusplus)
+#if defined(SIMU) || !defined(__cplusplus)
 void lcdRefresh();
 #else
 void lcdRefresh(bool wait=true); // TODO uint8_t wait to simplify this
@@ -331,10 +308,7 @@ void setTopBatteryValue(uint32_t volts);
 
 #define INTMODULE_FIFO_SIZE            128
 
-#if defined(RADIO_TLITE)
-  #define BATTERY_DIVIDER 27500    // TODO: fix when we have proper schematics
-  #define VOLTAGE_DROP 20
-#elif defined(MANUFACTURER_RADIOMASTER) || defined(MANUFACTURER_JUMPER)
+#if defined(MANUFACTURER_RADIOMASTER) || defined(MANUFACTURER_JUMPER)
   // --- MOSFET ---- R1 --- MCU
   //                     |__ R2 --- GND
   //
@@ -346,10 +320,8 @@ void setTopBatteryValue(uint32_t volts);
     #define VBAT_MOSFET_DROP   25 // * 10mV
   #endif
 #else
-  #if defined (RADIO_T8) || defined(RADIO_COMMANDO8)
+  #if defined(RADIO_COMMANDO8)
     #define BATTERY_DIVIDER 50000
-  #elif defined (RADIO_LR3PRO)
-    #define BATTERY_DIVIDER 39500
   #else
     #define BATTERY_DIVIDER 26214
   #endif

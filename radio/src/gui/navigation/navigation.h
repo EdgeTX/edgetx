@@ -22,15 +22,11 @@
 #pragma once
 
 // Define navigation type if not defined already
-#if defined(RADIO_XLITE) || defined(RADIO_XLITES)
-  #define NAVIGATION_XLITE
-#elif defined(RADIO_LR3PRO) || defined(RADIO_T12) || defined(RADIO_TLITE)
-  #define NAVIGATION_9X
-#elif defined(RADIO_X9D) || defined(RADIO_X9DP) || defined(RADIO_X9DP2019) || defined(RADIO_X9E)
+#if defined(RADIO_X9DP2019) || defined(RADIO_X9E)
   #define NAVIGATION_X9D
 #else
   #define NAVIGATION_X7
-  #if defined(MANUFACTURER_RADIOMASTER) && !defined(RADIO_T8)
+  #if defined(MANUFACTURER_RADIOMASTER)
     #define NAVIGATION_X7_RM
   #endif
   #if defined(MANUFACTURER_HELLORADIOSKY)
@@ -38,19 +34,14 @@
   #endif
 #endif
 
-#if defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
-  #define HEADER_LINE                  0
-  #define HEADER_LINE_COLUMNS
-#else
-  #define HEADER_LINE                  1
-  #define HEADER_LINE_COLUMNS          0,
-#endif
+#define HEADER_LINE                    0
+#define HEADER_LINE_COLUMNS
 
 // Main View and Channel Monitor view navigation mapping
 
 #define EVT_KEY_CONTEXT_MENU           EVT_KEY_LONG(KEY_ENTER)
 
-#if defined(RADIO_T8) || defined(RADIO_COMMANDO8)
+#if defined(RADIO_COMMANDO8)
 #define EVT_KEY_PREVIOUS_VIEW          EVT_KEY_BREAK(KEY_PAGEUP)
 #define EVT_KEY_NEXT_VIEW              EVT_KEY_BREAK(KEY_PAGEDN)
 #define EVT_KEY_NEXT_PAGE              EVT_KEY_BREAK(KEY_PLUS)
@@ -86,33 +77,19 @@
 
 // Telemtry view navigation mapping
 
-#if defined(NAVIGATION_XLITE)
-  #define EVT_KEY_PREVIOUS_TELEM_VIEW(evt)  (evt == EVT_KEY_LONG(KEY_LEFT) && keysGetState(KEY_SHIFT))
-  #define EVT_KEY_NEXT_TELEM_VIEW(evt)      (evt == EVT_KEY_LONG(KEY_RIGHT) && keysGetState(KEY_SHIFT))
-#elif defined(NAVIGATION_X7_RM) || defined(RADIO_T8) || defined(RADIO_COMMANDO8)
+#if defined(NAVIGATION_X7_RM) || defined(RADIO_COMMANDO8)
   #define EVT_KEY_PREVIOUS_TELEM_VIEW(evt)  (evt == EVT_KEY_FIRST(KEY_PAGEUP))
   #define EVT_KEY_NEXT_TELEM_VIEW(evt)      (evt == EVT_KEY_FIRST(KEY_PAGEDN))
 #elif defined(NAVIGATION_X7) || defined(NAVIGATION_X9D)
   #define EVT_KEY_PREVIOUS_TELEM_VIEW(evt)  (evt == EVT_KEY_BREAK(KEY_PAGEUP))
   #define EVT_KEY_NEXT_TELEM_VIEW(evt)      (evt == EVT_KEY_BREAK(KEY_PAGEDN))
-#elif defined(NAVIGATION_9X)
-  #define EVT_KEY_PREVIOUS_TELEM_VIEW(evt)  (evt == EVT_KEY_LONG(KEY_UP))
-  #define EVT_KEY_NEXT_TELEM_VIEW(evt)      (evt == EVT_KEY_LONG(KEY_DOWN))
 #else
   #define EVT_KEY_PREVIOUS_TELEM_VIEW(evt)  (evt == EVT_KEY_FIRST(KEY_UP))
   #define EVT_KEY_NEXT_TELEM_VIEW(evt)      (evt == EVT_KEY_FIRST(KEY_DOWN))
 #endif
 
 // Open Channel view
-#if defined(NAVIGATION_XLITE)
-  #define EVT_KEY_OPEN_CHAN_VIEW(evt)       (evt == EVT_KEY_FIRST(KEY_ENTER) && keysGetState(KEY_SHIFT))
-#else
   #define EVT_KEY_OPEN_CHAN_VIEW(evt)       (evt == EVT_KEY_BREAK(KEY_MODEL) || evt == EVT_KEY_BREAK(KEY_MENU))
-#endif
-
-#if defined(NAVIGATION_XLITE) || defined(NAVIGATION_9X)
-  #define HAS_LEFT_RIGHT_NAV_KEYS
-#endif
 
 struct CheckIncDecStops
 {
@@ -236,11 +213,7 @@ swsrc_t checkIncDecMovedSwitch(swsrc_t val);
 #endif
 
 void repeatLastCursorMove(event_t event);
-#if defined(NAVIGATION_9X) || defined(NAVIGATION_XLITE)
-void repeatLastCursorHorMove(event_t event);
-#else
 #define repeatLastCursorHorMove(event) repeatLastCursorMove(event)
-#endif
 
 void onSwitchLongEnterPress(const char * result);
 void onSourceLongEnterPress(const char * result);

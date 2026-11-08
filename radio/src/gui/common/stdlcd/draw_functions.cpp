@@ -213,17 +213,6 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
             s_editMode = 0;
           break;
 
-#if defined(HAS_LEFT_RIGHT_NAV_KEYS)
-        case EVT_KEY_BREAK(KEY_LEFT):
-          if (cur > 0)
-            cur--;
-          break;
-
-        case EVT_KEY_BREAK(KEY_RIGHT):
-          if (cur < size - 1)
-            cur++;
-          break;
-#else
         // page keys are free here: check() ignores them while editing
         case EVT_KEY_BREAK(KEY_PAGEUP):
           if (cur > 0)
@@ -234,7 +223,6 @@ void editName(coord_t x, coord_t y, char* name, uint8_t size, event_t event,
           if (cur < size - 1)
             cur++;
           break;
-#endif
 
         case EVT_KEY_BREAK(KEY_SHIFT):
         case EVT_KEY_LONG(KEY_LEFT):
@@ -698,7 +686,7 @@ void drawStatusLine()
 
 void drawGauge(coord_t x, coord_t y, coord_t w, coord_t h, int32_t val, int32_t max)
 {
-#if defined(PCBX7) || defined(PCBX9LITE) || defined(PCBX9LITES) // X7/X9 LCD doesn't like too many horizontal lines
+#if defined(PCBX7) // X7/X9 LCD doesn't like too many horizontal lines
   h++;
 #else
   lcdDrawRect(x, y, w+1, h);

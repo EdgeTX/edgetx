@@ -24,7 +24,7 @@
 
 #include "edgetx.h"
 
-#if defined(STM32F407xx) || defined(STM32F205xx)
+#if defined(STM32F407xx)
   // internal bridge measure Vbat/2
   #define VBAT_RTC_DIV 2
 #else

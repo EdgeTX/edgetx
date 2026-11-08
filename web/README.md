@@ -31,7 +31,7 @@ From the EdgeTX repository root:
 tools/build-wasm-modules.sh
 
 # Build specific radios only
-FLAVOR="tx16s;t12;x9dp2019" tools/build-wasm-modules.sh
+FLAVOR="tx16s;t12max;x9dp2019" tools/build-wasm-modules.sh
 ```
 
 Output `.wasm` files are written to `output/`. Copy them to `web/public/`:

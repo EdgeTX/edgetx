@@ -31,8 +31,6 @@
   #include "stm32h7rsxx.h"
 #elif defined(STM32F4)
   #include "stm32f4xx.h"
-#elif defined(STM32F2)
-  #include "stm32f2xx.h"
 #else
   #error "Unknown MCU family"
 #endif

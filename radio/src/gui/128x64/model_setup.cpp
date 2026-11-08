@@ -326,18 +326,11 @@ static uint8_t VIEWOPT_ROW(uint8_t value) { return expandState.viewOpt ? value :
 #endif
 
 #define MAX_SWITCH_PER_LINE             5
-#if defined(PCBXLITE)
-  // X-Lite needs an additional column for full line selection (<])
-  #define SW_WARN_ROWS \
-    PREFLIGHT_ROW(uint8_t(NAVIGATION_LINE_BY_LINE|getSwitchWarningsCount())), \
-    PREFLIGHT_ROW(uint8_t(getSwitchWarningsCount() > MAX_SWITCH_PER_LINE ? TITLE_ROW : HIDDEN_ROW))
-#else
-  // Handle special case when there is only one switch that can trigger a warning (MT12)
-  #define SW_WARN_ROWS \
-    PREFLIGHT_ROW(uint8_t(NAVIGATION_LINE_BY_LINE|((getSwitchWarningsCount() == 1) ? 1 : getSwitchWarningsCount()-1))), \
-    PREFLIGHT_ROW(uint8_t(getSwitchWarningsCount() > MAX_SWITCH_PER_LINE ? TITLE_ROW : HIDDEN_ROW)), \
-    PREFLIGHT_ROW(uint8_t(getSwitchWarningsCount() > (MAX_SWITCH_PER_LINE * 2) ? TITLE_ROW : HIDDEN_ROW))
-#endif
+// Handle special case when there is only one switch that can trigger a warning (MT12)
+#define SW_WARN_ROWS \
+  PREFLIGHT_ROW(uint8_t(NAVIGATION_LINE_BY_LINE|((getSwitchWarningsCount() == 1) ? 1 : getSwitchWarningsCount()-1))), \
+  PREFLIGHT_ROW(uint8_t(getSwitchWarningsCount() > MAX_SWITCH_PER_LINE ? TITLE_ROW : HIDDEN_ROW)), \
+  PREFLIGHT_ROW(uint8_t(getSwitchWarningsCount() > (MAX_SWITCH_PER_LINE * 2) ? TITLE_ROW : HIDDEN_ROW))
 
 inline uint8_t MODULE_TYPE_ROWS(int moduleIdx)
 {
@@ -434,7 +427,7 @@ void onModelAntennaSwitchConfirm(const char * result)
   #define TRAINER_BLUETOOTH_ROW          (g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH ? TRAINER_BLUETOOTH_M_ROW : (g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH ? TRAINER_BLUETOOTH_S_ROW : HIDDEN_ROW))
   #define TRAINER_PPM_PARAMS_ROW         (g_model.trainerData.mode == TRAINER_MODE_SLAVE ? (uint8_t)2 : HIDDEN_ROW)
   #define TRAINER_ROWS                   LABEL(Trainer), 0, IF_BT_TRAINER_ON(TRAINER_BLUETOOTH_ROW), TRAINER_CHANNELS_ROW, TRAINER_PPM_PARAMS_ROW
-#elif defined(PCBX7) || defined(PCBX9LITE)
+#elif defined(PCBX7)
   #if defined(BLUETOOTH)
     #define TRAINER_BLUETOOTH_ROW        (g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH ? TRAINER_BLUETOOTH_M_ROW : (g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH ? TRAINER_BLUETOOTH_S_ROW : HIDDEN_ROW)),
   #else
@@ -442,13 +435,6 @@ void onModelAntennaSwitchConfirm(const char * result)
   #endif
   #define TRAINER_PPM_PARAMS_ROW         (g_model.trainerData.mode == TRAINER_MODE_SLAVE ? (uint8_t)2 : HIDDEN_ROW)
   #define TRAINER_ROWS                   LABEL(Trainer), 0, TRAINER_BLUETOOTH_ROW TRAINER_CHANNELS_ROW, TRAINER_PPM_PARAMS_ROW
-#elif defined(PCBXLITES)
-  #define TRAINER_BLUETOOTH_ROW          (g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH ? TRAINER_BLUETOOTH_M_ROW : (g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH ? TRAINER_BLUETOOTH_S_ROW : HIDDEN_ROW))
-  #define TRAINER_PPM_PARAMS_ROW         (g_model.trainerData.mode == TRAINER_MODE_SLAVE ? (uint8_t)2 : HIDDEN_ROW)
-  #define TRAINER_ROWS                   LABEL(Trainer), 0, IF_BT_TRAINER_ON(TRAINER_BLUETOOTH_ROW), TRAINER_CHANNELS_ROW, TRAINER_PPM_PARAMS_ROW
-#elif defined(PCBXLITE)
-  #define TRAINER_BLUETOOTH_ROW          (g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH ? TRAINER_BLUETOOTH_M_ROW : (g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH ? TRAINER_BLUETOOTH_S_ROW : HIDDEN_ROW))
-  #define TRAINER_ROWS                   IF_BT_TRAINER_ON(LABEL(Trainer)), IF_BT_TRAINER_ON(0), IF_BT_TRAINER_ON(TRAINER_BLUETOOTH_ROW), IF_BT_TRAINER_ON(TRAINER_CHANNELS_ROW), HIDDEN_ROW /* xlite has only BT trainer, so never PPM */
 #else
   #define TRAINER_ROWS
 #endif
@@ -1274,16 +1260,7 @@ void menuModelSetup(event_t event)
           }
 
           lcdDrawTextIndented(y, STR_SWITCHWARNING);
-#if defined(PCBXLITE)
-          lcdDrawText(LCD_W, y, "<]", RIGHT);
           if (attr) {
-            if (menuHorizontalPosition > switchWarningsCount)
-              menuHorizontalPosition = switchWarningsCount;
-          }
-          if (attr && menuHorizontalPosition == switchWarningsCount) {
-#else
-          if (attr) {
-#endif
             s_editMode = 0;
             switch (event) {
               case EVT_KEY_LONG(KEY_ENTER):
@@ -1308,9 +1285,6 @@ void menuModelSetup(event_t event)
                 curr_state += (curr_state != 1 || IS_CONFIG_3POS(i) ? 1 : 2);
                 g_model.setSwitchWarning(i, curr_state);
                 storageDirty(EE_MODEL);
-#if defined(PCBXLITE)
-                s_editMode = 0;
-#endif
               }
 
               lcdDrawChar(
@@ -1884,7 +1858,7 @@ void menuModelSetup(event_t event)
       }
 #endif
 
-#if defined(PCBX7) || defined(PCBX9LITE) || defined(PCBXLITE)
+#if defined(PCBX7)
       case ITEM_MODEL_SETUP_TRAINER_PPM_PARAMS:
         lcdDrawTextIndented(y, STR_PPMFRAME);
         lcdDrawText(MODEL_SETUP_2ND_COLUMN+3*FW, y, STR_MS);
@@ -2076,12 +2050,7 @@ void menuModelSetup(event_t event)
               if (s_editMode > 0) {
                 if (l_posHorz == 1) {
                   if (isModuleR9MNonAccess(moduleIdx) || isModuleD16(moduleIdx) || isModuleAFHDS3(moduleIdx)) {
-#if defined(PCBXLITE)
-                    if (EVT_KEY_MASK(event) == KEY_ENTER) {
-                      killEvents(event);
-#else
                     if (event == EVT_KEY_BREAK(KEY_ENTER)) {
-#endif
 #if defined(AFHDS3)
                       if (isModuleAFHDS3(moduleIdx)) {
                         startBindMenuAfhds3(moduleIdx);

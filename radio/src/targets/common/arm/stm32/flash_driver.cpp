@@ -32,7 +32,7 @@ static uint32_t stm32_flash_get_size_kb()
   return flash_size_kb;
 }
 
-#if defined(STM32F2) || defined(STM32F4)
+#if defined(STM32F4)
 
 static uint32_t stm32_flash_get_sector(uint32_t address)
 {
@@ -207,7 +207,7 @@ static int stm32_flash_erase_sector(uint32_t address)
 {
   int ret = 0;
 
-#if defined(STM32F2) || defined(STM32F4)
+#if defined(STM32F4)
 
   uint32_t sector = stm32_flash_get_sector(address);
 
@@ -286,7 +286,7 @@ static int stm32_flash_program(uint32_t address, void* data, uint32_t len)
 {
   int ret = 0;
 
-#if defined(STM32F2) || defined(STM32F4)
+#if defined(STM32F4)
 
   uint32_t* p_data = (uint32_t*)data;
   uint32_t end_addr = address + len;

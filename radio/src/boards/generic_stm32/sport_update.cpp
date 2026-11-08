@@ -33,18 +33,6 @@ void sportUpdateInit()
 {
 #if defined(SPORT_UPDATE_PWR_GPIO)
 
-#if defined(RADIO_X7)
-  // QX7 has a external S.PORT connector
-  // with switchable power from revision 40 on
-  if (hardwareOptions.pcbrev == PCBREV_X7_40) {
-    extern etx_module_t _sport_module;
-    extern void _sport_set_pwr(uint8_t);
-    _sport_module.set_pwr = _sport_set_pwr;
-  } else {
-    return;
-  }
-#endif
-
   gpio_init(SPORT_UPDATE_PWR_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 }

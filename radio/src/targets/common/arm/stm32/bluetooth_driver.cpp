@@ -47,10 +47,6 @@ static const stm32_usart_t btUSART = {
 
 DEFINE_STM32_SERIAL_PORT(BTModule, btUSART, BT_RX_FIFO_SIZE, BT_TX_FIFO_SIZE);
 
-#if defined(BLUETOOTH_PROBE)
-volatile uint8_t btChipPresent = 0;
-#endif
-
 void* _bt_usart_ctx = nullptr;
 
 void bluetoothInit(uint32_t baudrate, bool enable)

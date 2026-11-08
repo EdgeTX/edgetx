@@ -38,6 +38,7 @@
 #include "progress/progresswidget.h"
 
 #include <algorithm>
+#include <QTimer>
 #include <ExportableTableView>
 
 
@@ -186,6 +187,13 @@ QSize MdiChild::sizeHint() const
   // use toolbar as a gauge for width, and take all the height availabe.
   int w = qMax(ui->topToolbarLayout->sizeHint().width(), ui->botToolbarLayout->sizeHint().width());
   return QSize(w + 30, qMin(p->height(), 1000));
+}
+
+void MdiChild::showEvent(QShowEvent * event)
+{
+  QWidget::showEvent(event);
+  // let the document window appear before the notice
+  QTimer::singleShot(0, this, &MdiChild::showReadOnlyNotice);
 }
 
 void MdiChild::changeEvent(QEvent * event)
@@ -378,7 +386,7 @@ void MdiChild::updateNavigation()
   action[ACT_MDL_PST]->setText(tr("Paste") % (numOnClipbrd ? sp % modelsAddTxt : ns));
   action[ACT_MDL_INS]->setEnabled(numOnClipbrd && hasModelSlotSelcted);
   action[ACT_MDL_INS]->setText(tr("Insert") % QString(action[ACT_MDL_INS]->isEnabled() ? sp % modelsAddTxt : ns));
-  action[ACT_MDL_EXP]->setEnabled(modelsSelected);
+  action[ACT_MDL_EXP]->setEnabled(modelsSelected && !isReadOnly());
   action[ACT_MDL_EXP]->setText(tr("Export") % (modelsSelected ? sp % modelsRemvTxt : ns));
   action[ACT_MDL_IMP]->setEnabled(true);
   action[ACT_MDL_IMP]->setText(tr("Import"));
@@ -759,6 +767,13 @@ void MdiChild::onFirmwareChanged()
       return;
     }
     setModified();
+  }
+
+  if (previous->getBoard() != firmware->getBoard()) {
+    // read-only state follows the board
+    updateNavigation();
+    readOnlyNoticeShown = false;
+    showReadOnlyNotice();
   }
 }
 
@@ -1397,6 +1412,9 @@ bool MdiChild::loadFile(const QString & filename, bool resetCurrentFile)
 
 bool MdiChild::save()
 {
+  if (!checkWritable())
+    return false;
+
   QFileInfo fi(curFile);
   if (isUntitled || !fi.isWritable() || fi.suffix().toLower() != "etx") {
     return saveAs(true);
@@ -1408,6 +1426,9 @@ bool MdiChild::save()
 
 bool MdiChild::saveAs(bool isNew)
 {
+  if (!checkWritable())
+    return false;
+
   forceNewFilename();
   QFileInfo fi(curFile);
   QString filter(ETX_FILES_FILTER);
@@ -1428,6 +1449,9 @@ bool MdiChild::saveAs(bool isNew)
 
 bool MdiChild::saveFile(const QString & filename, bool setCurrent, bool toRadio)
 {
+  if (!checkWritable())
+    return false;
+
   radioData.fixModelFilenames();
 
   bool result = false;
@@ -1495,6 +1519,15 @@ void MdiChild::closeFile(bool force)
 
 bool MdiChild::maybeSave()
 {
+  if (isWindowModified() && isReadOnly()) {
+    if (forceCloseFlag)
+      return true;
+
+    int ret = askQuestion(tr("%1 has been modified, but changes cannot be saved for this radio.\nDiscard your changes?").arg(userFriendlyCurrentFile()),
+                          (QMessageBox::Discard | QMessageBox::Cancel), QMessageBox::Cancel);
+    return ret == QMessageBox::Discard;
+  }
+
   if (isWindowModified()) {
     int ret = askQuestion(tr("%1 has been modified.\nDo you want to save your changes?").arg(userFriendlyCurrentFile()),
                           (QMessageBox::Save | QMessageBox::Discard | (forceCloseFlag ? QMessageBox::NoButton : QMessageBox::Cancel)),
@@ -1606,8 +1639,52 @@ int MdiChild::askQuestion(const QString & msg, QMessageBox::StandardButtons butt
   return QMessageBox::question(this, CPN_STR_APP_NAME, msg, buttons, defaultButton);
 }
 
+// EdgeTX 2.11 was the last release for STM32F2 radios. Their models and settings
+// can still be viewed, but must not be saved or written in the current format.
+bool MdiChild::isReadOnly() const
+{
+  return Boards::getCapability(firmware->getBoard(), Board::IsF2);
+}
+
+bool MdiChild::checkWritable()
+{
+  if (!isReadOnly())
+    return true;
+
+  showReadOnlyMessage(QMessageBox::Warning, CPN_STR_TTL_WARNING);
+  return false;
+}
+
+void MdiChild::showReadOnlyNotice()
+{
+  if (!isReadOnly() || readOnlyNoticeShown)
+    return;
+
+  readOnlyNoticeShown = true;
+  showReadOnlyMessage(QMessageBox::Information, CPN_STR_APP_NAME);
+}
+
+void MdiChild::showReadOnlyMessage(QMessageBox::Icon icon, const QString & title)
+{
+  QString msg = tr("The %1 uses an STM32F2 processor, which was last supported in EdgeTX 2.11.<br><br>"
+                   "Its models and settings can be viewed here, but not saved, exported or written to the radio. "
+                   "To do any of those, use Companion 2.11. To move its models to a supported radio, "
+                   "switch to that radio's profile and they will be converted.<br><br>"
+                   "See <a href='%2'>STM32 platform support</a>.")
+                  .arg(Boards::getBoardName(firmware->getBoard()))
+                  .arg("https://edgetx.org/edgetx/latest/hardware/stm32-platforms/");
+
+  QMessageBox msgbox(icon, title, msg, QMessageBox::Ok, this);
+  msgbox.setTextFormat(Qt::RichText);
+  msgbox.setTextInteractionFlags(Qt::TextBrowserInteraction);
+  msgbox.exec();
+}
+
 void MdiChild::writeModelsSettings(bool toRadio)
 {
+  if (!checkWritable())
+    return;
+
   //  safeguard as the menu actions are enabled
   int cnt = radioData.invalidModels();
 
@@ -1916,6 +1993,9 @@ void MdiChild::labelsFault(QString msg)
 
 unsigned MdiChild::exportModels(const QVector<int> modelIndices)
 {
+  if (!checkWritable())
+    return 0;
+
   unsigned saves = 0;
 
   foreach(const int idx, modelIndices) {

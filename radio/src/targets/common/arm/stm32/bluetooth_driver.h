@@ -40,13 +40,4 @@ int bluetoothRead(uint8_t* data);
 uint8_t bluetoothIsWriting();
 void bluetoothDisable();
 
-#if defined(PCBX9LITES) || defined(PCBX7ACCESS)
-  #define IS_BLUETOOTH_CHIP_PRESENT()     (true)
-#elif defined(PCBX9LITE)
-  #define IS_BLUETOOTH_CHIP_PRESENT()     (false)
-#elif defined(BLUETOOTH_PROBE) && !defined(SIMU)
-  extern volatile uint8_t btChipPresent;
-  #define IS_BLUETOOTH_CHIP_PRESENT()     (btChipPresent)
-#else
-  #define IS_BLUETOOTH_CHIP_PRESENT()     (true)
-#endif
+#define IS_BLUETOOTH_CHIP_PRESENT()       (true)

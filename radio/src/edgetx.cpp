@@ -139,14 +139,7 @@ void checkValidMCU(void)
   // Checks the radio MCU type matches intended firmware type
   uint32_t idcode = DBGMCU->IDCODE & 0xFFF;
 
-#if defined(RADIO_TLITE)
-  #define TARGET_IDCODE_SECONDARY   0x413
-  // Tlite ELRS have a CKS F4 run as an F2 (F4 firmware won't run on those)
-#endif
-
-#if defined(STM32F205xx)
-  #define TARGET_IDCODE   0x411
-#elif defined(STM32F407xx)
+#if defined(STM32F407xx)
   #define TARGET_IDCODE   0x413
 #elif defined(STM32F429xx)
   #define TARGET_IDCODE   0x419
@@ -162,15 +155,9 @@ void checkValidMCU(void)
   #define TARGET_IDCODE   0x0
 #endif
 
-#if defined(TARGET_IDCODE_SECONDARY)
-  if(idcode != TARGET_IDCODE && idcode != TARGET_IDCODE_SECONDARY) {
-    runFatalErrorScreen("Wrong MCU");
-  }
-#else
   if(idcode != TARGET_IDCODE) {
     runFatalErrorScreen("Wrong MCU");
   }
-#endif
 #endif
 }
 
@@ -1739,12 +1726,6 @@ void edgeTxInit()
     LayoutFactory::loadCustomScreens();
 #endif
 
-#if defined(BLUETOOTH_PROBE)
-    extern volatile uint8_t btChipPresent;
-    auto oldBtMode = g_eeGeneral.bluetoothMode;
-    g_eeGeneral.bluetoothMode = BLUETOOTH_TELEMETRY;
-#endif
-
 #if defined(DEBUG_TRACE_BUFFER)
     trace_event(trace_start, 0x12345678);
 #endif
@@ -1773,11 +1754,6 @@ void edgeTxInit()
     }
 #endif // defined(GUI)
 
-#if defined(BLUETOOTH_PROBE)
-    if (bluetooth.localAddr[0] != '\0')
-      btChipPresent = 1;
-    g_eeGeneral.bluetoothMode = oldBtMode;
-#endif
   }
 
 #if defined(GUI) && !defined(COLORLCD) && !defined(STARTUP_ANIMATION)

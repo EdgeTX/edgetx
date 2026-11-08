@@ -12,7 +12,7 @@ COLOR_SCREEN_TARGETS_OVERRIDE=""
 # Function to build targets by screen type and optional processor filter
 build_targets_by_screen_type() {
     local screen_type="$1"  # "color" or "bw"
-    local processor_filter="$2"  # "F2", "F4", "H7", "exclude-F2", etc. (optional)
+    local processor_filter="$2"  # "F4", "H7", "exclude-H7", etc. (optional)
     local all_targets=$(get_all_targets)
     local filtered_targets=""
     local failed_targets=0
@@ -275,12 +275,6 @@ get_color_screen_targets() {
 get_stm32_processor_type() {
     local target=$1
     
-    # Hard-coded case for x9dp (will be phased out)
-    if [[ "$target" == "x9dp" ]]; then
-        echo "F2"
-        return 0
-    fi
-    
     # Get the PCB configuration for this target from build-common.sh
     local pcb_line
     pcb_line=$(awk -v target="$target" '
@@ -301,7 +295,7 @@ get_stm32_processor_type() {
         return 1
     fi
     
-    # Extract PCB type and PCBREV from BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T8"
+    # Extract PCB type and PCBREV from BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12MK2"
     local pcb_type
     local pcb_rev
     pcb_type=$(echo "$pcb_line" | grep -o '\-DPCB=[A-Z0-9+]*' | cut -d= -f2)
@@ -457,10 +451,9 @@ get_stm32_processor_type() {
         fi
         
         if [[ -n "$cpu_type_full" ]]; then
-            # Convert CPU_TYPE_FULL to CPU_TYPE (F2, F4, H7, etc.)
+            # Convert CPU_TYPE_FULL to CPU_TYPE (F4, H7, etc.)
             local cpu_type
             case "$cpu_type_full" in
-                STM32F2*) cpu_type="F2" ;;
                 STM32F4*) cpu_type="F4" ;;
                 STM32H7*) cpu_type="H7" ;;
                 *) cpu_type="UNKNOWN" ;;
@@ -791,9 +784,9 @@ show_usage() {
     echo "  --continue-on-failure Continue building other languages/targets even after failures"
     echo "  --color-only         Build all color screen targets only"
     echo "  --bw-only            Build all black & white screen targets only"
-    echo "  --processor PROC     Build targets with specific STM32 processor (F2|F4|H7)"
+    echo "  --processor PROC     Build targets with specific STM32 processor (F4|H7)"
     echo "  --exclude-processor PROC  Build targets excluding specific processor"
-    echo "  --filter-processor PROC    Filter list commands by processor (F2|F4|H7|exclude-F2|etc.)"
+    echo "  --filter-processor PROC    Filter list commands by processor (F4|H7|exclude-H7|etc.)"
     echo
     echo "Arguments:"
     echo "  TARGET [TARGET...]  Build all valid languages for specific target(s)"
@@ -802,24 +795,24 @@ show_usage() {
     echo "Examples:"
     echo "  $0                  # Build all languages for all targets"
     echo "  $0 tx16s            # Build all languages for TX16S"
-    echo "  $0 tx16s gx12 x9d   # Build all languages for multiple targets"
-    echo "  $0 x7               # Build non-logographic languages for X7 (B&W)"
-    echo "  $0 -f x7            # Force build ALL languages for X7 (including CN,JP,KO,TW)"
-    echo "  $0 -f tx16s st16 x9d # Force build ALL languages for multiple targets"
+    echo "  $0 tx16s gx12 x9e   # Build all languages for multiple targets"
+    echo "  $0 x7access         # Build non-logographic languages for X7 ACCESS (B&W)"
+    echo "  $0 -f x7access      # Force build ALL languages for X7 ACCESS (including CN,JP,KO,TW)"
+    echo "  $0 -f tx16s st16 x9e # Force build ALL languages for multiple targets"
     echo "  $0 --color-only     # Build all color screen targets with appropriate languages"
     echo "  $0 --bw-only        # Build all B&W screen targets (excluding logographic)"
     echo "  $0 --bw-only -f     # Build all B&W screen targets with ALL languages"
-    echo "  $0 --processor F2   # Build all F2 processor targets"
-    echo "  $0 --bw-only --processor F2  # Build F2 B&W targets only"
-    echo "  $0 --exclude-processor F2    # Build all targets except F2"
+    echo "  $0 --processor F4   # Build all F4 processor targets"
+    echo "  $0 --bw-only --processor F4  # Build F4 B&W targets only"
+    echo "  $0 --exclude-processor H7    # Build all targets except H7"
     echo "  $0 -l               # List all available targets"
     echo "  $0 -l --filter-processor F4  # List only F4 targets"
     echo "  $0 -c --filter-processor H7  # List only H7 color screen targets"
-    echo "  $0 -b --filter-processor exclude-F2  # List B&W targets excluding F2"
+    echo "  $0 -b --filter-processor exclude-H7  # List B&W targets excluding H7"
     echo "  $0 --list-processors     # Show all targets grouped by processor type"
-    echo "  $0 -n x7            # Show what languages would be built for X7"
+    echo "  $0 -n x7access      # Show what languages would be built for X7 ACCESS"
     echo "  $0 -n tx16s gx12    # Show what would be built for multiple targets"
-    echo "  $0 --continue-on-failure x7  # Build all languages for X7 even if some fail"
+    echo "  $0 --continue-on-failure x7access  # Build all languages for X7 ACCESS even if some fail"
     echo "  $0 --continue-on-failure --color-only  # Build all color targets, continue on failures"
     echo
     echo "Language Rules:"
@@ -836,7 +829,7 @@ show_usage() {
 # Function to list targets by screen type with optional processor filtering
 list_targets_by_type() {
     local screen_filter="$1"     # "color", "bw", or "all"
-    local processor_filter="$2"  # Optional: "F2", "F4", "H7", "exclude-F2", etc.
+    local processor_filter="$2"  # Optional: "F4", "H7", "exclude-H7", etc.
     
     echo "Scanning for available targets..." >&2
     local all_targets
@@ -941,7 +934,6 @@ list_targets_by_type() {
 # Function to list targets by processor type
 list_targets_by_processor() {
     local all_targets=$(get_all_targets)
-    local f2_targets=""
     local f4_targets=""
     local h7_targets=""
     local unknown_targets=""
@@ -949,7 +941,6 @@ list_targets_by_processor() {
     for target in $all_targets; do
         local processor=$(get_stm32_processor_type "$target")
         case "$processor" in
-            F2) f2_targets="$f2_targets $target" ;;
             F4) f4_targets="$f4_targets $target" ;;
             H7) h7_targets="$h7_targets $target" ;;
             *) unknown_targets="$unknown_targets $target" ;;
@@ -957,11 +948,6 @@ list_targets_by_processor() {
     done
     
     echo "Targets grouped by STM32 processor type:"
-    echo
-    echo "STM32F2 targets:"
-    for target in $f2_targets; do
-        echo "  $target"
-    done
     echo
     echo "STM32F4 targets:"
     for target in $f4_targets; do
@@ -1053,7 +1039,7 @@ while [[ $# -gt 0 ]]; do
                 PROCESSOR_FILTER="$2"
                 shift 2
             else
-                echo "Error: --processor requires a processor type (F2|F4|H7)"
+                echo "Error: --processor requires a processor type (F4|H7)"
                 exit 1
             fi
             ;;
@@ -1062,7 +1048,7 @@ while [[ $# -gt 0 ]]; do
                 PROCESSOR_FILTER="exclude-$2"
                 shift 2
             else
-                echo "Error: --exclude-processor requires a processor type (F2|F4|H7)"
+                echo "Error: --exclude-processor requires a processor type (F4|H7)"
                 exit 1
             fi
             ;;
@@ -1071,7 +1057,7 @@ while [[ $# -gt 0 ]]; do
                 LIST_PROCESSOR_FILTER="$2"
                 shift 2
             else
-                echo "Error: --filter-processor requires a processor type (F2|F4|H7|exclude-F2|etc.)"
+                echo "Error: --filter-processor requires a processor type (F4|H7|exclude-H7|etc.)"
                 exit 1
             fi
             ;;
@@ -1143,8 +1129,8 @@ export CONTINUE_ON_FAILURE
 # Validate processor filter if specified
 if [[ -n "$PROCESSOR_FILTER" ]]; then
     proc="${PROCESSOR_FILTER#exclude-}"
-    if [[ "$proc" != "F2" && "$proc" != "F4" && "$proc" != "H7" ]]; then
-        echo "Error: Invalid processor type '$proc'. Valid options: F2, F4, H7"
+    if [[ "$proc" != "F4" && "$proc" != "H7" ]]; then
+        echo "Error: Invalid processor type '$proc'. Valid options: F4, H7"
         exit 1
     fi
 fi
@@ -1152,8 +1138,8 @@ fi
 # Validate list processor filter if specified
 if [[ -n "$LIST_PROCESSOR_FILTER" ]]; then
     proc="${LIST_PROCESSOR_FILTER#exclude-}"
-    if [[ "$proc" != "F2" && "$proc" != "F4" && "$proc" != "H7" ]]; then
-        echo "Error: Invalid filter processor type '$proc'. Valid options: F2, F4, H7, exclude-F2, exclude-F4, exclude-H7"
+    if [[ "$proc" != "F4" && "$proc" != "H7" ]]; then
+        echo "Error: Invalid filter processor type '$proc'. Valid options: F4, H7, exclude-F4, exclude-H7"
         exit 1
     fi
 fi

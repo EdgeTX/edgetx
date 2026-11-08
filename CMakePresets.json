@@ -121,22 +121,10 @@
       "cacheVariables": { "PCB": "X12S" }
     },
     {
-      "name": "x7",
-      "displayName": "FrSky QX7",
-      "inherits": "firmware",
-      "cacheVariables": { "PCB": "X7" }
-    },
-    {
       "name": "x7access",
       "displayName": "FrSky QX7 Access",
       "inherits": "firmware",
       "cacheVariables": { "PCB": "X7", "PCBREV": "ACCESS", "PXX1": "YES" }
-    },
-    {
-      "name": "x9dp",
-      "displayName": "FrSky X9D+",
-      "inherits": "firmware",
-      "cacheVariables": { "PCB": "X9D+" }
     },
     {
       "name": "x9dp2019",
@@ -149,12 +137,6 @@
       "displayName": "FrSky X9E",
       "inherits": "firmware",
       "cacheVariables": { "PCB": "X9E" }
-    },
-    {
-      "name": "xlite",
-      "displayName": "FrSky X-Lite",
-      "inherits": "firmware",
-      "cacheVariables": { "PCB": "XLITE" }
     },
 
     {
@@ -262,12 +244,6 @@
       "cacheVariables": { "PCB": "T22" }
     },
     {
-      "name": "tpro",
-      "displayName": "Jumper T-Pro",
-      "inherits": "firmware",
-      "cacheVariables": { "PCB": "X7", "PCBREV": "TPRO" }
-    },
-    {
       "name": "tpros",
       "displayName": "Jumper T-Pro S",
       "inherits": "firmware",
@@ -309,12 +285,6 @@
       "displayName": "RadioMaster Pocket",
       "inherits": "firmware",
       "cacheVariables": { "PCB": "X7", "PCBREV": "POCKET" }
-    },
-    {
-      "name": "tx12",
-      "displayName": "RadioMaster TX12",
-      "inherits": "firmware",
-      "cacheVariables": { "PCB": "X7", "PCBREV": "TX12" }
     },
     {
       "name": "tx12mk2",
