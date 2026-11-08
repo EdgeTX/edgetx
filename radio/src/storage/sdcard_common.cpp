@@ -75,6 +75,11 @@ static void storageEraseAll()
   g_eeGeneral.blOffBright = 20;
 #endif
 
+#if defined(LCD_CONTRAST_DEFAULT) && !defined(COLORLCD)
+  // Valid contrast for the alerts below (g_eeGeneral was zeroed)
+  g_eeGeneral.contrast = LCD_CONTRAST_DEFAULT;
+#endif
+
   ALERT(STR_STORAGE_WARNING, STR_BAD_RADIO_DATA, AU_BAD_RADIODATA);
   RAISE_ALERT(STR_STORAGE_WARNING, STR_STORAGE_FORMAT, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
 
