@@ -80,7 +80,7 @@ static inline void pushVal(uint8_t id, int32_t value, TelemetryUnit unit, uint8_
 }
 
 static const char * const standardModes[] = {
-  nullptr, "POSHOLD", "ORBIT", "CRUISE", "ALT HOLD", "RTL", "MISSION", "LAND", "TAKEOFF"
+  nullptr, "POSHLD", "ORBIT", "CRUISE", "ALTHLD", "RTL", "MISSN", "LAND", "TKOF"
 };
 
 template <size_t N>
@@ -89,35 +89,34 @@ static const char * modeName(const char * const (&table)[N], uint32_t mode)
   return mode < N ? table[mode] : nullptr;
 }
 
-#if defined(MAVLINK_ARDUPILOT)
 static const char * const planeModes[] = {
-  "MANUAL", "CIRCLE", "STABILIZE", "TRAINING", "ACRO", "FBWA", "FBWB", "CRUISE", "AUTOTUNE",
-  nullptr, "AUTO", "RTL", "LOITER", "TAKEOFF", "AVOID ADSB", "GUIDED", "INITIALISING",
-  "QSTABILIZE", "QHOVER", "QLOITER", "QLAND", "QRTL", "QAUTOTUNE", "QACRO", "THERMAL",
-  "LOITER2QLAND", "AUTOLAND"
+  "MAN", "CIRC", "STAB", "TRAIN", "ACRO", "FBWA", "FBWB", "CRUISE", "ATUNE",
+  nullptr, "AUTO", "RTL", "LOIT", "TKOF", "ADSB", "GUID", "INIT",
+  "QSTAB", "QHOV", "QLOIT", "QLAND", "QRTL", "QTUNE", "QACRO", "THRML",
+  "L2QLND", "ALAND"
 };
 
 static const char * const copterModes[] = {
-  "STABILIZE", "ACRO", "ALT HOLD", "AUTO", "GUIDED", "LOITER", "RTL", "CIRCLE", nullptr, "LAND",
-  nullptr, "DRIFT", nullptr, "SPORT", "FLIP", "AUTOTUNE", "POSHOLD", "BRAKE", "THROW",
-  "AVOID ADSB", "GUIDED NOGPS", "SMARTRTL", "FLOWHOLD", "FOLLOW", "ZIGZAG", "SYSTEMID",
-  "AUTOROTATE", "AUTO RTL", "TURTLE", "RATE_ACRO"
+  "STAB", "ACRO", "ALTHLD", "AUTO", "GUIDED", "LOIT", "RTL", "CIRC", nullptr, "LAND",
+  nullptr, "DRFT", nullptr, "SPORT", "FLIP", "ATUN", "POSHLD", "BRAKE", "THROW",
+  "ADSB", "NOGPS", "SRTL", "FLOHLD", "FOLLOW", "ZIGZAG", "SYSID",
+  "AROT", "ARTL", "TRTLE", "RACRO"
 };
 
 static const char * const roverModes[] = {
-  "MANUAL", "ACRO", nullptr, "STEERING", "HOLD", "LOITER", "FOLLOW", "SIMPLE", "DOCK", "CIRCLE",
-  "AUTO", "RTL", "SMART RTL", nullptr, nullptr, "GUIDED", "INITIALISING"
+  "MAN", "ACRO", nullptr, "STEER", "HOLD", "LOIT", "FOLLOW", "SIMPLE", "DOCK", "CIRC",
+  "AUTO", "RTL", "SRTL", nullptr, nullptr, "GUID", "INIT"
 };
 
 static const char * const subModes[] = {
-  "STABILIZE", "ACRO", "ALT HOLD", "AUTO", "GUIDED", nullptr, nullptr, "CIRCLE", nullptr,
-  "SURFACE", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, "POSHOLD", nullptr, nullptr,
-  "MANUAL", "MOTORDETECT", "SURFTRAK"
+  "STAB", "ACRO", "ALTHLD", "AUTO", "GUIDED", nullptr, nullptr, "CIRC", nullptr,
+  "SURF", nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, "POSHLD", nullptr, nullptr,
+  "MAN", "MOTDET", "SFTRAK"
 };
 
 static const char * const trackerModes[] = {
-  "MANUAL", "STOP", "SCAN", "SERVO TEST", "GUIDED", nullptr, nullptr, nullptr, nullptr, nullptr,
-  "AUTO", nullptr, nullptr, nullptr, nullptr, nullptr, "INITIALISING"
+  "MAN", "STOP", "SCAN", "SRVTST", "GUID", nullptr, nullptr, nullptr, nullptr, nullptr,
+  "AUTO", nullptr, nullptr, nullptr, nullptr, nullptr, "INIT"
 };
 
 static const char * ardupilotModeName(uint8_t type, uint32_t mode)
@@ -152,7 +151,6 @@ static const char * ardupilotModeName(uint8_t type, uint32_t mode)
       return nullptr;
   }
 }
-#endif
 
 static uint32_t currentModeCustom;
 static uint8_t currentModeStandard;
@@ -199,12 +197,10 @@ void mavlinkTelemetryDecode(uint8_t module, const mavlink_message_t* msg)
       const char * name = nullptr;
       if (currentModeStandard && hb.custom_mode == currentModeCustom)
         name = modeName(standardModes, currentModeStandard);
-#if defined(MAVLINK_ARDUPILOT)
       if (!name && hb.autopilot == MAV_AUTOPILOT_ARDUPILOTMEGA)
         name = ardupilotModeName(hb.type, hb.custom_mode);
-#endif
       char text[24];
-      char * p = name ? strAppend(text, name) : strAppendUnsigned(strAppend(text, "Mode "), hb.custom_mode);
+      char * p = name ? strAppend(text, name) : strAppendUnsigned(strAppend(text, "M"), hb.custom_mode);
       if (!(hb.base_mode & MAV_MODE_FLAG_SAFETY_ARMED))
         strAppend(p, "*");
       text[TELEMETRY_SENSOR_TEXT_LENGTH - 1] = ' ';
