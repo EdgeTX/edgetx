@@ -94,6 +94,10 @@ TEST_F(TelemetryCalcTest, SourceEncoding)
   EXPECT_FALSE(calcSourceIsGVar(0));
   EXPECT_FALSE(calcSourceIsGVar(MAX_TELEMETRY_SENSORS));
   EXPECT_FALSE(calcSourceIsGVar(-MAX_TELEMETRY_SENSORS));
+  EXPECT_TRUE(calcSourceIsGVar(MAX_TELEMETRY_SENSORS + 1));
+  EXPECT_EQ(calcSourceGVarIndex(-(MAX_TELEMETRY_SENSORS + 1)), 0);
+  EXPECT_EQ(calcSourceFromGVar(MAX_GVARS - 1, false),
+            MAX_TELEMETRY_SENSORS + MAX_GVARS);
 
   for (uint8_t i = 0; i < MAX_GVARS; i++) {
     for (bool neg : {false, true}) {

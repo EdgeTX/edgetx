@@ -33,11 +33,11 @@ constexpr uint8_t TELEMETRY_SENSOR_TEXT_LENGTH = 16;
 //   +/-(1 .. MAX_TELEMETRY_SENSORS)  sensor (negative: inverted)
 //   +/-(TELEM_CALC_SRC_GV1 + idx)    GVar idx (negative: inverted, or divide
 //                                    for TELEM_FORMULA_MULTIPLY)
-constexpr int8_t TELEM_CALC_SRC_GV1 = 101;
-static_assert(MAX_TELEMETRY_SENSORS < TELEM_CALC_SRC_GV1,
-              "calc source GVar range overlaps sensors");
+// GVars follow the last sensor so sensors can use as much of int8_t as
+// possible. The encoding is internal only, YAML stores GVars as GVn / -GVn.
+constexpr int8_t TELEM_CALC_SRC_GV1 = MAX_TELEMETRY_SENSORS + 1;
 static_assert(TELEM_CALC_SRC_GV1 + MAX_GVARS - 1 <= INT8_MAX,
-              "calc source GVar range exceeds int8_t");
+              "calc source GVar range exceeds int8_t, too many sensors or GVars");
 
 inline bool calcSourceIsGVar(int8_t source)
 {
