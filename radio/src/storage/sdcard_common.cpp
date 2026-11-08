@@ -76,7 +76,7 @@ static void storageEraseAll()
 #endif
 
 #if defined(LCD_CONTRAST_DEFAULT) && !defined(COLORLCD)
-  // Valid contrast for the alerts below (g_eeGeneral was zeroed)
+  // Set default contrast (i.e. g_eeGeneral was zeroed)
   g_eeGeneral.contrast = LCD_CONTRAST_DEFAULT;
 #endif
 
