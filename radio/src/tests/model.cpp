@@ -323,3 +323,87 @@ TEST(Model, limitExtendedRangeRoundTrip)
   EXPECT_EQ(LIMIT_MIN(&g_model.limitData[0]), -LIMIT_EXT_MAX);
   EXPECT_EQ(LIMIT_MAX(&g_model.limitData[0]), LIMIT_EXT_MAX);
 }
+
+static void expectSource(uint16_t rawValue, int source)
+{
+  SourceNumVal v;
+  v.rawValue = rawValue;
+  EXPECT_TRUE(v.isSource) << source;
+  EXPECT_EQ(v.value, source);
+}
+
+// Every source, including the last telemetry sensor (581 on TX16S MK3 with 99
+// sensors), must survive a YAML round trip in each field that can hold one
+TEST(Model, sourceFieldsRoundTripAllSources)
+{
+  const int srcs[] = {1, MIXSRC_FIRST_GVAR, MIXSRC_LAST_GVAR,
+                      MIXSRC_FIRST_TELEM, MIXSRC_LAST_TELEM - 1,
+                      MIXSRC_LAST_TELEM};
+  for (int s : srcs) {
+    for (int sign : {1, -1}) {
+      const int v = sign * s;
+      ModelData src;
+      memclear(&src, sizeof(src));
+
+      ExpoData& expo = src.expoData[0];
+      expo.mode = 3;
+      expo.srcRaw = v;
+      expo.weight = makeSourceNumVal(v, true);
+      expo.offset = makeSourceNumVal(-v, true);
+      expo.curve.value = makeSourceNumVal(v, true);
+
+      MixData& mix = src.mixData[0];
+      mix.srcRaw = 1;
+      mix.weight = makeSourceNumVal(v, true);
+      mix.offset = makeSourceNumVal(-v, true);
+      mix.curve.value = makeSourceNumVal(v, true);
+
+      src.logicalSw[0].func = LS_FUNC_VPOS;
+      src.logicalSw[0].v1 = v;
+      src.logicalSw[0].v2 = 10;
+      src.logicalSw[1].func = LS_FUNC_GREATER;
+      src.logicalSw[1].v1 = v;
+      src.logicalSw[1].v2 = -v;
+
+      src.customFn[0].swtch = SWSRC_ON;
+      src.customFn[0].func = FUNC_PLAY_VALUE;
+      CFN_PARAM(&src.customFn[0]) = v;
+
+      std::string yaml;
+      YamlTreeWalker tree;
+      tree.reset(get_modeldata_nodes(), (uint8_t*)&src);
+      ASSERT_TRUE(tree.generate(stringWriter, &yaml));
+
+      memclear(&g_model, sizeof(g_model));
+      loadModelYamlStr(yaml.c_str());
+
+      // Compare with the intended source, a too narrow field truncates the
+      // original and the reloaded copy alike
+      EXPECT_EQ(g_model.expoData[0].srcRaw, v);
+      expectSource(g_model.expoData[0].weight, v);
+      expectSource(g_model.expoData[0].offset, -v);
+      expectSource(g_model.expoData[0].curve.value, v);
+      expectSource(g_model.mixData[0].weight, v);
+      expectSource(g_model.mixData[0].offset, -v);
+      expectSource(g_model.mixData[0].curve.value, v);
+      EXPECT_EQ(g_model.logicalSw[0].v1, v);
+      EXPECT_EQ(g_model.logicalSw[0].v2, 10) << v;
+      EXPECT_EQ(g_model.logicalSw[1].v1, v);
+      EXPECT_EQ(g_model.logicalSw[1].v2, -v);
+      EXPECT_EQ(CFN_PARAM(&g_model.customFn[0]), v);
+    }
+  }
+}
+
+// Numbers and sources share SourceNumVal, the Lua conversion must keep them apart
+TEST(Model, sourceNumValLuaConversion)
+{
+  for (int n : {-1023, -500, -1, 0, 1, 500, 1023})
+    EXPECT_EQ(sourceNumValToLuaInt(luaIntToSourceNumval(n)), n);
+  for (int s : {1, (int)MIXSRC_LAST_TELEM}) {
+    EXPECT_EQ(sourceNumValToLuaInt(makeSourceNumVal(s, true)), s + 1024);
+    EXPECT_EQ(sourceNumValToLuaInt(makeSourceNumVal(-s, true)), -s - 1024);
+    EXPECT_EQ(luaIntToSourceNumval(s + 1024), makeSourceNumVal(s, true));
+    EXPECT_EQ(luaIntToSourceNumval(-s - 1024), makeSourceNumVal(-s, true));
+  }
+}

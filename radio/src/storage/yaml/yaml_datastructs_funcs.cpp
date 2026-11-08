@@ -437,10 +437,9 @@ static bool w_mixSrcRawSigned(const YamlNode* node, int32_t val, yaml_writer_fun
 
 static bool w_mixSrcRawExNoQuote(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
 {
-  // Check for negative 10 bit value. TODO: handle this better!
-  val &= 0x3FF;
-  if (val >= 512) val -= 1024;
-  return w_mixSrcRawSigned(node, (int32_t)val, wf, opaque);
+  // Generated nodes pass the raw field bits, other callers a signed value
+  int32_t sval = node ? yaml_to_signed(val, node->size) : (int32_t)val;
+  return w_mixSrcRawSigned(node, sval, wf, opaque);
 }
 
 static bool w_mixSrcRawEx(const YamlNode* node, uint32_t val, yaml_writer_func wf, void* opaque)
@@ -2385,7 +2384,7 @@ static void r_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
 
 }
 
-static const struct YamlNode _ls_node_v1 = YAML_PADDING(10);
+static const struct YamlNode _ls_node_v1 = YAML_PADDING(11);
 static const struct YamlNode _ls_node_v2 = YAML_PADDING(16);
 
 static bool w_logicSw(void* user, uint8_t* data, uint32_t bitoffs,
