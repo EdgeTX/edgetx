@@ -125,6 +125,9 @@ void menuRadioTools(event_t event)
         displayRadioTool(line);
       }
     }
+    if (reusableBuffer.radioTools.linesCount == 0) {
+      lcdDrawCenteredText(LCD_H/2, STR_NO_TOOLS);
+    }
     return;
   }
 
