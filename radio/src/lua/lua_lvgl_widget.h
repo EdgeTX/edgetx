@@ -255,7 +255,7 @@ class LvglWidgetObjectBase
   virtual bool isVisible() = 0;
   virtual void enable() {};
   virtual void disable() {};
-  virtual void close() {};
+  virtual void close(lua_State *L) {};
 
   virtual coord_t getScrollX() { return 0; }
   virtual coord_t getScrollY() { return 0; }
@@ -273,7 +273,7 @@ class LvglWidgetObjectBase
 
   static LvglWidgetObjectBase *checkLvgl(lua_State *L, int index, bool required = false);
 
-  void clear();
+  void clear(lua_State *L);
 
  protected:
   int luaRef = LUA_REFNIL;
@@ -917,7 +917,7 @@ class LvglWidgetDialog : public LvglWidgetObject, public LvglTitleParam
   LvglWidgetDialog() : LvglWidgetObject() {}
 
   void clearRefs(lua_State *L) override;
-  void close() override;
+  void close(lua_State *L) override;
 
  protected:
   LvglDialog* dialog = nullptr;
