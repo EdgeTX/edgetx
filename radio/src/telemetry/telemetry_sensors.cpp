@@ -409,7 +409,49 @@ void TelemetryItem::eval(const TelemetrySensor & sensor)
       }
       for (int i=0; i<maxitems; i++) {
         int8_t source = sensor.calc.sources[i];
-        if (source) {
+        if (calcSourceIsGVar(source)) {
+#if defined(GVARS)
+          uint8_t gvIdx = calcSourceGVarIndex(source);
+          if (gvIdx >= MAX_GVARS)
+            continue;
+          // GVar value is used as displayed, with its own precision:
+          // a plain factor for multiply / divide, a value in the unit of
+          // this sensor otherwise
+          int32_t gvarValue = getGVarValue(gvIdx, mixerCurrentFlightMode);
+          uint8_t gvarPrec = g_model.gvars[gvIdx].prec;
+          count += 1;
+          if (sensor.formula == TELEM_FORMULA_MULTIPLY) {
+            if (source < 0) {
+              // divide, keeping at least the precision of this sensor
+              if (gvarValue != 0) {
+                int32_t prec = max<int32_t>(mulprec, sensor.prec);
+                value = convertTelemetryValue(value, sensor.unit, mulprec,
+                                              sensor.unit, prec + gvarPrec) /
+                        gvarValue;
+                mulprec = prec;
+              } else {
+                value = 0;
+              }
+            } else {
+              value *= gvarValue;
+              mulprec += gvarPrec;
+            }
+          } else {
+            gvarValue = convertTelemetryValue(gvarValue, sensor.unit, gvarPrec,
+                                              sensor.unit, sensor.prec);
+            if (source < 0)
+              gvarValue = -gvarValue;
+            if (sensor.formula == TELEM_FORMULA_MIN)
+              value = (count==1 ? gvarValue : min<int32_t>(value, gvarValue));
+            else if (sensor.formula == TELEM_FORMULA_MAX)
+              value = (count==1 ? gvarValue : max<int32_t>(value, gvarValue));
+            else
+              value += gvarValue;
+          }
+#endif
+          continue;
+        }
+        if (source && abs(source) <= MAX_TELEMETRY_SENSORS) {
           unsigned int index = abs(source)-1;
           TelemetrySensor & telemetrySensor = g_model.telemetrySensors[index];
           TelemetryItem & telemetryItem = telemetryItems[index];
@@ -645,6 +687,23 @@ void TelemetrySensor::init(uint16_t id)
 bool TelemetrySensor::isAvailable() const
 {
   return ZLEN(label) > 0;
+}
+
+bool TelemetrySensor::isOfflineFresh() const
+{
+  // Calculated sensors using only GVars never go stale
+  if (type != TELEM_TYPE_CALCULATED || formula > TELEM_FORMULA_MULTIPLY)
+    return false;
+  int maxitems = (formula == TELEM_FORMULA_MULTIPLY) ? 2 : 4;
+  bool hasGVar = false;
+  for (int i = 0; i < maxitems; i++) {
+    int8_t source = calc.sources[i];
+    if (calcSourceIsGVar(source))
+      hasGVar = true;
+    else if (source)
+      return false;
+  }
+  return hasGVar;
 }
 
 PACK(typedef struct {
