@@ -151,12 +151,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install git-cliff
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION=$(wget -qO- https://api.github.com/repos/orhun/git-cliff/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed 's/^v//')
-          FILENAME="git-cliff-${VERSION}-x86_64-unknown-linux-gnu.tar.gz"
-          wget -O git-cliff.tar.gz "https://github.com/orhun/git-cliff/releases/download/v${VERSION}/${FILENAME}"
+          # No tag: gh picks the latest release
+          gh release download --repo orhun/git-cliff \
+            --pattern 'git-cliff-*-x86_64-unknown-linux-gnu.tar.gz' --output git-cliff.tar.gz
           tar -xzvf git-cliff.tar.gz
-          mv git-cliff-${VERSION}/git-cliff /usr/local/bin/
+          mv git-cliff-*/git-cliff /usr/local/bin/
 
       - name: Generate Changelog and Contributors List
         id: changelog

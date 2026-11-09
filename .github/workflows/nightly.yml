@@ -35,6 +35,9 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Fetch build dependencies
+        uses: ./.github/actions/fetch_deps
+
       - name: Build firmware ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}

@@ -52,12 +52,16 @@ runs:
       shell: bash
       env:
         ACTION_PATH: ${{ github.action_path }}
+        GH_TOKEN: ${{ github.token }}
         SDL2_VERSION: ${{ inputs.sdl2-version }}
         SDL3_VERSION: ${{ inputs.sdl3-version }}
         SDL2_COMPAT_VERSION: ${{ inputs.sdl2-compat-version }}
         MACOS_DEPLOYMENT_TARGET: ${{ inputs.macos-deployment-target }}
       run: |
         "${ACTION_PATH}/setup-sdl.sh"
+
+    - name: Fetch build dependencies
+      uses: ./.github/actions/fetch_deps
 
     - name: Setup MSVC
       if: runner.os == 'Windows'

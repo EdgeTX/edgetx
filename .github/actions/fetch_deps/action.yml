@@ -1,0 +1,68 @@
+name: 'Fetch build dependencies'
+description: >
+  Keeps CMake configure from depending on anonymous GitHub downloads, which
+  fail when GitHub throttles unauthenticated traffic. Restores the FetchContent
+  sources (googletest, WAMR, yaml-cpp, miniz, maxLibQt, imgui) from the Actions
+  cache, and downloads the latest rs-dfu release through the authenticated API
+  with gh, exporting RS_DFU_URL for cmake/FetchRsDfuLib.cmake.
+inputs:
+  token:
+    description: 'Token for the GitHub API'
+    default: ${{ github.token }}
+
+runs:
+  using: "composite"
+  steps:
+    # FETCHCONTENT_BASE_DIR defaults to .cache/fetchcontent in the source tree
+    # (top-level CMakeLists.txt) and is shared by every sub-build. The source
+    # and stamp dirs are enough for FetchContent to skip the download. *-build
+    # holds build output and rs-dfu tracks "latest", so neither is cached.
+    # Only a cache miss downloads anonymously.
+    - name: Cache FetchContent sources
+      uses: actions/cache@v6
+      with:
+        path: |
+          .cache/fetchcontent/*-src
+          .cache/fetchcontent/*-subbuild
+          !.cache/fetchcontent/rsdfu-*
+        key: fetchcontent-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('cmake/Fetch*.cmake', 'cmake/wamr-*.patch') }}
+        # A partial hit means only the dependency whose Fetch file changed is
+        # downloaded again
+        restore-keys: |
+          fetchcontent-${{ runner.os }}-${{ runner.arch }}-
+
+    - name: Fetch rs-dfu
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        RUNNER_OS_NAME: ${{ runner.os }}
+        RUNNER_ARCH_NAME: ${{ runner.arch }}
+      run: |
+        # Asset names must match cmake/FetchRsDfuLib.cmake
+        case "${RUNNER_OS_NAME}" in
+          Linux)   platform="unknown-linux-gnu" ;;
+          macOS)   platform="apple-darwin" ;;
+          Windows) platform="pc-windows-msvc" ;;
+          *) echo "::error::Unsupported runner OS: ${RUNNER_OS_NAME}"; exit 1 ;;
+        esac
+        if [[ "${RUNNER_OS_NAME}" == "macOS" ]]; then
+          arch="universal"
+        else
+          case "${RUNNER_ARCH_NAME}" in
+            X64)   arch="x86_64" ;;
+            ARM64) arch="aarch64" ;;
+            *) echo "::error::Unsupported runner arch: ${RUNNER_ARCH_NAME}"; exit 1 ;;
+          esac
+        fi
+
+        asset="rs_dfu-${arch}-${platform}.tar.gz"
+        out="${RUNNER_TEMP}/${asset}"
+        # Leaving RS_DFU_URL unset makes CMake fall back to its own download
+        if ! command -v gh >/dev/null; then
+          echo "::warning::gh not found, CMake will download ${asset} anonymously"
+        elif gh release download --repo EdgeTX/rs-dfu --pattern "${asset}" \
+            --output "${out}" --clobber; then
+          echo "RS_DFU_URL=${out}" >> "${GITHUB_ENV}"
+        else
+          echo "::warning::Could not fetch ${asset} with gh, CMake will download it anonymously"
+        fi

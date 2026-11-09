@@ -14,7 +14,15 @@ runs:
     - name: Install WASI SDK
       if: steps.cache-wasi-sdk.outputs.cache-hit != 'true'
       shell: bash
+      env:
+        # gh goes through the authenticated API rather than an anonymous
+        # github.com release download
+        GH_TOKEN: ${{ github.token }}
+        VERSION: ${{ inputs.version }}
+        ARCH: ${{ inputs.arch }}
       run: |
         mkdir /tmp/wasi-sdk
-        curl -L https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-${{ inputs.version }}/wasi-sdk-${{ inputs.version }}.0-${{ inputs.arch }}.tar.gz | tar xz --strip-components 1 -C /tmp/wasi-sdk
+        gh release download "wasi-sdk-${VERSION}" --repo WebAssembly/wasi-sdk \
+          --pattern "wasi-sdk-${VERSION}.0-${ARCH}.tar.gz" --output - \
+          | tar xz --strip-components 1 -C /tmp/wasi-sdk
         sudo mv /tmp/wasi-sdk /opt/wasi-sdk

@@ -9,6 +9,7 @@ on:
       - v*
     paths: &trigger-paths
       - '.github/workflows/build_fw.yml'
+      - '.github/actions/fetch_deps/**'
       - 'cmake/**'
       - 'radio/**'
       - 'tools/build-gh.sh'
@@ -58,6 +59,9 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Fetch build dependencies
+        uses: ./.github/actions/fetch_deps
+
       - name: Test ${{ matrix.target }}
         env:
           FLAVOR: ${{ matrix.target }}
@@ -105,6 +109,9 @@ jobs:
         uses: actions/checkout@v7
         with:
           submodules: recursive
+
+      - name: Fetch build dependencies
+        uses: ./.github/actions/fetch_deps
 
       - name: Build ${{ matrix.target }}
         env:
