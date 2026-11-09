@@ -188,7 +188,8 @@ if(ARCH STREQUAL ARM)
   include(targets/common/arm/CMakeLists.txt)
 endif()
 
-# Generate hardware definitions from hal.h
+# Dump the macros hal.h defines (<flavour>.json.h), e.g. to compare hardware
+# config between builds. The hw_defs JSON files are maintained by hand.
 # Deferred to the end of this directory so the preprocessor sees all flags,
 # including those added further down (e.g. BLUETOOTH)
 cmake_language(DEFER CALL AddHardwareDefTarget ${HW_DESC_JSON})
