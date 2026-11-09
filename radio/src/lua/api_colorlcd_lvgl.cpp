@@ -96,13 +96,6 @@ class LvglWidgetParams
   bool hasChildren = false;
 };
 
-static int luaLvglPopup(lua_State *L, std::function<LvglWidgetObjectBase*()> create)
-{
-  auto obj = create();
-  obj->create(L, 1);
-  return 0;
-}
-
 static int luaDestroyLvglWidget(lua_State *L)
 {
   auto p = LvglWidgetObjectBase::checkLvgl(L, 1);
@@ -1320,7 +1313,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @status current Introduced in 2.11.0
   */
-  LROT_FUNCENTRY(confirm, [](lua_State* L) { return luaLvglPopup(L, []() { return new LvglWidgetConfirmDialog(); }); })
+  LROT_FUNCENTRY(confirm, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetConfirmDialog(); }, false, false); })
   /*luadoc
   @function lvgl.message(params)
 
@@ -1337,7 +1330,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @status current Introduced in 2.11.0
   */
-  LROT_FUNCENTRY(message, [](lua_State* L) { return luaLvglPopup(L, []() { return new LvglWidgetMessageDialog(); }); })
+  LROT_FUNCENTRY(message, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetMessageDialog(); }, false, false); })
   /*luadoc
   @function lvgl.menu(params)
 
@@ -1357,7 +1350,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @status current Introduced in 2.11.1
   */
-  LROT_FUNCENTRY(menu, [](lua_State* L) { return luaLvglPopup(L, []() { return new LvglWidgetMenu(); }); })
+  LROT_FUNCENTRY(menu, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetMenu(); }, false, false); })
   // Object manipulation functions
   LROT_FUNCENTRY(set, luaLvglSet)
   LROT_FUNCENTRY(show, luaLvglShow)

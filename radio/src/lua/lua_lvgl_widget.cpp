@@ -383,7 +383,7 @@ int LvglWidgetObjectBase::getRef(lua_State *L, bool saveRef)
 void LvglWidgetObjectBase::push(lua_State *L, bool saveRef)
 {
   // Save reference
-  auto ref = getRef(L);
+  auto ref = getRef(L, saveRef);
   // Push userdata back into Lua stack (return object)
   lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
 }
