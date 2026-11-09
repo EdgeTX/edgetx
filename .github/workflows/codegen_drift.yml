@@ -70,8 +70,11 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Install just
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          wget -qO- "https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+          gh release download "${JUST_VERSION}" --repo casey/just \
+            --pattern "just-${JUST_VERSION}-x86_64-unknown-linux-musl.tar.gz" --output - \
             | tar xz -C /usr/local/bin just
 
       # A Justfile change cannot cause drift, but it can break the file, and
@@ -195,6 +198,9 @@ jobs:
         uses: actions/checkout@v7
         with:
           submodules: recursive
+
+      - name: Fetch build dependencies
+        uses: ./.github/actions/fetch_deps
 
       - name: Check for drift
         uses: ./.github/actions/codegen_drift

@@ -24,7 +24,18 @@ endif()
 
 set(WASI_SDK_BASE_URL "https://github.com/WebAssembly/wasi-sdk/releases/download")
 set(WASI_SDK_FILENAME "wasi-sdk-${WASI_SDK_VERSION}.0-${WASI_SDK_ARCH}-${WASI_SDK_PLATFORM}")
-set(WASI_SDK_URL "${WASI_SDK_BASE_URL}/wasi-sdk-${WASI_SDK_VERSION}/${WASI_SDK_FILENAME}.tar.gz")
+
+# WASI_SDK_URL (CMake variable or environment variable) overrides the download
+# location, for example with a local file fetched by an authenticated request.
+if(NOT WASI_SDK_URL AND DEFINED ENV{WASI_SDK_URL})
+  set(WASI_SDK_URL "$ENV{WASI_SDK_URL}")
+endif()
+if(WASI_SDK_URL)
+  file(TO_CMAKE_PATH "${WASI_SDK_URL}" WASI_SDK_URL)
+  message(STATUS "Using WASI SDK from WASI_SDK_URL: ${WASI_SDK_URL}")
+else()
+  set(WASI_SDK_URL "${WASI_SDK_BASE_URL}/wasi-sdk-${WASI_SDK_VERSION}/${WASI_SDK_FILENAME}.tar.gz")
+endif()
 
 set(FETCHCONTENT_QUIET FALSE)
 

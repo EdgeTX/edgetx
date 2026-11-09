@@ -24,6 +24,9 @@
 #include "eeprominterface.h"
 #include "compounditemmodels.h"
 
+static_assert(CPN_MAX_SENSORS < SENSOR_SOURCE_GV1,
+              "calc source GVar range overlaps sensors");
+
 void SensorData::updateUnit()
 {
   if (type == TELEM_TYPE_CALCULATED) {
@@ -146,7 +149,7 @@ QString SensorData::paramsToString(const ModelData * model) const
     str.append(QString(FMT_LABEL).arg(tr("Sources")));
     for (int i = 0; i < 4; i++) {
       if (i < 2 || mask & SENSOR_HAS_SOURCES_34) {
-        str.append(QString(FMT_VALUE).arg(sourceToString(model, sources[i])));
+        str.append(QString(FMT_VALUE).arg(calcSourceToString(model, sources[i], formula)));
       }
     }
   }
@@ -340,6 +343,20 @@ QString SensorData::sourceToString(const ModelData * model, const int index, con
   }
 
   return "";
+}
+
+//  static
+QString SensorData::calcSourceToString(const ModelData * model, const int source, const unsigned int formula)
+{
+  if (!isGVarSource(source))
+    return sourceToString(model, source);
+
+  const int idx = gvarSourceIndex(source);
+  if (!model || idx >= CPN_MAX_GVARS)
+    return CPN_STR_UNKNOWN_ITEM;
+
+  const QString prfx = source > 0 ? "" : formula == TELEM_FORMULA_MULTIPLY ? "/" : "-";
+  return prfx % model->gvarData[idx].nameToString(idx);
 }
 
 //  static

@@ -101,32 +101,11 @@ static void addRadioScriptToolHandler(std::vector<LuaScript> luaScripts)
 }
 #endif
 
-void menuRadioTools(event_t event)
+// Scan SD card and modules for tools, filling the visible rows.
+// Returns the total number of tools found.
+static uint8_t scanRadioTools()
 {
-  if (event == EVT_ENTRY  || event == EVT_ENTRY_UP) {
-    memclear(&reusableBuffer.radioTools, sizeof(reusableBuffer.radioTools));
-    reusableBuffer.radioTools.oldOffset = 0xFF;
-#if defined(PXX2)
-    for (uint8_t module = 0; module < NUM_MODULES; module++) {
-      if (isModulePXX2(module) && (module == INTERNAL_MODULE ? modulePortPowered(INTERNAL_MODULE) : modulePortPowered(EXTERNAL_MODULE))) {
-        moduleState[module].readModuleInformation(&reusableBuffer.radioTools.modules[module], PXX2_HW_INFO_TX_ID, PXX2_HW_INFO_TX_ID);
-      }
-    }
-#endif
-  }
-
-  SIMPLE_MENU(STR_MENUTOOLS, menuTabGeneral, MENU_RADIO_TOOLS, HEADER_LINE + reusableBuffer.radioTools.linesCount);
-
   uint8_t index = 0;
-
-  if (reusableBuffer.radioTools.oldOffset == menuVerticalOffset) {
-    for(uint8_t line = 0; line < reusableBuffer.radioTools.linesCount; line++) {
-      if (line >= menuVerticalOffset && line < menuVerticalOffset + NUM_BODY_LINES) {
-        displayRadioTool(line);
-      }
-    }
-    return;
-  }
 
 #if defined(LUA)
   FILINFO fno;
@@ -226,10 +205,37 @@ void menuRadioTools(event_t event)
 
 #endif
 
-  if (index == 0) {
-    lcdDrawCenteredText(LCD_H/2, STR_NO_TOOLS);
+  return index;
+}
+
+void menuRadioTools(event_t event)
+{
+  if (event == EVT_ENTRY  || event == EVT_ENTRY_UP) {
+    memclear(&reusableBuffer.radioTools, sizeof(reusableBuffer.radioTools));
+    reusableBuffer.radioTools.oldOffset = 0xFF;
+#if defined(PXX2)
+    for (uint8_t module = 0; module < NUM_MODULES; module++) {
+      if (isModulePXX2(module) && (module == INTERNAL_MODULE ? modulePortPowered(INTERNAL_MODULE) : modulePortPowered(EXTERNAL_MODULE))) {
+        moduleState[module].readModuleInformation(&reusableBuffer.radioTools.modules[module], PXX2_HW_INFO_TX_ID, PXX2_HW_INFO_TX_ID);
+      }
+    }
+#endif
   }
 
-  reusableBuffer.radioTools.linesCount = index;
-  reusableBuffer.radioTools.oldOffset = menuVerticalOffset;
+  SIMPLE_MENU(STR_MENUTOOLS, menuTabGeneral, MENU_RADIO_TOOLS, HEADER_LINE + reusableBuffer.radioTools.linesCount);
+
+  if (reusableBuffer.radioTools.oldOffset == menuVerticalOffset) {
+    for (uint8_t line = 0; line < reusableBuffer.radioTools.linesCount; line++) {
+      if (line >= menuVerticalOffset && line < menuVerticalOffset + NUM_BODY_LINES) {
+        displayRadioTool(line);
+      }
+    }
+  } else {
+    reusableBuffer.radioTools.linesCount = scanRadioTools();
+    reusableBuffer.radioTools.oldOffset = menuVerticalOffset;
+  }
+
+  if (reusableBuffer.radioTools.linesCount == 0) {
+    lcdDrawCenteredText(LCD_H/2, STR_NO_TOOLS);
+  }
 }

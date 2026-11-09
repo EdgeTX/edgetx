@@ -123,6 +123,8 @@ if(NOT NATIVE_BUILD)
   )
 
   add_dependencies(stm32_drivers hal_settings hal_pwm_sticks)
+  add_dependencies(stm32_drivers_w_dbg_fw hal_settings hal_pwm_sticks)
+  add_dependencies(stm32_drivers_w_dbg_bl hal_settings hal_pwm_sticks)
   add_dependencies(stm32usb_device_bl hal_settings hal_usb_descriptor)
   add_dependencies(stm32usb_device_fw hal_settings hal_usb_descriptor)
 

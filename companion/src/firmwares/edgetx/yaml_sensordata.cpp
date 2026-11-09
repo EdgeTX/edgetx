@@ -20,6 +20,7 @@
  */
 
 #include "yaml_sensordata.h"
+#include "eeprominterface.h"
 
 static const YamlLookupTable sensorType = {
     {SensorData::TELEM_TYPE_CUSTOM, "TYPE_CUSTOM"},
@@ -37,6 +38,63 @@ static const YamlLookupTable sensorFormula = {
     {SensorData::TELEM_FORMULA_CONSUMPTION, "FORMULA_CONSUMPTION"},
     {SensorData::TELEM_FORMULA_DIST, "FORMULA_DIST"},
 };
+
+// Calculated sensor source: sensor as signed number, GVar as GVn / -GVn
+static std::string encodeCalcSourceGVar(int source)
+{
+  return std::string(source < 0 ? "-GV" : "GV") +
+         std::to_string(SensorData::gvarSourceIndex(source) + 1);
+}
+
+static int decodeCalcSource(const YAML::Node& node)
+{
+  if (!node || !node.IsScalar()) return 0;
+
+  std::string val = node.Scalar();
+  bool neg = !val.empty() && val[0] == '-';
+  std::string str = val.substr(neg ? 1 : 0);
+
+  if (str.size() > 2 && str.compare(0, 2, "GV") == 0) {
+    std::string num = str.substr(2);
+    if (num.size() > 2 || num.find_first_not_of("0123456789") != std::string::npos)
+      return 0;
+    int n = std::stoi(num);
+    Firmware* firmware = getCurrentFirmware();
+    if (n < 1 || n > firmware->getCapability(Gvars)) return 0;
+    return SensorData::gvarSource(n - 1, neg);
+  }
+
+  int source = 0;
+  try {
+    source = std::stoi(val);
+  } catch (...) {
+    return 0;
+  }
+  return abs(source) <= CPN_MAX_SENSORS ? source : 0;
+}
+
+static void decodeCalcSources(const YAML::Node& node, int (&sources)[4])
+{
+  if (!node) return;
+  if (node.IsMap()) {
+    for (const auto& elmt : node) {
+      int idx = -1;
+      try {
+        idx = std::stoi(elmt.first.Scalar());
+      } catch (...) {
+      }
+      if (idx < 0 || idx >= 4) continue;
+      const YAML::Node& val = elmt.second.IsMap() ? elmt.second["val"] : elmt.second;
+      sources[idx] = decodeCalcSource(val);
+    }
+  } else if (node.IsSequence()) {
+    int idx = 0;
+    for (const auto& elmt : node) {
+      if (idx >= 4) break;
+      sources[idx++] = decodeCalcSource(elmt);
+    }
+  }
+}
 
 namespace YAML
 {
@@ -73,7 +131,9 @@ Node convert<SensorData>::encode(const SensorData& rhs)
       case SensorData::TELEM_FORMULA_MAX: {
         Node sources;
         for (int i = 0; i < 4; i++) {
-          if (rhs.sources[i]) {
+          if (SensorData::isGVarSource(rhs.sources[i])) {
+            sources[std::to_string(i)]["val"] = encodeCalcSourceGVar(rhs.sources[i]);
+          } else if (rhs.sources[i]) {
             sources[std::to_string(i)]["val"] = rhs.sources[i];
           }
         }
@@ -157,7 +217,7 @@ bool convert<SensorData>::decode(const Node& node, SensorData& rhs)
       } else if (cfg["calc"]) {
         Node calc = cfg["calc"];
         if (calc.IsMap()) {
-          calc["sources"] >> rhs.sources;
+          decodeCalcSources(calc["sources"], rhs.sources);
         }
       } else if (cfg["consumption"]) {
         Node consumption = cfg["consumption"];

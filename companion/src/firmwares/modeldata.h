@@ -435,6 +435,7 @@ class ModelData {
     void updateFlightModeFlags(unsigned int & flags);
     void updateTelemetryRef(int & idx);
     void updateTelemetryRef(unsigned int & idx);
+    void updateSensorCalcSourceRef(int & curRef);
     void updateModuleFailsafes(ModuleData * md);
     inline void updateSourceRef(RawSource & src) { updateTypeIndexRef<RawSource, RawSourceType>(src, updRefInfo.srcType, 1); }
     inline void updateSwitchRef(RawSwitch & swtch) { updateTypeIndexRef<RawSwitch, RawSwitchType>(swtch, updRefInfo.swtchType, 1); }
