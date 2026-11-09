@@ -1693,6 +1693,11 @@ void edgeTxInit()
   storageReadAll();
 #endif
 
+#if defined(GUI) && !defined(COLORLCD) && defined(STARTUP_ANIMATION)
+  // Re-apply in case the early radio settings read failed
+  lcdSetContrast();
+#endif
+
   initSerialPorts();
 
 #if defined(AUDIO)

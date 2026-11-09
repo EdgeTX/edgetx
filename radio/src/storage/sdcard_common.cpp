@@ -63,20 +63,20 @@ static void storageEraseAll()
 {
   TRACE("storageEraseAll");
 
+  // g_eeGeneral was zeroed, so restore display defaults
 #if defined(COLORLCD)
   // the theme has not been loaded before
   ThemePersistance::instance()->loadDefaultTheme();
+  g_eeGeneral.blOffBright = 20;
+#elif defined(LCD_CONTRAST_DEFAULT)
+  g_eeGeneral.contrast = LCD_CONTRAST_DEFAULT;
 #endif
 
   // Init backlight mode before entering alert screens
   requiredBacklightBright = BACKLIGHT_FORCED_ON;
 
-#if defined(PCBHORUS)
-  g_eeGeneral.blOffBright = 20;
-#endif
-
   ALERT(STR_STORAGE_WARNING, STR_BAD_RADIO_DATA, AU_BAD_RADIODATA);
-  RAISE_ALERT(STR_STORAGE_WARNING, STR_STORAGE_FORMAT, STR_PRESS_ANY_KEY_TO_SKIP, AU_NONE);
+  ALERT(STR_STORAGE_WARNING, STR_STORAGE_FORMAT, AU_NONE);
 
   storageFormat();
   forceSave();
