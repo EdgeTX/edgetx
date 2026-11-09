@@ -186,7 +186,7 @@ PACK(struct MixData {
   uint16_t spare:1 SKIP;
   uint32_t weight:12 CUST(r_sourceNumVal,w_sourceNumVal);
   uint32_t offset:12 CUST(r_sourceNumVal,w_sourceNumVal);
-  uint8_t  delayUp;
+  uint32_t delayUp:8;
   int16_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
   uint16_t spare3:6 SKIP;
   CurveRef curve;
