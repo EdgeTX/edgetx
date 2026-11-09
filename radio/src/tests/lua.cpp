@@ -29,6 +29,36 @@
 
 #include <filesystem>
 
+#if defined(COLORLCD)
+#include "standalone_lua.h"
+#include "view_main.h"
+
+TEST(Lua, LvglInitialCallbackFailure)
+{
+  ViewMain::instance();
+  MainWindow::instance()->run();
+  luaExecStandalone("/lua_lvgl_initial_callback.lua");
+  ASSERT_NE(StandaloneLuaWindow::instance(), nullptr);
+  const auto mainChildCount =
+      lv_obj_get_child_cnt(MainWindow::instance()->getLvObj());
+  MainWindow::instance()->run();
+  ASSERT_NE(StandaloneLuaWindow::instance(), nullptr);
+  EXPECT_EQ(lv_obj_get_child_cnt(StandaloneLuaWindow::instance()->getLvObj()),
+            1u);
+  EXPECT_EQ(StandaloneLuaWindow::instance()->getLvglObjectRefs().size(), 1u);
+  EXPECT_EQ(lv_obj_get_child_cnt(MainWindow::instance()->getLvObj()),
+            mainChildCount);
+  MainWindow::instance()->run();
+  MainWindow::instance()->run();
+  extern char lua_warning_info[];
+  EXPECT_EQ(StandaloneLuaWindow::instance(), nullptr) << lua_warning_info;
+  if (auto window = StandaloneLuaWindow::instance()) {
+    window->closeWindow();
+    MainWindow::instance()->run();
+  }
+}
+#endif
+
 #define MIXSRC_THR     (MIXSRC_FIRST_STICK + inputMappingGetThrottle())
 #define MIXSRC_TRIMTHR (MIXSRC_FIRST_TRIM + inputMappingGetThrottle())
 
