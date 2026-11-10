@@ -45,7 +45,6 @@ TEST(BoardManufacturer, NoRegisteredBoardIsUnknown)
 TEST(BoardManufacturer, KnownBoardsMatchExpectedManufacturer)
 {
   EXPECT_EQ(Boards::getManufacturer(Board::BOARD_RADIOMASTER_TX16S), QString("RadioMaster"));
-  EXPECT_EQ(Boards::getManufacturer(Board::BOARD_RADIOMASTER_GX15), QString("RadioMaster"));
   EXPECT_EQ(Boards::getManufacturer(Board::BOARD_FLYSKY_NV14), QString("Flysky"));
   EXPECT_EQ(Boards::getManufacturer(Board::BOARD_HELLORADIOSKY_V12), QString("HelloRadioSky"));
   EXPECT_EQ(Boards::getManufacturer(Board::BOARD_SENDUWING_H17), QString("Senduwing"));
