@@ -86,7 +86,7 @@ class SensorValue : public StaticText
   ExpoData *input;
 };
 
-static const lv_coord_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_FR(1),
+static const lv_coord_t col_dsc[] = {LV_GRID_FR(2), LV_GRID_FR(3),
                                      LV_GRID_TEMPLATE_LAST};
 static const lv_coord_t row_dsc[] = {LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
 
@@ -125,10 +125,12 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
   line->setWidth(SENSOR_W);
 
   new StaticText(line, rect_t{}, STR_SCALE);
-  scale_edit = new NumberEdit(
-      line, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0,
-      getMaxScale(input->srcRaw), GET_SET_DEFAULT(input->scale),
-      getSensorPrec(input->srcRaw));
+  scale_edit = new NumberEdit(line, rect_t{}, 0, getMaxScale(input->srcRaw),
+                              GET_SET_DEFAULT(input->scale),
+                              getSensorPrec(input->srcRaw));
+  // Fill the column so values with a unit suffix fit on all screen sizes
+  lv_obj_set_style_grid_cell_x_align(scale_edit->getLvObj(),
+                                     LV_GRID_ALIGN_STRETCH, 0);
   // Show the scale with the selected sensor's precision and unit
   scale_edit->setDisplayHandler([=](int value) -> std::string {
     if (!isTelemetrySource(input->srcRaw)) return std::to_string(value);
