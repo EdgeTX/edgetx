@@ -30,6 +30,32 @@
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
+// Inverted sources are stored as negative srcRaw values
+static bool isTelemetrySource(int16_t srcRaw)
+{
+  auto src = abs(srcRaw);
+  return src >= MIXSRC_FIRST_TELEM && src <= MIXSRC_LAST_TELEM;
+}
+
+static LcdFlags getSensorPrec(int16_t srcRaw)
+{
+  LcdFlags prec = 0;
+  if (isTelemetrySource(srcRaw)) {
+    uint8_t sensorIndex = (abs(srcRaw) - MIXSRC_FIRST_TELEM) / 3;
+    const TelemetrySensor& sensor = g_model.telemetrySensors[sensorIndex];
+    if (sensor.prec > 0) {
+      prec |= (sensor.prec == 1 ? PREC1 : PREC2);
+    }
+  }
+  return prec;
+}
+
+static int getMaxScale(int16_t srcRaw)
+{
+  if (!isTelemetrySource(srcRaw)) return 0;
+  return maxTelemValue(abs(srcRaw) - MIXSRC_FIRST_TELEM + 1);
+}
+
 class SensorValue : public StaticText
 {
  public:
@@ -38,18 +64,13 @@ class SensorValue : public StaticText
   {
   }
 
-  bool isTelemetryValue()
-  {
-    return input->srcRaw >= MIXSRC_FIRST_TELEM &&
-           input->srcRaw <= MIXSRC_LAST_TELEM;
-  }
-
   void checkEvents() override
   {
     if (lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN)) return;
 
     // TODO: check for telemetry available
-    if (isTelemetryValue()) {
+    if (isTelemetrySource(input->srcRaw)) {
+      // Signed source: show the (possibly inverted) value fed to the mixer
       getvalue_t sensorVal = getValue(input->srcRaw);
       if (lastSensorVal != sensorVal) {
         lastSensorVal = sensorVal;
@@ -58,19 +79,6 @@ class SensorValue : public StaticText
     } else {
       setText("---");
     }
-  }
-
-  LcdFlags getSensorPrec()
-  {
-    LcdFlags prec = 0;
-    if (isTelemetryValue()) {
-      uint8_t sensorIndex = (input->srcRaw - MIXSRC_FIRST_TELEM) / 3;
-      TelemetrySensor sensor = g_model.telemetrySensors[sensorIndex];
-      if (sensor.prec > 0) {
-        prec |= (sensor.prec == 1 ? PREC1 : PREC2);
-      }
-    }
-    return prec;
   }
 
  protected:
@@ -109,7 +117,7 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
   line->setWidth(SENSOR_W);
 
   new StaticText(line, rect_t{}, STR_VALUE);
-  auto sensor = new SensorValue(line, rect_t{}, input);
+  new SensorValue(line, rect_t{}, input);
 
   // Scale
   line = sensor_form->newLine(grid);
@@ -117,9 +125,10 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
   line->setWidth(SENSOR_W);
 
   new StaticText(line, rect_t{}, STR_SCALE);
-  new NumberEdit(line, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0,
-                 maxTelemValue(input->srcRaw - MIXSRC_FIRST_TELEM + 1),
-                 GET_SET_DEFAULT(input->scale), sensor->getSensorPrec());
+  scale_edit = new NumberEdit(
+      line, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0,
+      getMaxScale(input->srcRaw), GET_SET_DEFAULT(input->scale),
+      getSensorPrec(input->srcRaw));
 
   update();
 }
@@ -130,7 +139,15 @@ void InputSource::update()
     input->trimSource = TRIM_OFF;
   }
 
-  if (sensor_form)
-    sensor_form->show(input->srcRaw >= MIXSRC_FIRST_TELEM &&
-                      input->srcRaw <= MIXSRC_LAST_TELEM);
+  bool isTelem = isTelemetrySource(input->srcRaw);
+
+  if (scale_edit && isTelem) {
+    // Range and precision depend on the selected sensor
+    scale_edit->setMax(getMaxScale(input->srcRaw));
+    scale_edit->clearTextFlag(PREC1 | PREC2);
+    scale_edit->setTextFlag(getSensorPrec(input->srcRaw));
+    scale_edit->update();
+  }
+
+  if (sensor_form) sensor_form->show(isTelem);
 }
