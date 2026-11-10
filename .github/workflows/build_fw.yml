@@ -45,8 +45,7 @@ jobs:
           - t20;t20v2 # Jumper
           - t22 # Jumper
           - gx12;mt12 # RadioMaster
-          - tx15 # RadioMaster
-          - gx10 # RadioMaster
+          - gx10;tx15 # RadioMaster
           - tx16s;tx16smk3 # RadioMaster
           - h17 # Senduwing
           - t18h7 # Jumper
@@ -95,7 +94,7 @@ jobs:
           - t15;t15h7;t15pro;t16 # Jumper
           - t18;t20;t20v2 # Jumper
           - t22;tpros;tprov2 # Jumper
-          - boxer;gx12;gx15 # RadioMaster
+          - boxer;gx10;gx12;gx15 # RadioMaster
           - mt12;pocket;tx12mk2 # RadioMaster
           - tx15;tx16s;tx16smk3 # RadioMaster
           - zorro # RadioMaster
