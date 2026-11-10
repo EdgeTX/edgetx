@@ -233,6 +233,7 @@ void luaUnregisterWidgets();
 
 bool readToolName(char * toolName, const char * filename);
 bool isRadioScriptTool(const char * filename);
+bool resolveRadioScriptTool(char* path, bool inFolder);
 
 struct LuaMemTracer {
   const char * script;

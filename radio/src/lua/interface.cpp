@@ -1448,7 +1448,37 @@ bool readToolName(char * toolName, const char * filename)
 bool isRadioScriptTool(const char * filename)
 {
   const char * ext = getFileExtension(filename);
-  return ext && !strcasecmp(ext, SCRIPT_EXT);
+  return ext && (!strcasecmp(ext, SCRIPT_EXT) || !strcasecmp(ext, SCRIPT_BIN_EXT));
+}
+
+// path: "<tools>/<name>" for a folder, "<tools>/<file>" otherwise.
+// Resolves it to the script to list; false = skip entry.
+bool resolveRadioScriptTool(char* path, bool inFolder)
+{
+  auto exists = [](const char* p) { return f_stat(p, nullptr) == FR_OK; };
+  if (inFolder) {
+    // skip folder if a sibling script with the same name exists (avoids duplicates)
+    auto plen = strlen(path);
+    if (plen + sizeof(SCRIPT_BIN_EXT) + sizeof("/main") > FF_MAX_LFN) return false;
+    strcpy(path + plen, SCRIPT_EXT);
+    if (exists(path)) return false;
+    strcpy(path + plen, SCRIPT_BIN_EXT);
+    if (exists(path)) return false;
+    strcpy(path + plen, "/main" SCRIPT_EXT);
+    if (exists(path)) return true;
+    strcpy(path + plen, "/main" SCRIPT_BIN_EXT);
+    return exists(path);
+  }
+  const char* ext = getFileExtension(path);
+  if (ext && !strcasecmp(ext, SCRIPT_BIN_EXT)) {
+    // skip .luac if the .lua source is listed instead
+    size_t len = strlen(path);
+    char src[FF_MAX_LFN + 1];
+    memcpy(src, path, len - (sizeof(SCRIPT_BIN_EXT) - 1));
+    strcpy(src + len - (sizeof(SCRIPT_BIN_EXT) - 1), SCRIPT_EXT);
+    if (exists(src)) return false;
+  }
+  return true;
 }
 
 void l_pushtableint(lua_State* ls, const char * key, int value)
