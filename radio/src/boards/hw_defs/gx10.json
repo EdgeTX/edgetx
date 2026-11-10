@@ -64,18 +64,19 @@
         "channel": "LL_ADC_CHANNEL_3"
       },
       {
-        "name": "P1",
+        "name": "SL1",
         "type": "FLEX",
         "adc": "MAIN",
         "gpio": "GPIOC",
         "pin": "LL_GPIO_PIN_1",
         "channel": "LL_ADC_CHANNEL_11",
+        "inverted": true,
         "label": "S1",
         "short_label": "1",
-        "default": "POT_CENTER"
+        "default": "SLIDER"
       },
       {
-        "name": "P2",
+        "name": "SL2",
         "type": "FLEX",
         "adc": "MAIN",
         "gpio": "GPIOB",
@@ -83,7 +84,7 @@
         "channel": "LL_ADC_CHANNEL_5",
         "label": "S2",
         "short_label": "2",
-        "default": "POT_CENTER"
+        "default": "SLIDER"
       },
       {
         "name": "VBAT",
@@ -435,9 +436,9 @@
     "backlight_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)"
   },
   "leds": {
-    "led_strip_length": 26,
+    "led_strip_length": 34,
     "bling_led_strip_start": 6,
-    "bling_led_strip_length": 20,
+    "bling_led_strip_length": 28,
     "bling_groups": [
       { "name": "gimbal_right", "first": 10, "count": 10, "start_angle": 80, "direction": -1 },
       { "name": "gimbal_left", "first": 0, "count": 10, "start_angle": 100, "direction": 1 }
@@ -459,7 +460,11 @@
     "status_leds": true,
     "led_red_gpio": "GPIO_PIN(GPIOI, 8)",
     "led_green_gpio": "GPIO_PIN(GPIOI, 11)",
-    "led_blue_gpio": "GPIO_PIN(GPIOI, 10)"
+    "led_blue_gpio": "GPIO_PIN(GPIOI, 10)",
+    "status_led_pwm_timer": "TIM7",
+    "status_led_pwm_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "status_led_pwm_timer_irqn": "TIM7_IRQn",
+    "status_led_pwm_timer_irqhandler": "TIM7_IRQHandler"
   },
   "hardware": {
     "has_ext_module_support": true,
@@ -483,6 +488,7 @@
   },
   "imu": {
     "imu_i2c_bus": "I2C_Bus_1",
+    "imu_i2c_address": "0x6A",
     "imu_int_gpio": "GPIO_PIN(GPIOG, 13)",
     "imu_invert_x": true,
     "imu_invert_y": true,

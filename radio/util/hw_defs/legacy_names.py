@@ -157,7 +157,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"t15", "t15h7", "t15pro", "tx15", "gx10"},
+        "targets": {"t15", "t15h7", "t15pro", "tx15"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",
@@ -192,6 +192,45 @@ LEGACY_NAMES = [
                 "label": "S2",
                 "short_label": "2",
                 "description": "Potentiometer S2"
+            }
+        }
+    },
+    {
+        "targets": {"gx10"},
+        "inputs": {
+            "LH": {
+                "yaml": "Rud",
+                "lua": "rud",
+                "description": "Rudder"
+            },
+            "LV": {
+                "yaml": "Ele",
+                "lua": "ele",
+                "description": "Elevator"
+            },
+            "RV": {
+                "yaml": "Thr",
+                "lua": "thr",
+                "description": "Throttle"
+            },
+            "RH": {
+                "yaml": "Ail",
+                "lua": "ail",
+                "description": "Aileron"
+            },
+            "SL1": {
+                "yaml": "S1",
+                "lua": "s1",
+                "label": "S1",
+                "short_label": "1",
+                "description": "Slider S1"
+            },
+            "SL2": {
+                "yaml": "S2",
+                "lua": "s2",
+                "label": "S2",
+                "short_label": "2",
+                "description": "Slider S2"
             }
         }
     },

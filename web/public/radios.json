@@ -5620,16 +5620,16 @@
         "label": "RH"
       },
       {
-        "name": "P1",
+        "name": "SL1",
         "type": "FLEX",
         "label": "S1",
-        "default": "POT_CENTER"
+        "default": "SLIDER"
       },
       {
-        "name": "P2",
+        "name": "SL2",
         "type": "FLEX",
         "label": "S2",
-        "default": "POT_CENTER"
+        "default": "SLIDER"
       }
     ],
     "switches": [
