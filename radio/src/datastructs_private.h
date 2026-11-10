@@ -76,22 +76,22 @@
 
 PACK(union SourceNumVal {
   struct {
-    int16_t value:10;
+    int16_t value:11;
     uint16_t isSource:1;
   };
-  uint16_t rawValue:11;
+  uint16_t rawValue:12;
 });
 
 // Inverted sources are stored negated, so every source must fit the signed
-// 10-bit value. B&W also edits output limit sources through this field.
-// TODO: H7 targets are skipped because 99 telemetry sensors put the last
-// source above 511 (581 on TX16S MK3), so sensors from about 76 up wrap to a
-// different source when used as an input source or a weight, offset or curve
-// value. Widen SourceNumVal and ExpoData::srcRaw, then remove this guard.
-#if !defined(STM32H7)
-static_assert(INPUTSRC_LAST <= (1 << 9) - 1,
+// 11-bit value. This also covers ExpoData::srcRaw and LogicalSwitchData::v1,
+// and B&W edits output limit sources through this field.
+static_assert(INPUTSRC_LAST <= (1 << 10) - 1,
               "Sources no longer fit in SourceNumVal");
-#endif
+
+// MixData::srcRaw and the radio settings sources are signed 10-bit fields,
+// which only hold sources up to MIXSRC_LAST
+static_assert(MIXSRC_LAST <= (1 << 9) - 1,
+              "Mix sources no longer fit in 10-bit source fields");
 
 inline uint16_t makeSourceNumVal(int16_t val, bool isSource = false)
 {
@@ -170,8 +170,8 @@ inline uint16_t luaIntToSourceNumval(int val)
  */
 
 PACK(struct CurveRef {
-  uint16_t type:5;
-  uint16_t value:11 CUST(r_sourceNumVal,w_sourceNumVal);
+  uint16_t type:4;
+  uint16_t value:12 CUST(r_sourceNumVal,w_sourceNumVal);
 });
 
 PACK(struct MixData {
@@ -184,11 +184,12 @@ PACK(struct MixData {
   uint16_t speedPrec:1;
   uint16_t flightModes:9 CUST(r_flightModes, w_flightModes);
   uint16_t spare:1 SKIP;
-  uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
+  uint32_t weight:12 CUST(r_sourceNumVal,w_sourceNumVal);
+  uint32_t offset:12 CUST(r_sourceNumVal,w_sourceNumVal);
+  uint32_t delayUp:8;
+  int16_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
+  uint16_t spare3:6 SKIP;
   CurveRef curve;
-  uint8_t  delayUp;
   uint8_t  delayDown;
   uint8_t  speedUp;
   uint8_t  speedDown;
@@ -202,16 +203,18 @@ PACK(struct MixData {
 PACK(struct ExpoData {
   uint16_t mode:2;
   uint16_t scale:14;
+  uint32_t flightModes:9 CUST(r_flightModes, w_flightModes);
+  int32_t  srcRaw:11 ENUM(MixSources) CUST(r_mixSrcRawEx,w_mixSrcRawEx);
+  uint32_t weight:12 CUST(r_sourceNumVal,w_sourceNumVal);
+  // r_carryTrim writes at its own offset, keep it just before trimSource
   CUST_ATTR(carryTrim, r_carryTrim, nullptr); //pre 2.9
-  int16_t  trimSource:6;
-  int16_t  srcRaw:10 ENUM(MixSources) CUST(r_mixSrcRawEx,w_mixSrcRawEx);
-  uint32_t weight:11 CUST(r_sourceNumVal,w_sourceNumVal);
-  uint32_t offset:11 CUST(r_sourceNumVal,w_sourceNumVal);
+  int32_t  trimSource:6;
+  uint32_t offset:12 CUST(r_sourceNumVal,w_sourceNumVal);
   int32_t  swtch:10 CUST(r_swtchSrc,w_swtchSrc);
+  uint32_t spare3:4 SKIP;
   CurveRef curve;
-  uint16_t chn:5;
-  uint16_t flightModes:9 CUST(r_flightModes, w_flightModes);
-  uint16_t spare:2 SKIP;
+  uint8_t  chn:5;
+  uint8_t  spare:3 SKIP;
   NOBACKUP(char name[LEN_EXPOMIX_NAME]);
 });
 
@@ -237,11 +240,12 @@ PACK(struct LimitData {
 PACK(struct LogicalSwitchData {
   uint8_t  func ENUM(LogicalSwitchesFunctions);
   CUST_ATTR(def,r_logicSw,w_logicSw);
-  int32_t  v1:10 SKIP;
+  int32_t  v1:11 SKIP;
   int32_t  v3:10 SKIP;
   int32_t  andsw:10 CUST(r_swtchSrc,w_swtchSrc);
   uint32_t lsPersist:1;
-  uint32_t lsState:1;
+  uint8_t  lsState:1;
+  uint8_t  spare:7 SKIP;
   int16_t  v2 SKIP;
   uint8_t  delay;
   uint8_t  duration;
