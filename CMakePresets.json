@@ -287,6 +287,12 @@
       "cacheVariables": { "PCB": "X7", "PCBREV": "BOXER" }
     },
     {
+      "name": "gx10",
+      "displayName": "RadioMaster GX10",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "GX10" }
+    },
+    {
       "name": "gx12",
       "displayName": "RadioMaster GX12",
       "inherits": "firmware",
