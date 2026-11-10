@@ -140,7 +140,7 @@ uint32_t Boards::getFourCC(Type board)
     case BOARD_RADIOMASTER_GX15:
       return 0x4978746F;
     case BOARD_RADIOMASTER_GX10:
-      return 0x5078746F;
+      return 0x5278746F;
     case BOARD_RADIOMASTER_TX16SMK3:
       return 0x4978746F;
     case BOARD_RADIOMASTER_TX12:
