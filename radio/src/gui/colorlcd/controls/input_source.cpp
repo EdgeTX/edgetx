@@ -68,21 +68,33 @@ class SensorValue : public StaticText
   {
     if (lv_obj_has_flag(lvobj, LV_OBJ_FLAG_HIDDEN)) return;
 
-    // TODO: check for telemetry available
+    bool available = false;
+    getvalue_t sensorVal = 0;
     if (isTelemetrySource(input->srcRaw)) {
+      uint8_t sensorIndex = (abs(input->srcRaw) - MIXSRC_FIRST_TELEM) / 3;
+      available = telemetryItems[sensorIndex].isAvailable();
       // Signed source: show the (possibly inverted) value fed to the mixer
-      getvalue_t sensorVal = getValue(input->srcRaw);
-      if (lastSensorVal != sensorVal) {
-        lastSensorVal = sensorVal;
-        setText(std::to_string(lastSensorVal));
-      }
-    } else {
-      setText("---");
+      if (available) sensorVal = getValue(input->srcRaw);
     }
+
+    if (initialized && available == lastAvailable &&
+        (!available || sensorVal == lastSensorVal))
+      return;
+
+    initialized = true;
+    lastAvailable = available;
+    lastSensorVal = sensorVal;
+
+    if (available)
+      setText(getSourceCustomValueString(input->srcRaw, sensorVal, 0));
+    else
+      setText("---");
   }
 
  protected:
-  getvalue_t lastSensorVal = INT32_MAX;
+  getvalue_t lastSensorVal = 0;
+  bool lastAvailable = false;
+  bool initialized = false;
   ExpoData *input;
 };
 
