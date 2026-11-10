@@ -351,7 +351,7 @@ LvglWidgetObjectBase *LvglWidgetObjectBase::checkLvgl(lua_State *L, int index, b
   }
 
   if (required) {
-    luaL_error(L, "Invalid object (it has been probably been cleared).");
+    luaL_error(L, "Invalid object (it has been closed or cleared).");
   }
 
   return nullptr;
