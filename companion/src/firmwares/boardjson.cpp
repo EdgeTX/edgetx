@@ -128,7 +128,7 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
   // Accl needs the SC7U22 IMU (IMU_SC7U22 in the radio targets)
   if (IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_TX16SMK3(board) ||
       IS_RADIOMASTER_GX15(board) || IS_RADIOMASTER_GX10(board) ||
-      IS_HELLORADIOSKY_V16(board)) {
+      IS_HELLORADIOSKY_V15(board) || IS_HELLORADIOSKY_V16(board)) {
     if (getInputIndex(inputs, "G_FORCE", Board::LVT_TAG) < 0) {
       InputDefn defn;
       defn.type = AIT_FLEX;
