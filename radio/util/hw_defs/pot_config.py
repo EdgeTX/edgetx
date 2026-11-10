@@ -7,8 +7,8 @@ POT_CONFIG = {
         "P3": {"default": "MULTIPOS"}
     },
     "gx10": {
-        "P1": {"default": "POT_CENTER"},
-        "P2": {"default": "POT_CENTER"},
+        "SL1": {"default": "SLIDER"},
+        "SL2": {"default": "SLIDER"},
     },
     "gx12": {
         "P1": {"default": "POT_CENTER"},

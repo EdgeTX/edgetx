@@ -194,13 +194,13 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 #define ADC_GPIO_PIN_STICK_LV           LL_GPIO_PIN_4      // PC.04
 #define ADC_GPIO_PIN_STICK_LH           LL_GPIO_PIN_5      // PC.05
 
-#define ADC_GPIO_PIN_POT1               LL_GPIO_PIN_1      // PC.01 POT1
-#define ADC_GPIO_PIN_POT2               LL_GPIO_PIN_1      // PB.01 POT2
+#define ADC_GPIO_PIN_SLIDER1            LL_GPIO_PIN_1      // PC.01 SLIDER1
+#define ADC_GPIO_PIN_SLIDER2            LL_GPIO_PIN_1      // PB.01 SLIDER2
 #define ADC_GPIO_PIN_BATT               LL_GPIO_PIN_3      // PH.03
 
 #define ADC_GPIOA_PINS                  (ADC_GPIO_PIN_STICK_RH)
-#define ADC_GPIOB_PINS                  (ADC_GPIO_PIN_POT2)
-#define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_POT1)
+#define ADC_GPIOB_PINS                  (ADC_GPIO_PIN_SLIDER2)
+#define ADC_GPIOC_PINS                  (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_LV | ADC_GPIO_PIN_STICK_LH | ADC_GPIO_PIN_SLIDER1)
 #define ADC_GPIOH_PINS                  (ADC_GPIO_PIN_BATT)
 
 
@@ -210,8 +210,8 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 #define ADC_CHANNEL_STICK_LH            LL_ADC_CHANNEL_8    // ADC12_INP8
 
 // Each ADC cannot map more than 8 channels, otherwise it will cause problems
-#define ADC_CHANNEL_POT1                LL_ADC_CHANNEL_11   // ADC12_INP11
-#define ADC_CHANNEL_POT2                LL_ADC_CHANNEL_5    // ADC12_INP5
+#define ADC_CHANNEL_SLIDER1             LL_ADC_CHANNEL_11   // ADC12_INP11
+#define ADC_CHANNEL_SLIDER2             LL_ADC_CHANNEL_5    // ADC12_INP5
 #define ADC_CHANNEL_BATT                LL_ADC_CHANNEL_14   // ADC3_INP14
 #define ADC_CHANNEL_RTC_BAT             LL_ADC_CHANNEL_VBAT // ADC3_INP17
 
@@ -236,7 +236,7 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 
 #define ADC_DIRECTION {       	 \
     0,-1,-1,0,  /* gimbals */    \
-    0,0     	/* pots */       \
+    -1,0     	/* sliders */    \
   }
 
 #define USE_EXTI9_5_IRQ // used for I2C port extender interrupt
@@ -408,9 +408,9 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 #define HAPTIC_TIMER_COMPARE_VALUE      HAPTIC_GPIO_TIMER->CCR2
 
 // LED Strip
-#define LED_STRIP_LENGTH                  26  // 6POS + 2 rings of 10
+#define LED_STRIP_LENGTH                  34  // 6POS + 2 rings of 10 + 8 on PCB
 #define BLING_LED_STRIP_START             6
-#define BLING_LED_STRIP_LENGTH            20
+#define BLING_LED_STRIP_LENGTH            28
 #define CFS_LED_STRIP_START               0
 #define CFS_LED_STRIP_LENGTH              6
 #define CFS_LEDS_PER_SWITCH               1
