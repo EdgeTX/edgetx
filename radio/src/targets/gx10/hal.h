@@ -238,6 +238,11 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 #define UCHARGER_EN_GPIO            GPIO_PIN(GPIOB, 12)
 #define UCHARGER_INVERTED           (true)
 
+// Bootloader: the synchronous SPI LCD refresh blocks the UF2 loop for longer
+// than the key polling period, so poll keys from the timer interrupt instead.
+// Safe here because keys and trims are plain GPIO.
+#define BOOTLOADER_KEYS_POLL_IRQ
+
 // S.Port update connector
 #define HAS_SPORT_UPDATE_CONNECTOR()    (false)
 

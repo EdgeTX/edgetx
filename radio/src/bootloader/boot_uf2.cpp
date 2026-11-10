@@ -36,6 +36,21 @@
 
 bool suspendI2CTasks = false;
 
+#if defined(BOOTLOADER_KEYS_POLL_IRQ)
+// Targets whose screen refresh blocks the main loop for longer than a key
+// polling period (e.g. synchronous SPI LCDs) poll keys from the 1ms timer
+// interrupt instead, at the 10ms rate keys.cpp is designed for.
+// Only safe when keys and trims are read directly from GPIO: must never be
+// enabled on targets that read them over I2C (e.g. port expanders).
+static volatile bool keyPollEnabled = false;
+
+void per5ms()
+{
+  static uint8_t cnt = 0;
+  if (keyPollEnabled && (++cnt & 1)) keysPollingCycle();
+}
+#endif
+
 void bootloaderUF2()
 {
   BootloaderState state = ST_START;
@@ -44,6 +59,10 @@ void bootloaderUF2()
   storageInit();
   disk_initialize(0);
 
+#if defined(BOOTLOADER_KEYS_POLL_IRQ)
+  keyPollEnabled = true;
+#endif
+
   uint32_t next_frame = time_get_ms();
 
   for (;;) {
@@ -51,7 +70,9 @@ void bootloaderUF2()
     if (time_get_ms() - next_frame >= FRAME_INTERVAL_MS) {
       next_frame += FRAME_INTERVAL_MS;
 
+#if !defined(BOOTLOADER_KEYS_POLL_IRQ)
       keysPollingCycle();
+#endif
       event_t event = getEvent();
 
       if (state != ST_FLASHING && event == EVT_KEY_LONG(KEY_EXIT)) {
