@@ -24,12 +24,14 @@
 #include "window.h"
 
 struct ExpoData;
+class NumberEdit;
 class Window;
 
 class InputSource : public Window
 {
   ExpoData* input;
-  Window* sensor_form;
+  Window* sensor_form = nullptr;
+  NumberEdit* scale_edit = nullptr;
 
   void update();
 
