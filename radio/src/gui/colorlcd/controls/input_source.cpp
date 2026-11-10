@@ -129,6 +129,13 @@ InputSource::InputSource(Window *parent, ExpoData *input) :
       line, {0, 0, EdgeTxStyles::EDIT_FLD_WIDTH_NARROW, 0}, 0,
       getMaxScale(input->srcRaw), GET_SET_DEFAULT(input->scale),
       getSensorPrec(input->srcRaw));
+  // Show the scale with the selected sensor's precision and unit
+  scale_edit->setDisplayHandler([=](int value) -> std::string {
+    if (!isTelemetrySource(input->srcRaw)) return std::to_string(value);
+    mixsrc_t src = abs(input->srcRaw);
+    return getSourceCustomValueString(
+        src, convertTelemValue(src - MIXSRC_FIRST_TELEM + 1, value), 0);
+  });
 
   update();
 }
