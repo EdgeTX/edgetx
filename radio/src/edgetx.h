@@ -240,7 +240,7 @@ inline void RAISE_ALERT(const char *title, const char *msg, const char *info,
 }
 inline void ALERT(const char *title, const char *msg, uint8_t sound)
 {
-  raiseAlert(title, msg, STR_PRESS_ANY_KEY_TO_SKIP, sound);
+  raiseAlert(title, msg, STR_OK, sound);
 }
 
 #else // !COLORLCD && GUI
