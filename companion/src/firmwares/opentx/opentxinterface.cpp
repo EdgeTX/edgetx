@@ -909,7 +909,6 @@ void registerOpenTxFirmwares()
   firmware = new OpenTxFirmware(FIRMWAREID("gx10"), Firmware::tr("Radiomaster GX10"), BOARD_RADIOMASTER_GX10);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
-  firmware->addOptionsGroup({opt_internal_gps});
   registerOpenTxFirmware(firmware);
 
   /* Radiomaster TX16S board */
