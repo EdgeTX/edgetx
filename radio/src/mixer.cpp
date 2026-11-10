@@ -416,6 +416,9 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   else if (i == MIXSRC_TILT_Y) {
     return gyroScaledY();
   }
+  else if (i == MIXSRC_G_FORCE) {
+    return gyroScaledG();
+  }
 #endif
 
 #if defined(PCBHORUS)

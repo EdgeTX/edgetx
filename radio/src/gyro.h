@@ -44,5 +44,6 @@ void gyroSetIMU_X(int16_t offset, int16_t range);
 void gyroSetIMU_Y(int16_t offset, int16_t range);
 int16_t gyroScaledX();
 int16_t gyroScaledY();
+int16_t gyroScaledG();
 
 extern int16_t gyroOutputs[2];

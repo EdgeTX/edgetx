@@ -507,6 +507,7 @@ enum MixSources {
 #if defined(IMU)
   MIXSRC_TILT_X,
   MIXSRC_TILT_Y,
+  MIXSRC_G_FORCE,
 #endif
 
 #if defined(PCBHORUS)

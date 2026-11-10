@@ -140,7 +140,7 @@ class AnaViewWindow : public Window
 
       grid.setColSpan(2);
       new StaticText(line, rect_t{}, "Tilt X");
-      grid.setColSpan(1);
+      grid.setColSpan(2);
       new DynamicNumber<int16_t>(line, rect_t{},
              [=]() { return gyroScaledX(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 
@@ -151,9 +151,30 @@ class AnaViewWindow : public Window
 
       grid.setColSpan(2);
       new StaticText(line, rect_t{}, "Tilt Y");
-      grid.setColSpan(1);
+      grid.setColSpan(2);
       new DynamicNumber<int16_t>(line, rect_t{},
              [=]() { return gyroScaledY(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
+
+      if (imuHasGForce()) {
+        for (int i = 0; i < 3; i++) {grid.nextCell();}
+
+        line = newLine(grid);
+        lv_obj_set_style_pad_column(line->getLvObj(), PAD_SMALL, LV_PART_MAIN);
+
+        grid.setColSpan(2);
+        new StaticText(line, rect_t{}, "Accl");
+        grid.setColSpan(2);
+        new DynamicNumber<int16_t>(line, rect_t{},
+               [=]() { return gyroScaledG(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
+        grid.setColSpan(4);
+        new DynamicNumber<int16_t>(
+            line, rect_t{},
+            [peak = int16_t(-RESX)]() mutable {
+              peak = max<int16_t>(peak, gyroScaledG());
+              return peak;
+            },
+            COLOR_THEME_PRIMARY1_INDEX, 0, "(max:", ")");
+      }
     }
 #endif
 

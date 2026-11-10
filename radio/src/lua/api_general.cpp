@@ -380,6 +380,7 @@ const LuaSingleField luaSingleFields[] = {
 #if defined(IMU)
     {MIXSRC_TILT_X, "tiltx", "Tilt X"},
     {MIXSRC_TILT_Y, "tilty", "Tilt Y"},
+    {MIXSRC_G_FORCE, "accl", "Acceleration"},
 #endif
 
 #if defined(LUMINOSITY_SENSOR)

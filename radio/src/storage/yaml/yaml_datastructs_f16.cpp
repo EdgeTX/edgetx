@@ -192,6 +192,7 @@ const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_NONE, "NONE"  },
   {  MIXSRC_TILT_X, "TILT_X"  },
   {  MIXSRC_TILT_Y, "TILT_Y"  },
+  {  MIXSRC_G_FORCE, "G_FORCE"  },
   {  MIXSRC_SPACEMOUSE_A, "SPACEMOUSE_A"  },
   {  MIXSRC_SPACEMOUSE_B, "SPACEMOUSE_B"  },
   {  MIXSRC_SPACEMOUSE_C, "SPACEMOUSE_C"  },

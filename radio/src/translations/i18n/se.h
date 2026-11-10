@@ -376,6 +376,7 @@
 
 #define TR_IMU_VSRCRAW_1                "TltX"
 #define TR_IMU_VSRCRAW_2                "TltY"
+#define TR_IMU_VSRCRAW_3             "Accl"
 
 #define TR_CYC_VSRCRAW_1                "CYK1"
 #define TR_CYC_VSRCRAW_2                "CYK2"

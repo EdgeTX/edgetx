@@ -73,7 +73,7 @@ bool inactivityCheckInputs()
     sum += getValue(MIXSRC_FIRST_SWITCH + i) >> INAC_SWITCHES_SHIFT;
 
 #if defined(IMU)
-  for (uint8_t i = 0; i < 2; i++)
+  for (uint8_t i = 0; i < 3; i++)
     sum += getValue(MIXSRC_TILT_X + i) >> INAC_STICKS_SHIFT;
 #endif
 
