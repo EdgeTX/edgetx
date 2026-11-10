@@ -4,7 +4,7 @@ option(PXX2 "PXX2 protocol support" ON)
 option(AFHDS3 "AFHDS3 TX Module" ON)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(GHOST "Ghost TX Module" ON)
-option(MODULE_SIZE_SML "Nanp size TX Module" ON)
+option(MODULE_SIZE_SML "Small size TX Module" ON)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
 

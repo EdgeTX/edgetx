@@ -1032,7 +1032,7 @@ int Boards::getDefaultExternalModuleSize(Board::Type board)
   if (getCapability(board, HasColorLcd)) {
     if (IS_FLYSKY_EL18(board) || IS_IFLIGHT_C14(board))
       return EXTMODSIZE_BOTH;
-    else if (IS_HELLORADIOSKY_V12(board))
+    else if (IS_HELLORADIOSKY_V12(board) || IS_RADIOMASTER_GX10(board))
       return EXTMODSIZE_SMALL;
     else
       return EXTMODSIZE_STD;
