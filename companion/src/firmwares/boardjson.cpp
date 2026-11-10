@@ -1146,8 +1146,10 @@ bool BoardJson::loadFile(Board::Type board, QString hwdefn, InputsTable * inputs
               defn.refYaml = LVT_NAME;
           }
 
-          if (!o.value("inverted").isUndefined())
-            defn.inverted = o.value("inverted").toBool();
+          if (!o.value("inverted").isUndefined()) {
+            const QJsonValue inv = o.value("inverted");
+            defn.inverted = inv.isString() ? !inv.toString().isEmpty() : inv.toBool();
+          }
 
           if (!o.value("label").isUndefined())
             defn.name = o.value("label").toString().toStdString();

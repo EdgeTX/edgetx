@@ -70,7 +70,7 @@
         "gpio": "GPIOC",
         "pin": "LL_GPIO_PIN_1",
         "channel": "LL_ADC_CHANNEL_11",
-        "inverted": true,
+        "inverted": "slider",
         "label": "S1",
         "short_label": "1",
         "default": "SLIDER"

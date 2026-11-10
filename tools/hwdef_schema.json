@@ -121,7 +121,7 @@
             { "type": "null" }
           ]
         },
-        "inverted":    { "type": "boolean" },
+        "inverted":    { "anyOf": [ { "type": "boolean" }, { "type": "string", "enum": ["pot", "slider"] } ] },
         "label":       { "type": "string" },
         "short_label": { "type": "string" },
         "default": {

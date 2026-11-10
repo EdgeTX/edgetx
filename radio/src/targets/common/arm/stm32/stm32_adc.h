@@ -30,8 +30,16 @@ struct stm32_adc_input_t {
   GPIO_TypeDef* GPIOx;
   uint32_t      GPIO_Pin;
   uint32_t      ADC_Channel;
-  uint8_t       inverted;
+  uint8_t       inverted; // bit0: inverted as pot, bit1: inverted as slider
 };
+
+static inline bool stm32_adc_input_inverted(const stm32_adc_input_t& input,
+                                            uint8_t idx)
+{
+  uint8_t mask = input.inverted;
+  if (mask == 0 || mask == 3) return mask != 0;
+  return (mask >> (adcIsSliderInput(idx) ? 1 : 0)) & 1;
+}
 
 struct stm32_adc_t {
   ADC_TypeDef*         ADCx;

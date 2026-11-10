@@ -770,7 +770,7 @@ static void copy_adc_values(uint16_t* src, const stm32_adc_t* adc,
     }
 
     // TODO: move inversion to the generic ADC driver?
-    if (inputs[channel].inverted)
+    if (stm32_adc_input_inverted(inputs[channel], channel))
       _adc_oversampling[channel] += ADC_INVERT_VALUE(*src);
     else
       _adc_oversampling[channel] += *src;
