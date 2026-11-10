@@ -61,6 +61,9 @@
 #endif
 
 // Max 32 inputs supported
+// Bootloader fallback (no pot/slider config); overridden by hal/adc_driver.cpp
+__attribute__((weak)) bool adcIsSliderInput(uint8_t) { return false; }
+
 static uint32_t _adc_input_mask;
 static uint32_t _adc_input_inhibt_mask = 0;
 static volatile uint32_t _adc_inhibit_mask;
