@@ -121,7 +121,7 @@ bool isTelemetryFieldAvailable(int index)
 uint8_t getTelemetrySensorsCount()
 {
   uint8_t count = 0;
-  for (auto telemetrySensor : g_model.telemetrySensors) {
+  for (const auto& telemetrySensor : g_model.telemetrySensors) {
     if (telemetrySensor.isAvailable()) {
       ++count;
     }
