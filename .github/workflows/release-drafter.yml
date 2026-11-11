@@ -53,6 +53,12 @@ jobs:
           VERSION="${{ inputs.tag }}"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+          # Issue numbers may be entered with or without a leading "#"
+          CUSTOM_BUILD_ISSUE="${{ inputs.custom_build_issue }}"
+          TRACKING_ISSUE="${{ inputs.tracking_issue }}"
+          echo "custom_build_issue=${CUSTOM_BUILD_ISSUE##*#}" >> $GITHUB_OUTPUT
+          echo "tracking_issue=${TRACKING_ISSUE##*#}" >> $GITHUB_OUTPUT
+
           # For a patch release, link back to the .0 notes which carry the full
           # list of what is new in the series.
           BASE=$(echo "$VERSION" | sed -E 's/^v?([0-9]+)\.([0-9]+)\.([0-9]+).*/\1.\2.\3/')
@@ -306,8 +312,8 @@ jobs:
             See the [{0} Release notes](https://github.com/EdgeTX/edgetx/releases/tag/{1}) for the full list of what is new for {0}!', steps.version.outputs.series_tag, steps.version.outputs.series_tag) || '' }}
 
             ## Known Limitations and Issues
-            ${{ (contains(inputs.tag, '-rc') || contains(inputs.tag, '-beta') || contains(inputs.tag, '-alpha')) && inputs.tracking_issue != '' && format('> [!WARNING]
-            > Please check #{0} during the release candidate phase for any other release candidate-specific issues and status of fixes.', inputs.tracking_issue) || '' }}
+            ${{ (contains(inputs.tag, '-rc') || contains(inputs.tag, '-beta') || contains(inputs.tag, '-alpha')) && steps.version.outputs.tracking_issue != '' && format('> [!WARNING]
+            > Please check #{0} during the release candidate phase for any other release candidate-specific issues and status of fixes.', steps.version.outputs.tracking_issue) || '' }}
             ${{ steps.series.outputs.known_limitations }}
 
             ## UI/UX behavioral changes and/or new capabilities:
@@ -323,7 +329,7 @@ jobs:
             https://buddy.edgetx.org/#/flash?version=${{ steps.version.outputs.version }}
 
             ## Language and Custom builds
-            Custom prebuilt firmware is no longer available. However, the [CloudBuild option in EdgeTX Buddy](https://buddy.edgetx.org/) is here to allow you to build your own firmware, with just a few clicks. Additionally, EdgeTX Companion now also has some support for CloudBuild, and will automatically fetch firmware for a supported language when you use the "Update components" option. But you can still build your own firmware online [following this guide](https://github.com/EdgeTX/edgetx/wiki/Building-radio-firmware-in-a-web-browser-with-GitHub-CodeSpaces)${{ inputs.custom_build_issue != '' && format(', request a specific build at #{0}', inputs.custom_build_issue) || '' }} or ask on Discord for someone to build one for you.
+            Custom prebuilt firmware is no longer available. However, the [CloudBuild option in EdgeTX Buddy](https://buddy.edgetx.org/) is here to allow you to build your own firmware, with just a few clicks. Additionally, EdgeTX Companion now also has some support for CloudBuild, and will automatically fetch firmware for a supported language when you use the "Update components" option. But you can still build your own firmware online [following this guide](https://github.com/EdgeTX/edgetx/wiki/Building-radio-firmware-in-a-web-browser-with-GitHub-CodeSpaces)${{ steps.version.outputs.custom_build_issue != '' && format(', request a specific build at #{0}', steps.version.outputs.custom_build_issue) || '' }} or ask on Discord for someone to build one for you.
 
             ${{ steps.changelog.outputs.contributors != '' && '## Contributors
             Thank you to the following contributors who made this release possible!' || '' }}

@@ -32,9 +32,6 @@ class NumberArea : public FormField
   {
     lv_obj_clear_flag(lvobj, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
-    // Allow encoder acceleration
-    lv_obj_add_flag(lvobj, LV_OBJ_FLAG_ENCODER_ACCEL);
-
     lv_obj_add_event_cb(lvobj, NumberArea::numberedit_cb, LV_EVENT_KEY, this);
 
     setFocusHandler([=](bool focus) {
@@ -228,6 +225,7 @@ NumberEdit::NumberEdit(Window* parent, const rect_t& rect, int vmin, int vmax,
 
 void NumberEdit::openEdit()
 {
+  if (onEditStart) onEditStart();
   if (edit == nullptr) {
     edit = new NumberArea(
         this,

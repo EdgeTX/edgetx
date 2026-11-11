@@ -127,6 +127,30 @@ void lcdPageSet(unsigned char page)
 {
   lcdWriteCommand(0xb0 + page);
 }
+
+// GDDRAM powers up random. Display ON at full contrast would show it until
+// the first refresh, so blank it first.
+static void lcdClearRam()
+{
+  for (uint8_t page = 0; page < LCD_H / 8; page++) {
+    lcdPageSet(page);
+    lcdColumnSet(0);
+    LCD_A0_HIGH();
+    LCD_NCS_LOW();
+    for (uint8_t col = 0; col < LCD_W; col++) {
+      while ((LCD_SPI->SR & SPI_SR_TXE) == 0) {
+        // Wait
+      }
+      LCD_SPI->DR = 0;
+    }
+    while (LCD_SPI->SR & SPI_SR_BSY) {
+      // Wait
+    }
+    (void)LCD_SPI->DR;
+    (void)LCD_SPI->SR;
+    LCD_NCS_HIGH();
+  }
+}
 #endif
 
 #if LCD_W == 128
@@ -425,6 +449,9 @@ void lcdInitFinish()
   }
 
   lcdStart();
+#if defined(SSD1309_LCD)
+  lcdClearRam();
+#endif
   lcdWriteCommand(0xAF); // dc2=1, IC into exit SLEEP MODE, dc3=1 gray=ON, dc4=1 Green Enhanc mode disabled
   delay_ms(20); // needed for internal DC-DC converter startup
 }

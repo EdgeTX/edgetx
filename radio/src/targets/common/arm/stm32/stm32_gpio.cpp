@@ -77,7 +77,7 @@ void gpio_init(gpio_t pin, gpio_mode_t mode, gpio_speed_t speed)
   int pin_num = _pin_num(pin);
 
   _enable_clock(port);
-  _set_mode(port, pin, mode);
+  _set_mode(port, pin_num, mode);
 
   // pull up/down
   port->PUPDR &= ~(0x3 << (2 * pin_num));

@@ -100,6 +100,7 @@ if(NOT NATIVE_BUILD)
     ${STM32_DRIVER_DIR}/stm32_dma.cpp
     ${STM32_DRIVER_DIR}/stm32_gpio.cpp
     ${STM32_DRIVER_DIR}/stm32_adc.cpp
+    ${STM32_DRIVER_DIR}/cpu_id.cpp
   )
 
   if(CPU_TYPE STREQUAL STM32F2)
@@ -175,7 +176,6 @@ endif()
 
 set(FIRMWARE_SRC ${FIRMWARE_SRC} syscalls.c)
 
-set(TARGET_SRC ${TARGET_SRC} ../common/arm/stm32/cpu_id.cpp)
 set(SRC ${SRC} io/bootloader_flash.cpp)
 
 if(FIRMWARE_FORMAT_UF2)

@@ -22,6 +22,13 @@
 #include "stm32_hal.h"
 #include "rtc.h"
 
+// LSEDRV resets to LOW, which is marginal for the crystals fitted on these
+// boards. Override with -DLSE_DRIVE_STRENGTH if a board needs less.
+#if !defined(LSE_DRIVE_STRENGTH) && \
+    (defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5))
+  #define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
+#endif
+
 RTC_HandleTypeDef rtc = {};
 
 void rtcSetTime(const struct gtm * t)
@@ -57,6 +64,36 @@ void rtcGetTime(struct gtm * t)
   t->tm_mday = RTC_DateStruct.Date;
 }
 
+#if defined(LSE_DRIVE_STRENGTH)
+// LSEDRV can only be written while the LSE is stopped, and it is kept in the
+// backup domain, so only stop the oscillator when the drive is not already set.
+static void rtcSetLSEDriveStrength()
+{
+  uint32_t drive = LSE_DRIVE_STRENGTH;
+
+#if defined(RCC_VER_X)
+  // rev.Y and below encode the two MEDIUM levels inverted
+  if ((drive == RCC_LSEDRIVE_MEDIUMLOW || drive == RCC_LSEDRIVE_MEDIUMHIGH) &&
+      HAL_GetREVID() <= REV_ID_Y) {
+    drive = ~drive & RCC_BDCR_LSEDRV_Msk;
+  }
+#endif
+
+  if ((RCC->BDCR & RCC_BDCR_LSEDRV) == drive) return;
+
+  RCC_OscInitTypeDef RCC_OscInitStruct = {};
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+#if !defined(STM32H7RS) && !defined(STM32H5)
+  RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
+#endif
+  RCC_OscInitStruct.LSEState       = RCC_LSE_OFF;
+
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) return;
+
+  MODIFY_REG(RCC->BDCR, RCC_BDCR_LSEDRV, drive);
+}
+#endif
+
 void rtcInit()
 {
   rtc.Instance = RTC;
@@ -73,8 +110,7 @@ void rtcInit()
 
   HAL_PWR_EnableBkUpAccess();
 #if defined(LSE_DRIVE_STRENGTH)
-  __HAL_RCC_LSE_CONFIG(RCC_LSE_OFF);
-  __HAL_RCC_LSEDRIVE_CONFIG(LSE_DRIVE_STRENGTH);
+  rtcSetLSEDriveStrength();
 #endif
 
   // Enable LSE Oscillator
@@ -89,10 +125,6 @@ void rtcInit()
     __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
     __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
   }
-
-#if defined(STM32H7)
-  __HAL_RCC_LSEDRIVE_CONFIG(RCC_LSEDRIVE_HIGH);
-#endif
 
   __HAL_RCC_RTC_ENABLE();
   HAL_RTC_WaitForSynchro(&rtc);

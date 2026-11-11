@@ -128,6 +128,12 @@ void boardInit()
 {
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
 
+#if (defined(RADIO_V14) || defined(RADIO_V14LCD)) && defined(AUDIO_MUTE_GPIO)
+  // Amp SD is pulled low (amp on) until driven: mute before anything can pop
+  gpio_init(AUDIO_MUTE_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  gpio_set(AUDIO_MUTE_GPIO);
+#endif
+
   delaysInit();
   timersInit();
   __enable_irq();
@@ -195,12 +201,12 @@ void boardInit()
       delay_ms(20);
 #if defined(FUNCTION_SWITCHES)
       // Support for FS Led to indicate battery charge level
-      if (getBatteryVoltage() >= 660) setFSLedON(0);
-      if (getBatteryVoltage() >= 700) setFSLedON(1);
-      if (getBatteryVoltage() >= 740) setFSLedON(2);
-      if (getBatteryVoltage() >= 780) setFSLedON(3);
-      if (getBatteryVoltage() >= 820) setFSLedON(4);
-      if (getBatteryVoltage() >= 842) setFSLedON(5);
+      if (getBatteryVoltage() >= 660) fsLedOn(0);
+      if (getBatteryVoltage() >= 700) fsLedOn(1);
+      if (getBatteryVoltage() >= 740) fsLedOn(2);
+      if (getBatteryVoltage() >= 780) fsLedOn(3);
+      if (getBatteryVoltage() >= 820) fsLedOn(4);
+      if (getBatteryVoltage() >= 842) fsLedOn(5);
 #elif defined(STATUS_LEDS)
       // Use Status LED to indicate battery charge level instead
       if (getBatteryVoltage() <= 660) ledRed();         // low discharge

@@ -188,7 +188,7 @@ static void luaLoadFiles(const char * directory)
   FILINFO fno;
   DIR dir;
 
-  strcpy(path, directory);
+  etxNormalizePath(directory, path, sizeof(path));
   TRACE("luaLoadFiles() %s", path);
 
   FRESULT res = f_opendir(&dir, path);        /* Open the directory */

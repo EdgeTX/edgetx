@@ -468,8 +468,6 @@ UART5:  TELEMETRY_USART
 
 #define LCD_DEPTH                       16
 
-#define LSE_DRIVE_STRENGTH     RCC_LSEDRIVE_HIGH
-
 // IMU
 #define IMU_I2C_BUS                     I2C_Bus_2
 #define IMU_INT_GPIO                    GPIO_PIN(GPIOH, 4) // PH.04

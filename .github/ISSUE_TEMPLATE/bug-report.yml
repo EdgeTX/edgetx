@@ -106,11 +106,13 @@ body:
         - FrSky X-Lite / S / Pro
         - HelloRadioSky V12
         - HelloRadioSky V14
+        - HelloRadioSky V15
         - HelloRadioSky V16
         - Jumper T12
         - Jumper T14
         - Jumper T15
         - Jumper T15 Pro
+        - Jumper T15-H7
         - Jumper T16
         - Jumper T18
         - Jumper T20/T20S
@@ -128,6 +130,7 @@ body:
         - RadioMaster TX16S / TX16SMK2
         - RadioMaster TX16S MK3
         - RadioMaster Zorro
+        - Senduwing H17
         - Other (Please specify below)
     validations:
       required: true

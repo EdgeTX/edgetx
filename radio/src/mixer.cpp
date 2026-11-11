@@ -506,6 +506,21 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
 
   else if (i == MIXSRC_TX_VOLTAGE) {
     return g_vbat100mV;
+#if defined(MODULE_BATTERY_SENSOR)
+  } else if (i == MIXSRC_TX_BAT_CURRENT) {
+#if defined(SIMU)
+    return 0;
+#else
+    return divRoundClosest(batterySensorCurrent(), 100);
+#endif
+  } else if (i == MIXSRC_TX_BAT_POWER) {
+#if defined(SIMU)
+    return 0;
+#else
+    return divRoundClosest(batterySensorVoltage(), 100) *
+           divRoundClosest(batterySensorCurrent(), 100);
+#endif
+#endif
   } else if (i < MIXSRC_FIRST_TIMER) {
     // TX_TIME + SPARES
 #if defined(RTCLOCK)
@@ -716,13 +731,13 @@ int getSourceTrimOrigin(int source)
 
 int getSourceTrimValue(int source, int stickValue=0)
 {
-  auto origin = getSourceTrimOrigin(source);
+  int rv = 0;
+  auto origin = getSourceTrimOrigin(abs(source));
   if (origin >= 0) {
-    return getStickTrimValue(origin, stickValue);
+    rv = getStickTrimValue(origin, stickValue);
+    if (source < 0) rv = -rv;
   }
-  else {
-    return 0;
-  }
+  return rv;
 }
 
 constexpr bitfield_channels_t all_channels_dirty = (bitfield_channels_t)-1;
@@ -978,7 +993,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       if (applyOffsetAndCurve) {
         bool applyTrims = !(mode & e_perout_mode_notrims);
         if (!applyTrims && g_model.thrTrim) {
-          auto origin = getSourceTrimOrigin(srcRaw);
+          auto origin = getSourceTrimOrigin(srcRawAbs);
           if (origin == g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM) {
             applyTrims = true;
           }

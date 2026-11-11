@@ -89,9 +89,11 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
 {
   // TODO json files do not contain gyro defs
   // Radio cmake directive IMU is currently used
-  if (IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board) ||
-      IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_TX16SMK3(board) ||
-      IS_FLYSKY_PA01(board)) {
+  // H17 and T18H7 have no IMU
+  if ((IS_TARANIS_XLITES(board) || IS_FAMILY_HORUS_OR_T16(board) ||
+       IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_TX16SMK3(board) ||
+       IS_FLYSKY_PA01(board)) &&
+      !IS_SENDUWING_H17(board) && !IS_JUMPER_T18H7(board)) {
     if (getInputIndex(inputs, "TILT_X", Board::LVT_TAG) < 0) {
       InputDefn defn;
       defn.type = AIT_FLEX;
@@ -135,7 +137,10 @@ void BoardJson::afterLoadFixups(Board::Type board, InputsTable * inputs, Switche
   }
 
   //  Flex switches are not listed in json file for these radios
-  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_MT12(board) ? 2 : 0;
+  //  Must match the targets that set FLEXSW (MAX_FLEX_SWITCHES) in the firmware
+  int count = IS_RADIOMASTER_TX16S(board) || IS_RADIOMASTER_TX16SMK3(board) ||
+              IS_FATFISH_F16(board) || IS_HELLORADIOSKY_V16(board) ||
+              IS_RADIOMASTER_MT12(board) ? 2 : 0;
 
   for (int i = 1; i <= count; i++) {
     QString tag = QString("FL%1").arg(i);

@@ -82,14 +82,6 @@ void RadioToolsPage::checkEvents()
   PageGroupItem::checkEvents();
 }
 
-typedef void (*ToolExec)(Window* parent, const std::string& path);
-
-struct ToolEntry {
-  std::string label;
-  std::string path;
-  ToolExec exec;
-};
-
 inline bool tool_compare_nocase(const ToolEntry& first, const ToolEntry& second)
 {
   return strcasecmp(first.label.c_str(), second.label.c_str()) < 0;
@@ -101,7 +93,7 @@ static void run_lua_tool(Window* parent, const std::string& path)
   char toolPath[FF_MAX_LFN + 1];
   strncpy(toolPath, path.c_str(), sizeof(toolPath) - 1);
   *((char*)getBasename(toolPath) - 1) = '\0';
-  f_chdir(toolPath);
+  etxChdir(toolPath);
 
   luaExecStandalone(path.c_str());
 }
@@ -230,6 +222,8 @@ struct ToolButton : public TextButton {
   static LAYOUT_VAL_SCALED(TOOLS_BTN_H, 48)
 };
 
+__attribute__((weak)) void customUITools(std::list<ToolEntry>& tools) {}
+
 void RadioToolsPage::rebuild(Window* window)
 {
   window->clear();
@@ -306,6 +300,9 @@ void RadioToolsPage::rebuild(Window* window)
 #if defined(LUA)
   scanLuaTools(tools);
 #endif
+
+  // Radio specific tools
+  customUITools(tools);
 
   tools.sort(tool_compare_nocase);
 

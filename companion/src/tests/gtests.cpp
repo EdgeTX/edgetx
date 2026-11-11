@@ -29,6 +29,7 @@
 #include "storage.h"
 #include "opentxinterface.h"
 #include "customdebug.h"
+#include "firmwares/boardfactories.h"
 
 
 using ::testing::TestEventListener;
@@ -129,7 +130,10 @@ int main(int argc, char **argv)
 {
   QCoreApplication app(argc, argv);
 
+  Q_INIT_RESOURCE(hwdefs);
+
   CustomDebug::setFilterRules();
+  gBoardFactories = new BoardFactories();
   registerStorageFactories();
   registerOpenTxFirmwares();
 

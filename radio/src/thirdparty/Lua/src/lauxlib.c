@@ -25,6 +25,11 @@
 
 #include "lauxlib.h"
 
+#if !defined(LUA_CROSS_COMPILER)
+/* EdgeTX: resolves "." and ".." against the tracked working folder (lib_file.cpp) */
+void etxNormalizePath(const char *in, char *out, size_t outLen);
+#endif
+
 
 /*
 ** {======================================================
@@ -782,8 +787,12 @@ LUALIB_API int luaL_loadfilex (lua_State *L, const char *filename,
     lf.f = fopen(filename, "r");
     if (!lf.f) return errfile(L, "open", fnameindex);
 #else
-    if (f_open(&lf.f, filename, FA_READ) != FR_OK)
-      return errfile(L, "open", fnameindex);
+    {
+      char path[FF_MAX_LFN + 1];
+      etxNormalizePath(filename, path, sizeof(path));  /* FatFs can't resolve ".." on exFAT */
+      if (f_open(&lf.f, path, FA_READ) != FR_OK)
+        return errfile(L, "open", fnameindex);
+    }
 #endif
   }
   lf.type = 0;

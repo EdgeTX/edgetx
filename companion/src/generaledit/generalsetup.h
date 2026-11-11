@@ -51,6 +51,7 @@ class GeneralSetupPanel : public GeneralPanel
     void on_units_CB_currentIndexChanged(int index);
     void on_ppm_units_CB_currentIndexChanged(int index);
     void on_faimode_CB_stateChanged(int );
+    void on_rotEncMode_CB_currentIndexChanged(int index);
     void on_speakerPitchSB_editingFinished();
     void on_timezoneLE_textEdited(const QString &text);
     void on_adjustRTC_stateChanged(int);
@@ -115,6 +116,7 @@ class GeneralSetupPanel : public GeneralPanel
     void showLabelSelectOptions();
 
     void setValues();
+    void populateRotEncModeCB();
     void populateVoiceLangCB(QComboBox* b, const char* currLang);
     void populateTextLangCB(QComboBox* b, const char* currLang, bool isColor);
     void updateVarioPitchRange();

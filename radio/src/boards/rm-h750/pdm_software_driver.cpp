@@ -28,11 +28,16 @@
 
 #if defined(PDM_CAPTURE_DMA)
 
-static constexpr uint32_t PDM_SAI_MCKDIV =
+static constexpr uint32_t PDM_CLOCK_DIV =
     PDM_SAI_KER_FREQ / PDM_CLOCK_FREQ;
 
-static_assert(PDM_SAI_MCKDIV >= 1 && PDM_SAI_MCKDIV <= 63,
+#if defined(PDM_CLOCK_DFSDM)
+static_assert(PDM_CLOCK_DIV >= 2 && PDM_CLOCK_DIV <= 256,
+              "PDM clock divider out of range for DFSDM_CHCFGR1_CKOUTDIV");
+#else
+static_assert(PDM_CLOCK_DIV >= 1 && PDM_CLOCK_DIV <= 63,
               "PDM_SAI MCKDIV out of range for SAI_xCR1_MCKDIV (6 bits)");
+#endif
 
 // Burst size: ~6 ms of PDM at 1.6 MHz (multiple of 32 required for word packing).
 static constexpr uint32_t PDM_BURST_BITS  = 10080;
@@ -56,6 +61,63 @@ static uint32_t cic_bitsSeen = 0;
 
 static bool pdmRunning = false;
 
+#if defined(PDM_CLOCK_DFSDM)
+// DFSDM1 CKOUT driven from the audio clock (SAI1 kernel clock); only the
+// clock output is used, capture stays on the timer + DMA path.
+static void pdmClockStart()
+{
+  SET_BIT(RCC->APB2ENR, RCC_APB2ENR_SAI1EN | RCC_APB2ENR_DFSDM1EN);
+  (void)READ_BIT(RCC->APB2ENR, RCC_APB2ENR_DFSDM1EN);
+
+  CLEAR_BIT(DFSDM1_Channel0->CHCFGR1, DFSDM_CHCFGR1_DFSDMEN);
+  DFSDM1_Channel0->CHCFGR1 =
+      DFSDM_CHCFGR1_CKOUTSRC |
+      ((PDM_CLOCK_DIV - 1U) << DFSDM_CHCFGR1_CKOUTDIV_Pos);
+  SET_BIT(DFSDM1_Channel0->CHCFGR1, DFSDM_CHCFGR1_DFSDMEN);
+}
+
+static void pdmClockStop()
+{
+  CLEAR_BIT(DFSDM1_Channel0->CHCFGR1, DFSDM_CHCFGR1_DFSDMEN);
+}
+#else
+static void pdmClockStart()
+{
+  SET_BIT(RCC->APB2ENR, RCC_APB2ENR_SAI1EN);
+  (void)READ_BIT(RCC->APB2ENR, RCC_APB2ENR_SAI1EN);
+
+  SAI_Block_TypeDef* block = PDM_SAI_BLOCK;
+
+  CLEAR_BIT(block->CR1, SAI_xCR1_SAIEN);
+  while (READ_BIT(block->CR1, SAI_xCR1_SAIEN)) {}
+
+  block->CR1 = (0U << SAI_xCR1_MODE_Pos)       // Master TX
+             | (0U << SAI_xCR1_PRTCFG_Pos)     // Free protocol
+             | (4U << SAI_xCR1_DS_Pos)         // 16-bit data
+             | SAI_xCR1_NODIV                  // BCLK = ker_ck / MCKDIV
+             | (PDM_CLOCK_DIV << SAI_xCR1_MCKDIV_Pos);
+
+  block->CR2 = (1U << SAI_xCR2_FTH_Pos);       // FIFO threshold = 1/4 full
+
+  block->FRCR = (15U << 0)                      // FRL = 15 (16-bit frame)
+              | (7U  << 8);                     // FSALL = 7
+  block->SLOTR = (0U << 8)                      // NBSLOT = 0 -> 1 slot
+               | (1U << 16);                    // SLOTEN slot 0
+
+  // Prime the FIFO so the block starts clocking immediately (no underrun).
+  for (int i = 0; i < 4; ++i) block->DR = 0U;
+
+  SET_BIT(block->CR1, SAI_xCR1_SAIEN);
+}
+
+static void pdmClockStop()
+{
+  SAI_Block_TypeDef* block = PDM_SAI_BLOCK;
+  CLEAR_BIT(block->CR1, SAI_xCR1_SAIEN);
+  while (READ_BIT(block->CR1, SAI_xCR1_SAIEN)) {}
+}
+#endif
+
 void pdmStart()
 {
   if (pdmRunning) return;
@@ -71,31 +133,7 @@ void pdmStart()
   gpio_init_af(PDM_CLOCK, PDM_CLOCK_GPIO_AF, GPIO_PIN_SPEED_VERY_HIGH);
   gpio_init(PDM_DATA, GPIO_IN, GPIO_PIN_SPEED_VERY_HIGH);
 
-  SET_BIT(RCC->APB2ENR, RCC_APB2ENR_SAI1EN);
-  (void)READ_BIT(RCC->APB2ENR, RCC_APB2ENR_SAI1EN);
-
-  SAI_Block_TypeDef* block = PDM_SAI_BLOCK;
-
-  CLEAR_BIT(block->CR1, SAI_xCR1_SAIEN);
-  while (READ_BIT(block->CR1, SAI_xCR1_SAIEN)) {}
-
-  block->CR1 = (0U << SAI_xCR1_MODE_Pos)       // Master TX
-             | (0U << SAI_xCR1_PRTCFG_Pos)     // Free protocol
-             | (4U << SAI_xCR1_DS_Pos)         // 16-bit data
-             | SAI_xCR1_NODIV                  // BCLK = ker_ck / MCKDIV
-             | (PDM_SAI_MCKDIV << SAI_xCR1_MCKDIV_Pos);
-
-  block->CR2 = (1U << SAI_xCR2_FTH_Pos);       // FIFO threshold = 1/4 full
-
-  block->FRCR = (15U << 0)                      // FRL = 15 (16-bit frame)
-              | (7U  << 8);                     // FSALL = 7
-  block->SLOTR = (0U << 8)                      // NBSLOT = 0 -> 1 slot
-               | (1U << 16);                    // SLOTEN slot 0
-
-  // Prime the FIFO so the block starts clocking immediately (no underrun).
-  for (int i = 0; i < 4; ++i) block->DR = 0U;
-
-  SET_BIT(block->CR1, SAI_xCR1_SAIEN);
+  pdmClockStart();
 
   // TIM15 is free because FLYSKY_GIMBAL is OFF.
   SET_BIT(RCC->APB2ENR, RCC_APB2ENR_TIM15EN);
@@ -148,11 +186,8 @@ void pdmStop()
   LL_DMA_DisableStream(PDM_CAPTURE_DMA, PDM_CAPTURE_DMA_STREAM);
   while (LL_DMA_IsEnabledStream(PDM_CAPTURE_DMA, PDM_CAPTURE_DMA_STREAM)) {}
 
-  // Disable the SAI block — this stops the PDM clock to the mic, putting it
-  // into low-power mode.
-  SAI_Block_TypeDef* block = PDM_SAI_BLOCK;
-  CLEAR_BIT(block->CR1, SAI_xCR1_SAIEN);
-  while (READ_BIT(block->CR1, SAI_xCR1_SAIEN)) {}
+  // Stopping the PDM clock puts the mic into low-power mode.
+  pdmClockStop();
 
   pdmRunning = false;
 }

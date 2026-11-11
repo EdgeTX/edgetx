@@ -39,7 +39,10 @@ jobs:
           - st16
           - tx15
           - t15pro
+          - t15h7
           - gx15
+          - h17
+          - t18h7
     container:
       image: ghcr.io/edgetx/edgetx-dev:2.12
       volumes:

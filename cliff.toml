@@ -23,14 +23,18 @@ body = """
 {%- endif -%}
 {%- endmacro -%}
 {#- Scopes mapped to an audience heading; anything else is "Other". -#}
-{%- set FIRMWARE = ["firmware", "fw"] -%}
+{%- set FIRMWARE = ["firmware", "fw", "radio"] -%}
+{%- set TELEMETRY = ["telem", "telemetry"] -%}
+{%- set LUA = ["lua"] -%}
 {%- set BW = ["bw", "bw128", "bw212"] -%}
 {%- set COLOR = ["color", "colour", "colorlcd"] -%}
 {%- set COMPANION = ["cpn", "companion"] -%}
-{%- set MAPPED = FIRMWARE | concat(with=BW) | concat(with=COLOR) | concat(with=COMPANION) -%}
+{%- set MAPPED = FIRMWARE | concat(with=TELEMETRY) | concat(with=LUA) | concat(with=BW) | concat(with=COLOR) | concat(with=COMPANION) -%}
 {%- for group, commits in commits | group_by(attribute="group") %}
 ### {{ group | split(pat="-->") | last | trim }}
 {{- self::audience(commits=commits, scopes=FIRMWARE, heading="🎮 Firmware") -}}
+{{- self::audience(commits=commits, scopes=TELEMETRY, heading="📡 Telemetry") -}}
+{{- self::audience(commits=commits, scopes=LUA, heading="📜 Lua") -}}
 {{- self::audience(commits=commits, scopes=BW, heading="🖥️ Black & White Radio") -}}
 {{- self::audience(commits=commits, scopes=COLOR, heading="🎨 Color LCD Radio") -}}
 {{- self::audience(commits=commits, scopes=COMPANION, heading="💻 Companion") -}}

@@ -44,5 +44,5 @@ extern const void* stm32_flash_dfu_media;
 uint32_t isFirmwareStart(const uint8_t * buffer);
 uint32_t isBootloaderStart(const uint8_t * buffer);
 
-void flashWrite(uint32_t* address, const uint32_t* buffer);
+bool flashWrite(uint32_t* address, const uint32_t* buffer);
 

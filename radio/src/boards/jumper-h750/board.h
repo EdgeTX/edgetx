@@ -60,7 +60,7 @@ void getCPUUniqueID(char * s);
 #define FLASH_PAGESIZE 256
 void unlockFlash();
 void lockFlash();
-void flashWrite(uint32_t * address, const uint32_t * buffer);
+bool flashWrite(uint32_t * address, const uint32_t * buffer);
 uint32_t isFirmwareStart(const uint8_t * buffer);
 uint32_t isBootloaderStart(const uint8_t * buffer);
 
@@ -124,8 +124,13 @@ void EXTERNAL_MODULE_OFF();
 // --- MOSFET ---- R1 --- MCU
 //                     |__ R2 --- GND
 //
+#if defined(RADIO_T18H7)
+#define VBAT_DIV_R1       499  // kOhms
+#define VBAT_DIV_R2       160  // kOhms
+#else
 #define VBAT_DIV_R1       680  // kOhms
 #define VBAT_DIV_R2       158  // kOhms
+#endif
 #define VBAT_MOSFET_DROP    0  // * 10mV
 
 // #define BATTERY_DIVIDER 1211 // = 2047 * 165k / (165k + 680k) * 10 / 3.3V

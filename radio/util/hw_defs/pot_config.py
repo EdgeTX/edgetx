@@ -53,6 +53,10 @@ POT_CONFIG = {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"},
     },
+    "v15": {
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"},
+    },
     "v14": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"},
@@ -154,6 +158,15 @@ POT_CONFIG = {
         "SL1": {"default": "SLIDER"},
         "SL2": {"default": "SLIDER"}
     },
+    "h17": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "MULTIPOS"},
+        "P3": {"default": "POT"},
+        "SL1": {"default": "POT"},
+        "SL2": {"default": "POT"},
+        "EXT1": {"default": "NONE"},
+        "EXT2": {"default": "NONE"}
+    },
     "tx15": {
         "P1": {"default": "POT"},
         "P2": {"default": "POT"},
@@ -161,6 +174,16 @@ POT_CONFIG = {
     "t15pro": {
         "P1": {"default": "POT_CENTER"},
         "P2": {"default": "POT_CENTER"},
+    },
+    "t15h7": {
+        "P1": {"default": "POT_CENTER"},
+        "P2": {"default": "POT_CENTER"},
+    },
+    "t18h7": {
+        "P1": {"default": "POT"},
+        "P2": {"default": "POT"},
+        "P3": {"default": "POT"},
+        "P4": {"default": "POT"},
     },
     "gx15": {
         "P1": {"default": "POT_CENTER"},

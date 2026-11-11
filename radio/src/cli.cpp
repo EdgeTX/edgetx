@@ -1025,14 +1025,14 @@ int cliTrace(const char ** argv)
 int cliStackInfo(const char ** argv)
 {
   cliSerialPrint("[MENUS] %d available / %d bytes",
-                 task_get_stack_usage(&menusTaskId) * 4,
+                 task_get_stack_usage(&menusTaskId),
                  task_get_stack_size(&menusTaskId));
   cliSerialPrint("[MIXER] %d available / %d bytes",
-                 task_get_stack_usage(&mixerTaskId) * 4,
+                 task_get_stack_usage(&mixerTaskId),
                  task_get_stack_size(&mixerTaskId));
 #if defined(AUDIO)
   cliSerialPrint("[AUDIO] %d available / %d bytes",
-                 task_get_stack_usage(&audioTaskId) * 4,
+                 task_get_stack_usage(&audioTaskId),
                  task_get_stack_size(&audioTaskId));
 #endif
 #if defined(CLI)
@@ -1475,11 +1475,17 @@ void printAudioVars()
     }
   }
 
-  cliSerialPrint("FragmentFifo:  ridx: %d, widx: %d",
-              audioQueue.fragmentsFifo.ridx, audioQueue.fragmentsFifo.widx);
-  cliSerialPrint("audioQueue:  readIdx: %d, writeIdx: %d, full: %d",
-              audioQueue.buffersFifo.readIdx, audioQueue.buffersFifo.writeIdx,
-              audioQueue.buffersFifo.bufferFull);
+  cliSerialPrint("FragmentFifo:  ridx: %d (slot %d), widx: %d (slot %d)",
+              audioQueue.fragmentsFifo.ridx,
+              audioQueue.fragmentsFifo.slot(audioQueue.fragmentsFifo.ridx),
+              audioQueue.fragmentsFifo.widx,
+              audioQueue.fragmentsFifo.slot(audioQueue.fragmentsFifo.widx));
+  cliSerialPrint("audioQueue:  readIdx: %d (slot %d), writeIdx: %d (slot %d), full: %d",
+              audioQueue.buffersFifo.readIdx,
+              audioQueue.buffersFifo.slot(audioQueue.buffersFifo.readIdx),
+              audioQueue.buffersFifo.writeIdx,
+              audioQueue.buffersFifo.slot(audioQueue.buffersFifo.writeIdx),
+              audioQueue.buffersFifo.full());
 
   cliSerialPrint("normalContext: %u",
               (uint32_t)audioQueue.normalContext.fragment.type);

@@ -181,6 +181,7 @@
 #define STR_FLYSKY_PULSE_PROTO currentLangStrings->STR_FLYSKY_PULSE_PROTO
 #define STR_FLYSKY_SERIAL_PROTO currentLangStrings->STR_FLYSKY_SERIAL_PROTO
 #define STR_FONT_SIZES currentLangStrings->STR_FONT_SIZES
+#define STR_GPS_URI_TYPES currentLangStrings->STR_GPS_URI_TYPES
 #define STR_LABELS_MATCH_MODE currentLangStrings->STR_LABELS_MATCH_MODE
 #define STR_LABELS_SELECT_MODE currentLangStrings->STR_LABELS_SELECT_MODE
 #define STR_SORT_ORDERS currentLangStrings->STR_SORT_ORDERS
@@ -959,6 +960,8 @@
 #define STR_SPLASHSCREEN currentLangStrings->STR_SPLASHSCREEN
 #define STR_SPORT_UPDATE_POWER_MODE currentLangStrings->STR_SPORT_UPDATE_POWER_MODE
 #define STR_SRC_BATT currentLangStrings->STR_SRC_BATT
+#define STR_SRC_BAT_CURRENT currentLangStrings->STR_SRC_BAT_CURRENT
+#define STR_SRC_BAT_POWER currentLangStrings->STR_SRC_BAT_POWER
 #define STR_SRC_GPS currentLangStrings->STR_SRC_GPS
 #define STR_SRC_LIGHT currentLangStrings->STR_SRC_LIGHT
 #define STR_SRC_TIME currentLangStrings->STR_SRC_TIME

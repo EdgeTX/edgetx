@@ -40,14 +40,22 @@
  #include "yaml_datastructs_tx15.cpp"
 #elif defined(PCBT15)
  #include "yaml_datastructs_t15pro.cpp"
+#elif defined(PCBT15H7)
+ #include "yaml_datastructs_t15h7.cpp"
+#elif defined(PCBT18H7)
+ #include "yaml_datastructs_t18h7.cpp"
 #elif defined(PCBTX16SMK3)
  #include "yaml_datastructs_tx16smk3.cpp"
+#elif defined(PCBH17)
+ #include "yaml_datastructs_h17.cpp"
 #elif defined(RADIO_T22)
   #include "yaml_datastructs_t22.cpp"
 #elif defined(PCBV12)
  #include "yaml_datastructs_v12.cpp"
 #elif defined(PCBGX15)
  #include "yaml_datastructs_gx15.cpp"
+#elif defined(PCBV15)
+ #include "yaml_datastructs_v15.cpp"
 #elif defined(PCBPL18)
  #if defined(RADIO_NB4P)
   #include "yaml_datastructs_nb4p.cpp"

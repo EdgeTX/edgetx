@@ -63,6 +63,7 @@ namespace Board {
     BOARD_JUMPER_T14,
     BOARD_JUMPER_T15,
     BOARD_JUMPER_T15PRO,
+    BOARD_JUMPER_T15H7,
     BOARD_JUMPER_T22,
     BOARD_JUMPER_T16,
     BOARD_RADIOMASTER_TX16S,
@@ -96,12 +97,15 @@ namespace Board {
     BOARD_JUMPER_T20V2,
     BOARD_JUMPER_BUMBLEBEE,
     BOARD_FATFISH_F16,
-    BOARD_HELLORADIOSKY_V16,
     BOARD_RADIOMASTER_MT12,
     BOARD_HELLORADIOSKY_V12,
     BOARD_HELLORADIOSKY_V14,
     BOARD_HELLORADIOSKY_V14LCD,
+    BOARD_HELLORADIOSKY_V15,
+    BOARD_HELLORADIOSKY_V16,
     BOARD_IFLIGHT_COMMANDO14,
+    BOARD_SENDUWING_H17,
+    BOARD_JUMPER_T18H7,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -514,6 +518,11 @@ inline bool IS_IFLIGHT_C14(Board::Type board)
   return board == Board::BOARD_IFLIGHT_COMMANDO14;
 }
 
+inline bool IS_SENDUWING_H17(Board::Type board)
+{
+  return (board == Board::BOARD_SENDUWING_H17);
+}
+
 inline bool IS_JUMPER_T12(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T12;
@@ -559,6 +568,11 @@ inline bool IS_JUMPER_T15PRO(Board::Type board)
   return board == Board::BOARD_JUMPER_T15PRO;
 }
 
+inline bool IS_JUMPER_T15H7(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T15H7;
+}
+
 inline bool IS_JUMPER_T22(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T22;
@@ -582,6 +596,11 @@ inline bool IS_JUMPER_T14(Board::Type board)
 inline bool IS_JUMPER_T18(Board::Type board)
 {
   return board == Board::BOARD_JUMPER_T18;
+}
+
+inline bool IS_JUMPER_T18H7(Board::Type board)
+{
+  return board == Board::BOARD_JUMPER_T18H7;
 }
 
 inline bool IS_JUMPER_T20(Board::Type board)
@@ -669,6 +688,11 @@ inline bool IS_HELLORADIOSKY_V14LCD(Board::Type board)
   return board == Board::BOARD_HELLORADIOSKY_V14LCD;
 }
 
+inline bool IS_HELLORADIOSKY_V15(Board::Type board)
+{
+  return board == Board::BOARD_HELLORADIOSKY_V15;
+}
+
 inline bool IS_HELLORADIOSKY_V16(Board::Type board)
 {
   return board == Board::BOARD_HELLORADIOSKY_V16;
@@ -678,6 +702,7 @@ inline bool IS_FAMILY_T16(Board::Type board)
 {
   return board == Board::BOARD_FATFISH_F16 ||
          board == Board::BOARD_HELLORADIOSKY_V12 ||
+         board == Board::BOARD_HELLORADIOSKY_V15 ||
          board == Board::BOARD_HELLORADIOSKY_V16 ||
          board == Board::BOARD_JUMPER_T15 ||
          board == Board::BOARD_JUMPER_T16 ||
@@ -835,7 +860,8 @@ inline bool IS_FAMILY_HORUS_OR_T16(Board::Type board)
   return IS_FAMILY_HORUS(board) || IS_FAMILY_T16(board) ||
     IS_FLYSKY_NV14(board)/*generally*/ || IS_FLYSKY_EL18(board)/*generally*/
     || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board)/*generally*/ || IS_FLYSKY_PA01(board)/*generally*/
-    || IS_IFLIGHT_C14(board);
+    || IS_IFLIGHT_C14(board) || IS_SENDUWING_H17(board)/*generally*/
+    || IS_JUMPER_T15PRO(board) || IS_JUMPER_T15H7(board) || IS_JUMPER_T18H7(board);
 }
 
 inline bool IS_HORUS_OR_TARANIS(Board::Type board)
@@ -894,6 +920,8 @@ inline bool IS_STM32H7(Board::Type board)
          IS_FLYSKY_ST16(board) ||
          IS_HELLORADIOSKY_V12(board) ||
          IS_JUMPER_T15PRO(board) ||
+         IS_JUMPER_T15H7(board) ||
+         IS_JUMPER_T18H7(board) ||
          IS_JUMPER_T22(board) ||
          IS_RADIOMASTER_TX15(board) ||
          IS_RADIOMASTER_TX16SMK3(board) ||

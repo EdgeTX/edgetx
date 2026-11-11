@@ -273,7 +273,11 @@ static DSTATUS sdio_initialize(BYTE lun)
 {
 #if defined(SD2_PRESENT_GPIO)
   /* Define active SD */
-  if (gpio_read(SD2_PRESENT_GPIO) == 0) {
+  // SD_SDIO2_ONLY: no internal SDMMC1 to fall back to, always use the reader
+#if !defined(SD_SDIO2_ONLY)
+  if (gpio_read(SD2_PRESENT_GPIO) == 0)
+#endif
+  {
     currentSD.periph = SDMMC2;
     currentSD.D0 = SD2_SDIO_PIN_D0;
     currentSD.AF_D0 = SD2_SDIO_AF_D0;
@@ -389,7 +393,12 @@ static DSTATUS sdio_status(BYTE lun)
 {
   DSTATUS stat = RES_OK;
 
-#if defined(SD2_PRESENT_GPIO)
+#if defined(SD_SDIO2_ONLY)
+  // Single SDMMC2 reader: card-detect is just the present pin
+  if (gpio_read(SD2_PRESENT_GPIO)) {
+    stat |= STA_NODISK;
+  }
+#elif defined(SD2_PRESENT_GPIO)
   if (currentSD.periph == SDMMC2 && gpio_read(SD2_PRESENT_GPIO)) {
     stat |= STA_NODISK;
   }

@@ -136,6 +136,8 @@ void execMixerFrequentActions()
 #endif
 }
 
+__attribute__((weak)) void customMixerActions() {}
+
 void mixerTask()
 {
   while (task_running()) {
@@ -181,6 +183,10 @@ void mixerTask()
       mixerTaskLock();
 
       doMixerCalculations();
+
+      // Radio specific mixer actions
+      customMixerActions();
+
       pulsesSendChannels();
       doMixerPeriodicUpdates();
 

@@ -1,0 +1,10 @@
+{
+  "overrides": [
+    {
+      "files": "CMakePresets.json",
+      "options": {
+        "printWidth": 120
+      }
+    }
+  ]
+}

@@ -107,6 +107,8 @@ function make_font_no_sym_no_trans() {
   local sfx=$4
   local dir=$5
 
+  # Used for LXL and XXL sized fonts - use 2 bpp to reduce memory size if needed
+
   echo "Creating basic font: ${name}_${sfx} (size: ${size})"
   
   lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
@@ -131,6 +133,23 @@ function make_en_font() {
                --font "${ARROWS_FONT}" -r "${ARROWS}" \
                --font "${SYMBOLS_FONT_REL}" -r "${SYMBOLS}" \
                --format lvgl -o "${dir}/lv_font_${name}_${sfx}.c" --force-fast-kern-format --no-compress
+}
+
+function make_en_bold_font_lz4() {
+  local name=$1
+  local latin_ttf=$2
+  local size=$3
+  local sfx=$4
+  local dir=$5
+
+  # Same base char set as STD font; but without extra symbols (use LVGL fallback to STD for missing chars)
+  echo "Creating EN compressed bold font: ${name}_${sfx} (size: ${size})"
+  
+  # Use relative paths for lv_font_conv
+  lv_font_conv --no-prefilter --bpp 4 --size "${size}" \
+               --font "../${latin_ttf}" -r "${ASCII},${DEGREE},${BULLET},${COMPARE},${LATIN1}" \
+               --format lvgl -o "lv_font.inc" --force-fast-kern-format --no-compress
+  compress_font "${dir}/lv_font_${name}_${sfx}" ""
 }
 
 function make_en_font_lz4() {
@@ -185,12 +204,11 @@ function make_en_font_no_sym() {
 
 function make_font() {
   local name=$1
-  local latin_ttf=$2
-  local ttf=$3
-  local size=$4
-  local sfx=$5
-  local dir=$6
-  local chars=$7
+  local ttf=$2
+  local size=$3
+  local sfx=$4
+  local dir=$5
+  local chars=$6
 
   echo "Creating font: ${name}_${sfx} (size: ${size})"
   
@@ -202,13 +220,12 @@ function make_font() {
 
 function make_font_lz4() {
   local name=$1
-  local latin_ttf=$2
-  local ttf=$3
-  local size=$4
-  local sfx=$5
-  local dir=$6
-  local chars=$7
-  local no_kern=$8
+  local ttf=$2
+  local size=$3
+  local sfx=$4
+  local dir=$5
+  local chars=$6
+  local no_kern=$7
 
   echo "Creating compressed font: ${name}_${sfx} (size: ${size})"
   
@@ -228,7 +245,7 @@ function make_en_font_set() {
   make_en_font_lz4 "${name}" "${LATIN_FONT}" 9 "XXS" "std"
   make_en_font_lz4 "${name}" "${LATIN_FONT}" 13 "XS" "std"
   make_en_font "${name}" "${LATIN_FONT}" 16 "STD" "std"
-  make_en_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 16 "STD" "std"
+  make_en_bold_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 16 "STD" "std"
   make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" 24 "L" "std"
   make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 32 "XL" "std"
 
@@ -236,7 +253,7 @@ function make_en_font_set() {
   make_en_font_lz4 "${name}" "${LATIN_FONT}" 8 "XXS" "sml"
   make_en_font_lz4 "${name}" "${LATIN_FONT}" 10 "XS" "sml"
   make_en_font "${name}" "${LATIN_FONT}" 13 "STD" "sml"
-  make_en_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 13 "STD" "sml"
+  make_en_bold_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 13 "STD" "sml"
   make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" 19 "L" "sml"
   make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 25 "XL" "sml"
 
@@ -244,7 +261,7 @@ function make_en_font_set() {
   make_en_font_lz4 "${name}" "${LATIN_FONT}" 12 "XXS" "lrg"
   make_en_font_lz4 "${name}" "${LATIN_FONT}" 18 "XS" "lrg"
   make_en_font "${name}" "${LATIN_FONT}" 22 "STD" "lrg"
-  make_en_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 22 "STD" "lrg"
+  make_en_bold_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" 22 "STD" "lrg"
   make_en_font_w_extra_sym "${name}" "${LATIN_FONT}" 33 "L" "lrg"
   make_en_font_no_sym "${name}_bold" "${LATIN_FONT_BOLD}" 44 "XL" "lrg"
 }
@@ -264,28 +281,28 @@ function make_font_set() {
   echo "Creating font set for: ${name}"
 
   # Standard LCD fonts (480x272, 480x320, 320x480)
-  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 9 "XXS" "std" "${chars}" "${no_kern}"
-  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 13 "XS" "std" "${chars}" "${no_kern}"
-  make_font "${name}" "${LATIN_FONT}" "${ttf_normal}" 16 "STD" "std" "${chars}"
-  make_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 16 "STD" "std" "${chars}" "${no_kern}"
-  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 24 "L" "std" "${chars}" "${no_kern}"
-  make_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 32 "XL" "std" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}" "${ttf_normal}" 9 "XXS" "std" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}" "${ttf_normal}" 13 "XS" "std" "${chars}" "${no_kern}"
+  make_font "${name}" "${ttf_normal}" 16 "STD" "std" "${chars}"
+  make_font_lz4 "${name}_bold" "${ttf_bold}" 16 "STD" "std" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}" "${ttf_normal}" 24 "L" "std" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}_bold" "${ttf_bold}" 32 "XL" "std" "${chars}" "${no_kern}"
 
   # Small LCD fonts (320x240)
-  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 8 "XXS" "sml" "${chars}" "${no_kern}"
-  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 10 "XS" "sml" "${chars}" "${no_kern}"
-  make_font "${name}" "${LATIN_FONT}" "${ttf_normal}" 13 "STD" "sml" "${chars}"
-  make_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 13 "STD" "sml" "${chars}" "${no_kern}"
-  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 19 "L" "sml" "${chars}" "${no_kern}"
-  make_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 25 "XL" "sml" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}" "${ttf_normal}" 8 "XXS" "sml" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}" "${ttf_normal}" 10 "XS" "sml" "${chars}" "${no_kern}"
+  make_font "${name}" "${ttf_normal}" 13 "STD" "sml" "${chars}"
+  make_font_lz4 "${name}_bold" "${ttf_bold}" 13 "STD" "sml" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}" "${ttf_normal}" 19 "L" "sml" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}_bold" "${ttf_bold}" 25 "XL" "sml" "${chars}" "${no_kern}"
 
   # Large LCD fonts (800x480)
-  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 12 "XXS" "lrg" "${chars}" "${no_kern}"
-  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 18 "XS" "lrg" "${chars}" "${no_kern}"
-  make_font "${name}" "${LATIN_FONT}" "${ttf_normal}" 22 "STD" "lrg" "${chars}"
-  make_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 22 "STD" "lrg" "${chars}" "${no_kern}"
-  make_font_lz4 "${name}" "${LATIN_FONT}" "${ttf_normal}" 33 "L" "lrg" "${chars}" "${no_kern}"
-  make_font_lz4 "${name}_bold" "${LATIN_FONT_BOLD}" "${ttf_bold}" 44 "XL" "lrg" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}" "${ttf_normal}" 12 "XXS" "lrg" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}" "${ttf_normal}" 18 "XS" "lrg" "${chars}" "${no_kern}"
+  make_font "${name}" "${ttf_normal}" 22 "STD" "lrg" "${chars}"
+  make_font_lz4 "${name}_bold" "${ttf_bold}" 22 "STD" "lrg" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}" "${ttf_normal}" 33 "L" "lrg" "${chars}" "${no_kern}"
+  make_font_lz4 "${name}_bold" "${ttf_bold}" 44 "XL" "lrg" "${chars}" "${no_kern}"
 }
 
 # Main execution starts here

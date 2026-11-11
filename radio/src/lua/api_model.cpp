@@ -613,9 +613,9 @@ Return input data for given input and line number
  * `curveType` (number) curve type (function, expo, custom curve)
  * `curveValue` (number) curve index
  * `carryTrim` deprecated, please use trimSource instead. WARNING: carryTrim was getting negative values (carryTrim = - trimSource)
- * 'trimSource' (number) a positive number representing trim source
- * 'side' (number) input side (positive, negative or all)
- * 'flightModes' (number) bit-mask of active flight modes
+ * `trimSource` (number) a positive number representing trim source
+ * `side` (number) input side (positive, negative or all)
+ * `flightModes` (number) bit-mask of active flight modes
 
 @status current Introduced in 2.0.0, curveType/curveValue/carryTrim added in 2.3, inputName added 2.3.10, flighmode reworked in 2.3.11, broken carryTrim replaced by trimSource in 2.8.1, scale added in 2.10, side added in 2.11
 */
@@ -1648,16 +1648,21 @@ static int luaModelSetGlobalVariable(lua_State *L)
 }
 
 /*luadoc
-@name model.getGlobalVariableDetails(index)
+@function model.getGlobalVariableDetails(index)
 
-@description Returns details about a Global Variable, but not values
+Returns details about a Global Variable, but not values
 
-@syntax val = model.getGlobalVariableDetails(index)
-@arg index required integer
-@argdesc zero based global variable index, use 0 for GV1, 8 for GV9
-@return table
-@returndesc table with keys - name (string), min (int), max, prec, unit and popup (bool) - if exists
-@apistat 2.11.0 introduced
+@param index (number) zero based global variable index, use 0 for GV1, 8 for GV9
+
+@retval table details of the global variable:
+ * `name` (string) global variable name
+ * `min` (number) minimum value
+ * `max` (number) maximum value
+ * `prec` (number) precision
+ * `unit` (number) unit
+ * `popup` (boolean) show popup - if exists
+
+@status current Introduced in 2.11.0
 */
 static int luaModelGetGlobalVariableDetails(lua_State *L)
 {
@@ -1677,17 +1682,17 @@ static int luaModelGetGlobalVariableDetails(lua_State *L)
 }
 
 /*luadoc
-@name model.setGlobalVariableDetails(index, params)
+@function model.setGlobalVariableDetails(index, params)
 
-@description Sets details about a Global Variable, but not values
+Sets details about a Global Variable, but not values
 
-@arg index required integer
-@argdesc zero based global variable index, use 0 for GV1, 8 for GV9
-@arg table params
-@argdesc see model.getGlobalVariableDetails(index) return format for table format.
-@return none
-@apistat 2.11.0 introduced
+@param index (number) zero based global variable index, use 0 for GV1, 8 for GV9
 
+@param params (table) see model.getGlobalVariableDetails(index) return format for table format
+
+@retval none
+
+@status current Introduced in 2.11.0
 */
 static int luaModelSetGlobalVariableDetails(lua_State *L)
 {
@@ -1798,12 +1803,12 @@ Get heli swash parameters
 @retval table with heli swash parameters:
 * `type` (number) 0=---, 1=120, 2=120X, 3=140, 4=90
 * `value` (number) swash ring value (normally 0)
-* 'collectiveSource' (number) source index
-* 'aileronSource' (number) source index
-* 'elevatorSource' (number) source index
-* 'collectiveWeight'(value) -100 to 100
-* 'aileronWeight' (value) -100 to 100
-* 'elevatorWeight' (value) -100 to 100
+* `collectiveSource` (number) source index
+* `aileronSource` (number) source index
+* `elevatorSource` (number) source index
+* `collectiveWeight`(value) -100 to 100
+* `aileronWeight` (value) -100 to 100
+* `elevatorWeight` (value) -100 to 100
 
  @status current Introduced in 2.8.0
 */

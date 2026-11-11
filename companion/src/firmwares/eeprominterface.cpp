@@ -58,7 +58,7 @@ Firmware::Firmware(Firmware * base, const QString & id, const QString & name, Bo
   simulatorId(simulatorId),
   hwdefnId(hwdefnId)
 {
-  gBoardFactories->registerBoard(board, hwdefnId);
+  gBoardFactories->registerBoard(board, this->hwdefnId.isEmpty() ? getFlavour() : this->hwdefnId);
 }
 
 // static

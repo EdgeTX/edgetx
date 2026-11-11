@@ -56,8 +56,11 @@ jobs:
           - nb4p
           - st16
           - t15pro
+          - t15h7
+          - t18h7
           - pa01
           - t22
+          - h17
     container:
       image: ghcr.io/edgetx/edgetx-dev:2.12
       volumes:
@@ -101,7 +104,7 @@ jobs:
           - tx16s
           - tx16smk3
           - f16
-          - v12;v14;v16
+          - v12;v14;v15;v16
           - x10;x10express
           - x12s
           - x7access
@@ -111,8 +114,11 @@ jobs:
           - nb4p
           - st16
           - t15pro
+          - t15h7
+          - t18h7
           - t22
           - c14
+          - h17
     container:
       image: ghcr.io/edgetx/edgetx-dev:2.12
       volumes:

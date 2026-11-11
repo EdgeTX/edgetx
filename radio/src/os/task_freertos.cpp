@@ -38,13 +38,32 @@ void task_create(task_handle_t* h, task_func_t func, const char* name,
 
 unsigned task_get_stack_usage(task_handle_t* h)
 {
-  return (h->_stack_size - uxTaskGetStackHighWaterMark(h->_rtos_handle)) *
+  return (uxTaskGetStackHighWaterMark(h->_rtos_handle)) *
          sizeof(StackType_t);
 }
 
 unsigned task_get_stack_size(task_handle_t* h)
 {
   return h->_stack_size * sizeof(StackType_t);
+}
+
+#define CPU_LOAD_WINDOW_US 500000
+
+int task_get_cpu_load()
+{
+  static uint32_t last_time = 0;
+  static uint32_t last_idle = 0;
+  static int load = -1;
+
+  uint32_t now = portGET_RUN_TIME_COUNTER_VALUE();
+  uint32_t elapsed = now - last_time;
+  if (load < 0 || elapsed >= CPU_LOAD_WINDOW_US) {
+    uint32_t idle = ulTaskGetIdleRunTimeCounter() - last_idle;
+    load = idle >= elapsed ? 0 : 100 - (int)((uint64_t)idle * 100 / elapsed);
+    last_time = now;
+    last_idle += idle;
+  }
+  return load;
 }
 
 bool scheduler_is_running()

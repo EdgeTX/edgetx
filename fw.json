@@ -19,6 +19,7 @@
         ["HelloRadioSky V12", "v12-"],
         ["HelloRadioSky V14", "v14-"],
         ["HelloRadioSky V14LCD", "v14lcd-"],
+        ["HelloRadioSky V15", "v15-"],
         ["HelloRadioSky V16", "v16-"],
         ["iFlight Commando 8", "commando8-"],
         ["iFlight Commando 14", "c14-"],
@@ -27,8 +28,10 @@
         ["Jumper T14", "t14-"],
         ["Jumper T15", "t15-"],
         ["Jumper T15 Pro", "t15pro-"],
+        ["Jumper T15-H7", "t15h7-"],
         ["Jumper T16", "t16-"],
         ["Jumper T18", "t18-"],
+        ["Jumper T18H7", "t18h7-"],
         ["Jumper T20", "t20-"],
         ["Jumper T20 V2", "t20v2-"],
         ["Jumper T22", "t22-"],
@@ -43,7 +46,8 @@
         ["RadioMaster TX15", "tx15-"],
         ["RadioMaster TX16S", "tx16s-"],
         ["RadioMaster TX16S MK3", "tx16smk3-"],
-        ["RadioMaster Zorro","zorro-"]
+        ["RadioMaster Zorro","zorro-"],
+        ["Senduwing H17", "h17-"]
     ],
     "changelog": "- Major initial bug fixes"
 }

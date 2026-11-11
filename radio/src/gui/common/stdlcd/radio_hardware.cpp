@@ -366,7 +366,14 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   }
   tab[ITEM_RADIO_HARDWARE_SERIAL_PORT_LABEL] = has_serial ? READONLY_ROW : HIDDEN_ROW;
   tab[ITEM_RADIO_HARDWARE_JITTER_FILTER] = 0;
+#if defined(HARDWARE_INTERNAL_RAS)
   tab[ITEM_RADIO_HARDWARE_RAS] = READONLY_ROW;
+#else
+  bool has_ras = isModulePXX1(EXTERNAL_MODULE) ||
+                 isModulePXX2(EXTERNAL_MODULE) ||
+                 telemetryData.swrExternal.isFresh();
+  tab[ITEM_RADIO_HARDWARE_RAS] = has_ras ? READONLY_ROW : HIDDEN_ROW;
+#endif
 
   auto mod_desc = modulePortGetModuleDescription(SPORT_MODULE);
   if (mod_desc && mod_desc->set_pwr) {
