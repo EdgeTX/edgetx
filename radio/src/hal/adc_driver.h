@@ -129,6 +129,7 @@ potconfig_t adcGetDefaultPotsConfig();
 
 uint8_t adcGetMaxInputs(uint8_t type);
 uint8_t adcGetInputOffset(uint8_t type);
+bool adcIsSliderInput(uint8_t idx);
 
 uint8_t adcGetMaxCalibratedInputs();
 

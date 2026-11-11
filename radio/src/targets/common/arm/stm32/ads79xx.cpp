@@ -143,7 +143,7 @@ void ads79xx_adc_wait_completion(const stm32_spi_adc_t* adc, const stm32_adc_inp
     auto input_channel = chans[i];
     auto adc_value = ads79xx_read_next_channel(adc, i, inputs, chans, spi_channels);
 
-    if (inputs[input_channel].inverted)
+    if (stm32_adc_input_inverted(inputs[input_channel], input_channel))
       adcValues[input_channel] = ADC_INVERT_VALUE(adc_value);
     else
       adcValues[input_channel] = adc_value;
