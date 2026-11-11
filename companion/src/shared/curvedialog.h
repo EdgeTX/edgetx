@@ -96,6 +96,7 @@ class CurveDialog : public QDialog
     QSpinBox *spny[CPN_MAX_POINTS];
     QVector<CurveCreatorTemplate> templates;
     CustomScene *scene;
+    QGraphicsPathItem *smoothPath = nullptr;
     int maxCurves;
     int maxPoints;
     bool lock;
@@ -103,6 +104,7 @@ class CurveDialog : public QDialog
 
     void update();
     void updateCurve();
+    void updateSmoothCurve();
     void updateCurveType();
     void updateCurvePoints();
     bool allowCurveType(int points, CurveData::CurveType type);

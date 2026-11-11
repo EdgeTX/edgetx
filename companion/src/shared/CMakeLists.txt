@@ -52,6 +52,8 @@ set(${PROJECT_NAME}_SRCS
   ${${PROJECT_NAME}_SRCS}
   autowidget.h
   autowidget.cpp
+  curveinterpolation.h
+  curveinterpolation.cpp
   curveimage.h
   curveimage.cpp
   semanticversion.h
