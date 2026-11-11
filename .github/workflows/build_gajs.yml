@@ -1,0 +1,47 @@
+name: Build GAJS firmware
+
+on:
+  push:
+    branches:
+      - feature/GAJS_CRSF
+    paths:
+      - '.github/workflows/build_gajs.yml'
+      - '.gitmodules'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - 'radio/**'
+      - 'tools/build-common.sh'
+      - 'tools/build-gh.sh'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build GAJS firmware
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: ghcr.io/edgetx/edgetx-dev:2.12
+      volumes:
+        - ${{ github.workspace }}:/src
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Build GAJS
+        env:
+          FLAVOR: gajs
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
+        run: ./tools/build-gh.sh
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v7
+        with:
+          name: gajs-firmware-${{ github.sha }}
+          path: gajs-*.bin
+          retention-days: 7
+          if-no-files-found: error

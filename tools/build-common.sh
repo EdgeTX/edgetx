@@ -11,6 +11,9 @@ get_target_build_options() {
         x7)
             BUILD_OPTIONS+="-DPCB=X7"
             ;;
+        gajs)
+            BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=GAJS"
+            ;;
         x7access)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES"
             ;;
