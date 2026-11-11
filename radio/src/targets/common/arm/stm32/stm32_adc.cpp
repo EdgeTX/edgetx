@@ -60,10 +60,10 @@
 #  define _CLEAR_ADC_STATUS(ADCx) CLEAR_BIT(ADCx->SR, ADC_SR_EOC | ADC_SR_STRT | ADC_SR_OVR)
 #endif
 
-// Max 32 inputs supported
 // Bootloader fallback (no pot/slider config); overridden by hal/adc_driver.cpp
 __attribute__((weak)) bool adcIsSliderInput(uint8_t) { return false; }
 
+// Max 32 inputs supported
 static uint32_t _adc_input_mask;
 static uint32_t _adc_input_inhibt_mask = 0;
 static volatile uint32_t _adc_inhibit_mask;
