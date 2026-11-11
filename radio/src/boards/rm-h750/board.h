@@ -206,10 +206,16 @@ bool isBacklightEnabled();
 }
 #endif
 
+#if defined(AUDIO_RESET_PIN)
 int audioInit();
+#else
+void audioInit();
+#endif
 void audioConsumeCurrentBuffer();
 
-#if defined(PDM_CLOCK)
+#if defined(PDM_DFSDM_FILTER)
+#include "pdm_dfsdm_driver.h"
+#elif defined(PDM_CLOCK)
 #include "pdm_software_driver.h"
 #endif
 

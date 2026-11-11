@@ -46,7 +46,7 @@ static tas2505_t _tas2505 = {
 };
 
 //
-// TX15 pinout
+// TX15 / GX10 pinout
 //
 // Pin             MCU       TAS2505
 // ---------------------------------

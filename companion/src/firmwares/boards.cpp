@@ -139,6 +139,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4978746F;
     case BOARD_RADIOMASTER_GX15:
       return 0x4978746F;
+    case BOARD_RADIOMASTER_GX10:
+      return 0x5278746F;
     case BOARD_RADIOMASTER_TX16SMK3:
       return 0x4978746F;
     case BOARD_RADIOMASTER_TX12:
@@ -306,6 +308,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_RADIOMASTER_TX16SMK3:
     case BOARD_RADIOMASTER_TX15:
     case BOARD_RADIOMASTER_GX15:
+    case BOARD_RADIOMASTER_GX10:
     case BOARD_FLYSKY_NV14:
     case BOARD_FLYSKY_EL18:
     case BOARD_FLYSKY_PA01: // 8MB SDRAM
@@ -414,7 +417,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
               IS_JUMPER_T15PRO(board) || IS_JUMPER_T15H7(board) || IS_JUMPER_T18H7(board) ||
               IS_FLYSKY_PA01(board) || IS_FLYSKY_ST16(board) ||
               IS_RADIOMASTER_TX16SMK3(board) || IS_IFLIGHT_C14(board) ||
-              IS_RADIOMASTER_GX15(board) || IS_SENDUWING_H17(board));
+              IS_RADIOMASTER_GX15(board) || IS_RADIOMASTER_GX10(board) || IS_SENDUWING_H17(board));
 
     default:
       return getBoardJson(board)->getCapability(capability);
@@ -658,6 +661,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Radiomaster TX15";
     case BOARD_RADIOMASTER_GX15:
       return "Radiomaster GX15";
+    case BOARD_RADIOMASTER_GX10:
+      return "Radiomaster GX10";
     case BOARD_RADIOMASTER_ZORRO:
       return "Radiomaster Zorro";
     case BOARD_RADIOMASTER_GX12:
@@ -812,6 +817,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_HELLORADIOSKY_V16:
   case BOARD_RADIOMASTER_TX15:
   case BOARD_RADIOMASTER_GX15:
+  case BOARD_RADIOMASTER_GX10:
   case BOARD_RADIOMASTER_TX16SMK3:
   case BOARD_IFLIGHT_COMMANDO8:
   case BOARD_IFLIGHT_COMMANDO14:
@@ -891,6 +897,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
     case BOARD_RADIOMASTER_TX16SMK3:
     case BOARD_RADIOMASTER_TX15:
     case BOARD_RADIOMASTER_GX15:
+    case BOARD_RADIOMASTER_GX10:
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:
     case BOARD_JUMPER_T20:
@@ -936,7 +943,7 @@ int Boards::getDefaultExternalModuleSize(Board::Type board)
   if (getCapability(board, HasColorLcd)) {
     if (IS_FLYSKY_EL18(board))
       return EXTMODSIZE_BOTH;
-    else if (IS_HELLORADIOSKY_V12(board))
+    else if (IS_HELLORADIOSKY_V12(board) || IS_RADIOMASTER_GX10(board))
       return EXTMODSIZE_SMALL;
     else
       return EXTMODSIZE_STD;
