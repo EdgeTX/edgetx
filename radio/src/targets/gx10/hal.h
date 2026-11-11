@@ -236,7 +236,7 @@ DFSDM1: PDM microphone (CKOUT on PD3, channel 3 / filter 0 on PE4)
 
 #define ADC_DIRECTION {       	 \
     0,-1,-1,0,  /* gimbals */    \
-    -1,0     	/* sliders */    \
+    -2,0     	/* sliders (-2: S1 inverted only as slider) */ \
   }
 
 #define USE_EXTI9_5_IRQ // used for I2C port extender interrupt

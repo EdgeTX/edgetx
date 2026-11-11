@@ -246,6 +246,9 @@ class ADCInputParser:
                 d = self.dirs[idx]
                 if d < 0:
                     adc_input.inverted = True
+                    # inversion mask: bit0 pot, bit1 slider
+                    # -1: always inverted, -2: inverted only as a slider
+                    adc_input.inversion = 2 if d == -2 else 3
             if adc_input.type == 'FLEX':
                 input_labels = self.labels[adc_input.name]
                 adc_input.label = input_labels.get('label')
