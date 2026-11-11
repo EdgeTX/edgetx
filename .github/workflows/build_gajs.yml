@@ -9,9 +9,13 @@ on:
       - '.gitmodules'
       - 'CMakeLists.txt'
       - 'cmake/**'
+      - 'fw.json'
       - 'radio/**'
       - 'tools/build-common.sh'
       - 'tools/build-gh.sh'
+      - 'tools/check_radio_macros.py'
+      - 'tools/commit-tests.sh'
+      - 'tools/validate-json.py'
   workflow_dispatch:
 
 permissions:
@@ -31,6 +35,23 @@ jobs:
         uses: actions/checkout@v7
         with:
           submodules: recursive
+
+      - name: Validate CMake presets and firmware metadata
+        run: |
+          cmake --list-presets
+          python3 tools/validate-json.py --syntax-only
+          python3 tools/validate-json.py --order-only
+          python3 -m json.tool radio/src/boards/hw_defs/gajs.json > /dev/null
+          bash -n tools/build-common.sh tools/build-gh.sh tools/commit-tests.sh
+
+      - name: Validate radio macros
+        run: python3 tools/check_radio_macros.py
+
+      - name: Test GAJS
+        env:
+          FLAVOR: gajs
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
+        run: ./tools/commit-tests.sh
 
       - name: Build GAJS
         env:
