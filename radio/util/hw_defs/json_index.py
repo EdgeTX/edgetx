@@ -87,6 +87,7 @@ def build_trim_gpio_port_index(trims):
 def build_key_gpio_port_index(keys):
     gpios = {}
     for key in keys:
-        append_to_index(gpios, key.gpio, key.pin)
+        if key.gpio is not None and key.pin is not None:
+            append_to_index(gpios, key.gpio, key.pin)
 
     return gpios

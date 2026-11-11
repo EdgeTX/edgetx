@@ -1,0 +1,310 @@
+{
+  "identity": {
+    "manufacturer": "TBS",
+    "model": "Mambo (experimental)",
+    "usb_manufacturer": "TBS",
+    "usb_product": "Mambo"
+  },
+  "adc_inputs": {
+    "adcs": [
+      {
+        "name": "MAIN",
+        "adc": "ADC1",
+        "dma": "DMA2",
+        "dma_channel": "LL_DMA_CHANNEL_0",
+        "dma_stream": "LL_DMA_STREAM_4",
+        "dma_stream_irq": "DMA2_Stream4_IRQn",
+        "dma_stream_irq_handler": "DMA2_Stream4_IRQHandler",
+        "sample_time": "LL_ADC_SAMPLINGTIME_28CYCLES"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "adc": null
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "adc": null
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "adc": null
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "adc": null
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "adc": "MAIN",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_4",
+        "channel": "LL_ADC_CHANNEL_14",
+        "inverted": true,
+        "default": "POT_CENTER",
+        "label": "S1",
+        "short_label": "1"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_2",
+        "channel": "LL_ADC_CHANNEL_2",
+        "inverted": true,
+        "default": "POT_CENTER",
+        "label": "S2",
+        "short_label": "2"
+      },
+      {
+        "name": "RAW1",
+        "type": "RAW",
+        "adc": "MAIN",
+        "gpio": "GPIOC",
+        "pin": "LL_GPIO_PIN_1",
+        "channel": "LL_ADC_CHANNEL_11"
+      },
+      {
+        "name": "VBAT",
+        "type": "VBAT",
+        "adc": "MAIN",
+        "gpio": "GPIOB",
+        "pin": "LL_GPIO_PIN_1",
+        "channel": "LL_ADC_CHANNEL_9"
+      },
+      {
+        "name": "SWA",
+        "type": "SWITCH",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_6",
+        "channel": "LL_ADC_CHANNEL_6"
+      },
+      {
+        "name": "SWB",
+        "type": "SWITCH",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_7",
+        "channel": "LL_ADC_CHANNEL_7"
+      },
+      {
+        "name": "SWC",
+        "type": "SWITCH",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_5",
+        "channel": "LL_ADC_CHANNEL_5"
+      },
+      {
+        "name": "SWD",
+        "type": "SWITCH",
+        "adc": "MAIN",
+        "gpio": "GPIOA",
+        "pin": "LL_GPIO_PIN_3",
+        "channel": "LL_ADC_CHANNEL_3"
+      }
+    ]
+  },
+  "switches": [
+    {
+      "name": "SA",
+      "type": "ADC",
+      "default": "3POS",
+      "is_cfs": false,
+      "inverted": false,
+      "display": [
+        0,
+        0
+      ],
+      "adc_input": "SWA"
+    },
+    {
+      "name": "SB",
+      "type": "ADC",
+      "default": "3POS",
+      "is_cfs": false,
+      "inverted": false,
+      "display": [
+        1,
+        0
+      ],
+      "adc_input": "SWB"
+    },
+    {
+      "name": "SC",
+      "type": "ADC",
+      "default": "3POS",
+      "is_cfs": false,
+      "inverted": false,
+      "display": [
+        0,
+        1
+      ],
+      "adc_input": "SWC"
+    },
+    {
+      "name": "SD",
+      "type": "ADC",
+      "default": "3POS",
+      "is_cfs": false,
+      "inverted": false,
+      "display": [
+        1,
+        1
+      ],
+      "adc_input": "SWD"
+    },
+    {
+      "name": "SE",
+      "type": "2POS",
+      "default": "2POS",
+      "is_cfs": false,
+      "inverted": false,
+      "display": [
+        0,
+        2
+      ],
+      "gpio": "GPIOE",
+      "pin": "LL_GPIO_PIN_5"
+    },
+    {
+      "name": "SF",
+      "type": "2POS",
+      "default": "TOGGLE",
+      "is_cfs": false,
+      "inverted": false,
+      "display": [
+        1,
+        2
+      ],
+      "gpio": "GPIOE",
+      "pin": "LL_GPIO_PIN_4"
+    }
+  ],
+  "keys": [
+    {
+      "gpio": "GPIOD",
+      "pin": "LL_GPIO_PIN_13",
+      "active_low": true,
+      "key": "KEY_MENU",
+      "name": "MENU",
+      "label": "MENU"
+    },
+    {
+      "gpio": "GPIOD",
+      "pin": "LL_GPIO_PIN_14",
+      "active_low": true,
+      "key": "KEY_EXIT",
+      "name": "EXIT",
+      "label": "EXIT"
+    },
+    {
+      "gpio": "GPIOD",
+      "pin": "LL_GPIO_PIN_4",
+      "active_low": true,
+      "key": "KEY_ENTER",
+      "name": "ENTER",
+      "label": "ENTER"
+    },
+    {
+      "gpio": "GPIOD",
+      "pin": "LL_GPIO_PIN_12",
+      "active_low": true,
+      "key": "KEY_PAGEDN",
+      "name": "PAGE",
+      "label": "PAGE"
+    }
+  ],
+  "trims": [
+    {
+      "name": "T1"
+    },
+    {
+      "name": "T2"
+    },
+    {
+      "name": "T3"
+    },
+    {
+      "name": "T4"
+    }
+  ],
+  "display": {
+    "lcd_w": 128,
+    "lcd_h": 64,
+    "lcd_phys_w": 128,
+    "lcd_phys_h": 64,
+    "lcd_depth": 1,
+    "lcd_vertical_invert": true,
+    "lcd_horizontal_invert": true
+  },
+  "hardware": {
+    "has_audio_mute": true,
+    "has_ext_module_support": true,
+    "has_int_module_support": false,
+    "sport_max_baudrate": 400000,
+    "cpu": "STM32F407xG",
+    "cpu_type": "STM32F4"
+  },
+  "timers": {
+    "cpu_freq": 168000000,
+    "peri1_frequency": 42000000,
+    "peri2_frequency": 84000000,
+    "timer_mult_apb1": 2,
+    "timer_mult_apb2": 2,
+    "ms_timer": "TIM14",
+    "ms_timer_irqn": "TIM8_TRG_COM_TIM14_IRQn",
+    "ms_timer_irqhandler": "TIM8_TRG_COM_TIM14_IRQHandler",
+    "mixer_scheduler_timer": "TIM12",
+    "mixer_scheduler_timer_freq": "(PERI1_FREQUENCY * TIMER_MULT_APB1)",
+    "mixer_scheduler_timer_irqn": "TIM8_BRK_TIM12_IRQn",
+    "mixer_scheduler_timer_irqhandler": "TIM8_BRK_TIM12_IRQHandler"
+  },
+  "rotenc": {
+    "rotary_encoder_inverted": true,
+    "rotary_encoder_gpio": "GPIOA",
+    "rotary_encoder_gpio_pin_a": "LL_GPIO_PIN_8",
+    "rotary_encoder_gpio_pin_b": "LL_GPIO_PIN_10",
+    "rotary_encoder_position": "(((ROTARY_ENCODER_GPIO->IDR >> 9) & 0x02) + ((ROTARY_ENCODER_GPIO->IDR >> 8) & 0x01))",
+    "rotary_encoder_exti_line1": "LL_EXTI_LINE_8",
+    "rotary_encoder_exti_line2": "LL_EXTI_LINE_10",
+    "exti": [
+      {
+        "irq": "EXTI9_5_IRQ",
+        "priority": 5
+      },
+      {
+        "irq": "EXTI15_10_IRQ",
+        "priority": 5
+      }
+    ],
+    "rotary_encoder_exti_port": "LL_SYSCFG_EXTI_PORTA",
+    "rotary_encoder_exti_sys_line1": "LL_SYSCFG_EXTI_LINE8",
+    "rotary_encoder_exti_sys_line2": "LL_SYSCFG_EXTI_LINE10",
+    "rotary_encoder_timer": "TIM10",
+    "rotary_encoder_timer_irqn": "TIM1_UP_TIM10_IRQn",
+    "rotary_encoder_timer_irqhandler": "TIM1_UP_TIM10_IRQHandler"
+  },
+  "haptic": {
+    "haptic_pwm": false,
+    "haptic_gpio": "GPIO_PIN(GPIOB, 0)"
+  },
+  "usb": {
+    "usb_gpio_vbus": "GPIO_PIN(GPIOA, 9)",
+    "usb_gpio_dm": "GPIO_PIN(GPIOA, 11)",
+    "usb_gpio_dp": "GPIO_PIN(GPIOA, 12)",
+    "usb_gpio_af": "GPIO_AF10"
+  },
+  "key_lock_combo": [
+    "KEY_MENU",
+    "KEY_ENTER"
+  ]
+}

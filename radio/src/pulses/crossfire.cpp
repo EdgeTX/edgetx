@@ -31,6 +31,9 @@
 
 #include "crossfire.h"
 #include "telemetry/crossfire.h"
+#if defined(RADIO_MAMBO)
+#include "targets/mambo/external_rf.h"
+#endif
 
 #define CROSSFIRE_CH_BITS           11
 #define CROSSFIRE_CENTER            0x3E0
@@ -238,6 +241,10 @@ static void crossfireSendPulses(void* ctx, uint8_t* buffer, int16_t* channels, u
   auto drv = modulePortGetSerialDrv(mod_st->tx);
   auto drv_ctx = modulePortGetCtx(mod_st->tx);
   drv->sendBuffer(drv_ctx, buffer, p_buf - buffer);
+#if defined(RADIO_MAMBO)
+  if (module == EXTERNAL_MODULE && p_buf - buffer >= MIN_FRAME_LEN)
+    mamboExternalTxObserved(buffer[2]);
+#endif
 }
 
 static bool _lenIsSane(uint8_t len)
@@ -255,6 +262,10 @@ static bool _validHdr(uint8_t* buf)
 
 static uint8_t* _processFrames(void* ctx, uint8_t* buf, uint8_t& len)
 {
+#if defined(RADIO_MAMBO)
+  bool mamboExternal = modulePortGetModule((etx_module_state_t*)ctx) == EXTERNAL_MODULE;
+  if (mamboExternal) mamboExternalParseObserved();
+#endif
   uint8_t* p_buf = buf;
   while (len >= MIN_FRAME_LEN) {
     // Bad telemetry packets frequently are just missing a byte, with the start
@@ -263,6 +274,9 @@ static uint8_t* _processFrames(void* ctx, uint8_t* buf, uint8_t& len)
     // the buffer by one instead of pkt_len or throwing it all out
     uint8_t declared_len = p_buf[1];
     if (!_validHdr(p_buf) || !_lenIsSane(declared_len)) {
+#if defined(RADIO_MAMBO)
+      if (mamboExternal) mamboExternalHeaderErrorObserved();
+#endif
       p_buf++; len--;
       continue;
     }
@@ -274,6 +288,9 @@ static uint8_t* _processFrames(void* ctx, uint8_t* buf, uint8_t& len)
     }
 
     if (!_checkFrameCRC(p_buf)) {
+#if defined(RADIO_MAMBO)
+      if (mamboExternal) mamboExternalCrcErrorObserved();
+#endif
       TRACE("[XF] CRC error");
       p_buf++; len--;
       continue;
@@ -289,6 +306,9 @@ static uint8_t* _processFrames(void* ctx, uint8_t* buf, uint8_t& len)
     auto mod_st = (etx_module_state_t*)ctx;
     auto module = modulePortGetModule(mod_st);
     lastAlive[module] = get_tmr10ms();                              // valid frame received, note timestamp
+#if defined(RADIO_MAMBO)
+    if (mamboExternal) mamboExternalFrameObserved(p_buf[2]);
+#endif
     processCrossfireTelemetryFrame(module, p_buf, pkt_len);
 
     p_buf += pkt_len;
@@ -307,6 +327,10 @@ static void crossfireProcessFrame(void* ctx, uint8_t* frame, uint8_t frame_len,
     if (frame_len == 0) return;
 
     if (!_validHdr(frame)) {
+#if defined(RADIO_MAMBO)
+      if (modulePortGetModule((etx_module_state_t*)ctx) == EXTERNAL_MODULE)
+        mamboExternalHeaderErrorObserved();
+#endif
       TRACE("[XF] invalid frame start");
       return;
     }

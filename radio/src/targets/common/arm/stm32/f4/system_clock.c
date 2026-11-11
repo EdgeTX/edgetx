@@ -24,8 +24,15 @@
 #include "stm32f4xx_ll_system.h"
 #include "stm32f4xx_ll_bus.h"
 
+#if HSE_VALUE == 12000000
 #define PLL_M LL_RCC_PLLM_DIV_12
 #define PLL_N 336
+#elif HSE_VALUE == 8000000
+#define PLL_M LL_RCC_PLLM_DIV_4
+#define PLL_N 168
+#else
+#error "Unsupported STM32F4 HSE frequency"
+#endif
 #define PLL_Q LL_RCC_PLLQ_DIV_7
 // #define PLL_P LL_RCC_PLLP_DIV_2
 
