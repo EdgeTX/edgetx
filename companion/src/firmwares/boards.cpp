@@ -464,6 +464,7 @@ StringTagMappingTable Boards::getLegacyAnalogsLookupTable(Board::Type board)
                               {tr("TILT_Y").toStdString(), "TILT_Y"},
                               {tr("TILT_X").toStdString(), "GYRO1"},
                               {tr("TILT_Y").toStdString(), "GYRO2"},
+                              {tr("G_FORCE").toStdString(), "G_FORCE"},
   });
 
   if (IS_TARANIS_X9LITE(board)) {

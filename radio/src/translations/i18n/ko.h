@@ -372,6 +372,7 @@
 
 #define TR_IMU_VSRCRAW_1            "기울기X"
 #define TR_IMU_VSRCRAW_2            "기울기Y"
+#define TR_IMU_VSRCRAW_3             "Accl"
 
 #define TR_CYC_VSRCRAW_1            "사이클릭1"
 #define TR_CYC_VSRCRAW_2            "사이클릭2"

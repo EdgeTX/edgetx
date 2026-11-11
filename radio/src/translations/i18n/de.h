@@ -375,6 +375,7 @@
 #define TR_ROTARY_ENC_OPT_5            "V-N E-I"
 #define TR_IMU_VSRCRAW_1               "NeigX"
 #define TR_IMU_VSRCRAW_2               "NeigY"
+#define TR_IMU_VSRCRAW_3             "Accl"
 
 #define TR_CYC_VSRCRAW_1               "CYC1"
 #define TR_CYC_VSRCRAW_2               "CYC2"

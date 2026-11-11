@@ -636,7 +636,7 @@ char *getSourceString(char (&destRef)[L], mixsrc_t idx, bool defaultOnly)
     pos[dest_len - 1] = '\0';
   }
 #if defined(IMU)
-  else if (idx <= MIXSRC_TILT_Y) {
+  else if (idx <= MIXSRC_G_FORCE) {
     idx -= MIXSRC_TILT_X;
     getStringAtIndex(dest, STR_IMU_VSRCRAW, idx);
   }

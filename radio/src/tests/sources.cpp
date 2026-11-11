@@ -88,6 +88,7 @@ TEST(Sources, getSourceString)
 #if defined(IMU)
   EXPECT_STREQ(getSourceString(MIXSRC_TILT_X), "TltX");
   EXPECT_STREQ(getSourceString(MIXSRC_TILT_Y), "TltY");
+  EXPECT_STREQ(getSourceString(MIXSRC_G_FORCE), "Accl");
 #endif
 
 #if defined(PCBHORUS)

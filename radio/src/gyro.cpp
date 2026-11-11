@@ -29,6 +29,11 @@
 #define COMPLEMENTARY_ALPHA  0.92f
 #define LP_FILTER_ALPHA      0.9f
 #define SAMPLE_TIME_S        0.005f
+#define G_FILTER_ALPHA       0.5f
+#define G_BASE_ALPHA         0.98f    // 1 g reference, only tracked at rest
+#define G_BASE_GATE          0.08f    // rest window, fraction of 1 g
+#define G_BASE_RESEED        200      // samples outside the window before re-seeding
+#define G_FULL_SCALE         4.0f     // dynamic g that maps to +RESX
 
 int16_t gyroOutputs[2];
 
@@ -37,6 +42,9 @@ static uint8_t errors;
 static int16_t offset_x, offset_y;
 static int16_t range_x = 8192, range_y = 8192;
 static int16_t raw_ax, raw_ay;
+static float gForce;
+static float gBase;
+static uint16_t gOutside;
 
 // filter state
 static bool filterInitialized;
@@ -180,6 +188,26 @@ void gyroWakeup()
 
   gyroOutputs[0] = (ax * float(RESX)) / range_x;
   gyroOutputs[1] = (ay * float(RESX)) / range_y;
+
+  float mag = sqrtf(raw.accel_x * raw.accel_x + raw.accel_y * raw.accel_y +
+                    raw.accel_z * raw.accel_z);
+  if (gBase == 0.0f) gBase = mag;
+  if (fabsf(mag - gBase) < G_BASE_GATE * gBase) {
+    gBase = lowPass(mag, gBase, G_BASE_ALPHA);
+    gOutside = 0;
+  } else if (++gOutside >= G_BASE_RESEED) {
+    gBase = mag;
+    gOutside = 0;
+  }
+  gForce = lowPass(mag - gBase, gForce, G_FILTER_ALPHA);
+}
+
+int16_t gyroScaledG()
+{
+  if (!imuHasGForce() || gBase <= 0.0f) return -RESX;
+  // |dynamic g|: 0 g -> -RESX, G_FULL_SCALE g -> +RESX
+  float v = fabsf(gForce) * 2.0f * float(RESX) / (gBase * G_FULL_SCALE) - RESX;
+  return limit<int16_t>(-RESX, v, RESX);
 }
 
 int16_t gyroScaledX()

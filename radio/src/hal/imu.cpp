@@ -21,6 +21,8 @@
 
 #include "hal/imu.h"
 
+#include <string.h>
+
 static const char* s_imu_name = nullptr;
 
 imu_read_fn imuDetect(const etx_imu_t* candidates, uint8_t count)
@@ -37,4 +39,9 @@ imu_read_fn imuDetect(const etx_imu_t* candidates, uint8_t count)
 const char* imuGetName()
 {
   return s_imu_name;
+}
+
+bool imuHasGForce()
+{
+  return s_imu_name && strcmp(s_imu_name, "SC7U22") == 0;
 }

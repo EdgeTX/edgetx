@@ -49,3 +49,6 @@ imu_read_fn imuDetect(const etx_imu_t* candidates, uint8_t count);
 
 // Returns the name of the detected IMU, or nullptr if none
 const char* imuGetName();
+
+// G force source is only calibrated/validated on the SC7U22
+bool imuHasGForce();

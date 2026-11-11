@@ -228,6 +228,12 @@ static bool isSourceFuncSwitchAvailable(int source) {
 }
 #endif
 
+#if defined(IMU)
+static bool isSourceGForceAvailable(int) {
+  return imuHasGForce();
+}
+#endif
+
 static bool isSourceLSAvailable(int source) {
   LogicalSwitchData * cs = lswAddress(source);
   return (cs->func != LS_FUNC_NONE);
@@ -274,6 +280,7 @@ static struct sourceAvailableCheck sourceChecks[] = {
   { MIXSRC_FIRST_POT, MIXSRC_LAST_POT, SRC_POT, isSourcePotAvailable },
 #if defined(IMU)
   { MIXSRC_TILT_X, MIXSRC_TILT_Y, SRC_TILT, sourceIsAvailable },
+  { MIXSRC_G_FORCE, MIXSRC_G_FORCE, SRC_TILT, isSourceGForceAvailable },
 #endif
 #if defined(LUMINOSITY_SENSOR)
   { MIXSRC_LIGHT, MIXSRC_LIGHT, SRC_LIGHT, sourceIsAvailable },

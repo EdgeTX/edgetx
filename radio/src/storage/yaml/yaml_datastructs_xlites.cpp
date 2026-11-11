@@ -146,6 +146,7 @@ const struct YamlIdStr enum_MixSources[] = {
   {  MIXSRC_NONE, "NONE"  },
   {  MIXSRC_TILT_X, "TILT_X"  },
   {  MIXSRC_TILT_Y, "TILT_Y"  },
+  {  MIXSRC_G_FORCE, "G_FORCE"  },
   {  MIXSRC_MIN, "MIN"  },
   {  MIXSRC_MAX, "MAX"  },
   {  MIXSRC_TX_VOLTAGE, "TX_VOLTAGE"  },
