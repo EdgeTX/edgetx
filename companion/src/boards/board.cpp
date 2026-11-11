@@ -27,8 +27,6 @@
 #include "generalsettings.h"
 #include "modeldata.h"
 
-#include <QMessageBox>
-
 // TODO remove all those constants
 // Update: These are now all only used within this class.
 //  External access is only via getCapability(Capability::EEpromSize)
@@ -735,7 +733,7 @@ const QString Board::getInputName(int index) const
 {
   try {
     return m_inputs.at(index).name.c_str();
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return CPN_STR_UNKNOWN_ITEM;
   }
 }
@@ -744,7 +742,7 @@ const QString Board::getInputTag(int index) const
 {
   try {
     return m_inputs.at(index).tag.c_str();
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return CPN_STR_UNKNOWN_ITEM;
   }
 }
@@ -769,7 +767,7 @@ const QString Board::getInputYamlName(int index, YamlLookupType ylt) const
             m_inputs.at(index).refYaml == Board::LVT_NAME) ?
             getInputName(index) :
             getInputTag(index);
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return CPN_STR_UNKNOWN_ITEM;
   }
 }
@@ -849,7 +847,7 @@ const Board::InputInfo Board::getInputInfo(int index) const
     info.shortName = defn.shortName;
     info.flexType = defn.flexType;
     info.inverted = defn.inverted;
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
   }
 
   return info;
@@ -874,7 +872,7 @@ const Board::KeyInfo Board::getKeyInfo(int index) const
     info.name = defn.name;
     info.key = defn.key;
     info.label = defn.label;
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
   }
 
   return info;
@@ -900,7 +898,7 @@ const int Board::getCFSIndexForSwitch(int swIdx) const
 {
   try {
     return m_switches.at(swIdx).isCustomSwitch ? m_switches.at(swIdx).customSwitchIdx : -1;
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
   return -1;
   }
 }
@@ -969,7 +967,7 @@ const Board::SwitchInfo Board::getSwitchInfo(int index) const
     info.name = defn.name;
     info.dflt = defn.dflt;
     info.inverted = defn.inverted;
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
   }
 
   return info;
@@ -979,7 +977,7 @@ const QString Board::getSwitchName(int index) const
 {
   try {
     return m_switches.at(index).name.c_str();
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
   return CPN_STR_UNKNOWN_ITEM;
   }
 }
@@ -988,7 +986,7 @@ const QString Board::getSwitchTag(int index) const
 {
   try {
     return m_switches.at(index).tag.c_str();
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return CPN_STR_UNKNOWN_ITEM;
   }
 }
@@ -997,7 +995,7 @@ const int Board::getSwitchTagNum(int index) const
 {
   try {
     return getNumericSuffix(m_switches.at(index).tag.c_str());
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return -1;
   }
 }
@@ -1031,7 +1029,7 @@ const QString Board::getSwitchYamlName(int index, YamlLookupType ylt) const
           m_switches.at(index).refYaml == Board::LVT_NAME) ?
           getSwitchName(index) :
           getSwitchTag(index);
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return CPN_STR_UNKNOWN_ITEM;
   }
 }
@@ -1051,7 +1049,7 @@ const QString Board::getTrimName(int index) const
 {
   try {
     return m_trims.at(index).name.c_str();
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return CPN_STR_UNKNOWN_ITEM;
   }
 }
@@ -1060,7 +1058,7 @@ const QString Board::getTrimTag(int index) const
 {
   try {
     return m_trims.at(index).tag.c_str();
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return CPN_STR_UNKNOWN_ITEM;
   }
 }
@@ -1084,7 +1082,7 @@ const QString Board::getTrimYamlName(int index, YamlLookupType ylt) const
             m_trims.at(index).refYaml == Board::LVT_NAME) ?
             getTrimName(index) :
             getTrimTag(index);
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return CPN_STR_UNKNOWN_ITEM;
   }
 }
@@ -1094,9 +1092,9 @@ const bool Board::isInputAvailable(int index) const
   try {
     return (m_inputs.at(index).type == Board::AIT_STICK ||
            (m_inputs.at(index).type == Board::AIT_FLEX &&
-            m_inputs.at(index).flexType != Board::FLEX_NONE &&
+            (m_inputs.at(index).flexType != Board::FLEX_NONE || isInputFlexGyroAxis(index)) &&
             !isInputFlexJoystickAxis(index)));
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return CPN_STR_UNKNOWN_ITEM;
   }
 }
@@ -1120,7 +1118,7 @@ const bool Board::isInputFlex(int index) const
 {
   try {
     return m_inputs.at(index).type == Board::AIT_FLEX;
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return false;
   }
 }
@@ -1131,8 +1129,9 @@ const bool Board::isInputFlexGyroAxis(int index) const
     const char* val = m_inputs.at(index).tag.data();
 
     return (m_inputs.at(index).type == Board::AIT_FLEX && m_inputs.at(index).tag.size() > 5 &&
-            val[0] == 'T' && val[1] == 'I'  && val[2] == 'L' && val[3] == 'T' && val[4] == '_' && (val[5] == 'X' || val[5] == 'Y'));
-  } catch (const std::out_of_range& e) {
+            ((val[0] == 'T' && val[1] == 'I'  && val[2] == 'L' && val[3] == 'T' && val[4] == '_' && (val[5] == 'X' || val[5] == 'Y')) ||
+            m_inputs.at(index).tag == "G_FORCE"));
+  } catch (...) {
     return false;
   }
 }
@@ -1144,7 +1143,7 @@ const bool Board::isInputFlexJoystickAxis(int index) const
 
     return (m_inputs.at(index).type == Board::AIT_FLEX && m_inputs.at(index).tag.size() > 2 &&
             val[0] == 'J' && val[1] == 'S' && (val[2] == 'x' || val[2] == 'y'));
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return false;
   }
 }
@@ -1158,7 +1157,7 @@ const bool Board::isInputFlexPot(int index) const
     return (m_inputs.at(index).type == Board::AIT_FLEX &&
             ((len > 1 && val[0] == 'P' && val[1] >= '0' && val[1] <= '9') ||
               (len > 3 && val[0] == 'E' && val[1] == 'X' && val[2] == 'T' && val[3] >= '0' && val[3] <= '9')));
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return false;
   }
 }
@@ -1167,7 +1166,7 @@ const bool Board::isInputFlexPotMultipos(int index) const
 {
   try {
     return m_inputs.at(index).type == Board::AIT_FLEX && m_inputs.at(index).flexType == Board::FLEX_MULTIPOS;
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return false;
   }
 }
@@ -1179,7 +1178,7 @@ const bool Board::isInputFlexSlider(int index) const
 
     return (m_inputs.at(index).type == Board::AIT_FLEX && m_inputs.at(index).tag.size() > 2 &&
             val[0] == 'S' && val[1] == 'L' && val[2] >= '0' && val[2] <= '9');
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return false;
   }
 }
@@ -1188,7 +1187,7 @@ const bool Board::isInputFlexSwitch(int index) const
 {
   try {
     return m_inputs.at(index).type == Board::AIT_FLEX && m_inputs.at(index).flexType == Board::FLEX_SWITCH;
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return false;
   }
 }
@@ -1197,7 +1196,7 @@ const bool Board::isInputRTCBat(int index) const
 {
   try {
     return m_inputs.at(index).type == Board::AIT_RTC_BAT;
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return false;
   }
 }
@@ -1206,7 +1205,7 @@ const bool Board::isInputStick(int index) const
 {
   try {
     return m_inputs.at(index).type == Board::AIT_STICK;
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return false;
   }
 }
@@ -1215,7 +1214,7 @@ const bool Board::isInputSwitch(int index) const
 {
   try {
     return m_inputs.at(index).type == Board::AIT_SWITCH;
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return false;
   }
 }
@@ -1224,7 +1223,7 @@ const bool Board::isInputVBat(int index) const
 {
   try {
     return m_inputs.at(index).type == Board::AIT_VBAT;
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return false;
   }
 }
@@ -1242,7 +1241,7 @@ const bool Board::isSwitchConfigurable(int index) const
           return true;
       }
     }
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
   }
 
   return false;
@@ -1260,7 +1259,7 @@ const bool Board::isSwitchFlex(int index) const
 
     return (m_switches.at(index).tag.size() > 2 &&
             val[0] == 'F' && val[1] == 'L' && val[2] >= '0' && val[2] <= '9');
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return false;
   }
 }
@@ -1269,7 +1268,7 @@ const bool Board::isSwitchFunc(int index) const
 {
   try {
     return m_switches.at(index).customSwitchIdx >= 0;
-  } catch (const std::out_of_range& e) {
+  } catch (...) {
     return false;
   }
 }
@@ -1608,7 +1607,11 @@ void Board::loadInputs(QJsonObject::const_iterator & oit)
     if (defn.type == Board::AIT_STICK)
       defn.refYaml = Board::LVT_NAME;
 
-    defn.inverted = Json::valueBool(o, "inverted", defn.inverted, false);
+    if (Json::exists(o, "inverted")) {
+      const QJsonValue inv = o.value("inverted");
+      defn.inverted = inv.isString() ? !inv.toString().isEmpty() : inv.toBool();
+    }
+
     defn.name = Json::valueStdString(o, "label", defn.name, false);
     defn.shortName = Json::valueStdString(o, "short_label", defn.shortName, false);
 
@@ -1953,6 +1956,7 @@ StringTagMappingTable Board::getLegacyAnalogsLookupTable(QString boardId)
                               {tr("TILT_Y").toStdString(), "TILT_Y"},
                               {tr("TILT_X").toStdString(), "GYRO1"},
                               {tr("TILT_Y").toStdString(), "GYRO2"},
+                              {tr("G_FORCE").toStdString(), "G_FORCE"},
   });
 
   if (board->getId() == "x9e") {

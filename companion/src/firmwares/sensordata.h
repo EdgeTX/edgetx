@@ -26,8 +26,6 @@
 
 #include <QtCore>
 
-constexpr int SENSOR_LABEL_LEN { 4 };
-
 // Calculated sensor sources (SensorData::sources):
 //   0                        none
 //   +/-(1 .. CPN_MAX_SENSORS)  sensor (negative: inverted)

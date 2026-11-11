@@ -1,0 +1,6 @@
+{
+  "basedOn": [
+    "inputs_accl"
+  ],
+  "name": "GX10"
+}
