@@ -43,6 +43,7 @@
 #define CELLS_ID                       0x0E
 #define VOLT_ARRAY_ID                  0xFE  // Pseudo sensor out of 0x0E frame
 #define BAROMETER_ID                   0x11
+#define MAGNETOMETER_ID                0x12
 #define ACCGYRO_ID                     0x13
 #define LINK_ID                        0x14
 #define CHANNELS_ID                    0x16
@@ -113,6 +114,9 @@ enum CrossfireSensorIndexes {
   ACCGYRO_TEMP_INDEX,
   BAROMETER_PRESSURE_INDEX,
   BAROMETER_TEMP_INDEX,
+  MAGNETOMETER_X_INDEX,
+  MAGNETOMETER_Y_INDEX,
+  MAGNETOMETER_Z_INDEX,
   FLIGHT_MODE_INDEX,
   VERTICAL_SPEED_INDEX,
   BARO_ALTITUDE_INDEX,
