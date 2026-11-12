@@ -49,6 +49,7 @@
 #if defined(MULTIMODULE)
   #include "telemetry/multi.h"
 #endif
+#include "telemetry/multi_buffer.h"
 
 #if defined(CROSSFIRE)
   #include "telemetry/crossfire.h"
@@ -2412,7 +2413,7 @@ This function reads/writes the Multi protocol buffer to interact with a protocol
 
 @status current Introduced in 2.3.2
 */
-#if defined(MULTIMODULE)
+#if defined(HAS_MULTI_BUFFER)
 uint8_t * Multi_Buffer = nullptr;
 
 static int luaMultiBuffer(lua_State * L)
@@ -3365,7 +3366,7 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( ghostTelemetryPop, luaGhostTelemetryPop )
   LROT_FUNCENTRY( ghostTelemetryPush, luaGhostTelemetryPush )
 #endif
-#if defined(MULTIMODULE)
+#if defined(HAS_MULTI_BUFFER)
   LROT_FUNCENTRY( multiBuffer, luaMultiBuffer )
 #endif
   LROT_FUNCENTRY( setSerialBaudrate, luaSetSerialBaudrate )

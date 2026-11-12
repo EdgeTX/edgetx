@@ -25,6 +25,7 @@
 
 #include "edgetx.h"
 #include "telemetry/spektrum.h"
+#include "telemetry/multi_buffer.h"
 
 #define DSMP_SEND_X_PLUS    1
 

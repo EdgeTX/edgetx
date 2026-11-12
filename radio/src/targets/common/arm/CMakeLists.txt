@@ -189,13 +189,14 @@ if(PPM)
   set(SRC ${SRC} telemetry/mlink.cpp)
 endif()
 
-if(DSM2)
-  add_definitions(-DDSM2)
+if(DSMP)
+  # DSMP reuses the DSM2 driver
+  set(DSM2 ON)
+  add_definitions(-DDSMP)
 endif()
 
-if(DSMP)
+if(DSM2)
   add_definitions(-DDSM2)
-  add_definitions(-DDSMP)
 endif()
 
 
