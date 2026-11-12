@@ -753,12 +753,10 @@
 #define TR_MULTI_SERVOFREQ              TR("서보 속도", "서보 업데이트 속도")
 #define TR_MULTI_MAX_THROW              TR("최대 스로우", "최대 이동량 허용")
 #define TR_MULTI_RFCHAN                 TR("RF 채널", "RF 채널 선택")
-#define TR_AFHDS3_RX_FREQ               TR("수신기 주파수", "수신기 RF 주파수")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY  TR("단일/텔레메트리", "Unicast/텔레메트리 모드")
 #define TR_AFHDS3_ONE_TO_MANY           "멀티캐스트"
 
 #define TR_AFHDS3_ACTUAL_POWER          TR("실제 출력", "실제 RF 출력")
-#define TR_AFHDS3_POWER_SOURCE          TR("전원 소스", "전원 공급 방식")
 #define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_GPS_COORDS_FORMAT            TR("GPS 좌표", "좌표 표시 형식")
 #define TR_VARIO                        TR("바리오", "수직 속도계")
