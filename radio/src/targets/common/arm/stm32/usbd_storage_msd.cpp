@@ -179,15 +179,6 @@ int8_t STORAGE_GetCapacity(uint8_t lun, uint32_t *block_num, uint16_t *block_siz
   return USBD_OK;
 }
 
-uint8_t lunReady[STORAGE_LUN_NBR];
-
-void usbInitLUNs()
-{
-  for (int i = 0; i < STORAGE_LUN_NBR; i++) {
-    lunReady[i] = 1;
-  }
-}
-
 /**
   * @brief  check whether the medium is ready
   * @param  lun : logical unit number
@@ -197,9 +188,7 @@ int8_t STORAGE_IsReady(uint8_t lun)
 {
   switch (lun) {
     case STORAGE_SDCARD_LUN:
-      return (lunReady[STORAGE_SDCARD_LUN] != 0 && storageIsPresent())
-                 ? USBD_OK
-                 : USBD_FAIL;
+      return storageIsPresent() ? USBD_OK : USBD_FAIL;
 
 #if USE_UF2_DRIVE
     case STORAGE_UF2_LUN:

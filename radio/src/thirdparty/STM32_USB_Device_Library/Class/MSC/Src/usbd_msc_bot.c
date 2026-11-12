@@ -115,7 +115,10 @@ void MSC_BOT_Init(USBD_HandleTypeDef *pdev)
 
   hmsc->scsi_sense_tail = 0U;
   hmsc->scsi_sense_head = 0U;
-  hmsc->scsi_medium_state = SCSI_MEDIUM_UNLOCKED;
+  for (uint32_t lun = 0U; lun < MSC_BOT_MAX_LUN; lun++)
+  {
+    hmsc->scsi_blk[lun].medium_state = SCSI_MEDIUM_UNLOCKED;
+  }
 
   ((USBD_StorageTypeDef *)pdev->pUserData[pdev->classId])->Init(0U);
 
