@@ -116,10 +116,10 @@ docker run -it --rm -v $(pwd):/src \
   /src/tools/generate-yaml.sh
 ```
 
-!!! warning
-    The script deletes and recreates a `build` directory in the current working
-    directory, so run it from the repository root and expect any existing `build/`
-    to be removed.
+!!! note
+    The script configures each radio in a scratch directory, `build/gen-yaml/` at
+    the repository root, and removes it when done. Other build trees under
+    `build/` (such as the CMake preset ones) are left alone.
 
 See [YAML Parser/Generator](yaml-parser-generator.md) for how the parsers work, and
 for what to do when adding a new radio.

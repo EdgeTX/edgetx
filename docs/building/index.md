@@ -178,3 +178,8 @@ CI uses the scripts in `tools/`:
 
 These scripts use `FLAVOR` environment variables and are tailored for GitHub
 Actions. For local development, prefer the CMake presets above.
+
+Scripts in `tools/` only ever recreate their own scratch directory under
+`build/` at the repository root (`build/ci-firmware`, `build/ci-companion`,
+`build/gen-yaml`, ...), so the preset build trees in `build/<preset>` are safe
+to keep alongside them.

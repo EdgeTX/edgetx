@@ -60,8 +60,9 @@ if [[ -z ${EDGETX_VERSION_SUFFIX} ]]; then
   fi
 fi
 
-BUILD_ROOT="${BUILD_ROOT:-build}"
-rm -rf "${BUILD_ROOT}" && mkdir -p "${BUILD_ROOT}" && cd "${BUILD_ROOT}" || exit
+# Scratch space under build/ - other build trees there are left alone
+BUILD_ROOT=$(reset_scratch_build_dir ci-companion) || exit 1
+cd "${BUILD_ROOT}" || exit 1
 
 get_platform_config() {
     local platform
