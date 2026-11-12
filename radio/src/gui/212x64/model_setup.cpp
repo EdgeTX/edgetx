@@ -1876,7 +1876,7 @@ void menuModelSetup(event_t event)
     case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_MODE:
       lcdDrawTextIndented(y, STR_TYPE);
       lcdDrawText(MODEL_SETUP_2ND_COLUMN, y,
-          g_model.moduleData[EXTERNAL_MODULE].afhds3.telemetry ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY : TR_AFHDS3_ONE_TO_MANY);
+          g_model.moduleData[EXTERNAL_MODULE].afhds3.telemetry ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY : STR_AFHDS3_ONE_TO_MANY);
       break;
 #endif
 
