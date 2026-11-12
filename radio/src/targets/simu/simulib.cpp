@@ -789,6 +789,12 @@ int32_t simuGetCapability(uint8_t cap)
       return (auxSerialGetPort(SP_AUX1) != nullptr) ? 1 : 0;
     case 5:  // CAP_SERIAL_AUX2
       return (auxSerialGetPort(SP_AUX2) != nullptr) ? 1 : 0;
+    case 6:  // CAP_TELEM_CROSSFIRE
+#if defined(CROSSFIRE)
+      return 1;
+#else
+      return 0;
+#endif
     default:
       return 0;
   }
@@ -811,9 +817,11 @@ void simuSendTelemetry(uint8_t module, uint8_t protocol,
     case 1:  // SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB
       frskyDProcessPacket(module, data, len);
       break;
+#if defined(CROSSFIRE)
     case 2:  // SIMU_TELEMETRY_PROTOCOL_CROSSFIRE
       processCrossfireTelemetryFrame(module, (uint8_t*)data, len);
       break;
+#endif
     case 3:  // SIMU_TELEMETRY_PROTOCOL_FRSKY_HUB_OOB
       if (len >= 3) {
         uint8_t id = data[0];
