@@ -169,15 +169,22 @@ class StaticBitmap : public Window
 {
  public:
   StaticBitmap(Window *parent, const rect_t &rect,
-               const char *filename = nullptr);
+               const char *filename = nullptr, BitmapFormats fmt = BMP_INVALID);
 
 #if defined(DEBUG_WINDOWS)
   std::string getName() const override { return "StaticBitmap"; }
 #endif
 
-  void setSource(const char *filename);
+  // Without a format, the image format is chosen from the file: RGB565 for
+  // opaque images, ARGB4444 for images with alpha.
+  void setSource(const char *filename) { setSource(filename, BMP_INVALID); }
+  // Forcing BMP_RGB565 drops the alpha channel of images that have one.
+  void setSource(const char *filename, BitmapFormats fmt);
   void clearSource();
   bool hasImage() const;
+
+  // Delete all children except the image canvas, which belongs to this object
+  void clear() override;
 
  protected:
   BitmapBuffer *img = nullptr;
