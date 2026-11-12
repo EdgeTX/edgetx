@@ -123,7 +123,6 @@ const LangStrings* const langStrings[] = {
   &ruLangStrings,
   &seLangStrings,
   &skLangStrings,
-  &enLangStrings,
   &twLangStrings,
   &uaLangStrings,
 };
@@ -149,10 +148,11 @@ const LangStrings* const langStrings[] = {
   &seLangStrings,
   &enLangStrings,
   &enLangStrings,
-  &enLangStrings,
   &uaLangStrings,
 };
 #endif
+static_assert(DIM(langStrings) == LANG_COUNT,
+              "langStrings[] must have one entry per RadioLanguage");
 const LangStrings* currentLangStrings = &enLangStrings;
 
 // Static string
