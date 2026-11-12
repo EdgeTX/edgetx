@@ -27,6 +27,11 @@
 #include "hal/rgbleds.h"
 #include "switches.h"
 
+#if defined(AFHDS3)
+#include "pulses/afhds3.h"
+#include "pulses/afhds3_config.h"
+#endif
+
 #if defined(USBJ_EX)
 #include "usb_joystick.h"
 #endif
@@ -203,7 +208,6 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_NOT_ACCESS_RXNUM_BIND_RANGE,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_PXX2_MODEL_NUM,
 #if defined(AFHDS3)
-  ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_RX_FREQ,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_ACTUAL_POWER,
 #endif
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_POWER,
@@ -2372,9 +2376,13 @@ void menuModelSetup(event_t event)
 #if defined(AFHDS3)
       else if (isModuleAFHDS3(EXTERNAL_MODULE)) {
         lcdDrawTextIndented(y, STR_RF_POWER);
-        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_AFHDS3_POWERS, g_model.moduleData[EXTERNAL_MODULE].afhds3.runPower, LEFT | attr);
-        if (attr)
-          CHECK_INCDEC_MODELVAR(event, g_model.moduleData[EXTERNAL_MODULE].afhds3.runPower, afhds3::RUN_POWER::RUN_POWER_FIRST, afhds3::RUN_POWER::RUN_POWER_LAST);
+        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_AFHDS3_POWERS, g_model.moduleData[EXTERNAL_MODULE].afhds3.rfPower, LEFT | attr);
+        if (attr) {
+          CHECK_INCDEC_MODELVAR_ZERO(event, g_model.moduleData[EXTERNAL_MODULE].afhds3.rfPower, AFHDS3_FRM303_POWER_MAX);
+          if (checkIncDec_Ret) {
+            DIRTY_CMD(afhds3::getConfig(EXTERNAL_MODULE), afhds3::DirtyConfig::DC_RX_CMD_TX_PWR);
+          }
+        }
       }
 #endif
 
@@ -2425,19 +2433,9 @@ void menuModelSetup(event_t event)
 #endif
 
 #if defined(AFHDS3) && defined(HARDWARE_EXTERNAL_MODULE)
-      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_RX_FREQ:
-        lcdDrawTextIndented(y, STR_AFHDS3_RX_FREQ);
-        lcdDrawNumber(MODEL_SETUP_2ND_COLUMN, y, g_model.moduleData[EXTERNAL_MODULE].afhds3.rxFreq(), attr | LEFT);
-        if (attr) {
-          uint16_t rxFreq = g_model.moduleData[EXTERNAL_MODULE].afhds3.rxFreq();
-          CHECK_INCDEC_MODELVAR(event, rxFreq, MIN_FREQ, MAX_FREQ);
-          g_model.moduleData[EXTERNAL_MODULE].afhds3.setRxFreq(rxFreq);
-        }
-        break;
-
       case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_ACTUAL_POWER:
         lcdDrawTextIndented(y, STR_AFHDS3_ACTUAL_POWER);
-        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_AFHDS3_POWERS, actualAfhdsRunPower(EXTERNAL_MODULE), LEFT);
+        lcdDrawTextAtIndex(MODEL_SETUP_2ND_COLUMN, y, STR_AFHDS3_POWERS, afhds3::get_current_rfpower_level(EXTERNAL_MODULE), LEFT);
         break;
 #endif
 
