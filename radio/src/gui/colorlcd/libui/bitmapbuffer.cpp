@@ -29,6 +29,16 @@
 #include "strhelpers.h"
 #if !defined(BOOT)
 #include "window.h"
+
+#include "lvgl/src/misc/lv_txt_ap.h"
+
+// Shape Arabic text drawn through BitmapBuffer. Not needed in the bootloader
+// (its strings are never Arabic, and lv_txt_ap.c is not linked there).
+#if LV_USE_ARABIC_PERSIAN_CHARS && !defined(BOOT)
+#define SHAPE_ARABIC_TEXT 1
+#else
+#define SHAPE_ARABIC_TEXT 0
+#endif
 #endif
 
 BitmapBuffer::BitmapBuffer(uint8_t format, uint16_t width, uint16_t height) :
@@ -473,9 +483,29 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
   this->offsetY = 0;
 
   // LVGL does not handle non-null terminated strings
+#if SHAPE_ARABIC_TEXT
+  // Room for Arabic shaping: positional forms are 3-byte UTF-8 (base
+  // letters are 2)
+  static char buffer[384];
+#else
   static char buffer[256];
+#endif
   strncpy(buffer, s, len);
   buffer[len] = '\0';
+
+#if SHAPE_ARABIC_TEXT
+  // Arabic letters take a different form depending on their position in a
+  // word. lv_label applies this when its text is set; text drawn here
+  // bypasses lv_label, so apply it before drawing (only when the text
+  // contains Arabic, i.e. UTF-8 lead bytes 0xD8-0xDB for U+0600-06FF).
+  for (const char* c = buffer; *c; c++) {
+    if ((uint8_t)*c >= 0xD8 && (uint8_t)*c <= 0xDB) {
+      if (_lv_txt_ap_calc_bytes_cnt(buffer) <= sizeof(buffer))
+        _lv_txt_ap_proc(buffer, buffer);
+      break;
+    }
+  }
+#endif
 
   coord_t pos = x;
   const coord_t orig_pos = pos;

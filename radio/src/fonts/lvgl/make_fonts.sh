@@ -62,13 +62,14 @@ get_translation_symbols() {
     TW_SYMBOLS=$(python3 get_char_ck.py "${TRANSLATIONS_DIR}/tw.h" 2>/dev/null || echo "")
     CN_SYMBOLS=$(python3 get_char_ck.py "${TRANSLATIONS_DIR}/cn.h" 2>/dev/null || echo "")
     JP_SYMBOLS=$(python3 get_char_jp.py "${TRANSLATIONS_DIR}/jp.h" 2>/dev/null || echo "")
+    AR_SYMBOLS=$(python3 get_char_ar.py "${TRANSLATIONS_DIR}/ar.h" 2>/dev/null || echo "")
     HE_SYMBOLS=$(python3 get_char_he.py "${TRANSLATIONS_DIR}/he.h" 2>/dev/null || echo "")
     KO_SYMBOLS=$(python3 get_char_ko.py "${TRANSLATIONS_DIR}/ko.h" 2>/dev/null || echo "")
     RU_SYMBOLS=$(python3 get_char_cyrillic.py "${TRANSLATIONS_DIR}/ru.h" 2>/dev/null || echo "")
     UA_SYMBOLS=$(python3 get_char_cyrillic.py "${TRANSLATIONS_DIR}/ua.h" 2>/dev/null || echo "")
 
     # Export variables for later use
-    export TW_SYMBOLS CN_SYMBOLS JP_SYMBOLS HE_SYMBOLS KO_SYMBOLS RU_SYMBOLS UA_SYMBOLS
+    export TW_SYMBOLS CN_SYMBOLS JP_SYMBOLS AR_SYMBOLS HE_SYMBOLS KO_SYMBOLS RU_SYMBOLS UA_SYMBOLS
 }
 
 function compress_font() {
@@ -340,6 +341,7 @@ main() {
     make_font_set "tw" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" "${TW_SYMBOLS}" "-DNO_KERN"
     make_font_set "cn" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" "${CN_SYMBOLS}" "-DNO_KERN"
     make_font_set "jp" "Noto/NotoSansCJKsc-Regular.otf" "Noto/NotoSansCJKsc-Bold.otf" "${JP_SYMBOLS}" ""
+    make_font_set "ar" "Noto/NotoSansArabic-Regular.ttf" "Noto/NotoSansArabic-Bold.ttf" "${AR_SYMBOLS}" "-DNO_KERN"
     make_font_set "he" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" "${HE_SYMBOLS}" "-DNO_KERN"
     make_font_set "ru" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" "${RU_SYMBOLS}" ""
     make_font_set "ua" "Arimo/Arimo-Regular.ttf" "Arimo/Arimo-Bold.ttf" "${UA_SYMBOLS}" ""

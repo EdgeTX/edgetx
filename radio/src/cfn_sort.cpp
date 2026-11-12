@@ -25,7 +25,53 @@
 #include "hal_keys_lock.h"
 
 Functions cfn_sorted[] = {
-#if defined(TRANSLATIONS_CN)
+#if defined(TRANSLATIONS_AR)
+  /* Adjust */ FUNC_ADJUST_GVAR,
+  /* Audio Amp Off */ FUNC_DISABLE_AUDIO_AMP,
+#if !OLED_SCREEN
+  /* Backlight */ FUNC_BACKLIGHT,
+#endif
+  /* BgMusic */ FUNC_BACKGND_MUSIC,
+  /* BgMusic || */ FUNC_BACKGND_MUSIC_PAUSE,
+#if OLED_SCREEN
+  /* Brightness */ FUNC_BACKLIGHT,
+#endif
+  /* Haptic */ FUNC_HAPTIC,
+  /* Instant Trim */ FUNC_INSTANT_TRIM,
+#if defined(VIDEO_SWITCH)
+  /* LCD to Video */ FUNC_LCD_TO_VIDEO,
+#endif
+  /* Lua Script */ FUNC_PLAY_SCRIPT,
+  /* Module Bind */ FUNC_BIND,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* No Keys */ FUNC_DISABLE_KEYS,
+#endif
+#if defined(COLORLCD)
+  /* No Touch */ FUNC_DISABLE_TOUCH,
+#endif
+  /* Override */ FUNC_OVERRIDE_CHANNEL,
+  /* Play Sound */ FUNC_PLAY_SOUND,
+  /* Play Track */ FUNC_PLAY_TRACK,
+  /* Play Value */ FUNC_PLAY_VALUE,
+#if defined(FUNCTION_SWITCHES)
+  /* Push CS */ FUNC_PUSH_CUST_SWITCH,
+#endif
+  /* Racing Mode */ FUNC_RACING_MODE,
+  /* Range Check */ FUNC_RANGECHECK,
+  /* Reset */ FUNC_RESET,
+  /* RGB leds */ FUNC_RGB_LED,
+  /* Screenshot */ FUNC_SCREENSHOT,
+  /* SD Logs */ FUNC_LOGS,
+  /* Set */ FUNC_SET_TIMER,
+  /* Set Failsafe */ FUNC_SET_FAILSAFE,
+  /* Set Main Screen */ FUNC_SET_SCREEN,
+#if defined(DEBUG)
+  /* Test */ FUNC_TEST,
+#endif
+  /* Trainer */ FUNC_TRAINER,
+  /* Vario */ FUNC_VARIO,
+  /* Volume */ FUNC_VOLUME,
+#elif defined(TRANSLATIONS_CN)
 #if !OLED_SCREEN
   /* 背光 */ FUNC_BACKLIGHT,
 #endif
