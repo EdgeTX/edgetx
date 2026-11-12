@@ -711,11 +711,9 @@
 #define TR_MULTI_SERVOFREQ             TR("Частота серво", "Частота серво")
 #define TR_MULTI_MAX_THROW             TR("Макс. ход", "Вкл макс. ход")
 #define TR_MULTI_RFCHAN                TR("RF Канал", "Выбр RF канал")
-#define TR_AFHDS3_RX_FREQ              TR("Частота RX", "Частота RX")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Одноадрес/Телем", "Одноадрес/Телем")
 #define TR_AFHDS3_ONE_TO_MANY          "Мультикаст"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Акт. мощность", "Фактич мощность")
-#define TR_AFHDS3_POWER_SOURCE         TR("Источ питания", "Источ питания")
 #define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "FlySky RSSI")
 #define TR_GPS_COORDS_FORMAT           TR("Формат коорд GPS", "Формат коорд")

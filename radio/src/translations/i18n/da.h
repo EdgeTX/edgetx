@@ -714,11 +714,9 @@
 #define TR_MULTI_SERVOFREQ             TR("Servo hast", "Servo opdaterings hastighed")
 #define TR_MULTI_MAX_THROW             TR("Max. udslag", "Aktiver max. udslag")
 #define TR_MULTI_RFCHAN                TR("RF kanal", "Vælg RF kanal")
-#define TR_AFHDS3_RX_FREQ              TR("RX frekv.", "RX frekvens")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Unicast/Tel.", "Unicast/Telemetri")
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Akt. strøm", "Aktuel strøm")
-#define TR_AFHDS3_POWER_SOURCE         TR("Strøm", "Strøm kilde")
 #define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Brug FlySky RSSI værdi uden reskalering")
 #define TR_GPS_COORDS_FORMAT           TR("GPS kordi.", "Kordinat format")
