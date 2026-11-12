@@ -22,9 +22,7 @@
 #pragma once
 
 #include "timers_driver.h"
-
-#define MULTI_BUFFER_SIZE 177
-extern uint8_t * Multi_Buffer;
+#include "multi_buffer.h"
 
 /*
   Multiprotocol telemetry definition

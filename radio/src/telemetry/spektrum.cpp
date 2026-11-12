@@ -24,6 +24,7 @@
 #include "hal/module_port.h"
 #include "tasks/mixer_task.h"
 #include "sensor_names.h"
+#include "telemetry/multi_buffer.h"
 
 /*
  * Documentation of the Spektrum protocol is available under
@@ -570,7 +571,7 @@ void processSpektrumPacket(const uint8_t *packet)
 #endif
 
   if (i2cAddress == I2C_FWD_PGM) {
-#if defined(LUA) && defined(MULTIMODULE)
+#if defined(LUA) && defined(HAS_MULTI_BUFFER)
     // Forward Programming
     if (Multi_Buffer && memcmp(Multi_Buffer, "DSM", 3) == 0) {
       // Multi_Buffer[0..2]=="DSM" -> Lua script is running
@@ -584,7 +585,7 @@ void processSpektrumPacket(const uint8_t *packet)
     return; // Not a sensor
   }
 
-#if defined(LUA) && defined(MULTIMODULE)
+#if defined(LUA) && defined(HAS_MULTI_BUFFER)
     // Generic way for LUA Script to request ANY Specktrum Telemety Raw Data
     // this can be used for TextGen or any other telemetry message
 
