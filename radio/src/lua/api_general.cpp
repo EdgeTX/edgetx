@@ -2310,6 +2310,12 @@ static int luaLoadScript(lua_State * L)
 
 Get percent of already used Lua instructions in current script execution cycle.
 
+Color-screen widgets have a nominal budget of 20,000 instructions per callback,
+or 160,000 in the App mode layout, for create(), update(), refresh() and
+background(). Opening a regular widget full screen does not increase its budget.
+Widget script loading retains the 20,000-instruction budget. These are instruction
+counts, not elapsed-time limits; DEBUG builds do not enforce them.
+
 @retval usage (number) a value from 0 to 100 (percent)
 
 @status current Introduced in 2.2.1
