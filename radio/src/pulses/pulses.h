@@ -190,10 +190,6 @@ void setupPulsesPPMTrainer();
 void getModuleStatusString(uint8_t moduleIdx, char * statusText);
 void getModuleSyncStatusString(uint8_t moduleIdx, char * statusText);
 
-#if defined(AFHDS3)
-uint8_t actualAfhdsRunPower(int moduleIndex);
-#endif
-
 void pulsesInit();
 void pulsesStart();
 void pulsesStop();
