@@ -198,7 +198,6 @@ enum MenuModelSetupItems {
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS_PROTOCOL,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_MODE,
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_STATUS,
-  ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_POWER_STATUS,
 #endif
 #if defined(DSMP)
   ITEM_MODEL_SETUP_EXTERNAL_MODULE_DSMP_STATUS,
@@ -2485,16 +2484,6 @@ void menuModelSetup(event_t event)
           lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, reusableBuffer.moduleSetup.msg);
           break;
         }
-#endif
-
-#if defined(AFHDS3) && defined(HARDWARE_EXTERNAL_MODULE)
-      case ITEM_MODEL_SETUP_EXTERNAL_MODULE_AFHDS3_POWER_STATUS: {
-        lcdDrawTextIndented(y, STR_AFHDS3_POWER_SOURCE);
-        char statusText[64];
-        getModuleSyncStatusString(moduleIdx, statusText);
-        lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, statusText);
-        break;
-      }
 #endif
 
 #if 0
