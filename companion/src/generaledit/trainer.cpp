@@ -33,10 +33,11 @@
 TrainerPanel::TrainerPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * editorItemModels):
   GeneralPanel(parent, generalSettings, firmware)
 {
+  Board *board = getCurrentBoard();
   int modeid = editorItemModels->registerItemModel(TrainerMix::modeItemModel());
   int srcid = editorItemModels->registerItemModel(TrainerMix::srcItemModel());
 
-  const int stickcnt = Boards::getCapability(getCurrentBoard(), Board::Sticks);
+  const int stickcnt = board->getCapability(Capability::Sticks);
 
   const FieldRange weightrng = TrainerMix::getWeightRange();
 
@@ -52,7 +53,7 @@ TrainerPanel::TrainerPanel(QWidget * parent, GeneralSettings & generalSettings, 
 
     for (int i = 0; i < stickcnt; i++, row++) {
       col = 0;
-      addLabel(Boards::getInputName(i), row, col++);
+      addLabel(board->getInputName(i), row, col++);
 
       AutoComboBox *mode = new AutoComboBox(this);
       mode->setModel(editorItemModels->getItemModel(modeid));

@@ -21,12 +21,13 @@
 
 #pragma once
 
+#include "constants.h"
+
 #include <QtCore>
 
 constexpr char AIM_GVARDATA_PREC[]  {"gvardata.prec"};
 constexpr char AIM_GVARDATA_UNIT[]  {"gvardata.unit"};
 
-#define GVAR_NAME_LEN       3
 #define GVAR_MAX_VALUE      1024
 #define GVAR_MIN_VALUE      -GVAR_MAX_VALUE
 

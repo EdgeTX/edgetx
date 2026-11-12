@@ -27,7 +27,7 @@ struct YamlTelemetryBaudrate {
 
   YamlTelemetryBaudrate() = default;
   YamlTelemetryBaudrate(const unsigned int* moduleBaudrate);
-  void toCpn(unsigned int* moduleBaudrate, unsigned int variant);
+  void toCpn(unsigned int* moduleBaudrate, QString boardId);
 };
 
 namespace YAML {

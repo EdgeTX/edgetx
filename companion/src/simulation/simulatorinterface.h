@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "firmwares/boards.h"
+#include "board.h"
 #include "constants.h"
 
 #include <algorithm>
@@ -200,7 +200,7 @@ class SimulatorFactory {
   public:
     virtual ~SimulatorFactory() { }
     virtual QString name() = 0;
-    virtual Board::Type type() = 0;
+    virtual QString type() = 0;
     virtual SimulatorInterface *create() = 0;
 };
 

@@ -1,0 +1,9 @@
+{
+  "basedOn": [
+  ],
+  "name": "NV14",
+  "hats": true,
+  "stickDeadZone": {
+    "dflt": 2
+  }
+}

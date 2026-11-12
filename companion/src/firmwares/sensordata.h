@@ -21,11 +21,10 @@
 
 #pragma once
 
+#include "constants.h"
 #include "datahelpers.h"
 
 #include <QtCore>
-
-constexpr int SENSOR_LABEL_LEN { 4 };
 
 // Calculated sensor sources (SensorData::sources):
 //   0                        none
