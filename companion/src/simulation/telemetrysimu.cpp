@@ -30,9 +30,16 @@
 #include "telemetryprovidercrossfire.h"
 
 #include <QRegularExpression>
+#include <QStandardItemModel>
 #include <stdint.h>
 
 #include <QDebug>
+
+// Must match the item order of the telemetry selectors in telemetrysimu.ui
+enum TelemetrySelectorIndex {
+  TELEMETRY_SELECTOR_NONE = 0,
+  TELEMETRY_SELECTOR_CROSSFIRE = 1,
+};
 
 TelemetrySimulator::TelemetrySimulator(QWidget * parent, SimulatorInterface * simulator):
   QWidget(parent),
@@ -136,6 +143,21 @@ void TelemetrySimulator::stopTelemetry()
 void TelemetrySimulator::onSimulatorStarted()
 {
   m_simuStarted = true;
+
+  // Capabilities are only known once the WASM module is loaded. Disable
+  // (rather than remove) the CRSF entry so dropdown indices stay stable.
+  const bool hasCrossfire =
+      simulator->getCapability(SimulatorInterface::CAP_TELEM_CROSSFIRE);
+  for (QComboBox *selector :
+       {ui->internalTelemetrySelector, ui->externalTelemetrySelector}) {
+    auto *model = qobject_cast<QStandardItemModel *>(selector->model());
+    if (model && model->item(TELEMETRY_SELECTOR_CROSSFIRE))
+      model->item(TELEMETRY_SELECTOR_CROSSFIRE)->setEnabled(hasCrossfire);
+    if (!hasCrossfire &&
+        selector->currentIndex() == TELEMETRY_SELECTOR_CROSSFIRE)
+      selector->setCurrentIndex(TELEMETRY_SELECTOR_NONE);
+  }
+
   if (isVisible() && g.currentProfile().telemSimEnabled())
     startTelemetry();
 }
@@ -157,9 +179,9 @@ void TelemetrySimulator::onSimulateToggled(bool isChecked)
 TelemetryProvider * TelemetrySimulator::newTelemetryProviderFromDropdownChoice(int selectedIndex, QScrollArea * parent, bool isExternal)
 {
   switch(selectedIndex) {
-  case 0:
+  case TELEMETRY_SELECTOR_NONE:
     return NULL;
-  case 1:
+  case TELEMETRY_SELECTOR_CROSSFIRE:
     {
       TelemetryProviderCrossfire * newProvider =  new TelemetryProviderCrossfire(parent);
       parent->setWidget(newProvider);

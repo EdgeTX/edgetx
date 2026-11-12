@@ -90,9 +90,10 @@ class SimulatorInterface : public QObject
       CAP_LUA,                // LUA
       CAP_ROTARY_ENC,         // ROTARY_ENCODERS
       CAP_ROTARY_ENC_NAV,     // ROTARY_ENCODER_NAVIGATION
-      CAP_TELEM_FRSKY_SPORT,  // TELEMETRY_FRSKY_SPORT
+      CAP_TELEM_FRSKY_SPORT,  // FrSky telemetry (always built in)
       CAP_SERIAL_AUX1,        // Does AUX1 exist on this radio?
       CAP_SERIAL_AUX2,        // Does AUX2 exist on this radio?
+      CAP_TELEM_CROSSFIRE,    // CROSSFIRE build option
       CAP_ENUM_COUNT
     };
 
