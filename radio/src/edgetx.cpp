@@ -344,7 +344,8 @@ void generalDefault()
 #if defined(DEFAULT_INTERNAL_MODULE)
     g_eeGeneral.internalModule = DEFAULT_INTERNAL_MODULE;
     if (g_eeGeneral.internalModule == MODULE_TYPE_CROSSFIRE)
-      g_eeGeneral.internalModuleBaudrate = min(1, (int)CROSSFIRE_MAX_INTERNAL_BAUDRATE);  // 921k if possible
+      g_eeGeneral.internalModuleBaudrate = CROSSFIRE_INDEX_TO_STORE(
+          min<int>(DEFAULT_INT_CROSSFIRE_BR_IDX, (int)CROSSFIRE_MAX_INTERNAL_BAUDRATE));
 #endif
 
   adcCalibDefaults();

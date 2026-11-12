@@ -13,7 +13,7 @@ static const stm32_adc_input_t _ADC_inputs[] = {
     {{ input.gpio if input.gpio else 'nullptr' }},
     {{ input.pin if input.gpio else '0' }},
     {{ input.channel if input.channel else '0' }},
-    {{ '1 // inverted' if input.inverted else '0 // normal' }}
+    {{ input.inversion if input.inversion else 0 }} // inversion mask: 1 pot, 2 slider
   },
 {% endfor %}
 };

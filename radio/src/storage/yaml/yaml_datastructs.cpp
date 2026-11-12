@@ -36,6 +36,8 @@
  #else
   #include "yaml_datastructs_x10.cpp"
  #endif
+#elif defined(PCBGX10)
+ #include "yaml_datastructs_gx10.cpp"
 #elif defined(PCBTX15)
  #include "yaml_datastructs_tx15.cpp"
 #elif defined(PCBT15)
