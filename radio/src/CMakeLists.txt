@@ -2,8 +2,8 @@ include(CMakeForceCompiler)
 include(Bitmaps)
 
 set(PCB_TYPES X9LITE X9LITES X7 XLITE XLITES X9D X9D+ X9E X10 X12S PL18 T15PRO T15H7 T18H7 ST16 PA01 TX15 GX15 GX10 TX16SMK3 T22 V12 H17 V15)
-set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
-set(TTS_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
+set(RADIO_LANGUAGES AR CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
+set(TTS_LANGUAGES AR CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
 
 set(PCB "X9D+" CACHE STRING "Radio type, one of: ${PCB_TYPES}")
 set_property(CACHE PCB PROPERTY STRINGS ${PCB_TYPES})
@@ -209,13 +209,22 @@ foreach(LANGUAGE ${RADIO_LANGUAGES})
   endif()
 endforeach()
 
-set(RTL_LANGUAGES HE)
+set(RTL_LANGUAGES AR HE)
 if(TRANSLATIONS IN_LIST RTL_LANGUAGES)
   set(TRANSLATION_IS_RTL 1)
 else()
   set(TRANSLATION_IS_RTL 0)
 endif()
 add_definitions(-DTRANSLATION_IS_RTL=${TRANSLATION_IS_RTL})
+
+# Languages whose letters change shape with position (Arabic script)
+set(AP_LANGUAGES AR)
+if(TRANSLATIONS IN_LIST AP_LANGUAGES)
+  set(TRANSLATION_NEEDS_AP 1)
+else()
+  set(TRANSLATION_NEEDS_AP 0)
+endif()
+add_definitions(-DTRANSLATION_NEEDS_AP=${TRANSLATION_NEEDS_AP})
 
 set(SRC ${SRC} debug.cpp)
 
@@ -539,6 +548,7 @@ if(ALL_LANGUAGES)
   add_definitions(-DALL_LANGS)
   set(SRC
     ${SRC}
+    translations/sim/lang_ar.cpp
     translations/sim/lang_cn.cpp
     translations/sim/lang_cz.cpp
     translations/sim/lang_da.cpp

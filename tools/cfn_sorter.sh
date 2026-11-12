@@ -7,8 +7,9 @@ set -e
 
 # Linux:
 # apt update && apt install locales
-# locale-gen zh_CN.UTF-8 cs_CZ.UTF-8 da_DK.UTF-8 de_DE.UTF-8 es_ES.UTF-8 en_US.UTF-8 fi_FI.UTF-8 fr_FR.UTF-8 he_IL.UTF-8 it_IT.UTF-8 ja_JP.UTF-8 ko_KR.UTF-8 nl_NL.UTF-8 pl_PL.UTF-8 pt_PT.UTF-8 ru_RU.UTF-8 sv_SE.UTF-8 sk_SK.UTF-8 zh_TW.UTF-8 uk_UA.UTF-8
+# locale-gen ar_SA.UTF-8 zh_CN.UTF-8 cs_CZ.UTF-8 da_DK.UTF-8 de_DE.UTF-8 es_ES.UTF-8 en_US.UTF-8 fi_FI.UTF-8 fr_FR.UTF-8 he_IL.UTF-8 it_IT.UTF-8 ja_JP.UTF-8 ko_KR.UTF-8 nl_NL.UTF-8 pl_PL.UTF-8 pt_PT.UTF-8 ru_RU.UTF-8 sv_SE.UTF-8 sk_SK.UTF-8 zh_TW.UTF-8 uk_UA.UTF-8
 
+# ar_SA.UTF-8 / ar_SA.utf8
 # zh_CN.UTF-8 / zh_CN.utf8
 # cs_CZ.UTF-8 / cs_CZ.utf8
 # da_DK.UTF-8 / da_DK.utf8
@@ -95,7 +96,8 @@ Functions cfn_sorted[] = {
 EOF
 
 # Languages - compile and append each translation
-compile_and_append "LNG_CN" "TRANSLATIONS_CN" "if"
+compile_and_append "LNG_AR" "TRANSLATIONS_AR" "if"
+compile_and_append "LNG_CN" "TRANSLATIONS_CN" "elif"
 
 compile_and_append "LNG_CZ" "TRANSLATIONS_CZ" "elif"
 compile_and_append "LNG_DA" "TRANSLATIONS_DA" "elif"

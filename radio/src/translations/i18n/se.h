@@ -1324,6 +1324,7 @@
 #define TR_VOICE_SWEDISH                "Svenska"
 #define TR_VOICE_TAIWANESE              "Taiwanesiska"
 #define TR_VOICE_JAPANESE               "Japanska"
+#define TR_VOICE_ARABIC                 "Arabiska"
 #define TR_VOICE_HEBREW                 "Hebreiska"
 #define TR_VOICE_UKRAINIAN              "Ukrainska"
 #define TR_VOICE_KOREAN                 "Koreanska"

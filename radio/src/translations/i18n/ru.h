@@ -1309,6 +1309,7 @@
 #define TR_VOICE_SWEDISH                "Шведский"
 #define TR_VOICE_TAIWANESE              TR("Тайван","Тайваньский")
 #define TR_VOICE_JAPANESE               "Японский"
+#define TR_VOICE_ARABIC                 "Арабский"
 #define TR_VOICE_HEBREW                 "Иврит"
 #define TR_VOICE_UKRAINIAN              TR("Украинс","Украинский")
 #define TR_VOICE_KOREAN                 "корейский"

@@ -1351,6 +1351,7 @@
 #define TR_VOICE_SWEDISH                "스웨덴어"
 #define TR_VOICE_TAIWANESE              "대만어"
 #define TR_VOICE_JAPANESE               "일본어"
+#define TR_VOICE_ARABIC                 "아랍어"
 #define TR_VOICE_HEBREW                 "히브리어"
 #define TR_VOICE_UKRAINIAN              "우크라이나어"
 #define TR_VOICE_KOREAN                 "한국어"

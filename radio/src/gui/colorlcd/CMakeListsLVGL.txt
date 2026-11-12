@@ -103,7 +103,7 @@ set(LVGL_SOURCES
   misc/lv_anim_timeline.c
   misc/lv_bidi.c
   misc/lv_async.c
-  # misc/lv_txt_ap.c
+  misc/lv_txt_ap.c
 
   # font/lv_font_unscii_8.c
   # font/lv_font_unscii_16.c

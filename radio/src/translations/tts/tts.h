@@ -48,6 +48,7 @@ extern uint8_t currentLanguagePackIdx;
 extern uint8_t getLanguageId(const char* lang);
 
 enum RadioLanguage {
+  LANG_AR,
   LANG_CN,
   LANG_CZ,
   LANG_DA,
@@ -72,6 +73,7 @@ enum RadioLanguage {
   LANG_COUNT
 };
 
+extern const LanguagePack arLanguagePack;
 extern const LanguagePack cnLanguagePack;
 extern const LanguagePack czLanguagePack;
 extern const LanguagePack daLanguagePack;
@@ -98,6 +100,7 @@ extern const LanguagePack * const languagePacks[];
 #if defined(LANGUAGE_PACKS_DEFINITION)
 const LanguagePack * const languagePacks[] = {
   // alphabetical order
+  &arLanguagePack,
   &cnLanguagePack,
   &czLanguagePack,
   &daLanguagePack,

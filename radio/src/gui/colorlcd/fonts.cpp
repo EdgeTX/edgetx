@@ -84,6 +84,9 @@ FONT_TABLE(jp)
 #elif defined(TRANSLATIONS_KO)
 FONT_TABLE(ko)
 #define ENABLE_FALLBACK
+#elif defined(TRANSLATIONS_AR)
+FONT_TABLE(ar)
+#define ENABLE_FALLBACK
 #elif defined(TRANSLATIONS_HE)
 FONT_TABLE(he)
 #define ENABLE_FALLBACK
@@ -208,6 +211,7 @@ extern "C" {
   };
 
 FONT_TABLE(en);
+FONT_TABLE(ar);
 FONT_TABLE(cn);
 FONT_TABLE(tw);
 FONT_TABLE(jp);
@@ -220,6 +224,7 @@ FONT_TABLE(ua);
 
 // Must match RadioLanguage order
 etxLvglFont* etxFonts[] = {
+  ar_fontTable,   // AR
   cn_fontTable,   // CN
   en_fontTable,
   en_fontTable,
@@ -242,6 +247,8 @@ etxLvglFont* etxFonts[] = {
   tw_fontTable,   // TW
   ua_fontTable,   // UA
 };
+static_assert(sizeof(etxFonts) / sizeof(etxFonts[0]) == LANG_COUNT,
+              "etxFonts[] must have one entry per RadioLanguage");
 
 etxLvglFont* fontTable = en_fontTable;
 
@@ -305,6 +312,7 @@ void initFontBuffers()
         en_fontTable[i].lvglFont = (lv_font_t*)b;
         b += BUFSIZE(en_fontTable[i].lz4Font->lvglFontBufSize);
         // All languages except EN use the same buffer for the uncompressed data (only one active)
+        ar_fontTable[i].lvglFont = (lv_font_t*)b;
         cn_fontTable[i].lvglFont = (lv_font_t*)b;
         tw_fontTable[i].lvglFont = (lv_font_t*)b;
         jp_fontTable[i].lvglFont = (lv_font_t*)b;
