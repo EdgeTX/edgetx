@@ -25,6 +25,7 @@
 #include "pulses/afhds3_config.h"
 #include "pulses/afhds3_transport.h"
 #include "sensor_names.h"
+#include "flysky_ibus.h"
 
 #define FLYSKY_TELEMETRY_LENGTH (2 + 7 * 4)
 #define ALT_PRECISION 15
@@ -156,6 +157,7 @@ enum
 
   VIRTUAL_ALT               = 0x1041,  // virtual
   VIRTUAL_REL_ALT           = 0x1141,  // virtual
+  VIRTUAL_VSPD              = 0x1241,  // virtual, derived from pressure altitude
   VIRTUAL_GPS_STAS          = 0x1040,
   VIRTUAL_GPS_TIME          = 0x1140,
   VIRTUAL_GPS_LAT           = 0x1240,
@@ -230,6 +232,7 @@ const FlySkySensor flySkySensors[] = {
   FS(IBDT_PRESSURE,              STR_SENSOR_PRES,     UNIT_RAW,     2),
   FS(VIRTUAL_ALT,                STR_SENSOR_ALT,      UNIT_METERS,  2),
   FS(VIRTUAL_REL_ALT,            "P_RH",      UNIT_METERS,  2),
+  FS(VIRTUAL_VSPD,               STR_SENSOR_VSPD, UNIT_METERS_PER_SECOND, 2),
   FS(IBDT_COMPASS,               "COMPASS",           UNIT_RAW,     2),
   FS(IBDT_IBC01,                 "IBC",               UNIT_RAW,     2),
   FS(VIRTUAL_IBC_VOLTS,          STR_SENSOR_BATT1_VOLTAGE,  UNIT_VOLTS, 1),
@@ -347,6 +350,10 @@ void processFlySkyIbus2AFHDS3Sensor(const uint8_t * packet, uint8_t len )
 
       type = VIRTUAL_ALT;
       sendFlyskytelemtry(type, id, alt);
+
+      static FlySkyVSpeed ibus2VSpeed;
+      ibus2VSpeed.update(alt, g_tmr10ms);
+      sendFlyskytelemtry(VIRTUAL_VSPD, id, ibus2VSpeed.value());
 
       pres_update_tick = timersGetMsTick();
       value &= PRESSURE_MASK;
