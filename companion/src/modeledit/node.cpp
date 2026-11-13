@@ -187,7 +187,7 @@ QVariant Node::itemChange(GraphicsItemChange change, const QVariant &value)
              newPos.setY(qMin(rect.bottom(), qMax(newPos.y(), rect.top())));// bound Y
 
              int newX = -100 + ( (newPos.x()-rect.left()) * 200) / rect.width();
-             int newY = 100+(rect.top()-y())*200/rect.height();
+             int newY = 100+(rect.top()-newPos.y())*200/rect.height();
              if (newX < minX) newX = minX;
              if (newX > maxX) newX = maxX;
 

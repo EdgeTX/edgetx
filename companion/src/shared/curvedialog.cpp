@@ -20,6 +20,7 @@
  */
 
 #include "curvedialog.h"
+#include "curveinterpolation.h"
 #include "ui_curvedialog.h"
 #include "../modeledit/node.h"
 #include "../modeledit/edge.h"
@@ -252,6 +253,7 @@ void CurveDialog::updateCurve()
   Node * nodex = 0;
 
   scene->clear();
+  smoothPath = nullptr;
 
   qreal width  = scene->sceneRect().width();
   qreal height = scene->sceneRect().height();
@@ -278,17 +280,24 @@ void CurveDialog::updateCurve()
 
   int numpoints = curve.count;
 
-  for (int i = 0; i < numpoints - 1; i++) {
-    if (curve.type == CurveData::CURVE_TYPE_CUSTOM)
-      scene->addLine(centerX + (qreal)curve.points[i].x * width / 200,
-                     centerY - (qreal)curve.points[i].y * height / 200,
-                     centerX + (qreal)curve.points[i + 1].x * width / 200,
-                     centerY - (qreal)curve.points[i + 1].y * height / 200, pen);
-    else
-      scene->addLine(GFX_MARGIN + i * width / (numpoints - 1),
-                     centerY - (qreal)curve.points[i].y * height / 200,
-                     GFX_MARGIN + (i + 1) * width / (numpoints - 1),
-                     centerY - (qreal)curve.points[i + 1].y * height / 200, pen);
+  if (curve.smooth && numpoints >= 2) {
+    smoothPath = scene->addPath(QPainterPath(), pen);
+    smoothPath->setAcceptedMouseButtons(Qt::NoButton);
+    updateSmoothCurve();
+  }
+  else {
+    for (int i = 0; i < numpoints - 1; i++) {
+      if (curve.type == CurveData::CURVE_TYPE_CUSTOM)
+        scene->addLine(centerX + (qreal)curve.points[i].x * width / 200,
+                       centerY - (qreal)curve.points[i].y * height / 200,
+                       centerX + (qreal)curve.points[i + 1].x * width / 200,
+                       centerY - (qreal)curve.points[i + 1].y * height / 200, pen);
+      else
+        scene->addLine(GFX_MARGIN + i * width / (numpoints - 1),
+                       centerY - (qreal)curve.points[i].y * height / 200,
+                       GFX_MARGIN + (i + 1) * width / (numpoints - 1),
+                       centerY - (qreal)curve.points[i + 1].y * height / 200, pen);
+    }
   }
 
   for (int i = 0; i < numpoints; i++) {
@@ -320,11 +329,35 @@ void CurveDialog::updateCurve()
     connect(nodex, SIGNAL(unfocus()), this, SLOT(onNodeUnfocus()));
     connect(nodex, SIGNAL(deleteMe()), this, SLOT(onNodeDelete()));
     scene->addItem(nodex);
-    if (i > 0)
+    if (i > 0 && !smoothPath)
       scene->addItem(new Edge(nodel, nodex));
   }
 
   lock = false;
+}
+
+void CurveDialog::updateSmoothCurve()
+{
+  if (!smoothPath)
+    return;
+
+  QRectF rect = scene->sceneRect();
+  if (rect.width() <= 0 || rect.height() <= 0)
+    return;
+
+  QPainterPath path;
+  int steps = qMax(1, int(rect.width()));
+  for (int i = 0; i <= steps; i++) {
+    qreal pixel = rect.width() * i / steps;
+    double x = -CURVE_MAX + pixel * CURVE_RANGE / rect.width();
+    QPointF point(rect.left() + pixel,
+                  rect.center().y() - hermite_spline(x, curve) * rect.height() / CURVE_RANGE);
+    if (i == 0)
+      path.moveTo(point);
+    else
+      path.lineTo(point);
+  }
+  smoothPath->setPath(path);
 }
 
 void CurveDialog::updateCurvePoints()
@@ -390,6 +423,7 @@ void CurveDialog::onNodeMoved(int x, int y)
       spnx[index - 1]->setMaximum(x);
     if (index < curve.count - 1)
       spnx[index + 1]->setMinimum(x);
+    updateSmoothCurve();
     lock = false;
   }
 }

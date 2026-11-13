@@ -20,9 +20,10 @@
  */
 
 #include "curveimage.h"
+#include "curveinterpolation.h"
 #include "curvedata.h"
 
-constexpr int IMAGE_SIZE = { 200 };
+constexpr int IMAGE_SIZE = { 200 }; // image side length in pixels
 
 CurveImage::CurveImage(QColor gridColor, qreal gridWidth):
   size(IMAGE_SIZE),
@@ -47,16 +48,28 @@ void CurveImage::drawCurve(const CurveData & curve, QColor color, qreal width)
 {
   painter.setPen(QPen(color, width, Qt::SolidLine));
 
+  if (curve.smooth && curve.count >= 2) {
+    // "smooth" curve
+    QPolygonF line;
+    for (int pixel = 0; pixel <= size; ++pixel) {
+      double x = -CURVE_MAX + pixel * double(CURVE_RANGE) / size;
+      line << QPointF(pixel, size / 2.0 - hermite_spline(x, curve) * size / CURVE_RANGE);
+    }
+    painter.drawPolyline(line);
+    return;
+  }
+
+  // polygonal curve
   for (int j = 1; j < curve.count; j++) {
     if (curve.type == CurveData::CURVE_TYPE_CUSTOM)
-      painter.drawLine(size / 2 + (size * curve.points[j - 1].x) / IMAGE_SIZE,
-                       size / 2 - (size * curve.points[j - 1].y) / IMAGE_SIZE,
-                       size / 2 + (size * curve.points[j].x) / IMAGE_SIZE,
-                       size / 2 - (size * curve.points[j].y) / IMAGE_SIZE);
+      painter.drawLine(size / 2 + (size * curve.points[j - 1].x) / CURVE_RANGE,
+                       size / 2 - (size * curve.points[j - 1].y) / CURVE_RANGE,
+                       size / 2 + (size * curve.points[j].x) / CURVE_RANGE,
+                       size / 2 - (size * curve.points[j].y) / CURVE_RANGE);
     else
       painter.drawLine(size * (j-1) / (curve.count - 1),
-                       size / 2 - (size * curve.points[j - 1].y) / IMAGE_SIZE,
+                       size / 2 - (size * curve.points[j - 1].y) / CURVE_RANGE,
                        size * (j) / (curve.count - 1),
-                       size / 2 - (size * curve.points[j].y) / IMAGE_SIZE);
+                       size / 2 - (size * curve.points[j].y) / CURVE_RANGE);
   }
 }
