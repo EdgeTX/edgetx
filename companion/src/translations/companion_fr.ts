@@ -159,17 +159,17 @@
     <message>
         <location filename="../storage/appdata.h" line="662"/>
         <source>Default</source>
-        <translation type="unfinished"></translation>
+        <translation>Défaut</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="662"/>
         <source>Left</source>
-        <translation type="unfinished"></translation>
+        <translation>Gauche</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="662"/>
         <source>Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Droit</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="663"/>
@@ -280,12 +280,12 @@
     <message>
         <location filename="../firmwares/boardjson.cpp" line="62"/>
         <source>ST</source>
-        <translation type="unfinished"></translation>
+        <translation>ST</translation>
     </message>
     <message>
         <location filename="../firmwares/boardjson.cpp" line="63"/>
         <source>TH</source>
-        <translation type="unfinished"></translation>
+        <translation>GAZ</translation>
     </message>
     <message>
         <location filename="../firmwares/boardjson.cpp" line="1114"/>
@@ -375,27 +375,27 @@ Error description: %4</source>
     <message>
         <location filename="../firmwares/boards.cpp" line="1006"/>
         <source>Pot with detent</source>
-        <translation type="unfinished">Potentiomètre avec centre</translation>
+        <translation type="unfinished">Pot. avec centre</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="430"/>
         <source>Left Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontal Gauche</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="431"/>
         <source>Left Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertical Gauche</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="432"/>
         <source>Right Vertical</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertical Droit</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="433"/>
         <source>Right Horizontal</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontal Droit</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="434"/>
@@ -564,7 +564,7 @@ Error description: %4</source>
     <message>
         <location filename="../firmwares/boards.cpp" line="976"/>
         <source>Small</source>
-        <translation type="unfinished">Petites</translation>
+        <translation>Petit</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="978"/>
@@ -574,12 +574,12 @@ Error description: %4</source>
     <message>
         <location filename="../firmwares/boards.cpp" line="1008"/>
         <source>Slider</source>
-        <translation type="unfinished"></translation>
+        <translation>Curseur</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="1010"/>
         <source>Multipos Switch</source>
-        <translation type="unfinished"></translation>
+        <translation>Inter Multi-position</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="1012"/>
@@ -594,7 +594,7 @@ Error description: %4</source>
     <message>
         <location filename="../firmwares/boards.cpp" line="1016"/>
         <source>Switch</source>
-        <translation type="unfinished"></translation>
+        <translation>Inter</translation>
     </message>
     <message>
         <location filename="../firmwares/boards.cpp" line="1237"/>
@@ -652,7 +652,7 @@ Error description: %4</source>
     <message>
         <location filename="../modeledit/channels.cpp" line="190"/>
         <source>Linear Subtrim</source>
-        <translation>Subtrim linéaire</translation>
+        <translation>Subtrim Linéaire</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="198"/>
@@ -662,7 +662,7 @@ Error description: %4</source>
     <message>
         <location filename="../modeledit/channels.cpp" line="202"/>
         <source>Popup menu available</source>
-        <translation>Menu contextuel disponible</translation>
+        <translation>Menu contextuel dispo.</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="228"/>
@@ -732,7 +732,7 @@ Error description: %4</source>
     <message>
         <location filename="../modeledit/channels.cpp" line="486"/>
         <source>Clear Channel. Are you sure?</source>
-        <translation>Effacer la Voie. Êtes-vous sûr ?</translation>
+        <translation>Effacer Voie. Êtes-vous sûr ?</translation>
     </message>
     <message>
         <location filename="../modeledit/channels.cpp" line="497"/>
@@ -848,17 +848,17 @@ Error description: %4</source>
     <message>
         <location filename="../constants.h" line="69"/>
         <source>Accept</source>
-        <translation type="unfinished"></translation>
+        <translation>Accepter</translation>
     </message>
     <message>
         <location filename="../constants.h" line="70"/>
         <source>Decline</source>
-        <translation type="unfinished"></translation>
+        <translation>Refuser</translation>
     </message>
     <message>
         <location filename="../constants.h" line="83"/>
         <source>Application Settings</source>
-        <translation>Paramètres de l&apos;application</translation>
+        <translation>Paramètres Application</translation>
     </message>
     <message>
         <location filename="../constants.h" line="72"/>
@@ -873,7 +873,7 @@ Error description: %4</source>
     <message>
         <location filename="../constants.h" line="65"/>
         <source>EdgeTX Simulator</source>
-        <translation type="unfinished"></translation>
+        <translation>Simulateur EdgeTX</translation>
     </message>
     <message>
         <location filename="../constants.h" line="73"/>
@@ -908,7 +908,7 @@ Error description: %4</source>
     <message>
         <location filename="../helpers.cpp" line="411"/>
         <source>Simulator for this firmware is not yet available</source>
-        <translation>Le simulateur n&apos;est pas encore disponible pour ce firmware</translation>
+        <translation>Le simulateur indisponible pour ce firmware</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="438"/>
@@ -918,7 +918,7 @@ Error description: %4</source>
     <message>
         <location filename="../helpers.cpp" line="447"/>
         <source>Data Load Error</source>
-        <translation type="unfinished">Erreur de lecture des données</translation>
+        <translation>Erreur lecture des Données</translation>
     </message>
     <message>
         <location filename="../helpers.cpp" line="447"/>
@@ -980,7 +980,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../companion.cpp" line="132"/>
         <source>Exit before settings initialization and application startup.</source>
-        <translation>Quitter avant l&apos;initialisation des paramètres et le démarrage de l&apos;application.</translation>
+        <translation>Quitter avant initialisation des paramètres et le démarrage de l&apos;application.</translation>
     </message>
     <message>
         <location filename="../companion.cpp" line="133"/>
@@ -1015,7 +1015,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../companion.cpp" line="199"/>
         <source>Would you like to perform a backup first?</source>
-        <translation>Voulez-vous d&apos;abord effectuer une sauvegarde?</translation>
+        <translation>Voulez-vous d&apos;abord effectuer une sauvegarde ?</translation>
     </message>
     <message>
         <location filename="../storage/appdata.h" line="60"/>
@@ -1028,7 +1028,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../print/comparedialog.ui" line="29"/>
         <source>Compare Models</source>
-        <translation>Comparer les modèles</translation>
+        <translation>Comparer Modèles</translation>
     </message>
     <message>
         <location filename="../print/comparedialog.ui" line="44"/>
@@ -1073,7 +1073,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../print/comparedialog.cpp" line="180"/>
         <source>Select PDF output file</source>
-        <translation>Choisir le fichier PDF de sortie</translation>
+        <translation>Choisir un fichier PDF de sortie</translation>
     </message>
 </context>
 <context>
@@ -1107,7 +1107,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../flash/process_copy.cpp" line="72"/>
         <source>Write error</source>
-        <translation>Erreur d&apos;écriture</translation>
+        <translation>Erreur écriture</translation>
     </message>
     <message>
         <location filename="../flash/process_copy.cpp" line="80"/>
@@ -1125,7 +1125,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../firmwares/curvedata.cpp" line="63"/>
         <source>CV</source>
-        <translation>CB</translation>
+        <translation>CV</translation>
     </message>
     <message>
         <location filename="../firmwares/curvedata.cpp" line="76"/>
@@ -1135,7 +1135,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../firmwares/curvedata.cpp" line="78"/>
         <source>Custom</source>
-        <translation type="unfinished">Prédéfini</translation>
+        <translation>Personnalisé</translation>
     </message>
     <message>
         <location filename="../firmwares/curvedata.cpp" line="128"/>
@@ -1158,7 +1158,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../shared/curvedialog.ui" line="93"/>
         <source>Smooth</source>
-        <translation type="unfinished">Adoucie</translation>
+        <translation>Adouci</translation>
     </message>
     <message>
         <location filename="../shared/curvedialog.ui" line="142"/>
@@ -1279,7 +1279,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../firmwares/curvereference.cpp" line="90"/>
         <source>Custom</source>
-        <translation type="unfinished">Prédéfini</translation>
+        <translation>Personnalisé</translation>
     </message>
 </context>
 <context>
@@ -1318,12 +1318,12 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../modeledit/curves.cpp" line="97"/>
         <source>Smooth:</source>
-        <translation>Adoucie:</translation>
+        <translation>Adouci:</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="180"/>
         <source>Add</source>
-        <translation type="unfinished">Addition</translation>
+        <translation>Ajouter</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="181"/>
@@ -1378,7 +1378,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../modeledit/curves.cpp" line="233"/>
         <source>Clear curve %1:%2. Are you sure?</source>
-        <translation type="unfinished">Effacer la courbe %1 : %2. Etes-vous sûr ?</translation>
+        <translation>Effacer Courbe %1 : %2. Etes-vous sûr ?</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="246"/>
@@ -1388,12 +1388,12 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../modeledit/curves.cpp" line="270"/>
         <source>Cut curve %1:%2. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Couper Courbe %1 : %2. Etes-vous sûr ?</translation>
     </message>
     <message>
         <location filename="../modeledit/curves.cpp" line="278"/>
         <source>Delete curve %1:%2. Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>Supprimer Courbe %1 : %2. Etes-vous sûr ?</translation>
     </message>
 </context>
 <context>
@@ -1416,27 +1416,27 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="70"/>
         <source>Trainer RUD</source>
-        <translation>Écolage Direction</translation>
+        <translation>Écolage DIR.</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="72"/>
         <source>Trainer ELE</source>
-        <translation>Écolage Profondeur</translation>
+        <translation>Écolage PROF.</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="74"/>
         <source>Trainer THR</source>
-        <translation>Écolage Gaz</translation>
+        <translation>Écolage GAZ</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="76"/>
         <source>Trainer AIL</source>
-        <translation>Écolage Ailerons</translation>
+        <translation>Écolage AIL.</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="78"/>
         <source>Trainer Channels</source>
-        <translation>Canaux d&apos;Écolage</translation>
+        <translation>Voies Écolage</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="80"/>
@@ -1496,7 +1496,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="122"/>
         <source>Racing Mode</source>
-        <translation>Mode Course/Racing</translation>
+        <translation>Mode Racing</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="124"/>
@@ -1511,7 +1511,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="128"/>
         <source>Set Main Screen</source>
-        <translation>Définir écran principal</translation>
+        <translation>Définir Ecran principal</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="130"/>
@@ -1531,7 +1531,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="137"/>
         <source>Push Custom Switch %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Appui Inter personnalisé %1</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="226"/>
@@ -1652,7 +1652,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="383"/>
         <source>Source (value)</source>
-        <translation type="unfinished"></translation>
+        <translation>Source (valeur)</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="385"/>
@@ -1692,17 +1692,17 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="104"/>
         <source>Screenshot</source>
-        <translation>Capture d&apos;écran</translation>
+        <translation>Capture Ecran</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="106"/>
         <source>Background Music</source>
-        <translation>Musique de fond</translation>
+        <translation>Musique de Fond</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="108"/>
         <source>Background Music Pause</source>
-        <translation>Pause musique de fond</translation>
+        <translation>Pause Musique de Fond</translation>
     </message>
     <message>
         <location filename="../firmwares/customfunctiondata.cpp" line="110"/>
@@ -1780,12 +1780,12 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../modeledit/customfunctions.cpp" line="111"/>
         <source>Repeat</source>
-        <translation type="unfinished"></translation>
+        <translation>Répéter</translation>
     </message>
     <message>
         <location filename="../modeledit/customfunctions.cpp" line="111"/>
         <source>Enable</source>
-        <translation type="unfinished">Actif</translation>
+        <translation>Activer</translation>
     </message>
     <message>
         <location filename="../modeledit/customfunctions.cpp" line="118"/>
@@ -1795,7 +1795,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../modeledit/customfunctions.cpp" line="122"/>
         <source>SF%1</source>
-        <translation>FS%1</translation>
+        <translation>SF%1</translation>
     </message>
     <message>
         <location filename="../modeledit/customfunctions.cpp" line="124"/>
@@ -1821,12 +1821,12 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../modeledit/customfunctions.cpp" line="605"/>
         <source>Delete Function. Are you sure?</source>
-        <translation>Supprimer la Fonction. Êtes-vous sûr ?</translation>
+        <translation>Supprimer Fonction. Êtes-vous sûr ?</translation>
     </message>
     <message>
         <location filename="../modeledit/customfunctions.cpp" line="628"/>
         <source>Cut Special Function. Are you sure?</source>
-        <translation>Couper la Fonction. Êtes-vous sûr ?</translation>
+        <translation>Couper Fonction. Êtes-vous sûr ?</translation>
     </message>
     <message>
         <location filename="../modeledit/customfunctions.cpp" line="641"/>
@@ -1894,7 +1894,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../modeledit/telemetry_customscreens.cpp" line="98"/>
         <source>Numbers</source>
-        <translation type="unfinished">Chiffres</translation>
+        <translation>Nombres</translation>
     </message>
     <message>
         <location filename="../modeledit/telemetry_customscreens.cpp" line="99"/>
@@ -1960,7 +1960,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../flash/customizesplashdialog.ui" line="23"/>
         <source>Transmitter Splash Screen Editor</source>
-        <translation>Éditeur d&apos;écran d&apos;accueil</translation>
+        <translation>Éditeur Ecran Accueil</translation>
     </message>
     <message>
         <location filename="../flash/customizesplashdialog.ui" line="209"/>
@@ -1972,19 +1972,19 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
         <location filename="../flash/customizesplashdialog.ui" line="272"/>
         <location filename="../flash/customizesplashdialog.ui" line="583"/>
         <source>Load FW</source>
-        <translation>Ouvrir le firmware</translation>
+        <translation>Charger firmware</translation>
     </message>
     <message>
         <location filename="../flash/customizesplashdialog.ui" line="282"/>
         <location filename="../flash/customizesplashdialog.ui" line="593"/>
         <source>Load Pict</source>
-        <translation>Ouvrir l&apos;image</translation>
+        <translation>Charger Image</translation>
     </message>
     <message>
         <location filename="../flash/customizesplashdialog.ui" line="262"/>
         <location filename="../flash/customizesplashdialog.ui" line="570"/>
         <source>Load Profile</source>
-        <translation>Charger le profil</translation>
+        <translation>Charger Profil</translation>
     </message>
     <message>
         <location filename="../flash/customizesplashdialog.ui" line="308"/>
@@ -2019,12 +2019,12 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../flash/customizesplashdialog.cpp" line="106"/>
         <source>Profile image</source>
-        <translation>Image du profil</translation>
+        <translation>Image Profil</translation>
     </message>
     <message>
         <location filename="../flash/customizesplashdialog.cpp" line="209"/>
         <source>Open Firmware File</source>
-        <translation>Sélectionner le firmware</translation>
+        <translation>Sélectionner le Firmware</translation>
     </message>
     <message>
         <location filename="../flash/customizesplashdialog.cpp" line="212"/>
@@ -2034,7 +2034,7 @@ Voulez-vous importer les paramètres depuis un fichier ?</translation>
     <message>
         <location filename="../flash/customizesplashdialog.cpp" line="228"/>
         <source>Open Image to load</source>
-        <translation>Ouvrir l&apos;image à charger</translation>
+        <translation>Ouvrir Image à charger</translation>
     </message>
     <message>
         <location filename="../flash/customizesplashdialog.cpp" line="228"/>
@@ -2245,7 +2245,7 @@ Pour &lt;b&gt;retirer un filtre de l&apos;historique&lt;/b&gt;, sélectionnez-le
     <message>
         <location filename="../simulation/debugoutput.cpp" line="293"/>
         <source>Debug Console Filter Help</source>
-        <translation>Aide sur les filtres pour la console de débogage</translation>
+        <translation>Aide sur les filtres pour console de débogage</translation>
     </message>
 </context>
 <context>
@@ -2469,7 +2469,7 @@ Pour &lt;b&gt;retirer un filtre de l&apos;historique&lt;/b&gt;, sélectionnez-le
     <message>
         <location filename="../modeledit/expodialog.ui" line="517"/>
         <source>ALL</source>
-        <translation>Les 2</translation>
+        <translation>Tout</translation>
     </message>
     <message>
         <location filename="../modeledit/expodialog.cpp" line="52"/>
@@ -2535,12 +2535,12 @@ Pour &lt;b&gt;retirer un filtre de l&apos;historique&lt;/b&gt;, sélectionnez-le
     <message>
         <location filename="../dialogs/filesyncdialog.cpp" line="127"/>
         <source>Folder A</source>
-        <translation type="unfinished"></translation>
+        <translation>Répertoire A</translation>
     </message>
     <message>
         <location filename="../dialogs/filesyncdialog.cpp" line="128"/>
         <source>Folder B</source>
-        <translation type="unfinished"></translation>
+        <translation>Répertoire B</translation>
     </message>
     <message>
         <location filename="../dialogs/filesyncdialog.cpp" line="151"/>
@@ -2602,12 +2602,12 @@ ATTENTION: un taux de rapport élevé peut rendre l&apos;interface utilisateur t
     <message>
         <location filename="../dialogs/filesyncdialog.cpp" line="173"/>
         <source>Errors Only</source>
-        <translation>Erreur seulement</translation>
+        <translation>Erreurs seulement</translation>
     </message>
     <message>
         <location filename="../dialogs/filesyncdialog.cpp" line="176"/>
         <source>Test-run only</source>
-        <translation>Essai</translation>
+        <translation>Essai seulement</translation>
     </message>
     <message>
         <location filename="../dialogs/filesyncdialog.cpp" line="177"/>
@@ -2768,12 +2768,12 @@ Blanc signifie &quot;inclure tous&quot;.Les métacaractères ?, * et [...] sont 
         <location filename="../dialogs/filesyncdialog.cpp" line="490"/>
         <location filename="../dialogs/filesyncdialog.cpp" line="492"/>
         <source>%1 not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 non trouvé.</translation>
     </message>
     <message>
         <location filename="../dialogs/filesyncdialog.cpp" line="494"/>
         <source>Folders are the same.</source>
-        <translation type="unfinished"></translation>
+        <translation>Répertoire identique</translation>
     </message>
     <message>
         <location filename="../dialogs/filesyncdialog.cpp" line="512"/>
@@ -3198,7 +3198,7 @@ Blanc signifie &quot;inclure tous&quot;.Les métacaractères ?, * et [...] sont 
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="514"/>
         <source>Confirmation before radio shutdown</source>
-        <translation>Confirmation avant l&apos;arrêt de la radio</translation>
+        <translation>Confirmation avant arrêt de la radio</translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="515"/>
@@ -3250,7 +3250,7 @@ Blanc signifie &quot;inclure tous&quot;.Les métacaractères ?, * et [...] sont 
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="315"/>
         <source>Enable non certified firmwares</source>
-        <translation>Activer les firmwares non certifiés</translation>
+        <translation>Activer firmwares non certifiés</translation>
     </message>
     <message>
         <location filename="../firmwares/opentx/opentxinterface.cpp" line="316"/>
@@ -3559,17 +3559,17 @@ Blanc signifie &quot;inclure tous&quot;.Les métacaractères ?, * et [...] sont 
     <message>
         <location filename="../flash/flashfirmwaredialog.ui" line="200"/>
         <source>Use profile start screen</source>
-        <translation>Utiliser l&apos;écran d&apos;accueil du profil</translation>
+        <translation>Utiliser écran d&apos;accueil du profil</translation>
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.ui" line="207"/>
         <source>Use firmware start screen</source>
-        <translation>Utiliser l&apos;écran d&apos;accueil du firmware</translation>
+        <translation>Utiliser écran d&apos;accueil du firmware</translation>
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.ui" line="214"/>
         <source>Use library start screen</source>
-        <translation>Utiliser un écran d&apos;accueil de la bibliothèque</translation>
+        <translation>Utiliser écran accueil de la bibliothèque</translation>
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.ui" line="221"/>
@@ -3598,7 +3598,7 @@ Blanc signifie &quot;inclure tous&quot;.Les métacaractères ?, * et [...] sont 
         <location filename="../flash/flashfirmwaredialog.cpp" line="180"/>
         <location filename="../flash/flashfirmwaredialog.cpp" line="192"/>
         <source>Open Firmware File</source>
-        <translation>Sélectionner le firmware</translation>
+        <translation>Sélectionner firmware</translation>
     </message>
     <message>
         <location filename="../flash/flashfirmwaredialog.cpp" line="181"/>
@@ -4059,7 +4059,7 @@ Incompatability - File: &apos;%2&apos; Profile: &apos;%3&apos;</source>
     <message>
         <location filename="../modeledit/setup_function_switches.ui" line="96"/>
         <source>Group</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Grouper</translation>
     </message>
     <message>
         <location filename="../modeledit/setup_function_switches.ui" line="128"/>
@@ -4069,7 +4069,7 @@ Incompatability - File: &apos;%2&apos; Profile: &apos;%3&apos;</source>
     <message>
         <location filename="../modeledit/setup_function_switches.ui" line="150"/>
         <source>Always On</source>
-        <translation type="unfinished"></translation>
+        <translation>Toujours actif</translation>
     </message>
 </context>
 <context>
@@ -4212,7 +4212,7 @@ Incompatability - File: &apos;%2&apos; Profile: &apos;%3&apos;</source>
         <location filename="../generaledit/generaledit.ui" line="35"/>
         <source>General settings used throught the transmitter.
 These will be relevant for all models in the same EEPROM.</source>
-        <translation>Paramètres généraux de l&apos;émetteur.
+        <translation>Paramètres généraux Emetteur.
 Communs à tous les modèles d&apos;une même EEPROM.</translation>
     </message>
     <message>
@@ -4362,7 +4362,7 @@ Are you sure?</source>
     <message>
         <location filename="../generaledit/generaloptions.cpp" line="37"/>
         <source>Radio Menus</source>
-        <translation type="unfinished"></translation>
+        <translation>Menus Radio</translation>
     </message>
     <message>
         <location filename="../generaledit/generaloptions.cpp" line="40"/>
@@ -4382,7 +4382,7 @@ Are you sure?</source>
     <message>
         <location filename="../generaledit/generaloptions.cpp" line="61"/>
         <source>Model Menus</source>
-        <translation type="unfinished"></translation>
+        <translation>Menus Modèles</translation>
     </message>
     <message>
         <location filename="../generaledit/generaloptions.cpp" line="64"/>
@@ -4422,7 +4422,7 @@ Are you sure?</source>
     <message>
         <location filename="../generaledit/generaloptions.cpp" line="109"/>
         <source>Telemetry</source>
-        <translation type="unfinished"></translation>
+        <translation>Télémétrie</translation>
     </message>
 </context>
 <context>
@@ -4430,7 +4430,7 @@ Are you sure?</source>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="336"/>
         <source>Radio Settings</source>
-        <translation>Paramètres de la radio</translation>
+        <translation>Paramètres Radio</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="338"/>
@@ -4440,7 +4440,7 @@ Are you sure?</source>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="339"/>
         <source>Internal Module</source>
-        <translation type="unfinished"></translation>
+        <translation>Module Interne</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="354"/>
@@ -4450,7 +4450,7 @@ Are you sure?</source>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="359"/>
         <source>Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Axes</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="359"/>
@@ -4460,25 +4460,25 @@ Are you sure?</source>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="388"/>
         <source>Switches</source>
-        <translation type="unfinished"></translation>
+        <translation>Inters</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="393"/>
         <location filename="../firmwares/generalsettings.cpp" line="405"/>
         <source>Flex Switch</source>
-        <translation type="unfinished"></translation>
+        <translation>Inters Flex.</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="394"/>
         <location filename="../firmwares/generalsettings.cpp" line="406"/>
         <source>Function Switch</source>
-        <translation type="unfinished"></translation>
+        <translation>Fonction Inter</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="394"/>
         <location filename="../firmwares/generalsettings.cpp" line="406"/>
         <source>Switch</source>
-        <translation type="unfinished"></translation>
+        <translation>Inter</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="423"/>
@@ -4536,7 +4536,7 @@ Are you sure?</source>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="506"/>
         <source>Telemetry</source>
-        <translation type="unfinished"></translation>
+        <translation>Télémétrie</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="508"/>
@@ -4546,7 +4546,7 @@ Are you sure?</source>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="521"/>
         <source>Telemetry Mirror</source>
-        <translation type="unfinished"></translation>
+        <translation>Miroir Télémétrie</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="523"/>
@@ -4586,7 +4586,7 @@ Are you sure?</source>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="537"/>
         <source>External module</source>
-        <translation type="unfinished"></translation>
+        <translation>Module Externe</translation>
     </message>
     <message>
         <location filename="../firmwares/generalsettings.cpp" line="570"/>
@@ -4884,12 +4884,12 @@ Are you sure?</source>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1383"/>
         <source>Voice Language</source>
-        <translation>Langue des voix</translation>
+        <translation>Langue Voix</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1789"/>
         <source>Country Code</source>
-        <translation>Zone géographique RF</translation>
+        <translation>Zone Géographique RF</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1415"/>
@@ -4904,13 +4904,13 @@ Are you sure?</source>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1560"/>
         <source>Vario pitch at max</source>
-        <translation>Tonalité du vario au max</translation>
+        <translation>Tonalité vario au max</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1390"/>
         <location filename="../generaledit/generalsetup.ui" line="1897"/>
         <source> Hz</source>
-        <translation></translation>
+        <translation>Hz</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1622"/>
@@ -4920,7 +4920,7 @@ Are you sure?</source>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1862"/>
         <source>Backlight Switch</source>
-        <translation>Inter de rétroéclairage</translation>
+        <translation>Inter Rétroéclairage</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1631"/>
@@ -4940,17 +4940,17 @@ Are you sure?</source>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1469"/>
         <source>If this value is not 0, any keypress will turn on the backlight and turn it off after the specified number of seconds.</source>
-        <translation>Si cette valeur est différente de 0, l&apos;appui sur une touche de navigation déclenche le rétroéclairage qui s&apos;éteint après la durée spécifiée (en secondes).</translation>
+        <translation>Si valeur différente de 0, l&apos;appui sur une touche de navigation déclenche le rétroéclairage qui s&apos;éteint après la durée spécifiée (en secondes).</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1472"/>
         <source> sec</source>
-        <translation></translation>
+        <translation>sec</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1796"/>
         <source>Backlight color</source>
-        <translation>Couleur du rétroéclairage</translation>
+        <translation>Couleur Rétroéclairage</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1664"/>
@@ -4960,23 +4960,23 @@ Are you sure?</source>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1671"/>
         <source>Wav volume</source>
-        <translation>Volume des fichiers audio</translation>
+        <translation>Volume fichiers audio</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1376"/>
         <source>Vario volume</source>
-        <translation>Volume du variomètre</translation>
+        <translation>Volume Variomètre</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1436"/>
         <source>Background volume</source>
-        <translation>Volume de la musique d&apos;ambiance</translation>
+        <translation>Volume Musique d&apos;ambiance</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="662"/>
         <location filename="../generaledit/generalsetup.ui" line="1923"/>
         <source> ms</source>
-        <translation></translation>
+        <translation>ms</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1678"/>
@@ -4991,12 +4991,12 @@ Are you sure?</source>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1429"/>
         <source>Vario pitch at zero</source>
-        <translation>Tonalité du vario à 0</translation>
+        <translation>Tonalité Vario à 0</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1782"/>
         <source>Vario repeat at zero</source>
-        <translation>Répétition du vario à 0</translation>
+        <translation>Répétition Vario à 0</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1491"/>
@@ -5008,12 +5008,12 @@ Are you sure?</source>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1422"/>
         <source>Backlight Brightness</source>
-        <translation>Luminosité du rétroéclairage</translation>
+        <translation>Luminosité Rétroéclairage</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1586"/>
         <source>Automatically adjust the radio&apos;s clock if a GPS is connected to telemetry.</source>
-        <translation>Régle automatique l&apos;heure de la radio si un GPS est présent.</translation>
+        <translation>Règle automatiquement l&apos;heure radio si un GPS est présent.</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1834"/>
@@ -5028,7 +5028,7 @@ Are you sure?</source>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1844"/>
         <source>Europe</source>
-        <translation></translation>
+        <translation>Europe</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1553"/>
@@ -5089,17 +5089,17 @@ Mode 4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1520"/>
         <source>Owner Registration ID</source>
-        <translation>Enregistrement ID du propriétaire</translation>
+        <translation>Enregistrement ID Propriétaire</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1803"/>
         <source>Keys Backlight</source>
-        <translation>Rétroéclairage des touches</translation>
+        <translation>Rétroéclairage Touches</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1503"/>
         <source>Rotary Encoder Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode Encodage</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1883"/>
@@ -5164,12 +5164,12 @@ Mode 4:
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1870"/>
         <source>Multi select</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélection Multiple</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1875"/>
         <source>Single select</source>
-        <translation type="unfinished"></translation>
+        <translation>Sélection Simple</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1946"/>
@@ -5205,12 +5205,12 @@ Plage de valeurs: 3v...12v</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="359"/>
         <source>Play Startup Sound</source>
-        <translation type="unfinished"></translation>
+        <translation>Jouer Son de démarrage</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="512"/>
         <source>PPM Units</source>
-        <translation type="unfinished"></translation>
+        <translation>Unités PPM</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="398"/>
@@ -5231,7 +5231,7 @@ Plage de valeurs: 3v...12v</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="627"/>
         <source>Power Off Delay</source>
-        <translation>Délai mise hors tension</translation>
+        <translation>Délai mise Hors Tension</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="853"/>
@@ -5282,7 +5282,7 @@ Plage de valeurs: 3v...12v</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="352"/>
         <source>Stick Mode</source>
-        <translation>Mode</translation>
+        <translation>Mode Manches</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="339"/>
@@ -5297,7 +5297,7 @@ Plage de valeurs: 3v...12v</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1317"/>
         <source>Default Channel Order</source>
-        <translation>Ordre des voies par défaut</translation>
+        <translation>Ordre Voies par défaut</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="846"/>
@@ -5348,12 +5348,12 @@ Plage de valeurs: 3v...12v</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="57"/>
         <source>Battery Meter Range</source>
-        <translation>Plage de l&apos;indicateur de batterie</translation>
+        <translation>Plage de niveau Batterie</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1090"/>
         <source>Haptic Strength</source>
-        <translation>Puissance vibreur</translation>
+        <translation>Puissance Vibreur</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="391"/>
@@ -5363,7 +5363,7 @@ Plage de valeurs: 3v...12v</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="146"/>
         <source>Battery Warning</source>
-        <translation>Alerte batterie</translation>
+        <translation>Alerte Batterie</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="968"/>
@@ -5379,12 +5379,12 @@ Plage de valeurs: 3v...12v</translation>
         <location filename="../generaledit/generalsetup.ui" line="77"/>
         <location filename="../generaledit/generalsetup.ui" line="747"/>
         <source>Quiet</source>
-        <translation>Mode silencieux</translation>
+        <translation>Mode Silencieux</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="82"/>
         <source>Only Alarms</source>
-        <translation>Seulement les alarmes</translation>
+        <translation>Seulement les Alarmes</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="87"/>
@@ -5401,7 +5401,7 @@ Plage de valeurs: 3v...12v</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="118"/>
         <source>If not zero will sound beeps if the transmitter has been left without inputs for the specified number of minutes.</source>
-        <translation>Si différent de 0, émission d&apos;un bip sonore régulier si aucune action n&apos;a été effectuée sur l&apos;émetteur depuis le temps spécifié (en minutes).
+        <translation>Si différent de 0, émission d&apos;un bip sonore si aucune action n&apos;a été effectuée sur l&apos;émetteur depuis le temps spécifié (en minutes).
 Réinitialisation en agissant sur n&apos;importe lequel des manches / touches de navigation.</translation>
     </message>
     <message>
@@ -5452,39 +5452,39 @@ Réinitialisation en agissant sur n&apos;importe lequel des manches / touches de
         <location filename="../generaledit/generalsetup.ui" line="579"/>
         <location filename="../generaledit/generalsetup.ui" line="1126"/>
         <source>2s</source>
-        <translation></translation>
+        <translation>2s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="277"/>
         <location filename="../generaledit/generalsetup.ui" line="584"/>
         <location filename="../generaledit/generalsetup.ui" line="1131"/>
         <source>3s</source>
-        <translation></translation>
+        <translation>3s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="282"/>
         <source>4s</source>
-        <translation></translation>
+        <translation>4s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="287"/>
         <source>6s</source>
-        <translation></translation>
+        <translation>6s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="292"/>
         <source>8s</source>
-        <translation></translation>
+        <translation>8s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="297"/>
         <source>10s</source>
-        <translation></translation>
+        <translation>10s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="302"/>
         <source>15s</source>
-        <translation></translation>
+        <translation>15s</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="312"/>
@@ -5494,7 +5494,7 @@ Réinitialisation en agissant sur n&apos;importe lequel des manches / touches de
     <message>
         <location filename="../generaledit/generalsetup.ui" line="251"/>
         <source>Power ON/OFF Haptic</source>
-        <translation type="unfinished"></translation>
+        <translation>Vibreur ON/OFF</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="520"/>
@@ -5544,7 +5544,7 @@ Réinitialisation en agissant sur n&apos;importe lequel des manches / touches de
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1139"/>
         <source>Power Auto Off</source>
-        <translation type="unfinished"></translation>
+        <translation>Extinction Auto Off</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1990"/>
@@ -5652,22 +5652,22 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../generaledit/generalsetup.ui" line="1304"/>
         <source>Measurement Units</source>
-        <translation>Unités de mesure</translation>
+        <translation>Unités de Mesure</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="712"/>
         <source>Haptic Mode</source>
-        <translation>Mode du vibreur</translation>
+        <translation>Mode Vibreur</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="646"/>
         <source>Beeper Length</source>
-        <translation>Durée des bips</translation>
+        <translation>Durée des Bips</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="449"/>
         <source>Beeper Mode</source>
-        <translation>Paramètre des bips</translation>
+        <translation>Paramètre des Bips</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="737"/>
@@ -5689,7 +5689,7 @@ Extra long : bips extra longs.</translation>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="752"/>
         <source>Alarms Only</source>
-        <translation>Seulement les Alarmes</translation>
+        <translation>Seulement Alarmes</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.ui" line="574"/>
@@ -5725,17 +5725,17 @@ Extra long : bips extra longs.</translation>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="615"/>
         <source>Inverted</source>
-        <translation type="unfinished"></translation>
+        <translation>Inversé</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="615"/>
         <source>Vertical Inverted, Horizontal Normal</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertical Inversé, Horizontal Normal</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="615"/>
         <source>Vertical Inverted, Horizontal Alternate</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertical Inversé, Horizontal Alternat.</translation>
     </message>
     <message>
         <location filename="../generaledit/generalsetup.cpp" line="615"/>
@@ -5907,7 +5907,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../generaledit/hardware.cpp" line="102"/>
         <source>Dead zone</source>
-        <translation type="unfinished"></translation>
+        <translation>Zone morte</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="111"/>
@@ -5932,7 +5932,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../generaledit/hardware.cpp" line="145"/>
         <source>Switches</source>
-        <translation type="unfinished"></translation>
+        <translation>Inters</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="163"/>
@@ -5973,7 +5973,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../generaledit/hardware.cpp" line="207"/>
         <source>RTC Battery Check</source>
-        <translation type="unfinished"></translation>
+        <translation>Contrôle pile RTC</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="229"/>
@@ -6034,7 +6034,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../generaledit/hardware.cpp" line="88"/>
         <source>Axis</source>
-        <translation type="unfinished"></translation>
+        <translation>Axes</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="221"/>
@@ -6044,7 +6044,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../generaledit/hardware.cpp" line="260"/>
         <source>Internal RF</source>
-        <translation type="unfinished"></translation>
+        <translation>Module RF interne</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="135"/>
@@ -6072,12 +6072,12 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../generaledit/hardware.cpp" line="284"/>
         <source>Antenna:</source>
-        <translation type="unfinished"></translation>
+        <translation>Antenne:</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="301"/>
         <source>External RF</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Module RF externe</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="320"/>
@@ -6092,12 +6092,12 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../generaledit/hardware.cpp" line="370"/>
         <source>S.Port Power</source>
-        <translation type="unfinished">Alimentation S.Port</translation>
+        <translation type="unfinished">Alim. S.Port</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="378"/>
         <source>Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Ecran</translation>
     </message>
     <message>
         <location filename="../generaledit/hardware.cpp" line="94"/>
@@ -6118,17 +6118,17 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../modeledit/heli.ui" line="54"/>
         <source>Invert Elevator</source>
-        <translation>Profondeur</translation>
+        <translation>Inverser Profondeur</translation>
     </message>
     <message>
         <location filename="../modeledit/heli.ui" line="61"/>
         <source>Invert Aileron</source>
-        <translation>Aileron</translation>
+        <translation>Inverser Aileron</translation>
     </message>
     <message>
         <location filename="../modeledit/heli.ui" line="68"/>
         <source>Invert Collective</source>
-        <translation>Pas collectif</translation>
+        <translation>Inverser Pas Collectif</translation>
     </message>
     <message>
         <location filename="../modeledit/heli.ui" line="103"/>
@@ -6138,7 +6138,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../modeledit/heli.ui" line="24"/>
         <source>Off</source>
-        <translation>Aucun</translation>
+        <translation>Eteint</translation>
     </message>
     <message>
         <location filename="../modeledit/heli.ui" line="29"/>
@@ -6163,22 +6163,22 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../modeledit/heli.ui" line="77"/>
         <source>Long. cyc</source>
-        <translation>Cyclique longitudinal</translation>
+        <translation>Cycl. long.</translation>
     </message>
     <message>
         <location filename="../modeledit/heli.ui" line="166"/>
         <source>Lateral cyc</source>
-        <translation>Cyclique latéral</translation>
+        <translation>Cycl. lat.</translation>
     </message>
     <message>
         <location filename="../modeledit/heli.ui" line="231"/>
         <source>Collective</source>
-        <translation>Source du pas collectif</translation>
+        <translation>Source Pas Collectif</translation>
     </message>
     <message>
         <location filename="../modeledit/heli.ui" line="130"/>
         <source>Swash Type</source>
-        <translation>Type de plateau cyclique</translation>
+        <translation>Type Plateau Cycl.</translation>
     </message>
     <message>
         <location filename="../modeledit/heli.ui" line="123"/>
@@ -6196,17 +6196,17 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../wizard/wizarddialog.cpp" line="892"/>
         <source>Yaw Channel:</source>
-        <translation>Voie du lacet:</translation>
+        <translation>Voie Lacet:</translation>
     </message>
     <message>
         <location filename="../wizard/wizarddialog.cpp" line="894"/>
         <source>Pitch Channel:</source>
-        <translation>Voie du tangage:</translation>
+        <translation>Voie Tangage:</translation>
     </message>
     <message>
         <location filename="../wizard/wizarddialog.cpp" line="896"/>
         <source>Roll Channel:</source>
-        <translation>Voie du roulis:</translation>
+        <translation>Voie Roulis:</translation>
     </message>
 </context>
 <context>
@@ -6248,22 +6248,22 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../modeledit/inputs.cpp" line="56"/>
         <source>Clear All Inputs</source>
-        <translation>Effacer toutes les entrées</translation>
+        <translation>Effacer toutes Entrées</translation>
     </message>
     <message>
         <location filename="../modeledit/inputs.cpp" line="162"/>
         <source>Not enough available Inputs!</source>
-        <translation>Pas assez d&apos;Entrées disponibles!</translation>
+        <translation>Pas assez d&apos;Entrées dispo !</translation>
     </message>
     <message>
         <location filename="../modeledit/inputs.cpp" line="248"/>
         <source>Delete selected Input lines. Are you sure?</source>
-        <translation>Supprimer les lignes Entrée sélectionnées. Êtes-vous sûr?</translation>
+        <translation>Supprimer lignes Entrée sélectionnées. Êtes-vous sûr?</translation>
     </message>
     <message>
         <location filename="../modeledit/inputs.cpp" line="260"/>
         <source>Cut selected Input lines. Are you sure?</source>
-        <translation>Couper les lignes Entrée sélectionnées. Êtes-vous sûr?</translation>
+        <translation>Couper lignes Entrée sélectionnées. Êtes-vous sûr?</translation>
     </message>
     <message>
         <location filename="../modeledit/inputs.cpp" line="418"/>
@@ -6397,12 +6397,12 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../datamodels/labels.cpp" line="176"/>
         <source>Labels</source>
-        <translation type="unfinished"></translation>
+        <translation>Etiquettes</translation>
     </message>
     <message>
         <location filename="../datamodels/labels.cpp" line="190"/>
         <source>New%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Nouveau%1</translation>
     </message>
     <message>
         <location filename="../datamodels/labels.cpp" line="192"/>
@@ -6541,7 +6541,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../firmwares/logicalswitchdata.cpp" line="107"/>
         <source>Edge</source>
-        <translation>Flanc</translation>
+        <translation>Edge</translation>
     </message>
     <message>
         <location filename="../firmwares/logicalswitchdata.cpp" line="109"/>
@@ -6556,7 +6556,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../firmwares/logicalswitchdata.cpp" line="120"/>
         <source>LSW</source>
-        <translation>IL</translation>
+        <translation>LSW</translation>
     </message>
 </context>
 <context>
@@ -6589,7 +6589,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../modeledit/logicalswitches.cpp" line="45"/>
         <source>AND Switch</source>
-        <translation>ET supplémentaire</translation>
+        <translation>ET Inter</translation>
     </message>
     <message>
         <location filename="../modeledit/logicalswitches.cpp" line="46"/>
@@ -6599,7 +6599,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../modeledit/logicalswitches.cpp" line="57"/>
         <source>Popup menu available</source>
-        <translation>Menu contextuel disponible</translation>
+        <translation>Menu contextuel dispo.</translation>
     </message>
     <message>
         <location filename="../modeledit/logicalswitches.cpp" line="110"/>
@@ -6619,12 +6619,12 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../modeledit/logicalswitches.cpp" line="533"/>
         <source>Delete Logical Switch. Are you sure?</source>
-        <translation>Supprimer l&apos;Interrupteur Logique. Êtes-vous sûr?</translation>
+        <translation>Supprimer Interrupteur Logique. Êtes-vous sûr?</translation>
     </message>
     <message>
         <location filename="../modeledit/logicalswitches.cpp" line="556"/>
         <source>Cut Logical Switch. Are you sure?</source>
-        <translation>Couper l&apos;Interrupteur Logique. Êtes-vous sûr?</translation>
+        <translation>Couper Interrupteur Logique. Êtes-vous sûr?</translation>
     </message>
     <message>
         <location filename="../modeledit/logicalswitches.cpp" line="569"/>
@@ -6674,12 +6674,12 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../modeledit/logicalswitches.cpp" line="624"/>
         <source>Clear Logical Switch. Are you sure?</source>
-        <translation>Effacer l&apos;Interrupteur Logique. Êtes-vous sûr?</translation>
+        <translation>Effacer Interrupteur Logique. Êtes-vous sûr?</translation>
     </message>
     <message>
         <location filename="../modeledit/logicalswitches.cpp" line="637"/>
         <source>Clear all Logical Switches. Are you sure?</source>
-        <translation>Effacer tous les Interrupteurs Logiques. Êtes-vous sûr?</translation>
+        <translation>Effacer tous les Inters Logiques. Êtes-vous sûr?</translation>
     </message>
 </context>
 <context>
@@ -6702,7 +6702,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../logsdialog.ui" line="275"/>
         <source>Open LogFile</source>
-        <translation>Ouvrir fichier de Log</translation>
+        <translation>Ouvrir fichier Log</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="152"/>
@@ -6712,7 +6712,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../logsdialog.ui" line="42"/>
         <source>Save session CSV</source>
-        <translation>Sauvegarder la session CSV</translation>
+        <translation>Sauv. session CSV</translation>
     </message>
     <message>
         <location filename="../logsdialog.ui" line="159"/>
@@ -6732,7 +6732,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../logsdialog.ui" line="25"/>
         <source>Fly sessions</source>
-        <translation>Sessions de vol</translation>
+        <translation>Sessions de Vol</translation>
     </message>
     <message>
         <location filename="../logsdialog.cpp" line="66"/>
@@ -6747,17 +6747,17 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../logsdialog.cpp" line="151"/>
         <source>Plot Title Change</source>
-        <translation>Changer le titre du graphique</translation>
+        <translation>Changer titre Graphique</translation>
     </message>
     <message>
         <location filename="../logsdialog.cpp" line="151"/>
         <source>New plot title:</source>
-        <translation>Nouveau nom de graphique:</translation>
+        <translation>Nouveau nom Graphique:</translation>
     </message>
     <message>
         <location filename="../logsdialog.cpp" line="165"/>
         <source>Axis Label Change</source>
-        <translation>Changer le nom de l&apos;axe</translation>
+        <translation>Changer nom de l&apos;axe</translation>
     </message>
     <message>
         <location filename="../logsdialog.cpp" line="165"/>
@@ -6767,7 +6767,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
     <message>
         <location filename="../logsdialog.cpp" line="180"/>
         <source>Graph Name Change</source>
-        <translation>Changer le nom de la série</translation>
+        <translation>Changer nom de la série</translation>
     </message>
     <message>
         <location filename="../logsdialog.cpp" line="180"/>
@@ -6784,7 +6784,7 @@ Cette fonction ne peut pas être désactivée sur la radio.
         <source>The column containing GPS coordinates must be named &quot;GPS&quot;.
 
 The columns for altitude &quot;GAlt&quot; and for speed &quot;GSpd&quot; are optional</source>
-        <translation>La colonne contenant les coordonnées GPS doit être nommée &quot;GPS&quot;.
+        <translation>La colonne contenant les coord. GPS doit être nommée &quot;GPS&quot;.
 
 Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd&quot; sont optionnelles</translation>
     </message>
@@ -6813,7 +6813,7 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
     <message>
         <location filename="../logsdialog.cpp" line="535"/>
         <source>Climb rate: %1 m/s</source>
-        <translation>Taux monté : %1 m/s</translation>
+        <translation>Taux montée : %1 m/s</translation>
     </message>
     <message>
         <location filename="../logsdialog.cpp" line="607"/>
@@ -6872,7 +6872,7 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
     <message>
         <location filename="../mainwindow.cpp" line="830"/>
         <source>Compare models</source>
-        <translation>Comparer les modèles</translation>
+        <translation>Comparer modèles</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="974"/>
@@ -6882,7 +6882,7 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
     <message>
         <location filename="../mainwindow.cpp" line="494"/>
         <source>Synchronize SD</source>
-        <translation>Synchroniser la carte SD</translation>
+        <translation>Synchroniser carte SD</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="807"/>
@@ -6918,12 +6918,12 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
     <message>
         <location filename="../mainwindow.cpp" line="982"/>
         <source>Use small toolbar icons</source>
-        <translation>Petites icônes de barre d&apos;outils</translation>
+        <translation>Petites icônes barre d&apos;outils</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="983"/>
         <source>Use normal size toolbar icons</source>
-        <translation>Icônes de barre d&apos;outils normales</translation>
+        <translation>Icônes de barre outils normales</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="983"/>
@@ -6933,7 +6933,7 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
     <message>
         <location filename="../mainwindow.cpp" line="984"/>
         <source>Use big toolbar icons</source>
-        <translation>Grosses icônes de barre d&apos;outils</translation>
+        <translation>Grosses icônes de barre outils</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="984"/>
@@ -6943,7 +6943,7 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
     <message>
         <location filename="../mainwindow.cpp" line="985"/>
         <source>Use huge toolbar icons</source>
-        <translation>Immenses icônes de barre d&apos;outils</translation>
+        <translation>Immenses icônes de barre outils</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="985"/>
@@ -6954,38 +6954,38 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
         <location filename="../mainwindow.cpp" line="546"/>
         <location filename="../mainwindow.cpp" line="822"/>
         <source>Read Firmware from Radio</source>
-        <translation>Lire le firmware de la radio</translation>
+        <translation>Lire Firmware Radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="822"/>
         <source>Read firmware from Radio</source>
-        <translation>Lire le firmware de la radio</translation>
+        <translation>Lire Firmware Radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="823"/>
         <source>Write Firmware to Radio</source>
-        <translation>Transférer le firmware à la radio</translation>
+        <translation>Transférer Firmware à la Radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="823"/>
         <source>Write firmware to Radio</source>
-        <translation>Transférer le firmware à la radio</translation>
+        <translation>Ecrire Firmware dans Radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="836"/>
         <source>Add Radio Profile</source>
-        <translation>Ajouter un profil de radio</translation>
+        <translation>Ajouter un Profil de Radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="824"/>
         <source>Write Models and Settings to Radio</source>
-        <translation>Transférer les paramètres et modèles vers la radio</translation>
+        <translation>Transférer Paramètres et Modèles vers Radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="559"/>
         <location filename="../mainwindow.cpp" line="825"/>
         <source>Read Models and Settings from Radio</source>
-        <translation>Lire les paramètres et modèles depuis la radio</translation>
+        <translation>Lire Paramètres et Modèles depuis la Radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="812"/>
@@ -6995,32 +6995,32 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
     <message>
         <location filename="../mainwindow.cpp" line="835"/>
         <source>Radio Profiles</source>
-        <translation>Profil radio</translation>
+        <translation>Profils radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="835"/>
         <source>Create or Select Radio Profiles</source>
-        <translation>Créer ou Sélectionner un profil radio</translation>
+        <translation>Créer ou Sélectionner un Profil Radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="826"/>
         <source>Write Backup to Radio</source>
-        <translation>Transférer une sauvegarde à la radio</translation>
+        <translation>Transférer Sauvegarde à la Radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="826"/>
         <source>Write Backup from file to Radio</source>
-        <translation>Transférer une sauvegarde à la radio</translation>
+        <translation>Transférer Sauvegarde à la Radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="827"/>
         <source>Backup Radio to File</source>
-        <translation>Sauvegarder la radio</translation>
+        <translation>Sauvegarder Radio vers Fichier</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="827"/>
         <source>Save a complete backup file of all settings and model data in the Radio</source>
-        <translation>Créer une copie de sauvegarde de tous les paramètres et modèles de la radio</translation>
+        <translation>Créer fichier de sauvegarde de tous les paramètres et modèles de la radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="832"/>
@@ -7035,12 +7035,12 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
     <message>
         <location filename="../mainwindow.cpp" line="859"/>
         <source>Set Icon Theme</source>
-        <translation>Choisir le thème d&apos;icônes</translation>
+        <translation>Choisir le Thème des Icônes</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="860"/>
         <source>Set Icon Size</source>
-        <translation>Choisir la taille des icônes</translation>
+        <translation>Choisir taille des Icônes</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="642"/>
@@ -7066,7 +7066,7 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
     <message>
         <location filename="../mainwindow.cpp" line="371"/>
         <source>Open Models and Settings file</source>
-        <translation>Ouvrir un fichier de paramètres et modèles</translation>
+        <translation>Ouvrir fichier Param. et Modèles</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="378"/>
@@ -7117,17 +7117,17 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
     <message>
         <location filename="../mainwindow.cpp" line="1494"/>
         <source>Models and Settings read</source>
-        <translation>Lecture des modèles et paramètres</translation>
+        <translation>Lecture Modèles et Paramètres</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="496"/>
         <source>Local Folder</source>
-        <translation>Dossier &quot;Local&quot;</translation>
+        <translation>Dossier Local</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="497"/>
         <source>Radio Folder</source>
-        <translation>Dossier &quot;Radio&quot;</translation>
+        <translation>Dossier Radio</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="579"/>
@@ -7137,7 +7137,7 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
     <message>
         <location filename="../mainwindow.cpp" line="807"/>
         <source>Create a new Models and Settings file</source>
-        <translation>Créer un nouveau fichier de paramètres et modèles</translation>
+        <translation>Créer nouveau fichier de Paramètres et Modèles</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="809"/>
@@ -7157,7 +7157,7 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
     <message>
         <location filename="../mainwindow.cpp" line="811"/>
         <source>Close Models and Settings file</source>
-        <translation>Fermer le fichier de paramètres et modèles</translation>
+        <translation>Fermer fichier de Paramètres et Modèles</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="815"/>
@@ -7182,27 +7182,27 @@ Les colonnes contenant l&apos;altitude &quot;GAlt&quot; et la vitesse &quot;GSpd
     <message>
         <location filename="../mainwindow.cpp" line="836"/>
         <source>Create a new Radio Settings Profile</source>
-        <translation>Créer un nouveau profil de paramètres et modèles</translation>
+        <translation>Créer nouveau profil de paramètres et modèles</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="837"/>
         <source>Copy Current Radio Profile</source>
-        <translation>Copier le profil radio actuel</translation>
+        <translation>Copier Profil Radio actuel</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="837"/>
         <source>Duplicate current Radio Settings Profile</source>
-        <translation>Dupliquer les paramètres radio du profil actuel</translation>
+        <translation>Dupliquer Paramètres Radio du profil actuel</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="838"/>
         <source>Delete the current Radio Settings Profile</source>
-        <translation>Supprimer les paramètres radio du profil actuel</translation>
+        <translation>Supprimer les Paramètres Radio du Profil actuel</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1144"/>
         <source>Use default system language.</source>
-        <translation>Utiliser le langage système par défaut.</translation>
+        <translation>Utiliser langage système par défaut.</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="1148"/>
@@ -7231,7 +7231,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../mainwindow.cpp" line="489"/>
         <source>No Radio or SD card detected!</source>
-        <translation>Pas de Radio ou carte SD de détectée !</translation>
+        <translation>Pas de Radio ou carte SD détectés !</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="638"/>
@@ -7266,7 +7266,7 @@ Do you wish to continue?</source>
     <message>
         <location filename="../mainwindow.cpp" line="852"/>
         <source>Show release notes</source>
-        <translation>Afficher les notes de version</translation>
+        <translation>Afficher notes de version</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="838"/>

@@ -1027,13 +1027,13 @@
 #define TR_DISCOVER                    BUTTON("Découvrir")
 #define TR_BUTTON_INIT                 BUTTON("Init")
 #define TR_WAITING                     "Attente..."
-#define TR_RECEIVER_DELETE             "Suppr récept.?"
+#define TR_RECEIVER_DELETE             "Suppr. récept.?"
 #define TR_RECEIVER_RESET              "Réinit. récept.?"
 #define TR_SHARE                       "Partager"
 #define TR_BIND                        "Bind"
 #define TR_PAIRING                     "Pairing"
 #define TR_BTAUDIO                     "BT Audio"
-#define TR_REGISTER                    BUTTON(TR("Enr", "Enregistr."))
+#define TR_REGISTER                    BUTTON(TR("Enr.", "Enregistr."))
 #define TR_MODULE_RANGE                BUTTON(TR("Prt", "Port."))
 #define TR_RANGE_TEST                  "Test de portée"
 #define TR_RECEIVER_OPTIONS            TR("OPTIONS REC.", "OPTIONS RÉCEPTEUR")
@@ -1045,7 +1045,7 @@
 #define TR_TRAINER                     "Écolage"
 #define TR_CHANS                       "Aléat."
 #define TR_ANTENNAPROBLEM              "Antenne radio défect.!"
-#define TR_MODELIDUSED                 TR("ID affecté à :", "No de récepteur utilisé par :")
+#define TR_MODELIDUSED                 TR("ID affecté à :", "No de récepteur utilisé par:")
 #define TR_MODELIDUNIQUE               "ID est unique"
 #define TR_MODULE                      "Module"
 #define TR_RX_NAME                     "Nom Rx"
@@ -1065,7 +1065,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Puissance actuelle")
 #define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
-#define TR_ANTENNACONFIRM1             "Vraiment changer?"
+#define TR_ANTENNACONFIRM1             "Vraiment changer ?"
 #define TR_ANTENNA_MODES_1             "Interne"
 #define TR_ANTENNA_MODES_2             "Demander"
 #define TR_ANTENNA_MODES_3             "Par modèle"
@@ -1373,7 +1373,7 @@
 #define TR_VUSBJOYSTICK_CH_SIM_7       "Gouv"
 #define TR_VUSBJOYSTICK_CH_SIM_8       "Dpad"
 #define TR_USBJOYSTICK_CH_INVERSION    "Inversion"
-#define TR_USBJOYSTICK_CH_BTNNUM       "Bouton no."
+#define TR_USBJOYSTICK_CH_BTNNUM       "Bouton num."
 #define TR_USBJOYSTICK_BTN_COLLISION   "!Bouton anti collision!"
 #define TR_USBJOYSTICK_AXIS_COLLISION  "!Collision des Axes!"
 #define TR_USBJOYSTICK_CIRC_COUTOUT    TR("Déc. Circ.", "Découpe circulaire")
@@ -1409,15 +1409,15 @@
 
 #define TR_THEME_EXISTS           "Un thème avec le même nom existe déjà."
 
-#define TR_DATE_TIME_WIDGET       "Date & Time"
-#define TR_RADIO_INFO_WIDGET      "Radio Info"
-#define TR_LOW_BATT_COLOR         "Low battery"
-#define TR_MID_BATT_COLOR         "Mid battery"
-#define TR_HIGH_BATT_COLOR        "High battery"
+#define TR_DATE_TIME_WIDGET       "Date & Heure"
+#define TR_RADIO_INFO_WIDGET      "Info Radio"
+#define TR_LOW_BATT_COLOR         "Batterie faible"
+#define TR_MID_BATT_COLOR         "Batterie moyenne"
+#define TR_HIGH_BATT_COLOR        "Batterie chargée"
 
 #define TR_WIDGET_SIZE            "Taille Widget"
 
-#define TR_DEL_DIR_NOT_EMPTY      "Directory must be empty before deletion"
+#define TR_DEL_DIR_NOT_EMPTY      "Répertoire doit être vide avant suppression"
 
 #define TR_KEY_SHORTCUTS          "Raccourcis Touches"
 #define TR_CURRENT_SCREEN         "Écran actuel"
