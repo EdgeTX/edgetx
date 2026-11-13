@@ -552,7 +552,7 @@ LEGACY_NAMES = [
         }
     },
     {
-        "targets": {"gx12", "h5test"},
+        "targets": {"gx12", "n14"},
         "inputs": {
             "LH": {
                 "yaml": "Rud",
@@ -692,7 +692,7 @@ LEGACY_NAMES = [
             "lr3pro",
             "nv14", "el18",
             "t8", "t12",
-            "tlite", "tlitef4", "tpro", "tprov2", "tpros", "bumblebee","h5test"
+            "tlite", "tlitef4", "tpro", "tprov2", "tpros", "bumblebee","n14"
             "tx12", "tx12mk2",
             "x7", "x7access",
             "xlite", "xlites",
@@ -737,7 +737,7 @@ LEGACY_NAMES = [
     },
     {
         "targets": {
-		"tlitef4", "tpro", "tprov2", "tpros", "bumblebee","h5test"
+		"tlitef4", "tpro", "tprov2", "tpros", "bumblebee","n14"
         },
         "inputs": {
             "LH": {

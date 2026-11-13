@@ -21,6 +21,6 @@
 
 #pragma once
 
-#define USB_NAME                     "H5 Test"
-#define USB_MANUFACTURER             'E', 'D', 'G', 'E', ' ', 'T', 'X', ' '  /* 8 bytes */
-#define USB_PRODUCT                  'H', '5', ' ', 'T', 'E', 'S', 'T', ' '  /* 8 Bytes */
+#define USB_NAME                     "NexRadio 14"
+#define USB_MANUFACTURER             'B', 'E', 'T', 'A', 'F', 'P', 'V', ' '  /* 8 bytes */
+#define USB_PRODUCT                  'N', '1', '4', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */

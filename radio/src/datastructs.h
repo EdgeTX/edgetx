@@ -54,7 +54,7 @@ static inline void check_struct()
   CHKSIZE(FlightModeData, 4 + 2 * MAX_GVARS + 2 * MAX_TRIMS + LEN_FLIGHT_MODE_NAME);
   CHKSIZE(CustomFunctionData, 11);
 
-#if defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE) || defined(PCBH5TEST)
+#if defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE) || defined(PCBN14)
   CHKSIZE(LimitData, 11);
   CHKSIZE(TimerData, 12);
   CHKSIZE(FrSkyBarData, 6);
@@ -106,7 +106,7 @@ static inline void check_struct()
   CHKSIZE(ModelData, 6771);
 #elif defined(PCBX9D) || defined(PCBX9DP)
   CHKSIZE(ModelData, 6770);
-#elif defined(RADIO_H5TEST)
+#elif defined(RADIO_N14)
   CHKSIZE(ModelData, 6479);
 #elif defined(PCBX7) || defined(PCBXLITE) || defined(PCBX9LITE) || defined(RADIO_T14) || defined(RADIO_T12MAX)
   CHKSIZE(ModelData, 6329);

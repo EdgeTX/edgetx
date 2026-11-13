@@ -11,12 +11,12 @@ option(RGBLEDS "WS2812 addressable LED support" ON)
 
 set(USE_RTC_CLOCK YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
-set(TARGET_DIR h5test)
+set(TARGET_DIR n14)
 
 set(HSE_VALUE 8000000)
 set(PPM_LIMITS_SYMETRICAL YES)
 
-add_definitions(-DPCBTARANIS -DPCBH5TEST -DAUDIO -DVOICE)
+add_definitions(-DPCBTARANIS -DPCBN14 -DAUDIO -DVOICE)
 
 set(PWR_BUTTON "PRESS" CACHE STRING "Pwr button type (PRESS/SWITCH)")
 set(HAPTIC YES)
@@ -35,10 +35,10 @@ set(LCD_DRIVER lcd_driver_newspi.cpp)
 set(ROTARY_ENCODER YES)
 set(MODULE_SIZE_SML YES)
 set(USB_CHARGER NO)  # CHG_ON (PD.07) removed; pin reused for OLED_RST
-set(FLAVOUR h5test)
+set(FLAVOUR n14)
 set(CPU_TYPE_FULL STM32H562xx)
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
-add_definitions(-DRADIO_H5TEST)
+add_definitions(-DRADIO_N14)
 
 
 set(CPU_TYPE STM32H5)
