@@ -264,6 +264,8 @@ QuickMenu::QuickMenu() :
 
   auto mask = getBuiltinIcon(ICON_TOP_LOGO);
   new StaticIcon(this, (QM_W - mask->width) / 2, 0, ICON_TOP_LOGO, COLOR_THEME_QM_FG_INDEX);
+  mask = getBuiltinIcon(ICON_BTN_CLOSE);
+  new StaticIcon(this, LCD_W - mask->width + 1, (EdgeTxStyles::UI_ELEMENT_HEIGHT - mask->height) / 2, ICON_BTN_CLOSE, COLOR_THEME_QM_FG_INDEX);
 
   new ButtonBase(
     this, {0, 0, QM_W, EdgeTxStyles::UI_ELEMENT_HEIGHT},
