@@ -35,7 +35,8 @@ QStringList const Translations::getAvailableTranslations()
   static QStringList locales;
 
   if (!locales.size()) {
-    locales << "cs_CZ"
+    locales << "ar"
+            << "cs_CZ"
             << "da_DA"
             << "de_DE"
             << "en"

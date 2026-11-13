@@ -25,7 +25,53 @@
 #include "hal_keys_lock.h"
 
 Functions cfn_sorted[] = {
-#if defined(TRANSLATIONS_CN)
+#if defined(TRANSLATIONS_AR)
+  /* Trainer */ FUNC_TRAINER,
+  /* Trim فوري */ FUNC_INSTANT_TRIM,
+  /* Vario */ FUNC_VARIO,
+  /* إضاءة RGB */ FUNC_RGB_LED,
+  /* إعادة ضبط */ FUNC_RESET,
+  /* إيقاف المكبر */ FUNC_DISABLE_AUDIO_AMP,
+#if defined(DEBUG)
+  /* اختبار */ FUNC_TEST,
+#endif
+#if !OLED_SCREEN
+  /* الإضاءة */ FUNC_BACKLIGHT,
+#endif
+#if OLED_SCREEN
+  /* السطوع */ FUNC_BACKLIGHT,
+#endif
+#if defined(VIDEO_SWITCH)
+  /* الشاشة للفيديو */ FUNC_LCD_TO_VIDEO,
+#endif
+  /* الصوت */ FUNC_VOLUME,
+  /* اهتزاز */ FUNC_HAPTIC,
+#if defined(KEYS_LOCK_KEY1) && defined(KEYS_LOCK_KEY2)
+  /* بلا أزرار */ FUNC_DISABLE_KEYS,
+#endif
+#if defined(COLORLCD)
+  /* بلا لمس */ FUNC_DISABLE_TOUCH,
+#endif
+  /* تجاوز */ FUNC_OVERRIDE_CHANNEL,
+  /* تشغيل صوت */ FUNC_PLAY_SOUND,
+  /* تشغيل ملف */ FUNC_PLAY_TRACK,
+  /* تعديل */ FUNC_ADJUST_GVAR,
+  /* تعيين الشاشة */ FUNC_SET_SCREEN,
+  /* ربط الموديول */ FUNC_BIND,
+  /* سجلات SD */ FUNC_LOGS,
+  /* سكربت Lua */ FUNC_PLAY_SCRIPT,
+  /* ضبط */ FUNC_SET_TIMER,
+  /* ضبط Failsafe */ FUNC_SET_FAILSAFE,
+#if defined(FUNCTION_SWITCHES)
+  /* ضغط مفتاح */ FUNC_PUSH_CUST_SWITCH,
+#endif
+  /* فحص المدى */ FUNC_RANGECHECK,
+  /* لقطة شاشة */ FUNC_SCREENSHOT,
+  /* موسيقى */ FUNC_BACKGND_MUSIC,
+  /* موسيقى || */ FUNC_BACKGND_MUSIC_PAUSE,
+  /* نطق قيمة */ FUNC_PLAY_VALUE,
+  /* وضع السباق */ FUNC_RACING_MODE,
+#elif defined(TRANSLATIONS_CN)
 #if !OLED_SCREEN
   /* 背光 */ FUNC_BACKLIGHT,
 #endif
