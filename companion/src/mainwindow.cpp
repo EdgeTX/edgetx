@@ -91,7 +91,7 @@ MainWindow::MainWindow():
 
   if (g.isFirstUse()) {
     g.warningId(g.warningId() | AppMessages::MSG_WELCOME);
-    QTimer::singleShot(updateDelay-500, this, SLOT(editAppSettings()));  // must be shown before warnings dialog but after splash
+    QTimer::singleShot(updateDelay-500, this, &MainWindow::editPreferences);  // must be shown before warnings dialog but after splash
   }
   else {
     if (!g.previousVersion().isEmpty())
