@@ -227,15 +227,15 @@
     #define TR_BL_FLASH_EXIT               "Quitter mode flashage."
 
     // Bootloader Horus specific - ASCII characters only
-    #define TR_BL_ERASE_INT_FLASH          "Erase Internal Flash Storage"
-    #define TR_BL_ERASE_FLASH              "Erase Flash Storage"
-    #define TR_BL_ERASE_FLASH_MSG          "This may take up to 200s"
+    #define TR_BL_ERASE_INT_FLASH          "Effacer memoire flash interne"
+    #define TR_BL_ERASE_FLASH              "Effacer memoire flash"
+    #define TR_BL_ERASE_FLASH_MSG          "Cela peut durer jusqu'a 200s"
     #define TR_BL_RF_USB_ACCESS            "RF USB access"
     #define TR_BL_CURRENT_FW               "Firmware actuel:"
 
     #define TR_BL_SELECT_KEY               BL_SELECT_KEY " pour select. fichier"
     #define TR_BL_FLASH_KEY                "Appui long " BL_SELECT_KEY " pour flasher"
-    #define TR_BL_ERASE_KEY                "Appui long " BL_SELECT_KEY " to erase"
+    #define TR_BL_ERASE_KEY                "Appui long " BL_SELECT_KEY " pour effacer"
     #define TR_BL_TOGGLE_KEY               BL_SELECT_KEY " to toggle"
     #define TR_BL_EXIT_KEY                 BL_EXIT_KEY " pour quitter"
 
