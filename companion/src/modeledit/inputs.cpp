@@ -297,7 +297,7 @@ void InputsPanel::mimeExpoDropped(int index, const QMimeData *data, Qt::DropActi
 
 void InputsPanel::pasteExpoMimeData(const QMimeData * mimeData, int destIdx)
 {
-  if (mimeData->hasFormat(MIMETYPE_EXPO)) {
+  if (mimeData && mimeData->hasFormat(MIMETYPE_EXPO)) {
     int idx; // expo index
     int dch;
 
@@ -409,7 +409,7 @@ void InputsPanel::expolistWidget_customContextMenuRequested(QPoint pos)
 
   const QClipboard *clipboard = QApplication::clipboard();
   const QMimeData *mimeData = clipboard->mimeData();
-  bool hasClipData = mimeData->hasFormat(MIMETYPE_EXPO);
+  bool hasClipData = mimeData && mimeData->hasFormat(MIMETYPE_EXPO);
 
   selectedIdx = getIndexFromSelected();
   inputIdx = getInputIndexFromSelected();

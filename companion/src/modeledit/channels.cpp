@@ -441,7 +441,7 @@ bool ChannelsPanel::hasClipboardData(QByteArray * data) const
 {
   const QClipboard * clipboard = QApplication::clipboard();
   const QMimeData * mimeData = clipboard->mimeData();
-  if (mimeData->hasFormat(MIMETYPE_CHANNEL)) {
+  if (mimeData && mimeData->hasFormat(MIMETYPE_CHANNEL)) {
     if (data)
       data->append(mimeData->data(MIMETYPE_CHANNEL));
     return true;

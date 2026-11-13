@@ -312,7 +312,7 @@ bool FlightModePanel::hasClipboardData(QByteArray * data) const
   const QClipboard * clipboard = QApplication::clipboard();
   const QMimeData * mimeData = clipboard->mimeData();
 
-  if (mimeData->hasFormat(MIMETYPE_FLIGHTMODE)) {
+  if (mimeData && mimeData->hasFormat(MIMETYPE_FLIGHTMODE)) {
     if (data)
       data->append(mimeData->data(MIMETYPE_FLIGHTMODE));
     return true;

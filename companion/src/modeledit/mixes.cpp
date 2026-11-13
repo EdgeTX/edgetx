@@ -307,7 +307,7 @@ void MixesPanel::mixersCopy()
 
 void MixesPanel::pasteMixerMimeData(const QMimeData * mimeData, int destIdx)
 {
-  if (mimeData->hasFormat("application/x-companion-mix")) {
+  if (mimeData && mimeData->hasFormat("application/x-companion-mix")) {
     int idx; // mixer index
     int dch;
 
@@ -437,7 +437,7 @@ void MixesPanel::mixerlistWidget_customContextMenuRequested(QPoint pos)
 
   const QClipboard *clipboard = QApplication::clipboard();
   const QMimeData *mimeData = clipboard->mimeData();
-  bool hasClipData = mimeData->hasFormat("application/x-companion-mix");
+  bool hasClipData = mimeData && mimeData->hasFormat("application/x-companion-mix");
 
   QMenu contextMenu;
   contextMenu.addAction(addAct("add.png",       tr("&Add"),               SLOT(mixerAdd()),        tr("Ctrl+A")));

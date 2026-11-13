@@ -631,7 +631,7 @@ bool SetupPanel::hasTimerClipboardData(QByteArray * data) const
 {
   const QClipboard * clipboard = QApplication::clipboard();
   const QMimeData * mimeData = clipboard->mimeData();
-  if (mimeData->hasFormat(MIMETYPE_TIMER)) {
+  if (mimeData && mimeData->hasFormat(MIMETYPE_TIMER)) {
     if (data)
       data->append(mimeData->data(MIMETYPE_TIMER));
     return true;
