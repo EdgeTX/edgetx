@@ -47,7 +47,7 @@ class RadioFunctionSwitch : public Window
 
     new StaticText(this, {PAD_LARGE, PAD_MEDIUM, SW_W, EdgeTxStyles::STD_FONT_HEIGHT}, s);
 
-    new ModelTextEdit(this, {NM_X, 0, NM_W, 0},
+    new RadioTextEdit(this, {NM_X, 0, NM_W, 0},
                       g_eeGeneral.switchName(switchIndex), LEN_SWITCH_NAME);
 
     typeChoice = new Choice(
