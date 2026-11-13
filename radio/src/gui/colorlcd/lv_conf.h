@@ -789,7 +789,12 @@
 #define LV_USE_SJPG 0
 
 /*GIF decoder library*/
+/*Animated splash screen (/IMAGES/splash.gif), H7 only: F4 flash is too tight*/
+#if !defined(BOOT) && (defined(STM32H7) || defined(STM32H7RS))
+#define LV_USE_GIF 1
+#else
 #define LV_USE_GIF 0
+#endif
 
 #if defined(BOOT)
 /*QR code library*/
