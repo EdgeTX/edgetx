@@ -50,7 +50,6 @@ class OpenTxFirmware: public Firmware
       addLanguage("fi");
       addLanguage("fr");
       addLanguage("he");
-      addLanguage("hu");
       addLanguage("it");
       addLanguage("jp");
       addLanguage("ko");

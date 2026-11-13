@@ -142,7 +142,7 @@ get_radio_languages() {
         return 1
     fi
     
-    # Extract languages from: set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE HU IT JP KO NL PL PT RU SE SK TW UA)
+    # Extract languages from: set(RADIO_LANGUAGES CN CZ DA DE EN ES FI FR HE IT JP KO NL PL PT RU SE SK TW UA)
     # Strip carriage returns to handle Windows line endings
     grep "^set(RADIO_LANGUAGES" "$cmake_file" | sed 's/set(RADIO_LANGUAGES \(.*\))/\1/' | tr -d '\r'
 }
