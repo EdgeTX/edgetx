@@ -311,7 +311,7 @@ bool GlobalVariablesPanel::hasClipboardData(QByteArray * data) const
   const QClipboard * clipboard = QApplication::clipboard();
   const QMimeData * mimeData = clipboard->mimeData();
 
-  if (mimeData->hasFormat(MIMETYPE_GLOBAL_VARIABLE)) {
+  if (mimeData && mimeData->hasFormat(MIMETYPE_GLOBAL_VARIABLE)) {
     if (data) {
       data->append(mimeData->data(MIMETYPE_GLOBAL_VARIABLE));
     }

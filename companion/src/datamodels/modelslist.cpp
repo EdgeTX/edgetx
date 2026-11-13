@@ -430,6 +430,9 @@ QUuid ModelsListModel::getMimeDataSourceId(const QMimeData * mimeData) const
 
 bool ModelsListModel::hasSupportedMimeData(const QMimeData * mimeData) const
 {
+  if (!mimeData)
+    return false;
+
   foreach (const QString & mtype, mimeTypes()) {
     if (mimeData->hasFormat(mtype))
       return true;
@@ -439,22 +442,22 @@ bool ModelsListModel::hasSupportedMimeData(const QMimeData * mimeData) const
 
 bool ModelsListModel::hasModelsMimeData(const QMimeData * mimeData) const
 {
-  return mimeData->hasFormat("application/x-companion-modeldata");
+  return mimeData && mimeData->hasFormat("application/x-companion-modeldata");
 }
 
 bool ModelsListModel::hasGeneralMimeData(const QMimeData * mimeData) const
 {
-  return mimeData->hasFormat("application/x-companion-generaldata");
+  return mimeData && mimeData->hasFormat("application/x-companion-generaldata");
 }
 
 bool ModelsListModel::hasHeaderMimeData(const QMimeData * mimeData) const
 {
-  return mimeData->hasFormat("application/x-companion-radiodata-header");
+  return mimeData && mimeData->hasFormat("application/x-companion-radiodata-header");
 }
 
 bool ModelsListModel::hasFileMimeData(const QMimeData * mimeData) const
 {
-  return mimeData->hasFormat("application/x-companion-filedata");
+  return mimeData && mimeData->hasFormat("application/x-companion-filedata");
 }
 
 // returns true if mime data origin was this data model (vs. from another file window)
@@ -513,7 +516,7 @@ void ModelsListModel::encodeFileData(QByteArray * data) const
 // static
 bool ModelsListModel::decodeHeaderData(const QMimeData * mimeData, MimeHeaderData * header)
 {
-  if (header && mimeData->hasFormat("application/x-companion-radiodata-header")) {
+  if (header && mimeData && mimeData->hasFormat("application/x-companion-radiodata-header")) {
     QByteArray data = mimeData->data("application/x-companion-radiodata-header");
     QDataStream stream(&data, QIODevice::ReadOnly);
     stream >> header->dataVersion >> header->instanceId;
@@ -533,7 +536,7 @@ bool ModelsListModel::decodeHeaderData(const QMimeData * mimeData, MimeHeaderDat
 // static
 bool ModelsListModel::decodeFileData(const QMimeData * mimeData, QString * filedata)
 {
-  if (filedata && mimeData->hasFormat("application/x-companion-filedata")) {
+  if (filedata && mimeData && mimeData->hasFormat("application/x-companion-filedata")) {
     *filedata = mimeData->data("application/x-companion-filedata").data();
     return true;
   }
@@ -548,6 +551,9 @@ bool ModelsListModel::decodeMimeData(const QMimeData * mimeData, QVector<ModelDa
 
   if (hasGenSet)
     *hasGenSet = false;
+
+  if (!mimeData)
+    return false;
 
   if (models && mimeData->hasFormat("application/x-companion-modeldata")) {
     QByteArray clipboard = mimeData->data("application/x-companion-modeldata");
@@ -603,7 +609,7 @@ int ModelsListModel::countModelsInMimeData(const QMimeData * mimeData) const
 {
   int ret = 0;
 
-  if (hasCompatibleBoardMimeData(mimeData) &&
+  if (mimeData && hasCompatibleBoardMimeData(mimeData) &&
       mimeData->hasFormat("application/x-companion-modeldata")) {
     QByteArray data = mimeData->data("application/x-companion-modeldata");
     QDataStream in(&data, QIODevice::ReadOnly);

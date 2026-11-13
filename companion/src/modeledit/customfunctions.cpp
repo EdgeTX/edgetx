@@ -783,7 +783,7 @@ bool CustomFunctionsPanel::hasClipboardData(QByteArray * data) const
 {
   const QClipboard * clipboard = QApplication::clipboard();
   const QMimeData * mimeData = clipboard->mimeData();
-  if (mimeData->hasFormat(MIMETYPE_CUSTOM_FUNCTION)) {
+  if (mimeData && mimeData->hasFormat(MIMETYPE_CUSTOM_FUNCTION)) {
     if (data)
       data->append(mimeData->data(MIMETYPE_CUSTOM_FUNCTION));
     return true;

@@ -308,7 +308,7 @@ bool TelemetrySensorPanel::hasClipboardData(QByteArray * data) const
 {
   const QClipboard * clipboard = QApplication::clipboard();
   const QMimeData * mimeData = clipboard->mimeData();
-  if (mimeData->hasFormat(MIMETYPE_TELE_SENSOR)) {
+  if (mimeData && mimeData->hasFormat(MIMETYPE_TELE_SENSOR)) {
     if (data)
       data->append(mimeData->data(MIMETYPE_TELE_SENSOR));
     return true;
