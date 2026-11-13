@@ -68,9 +68,32 @@ const CrossfireSensor crossfireSensors[] = {
   CS(GPS_ID,         4, STR_SENSOR_GPSALT,        UNIT_METERS,            0),
   CS(GPS_ID,         5, STR_SENSOR_SATELLITES,    UNIT_RAW,               0),
   CS(GPS_TIME_ID,    0, STR_SENSOR_GPSDATETIME,   UNIT_DATETIME,          0),
+  CS(GPS_EXT_ID,     0, STR_SENSOR_GPS_FIX,       UNIT_RAW,               0),
+  CS(GPS_EXT_ID,     1, STR_SENSOR_GPS_NSPEED,    UNIT_METERS_PER_SECOND, 2),
+  CS(GPS_EXT_ID,     2, STR_SENSOR_GPS_ESPEED,    UNIT_METERS_PER_SECOND, 2),
+  CS(GPS_EXT_ID,     3, STR_SENSOR_GPS_VSPEED,    UNIT_METERS_PER_SECOND, 2),
+  CS(GPS_EXT_ID,     4, STR_SENSOR_GPS_SPD_ACC,   UNIT_METERS_PER_SECOND, 2),
+  CS(GPS_EXT_ID,     5, STR_SENSOR_GPS_TRACK_ACC, UNIT_DEGREE,            1),
+  CS(GPS_EXT_ID,     6, STR_SENSOR_GPS_ALT_ELL,   UNIT_METERS,            0),
+  CS(GPS_EXT_ID,     7, STR_SENSOR_GPS_HACC,      UNIT_METERS,            2),
+  CS(GPS_EXT_ID,     8, STR_SENSOR_GPS_VACC,      UNIT_METERS,            2),
+  CS(GPS_EXT_ID,     9, STR_SENSOR_GPS_HDOP,      UNIT_RAW,               1),
+  CS(GPS_EXT_ID,    10, STR_SENSOR_GPS_VDOP,      UNIT_RAW,               1),
   CS(ATTITUDE_ID,    0, STR_SENSOR_PITCH,         UNIT_RADIANS,           3),
   CS(ATTITUDE_ID,    1, STR_SENSOR_ROLL,          UNIT_RADIANS,           3),
   CS(ATTITUDE_ID,    2, STR_SENSOR_YAW,           UNIT_RADIANS,           3),
+  CS(ACCGYRO_ID,     0, STR_SENSOR_GYROX,         UNIT_DEGREE,            1),
+  CS(ACCGYRO_ID,     1, STR_SENSOR_GYROY,         UNIT_DEGREE,            1),
+  CS(ACCGYRO_ID,     2, STR_SENSOR_GYROZ,         UNIT_DEGREE,            1),
+  CS(ACCGYRO_ID,     3, STR_SENSOR_ACCX,          UNIT_G,                 3),
+  CS(ACCGYRO_ID,     4, STR_SENSOR_ACCY,          UNIT_G,                 3),
+  CS(ACCGYRO_ID,     5, STR_SENSOR_ACCZ,          UNIT_G,                 3),
+  CS(ACCGYRO_ID,     6, STR_SENSOR_IMU_TEMP,      UNIT_CELSIUS,           2),
+  CS(BAROMETER_ID,   0, STR_SENSOR_PRES,          UNIT_RAW,               2),
+  CS(BAROMETER_ID,   1, STR_SENSOR_BARO_TEMP,     UNIT_CELSIUS,           2),
+  CS(MAGNETOMETER_ID,0, STR_SENSOR_MAGX,          UNIT_RAW,               1),
+  CS(MAGNETOMETER_ID,1, STR_SENSOR_MAGY,          UNIT_RAW,               1),
+  CS(MAGNETOMETER_ID,2, STR_SENSOR_MAGZ,          UNIT_RAW,               1),
   CS(FLIGHT_MODE_ID, 0, STR_SENSOR_FLIGHT_MODE,   UNIT_TEXT,              0),
   CS(CF_VARIO_ID,    0, STR_SENSOR_VSPD,          UNIT_METERS_PER_SECOND, 2),
   CS(BARO_ALT_ID,    0, STR_SENSOR_ALT,           UNIT_METERS,            2),
@@ -99,10 +122,18 @@ const CrossfireSensor & getCrossfireSensor(uint8_t id, uint8_t subId)
     return crossfireSensors[GPS_LATITUDE_INDEX + subId];
   else if (id == GPS_TIME_ID)
     return crossfireSensors[GPS_TIME_INDEX];
+  else if (id == GPS_EXT_ID)
+    return crossfireSensors[GPS_FIX_INDEX + subId];
   else if (id == CF_VARIO_ID)
     return crossfireSensors[VERTICAL_SPEED_INDEX];
   else if (id == ATTITUDE_ID)
     return crossfireSensors[ATTITUDE_PITCH_INDEX + subId];
+  else if (id == ACCGYRO_ID)
+    return crossfireSensors[ACCGYRO_GYRO_X_INDEX + subId];
+  else if (id == BAROMETER_ID)
+    return crossfireSensors[BAROMETER_PRESSURE_INDEX + subId];
+  else if (id == MAGNETOMETER_ID)
+    return crossfireSensors[MAGNETOMETER_X_INDEX + subId];
   else if (id == FLIGHT_MODE_ID)
     return crossfireSensors[FLIGHT_MODE_INDEX];
   else if (id == BARO_ALT_ID)
@@ -198,6 +229,32 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
                         (int32_t)timeVal, UNIT_DATETIME, 0);
       break;
     }
+
+    case GPS_EXT_ID:
+      processCrossfireTelemetryValue(GPS_FIX_INDEX,
+        getCrossfireTelemetryValue(3, rxBuffer, 1, false));
+      processCrossfireTelemetryValue(GPS_NSPEED_INDEX,
+        getCrossfireTelemetryValue(4, rxBuffer, 2, true));
+      processCrossfireTelemetryValue(GPS_ESPEED_INDEX,
+        getCrossfireTelemetryValue(6, rxBuffer, 2, true));
+      processCrossfireTelemetryValue(GPS_VSPEED_INDEX,
+        getCrossfireTelemetryValue(8, rxBuffer, 2, true));
+      processCrossfireTelemetryValue(GPS_HSPEED_ACC_INDEX,
+        getCrossfireTelemetryValue(10, rxBuffer, 2, true));
+      processCrossfireTelemetryValue(GPS_TRACK_ACC_INDEX,
+        getCrossfireTelemetryValue(12, rxBuffer, 2, true));
+      processCrossfireTelemetryValue(GPS_ALT_ELLIPSOID_INDEX,
+        getCrossfireTelemetryValue(14, rxBuffer, 2, true));
+      processCrossfireTelemetryValue(GPS_HACC_INDEX,
+        getCrossfireTelemetryValue(16, rxBuffer, 2, true));
+      processCrossfireTelemetryValue(GPS_VACC_INDEX,
+        getCrossfireTelemetryValue(18, rxBuffer, 2, true));
+      // byte 20 is reserved
+      processCrossfireTelemetryValue(GPS_HDOP_INDEX,
+        getCrossfireTelemetryValue(21, rxBuffer, 1, false));
+      processCrossfireTelemetryValue(GPS_VDOP_INDEX,
+        getCrossfireTelemetryValue(22, rxBuffer, 1, false));
+      break;
 
     case BARO_ALT_ID:
       value = getCrossfireTelemetryValue(3, rxBuffer, 2, false);
@@ -372,6 +429,41 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         getCrossfireTelemetryValue(5, rxBuffer, 2, true)/10);
       processCrossfireTelemetryValue(ATTITUDE_YAW_INDEX,
         getCrossfireTelemetryValue(7, rxBuffer, 2, true)/10);
+      break;
+
+    case BAROMETER_ID:
+      processCrossfireTelemetryValue(BAROMETER_PRESSURE_INDEX,
+        getCrossfireTelemetryValue(3, rxBuffer, 4, true));
+      processCrossfireTelemetryValue(BAROMETER_TEMP_INDEX,
+        getCrossfireTelemetryValue(7, rxBuffer, 4, true));
+      break;
+
+    case MAGNETOMETER_ID:
+      // Raw value is milligauss * 3 -> report in 0.1 mG
+      processCrossfireTelemetryValue(MAGNETOMETER_X_INDEX,
+        getCrossfireTelemetryValue(3, rxBuffer, 2, true) * 10 / 3);
+      processCrossfireTelemetryValue(MAGNETOMETER_Y_INDEX,
+        getCrossfireTelemetryValue(5, rxBuffer, 2, true) * 10 / 3);
+      processCrossfireTelemetryValue(MAGNETOMETER_Z_INDEX,
+        getCrossfireTelemetryValue(7, rxBuffer, 2, true) * 10 / 3);
+      break;
+
+    case ACCGYRO_ID:
+      // sample_time (4B, us, unused)
+      processCrossfireTelemetryValue(ACCGYRO_GYRO_X_INDEX,
+        getCrossfireTelemetryValue(7, rxBuffer, 2, true) * 20000 / INT16_MAX);
+      processCrossfireTelemetryValue(ACCGYRO_GYRO_Y_INDEX,
+        getCrossfireTelemetryValue(9, rxBuffer, 2, true) * 20000 / INT16_MAX);
+      processCrossfireTelemetryValue(ACCGYRO_GYRO_Z_INDEX,
+        getCrossfireTelemetryValue(11, rxBuffer, 2, true) * 20000 / INT16_MAX);
+      processCrossfireTelemetryValue(ACCGYRO_ACC_X_INDEX,
+        getCrossfireTelemetryValue(13, rxBuffer, 2, true) * 16000 / INT16_MAX);
+      processCrossfireTelemetryValue(ACCGYRO_ACC_Y_INDEX,
+        getCrossfireTelemetryValue(15, rxBuffer, 2, true) * 16000 / INT16_MAX);
+      processCrossfireTelemetryValue(ACCGYRO_ACC_Z_INDEX,
+        getCrossfireTelemetryValue(17, rxBuffer, 2, true) * 16000 / INT16_MAX);
+      processCrossfireTelemetryValue(ACCGYRO_TEMP_INDEX,
+        getCrossfireTelemetryValue(19, rxBuffer, 2, true));
       break;
 
     case FLIGHT_MODE_ID:
