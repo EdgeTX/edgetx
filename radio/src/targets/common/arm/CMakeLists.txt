@@ -276,6 +276,19 @@ if(GHOST)
     )
 endif()
 
+if(MAVLINK)
+  add_definitions(-DMAVLINK)
+  include_directories(${THIRDPARTY_DIR}/mavlink)
+  set(PULSES_SRC
+    ${PULSES_SRC}
+    mavlink.cpp
+    )
+  set(SRC
+    ${SRC}
+    telemetry/mavlink.cpp
+    )
+endif()
+
 # The WASM modules are stripped at link time, so this would be wasted work
 if(NOT WASI)
   add_definitions(-g)
