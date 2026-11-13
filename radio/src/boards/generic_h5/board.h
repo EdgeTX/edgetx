@@ -287,7 +287,7 @@ void lcdFlushed();
   #else
     #define VBAT_MOSFET_DROP   25 // * 10mV
   #endif
-#elif defined(RADIO_H5TEST)
+#elif defined(RADIO_N14)
   #define VBAT_DIV_R1         120 // kOhms
   #define VBAT_DIV_R2          39 // kOhms
 #else

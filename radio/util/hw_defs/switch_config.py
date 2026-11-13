@@ -713,7 +713,7 @@ SWITCH_CONFIG = {
         "SD": { "default": "2POS",   "display": [ 1, 0 ] },
         "SC": { "default": "3POS", "display": [ 1, 1 ] },
     },
-    "h5test": {
+    "n14": {
         # left side
         "SA": { "default": "3POS", "display": [ 0, 0 ] },
         "SB": { "default": "3POS",   "display": [ 0, 1 ] },

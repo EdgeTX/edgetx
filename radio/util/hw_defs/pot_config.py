@@ -12,7 +12,7 @@ POT_CONFIG = {
         "SL1": {"default": "SLIDER"},
         "SL2": {"default": "SLIDER"}
     },
-    "h5test": {
+    "n14": {
         "P1": {"default": "POT"},
         "P2": {"default": "POT"},
         "SL1": {"default": "SLIDER"},
