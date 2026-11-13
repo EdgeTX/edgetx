@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.21)
 project(EdgeTX)
 
 set(VERSION_MAJOR "3")
-set(VERSION_MINOR "0")
+set(VERSION_MINOR "1")
 set(VERSION_REVISION "0")
 set(CODENAME "dev")
 string(TIMESTAMP BUILD_YEAR "%Y")
