@@ -53,7 +53,6 @@
   #define STATUS_LED_COLORS
 #endif
 
-#if defined(STATUS_LED_PWM)
 
 #define STATUS_LED_BRIGHT_MAX 100
 // UI detents: each one is a visibly different PWM level
@@ -62,5 +61,3 @@
 // Applies to whichever status LED is lit. Never switches it off: 0 is the
 // dimmest step, only ledOff() goes dark.
 void ledSetBrightness(uint8_t bright);
-
-#endif

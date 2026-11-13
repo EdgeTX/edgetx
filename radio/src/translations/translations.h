@@ -33,7 +33,11 @@
 // Static string array
 #define STRARRAY(x) extern const char* const STR_##x[];
 
+// Declaring a string a radio doesn't define costs nothing, and keeps this
+// header the same across radios
+#define STRING_LIST_DECLARE_ALL
 #include "string_list.h"
+#undef STRING_LIST_DECLARE_ALL
 
 #undef STR
 #undef STRARRAY
