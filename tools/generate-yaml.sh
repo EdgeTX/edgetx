@@ -16,8 +16,8 @@ fi
 
 : ${COMMON_OPTIONS:="-DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_RULE_MESSAGES=OFF ${CMAKE_NO_AUTHOR_WARNINGS} -DDISABLE_COMPANION=YES -DCMAKE_MESSAGE_LOG_LEVEL=WARNING"}
 
-# wipe build directory clean
-cmake -E rm -rf build
+# Scratch space under build/ - other build trees there are left alone
+GEN_ROOT=$(reset_scratch_build_dir gen-yaml) || exit 1
 
 target_names=$(echo "$FLAVOR" | tr '[:upper:]' '[:lower:]' | tr ';' '\n')
 
@@ -34,7 +34,7 @@ do
     fi
 
     # Own build tree per target - a shared one leaks cached options between them
-    BUILD_DIR="build/${target_name}"
+    BUILD_DIR="${GEN_ROOT}/${target_name}"
 
     cmake ${BUILD_OPTIONS} -S "${SRCDIR}" -B "${BUILD_DIR}"
     cmake --build "${BUILD_DIR}" --target native-configure
@@ -42,3 +42,5 @@ do
 
     cmake -E rm -rf "${BUILD_DIR}"
 done
+
+cmake -E rm -rf "${GEN_ROOT}"

@@ -1,3 +1,18 @@
+# Repository root, so scratch build dirs don't depend on the caller's cwd
+EDGETX_REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Recreate <repo>/build/<name> and print its path. Only ever touches that
+# subdirectory, so preset build trees elsewhere under build/ are left alone.
+reset_scratch_build_dir() {
+    local name="$1"
+    if [[ -z "$name" || "$name" == *..* || "$name" == /* ]]; then
+        echo "reset_scratch_build_dir: invalid name '$name'" >&2
+        return 1
+    fi
+    local dir="${EDGETX_REPO_ROOT}/build/${name}"
+    cmake -E rm -rf "$dir" && cmake -E make_directory "$dir" && echo "$dir"
+}
+
 get_target_build_options() {
     local target_name=$1
 

@@ -31,8 +31,8 @@ cfn-sort:
     tools/cfn_sorter.sh
 
 # FLAVOR is a semicolon-separated target list; empty uses the script's default.
-# Recreates ./build from scratch, and needs the libclang version from the
-# edgetx-dev container.
+# Uses build/gen-yaml as scratch space (other build/ trees are left alone),
+# and needs the libclang version from the edgetx-dev container.
 [doc('Regenerate the YAML parsers (radio/src/storage/yaml/yaml_datastructs_*.cpp)')]
 [group('codegen')]
 gen-yaml FLAVOR='':

@@ -67,10 +67,9 @@ fi
 # Ensure we're in the project root
 cd "${PROJECT_ROOT}"
 
-# Create and enter build directory
-rm -rf build
-mkdir build
-cd build
+# Scratch space under build/ - other build trees there are left alone
+BUILD_DIR=$(reset_scratch_build_dir cpn-translations) || exit 1
+cd "${BUILD_DIR}"
 
 echo "Configuring build with options: ${BUILD_OPTIONS}"
 cmake ${BUILD_OPTIONS} "${PROJECT_ROOT}"
