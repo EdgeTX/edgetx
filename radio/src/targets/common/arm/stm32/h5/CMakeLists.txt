@@ -38,6 +38,7 @@ if(NOT NATIVE_BUILD)
     ${STM32CUBE_SRC_PREFIX}_hal_rcc.c
     ${STM32CUBE_SRC_PREFIX}_hal_rcc_ex.c
     ${STM32CUBE_SRC_PREFIX}_hal_rtc.c
+    ${STM32CUBE_SRC_PREFIX}_hal_rtc_ex.c
     ${STM32CUBE_SRC_PREFIX}_hal_sd.c
     ${STM32CUBE_SRC_PREFIX}_hal_dma.c
     ${STM32CUBE_SRC_PREFIX}_hal_pcd.c
