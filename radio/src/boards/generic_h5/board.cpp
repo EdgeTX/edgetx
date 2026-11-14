@@ -21,7 +21,7 @@
 
 #include "stm32_hal_ll.h"
 #include "stm32_gpio.h"
-#include "stm32_ws2812.h"
+#include "stm32_rgbleds.h"
 
 #include "hal/adc_driver.h"
 #include "hal/trainer_driver.h"
@@ -123,13 +123,9 @@ void boardInit()
   pwrInit();
   boardInitModulePorts();
 
-#if defined(STATUS_LEDS)
+#if STATUS_LEDS
   ledInit();
-#if !defined(POWER_LED_BLUE)
-  ledBlue();
-#else
-  ledGreen();
-#endif
+  ledBoot();
 #endif
 
   keysInit();
@@ -190,7 +186,7 @@ void boardOff()
   rgbLedClearAll();
 #endif
 
-#if defined(STATUS_LEDS) && !defined(BOOT)
+#if STATUS_LEDS && !defined(BOOT)
   ledOff();
 #endif
 
