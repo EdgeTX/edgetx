@@ -107,6 +107,7 @@ namespace Board {
     BOARD_IFLIGHT_COMMANDO14,
     BOARD_SENDUWING_H17,
     BOARD_JUMPER_T18H7,
+    BOARD_BETAFPV_N14,
     BOARD_TYPE_COUNT,
     BOARD_TYPE_MAX = BOARD_TYPE_COUNT - 1
   };
@@ -509,6 +510,11 @@ inline bool IS_BETAFPV_LR3PRO(Board::Type board)
   return board == Board::BOARD_BETAFPV_LR3PRO;
 }
 
+inline bool IS_BETAFPV_N14(Board::Type board)
+{
+  return board == Board::BOARD_BETAFPV_N14;
+}
+
 inline bool IS_IFLIGHT_COMMANDO8(Board::Type board)
 {
   return board == Board::BOARD_IFLIGHT_COMMANDO8;
@@ -723,6 +729,7 @@ inline bool IS_FAMILY_T16(Board::Type board)
 inline bool IS_FAMILY_T12(Board::Type board)
 {
   return board == Board::BOARD_BETAFPV_LR3PRO ||
+         board == Board::BOARD_BETAFPV_N14 ||
          board == Board::BOARD_HELLORADIOSKY_V14 ||
          board == Board::BOARD_HELLORADIOSKY_V14LCD ||
          board == Board::BOARD_IFLIGHT_COMMANDO8 ||
@@ -918,7 +925,7 @@ inline bool HAS_EEPROM_YAML(Board::Type board)
 
 inline bool IS_STM32H5(Board::Type board)
 {
-  return false;
+  return IS_BETAFPV_N14(board);
 }
 
 inline bool IS_STM32H7(Board::Type board)
