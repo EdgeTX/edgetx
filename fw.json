@@ -1,5 +1,6 @@
 {
     "targets": [
+        ["BETAFPV NexRadio 14", "n14-"],
         ["Fatfish F16","f16-"],
         ["Flysky EL18", "el18-"],
         ["Flysky NB4+", "nb4p-"],
