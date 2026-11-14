@@ -31,10 +31,6 @@
 #include "hal/abnormal_reboot.h"
 #include "timers_driver.h"
 
-#if !defined(BOOT)
-  #include "edgetx.h"
-#endif
-
 #if OLED_SCREEN
   #define LCD_CONTRAST_OFFSET            0
 #elif defined(RADIO_FAMILY_JUMPER_T12) || defined(MANUFACTURER_RADIOMASTER) || defined(RADIO_COMMANDO8) || defined(RADIO_TPRO) || defined(RADIO_T12MAX) || defined(RADIO_V12) || defined(RADIO_V14)
