@@ -42,11 +42,7 @@ void rotaryEncoderCheck();
 #define FLASHSIZE                       0x80000  // 512k
 #endif
 #define FLASH_PAGESIZE                  256
-#if defined(STM32H5)
-#define BOOTLOADER_SIZE                 0x10000
-#else
 #define BOOTLOADER_SIZE                 0x8000
-#endif
 #define FIRMWARE_ADDRESS                0x08000000
 #define FIRMWARE_LEN(fsize)             (fsize - BOOTLOADER_SIZE)
 #define FIRMWARE_MAX_LEN                (FLASHSIZE - BOOTLOADER_SIZE)
@@ -64,8 +60,6 @@ void rotaryEncoderCheck();
 
 #if defined(RADIO_FAMILY_T20)
 # define SECONDARY_BOOTLOADER_KEYS      0x1200
-#elif defined(RADIO_N14)
-# define SECONDARY_BOOTLOADER_KEYS      0x10  // TODO: DELETE ME
 #endif
 
 extern uint16_t sessionTimer;
@@ -364,9 +358,6 @@ void setTopBatteryValue(uint32_t volts);
   #else
     #define VBAT_MOSFET_DROP   25 // * 10mV
   #endif
-#elif defined(RADIO_N14)
-  #define VBAT_DIV_R1         120 // kOhms
-  #define VBAT_DIV_R2          39 // kOhms
 #else
   #if defined (RADIO_T8) || defined(RADIO_COMMANDO8)
     #define BATTERY_DIVIDER 50000

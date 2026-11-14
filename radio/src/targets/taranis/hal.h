@@ -21,10 +21,6 @@
 
 #pragma once
 
-#if defined(STM32H5)
-static_assert(false, "STM32H5 should not include that file");
-#endif
-
 #if defined(STM32F413xx)
   #define CPU_FREQ            100000000
   #define PERI1_FREQUENCY     50000000

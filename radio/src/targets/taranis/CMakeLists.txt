@@ -13,17 +13,11 @@ set(USE_RTC_CLOCK YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
 set(TARGET_DIR taranis)
 
-if(PCB STREQUAL N14)
-  set(HSE_VALUE 8000000)
-else()
-  set(HSE_VALUE 12000000)
-endif()
-
+set(HSE_VALUE 12000000)
 set(TARGET_DIR taranis)
 set(PPM_LIMITS_SYMETRICAL YES)
 
 add_definitions(-DPCBTARANIS)
-#add_definitions(-DPCBFRSKY -DPCBTARANIS)
 
 if(PCB STREQUAL X9E)
   set(DEFAULT_INTERNAL_MODULE XJT_PXX1 CACHE STRING "Default internal module")
@@ -109,7 +103,7 @@ elseif(PCB STREQUAL X7)
   set(BITMAPS_DIR 128x64)
   set(BITMAPS_TARGET 9x_bitmaps)
   set(FONTS_TARGET 9x_fonts_1bit)
-#  set(LCD_DRIVER lcd_driver_spi.cpp)
+  set(LCD_DRIVER lcd_driver_spi.cpp)
   set(STATUS_LEDS YES)
   add_definitions(-DPCBX7 -DSOFTWARE_VOLUME)
   add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
@@ -123,8 +117,8 @@ elseif(PCB STREQUAL X7)
     add_definitions(-DRADIO_FAMILY_JUMPER_T12)
     add_definitions(-DMANUFACTURER_JUMPER)
   elseif(PCBREV STREQUAL TPRO)
-    set(DEFAULT_INTERNAL_MODULE NONE CACHE STRING "Default internal module")
-    set(INTERNAL_MODULE_SERIAL NO)
+    set(DEFAULT_INTERNAL_MODULE MULTIMODULE CACHE STRING "Default internal module")
+    set(INTERNAL_MODULE_SERIAL YES)
     set(MODULE_SIZE_SML YES)
     set(FLAVOUR tpro)
     set(ROTARY_ENCODER YES)
@@ -558,11 +552,6 @@ elseif (CPU_TYPE_FULL STREQUAL STM32F413xG)
   set(RTC_BACKUP_RAM YES)
   add_definitions(-DSTM32F40_41xxx -DSTM32F413xx)
   set(TARGET_LINKER_DIR stm32f413)
-elseif (CPU_TYPE_FULL STREQUAL STM32H562xx)
-  set(CPU_TYPE STM32H5)
-  set(RTC_BACKUP_RAM YES)
-  add_definitions(-DSTM32H562xx -DSTM32H5)
-  set(TARGET_LINKER_DIR stm32h562)
 else()
   message(FATAL_ERROR "Unknown CPU_TYPE_FULL" )
 endif()
@@ -615,7 +604,6 @@ set(TARGET_SRC_DIR targets/${TARGET_DIR})
 
 set(BOARD_COMMON_SRC
   ${TARGET_SRC_DIR}/board.cpp
-  ${TARGET_SRC_DIR}/system_clock.cpp
   ${TARGET_SRC_DIR}/haptic_driver.cpp
   ${TARGET_SRC_DIR}/backlight_driver.cpp
   ${TARGET_SRC_DIR}/${LCD_DRIVER}
@@ -654,7 +642,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_softserial_driver.cpp
   targets/common/arm/stm32/stm32_switch_driver.cpp
   targets/common/arm/stm32/trainer_driver.cpp
-#  targets/common/arm/stm32/stm32_ws2812.cpp
+  targets/common/arm/stm32/stm32_ws2812.cpp
 )
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
