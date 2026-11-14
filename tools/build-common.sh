@@ -32,6 +32,9 @@ get_target_build_options() {
         t12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=T12 -DINTERNAL_MODULE_MULTI=ON"
             ;;
+        n14)
+            BUILD_OPTIONS+="-DPCB=N14"
+            ;;
         tx12)
             BUILD_OPTIONS+="-DPCB=X7 -DPCBREV=TX12"
             ;;
