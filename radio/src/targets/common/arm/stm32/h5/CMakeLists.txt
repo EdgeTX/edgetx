@@ -71,12 +71,13 @@ else()
   message("### ERROR ####: ${CPU_TYPE_FULL}")
 endif()
 
-add_library(cmsis OBJECT EXCLUDE_FROM_ALL
+# INTERFACE like the other STM32 families: firmware and bootloader link it,
+# so the startup assembly never reaches the native (simulator/tests) build
+add_library(cmsis INTERFACE)
+
+target_sources(cmsis INTERFACE
   ${CMSIS_SRC}
 )
-
-set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:cmsis>)
-set(BOOTLOADER_SRC ${BOOTLOADER_SRC} $<TARGET_OBJECTS:cmsis>)
 
 if(NOT NATIVE_BUILD)
   #
