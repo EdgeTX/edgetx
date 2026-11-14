@@ -199,8 +199,10 @@ static void _sd_sdio_clk_enable(SD_SDIO_TypeDef* periph)
 #if defined(SDMMC1)
   if (periph == SDMMC1) {
     __HAL_RCC_SDMMC1_CLK_ENABLE();
+#if defined(SDMMC2)
   } else if(periph == SDMMC2) {
     __HAL_RCC_SDMMC2_CLK_ENABLE();
+#endif
   }
 #else
   (void)periph;
@@ -415,7 +417,7 @@ static DRESULT _read_dma(BYTE* buff, DWORD sector, UINT count)
 {
   ReadStatus = 0;
 
-#if __CORTEX_M >= 0x07
+#if __CORTEX_M >= 0x07 && !defined(STM32H5)
   SCB_CleanInvalidateDCache_by_Addr(buff, count * 512);
 #endif
 
@@ -477,7 +479,7 @@ static DRESULT sdio_read(BYTE lun, BYTE * buff, DWORD sector, UINT count)
 
 static DRESULT _write_dma(const BYTE *buff, DWORD sector, UINT count)
 {
-#if __CORTEX_M >= 0x07
+#if __CORTEX_M >= 0x07 && !defined(STM32H5)
   SCB_CleanDCache_by_Addr((void *)buff, count * 512);
 #endif
 

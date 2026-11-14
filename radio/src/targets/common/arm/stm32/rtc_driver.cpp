@@ -98,7 +98,7 @@ void rtcInit()
 {
   rtc.Instance = RTC;
 
-#if !defined(STM32H7) && !defined(STM32H7RS)
+#if !defined(STM32H7) && !defined(STM32H7RS) && !defined(STM32H5)
   // Power management peripheral is active by default at startup level in
   // STM32h7xx lines.
   __HAL_RCC_PWR_CLK_ENABLE();
@@ -109,6 +109,13 @@ void rtcInit()
 #endif
 
   HAL_PWR_EnableBkUpAccess();
+
+#if defined(STM32H5)
+  // The RTC APB interface clock (RTCAPBEN, in RCC->APB3ENR) is separate from
+  // the RTC kernel clock (RTCEN, in RCC->BDCR, set by __HAL_RCC_RTC_ENABLE()).
+  __HAL_RCC_RTC_CLK_ENABLE();
+#endif
+
 #if defined(LSE_DRIVE_STRENGTH)
   rtcSetLSEDriveStrength();
 #endif
@@ -151,7 +158,9 @@ void rtcInit()
 #if defined(STM32F4)
   __HAL_RCC_BKPSRAM_CLK_ENABLE();
 #endif
+#if !defined(STM32H5)
   HAL_PWREx_EnableBkUpReg();
+#endif
   HAL_PWR_EnableBkUpAccess();
 #endif
 }
@@ -162,7 +171,9 @@ void rtcDisableBackupReg()
 #if defined(STM32F4)
   __HAL_RCC_BKPSRAM_CLK_DISABLE();
 #endif
+#if !defined(STM32H5)
   HAL_PWREx_DisableBkUpReg();
+#endif
   HAL_PWR_DisableBkUpAccess();
 #endif
 }

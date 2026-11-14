@@ -38,4 +38,12 @@ void stm32_dma_enable_clock(DMA_TypeDef* DMAx)
     LL_AHB5_GRP1_EnableClock(LL_AHB5_GRP1_PERIPH_HPDMA1);
   }
 #endif
+
+#if defined(GPDMA1) && defined(GPDMA2)
+  if (DMAx == GPDMA1) {
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPDMA1);
+  } else if (DMAx == GPDMA2) {
+    LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPDMA2);
+  }
+#endif
 }

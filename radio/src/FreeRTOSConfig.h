@@ -32,6 +32,12 @@ uint32_t timersGetRunTimeCounter(void);
 }
 #endif
 
+#if defined(STM32H5)
+#define configENABLE_FPU                1
+#define configENABLE_MPU                0
+#define configENABLE_TRUSTZONE          0
+#endif
+
 #define configUSE_PREEMPTION            1
 #define configUSE_IDLE_HOOK             0
 #if defined(COLORLCD)
