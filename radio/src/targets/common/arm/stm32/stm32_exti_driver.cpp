@@ -30,6 +30,13 @@
 # define _PR_Reg PR
 #endif
 
+#if defined(STM32H5) || defined(STM32H7RS)
+#define GPIO_EXTI_GET_IT(__EXTI_LINE__)         (__HAL_GPIO_EXTI_GET_RISING_IT(__EXTI_LINE__) | \
+                                                 __HAL_GPIO_EXTI_GET_FALLING_IT(__EXTI_LINE__))
+#else
+#define GPIO_EXTI_GET_IT(__EXTI_LINE__)         __HAL_GPIO_EXTI_GET_IT(__EXTI_LINE__)
+#endif
+
 #define _EXTI_HANDLERS(irq_name) _handlers_ ## irq_name
 
 #define _PR_MASK(first, last) (((1 << (last - first + 1))-1))
@@ -40,12 +47,12 @@
   {                                                                     \
     /* Read Pending register */                                         \
     /* (shifted by start line) */                                       \
-    uint32_t pr = LL_EXTI_ReadReg(_PR_Reg) >> first;                    \
+    uint32_t pr = GPIO_EXTI_GET_IT(0xFFFFFFFF) >> first;                \
     pr &=  _PR_MASK(first,last);                                        \
     while (pr) {                                                        \
       uint32_t i = POSITION_VAL(pr);                                    \
       /* Clear Pending Flag */                                          \
-      LL_EXTI_ClearFlag_0_31(1 << (first + i));                         \
+      __HAL_GPIO_EXTI_CLEAR_IT(1 << (first + i));                       \
       pr &= ~(1 << i);                                                  \
       /* ... and trigger handler */                                     \
       stm32_exti_handler_t h_fct = _EXTI_HANDLERS(irq_name) [i];        \
@@ -85,7 +92,7 @@
   _DEFINE_EXTI_IRQ_HANDLER(EXTI4_IRQ, 4, 4);
 #endif
 
-#if defined(STM32H7RS)
+#if defined(STM32H7RS) || defined(STM32H5)
 
 #if defined(USE_EXTI5_IRQ)
   _DEFINE_EXTI_IRQ_HANDLER(EXTI5_IRQ, 5, 5);
@@ -106,6 +113,7 @@
 #if defined(USE_EXTI9_IRQ)
   _DEFINE_EXTI_IRQ_HANDLER(EXTI9_IRQ, 9, 9);
 #endif
+
 
 #if defined(USE_EXTI10_IRQ)
   _DEFINE_EXTI_IRQ_HANDLER(EXTI10_IRQ, 10, 10);
@@ -160,7 +168,6 @@ void stm32_exti_enable(uint32_t line, uint8_t trigger, stm32_exti_handler_t cb)
   LL_CKGA_Enable(LL_CKGA_PERIPH_EXTI);
 #endif
 
-
   LL_EXTI_InitTypeDef EXTI_init;
   LL_EXTI_StructInit(&EXTI_init);
 
@@ -189,6 +196,56 @@ void stm32_exti_enable(uint32_t line, uint8_t trigger, stm32_exti_handler_t cb)
   _SET_EXTI_IRQ_HANDLER(EXTI4_IRQ, 4, 4, line_pos, cb);
 #endif
 
+// Lines 5..15 only have their own vector on GPDMA parts; elsewhere they are
+// grouped into EXTI9_5 / EXTI15_10 (see the handler definitions above).
+#if defined(STM32H7RS) || defined(STM32H5)
+
+#if defined(USE_EXTI5_IRQ)
+  _SET_EXTI_IRQ_HANDLER(EXTI5_IRQ, 5, 5, line_pos, cb);
+#endif
+
+#if defined(USE_EXTI6_IRQ)
+  _SET_EXTI_IRQ_HANDLER(EXTI6_IRQ, 6, 6, line_pos, cb);
+#endif
+
+#if defined(USE_EXTI7_IRQ)
+  _SET_EXTI_IRQ_HANDLER(EXTI7_IRQ, 7, 7, line_pos, cb);
+#endif
+
+#if defined(USE_EXTI8_IRQ)
+  _SET_EXTI_IRQ_HANDLER(EXTI8_IRQ, 8, 8, line_pos, cb);
+#endif
+
+#if defined(USE_EXTI9_IRQ)
+  _SET_EXTI_IRQ_HANDLER(EXTI9_IRQ, 9, 9, line_pos, cb);
+#endif
+
+#if defined(USE_EXTI10_IRQ)
+  _SET_EXTI_IRQ_HANDLER(EXTI10_IRQ, 10, 10, line_pos, cb);
+#endif
+
+#if defined(USE_EXTI11_IRQ)
+  _SET_EXTI_IRQ_HANDLER(EXTI11_IRQ, 11, 11, line_pos, cb);
+#endif
+
+#if defined(USE_EXTI12_IRQ)
+  _SET_EXTI_IRQ_HANDLER(EXTI12_IRQ, 12, 12, line_pos, cb);
+#endif
+
+#if defined(USE_EXTI13_IRQ)
+  _SET_EXTI_IRQ_HANDLER(EXTI13_IRQ, 13, 13, line_pos, cb);
+#endif
+
+#if defined(USE_EXTI14_IRQ)
+  _SET_EXTI_IRQ_HANDLER(EXTI14_IRQ, 14, 14, line_pos, cb);
+#endif
+
+#if defined(USE_EXTI15_IRQ)
+  _SET_EXTI_IRQ_HANDLER(EXTI15_IRQ, 15, 15, line_pos, cb);
+#endif
+
+#else // STM32H7RS || STM32H5
+
 #if defined(USE_EXTI9_5_IRQ)
   _SET_EXTI_IRQ_HANDLER(EXTI9_5_IRQ, 5, 9, line_pos, cb);
 #endif
@@ -196,6 +253,8 @@ void stm32_exti_enable(uint32_t line, uint8_t trigger, stm32_exti_handler_t cb)
 #if defined(USE_EXTI15_10_IRQ)
   _SET_EXTI_IRQ_HANDLER(EXTI15_10_IRQ, 10, 15, line_pos, cb);
 #endif
+
+#endif // STM32H7RS || STM32H5
 }
 
 void stm32_exti_disable(uint32_t line)
@@ -218,6 +277,54 @@ void stm32_exti_disable(uint32_t line)
   _CLEAR_EXTI_IRQ_HANDLER(EXTI4_IRQ, 4, 4, line_pos);
 #endif
 
+#if defined(STM32H7RS) || defined(STM32H5)
+
+#if defined(USE_EXTI5_IRQ)
+  _CLEAR_EXTI_IRQ_HANDLER(EXTI5_IRQ, 5, 5, line_pos);
+#endif
+
+#if defined(USE_EXTI6_IRQ)
+  _CLEAR_EXTI_IRQ_HANDLER(EXTI6_IRQ, 6, 6, line_pos);
+#endif
+
+#if defined(USE_EXTI7_IRQ)
+  _CLEAR_EXTI_IRQ_HANDLER(EXTI7_IRQ, 7, 7, line_pos);
+#endif
+
+#if defined(USE_EXTI8_IRQ)
+  _CLEAR_EXTI_IRQ_HANDLER(EXTI8_IRQ, 8, 8, line_pos);
+#endif
+
+#if defined(USE_EXTI9_IRQ)
+  _CLEAR_EXTI_IRQ_HANDLER(EXTI9_IRQ, 9, 9, line_pos);
+#endif
+
+#if defined(USE_EXTI10_IRQ)
+  _CLEAR_EXTI_IRQ_HANDLER(EXTI10_IRQ, 10, 10, line_pos);
+#endif
+
+#if defined(USE_EXTI11_IRQ)
+  _CLEAR_EXTI_IRQ_HANDLER(EXTI11_IRQ, 11, 11, line_pos);
+#endif
+
+#if defined(USE_EXTI12_IRQ)
+  _CLEAR_EXTI_IRQ_HANDLER(EXTI12_IRQ, 12, 12, line_pos);
+#endif
+
+#if defined(USE_EXTI13_IRQ)
+  _CLEAR_EXTI_IRQ_HANDLER(EXTI13_IRQ, 13, 13, line_pos);
+#endif
+
+#if defined(USE_EXTI14_IRQ)
+  _CLEAR_EXTI_IRQ_HANDLER(EXTI14_IRQ, 14, 14, line_pos);
+#endif
+
+#if defined(USE_EXTI15_IRQ)
+  _CLEAR_EXTI_IRQ_HANDLER(EXTI15_IRQ, 15, 15, line_pos);
+#endif
+
+#else // STM32H7RS || STM32H5
+
 #if defined(USE_EXTI9_5_IRQ)
   _CLEAR_EXTI_IRQ_HANDLER(EXTI9_5_IRQ, 5, 9, line_pos);
 #endif
@@ -225,6 +332,8 @@ void stm32_exti_disable(uint32_t line)
 #if defined(USE_EXTI15_10_IRQ)
   _CLEAR_EXTI_IRQ_HANDLER(EXTI15_10_IRQ, 10, 15, line_pos);
 #endif
+
+#endif // STM32H7RS || STM32H5
 
   LL_EXTI_DisableIT_0_31(line);
 }

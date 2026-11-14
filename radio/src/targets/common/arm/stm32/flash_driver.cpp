@@ -161,7 +161,7 @@ static void flash_drv_flush_caches(bool dcache_enabled)
   }
 }
 
-#elif defined(STM32H7) || defined(STM32H7RS)
+#elif defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
 
 static uint32_t stm32_flash_get_sector(uint32_t address)
 {
@@ -276,7 +276,7 @@ static int stm32_flash_erase_sector(uint32_t address)
   #define FLASH_PROG_WORDS FLASH_NB_32BITWORD_IN_FLASHWORD
   #define _FLASH_PROGRAM(address, p_data) \
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, address, (uintptr_t)p_data)
-#elif defined(STM32H7RS)
+#elif defined(STM32H7RS) || defined(STM32H5)
   #define FLASH_PROG_WORDS 4UL
   #define _FLASH_PROGRAM(address, p_data) \
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_QUADWORD, address, (uintptr_t)p_data)
@@ -446,6 +446,19 @@ uint32_t isFirmwareStart(const uint8_t * buffer)
 #else
   #error "Unsupported H7 storage layout"
 #endif
+#elif defined(STM32H5)
+  // Stack pointer in RAM (640K, top at 0x200A0000)
+  if ((block[0] & 0xFFF00000) != 0x20000000) {
+    return 0;
+  }
+  // First ISR pointer in FLASH (up to 2M)
+  if ((block[1] & 0xFFE00000) != 0x08000000) {
+    return 0;
+  }
+  // Second ISR pointer in FLASH
+  if ((block[2] & 0xFFE00000) != 0x08000000) {
+    return 0;
+  }
 #else
   // Stack pointer in RAM
   if ((block[0] & 0xFFFC0000) != 0x20000000) {
