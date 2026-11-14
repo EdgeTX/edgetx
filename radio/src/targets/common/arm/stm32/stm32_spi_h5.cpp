@@ -209,9 +209,9 @@ static void _config_dma_streams(const stm32_spi_t* spi)
 }
 #endif
 
-void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width, bool misoPullUp)
+void stm32_spi_init(const stm32_spi_t* spi, uint32_t data_width)
 {
-  _init_gpios(spi, misoPullUp);
+  _init_gpios(spi, false);
 
   auto SPIx = spi->SPIx;
   stm32_spi_enable_clock(SPIx);
