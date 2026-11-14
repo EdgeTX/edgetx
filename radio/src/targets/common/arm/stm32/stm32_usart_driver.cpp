@@ -285,8 +285,6 @@ static gpio_af_t _get_usart_af(gpio_t pin, USART_TypeDef* USARTx)
     return GPIO_AF7;
   } else if (USARTx == UART8) {
     return GPIO_AF8;
-  } else if (USARTx == USART10) {
-    return GPIO_AF7;
   }
   return 0;
 #elif defined(STM32H5)
