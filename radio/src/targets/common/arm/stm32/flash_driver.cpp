@@ -24,6 +24,10 @@
 #include "stm32_cmsis.h"
 #include "stm32_hal.h"
 
+#if defined(STM32H5)
+  #include "stm32_hal_ll.h"
+#endif
+
 #include <string.h>
 
 static uint32_t stm32_flash_get_size_kb()
@@ -389,6 +393,13 @@ bool flashWrite(uint32_t* address, const uint32_t* buffer)
   // drop any lines cached before the erase/program so the read back
   // below comes from flash
   SCB_InvalidateDCache_by_Addr(address, FLASH_PAGESIZE);
+#elif defined(STM32H5)
+  // H5 has no core D-cache, but its ICACHE caches data reads from flash
+  // too: lines read before the erase (e.g. the old firmware's vectors and
+  // version string) would make the read back below see stale data
+  LL_ICACHE_Invalidate();
+  while (!LL_ICACHE_IsActiveFlag_BSYEND()) {}
+  LL_ICACHE_ClearFlag_BSYEND();
 #endif
 
   // verify the page was actually written, independently of what the
