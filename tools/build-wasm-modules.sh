@@ -226,7 +226,7 @@ else
     declare -a plugins=(
         # monochrome
         boxer bumblebee commando8
-        gx12 mt12 pocket t12max
+        gx12 mt12 n14 pocket t12max
         t14 t20 t20v2 tpros tprov2
         tx12mk2 zorro v14 v14lcd
         x7access x9dp2019 x9e
