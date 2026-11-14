@@ -135,7 +135,7 @@ void toggleLatencySwitch()
 
 void checkValidMCU(void)
 {
-#if !defined(SIMU) && !defined(BOOT)
+#if !defined(SIMU) && !defined(BOOT) && !defined(STM32H5) && !defined(STM32H7)
   // Checks the radio MCU type matches intended firmware type
   uint32_t idcode = DBGMCU->IDCODE & 0xFFF;
 
@@ -154,6 +154,8 @@ void checkValidMCU(void)
   #define TARGET_IDCODE   0x463
 #elif defined(STM32H750xx) || defined(STM32H747xx) || defined(STM32H743xx)
   #define TARGET_IDCODE   0x450
+#elif defined(STM32H5)
+  #define TARGET_IDCODE   0x484
 #elif defined(STM32H7RS)
   #define TARGET_IDCODE   0x485
 #else

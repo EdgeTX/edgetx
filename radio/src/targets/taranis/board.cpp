@@ -33,6 +33,7 @@
 #include "hal/rgbleds.h"
 
 #include "board.h"
+#include "system_clock.h"
 #include "boards/generic_stm32/module_ports.h"
 #include "boards/generic_stm32/intmodule_heartbeat.h"
 #include "boards/generic_stm32/analog_inputs.h"
@@ -86,6 +87,26 @@ void boardBLInit()
   #include "csd203_sensor.h"
 #endif
 
+#if !defined(USB_PD_SUPPORT) && defined(STM32H5)
+void disableUsbPdPins()
+{
+  LL_PWR_DisableUCPDDeadBattery(); // this allows PB13/PB14 to work properly
+}
+#endif
+
+#if defined(BOOT) && defined(STM32H5)
+void boardBLEarlyInit()
+{
+  SystemClock_Config();
+
+#if defined(STM32H5)
+#if !defined(USB_PD_SUPPORT)
+  disableUsbPdPins();
+#endif
+#endif
+}
+#endif
+
 HardwareOptions hardwareOptions;
 
 #if !defined(BOOT)
@@ -126,7 +147,18 @@ static void gyroInit()
 
 void boardInit()
 {
+  SystemClock_Config();
+
+#if !defined(USB_PD_SUPPORT) && defined(STM32H5)
+  disableUsbPdPins();
+#endif
+
+#if defined(AUDIO) && defined(AUDIO_RCC_APB1Periph)
+  LL_APB1_GRP1_EnableClock(AUDIO_RCC_APB1Periph);
+#endif
+#if defined(LL_APB2_GRP1_PERIPH_SYSCFG)
   LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+#endif
 
 #if (defined(RADIO_V14) || defined(RADIO_V14LCD)) && defined(AUDIO_MUTE_GPIO)
   // Amp SD is pulled low (amp on) until driven: mute before anything can pop
@@ -235,7 +267,9 @@ void boardInit()
     TRACE("adcInit failed");
 
   lcdInit(); // delaysInit() must be called before
+#if defined(AUDIO)
   audioInit();
+#endif
 
 #if defined(LED_STRIP_GPIO)
   rgbLedInit();
@@ -246,9 +280,13 @@ void boardInit()
 #endif
 
 #if defined(DEBUG)
+#if defined(STM32H5)
+  DBGMCU->APB1FZR1 = 0x000019FF;
+#else
   // Freeze timers & watchdog when core is halted
   DBGMCU->APB1FZ = 0x00E009FF;
   DBGMCU->APB2FZ = 0x00070003;
+#endif
 #endif
 
 #if defined(PWR_BUTTON_PRESS)
@@ -321,7 +359,8 @@ void boardOff()
 
   while (1) {
     WDG_RESET();
-#if defined(PWR_BUTTON_PRESS)
+#if defined(PWR_BUTTON_PRESS) && 0
+#warning todo
     // X9E/X7 needs watchdog reset because CPU is still running while
     // the power key is held pressed by the user.
     // The power key should be released by now, but we must make sure
