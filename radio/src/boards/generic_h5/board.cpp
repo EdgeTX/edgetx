@@ -30,6 +30,7 @@
 #include "hal/abnormal_reboot.h"
 #include "hal/usb_driver.h"
 #include "hal/gpio.h"
+#include "hal/key_driver.h"
 #include "hal/rgbleds.h"
 
 #include "board.h"
@@ -61,11 +62,8 @@ void boardBLInit()
 
 #endif // BOOT
 
-#if !defined(BOOT)
-  #include "edgetx.h"
-  #if defined(PXX1)
-    #include "pulses/pxx1.h"
-  #endif
+#if !defined(BOOT) && defined(PXX1)
+  #include "pulses/pxx1.h"
 #endif
 
 #if !defined(USB_PD_SUPPORT) && defined(STM32H5)
