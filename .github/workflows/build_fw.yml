@@ -62,6 +62,7 @@ jobs:
           - pa01
           - t22
           - h17
+          - n14
     container:
       image: ghcr.io/edgetx/edgetx-dev:2.12
       volumes:
@@ -120,6 +121,7 @@ jobs:
           - t22
           - c14
           - h17
+          - n14
     container:
       image: ghcr.io/edgetx/edgetx-dev:2.12
       volumes:
