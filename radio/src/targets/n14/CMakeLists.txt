@@ -24,7 +24,6 @@ set(GUI_DIR 128x64)
 set(BITMAPS_DIR 128x64)
 set(BITMAPS_TARGET 9x_bitmaps)
 set(FONTS_TARGET 9x_fonts_1bit)
-set(STATUS_LEDS YES)
 set(FLYSKY_GIMBAL ON)
 add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
@@ -38,7 +37,6 @@ set(USB_CHARGER NO)  # CHG_ON (PD.07) removed; pin reused for OLED_RST
 set(FLAVOUR n14)
 set(CPU_TYPE_FULL STM32H562xx)
 set(ENABLE_SERIAL_PASSTHROUGH ON CACHE BOOL "Enable serial passthrough")
-add_definitions(-DRADIO_N14)
 
 
 set(CPU_TYPE STM32H5)
@@ -62,7 +60,6 @@ set(BOARD_SRC_DIR boards/${BOARD})
 set(BOARD_COMMON_SRC
   ${BOARD_SRC_DIR}/board.cpp
   ${BOARD_SRC_DIR}/system_clock.cpp
-  ${BOARD_SRC_DIR}/led_driver.cpp
   ${BOARD_SRC_DIR}/backlight_driver.cpp
   ${BOARD_SRC_DIR}/haptic_driver.cpp
   ${BOARD_SRC_DIR}/${LCD_DRIVER}
@@ -112,7 +109,7 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 
 if(RGBLEDS)
-  target_sources(board PRIVATE targets/common/arm/stm32/stm32_ws2812.cpp)
+  target_sources(board PRIVATE targets/common/arm/stm32/stm32_rgbleds.cpp)
   add_definitions(-DRGBLEDS)
 endif()
 

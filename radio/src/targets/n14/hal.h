@@ -59,11 +59,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 
 #pragma once
 
-#define CPU_FREQ            248000000
-#define PERI1_FREQUENCY     248000000
-#define PERI2_FREQUENCY     248000000
-#define TIMER_MULT_APB1     1
-#define TIMER_MULT_APB2     1
+#include "hal_settings.h"
 
 #define TELEMETRY_EXTI_PRIO             0 // required for soft serial
 
@@ -80,30 +76,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_8  // PB.08 (was PB.04, freed for I2S1_SDI)
 #define KEYS_GPIO_REG_MDL             GPIOB
 #define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_6  // PB.06
-
-// Rotary Encoder
-#define ROTARY_ENCODER_NAVIGATION
-#define ROTARY_ENCODER_INVERTED
-#define ROTARY_ENCODER_GPIO             GPIOE
-#define ROTARY_ENCODER_GPIO_PIN_A       LL_GPIO_PIN_9 // PE.09
-#define ROTARY_ENCODER_GPIO_PIN_B       LL_GPIO_PIN_11 // PE.11
-#define ROTARY_ENCODER_POSITION()       (((ROTARY_ENCODER_GPIO->IDR >> 10) & 0x02) + ((ROTARY_ENCODER_GPIO->IDR >> 9) & 0x01))
-#define ROTARY_ENCODER_EXTI_LINE1       LL_EXTI_LINE_9
-#define ROTARY_ENCODER_EXTI_LINE2       LL_EXTI_LINE_11
-#if !defined(USE_EXTI9_IRQ)
-#define USE_EXTI9_IRQ
-#define EXTI9_IRQ_Priority 5
-#endif
-#if !defined(USE_EXTI11_IRQ)
-#define USE_EXTI11_IRQ
-#define EXTI11_IRQ_Priority 5
-#endif
-#define ROTARY_ENCODER_EXTI_PORT        LL_EXTI_EXTI_PORTE
-#define ROTARY_ENCODER_EXTI_SYS_LINE1   LL_EXTI_EXTI_LINE9
-#define ROTARY_ENCODER_EXTI_SYS_LINE2   LL_EXTI_EXTI_LINE11
-#define ROTARY_ENCODER_TIMER            TIM17
-#define ROTARY_ENCODER_TIMER_IRQn       TIM17_IRQn
-#define ROTARY_ENCODER_TIMER_IRQHandler TIM17_IRQHandler
 
 // Trims
 #define TRIMS_GPIO_REG_LHL            GPIOA
@@ -188,8 +160,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define ADC_GPIOC_PINS                (ADC_GPIO_PIN_STICK_RV | ADC_GPIO_PIN_STICK_RH | ADC_GPIO_PIN_POT1 | ADC_GPIO_PIN_POT2)
 #define ADC_VREF_PREC2                330
 
-#define ADC_DIRECTION {1,1,-1,-1,  -1,-1, 1,-1}
-
 // Flysky Hall Stick (digital sticks) on UART4: TX=PA0, RX=PA1. These pins are
 // the legacy analog left-stick ADC inputs, now repurposed for the gimbal serial
 // link (see ADC note above - they are kept out of ADC_GPIOA_PINS).
@@ -207,34 +177,9 @@ TIM17:	ROTARY_ENCODER_TIMER
   #define FLYSKY_GIMBAL_INVERT_MASK                0x09  // LH, RH
 #endif
 
-// PWR and LED driver
+// PWR
 #define PWR_SWITCH_GPIO               GPIO_PIN(GPIOD, 5)  // PD.05
 #define PWR_ON_GPIO                   GPIO_PIN(GPIOD, 6)  // PD.06
-
-#define STATUS_LEDS
-#define GPIO_LED_GPIO_ON              gpio_set
-#define GPIO_LED_GPIO_OFF             gpio_clear
-#define LED_RED_GPIO                  GPIO_PIN(GPIOE, 6)
-#define LED_BLUE_GPIO                 GPIO_PIN(GPIOA, 5)  // PA.05 (was PB.13, freed for OLED_CLK/SPI2)
-#define LED_GREEN_GPIO                GPIO_PIN(GPIOB, 14)
-
-// LED Strip (TIM5_CH4 on PA3, driven by GPDMA2 ch3 on the timer UPDATE event)
-#if defined(RGBLEDS)
-  #define LED_STRIP_LENGTH                  20
-  #define BLING_LED_STRIP_START             0
-  #define BLING_LED_STRIP_LENGTH            20
-  #define LED_STRIP_GPIO                    GPIO_PIN(GPIOA, 3) // PA.3 / TIM5_CH4
-  #define LED_STRIP_GPIO_AF                 LL_GPIO_AF_2 // TIM3/4/5
-  #define LED_STRIP_TIMER                   TIM5
-  #define LED_STRIP_TIMER_FREQ              (PERI1_FREQUENCY * TIMER_MULT_APB1)
-  #define LED_STRIP_TIMER_CHANNEL           LL_TIM_CHANNEL_CH4
-  #define LED_STRIP_TIMER_DMA               GPDMA2
-  #define LED_STRIP_TIMER_DMA_CHANNEL       LL_GPDMA2_REQUEST_TIM5_UP
-  #define LED_STRIP_TIMER_DMA_STREAM        LL_DMA_CHANNEL_3
-  #define LED_STRIP_TIMER_DMA_IRQn          GPDMA2_Channel3_IRQn
-  #define LED_STRIP_TIMER_DMA_IRQHandler    GPDMA2_Channel3_IRQHandler
-  #define LED_STRIP_REFRESH_PERIOD          50  //ms
-#endif
 
 // Internal Module
 #define INTMODULE_BOOTCMD_DEFAULT       0 // RESET
@@ -289,17 +234,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define EXTMODULE_TIMER_DMA_STREAM_IRQn    GPDMA2_Channel0_IRQn
 #define EXTMODULE_TIMER_DMA_IRQHandler     GPDMA2_Channel0_IRQHandler
 
-// Trainer Port (no detect pin: PE.15 is now AUDIO_RESET)
-#define TRAINER_IN_GPIO               GPIO_PIN(GPIOC, 7)  // PC.07 TIM3_CH2, TIM8_CH2
-#define TRAINER_IN_TIMER_Channel      LL_TIM_CHANNEL_CH2
-#define TRAINER_OUT_GPIO              GPIO_PIN(GPIOC, 6)  // PC.06 TIM3_CH1, TIM8_CH1,
-#define TRAINER_OUT_TIMER_Channel     LL_TIM_CHANNEL_CH1
-#define TRAINER_GPIO_AF               LL_GPIO_AF_2
-#define TRAINER_TIMER                 TIM3
-#define TRAINER_TIMER_IRQn            TIM3_IRQn
-#define TRAINER_TIMER_IRQHandler      TIM3_IRQHandler
-#define TRAINER_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
-
 // Telemetry
 // half duplex telem on UART7 TX = PE8 (UART7 was previously the gimbal/aux
 // serial; the gimbal now lives on UART4, so UART7 is free for telemetry).
@@ -330,12 +264,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 // Trainer / Trainee from the module bay
 //TODO
 
-// USB
-#define USB_GPIO_VBUS                   GPIO_PIN(GPIOB, 12) // PB.12
-#define USB_GPIO_DM                     GPIO_PIN(GPIOA, 11) // PA.11
-#define USB_GPIO_DP                     GPIO_PIN(GPIOA, 12) // PA.12
-#define USB_GPIO_AF                     GPIO_AF10
-
 // BackLight
 // No backlight: OLED display
 
@@ -358,7 +286,6 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define LCD_SPI                       SPI2
 #define LCD_GPIO_AF                   GPIO_AF5  // SPI2 AF on PB.13/PB.15
 #define LCD_SPI_PRESCALER             SPI_CR1_BR_1
-#define OLED_SCREEN
 
 // EEPROM
   // no EEPROM
@@ -405,28 +332,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define I2C_B1_GPIO_AF                  LL_GPIO_AF_4
 #define I2C_B1_CLK_RATE                 400000
 
-// Haptic
-#define HAPTIC_PWM
-#define HAPTIC_GPIO                   GPIO_PIN(GPIOB, 10) // PB.10
-#define HAPTIC_GPIO_AF                GPIO_AF1
-#define HAPTIC_TIMER                  TIM2  // Timer 2 Channel 3
-#define HAPTIC_TIMER_FREQ             (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define HAPTIC_COUNTER_REGISTER       HAPTIC_TIMER->CCR3
-#define HAPTIC_CCMR2                  TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3M_2
-#define HAPTIC_CCER                   TIM_CCER_CC3E
-
 // Bluetooth
-
-// Millisecond timer
-#define MS_TIMER                        TIM14
-#define MS_TIMER_IRQn                   TIM14_IRQn
-#define MS_TIMER_IRQHandler             TIM14_IRQHandler
-
-// Mixer scheduler timer
-#define MIXER_SCHEDULER_TIMER                TIM12
-#define MIXER_SCHEDULER_TIMER_FREQ           (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#define MIXER_SCHEDULER_TIMER_IRQn           TIM12_IRQn
-#define MIXER_SCHEDULER_TIMER_IRQHandler     TIM12_IRQHandler
 
 // Drive the 32.768 kHz LSE crystal at high strength for a fast start-up
 #define LSE_DRIVE_STRENGTH  RCC_LSEDRIVE_HIGH
