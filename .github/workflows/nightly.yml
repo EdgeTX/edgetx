@@ -17,6 +17,7 @@ jobs:
     strategy:
       matrix:
         target:
+          - n14 # BETAFPV
           - f16 # Fatfish
           - el18;nb4p;nv14;pa01;pl18;pl18ev;pl18u;st16 # Flysky
           - x10;x10express;x12s;x7access;x9dp2019;x9e # FrSky
