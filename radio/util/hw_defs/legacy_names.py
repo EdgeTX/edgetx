@@ -837,7 +837,7 @@ LEGACY_NAMES = [
             "lr3pro",
             "nv14", "el18",
             "t8", "t12",
-            "tlite", "tlitef4", "tpro", "tprov2", "tpros", "bumblebee","n14"
+            "tlite", "tlitef4", "tpro", "tprov2", "tpros", "bumblebee",
             "tx12", "tx12mk2",
             "x7", "x7access",
             "xlite", "xlites",
@@ -878,33 +878,6 @@ LEGACY_NAMES = [
                 "short_label": "2",
                 "description": "Potentiometer 2"
             }
-        }
-    },
-    {
-        "targets": {
-		"tlitef4", "tpro", "tprov2", "tpros", "bumblebee","n14"
-        },
-        "inputs": {
-            "LH": {
-                "yaml": "Rud",
-                "lua": "rud",
-                "description": "Rudder"
-            },
-            "LV": {
-                "yaml": "Ele",
-                "lua": "ele",
-                "description": "Elevator"
-            },
-            "RV": {
-                "yaml": "Thr",
-                "lua": "thr",
-                "description": "Throttle"
-            },
-            "RH": {
-                "yaml": "Ail",
-                "lua": "ail",
-                "description": "Aileron"
-            },
         }
     },
     {
