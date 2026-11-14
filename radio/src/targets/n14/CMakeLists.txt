@@ -82,7 +82,7 @@ endif()
 
 if(BLUETOOTH)
   list(APPEND BOARD_COMMON_SRC
-    targets/common/arm/stm32/bluetooth_driver.cppBOARD_SRC_DIR
+    targets/common/arm/stm32/bluetooth_driver.cpp
   )
 endif()
 
@@ -100,7 +100,6 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   ${BOARD_SRC_DIR}/audio_driver.cpp
   drivers/tas2505.cpp
   targets/common/arm/stm32/stm32_i2s.cpp
-  targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/heartbeat_driver.cpp
   targets/common/arm/stm32/mixer_scheduler_driver.cpp
   targets/common/arm/stm32/module_timer_driver.cpp
