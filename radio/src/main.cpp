@@ -639,8 +639,9 @@ void perMain()
   }
 
 #if defined(CROSSFIRE)
-  // blocks the UI task for the length of an accepted session
-  crsfSdCheck();
+  // a module's SD session (blocks for its length) or its refusal, once telemetry
+  // says one is due
+  if (crsfSdUiDue) crsfSdRunDue();
 #endif
 
 #if defined(MULTIMODULE)

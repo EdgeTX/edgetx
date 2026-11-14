@@ -57,8 +57,11 @@ bool crsfSdPortOwned(uint8_t module);
 // telemetry alarms: true during a session and for a few seconds after
 bool crsfSdSuppressAlarms();
 
-// UI task, every loop: runs an accepted session to completion (blocking)
-void crsfSdCheck();
+// Set from the telemetry side when an accepted session or a module's refusal needs
+// the UI. perMain() checks only this, and calls crsfSdRunDue() when it's set.
+extern volatile bool crsfSdUiDue;
+// UI task: shows the refusal, or runs the accepted session to completion (blocking)
+void crsfSdRunDue();
 
 struct CrsfSdUi {
   // stage text (from the module), done/total (total 0 = unknown)
@@ -67,7 +70,7 @@ struct CrsfSdUi {
   std::function<bool()> cancelled;
 };
 
-// implemented by each UI flavor; called from crsfSdCheck()
+// implemented by each UI flavor; called from crsfSdRunDue()
 void crsfSdRunWithUi(uint8_t module, uint8_t kind);
 // a notice that must not block the UI task (color radios' POPUP_WARNING is modal)
 void crsfSdNotify(const char* title, const char* text);

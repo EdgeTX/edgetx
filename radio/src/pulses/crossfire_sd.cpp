@@ -41,6 +41,8 @@ enum SdState : uint8_t {
 #define SD_OFFER_TIMEOUT_MS  3000
 #define SD_ALARM_QUIET_MS    5000
 
+volatile bool crsfSdUiDue = false;
+
 static volatile uint8_t _state = SD_IDLE;
 static volatile uint8_t _module = 0;
 static volatile uint8_t _kind = 0;
@@ -123,6 +125,7 @@ void crsfSdProcessFrame(uint8_t module, const uint8_t* frame, uint8_t len)
           (_state == SD_OFFERED || _state == SD_OFFER_DUE)) {
         TRACE("[SD] accepted");
         _state = SD_ACCEPTED;
+        crsfSdUiDue = true;
       }
       break;
 
@@ -138,6 +141,7 @@ void crsfSdProcessFrame(uint8_t module, const uint8_t* frame, uint8_t len)
         _rejectText[n] = '\0';
         TRACE("[SD] rejected: %s", _rejectText);
         _state = SD_REJECTED;
+        crsfSdUiDue = true;
       }
       break;
   }
@@ -169,6 +173,14 @@ uint8_t crsfSdSetupOffer(uint8_t module, uint8_t* frame)
   if (module != _module) return 0;
 
   uint32_t now = time_get_ms();
+  // an offer nobody answers: give up on it here, on the frame path, rather than
+  // have the UI loop watch the clock
+  if ((_state == SD_OFFER_DUE || _state == SD_OFFERED) &&
+      now - _offerStart > SD_OFFER_TIMEOUT_MS) {
+    TRACE("[SD] offer timed out");
+    _state = SD_IDLE;
+    return 0;
+  }
   if (_state == SD_OFFER_DUE ||
       (_state == SD_OFFERED && now - _offerLast >= SD_OFFER_RESEND_MS)) {
     uint8_t* buf = frame;
@@ -734,17 +746,10 @@ __attribute__((weak)) void crsfSdRunWithUi(uint8_t module, uint8_t kind)
   else POPUP_WARNING("Module SD session", msg);
 }
 
-void crsfSdCheck()
+void crsfSdRunDue()
 {
+  crsfSdUiDue = false;
   switch (_state) {
-    case SD_OFFERED:
-    case SD_OFFER_DUE:
-      if (time_get_ms() - _offerStart > SD_OFFER_TIMEOUT_MS) {
-        TRACE("[SD] offer timed out");
-        _state = SD_IDLE;
-      }
-      break;
-
     case SD_REJECTED:
       _state = SD_IDLE;
       crsfSdNotify("Module refused", _rejectText);
