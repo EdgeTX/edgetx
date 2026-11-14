@@ -120,6 +120,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x3E78746F;
     case BOARD_BETAFPV_LR3PRO:
       return 0x4578746F;
+    case BOARD_BETAFPV_N14:
+      return 0x5378746F;
     case BOARD_IFLIGHT_COMMANDO8:
       return 0x4B78746F;
     case BOARD_JUMPER_T12:
@@ -198,6 +200,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_TARANIS_X9DP_2019:
     case BOARD_TARANIS_X9E:
     case BOARD_BETAFPV_LR3PRO:
+    case BOARD_BETAFPV_N14:
     case BOARD_IFLIGHT_COMMANDO8:
     case BOARD_JUMPER_T12:
     case BOARD_JUMPER_T12MAX:
@@ -319,6 +322,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_FLYSKY_ST16: // 8MB SDRAM
     case BOARD_IFLIGHT_COMMANDO14: // 8MB SDRAM
     case BOARD_SENDUWING_H17: // 8MB SDRAM
+    case BOARD_BETAFPV_N14:
     case BOARD_FATFISH_F16:
     case BOARD_HELLORADIOSKY_V12: // 8MB SDRAM
     case BOARD_HELLORADIOSKY_V15:
@@ -372,7 +376,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
                IS_RADIOMASTER_ZORRO(board) || IS_RADIOMASTER_TX12_MK2(board) ||
                IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_POCKET(board) ||
                IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_GX12(board) ||
-               IS_JUMPER_T20(board) || IS_JUMPER_BUMBLEBEE(board)) ||
+               IS_JUMPER_T20(board) || IS_JUMPER_BUMBLEBEE(board) ||
+               IS_BETAFPV_N14(board)) ||
                IS_FAMILY_T16(board) || IS_FAMILY_HORUS(board) ||
               (getCapability(board, HasExternalModuleSupport) &&
                (IS_TARANIS(board) && !IS_FAMILY_T12(board))));
@@ -381,7 +386,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return IS_FAMILY_HORUS_OR_T16(board) || IS_JUMPER_TPRO(board) ||
              IS_RADIOMASTER_BOXER(board) || IS_RADIOMASTER_MT12(board) ||
              IS_RADIOMASTER_POCKET(board) || IS_RADIOMASTER_TX12_MK2(board) ||
-             IS_RADIOMASTER_ZORRO(board);
+             IS_RADIOMASTER_ZORRO(board) || IS_BETAFPV_N14(board);
 
     case MaxContrast:
       if (getCapability(board, LcdOLED))
@@ -417,7 +422,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
               IS_JUMPER_T15PRO(board) || IS_JUMPER_T15H7(board) || IS_JUMPER_T18H7(board) ||
               IS_FLYSKY_PA01(board) || IS_FLYSKY_ST16(board) ||
               IS_RADIOMASTER_TX16SMK3(board) || IS_IFLIGHT_C14(board) ||
-              IS_RADIOMASTER_GX15(board) || IS_RADIOMASTER_GX10(board) || IS_SENDUWING_H17(board));
+              IS_RADIOMASTER_GX15(board) || IS_RADIOMASTER_GX10(board) || IS_SENDUWING_H17(board) ||
+              IS_BETAFPV_N14(board));
 
     default:
       return getBoardJson(board)->getCapability(capability);
@@ -686,6 +692,8 @@ QString Boards::getBoardName(Board::Type board)
       return "FlySky ST16";
     case BOARD_BETAFPV_LR3PRO:
       return "BETAFPV LR3PRO";
+    case BOARD_BETAFPV_N14:
+      return "BETAFPV NexRadio 14";
     case BOARD_IFLIGHT_COMMANDO8:
       return "iFlight Commando 8";
     case BOARD_IFLIGHT_COMMANDO14:
@@ -759,7 +767,7 @@ QList<int> Boards::getSupportedInternalModules(Board::Type board)
   } else if (IS_RADIOMASTER_MT12(board)) {
     modules.append((int)MODULE_TYPE_CROSSFIRE);
     modules.append((int)MODULE_TYPE_MULTIMODULE);
-  } else if (IS_JUMPER_T22(board)) {
+  } else if (IS_JUMPER_T22(board) || IS_BETAFPV_N14(board)) {
     modules.append((int)MODULE_TYPE_CROSSFIRE);
   } else if (IS_FAMILY_HORUS_OR_T16(board) || IS_FAMILY_T12(board) ||
              (IS_TARANIS_SMALL(board) && IS_ACCESS_RADIO(board))) {
@@ -810,6 +818,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
     return (int)MODULE_TYPE_MULTIMODULE;
 
   case BOARD_BETAFPV_LR3PRO:
+  case BOARD_BETAFPV_N14:
   case BOARD_FATFISH_F16:
   case BOARD_HELLORADIOSKY_V12:
   case BOARD_HELLORADIOSKY_V14:
@@ -903,6 +912,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
     case BOARD_JUMPER_T18:
     case BOARD_JUMPER_T20:
     case BOARD_JUMPER_T20V2:
+    case BOARD_BETAFPV_N14:
       BR(67, 83, 66)
       break;
     case BOARD_JUMPER_TLITE:
@@ -958,7 +968,8 @@ int Boards::getDefaultExternalModuleSize(Board::Type board)
       IS_JUMPER_TPRO(board)        ||
       IS_JUMPER_T20(board)         ||
       IS_JUMPER_BUMBLEBEE(board)  ||
-      IS_BETAFPV_LR3PRO(board))
+      IS_BETAFPV_LR3PRO(board)     ||
+      IS_BETAFPV_N14(board))
     return EXTMODSIZE_SMALL;
 
   return EXTMODSIZE_STD;
