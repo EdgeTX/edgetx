@@ -135,10 +135,7 @@ void toggleLatencySwitch()
 
 void checkValidMCU(void)
 {
-// STM32H5: disabled during bring-up and not yet verified on hardware. The
-// IDCODE below matches the H562/H563/H573 DEV_ID; drop the STM32H5 exclusion
-// once a radio has been confirmed to read it correctly.
-#if !defined(SIMU) && !defined(BOOT) && !defined(STM32H5)
+#if !defined(SIMU) && !defined(BOOT)
   // Checks the radio MCU type matches intended firmware type
   uint32_t idcode = DBGMCU->IDCODE & 0xFFF;
 
@@ -158,7 +155,7 @@ void checkValidMCU(void)
 #elif defined(STM32H750xx) || defined(STM32H747xx) || defined(STM32H743xx)
   #define TARGET_IDCODE   0x450
 #elif defined(STM32H5)
-  #define TARGET_IDCODE   0x484
+  #define TARGET_IDCODE   0x484   // STM32H562/H563/H573
 #elif defined(STM32H7RS)
   #define TARGET_IDCODE   0x485
 #else
