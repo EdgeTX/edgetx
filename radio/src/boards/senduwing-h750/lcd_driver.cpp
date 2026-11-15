@@ -45,7 +45,7 @@ static void* initialFrameBuffer = nullptr;
 
 static volatile uint8_t _frame_addr_reloaded = 0;
 
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
 // The H17 panel is mounted upside-down, exactly like the tx16s/horus panel.
 // LTDC cannot rotate, so we software-rotate every refreshed area 180 into a
 // dedicated back buffer and swap it in on the last flush of a frame. Mirrors
@@ -131,7 +131,7 @@ static void _update_frame_buffer_addr(uint16_t* buffer)
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
 {
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
   _copy_rotate_180(_back_buffer, buffer, copy_area);
 
   if (lv_disp_flush_is_last(disp_drv)) {
@@ -310,7 +310,7 @@ void LCD_LayerInit() {
   layer.ImageHeight = lcd_phys_h;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
   layer.FBStartAdress = (intptr_t)_LCD_BUF_1;
 #else
   layer.FBStartAdress = (intptr_t)initialFrameBuffer;
@@ -334,7 +334,7 @@ const char* boardLcdType = "";
 extern "C"
 void lcdInit(void)
 {
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
   // Clear buffers first
   memset(_LCD_BUF_1, 0, sizeof(_LCD_BUF_1));
   memset(_LCD_BUF_2, 0, sizeof(_LCD_BUF_2));
