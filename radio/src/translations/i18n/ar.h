@@ -71,9 +71,9 @@
 #define TR_QM_SCREEN_9                  "الشاشة 9"
 #define TR_QM_SCREEN_10                 "الشاشة 10"
 #define TR_QM_ADD_SCREEN                "إضافة\nشاشة"
-#define TR_QM_APPS                      "التطبيقات"
+#define TR_QM_APPS                      "تطبيقات"
 #define TR_QM_STORAGE                   "التخزين"
-#define TR_QM_RESET                     TR_SFC_AIR("إعادة ضبط\nالقيادة", "إعادة ضبط\nالطيران")
+#define TR_QM_RESET                     TR_SFC_AIR("ضبط\nالقيادة", "ضبط\nالطيران")
 #define TR_QM_CHAN_MON                  "مراقبة\nالقنوات"
 #define TR_QM_LS_MON                    "مراقبة\nLS"
 #define TR_QM_STATS                     "الإحصائيات"
@@ -739,7 +739,7 @@
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("القوة الفعلية", "القوة الفعلية")
 #define TR_AFHDS3_POWER_SOURCE         TR("مصدر الطاقة", "مصدر الطاقة")
-#define TR_IBUS2_SENSORS_MODE_ONLY     "ضبط الحساسات متاح بوضع iBUS2 فقط."
+#define TR_IBUS2_SENSORS_MODE_ONLY     "ضبط المستشعرات متاح بوضع iBUS2 فقط."
 #define TR_GPS_COORDS_FORMAT           TR("إحداثيات GPS", "صيغة الإحداثيات")
 #define TR_VARIO                       TR("Vario", "Variometer")
 #define TR_PITCH_AT_ZERO               "النغمة عند الصفر"
@@ -968,7 +968,7 @@
 #define TR_HOLD_UPPERCASE              "تثبيت"
 #define TR_NONE                        "لا شيء"
 #define TR_NONE_UPPERCASE              "لا شيء"
-#define TR_MENUSENSOR                  "الحساس"
+#define TR_MENUSENSOR                  "المستشعر"
 #define TR_POWERMETER_PEAK             "الذروة"
 #define TR_POWERMETER_POWER            "القوة"
 #define TR_POWERMETER_ATTN             "التخفيف"
@@ -991,7 +991,7 @@
 #define TR_STOPPING                    "جاري الإيقاف..."
 #define TR_MENU_SPECTRUM_ANALYSER      "محلل الطيف"
 #define TR_MENU_POWER_METER            "مقياس القوة"
-#define TR_SENSOR                      "الحساس"
+#define TR_SENSOR                      "المستشعر"
 #define TR_COUNTRY_CODE                "رمز الدولة"
 #define TR_USBMODE                     "وضع USB"
 #define TR_USB_CHARGE                  "الشحن أثناء التشغيل"
@@ -1061,7 +1061,7 @@
 #define TR_MODULE                      "الموديول"
 #define TR_RX_NAME                     "اسم Rx"
 #define TR_TELEMETRY_TYPE              TR("النوع", "نوع Telemetry")
-#define TR_TELEMETRY_SENSORS           "الحساسات"
+#define TR_TELEMETRY_SENSORS           "المستشعرات"
 #define TR_VALUE                       "القيمة"
 #define TR_PERIOD                      "الفترة"
 #define TR_INTERVAL                    "الفاصل"
@@ -1102,9 +1102,9 @@
 #define TR_PT                          "نقطة"
 #define TR_PTS                         "نقاط"
 #define TR_SMOOTH                      "ناعم"
-#define TR_COPY_STICKS_TO_OFS          TR("نسخ المحور->Subtrim", "نسخ المحور إلى Subtrim")
+#define TR_COPY_STICKS_TO_OFS          TR("Cpy stick->subtrim", "Copy axis to subtrim")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("نسخ الحدود للكل",  "نسخ الأدنى/الأعلى/الوسط لكل Outputs")
-#define TR_COPY_TRIMS_TO_OFS           TR("نسخ Trim->Subtrim", "نسخ Trims إلى Subtrim")
+#define TR_COPY_TRIMS_TO_OFS           TR("Cpy trim->subtrim", "Copy trims to subtrim")
 #define TR_INCDEC                      "زيادة/نقصان"
 #define TR_GLOBALVAR                   "Global var"
 #define TR_MIXSOURCE                   "المصدر (%)"
@@ -1211,11 +1211,11 @@
 #define TR_OPTIONS                     "الخيارات"
 #define TR_FIRMWARE_OPTIONS            BUTTON("خيارات Firmware")
 
-#define TR_ALTSENSOR                   "حساس الارتفاع"
-#define TR_CELLSENSOR                  "حساس الخلايا"
-#define TR_GPSSENSOR                   "حساس GPS"
+#define TR_ALTSENSOR                   "مستشعر الارتفاع"
+#define TR_CELLSENSOR                  "مستشعر الخلايا"
+#define TR_GPSSENSOR                   "مستشعر GPS"
 #define TR_GYRO                        "Gyro"
-#define TR_CURRENTSENSOR               "الحساس"
+#define TR_CURRENTSENSOR               "المستشعر"
 #define TR_AUTOOFFSET                  "إزاحة تلقائية"
 #define TR_ONLYPOSITIVE                "موجب"
 #define TR_FILTER                      "فلتر"
@@ -1262,7 +1262,7 @@
 
 #define TR_USE_THEME_COLOR              "استخدم لون المظهر"
 
-#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "إضافة كل Trims إلى Subtrims"
+#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
 #define TR_DUPLICATE                    "تكرار"
 #define TR_ACTIVATE                     "تعيين كنشط"
 #define TR_COLOR_PICKER                 "اختيار اللون"
