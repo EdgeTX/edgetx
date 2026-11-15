@@ -23,7 +23,7 @@
 
 #include "edgetx.h"
 #include "translations/translation_def.h"
-#include "translations/i18n/he.h"
+#include "translations/i18n/ar.h"
 
 // Static string
 #define STR(x) static const char LNG_STR_##x[] __FLASH = TR_##x;
