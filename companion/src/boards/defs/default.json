@@ -10,10 +10,10 @@
   "supported": true,
   "hwdefn": "",
   "battery": {
-    "comments": "",
-    "min": 60,
-    "max": 80,
-    "warn": 65
+    "comments": "decimals 1",
+    "vmin": 60,
+    "vmax": 80,
+    "vwarn": 65
   },
   "backlight": {
     "comments": "initialisation values",
@@ -31,7 +31,9 @@
     "max": 45,
     "dflt": 25
   },
+  "eepromsize": 0,
   "externalAntenna": false,
+  "flashSize": 0,
   "hardwareAntennaSwitch": false,
   "hats": false,
   "modules": [

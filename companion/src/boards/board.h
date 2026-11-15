@@ -305,9 +305,9 @@ class Board
     };
 
     struct BatteryDefn {
-      int min   {0};
-      int max   {0};
-      int warn  {0};
+      int vmin   {0};
+      int vmax   {0};
+      int vwarn  {0};
 
       BatteryDefn() = default;
     };
@@ -442,7 +442,9 @@ class Board
       BacklightDefn backlight;
       bool          chargeWhileOn           {false};
       Json::range_t contrast                {10, 45, 25};
+      int           eepromSize              {0};
       bool          externalAntenna         {false};
+      int           flashSize               {0};
       bool          flySkyGimbals           {false};
       bool          hardwareAntennaSwitch   {false};
       bool          hats                    {false};
@@ -566,6 +568,9 @@ class Board
     STRINGTAGMAPPINGFUNCS(trimSwitchesLookupTable, TrimSwitch);
     STRINGTAGMAPPINGFUNCS(rawSwitchTypesLookupTable, RawSwitchType);
     STRINGTAGMAPPINGFUNCS(rawSourceSpecialTypesLookupTable, RawSourceSpecialType);
+
+    // TODO REMOVE BEFORE MERGING
+    static void buildJson();
 
   private:
 

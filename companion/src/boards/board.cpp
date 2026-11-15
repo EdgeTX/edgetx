@@ -116,7 +116,7 @@ static const StringTagMappingTable switchTypesLookupTable = {
 // TODO remove in modules refactor
 static const StringTagMappingTable extModuleSizeLookupTable = {
     {std::to_string(Board::EXTMODSIZE_NONE),   "none"},
-    {std::to_string(Board::EXTMODSIZE_STD),    "std"},
+    {std::to_string(Board::EXTMODSIZE_STD),    "standard"},
     {std::to_string(Board::EXTMODSIZE_SMALL),  "small"},
     {std::to_string(Board::EXTMODSIZE_BOTH),   "both"},
 };
@@ -263,9 +263,15 @@ int Board::getCapability(const Capability capability) const
         return idx;
       }
 
+    case Capability::EepromSize:
+      return m_hardware.eepromSize;
+
     case Capability::ExternalModuleSize:
       return getCapability(Capability::HasExternalModuleSupport) ?
              m_hardware.externalModules.size : Board::EXTMODSIZE_NONE;
+
+    case Capability::FlashSize:
+      return m_hardware.flashSize;
 
     case Capability::FlexInputs:
       return (m_inputCnt.flexGyroAxes +
@@ -626,9 +632,9 @@ const QList<int> Board::supportedInternalModules() const
 
 void Board::getBatteryRange(int & vmin, int & vmax, unsigned int & vwarn) const
 {
-  vmin = m_hardware.battery.min;
-  vmax = m_hardware.battery.max;
-  vwarn = m_hardware.battery.warn;
+  vmin = m_hardware.battery.vmin;
+  vmax = m_hardware.battery.vmax;
+  vwarn = m_hardware.battery.vwarn;
 }
 
 //  static
@@ -1398,8 +1404,14 @@ bool Board::loadDefinition(const QString & path)
     else if (it.key() == "display")
       loadDisplay(it);
 
+    else if (it.key() == "eepromSize")
+      m_hardware.eepromSize = Json::valueInt(it, m_hardware.eepromSize, 32 * 1024);
+
     else if (it.key() == "externalAntenna")
       m_hardware.externalAntenna = Json::valueBool(it, m_hardware.externalAntenna);
+
+    else if (it.key() == "flashSize")
+      m_hardware.flashSize = Json::valueInt(it, m_hardware.flashSize, 2 * 1024 * 1024);
 
     else if (it.key() == "flySkyGimbals")
       m_hardware.flySkyGimbals = Json::valueBool(it, m_hardware.flySkyGimbals);
@@ -1530,9 +1542,9 @@ void Board::loadBattery(QJsonObject::const_iterator & oit)
 {
   //JSON_ITER_VAL(oit);
   JSON_OBJ_INIT_R(oit, o);
-  m_hardware.battery.min = Json::valueInt(o, "min", m_hardware.battery.min);
-  m_hardware.battery.max = Json::valueInt(o, "max", m_hardware.battery.max);
-  m_hardware.battery.warn = Json::valueInt(o, "warn", m_hardware.battery.warn);
+  m_hardware.battery.vmin = Json::valueInt(o, "vmin", m_hardware.battery.vmin, false, 42 * 3);  // 4.2 * 3s
+  m_hardware.battery.vmax = Json::valueInt(o, "vmax", m_hardware.battery.vmax, false, 42 * 3);
+  m_hardware.battery.vwarn = Json::valueInt(o, "vwarn", m_hardware.battery.vwarn, false, 42 * 3);
 }
 
 void Board::loadDisplay(QJsonObject::const_iterator & it)
@@ -2021,4 +2033,182 @@ StringTagMappingTable Board::getLegacyAnalogsLookupTable(QString boardId)
 std::string Board::getLegacyAnalogMappedInputTag(const char * legacytag, const QString & boardId)
 {
   return DataHelpers::getStringTagMappingName(Board::getLegacyAnalogsLookupTable(boardId == Board::BOARD_UNKNOWN ? getCurrentBoard()->getId() : boardId), legacytag);
+}
+
+// TODO REMOVE BEFORE MERGING
+void Board::buildJson()
+{
+  QFile regbds("/utils/edgetx/vscode/buildregbds.txt");
+  if (!regbds.open(QIODevice::ReadOnly | QIODevice::Text))
+    return;
+
+  QTextStream regbdsin(&regbds);
+  QStringList regbdrec = regbdsin.readLine().split(";"); // header
+
+  QFile regcaps("/utils/edgetx/vscode/buildregbdcaps.txt");
+  if (!regcaps.open(QIODevice::ReadOnly | QIODevice::Text))
+    return;
+
+  QTextStream regcapsin(&regcaps);
+  //  read all reg caps into array to save re-reading every board
+  QList<QStringList> regcapsarray;
+  QStringList regcapsrec = regcapsin.readLine().split(";"); // header
+  while (!regcapsin.atEnd()) {
+    regcapsarray.append(regcapsin.readLine().split(";"));
+  }
+  regcaps.close();
+
+  QFile caps("/utils/edgetx/vscode/buildbdcaps.txt");
+  if (!caps.open(QIODevice::ReadOnly | QIODevice::Text))
+    return;
+
+  QTextStream capsin(&caps);
+  QStringList capsrec = capsin.readLine().split(";"); // header
+
+  while (!regbdsin.atEnd()) {
+    regbdrec = regbdsin.readLine().split(";");
+    if (regbdrec.at(13).isEmpty())
+      continue;
+
+    QJsonObject obj;
+    obj["name"] = regbdrec[2];
+    QJsonArray basedOn;
+    obj["basedOn"] = basedOn;
+    if (regbdrec[4].toInt() > 0)
+      obj["eepromSize"] = regbdrec[4];
+    if (regbdrec[5].toInt() > 0)
+      obj["flashSize"] = regbdrec[5];
+
+    QJsonObject battery;
+    battery["vmin"] = regbdrec[9];
+    battery["vmax"] = regbdrec[10];
+    battery["vwarn"] = regbdrec[11];
+    obj["battery"] = battery;
+
+    QJsonArray mods;
+
+    QStringList strlintavail = regbdrec[7].split("|");
+
+    if (strlintavail.count() > 1 || (strlintavail.count() == 1 && strlintavail.at(0).toInt() != 0)) {
+      QJsonObject intmodobj;
+      QJsonObject intmod;
+      QJsonArray intavail;
+
+      foreach (auto & s, strlintavail) {
+        // enum to string and skip 0 none
+        if (s.toInt() != 0)
+          intavail.append(DataHelpers::getStringNameMappingTag(intModuleTypesLookupTable, s.toLatin1().data()).c_str());
+      }
+
+      intmod["available"] = intavail;
+      intmod["default"] = DataHelpers::getStringNameMappingTag(intModuleTypesLookupTable, regbdrec[8].toLatin1().data()).c_str();
+      intmodobj["internal"] = intmod;
+      mods.append(intmodobj);
+    }
+
+    if (regbdrec[6] != "None") {
+      QJsonObject extmodobj;
+      QJsonObject extmod;
+      QJsonArray extavail;
+
+      extmod["size"] = regbdrec[6].toLower();
+
+#define JSONAPPENDEXTMOD(mod) extavail.append(QJsonValue(DataHelpers::getStringNameMappingTag(intModuleTypesLookupTable, \
+                        std::to_string(mod).c_str()).c_str()))
+
+      // does not fit the standard external module scheme
+      if (getCurrentBoard()->getId() == "c14") {
+        JSONAPPENDEXTMOD(MODULE_TYPE_CROSSFIRE);
+        JSONAPPENDEXTMOD(MODULE_TYPE_GHOST);
+
+      } else if (regbdrec.at(6).toLower() == "small") {
+        JSONAPPENDEXTMOD(MODULE_TYPE_R9M_LITE_PXX1);
+        JSONAPPENDEXTMOD(MODULE_TYPE_R9M_LITE_PXX2);
+        JSONAPPENDEXTMOD(MODULE_TYPE_R9M_LITE_PRO_PXX2);
+        JSONAPPENDEXTMOD(MODULE_TYPE_XJT_LITE_PXX2);
+        JSONAPPENDEXTMOD(MODULE_TYPE_CROSSFIRE);
+        JSONAPPENDEXTMOD(MODULE_TYPE_MULTIMODULE);
+        JSONAPPENDEXTMOD(MODULE_TYPE_GHOST);
+        JSONAPPENDEXTMOD(MODULE_TYPE_PPM);
+        JSONAPPENDEXTMOD(MODULE_TYPE_SBUS);
+        JSONAPPENDEXTMOD(MODULE_TYPE_LEMON_DSMP);
+      } else if (regbdrec.at(6).toLower() == "standard") {
+        JSONAPPENDEXTMOD(MODULE_TYPE_XJT_PXX1);
+        JSONAPPENDEXTMOD(MODULE_TYPE_ISRM_PXX2);
+        JSONAPPENDEXTMOD(MODULE_TYPE_R9M_PXX1);
+        JSONAPPENDEXTMOD(MODULE_TYPE_R9M_PXX2);
+        JSONAPPENDEXTMOD(MODULE_TYPE_DSM2);
+        JSONAPPENDEXTMOD(MODULE_TYPE_CROSSFIRE);
+        JSONAPPENDEXTMOD(MODULE_TYPE_MULTIMODULE);
+        JSONAPPENDEXTMOD(MODULE_TYPE_GHOST);
+        JSONAPPENDEXTMOD(MODULE_TYPE_FLYSKY_AFHDS3);
+        JSONAPPENDEXTMOD(MODULE_TYPE_LEMON_DSMP);
+        JSONAPPENDEXTMOD(MODULE_TYPE_PPM);
+        JSONAPPENDEXTMOD(MODULE_TYPE_SBUS);
+      } else if (regbdrec.at(6).toLower() == "both") {
+        JSONAPPENDEXTMOD(MODULE_TYPE_XJT_PXX1);
+        JSONAPPENDEXTMOD(MODULE_TYPE_ISRM_PXX2);
+        JSONAPPENDEXTMOD(MODULE_TYPE_R9M_PXX1);
+        JSONAPPENDEXTMOD(MODULE_TYPE_R9M_PXX2);
+        JSONAPPENDEXTMOD(MODULE_TYPE_DSM2);
+        JSONAPPENDEXTMOD(MODULE_TYPE_CROSSFIRE);
+        JSONAPPENDEXTMOD(MODULE_TYPE_MULTIMODULE);
+        JSONAPPENDEXTMOD(MODULE_TYPE_GHOST);
+        JSONAPPENDEXTMOD(MODULE_TYPE_FLYSKY_AFHDS3);
+        JSONAPPENDEXTMOD(MODULE_TYPE_LEMON_DSMP);
+        JSONAPPENDEXTMOD(MODULE_TYPE_R9M_LITE_PXX1);
+        JSONAPPENDEXTMOD(MODULE_TYPE_R9M_LITE_PXX2);
+        JSONAPPENDEXTMOD(MODULE_TYPE_R9M_LITE_PRO_PXX2);
+        JSONAPPENDEXTMOD(MODULE_TYPE_XJT_LITE_PXX2);
+        JSONAPPENDEXTMOD(MODULE_TYPE_PPM);
+        JSONAPPENDEXTMOD(MODULE_TYPE_SBUS);
+      }
+
+#undef JSONAPPENDEXTMOD
+
+      extmod["available"] = extavail;
+
+      extmodobj["external"] = extmod;
+      mods.append(extmodobj);
+    }
+
+    if (mods.count() > 0)
+      obj["modules"] = mods;
+
+    while (capsrec[0].toInt() != regbdrec[0].toInt()) {
+      capsrec = capsin.readLine().split(";");
+    }
+
+    do {
+      for (const auto& regcap : regcapsarray ) {
+        if (regcap.at(0) == capsrec.at(1)) {
+          if (!regcap.at(2).isEmpty() && capsrec.at(2) != regcap.at(4)) {
+            QStringList keys = regcap[2].split("|");
+            if (keys.count() == 1)
+              obj[keys.at(0)] = regcap.at(5) == "bool" ? (capsrec.at(2) == "0" ? "false" : "true") : capsrec.at(2);
+            else {
+              QJsonObject subobj;
+              subobj[keys.at(1)] = regcap.at(5) == "bool" ? (capsrec.at(2) == "0" ? "false" : "true") : capsrec.at(2);
+              obj[keys.at(0)] = subobj;
+            }
+          }
+        }
+      }
+      capsrec = capsin.readLine().split(";");
+    } while(capsrec[0].toInt() == regbdrec[0].toInt());
+
+    QJsonDocument doc(obj);
+
+    QFile defn(QString("/utils/edgetx/vscode/bddefs/%1.json").arg(regbdrec[13]));
+
+    if (defn.open(QIODevice::WriteOnly | QIODevice::Text)) {
+      defn.write(doc.toJson(QJsonDocument::Indented));
+      defn.close();
+    } else {
+      qWarning("Failed to open file for writing.");
+    }
+  }
+
+  regbds.close();
+  caps.close();
 }

@@ -73,7 +73,6 @@ QList<QString> Firmware::m_languages = {
   "fi",
   "fr",
   "he",
-  "hu",
   "it",
   "jp",
   "ko",
@@ -168,14 +167,8 @@ int Firmware::getCapability(Capability value) const
     case Capability::DangerousFunctions:
       return opts.contains("danger") ? true : false;
 
-    case Capability::EepromSize:
-      return m_defn.eepromSize;
-
     case Capability::ExtendedTrimsRange:
       return 512;
-
-    case Capability::FlashSize:
-      return m_defn.flashSize;
 
     case Capability::FlightModes:
       return m_defn.flightModes.cnt;
@@ -527,14 +520,8 @@ bool Firmware::loadDefinition(const QString & path)
     else if (it.key() == "customScreens")
       loadCustomScreens(it);
 
-    else if (it.key() == "eepromSize")
-      m_defn.eepromSize = Json::valueInt(it, m_defn.eepromSize);
-
     else if (it.key() == "expos")
       Json::loadSizes(it, m_defn.expos, CPN_MAX_EXPOS, EXPODATA_NAME_LEN);
-
-    else if (it.key() == "flashSize")
-      m_defn.flashSize = Json::valueInt(it, m_defn.flashSize);
 
     else if (it.key() == "flightModes")
       Json::loadSizes(it, m_defn.flightModes, CPN_MAX_FLIGHT_MODES, FLIGHTMODE_NAME_LEN);
@@ -858,4 +845,52 @@ bool Firmware::setCurrent(Firmware * firmware)
                 << (firmware ? firmware->getId() : "unknown");
 
   return result;
+}
+
+// TODO REMOVE BEFORE MERGING
+void Firmware::buildJson()
+{
+  QFile regfws("regfws.txt");
+  if (!regfws.open(QIODevice::ReadOnly | QIODevice::Text))
+    return;
+
+  QTextStream regfwsin(&regfws);
+
+  QFile regcaps("regfwcaps.txt");
+  if (!regcaps.open(QIODevice::ReadOnly | QIODevice::Text))
+    return;
+
+  QTextStream regcapsin(&regcaps);
+
+  QFile caps("fwcaps.txt");
+  if (!caps.open(QIODevice::ReadOnly | QIODevice::Text))
+    return;
+
+  QTextStream capsin(&caps);
+
+  regfwsin.readLine(); // header
+
+  while (!regfwsin.atEnd()) {
+    QStringList strl = regfwsin.readLine().split(";");
+
+    QJsonObject obj;
+    obj["name"] = strl[2];
+    QJsonArray basedOn;
+    obj["basedOn"] = basedOn;
+
+    QJsonDocument doc(obj);
+
+    QFile defn(QString("/utils/edgetx/vscode/fwdefs/%1.json").arg(strl[1]));
+
+    if (defn.open(QIODevice::WriteOnly | QIODevice::Text)) {
+      defn.write(doc.toJson(QJsonDocument::Indented));
+      defn.close();
+    } else {
+      qWarning("Failed to open file for writing.");
+    }
+  }
+
+  regfws.close();
+  regcaps.close();
+  caps.close();
 }

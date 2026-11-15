@@ -1,5 +1,47 @@
 {
-  "basedOn": [
-  ],
-  "name": "T20v2"
+    "basedOn": [
+    ],
+    "battery": {
+        "vmax": "83",
+        "vmin": "67",
+        "vwarn": "66"
+    },
+    "contrast": {
+        "min": "2"
+    },
+    "eepromSize": "32768",
+    "flashSize": "1048576",
+    "imu": "1",
+    "modules": [
+        {
+            "internal": {
+                "available": [
+                    "xjt",
+                    "isrm",
+                    "crsf",
+                    "multi"
+                ],
+                "default": "crsf"
+            }
+        },
+        {
+            "external": {
+                "available": [
+                    "r9mlite",
+                    "r9mliteaccess",
+                    "r9mliteproaccess",
+                    "xjtlite",
+                    "crsf",
+                    "multi",
+                    "ghost",
+                    "ppm",
+                    "sbus",
+                    "lemondsmp"
+                ],
+                "size": "small"
+            }
+        }
+    ],
+    "name": "Jumper T20 V2",
+    "rotEncNav": "true"
 }

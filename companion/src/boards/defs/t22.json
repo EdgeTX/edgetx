@@ -1,5 +1,43 @@
 {
-  "basedOn": [
-  ],
-  "name": "T22"
+    "basedOn": [
+    ],
+    "battery": {
+        "vmax": "80",
+        "vmin": "60",
+        "vwarn": "65"
+    },
+    "flashSize": "2097152",
+    "imu": "0",
+    "modules": [
+        {
+            "internal": {
+                "available": [
+                    "crsf"
+                ],
+                "default": "crsf"
+            }
+        },
+        {
+            "external": {
+                "available": [
+                    "xjt",
+                    "isrm",
+                    "r9m",
+                    "r9maccess",
+                    "dsm2",
+                    "crsf",
+                    "multi",
+                    "ghost",
+                    "afhds3",
+                    "lemondsmp",
+                    "ppm",
+                    "sbus"
+                ],
+                "size": "standard"
+            }
+        }
+    ],
+    "name": "Jumper T22",
+    "trainerModuleCPPM": "false",
+    "trainerModuleSBUS": "false"
 }

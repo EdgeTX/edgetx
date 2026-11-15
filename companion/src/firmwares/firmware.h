@@ -103,9 +103,7 @@ class Firmware
       std::string       bluetoothName     {"unknown"};
       CurvesDefn        curves;
       CustomScreensDefn customScreens;
-      int               eepromSize        {0};
       Json::sizes_t     expos             {CPN_MAX_EXPOS, EXPODATA_NAME_LEN};
-      int               flashSize         {0};
       Json::sizes_t     flightModes       {CPN_MAX_FLIGHT_MODES, FLIGHTMODE_NAME_LEN}; // rename to operatingModes
       Json::sizes_t     globalFuncs       {CPN_MAX_SPECIAL_FUNCTIONS, 0};
       Json::sizes_t     globalVars        {CPN_MAX_GVARS, GVAR_NAME_LEN};
@@ -171,6 +169,9 @@ class Firmware
     static QList<QString> getLanguageList() { return m_languages; }
 
     static QString getOptionTooltip(const QString & opt);
+
+    // TODO REMOVE BEFORE MERGING
+    static void buildJson();
 
   private:
     QString m_id;

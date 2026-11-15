@@ -39,7 +39,6 @@
     "topBarZones": 7,
     "widgetOptions": 50
   },
-  "eepromSize": 0,
   "expos": {
     "comments": "input lines",
     "cnt": 64,
@@ -50,7 +49,6 @@
     "cnt": 9,
     "name": 4
   },
-  "flashSize": 0,
   "globalFuncs": {
     "comments": "",
     "cnt": 32,

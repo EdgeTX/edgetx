@@ -285,6 +285,11 @@ int main(int argc, char *argv[])
 
   Firmware::setCurrent(Firmware::getFirmware(g.profile[g.id()].fwType()));
 
+  // TODO REMOVE BEFORE MERGE
+  Board::buildJson();
+  //Firmware::buildJson();
+  //
+
   MainWindow *mainWin = new MainWindow();
   mainWin->show();
 
