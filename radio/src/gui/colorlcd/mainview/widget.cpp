@@ -181,21 +181,19 @@ Widget::Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
 
 void Widget::openMenu()
 {
-  if (!parent->isTopBar() && ViewMain::instance()->isAppMode())
-  {
-    setFullscreen(true);
-    return;
-  }
-
-  if (hasOptions() || !parent->isTopBar()) {
-    Menu* menu = new Menu();
-    menu->setTitle(getFactory()->getDisplayName());
-    if (!parent->isTopBar()) {
-      menu->addLine(STR_WIDGET_FULLSCREEN, [&]() { setFullscreen(true); });
-    }
+  if (parent->isTopBar()) {
     if (hasOptions()) {
-      menu->addLine(STR_WIDGET_SETTINGS,
-                    [=]() { new WidgetSettings(this); });
+      new WidgetSettings(this);
+    }
+  } else {
+    if (ViewMain::instance()->isAppMode()) {
+      setFullscreen(true);
+    } else {
+      Menu* menu = new Menu();
+      menu->setTitle(getFactory()->getDisplayName());
+      menu->addLine(STR_WIDGET_FULLSCREEN, [&]() { setFullscreen(true); });
+      if (hasOptions())
+        menu->addLine(STR_WIDGET_SETTINGS, [=]() { new WidgetSettings(this); });
     }
   }
 }
