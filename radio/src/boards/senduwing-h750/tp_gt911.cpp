@@ -267,7 +267,7 @@ struct TouchState touchPanelRead()
         return internalTouchState;
       }
 
-#if defined(LCD_VERTICAL_INVERT)
+#if LCD_VERTICAL_INVERT
       // Panel (and thus the GT911) is mounted upside-down, matching the 180
       // display rotation in lcd_driver.cpp. Flip the reported coordinates so
       // touches line up with what is drawn.
