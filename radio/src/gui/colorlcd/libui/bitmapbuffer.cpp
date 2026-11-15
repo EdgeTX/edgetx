@@ -512,6 +512,11 @@ coord_t BitmapBuffer::drawSizedText(coord_t x, coord_t y, const char *s,
 
   lv_draw_label_dsc_t label_draw_dsc;
   lv_draw_label_dsc_init(&label_draw_dsc);
+#if LV_USE_BIDI
+  // Default is LTR, which reverses the word order of right-to-left text;
+  // AUTO takes the direction from the text itself (see MainWindow)
+  label_draw_dsc.bidi_dir = LV_BASE_DIR_AUTO;
+#endif
 
   const lv_font_t *font = getFont(flags);
   label_draw_dsc.font = font;

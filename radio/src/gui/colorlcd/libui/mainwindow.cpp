@@ -44,6 +44,21 @@ MainWindow::MainWindow() : Window(nullptr, {0, 0, LCD_W, LCD_H})
   setWindowFlag(OPAQUE);
 
   etx_solid_bg(lvobj);
+
+#if LV_USE_BIDI
+  // LVGL's default base direction is LTR, which splits right-to-left text
+  // into one run per word and shows the words in reverse order. With AUTO,
+  // each text object takes its direction from its first strong character
+  // (Arabic/Hebrew RTL, everything else LTR). base_dir is inherited, and
+  // AUTO doesn't mirror flex/grid layouts (only RTL does).
+  // text_align LEFT keeps unaligned text where it is today; with AUTO, LVGL
+  // would right-align RTL text.
+  lv_obj_t* roots[] = {lvobj, lv_layer_top(), lv_layer_sys()};
+  for (auto root : roots) {
+    lv_obj_set_style_base_dir(root, LV_BASE_DIR_AUTO, LV_PART_MAIN);
+    lv_obj_set_style_text_align(root, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN);
+  }
+#endif
 }
 
 void MainWindow::emptyTrash()
