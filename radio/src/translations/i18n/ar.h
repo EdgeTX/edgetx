@@ -71,9 +71,9 @@
 #define TR_QM_SCREEN_9                  "الشاشة 9"
 #define TR_QM_SCREEN_10                 "الشاشة 10"
 #define TR_QM_ADD_SCREEN                "إضافة\nشاشة"
-#define TR_QM_APPS                      "تطبيقات"
+#define TR_QM_APPS                      "التطبيقات"
 #define TR_QM_STORAGE                   "التخزين"
-#define TR_QM_RESET                     TR_SFC_AIR("ضبط\nالقيادة", "ضبط\nالطيران")
+#define TR_QM_RESET                     TR_SFC_AIR("إعادة ضبط\nالقيادة", "إعادة ضبط\nالطيران")
 #define TR_QM_CHAN_MON                  "مراقبة\nالقنوات"
 #define TR_QM_LS_MON                    "مراقبة\nLS"
 #define TR_QM_STATS                     "الإحصائيات"
@@ -1102,9 +1102,9 @@
 #define TR_PT                          "نقطة"
 #define TR_PTS                         "نقاط"
 #define TR_SMOOTH                      "ناعم"
-#define TR_COPY_STICKS_TO_OFS          TR("Cpy stick->subtrim", "Copy axis to subtrim")
+#define TR_COPY_STICKS_TO_OFS          TR("نسخ المحور->Subtrim", "نسخ المحور إلى Subtrim")
 #define TR_COPY_MIN_MAX_TO_OUTPUTS     TR("نسخ الحدود للكل",  "نسخ الأدنى/الأعلى/الوسط لكل Outputs")
-#define TR_COPY_TRIMS_TO_OFS           TR("Cpy trim->subtrim", "Copy trims to subtrim")
+#define TR_COPY_TRIMS_TO_OFS           TR("نسخ Trim->Subtrim", "نسخ Trims إلى Subtrim")
 #define TR_INCDEC                      "زيادة/نقصان"
 #define TR_GLOBALVAR                   "Global var"
 #define TR_MIXSOURCE                   "المصدر (%)"
@@ -1262,7 +1262,7 @@
 
 #define TR_USE_THEME_COLOR              "استخدم لون المظهر"
 
-#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "Add all Trims to Subtrims"
+#define TR_ADD_ALL_TRIMS_TO_SUBTRIMS    "إضافة كل Trims إلى Subtrims"
 #define TR_DUPLICATE                    "تكرار"
 #define TR_ACTIVATE                     "تعيين كنشط"
 #define TR_COLOR_PICKER                 "اختيار اللون"
