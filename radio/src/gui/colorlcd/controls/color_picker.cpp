@@ -83,7 +83,7 @@ class ColorEditorPopup : public BaseDialog
     FlexGridLayout grid(col_dsc, row_dsc);
     auto line = form->newLine(grid);
 
-    rect_t r{0, 0, CE_SZ, CE_SZ};
+    rect_t r{0, 0, CE_W, CE_H};
     auto cedit = new ColorEditor(line, r, color, [=](uint32_t c) { updateColor(c); }, format, THM_COLOR_EDITOR);
     lv_obj_set_style_grid_cell_x_align(cedit->getLvObj(), LV_GRID_ALIGN_CENTER, 0);
 
@@ -169,7 +169,8 @@ class ColorEditorPopup : public BaseDialog
     });
   }
 
-  static LAYOUT_VAL_SCALED(CE_SZ, 182)
+  static LAYOUT_VAL_SCALED(CE_W, 182)
+  static LAYOUT_VAL_SCALED(CE_H, 190)
 #if NARROW_LAYOUT
   static LAYOUT_ORIENTATION(COLOR_EDIT_WIDTH, LCD_W * 0.95, LCD_W * 0.7)
 #else
@@ -182,19 +183,18 @@ class ColorEditorPopup : public BaseDialog
 };
 
 ColorPicker::ColorPicker(Window* parent, const rect_t& rect,
-                         std::function<uint32_t()> _getValue,
-                         std::function<void(uint32_t)> _setValue,
+                         std::function<uint32_t()> getValue,
+                         std::function<void(uint32_t)> setValue,
                          COLOR_EDITOR_FMT fmt) :
-    Button(parent, {rect.x, rect.y, rect.w == 0 ? ColorEditorPopup::COLOR_PAD_WIDTH : rect.w, EdgeTxStyles::UI_ELEMENT_HEIGHT}),
-    getValue(std::move(_getValue)), setValue(std::move(_setValue)), format(fmt)
+    Button(parent, {rect.x, rect.y, rect.w == 0 ? ColorEditorPopup::COLOR_PAD_WIDTH : rect.w, EdgeTxStyles::UI_ELEMENT_HEIGHT},
+           [=]() {
+             updateColor(getValue());
+             new ColorEditorPopup(color, [=](uint32_t c) { setValue(c); updateColor(c); }, format);
+             return 0;
+           }),
+    format(fmt)
 {
   updateColor(getValue());
-}
-
-void ColorPicker::onClicked()
-{
-  updateColor(getValue());
-  new ColorEditorPopup(color, [=](uint32_t c) { setValue(c); updateColor(c); }, format);
 }
 
 void ColorPicker::updateColor(uint32_t c)

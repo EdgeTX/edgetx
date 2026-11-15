@@ -137,21 +137,23 @@ PreviewWindow::PreviewWindow(Window *window, rect_t rect,
 
   new HeaderIcon(topbar, ICON_EDGETX);
 
+#if !LANDSCAPE_SMALL
   new StaticText(this, {CBT_X, CBT_Y, CBT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_CHECKBOX);
+#endif
   new ThemedCheckBox(this, {CB1_X, CB_Y, CB_W, 0}, true);
   new ThemedCheckBox(this, {CB2_X, CB_Y, CB_W, 0}, false);
   (new ThemedButton(this, {BTN_X, BTN1_Y, BTN_W, 0}, STR_THEME_ACTIVE, true))
       ->check(true);
   new ThemedButton(this, {BTN_X, BTN2_Y, BTN_W, 0}, STR_THEME_REGULAR, false);
-  new MainViewTrim(this, {CBT_X, TRIM_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT}, 0, false);
-  new MainViewSlider(this, {CBT_X, SLIDER_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT}, 0, false);
+  new MainViewTrim(this, {TRIM_X, TRIM_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT}, 0, false);
+  new MainViewSlider(this, {TRIM_X, SLIDER_Y, MainViewSlider::HORIZONTAL_SLIDERS_WIDTH, EdgeTxStyles::STD_FONT_HEIGHT}, 0, false);
   new StaticText(this, {CBT_X, TXT1_Y, TXT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_WARNING,
                  COLOR_THEME_WARNING_INDEX);
   new StaticText(this, {CBT_X, TXT2_Y, TXT_W, EdgeTxStyles::STD_FONT_HEIGHT}, STR_THEME_DISABLED,
                  COLOR_THEME_DISABLED_INDEX);
 
-  new ThemedTextEdit(this, {CBT_X, EDT_Y, EDY_W, 0}, STR_THEME_EDIT, true);
-  new ThemedTextEdit(this, {EDT2_X, EDT_Y, EDY_W, 0}, STR_THEME_FOCUS, false);
+  new ThemedTextEdit(this, {CBT_X, EDT_Y, EDY_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_THEME_EDIT, true);
+  new ThemedTextEdit(this, {EDT2_X, EDT2_Y, EDY_W, EdgeTxStyles::UI_ELEMENT_HEIGHT}, STR_THEME_FOCUS, false);
 
   new HeaderDateTime(this, width() - DATE_XO, PAD_SMALL);
 

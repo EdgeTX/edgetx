@@ -25,8 +25,6 @@
 
 class ColorType;
 
-constexpr int MAX_BARS = 3;
-
 enum COLOR_EDITOR_TYPE {
   RGB_COLOR_EDITOR = 0,
   HSV_COLOR_EDITOR,
@@ -48,12 +46,6 @@ class ColorEditor : public Window
 
   void setColorEditorType(COLOR_EDITOR_TYPE colorType);
 
-  static LAYOUT_VAL_SCALED(BAR_MARGIN, 5)
-  static LAYOUT_VAL_SCALED(BAR_HEIGHT_OFFSET, 25)
-  static LAYOUT_VAL_SCALED(LBL_YO, 9)
-  static LAYOUT_VAL_SCALED(VAL_XO, 10)
-  static LAYOUT_VAL_SCALED_ODD(CRSR_SZ, 11)
-
  protected:
   ColorType* _colorType = nullptr;
   std::function<void(uint32_t)> _setValue;
@@ -61,6 +53,6 @@ class ColorEditor : public Window
   COLOR_EDITOR_FMT format;
   Messaging colorUpdateMsg;
 
-  void setText();
+  void updateUI();
   void setRGB();
 };

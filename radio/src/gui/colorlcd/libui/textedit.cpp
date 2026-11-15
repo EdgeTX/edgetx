@@ -154,7 +154,7 @@ void TextEdit::openEdit()
 {
   if (edit == nullptr) {
     edit = new TextArea(this,
-                        {-(PAD_MEDIUM + 2), -(PAD_BORDER * 2),
+                        {-(PAD_MEDIUM + PAD_BORDER), -(PAD_TINY + PAD_BORDER),
                           lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)},
                         text, length,
                         [=]() {
@@ -173,7 +173,7 @@ void TextEdit::preview(bool edited, char* text, uint8_t length)
   setWindowFlag(NO_FOCUS | NO_CLICK);
 
   edit = new TextArea(this,
-                      {-(PAD_MEDIUM + 2), -(PAD_BORDER * 2), width(), height()},
+                      {-(PAD_MEDIUM + PAD_BORDER), -(PAD_TINY + PAD_BORDER), width(), height()},
                       text, length, nullptr);
   edit->setWindowFlag(NO_CLICK);
   lv_group_focus_obj(edit->getLvObj());
