@@ -984,7 +984,7 @@ const etxLz4Font lv_font_ar_bold_XL __FLASH = {
 .kern_scale = 16,
 .cmap_num = 5,
 .bpp = 4,
-.kern_classes = 1,
+.kern_classes = 0,
 .bitmap_format = 0,
 .left_class_cnt = 0,
 .right_class_cnt = 0,
@@ -994,5 +994,5 @@ const etxLz4Font lv_font_ar_bold_XL __FLASH = {
 .right_class_mapping = 0,
 .cmaps = cmaps,
 .compressed = lz4FontData,
-.lvglFontBufSize = 48763,
+.lvglFontBufSize = 48731,
 };
