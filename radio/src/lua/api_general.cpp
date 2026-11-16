@@ -3018,7 +3018,7 @@ Return the charger status used by the built-in charging indicator.
  Returns nil on radios without charger-status support.
 
 @notice A false result does not distinguish a disconnected charger from a full
- battery. In the simulator, supported radios always report true.
+ battery.
 
 @status current Introduced in 3.0.0
 */
