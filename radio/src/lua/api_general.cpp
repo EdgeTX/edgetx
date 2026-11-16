@@ -3009,6 +3009,29 @@ static int luaGetTrainerStatus(lua_State * L)
   return 1;
 }
 
+/*luadoc
+@function getChargingState()
+
+Return the charger status used by the built-in charging indicator.
+
+@retval boolean true when the charger reports charging, false otherwise.
+ Returns nil on radios without charger-status support.
+
+@notice A false result does not distinguish a disconnected charger from a full
+ battery. In the simulator, supported radios always report true.
+
+@status current Introduced in 3.0.0
+*/
+static int luaGetChargingState(lua_State * L)
+{
+#if defined(USB_CHARGER)
+  lua_pushboolean(L, usbChargerLed());
+#else
+  lua_pushnil(L);
+#endif
+  return 1;
+}
+
 // To simplify code below
 #if !defined(BLING_LED_STRIP_LENGTH)
   #define BLING_LED_STRIP_START 0
@@ -3321,6 +3344,7 @@ LROT_BEGIN(etxlib, NULL, 0)
   LROT_FUNCENTRY( getOutputValue, luaGetOutputValue )
   LROT_FUNCENTRY( getSourceValue, luaGetSourceValue )
   LROT_FUNCENTRY( getTrainerStatus, luaGetTrainerStatus )
+  LROT_FUNCENTRY( getChargingState, luaGetChargingState )
   LROT_FUNCENTRY( getRAS, luaGetRAS )
   LROT_FUNCENTRY( getTxGPS, luaGetTxGPS )
   LROT_FUNCENTRY( getFieldInfo, luaGetFieldInfo )
