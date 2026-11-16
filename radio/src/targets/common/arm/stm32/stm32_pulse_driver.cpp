@@ -39,12 +39,45 @@
 
 static void init_dma_arr_mode(const stm32_pulse_timer_t* tim)
 {
+  stm32_dma_enable_clock(tim->DMAx);
+
   // re-init DMA stream
   LL_DMA_DeInit(tim->DMAx, tim->DMA_Stream);
 
   LL_DMA_InitTypeDef dmaInit;
   LL_DMA_StructInit(&dmaInit);
 
+#if defined(STM32H7RS) || defined(STM32H5)
+  dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
+  dmaInit.BlkHWRequest = LL_DMA_HWREQUEST_SINGLEBURST;
+  dmaInit.DataAlignment = LL_DMA_DATA_ALIGN_ZEROPADD;
+  dmaInit.SrcBurstLength = 1;
+  dmaInit.DestBurstLength = 1;
+  dmaInit.SrcIncMode = LL_DMA_SRC_INCREMENT;
+  dmaInit.DestIncMode = LL_DMA_DEST_FIXED;
+  dmaInit.DestAddress = CONVERT_PTR_UINT(&tim->TIMx->ARR);
+  dmaInit.Request = tim->DMA_Channel;
+  dmaInit.Priority = LL_DMA_LOW_PRIORITY_HIGH_WEIGHT;
+  dmaInit.TriggerMode = LL_DMA_TRIGM_BLK_TRANSFER;
+  dmaInit.TriggerPolarity = LL_DMA_TRIG_POLARITY_MASKED;
+  dmaInit.TriggerSelection = 0;
+  dmaInit.TransferEventMode = LL_DMA_TCEM_BLK_TRANSFER;
+  dmaInit.SrcAllocatedPort = LL_DMA_SRC_ALLOCATED_PORT0;
+  dmaInit.DestAllocatedPort = LL_DMA_DEST_ALLOCATED_PORT0;
+  dmaInit.LinkAllocatedPort = LL_DMA_LINK_ALLOCATED_PORT1;
+  dmaInit.LinkStepMode = LL_DMA_LSM_FULL_EXECUTION;
+  dmaInit.LinkedListBaseAddr = 0;
+  dmaInit.LinkedListAddrOffset = 0;
+  dmaInit.Mode = LL_DMA_NORMAL;
+
+  if (IS_TIM_32B_COUNTER_INSTANCE(tim->TIMx)) {
+    dmaInit.SrcDataWidth = LL_DMA_SRC_DATAWIDTH_WORD;
+    dmaInit.DestDataWidth = LL_DMA_DEST_DATAWIDTH_WORD;
+  } else {
+    dmaInit.SrcDataWidth = LL_DMA_SRC_DATAWIDTH_HALFWORD;
+    dmaInit.DestDataWidth = LL_DMA_DEST_DATAWIDTH_HALFWORD;
+  }
+#else
   // Direction
   dmaInit.Direction = LL_DMA_DIRECTION_MEMORY_TO_PERIPH;
 
@@ -71,7 +104,7 @@ static void init_dma_arr_mode(const stm32_pulse_timer_t* tim)
 #endif
   dmaInit.Priority = LL_DMA_PRIORITY_VERYHIGH;
 
-  stm32_dma_enable_clock(tim->DMAx);
+#endif
   LL_DMA_Init(tim->DMAx, tim->DMA_Stream, &dmaInit);
 }
 
@@ -220,13 +253,17 @@ bool stm32_pulse_get_polarity(const stm32_pulse_timer_t* tim)
 // return true if stopped, false otherwise
 bool stm32_pulse_if_not_running_disable(const stm32_pulse_timer_t* tim)
 {
+#if defined(STM32H7RS) || defined(STM32H5)
+  if (LL_DMA_IsEnabledChannel(tim->DMAx, tim->DMA_Stream))
+    return false;
+#else
   if (LL_DMA_IsEnabledStream(tim->DMAx, tim->DMA_Stream))
     return false;
+#endif
 
   // disable timer
   LL_TIM_DisableCounter(tim->TIMx);
   LL_TIM_DisableIT_UPDATE(tim->TIMx);
-
   return true;
 }
 
@@ -296,7 +333,38 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
   // Re-configure timer output
   set_compare_reg(tim, cmp_val);
   set_oc_mode(tim, ocmode);
+#if defined(STM32H7RS) || defined(STM32H5)
+  // Re-init DMA channel for each transfer
+  init_dma_arr_mode(tim);
 
+  // Data width is in bytes for GPDMA BlkDataLength
+  uint32_t data_width = IS_TIM_32B_COUNTER_INSTANCE(tim->TIMx) ? 4 : 2;
+
+  LL_DMA_SetSrcAddress(tim->DMAx, tim->DMA_Stream, (uint32_t)pulses);
+  LL_DMA_SetBlkDataLength(tim->DMAx, tim->DMA_Stream, length * data_width);
+
+  // Enable TC IRQ
+  LL_DMA_EnableIT_TC(tim->DMAx, tim->DMA_Stream);
+  LL_DMA_EnableIT_USE(tim->DMAx, tim->DMA_Stream);
+  LL_DMA_EnableIT_ULE(tim->DMAx, tim->DMA_Stream);
+  LL_DMA_EnableIT_DTE(tim->DMAx, tim->DMA_Stream);
+
+  if (ocmode == LL_TIM_OCMODE_PWM1) {
+    // preloads first period for PWM
+    LL_TIM_SetCounter(tim->TIMx, 0x00);
+    LL_TIM_GenerateEvent_UPDATE(tim->TIMx);
+  } else {
+    // Reset counter close to overflow
+    if (IS_TIM_32B_COUNTER_INSTANCE(tim->TIMx)) {
+      LL_TIM_SetCounter(tim->TIMx, 0xFFFFFFFF);
+    } else {
+      LL_TIM_SetCounter(tim->TIMx, 0xFFFF);
+    }
+  }
+
+  LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
+  LL_DMA_EnableChannel(tim->DMAx, tim->DMA_Stream);
+#else
   LL_DMA_SetDataLength(tim->DMAx, tim->DMA_Stream, length);
   LL_DMA_SetMemoryAddress(tim->DMAx, tim->DMA_Stream, (uint32_t)pulses);
 
@@ -318,7 +386,7 @@ void stm32_pulse_start_dma_req(const stm32_pulse_timer_t* tim,
 
   LL_TIM_EnableDMAReq_UPDATE(tim->TIMx);
   LL_DMA_EnableStream(tim->DMAx, tim->DMA_Stream);
-
+#endif
   // start timer
   LL_TIM_EnableCounter(tim->TIMx);
 }
@@ -328,13 +396,21 @@ void stm32_pulse_dma_tc_isr(const stm32_pulse_timer_t* tim)
   if (!stm32_dma_check_tc_flag(tim->DMAx, tim->DMA_Stream))
     return;
 
+#if defined(STM32H7RS) || defined(STM32H5)
+  // Disable DMA channel (GPDMA normal mode may already be stopped)
+  LL_DMA_DisableChannel(tim->DMAx, tim->DMA_Stream);
+#endif
+
+  // Stop timer from generating further DMA requests
+  LL_TIM_DisableDMAReq_UPDATE(tim->TIMx);
+
   if (tim->DMA_TC_CallbackPtr) {
     auto closure = tim->DMA_TC_CallbackPtr;
     if (closure->cb && closure->cb(closure->ctx)) {
       return;
     }
   }
-  
+
   LL_TIM_ClearFlag_UPDATE(tim->TIMx);
   LL_TIM_EnableIT_UPDATE(tim->TIMx);
 
