@@ -35,7 +35,9 @@ static void i2s_gpio_init(const stm32_i2s_t* i2s)
   };
 
   for (unsigned i = 0; i < sizeof(gpios) / sizeof(gpios[0]); i++) {
-    gpio_init_af(gpios[i].pin, gpios[i].af, GPIO_PIN_SPEED_VERY_HIGH);
+    if (gpios[i].pin != GPIO_UNDEF) {
+      gpio_init_af(gpios[i].pin, gpios[i].af, GPIO_PIN_SPEED_VERY_HIGH);
+    }
   }
 }
 

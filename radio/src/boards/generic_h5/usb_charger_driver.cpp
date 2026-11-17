@@ -25,6 +25,20 @@
 #include "board.h"
 #include "hal/usb_driver.h"
 
+// CHG_ON (active high) switches USB VBUS through to the charger board.
+// While the radio is on, driving it low stops charging. The charger board
+// still charges when the radio is off.
+
+#if defined(USB_CHARGE_CONTROL)
+void usbChargerEnableCharge(bool enable)
+{
+  if (enable)
+    gpio_set(USB_CHARGER_GPIO);
+  else
+    gpio_clear(USB_CHARGER_GPIO);
+}
+#endif
+
 void usbChargerInit()
 {
   gpio_init(USB_CHARGER_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
@@ -33,5 +47,8 @@ void usbChargerInit()
 
 bool usbChargerLed()
 {
-  return (!gpio_read(USB_CHARGER_GPIO) && usbPlugged());
+  // No charge-status signal reaches the MCU (the charger's status only
+  // drives its own LED), so report "charging" whenever USB is present and
+  // the charger input is enabled. A full battery cannot be detected.
+  return gpio_read(USB_CHARGER_GPIO) && usbPlugged();
 }

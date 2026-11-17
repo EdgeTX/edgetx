@@ -58,7 +58,7 @@ static tas2505_t _tas2505 = {
 // PA15 (I2S1_WS):   WCLK  <->  WCLK
 // PB3  (I2S1_CK):   BCLK  <->  BCLK
 // PB5  (I2S1_SDO):  DOUT  <->  DIN
-// PB4  (I2S1_SDI):  DIN   <->  DOUT
+// I2S1_SDI is unused; PB4 is CHG_ON.
 //
 const stm32_i2s_t _i2s_dev = {
     .SPIx = AUDIO_SPI,
