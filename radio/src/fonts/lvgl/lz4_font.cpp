@@ -113,7 +113,12 @@ int main(int argc, char* argv[])
   etx_font.kern_scale = dsc->kern_scale;
   etx_font.cmap_num = dsc->cmap_num;
   etx_font.bpp = dsc->bpp;
+#if !defined(NO_KERN)
   etx_font.kern_classes = dsc->kern_classes;
+#else
+  // Kerning data is not included, so don't flag the font as having any
+  etx_font.kern_classes = 0;
+#endif
   etx_font.bitmap_format = dsc->bitmap_format;
 
 #if !defined(NO_KERN)
@@ -240,7 +245,7 @@ int main(int argc, char* argv[])
              sizeof(lv_font_fmt_txt_dsc_t) +
              sizeof(lv_font_fmt_txt_glyph_cache_t) +
              dsc->cmap_num * sizeof(lv_font_fmt_txt_cmap_t);
-  if (dsc->kern_classes) size += sizeof(lv_font_fmt_txt_kern_classes_t);
+  if (etx_font.kern_classes) size += sizeof(lv_font_fmt_txt_kern_classes_t);
 
   // Custom font structure
   fprintf(fp, "const etxLz4Font %s __FLASH = {\n", argv[1]+4);

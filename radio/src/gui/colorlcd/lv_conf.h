@@ -458,6 +458,9 @@
 #elif defined(TRANSLATIONS_KO)
   #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_ko_STD)
   #define LV_FONT_DEFAULT &lv_font_ko_STD
+#elif defined(TRANSLATIONS_AR)
+  #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_ar_STD)
+  #define LV_FONT_DEFAULT &lv_font_ar_STD
 #elif defined(TRANSLATIONS_HE)
   #define LV_FONT_CUSTOM_DECLARE LV_FONT_DECLARE(lv_font_he_STD)
   #define LV_FONT_DEFAULT &lv_font_he_STD
@@ -547,7 +550,11 @@
 
 /*Enable Arabic/Persian processing
  *In these languages characters should be replaced with an other form based on their position in the text*/
-#define LV_USE_ARABIC_PERSIAN_CHARS 0
+#if defined(SIMU)
+#define LV_USE_ARABIC_PERSIAN_CHARS 1
+#else
+#define LV_USE_ARABIC_PERSIAN_CHARS TRANSLATION_NEEDS_AP
+#endif
 
 /*==================
  *  WIDGET USAGE
