@@ -3,7 +3,7 @@
         "manufacturer": "BETAFPV",
         "model": "NexRadio 14",
         "usb_manufacturer": "BETAFPV",
-        "usb_product": "N14"
+        "usb_product": "NexRadio 14"
     },
     "adc_inputs": {
         "adcs": [
