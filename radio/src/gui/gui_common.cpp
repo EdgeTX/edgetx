@@ -1433,12 +1433,11 @@ uint8_t MODULE_BIND_ROWS(int moduleIdx)
     else
       return 2;
   }
-  else if (isModuleXJTD8(moduleIdx) || isModuleSBUS(moduleIdx) || isModuleAFHDS3(moduleIdx) || isModuleDSMP(moduleIdx)) {
+  else if (isModuleXJTD8(moduleIdx) || isModuleSBUS(moduleIdx) || isModuleAFHDS3(moduleIdx)) 
     return 1;
-  }
-  else if (isModulePPM(moduleIdx) || isModulePXX1(moduleIdx) || isModulePXX2(moduleIdx) || isModuleDSM2(moduleIdx)) {
+  else if (isModulePPM(moduleIdx) || isModulePXX1(moduleIdx) || isModulePXX2(moduleIdx) || isModuleDSM2(moduleIdx) ||
+           isModuleDSMP(moduleIdx)) 
     return 2;
-  }
   else {
     return HIDDEN_ROW;
   }
@@ -1459,9 +1458,8 @@ uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
       return 0;
   }
 #endif
-  else if (isModuleDSM2(moduleIdx) || isModuleCrossfire(moduleIdx) ||
-             isModuleGhost(moduleIdx) || isModuleSBUS(moduleIdx) ||
-             isModuleDSMP(moduleIdx)) {
+  else if (isModuleDSM2(moduleIdx) || isModuleCrossfire(moduleIdx) || 
+           isModuleGhost(moduleIdx) || isModuleSBUS(moduleIdx)) {
     // fixed number of channels
     return 0;
   } else {
