@@ -1436,12 +1436,14 @@ uint8_t MODULE_BIND_ROWS(int moduleIdx)
   else if (isModuleAFHDS3(moduleIdx)) {
     // Bind only: no receiver number, no range check
     return 0;
-  }
+  } 
   else if (isModuleXJTD8(moduleIdx) || isModuleSBUS(moduleIdx)) {
     return 1;
+  } 
   else if (isModulePPM(moduleIdx) || isModulePXX1(moduleIdx) || isModulePXX2(moduleIdx) || isModuleDSM2(moduleIdx) ||
-           isModuleDSMP(moduleIdx)) 
+           isModuleDSMP(moduleIdx)) {
     return 2;
+  }
   else {
     return HIDDEN_ROW;
   }
