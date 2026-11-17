@@ -47,6 +47,8 @@ export interface SimulatorExports {
 
   simuInit: () => void;
   simuStart: (tests: number, utcOffset: number) => void;
+  /** simuStart() that boots on a firmware thread, so the main thread never blocks. */
+  simuStartAsync?: (tests: number, utcOffset: number) => void;
   simuStop: () => void;
   simuIsRunning: () => number;
   simuFatfsSetPaths: (sdPath: number, settingsPath: number) => void;
@@ -237,7 +239,9 @@ export class WasmRunner {
 
     this.wasiThreads = new WASIThreads({
       wasi: wasi as WASIInstance,
-      reuseWorker: { size: 4, strict: true },
+      // One worker per firmware thread: timer, menus, mixer and audio, plus
+      // the thread simuStartAsync() boots the firmware on.
+      reuseWorker: { size: 5, strict: true },
       waitThreadStart: typeof window === 'undefined' ? 1000 : false,
       onCreateWorker: () => {
         const worker = new Worker(new URL('./worker.ts', import.meta.url), {
@@ -461,18 +465,37 @@ export class WasmRunner {
     return new TextDecoder('utf-8').decode(view.slice());
   }
 
+  /**
+   * Allocate the WASM-side buffer for copyLcd().  Call before start(): once
+   * the firmware threads run, malloc() on the main thread can find its lock
+   * taken, and the main thread is not allowed to wait for it.
+   */
+  allocLcd(size: number): void {
+    const ex = this._exports;
+    if (!ex || (this.wasmLcdBuf && this.wasmLcdBufSize >= size)) return;
+    if (this.wasmLcdBuf) ex.free(this.wasmLcdBuf);
+    this.wasmLcdBuf = ex.malloc(size);
+    this.wasmLcdBufSize = this.wasmLcdBuf ? size : 0;
+    if (!this.wasmLcdBuf) throw new Error('malloc failed');
+  }
+
+  /**
+   * Start the firmware.  Boots it on a firmware thread where the module
+   * supports it, as booting on the main thread races with the firmware tasks.
+   */
+  start(tests: boolean, utcOffset: number): void {
+    const ex = this._exports;
+    if (!ex) return;
+    (ex.simuStartAsync ?? ex.simuStart)(tests ? 1 : 0, utcOffset);
+  }
+
   /** Copy LCD framebuffer from WASM memory into a host-side Uint8Array */
   copyLcd(size: number): Uint8Array | null {
     const ex = this._exports;
     if (!ex) return null;
 
-    // Allocate persistent WASM buffer on first use or if size changed
-    if (!this.wasmLcdBuf || this.wasmLcdBufSize < size) {
-      if (this.wasmLcdBuf) ex.free(this.wasmLcdBuf);
-      this.wasmLcdBuf = ex.malloc(size);
-      this.wasmLcdBufSize = this.wasmLcdBuf ? size : 0;
-      if (!this.wasmLcdBuf) return null;
-    }
+    // Allocated by allocLcd() before the firmware started
+    if (!this.wasmLcdBuf || this.wasmLcdBufSize < size) return null;
 
     const copied = ex.simuLcdCopy(this.wasmLcdBuf, size);
     if (copied === 0) return null;

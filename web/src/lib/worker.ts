@@ -78,6 +78,16 @@ const handler = new ThreadMessageHandler({
 
     return { module: wasmModule, instance: initialized };
   },
+  // @emnapi/wasi-threads 1.x throws the message type ("start") by default,
+  // instead of the error. 2.x fixes that, but loses the error on the main
+  // thread instead ("Worker sent an unknown error"), as of 2.2.0.
+  onError(err) {
+    // Only the message reaches the main thread. The stack shows which firmware
+    // function failed (the modules keep their name section), which matters
+    // most for traps such as "RuntimeError: unreachable".
+    console.error('[worker]', err instanceof Error ? (err.stack ?? err.message) : err);
+    throw err;
+  },
 });
 
 globalThis.onmessage = function (e) {
