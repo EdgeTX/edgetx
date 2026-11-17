@@ -209,9 +209,14 @@ class ColorEditPage : public Page
 
   static LAYOUT_SIZE_SCALED(COLOR_BOX_WIDTH, 45, 55)
   static LAYOUT_VAL_SCALED(COLOR_BOX_HEIGHT, 30)
-  static LAYOUT_VAL_SCALED(HEX_STR_W, 95)
   static LAYOUT_SIZE_SCALED(BUTTON_WIDTH, 75, 65)
-  static LAYOUT_SIZE(COLOR_LIST_SIZE, (LCD_W * 3) / 10, LCD_H / 2 - (PAD_LARGE * 3))
+#if LANDSCAPE_SMALL
+  static constexpr coord_t HEX_STR_W = 70;
+  static constexpr coord_t COLOR_LIST_SIZE = 122;
+#else
+  static LAYOUT_VAL_SCALED(HEX_STR_W, 95)
+  static LAYOUT_SIZE(COLOR_LIST_SIZE, (LCD_W * 3) / 10, LCD_H / 2 - (PAD_LARGE * 4))
+#endif
 
  protected:
   std::function<void()> _updateHandler;
