@@ -73,7 +73,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define KEYS_GPIO_REG_ENTER           GPIOE
 #define KEYS_GPIO_PIN_ENTER           LL_GPIO_PIN_10 // PE.10
 #define KEYS_GPIO_REG_SYS             GPIOB
-#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_8  // PB.08 (was PB.04, freed for I2S1_SDI)
+#define KEYS_GPIO_PIN_SYS             LL_GPIO_PIN_8  // PB.08
 #define KEYS_GPIO_REG_MDL             GPIOB
 #define KEYS_GPIO_PIN_MDL             LL_GPIO_PIN_6  // PB.06
 
@@ -259,7 +259,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define EXTI4_IRQ_Priority 5
 
 // USB Charger
-// Removed on this hardware revision: PD.07 (former CHG_ON) is now OLED_RST.
+#define USB_CHARGER_GPIO                GPIO_PIN(GPIOB, 4) // PB.04 CHG_ON, active high (gates VBUS to the charger)
 
 // Trainer / Trainee from the module bay
 //TODO
@@ -315,7 +315,7 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define AUDIO_I2S_WS_GPIO               GPIO_PIN(GPIOA, 15)  // PA.15 I2S1_WS
 #define AUDIO_I2S_CK_GPIO               GPIO_PIN(GPIOB, 3)   // PB.03 I2S1_CK
 #define AUDIO_I2S_SDO_GPIO              GPIO_PIN(GPIOB, 5)   // PB.05 I2S1_SDO -> codec DIN
-#define AUDIO_I2S_SDI_GPIO              GPIO_PIN(GPIOB, 4)   // PB.04 I2S1_SDI <- codec DOUT
+#define AUDIO_I2S_SDI_GPIO              GPIO_UNDEF           // TX only; PB.04 is CHG_ON
 #define AUDIO_I2S_GPIO_AF               GPIO_AF5
 
 // I2S TX DMA: GPDMA1 ch5 (linear channel 0-5), SPI1_TX request
