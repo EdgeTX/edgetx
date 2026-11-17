@@ -34,8 +34,7 @@ class RadioInfoWidget : public Widget
       Widget(factory, parent, rect, screenNum, zoneNum)
   {
     // Logs
-    logsIcon = new StaticIcon(this, W_LOG_X, PAD_THREE, ICON_DOT,
-                              COLOR_THEME_PRIMARY2_INDEX);
+    logsIcon = new DotIcon(this, W_LOG_X, PAD_THREE, COLOR_THEME_PRIMARY2_INDEX);
     logsIcon->hide();
 
     usbIcon =
@@ -206,7 +205,7 @@ class RadioInfoWidget : public Widget
   uint8_t lastVol = 0;
   uint8_t lastBatt = 0;
   uint8_t lastRSSI = 0;
-  StaticIcon* logsIcon;
+  DotIcon* logsIcon;
   StaticIcon* usbIcon;
 #if defined(AUDIO)
   StaticIcon* audioScale;

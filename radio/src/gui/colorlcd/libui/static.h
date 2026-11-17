@@ -142,6 +142,17 @@ class StaticIcon : public Window
 
 //-----------------------------------------------------------------------------
 
+class DotIcon : public Window
+{
+ public:
+  DotIcon(Window *parent, coord_t x, coord_t y, LcdColorIndex color);
+
+  static LAYOUT_VAL_SCALED_ODD(DOT_SZ, 11);
+ protected:
+};
+
+//-----------------------------------------------------------------------------
+
 class StaticImage : public Window
 {
  public:
