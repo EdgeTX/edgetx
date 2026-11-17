@@ -37,6 +37,7 @@
 #include "textedit.h"
 #include "theme_manager.h"
 #include "toggleswitch.h"
+#include "view_main.h"
 
 //-----------------------------------------------------------------------------
 
@@ -2547,7 +2548,7 @@ class WidgetPage : public NavWindow, public LuaEventHandler
     body->setWindowFlag(NO_FOCUS);
 
     if (iconFile.empty())
-      header = new PageHeader(this, ICON_EDGETX);
+      header = new PageHeader(this, ICON_TOOLS_APPS);
     else
       header = new PageHeader(this, iconFile.c_str());
 
@@ -2812,7 +2813,10 @@ void LvglWidgetDialog::build(lua_State *L)
 {
   if (w == LV_SIZE_CONTENT) w = DIALOG_DEFAULT_WIDTH;
   if (h == LV_SIZE_CONTENT) h = DIALOG_DEFAULT_HEIGHT;
-  auto dlg = new LvglDialog(title.txt, w, h,
+
+  saveFocus = lv_group_get_focused(lv_group_get_default());
+
+  dialog = new LvglDialog(title.txt, w, h,
       [=]() {
         pcallSimpleFunc(L, closeFunction);
         clearRefs(L);
@@ -2822,8 +2826,13 @@ void LvglWidgetDialog::build(lua_State *L)
         if (lvglManager->isDisabled())
           close();
       });
-  dialog = dlg;
-  window = dlg->getBody();
+  dialog->onClosing([=]() {
+    if (!lvglManager->isFullscreen())
+      ViewMain::instance()->resetMainGroup();
+    lv_group_focus_obj(saveFocus);
+  });
+
+  window = dialog->getBody();
   window->setWidth(w);
   setFlex();
 }
@@ -2868,6 +2877,10 @@ void LvglWidgetConfirmDialog::build(lua_State *L)
   window = new ConfirmDialog(title.txt.c_str(), message.c_str(),
       [=]() { pcallSimpleFunc(L, confirmFunction); clearRefs(L); },
       [=]() { pcallSimpleFunc(L, cancelFunction); clearRefs(L); });
+  window->onClosing([=]() {
+    if (!lvglManager->isFullscreen())
+      ViewMain::instance()->resetMainGroup();
+  });
 }
 
 lv_group_t* LvglWidgetConfirmDialog::getLvglGroup()
@@ -2901,6 +2914,8 @@ void LvglWidgetMessageDialog::build(lua_State *L)
   window = new MessageDialog(title.txt.c_str(), message.c_str(), details.c_str());
   window->onClosing([=]() {
     clearRefs(L);
+    if (!lvglManager->isFullscreen())
+      ViewMain::instance()->resetMainGroup();
   });
 }
 
@@ -3030,6 +3045,11 @@ void LvglWidgetMenu::build(lua_State *L)
 
   menu->setCancelHandler([=]() {
     clearRefs(L);
+  });
+
+  menu->onClosing([=]() {
+    if (!lvglManager->isFullscreen())
+      ViewMain::instance()->resetMainGroup();
   });
 
   window = menu;

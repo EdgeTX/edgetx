@@ -290,7 +290,7 @@ class ChargeDashboardDialog : public Window
     lockNoScroll(ibusBarFill);
 
     lv_obj_move_foreground(lblBolt);
-    lv_obj_move_foreground(lblSocBig->getLvObj());
+    lblSocBig->toForeground();
 
     refreshUi(true);
   }

@@ -276,7 +276,7 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
 void LuaWidget::onClicked()
 {
   if (!fullscreen) {
-    ButtonBase::onClicked();
+    Widget::onClicked();
     return;
   }
 
@@ -286,7 +286,7 @@ void LuaWidget::onClicked()
 void LuaWidget::onCancel()
 {
   if (!fullscreen) {
-    ButtonBase::onCancel();
+    Widget::onCancel();
     return;
   }
 

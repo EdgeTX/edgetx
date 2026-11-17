@@ -70,6 +70,14 @@ class ViewMain : public NavWindow
 
   static void refreshWidgets();
 
+  void showTouchMask(Widget* widget);
+  void hideTouchMask();
+  void resetMainGroup();
+
+  void enableViewScrolling(bool enable);
+
+  bool widgetFocusMode() { return widget_select || activeWidget; }
+
  protected:
   static ViewMain* _instance;
 
@@ -79,6 +87,8 @@ class ViewMain : public NavWindow
   HeaderIcon* headerIcon = nullptr;
   bool widget_select = false;
   tmr10ms_t widgetSelectCancelTime = 0;
+  Window* touchMask = nullptr;
+  Widget* activeWidget = nullptr;
 
   // Set topbar visibility [0.0 -> 1.0]
   void setTopbarVisible(float visible);
@@ -90,5 +100,6 @@ class ViewMain : public NavWindow
   void doKeyShortcut(event_t event) override;
   void onPressPGUP() override;
   void onPressPGDN() override;
+  void onLongPressRTN() override;
 #endif
 };

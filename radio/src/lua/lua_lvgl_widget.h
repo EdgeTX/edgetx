@@ -49,8 +49,7 @@ enum LuaLvglType
   ETX_BOX,
 
   // Controls - tools / fullscreen widgets only
-  ETX_FIRST_CONTROL,
-  ETX_BUTTON = ETX_FIRST_CONTROL,
+  ETX_BUTTON,
   ETX_MOMENTARY_BUTTON,
   ETX_TOGGLE,
   ETX_TEXTEDIT,
@@ -945,6 +944,7 @@ class LvglWidgetDialog : public LvglWidgetObject, public LvglTitleParam
 
  protected:
   LvglDialog* dialog = nullptr;
+  lv_obj_t* saveFocus = nullptr;
 
   LvglFuncRef closeFunction;
 

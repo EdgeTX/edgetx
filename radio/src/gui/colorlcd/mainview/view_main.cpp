@@ -105,7 +105,9 @@ ViewMain::ViewMain() :
 
   // create last to be on top
   topbar = new TopBar(this);
-  headerIcon = new HeaderIcon(this, ICON_EDGETX, [=]() { QuickMenu::openQuickMenu(); });
+  headerIcon = new HeaderIcon(this, ICON_EDGETX,
+                              [=]() { QuickMenu::openQuickMenu(); },
+                              [=]() { if (isAppMode()) lv_event_send(lvobj, LV_EVENT_LONG_PRESSED, nullptr); });
 
   onClosing([=]() {
     _instance = nullptr;
@@ -255,41 +257,68 @@ void ViewMain::updateTopbarVisibility()
 #if defined(HARDWARE_KEYS)
 void ViewMain::doKeyShortcut(event_t event)
 {
-  QMPage pg = g_eeGeneral.getKeyShortcut(event);
-  if (pg == QM_APP) {
-    runLuaTool(g_eeGeneral.getKeyToolName(event));
-  } else if (pg == QM_OPEN_QUICK_MENU) {
-    QuickMenu::openQuickMenu();
-  } else {
-    QuickMenu::openPage(pg);
+  if (!widgetFocusMode()) {
+    QMPage pg = g_eeGeneral.getKeyShortcut(event);
+    if (pg == QM_APP) {
+      runLuaTool(g_eeGeneral.getKeyToolName(event));
+    } else if (pg == QM_OPEN_QUICK_MENU) {
+      QuickMenu::openQuickMenu();
+    } else {
+      QuickMenu::openPage(pg);
+    }
   }
 }
+
 void ViewMain::onPressPGUP()
 {
-  if (!widget_select) {
+  if (!widgetFocusMode()) {
     previousMainView();
   }
 }
+
 void ViewMain::onPressPGDN()
 {
-  if (!widget_select) {
+  if (!widgetFocusMode()) {
     nextMainView();
   }
 }
+
+void ViewMain::onLongPressRTN()
+{
+  customScreens[getCurrentMainView()]->cancelFullscreen();
+}
 #endif
 
-void ViewMain::onClicked() { QuickMenu::openQuickMenu(); }
+void ViewMain::onClicked()
+{
+  if (!widgetFocusMode())
+    QuickMenu::openQuickMenu();
+}
 
 void ViewMain::onCancel()
 {
-  if (widget_select) {
+  if (widget_select)
     enableWidgetSelect(false);
-  }
+  if (activeWidget)
+    lv_event_send(activeWidget->getLvObj(), LV_EVENT_CANCEL, nullptr);
 }
 
 void ViewMain::refreshWidgetSelectTimer()
 {
   widgetSelectCancelTime = get_tmr10ms() + 1000; // 10 seconds
+}
+
+void ViewMain::enableViewScrolling(bool enable)
+{
+  if (enable) {
+    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
+    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+  } else {
+    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
+    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+  }
 }
 
 void ViewMain::enableWidgetSelect(bool enable)
@@ -312,31 +341,27 @@ void ViewMain::enableWidgetSelect(bool enable)
       widget->enableFocus(enable);
   }
 
-  if (enable) {
-    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
-    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+  enableViewScrolling(!enable);
 
+  if (enable) {
     refreshWidgetSelectTimer();
   } else {
-    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
-    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
-
     widgetSelectCancelTime = 0;
   }
 }
 
 bool ViewMain::onLongPress()
 {
-  killAllEvents();
-  lv_indev_reset(nullptr, nullptr);
-  if (isAppMode()) {
-    int view = getCurrentMainView();
-    if (customScreens[view]->getWidget(0))
-      customScreens[view]->getWidget(0)->setFullscreen(true);
-  } else {
-    enableWidgetSelect(true);
+  if (!widgetFocusMode()) {
+    killAllEvents();
+    lv_indev_reset(nullptr, nullptr);
+    if (isAppMode()) {
+      int view = getCurrentMainView();
+      if (customScreens[view]->getWidget(0))
+        customScreens[view]->getWidget(0)->setFullscreen(true);
+    } else {
+      enableWidgetSelect(true);
+    }
   }
   return false;
 }
@@ -406,4 +431,53 @@ void ViewMain::_refreshWidgets()
 void ViewMain::refreshWidgets()
 {
   if (_instance) _instance->_refreshWidgets();
+}
+
+void ViewMain::showTouchMask(Widget* widget)
+{
+  // Cancel select mode
+  enableWidgetSelect(false);
+
+  enableViewScrolling(false);
+
+  // Overlay an opaque mask over the screen to prevent touch interaction
+  if (!touchMask) {
+    touchMask = new Window(this, {0, 0, LCD_W, LCD_H});
+    etx_solid_bg(touchMask->getLvObj(), COLOR_WHITE_INDEX);
+    etx_obj_add_style(touchMask->getLvObj(), styles->bg_opacity_50, LV_PART_MAIN);
+    touchMask->setWindowFlag(OPAQUE);
+  }
+  touchMask->attach(customScreens[getCurrentMainView()]);
+  touchMask->show();
+  touchMask->toForeground();
+  headerIcon->toBackground();
+  topbar->toBackground();
+
+  activeWidget = widget;
+}
+
+void ViewMain::hideTouchMask()
+{
+  activeWidget = nullptr;
+
+  resetGroup();
+
+  enableViewScrolling(true);
+
+  if (touchMask) {
+    touchMask->attach(this);
+    touchMask->toBackground();
+    touchMask->hide();
+    topbar->toForeground();
+    headerIcon->toForeground();
+  }
+}
+
+void ViewMain::resetMainGroup()
+{
+  if (activeWidget) {
+    activeWidget->resetGroup();
+  } else {
+    resetGroup();
+  }
 }

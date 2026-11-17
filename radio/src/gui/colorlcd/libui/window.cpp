@@ -370,6 +370,16 @@ void Window::clearWindowFlag(WindowFlags flag) { windowFlags &= ~flag; }
 void Window::setTextFlag(LcdFlags flag) { textFlags |= flag; }
 void Window::clearTextFlag(LcdFlags flag) { textFlags &= ~flag; }
 
+void Window::toForeground()
+{
+  lv_obj_move_foreground(lvobj);
+}
+
+void Window::toBackground()
+{
+  lv_obj_move_background(lvobj);
+}
+
 void Window::attach(Window *newParent)
 {
   detach();
@@ -596,9 +606,9 @@ void Window::addBackButton()
       window_create);
 }
 
-void Window::addCustomButton(coord_t x, coord_t y, std::function<void()> action)
+ButtonBase* Window::addCustomButton(coord_t x, coord_t y, std::function<void()> action)
 {
-  new ButtonBase(
+  return new ButtonBase(
     this, {x, y, EdgeTxStyles::MENU_HEADER_HEIGHT, EdgeTxStyles::MENU_HEADER_HEIGHT},
     [=]() -> uint8_t {
       action();

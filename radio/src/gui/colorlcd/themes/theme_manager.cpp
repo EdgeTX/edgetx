@@ -556,43 +556,42 @@ void HeaderDateTime::setColor(LcdFlags color)
   etx_txt_color_from_flags(time, color);
 }
 
-HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon, std::function<void()> action) :
-  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX),
-  action(std::move(action))
+HeaderIcon::HeaderIcon(Window* parent, EdgeTxIcon icon, std::function<void()> action, std::function<void()> longPress) :
+  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX)
 {
   this->icon = new StaticIcon(this, 0, 0, icon, COLOR_THEME_PRIMARY2_INDEX);
   this->icon->center(width() - PAD_SMALL, height());
 #if defined(HARDWARE_TOUCH)
-  if (this->action) {
+  if (action) {
     setWindowFlag(NO_CLICK);
-    addCustomButton(0, 0, [=]() { this->action(); });
+    auto b = addCustomButton(0, 0, [=]() { action(); });
+    if (longPress)
+      b->setLongPressHandler([=]() { longPress(); return 0; });
   }
 #endif
 }
 
 HeaderIcon::HeaderIcon(Window* parent, const char* iconFile, std::function<void()> action) :
-  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX),
-  action(std::move(action))
+  StaticIcon(parent, 0, 0, ICON_TOPLEFT_BG, COLOR_THEME_FOCUS_INDEX)
 {
   this->icon = new StaticIcon(this, 0, 0, iconFile, COLOR_THEME_PRIMARY2_INDEX);
   this->icon->center(width(), height());
 #if defined(HARDWARE_TOUCH)
-  if (this->action) {
+  if (action) {
     setWindowFlag(NO_CLICK);
-    addCustomButton(0, 0, [=]() { this->action(); });
+    addCustomButton(0, 0, [=]() { action(); });
   }
 #endif
 }
 
 HeaderBackIcon::HeaderBackIcon(Window* parent, std::function<void()> action) :
-  StaticIcon(parent, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_XO, 0, ICON_TOPRIGHT_BG, COLOR_THEME_FOCUS_INDEX),
-  action(std::move(action))
+  StaticIcon(parent, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_XO, 0, ICON_TOPRIGHT_BG, COLOR_THEME_FOCUS_INDEX)
 {
   (new StaticIcon(this, 0, 0, ICON_BTN_CLOSE, COLOR_THEME_PRIMARY2_INDEX))->center(width() + PAD_MEDIUM, height());
 #if defined(HARDWARE_TOUCH)
-  if (this->action) {
+  if (action) {
     setWindowFlag(NO_CLICK);
-    addCustomButton(0, 0, [=]() { this->action(); });
+    addCustomButton(0, 0, [=]() { action(); });
   }
 #endif
 }
