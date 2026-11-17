@@ -263,7 +263,7 @@ void StandaloneLuaWindow::checkEvents()
           if (scriptResult != 0) {
             closeWindow();
           } else {
-            if (useLvglLayout() && !hasError) {
+            if (useLvglLayout() && !scriptDisabled) {
               PROTECT_LUA() {
                 if (!callRefs(lsStandalone)) {
                   luaShowError();
@@ -355,15 +355,16 @@ void StandaloneLuaWindow::luaShowError()
 {
   if (runFunction != LUA_REFNIL) luaL_unref(lsStandalone, LUA_REGISTRYINDEX, runFunction);
   runFunction = LUA_REFNIL;
-  hasError = true;
+  scriptDisabled = true;
   extern void luaError(lua_State *L, uint8_t error);
   luaError(lsStandalone, SCRIPT_SYNTAX_ERROR);
 }
 
 void StandaloneLuaWindow::showError(bool firstCall, const char* title, const char* msg)
 {
+  if (runFunction != LUA_REFNIL) luaL_unref(lsStandalone, LUA_REGISTRYINDEX, runFunction);
   runFunction = LUA_REFNIL;
-  hasError = true;
+  scriptDisabled = true;
   if (!errorModal) {
     lv_obj_set_scroll_dir(lvobj, LV_DIR_NONE);
     errorModal = lv_obj_create(lvobj);

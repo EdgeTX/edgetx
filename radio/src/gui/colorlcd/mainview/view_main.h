@@ -70,6 +70,9 @@ class ViewMain : public NavWindow
 
   static void refreshWidgets();
 
+  void showTouchMask();
+  void hideTouchMask();
+
  protected:
   static ViewMain* _instance;
 
@@ -79,6 +82,7 @@ class ViewMain : public NavWindow
   HeaderIcon* headerIcon = nullptr;
   bool widget_select = false;
   tmr10ms_t widgetSelectCancelTime = 0;
+  Window* touchMask = nullptr;
 
   // Set topbar visibility [0.0 -> 1.0]
   void setTopbarVisible(float visible);

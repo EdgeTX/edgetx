@@ -50,7 +50,7 @@ enum LuaLvglType
 
   // Controls - tools / fullscreen widgets only
   ETX_FIRST_CONTROL,
-  ETX_BUTTON = ETX_FIRST_CONTROL,
+  ETX_BUTTON,
   ETX_MOMENTARY_BUTTON,
   ETX_TOGGLE,
   ETX_TEXTEDIT,
@@ -289,6 +289,8 @@ class LvglWidgetObjectBase
   static LvglWidgetObjectBase *checkLvgl(lua_State *L, int index, bool required = false);
 
   void clear();
+
+  bool canCall(LvglFuncRef funcRef);
 
  protected:
   int luaRef = LUA_REFNIL;

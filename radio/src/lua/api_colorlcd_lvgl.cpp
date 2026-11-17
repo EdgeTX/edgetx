@@ -265,14 +265,17 @@ static int luaLvglClose(lua_State *L)
 
 static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
 {
+  lv_group_t* oldGroup = lv_group_get_default();
+  lv_group_t* group = luaScriptManager->getLvglGroup();
+  if (group)
+    lv_group_set_default(group);
+
   luaL_checktype(L, srcIndex, LUA_TTABLE);
   for (lua_pushnil(L); lua_next(L, srcIndex - 1); lua_pop(L, 1)) {
     auto t = lua_gettop(L);
     LvglWidgetParams p(L, -1);
     if (p.type == ETX_UNDEF)
       luaL_error(L, "Missing or bad type");
-    if (p.type >= ETX_FIRST_CONTROL && !luaScriptManager->isFullscreen())
-      continue;
     LvglWidgetObjectBase *obj = nullptr;
     switch (p.type) {
       case ETX_LABEL:
@@ -333,7 +336,10 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
         obj = new LvglWidgetVerticalSlider();
         break;
       case ETX_PAGE:
-        obj = new LvglWidgetPage();
+        if (luaScriptManager->isFullscreenOrAppMode())
+          obj = new LvglWidgetPage();
+        else
+          luaL_error(L, "Page can only be used in AppMode or fullscreen");
         break;
       case ETX_FONT:
         obj = new LvglWidgetFontPicker();
@@ -381,6 +387,8 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
     }
     lua_settop(L, t); // In case of errors in build functions
   }
+
+  lv_group_set_default(oldGroup);
 }
 
 static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
@@ -395,9 +403,9 @@ static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
   }
 }
 
-static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly = false, bool saveRef = true)
+static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly, bool saveRef)
 {
-  if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
+  if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreenOrAppMode())) {
     LvglWidgetParams params(L, 1);
 
     auto obj = create();
@@ -413,9 +421,9 @@ static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, b
   return 1;
 }
 
-static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> create, bool fullscreenOnly = false)
+static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> create)
 {
-  if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
+  if (luaScriptManager) {
     LvglWidgetObjectBase* p = nullptr;
     LvglWidgetObjectBase* prevParent = nullptr;
     if (lua_gettop(L) == 2) {
@@ -428,10 +436,17 @@ static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
 
     LvglWidgetParams params(L, -1);
 
+    lv_group_t* oldGroup = lv_group_get_default();
+    lv_group_t* group = luaScriptManager->getLvglGroup();
+    if (group)
+      lv_group_set_default(group);
+
     auto obj = create();
     obj->create(L, -1);
 
     if (params.hasChildren) addChildren(L, obj);
+
+    lv_group_set_default(oldGroup);
 
     obj->push(L);
 
@@ -865,13 +880,14 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `cornerRadius` (number) radius for the button's corners, defaults to the EdgeTX button style radius
    * `font` (font value or function) sets the font size, e.g. `MIDSIZE`, `DBLSIZE`; defaults to `STDSIZE`
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(button, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextButton(); }, true); })
+  LROT_FUNCENTRY(button, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextButton(); }); })
   /*luadoc
   @function lvgl.momentaryButton([parent, ]params)
 
@@ -890,14 +906,16 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `cornerRadius` (number) radius for the button's corners, defaults to the EdgeTX button style radius
    * `font` (font value or function) sets the font size, e.g. `MIDSIZE`, `DBLSIZE`; defaults to `STDSIZE`
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
+
   @notice Unlike `lvgl.button`, `press` fires immediately on tap/press rather than on release. The button shows the checked state until ENTER is released or the screen is no longer touched.
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(momentaryButton, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetMomentaryButton(); }, true); })
+  LROT_FUNCENTRY(momentaryButton, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetMomentaryButton(); }); })
   /*luadoc
   @function lvgl.toggle([parent, ]params)
 
@@ -911,13 +929,14 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `set` (function) called when the user interacts with the switch; passed a single number, 0 = off, 1 = on, defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(toggle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetToggleSwitch(); }, true); })
+  LROT_FUNCENTRY(toggle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetToggleSwitch(); }); })
   /*luadoc
   @function lvgl.textEdit([parent, ]params)
 
@@ -932,13 +951,14 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `set` (function) called when the user edits the text; passed the new string content, defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(textEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextEdit(); }, true); })
+  LROT_FUNCENTRY(textEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextEdit(); }); })
   /*luadoc
   @function lvgl.numberEdit([parent, ]params)
 
@@ -956,14 +976,16 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `max` (number) maximum allowed value, defaults to 1024
    * `display` (function) overrides how the value is displayed; passed the current value, must return a string, defaults to nil
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
+
   @notice Use `set` to react to every change during editing, or `edited` to only react to the final value once editing is complete.
 
   @status current Introduced in 2.11.0, edited added in 2.11.5, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(numberEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetNumberEdit(); }, true); })
+  LROT_FUNCENTRY(numberEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetNumberEdit(); }); })
   /*luadoc
   @function lvgl.choice([parent, ]params)
 
@@ -981,15 +1003,17 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `filter` (function) called for each option when the popup opens, passed the option's index; return true to show it, false to hide it, defaults to nil
    * `popupWidth` (number) width of the popup window, defaults to 0 (use default width)
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
+
   @notice The popup closes and `set` is called when the user selects an item.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
   @status current Introduced in 2.11.0, values updatable via lvgl.set() added in 2.11.6, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(choice, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetChoice(); }, true); })
+  LROT_FUNCENTRY(choice, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetChoice(); }); })
   /*luadoc
   @function lvgl.slider([parent, ]params)
 
@@ -1007,13 +1031,14 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `set` (function) called when the user moves the knob; passed the new value, defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(slider, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSlider(); }, true); })
+  LROT_FUNCENTRY(slider, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSlider(); }); })
   /*luadoc
   @function lvgl.verticalSlider([parent, ]params)
 
@@ -1031,13 +1056,14 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `set` (function) called when the user moves the knob; passed the new value, defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(verticalSlider, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetVerticalSlider(); }, true); })
+  LROT_FUNCENTRY(verticalSlider, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetVerticalSlider(); }); })
   /*luadoc
   @function lvgl.font([parent, ]params)
 
@@ -1051,15 +1077,17 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `set` (function) called when the user taps a font in the popup; passed the selected font value, defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
+
   @notice The popup closes and `set` is called when the user selects an item.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(font, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetFontPicker(); }, true); })
+  LROT_FUNCENTRY(font, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetFontPicker(); }); })
   /*luadoc
   @function lvgl.align([parent, ]params)
 
@@ -1072,15 +1100,17 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `get` (function) called on every refresh cycle to keep the displayed value in sync, to get the currently selected alignment, defaults to nil
    * `set` (function) called when the user taps an alignment in the popup; passed the selected alignment value, defaults to nil
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
+
   @notice The popup closes and `set` is called when the user selects an item.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(align, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetAlignPicker(); }, true); })
+  LROT_FUNCENTRY(align, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetAlignPicker(); }); })
   /*luadoc
   @function lvgl.color([parent, ]params)
 
@@ -1093,15 +1123,17 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `get` (function) called once when the object is created, to get the initial color, defaults to nil
    * `set` (function) called when the user picks a color; passed the selected color value, defaults to nil
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
+
   @notice The popup closes and `set` is called when the user selects a color.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(color, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetColorPicker(); }, true); })
+  LROT_FUNCENTRY(color, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetColorPicker(); }); })
   /*luadoc
   @function lvgl.timer([parent, ]params)
 
@@ -1115,15 +1147,17 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `set` (function) called when the user taps a timer in the popup; passed the selected timer value, defaults to nil
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
+
   @notice The popup closes and `set` is called when the user selects an item.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(timer, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTimerPicker(); }, true); })
+  LROT_FUNCENTRY(timer, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTimerPicker(); }); })
   /*luadoc
   @function lvgl.switch([parent, ]params)
 
@@ -1138,15 +1172,17 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `active` (function) sets the enabled/disabled state; must return a boolean, true to enable, defaults to nil
    * `filter` (number) controls which switch types the user can pick; combine `lvgl.SW_xxx` constants to build a custom filter, defaults to `lvgl.SW_ALL`
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
+
   @notice The popup closes and `set` is called when the user selects an item.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(switch, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSwitchPicker(); }, true); })
+  LROT_FUNCENTRY(switch, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSwitchPicker(); }); })
   /*luadoc
   @function lvgl.source([parent, ]params)
 
@@ -1160,15 +1196,17 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `set` (function) called when the user picks a source; passed the selected source value, defaults to nil
    * `filter` (number) controls which source types the user can pick; combine `lvgl.SRC_xxx` constants to build a custom filter, defaults to `lvgl.SRC_ALL`
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
+
   @notice The popup closes and `set` is called when the user selects an item.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(source, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSourcePicker(); }, true); })
+  LROT_FUNCENTRY(source, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSourcePicker(); }); })
   /*luadoc
   @function lvgl.file([parent, ]params)
 
@@ -1187,15 +1225,17 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `hideExtension` (boolean) if true, the extension is stripped before `set` is called and hidden in the picker list, defaults to false
    * `maxLen` (number) maximum filename length (measured after `hideExtension` stripping, if set); files with longer names are not shown in the picker list, defaults to 255
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
+
   @notice The popup closes and `set` is called when the user picks a file.
   @notice If the user taps outside the popup or presses RTN, the popup closes without calling `set`.
 
   @status current Introduced in 2.11.0, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(file, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetFilePicker(); }, true); })
+  LROT_FUNCENTRY(file, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetFilePicker(); }); })
   // Containers
   /*luadoc
   @function lvgl.box([parent, ]params)
@@ -1236,13 +1276,14 @@ LROT_BEGIN(lvgllib, NULL, 0)
    @commonparams lvgl_object
    * `title` (string or function) text displayed on the left; function support added in 2.11.6, defaults to an empty string
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
 
   @status current Introduced in 2.11.0, title function support added in 2.11.6, floating added in 2.11.6
   */
-  LROT_FUNCENTRY(setting, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSetting(); }, true); })
+  LROT_FUNCENTRY(setting, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSetting(); }); })
   /*luadoc
   @function lvgl.page(params)
 
@@ -1276,7 +1317,7 @@ LROT_BEGIN(lvgllib, NULL, 0)
 
   @status current Introduced in 2.11.0, title/subtitle function support, menu, prevButton, nextButton, align, and backButton added in 2.11.4, borderPad added in 2.11.5, scrollBar/scrollDir/scrolled/scrollTo added in 2.11.2
   */
-  LROT_FUNCENTRY(page, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetPage(); }, true); })
+  LROT_FUNCENTRY(page, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetPage(); }, true, true); })
   /*luadoc
   @function lvgl.dialog(params)
 
@@ -1288,14 +1329,16 @@ LROT_BEGIN(lvgllib, NULL, 0)
    * `flexFlow` (lvgl.FLOW_COLUMN or lvgl.FLOW_ROW) enables flex layout for this box, not used by default
    * `flexPad` (number) padding between rows/columns when flex layout is used, defaults to `PAD_OUTLINE`
 
-  @retval table LVGL object, or nil if not running as a One-Time script or fullscreen widget
+  @retval table LVGL object, or nil (see notice below)
 
   @notice Only available for One-Time scripts and widgets running in full screen mode -- returns nil otherwise.
+          This restriction is removed in 3.0
+
   @notice The common object settings (x, y, w, h, color, etc.) are not used by `lvgl.dialog` -- only the settings listed above apply.
 
   @status current Introduced in 2.11.0
   */
-  LROT_FUNCENTRY(dialog, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetDialog(); }, true, false); })
+  LROT_FUNCENTRY(dialog, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetDialog(); }, false, false); })
   // Dialogs
   /*luadoc
   @function lvgl.confirm(params)
@@ -1457,24 +1500,24 @@ LROT_BEGIN(lvgl_mt, NULL, LROT_MASK_GC_INDEX)
   LROT_FUNCENTRY(image, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetImage(); }); })
   LROT_FUNCENTRY(qrcode, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetQRCode(); }); })
   // Objects - standalone scripts and full screen widgets only
-  LROT_FUNCENTRY(button, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextButton(); }, true); })
-  LROT_FUNCENTRY(momentaryButton, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetMomentaryButton(); }, true); })
-  LROT_FUNCENTRY(toggle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetToggleSwitch(); }, true); })
-  LROT_FUNCENTRY(textEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextEdit(); }, true); })
-  LROT_FUNCENTRY(numberEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetNumberEdit(); }, true); })
-  LROT_FUNCENTRY(choice, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetChoice(); }, true); })
-  LROT_FUNCENTRY(slider, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSlider(); }, true); })
-  LROT_FUNCENTRY(verticalSlider, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetVerticalSlider(); }, true); })
-  LROT_FUNCENTRY(font, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetFontPicker(); }, true); })
-  LROT_FUNCENTRY(align, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetAlignPicker(); }, true); })
-  LROT_FUNCENTRY(color, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetColorPicker(); }, true); })
-  LROT_FUNCENTRY(timer, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTimerPicker(); }, true); })
-  LROT_FUNCENTRY(switch, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSwitchPicker(); }, true); })
-  LROT_FUNCENTRY(source, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSourcePicker(); }, true); })
-  LROT_FUNCENTRY(file, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetFilePicker(); }, true); })
+  LROT_FUNCENTRY(button, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextButton(); }); })
+  LROT_FUNCENTRY(momentaryButton, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetMomentaryButton(); }); })
+  LROT_FUNCENTRY(toggle, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetToggleSwitch(); }); })
+  LROT_FUNCENTRY(textEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTextEdit(); }); })
+  LROT_FUNCENTRY(numberEdit, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetNumberEdit(); }); })
+  LROT_FUNCENTRY(choice, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetChoice(); }); })
+  LROT_FUNCENTRY(slider, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSlider(); }); })
+  LROT_FUNCENTRY(verticalSlider, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetVerticalSlider(); }); })
+  LROT_FUNCENTRY(font, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetFontPicker(); }); })
+  LROT_FUNCENTRY(align, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetAlignPicker(); }); })
+  LROT_FUNCENTRY(color, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetColorPicker(); }); })
+  LROT_FUNCENTRY(timer, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetTimerPicker(); }); })
+  LROT_FUNCENTRY(switch, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSwitchPicker(); }); })
+  LROT_FUNCENTRY(source, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSourcePicker(); }); })
+  LROT_FUNCENTRY(file, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetFilePicker(); }); })
   // Containers
   LROT_FUNCENTRY(box, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetBox(); }); })
-  LROT_FUNCENTRY(setting, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSetting(); }, true); })
+  LROT_FUNCENTRY(setting, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSetting(); }); })
   // Object manipulation functions
   LROT_FUNCENTRY(set, luaLvglSet)
   LROT_FUNCENTRY(show, luaLvglShow)

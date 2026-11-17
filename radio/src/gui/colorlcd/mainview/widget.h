@@ -80,8 +80,6 @@ class Widget : public ButtonBase
   const WidgetOption* getOptionDefinitions() const;
   bool hasOptions() const { return getOptionDefinitions() && getOptionDefinitions()->name; }
 
-  virtual const char* getErrorMessage() const { return nullptr; }
-
   WidgetPersistentData* getPersistentData();
 
 #if defined(DEBUG_WINDOWS)
@@ -99,6 +97,8 @@ class Widget : public ButtonBase
   void setFullscreen(bool enable);
   void closeFullscreen() { closeFS = true; }
   bool isFullscreen() const { return fullscreen; }
+  bool isAppMode() const;
+  virtual bool isLvglWidget() { return false; }
 
   // Should rotary encoder events be enabled when full screen
   virtual bool enableFullScreenRE() const { return true; }
@@ -127,6 +127,8 @@ class Widget : public ButtonBase
   bool fullscreen = false;
   bool closeFS = false;
   lv_obj_t* focusBorder = nullptr;
+  lv_obj_t* editBorder = nullptr;
+  lv_group_t* widgetGroup = nullptr;
 
   void onCancel() override;
   bool onLongPress() override;
