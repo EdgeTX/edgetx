@@ -119,6 +119,7 @@ endif()
 
 if(USB_CHARGER)
   add_definitions(-DUSB_CHARGER)
+  add_definitions(-DUSB_CHARGE_CONTROL)
 endif()
 
 if(USE_RTC_CLOCK)
