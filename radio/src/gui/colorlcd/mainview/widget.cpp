@@ -259,7 +259,7 @@ void Widget::setFullscreen(bool enable)
 
   onFullscreen(enable);
 
-  if (fullscreen)
+  if (fullscreen && !isAppMode())
     updateWithoutRefresh();
 }
 
@@ -298,6 +298,11 @@ void Widget::enableFocus(bool enable)
       focusBorder = nullptr;
     }
   }
+}
+
+bool Widget::isAppMode() const
+{
+  return ((WidgetsContainer*)parent)->isAppMode();
 }
 
 WidgetPersistentData* Widget::getPersistentData() { return g_model.getWidgetData(screenNum, zoneNum); }
