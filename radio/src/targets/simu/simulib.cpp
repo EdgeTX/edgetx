@@ -49,6 +49,9 @@
 #include <clocale>
 #include <deque>
 #include <stdint.h>
+#if defined(__wasm__)
+#include <thread>
+#endif
 
 // Dummy CPU ID
 static const uint32_t cpu_uid_data[3] = {0x12345678, 0x55AA55AA, 0x87654321};
@@ -179,7 +182,7 @@ time_t simuLocalTimeToEpoch(struct tm* tm)
 #endif
 }
 
-void simuStart(bool tests, int32_t utcOffset)
+static void simuStartImpl(bool tests, int32_t utcOffset, bool bootOnThread)
 {
   if (simu_running)
     return;
@@ -239,8 +242,18 @@ void simuStart(bool tests, int32_t utcOffset)
   lcdInit();
 
 #if !defined(SIMU_BOOTLOADER)
-  simuMain();
+#if defined(__wasm__)
+  if (bootOnThread) {
+    std::thread(simuMain).detach();
+  } else {
+    simuMain();
+  }
 #else
+  (void)bootOnThread;
+  simuMain();
+#endif
+#else
+  (void)bootOnThread;
   pthread_attr_t attr;
   pthread_attr_init(&attr);
   struct sched_param sp;
@@ -253,6 +266,18 @@ void simuStart(bool tests, int32_t utcOffset)
 
   simu_running = true;
 }
+
+void simuStart(bool tests, int32_t utcOffset)
+{
+  simuStartImpl(tests, utcOffset, false);
+}
+
+#if defined(__wasm__)
+void simuStartAsync(bool tests, int32_t utcOffset)
+{
+  simuStartImpl(tests, utcOffset, true);
+}
+#endif
 
 extern task_handle_t mixerTaskId;
 extern task_handle_t menusTaskId;

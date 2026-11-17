@@ -48,6 +48,16 @@
 // reports UTC. Ignored by native builds.
 void WASM_EXPORT(simuInit)();
 void WASM_EXPORT(simuStart)(bool tests = true, int32_t utcOffset = 0);
+#if defined(__wasm__)
+// Same as simuStart(), but runs the firmware init (simuMain()) on a thread of
+// its own instead of the caller's, and returns before it has finished.  For
+// hosts calling from a thread that must never block, such as the browser main
+// thread: waiting there on a lock held by a firmware thread (malloc, a task
+// mutex, ...) throws "Atomics.wait cannot be called in this context", and
+// simuMain() starts the firmware tasks part way through.  The host must allow
+// for one more thread while the firmware boots.
+void WASM_EXPORT(simuStartAsync)(bool tests = true, int32_t utcOffset = 0);
+#endif
 void WASM_EXPORT(simuStop)();
 bool WASM_EXPORT(simuIsRunning)();
 

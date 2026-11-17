@@ -323,14 +323,20 @@
       const manifest: RadioEntry[] = await resp.json();
 
       // Probe each WASM file with a HEAD request, verify content-type
-      // (Vite's dev server returns 200 with text/html for missing files)
+      // (Vite's dev server returns 200 with text/html for missing files).
+      // A probe that hangs must not hold up the whole list: list the radio
+      // anyway, as starting it reports a missing module.
       const checks = manifest.map(async (r) => {
         try {
-          const head = await fetch(`./${r.wasm}`, { method: 'HEAD' });
+          const head = await fetch(`./${r.wasm}`, {
+            method: 'HEAD',
+            signal: AbortSignal.timeout(10000),
+          });
           const ct = head.headers.get('content-type') || '';
           return { ...r, available: head.ok && ct.includes('wasm') };
-        } catch {
-          return { ...r, available: false };
+        } catch (e) {
+          const timedOut = e instanceof DOMException && e.name === 'TimeoutError';
+          return { ...r, available: timedOut };
         }
       });
 
@@ -453,8 +459,9 @@
       ex.simuInit();
       runner.setFatfsPaths('/', '/');
       ex.simuCreateDefaults();
+      runner.allocLcd(lcdSize);
       // WASI has no timezone support, so the module needs our UTC offset.
-      ex.simuStart(1, -new Date().getTimezoneOffset() * 60);
+      runner.start(true, -new Date().getTimezoneOffset() * 60);
 
       if (canvas) {
         lcdRenderer = new LcdRenderer(canvas);
