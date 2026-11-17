@@ -195,7 +195,7 @@ void NumberEdit::onClicked()
     if (edit == nullptr) {
       edit = new NumberArea(
           this,
-          {-(PAD_MEDIUM + 2), -(PAD_BORDER * 2),
+          {-(PAD_MEDIUM + PAD_BORDER), -(PAD_TINY + PAD_BORDER),
           lv_obj_get_width(lvobj), lv_obj_get_height(lvobj)},
           [=]() {
             update();

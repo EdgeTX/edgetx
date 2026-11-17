@@ -27,9 +27,6 @@
 class ColorPicker : public Button
 {
   uint32_t color;
-  std::function<uint32_t()> getValue;
-  std::function<void(uint32_t)> setValue;
-  std::function<void(uint32_t)> preview;
   COLOR_EDITOR_FMT format;
 
   void updateColor(uint32_t c);
@@ -39,6 +36,4 @@ public:
               std::function<uint32_t()> getValue,
               std::function<void(uint32_t)> setValue = nullptr,
               COLOR_EDITOR_FMT fmt = ETX_RGB565);
-
-  void onClicked() override;
 };
