@@ -56,6 +56,12 @@ static uint8_t editStatusLedColor(coord_t y, const char* title, uint8_t color, u
 #define CASE_TX_MODE(x)
 #endif
 
+#if defined(USB_CHARGE_CONTROL)
+#define CASE_USB_CHARGE_CONTROL(x) x,
+#else
+#define CASE_USB_CHARGE_CONTROL(x)
+#endif
+
 enum {
   CASE_RTCLOCK(ITEM_RADIO_SETUP_DATE)
   CASE_RTCLOCK(ITEM_RADIO_SETUP_TIME)
@@ -125,6 +131,7 @@ enum {
   ITEM_RADIO_SETUP_SWITCHES_DELAY,
   ITEM_RADIO_SETUP_USB_MODE,
   ITEM_RADIO_SETUP_USB_MODE_OVERRIDE,
+  CASE_USB_CHARGE_CONTROL(ITEM_RADIO_SETUP_USB_CHARGE)
   CASE_JACK_DETECT(ITEM_RADIO_SETUP_JACK_MODE)
   ITEM_RADIO_SETUP_RX_CHANNEL_ORD,
   CASE_ROTARY_ENCODER(ITEM_RADIO_SETUP_ROTARY_ENC_MODE)
@@ -278,6 +285,7 @@ void menuRadioSetup(event_t event)
     0,
     0, // USB mode
     USB_MODE_OVERRIDE_ROW(LABEL(0)), // model USB mode override
+    CASE_USB_CHARGE_CONTROL(0) // Charge while radio on
     CASE_JACK_DETECT(0) // Jack mode
     0, // Channel order
     CASE_ROTARY_ENCODER(0)
@@ -870,6 +878,20 @@ void menuRadioSetup(event_t event)
         s += STR_MODEL_USBMODES[g_model.usbMode];
         lcdDrawText(LCD_W - MENUS_SCROLLBAR_WIDTH, y, s.c_str(), RIGHT);
       } break;
+
+#if defined(USB_CHARGE_CONTROL)
+      case ITEM_RADIO_SETUP_USB_CHARGE: {
+        lcdDrawTextAlignedLeft(y, STR_USB_CHARGE);
+        uint8_t charge = !g_eeGeneral.usbChargeDisabled;
+        uint8_t newCharge = editCheckBox(charge, LCD_W - 9, y, nullptr, attr, event);
+        if (newCharge != charge) {
+          g_eeGeneral.usbChargeDisabled = !newCharge;
+          // take effect now, not only on the next plug
+          if (usbPlugged())
+            usbChargerEnableCharge(newCharge);
+        }
+      } break;
+#endif
 
 #if defined(JACK_DETECT_GPIO)
       case ITEM_RADIO_SETUP_JACK_MODE:
