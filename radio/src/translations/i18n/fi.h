@@ -1067,11 +1067,9 @@
 #define TR_UNIT                        "Unit"
 #define TR_TELEMETRY_NEWSENSOR         "Add a new sensor..."
 #define TR_CHANNELRANGE                "Channel Range"
-#define TR_AFHDS3_RX_FREQ              TR("RX freq.", "RX frequency")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Unicast/Tel.", "Unicast/Telemetry")
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Actual power")
-#define TR_AFHDS3_POWER_SOURCE         TR("Power src.", "Power source")
 #define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_ANTENNACONFIRM1             "EXT. ANTENNA"
 #define TR_ANTENNA_MODES_1             "Internal"

@@ -1077,11 +1077,9 @@
 #define TR_UNIT                         "Enhet"
 #define TR_TELEMETRY_NEWSENSOR          "Lägg till..."
 #define TR_CHANNELRANGE                 TR("Kanalomr.", "Kanalområde")
-#define TR_AFHDS3_RX_FREQ               TR("Rx frekv.", "Rx frekvens")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY  TR("Unicast/Tel.", "Unicast/Telemetry")
 #define TR_AFHDS3_ONE_TO_MANY           "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER          TR("Act. pow", "Actual power")
-#define TR_AFHDS3_POWER_SOURCE          "Strömkälla"
 #define TR_IBUS2_SENSORS_MODE_ONLY     "Only in the iBUS2 mode can the sensors be set."
 #define TR_ANTENNACONFIRM1              "EXT. ANTENN"
 

@@ -32,9 +32,15 @@ class SliderIcon : public Window
  public:
   SliderIcon(Window* parent);
 
+  static LAYOUT_VAL_SCALED_ODD(SLIDER_MASK_SIZE, 15)
+  static constexpr coord_t SLIDER_ICON_SIZE = SLIDER_MASK_SIZE + 2;
+
  protected:
   lv_obj_t* mask = nullptr;
   lv_obj_t* shadow = nullptr;
+
+  static bool maskCreated;
+  static uint8_t maskBuffer[SLIDER_MASK_SIZE * SLIDER_MASK_SIZE];
 };
 
 class MainViewSlider : public Window
@@ -48,13 +54,16 @@ class MainViewSlider : public Window
 #else
   static LAYOUT_SIZE_SCALED_EVEN(SLIDER_SIZE, 160, 120)
 #endif
-  static LAYOUT_VAL_SCALED_ODD(SLIDER_ICON_SIZE, 15)
-  static constexpr coord_t SLIDER_BAR_SIZE = SLIDER_ICON_SIZE + 2;
-  static LAYOUT_VAL_SCALED(SLIDER_TICK_SPACING, 4)
-  static constexpr coord_t HORIZONTAL_SLIDERS_WIDTH = SLIDER_SIZE + SLIDER_BAR_SIZE;
-  static constexpr coord_t VERTICAL_SLIDERS_HEIGHT = SLIDER_SIZE + SLIDER_BAR_SIZE;
-  static constexpr coord_t MASK_SHORT_DIM = SLIDER_ICON_SIZE - PAD_TINY;
-  static constexpr coord_t MASK_LONG_DIM = SLIDER_SIZE + 1;
+#if LCD_W == 320
+  static constexpr coord_t SLIDER_TICK_SPACING = 3;
+#elif LCD_W == 800
+  static constexpr coord_t SLIDER_TICK_SPACING = 5;
+#else
+  static constexpr coord_t SLIDER_TICK_SPACING = 4;
+#endif
+  static constexpr coord_t HORIZONTAL_SLIDERS_WIDTH = SLIDER_SIZE + SliderIcon::SLIDER_ICON_SIZE;
+  static constexpr coord_t VERTICAL_SLIDERS_HEIGHT = SLIDER_SIZE + SliderIcon::SLIDER_ICON_SIZE;
+  static constexpr coord_t MASK_SHORT_DIM = SliderIcon::SLIDER_MASK_SIZE - 2;
 
  protected:
   uint8_t potIdx;

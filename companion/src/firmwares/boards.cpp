@@ -141,6 +141,8 @@ uint32_t Boards::getFourCC(Type board)
       return 0x4978746F;
     case BOARD_RADIOMASTER_GX15:
       return 0x4978746F;
+    case BOARD_RADIOMASTER_GX10:
+      return 0x5278746F;
     case BOARD_RADIOMASTER_TX12:
       return 0x4178746F;
     case BOARD_RADIOMASTER_TX12_MK2:
@@ -235,6 +237,7 @@ int Boards::getEEpromSize(Board::Type board)
     case BOARD_RADIOMASTER_TX16SMK3:
     case BOARD_RADIOMASTER_TX15:
     case BOARD_RADIOMASTER_GX15:
+    case BOARD_RADIOMASTER_GX10:
     case BOARD_FLYSKY_NV14:
     case BOARD_FLYSKY_EL18:
     case BOARD_FLYSKY_PA01:
@@ -307,6 +310,7 @@ int Boards::getFlashSize(Type board)
     case BOARD_RADIOMASTER_TX16SMK3:
     case BOARD_RADIOMASTER_TX15:
     case BOARD_RADIOMASTER_GX15:
+    case BOARD_RADIOMASTER_GX10:
     case BOARD_FLYSKY_NV14:
     case BOARD_FLYSKY_EL18:
     case BOARD_FLYSKY_PA01: // 8MB SDRAM
@@ -382,7 +386,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
              IS_RADIOMASTER_MT12(board);
 
     case HasAux2SerialMode:
-      return IS_FAMILY_T16(board);
+      return IS_FAMILY_T16(board) && !IS_RADIOMASTER_GX10(board);
 
     case HasBacklightColor:
       return IS_TARANIS_PLUS(board) || IS_TARANIS_X9DP_2019(board);
@@ -462,7 +466,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
         return 480;
       else if (IS_FAMILY_PL18(board) || IS_JUMPER_T15(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T15H7(board) || IS_JUMPER_T22(board) || IS_FLYSKY_ST16(board) || IS_RADIOMASTER_TX15(board) || IS_RADIOMASTER_GX15(board))
         return 320;
-      else if (IS_FLYSKY_PA01(board) || IS_HELLORADIOSKY_V12(board))
+      else if (IS_FLYSKY_PA01(board) || IS_HELLORADIOSKY_V12(board) || IS_RADIOMASTER_GX10(board))
         return 240;
       else if (IS_FAMILY_HORUS_OR_T16(board))
         return 272;
@@ -472,7 +476,8 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
     case LcdWidth:
       if (IS_RADIOMASTER_TX16SMK3(board))
         return 800;
-      else if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PA01(board) || IS_HELLORADIOSKY_V12(board))
+      else if (IS_FLYSKY_NV14(board) || IS_FLYSKY_EL18(board) || IS_FLYSKY_PA01(board) || IS_HELLORADIOSKY_V12(board) ||
+               IS_RADIOMASTER_GX10(board))
         return 320;
       else if (IS_FAMILY_HORUS_OR_T16(board) || IS_RADIOMASTER_TX15(board) || IS_FAMILY_PL18(board) || IS_FLYSKY_ST16(board))
         return 480;
@@ -501,7 +506,7 @@ int Boards::getCapability(Board::Type board, Board::Capability capability)
       return IS_RADIOMASTER_GX12(board) || IS_FLYSKY_ST16(board) ||
              IS_FLYSKY_PA01(board) || IS_RADIOMASTER_TX15(board) ||
              IS_RADIOMASTER_TX16SMK3(board) || IS_HELLORADIOSKY_V12(board) ||
-             IS_RADIOMASTER_GX15(board);
+             IS_RADIOMASTER_GX15(board) || IS_RADIOMASTER_GX10(board);
 
     default:
       return getBoardJson(board)->getCapability(capability);
@@ -745,6 +750,8 @@ QString Boards::getBoardName(Board::Type board)
       return "Radiomaster TX15";
     case BOARD_RADIOMASTER_GX15:
       return "Radiomaster GX15";
+    case BOARD_RADIOMASTER_GX10:
+      return "Radiomaster GX10";
     case BOARD_RADIOMASTER_ZORRO:
       return "Radiomaster Zorro";
     case BOARD_RADIOMASTER_GX12:
@@ -899,6 +906,7 @@ int Boards::getDefaultInternalModules(Board::Type board)
   case BOARD_HELLORADIOSKY_V16:
   case BOARD_RADIOMASTER_TX15:
   case BOARD_RADIOMASTER_GX15:
+  case BOARD_RADIOMASTER_GX10:
   case BOARD_RADIOMASTER_TX16SMK3:
   case BOARD_IFLIGHT_COMMANDO8:
   case BOARD_IFLIGHT_COMMANDO14:
@@ -978,6 +986,7 @@ void Boards::getBattRange(Board::Type board, int& vmin, int& vmax, unsigned int&
     case BOARD_RADIOMASTER_TX16SMK3:
     case BOARD_RADIOMASTER_TX15:
     case BOARD_RADIOMASTER_GX15:
+    case BOARD_RADIOMASTER_GX10:
     case BOARD_JUMPER_T16:
     case BOARD_JUMPER_T18:
     case BOARD_JUMPER_T20:
@@ -1023,7 +1032,7 @@ int Boards::getDefaultExternalModuleSize(Board::Type board)
   if (getCapability(board, HasColorLcd)) {
     if (IS_FLYSKY_EL18(board) || IS_IFLIGHT_C14(board))
       return EXTMODSIZE_BOTH;
-    else if (IS_HELLORADIOSKY_V12(board))
+    else if (IS_HELLORADIOSKY_V12(board) || IS_RADIOMASTER_GX10(board))
       return EXTMODSIZE_SMALL;
     else
       return EXTMODSIZE_STD;

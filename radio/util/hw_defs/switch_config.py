@@ -11,6 +11,25 @@ SWITCH_CONFIG = {
         "SD": {"default": "2POS",   "display": [1, 1]},
         "SF": {"default": "TOGGLE", "display": [1, 2]},
     },
+    "gx10": {
+        # left side
+        "SA": {"default": "TOGGLE"},
+        "SB": {"default": "3POS",   "display": [0, 0]},
+        "SE": {"default": "3POS",   "display": [0, 1]},
+        "SG": {"default": "TOGGLE", "display": [0, 2]},
+        # right side
+        "SC": {"default": "3POS",   "display": [1, 0]},
+        "SD": {"default": "TOGGLE"},
+        "SF": {"default": "3POS",   "display": [1, 1]},
+        "SH": {"default": "TOGGLE", "display": [1, 2]},
+        # custom switches
+        "SI": {"default": "2POS"},
+        "SJ": {"default": "2POS"},
+        "SK": {"default": "2POS"},
+        "SL": {"default": "2POS"},
+        "SM": {"default": "2POS"},
+        "SN": {"default": "2POS"},
+    },
     "gx12": {
         # left side
         "SA": {"default": "TOGGLE"},

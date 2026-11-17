@@ -712,11 +712,9 @@
 #define TR_MULTI_SERVOFREQ             TR("קצב סרוו", "קצב עדכון סרוו")
 #define TR_MULTI_MAX_THROW             TR("מהלך מקס.", "אפשר מהלך מקסימלי")
 #define TR_MULTI_RFCHAN                TR("ערוץ RF", "בחר ערוץ RF")
-#define TR_AFHDS3_RX_FREQ              TR("תדר RX", "תדר RX")
 #define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Unicast/Tel.", "Unicast/Telemetry")
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("עוצמה בפועל", "עוצמה בפועל")
-#define TR_AFHDS3_POWER_SOURCE         TR("מקור מתח", "מקור מתח")
 #define TR_IBUS2_SENSORS_MODE_ONLY     ".ניתן להגדיר חיישנים רק במצב iBUS2"
 #define TR_FLYSKY_TELEMETRY            TR("FlySky RSSI #", "Use FlySky RSSI value without rescalling")
 #define TR_GPS_COORDS_FORMAT           TR("קואורדינטות", "פורמט קואורדינטות")

@@ -29,6 +29,10 @@
 
 #include "timers_driver.h"
 
+// Used by the STM32 ADC driver; the firmware's version is in hal/adc_driver.cpp.
+// Not a weak symbol in the driver: LTO would inline it into the firmware too.
+bool adcIsSliderInput(uint8_t) { return false; }
+
 #if defined(DEBUG_SEGGER_RTT)
   #include "thirdparty/Segger/SEGGER/SEGGER_RTT.h"
 #endif
@@ -111,7 +115,7 @@ void bootloaderInitApp()
   boardBLInit();
 }
 
-#if defined(FIRMWARE_FORMAT_UF2)
+#if defined(FIRMWARE_FORMAT_UF2) && !defined(BOOTLOADER_KEYS_POLL_IRQ)
 // make linker happy
 void per5ms() {}
 #endif

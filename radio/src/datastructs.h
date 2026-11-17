@@ -81,7 +81,7 @@ static inline void check_struct()
 #elif defined(RADIO_T18H7)
   // as the group below, less the 3 IMU bytes
   CHKSIZE(RadioData, 1177);
-#elif defined(RADIO_ST16) || defined(PCBPA01) || defined(RADIO_TX15) || defined(RADIO_T15PRO) || defined(RADIO_T15H7) || defined(RADIO_TX16SMK3) || defined(RADIO_T22) || defined(RADIO_GX15) || defined(RADIO_V15)
+#elif defined(RADIO_ST16) || defined(PCBPA01) || defined(RADIO_TX15) || defined(RADIO_T15PRO) || defined(RADIO_T15H7) || defined(RADIO_TX16SMK3) || defined(RADIO_T22) || defined(RADIO_GX15) || defined(RADIO_V15) || defined(RADIO_GX10)
   CHKSIZE(RadioData, 1180);
 #elif defined(RADIO_H17)
   CHKSIZE(RadioData, 1057);
@@ -121,7 +121,7 @@ static inline void check_struct()
   CHKSIZE(ModelData, 7305);
 #elif defined(PCBC14) || defined(RADIO_H17)
   CHKSIZE(ModelData, 7237);
-#elif defined(RADIO_V12)
+#elif defined(RADIO_V12) || defined(RADIO_GX10)
   CHKSIZE(ModelData, 7304);
 #elif defined(PCBPA01)
   CHKSIZE(ModelData, 7246);

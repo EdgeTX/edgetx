@@ -482,6 +482,14 @@ uint8_t adcGetInputOffset(uint8_t type)
   return _hal_adc_inputs[type].offset;
 }
 
+bool adcIsSliderInput(uint8_t idx)
+{
+  auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
+  if (idx < offset || idx >= offset + adcGetMaxInputs(ADC_INPUT_FLEX))
+    return false;
+  return IS_SLIDER(idx - offset);
+}
+
 uint8_t adcGetMaxCalibratedInputs()
 {
   // ADC_INPUT_MAIN + ADC_INPUT_FLEX + ADC_INPUT_AXIS
