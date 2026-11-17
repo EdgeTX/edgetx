@@ -56,15 +56,20 @@ async function checkRadio(browser, url, { wasm }) {
     if (m.type() === 'error') errors.push(m.text());
   });
 
+  // Reported with a failure, as Playwright's timeouts do not say what for
+  let step = 'loading the page';
   try {
     const deadline = Date.now() + TIMEOUT_MS;
     const remaining = () => Math.max(deadline - Date.now(), 1);
 
     await page.goto(url);
+    step = 'waiting for the radio list';
     await page.locator(`select option[value="${wasm}"]`).waitFor({ state: 'attached', timeout: remaining() });
+    step = 'starting the radio';
     await page.selectOption('select', wasm);
     await page.getByRole('button', { name: 'Run', exact: true }).click({ timeout: remaining() });
 
+    step = 'waiting for the start result';
     const status = page.getByText(/^(Running|Error: .*|WASM module not found.*)$/);
     await status.first().waitFor({ timeout: remaining() });
     const text = await status.first().innerText();
@@ -73,17 +78,23 @@ async function checkRadio(browser, url, { wasm }) {
     const fail = (message) => {
       throw new Error(errors[0] ?? message);
     };
+    step = 'waiting for the LCD';
     while ((await lcdColours(page)) < 2) {
       if (errors.length || Date.now() > deadline) fail('nothing drawn on the LCD');
       await page.waitForTimeout(250);
     }
 
+    step = 'waiting to get past the first screen';
     const splash = await page.locator('canvas.lcd').screenshot();
     while (splash.equals(await page.locator('canvas.lcd').screenshot())) {
       if (errors.length || Date.now() > deadline) fail('stuck on the first screen');
       await page.waitForTimeout(250);
     }
     if (errors.length) fail();
+  } catch (e) {
+    e.step = step;
+    e.pageErrors = errors;
+    throw e;
   } finally {
     await context.close();
   }
@@ -103,7 +114,11 @@ await Promise.all(Array.from({ length: JOBS }, async () => {
       console.log(`${radio.name}: OK (${((Date.now() - t) / 1000).toFixed(1)}s)`);
     } catch (e) {
       failed.push(radio.name);
-      console.error(`${radio.name}: ${e.message.split('\n')[0]}`);
+      // First line as before, then the details, indented
+      const [first, ...rest] = e.message.split('\n');
+      const details = [`while ${e.step ?? 'starting'}`, ...rest, ...(e.pageErrors ?? []).filter((m) => m !== e.message)];
+      console.error(`${radio.name}: ${first}`);
+      for (const line of details.filter((l) => l.trim())) console.error(`    ${line}`);
     }
   }
 }));
