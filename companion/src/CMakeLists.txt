@@ -96,7 +96,7 @@ configure_file(${COMPANION_SRC_DIRECTORY}/version.h.in ${CMAKE_BINARY_DIR}/versi
 ### Generate .qm files and assemble resource (qrc) file.
 
 # available Companion translations (src/translations/*.ts)
-set(LANGUAGES cs da de en es fi fr he it ja ko nl pl pt ru sv zh_CN zh_TW)
+set(LANGUAGES ar cs da de en es fi fr he it ja ko nl pl pt ru sv zh_CN zh_TW)
 foreach(language ${LANGUAGES})
   list(APPEND companion_TS translations/companion_${language}.ts)
 endforeach(language)

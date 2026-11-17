@@ -160,7 +160,7 @@ get_logographic_languages() {
     
     # Auto-detect logographic languages based on known character sets
     # These are languages that typically use complex character sets that may not display well on B&W screens
-    local known_logographic="CN JP KO TW"
+    local known_logographic="AR CN JP KO TW"
     
     # Could be enhanced to check translation files for unicode/multibyte characters
     # For now, use the known list as fallback

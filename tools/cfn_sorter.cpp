@@ -15,7 +15,10 @@
 #define TR3(a, b, c) c
 #define TR_BW_COL(a, b) b
 
-#if defined(LNG_CN)
+#if defined(LNG_AR)
+#include "../radio/src/translations/i18n/ar.h"
+#define LOC "ar_SA.UTF-8"
+#elif defined(LNG_CN)
 #include "../radio/src/translations/i18n/cn.h"
 #define LOC "zh_CN.UTF-8"
 #elif defined(LNG_CZ)

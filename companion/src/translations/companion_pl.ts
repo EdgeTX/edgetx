@@ -5704,38 +5704,38 @@ Dopuszczalne wartości 3v-12v</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="569"/>
-        <location filename="../generaledit/generalsetup.cpp" line="570"/>
+        <location filename="../generaledit/generalsetup.cpp" line="573"/>
+        <location filename="../generaledit/generalsetup.cpp" line="574"/>
         <source>Not available on this radio (no key combo defined)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="615"/>
+        <location filename="../generaledit/generalsetup.cpp" line="619"/>
         <source>Normal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="615"/>
+        <location filename="../generaledit/generalsetup.cpp" line="619"/>
         <source>Inverted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="615"/>
+        <location filename="../generaledit/generalsetup.cpp" line="619"/>
         <source>Vertical Inverted, Horizontal Normal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="615"/>
+        <location filename="../generaledit/generalsetup.cpp" line="619"/>
         <source>Vertical Inverted, Horizontal Alternate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="615"/>
+        <location filename="../generaledit/generalsetup.cpp" line="619"/>
         <source>Normal, Edit Inverted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../generaledit/generalsetup.cpp" line="643"/>
+        <location filename="../generaledit/generalsetup.cpp" line="647"/>
         <source>If you enable FAI, only RSSI and RxBt sensors will keep working.
 This function cannot be disabled by the radio.
 Are you sure ?</source>

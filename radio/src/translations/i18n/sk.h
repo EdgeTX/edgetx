@@ -1314,6 +1314,7 @@
 #define TR_VOICE_SWEDISH                "Švédčina"
 #define TR_VOICE_TAIWANESE              "Tchajwančina"
 #define TR_VOICE_JAPANESE               "Japončina"
+#define TR_VOICE_ARABIC                 "Arabčina"
 #define TR_VOICE_HEBREW                 "Hebrečina"
 #define TR_VOICE_UKRAINIAN              "Ukrainčina"
 #define TR_VOICE_KOREAN                 "Kórejčina"

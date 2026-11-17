@@ -22,7 +22,9 @@
 #include "edgetx.h"
 #include "translations/translation_def.h"
 
-#if defined(TRANSLATIONS_CN)
+#if defined(TRANSLATIONS_AR)
+#include "translations/i18n/ar.h"
+#elif defined(TRANSLATIONS_CN)
 #include "translations/i18n/cn.h"
 #elif defined(TRANSLATIONS_CZ)
 #include "translations/i18n/cz.h"
@@ -95,15 +97,16 @@ bool isTextLangAvail(int lang)
   return lang != LANG_HU;
 #else
   // Skip languages with no translation files or no unicode fonts
-  return lang != LANG_CN && lang != LANG_HE && lang != LANG_HU &&
-         lang != LANG_JP && lang != LANG_KO && lang != LANG_SK &&
-         lang != LANG_TW;
+  return lang != LANG_AR && lang != LANG_CN && lang != LANG_HE &&
+         lang != LANG_HU && lang != LANG_JP && lang != LANG_KO &&
+         lang != LANG_SK && lang != LANG_TW;
 #endif
 }
 
 // Order must match languagePack[]
 #if defined(COLORLCD)
 const LangStrings* const langStrings[] = {
+  &arLangStrings,
   &cnLangStrings,
   &czLangStrings,
   &daLangStrings,
@@ -128,6 +131,7 @@ const LangStrings* const langStrings[] = {
 };
 #else
 const LangStrings* const langStrings[] = {
+  &enLangStrings,
   &enLangStrings,
   &czLangStrings,
   &daLangStrings,

@@ -1054,6 +1054,7 @@
 #define STR_VOICE_ESPANOL currentLangStrings->STR_VOICE_ESPANOL
 #define STR_VOICE_FINNISH currentLangStrings->STR_VOICE_FINNISH
 #define STR_VOICE_FRANCAIS currentLangStrings->STR_VOICE_FRANCAIS
+#define STR_VOICE_ARABIC currentLangStrings->STR_VOICE_ARABIC
 #define STR_VOICE_HEBREW currentLangStrings->STR_VOICE_HEBREW
 #define STR_VOICE_HUNGARIAN currentLangStrings->STR_VOICE_HUNGARIAN
 #define STR_VOICE_ITALIANO currentLangStrings->STR_VOICE_ITALIANO

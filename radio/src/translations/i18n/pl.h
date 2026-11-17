@@ -1305,6 +1305,7 @@
 #define TR_VOICE_SWEDISH                "Szwedzki"
 #define TR_VOICE_TAIWANESE              "Tajwański"
 #define TR_VOICE_JAPANESE               "Japonês"
+#define TR_VOICE_ARABIC                 "Arabski"
 #define TR_VOICE_HEBREW                 "Hebrajski"
 #define TR_VOICE_UKRAINIAN              "Ukraiński"
 #define TR_VOICE_KOREAN                 "koreański"
