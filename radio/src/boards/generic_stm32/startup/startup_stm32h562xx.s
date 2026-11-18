@@ -61,6 +61,10 @@ defined in linker script */
 Reset_Handler:
   ldr   sp, =_estack    /* set stack pointer */
 
+/* Board hook that must run as soon as possible after reset (e.g. latching
+   the power hold line). Runs before .data/.bss are initialised. */
+  bl    boardResetEarlyInit
+
 /* Copy the data segment initializers from flash to SRAM */
   movs	r1, #0
   b	LoopCopyDataInit
@@ -109,6 +113,13 @@ LoopForever:
  * @param  None
  * @retval : None
 */
+    .section	.text.boardResetEarlyInit,"ax",%progbits
+	.weak	boardResetEarlyInit
+	.type	boardResetEarlyInit, %function
+boardResetEarlyInit:
+	bx	lr
+	.size	boardResetEarlyInit, .-boardResetEarlyInit
+
     .section	.text.Default_Handler,"ax",%progbits
 Default_Handler:
 Infinite_Loop:
