@@ -298,6 +298,7 @@ uint8_t * USBD_FS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
   int vid, pid;
   // 0x00: class defined per interface (HID, MSC, DFU)
   uint8_t device_class = 0x00;
+  uint8_t device_subclass = 0x00;
 
   /* version has to be bcd coded */
   uint8_t version_minor = ((VERSION_MINOR / 10) << 4) | (VERSION_MINOR % 10);
@@ -312,10 +313,12 @@ uint8_t * USBD_FS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
     case USB_SERIAL_MODE:
       vid = USBD_CDC_VID;
       pid = USBD_CDC_PID;
-      // CDC device class: lets Windows 10+ bind its inbox usbser driver
-      // to the whole device instead of usbccgp splitting the CDC
-      // interfaces apart (usbser then fails on MI_00 with Code 10).
+      // CDC / ACM at device level: Windows 10+ inbox usbser.inf matches
+      // USB\Class_02&SubClass_02, so it binds to the whole device instead
+      // of usbccgp splitting the CDC interfaces apart (usbser then fails
+      // on MI_00 with Code 10).
       device_class = 0x02;
+      device_subclass = 0x02;
       break;
 
     case USB_MASS_STORAGE_MODE:
@@ -344,7 +347,7 @@ uint8_t * USBD_FS_DeviceDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
       0x00,                       /*bcdUSB USB specification release number in binary-coded decimal*/
       0x02,
       device_class,               /*bDeviceClass*/
-      0x00,                       /*bDeviceSubClass*/
+      device_subclass,            /*bDeviceSubClass*/
       0x00,                       /*bDeviceProtocol*/
       USB_MAX_EP0_SIZE,           /*bMaxPacketSize*/
       LOBYTE(vid),                /*idVendor*/
