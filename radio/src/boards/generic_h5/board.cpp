@@ -73,6 +73,20 @@ void disableUsbPdPins()
 }
 #endif
 
+#if defined(BOOT) && defined(PWR_BUTTON_PRESS) && defined(PWR_ON_GPIO)
+// Called from Reset_Handler before .data/.bss are initialised: no globals.
+// A reset releases PWR_ON, and the power circuit only holds up for about a
+// millisecond. After a watchdog or software reset (e.g. leaving the
+// bootloader), latch it again before anything else runs.
+extern "C" void boardResetEarlyInit()
+{
+  if (LL_RCC_IsActiveFlag_SFTRST() || LL_RCC_IsActiveFlag_IWDGRST()) {
+    gpio_init(PWR_ON_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+    gpio_set(PWR_ON_GPIO);
+  }
+}
+#endif
+
 #if defined(BOOT) && defined(STM32H5)
 void boardBLEarlyInit()
 {
@@ -119,6 +133,16 @@ void boardInit()
 
   // Sets 'hardwareOption.pcbrev' as well
   pwrInit();
+
+#if defined(PWR_BUTTON_PRESS)
+  // A reset releases PWR_ON: after a watchdog or software reset (e.g. leaving
+  // the bootloader) latch it again before the slower init below, or the radio
+  // loses power before it gets there
+  if (WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
+    pwrOn();
+  }
+#endif
+
   boardInitModulePorts();
 
 #if STATUS_LEDS
@@ -153,12 +177,6 @@ void boardInit()
 
 #if defined(DEBUG)
   DBGMCU->APB1FZR1 = 0x000019FF;
-#endif
-
-#if defined(PWR_BUTTON_PRESS)
-  if (WAS_RESET_BY_WATCHDOG_OR_SOFTWARE()) {
-    pwrOn();
-  }
 #endif
 
 #if defined(USB_CHARGER)
