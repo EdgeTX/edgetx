@@ -132,6 +132,7 @@ class Widget : public ButtonBase
   lv_obj_t* focusBorder = nullptr;
   lv_style_t borderStyle;
   lv_point_t borderPts[5];
+  lv_group_t* widgetGroup = nullptr;
 
   void onCancel() override;
   bool onLongPress() override;

@@ -79,16 +79,6 @@ static void keyboard_event_cb(lv_event_t* e)
 
 static void field_focus_leave(lv_event_t* e) { Keyboard::hide(false); }
 
-static void _assign_lv_group(lv_group_t* g)
-{
-  // associate it with all input devices
-  lv_indev_t* indev = lv_indev_get_next(NULL);
-  while (indev) {
-    lv_indev_set_group(indev, g);
-    indev = lv_indev_get_next(indev);
-  }
-}
-
 Keyboard::Keyboard(coord_t height) :
     NavWindow(MainWindow::instance(), {0, LCD_H - height, LCD_W, height})
 {
@@ -146,7 +136,7 @@ void Keyboard::clearField(bool wasCancelled)
     field = nullptr;
 
     if (fieldGroup) {
-      _assign_lv_group(fieldGroup);
+      assignLvGroup(fieldGroup, false);
       lv_group_set_editing(fieldGroup, false);
       fieldGroup = nullptr;
     }
@@ -197,7 +187,7 @@ void Keyboard::setField(FormField* newField)
 
       lv_keyboard_set_textarea(keyboard, obj);
       lv_obj_add_event_cb(obj, field_focus_leave, LV_EVENT_DEFOCUSED, nullptr);
-      _assign_lv_group(group);
+      assignLvGroup(group, false);
 
       field = newField;
       fieldGroup = (lv_group_t*)lv_obj_get_group(obj);

@@ -264,6 +264,11 @@ static int luaLvglClose(lua_State *L)
 
 static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
 {
+  lv_group_t* oldGroup = lv_group_get_default();
+  lv_group_t* group = luaScriptManager->getLvglGroup();
+  if (group)
+    lv_group_set_default(group);
+
   luaL_checktype(L, srcIndex, LUA_TTABLE);
   for (lua_pushnil(L); lua_next(L, srcIndex - 1); lua_pop(L, 1)) {
     auto t = lua_gettop(L);
@@ -380,6 +385,8 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
     }
     lua_settop(L, t); // In case of errors in build functions
   }
+
+  lv_group_set_default(oldGroup);
 }
 
 static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
@@ -427,10 +434,17 @@ static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
 
     LvglWidgetParams params(L, -1);
 
+    lv_group_t* oldGroup = lv_group_get_default();
+    lv_group_t* group = luaScriptManager->getLvglGroup();
+    if (group)
+      lv_group_set_default(group);
+
     auto obj = create();
     obj->create(L, -1);
 
     if (params.hasChildren) addChildren(L, obj);
+
+    lv_group_set_default(oldGroup);
 
     obj->push(L);
 

@@ -93,6 +93,8 @@ class LuaScriptManager : public LuaEventHandler
   void createTelemetryQueue();
   TelemetryQueue* telemetryQueue() { return luaInputTelemetryFifo; }
 
+  virtual lv_group_t* getLvglGroup() const = 0;
+
  protected:
   int luaScriptContextRef = LUA_REFNIL;
   std::vector<int> lvglObjectRefs;
@@ -143,6 +145,8 @@ class LuaWidget : public Widget, public LuaScriptManager
   void luaShowError() override;
 
   void pushOptionsTable();
+
+  lv_group_t* getLvglGroup() const override { return widgetGroup; }
 
  protected:
   bool inSettings = false;

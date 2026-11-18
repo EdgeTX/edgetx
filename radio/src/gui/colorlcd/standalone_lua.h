@@ -61,6 +61,8 @@ public:
 
   void showError(bool firstCall, const char* title, const char* msg);
 
+  lv_group_t* getLvglGroup() const override { return nullptr; }
+
   static LAYOUT_VAL_SCALED(POPUP_HEADER_HEIGHT, 30)
   static LAYOUT_SIZE_SCALED(POPUP_X, 50, 40)
   static LAYOUT_SIZE_SCALED(POPUP_Y, 70, 110)

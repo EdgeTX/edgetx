@@ -162,6 +162,13 @@ Widget::Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
 
   if (parent->isTopBar()) fsAllowed = false;
 
+  widgetGroup = lv_group_create();
+
+  setCloseHandler([=]() {
+    if (widgetGroup)
+      lv_group_del(widgetGroup);
+  });
+
   setPressHandler([&]() -> uint8_t {
     // When ViewMain is in "widget select mode",
     // the widget is added to a focus group
@@ -172,6 +179,8 @@ Widget::Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
 
 void Widget::openMenu()
 {
+  ViewMain::instance()->enableWidgetSelect(false);
+
   if (fsAllowed && ViewMain::instance()->isAppMode())
   {
     setFullscreen(true);
@@ -220,6 +229,8 @@ void Widget::setFullscreen(bool enable)
 
     lv_group_remove_obj(lvobj);
 
+    ViewMain::instance()->resetGroup();
+
     // re-enable scroll chaining (sliding main view)
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
     lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
@@ -239,6 +250,9 @@ void Widget::setFullscreen(bool enable)
 
     bringToTop();
 
+    assignLvGroup(widgetGroup, true);
+
+    // Ensure events are sent to the widget, not bubbled up to parent
     if (!lv_obj_get_group(lvobj))
       lv_group_add_obj(lv_group_get_default(), lvobj);
 
@@ -260,10 +274,10 @@ void Widget::setFullscreen(bool enable)
 bool Widget::onLongPress()
 {
   if (!fullscreen) {
+    lv_indev_wait_release(lv_indev_get_act());
     openMenu();
-    return false;
   }
-  return true;
+  return false;
 }
 
 const WidgetOption* Widget::getOptionDefinitions() const

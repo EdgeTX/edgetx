@@ -46,7 +46,7 @@ lv_obj_t *window_create(lv_obj_t *parent)
 
 void Window::window_event_cb(lv_event_t *e)
 {
-  Window *window = (Window *)lv_obj_get_user_data(lv_event_get_target(e));
+  Window *window = (Window *)lv_obj_get_user_data(lv_event_get_current_target(e));
   if (window) 
     window->eventHandler(e);
 }
@@ -227,6 +227,24 @@ void Window::popLayer()
     layerCreated = false;
     parentHidden = false;
   }
+}
+
+void Window::assignLvGroup(lv_group_t* g, bool setDefault)
+{
+  if (setDefault)
+    lv_group_set_default(g);
+
+  // associate it with all input devices
+  lv_indev_t* indev = lv_indev_get_next(NULL);
+  while (indev) {
+    lv_indev_set_group(indev, g);
+    indev = lv_indev_get_next(indev);
+  }
+}
+
+void Window::resetGroup()
+{
+  Layer::resetGroup(this);
 }
 
 Window *Window::getFullScreenWindow()
