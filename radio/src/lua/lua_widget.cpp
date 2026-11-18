@@ -234,7 +234,7 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
                      int createFunctionRef, const std::string& path) :
     Widget(factory, parent, rect, screenNum, zoneNum),
     zoneRectDataRef(zoneRectDataRef), optionsDataRef(optionsDataRef),
-    errorMessage(nullptr)
+    errorMessage("")
 {
   // Push create function
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, createFunctionRef);
@@ -266,8 +266,6 @@ LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
 
   onClosing([=]() {
     luaL_unref(lsWidgets, LUA_REGISTRYINDEX, zoneRectDataRef);
-    if (errorMessage)
-      free(errorMessage);
   });
 }
 
@@ -305,7 +303,7 @@ void LuaWidget::foreground()
       PROTECT_LUA() {
         luaScriptManager = this;
         refresh(nullptr);
-        if (!errorMessage) {
+        if (!scriptDisabled) {
           if (!callRefs(lsWidgets)) {
             setErrorMessage("foreground calRefs error");
           }
@@ -329,7 +327,7 @@ void LuaWidget::foreground()
 
 void LuaWidget::updateWithoutRefresh()
 {
-  if (lsWidgets == 0 || errorMessage || luaFactory()->updateFunction == LUA_REFNIL) return;
+  if (lsWidgets == 0 || scriptDisabled || luaFactory()->updateFunction == LUA_REFNIL) return;
 
   luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->updateFunction);
@@ -456,18 +454,14 @@ void LuaWidget::setErrorMessage(const char* funcName)
 {
   constexpr int err_len = 255;
 
+  scriptDisabled = true;
+
   const char* lua_err = lua_tostring(lsWidgets, -1);
   TRACE("Error in widget %s %s function: %s", factory->getName(), funcName,
         lua_err);
   TRACE("Widget disabled");
 
-  if (!errorMessage)
-    errorMessage = (char*)malloc(err_len + 1);
-
-  if (errorMessage) {
-    snprintf(errorMessage, err_len, "ERROR in %s: %s", funcName, lua_err);
-    errorMessage[err_len] = '\0';
-  }
+  errorMessage = std::string("ERROR in ") + funcName + ": " + lua_err;
 }
 
 void LuaWidget::luaShowError()
@@ -475,16 +469,14 @@ void LuaWidget::luaShowError()
   setErrorMessage("widget");
 }
 
-const char* LuaWidget::getErrorMessage() const { return errorMessage; }
-
 void LuaWidget::refresh(BitmapBuffer* dc)
 {
   if (lsWidgets == 0 || luaFactory()->refreshFunction == LUA_REFNIL) return;
 
-  if (errorMessage) {
+  if (scriptDisabled) {
     if (dc) {
       dc->drawTextLines(0, 0, fullscreen ? LCD_W : rect.w,
-                        fullscreen ? LCD_H : rect.h, errorMessage,
+                        fullscreen ? LCD_H : rect.h, errorMessage.c_str(),
                         FONT(XS) | COLOR_THEME_WARNING);
     } else {
       if (errorLabel == nullptr) {
@@ -496,7 +488,7 @@ void LuaWidget::refresh(BitmapBuffer* dc)
         etx_bg_color(errorLabel, COLOR_THEME_SECONDARY3_INDEX);
         etx_obj_add_style(errorLabel, styles->bg_opacity_75, LV_PART_MAIN);
       }
-      lv_label_set_text(errorLabel, errorMessage);
+      lv_label_set_text(errorLabel, errorMessage.c_str());
     }
     return;
   }
@@ -539,7 +531,7 @@ void LuaWidget::refresh(BitmapBuffer* dc)
 
 void LuaWidget::background()
 {
-  if (lsWidgets == 0 || errorMessage) return;
+  if (lsWidgets == 0 || scriptDisabled) return;
 
   if (luaFactory()->backgroundFunction != LUA_REFNIL) {
     luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
