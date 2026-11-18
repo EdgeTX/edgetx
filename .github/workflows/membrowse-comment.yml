@@ -1,0 +1,47 @@
+name: MemBrowse PR Comment
+
+# Posts from the base repository, so PRs from forks get a comment too. The
+# reports are uploaded by the firmware workflow: the "MemBrowse analysis" step
+# of each build job, or the "MemBrowse (no firmware change)" job.
+on:
+  workflow_run:
+    workflows: [Run tests and package firmware]
+    types:
+      - completed
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.event == 'pull_request'
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+    steps:
+      # No report exists when no MemBrowse upload succeeded (e.g. a PR
+      # labelled 'ci: skip-fw', a failed build or a cancelled run)
+      - name: Check for uploaded reports
+        id: reports
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          count=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}/jobs" \
+            --jq '.jobs[] | select(
+                (.name == "MemBrowse (no firmware change)" and .conclusion == "success")
+                or any(.steps[]?; .name == "MemBrowse analysis" and .conclusion == "success"))
+              | .name' | wc -l)
+          echo "Jobs with a MemBrowse upload: ${count}"
+          echo "found=$([[ ${count} -gt 0 ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Post combined PR comment
+        if: ${{ steps.reports.outputs.found == 'true' && env.MEMBROWSE_API_KEY != '' }}
+        uses: membrowse/membrowse-action/comment-action@v1
+        with:
+          api_key: ${{ secrets.MEMBROWSE_API_KEY }}
+          commit: ${{ github.event.workflow_run.head_sha }}
+        env:
+          MEMBROWSE_API_KEY: ${{ secrets.MEMBROWSE_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # gh posts the comment; there is no checkout to take the repo from
+          GH_REPO: ${{ github.repository }}

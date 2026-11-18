@@ -7,25 +7,56 @@ on:
       - '[0-9]+.[0-9]+'
     tags:
       - v*
-    paths: &trigger-paths
-      - '.github/workflows/build_fw.yml'
-      - '.github/actions/fetch_deps/**'
-      - 'cmake/**'
-      - 'radio/**'
-      - 'tools/build-gh.sh'
-      - '.gitmodules'
-      - 'CMakeLists.txt'
   pull_request:
-    paths: *trigger-paths
+
+env:
+  # MemBrowse command-line tool, used by the analysis and identical uploads
+  MEMBROWSE_PACKAGE: git+https://github.com/membrowse/membrowse-action@v1
 
 jobs:
+  # Runs on every commit so non-firmware commits still get a MemBrowse report.
+  # Tests and builds run only when the firmware paths below changed.
+  changes:
+    name: Detect firmware changes
+    runs-on: ubuntu-latest
+    outputs:
+      # Tag pushes have no base revision to diff against; always build them
+      firmware: ${{ startsWith(github.ref, 'refs/tags/') || steps.filter.outputs.firmware == 'true' }}
+      membrowse: ${{ github.event_name == 'pull_request' || github.ref == 'refs/heads/main' }}
+      membrowse_targets: ${{ steps.targets.outputs.matrix }}
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+
+      - name: Filter changed paths
+        uses: dorny/paths-filter@v4
+        id: filter
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        with:
+          filters: |
+            firmware:
+              - '.github/workflows/build_fw.yml'
+              - '.github/actions/fetch_deps/**'
+              - '.github/membrowse-targets.json'
+              - 'cmake/**'
+              - 'radio/**'
+              - 'tools/build-gh.sh'
+              - '.gitmodules'
+              - 'CMakeLists.txt'
+
+      - name: Load MemBrowse targets
+        id: targets
+        run: echo "matrix=$(jq -c '.' .github/membrowse-targets.json)" >> "$GITHUB_OUTPUT"
+
   test:
     name: Run tests
+    needs: changes
     runs-on: ubuntu-latest
     timeout-minutes: 30
     if: |
-      github.event_name != 'pull_request' ||
-      !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw')
+      needs.changes.outputs.firmware == 'true' && (
+        github.event_name != 'pull_request' ||
+        !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw'))
     strategy:
       matrix:
         # each target uses one of the 20 runners available, keep grouped to manage concurrency
@@ -72,11 +103,12 @@ jobs:
 
   build:
     name: Run builds
-    needs: test
+    needs: [changes, test]
     runs-on: ubuntu-latest
     if: |
-      github.event_name != 'pull_request' ||
-      !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw')
+      needs.changes.outputs.firmware == 'true' && (
+        github.event_name != 'pull_request' ||
+        !contains(github.event.pull_request.labels.*.name, 'ci: skip-fw'))
     strategy:
       matrix:
         # each target uses one of the 20 runners available, keep grouped to manage concurrency
@@ -117,9 +149,50 @@ jobs:
         env:
           FLAVOR: ${{ matrix.target }}
           CMAKE_BUILD_PARALLEL_LEVEL: 4
+          MEMBROWSE_OUTDIR: ${{ needs.changes.outputs.membrowse == 'true' && 'membrowse-out' || '' }}
         run: |
           echo "Running firmware build"
           ./tools/build-gh.sh
+
+      # A MemBrowse outage must not fail the firmware build. Installed in its own
+      # venv so the build's Python packages stay untouched.
+      - name: MemBrowse analysis
+        if: needs.changes.outputs.membrowse == 'true'
+        continue-on-error: true
+        env:
+          FLAVOR: ${{ matrix.target }}
+          # Empty on fork PRs, which cannot read secrets: reports for PRs to
+          # public repositories are uploaded without a key
+          MEMBROWSE_API_KEY: ${{ secrets.MEMBROWSE_API_KEY }}
+          # The shallow checkout has no parent commit; the comparison base is
+          # read through the API instead
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          uv venv --quiet /tmp/membrowse
+          VIRTUAL_ENV=/tmp/membrowse uv pip install --quiet "${MEMBROWSE_PACKAGE}"
+          /tmp/membrowse/bin/python - <<'EOF'
+          import json, os, subprocess, sys
+
+          with open(".github/membrowse-targets.json") as f:
+              targets = {t["target_name"]: t for t in json.load(f)}
+          failed = False
+          for name in os.environ["FLAVOR"].lower().split(";"):
+              t = targets[name]
+              out = f"membrowse-out/{name}"
+              args = [sys.executable, "-m", "membrowse", "report",
+                      f"{out}/firmware.elf", t["ld"],
+                      "--map-file", f"{out}/firmware.map",
+                      "--upload", "--github", "--target-name", name,
+                      "--api-key", os.environ["MEMBROWSE_API_KEY"]]
+              for d in t["ld_include_dirs"].split():
+                  args += ["--ld-include-dir", d]
+              for v in t["linker_vars"].split():
+                  args += ["--def", v]
+              print(f"::group::MemBrowse {name}", flush=True)
+              failed |= subprocess.run(args).returncode != 0
+              print("::endgroup::", flush=True)
+          sys.exit(failed)
+          EOF
 
       - name: Upload ${{ matrix.target }}
         uses: actions/upload-artifact@v7
@@ -148,3 +221,39 @@ jobs:
           pattern: firmware-*
           delete-merged: true
           retention-days: 15
+
+  # Commits that do not touch the firmware have the same memory footprint as
+  # their parent: record that for every target instead of building
+  membrowse-identical:
+    name: MemBrowse (no firmware change)
+    needs: changes
+    if: needs.changes.outputs.firmware == 'false' && needs.changes.outputs.membrowse == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install MemBrowse
+        run: pip install "${MEMBROWSE_PACKAGE}"
+
+      - name: Upload identical reports
+        env:
+          TARGETS: ${{ needs.changes.outputs.membrowse_targets }}
+          MEMBROWSE_API_KEY: ${{ secrets.MEMBROWSE_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          args=(--upload --github --identical --api-key "${MEMBROWSE_API_KEY}")
+          failed=0
+          for target in $(jq -r '.[].target_name' <<< "${TARGETS}"); do
+            echo "::group::${target}"
+            python -m membrowse report "${args[@]}" --target-name "${target}" || failed=1
+            echo "::endgroup::"
+          done
+          exit "${failed}"

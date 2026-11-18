@@ -1,0 +1,434 @@
+[
+  {
+    "target_name": "boxer",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=BOXER && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__flash_size=1M"
+  },
+  {
+    "target_name": "bumblebee",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=BUMBLEBEE && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__flash_size=1M"
+  },
+  {
+    "target_name": "c14",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=C14 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32h750_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xC0000000"
+  },
+  {
+    "target_name": "commando8",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=COMMANDO8 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "el18",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=PL18 -DPCBREV=EL18 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xC0000000"
+  },
+  {
+    "target_name": "f16",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X10 -DPCBREV=F16 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "gx10",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=GX10 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32h750_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xD0000000"
+  },
+  {
+    "target_name": "gx12",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=GX12 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__flash_size=1M"
+  },
+  {
+    "target_name": "gx15",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=GX15 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32h750_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xD0000000"
+  },
+  {
+    "target_name": "h17",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=H17 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32h750_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xD0000000"
+  },
+  {
+    "target_name": "mt12",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=MT12 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__flash_size=1M"
+  },
+  {
+    "target_name": "nb4p",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=PL18 -DPCBREV=NB4P && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xC0000000"
+  },
+  {
+    "target_name": "nv14",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=PL18 -DPCBREV=NV14 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xC0000000"
+  },
+  {
+    "target_name": "pa01",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=PA01 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32h750_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xC0000000"
+  },
+  {
+    "target_name": "pl18",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=PL18 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xC0000000"
+  },
+  {
+    "target_name": "pl18ev",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=PL18 -DPCBREV=PL18EV && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xC0000000"
+  },
+  {
+    "target_name": "pl18u",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=PL18 -DPCBREV=PL18U && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xC0000000 __EXTRAM_SIZE__=32M"
+  },
+  {
+    "target_name": "pocket",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=POCKET && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "st16",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=ST16 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32h750_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xC0000000"
+  },
+  {
+    "target_name": "t12max",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=T12MAX && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__flash_size=1M"
+  },
+  {
+    "target_name": "t14",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=T14 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__flash_size=1M"
+  },
+  {
+    "target_name": "t15",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X10 -DPCBREV=T15 -DINTERNAL_MODULE_CRSF=ON && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "t15h7",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=T15H7 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32h750_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xD0000000"
+  },
+  {
+    "target_name": "t15pro",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=T15PRO && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32h750_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xD0000000"
+  },
+  {
+    "target_name": "t16",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X10 -DPCBREV=T16 -DINTERNAL_MODULE_MULTI=ON && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "t18",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X10 -DPCBREV=T18 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "t18h7",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=T18H7 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32h750_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xD0000000"
+  },
+  {
+    "target_name": "t20",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=T20 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "t20v2",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=T20V2 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__flash_size=1M"
+  },
+  {
+    "target_name": "t22",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=T22 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32h750_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xD0000000"
+  },
+  {
+    "target_name": "tpros",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=TPROS && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__flash_size=1M"
+  },
+  {
+    "target_name": "tprov2",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=TPROV2 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "tx12mk2",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=TX12MK2 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "tx15",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=TX15 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32h750_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xD0000000"
+  },
+  {
+    "target_name": "tx16s",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X10 -DPCBREV=TX16S && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "tx16smk3",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=TX16SMK3 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32h750_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xD0000000 __EXTRAM_SIZE__=32M"
+  },
+  {
+    "target_name": "v12",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=V12 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32h750_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xC0000000"
+  },
+  {
+    "target_name": "v14",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=V14 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__flash_size=1M"
+  },
+  {
+    "target_name": "v14lcd",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=V14LCD && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__flash_size=1M"
+  },
+  {
+    "target_name": "v15",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=V15 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32h750_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": "__EXTRAM_START__=0xC0000000"
+  },
+  {
+    "target_name": "v16",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X10 -DPCBREV=V16 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "x10",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X10 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "x10express",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X10 -DPCBREV=EXPRESS -DPXX1=YES && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "x12s",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X12S && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f429_sdram",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "x7access",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=ACCESS -DPXX1=YES && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "x9dp2019",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X9D+ -DPCBREV=2019 && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "x9e",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X9E && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  },
+  {
+    "target_name": "zorro",
+    "build_cmd": "cmake -S . -B build/membrowse -DCMAKE_BUILD_TYPE=Release -DPCB=X7 -DPCBREV=ZORRO && cmake --build build/membrowse --target arm-none-eabi-configure && cmake --build build/membrowse/arm-none-eabi --target firmware --parallel 4",
+    "elf": "build/membrowse/arm-none-eabi/firmware.elf",
+    "ld": "radio/src/boards/generic_stm32/linker/firmware.ld",
+    "ld_include_dirs": "radio/src/boards/generic_stm32/linker radio/src/boards/generic_stm32/linker/stm32f40x",
+    "map_file": "build/membrowse/arm-none-eabi/radio/src/firmware.map",
+    "linker_vars": ""
+  }
+]
