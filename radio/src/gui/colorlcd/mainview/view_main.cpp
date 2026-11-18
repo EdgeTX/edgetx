@@ -329,6 +329,8 @@ void ViewMain::enableWidgetSelect(bool enable)
 
 bool ViewMain::onLongPress()
 {
+  killAllEvents();
+  lv_indev_reset(nullptr, nullptr);
   if (isAppMode()) {
     int view = getCurrentMainView();
     if (customScreens[view]->getWidget(0))
@@ -336,8 +338,6 @@ bool ViewMain::onLongPress()
   } else {
     enableWidgetSelect(true);
   }
-  killEvents(KEY_ENTER);
-  lv_indev_wait_release(lv_indev_get_act());
   return false;
 }
 

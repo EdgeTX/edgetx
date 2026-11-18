@@ -125,6 +125,7 @@ class Widget : public ButtonBase
   bool fullscreen = false;
   bool closeFS = false;
   lv_obj_t* focusBorder = nullptr;
+  lv_group_t* widgetGroup = nullptr;
 
   void onCancel() override;
   bool onLongPress() override;

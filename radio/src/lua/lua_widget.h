@@ -95,6 +95,8 @@ class LuaScriptManager : public LuaEventHandler
 
   bool isDisabled() const { return scriptDisabled; }
 
+  virtual lv_group_t* getLvglGroup() const = 0;
+
  protected:
   int luaScriptContextRef = LUA_REFNIL;
   std::vector<int> lvglObjectRefs;
@@ -142,6 +144,8 @@ class LuaWidget : public Widget, public LuaScriptManager
   void luaShowError() override;
 
   void pushOptionsTable();
+
+  lv_group_t* getLvglGroup() const override { return widgetGroup; }
 
  protected:
   bool inSettings = false;
