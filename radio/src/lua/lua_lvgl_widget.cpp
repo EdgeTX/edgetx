@@ -342,7 +342,7 @@ void LvglScrollableParams::clearScrollableRefs(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
-LvglWidgetObjectBase *LvglWidgetObjectBase::checkLvgl(lua_State *L, int index, bool required)
+LvglWidgetObjectBase* LvglWidgetObjectBase::checkLvgl(lua_State *L, int index, bool required)
 {
   LvglWidgetObjectBase **p;
 
