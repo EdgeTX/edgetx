@@ -70,7 +70,6 @@ protected:
   lv_obj_t* errorModal = nullptr;
   lv_obj_t* errorTitle = nullptr;
   lv_obj_t* errorMsg = nullptr;
-  bool hasError = false;
   bool useLvgl = false;
   int initFunction = LUA_REFNIL;
   int runFunction = LUA_REFNIL;
