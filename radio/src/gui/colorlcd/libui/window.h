@@ -192,6 +192,9 @@ class Window
   void pushLayer(bool hideParent = false);
   void popLayer();
 
+  void assignLvGroup(lv_group_t* g, bool setDefault);
+  void resetGroup();
+
  protected:
   static std::list<Window *> trash;
 

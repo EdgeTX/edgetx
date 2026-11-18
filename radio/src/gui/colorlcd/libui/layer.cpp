@@ -23,18 +23,6 @@ std::list<Layer> Layer::stack;
 Layer::Layer(Window* w, lv_group_t* g, lv_group_t* pg) : window(w), group(g), prevGroup(pg) {}
 Layer::~Layer() { lv_group_del(group); }
 
-void _assign_lv_group(lv_group_t* g)
-{
-  lv_group_set_default(g);
-
-  // associate it with all input devices
-  lv_indev_t* indev = lv_indev_get_next(NULL);
-  while (indev) {
-    lv_indev_set_group(indev, g);
-    indev = lv_indev_get_next(indev);
-  }
-}
-
 void Layer::push(Window* w)
 {
   // save prev group
@@ -42,7 +30,7 @@ void Layer::push(Window* w)
 
   // create a new group
   auto g = lv_group_create();
-  _assign_lv_group(g);
+  w->assignLvGroup(g, true);
   
   // and store
   stack.emplace_back(w, g, pg);
@@ -55,9 +43,9 @@ void Layer::pop(Window* w)
   if (back() == w) {
     lv_group_t* prevGroup = stack.back().prevGroup;
     if (prevGroup) {
-      _assign_lv_group(prevGroup);
+      w->assignLvGroup(prevGroup, true);
     } else if (!stack.empty()) {
-      _assign_lv_group(stack.back().group);
+      w->assignLvGroup(stack.back().group, true);
     } else {
       lv_group_set_default(NULL);
     }
@@ -87,4 +75,13 @@ Window* Layer::getFirstOpaque()
   }
 
   return nullptr;
+}
+
+void Layer::resetGroup(Window* window)
+{
+  for (auto layer = stack.crbegin(); layer != stack.crend(); layer++) {
+    if (layer->window == window) {
+      window->assignLvGroup(layer->group, true);
+    }
+  }
 }

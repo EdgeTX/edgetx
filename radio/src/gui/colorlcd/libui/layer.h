@@ -34,6 +34,7 @@ class Layer
 
   static void push(Window* window);
   static void pop(Window* window);
+  static void resetGroup(Window* window);
 
   static Window* back();
   static Window* getFirstOpaque();

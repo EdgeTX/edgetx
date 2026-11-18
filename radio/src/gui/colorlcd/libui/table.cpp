@@ -304,8 +304,6 @@ bool TableField::onLongPress()
   return true;
 }
 
-extern void _assign_lv_group(lv_group_t* g);
-
 void TableField::setAutoEdit()
 {
   if (autoedit) return;
@@ -315,7 +313,7 @@ void TableField::setAutoEdit()
   oldGroup = lv_group_get_default();
   group = lv_group_create();
   lv_group_add_obj(group, lvobj);
-  _assign_lv_group(group);
+  assignLvGroup(group, true);
 
   lv_group_set_editing(group, true);
 
@@ -334,7 +332,7 @@ void TableField::deleteLater(bool detach, bool trash)
     if (autoedit) {
       lv_group_del(group);
       if (oldGroup)
-        _assign_lv_group(oldGroup);
+        assignLvGroup(oldGroup, true);
       else
         lv_group_set_default(nullptr);
     }
