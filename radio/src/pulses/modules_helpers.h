@@ -57,6 +57,10 @@ extern uint32_t NV14internalModuleFwVersion;
      ((g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX) || \
       (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX2)))
 
+  #define IS_ACCESS_MULTI(module)                                         \
+    (isModuleMultimodule(module) &&                                       \
+     g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYA)
+
   #define IS_R9_MULTI(module)                           \
     (isModuleMultimodule(module) &&                     \
      (g_model.moduleData[module].multi.rfProtocol ==    \
@@ -152,6 +156,7 @@ extern uint32_t NV14internalModuleFwVersion;
   }
 #else
   #define IS_D16_MULTI(module)           false
+  #define IS_ACCESS_MULTI(module)        false
   #define IS_R9_MULTI(module)            false
   #define IS_HOTT_MULTI(module)          false
   #define IS_CONFIG_MULTI(module)        false
