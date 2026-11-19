@@ -24,6 +24,9 @@
 #include "timers_driver.h"
 #include "multi_buffer.h"
 
+// Multi_Buffer holds the raw Lua pipe ("Pipe", or "RLnk" for RadioLink)
+bool isMultiLuaPipe();
+
 /*
   Multiprotocol telemetry definition
 
