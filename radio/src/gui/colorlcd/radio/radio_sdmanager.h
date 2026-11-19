@@ -41,7 +41,7 @@ class RadioSdManagerPage : public PageGroupItem
  protected:
   int loadPreview = 0;
   Window* loading = nullptr;
-  const char* previewFilename = nullptr;
+  std::string previewFilename;
 
   void fileAction(const char* path, const char* name, const char* fullpath);
   void dirAction(const char* path, const char* name, const char* fullpath);
