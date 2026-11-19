@@ -52,6 +52,7 @@
 #define I2C_PSEUDO_TX_BIND   (I2C_PSEUDO_TX << 8 | 4)
 #define I2C_PSEUDO_TX_FM     (I2C_PSEUDO_TX << 8 | 8)
 #define I2C_PSEUDO_TX_CELLS  (I2C_PSEUDO_TX << 8 | 10)
+#define I2C_PSEUDO_RX_LQ     (I2C_PSEUDO_TX << 8 | 12)
 
 #define SPEKTRUM_TELEMETRY_LENGTH 18
 #define DSM_BIND_PACKET_LENGTH 12
@@ -93,6 +94,7 @@
 #define I2C_SMART_BAT_ID              0x4A
 #define I2C_SMART_BAT_LIMITS          0x4B
 
+#define I2C_BROWNOUT_INFO             0x76  // New undocumented sensor after a Brownout/power interruption
 #define I2C_RPM                       0x7E  // RPM sensor
 #define I2C_QOS                       0x7F  // RxV + flight log data
 
@@ -211,12 +213,12 @@ const SpektrumSensor spektrumSensors[] = {
   SS(I2C_GPS_STAT,     6,  uint8bcd,  STR_SENSOR_SATELLITES,        UNIT_RAW,       0), // BCD 2.0
  
   // 0x18  Dual Batt Capacity monitor - Receiver
-  SS(I2C_RX_BATT,      0,  int16,     STR_SENSOR_BATT1_CURRENT,     UNIT_AMPS,      2), // Instantaneous current, 0.01A (0-327.66A)
-  SS(I2C_RX_BATT,      2,  uint16,    STR_SENSOR_BATT1_CONSUMPTION, UNIT_MAH,       1), // Integrated mAh used, 0.1mAh (0-3276.6mAh)
-  SS(I2C_RX_BATT,      4,  uint16,    STR_SENSOR_BATT1_VOLTAGE,     UNIT_VOLTS,     2), // Volts, 0.01V increments (0-16.00V)
-  SS(I2C_RX_BATT,      6,  int16,     STR_SENSOR_BATT1_CURRENT,     UNIT_AMPS,      2), // Instantaneous current, 0.01A (0-327.66A)
-  SS(I2C_RX_BATT,      8,  uint16,    STR_SENSOR_BATT1_CONSUMPTION, UNIT_MAH,       1), // Integrated mAh used, 0.1mAh (0-3276.6mAh)
-  SS(I2C_RX_BATT,     10,  uint16,    STR_SENSOR_BATT1_VOLTAGE,     UNIT_VOLTS,     2), // Volts, 0.01V increments (0-16.00V)
+  SS(I2C_RX_BATT,      0,  int16le,   STR_SENSOR_BATT1_CURRENT,     UNIT_AMPS,      2), // Instantaneous current, 0.01A (0-327.66A)
+  SS(I2C_RX_BATT,      2,  uint16le,  STR_SENSOR_BATT1_CONSUMPTION, UNIT_MAH,       1), // Integrated mAh used, 0.1mAh (0-3276.6mAh)
+  SS(I2C_RX_BATT,      4,  uint16le,  STR_SENSOR_BATT1_VOLTAGE,     UNIT_VOLTS,     2), // Volts, 0.01V increments (0-16.00V)
+  SS(I2C_RX_BATT,      6,  int16le,   STR_SENSOR_BATT2_CURRENT,     UNIT_AMPS,      2), // Instantaneous current, 0.01A (0-327.66A)
+  SS(I2C_RX_BATT,      8,  uint16le,  STR_SENSOR_BATT2_CONSUMPTION, UNIT_MAH,       1), // Integrated mAh used, 0.1mAh (0-3276.6mAh)
+  SS(I2C_RX_BATT,     10,  uint16le,  STR_SENSOR_BATT2_VOLTAGE,     UNIT_VOLTS,     2), // Volts, 0.01V increments (0-16.00V)
 
   // 0x19 Jetcat flow rate
 //SS(I2C_JETCAT_2,     0,  uint16bcd, STR_SENSOR_FUEL_CONSUMPTION,  UNIT_MILLILITERS_PER_MINUTE, 1), missing ml/min
@@ -336,6 +338,7 @@ const SpektrumSensor spektrumSensors[] = {
   // 0x50-0x56 custom 3rd party sensors
   //SS(0x50, 0, int16, STR_SENSOR_)
 
+  // 0x76 Power Interruption info.. only is sent when a power interruption happen
   // 0x7d are transmitter channels frame data [7], probably only available on the Spektrum
   // telemetry bus on the model itself
 
@@ -357,14 +360,20 @@ const SpektrumSensor spektrumSensors[] = {
   SS(I2C_PSEUDO_TX,    4,  uint32,    STR_SENSOR_BIND,              UNIT_RAW,       0),
   SS(I2C_PSEUDO_TX,    8,  uint32,    STR_SENSOR_FLIGHT_MODE,       UNIT_TEXT,      0),
   SS(I2C_PSEUDO_TX,    10, uint32,    STR_SENSOR_CELLS,             UNIT_CELLS,     2),
+  SS(I2C_PSEUDO_TX,    12, uint16,    STR_SENSOR_RX_QUALITY,        UNIT_PERCENT,   0),
   SS(0,                0,  int16,     NULL,                         UNIT_RAW,       0) //sentinel
 };
 // clang-format on
 
 // Alt Low and High needs to be combined (in 2 diff packets)
 static uint8_t gpsAltHigh = 0;
+
+// To reduce duplicate sensors when the RX receives the same data in different frames
 static bool varioTelemetry = false;
 static bool flightPackTelemetry = false;
+
+// Detect of LemonRX receiver  (Does not transmit HOLDS)
+static bool isLemonRX = false;
 
 // Helper function declared later
 static void processAS3XPacket(const uint8_t *packet);
@@ -548,7 +557,9 @@ void processSpektrumPacket(const uint8_t *packet)
 {
   setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_TX_RSSI, 0, 0,
                     packet[1], UNIT_RAW, 0);
-  // highest bit indicates that TM1100 is in use, ignore it
+  // highest bit indicates that is a Flyby (Short Range) telemetry, like the TM1100, ignore it.
+  // bool isFlyByTelemetry = (packet[2] & 0x80) != 0;
+
   uint8_t i2cAddress = (packet[2] & 0x7f);
 
   uint8_t instance = packet[3];
@@ -557,6 +568,7 @@ void processSpektrumPacket(const uint8_t *packet)
     gpsAltHigh = 0;
     varioTelemetry = false;
     flightPackTelemetry = false;
+    isLemonRX = false;
   }
 
   if (i2cAddress == I2C_NODATA) {
@@ -652,6 +664,11 @@ void processSpektrumPacket(const uint8_t *packet)
      }
   } // I2C_REMOTE_ID
 
+  else if (i2cAddress == I2C_BROWNOUT_INFO) {
+    // Undocumented Brownout information, skip it
+    return;
+  }
+
 
   bool handled = false;
   for (const SpektrumSensor * sensor = spektrumSensors; sensor->i2caddress; sensor++) {
@@ -723,25 +740,24 @@ void processSpektrumPacket(const uint8_t *packet)
 
     else if (i2cAddress == I2C_QOS) {
       if (sensor->startByte == 0) {  // FdeA
-        // Check if this looks like a LemonRX Transceiver, they use QoS Frame loss A as RSSI indicator(0-100)
-        // farzu: new G2s has different signature, but i think using the Cyrf chip strength is
-        //        more consistent across brands
-        if (spektrumGetValue(packet + 4, 2, uint16) == 0x8000 &&
-            spektrumGetValue(packet + 4, 4, uint16) == 0x8000 &&
-            spektrumGetValue(packet + 4, 6, uint16) == 0x8000 &&
-            spektrumGetValue(packet + 4, 8, uint16) == 0x8000) {
-          telemetryData.rssi.set(value);
+        // Check if we detected LemonRX receiver, they use QoS Frame loss A as LQ indicator(0-100)
+        if (isLemonRX) {
+          setTelemetryValue(PROTOCOL_TELEMETRY_SPEKTRUM, I2C_PSEUDO_RX_LQ, 0,
+                            0, value, UNIT_RAW, 0);
         }
-        else {
-          // Otherwise use the received signal strength of the telemetry packet as indicator
-          // Range is 0-31, multiply by 3 to get an almost full reading for 0x1f, the maximum the cyrf chip reports
-          telemetryData.rssi.set(packet[1] * 3);
-        }
-        telemetryStreaming = TELEMETRY_TIMEOUT10ms; // Telemery Alive
+
+        // Use the received signal strength of the telemetry packet as indicator
+        // Range is 0-31, multiply by 3.2 to get an almost full reading, the maximum the cyrf chip reports
+        uint16_t rssi = packet[1] * 32 / 10;
+        telemetryData.rssi.set(min((uint16_t)99, rssi)); // Canot be more than 99
+        telemetryStreaming = TELEMETRY_TIMEOUT10ms;  // Telemery Alive
       } // FdeA
-      else if (sensor->startByte == 8 || sensor->startByte == 10) { // Flss and Hold
-        // Lemon-RX: F and H = 0x7FFF (alternative N0-DATA)
-        if (value == 0x7FFF) continue; 
+      else if (sensor->startByte == 10) { // Hold
+        // Lemon-RX populates H = 0x7FFF (alternative N0-DATA)
+        if (value == 0x7FFF) {
+          isLemonRX = true;
+          continue;
+        } 
       }
     } // I2C_QOS
 
