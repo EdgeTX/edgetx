@@ -31,7 +31,10 @@
 #else
 #define BLUETOOTH_FACTORY_BAUDRATE      57600
 #endif
-#define BT_TX_FIFO_SIZE    64
+// TX FIFO must hold a whole esptool flash block (~1 KB) during serial
+// passthrough: the USB link bursts bytes faster than the UART drains them,
+// and sendByte() drops when the FIFO is full.
+#define BT_TX_FIFO_SIZE    2048
 #define BT_RX_FIFO_SIZE    256
 
 void bluetoothInit(uint32_t baudrate, bool enable);
@@ -39,6 +42,11 @@ void bluetoothWrite(const void* buffer, uint32_t length);
 int bluetoothRead(uint8_t* data);
 uint8_t bluetoothIsWriting();
 void bluetoothDisable();
+
+// Serial passthrough (CLI) accessors: expose the serial driver and its context
+// so the generic USB<->UART bridge can drive the BT UART directly.
+const etx_serial_driver_t* bluetoothGetSerialDrv(void);
+void* bluetoothGetCtx(void);
 
 #if defined(PCBX9LITES) || defined(PCBX7ACCESS)
   #define IS_BLUETOOTH_CHIP_PRESENT()     (true)
