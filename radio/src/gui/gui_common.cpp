@@ -1421,29 +1421,25 @@ void setPotType(int index, int value)
 
 uint8_t MODULE_BIND_ROWS(int moduleIdx)
 {
-  if (isModuleELRS(moduleIdx) && CRSF_ELRS_MIN_VER(moduleIdx, 3, 4))
-    return 1;
+  if (isModuleELRS(moduleIdx) && CRSF_ELRS_MIN_VER(moduleIdx, 3, 4)) return 1;
 
-  if (isModuleCrossfire(moduleIdx))
-    return 0;
+  if (isModuleCrossfire(moduleIdx)) return 0;
 
   if (isModuleMultimodule(moduleIdx)) {
     if (IS_RX_MULTI(moduleIdx))
       return 1;
     else
       return 2;
-  }
-  else if (isModuleAFHDS3(moduleIdx)) {
+  } else if (isModuleAFHDS3(moduleIdx)) {
     // Bind only: no receiver number, no range check
     return 0;
-  }
-  else if (isModuleXJTD8(moduleIdx) || isModuleSBUS(moduleIdx) || isModuleDSMP(moduleIdx)) {
+  } else if (isModuleXJTD8(moduleIdx) || isModuleSBUS(moduleIdx)) {
     return 1;
-  }
-  else if (isModulePPM(moduleIdx) || isModulePXX1(moduleIdx) || isModulePXX2(moduleIdx) || isModuleDSM2(moduleIdx)) {
+  } else if (isModulePPM(moduleIdx) || isModulePXX1(moduleIdx) ||
+             isModulePXX2(moduleIdx) || isModuleDSM2(moduleIdx) ||
+             isModuleDSMP(moduleIdx)) {
     return 2;
-  }
-  else {
+  } else {
     return HIDDEN_ROW;
   }
 }
@@ -1457,15 +1453,15 @@ uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
   else if (isModuleMultimodule(moduleIdx)) {
     if (IS_RX_MULTI(moduleIdx))
       return HIDDEN_ROW;
-    else if (g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
+    else if (g_model.moduleData[moduleIdx].multi.rfProtocol ==
+             MODULE_SUBTYPE_MULTI_DSM2)
       return 1;
     else
       return 0;
   }
 #endif
   else if (isModuleDSM2(moduleIdx) || isModuleCrossfire(moduleIdx) ||
-             isModuleGhost(moduleIdx) || isModuleSBUS(moduleIdx) ||
-             isModuleDSMP(moduleIdx)) {
+           isModuleGhost(moduleIdx) || isModuleSBUS(moduleIdx)) {
     // fixed number of channels
     return 0;
   } else {
