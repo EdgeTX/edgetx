@@ -449,8 +449,8 @@ static MaskBitmap* _builtinIconsDecompressed[EDGETX_ICONS_COUNT] = {0};
 // stored in flash.
 static MaskBitmap* _screen_icon_mask(EdgeTxIcon id)
 {
-  static constexpr coord_t SZ = LAYOUT_SCALE(30);
-  static constexpr coord_t PAD = LAYOUT_SCALE(1);
+  LAYOUT_VAL_SCALED(SZ, 30)
+  LAYOUT_VAL_SCALED(PAD, 1)
 
   MaskBitmap* mask = (MaskBitmap*)malloc(align32(SZ * SZ + 4));
   if (!mask) return nullptr;
@@ -466,41 +466,36 @@ static MaskBitmap* _screen_icon_mask(EdgeTxIcon id)
 
   lv_draw_rect_dsc_t rect;
   lv_draw_rect_dsc_init(&rect);
-  rect.radius = LAYOUT_SCALE(4);
-  rect.bg_color = lv_color_white();
+  rect.radius = PAD_SMALL;
+
+  lv_draw_label_dsc_t label;
+  lv_draw_label_dsc_init(&label);
+  label.font = getFont(FONT(BOLD));
+  label.align = LV_TEXT_ALIGN_RIGHT;
+
+  char s[3];
 
   if (id == ICON_THEME_ADD_VIEW) {
+    // Border outline only
     rect.bg_opa = LV_OPA_TRANSP;
     rect.border_color = lv_color_white();
-    rect.border_width = LAYOUT_SCALE(2);
-    lv_canvas_draw_rect(canvas, PAD, PAD, SZ - 2 * PAD, SZ - 2 * PAD, &rect);
-
-    // '+' sign, offset towards the bottom right corner
-    // Line length and thickness must have the same parity so the lines
-    // cross exactly in the centre
-    coord_t t = (SZ + 16) / 28;
-    coord_t len = (LAYOUT_SCALE(10) & ~1) | (t & 1);
-    coord_t c = SZ * 3 / 5;
-    rect.bg_opa = LV_OPA_COVER;
-    rect.border_width = 0;
-    rect.radius = 0;
-    lv_canvas_draw_rect(canvas, c - len / 2, c - t / 2, len, t, &rect);
-    lv_canvas_draw_rect(canvas, c - t / 2, c - len / 2, t, len, &rect);
+    rect.border_width = PAD_BORDER;
+    label.color = lv_color_white();
+    strcpy(s, "+");
   } else {
-    lv_canvas_draw_rect(canvas, PAD, PAD, SZ - 2 * PAD, SZ - 2 * PAD, &rect);
-
-    // Screen number, bottom right, knocked out of the square
-    char s[3];
-    strAppendUnsigned(s, id - ICON_THEME_VIEW1 + 1);
-    lv_draw_label_dsc_t label;
-    lv_draw_label_dsc_init(&label);
-    label.font = getFont(FONT(BOLD));
+    // Filled, rounded rectangle
+    rect.bg_opa = LV_OPA_COVER;
     label.color = lv_color_black();
-    label.align = LV_TEXT_ALIGN_RIGHT;
-    coord_t y = SZ - LAYOUT_SCALE(3) -
-                (label.font->line_height - label.font->base_line);
-    lv_canvas_draw_text(canvas, 0, y, SZ - LAYOUT_SCALE(5), &label, s);
+    strAppendUnsigned(s, id - ICON_THEME_VIEW1 + 1);
   }
+
+  // Background
+  lv_canvas_draw_rect(canvas, PAD, PAD, SZ - 2 * PAD, SZ - 2 * PAD, &rect);
+
+  // Screen number or "+", bottom right, knocked out of the square
+  coord_t y = SZ - PAD_SMALL - 1 -
+              (label.font->line_height - label.font->base_line);
+  lv_canvas_draw_text(canvas, 0, y, SZ - PAD_SMALL - 1, &label, s);
 
   lv_obj_del(canvas);
 
