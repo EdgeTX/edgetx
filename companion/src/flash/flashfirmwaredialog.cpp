@@ -289,7 +289,11 @@ void FlashFirmwareDialog::writeButtonClicked()
   g.currentProfile().fwName(fwName);
   g.backupOnFlash(ui->checkBackup->isChecked());
 
-  if (imageSource != FIRMWARE) {
+  FirmwareInterface firmware(fwName);
+
+  // splash customisation only applies to binary firmware that embeds a splash
+  // image; UF2 files are always written unmodified
+  if (imageSource != FIRMWARE && !firmware.isUF2() && firmware.hasSplash()) {
     // load the splash image
     const QPixmap pixmap = ui->splash->pixmap(Qt::ReturnByValue);
     QImage image;
@@ -304,7 +308,6 @@ void FlashFirmwareDialog::writeButtonClicked()
     QString tempFile;
     tempFile = generateProcessUniqueTempFileName("flash.bin");
     qDebug() << "patching" << fwName << "with custom splash screen and saving to" << tempFile;
-    FirmwareInterface firmware(fwName);
     firmware.setSplash(image);
 
     if (firmware.save(tempFile) <= 0) {
@@ -378,7 +381,7 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
           }
 
           progress->addMessage(tr("Flashing new firmware"));
-          writeFirmware(newfw.getFlash(), progress);
+          writeFirmware(newfw.getRawData(), progress);
         },
         [progress](const QString &err) {
           progress->addMessage(tr("Could not read current firmware: %1").arg(err));
@@ -386,7 +389,7 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
         progress);
   } else {
     progress->setInfo(tr("Flashing new firmware..."));
-    writeFirmware(newfw.getFlash(), progress);
+    writeFirmware(newfw.getRawData(), progress);
   }
 
   progressDialog.exec();
