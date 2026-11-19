@@ -193,6 +193,7 @@ FirmwareInterface::FirmwareInterface(const QByteArray &flashData, QDialog *paren
 
 void FirmwareInterface::initFlash(const QByteArray& flashData)
 {
+  rawData = flashData;
   flash = flashData;
   flashSize = flashData.size();
 
@@ -226,7 +227,10 @@ void FirmwareInterface::initFlash(const QByteArray& flashData)
       eepromVersion = eepromId.toInt();
     }
 
-    seekSplash();
+    // splash customisation is not supported for UF2 firmware
+    if (type != FIRMWARE_TYPE_UF2)
+      seekSplash();
+
     isValidFlag = !version.isEmpty();
   }
 }
@@ -484,6 +488,12 @@ bool FirmwareInterface::isValid()
 
 unsigned int FirmwareInterface::save(const QString & filename)
 {
+  // the inspection image of a UF2 file has lost its addressing,
+  // so it must never be written out as a binary image
+  if (type == FIRMWARE_TYPE_UF2) {
+    return 0;
+  }
+
   uint8_t * binflash  = (uint8_t*)malloc(FSIZE_MAX);
   if (binflash == NULL) {
     return -1;
