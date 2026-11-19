@@ -23,6 +23,9 @@
 
 #include "lz4/lz4.h"
 #include "edgetx_helpers.h"
+#include "etx_lv_theme.h"
+#include "fonts.h"
+#include "strhelpers.h"
 
 LZ4BitmapBuffer::LZ4BitmapBuffer(uint8_t format) :
     BitmapBuffer(format, 0, 0, nullptr)
@@ -198,39 +201,6 @@ static const uint8_t mask_tools_storage[] __FLASH = {
 
 // gfx for ui setup group
 
-static const uint8_t mask_ui_view_add[] __FLASH = {
-#include "mask_icon_ui_view_add.lbm"
-};
-static const uint8_t mask_ui_view1[] __FLASH = {
-#include "mask_icon_ui_view1.lbm"
-};
-static const uint8_t mask_ui_view2[] __FLASH = {
-#include "mask_icon_ui_view2.lbm"
-};
-static const uint8_t mask_ui_view3[] __FLASH = {
-#include "mask_icon_ui_view3.lbm"
-};
-static const uint8_t mask_ui_view4[] __FLASH = {
-#include "mask_icon_ui_view4.lbm"
-};
-static const uint8_t mask_ui_view5[] __FLASH = {
-#include "mask_icon_ui_view5.lbm"
-};
-static const uint8_t mask_ui_view6[] __FLASH = {
-#include "mask_icon_ui_view6.lbm"
-};
-static const uint8_t mask_ui_view7[] __FLASH = {
-#include "mask_icon_ui_view7.lbm"
-};
-static const uint8_t mask_ui_view8[] __FLASH = {
-#include "mask_icon_ui_view8.lbm"
-};
-static const uint8_t mask_ui_view9[] __FLASH = {
-#include "mask_icon_ui_view9.lbm"
-};
-static const uint8_t mask_ui_view10[] __FLASH = {
-#include "mask_icon_ui_view10.lbm"
-};
 static const uint8_t mask_ui_themes[] __FLASH = {
 #include "mask_icon_ui_themes.lbm"
 };
@@ -390,17 +360,17 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_MODEL_SELECT, mask_menu_manage_models),
     BI(ICON_THEME, mask_menu_ui_setup),
     BI(ICON_THEME_SETUP, mask_ui_topbar_setup),
-    BI(ICON_THEME_VIEW1, mask_ui_view1),
-    BI(ICON_THEME_VIEW2, mask_ui_view2),
-    BI(ICON_THEME_VIEW3, mask_ui_view3),
-    BI(ICON_THEME_VIEW4, mask_ui_view4),
-    BI(ICON_THEME_VIEW5, mask_ui_view5),
-    BI(ICON_THEME_VIEW6, mask_ui_view6),
-    BI(ICON_THEME_VIEW7, mask_ui_view7),
-    BI(ICON_THEME_VIEW8, mask_ui_view8),
-    BI(ICON_THEME_VIEW9, mask_ui_view9),
-    BI(ICON_THEME_VIEW10, mask_ui_view10),
-    BI(ICON_THEME_ADD_VIEW, mask_ui_view_add),
+    BI(ICON_THEME_VIEW1, nullptr),
+    BI(ICON_THEME_VIEW2, nullptr),
+    BI(ICON_THEME_VIEW3, nullptr),
+    BI(ICON_THEME_VIEW4, nullptr),
+    BI(ICON_THEME_VIEW5, nullptr),
+    BI(ICON_THEME_VIEW6, nullptr),
+    BI(ICON_THEME_VIEW7, nullptr),
+    BI(ICON_THEME_VIEW8, nullptr),
+    BI(ICON_THEME_VIEW9, nullptr),
+    BI(ICON_THEME_VIEW10, nullptr),
+    BI(ICON_THEME_ADD_VIEW, nullptr),
     BI(ICON_STATS, mask_tools_stats),
     BI(ICON_STATS_TIMERS, mask_model_timers),
     BI(ICON_STATS_ANALOGS, mask_radio_analogs),
@@ -462,12 +432,82 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
 
 static MaskBitmap* _builtinIconsDecompressed[EDGETX_ICONS_COUNT] = {0};
 
+// Screen setup icons (rounded square with the screen number knocked out, or
+// an outline with a '+' for 'add screen') are drawn at runtime rather than
+// stored in flash.
+static MaskBitmap* _screen_icon_mask(EdgeTxIcon id)
+{
+  static constexpr coord_t SZ = LAYOUT_SCALE(30);
+  static constexpr coord_t PAD = LAYOUT_SCALE(1);
+
+  lv_color_t* buf = (lv_color_t*)malloc(SZ * SZ * sizeof(lv_color_t));
+  MaskBitmap* mask = (MaskBitmap*)malloc(align32(SZ * SZ + 4));
+  if (!buf || !mask) {
+    free(buf);
+    free(mask);
+    return nullptr;
+  }
+
+  lv_obj_t* canvas = lv_canvas_create(nullptr);
+  lv_canvas_set_buffer(canvas, buf, SZ, SZ, LV_IMG_CF_TRUE_COLOR);
+  lv_canvas_fill_bg(canvas, lv_color_black(), LV_OPA_COVER);
+
+  lv_draw_rect_dsc_t rect;
+  lv_draw_rect_dsc_init(&rect);
+  rect.radius = LAYOUT_SCALE(4);
+  rect.bg_color = lv_color_white();
+
+  if (id == ICON_THEME_ADD_VIEW) {
+    rect.bg_opa = LV_OPA_TRANSP;
+    rect.border_color = lv_color_white();
+    rect.border_width = LAYOUT_SCALE(2);
+    lv_canvas_draw_rect(canvas, PAD, PAD, SZ - 2 * PAD, SZ - 2 * PAD, &rect);
+
+    // '+' sign, offset towards the bottom right corner
+    coord_t len = LAYOUT_SCALE(10);
+    coord_t t = (SZ + 16) / 28;
+    coord_t c = SZ * 3 / 5;
+    rect.bg_opa = LV_OPA_COVER;
+    rect.border_width = 0;
+    rect.radius = 0;
+    lv_canvas_draw_rect(canvas, c - len / 2, c - t / 2, len, t, &rect);
+    lv_canvas_draw_rect(canvas, c - t / 2, c - len / 2, t, len, &rect);
+  } else {
+    lv_canvas_draw_rect(canvas, PAD, PAD, SZ - 2 * PAD, SZ - 2 * PAD, &rect);
+
+    // Screen number, bottom right, knocked out of the square
+    char s[3];
+    strAppendUnsigned(s, id - ICON_THEME_VIEW1 + 1);
+    lv_draw_label_dsc_t label;
+    lv_draw_label_dsc_init(&label);
+    label.font = getFont(FONT(BOLD));
+    label.color = lv_color_black();
+    label.align = LV_TEXT_ALIGN_RIGHT;
+    coord_t y = SZ - LAYOUT_SCALE(3) -
+                (label.font->line_height - label.font->base_line);
+    lv_canvas_draw_text(canvas, 0, y, SZ - LAYOUT_SCALE(5), &label, s);
+  }
+
+  lv_obj_del(canvas);
+
+  mask->width = SZ;
+  mask->height = SZ;
+  for (int i = 0; i < SZ * SZ; i += 1)
+    mask->data[i] = lv_color_brightness(buf[i]);
+  free(buf);
+
+  return mask;
+}
+
 const MaskBitmap* getBuiltinIcon(EdgeTxIcon id)
 {
   // Icons are stored LZ4 compressed and de-compresssed on first use
   if (_builtinIconsDecompressed[id] == nullptr) {
-    _builtinIconsDecompressed[id] =
-        _decompressed_mask(_builtinIcons[id].lz4_compressed_bitmap);
+    if (id >= ICON_THEME_VIEW1 && id <= ICON_THEME_ADD_VIEW)
+      _builtinIconsDecompressed[id] = _screen_icon_mask(id);
+    else
+      _builtinIconsDecompressed[id] =
+          _decompressed_mask(_builtinIcons[id].lz4_compressed_bitmap);
   }
 
   return _builtinIconsDecompressed[id];
