@@ -143,16 +143,61 @@ void waitSplash()
   cancelSplash();
 }
 
-static LAYOUT_VAL_SCALED(SHUTDOWN_CIRCLE_RADIUS, 75)
-
-const int8_t bmp_shutdown_xo[] = {0, 0, -SHUTDOWN_CIRCLE_RADIUS,
-                                  -SHUTDOWN_CIRCLE_RADIUS};
-const int8_t bmp_shutdown_yo[] = {-SHUTDOWN_CIRCLE_RADIUS, 0, 0,
-                                  -SHUTDOWN_CIRCLE_RADIUS};
+static LAYOUT_VAL_SCALED_ODD(SHUTDOWN_CIRCLE_RADIUS, 75)
+static LAYOUT_VAL_SCALED_EVEN(SHUTDOWN_ICON_SIZE, 90)
+static LAYOUT_VAL_SCALED_EVEN(SHUTDOWN_ICON_SIZE_INNER, 62)
 
 static Window* shutdownWindow = nullptr;
-static StaticIcon* shutdownAnim[4] = {nullptr};
+static lv_obj_t* shutdownAnim[4] = {nullptr};
 static BitmapBuffer* shutdownSplashImg = nullptr;
+
+lv_obj_t* createArc(lv_obj_t* parent, uint16_t pw, uint16_t ph, 
+                    uint16_t rotation, uint16_t size, uint16_t startAngle, uint16_t endAngle,
+                    uint16_t thickness, LcdColorIndex color)
+{
+  lv_obj_t* arc = lv_arc_create(parent);
+  lv_arc_set_rotation(arc, rotation);
+  lv_arc_set_bg_angles(arc, 0, 360);
+  lv_arc_set_range(arc, 0, 360);
+  lv_arc_set_angles(arc, startAngle, endAngle);
+  lv_arc_set_start_angle(arc, 0);
+  lv_obj_remove_style(arc, NULL, LV_PART_KNOB);
+  lv_obj_clear_flag(arc, LV_OBJ_FLAG_CLICKABLE);
+  lv_obj_set_pos(arc, (pw - size) / 2, (ph - size) / 2);
+  lv_obj_set_size(arc, size, size);
+  lv_obj_set_style_arc_opa(arc, LV_OPA_TRANSP, LV_PART_MAIN);
+  lv_obj_set_style_arc_opa(arc, LV_OPA_COVER, LV_PART_INDICATOR);
+  lv_obj_set_style_arc_width(arc, thickness, LV_PART_INDICATOR);
+  lv_obj_set_style_arc_rounded(arc, thickness, LV_PART_INDICATOR);
+  etx_arc_color(arc, color, LV_PART_INDICATOR);
+
+  return arc;
+}
+
+lv_obj_t* shutdownArc(uint16_t rotation)
+{
+  return createArc(shutdownWindow->getLvObj(), LCD_W, LCD_H, rotation + 10, SHUTDOWN_CIRCLE_RADIUS * 2, 20, 70, PAD_LARGE * 2, COLOR_THEME_PRIMARY2_INDEX);
+}
+
+void shutdownIcon()
+{
+  // Center circle
+  lv_obj_t* icn = lv_obj_create(shutdownWindow->getLvObj());
+  lv_obj_set_size(icn, SHUTDOWN_ICON_SIZE, SHUTDOWN_ICON_SIZE);
+  lv_obj_set_pos(icn, (LCD_W - SHUTDOWN_ICON_SIZE) / 2, (LCD_H - SHUTDOWN_ICON_SIZE) / 2);
+  etx_obj_add_style(icn, styles->circle, LV_PART_MAIN);
+  etx_solid_bg(icn, COLOR_THEME_PRIMARY2_INDEX);
+
+  // Center arc
+  createArc(icn, SHUTDOWN_ICON_SIZE, SHUTDOWN_ICON_SIZE, 300, SHUTDOWN_ICON_SIZE_INNER, 0, 300, PAD_LARGE, COLOR_THEME_PRIMARY1_INDEX);
+
+  // Vertical line
+  icn = lv_obj_create(icn);
+  lv_obj_set_size(icn, PAD_LARGE, SHUTDOWN_ICON_SIZE / 2 - PAD_LARGE);
+  lv_obj_set_pos(icn, (SHUTDOWN_ICON_SIZE - PAD_LARGE) / 2, PAD_LARGE);
+  etx_obj_add_style(icn, styles->rounded, LV_PART_MAIN);
+  etx_solid_bg(icn, COLOR_THEME_PRIMARY1_INDEX);
+}
 
 void drawSleepBitmap()
 {
@@ -162,8 +207,7 @@ void drawSleepBitmap()
   shutdownWindow->setWindowFlag(OPAQUE);
   etx_solid_bg(shutdownWindow->getLvObj(), COLOR_THEME_PRIMARY1_INDEX);
 
-  (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
-      ->center(LCD_W, LCD_H);
+  shutdownIcon();
 
   // Force screen refresh
   lv_refr_now(nullptr);
@@ -171,13 +215,8 @@ void drawSleepBitmap()
 
 void cancelShutdownAnimation()
 {
-  if (shutdownWindow) {
-    // Detach before the parent deletes the canvas
-    if (shutdownSplashImg) shutdownSplashImg->removeCanvas();
+  if (shutdownWindow)
     shutdownWindow->closeWindow();
-    shutdownWindow = nullptr;
-    for (int i = 0; i < 4; i += 1) shutdownAnim[i] = nullptr;
-  }
 }
 
 void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
@@ -197,20 +236,25 @@ void drawShutdownAnimation(uint32_t duration, uint32_t totalDuration,
     if (shutdownSplashImg)
       shutdownSplashImg->addCanvas(shutdownWindow);
 
-    (new StaticIcon(shutdownWindow, 0, 0, ICON_SHUTDOWN, COLOR_THEME_PRIMARY2_INDEX))
-        ->center(LCD_W, LCD_H);
+    shutdownIcon();
 
-    for (int i = 0; i < 4; i += 1) {
-      shutdownAnim[i] = new StaticIcon(
-          shutdownWindow, LCD_W / 2 + bmp_shutdown_xo[i],
-          LCD_H / 2 + bmp_shutdown_yo[i],
-          (EdgeTxIcon)(ICON_SHUTDOWN_CIRCLE0 + i), COLOR_THEME_PRIMARY2_INDEX);
-    }
+    shutdownAnim[0] = shutdownArc(270);
+    shutdownAnim[1] = shutdownArc(0);
+    shutdownAnim[2] = shutdownArc(90);
+    shutdownAnim[3] = shutdownArc(180);
+
+    shutdownWindow->onClosing([=]() {
+      // Detach before the parent deletes the canvas
+      if (shutdownSplashImg) shutdownSplashImg->removeCanvas();
+      shutdownWindow = nullptr;
+      for (int i = 0; i < 4; i += 1) shutdownAnim[i] = nullptr;
+    });
   }
 
   int quarter = 4 - (duration * 5) / totalDuration;
   if (quarter < 0) quarter = 0;
-  for (int i = 3; i >= quarter; i -= 1) shutdownAnim[i]->hide();
+  for (int i = 3; i >= quarter; i -= 1)
+    lv_obj_add_flag(shutdownAnim[i], LV_OBJ_FLAG_HIDDEN);
 
   MainWindow::instance()->run();
 }

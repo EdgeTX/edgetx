@@ -53,15 +53,9 @@ mask_icon_ui_view9,30,30,2026-01-13 11:36:16
 mask_icon_ui_view_add,30,30,2026-01-13 11:36:16
 mask_info_busy,96,96,2026-01-13 13:10:04
 mask_info_error,96,96,2026-01-13 11:36:16
-mask_info_shutdown,96,96,2026-01-13 11:36:16
-mask_info_shutdown_circle0,75,75,2026-01-13 11:36:16
-mask_info_shutdown_circle1,75,75,2026-01-13 11:36:16
-mask_info_shutdown_circle2,75,75,2026-01-13 11:36:16
-mask_info_shutdown_circle3,75,75,2026-01-13 11:36:16
 mask_info_usb_plugged,211,110,2026-01-13 11:36:16
 mask_inline_add,17,17,2026-01-13 11:36:16
 mask_inline_curve,17,17,2026-01-13 11:36:16
-mask_inline_dot,13,13,2026-01-13 11:36:16
 mask_inline_fm,17,17,2026-01-13 11:36:16
 mask_inline_inverted,11,16,2026-01-13 11:36:16
 mask_inline_locked,11,16,2026-01-13 11:36:16

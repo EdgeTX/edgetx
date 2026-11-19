@@ -226,7 +226,7 @@ class SensorButton : public ListLineButton
   lv_obj_t* numLabel = nullptr;
   lv_obj_t* idLabel = nullptr;
   lv_obj_t* valLabel = nullptr;
-  lv_obj_t* fresh = nullptr;
+  DotIcon* fresh = nullptr;
   uint32_t lastRefresh = 0;
   std::string valString;
 
@@ -275,11 +275,8 @@ class SensorButton : public ListLineButton
     lv_obj_t* nm = tsStyle.newName(lvobj, s);
     lv_obj_set_pos(nm, TSStyle::NUM_W + PAD_SMALL, PAD_MEDIUM/2);
 
-    auto mask = getBuiltinIcon(ICON_DOT);
-    fresh = lv_canvas_create(lvobj);
-    lv_obj_set_pos(fresh, TSStyle::NUM_W + TSStyle::NAME_W + PAD_MEDIUM, PAD_LARGE);
-    lv_canvas_set_buffer(fresh, (void*)mask->data, mask->width, mask->height, LV_IMG_CF_ALPHA_8BIT);
-    lv_obj_add_flag(fresh, LV_OBJ_FLAG_HIDDEN);
+    fresh = new DotIcon(this, TSStyle::NUM_W + TSStyle::NAME_W + PAD_MEDIUM, PAD_LARGE, COLOR_THEME_PRIMARY1_INDEX);
+    fresh->hide();
 
     valLabel = tsStyle.newValue(lvobj);
     lv_obj_set_pos(valLabel, TSStyle::NUM_W + TSStyle::NAME_W + PAD_LARGE * 3, PAD_MEDIUM/2);
@@ -297,10 +294,7 @@ class SensorButton : public ListLineButton
     if (showId != g_model.showInstanceIds) setNumIdState();
 
     // Draw a 'fresh' marker
-    if (telemetryItems[index].isFresh())
-      lv_obj_clear_flag(fresh, LV_OBJ_FLAG_HIDDEN);
-    else
-      lv_obj_add_flag(fresh, LV_OBJ_FLAG_HIDDEN);
+    fresh->show(telemetryItems[index].isFresh());
 
     uint32_t now = lv_tick_get();
     TelemetryItem& telemetryItem = telemetryItems[index];
