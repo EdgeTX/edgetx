@@ -29,6 +29,13 @@ generic: it works with any Bluetooth module. Flashing the module is a separate,
 `AT+DOWNLOAD` and flashes with esptool). It does not apply to the native FrSky
 (CC26xx) Bluetooth module, which is left untouched.
 
+The `serialpassthrough` command is part of the CLI, which is not compiled into
+stock firmware: it needs a build with `CLI=ON` (plus `BLUETOOTH=ON` for `bt`).
+The CLI carries a significant flash footprint, so on 512 KB targets
+(STM32F407xE, e.g. X9D+ 2019) enabling `CLI` together with `BLUETOOTH` can
+overflow `FLASH`. Targets with 2 MB of flash (STM32F429xI and larger, e.g.
+TX16S) build fine.
+
 
 ## If `DEBUG` set
 
