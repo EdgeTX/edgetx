@@ -182,7 +182,8 @@ static void setupPulsesMulti(uint8_t*& p_buf, uint8_t module)
       }
 #if defined(LUA)
       // SPort send
-      if (IS_D16_MULTI(module) && outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT && outputTelemetryBuffer.size) {
+      if ((IS_D16_MULTI(module) || IS_ACCESS_MULTI(module)) &&
+          outputTelemetryBuffer.destination == TELEMETRY_ENDPOINT_SPORT && outputTelemetryBuffer.size) {
         sendSport(p_buf, module);       //8 bytes of additional data
       }
       else if (IS_HOTT_MULTI(module)) {

@@ -151,6 +151,10 @@ enum ModuleSubtypeMulti {
   MODULE_SUBTYPE_MULTI_NN10,
   MODULE_SUBTYPE_MULTI_LAST = MODULE_SUBTYPE_MULTI_NN10,
   //
+  // Named protocols numbered inside the spare range (MULTI number - 1)
+  //
+  MODULE_SUBTYPE_MULTI_FRSKYA = 111,  // FrSky ACCESS (MULTI protocol 112)
+  //
   // Sentinel
   //
   MODULE_SUBTYPE_MULTI_SENTINEL = 0xfe,
