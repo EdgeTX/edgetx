@@ -63,6 +63,12 @@ git config --global --add safe.directory "$(pwd)"
 # Firmware files land where the script was started from
 : "${OUTDIR:=$(pwd)}"
 
+# Optional: keep each target's ELF and map for memory analysis (MemBrowse),
+# in ${MEMBROWSE_OUTDIR}/<target>/. Resolved before leaving the start directory.
+if [[ -n ${MEMBROWSE_OUTDIR} ]]; then
+  MEMBROWSE_OUTDIR=$(realpath -m "${MEMBROWSE_OUTDIR}")
+fi
+
 # Scratch space under build/ - other build trees there are left alone
 BUILD_DIR=$(reset_scratch_build_dir ci-firmware) || exit 1
 cd "${BUILD_DIR}"
@@ -87,6 +93,13 @@ do
     
     cmake_build_parallel  . --target arm-none-eabi-configure
     cmake_build_parallel arm-none-eabi --target ${FIRMARE_TARGET}
+
+    # The next target reuses this build tree, so copy the ELF and map out now
+    if [[ -n ${MEMBROWSE_OUTDIR} ]]; then
+        mkdir -p "${MEMBROWSE_OUTDIR}/${target_name}"
+        cp arm-none-eabi/firmware.elf arm-none-eabi/radio/src/firmware.map \
+           "${MEMBROWSE_OUTDIR}/${target_name}/"
+    fi
 
     rm -f CMakeCache.txt arm-none-eabi/CMakeCache.txt
 

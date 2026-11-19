@@ -1,0 +1,69 @@
+name: Onboard to MemBrowse
+
+on:
+  workflow_dispatch:
+    inputs:
+      num_commits:
+        description: 'Number of commits to process'
+        required: true
+        default: '100'
+        type: string
+
+jobs:
+  load-targets:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Load target matrix
+        id: set-matrix
+        run: echo "matrix=$(jq -c '.' .github/membrowse-targets.json)" >> "$GITHUB_OUTPUT"
+
+  onboard:
+    needs: load-targets
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.load-targets.outputs.matrix) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      # Same toolchain as tools/setup_buildenv_ubuntu24.04.sh
+      - name: Install packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libclang-dev
+          pip install asciitree clang==18.1.8 jinja2 lz4 pillow pydantic pyelftools typing_extensions
+          mkdir -p "$HOME/arm-gnu-toolchain"
+          wget -q https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz \
+            -O "$RUNNER_TEMP/arm-gnu-toolchain.tar.xz"
+          tar xJf "$RUNNER_TEMP/arm-gnu-toolchain.tar.xz" -C "$HOME/arm-gnu-toolchain" --strip-components=1
+          echo "$HOME/arm-gnu-toolchain/bin" >> "$GITHUB_PATH"
+
+      - name: Run MemBrowse Onboard Action
+        uses: membrowse/membrowse-action/onboard-action@v1
+        with:
+          target_name: ${{ matrix.target_name }}
+          num_commits: ${{ github.event.inputs.num_commits }}
+          build_script: ${{ matrix.build_cmd }}
+          elf: ${{ matrix.elf }}
+          ld: ${{ matrix.ld }}
+          ld_include_dirs: ${{ matrix.ld_include_dirs }}
+          map_file: ${{ matrix.map_file }}
+          linker_vars: ${{ matrix.linker_vars }}
+          binary_search: 'true'
+          api_key: ${{ secrets.MEMBROWSE_API_KEY }}
