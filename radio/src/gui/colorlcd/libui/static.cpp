@@ -209,6 +209,18 @@ void StaticIcon::center(coord_t w, coord_t h)
 
 //-----------------------------------------------------------------------------
 
+DotIcon::DotIcon(Window* parent, coord_t x, coord_t y,
+                       LcdColorIndex color) :
+    Window(parent, rect_t{x, y, DOT_SZ, DOT_SZ})
+{
+  setWindowFlag(NO_FOCUS | NO_CLICK);
+
+  etx_obj_add_style(lvobj, styles->circle, LV_PART_MAIN);
+  etx_solid_bg(lvobj, color);
+}
+
+//-----------------------------------------------------------------------------
+
 // Display image from file system using LVGL with LVGL scaling
 //  - LVGL scaling is slow so don't use this if there are many images
 StaticImage::StaticImage(Window* parent, const rect_t& rect,

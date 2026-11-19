@@ -246,9 +246,6 @@ static const uint8_t mask_inline_add[] __FLASH = {
 static const uint8_t mask_inline_curve[] __FLASH = {
 #include "mask_inline_curve.lbm"
 };
-static const uint8_t mask_inline_dot[] __FLASH = {
-#include "mask_inline_dot.lbm"
-};
 static const uint8_t mask_inline_fm[] __FLASH = {
 #include "mask_inline_fm.lbm"
 };
@@ -272,21 +269,6 @@ static const uint8_t mask_info_busy[] __FLASH = {
 };
 static const uint8_t mask_info_error[] __FLASH = {
 #include "mask_info_error.lbm"
-};
-static const uint8_t mask_info_shutdown[] __FLASH = {
-#include "mask_info_shutdown.lbm"
-};
-static const uint8_t mask_info_shutdown_circle0[] __FLASH = {
-#include "mask_info_shutdown_circle0.lbm"
-};
-static const uint8_t mask_info_shutdown_circle1[] __FLASH = {
-#include "mask_info_shutdown_circle1.lbm"
-};
-static const uint8_t mask_info_shutdown_circle2[] __FLASH = {
-#include "mask_info_shutdown_circle2.lbm"
-};
-static const uint8_t mask_info_shutdown_circle3[] __FLASH = {
-#include "mask_info_shutdown_circle3.lbm"
 };
 static const uint8_t mask_info_usb_plugged[] __FLASH = {
 #include "mask_info_usb_plugged.lbm"
@@ -367,16 +349,6 @@ static const uint8_t mask_widget_volume_scale[] __FLASH = {
 #include "mask_widget_volume_scale.lbm"
 };
 
-// const uint8_t mask_currentmenu_bg[] __FLASH = {
-// #include "mask_currentmenu_bg.lbm"
-// };
-// const uint8_t mask_currentmenu_shadow[] __FLASH = {
-// #include "mask_currentmenu_shadow.lbm"
-// };
-// const uint8_t mask_currentmenu_dot[] __FLASH = {
-// #include "mask_currentmenu_dot.lbm"
-// };
-
 struct _BuiltinIcon {
   const uint8_t* lz4_compressed_bitmap;
 };
@@ -439,19 +411,8 @@ static const _BuiltinIcon _builtinIcons[EDGETX_ICONS_COUNT] = {
     BI(ICON_CHAN_MONITOR_LOCKED, mask_inline_locked),
     BI(ICON_CHAN_MONITOR_INVERTED, mask_inline_inverted),
 
-    BI(ICON_SHUTDOWN_CIRCLE0, mask_info_shutdown_circle0),
-    BI(ICON_SHUTDOWN_CIRCLE1, mask_info_shutdown_circle1),
-    BI(ICON_SHUTDOWN_CIRCLE2, mask_info_shutdown_circle2),
-    BI(ICON_SHUTDOWN_CIRCLE3, mask_info_shutdown_circle3),
-    BI(ICON_SHUTDOWN, mask_info_shutdown),
-
     BI(ICON_TOPLEFT_BG, mask_topleft_bg),
     BI(ICON_TOPRIGHT_BG, mask_topright_bg),
-    // BI(ICON_CURRENTMENU_BG, mask_currentmenu_bg),
-    // BI(ICON_CURRENTMENU_SHADOW, mask_currentmenu_shadow),
-    // BI(ICON_CURRENTMENU_DOT, mask_currentmenu_dot),
-
-    BI(ICON_DOT, mask_inline_dot),
 
     BI(ICON_TOPMENU_USB, mask_widget_usb),
     BI(ICON_TOPMENU_VOLUME_0, mask_widget_volume0),
