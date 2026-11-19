@@ -66,8 +66,20 @@ MaskBitmap* _decompressed_mask(const uint8_t* lz4_compressed)
   raw->width = width;
   raw->height = height;
 
-  LZ4_decompress_safe((const char*)lz4_compressed, (char*)&raw->data, len,
-                      pixels);
+  // Masks are stored as 4-bit alpha, 2 pixels per byte (high nibble first).
+  // Decompress into the tail of the buffer, then expand to 8-bit in place:
+  // the write position never overtakes the read position.
+  uint32_t packed = (pixels + 1) / 2;
+  uint8_t* dst = (uint8_t*)&raw->data;
+  const uint8_t* src = dst + (pixels - packed);
+
+  LZ4_decompress_safe((const char*)lz4_compressed, (char*)src, len, packed);
+
+  for (uint32_t i = 0; i < pixels; i += 2) {
+    uint8_t b = *src++;
+    dst[i] = (b >> 4) * 17;
+    if (i + 1 < pixels) dst[i + 1] = (b & 0x0F) * 17;
+  }
 
   return raw;
 }
