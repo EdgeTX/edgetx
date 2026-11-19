@@ -1453,7 +1453,8 @@ uint8_t MODULE_CHANNELS_ROWS(int moduleIdx)
   else if (isModuleMultimodule(moduleIdx)) {
     if (IS_RX_MULTI(moduleIdx))
       return HIDDEN_ROW;
-    else if (g_model.moduleData[moduleIdx].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
+    else if (g_model.moduleData[moduleIdx].multi.rfProtocol ==
+             MODULE_SUBTYPE_MULTI_DSM2)
       return 1;
     else
       return 0;
