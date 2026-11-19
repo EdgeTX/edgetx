@@ -25,7 +25,7 @@
 
 /* Signature format is multi-[board type]-[bootloader support][check for bootloader][multi telemetry type][telemetry inversion][debug]-[firmware version]
    Where:
-   [board type] is avr, stm, or orx
+   [board type] is avr, stm, or orx (v2 signature: also 3, MPM v2: TI CC26xx / CC27xx)
    [bootloader support] b for optiboot (AVR) / USB (STM) or u (unsupported)
    [check for bootloader] is c (CHECK_FOR_BOOTLOADER) or u (undefined)
    [telemetry type] is t (MULTI_TELEMETRY), s (MULTI_STATUS), or u (undefined) for neither
@@ -43,6 +43,7 @@ class MultiFirmwareInformation
       FIRMWARE_MULTI_AVR = 0,
       FIRMWARE_MULTI_STM,
       FIRMWARE_MULTI_ORX,
+      FIRMWARE_MULTI_MPM_V2, // MPM v2: its own boot loader, signature 1E 55 26
     };
 
     enum MultiFirmwareTelemetryType
@@ -67,6 +68,11 @@ class MultiFirmwareInformation
       return boardType == FIRMWARE_MULTI_ORX;
     }
 
+    MultiFirmwareBoardType getBoardType() const
+    {
+      return (MultiFirmwareBoardType)boardType;
+    }
+
     bool isMultiWithBootloaderFirmware() const
     {
       return optibootSupport;
@@ -74,14 +80,16 @@ class MultiFirmwareInformation
 
     bool isMultiInternalFirmware() const
     {
-      return (boardType == FIRMWARE_MULTI_STM && optibootSupport &&
-              bootloaderCheck &&
+      return ((boardType == FIRMWARE_MULTI_STM ||
+               boardType == FIRMWARE_MULTI_MPM_V2) &&
+              optibootSupport && bootloaderCheck &&
               telemetryType == FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY);
     }
 
     bool isMultiExternalFirmware() const
     {
-      return ((telemetryInversion || boardType == FIRMWARE_MULTI_STM) &&
+      return ((telemetryInversion || boardType == FIRMWARE_MULTI_STM ||
+               boardType == FIRMWARE_MULTI_MPM_V2) &&
               optibootSupport && bootloaderCheck &&
               telemetryType == FIRMWARE_MULTI_TELEM_MULTI_TELEMETRY);
     }

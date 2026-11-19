@@ -59,6 +59,10 @@ void setSelectedUsbMode(int mode);
 
 // USB CDC
 uint32_t usbSerialFreeSpace();
+void usbSerialSetLowLatency(bool enable);
+// Number of times the host dropped DTR (closed the port), sent a break
+uint32_t usbSerialHangupCount();
+uint32_t usbSerialBreakCount();
 extern const etx_serial_port_t UsbSerialPort;
 
 // USB HID
