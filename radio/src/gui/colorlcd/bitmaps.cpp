@@ -452,17 +452,17 @@ static MaskBitmap* _screen_icon_mask(EdgeTxIcon id)
   static constexpr coord_t SZ = LAYOUT_SCALE(30);
   static constexpr coord_t PAD = LAYOUT_SCALE(1);
 
-  lv_color_t* buf = (lv_color_t*)malloc(SZ * SZ * sizeof(lv_color_t));
   MaskBitmap* mask = (MaskBitmap*)malloc(align32(SZ * SZ + 4));
-  if (!buf || !mask) {
-    free(buf);
-    free(mask);
-    return nullptr;
-  }
+  if (!mask) return nullptr;
 
+  mask->width = SZ;
+  mask->height = SZ;
+  memset(mask->data, 0, SZ * SZ);
+
+  // Draw straight into the mask: on an alpha canvas LVGL stores the
+  // brightness of the drawn colour as the alpha value.
   lv_obj_t* canvas = lv_canvas_create(nullptr);
-  lv_canvas_set_buffer(canvas, buf, SZ, SZ, LV_IMG_CF_TRUE_COLOR);
-  lv_canvas_fill_bg(canvas, lv_color_black(), LV_OPA_COVER);
+  lv_canvas_set_buffer(canvas, mask->data, SZ, SZ, LV_IMG_CF_ALPHA_8BIT);
 
   lv_draw_rect_dsc_t rect;
   lv_draw_rect_dsc_init(&rect);
@@ -476,8 +476,10 @@ static MaskBitmap* _screen_icon_mask(EdgeTxIcon id)
     lv_canvas_draw_rect(canvas, PAD, PAD, SZ - 2 * PAD, SZ - 2 * PAD, &rect);
 
     // '+' sign, offset towards the bottom right corner
-    coord_t len = LAYOUT_SCALE(10);
+    // Line length and thickness must have the same parity so the lines
+    // cross exactly in the centre
     coord_t t = (SZ + 16) / 28;
+    coord_t len = (LAYOUT_SCALE(10) & ~1) | (t & 1);
     coord_t c = SZ * 3 / 5;
     rect.bg_opa = LV_OPA_COVER;
     rect.border_width = 0;
@@ -501,12 +503,6 @@ static MaskBitmap* _screen_icon_mask(EdgeTxIcon id)
   }
 
   lv_obj_del(canvas);
-
-  mask->width = SZ;
-  mask->height = SZ;
-  for (int i = 0; i < SZ * SZ; i += 1)
-    mask->data[i] = lv_color_brightness(buf[i]);
-  free(buf);
 
   return mask;
 }
