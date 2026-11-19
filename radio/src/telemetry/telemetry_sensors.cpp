@@ -732,7 +732,7 @@ const UnitConversionRule unitConversionTable[] = {
   { UNIT_MILLILITERS, UNIT_FLOZ,                   100,  2957},
 
   { UNIT_RADIANS, UNIT_DEGREE,                    1547,    27}, // 1 rad = 57.29578 deg (1547 / 27 = 57.2963)
-  { UNIT_DEGREE, UNIT_RADIANS,                      27,  1547}, // 1 deg = 0.0174533 rad
+  { UNIT_DEGREE, UNIT_RADIANS,                      27,  1547}, // 1 deg = 0.0174533 rad (27 / 1547 = 0.0174531)
 
   { 0, 0, 0, 0}   // termination
 };
