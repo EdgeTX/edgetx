@@ -290,6 +290,8 @@ class LvglWidgetObjectBase
 
   void clear();
 
+  bool canCall(LvglFuncRef funcRef);
+
  protected:
   int luaRef = LUA_REFNIL;
   std::vector<int> lvglObjectRefs;
