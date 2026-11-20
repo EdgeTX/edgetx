@@ -278,8 +278,12 @@ void ProgressWidget::refresh()
 
 void ProgressWidget::updateInfoAndMessages(const QString & text, const int & type, const bool richText)
 {
-  setInfo(text);
+  // Log the message before updating the info label: setInfo() pumps the event
+  // loop, which can deliver messages queued by a worker thread (e.g. the
+  // anchor line for updateLastMessage) ahead of this one, so a later
+  // updateLastMessage would replace this message instead of the anchor.
   addMessage(text, type, richText);
+  setInfo(text);
 }
 
 void ProgressWidget::updateLastMessage(const QString & text, const int & type, const bool richText)
