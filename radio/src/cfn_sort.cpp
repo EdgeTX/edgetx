@@ -310,7 +310,7 @@ Functions cfn_sorted[] = {
   /* Push CS */ FUNC_PUSH_CUST_SWITCH,
 #endif
   /* Racing Mode */ FUNC_RACING_MODE,
-  /* Règle Failsafe */ FUNC_SET_FAILSAFE,
+  /* Régler Failsafe */ FUNC_SET_FAILSAFE,
   /* Remise à 0 */ FUNC_RESET,
   /* Remplace */ FUNC_OVERRIDE_CHANNEL,
 #if !defined(OLED_SCREEN)

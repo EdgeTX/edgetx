@@ -778,14 +778,14 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
 
-  /* Jumper T15-H7 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("t15h7"), Firmware::tr("Jumper T15-H7"), BOARD_JUMPER_T15H7);
+  /* Jumper T15 H7 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("t15h7"), Firmware::tr("Jumper T15 H7"), BOARD_JUMPER_T15H7);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
 
-  /* Jumper T18H7 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("t18h7"), Firmware::tr("Jumper T18H7"), BOARD_JUMPER_T18H7);
+  /* Jumper T18 H7 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("t18h7"), Firmware::tr("Jumper T18 H7"), BOARD_JUMPER_T18H7);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);

@@ -717,7 +717,7 @@ QString Boards::getBoardName(Board::Type board)
     case BOARD_JUMPER_T15PRO:
       return "Jumper T15 Pro";
     case BOARD_JUMPER_T15H7:
-      return "Jumper T15-H7";
+      return "Jumper T15 H7";
     case BOARD_JUMPER_T22:
       return "Jumper T22";
     case BOARD_JUMPER_T16:
@@ -725,7 +725,7 @@ QString Boards::getBoardName(Board::Type board)
     case BOARD_JUMPER_T18:
       return "Jumper T18";
     case BOARD_JUMPER_T18H7:
-      return "Jumper T18H7";
+      return "Jumper T18 H7";
     case BOARD_JUMPER_T20:
       return "Jumper T20";
     case BOARD_JUMPER_T20V2:
@@ -848,6 +848,8 @@ QList<int> Boards::getSupportedInternalModules(Board::Type board)
     modules.append((int)MODULE_TYPE_CROSSFIRE);
     modules.append((int)MODULE_TYPE_MULTIMODULE);
   } else if (IS_IFLIGHT_C14(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T15H7(board)) {
+    modules.append((int)MODULE_TYPE_CROSSFIRE);
+  } else if (IS_JUMPER_T22(board)) {
     modules.append((int)MODULE_TYPE_CROSSFIRE);
   } else if (IS_FAMILY_HORUS_OR_T16(board) || IS_FAMILY_T12(board) ||
              (IS_TARANIS_SMALL(board) && IS_ACCESS_RADIO(board))) {

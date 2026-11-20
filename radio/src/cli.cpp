@@ -217,24 +217,30 @@ void cliPrompt()
   cliSerialPutc(' ');
 }
 
+// argv[] slots past the last argument are null: read them as ""
+static const char * cliArg(const char ** argv, int index)
+{
+  return argv[index] ? argv[index] : "";
+}
+
 int toLongLongInt(const char ** argv, int index, long long int * val)
 {
-  if (*argv[index] == '\0') {
+  const char * s = cliArg(argv, index);
+  if (*s == '\0') {
     return 0;
   }
   else {
     int base = 10;
-    const char * s = argv[index];
     if (strlen(s) > 2 && s[0] == '0' && s[1] == 'x') {
       base = 16;
-      s = &argv[index][2];
+      s += 2;
     }
     char * endptr = nullptr;
     *val = strtoll(s, &endptr, base);
     if (*endptr == '\0')
       return 1;
     else {
-      cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], argv[index]);
+      cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], cliArg(argv, index));
       return -1;
     }
   }
@@ -260,7 +266,7 @@ int cliBeep(const char ** argv)
 
 int cliPlay(const char ** argv)
 {
-  audioQueue.playFile(argv[1], PLAY_NOW);
+  audioQueue.playFile(cliArg(argv, 1), PLAY_NOW);
   return 0;
 }
 
@@ -276,9 +282,9 @@ int cliRecord(const char ** argv)
   }
 
   int seconds = 5;
-  if (argv[2] && argv[2][0]) {
+  if (cliArg(argv, 2)[0]) {
     if (toInt(argv, 2, &seconds) == 0 || seconds <= 0 || seconds > 600) {
-      cliSerialPrint("%s: Invalid duration \"%s\"", argv[0], argv[2]);
+      cliSerialPrint("%s: Invalid duration \"%s\"", argv[0], cliArg(argv, 2));
       return 0;
     }
   }
@@ -332,7 +338,7 @@ int cliLs(const char ** argv)
   FILINFO fno;
   DIR dir;
 
-  FRESULT res = f_opendir(&dir, argv[1]);        /* Open the directory */
+  FRESULT res = f_opendir(&dir, cliArg(argv, 1));        /* Open the directory */
   if (res == FR_OK) {
     for (;;) {
       res = f_readdir(&dir, &fno);                   /* Read a directory item */
@@ -342,7 +348,7 @@ int cliLs(const char ** argv)
     f_closedir(&dir);
   }
   else {
-    cliSerialPrint("%s: Invalid directory \"%s\"", argv[0], argv[1]);
+    cliSerialPrint("%s: Invalid directory \"%s\"", argv[0], cliArg(argv, 1));
   }
   return 0;
 }
@@ -353,7 +359,7 @@ int cliRead(const char ** argv)
   uint32_t bytesRead = 0;
   int bufferSize;
   if (toInt(argv, 2, &bufferSize) == 0 || bufferSize < 0 ) {
-    cliSerialPrint("%s: Invalid buffer size \"%s\"", argv[0], argv[2]);
+    cliSerialPrint("%s: Invalid buffer size \"%s\"", argv[0], cliArg(argv, 2));
     return 0;
   }
 
@@ -363,10 +369,10 @@ int cliRead(const char ** argv)
     return 0;
   }
 
-  FRESULT result = f_open(&file, argv[1], FA_OPEN_EXISTING | FA_READ);
+  FRESULT result = f_open(&file, cliArg(argv, 1), FA_OPEN_EXISTING | FA_READ);
   if (result != FR_OK) {
     free(buffer);
-    cliSerialPrint("%s: File not found \"%s\"", argv[0], argv[1]);
+    cliSerialPrint("%s: File not found \"%s\"", argv[0], cliArg(argv, 1));
     return 0;
   }
 
@@ -398,16 +404,16 @@ int cliReadSD(const char ** argv)
   int numberOfSectors;
   int bufferSectors;
   if (toInt(argv, 1, &startSector) == 0 || startSector < 0 ) {
-    cliSerialPrint("%s: Invalid start sector \"%s\"", argv[0], argv[1]);
+    cliSerialPrint("%s: Invalid start sector \"%s\"", argv[0], cliArg(argv, 1));
     return 0;
   }
   if (toInt(argv, 2, &numberOfSectors) == 0 || numberOfSectors < 0 ) {
-    cliSerialPrint("%s: Invalid number of sectors \"%s\"", argv[0], argv[2]);
+    cliSerialPrint("%s: Invalid number of sectors \"%s\"", argv[0], cliArg(argv, 2));
     return 0;
   }
 
   if (toInt(argv, 3, &bufferSectors) == 0 || bufferSectors < 0 ) {
-    cliSerialPrint("%s: Invalid number of buffer sectors \"%s\"", argv[0], argv[3]);
+    cliSerialPrint("%s: Invalid number of buffer sectors \"%s\"", argv[0], cliArg(argv, 3));
     return 0;
   }
 
@@ -980,17 +986,17 @@ done:
 #if defined(DEBUG)
 int cliTest(const char ** argv)
 {
-  if (!strcmp(argv[1], "new")) {
+  if (!strcmp(cliArg(argv, 1), "new")) {
     return cliTestNew();
   }
 #if defined(COLORLCD)
 #if defined(DEBUG_LCD)
-  else if (!strcmp(argv[1], "graphics")) {
+  else if (!strcmp(cliArg(argv, 1), "graphics")) {
     return cliTestGraphics();
   }
 #endif
 #if defined(DEBUG_RAM)
-  else if (!strcmp(argv[1], "memspd")) {
+  else if (!strcmp(cliArg(argv, 1), "memspd")) {
     return cliTestMemorySpeed();
   }
 #endif
@@ -1001,23 +1007,23 @@ int cliTest(const char ** argv)
 #endif
 #endif
   else {
-    cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], argv[1]);
+    cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], cliArg(argv, 1));
   }
   return 0;
 }
 
 int cliTrace(const char ** argv)
 {
-  if (!strcmp(argv[1], "on")) {
+  if (!strcmp(cliArg(argv, 1), "on")) {
     cliEnableDbg();
     cliTracesEnabled = true;
   }
-  else if (!strcmp(argv[1], "off")) {
+  else if (!strcmp(cliArg(argv, 1), "off")) {
     cliTracesEnabled = false;
     cliDisableDbg();
   }
   else {
-    cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], argv[1]);
+    cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], cliArg(argv, 1));
   }
   return 0;
 }
@@ -1096,7 +1102,7 @@ int cliMemoryInfo(const char ** argv)
 int cliReboot(const char ** argv)
 {
 #if !defined(SIMU)
-  if (!strcmp(argv[1], "wdt")) {
+  if (!strcmp(cliArg(argv, 1), "wdt")) {
     // do a user requested watchdog test by pausing mixer thread
     pulsesStop();
   }
@@ -1124,7 +1130,7 @@ const MemArea memAreas[] = {
 
 int cliSet(const char **argv)
 {
-  if (!strcmp(argv[1], "rtc")) {
+  if (!strcmp(cliArg(argv, 1), "rtc")) {
     struct gtm t;
     int year, month, day, hour, minute, second;
     if (toInt(argv, 2, &year) > 0 && toInt(argv, 3, &month) > 0 &&
@@ -1140,44 +1146,44 @@ int cliSet(const char **argv)
       g_rtcTime = gmktime(&t);
       rtcSetTime(&t);
     } else {
-      cliSerialPrint("%s: Invalid arguments \"%s\" \"%s\"", argv[0], argv[1],
-                  argv[2]);
+      cliSerialPrint("%s: Invalid arguments \"%s\" \"%s\"", argv[0], cliArg(argv, 1),
+                  cliArg(argv, 2));
       return -1;
     }
   }
 #if !defined(SOFTWARE_VOLUME) && defined(AUDIO)
-  else if (!strcmp(argv[1], "volume")) {
+  else if (!strcmp(cliArg(argv, 1), "volume")) {
     int level = 0;
     if (toInt(argv, 2, &level) > 0) {
       audioSetVolume(level);
     } else {
-      cliSerialPrint("%s: Invalid argument \"%s\" \"%s\"", argv[0], argv[1],
-                  argv[2]);
+      cliSerialPrint("%s: Invalid argument \"%s\" \"%s\"", argv[0], cliArg(argv, 1),
+                  cliArg(argv, 2));
       return -1;
     }
   }
 #endif
-  else if (!strcmp(argv[1], "rfmod")) {
+  else if (!strcmp(cliArg(argv, 1), "rfmod")) {
     int module = 0;
     if (toInt(argv, 2, &module) < 0) {
-      cliSerialPrint("%s: invalid module argument '%s'", argv[0], argv[2]);
+      cliSerialPrint("%s: invalid module argument '%s'", argv[0], cliArg(argv, 2));
       return -1;
     }
-    if (!strcmp(argv[3], "power")) {
-      if (!strcmp("on", argv[4])) {
+    if (!strcmp(cliArg(argv, 3), "power")) {
+      if (!strcmp("on", cliArg(argv, 4))) {
         modulePortSetPower(module, true);
-      } else if (!strcmp("off", argv[4])) {
+      } else if (!strcmp("off", cliArg(argv, 4))) {
         modulePortSetPower(module, false);
       } else {
-        cliSerialPrint("%s: invalid power argument '%s'", argv[0], argv[4]);
+        cliSerialPrint("%s: invalid power argument '%s'", argv[0], cliArg(argv, 4));
         return -1;
       }
-      cliSerialPrint("%s: rfmod %d power %s", argv[0], module, argv[4]);
+      cliSerialPrint("%s: rfmod %d power %s", argv[0], module, cliArg(argv, 4));
     }
-    else if (!strcmp(argv[3], "bootpin")) {
+    else if (!strcmp(cliArg(argv, 3), "bootpin")) {
       int level = 0;
       if (toInt(argv, 4, &level) < 0) {
-        cliSerialPrint("%s: invalid bootpin argument '%s'", argv[0], argv[4]);
+        cliSerialPrint("%s: invalid bootpin argument '%s'", argv[0], cliArg(argv, 4));
         return -1;
       }
       const auto* mod = modulePortGetModuleDescription(INTERNAL_MODULE);
@@ -1193,18 +1199,18 @@ int cliSet(const char **argv)
       }
     }
     else {
-      if (strlen(argv[2]) == 0) {
+      if (strlen(cliArg(argv, 2)) == 0) {
         cliSerialPrint("%s: missing rfmod arguments", argv[0]);
       } else {
-        cliSerialPrint("%s: invalid rfmod argument '%s'", argv[0], argv[3]);
+        cliSerialPrint("%s: invalid rfmod argument '%s'", argv[0], cliArg(argv, 3));
         return -1;
       }
     }
   }
-  else if (!strcmp(argv[1], "pulses")) {
+  else if (!strcmp(cliArg(argv, 1), "pulses")) {
     int level = 0;
     if (toInt(argv, 2, &level) < 0) {
-      cliSerialPrint("%s: invalid level argument '%s'", argv[0], argv[2]);
+      cliSerialPrint("%s: invalid level argument '%s'", argv[0], cliArg(argv, 2));
       return -1;
     }
 
@@ -1225,10 +1231,16 @@ int cliSet(const char **argv)
 static const etx_serial_driver_t* _sp_drv = nullptr;
 static void* _sp_ctx = nullptr;
 
+// TX side, if not the same as RX (external module)
+static const etx_serial_driver_t* _sp_tx_drv = nullptr;
+static void* _sp_tx_ctx = nullptr;
+
 static void _sp_Tx(uint8_t* buf, uint32_t len)
 {
+  auto drv = _sp_tx_drv ? _sp_tx_drv : _sp_drv;
+  auto ctx = _sp_tx_drv ? _sp_tx_ctx : _sp_ctx;
   while (len > 0) {
-    _sp_drv->sendByte(_sp_ctx, *(buf++));
+    drv->sendByte(ctx, *(buf++));
     len--;
   }
 }
@@ -1263,6 +1275,81 @@ static void spModuleDeInit(int port_n)
 }
 
 #endif // HARDWARE_INTERNAL_MODULE
+
+#if defined(HARDWARE_EXTERNAL_MODULE)
+static etx_module_state_t *spExtModuleState = nullptr;
+
+// Power cycle: the module's boot loader listens right after power on,
+// the ports are opened while the module is off.
+static void spExtModulePowerOff(int port_n)
+{
+  modulePortSetPower(port_n, false);
+  delay_ms(500);
+}
+
+static void spExtModulePowerOn(int port_n)
+{
+  _sp_drv = modulePortGetSerialDrv(spExtModuleState->rx);
+  _sp_ctx = modulePortGetCtx(spExtModuleState->rx);
+  modulePortSetPower(port_n, true);
+}
+
+// Half-duplex on S.PORT, as the FrSky firmware update
+// (frsky_firmware_update.cpp): the driver switches direction
+static void spExtModuleSportInit(int port_n, int baudrate)
+{
+  etx_serial_init params = {
+      .baudrate = (uint32_t)baudrate,
+      .encoding = ETX_Encoding_8N1,
+      .direction = ETX_Dir_TX_RX,
+      .polarity = ETX_Pol_Normal,
+  };
+
+  spExtModulePowerOff(port_n);
+  spExtModuleState =
+      modulePortInitSerial(port_n, ETX_MOD_PORT_SPORT, &params, false);
+  if (spExtModuleState) spExtModulePowerOn(port_n);
+}
+
+// As the MULTI firmware update (multi_firmware_update.cpp): TX on PPM,
+// RX on S.PORT
+static void spExtModulePpmInit(int port_n, int baudrate)
+{
+  etx_serial_init params = {
+      .baudrate = (uint32_t)baudrate,
+      .encoding = ETX_Encoding_8N1,
+      .direction = ETX_Dir_TX,
+      .polarity = ETX_Pol_Inverted,
+  };
+
+  spExtModulePowerOff(port_n);
+  spExtModuleState =
+      modulePortInitSerial(port_n, ETX_MOD_PORT_UART, &params, true);
+  if (!spExtModuleState) return;
+
+  params.direction = ETX_Dir_RX;
+  if (!modulePortInitSerial(port_n, ETX_MOD_PORT_SPORT, &params, true)) {
+    modulePortDeInit(spExtModuleState);
+    spExtModuleState = nullptr;
+    return;
+  }
+
+  _sp_tx_drv = modulePortGetSerialDrv(spExtModuleState->tx);
+  _sp_tx_ctx = modulePortGetCtx(spExtModuleState->tx);
+  spExtModulePowerOn(port_n);
+}
+
+static void spExtModuleDeInit(int port_n)
+{
+  modulePortSetPower(port_n, false);
+  modulePortDeInit(spExtModuleState);
+  spExtModuleState = nullptr;
+  _sp_drv = nullptr;
+  _sp_tx_drv = nullptr;
+  _sp_tx_ctx = nullptr;
+  delay_ms(200);
+}
+#endif // HARDWARE_EXTERNAL_MODULE
 
 #if defined(FLYSKY_GIMBAL)
 #include "flysky_gimbal_driver.h"
@@ -1305,6 +1392,16 @@ int cliSerialPassthrough(const char **argv)
     return -1;
   }
 
+  // optional last argument: also end when the host closes the port (DTR
+  // drop); off by default, tools close the port after starting passthrough
+  bool hangup = false;
+  int last = 1;
+  while (last + 1 < CLI_COMMAND_MAX_ARGS && argv[last + 1]) last++;
+  if (last > 1 && !strcmp(argv[last], "hangup")) {
+    hangup = true;
+    argv[last] = nullptr;
+  }
+
   int baudrate = 0;
   void (*initCB)(int, int) = nullptr;
   void (*deinitCB)(int) = nullptr;
@@ -1316,22 +1413,41 @@ int cliSerialPassthrough(const char **argv)
       cliSerialPrint("%s: invalid or missing port number", argv[0]);
       return -1;
     }
-    // 3rd argument (baudrate is optional)
-    if (toInt(argv, 3, &baudrate) <= 0) {
-      baudrate = 0;
+    // optional: baudrate, then mode (external module only)
+    int arg = 3;
+    if (argv[arg] && isdigit(argv[arg][0])) {
+      if (toInt(argv, arg++, &baudrate) <= 0) {
+        baudrate = 0;
+      }
     }
+    const char* mode = (argv[arg] && argv[arg][0]) ? argv[arg] : nullptr;
 
     switch(port_n) {
 #if defined(HARDWARE_INTERNAL_MODULE)
     case INTERNAL_MODULE:
+      if (mode) {
+        cliSerialPrint("%s: invalid argument '%s'", argv[0], mode);
+        return -1;
+      }
       initCB = spModuleInit;
       deinitCB = spModuleDeInit;
       break;
 #endif
-    // TODO:
-    //  - external module (S.PORT?)
+#if defined(HARDWARE_EXTERNAL_MODULE)
+    case EXTERNAL_MODULE:
+      if (!mode || !strcmp(mode, "sport")) {
+        initCB = spExtModuleSportInit;
+      } else if (!strcmp(mode, "ppm")) {
+        initCB = spExtModulePpmInit;
+      } else {
+        cliSerialPrint("%s: invalid mode '%s' (sport or ppm)", argv[0], mode);
+        return -1;
+      }
+      deinitCB = spExtModuleDeInit;
+      break;
+#endif
     default:
-      cliSerialPrint("%s: invalid port # '%i'", port_n);
+      cliSerialPrint("%s: invalid port # '%i'", argv[0], port_n);
       return -1;
     }
   } else if (!strcmp("gimbals", port_type)) {
@@ -1344,13 +1460,18 @@ int cliSerialPassthrough(const char **argv)
     initCB = spGimbalInit;
     deinitCB = spGimbalDeInit;
 #else
-    cliSerialPrint("%s: serial gimbals not supported");
+    cliSerialPrint("%s: serial gimbals not supported", argv[0]);
     return -1;
 #endif
   } else {
-    cliSerialPrint("%s: invalid port type '%s'", port_type);
+    cliSerialPrint("%s: invalid port type '%s'", argv[0], port_type);
     return -1;
   }
+
+  // host events from now on end the passthrough, also those during the
+  // module power cycle below
+  uint32_t breaks = usbSerialBreakCount();
+  uint32_t hangups = usbSerialHangupCount();
 
   //  stop pulses
   watchdogSuspend(200/*2s*/);
@@ -1374,13 +1495,23 @@ int cliSerialPassthrough(const char **argv)
     auto backupCB = cliReceiveCallBack;
     cliReceiveCallBack = _sp_Tx;
 
-    // loop until cable disconnected
-    while (usbPlugged()) {
+    // drop what the host sent before the switch, not for the CLI
+    xStreamBufferReset(cliRxBuffer);
+
+    // flashing protocols wait for each reply: don't batch USB IN data
+    usbSerialSetLowLatency(true);
+
+    // loop until cable disconnected, a break, or the port closed (hangup)
+    while (usbPlugged() && usbSerialBreakCount() == breaks &&
+           (!hangup || usbSerialHangupCount() == hangups)) {
 
       uint32_t cli_br = cliGetBaudRate();
       if (cli_br && (cli_br != (uint32_t)baudrate)) {
         baudrate = cli_br;
-        _sp_drv->setBaudrate(_sp_ctx, baudrate);
+        // not supported by softserial
+        if (_sp_drv->setBaudrate) _sp_drv->setBaudrate(_sp_ctx, baudrate);
+        if (_sp_tx_drv && _sp_tx_drv->setBaudrate)
+          _sp_tx_drv->setBaudrate(_sp_tx_ctx, baudrate);
       }
 
       uint8_t data;
@@ -1400,6 +1531,7 @@ int cliSerialPassthrough(const char **argv)
 
     // restore callsbacks
     cliReceiveCallBack = backupCB;
+    usbSerialSetLowLatency(false);
     if (deinitCB != nullptr) deinitCB(port_n);
   }
 
@@ -1505,13 +1637,13 @@ int cliDisplay(const char ** argv)
   long long int address = 0;
 
   for (const MemArea * area = memAreas; area->name != nullptr; area++) {
-    if (!strcmp(area->name, argv[1])) {
+    if (!strcmp(area->name, cliArg(argv, 1))) {
       dump((uint8_t *)area->start, area->size);
       return 0;
     }
   }
 
-  if (!strcmp(argv[1], "keys")) {
+  if (!strcmp(cliArg(argv, 1), "keys")) {
     for (int i = 0; i <= MAX_KEYS; i++) {
       if (keysGetSupported() & (1 << i)) {
         cliSerialPrint("[Key %s] = %s",
@@ -1531,32 +1663,32 @@ int cliDisplay(const char ** argv)
       }
     }
   }
-  else if (!strcmp(argv[1], "adc")) {
+  else if (!strcmp(cliArg(argv, 1), "adc")) {
     for (int i = 0; i < adcGetMaxInputs(ADC_INPUT_ALL); i++) {
       cliSerialPrint("adc[%d] = %04X", i, getAnalogValue(i));
     }
   }
-  else if (!strcmp(argv[1], "outputs")) {
+  else if (!strcmp(cliArg(argv, 1), "outputs")) {
     for (int i = 0; i < MAX_OUTPUT_CHANNELS; i++) {
       cliSerialPrint("outputs[%d] = %04d", i, (int)channelOutputs[i]);
     }
   }
-  else if (!strcmp(argv[1], "rtc")) {
+  else if (!strcmp(cliArg(argv, 1), "rtc")) {
     struct gtm utm;
     gettime(&utm);
     cliSerialPrint("rtc = %4d-%02d-%02d %02d:%02d:%02d.%02d0", utm.tm_year+TM_YEAR_BASE, utm.tm_mon+1, utm.tm_mday, utm.tm_hour, utm.tm_min, utm.tm_sec, g_ms100);
   }
 #if defined(VOLUME_I2C_ADDRESS)
-  else if (!strcmp(argv[1], "volume")) {
+  else if (!strcmp(cliArg(argv, 1), "volume")) {
     cliSerialPrint("volume = %d", getVolume());
   }
 #endif
-  else if (!strcmp(argv[1], "uid")) {
+  else if (!strcmp(cliArg(argv, 1), "uid")) {
     char str[LEN_CPU_UID+1];
     getCPUUniqueID(str);
     cliSerialPrint("uid = %s", str);
   }
-  else if (!strcmp(argv[1], "tim")) {
+  else if (!strcmp(cliArg(argv, 1), "tim")) {
     int timerNumber;
     if (toInt(argv, 2, &timerNumber) > 0) {
       TIM_TypeDef * tim = TIM1;
@@ -1599,28 +1731,28 @@ int cliDisplay(const char ** argv)
     }
   }
 #if defined(DMA1_Stream7)
-  else if (!strcmp(argv[1], "dma")) {
+  else if (!strcmp(cliArg(argv, 1), "dma")) {
     cliSerialPrint("DMA1_Stream7");
     cliSerialPrint(" CR    0x%x", DMA1_Stream7->CR);
   }
 #endif
 #if defined(DEBUG_INTERRUPTS)
-  else if (!strcmp(argv[1], "int")) {
+  else if (!strcmp(cliArg(argv, 1), "int")) {
     printInterrupts();
   }
 #endif
 #if defined(DEBUG_TIMERS)
-  else if (!strcmp(argv[1], "dt")) {
+  else if (!strcmp(cliArg(argv, 1), "dt")) {
     printDebugTimers();
   }
 #endif
 #if defined(DEBUG_AUDIO)
-  else if (!strcmp(argv[1], "audio")) {
+  else if (!strcmp(cliArg(argv, 1), "audio")) {
     printAudioVars();
   }
 #endif
 #if defined(DISK_CACHE)
-  else if (!strcmp(argv[1], "dc")) {
+  else if (!strcmp(cliArg(argv, 1), "dc")) {
     DiskCacheStats stats = diskCache.getStats();
     uint32_t hitRate = diskCache.getHitRate();
     cliSerialPrint("Disk Cache stats: w:%u r: %u, h: %u(%0.1f%%), m: %u", stats.noWrites, (stats.noHits + stats.noMisses), stats.noHits, hitRate*0.1f, stats.noMisses);
@@ -1697,12 +1829,12 @@ int cliShowJitter(const char ** argv)
 int cliGps(const char ** argv)
 {
 
-  if (argv[1][0] == '$') {
+  if (cliArg(argv, 1)[0] == '$') {
     // send command to GPS
-    gpsSendFrame(argv[1]);
+    gpsSendFrame(cliArg(argv, 1));
   }
 #if defined(DEBUG)
-  else if (!strcmp(argv[1], "trace")) {
+  else if (!strcmp(cliArg(argv, 1), "trace")) {
     gpsTraceEnabled = !gpsTraceEnabled;
   }
 #endif
@@ -1717,17 +1849,17 @@ int cliGps(const char ** argv)
 int cliSpaceMouse(const char ** argv)
 {
 #if defined(DEBUG)
-  if (!strcmp(argv[1], "trace")) {
+  if (!strcmp(cliArg(argv, 1), "trace")) {
     spacemouseTraceEnabled = !spacemouseTraceEnabled;
   } else
 #endif
-  if (!strcmp(argv[1], "poll")) {
+  if (!strcmp(cliArg(argv, 1), "poll")) {
     spacemousePoll();
-  } else if (!strcmp(argv[1], "tare")) {
+  } else if (!strcmp(cliArg(argv, 1), "tare")) {
     spacemouseTare();
-  } else if (!strcmp(argv[1], "startstreaming")) {
+  } else if (!strcmp(cliArg(argv, 1), "startstreaming")) {
     spacemouseStartStreaming();
-  } else if (!strcmp(argv[1], "stopstreaming")) {
+  } else if (!strcmp(cliArg(argv, 1), "stopstreaming")) {
     spacemouseStopStreaming();
   }
   return 0;
@@ -1738,8 +1870,8 @@ int cliSpaceMouse(const char ** argv)
 int cliBlueTooth(const char ** argv)
 {
   int baudrate = 0;
-  if (!strncmp(argv[1], "AT", 2) || !strncmp(argv[1], "TTM", 3)) {
-    bluetooth.writeString(argv[1]);
+  if (!strncmp(cliArg(argv, 1), "AT", 2) || !strncmp(cliArg(argv, 1), "TTM", 3)) {
+    bluetooth.writeString(cliArg(argv, 1));
     char * line = bluetooth.readline();
     cliSerialPrint("<BT %s", line);
   }
@@ -1778,10 +1910,10 @@ static void testAccessDenied(uint32_t runs)
 
 int cliCrypt(const char ** argv)
 {
-  if (argv[1][0] == '\0')
+  if (cliArg(argv, 1)[0] == '\0')
     return -1;
 
-  strncpy((char*)cryptInput, argv[1], sizeof(cryptInput));
+  strncpy((char*)cryptInput, cliArg(argv, 1), sizeof(cryptInput));
   cliSerialPrint("Input:");
   dumpBody(cryptInput, sizeof(cryptInput));
   dumpEnd();
@@ -1869,7 +2001,7 @@ const CliCommand cliCommands[] = {
   { "reboot", cliReboot, "[wdt]" },
   { "set", cliSet, "<what> <value>" },
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
-  { "serialpassthrough", cliSerialPassthrough, "<port type> [<port number>] [<baudrate>]"},
+  { "serialpassthrough", cliSerialPassthrough, "<port type> [<port number>] [<baudrate>] [sport|ppm] [hangup]"},
 #endif
 #if defined(DEBUG)
   { "print", cliDisplay, "<address> [<size>] | <what>" },
@@ -1907,16 +2039,18 @@ const CliCommand cliCommands[] = {
 
 static int cliHelp(const char ** argv)
 {
+  // argv[1]: the command to describe, none (null) or empty: all commands
+  const char * name = cliArg(argv, 1);
   for (const CliCommand * command = cliCommands; command->name != nullptr; command++) {
-    if (argv[1][0] == '\0' || !strcmp(command->name, argv[0])) {
+    if (name[0] == '\0' || !strcmp(command->name, name)) {
       cliSerialPrint("%s %s", command->name, command->args);
-      if (argv[1][0] != '\0') {
+      if (name[0] != '\0') {
         return 0;
       }
     }
   }
-  if (argv[1][0] != '\0') {
-    cliSerialPrint("Invalid command \"%s\"", argv[0]);
+  if (name[0] != '\0') {
+    cliSerialPrint("Invalid command \"%s\"", name);
   }
   return -1;
 }

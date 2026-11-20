@@ -268,9 +268,7 @@ void RadioSdManagerPage::checkEvents()
     loadPreview -= 1;
     if (loadPreview == 0) {
       loading->hide();
-      auto filename = previewFilename;
-      previewFilename = nullptr;
-      preview->setFile(filename);
+      preview->setFile(previewFilename.c_str());
     }
   }
 }
@@ -532,6 +530,9 @@ void RadioSdManagerPage::fileAction(const char* path, const char* name,
       std::string to = dir + label + extension;
       f_rename((const TCHAR *)from.c_str(), (const TCHAR *)to.c_str());
       browser->refresh();
+      loadPreview = 0;
+      preview->setFile(nullptr);
+      loading->hide();
     });
   });
   menu->addLine(STR_DELETE_FILE, [=]() {
