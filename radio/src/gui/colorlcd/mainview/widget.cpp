@@ -313,6 +313,11 @@ void Widget::enableFocus(bool enable)
   }
 }
 
+bool Widget::isAppMode() const
+{
+  return ((WidgetsContainer*)parent)->isAppMode();
+}
+
 WidgetPersistentData* Widget::getPersistentData() { return g_model.getWidgetData(screenNum, zoneNum); }
 
 //-----------------------------------------------------------------------------

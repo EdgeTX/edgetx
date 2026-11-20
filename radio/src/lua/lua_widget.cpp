@@ -35,6 +35,8 @@
 
 LuaScriptManager *luaScriptManager = nullptr;
 
+//-----------------------------------------------------------------------------
+
 #if defined(HARDWARE_TOUCH)
 uint32_t LuaEventHandler::downTime = 0;
 uint32_t LuaEventHandler::tapTime = 0;
@@ -227,6 +229,8 @@ void LuaWidget::redraw_cb(lv_event_t* e)
     luaScriptManager = save;
   }
 }
+
+//-----------------------------------------------------------------------------
 
 LuaWidget::LuaWidget(const WidgetFactory* factory, Window* parent,
                      const rect_t& rect, int screenNum, int zoneNum,
@@ -566,10 +570,7 @@ void LuaWidget::clear()
 
 bool LuaWidget::useLvglLayout() const { return luaFactory()->useLvglLayout(); }
 
-bool LuaWidget::isAppMode() const
-{
-  return ((WidgetsContainer*)parent)->isAppMode();
-}
+//-----------------------------------------------------------------------------
 
 void LuaScriptManager::saveLvglObjectRef(int ref)
 {
