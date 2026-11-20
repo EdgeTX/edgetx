@@ -282,7 +282,7 @@ bool Widget::onLongPress()
     lv_indev_wait_release(lv_indev_get_act());
     openMenu();
   }
-  return false;
+  return true;
 }
 
 const WidgetOption* Widget::getOptionDefinitions() const
