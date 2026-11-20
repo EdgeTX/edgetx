@@ -271,7 +271,7 @@ static void buildLvgl(lua_State *L, int srcIndex, int refIndex)
     LvglWidgetParams p(L, -1);
     if (p.type == ETX_UNDEF)
       luaL_error(L, "Missing or bad type");
-    if (p.type >= ETX_FIRST_CONTROL && !luaScriptManager->isFullscreen())
+    if (p.type >= ETX_FIRST_CONTROL && !luaScriptManager->isFullscreenOrAppMode())
       continue;
     LvglWidgetObjectBase *obj = nullptr;
     switch (p.type) {
@@ -397,13 +397,20 @@ static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
 
 static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly = false, bool saveRef = true)
 {
-  if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
+  if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreenOrAppMode())) {
     LvglWidgetParams params(L, 1);
+
+    lv_group_t* oldGroup = lv_group_get_default();
+    lv_group_t* group = luaScriptManager->getLvglGroup();
+    if (group)
+      lv_group_set_default(group);
 
     auto obj = create();
     obj->create(L, 1);
 
     if (params.hasChildren) addChildren(L, obj);
+
+    lv_group_set_default(oldGroup);
 
     obj->push(L, saveRef);
   } else {
@@ -415,7 +422,7 @@ static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, b
 
 static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> create, bool fullscreenOnly = false)
 {
-  if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
+  if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreenOrAppMode())) {
     LvglWidgetObjectBase* p = nullptr;
     LvglWidgetObjectBase* prevParent = nullptr;
     if (lua_gettop(L) == 2) {
@@ -426,12 +433,19 @@ static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
       }
     }
 
+    lv_group_t* oldGroup = lv_group_get_default();
+    lv_group_t* group = p ? p->getLvglGroup() : luaScriptManager->getLvglGroup();
+    if (group)
+      lv_group_set_default(group);
+
     LvglWidgetParams params(L, -1);
 
     auto obj = create();
     obj->create(L, -1);
 
     if (params.hasChildren) addChildren(L, obj);
+
+    lv_group_set_default(oldGroup);
 
     obj->push(L);
 
@@ -477,9 +491,16 @@ static int luaLvglBuild(lua_State *L)
       }
     }
 
+    lv_group_t* oldGroup = lv_group_get_default();
+    lv_group_t* group = p ? p->getLvglGroup() : luaScriptManager->getLvglGroup();
+    if (group)
+      lv_group_set_default(group);
+
     // Return array of lvgl object references
     lua_newtable(L);
     buildLvgl(L, -2, -1);
+
+    lv_group_set_default(oldGroup);
 
     if (p)
       luaScriptManager->setTempParent((prevParent));

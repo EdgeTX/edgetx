@@ -189,6 +189,7 @@ class Window
   static PageGroup* pageGroup();
 
   void assignLvGroup(lv_group_t* g, bool setDefault);
+  void resetGroup();
 
   void closeWindow();
 

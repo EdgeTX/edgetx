@@ -47,6 +47,7 @@ class Layer
 
   static void push(Window* window);
   static void pop(Window* window);
+  static void resetGroup(Window* window);
 
   static Window* back();
   static Window* walk(std::function<bool(Window* w)> check);
@@ -113,6 +114,15 @@ Window* Layer::walk(std::function<bool(Window* w)> check)
   return nullptr;
 }
 
+void Layer::resetGroup(Window* window)
+{
+  for (auto layer = stack.crbegin(); layer != stack.crend(); layer++) {
+    if (layer->window == window) {
+      window->assignLvGroup(layer->group, true);
+    }
+  }
+}
+
 //-----------------------------------------------------------------------------
 
 std::list<Window *> Window::trash;
@@ -156,7 +166,7 @@ lv_obj_t *window_create(lv_obj_t *parent)
 
 void Window::window_event_cb(lv_event_t *e)
 {
-  Window *window = (Window *)lv_obj_get_user_data(lv_event_get_target(e));
+  Window *window = (Window *)lv_obj_get_user_data(lv_event_get_current_target(e));
   if (window)
     window->eventHandler(e);
 }
@@ -208,8 +218,8 @@ void Window::eventHandler(lv_event_t *e)
 
     } break;
     case LV_EVENT_CLICKED:
+      TRACE("CLICKED[%p] %d", this, _longPressed);
       if (!_longPressed) {
-        TRACE("CLICKED[%p]", this);
         // Close keyboard when clicking outside edit / keyboard windows
         if (!isEditWindow())
           Keyboard::hideKeyboard();
@@ -228,8 +238,8 @@ void Window::eventHandler(lv_event_t *e)
       if (focusHandler) focusHandler(false);
       break;
     case LV_EVENT_LONG_PRESSED:
-      TRACE("LONG PRESS[%p]", this);
       _longPressed = onLongPress();
+      TRACE("LONG PRESS[%p] %d", this, _longPressed);
       break;
     default:
       break;
@@ -333,6 +343,11 @@ void Window::assignLvGroup(lv_group_t* g, bool setDefault)
     lv_indev_set_group(indev, g);
     indev = lv_indev_get_next(indev);
   }
+}
+
+void Window::resetGroup()
+{
+  Layer::resetGroup(this);
 }
 
 void Window::setWindowFlag(WindowFlags flag)

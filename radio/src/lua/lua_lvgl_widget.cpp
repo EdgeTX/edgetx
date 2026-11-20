@@ -342,7 +342,7 @@ void LvglScrollableParams::clearScrollableRefs(lua_State *L)
 
 //-----------------------------------------------------------------------------
 
-LvglWidgetObjectBase *LvglWidgetObjectBase::checkLvgl(lua_State *L, int index, bool required)
+LvglWidgetObjectBase* LvglWidgetObjectBase::checkLvgl(lua_State *L, int index, bool required)
 {
   LvglWidgetObjectBase **p;
 
@@ -778,6 +778,11 @@ void LvglWidgetObjectBase::update(lua_State *L)
 {
   getParams(L, 2);
   refresh();
+}
+
+lv_group_t* LvglWidgetObjectBase::getLvglGroup()
+{
+  return lvglManager->getLvglGroup();
 }
 
 //-----------------------------------------------------------------------------
@@ -1644,7 +1649,7 @@ void LvglWidgetBox::build(lua_State *L)
   window->setWindowFlag(NO_FORCED_SCROLL);
   window->setScrollHandler([=](coord_t x, coord_t y) { scrolledFunction.pcallFuncWith2Int(L, 0, x, y); });
   lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
-  if (luaScriptManager->isWidget() && !luaScriptManager->isFullscreen()) {
+  if (luaScriptManager->isWidget() && !luaScriptManager->isFullscreenOrAppMode()) {
     window->setWindowFlag(NO_CLICK);
   } else {
     lv_obj_set_scroll_dir(window->getLvObj(), scrollDir);
@@ -2517,11 +2522,6 @@ class WidgetPage : public NavWindow, public LuaEventHandler
     if (showScrollBar)
       etx_scrollbar(body->getLvObj());
 
-    delayLoad();
-  }
-
-  void delayedInit() override
-  {
 #if defined(HARDWARE_TOUCH)
     if (showPrev) {
       prevBtn = new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_XO * 3, PAD_MEDIUM, [=]() {
@@ -2774,6 +2774,11 @@ void LvglWidgetDialog::close()
   dialog->onCancel();
 }
 
+lv_group_t* LvglWidgetDialog::getLvglGroup()
+{
+  return lv_group_get_default();
+}
+
 //-----------------------------------------------------------------------------
 
 void LvglWidgetConfirmDialog::parseParam(lua_State *L, const char *key)
@@ -2806,6 +2811,11 @@ void LvglWidgetConfirmDialog::build(lua_State *L)
       [=]() { pcallSimpleFunc(L, cancelFunction); clearRefs(L); });
 }
 
+lv_group_t* LvglWidgetConfirmDialog::getLvglGroup()
+{
+  return lv_group_get_default();
+}
+
 //-----------------------------------------------------------------------------
 
 void LvglWidgetMessageDialog::parseParam(lua_State *L, const char *key)
@@ -2833,6 +2843,11 @@ void LvglWidgetMessageDialog::build(lua_State *L)
   window->onClosing([=]() {
     clearRefs(L);
   });
+}
+
+lv_group_t* LvglWidgetMessageDialog::getLvglGroup()
+{
+  return lv_group_get_default();
 }
 
 //-----------------------------------------------------------------------------
@@ -2957,6 +2972,11 @@ void LvglWidgetMenu::build(lua_State *L)
   });
 
   window = menu;
+}
+
+lv_group_t* LvglWidgetMenu::getLvglGroup()
+{
+  return lv_group_get_default();
 }
 
 //-----------------------------------------------------------------------------
