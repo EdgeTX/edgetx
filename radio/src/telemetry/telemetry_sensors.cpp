@@ -718,6 +718,10 @@ const UnitConversionRule unitConversionTable[] = {
   { UNIT_METERS,            UNIT_FEET,             105,    32},
   { UNIT_FEET,              UNIT_METERS,            32,   105},
   { UNIT_METERS_PER_SECOND, UNIT_FEET_PER_SECOND,  105,    32},
+  { UNIT_METERS_PER_SECOND, UNIT_KTS,             1944,  1000}, // 1 m/s = 1.94384449 knots
+  { UNIT_METERS_PER_SECOND, UNIT_KMH,               36,    10}, // 1 m/s = 3.6 kilometers per hour
+  { UNIT_METERS_PER_SECOND, UNIT_MPH,             2237,  1000}, // 1 m/s = 2.23693629 miles per hour
+  { UNIT_FEET_PER_SECOND,   UNIT_METERS_PER_SECOND, 32,   105},
 
   { UNIT_KTS, UNIT_KMH,                           1852,  1000}, // 1 knot = 1.85200 kilometers per hour
   { UNIT_KTS, UNIT_MPH,                           1151,  1000}, // 1 knot = 1.15077945 miles per hour
