@@ -31,8 +31,6 @@
 #include "os/time.h"
 #include "keys.h"
 
-#define MAX_INSTRUCTIONS (20000 / 100)
-
 LuaScriptManager *luaScriptManager = nullptr;
 
 #if defined(HARDWARE_TOUCH)
@@ -331,7 +329,7 @@ void LuaWidget::updateWithoutRefresh()
 {
   if (lsWidgets == 0 || errorMessage || luaFactory()->updateFunction == LUA_REFNIL) return;
 
-  luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
+  luaSetInstructionsLimit(lsWidgets, luaWidgetInstructionsLimit(isAppMode()));
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->updateFunction);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
 
@@ -501,7 +499,7 @@ void LuaWidget::refresh(BitmapBuffer* dc)
     return;
   }
 
-  luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
+  luaSetInstructionsLimit(lsWidgets, luaWidgetInstructionsLimit(isAppMode()));
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->refreshFunction);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
 
@@ -542,7 +540,7 @@ void LuaWidget::background()
   if (lsWidgets == 0 || errorMessage) return;
 
   if (luaFactory()->backgroundFunction != LUA_REFNIL) {
-    luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
+    luaSetInstructionsLimit(lsWidgets, luaWidgetInstructionsLimit(isAppMode()));
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->backgroundFunction);
     lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaScriptContextRef);
     auto save = luaScriptManager;

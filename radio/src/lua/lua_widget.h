@@ -34,6 +34,12 @@
 
 #define LUA_TAP_TIME 250 // 250 ms
 
+constexpr int luaWidgetInstructionsLimit(bool appMode)
+{
+  // The instruction hook counts in one-percent increments.
+  return (appMode ? 160000 : 20000) / 100;
+}
+
 class LuaWidgetFactory;
 
 class LuaEventHandler
