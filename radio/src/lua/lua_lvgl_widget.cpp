@@ -37,6 +37,7 @@
 #include "textedit.h"
 #include "theme_manager.h"
 #include "toggleswitch.h"
+#include "view_main.h"
 
 //-----------------------------------------------------------------------------
 
@@ -2776,18 +2777,22 @@ void LvglWidgetDialog::build(lua_State *L)
 {
   if (w == LV_SIZE_CONTENT) w = DIALOG_DEFAULT_WIDTH;
   if (h == LV_SIZE_CONTENT) h = DIALOG_DEFAULT_HEIGHT;
-  auto dlg = new LvglDialog(title.txt, w, h,
+  dialog = new LvglDialog(title.txt, w, h,
       [=]() {
         pcallSimpleFunc(L, closeFunction);
-        clearRefs(L);
       },
       [=]() {
         callRefs(L);
         if (lvglManager->isDisabled())
           close();
       });
-  dialog = dlg;
-  window = dlg->getBody();
+  dialog->onClosing([=]() {
+    clearRefs(L);
+    if (!lvglManager->isFullscreen())
+      ViewMain::instance()->resetGroup();
+  });
+
+  window = dialog->getBody();
   window->setWidth(w);
   setFlex();
 }
@@ -2830,8 +2835,13 @@ void LvglWidgetConfirmDialog::clearRefs(lua_State *L)
 void LvglWidgetConfirmDialog::build(lua_State *L)
 {
   window = new ConfirmDialog(title.txt.c_str(), message.c_str(),
-      [=]() { pcallSimpleFunc(L, confirmFunction); clearRefs(L); },
-      [=]() { pcallSimpleFunc(L, cancelFunction); clearRefs(L); });
+      [=]() { pcallSimpleFunc(L, confirmFunction); },
+      [=]() { pcallSimpleFunc(L, cancelFunction); });
+  window->onClosing([=]() {
+    clearRefs(L);
+    if (!lvglManager->isFullscreen())
+      ViewMain::instance()->resetGroup();
+  });
 }
 
 lv_group_t* LvglWidgetConfirmDialog::getLvglGroup()
@@ -2865,6 +2875,8 @@ void LvglWidgetMessageDialog::build(lua_State *L)
   window = new MessageDialog(title.txt.c_str(), message.c_str(), details.c_str());
   window->onClosing([=]() {
     clearRefs(L);
+    if (!lvglManager->isFullscreen())
+      ViewMain::instance()->resetGroup();
   });
 }
 
@@ -2983,7 +2995,6 @@ void LvglWidgetMenu::build(lua_State *L)
   for (size_t i = 0; i < values.size(); i += 1) {
     menu->addLine(values[i], [=]() {
       pcallSetIntVal(L, setFunction, i + 1);
-      clearRefs(L);
     });
   }
 
@@ -2992,8 +3003,10 @@ void LvglWidgetMenu::build(lua_State *L)
     menu->select(selected);
   }
 
-  menu->setCancelHandler([=]() {
+  menu->onClosing([=]() {
     clearRefs(L);
+    if (!lvglManager->isFullscreen())
+      ViewMain::instance()->resetGroup();
   });
 
   window = menu;
