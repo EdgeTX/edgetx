@@ -29,7 +29,7 @@ FilePreview::FilePreview(Window *parent, const rect_t &rect) :
 
 void FilePreview::setFile(const char *filename)
 {
-  setSource(filename ? filename : "");
+  setSource(filename ? filename : "", BMP_ARGB4444);
   if (!hasImage() && filename) {
     if (!errorIcon) {
       errorIcon = new StaticIcon(this, 0, 0, ICON_ERROR, COLOR_THEME_PRIMARY1_INDEX);

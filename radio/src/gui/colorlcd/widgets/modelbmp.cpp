@@ -115,7 +115,7 @@ class ModelBitmapWidget : public Widget
         std::string fullpath =
             std::string(BITMAPS_PATH PATH_SEPARATOR) + filename;
 
-        image->setSource(fullpath.c_str());
+        image->setSource(fullpath.c_str(), BMP_ARGB4444);
       } else {
         image->clearSource();
       }
