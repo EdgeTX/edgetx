@@ -29,6 +29,28 @@
 #include <QThread>
 #include <QScrollBar>
 
+// Keep the GUI responsive while the progress widget is updated from code
+// running in the GUI thread, without letting the calls nest.
+//
+// The slots below are also connected (queued) to worker threads that can emit
+// progress far faster than the GUI paints it, e.g. reading CURRENT.UF2 from a
+// radio in UF2 mode emits two signals per 4 KB block. Each slot pumping the
+// event loop would dispatch the next queued slot from inside the current one,
+// one stack level deeper per signal, until the GUI thread overflows its stack.
+// Only the outermost call pumps events; nested calls return straight away and
+// the outer loop delivers the remaining queued signals one after another.
+void ProgressWidget::processEvents()
+{
+  static bool processing = false;
+
+  if (processing)
+    return;
+
+  processing = true;
+  QCoreApplication::processEvents();
+  processing = false;
+}
+
 ProgressWidget::ProgressWidget(QWidget *parent) :
   QWidget(parent),
   ui(new Ui::ProgressWidget),
@@ -69,7 +91,7 @@ void ProgressWidget::stop()
 void ProgressWidget::clearDetails() const
 {
   ui->textEdit->clear();
-  QCoreApplication::processEvents();
+  processEvents();
 }
 
 void ProgressWidget::forceOpen()
@@ -77,20 +99,20 @@ void ProgressWidget::forceOpen()
   m_forceOpen = true;
   ui->checkBox->hide();
   toggleDetails();
-  QCoreApplication::processEvents();
+  processEvents();
 }
 
 void ProgressWidget::setInfo(const QString &text)
 {
   ui->info->show();
   ui->info->setText(text);
-  QCoreApplication::processEvents();
+  processEvents();
 }
 
 void ProgressWidget::setMaximum(int value)
 {
   ui->progressBar->setMaximum(value);
-  QCoreApplication::processEvents();
+  processEvents();
 }
 
 int ProgressWidget::maximum()
@@ -101,7 +123,7 @@ int ProgressWidget::maximum()
 void ProgressWidget::setValue(int value)
 {
   ui->progressBar->setValue(value);
-  QCoreApplication::processEvents();
+  processEvents();
 }
 
 void ProgressWidget::addText(const QString &text, const bool richText, const bool updateLast)
@@ -188,7 +210,7 @@ void ProgressWidget::addMessage(const QString & text, const int & type, const bo
     addHtml(QString("<font color=%1>").arg(color) % text % "</font><br>", updateLast);
   }
 
-  QCoreApplication::processEvents();
+  processEvents();
 }
 
 QString ProgressWidget::getText() const
@@ -251,13 +273,17 @@ void ProgressWidget::refresh()
   ui->info->update();
   ui->progressBar->update();
   ui->textEdit->update();
-  QCoreApplication::processEvents();
+  processEvents();
 }
 
 void ProgressWidget::updateInfoAndMessages(const QString & text, const int & type, const bool richText)
 {
-  setInfo(text);
+  // Log the message before updating the info label: setInfo() pumps the event
+  // loop, which can deliver messages queued by a worker thread (e.g. the
+  // anchor line for updateLastMessage) ahead of this one, so a later
+  // updateLastMessage would replace this message instead of the anchor.
   addMessage(text, type, richText);
+  setInfo(text);
 }
 
 void ProgressWidget::updateLastMessage(const QString & text, const int & type, const bool richText)
