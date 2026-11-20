@@ -66,7 +66,7 @@ bool dump()
     return 1;
 
   QTextStream regfwout(&regfw);
-  regfwout << "id;shortname;manufacturer;buildopts\n";
+  regfwout << "id;shortname;manufacturer;buildopts;lcd;cpu\n";
 
   QFile fwcap("fwcap.txt");
   if (!fwcap.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -80,7 +80,7 @@ bool dump()
     return 1;
 
   QTextStream regbdout(&regbd);
-  regbdout << "id;idtxt;name;fourcc;eepromsize;flashsize;extmodsize;suppintmods;dfltintmod;vmin;vmax;vwarn;txbat\n";
+  regbdout << "id;idtxt;name;fourcc;eepromsize;flashsize;extmodsize;suppintmods;dfltintmod;vmin;vmax;vwarn;txbat;lcd\n";
 
   QFile bdcap("bdcap.txt");
   if (!bdcap.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -103,8 +103,16 @@ bool dump()
       }
       QString stropts = strlopts.join("|");
 
-      regfwout << firmware->getId().remove("edgetx-") << ";" << firmware->getShortName() << ";" << Boards::getManufacturer(firmware->getBoard())
-               << ";" << stropts  << "\n";
+      QString cpu = Boards::getCapability(firmware->getBoard(), Board::IsH7) ? "h7" :
+                    Boards::getCapability(firmware->getBoard(), Board::IsH5) ? "h5" : "f4";
+
+      regfwout << firmware->getId().remove("edgetx-")
+               << ";" << firmware->getShortName()
+               << ";" << Boards::getManufacturer(firmware->getBoard())
+               << ";" << stropts
+               << ";" << (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd) ? "color" : "bw")
+               << ";" << cpu
+               << "\n";
 
       for (int i = 0; i < CapabilityCount; i++) {
         if (i != ModelImageFilters)
@@ -137,7 +145,9 @@ bool dump()
               << ";" << strmods
               << ";" << Boards::getDefaultInternalModules(board)
               << ";" << vmin + 90 << ";" << vmax + 120 << ";" << vwarn
-              << ";" << vmin + 90 << "|" << vmax + 120 << "|" << vwarn << "\n";
+              << ";" << vmin + 90 << "|" << vmax + 120 << "|" << vwarn
+              << ";" << (Boards::getCapability(board, Board::HasColorLcd) ? "color" : "bw")
+              << "\n";
 
     for (int i = 0; i < Board::Capability::Count; i++) {
       if (i != Board::CPU && i != Board::CPUType && i != Board::Manufacturer) {
