@@ -284,7 +284,7 @@ void Widget::setFullscreen(bool enable)
 
   onFullscreen(enable);
 
-  if (fullscreen && !isAppMode())
+  if (fullscreen)
     updateWithoutRefresh();
 
   // Forced focus to ensure events go to correct place
