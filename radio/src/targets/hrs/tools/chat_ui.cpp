@@ -352,7 +352,7 @@ class XiaozhiChatPanel : public Window
     lv_obj_add_event_cb(lvobj, iconDragCb, LV_EVENT_PRESSING, this);
 
     setVisualState(ChatVisualState::REST, true);
-    lv_obj_move_foreground(lvobj);
+    toForeground();
     lv_obj_invalidate(lvobj);
   }
 
@@ -489,7 +489,7 @@ class XiaozhiChatPanel : public Window
     }
     else {
       show();
-      lv_obj_move_foreground(lvobj);
+      toForeground();
     }
 
     lv_color_t coreColor = lv_color_hex(0x213454);

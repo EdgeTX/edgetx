@@ -155,6 +155,9 @@ class Window
   void attach(Window *window);
   void detach();
 
+  void toForeground();
+  void toBackground();
+
   bool deleted() const { return _deleted; }
 
 #if defined(HARDWARE_TOUCH)
@@ -189,6 +192,7 @@ class Window
   static PageGroup* pageGroup();
 
   void assignLvGroup(lv_group_t* g, bool setDefault);
+  void resetGroup();
 
   void closeWindow();
 

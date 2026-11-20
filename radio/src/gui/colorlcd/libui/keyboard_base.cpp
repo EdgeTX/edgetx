@@ -106,7 +106,7 @@ void Keyboard::clearField()
   if (!deleted()) {
     TRACE("CLEAR FIELD");
 
-    lv_obj_move_background(lvobj);
+    toBackground();
     hide();
 
     if (field) {
@@ -159,7 +159,7 @@ void Keyboard::setField(FormField* newField, bool useTextArea)
   activeKeyboard = this;
 
   // Ensure the keyboard is on top
-  lv_obj_move_foreground(lvobj);
+  toForeground();
 
   lv_obj_t* obj = newField->getLvObj();
 

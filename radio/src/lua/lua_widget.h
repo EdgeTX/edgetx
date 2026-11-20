@@ -81,10 +81,11 @@ class LuaScriptManager : public LuaEventHandler
   virtual Window* getCurrentParent() const = 0;
   virtual void clear() = 0;
   virtual bool useLvglLayout() const = 0;
-  virtual bool isAppMode() const = 0;
   virtual bool isWidget() = 0;
+  virtual bool isAppMode() const = 0;
   virtual bool isFullscreen() = 0;
   virtual void exitFullscreen() {}
+  bool isFullscreenOrAppMode() { return isFullscreen() || isAppMode(); }
 
   virtual void luaShowError() = 0;
 
@@ -93,6 +94,10 @@ class LuaScriptManager : public LuaEventHandler
   void createTelemetryQueue();
   TelemetryQueue* telemetryQueue() { return luaInputTelemetryFifo; }
 
+  virtual lv_group_t* getLvglGroup() const = 0;
+
+  bool isDisabled() const { return scriptDisabled; }
+
  protected:
   int luaScriptContextRef = LUA_REFNIL;
   std::vector<int> lvglObjectRefs;
@@ -100,6 +105,7 @@ class LuaScriptManager : public LuaEventHandler
 #if defined(LUA)
   TelemetryQueue* luaInputTelemetryFifo = nullptr;
 #endif
+  bool scriptDisabled = false;
 };
 
 class LuaWidget : public Widget, public LuaScriptManager
@@ -116,7 +122,6 @@ class LuaWidget : public Widget, public LuaScriptManager
   void setErrorMessage(const char* funcName);
 
   // Widget interface
-  const char* getErrorMessage() const override;
   void updateWithoutRefresh() override;
   void update() override;
   void background() override;
@@ -129,10 +134,11 @@ class LuaWidget : public Widget, public LuaScriptManager
   Window* getCurrentParent() const override { return (tempParent && tempParent->getWindow()) ? tempParent->getWindow() : (Window*)this; }
 
   bool useLvglLayout() const override;
-  bool isAppMode() const override;
   bool isWidget() override { return !inSettings; }
+  bool isAppMode() const override { return Widget::isAppMode(); }
   bool isFullscreen() override { return Widget::isFullscreen(); }
   void exitFullscreen() override { closeFullscreen(); }
+  bool isLvglWidget() override { return useLvglLayout(); }
 
   // Should rotary encoder events be enabled when full screen
   bool enableFullScreenRE() const override { return !useLvglLayout(); }
@@ -141,12 +147,14 @@ class LuaWidget : public Widget, public LuaScriptManager
 
   void pushOptionsTable();
 
+  lv_group_t* getLvglGroup() const override { return widgetGroup; }
+
  protected:
   bool inSettings = false;
   lv_obj_t* errorLabel = nullptr;
   int zoneRectDataRef;
   int optionsDataRef;
-  char* errorMessage;
+  std::string errorMessage;
 
   // Window interface
   void onClicked() override;

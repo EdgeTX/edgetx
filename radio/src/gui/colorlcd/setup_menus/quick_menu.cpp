@@ -325,7 +325,7 @@ void QuickMenu::openQM(PageGroupBase* newPageGroup, QMPage newCurPage)
   }
 
   show();
-  lv_obj_move_foreground(lvobj);
+  toForeground();
   if (newPageGroup) {
     pageGroup = newPageGroup;
     curPage = newCurPage;

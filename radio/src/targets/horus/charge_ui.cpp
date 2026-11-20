@@ -472,7 +472,7 @@ class ChargeDashboardDialog : public Window
     lv_obj_set_style_bg_opa(lvobj, LV_OPA_COVER, LV_PART_MAIN);
 
     pushLayer();
-    lv_obj_move_foreground(lvobj);
+    toForeground();
 
     lblSocBig = new StaticText(this, {0, SOC_Y, LCD_W, SOC_LABEL_H}, "0%",
                                COLOR_THEME_PRIMARY2_INDEX,
@@ -601,7 +601,7 @@ class ChargeDashboardDialog : public Window
     lockNoScroll(ibusBarFill);
 
     lv_obj_move_foreground(lblBolt);
-    lv_obj_move_foreground(lblSocBig->getLvObj());
+    lblSocBig->toForeground();
 
     /* Same action as RTN; the symbols need no translation */
     auto btnClose = new TextButton(

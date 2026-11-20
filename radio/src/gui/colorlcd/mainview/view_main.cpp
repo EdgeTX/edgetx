@@ -329,6 +329,8 @@ void ViewMain::enableWidgetSelect(bool enable)
 
 bool ViewMain::onLongPress()
 {
+  killAllEvents();
+  lv_indev_reset(nullptr, nullptr);
   if (isAppMode()) {
     int view = getCurrentMainView();
     if (customScreens[view]->getWidget(0))
@@ -336,8 +338,6 @@ bool ViewMain::onLongPress()
   } else {
     enableWidgetSelect(true);
   }
-  killEvents(KEY_ENTER);
-  lv_indev_wait_release(lv_indev_get_act());
   return false;
 }
 
@@ -406,4 +406,31 @@ void ViewMain::_refreshWidgets()
 void ViewMain::refreshWidgets()
 {
   if (_instance) _instance->_refreshWidgets();
+}
+
+void ViewMain::showTouchMask()
+{
+  // Overlay an opaque mask over the screen to prevent touch interaction
+  if (!touchMask) {
+    touchMask = new Window(this, {0, 0, LCD_W, LCD_H});
+    etx_solid_bg(touchMask->getLvObj(), COLOR_WHITE_INDEX);
+    etx_obj_add_style(touchMask->getLvObj(), styles->bg_opacity_50, LV_PART_MAIN);
+    touchMask->setWindowFlag(OPAQUE);
+  }
+  touchMask->attach(customScreens[getCurrentMainView()]);
+  touchMask->show();
+  touchMask->toForeground();
+  headerIcon->toBackground();
+  topbar->toBackground();
+}
+
+void ViewMain::hideTouchMask()
+{
+  if (touchMask) {
+    touchMask->attach(this);
+    touchMask->toBackground();
+    touchMask->hide();
+    topbar->toForeground();
+    headerIcon->toForeground();
+  }
 }

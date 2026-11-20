@@ -134,7 +134,7 @@ class ModelButton : public Button
         if (modelCell->modelBitmap[0]) {
           GET_FILENAME(filename, BITMAPS_PATH, modelCell->modelBitmap, "");
           auto bitmap = new StaticBitmap(this, {PAD_TINY, PAD_TINY, w, h}, filename);
-          lv_obj_move_background(bitmap->getLvObj());
+          bitmap->toBackground();
           bitmap->show(bitmap->hasImage());
           if (bitmap->hasImage()) {
             return true;
