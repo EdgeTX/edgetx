@@ -27,6 +27,19 @@ cmd /c "`"$vcvars`" $Arch && set" | ForEach-Object {
     }
 }
 
+# Prefer the clang bundled with Visual Studio. vcvarsall appends it to the end
+# of PATH, so a standalone LLVM preinstalled on the runner would be found first.
+# The MSVC STL refuses clang versions older than the one it was released with
+# (error STL1000), so the bundled clang is the one guaranteed to match.
+$vsLlvm = Join-Path $vsPath "VC\Tools\Llvm\x64\bin"
+if (Test-Path (Join-Path $vsLlvm "clang++.exe")) {
+    $env:PATH = "$vsLlvm;$env:PATH"
+    Write-Host "Using Visual Studio clang from: $vsLlvm"
+    & (Join-Path $vsLlvm "clang++.exe") --version
+} else {
+    Write-Warning "Visual Studio clang not found at $vsLlvm; using clang from PATH"
+}
+
 # Export only changed/new variables to GitHub Actions
 $count = 0
 Get-ChildItem env: | ForEach-Object {
