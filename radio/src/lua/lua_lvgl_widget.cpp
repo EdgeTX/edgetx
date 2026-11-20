@@ -1644,7 +1644,7 @@ void LvglWidgetBox::build(lua_State *L)
   window->setWindowFlag(NO_FORCED_SCROLL);
   window->setScrollHandler([=](coord_t x, coord_t y) { scrolledFunction.pcallFuncWith2Int(L, 0, x, y); });
   lv_obj_add_flag(window->getLvObj(), LV_OBJ_FLAG_EVENT_BUBBLE);
-  if (luaScriptManager->isWidget() && !luaScriptManager->isFullscreen()) {
+  if (luaScriptManager->isWidget() && !luaScriptManager->isFullscreenOrAppMode()) {
     window->setWindowFlag(NO_CLICK);
   } else {
     lv_obj_set_scroll_dir(window->getLvObj(), scrollDir);
