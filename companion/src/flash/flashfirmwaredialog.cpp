@@ -323,18 +323,76 @@ void FlashFirmwareDialog::writeButtonClicked()
 
 void FlashFirmwareDialog::startWrite(const QString &filename)
 {
+  bool checkHw = chkHWComp->isChecked();
+  bool checkProfile = chkProfComp->isChecked();
+  bool backup = g.backupOnFlash();
+  FirmwareInterface newfw(filename);
+
+  // Over DFU the current firmware can only be read from the device's default
+  // start address (internal flash). UF2 firmware may live elsewhere (e.g. the
+  // external QSPI flash of H7 radios), which the DFU device usually does not
+  // expose until the new bootloader is running. The read-back would return the
+  // bootloader instead of the firmware, so it cannot be used for the checks or
+  // the backup.
+  const bool canReadCurrentFw = !newfw.isUF2() || isUf2DeviceFound();
+
+  if (!canReadCurrentFw && checkHw) {
+    const auto answer = QMessageBox::warning(
+        this, CPN_STR_TTL_WARNING,
+        tr("The firmware currently on the radio cannot be read in DFU mode when "
+           "flashing UF2 firmware, so the hardware compatibility check cannot "
+           "be performed.\n\n"
+           "Make sure the selected firmware is for this radio before "
+           "continuing.\n\n"
+           "Continue flashing?"),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+
+    if (answer != QMessageBox::Yes) {
+      if (isTempFileName(filename)) {
+        qunlink(filename);
+      }
+      return;
+    }
+  }
+
   close();
 
   ProgressDialog progressDialog(this, tr("Flash Firmware to Radio"),
                                 CompanionIcon("write_flash.png"));
 
   auto progress = progressDialog.progress();
-  bool checkHw = chkHWComp->isChecked();
-  bool checkProfile = chkProfComp->isChecked();
-  bool backup = g.backupOnFlash();
-  FirmwareInterface newfw(filename);
+  bool abort = false;
 
-  if (checkHw || checkProfile || backup) {
+  if (!canReadCurrentFw) {
+    const QString reason(tr("current firmware cannot be read in DFU mode"));
+
+    if (checkHw) {
+      progress->addMessage(tr("Hardware compatibility check skipped: %1").arg(reason),
+                           QtWarningMsg);
+      checkHw = false;
+    }
+
+    if (checkProfile) {
+      // only the new firmware can be checked against the profile
+      progress->addMessage(tr("Performing profile compatibity check"));
+      if (newfw.getFlavour() != getCurrentFirmware()->getFlavour()) {
+        QString errMsg(tr("New firmware is not compatible with profile"));
+        progress->updateInfoAndMessages(errMsg, QtFatalMsg);
+        abort = true;
+      }
+      checkProfile = false;
+    }
+
+    if (backup) {
+      progress->addMessage(tr("Backup of current firmware skipped: %1").arg(reason),
+                           QtWarningMsg);
+      backup = false;
+    }
+  }
+
+  if (abort) {
+    // nothing to do, the error has been reported
+  } else if (checkHw || checkProfile || backup) {
     progress->updateInfoAndMessages(tr("Reading old firmware..."));
     readFirmware(
         [this, &newfw, progress, checkHw, checkProfile, backup](const QByteArray &_data) {
