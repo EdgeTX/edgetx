@@ -139,7 +139,7 @@
 #define SPEED_UNIT_METR                "kmh"
 
 #define TR_VUNITSSYSTEM                "Metric",TR("Imper.","Imperial")	/* use english */
-#define TR_VTELEMUNIT                  "-","V","A","mA","вузл.","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mm","Hz","ms","us","km","dBm"	/* for untranslated - use english */
+#define TR_VTELEMUNIT                  "-","V","A","mA","вузл.","m/s","f/s","kmh","mph","m","ft","°C","°F","%","mAh","W","mW","dB","rpm","g","°","rad","ml","fOz","mm","Hz","ms","us","km","dBm","","","","","","h","min","s"	/* for untranslated - use english */
 
 #define STR_V                          (STR_VTELEMUNIT[1])
 #define STR_A                          (STR_VTELEMUNIT[2])

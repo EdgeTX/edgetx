@@ -96,13 +96,6 @@ class LvglWidgetParams
   bool hasChildren = false;
 };
 
-static int luaLvglPopup(lua_State *L, std::function<LvglWidgetObjectBase*()> create)
-{
-  auto obj = create();
-  obj->create(L, 1);
-  return 0;
-}
-
 static int luaDestroyLvglWidget(lua_State *L)
 {
   auto p = LvglWidgetObjectBase::checkLvgl(L, 1);
@@ -315,7 +308,7 @@ static void addChildren(lua_State *L, LvglWidgetObjectBase* obj)
   }
 }
 
-static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly = false)
+static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, bool fullscreenOnly = false, bool saveRef = true)
 {
   if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
     LvglWidgetParams params(L, 1);
@@ -325,7 +318,7 @@ static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, b
 
     if (params.hasChildren) addChildren(L, obj);
 
-    obj->push(L);
+    obj->push(L, saveRef);
   } else {
     lua_pushnil(L);
   }
@@ -333,7 +326,7 @@ static int luaLvglObj(lua_State *L, std::function<LvglWidgetObject*()> create, b
   return 1;
 }
 
-static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> create, bool fullscreenOnly = false)
+static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> create, bool fullscreenOnly = false, bool saveRef = true)
 {
   if (luaScriptManager && (!fullscreenOnly || luaScriptManager->isFullscreen())) {
     LvglWidgetObjectBase* p = nullptr;
@@ -353,7 +346,7 @@ static int luaLvglObjEx(lua_State *L, std::function<LvglWidgetObjectBase*()> cre
 
     if (params.hasChildren) addChildren(L, obj);
 
-    obj->push(L);
+    obj->push(L, saveRef);
 
     if (p)
       luaScriptManager->setTempParent((prevParent));
@@ -477,11 +470,11 @@ LROT_BEGIN(lvgllib, NULL, 0)
   LROT_FUNCENTRY(box, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetBox(); }); })
   LROT_FUNCENTRY(setting, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetSetting(); }, true); })
   LROT_FUNCENTRY(page, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetPage(); }, true); })
-  LROT_FUNCENTRY(dialog, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetDialog(); }, true); })
+  LROT_FUNCENTRY(dialog, [](lua_State* L) { return luaLvglObjEx(L, []() { return new LvglWidgetDialog(); }, true, false); })
   // Dialogs
-  LROT_FUNCENTRY(confirm, [](lua_State* L) { return luaLvglPopup(L, []() { return new LvglWidgetConfirmDialog(); }); })
-  LROT_FUNCENTRY(message, [](lua_State* L) { return luaLvglPopup(L, []() { return new LvglWidgetMessageDialog(); }); })
-  LROT_FUNCENTRY(menu, [](lua_State* L) { return luaLvglPopup(L, []() { return new LvglWidgetMenu(); }); })
+  LROT_FUNCENTRY(confirm, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetConfirmDialog(); }, false, false); })
+  LROT_FUNCENTRY(message, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetMessageDialog(); }, false, false); })
+  LROT_FUNCENTRY(menu, [](lua_State* L) { return luaLvglObj(L, []() { return new LvglWidgetMenu(); }, false, false); })
   // Object manipulation functions
   LROT_FUNCENTRY(set, luaLvglSet)
   LROT_FUNCENTRY(show, luaLvglShow)

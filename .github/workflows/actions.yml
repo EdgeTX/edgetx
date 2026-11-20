@@ -62,7 +62,27 @@ jobs:
       image: ghcr.io/edgetx/edgetx-dev:2.11
       volumes:
         - ${{ github.workspace }}:/src
+      # Needed to write the kernel parameters below. The runner is a
+      # throwaway VM where the job already has sudo, so this doesn't open up
+      # anything the job couldn't do anyway.
+      options: --privileged
     steps:
+      # https://github.com/actions/runner-images/issues/15108
+      # The ubuntu-26.04 runner images (rolling out as ubuntu-latest since
+      # 2026-10-19) don't apply the image's kernel parameters at boot, so
+      # restore them until
+      # https://github.com/actions/runner-images/pull/15146 ships. At
+      # vm.mmap_rnd_bits=32 the GCC 9 ASan runtime in edgetx-dev:2.11 can
+      # crash as gtests-radio starts and loop printing
+      # "AddressSanitizer:DEADLYSIGNAL". These settings are kernel-wide, so
+      # writing them from the privileged container applies to the whole
+      # runner VM. Once the "before" values already match, remove this step
+      # and the --privileged option.
+      - name: Restore kernel parameters
+        run: |
+          sysctl vm.mmap_rnd_bits fs.inotify.max_user_instances fs.inotify.max_user_watches
+          sysctl -w fs.inotify.max_user_instances=1280 fs.inotify.max_user_watches=655360 vm.mmap_rnd_bits=28
+
       - name: Check out the repo
         uses: actions/checkout@v7
         with:
@@ -70,6 +90,9 @@ jobs:
           # fetch-depth: 0 # https://github.com/actions/checkout#Fetch-all-history-for-all-tags-and-branches
 
       - name: Test ${{ matrix.target }}
+        # Normally 1-5 minutes. Stops a crashed ASan run from flooding the
+        # log until the runner loses contact (about an hour).
+        timeout-minutes: 15
         env:
           FLAVOR: ${{ matrix.target }}
         run: |
