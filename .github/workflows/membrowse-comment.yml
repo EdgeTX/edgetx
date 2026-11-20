@@ -34,8 +34,51 @@ jobs:
           echo "Jobs with a MemBrowse upload: ${count}"
           echo "found=$([[ ${count} -gt 0 ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
-      - name: Post combined PR comment
+      # Stay quiet when no target changed memory or hit a budget alert, unless
+      # an earlier run already commented: that comment is then updated so it
+      # does not go stale.
+      - name: Check for anything to report
+        id: changes
         if: ${{ steps.reports.outputs.found == 'true' && env.MEMBROWSE_API_KEY != '' }}
+        env:
+          MEMBROWSE_API_KEY: ${{ secrets.MEMBROWSE_API_KEY }}
+          MEMBROWSE_PACKAGE: git+https://github.com/membrowse/membrowse-action@v1
+          COMMIT: ${{ github.event.workflow_run.head_sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 -m venv /tmp/membrowse
+          /tmp/membrowse/bin/pip install --quiet "${MEMBROWSE_PACKAGE}"
+          if ! /tmp/membrowse/bin/python -m membrowse summary "${COMMIT}" \
+              --api-key "${MEMBROWSE_API_KEY}" --json > /tmp/membrowse-summary.json; then
+            echo "Could not fetch the MemBrowse summary; leaving it to the comment action"
+            echo "post=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          read -r report pr < <(/tmp/membrowse/bin/python - <<'EOF'
+          import json
+          from membrowse.utils.summary_formatter import build_summary_template_context
+          with open("/tmp/membrowse-summary.json", encoding="utf-8") as f:
+              summary = json.load(f)
+          ctx = build_summary_template_context(summary)
+          report = any(t["has_changes"] or t["has_alerts"] for t in ctx["targets"])
+          print("true" if report else "false", summary.get("data", {}).get("pr_number") or "")
+          EOF
+          )
+          # If the check itself broke, post rather than silently drop a report
+          report=${report:-true}
+          echo "Memory changes or budget alerts: ${report} (PR: ${pr:-unknown})"
+
+          existing=0
+          if [[ "${report}" != "true" && -n "${pr}" ]]; then
+            existing=$(gh api --paginate "repos/${GITHUB_REPOSITORY}/issues/${pr}/comments" \
+              --jq '.[] | select(.body | startswith("<!-- membrowse-pr-comment -->")) | .id' | wc -l)
+            echo "Existing MemBrowse comments: ${existing}"
+          fi
+          echo "post=$([[ ${report} == true || ${existing} -gt 0 ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Post combined PR comment
+        if: ${{ steps.changes.outputs.post == 'true' }}
         uses: membrowse/membrowse-action/comment-action@v1
         with:
           api_key: ${{ secrets.MEMBROWSE_API_KEY }}
