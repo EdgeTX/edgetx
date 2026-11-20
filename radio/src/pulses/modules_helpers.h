@@ -57,6 +57,10 @@ extern uint32_t NV14internalModuleFwVersion;
      ((g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX) || \
       (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYX2)))
 
+  #define IS_ACCESS_MULTI(module)                                         \
+    (isModuleMultimodule(module) &&                                       \
+     g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_FRSKYA)
+
   #define IS_R9_MULTI(module)                           \
     (isModuleMultimodule(module) &&                     \
      (g_model.moduleData[module].multi.rfProtocol ==    \
@@ -70,9 +74,6 @@ extern uint32_t NV14internalModuleFwVersion;
 
   #define IS_DSM_MULTI(module)                                            \
     (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_DSM2)
-
-  #define IS_RLINK_MULTI(module)                                          \
-    (g_model.moduleData[module].multi.rfProtocol == MODULE_SUBTYPE_MULTI_RLINK)
 
   #define IS_RX_MULTI(module)                          \
     ((g_model.moduleData[module].multi.rfProtocol == \
@@ -155,11 +156,11 @@ extern uint32_t NV14internalModuleFwVersion;
   }
 #else
   #define IS_D16_MULTI(module)           false
+  #define IS_ACCESS_MULTI(module)        false
   #define IS_R9_MULTI(module)            false
   #define IS_HOTT_MULTI(module)          false
   #define IS_CONFIG_MULTI(module)        false
   #define IS_DSM_MULTI(module)           false
-  #define IS_RLINK_MULTI(module)         false
   #define IS_RX_MULTI(module)            false
 
   inline bool isModuleMultimodule(uint8_t)
