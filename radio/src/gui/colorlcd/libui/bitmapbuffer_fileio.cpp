@@ -158,6 +158,9 @@ BitmapBuffer *BitmapBuffer::loadBitmap(const char *filename, BitmapFormats fmt)
 
 //-----------------------------------------------------------------------------
 
+// LVGL image descriptors store each dimension in 11 bits.
+static constexpr int MAX_LVGL_IMAGE_DIMENSION = (1 << 11) - 1;
+
 static lv_res_t decoder_info(struct _lv_img_decoder_t *decoder, const void *src,
                              lv_img_header_t *header)
 {
@@ -180,10 +183,18 @@ static lv_res_t decoder_info(struct _lv_img_decoder_t *decoder, const void *src,
         TRACE_ERROR("decoder_info(%s) failed: %s\n", fn, stbi_failure_reason());
         return LV_RES_INV;
       }
+      if (x <= 0 || y <= 0 ||
+          x > MAX_LVGL_IMAGE_DIMENSION ||
+          y > MAX_LVGL_IMAGE_DIMENSION) {
+        TRACE_ERROR("decoder_info(%s): image dimensions %d x %d do not fit\n",
+                    fn, x, y);
+        return LV_RES_INV;
+      }
 
       header->always_zero = 0;
       header->cf =
-          (nn == 4) ? LV_IMG_CF_TRUE_COLOR_ALPHA : LV_IMG_CF_TRUE_COLOR;
+          (nn == 2 || nn == 4) ? LV_IMG_CF_TRUE_COLOR_ALPHA
+                              : LV_IMG_CF_TRUE_COLOR;
       header->w = x;
       header->h = y;
 
@@ -202,14 +213,15 @@ static lv_res_t decoder_info(struct _lv_img_decoder_t *decoder, const void *src,
 
 static uint8_t *convert_bitmap(uint8_t *img, int w, int h, int n)
 {
-  uint8_t *bmp = (uint8_t *)lv_mem_alloc(((n == 4) ? 3 : 2) * w * h);
+  bool hasAlpha = n == 2 || n == 4;
+  uint8_t *bmp = (uint8_t *)lv_mem_alloc((hasAlpha ? 3 : 2) * w * h);
   if (bmp == nullptr) {
     TRACE_ERROR("convert_bitmap: lv_mem_alloc failed\n");
     return nullptr;
   }
 
   const uint8_t *p = img;
-  if (n == 4) {
+  if (hasAlpha) {
     uint8_t *dest = bmp;
     for (int row = 0; row < h; ++row) {
       for (int col = 0; col < w; ++col) {
@@ -253,6 +265,14 @@ static lv_res_t decoder_open(lv_img_decoder_t *decoder,
 
       if (!img) {
         TRACE_ERROR("decoder_open(%s) failed: %s\n", fn, stbi_failure_reason());
+        return LV_RES_INV;
+      }
+      if (w <= 0 || h <= 0 ||
+          w > MAX_LVGL_IMAGE_DIMENSION ||
+          h > MAX_LVGL_IMAGE_DIMENSION) {
+        stbi_image_free(img);
+        TRACE_ERROR("decoder_open(%s): decoded dimensions %d x %d do not fit\n",
+                    fn, w, h);
         return LV_RES_INV;
       }
 
