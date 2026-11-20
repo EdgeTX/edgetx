@@ -163,6 +163,13 @@ const char * loadRadioSettingsYaml(bool checks)
         ALERT(STR_STORAGE_WARNING, p == NULL ? TR_RADIO_DATA_RECOVERED : TR_RADIO_DATA_UNRECOVERABLE, AU_BAD_RADIODATA);
       }
     }
+
+    if ((p == NULL) && g_eeGeneral.manuallyEdited) {
+      // manuallyEdited only applies to the file just read (e.g. a valid
+      // checksum written by an external tool); never carry it into RAM
+      g_eeGeneral.manuallyEdited = 0;
+      storageDirty(EE_GENERAL);
+    }
     return p;
 }
 
@@ -292,8 +299,9 @@ const char * writeGeneralSettings()
     TRACE("YAML radio settings writer");
     uint16_t file_checksum = 0;
 
-    YamlFileChecksum(get_radiodata_nodes(), (uint8_t*)&g_eeGeneral, &file_checksum);
+    // Clear before computing the checksum so it covers the bytes actually written
     g_eeGeneral.manuallyEdited = false;
+    YamlFileChecksum(get_radiodata_nodes(), (uint8_t*)&g_eeGeneral, &file_checksum);
 
     const char *p = writeFileYaml(RADIO_SETTINGS_TMPFILE_YAML_PATH, get_radiodata_nodes(),
                          (uint8_t*)&g_eeGeneral, file_checksum);
