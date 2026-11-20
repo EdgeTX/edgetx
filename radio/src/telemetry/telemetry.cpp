@@ -30,6 +30,7 @@
 #include "io/multi_protolist.h"
 #include "hal/module_port.h"
 #include "sensor_names.h"
+#include "pulses/crossfire_sd.h"
 
 #include <list>
 
@@ -220,6 +221,12 @@ static void _poll_frame(void *pvParameter1, uint32_t ulParameter2)
   if (!mod || !mod->drv || !mod->ctx || (drv != mod->drv))
     return;
 
+#if defined(CROSSFIRE)
+  // an SD bulk session reads the port itself
+  if (crsfSdPortOwned(module))
+    return;
+#endif
+
   auto ctx = mod->ctx;
   auto mod_st = (etx_module_state_t*)ctx;
   auto serial_drv = modulePortGetSerialDrv(mod_st->rx);
@@ -384,7 +391,11 @@ void telemetryWakeup()
         telemetryState = TELEMETRY_OK;
       } else if (telemetryState == TELEMETRY_OK) {
         telemetryState = TELEMETRY_KO;
-        if (!isModuleInBeepMode()) {
+        if (!isModuleInBeepMode()
+#if defined(CROSSFIRE)
+            && !crsfSdSuppressAlarms()
+#endif
+        ) {
           AUDIO_TELEMETRY_LOST();
         }
       }

@@ -21,6 +21,7 @@
 
 #include "crossfire.h"
 #include "edgetx.h"
+#include "pulses/crossfire_sd.h"
 #include "math.h"
 
 #include "trainer.h"
@@ -394,6 +395,10 @@ void processCrossfireTelemetryFrame(uint8_t module, uint8_t* rxBuffer,
         //TRACE("[XF] Rate: %d, Lag: %d", update_interval, offset);
         getModuleSyncStatus(module).update(update_interval, offset);
       }
+      break;
+
+    case CRSF_SD_SESSION_ID:
+      crsfSdProcessFrame(module, rxBuffer, rxBufferCount);
       break;
 
 #if defined(LUA)

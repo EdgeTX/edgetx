@@ -30,6 +30,7 @@
 #include "hal/module_port.h"
 
 #include "crossfire.h"
+#include "crossfire_sd.h"
 #include "telemetry/crossfire.h"
 
 #define CROSSFIRE_CH_BITS           11
@@ -188,7 +189,10 @@ static void setupPulsesCrossfire(uint8_t module, uint8_t*& p_buf,
       }
     }
 
-    if (moduleState[module].counter == CRSF_FRAME_MODELID) {
+    uint8_t sdOfferLen = crsfSdSetupOffer(module, p_buf);
+    if (sdOfferLen) {
+      p_buf += sdOfferLen;
+    } else if (moduleState[module].counter == CRSF_FRAME_MODELID) {
       TRACE("[XF] ModelID %d", g_model.header.modelId[module]);
       p_buf += createCrossfireModelIDFrame(module, p_buf);
       moduleState[module].counter = CRSF_FRAME_MODELID_SENT;

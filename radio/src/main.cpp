@@ -27,6 +27,7 @@
 
 #include "edgetx.h"
 #include "lua/lua_states.h"
+#include "pulses/crossfire_sd.h"
 
 #if defined(COLORLCD)
 #include "view_main.h"
@@ -636,6 +637,12 @@ void perMain()
 #endif
     return;
   }
+
+#if defined(CROSSFIRE)
+  // a module's SD session (blocks for its length) or its refusal, once telemetry
+  // says one is due
+  if (crsfSdUiDue) crsfSdRunDue();
+#endif
 
 #if defined(MULTIMODULE)
   checkFailsafeMulti();
