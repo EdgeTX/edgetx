@@ -318,7 +318,7 @@ bool Widget::onLongPress()
       openMenu();
     }
   }
-  return false;
+  return true;
 }
 
 const WidgetOption* Widget::getOptionDefinitions() const

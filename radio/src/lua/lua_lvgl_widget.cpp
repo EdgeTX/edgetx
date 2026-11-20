@@ -788,6 +788,11 @@ void LvglWidgetObjectBase::update(lua_State *L)
   refresh();
 }
 
+lv_group_t* LvglWidgetObjectBase::getLvglGroup()
+{
+  return lvglManager->getLvglGroup();
+}
+
 //-----------------------------------------------------------------------------
 
 void LvglSimpleWidgetObject::setPos(coord_t x, coord_t y)
@@ -2530,11 +2535,6 @@ class WidgetPage : public NavWindow, public LuaEventHandler
     if (showScrollBar)
       etx_scrollbar(body->getLvObj());
 
-    delayLoad();
-  }
-
-  void delayedInit() override
-  {
 #if defined(HARDWARE_TOUCH)
     if (showPrev) {
       prevBtn = new IconButton(this, ICON_BTN_PREV, LCD_W - PageGroup::PAGE_GROUP_BACK_BTN_XO * 3, PAD_MEDIUM, [=]() {
@@ -2797,6 +2797,11 @@ void LvglWidgetDialog::close()
   dialog->onCancel();
 }
 
+lv_group_t* LvglWidgetDialog::getLvglGroup()
+{
+  return lv_group_get_default();
+}
+
 //-----------------------------------------------------------------------------
 
 void LvglWidgetConfirmDialog::parseParam(lua_State *L, const char *key)
@@ -2829,6 +2834,11 @@ void LvglWidgetConfirmDialog::build(lua_State *L)
       [=]() { pcallSimpleFunc(L, cancelFunction); clearRefs(L); });
 }
 
+lv_group_t* LvglWidgetConfirmDialog::getLvglGroup()
+{
+  return lv_group_get_default();
+}
+
 //-----------------------------------------------------------------------------
 
 void LvglWidgetMessageDialog::parseParam(lua_State *L, const char *key)
@@ -2856,6 +2866,11 @@ void LvglWidgetMessageDialog::build(lua_State *L)
   window->onClosing([=]() {
     clearRefs(L);
   });
+}
+
+lv_group_t* LvglWidgetMessageDialog::getLvglGroup()
+{
+  return lv_group_get_default();
 }
 
 //-----------------------------------------------------------------------------
@@ -2982,6 +2997,11 @@ void LvglWidgetMenu::build(lua_State *L)
   });
 
   window = menu;
+}
+
+lv_group_t* LvglWidgetMenu::getLvglGroup()
+{
+  return lv_group_get_default();
 }
 
 //-----------------------------------------------------------------------------

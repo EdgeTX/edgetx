@@ -285,6 +285,7 @@ class LvglWidgetObjectBase
   void update(lua_State *L);
 
   virtual Window *getWindow() const = 0;
+  virtual lv_group_t* getLvglGroup();
 
   static LvglWidgetObjectBase *checkLvgl(lua_State *L, int index, bool required = false);
 
@@ -936,6 +937,8 @@ class LvglWidgetDialog : public LvglWidgetObject, public LvglTitleParam
   void clearRefs(lua_State *L) override;
   void close() override;
 
+  lv_group_t* getLvglGroup() override;
+
  protected:
   LvglDialog* dialog = nullptr;
 
@@ -954,6 +957,8 @@ class LvglWidgetConfirmDialog : public LvglWidgetObject, public LvglTitleParam, 
 
   void clearRefs(lua_State *L) override;
 
+  lv_group_t* getLvglGroup() override;
+
  protected:
   LvglFuncRef confirmFunction;
   LvglFuncRef cancelFunction;
@@ -970,6 +975,8 @@ class LvglWidgetMessageDialog : public LvglWidgetObject, public LvglTitleParam, 
   LvglWidgetMessageDialog() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
 
   void clearRefs(lua_State *L) override;
+
+  lv_group_t* getLvglGroup() override;
 
  protected:
   std::string details;
@@ -1017,6 +1024,8 @@ class LvglWidgetMenu : public LvglWidgetPicker, public LvglTitleParam, public Lv
   LvglWidgetMenu() : LvglWidgetPicker() {}
 
   void clearRefs(lua_State *L) override;
+
+  lv_group_t* getLvglGroup() override;
 
  protected:
   void build(lua_State *L) override;
