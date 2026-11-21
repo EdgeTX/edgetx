@@ -82,7 +82,6 @@ static void handleStickCommand(const std::string& cmd, std::stringstream& ss,
 constexpr uint8_t KEY_RTN = 2;
 static qint32 currentChannels[16] = {0};
 static std::atomic<bool> isHapticActive {false};
-static std::atomic<int> hapticIntensity{0};
 
 namespace SwitchPos
 {
@@ -123,209 +122,6 @@ void showMessage(const QString& message, MessageLevel level = MsgInfo)
     QTextStream(stderr) << message << Qt::endl;
   }
 }
-
-const QString sharedHelpText()
-{
-  QString ret;
-  QTextStream stream(&ret);
-  stream << Qt::endl
-         << QCoreApplication::translate("SimulatorMain", "Available profiles:")
-         << Qt::endl;
-  QMapIterator<int, QString> pi(g.getActiveProfiles());
-  while (pi.hasNext()) {
-    pi.next();
-    stream << "\t" << QCoreApplication::translate("SimulatorMain", "ID: ")
-           << pi.key() << "; "
-           << QCoreApplication::translate("SimulatorMain", "Name: ")
-           << pi.value() << Qt::endl;
-  }
-  stream << Qt::endl
-         << QCoreApplication::translate("SimulatorMain", "Available radios:")
-         << Qt::endl;
-  foreach (QString name, SimulatorLoader::getAvailableSimulators()) {
-    stream << "\t" << name << Qt::endl;
-  }
-  return ret;
-}
-
-void showHelp(QCommandLineParser& parser, const QString& addMsg = QString(),
-              int exitCode = 0)
-{
-  QString msg = "\n";
-  if (!addMsg.isEmpty()) msg.append(addMsg).append("\n\n");
-  msg.append(parser.helpText());
-  msg.append(sharedHelpText());
-  showMessage(msg, (exitCode ? MsgWarning : MsgInfo));
-}
-
-enum CommandLineParseResult {
-  CommandLineNone,
-  CommandLineFound,
-  CommandLineExitOk,
-  CommandLineExitErr
-};
-
-CommandLineParseResult cliOptions(SimulatorOptions* simOptions, int* profileId)
-{
-  QCommandLineParser cliOptions;
-  bool cliOptsFound = false;
-  int pId = *profileId;
-
-  const QCommandLineOption optHelp = cliOptions.addHelpOption();
-  const QCommandLineOption optVer = cliOptions.addVersionOption();
-
-  const QCommandLineOption optProfi(
-      QStringList() << "profile" << "p",
-      QCoreApplication::translate(
-          "SimulatorMain", "Radio profile ID or Name to use for simulator."),
-      QCoreApplication::translate("SimulatorMain", "profile"));
-
-  const QCommandLineOption optRadio(
-      QStringList() << "radio" << "r",
-      QCoreApplication::translate(
-          "SimulatorMain",
-          "Radio type to simulate (usually defined in profile)."),
-      QCoreApplication::translate("SimulatorMain", "radio"));
-
-  const QCommandLineOption optSdDir(
-      QStringList() << "sd-path" << "s",
-      QCoreApplication::translate(
-          "SimulatorMain",
-          "Directory containing the SD card image to use. The default is "
-          "configured in the chosen Radio Profile."),
-      QCoreApplication::translate("SimulatorMain", "path"));
-
-  const QCommandLineOption optStart(
-      QStringList() << "start-with" << "w",
-      QCoreApplication::translate("SimulatorMain",
-                                  "Data source type to use. One of:") +
-          " (file|folder|sd)",
-      QCoreApplication::translate("SimulatorMain", "type"));
-
-  const QCommandLineOption optFlags(
-      QStringList() << "flags" << "f",
-      QCoreApplication::translate("SimulatorMain",
-                                  "Flags passed from Companion"),
-      QCoreApplication::translate("SimulatorMain", "flags"));
-
-  cliOptions.addPositionalArgument(
-      QCoreApplication::translate("SimulatorMain", "data-source"),
-      QCoreApplication::translate(
-          "SimulatorMain",
-          "Radio data (.bin/.eeprom/.etx) image file to use OR data folder "
-          "path (for Horus-style radios).\n"
-          "NOTE: any existing EEPROM data incompatible with the selected radio "
-          "type may be overwritten!"),
-      QCoreApplication::translate("SimulatorMain", "[data-source]"));
-
-  cliOptions.addOption(optProfi);
-  cliOptions.addOption(optRadio);
-  cliOptions.addOption(optSdDir);
-  cliOptions.addOption(optStart);
-  cliOptions.addOption(optFlags);
-
-  QStringList args = QCoreApplication::arguments();
-#ifdef Q_OS_WIN
-  for (int i = 0; i < args.size(); ++i) {
-    args[i].replace(QRegularExpression("^/([^\\s]{2,10})$"), "--\\1");
-    args[i].replace(QRegularExpression("^/([^\\s]){1}$"), "-\\1");
-  }
-#endif
-
-  if (!cliOptions.parse(args)) {
-    showHelp(cliOptions, cliOptions.errorText(), 1);
-    return CommandLineExitErr;
-  }
-
-  if (cliOptions.isSet(optHelp)) {
-    showHelp(cliOptions);
-    return CommandLineExitOk;
-  }
-
-  if (cliOptions.isSet(optVer)) {
-    showMessage(APP_SIMULATOR % " v" VERSION " " __DATE__, MsgInfo);
-    return CommandLineExitOk;
-  }
-
-  if (cliOptions.isSet(optProfi)) {
-    bool chk;
-    pId = cliOptions.value(optProfi).toInt(&chk);
-    if (!chk) pId = g.getActiveProfiles().key(cliOptions.value(optProfi), -1);
-
-    if (!g.getActiveProfiles().contains(pId)) {
-      showHelp(cliOptions,
-               QCoreApplication::translate(
-                   "SimulatorMain", "Error: Profile ID %1 was not found.")
-                   .arg(pId),
-               1);
-      return CommandLineExitErr;
-    }
-
-    *simOptions = g.profile[pId].simulatorOptions();
-    simOptions->sdPath = g.profile[pId].sdPath();
-    cliOptsFound = true;
-  }
-
-  if (cliOptions.isSet(optRadio)) {
-    simOptions->firmwareId = cliOptions.value(optRadio);
-    cliOptsFound = true;
-  }
-
-  if (cliOptsFound ||
-      (simOptions->dataFile.isEmpty() && !simOptions->simulatorId.isEmpty())) {
-    QString defName = g.eepromDir() % "/" % simOptions->simulatorId % ".bin";
-    simOptions->dataFile = defName;
-  }
-
-  if (cliOptions.isSet(optSdDir)) {
-    simOptions->sdPath = cliOptions.value(optSdDir);
-    cliOptsFound = true;
-  }
-
-  if (cliOptions.positionalArguments().size()) {
-    QString datasrc = cliOptions.positionalArguments().at(0);
-    if (datasrc.contains(QRegularExpression(".*\\.[\\w]{2,6}$"))) {
-      simOptions->dataFile = datasrc;
-      simOptions->startupDataType = SimulatorOptions::START_WITH_FILE;
-    } else {
-      simOptions->dataFolder = datasrc;
-      simOptions->startupDataType = SimulatorOptions::START_WITH_FOLDER;
-    }
-    cliOptsFound = true;
-  }
-
-  if (cliOptions.isSet(optStart)) {
-    QString stTyp = cliOptions.value(optStart);
-    if (stTyp == "file") {
-      simOptions->startupDataType = SimulatorOptions::START_WITH_FILE;
-    } else if (stTyp == "folder") {
-      simOptions->startupDataType = SimulatorOptions::START_WITH_FOLDER;
-    } else if (stTyp == "sd") {
-      simOptions->startupDataType = SimulatorOptions::START_WITH_SDPATH;
-    } else {
-      showHelp(cliOptions,
-               QCoreApplication::translate(
-                   "SimulatorMain", "Unrecognized startup data source type: %1")
-                   .arg(stTyp),
-               1);
-      return CommandLineExitErr;
-    }
-
-    cliOptsFound = true;
-  }
-
-  int flags = 0;
-  if (cliOptions.isSet(optFlags)) {
-    bool chk;
-    flags = cliOptions.value(optFlags).toInt(&chk);
-    if (!chk) flags = 0;
-  }
-
-  simOptions->flags = flags;
-  *profileId = pId;
-  return cliOptsFound ? CommandLineFound : CommandLineNone;
-}
-
 enum class InitResult { Success, ExitClean, Error };
 
 void initApplicationSubsystems(QApplication& app)
@@ -373,65 +169,11 @@ InitResult setupSessionEnvironment(SimulatorOptions& simOptions, int& profileId)
   profileId = (g.simuLastProfId() > -1 ? g.simuLastProfId() : g.id());
   simOptions = g.profile[profileId].simulatorOptions();
 
-  CommandLineParseResult cliResult = cliOptions(&simOptions, &profileId);
-  if (cliResult == CommandLineExitOk) return InitResult::ExitClean;
-  if (cliResult == CommandLineExitErr) return InitResult::Error;
-
-  if (!g.profile[profileId].fwType().isEmpty())
-    simOptions.firmwareId = g.profile[profileId].fwType();
-
-  if (simOptions.dataFolder.isEmpty()) simOptions.dataFolder = g.eepromDir();
-  if (!g.profile[profileId].sdPath().isEmpty())
-    simOptions.sdPath = g.profile[profileId].sdPath();
-
-  simOptions.simulatorId = SimulatorLoader::findSimulatorByName(
-      Firmware::getFirmwareForId(simOptions.firmwareId)->getSimulatorId());
-
-  if (cliResult == CommandLineNone || profileId == -1 ||
-      simOptions.simulatorId.isEmpty() ||
-      (simOptions.dataFile.isEmpty() && simOptions.dataFolder.isEmpty())) {
-    QString err = QCoreApplication::translate(
-        "SimulatorMain",
-        "ERROR: Missing required startup parameters in console mode.\nRun with "
-        "--help to view options.");
-    showMessage(err, MsgCritical);
-    return InitResult::Error;
-  }
-
-  if (!g.getActiveProfiles().contains(profileId) ||
-      !SimulatorLoader::getAvailableSimulators().contains(
-          simOptions.simulatorId)) {
-    QString resultMsg;
-    QTextStream stream(&resultMsg);
-    stream << QCoreApplication::translate(
-                  "SimulatorMain",
-                  "ERROR: Radio profile or simulator firmware not "
-                  "found.\nProfile ID: [%1]; Radio ID: [%2]")
-                  .arg(profileId)
-                  .arg(simOptions.simulatorId);
-    stream << sharedHelpText();
-    showMessage(resultMsg, MsgCritical);
-    return InitResult::Error;
-  }
-
-  g.sessionId(profileId);
-  g.simuLastProfId(profileId);
-
   Firmware* simfw = Firmware::getFirmwareForId(simOptions.firmwareId + "-simulator");
   delete simfw;
 
   Firmware::setCurrentVariant(Firmware::getFirmwareForId(simOptions.firmwareId));
   static std::unique_ptr<QTemporaryDir> tempDir = std::make_unique<QTemporaryDir>(QDir::tempPath() % "/etx-cpn-XXXXXX");
-
-  if (!tempDir->isValid()) {
-    gAppTempPath.clear();
-    return InitResult::Error;
-  } else {
-    gAppTempPath = tempDir->path();
-    if (!QDir(gAppTempPath).mkdir("IMAGES")) {
-      return InitResult::Error;
-    }
-  }
 
   return InitResult::Success;
 }
@@ -457,13 +199,7 @@ SimulatorInterface* createAndStartSimulator(const SimulatorOptions& simOptions, 
                    });
 
   QObject::connect(sim, &SimulatorInterface::lcdChange, sim, &SimulatorInterface::lcdFlushed);
-  //QObject::connect(sim, &SimulatorInterface::hapticChanged, &app, [](int intensity) { isHapticActive.store(intensity > 0); });
-
-  QObject::connect(
-      sim, &SimulatorInterface::hapticChanged, &app, [](int intensity) {
-        isHapticActive.store(intensity > 1);
-        hapticIntensity.store(intensity);
-      });
+  QObject::connect(sim, &SimulatorInterface::hapticChanged, &app, [](int intensity) { isHapticActive.store(intensity > 1); });
 
   sim->moveToThread(simuThread);
   simuThread->start();
@@ -522,7 +258,7 @@ void startConsoleInputThread(QApplication& app, SimulatorInterface* sim)
         }
         std::cout << channelsStr.trimmed().toStdString() << "\n" << std::flush;
       } else if (cmd == "HAPTIC") {
-        std::cout << (isHapticActive.load() ? "ON" : "OFF") << "::" << hapticIntensity.load() << std::endl;
+        std::cout << (isHapticActive.load() ? "ON" : "OFF") << std::endl;
       } else if (cmd == "THROTTLE" || cmd == "YAW" || cmd == "PITCH" ||
                  cmd == "ROLL") {
         handleStickCommand(cmd, ss, sim);
