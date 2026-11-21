@@ -419,17 +419,17 @@ int main(int argc, char* argv[])
   // Перевірка запуску симулятора
   QObject::connect(sim, &SimulatorInterface::started, &app, []() { qInfo() << "Simulator started"; });
 
-  QObject::connect(sim, &SimulatorInterface::heartbeat, &app,
-                   [](qint32 loops, qint64 timestamp) {
-                     qInfo()
-                         << "Heartbeat:"
-                         << "loops =" << loops << "timestamp =" << timestamp;
-                   });
+  //QObject::connect(sim, &SimulatorInterface::heartbeat, &app,
+  //                 [](qint32 loops, qint64 timestamp) {
+  //                   qInfo()
+  //                       << "Heartbeat:"
+  //                       << "loops =" << loops << "timestamp =" << timestamp;
+  //                 });
 
   // Вихідні канали
   QObject::connect(sim, &SimulatorInterface::channelOutValueChange, &app,
                    [](quint8 index, qint32 value, qint32 limit) {
-                     if (index < 8) {
+                     if (index < 12) {
                        qInfo() << "OUT"
                                << "CH" << (index + 1) << "Value:" << value
                                << "Limit:" << limit;
@@ -439,7 +439,7 @@ int main(int argc, char* argv[])
   // Канали мікшування
   QObject::connect(sim, &SimulatorInterface::channelMixValueChange, &app,
                    [](quint8 index, qint32 value, qint32 limit) {
-                     if (index < 8) {
+                     if (index < 12) {
                        qInfo() << "MIX"
                                << "CH" << (index + 1) << "Value:" << value
                                << "Limit:" << limit;
@@ -452,8 +452,7 @@ int main(int argc, char* argv[])
 
   sim->moveToThread(simuThread);
   simuThread->start();
-
-QMetaObject::invokeMethod(
+  QMetaObject::invokeMethod(
       sim,
       [sim]() {
         qInfo() << "Initializing simulator...";
@@ -464,43 +463,69 @@ QMetaObject::invokeMethod(
 
         qInfo() << "Simulator initialization completed";
 
-        // 1. Опускаємо газ у мінімум, щоб зняти Throttle Warning
-        // (індекс 2 — газ для Mode 2; індекс 1 — для Mode 1)
+        // Початковий стан: газ мінімальний
         sim->setAnalogValue(2, -1024);
         sim->setAnalogValue(1, -1024);
 
-        // 2. Через 1-1.5 секунди скидаємо вікно попереджень (Enter/Touch)
+        // Чекаємо завантаження моделі
         QTimer::singleShot(5000, sim, [sim]() {
           qInfo() << "Dismissing startup warnings...";
 
-          //uint8_t KEY_ENTER = 2;
-          // Спосіб А: Натискання та відпускання клавіші Enter
+          // Enter press
           sim->setKey(2, true);
-          QTimer::singleShot(100, sim, [sim]() { sim->setKey(2, false);});
 
-          QTimer::singleShot(5000, sim, [sim]() {
-            qInfo() << "Setting simulator inputs...";
-            sim->setAnalogValue(0, 512);   // Стик 0
-            sim->setAnalogValue(1, 512);   // Стик 1
-            sim->setAnalogValue(2, -512);  // Стик 2 (газ вище нуля)
-            sim->setAnalogValue(3, 512);   // Стик 3
-            sim->setSwitch(6, 1);          // SG down
+          QTimer::singleShot(100, sim, [sim]() {
+            // Enter release
+            sim->setKey(2, false);
+
+            // Чекаємо завершення завантаження
+            QTimer::singleShot(3000, sim, [sim]() {
+              // =================================
+              // ЕТАП 1
+              // =================================
+
+              qInfo() << "STAGE 1";
+
+              sim->setAnalogValue(0, -512);
+              sim->setAnalogValue(1, 512);
+              sim->setAnalogValue(2, -512);
+              sim->setAnalogValue(3, 512);
+
+              sim->setSwitch(6, 1);
+
+              // Через 2 секунди наступний етап
+              QTimer::singleShot(2000, sim, [sim]() {
+                // =================================
+                // ЕТАП 2
+                // =================================
+
+                qInfo() << "STAGE 2";
+
+                sim->setSwitch(5, -1);
+                sim->setSwitch(6, -1);
+                sim->setSwitch(7, 0);
+                sim->setSwitch(8, 0);
+                sim->setSwitch(9, 1);
+                sim->setSwitch(10, 1);
+
+                // Через 2 секунди наступний етап
+                QTimer::singleShot(2000, sim, [sim]() {
+                  // =================================
+                  // ЕТАП 3
+                  // =================================
+
+                  qInfo() << "STAGE 3";
+
+                  sim->setSwitch(5, 1);
+                  sim->setSwitch(6, 1);
+                  sim->setSwitch(7, -1);
+                  sim->setSwitch(8, -1);
+                  sim->setSwitch(9, 0);
+                  sim->setSwitch(10, 0);
+                });
+              });
+            });
           });
-        });
-
-        // 3. Коли модель повністю завантажена і мікшери активні — змінюємо
-        // входи
-        QTimer::singleShot(3500, sim, [sim]() {
-          qInfo() << "Setting simulator inputs...";
-
-          // Зміна елеронів/керма (CH1 або CH4 повинні зреагувати)
-          sim->setAnalogValue(0, -512);
-
-          // Зміна ручки висоти (CH2)
-          sim->setAnalogValue(1, 512);
-
-          // Якщо в model0.yml налаштовано CH5 <- SG, тоді спрацює і тумблер:
-          sim->setSwitch(6, 1);
         });
       },
       Qt::QueuedConnection);
