@@ -13,7 +13,7 @@ if(Qt6_FOUND)
   # call after Qt6Core package is found
   qt_standard_project_setup()
 
-  find_package(Qt6 REQUIRED COMPONENTS Widgets LinguistTools Multimedia PrintSupport SerialPort Svg Xml)
+  find_package(Qt6 REQUIRED COMPONENTS Widgets LinguistTools Multimedia Network PrintSupport SerialPort Svg Xml)
 
   ### Get locations of Qt binary executables & libs (libs are for distros, not for linking)
   # first set up some hints
