@@ -401,57 +401,73 @@ int main(int argc, char* argv[])
 
   qDebug() << "Created images cache directory:" << Helpers::getImagesCacheDir();
 
-  int result = 0;
-  SimulatorMainWindow* mainWindow = new SimulatorMainWindow(
-      nullptr, simOptions.simulatorId,
-      (simOptions.flags ? simOptions.flags : SIMULATOR_FLAGS_STANDALONE));
+  //int result = 0;
+  //SimulatorMainWindow* mainWindow = new SimulatorMainWindow(
+  //    nullptr, simOptions.simulatorId,
+  //    (simOptions.flags ? simOptions.flags : SIMULATOR_FLAGS_STANDALONE));
 
-  qDebug() << "DEBUG >> IF-1";
+  //qDebug() << "DEBUG >> IF-1";
 
-  if ((result = mainWindow->getExitStatus(&resultMsg))) {
-    qDebug() << "DEBUG >> IF-2";
+  //if ((result = mainWindow->getExitStatus(&resultMsg))) {
+  //  qDebug() << "DEBUG >> IF-2";
 
-    if (resultMsg.isEmpty())
-      resultMsg = QCoreApplication::translate(
-          "SimulatorMain", "Unknown error during Simulator startup.");
-    showMessage(resultMsg, MsgCritical);
-  } else if (mainWindow->setOptions(simOptions, true)) {
-    // Run event loop headlessly without calling mainWindow->show()
-    qDebug() << "DEBUG >> ELSE-IF-3";
+  //  if (resultMsg.isEmpty())
+  //    resultMsg = QCoreApplication::translate(
+  //        "SimulatorMain", "Unknown error during Simulator startup.");
+  //  showMessage(resultMsg, MsgCritical);
+  //} else if (mainWindow->setOptions(simOptions, true)) {
+  //  // Run event loop headlessly without calling mainWindow->show()
+  //  qDebug() << "DEBUG >> ELSE-IF-3";
 
-    result = app.exec();
-    if (!result) {
-      qDebug() << "DEBUG >> IF-4";
+  //  result = app.exec();
+  //  if (!result) {
+  //    qDebug() << "DEBUG >> IF-4";
 
-      if ((result = mainWindow->getExitStatus(&resultMsg)) &&
-          !resultMsg.isEmpty())
-        qWarning() << "Exit message from SimulatorMainWindow:" << resultMsg;
-    }
-  } else {
-    qDebug() << "DEBUG >> ELSE-IF-5";
+  //    if ((result = mainWindow->getExitStatus(&resultMsg)) &&
+  //        !resultMsg.isEmpty())
+  //      qWarning() << "Exit message from SimulatorMainWindow:" << resultMsg;
+  //  }
+  //} else {
+  //  qDebug() << "DEBUG >> ELSE-IF-5";
 
-    result = 3;
-  }
-
-  // mainWindow.m_simulator
-  //SimulatorInterface* sim = mainWindow->m_simulator;
-  ////sim->setInputValue(sim, SimulatorInterface::INPUT_SRC_SWITCH, Switches::SW, SimulatorInterface::SWITCH_DOWN);
-  ////sim->setInputValue(sim, SimulatorInterface::INPUT_SRC_SWITCH, SimulatorInterface::SWITCH_SB, SimulatorInterface::SWITCH_UP);
-  ////sim->setInputValue(sim, SimulatorInterface::INPUT_SRC_STICK,  SimulatorInterface::STICK_THR, 512);
-  //sim->start();
-
-  //const SimulatorData& data = sim->send
-  //qWarning() << "Channel Outputs: ";
-  //for (int i = 0; i < CPN_MAX_CHNOUT; ++i) {
-  //  qWarning() << data.channels[i] << " ";
+  //  result = 3;
   //}
-  //qWarning() << std::endl;
+
   // mainWindow.m_simulator
+  qWarning() << "DEBUG >> TRY LOAD SIMULATOR!";
+  QString m_simulatorId = SimulatorLoader::findSimulatorByName(getCurrentFirmware()->getSimulatorId());
+  SimulatorInterface* sim = SimulatorLoader::loadSimulator(m_simulatorId);
+
+  qWarning() << "DEBUG >> moveToThread!";
+  // TODO: move simuThread to GLOBAL variables. Maybe
+  QThread* simuThread = new QThread();
+  sim->moveToThread(simuThread);
+  simuThread->start();
+  qWarning() << "DEBUG >> simuThread.start!";
+
+  //QEventLoop loop;
+  //QObject::connect(sim, &SimulatorInterface::started, &loop, &QEventLoop::quit);
+  //sim->start();
+  //qWarning() << "DEBUG >> sim->start!";
+  //loop.exec();
+  //qWarning() << "DEBUG >> loop.exec!";
+
+  qWarning() << "DEBUG >> sim->setSwitch!";
+  sim->setSwitch(6, 1);
+  qWarning() << "DEBUG >> sim->setAnalogValue!";
+  sim->setAnalogValue(0, -512);
+  //sim->setStick(0, -512);
+  //sim->run();
+  QThread::msleep(50);
+  qWarning() << "DEBUG >> QThread::msleep(50)";
+  
+  //sim->start();
+  // PRINT CHANNELS DATA
 
   qWarning() << "DEBUG >> END!";
 
-  delete mainWindow;
-  return finish(result);
+  //delete mainWindow;
+  return finish(0);
 }
 
 int finish(int exitCode)
