@@ -128,6 +128,9 @@ static int64_t nowMs()
 }
 
 constexpr int NUM_SWITCHES = 8;  // SA .. SH
+constexpr int NUM_ANALOGS = 16;
+static std::atomic<int16_t> currentAnalogs[NUM_ANALOGS]{};
+static std::atomic<bool> isRestarting{false};
 
 static std::atomic<int8_t> currentSwitches[NUM_SWITCHES]{
     SwitchPos::CENTER, SwitchPos::CENTER, SwitchPos::CENTER, SwitchPos::CENTER,
@@ -671,7 +674,7 @@ static SimulatorInterface* createAndStartSimulator(const QString& radioName,
         sim->setSdPath(sdPath);
         sim->init();
         sim->start(nullptr, true);
-        sim->setAnalogValue(analogMap.throttle, -1024);
+        //sim->setAnalogValue(analogMap.throttle, -1024);
 
         auto onInitFinished = [sim, analogMap]() {
           StdoutWatcher::instance().setCapturing(false);
@@ -679,46 +682,25 @@ static SimulatorInterface* createAndStartSimulator(const QString& radioName,
           QTimer::singleShot(3000, sim, [sim, analogMap]() {
             sim->setAnalogValue(analogMap.roll, 0);
             sim->setAnalogValue(analogMap.pitch, 0);
-            sim->setAnalogValue(analogMap.throttle, -1024);
+            sim->setAnalogValue(analogMap.throttle, 0);
             sim->setAnalogValue(analogMap.yaw, 0);
 
-            if (analogMap.s1 != 255) sim->setAnalogValue(analogMap.s1, -1024);
-            if (analogMap.s2 != 255) sim->setAnalogValue(analogMap.s2, -1024);
-            if (analogMap.ls != 255) sim->setAnalogValue(analogMap.ls, -1024);
-            if (analogMap.rs != 255) sim->setAnalogValue(analogMap.rs, -1024);
-            if (analogMap.pos6 != 255) sim->setAnalogValue(analogMap.pos6, -1024);
-
-            for (uint8_t i = 0; i < NUM_SWITCHES; ++i) {
-              currentSwitches[i].store(SwitchPos::UP);
-              sim->setSwitch(i, SwitchPos::UP);
-            }
-
-            if (analogMap.firstFuncSwitch != 255) {
-              for (uint8_t i = 0; i < 6; ++i) {
-                sim->setSwitch(analogMap.firstFuncSwitch + i, SwitchPos::UP);
-              }
-              const uint8_t firstSw = analogMap.firstFuncSwitch;
-              sim->setSwitch(firstSw, SwitchPos::DOWN);
-              QTimer::singleShot(100, sim, [sim, firstSw]() {
-                sim->setSwitch(firstSw, SwitchPos::UP);
-              });
-            }
-
             QTimer::singleShot(1000, sim, []() {
-              std::cout
+            std::cout
                   << "\n===================================================================\n"
                   << ">>> EdgeTX Simulator CLI Ready! Available commands:\n"
                   << "-------------------------------------------------------------------\n"
-                  << "  THROTTLE <0..100>             ex: THROTTLE 0, THROTTLE 50\n"
+                  << "  THROTTLE <0..100>              ex: THROTTLE 0, THROTTLE 50\n"
                   << "  ROLL|PITCH|YAW <-100..100>    ex: PITCH -20, ROLL 50, YAW 0\n"
-                  << "  SW <A..H> <UP|MID|DOWN>       ex: SW A UP, SW B CENTER, SW G DOWN\n"
+                  << "  SW <A..H> <UP|MID|DOWN>        ex: SW A UP, SW B CENTER, SW G DOWN\n"
                   << "  POT <S1|S2|LS|RS> <-100..100> ex: POT S1 0, POT S2 -100\n"
-                  << "  6POS <1..6>                   ex: 6POS 1, 6POS 4\n"
-                  << "  KEY <id>                      ex: KEY 1, KEY 2\n"
-                  << "  SCREENSHOT [file]             Save LCD screenshot to PNG file\n"
-                  << "  CHANNELS                      Print current 16 channel outputs\n"
-                  << "  HAPTIC                        Check vibration status (ON / OFF)\n"
-                  << "  EXIT                          Shutdown simulator and exit\n"
+                  << "  6POS <1..6>                    ex: 6POS 1, 6POS 4\n"
+                  << "  KEY <id>                       ex: KEY 1, KEY 2\n"
+                  << "  SCREENSHOT [file]              Save LCD screenshot to PNG file\n"
+                  << "  CHANNELS                       Print current 16 channel outputs\n"
+                  << "  HAPTIC                         Check vibration status (ON / OFF)\n"
+                  << "  RESTART                        Restart simulator firmware\n"
+                  << "  EXIT                           Shutdown simulator and exit\n"
                   << "===================================================================\n\n"
                   << std::flush;
             });
@@ -767,12 +749,66 @@ static void scheduleAck(SimulatorInterface* sim, const std::string& cmd, int del
       Qt::QueuedConnection);
 }
 
-static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim,
-                                    const QString& radioName)
+static void handleRestartCommand(SimulatorInterface* sim, const QString& sdPath, const QString& radioName, const std::string& rawLine)
+{
+  if (isRestarting.exchange(true)) {
+    std::lock_guard<std::mutex> lock(coutMutex);
+    std::cerr << "[WARN] Restart already in progress\n" << std::flush;
+    return;
+  }
+
+  const bool isColorLcd = (getLcdSpecForRadio(radioName).depth == 16);
+
+  QMetaObject::invokeMethod(
+      sim,
+      [sim, sdPath, isColorLcd, rawLine]() {
+        sim->stop();
+
+        for (int i = 0; i < 16; ++i) {
+          currentChannels[i] = 0;
+        }
+        lastIntensity.store(0);
+        lastChangeMs.store(0);
+
+        StdoutWatcher::instance().setCapturing(true);
+
+        sim->setSdPath(sdPath);
+        sim->init();
+        sim->start(nullptr, true);
+
+        for (uint8_t axis = 0; axis < NUM_ANALOGS; ++axis) {
+          sim->setAnalogValue(axis, currentAnalogs[axis].load());
+        }
+        for (uint8_t i = 0; i < NUM_SWITCHES; ++i) {
+          sim->setSwitch(i, currentSwitches[i].load());
+        }
+
+        auto onRestartFinished = [sim, rawLine]() {
+          StdoutWatcher::instance().setCapturing(false);
+          QTimer::singleShot(300, sim, [rawLine]() {
+            isRestarting.store(false);
+            printAck(rawLine);
+          });
+        };
+
+        waitForLogOutput(sim, "YAML model reader", 15000,
+                         [sim, isColorLcd, onRestartFinished]() {
+                           if (isColorLcd) {
+                             waitForLogOutput(sim, "WidgetFactory::create()",
+                                              10000, onRestartFinished);
+                           } else {
+                             onRestartFinished();
+                           }
+                         });
+      },
+      Qt::QueuedConnection);
+}
+
+static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim, const QString& radioName, const QString& sdPath)
 {
   const AnalogMap analogMap = getAnalogMapForRadio(radioName);
 
-  std::thread cliThread([&app, sim, radioName, analogMap]() {
+  std::thread cliThread([&app, sim, radioName, sdPath, analogMap]() {
     std::string line;
     while (std::getline(std::cin, line)) {
       std::stringstream ss(line);
@@ -788,7 +824,11 @@ static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim,
         QMetaObject::invokeMethod(&app, &QCoreApplication::quit,
                                   Qt::QueuedConnection);
         break;
-      } else if (cmd == "CHANNELS") {
+      } else if (cmd == "RESTART") {
+        handleRestartCommand(sim, sdPath, radioName, line);
+        continue;
+        } else if (cmd == "CHANNELS")
+        {
         QString channelsStr = "CHANNELS ";
         for (int i = 0; i < 16; ++i) {
           channelsStr += QString::number(i + 1) + ":" +
@@ -854,7 +894,7 @@ int main(int argc, char* argv[])
     return finish(1);
   }
 
-  startConsoleInputThread(app, sim, radioName);
+  startConsoleInputThread(app, sim, radioName, sdPath);
 
   QObject::connect(&app, &QCoreApplication::aboutToQuit, sim,
                    [sim]() { sim->stop(); });
