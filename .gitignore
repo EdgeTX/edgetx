@@ -33,3 +33,4 @@ __pycache__/
 output/
 *.dmg
 .devcontainer/devcontainer-lock.json
+/out/*
