@@ -81,12 +81,14 @@ static void handleStickCommand(const std::string& cmd, std::stringstream& ss,
 
 constexpr uint8_t KEY_RTN = 2;
 static qint32 currentChannels[16] = {0};
+static std::atomic<bool> isHapticActive {false};
+static std::atomic<int> hapticIntensity{0};
 
 namespace SwitchPos
 {
-constexpr int8_t UP = -1;
-constexpr int8_t CENTER = 0;
-constexpr int8_t DOWN = 1;
+    constexpr int8_t UP = -1;
+    constexpr int8_t CENTER = 0;
+    constexpr int8_t DOWN = 1;
 }
 
 static void handleSwitchCommand(std::stringstream& ss, SimulatorInterface* sim)
@@ -455,6 +457,13 @@ SimulatorInterface* createAndStartSimulator(const SimulatorOptions& simOptions, 
                    });
 
   QObject::connect(sim, &SimulatorInterface::lcdChange, sim, &SimulatorInterface::lcdFlushed);
+  //QObject::connect(sim, &SimulatorInterface::hapticChanged, &app, [](int intensity) { isHapticActive.store(intensity > 0); });
+
+  QObject::connect(
+      sim, &SimulatorInterface::hapticChanged, &app, [](int intensity) {
+        isHapticActive.store(intensity > 1);
+        hapticIntensity.store(intensity);
+      });
 
   sim->moveToThread(simuThread);
   simuThread->start();
@@ -471,7 +480,17 @@ SimulatorInterface* createAndStartSimulator(const SimulatorOptions& simOptions, 
           QTimer::singleShot(100, sim, [sim]() {
             sim->setKey(KEY_RTN, false);
             QTimer::singleShot(3000, sim, [sim]() {
-              std::cout << "Ready for commands: ANALOG, SWITCH, CHANNELS, EXIT\n" << std::flush;
+                std::cout << "\n===================================================================\n"
+                          << ">>> EdgeTX Simulator CLI Ready! Available commands:\n"
+                          << "-------------------------------------------------------------------\n"
+                          << "  THROTTLE <0..100>          ex: THROTTLE 0, THROTTLE 50\n"
+                          << "  ROLL|PITCH|YAW <-100..100> ex: PITCH -20, ROLL 50, YAW 0\n"
+                          << "  SW <A..H> <UP|MID|DOWN>    ex: SW A UP, SW B CENTER, SW SG DOWN\n"
+                          << "  CHANNELS                   Print current 16 channel outputs\n"
+                          << "  HAPTIC                     Check vibration status (ON / OFF)\n"
+                          << "  EXIT                       Shutdown simulator and exit\n"
+                          << "===================================================================\n\n"
+                          << std::flush;  
             });
           });
         });
@@ -502,7 +521,10 @@ void startConsoleInputThread(QApplication& app, SimulatorInterface* sim)
           //channelsStr += QString::number(currentChannels[i]) + " ";
         }
         std::cout << channelsStr.trimmed().toStdString() << "\n" << std::flush;
-      } else if (cmd == "THROTTLE" || cmd == "YAW" || cmd == "PITCH" || cmd == "ROLL") {
+      } else if (cmd == "HAPTIC") {
+        std::cout << (isHapticActive.load() ? "ON" : "OFF") << "::" << hapticIntensity.load() << std::endl;
+      } else if (cmd == "THROTTLE" || cmd == "YAW" || cmd == "PITCH" ||
+                 cmd == "ROLL") {
         handleStickCommand(cmd, ss, sim);
       } else if (cmd == "SW" || cmd == "SWITCH") {
         handleSwitchCommand(ss, sim);
