@@ -674,8 +674,7 @@ static SimulatorInterface* createAndStartSimulator(const QString& radioName,
         sim->setSdPath(sdPath);
         sim->init();
         sim->start(nullptr, true);
-        //sim->setAnalogValue(analogMap.throttle, -1024);
-
+        
         auto onInitFinished = [sim, analogMap]() {
           StdoutWatcher::instance().setCapturing(false);
 
