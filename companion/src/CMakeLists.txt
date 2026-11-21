@@ -292,33 +292,51 @@ target_link_libraries(${SIMULATOR_NAME} PRIVATE
 # =========================================================================
 # Console-only SimulatorConsole
 # =========================================================================
-add_executable(simulatorConsole simulatorConsole.cpp)
+set(simulatorConsole_SRCS
+  simulation/consoleApp/main.cpp
+  simulation/consoleApp/RadioProfile.cpp
+  simulation/consoleApp/StdoutWatcher.cpp
+  simulation/consoleApp/SimulatorController.cpp
+  simulation/consoleApp/CliCommandHandler.cpp
+)
+
+set(simulatorConsole_HDRS
+  simulation/consoleApp/RadioProfile.h
+  simulation/consoleApp/StdoutWatcher.h
+  simulation/consoleApp/SimulatorController.h
+  simulation/consoleApp/CliCommandHandler.h
+)
+
+add_executable(simulatorConsole
+  ${simulatorConsole_SRCS}
+  ${simulatorConsole_HDRS}
+)
+
+set_target_properties(simulatorConsole PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
 
 if(WIN32)
   target_sources(simulatorConsole PRIVATE images/winicons/icon.rc)
 endif()
 
 target_include_directories(simulatorConsole PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/simulation
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/simulation
+  ${CMAKE_CURRENT_SOURCE_DIR}/simulation/consoleApp
 )
+
 target_link_libraries(simulatorConsole PRIVATE
-    datamodels
-    firmwares
-    progress
-    shared
-    simulation
-    storage
-    maxLibQt
-    Qt::Core
-    Qt::Xml
-    Qt::Widgets
-    Qt6::SerialPort
-    Qt::SerialPort)
-if (WASM_SIMU)
-    target_link_libraries(simulatorConsole PRIVATE vmlib)
+  ${CPN_COMMON_LIB}
+  ${SDL2_LIBRARIES}
+  Qt::Widgets
+)
+
+if(WASM_SIMU)
+  target_link_libraries(simulatorConsole PRIVATE vmlib)
 endif()
+
 install(TARGETS simulatorConsole DESTINATION bin)
 
 # Copy WASM simulator modules next to executables for local dev

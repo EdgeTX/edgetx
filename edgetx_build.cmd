@@ -1,15 +1,15 @@
 @echo off
-set CC=clang.exe
-set CXX=clang++.exe
-set NSIS_EXE=c:\Program Files (x86)\NSIS\makensis.exe
-set SDL2=%EDGETX_BUILD_TOOLS%\SDL2\cmake
-set QT_DIR=%EDGETX_BUILD_TOOLS%\Qt\6.9.0\msvc2022_64
-set PATHS="-DSDL2_DIR=%SDL2%"
-set CMAKE_PREFIX_PATH="-DCMAKE_PREFIX_PATH=%QT_DIR%"
-set LANGUAGE="-DTRANSLATIONS=%BUILD_LANGUAGE%"
+set "CC=clang.exe"
+set "CXX=clang++.exe"
+set "NSIS_EXE=c:\Program Files (x86)\NSIS\makensis.exe"
+set "SDL2=%EDGETX_BUILD_TOOLS%\SDL2\cmake"
+set "QT_DIR=%EDGETX_BUILD_TOOLS%\Qt\6.9.0\msvc2022_64"
+set "PATHS=-DSDL2_DIR=%SDL2%"
+set "CMAKE_PREFIX_PATH=-DCMAKE_PREFIX_PATH=%QT_DIR%"
+set "LANGUAGE=-DTRANSLATIONS=%BUILD_LANGUAGE%"
 
 cd %EDGETX_REPO%
-set BUILD_TYPE="-DCMAKE_BUILD_TYPE=Release"
+set "BUILD_TYPE=-DCMAKE_BUILD_TYPE=Release"
 
 cd %EDGETX_MAIN_DIR%
 set BUILD_FOLDER=build-output-%BUILD_RADIO%
