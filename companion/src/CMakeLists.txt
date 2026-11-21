@@ -310,6 +310,7 @@ target_link_libraries(simulatortwo PRIVATE
     Qt::Core
     Qt::Xml
     Qt::Widgets
+    Qt6::SerialPort
     Qt::SerialPort)
 if (WASM_SIMU)
     target_link_libraries(simulatortwo PRIVATE vmlib)

@@ -25,6 +25,8 @@
 #include "version.h"
 #include "boardfactories.h"
 #include "helpers.h"
+#include "simulation/simulatorinterface.h"
+#include <QTimer>
 
 using namespace Simulator;
 
@@ -401,73 +403,117 @@ int main(int argc, char* argv[])
 
   qDebug() << "Created images cache directory:" << Helpers::getImagesCacheDir();
 
-  //int result = 0;
-  //SimulatorMainWindow* mainWindow = new SimulatorMainWindow(
-  //    nullptr, simOptions.simulatorId,
-  //    (simOptions.flags ? simOptions.flags : SIMULATOR_FLAGS_STANDALONE));
-
-  //qDebug() << "DEBUG >> IF-1";
-
-  //if ((result = mainWindow->getExitStatus(&resultMsg))) {
-  //  qDebug() << "DEBUG >> IF-2";
-
-  //  if (resultMsg.isEmpty())
-  //    resultMsg = QCoreApplication::translate(
-  //        "SimulatorMain", "Unknown error during Simulator startup.");
-  //  showMessage(resultMsg, MsgCritical);
-  //} else if (mainWindow->setOptions(simOptions, true)) {
-  //  // Run event loop headlessly without calling mainWindow->show()
-  //  qDebug() << "DEBUG >> ELSE-IF-3";
-
-  //  result = app.exec();
-  //  if (!result) {
-  //    qDebug() << "DEBUG >> IF-4";
-
-  //    if ((result = mainWindow->getExitStatus(&resultMsg)) &&
-  //        !resultMsg.isEmpty())
-  //      qWarning() << "Exit message from SimulatorMainWindow:" << resultMsg;
-  //  }
-  //} else {
-  //  qDebug() << "DEBUG >> ELSE-IF-5";
-
-  //  result = 3;
-  //}
-
   // mainWindow.m_simulator
   qWarning() << "DEBUG >> TRY LOAD SIMULATOR!";
-  QString m_simulatorId = SimulatorLoader::findSimulatorByName(getCurrentFirmware()->getSimulatorId());
-  SimulatorInterface* sim = SimulatorLoader::loadSimulator(m_simulatorId);
+  SimulatorInterface* sim = SimulatorLoader::loadSimulator("tx16s");
+  //QString m_simulatorId = SimulatorLoader::findSimulatorByName(getCurrentFirmware()->getSimulatorId());
+  //SimulatorInterface* sim = SimulatorLoader::loadSimulator(m_simulatorId);
 
-  qWarning() << "DEBUG >> moveToThread!";
-  // TODO: move simuThread to GLOBAL variables. Maybe
+  if (!sim) {
+    qCritical() << "Cannot load simulator!";
+    return -1;
+  }
+
   QThread* simuThread = new QThread();
+
+  // Перевірка запуску симулятора
+  QObject::connect(sim, &SimulatorInterface::started, &app, []() { qInfo() << "Simulator started"; });
+
+  QObject::connect(sim, &SimulatorInterface::heartbeat, &app,
+                   [](qint32 loops, qint64 timestamp) {
+                     qInfo()
+                         << "Heartbeat:"
+                         << "loops =" << loops << "timestamp =" << timestamp;
+                   });
+
+  // Вихідні канали
+  QObject::connect(sim, &SimulatorInterface::channelOutValueChange, &app,
+                   [](quint8 index, qint32 value, qint32 limit) {
+                     if (index < 8) {
+                       qInfo() << "OUT"
+                               << "CH" << (index + 1) << "Value:" << value
+                               << "Limit:" << limit;
+                     }
+                   });
+
+  // Канали мікшування
+  QObject::connect(sim, &SimulatorInterface::channelMixValueChange, &app,
+                   [](quint8 index, qint32 value, qint32 limit) {
+                     if (index < 8) {
+                       qInfo() << "MIX"
+                               << "CH" << (index + 1) << "Value:" << value
+                               << "Limit:" << limit;
+                     }
+                   });
+
+// Після підключення всіх сигналів
+
+  QObject::connect(sim, &SimulatorInterface::lcdChange, sim, &SimulatorInterface::lcdFlushed);
+
   sim->moveToThread(simuThread);
   simuThread->start();
-  qWarning() << "DEBUG >> simuThread.start!";
 
-  //QEventLoop loop;
-  //QObject::connect(sim, &SimulatorInterface::started, &loop, &QEventLoop::quit);
-  //sim->start();
-  //qWarning() << "DEBUG >> sim->start!";
-  //loop.exec();
-  //qWarning() << "DEBUG >> loop.exec!";
+QMetaObject::invokeMethod(
+      sim,
+      [sim]() {
+        qInfo() << "Initializing simulator...";
 
-  qWarning() << "DEBUG >> sim->setSwitch!";
-  sim->setSwitch(6, 1);
-  qWarning() << "DEBUG >> sim->setAnalogValue!";
-  sim->setAnalogValue(0, -512);
-  //sim->setStick(0, -512);
-  //sim->run();
-  QThread::msleep(50);
-  qWarning() << "DEBUG >> QThread::msleep(50)";
-  
-  //sim->start();
-  // PRINT CHANNELS DATA
+        sim->setSdPath("C:/SD");
+        sim->init();
+        sim->start(nullptr, true);
 
-  qWarning() << "DEBUG >> END!";
+        qInfo() << "Simulator initialization completed";
 
-  //delete mainWindow;
-  return finish(0);
+        // 1. Опускаємо газ у мінімум, щоб зняти Throttle Warning
+        // (індекс 2 — газ для Mode 2; індекс 1 — для Mode 1)
+        sim->setAnalogValue(2, -1024);
+        sim->setAnalogValue(1, -1024);
+
+        // 2. Через 1-1.5 секунди скидаємо вікно попереджень (Enter/Touch)
+        QTimer::singleShot(5000, sim, [sim]() {
+          qInfo() << "Dismissing startup warnings...";
+
+          //uint8_t KEY_ENTER = 2;
+          // Спосіб А: Натискання та відпускання клавіші Enter
+          sim->setKey(2, true);
+          QTimer::singleShot(100, sim, [sim]() { sim->setKey(2, false);});
+
+          QTimer::singleShot(5000, sim, [sim]() {
+            qInfo() << "Setting simulator inputs...";
+            sim->setAnalogValue(0, 512);   // Стик 0
+            sim->setAnalogValue(1, 512);   // Стик 1
+            sim->setAnalogValue(2, -512);  // Стик 2 (газ вище нуля)
+            sim->setAnalogValue(3, 512);   // Стик 3
+            sim->setSwitch(6, 1);          // SG down
+          });
+        });
+
+        // 3. Коли модель повністю завантажена і мікшери активні — змінюємо
+        // входи
+        QTimer::singleShot(3500, sim, [sim]() {
+          qInfo() << "Setting simulator inputs...";
+
+          // Зміна елеронів/керма (CH1 або CH4 повинні зреагувати)
+          sim->setAnalogValue(0, -512);
+
+          // Зміна ручки висоти (CH2)
+          sim->setAnalogValue(1, 512);
+
+          // Якщо в model0.yml налаштовано CH5 <- SG, тоді спрацює і тумблер:
+          sim->setSwitch(6, 1);
+        });
+      },
+      Qt::QueuedConnection);
+
+  // Коректне завершення
+  QObject::connect(&app, &QCoreApplication::aboutToQuit, sim, [sim]() { sim->stop(); });
+  QObject::connect(&app, &QCoreApplication::aboutToQuit, simuThread, &QThread::quit);
+  QObject::connect(simuThread, &QThread::finished, sim, &QObject::deleteLater);
+  const int result = app.exec();
+  simuThread->wait();
+  delete simuThread;
+
+  return result;
 }
 
 int finish(int exitCode)
