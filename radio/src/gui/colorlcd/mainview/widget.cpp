@@ -226,7 +226,6 @@ void Widget::onCancel()
     if (editBorder) {
       // Restore normal main view group and hide the touch overlay mask
       lv_group_remove_obj(lvobj);
-      ViewMain::instance()->resetGroup();
       ViewMain::instance()->hideTouchMask();
       lv_obj_del(editBorder);
       editBorder = nullptr;
@@ -298,17 +297,19 @@ bool Widget::onLongPress()
     lv_indev_wait_release(lv_indev_get_act());
     if (lv_obj_get_group(lvobj)) {
       if (isLvglWidget() && !editBorder) {
-        // Make widget the active group for rotary encoder navigation
-        // and overlay a mask on the rest of the screen to block
-        // interactions
-        ViewMain::instance()->enableWidgetSelect(false);
-        ViewMain::instance()->showTouchMask();
-        toForeground();
         // Show a border to indicate mode
         editBorder = lv_obj_create(lvobj);
+        lv_group_add_obj(widgetGroup, editBorder);
         lv_obj_set_size(editBorder, width(), height());
         etx_obj_add_style(editBorder, styles->border, LV_PART_MAIN);
         etx_obj_add_style(editBorder, styles->border_color[COLOR_THEME_EDIT_INDEX], LV_PART_MAIN);
+        lv_obj_clear_flag(editBorder, LV_OBJ_FLAG_CLICKABLE);
+
+        // Make widget the active group for rotary encoder navigation
+        // and overlay a mask on the rest of the screen to block
+        // interactions
+        ViewMain::instance()->showTouchMask();
+        toForeground();
         // Activate group and force focus
         lv_group_add_obj(widgetGroup, lvobj);
         assignLvGroup(widgetGroup, true);

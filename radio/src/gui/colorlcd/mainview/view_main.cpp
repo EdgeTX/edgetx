@@ -292,6 +292,19 @@ void ViewMain::refreshWidgetSelectTimer()
   widgetSelectCancelTime = get_tmr10ms() + 1000; // 10 seconds
 }
 
+void ViewMain::enableViewScrolling(bool enable)
+{
+  if (enable) {
+    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
+    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+  } else {
+    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
+    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+  }
+}
+
 void ViewMain::enableWidgetSelect(bool enable)
 {
   TRACE("enableWidgetSelect(%d)", enable);
@@ -312,17 +325,11 @@ void ViewMain::enableWidgetSelect(bool enable)
       widget->enableFocus(enable);
   }
 
-  if (enable) {
-    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
-    lv_obj_clear_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
+  enableViewScrolling(!enable);
 
+  if (enable) {
     refreshWidgetSelectTimer();
   } else {
-    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_HOR);
-    lv_obj_add_flag(tile_view, LV_OBJ_FLAG_SCROLL_CHAIN_VER);
-
     widgetSelectCancelTime = 0;
   }
 }
@@ -410,6 +417,11 @@ void ViewMain::refreshWidgets()
 
 void ViewMain::showTouchMask()
 {
+  // Cancel selet mode
+  enableWidgetSelect(false);
+
+  enableViewScrolling(false);
+
   // Overlay an opaque mask over the screen to prevent touch interaction
   if (!touchMask) {
     touchMask = new Window(this, {0, 0, LCD_W, LCD_H});
@@ -426,6 +438,10 @@ void ViewMain::showTouchMask()
 
 void ViewMain::hideTouchMask()
 {
+  resetGroup();
+
+  enableViewScrolling(true);
+
   if (touchMask) {
     touchMask->attach(this);
     touchMask->toBackground();

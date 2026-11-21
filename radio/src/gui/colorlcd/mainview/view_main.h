@@ -73,6 +73,8 @@ class ViewMain : public NavWindow
   void showTouchMask();
   void hideTouchMask();
 
+  void enableViewScrolling(bool enable);
+
  protected:
   static ViewMain* _instance;
 
