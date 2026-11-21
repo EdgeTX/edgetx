@@ -100,6 +100,11 @@ if (name.contains("tx15")) {
     return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/255, /*rs=*/255, /*pos6=*/255, /*firstFuncSwitch=*/6};
   }
 
+if (name.contains("gx12")) {
+    // 0..3: Sticks, 4: P1 (S1), 5: P2 (S2), 6: SL1 (LS), 7: SL2 (RS); switches 0..7: SA..SH, 8..13: SW1..SW6
+    return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/6, /*rs=*/7, /*pos6=*/255, /*firstFuncSwitch=*/8};
+  }
+
   // TX12, TX12MK2, Zorro, Pocket: 4: S1, 5: S2
   return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/255, /*rs=*/255, /*pos6=*/255, /*firstFuncSwitch=*/255};
 }
