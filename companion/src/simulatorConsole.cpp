@@ -1,3 +1,24 @@
+/*
+ * Copyright (C) EdgeTX
+ *
+ * Based on code named
+ *   opentx - https://github.com/opentx/opentx
+ *   th9x - http://code.google.com/p/th9x
+ *   er9x - http://code.google.com/p/er9x
+ *   gruvin9x - http://code.google.com/p/gruvin9x
+ *
+ * License GPLv2: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ */
+
 #include <AppDebugMessageHandler>
 #include <QApplication>
 #include <QCommandLineParser>
@@ -76,7 +97,6 @@ static void printSwitches()
   std::cout << header << "\n" << states << std::endl;
 }
 
-// ============================================================================
 static std::string toUpper(std::string str)
 {
   for (char& c : str) {
@@ -145,7 +165,6 @@ static void handleSwitchCommand(std::stringstream& ss, SimulatorInterface* sim)
       Qt::QueuedConnection);
 }
 
-// ============================================================================
 static void initApplicationSubsystems(QApplication& app)
 {
   app.setApplicationName(APP_SIMULATOR);
@@ -229,8 +248,8 @@ static bool parseCommandLine(const QApplication& app, QString& radioName,
 
   if (radioName.isEmpty() || sdPath.isEmpty()) {
     std::cerr << "ERROR: Both radio name and sd-path are required!\n"
-              << "Usage: simulatortwo -r <radio> -s <sd-path>\n"
-              << "   or: simulatortwo <radio> <sd-path>\n"
+              << "Usage: simulatorConsole -r <radio> -s <sd-path>\n"
+              << "   or: simulatorConsole <radio> <sd-path>\n"
               << "Run with --help to view available radios.\n";
     return false;
   }
@@ -244,7 +263,6 @@ static bool parseCommandLine(const QApplication& app, QString& radioName,
   return true;
 }
 
-// ============================================================================
 static SimulatorInterface* createAndStartSimulator(const QString& radioName,
                                                    const QString& sdPath,
                                                    QThread* simuThread,
@@ -352,9 +370,6 @@ static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim)
   cliThread.detach();
 }
 
-// ============================================================================
-// MAIN
-// ============================================================================
 int main(int argc, char* argv[])
 {
   QApplication app(argc, argv);

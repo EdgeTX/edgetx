@@ -27,6 +27,7 @@ ninja wasi-module
 REM 2. Конфігурація та компіляція Companion і Simulator
 ninja native-configure
 ninja -C native simulator
+ninja -C native simulatorConsole
 ninja -C native companion
 
 REM 3. Перенесення скомпільованого .wasm симулятора у папку Companion
