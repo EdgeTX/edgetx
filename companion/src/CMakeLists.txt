@@ -290,7 +290,7 @@ target_link_libraries(${SIMULATOR_NAME} PRIVATE
 )
 
 # =========================================================================
-# Console-only SimulatorConsole
+# Headless Simulator ConsoleApp
 # =========================================================================
 set(simulatorConsole_SRCS
   simulation/consoleApp/main.cpp
