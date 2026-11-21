@@ -50,20 +50,27 @@ using namespace Simulator;
 QFile simuDbgLog;
 int finish(int exitCode);
 
-namespace StickAxis
+namespace AnalogAxis
 {
-    constexpr uint8_t ROLL = 0;      // Aileron
-    constexpr uint8_t PITCH = 1;     // Elevator
-    constexpr uint8_t THROTTLE = 2;  // Throttle
-    constexpr uint8_t YAW = 3;       // Rudder
-}  // namespace StickAxis
+    constexpr uint8_t ROLL = 0;
+    constexpr uint8_t PITCH = 1;
+    constexpr uint8_t THROTTLE = 2;
+    constexpr uint8_t YAW = 3;
+
+    constexpr uint8_t S1 = 4; // POSSIBLY INCORRECT
+    constexpr uint8_t S2 = 5; // POSSIBLY INCORRECT     
+    constexpr uint8_t LS = 6; // POSSIBLY INCORRECT     
+    constexpr uint8_t RS = 7; // POSSIBLY INCORRECT 
+
+    constexpr uint8_t POS6 = 5;   
+}
 
 namespace SwitchPos
 {
     constexpr int8_t UP = -1;
     constexpr int8_t CENTER = 0;
     constexpr int8_t DOWN = 1;
-}  // namespace SwitchPos
+}
 
 constexpr uint8_t KEY_RTN = 2;  // Return/Exit key for TX16S
 
@@ -115,7 +122,7 @@ static void handleStickCommand(const std::string& cmd, std::stringstream& ss,
   int16_t rawValue = 0;
 
   if (cmd == "THROTTLE") {
-    axis = StickAxis::THROTTLE;
+    axis = AnalogAxis::THROTTLE;
     // 0..100% -> -1024..+1024
     rawValue = static_cast<int16_t>(std::round(-1024.0 + (percent * 20.48)));
   } else {
@@ -123,16 +130,64 @@ static void handleStickCommand(const std::string& cmd, std::stringstream& ss,
     rawValue = static_cast<int16_t>(std::round(percent * 10.24));
 
     if (cmd == "PITCH") {
-      axis = StickAxis::PITCH;
+      axis = AnalogAxis::PITCH;
     } else if (cmd == "ROLL") {
-      axis = StickAxis::ROLL;
+      axis = AnalogAxis::ROLL;
     } else if (cmd == "YAW") {
-      axis = StickAxis::YAW;
+      axis = AnalogAxis::YAW;
     }
   }
 
   QMetaObject::invokeMethod(
       sim, [sim, axis, rawValue]() { sim->setAnalogValue(axis, rawValue); },
+      Qt::QueuedConnection);
+}
+
+static void handlePotCommand(std::stringstream& ss, SimulatorInterface* sim)
+{
+  std::string potName;
+  double percent = 0.0;
+  if (!(ss >> potName >> percent)) return;
+
+  potName = toUpper(potName);
+  uint8_t axis = AnalogAxis::S1;
+
+  if (potName == "S1") {
+    axis = AnalogAxis::S1;
+  }
+  if (potName == "S2") {
+    axis = AnalogAxis::S2;
+  }
+  if (potName == "LS") {
+    axis = AnalogAxis::LS;
+  }
+  if (potName == "RS") {
+    axis = AnalogAxis::RS;
+  }
+
+  percent = std::clamp(percent, -100.0, 100.0);
+  int16_t rawValue = static_cast<int16_t>(std::round(percent * 10.24));
+
+  QMetaObject::invokeMethod(
+      sim, [sim, axis, rawValue]() { sim->setAnalogValue(axis, rawValue); },
+      Qt::QueuedConnection);
+}
+
+static void handle6PosCommand(std::stringstream& ss, SimulatorInterface* sim)
+{
+  int pos = 1;
+  if (!(ss >> pos)) return;
+  if (pos < 1) pos = 1;
+  if (pos > 6) pos = 6;
+
+  static const int16_t posValues[6] = {-1024, -614, -205, 205, 614, 1024};
+  int16_t rawValue = posValues[pos - 1];
+
+  QMetaObject::invokeMethod(
+      sim,
+      [sim, pos, rawValue]() {
+        sim->setAnalogValue(AnalogAxis::POS6, rawValue);
+      },
       Qt::QueuedConnection);
 }
 
@@ -309,21 +364,34 @@ static SimulatorInterface* createAndStartSimulator(const QString& radioName,
             sim->setKey(KEY_RTN, false);
             QTimer::singleShot(
                 3000, sim, [sim]() {
-                  sim->setAnalogValue(0, 0);
-                  sim->setAnalogValue(1, 0);
-                  sim->setAnalogValue(2, 0);
-                  sim->setAnalogValue(3, 0);
+                  sim->setAnalogValue(AnalogAxis::ROLL, 0);
+                  sim->setAnalogValue(AnalogAxis::PITCH, 0);
+                  sim->setAnalogValue(AnalogAxis::THROTTLE, -1024);
+                  sim->setAnalogValue(AnalogAxis::YAW, 0);
+
+                  sim->setAnalogValue(AnalogAxis::S1, -1024);
+                  sim->setAnalogValue(AnalogAxis::S2, -1024);
+                  sim->setAnalogValue(AnalogAxis::LS, -1024);
+                  sim->setAnalogValue(AnalogAxis::RS, -1024);
+                  sim->setAnalogValue(AnalogAxis::POS6, -1024);
+
+                  for (uint8_t i = 0; i < NUM_SWITCHES; ++i) {
+                    currentSwitches[i].store(SwitchPos::UP);
+                    sim->setSwitch(i, SwitchPos::UP);
+                  }
 
                   std::cout
                       << "\n===================================================================\n"
                       << ">>> EdgeTX Simulator CLI Ready! Available commands:\n"
                       << "-------------------------------------------------------------------\n"
-                      << "  THROTTLE <0..100>          ex: THROTTLE 0, THROTTLE 50\n"
-                      << "  ROLL|PITCH|YAW <-100..100> ex: PITCH -20, ROLL 50, YAW 0\n"
-                      << "  SW <A..H> <UP|MID|DOWN>    ex: SW A UP, SW B CENTER, SW SG DOWN\n"
-                      << "  CHANNELS                   Print current 16 channel outputs\n"
-                      << "  HAPTIC                     Check vibration status (ON / OFF)\n"
-                      << "  EXIT                       Shutdown simulator and exit\n"
+                      << "  THROTTLE <0..100>             ex: THROTTLE 0, THROTTLE 50\n"
+                      << "  ROLL|PITCH|YAW <-100..100>    ex: PITCH -20, ROLL 50, YAW 0\n"
+                      << "  SW <A..H> <UP|MID|DOWN>       ex: SW A UP, SW B CENTER, SW G DOWN\n"
+                      << "  POT <S1|S2|LS|RS> <-100..100> ex: POT S1 0, POT S2 -100\n"
+                      << "  6POS <1..6>                   ex: 6POS 1, 6POS 4\n"
+                      << "  CHANNELS                      Print current 16 channel outputs\n"
+                      << "  HAPTIC                        Check vibration status (ON / OFF)\n"
+                      << "  EXIT                          Shutdown simulator and exit\n"
                       << "===================================================================\n\n"
                       << std::flush;
                 });
@@ -362,6 +430,10 @@ static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim)
       } else if (cmd == "THROTTLE" || cmd == "YAW" || cmd == "PITCH" ||
                  cmd == "ROLL") {
         handleStickCommand(cmd, ss, sim);
+      } else if (cmd == "POT" || cmd == "KNOB") {
+        handlePotCommand(ss, sim);
+      } else if (cmd == "6POS" || cmd == "POS6") {
+        handle6PosCommand(ss, sim);
       } else if (cmd == "SW" || cmd == "SWITCH") {
         handleSwitchCommand(ss, sim);
       }
