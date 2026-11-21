@@ -27,12 +27,28 @@
 // receiver's S.BUS2 slots as the sensors put them on the wire
 // (MULTI_TELEMETRY_FUTABA in Multiprotocol.h)
 
-// Sensor IDs: 0x1300 + n (0x13 = the MULTI telemetry type)
+// The receiver's own values: sensor IDs 0x1300.., instance 0
 enum {
   FUTABA_RX_VOLTAGE = 0x1300,  // slot 0: the receiver's battery
   FUTABA_RX_LQ = 0x1301,       // link quality % the receiver reports
   FUTABA_RX_BARS = 0x1302,     // slot 0: link quality bars, 0..3
   FUTABA_TX_RSSI = 0x1303,     // the reply's RSSI at the module, dBm
+};
+
+// S.BUS2 sensors: the sensor ID is the sensor type, the instance its first
+// slot (1..31), subId the value for types with several (a sensor uses the
+// slots from its first on). S.BUS2 sensors don't tell their type on the
+// bus (their slot is set in the sensor): a sensor of one of these types
+// claims its slots; a slot with data that no sensor claims shows up as a
+// FUTABA_SLOT_RAW sensor (the 2 bytes as on the wire, first one high)
+enum {
+  FUTABA_SLOT_RAW = 0x1310,
+  FUTABA_SBS_TEMP = 0x1311,     // SBS-01T: °C
+  FUTABA_SBS_TEMP125 = 0x1312,  // SBS-01TE: °C
+  FUTABA_SBS_RPM = 0x1313,      // SBS-01RM: rpm
+  FUTABA_SBS_VOLT = 0x1314,     // SBS-01V, 2 slots: subId 0 / 1, V
+  FUTABA_SBS_CURR = 0x1315,     // SBS-01C, 3 slots: subId 0 A, 1 V, 2 mAh
+  FUTABA_SBS_LAST = FUTABA_SBS_CURR,
 };
 
 void futabaSetDefault(int index, uint16_t id, uint8_t subId, uint8_t instance);
