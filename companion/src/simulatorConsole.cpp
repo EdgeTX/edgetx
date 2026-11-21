@@ -45,6 +45,7 @@
 #include <QElapsedTimer>
 #include <functional>
 #include <mutex>
+#include <chrono>
 
 #include "appdata.h"
 #include "boards.h"
@@ -102,7 +103,15 @@ namespace SwitchPos
 }
 
 static qint32 currentChannels[16] = {0};
-static std::atomic<bool> isHapticActive{false};
+static std::atomic<int> lastIntensity{0};
+static std::atomic<int64_t> lastChangeMs{0};
+
+static int64_t nowMs()
+{
+  using namespace std::chrono;
+  return duration_cast<milliseconds>(steady_clock::now().time_since_epoch())
+      .count();
+}
 
 constexpr int NUM_SWITCHES = 8;  // SA .. SH
 
@@ -581,6 +590,13 @@ static void waitForLogOutput(SimulatorInterface* sim,
   timer->start(50);
 }
 
+
+bool isHapticActive(int64_t tickDurationMs = 1500)
+{
+  int64_t changedAt = lastChangeMs.load();
+  return changedAt > 0 && (nowMs() - changedAt) <= tickDurationMs;
+}
+
 static SimulatorInterface* createAndStartSimulator(const QString& radioName,
                                                    const QString& sdPath,
                                                    QThread* simuThread,
@@ -605,10 +621,17 @@ static SimulatorInterface* createAndStartSimulator(const QString& radioName,
                      }
                    });
 
-  QObject::connect(sim, &SimulatorInterface::lcdChange, sim,
-                   &SimulatorInterface::lcdFlushed);
+  QObject::connect(sim, &SimulatorInterface::lcdChange, sim, &SimulatorInterface::lcdFlushed);
+
   QObject::connect(sim, &SimulatorInterface::hapticChanged, &app,
-                   [](int intensity) { isHapticActive.store(intensity > 0); });
+                   [](int intensity) {
+                     int prev = lastIntensity.exchange(intensity);
+                     if (intensity > 0 && intensity != prev) {
+                       lastChangeMs.store(nowMs());
+                     } else if (intensity == 0) {
+                       lastChangeMs.store(0);
+                     }
+                   });
 
   sim->moveToThread(simuThread);
   simuThread->start();
@@ -745,10 +768,8 @@ static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim,
         }
       } else if (cmd == "HAPTIC") {
         std::lock_guard<std::mutex> lock(coutMutex);
-        std::cout << (isHapticActive.load() ? "ON" : "OFF") << "\n"
-                  << std::flush;
-      } else if (cmd == "THROTTLE" || cmd == "YAW" || cmd == "PITCH" ||
-                 cmd == "ROLL") {
+        std::cout << "HAPTIC " << (isHapticActive() ? "ON" : "OFF") << "\n" << std::flush;
+      } else if (cmd == "THROTTLE" || cmd == "YAW" || cmd == "PITCH" || cmd == "ROLL") {
         handleStickCommand(cmd, ss, sim, analogMap);
       } else if (cmd == "POT" || cmd == "KNOB") {
         handlePotCommand(ss, sim, analogMap);
