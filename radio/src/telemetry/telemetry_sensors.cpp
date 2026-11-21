@@ -40,6 +40,7 @@
 #if defined(MULTIMODULE)
   #include "hitec.h"
   #include "hott.h"
+  #include "futaba.h"
   #include "multi.h"
 #endif
 
@@ -622,6 +623,10 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId,
 
       case PROTOCOL_TELEMETRY_HOTT:
         hottSetDefault(index, id, subId, instance);
+        break;
+
+      case PROTOCOL_TELEMETRY_FUTABA:
+        futabaSetDefault(index, id, subId, instance);
         break;
 #endif
 

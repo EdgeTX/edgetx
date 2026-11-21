@@ -29,6 +29,7 @@
 #include "hitec.h"
 #include "hott.h"
 #include "mlink.h"
+#include "futaba.h"
 #include "trainer.h"
 
 constexpr int32_t MULTI_DESIRED_VERSION = (1 << 24) | (3 << 16) | (3 << 8)  | 0;
@@ -56,6 +57,7 @@ enum MultiPacketTypes : uint8_t
   ConfigTelemetry,
   MultiProtoDef,
   RLinkTelemetry = 18,
+  FutabaTelemetry = 19,
 };
 
 enum MultiBufferState : uint8_t
@@ -456,6 +458,13 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
         processMLinkPacket(data, true);
       else
         TRACE("[MP] Received M-Link telemetry len %d <= 6", len);
+      break;
+
+    case FutabaTelemetry:
+      if (len >= 3)
+        processFutabaPacket(data, len);
+      else
+        TRACE("[MP] Received Futaba telemetry len %d < 3", len);
       break;
 
 #if defined(LUA)
