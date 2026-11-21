@@ -134,4 +134,9 @@ void setModuleType(uint8_t moduleIdx, uint8_t moduleType)
   }
   else
     resetAccessAuthenticationCount();
+
+#if !defined(SPORT_MAX_BAUDRATE) || SPORT_MAX_BAUDRATE >= 400000
+  if (moduleData.type == MODULE_TYPE_MAVLINK)
+    moduleData.mavlink.telemetryBaudrate = 1;
+#endif
 }
