@@ -34,6 +34,7 @@ class LvglWidgetParams
   {
     luaL_checktype(L, index, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+      luaL_checktype(L, -2, LUA_TSTRING);
       const char *key = lua_tostring(L, -2);
       if (!strcmp(key, "type")) {
         if (lua_isinteger(L, -1)) {
@@ -116,6 +117,8 @@ Update the settings of an existing LVGL object. Can also be used to change setti
 @param params (table) settings to update; use the same keys documented for the object's constructor function
 
 @retval none
+
+@notice Property keys must be strings, including keys in nested property tables such as `borderPad`, `prevButton`, and `nextButton`. Non-string property keys raise a Lua error.
 
 @status current Introduced in 2.11.0
 */
@@ -460,6 +463,7 @@ Build a complex UI in a single operation from a table of object definitions.
 @retval table named LVGL objects (only entries whose definition included a `name` are included)
 
 @notice Objects can be nested via `children`, another table of tables using the same shape as the top-level `params`.
+@notice Property keys inside each object definition must be strings. Non-string property keys raise a Lua error; the lists of object definitions in `params` and `children` can still use numeric indices.
 @notice Very large or deeply nested tables may fail to compile to `.luac` -- if a script works from `.lua` but fails from `.luac`, split the call into multiple smaller `lvgl.build()` calls.
 
 @status current Introduced in 2.11.0, named type constants added in 2.11.4
