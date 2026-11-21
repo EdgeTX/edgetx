@@ -253,11 +253,13 @@ CommandLineParseResult cliOptions(SimulatorOptions* simOptions, int* profileId)
 
 int main(int argc, char* argv[])
 {
-  // Force offscreen platform so QtGui/QtWidgets works without X11/Wayland
-  // display
-  if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM")) {
-    qputenv("QT_QPA_PLATFORM", "offscreen");
-  }
+  qWarning() << "DEBUG >> MAIN!";
+
+  //// Force offscreen platform so QtGui/QtWidgets works without X11/Wayland
+  //// display
+  //if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM")) {
+  //  qputenv("QT_QPA_PLATFORM", "offscreen");
+  //}
 
   QApplication app(argc, argv);
   app.setApplicationName(APP_SIMULATOR);
@@ -265,12 +267,15 @@ int main(int argc, char* argv[])
   app.setOrganizationName(COMPANY);
   app.setOrganizationDomain(COMPANY_DOMAIN);
 
+  qWarning() << "DEBUG >> Q_INIT_RESOURCE!";
+
   Q_INIT_RESOURCE(companion);
 
   if (AppDebugMessageHandler::instance())
     AppDebugMessageHandler::instance()->installAppMessageHandler();
 
   CustomDebug::setFilterRules();
+  qWarning() << "DEBUG >> setFilterRules!";
 
   g.init();
 
@@ -299,6 +304,8 @@ int main(int argc, char* argv[])
   }
 #endif
 
+  qWarning() << "DEBUG >> Q_INIT_RESOURCE!";
+
   Q_INIT_RESOURCE(hwdefs);
   gBoardFactories = new BoardFactories();
   registerStorageFactories();
@@ -314,6 +321,8 @@ int main(int argc, char* argv[])
 
   int profileId = (g.simuLastProfId() > -1 ? g.simuLastProfId() : g.id());
   SimulatorOptions simOptions = g.profile[profileId].simulatorOptions();
+
+  qWarning() << "DEBUG >> CommandLineParseResult!";
 
   CommandLineParseResult cliResult = cliOptions(&simOptions, &profileId);
 
@@ -363,6 +372,8 @@ int main(int argc, char* argv[])
   g.sessionId(profileId);
   g.simuLastProfId(profileId);
 
+  qWarning() << "DEBUG >> Firmware!";
+
   Firmware* simfw =
       Firmware::getFirmwareForId(simOptions.firmwareId + "-simulator");
   delete simfw;
@@ -371,6 +382,8 @@ int main(int argc, char* argv[])
       Firmware::getFirmwareForId(simOptions.firmwareId));
 
   QTemporaryDir tempDir(QDir::tempPath() % "/etx-cpn-XXXXXX");
+
+  qWarning() << "DEBUG >> QTemporaryDir!";
 
   if (!tempDir.isValid()) {
     qDebug() << "Unable to create application temporary directory";
@@ -392,20 +405,31 @@ int main(int argc, char* argv[])
   SimulatorMainWindow* mainWindow = new SimulatorMainWindow(
       nullptr, simOptions.simulatorId,
       (simOptions.flags ? simOptions.flags : SIMULATOR_FLAGS_STANDALONE));
+
+  qDebug() << "DEBUG >> IF-1";
+
   if ((result = mainWindow->getExitStatus(&resultMsg))) {
+    qDebug() << "DEBUG >> IF-2";
+
     if (resultMsg.isEmpty())
       resultMsg = QCoreApplication::translate(
           "SimulatorMain", "Unknown error during Simulator startup.");
     showMessage(resultMsg, MsgCritical);
   } else if (mainWindow->setOptions(simOptions, true)) {
     // Run event loop headlessly without calling mainWindow->show()
+    qDebug() << "DEBUG >> ELSE-IF-3";
+
     result = app.exec();
     if (!result) {
+      qDebug() << "DEBUG >> IF-4";
+
       if ((result = mainWindow->getExitStatus(&resultMsg)) &&
           !resultMsg.isEmpty())
         qWarning() << "Exit message from SimulatorMainWindow:" << resultMsg;
     }
   } else {
+    qDebug() << "DEBUG >> ELSE-IF-5";
+
     result = 3;
   }
 
@@ -423,6 +447,8 @@ int main(int argc, char* argv[])
   //}
   //qWarning() << std::endl;
   // mainWindow.m_simulator
+
+  qWarning() << "DEBUG >> END!";
 
   delete mainWindow;
   return finish(result);
