@@ -62,6 +62,8 @@ AnalogMap getAnalogMapForRadio(const QString& radioName)
     return map;
   }
 
+  map.s1 = 255;
+
   // 1. Parse ADC inputs (STICK -> 0..3, FLEX -> pots / sliders / 6POS)
   const QJsonArray inputs =
       root.value("adc_inputs").toObject().value("inputs").toArray();
@@ -81,34 +83,75 @@ AnalogMap getAnalogMapForRadio(const QString& radioName)
       if (def == "MULTIPOS" || label == "6P" || label == "6POS" ||
           name == "6P" || name == "6POS") {
         map.pos6 = analogIdx;
-      } else if (label == "S1" || name == "S1" ||
-                 (map.s1 == 255 && (label == "P1" || name == "P1"))) {
+      } else if (def == "SLIDER" || name == "SL1" || name == "SL2" ||
+                 name == "LS" || name == "RS" || label == "LS" ||
+                 label == "RS" || label == "SL1" || label == "SL2") {
+        if (name == "SL2" || name == "RS" || label == "SL2" || label == "RS" ||
+            map.ls != 255) {
+          map.rs = analogIdx;
+        } else {
+          map.ls = analogIdx;
+        }
+      } else if (name == "P1" || name == "S1" || label == "P1" ||
+                 label == "S1") {
         map.s1 = analogIdx;
-      } else if (label == "S2" || name == "S2" ||
-                 (map.s2 == 255 && (label == "P2" || name == "P2"))) {
+      } else if (name == "P2" || name == "S2" || label == "P2" ||
+                 label == "S2") {
         map.s2 = analogIdx;
-      } else if (label == "LS" || name == "LS" || label == "SL1" ||
-                 name == "SL1") {
-        map.ls = analogIdx;
-      } else if (label == "RS" || name == "RS" || label == "SL2" ||
-                 name == "SL2") {
-        map.rs = analogIdx;
       }
 
       ++analogIdx;
     }
   }
 
-  // 2. Parse function switches (SW1..SW6, marked with "is_cfs": true)
+  // 2. Parse function switches block (SW1..SW6)
   const QJsonArray switches = root.value("switches").toArray();
   for (int i = 0; i < switches.size(); ++i) {
     const QJsonObject swObj = switches.at(i).toObject();
-    const bool isCfs = swObj.value("is_cfs").toBool(false);
     const QString swName = swObj.value("name").toString().toUpper();
 
-    if (isCfs || swName.startsWith("SW")) {
+    if (swName == "SW1") {
       map.firstFuncSwitch = static_cast<uint8_t>(i);
       break;
+    }
+  }
+
+  return map;
+}
+
+KeyMap getKeyMapForRadio(const QString& radioName)
+{
+  KeyMap map;
+  const QJsonObject root = loadRadioJson(radioName);
+  if (root.isEmpty()) {
+    return map;
+  }
+
+  const QJsonArray keys = root.value("keys").toArray();
+  for (int i = 0; i < keys.size(); ++i) {
+    const QJsonObject obj = keys.at(i).toObject();
+    const QString key = obj.value("key").toString().toUpper();
+    const QString name = obj.value("name").toString().toUpper();
+    const QString label = obj.value("label").toString().toUpper();
+    const uint8_t idx = static_cast<uint8_t>(i);
+
+    if (key == "KEY_EXIT" || name == "EXIT" || label == "RTN") {
+      map.rtn = idx;
+    } else if (key == "KEY_PAGEDN" || key == "KEY_PAGE" || name == "PAGEDN" ||
+               label == "PAGE>") {
+      map.pageNext = idx;
+    } else if (key == "KEY_PAGEUP" || name == "PAGEUP" || label == "PAGE<" ||
+               label == "<PAGE") {
+      map.pagePrev = idx;
+    } else if (key == "KEY_SYS" || name == "SYS" || label == "SYS") {
+      map.sys = idx;
+    } else if (key == "KEY_TELE" || name == "TELE" || label == "TELE") {
+      map.tele = idx;
+    } else if (key == "KEY_MODEL" || name == "MDL" || label == "MDL") {
+      map.mdl = idx;
+    } else if (key == "KEY_ENTER" || name == "ENTER" || label == "ENTER" ||
+               label == "ENT") {
+      map.enter = idx;
     }
   }
 

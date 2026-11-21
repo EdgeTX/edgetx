@@ -1,3 +1,5 @@
+#include "clicommands.h"
+
 #include <QDateTime>
 #include <QElapsedTimer>
 #include <QImage>
@@ -8,7 +10,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "clicommands.h"
 #include "radioconfig.h"
 
 namespace SwitchPos
@@ -134,6 +135,60 @@ static void PressKey(SimulatorInterface* sim, int key, int durationMs = 100)
                            [sim, keyCode]() { sim->setKey(keyCode, false); });
       },
       Qt::QueuedConnection);
+}
+
+static bool handleKeyCommand(std::stringstream& ss, SimulatorInterface* sim,
+                             const KeyMap& keyMap)
+{
+  std::string keyName;
+  if (!(ss >> keyName)) {
+    return false;
+  }
+
+  keyName = toUpper(keyName);
+  uint8_t keyCode = 255;
+
+  if (keyName == "RTN" || keyName == "EXIT") {
+    keyCode = keyMap.rtn;
+  } else if (keyName == "PAGE>" || keyName == "PAGEDN" ||
+             keyName == "PAGENEXT") {
+    keyCode = keyMap.pageNext;
+  } else if (keyName == "<PAGE" || keyName == "PAGE<" || keyName == "PAGEUP" ||
+             keyName == "PAGEPREV") {
+    keyCode = keyMap.pagePrev;
+  } else if (keyName == "SYS") {
+    keyCode = keyMap.sys;
+  } else if (keyName == "TELE") {
+    keyCode = keyMap.tele;
+  } else if (keyName == "MDL" || keyName == "MODEL") {
+    keyCode = keyMap.mdl;
+  } else if (keyName == "ENTER" || keyName == "ENT") {
+    keyCode = keyMap.enter;
+  } else {
+    std::cerr << "[ERR] Unknown key: " << keyName << "\n";
+    return false;
+  }
+
+  if (keyCode == 255) {
+    std::cerr << "Key " << keyName << " is not available on this radio\n";
+    return false;
+  }
+
+  PressKey(sim, keyCode);
+  return true;
+}
+
+static bool handleScrollCommand(std::stringstream& ss, SimulatorInterface* sim)
+{
+  int steps = 0;
+  if (!(ss >> steps)) {
+    return false;
+  }
+
+  QMetaObject::invokeMethod(
+      sim, [sim, steps]() { sim->rotaryEncoderEvent(steps); },
+      Qt::QueuedConnection);
+  return true;
 }
 
 static void handle6PosCommand(std::stringstream& ss, SimulatorInterface* sim,
@@ -373,8 +428,9 @@ void startConsoleInputThread(QApplication& app, SimulatorInterface* sim,
                              const QString& radioName, const QString& sdPath)
 {
   const AnalogMap analogMap = getAnalogMapForRadio(radioName);
+  const KeyMap keyMap = getKeyMapForRadio(radioName);
 
-  std::thread cliThread([&app, sim, radioName, sdPath, analogMap]() {
+  std::thread cliThread([&app, sim, radioName, sdPath, analogMap, keyMap]() {
     std::string line;
     while (std::getline(std::cin, line)) {
       std::stringstream ss(line);
@@ -421,12 +477,9 @@ void startConsoleInputThread(QApplication& app, SimulatorInterface* sim,
       } else if (cmd == "SCREENSHOT" || cmd == "SHOT") {
         handleSchreenshotCommand(ss, sim, radioName);
       } else if (cmd == "KEY") {
-        int keyId = 0;
-        if (ss >> keyId) {
-          PressKey(sim, keyId);
-        } else {
-          validCommand = false;
-        }
+        validCommand = handleKeyCommand(ss, sim, keyMap);
+      } else if (cmd == "SCROLL") {
+        validCommand = handleScrollCommand(ss, sim);
       } else {
         validCommand = false;
         std::lock_guard<std::mutex> lock(coutMutex);

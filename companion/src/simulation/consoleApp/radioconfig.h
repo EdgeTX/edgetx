@@ -16,6 +16,16 @@ struct AnalogMap {
   uint8_t firstFuncSwitch = 255;  // Function switches SW1..SW6 (TX15)
 };
 
+struct KeyMap {
+  uint8_t rtn = 255;       // RTN (KEY_EXIT)
+  uint8_t pageNext = 255;  // Page> (KEY_PAGEDN)
+  uint8_t pagePrev = 255;  // <Page (KEY_PAGEUP)
+  uint8_t sys = 255;       // SYS (KEY_SYS)
+  uint8_t tele = 255;      // Tele (KEY_TELE)
+  uint8_t mdl = 255;       // MDL (KEY_MODEL)
+  uint8_t enter = 255;     // Enter (KEY_ENTER)
+};
+
 struct LcdSpec {
   int width;
   int height;
@@ -23,4 +33,5 @@ struct LcdSpec {
 };
 
 AnalogMap getAnalogMapForRadio(const QString& radioName);
+KeyMap getKeyMapForRadio(const QString& radioName);
 LcdSpec getLcdSpecForRadio(const QString& radioName);
