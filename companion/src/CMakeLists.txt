@@ -325,7 +325,9 @@ target_include_directories(simulatorConsole PRIVATE
 
 target_link_libraries(simulatorConsole PRIVATE
   ${CPN_COMMON_LIB}
-  modeledit
+  shared
+  simulation
+  ${CPN_COMMON_LIB}
   ${SDL2_LIBRARIES}
   Qt::Widgets
 )
