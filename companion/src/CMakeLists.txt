@@ -294,17 +294,13 @@ target_link_libraries(${SIMULATOR_NAME} PRIVATE
 # =========================================================================
 set(simulatorConsole_SRCS
   simulation/consoleApp/main.cpp
-  simulation/consoleApp/RadioProfile.cpp
-  simulation/consoleApp/StdoutWatcher.cpp
-  simulation/consoleApp/SimulatorController.cpp
-  simulation/consoleApp/CliCommandHandler.cpp
+  simulation/consoleApp/radioconfig.cpp
+  simulation/consoleApp/clicommands.cpp
 )
 
 set(simulatorConsole_HDRS
-  simulation/consoleApp/RadioProfile.h
-  simulation/consoleApp/StdoutWatcher.h
-  simulation/consoleApp/SimulatorController.h
-  simulation/consoleApp/CliCommandHandler.h
+  simulation/consoleApp/radioconfig.h
+  simulation/consoleApp/clicommands.h
 )
 
 add_executable(simulatorConsole
