@@ -1,4 +1,3 @@
-option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
 option(AFHDS3 "AFHDS3 TX Module" ON)
@@ -57,15 +56,14 @@ set(LCD_DRIVER lcd_driver_480x272.cpp)
 set(HARDWARE_TOUCH YES)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
-set(SOFTWARE_KEYBOARD ON)
 set(FLYSKY_GIMBAL OFF)
 
 add_definitions(
-  -DSTM32H750XBTx -DSTM32H750xx
-  -DSDRAM -DCCMRAM
-  -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
-  -DTOUCH_PANEL_GT911
+  -DSTM32H750xx
+  -DSDRAM
+  -DHARDWARE_TOUCH -DHARDWARE_KEYS
 )
+list(APPEND BOARD_DEFINITIONS TOUCH_PANEL_GT911)
 
 set(SDRAM ON)
 
@@ -77,9 +75,6 @@ if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 
-if(NOT UNEXPECTED_SHUTDOWN)
-  add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
-endif()
 
 if(DISK_CACHE)
   set(SRC ${SRC} disk_cache.cpp)
@@ -89,7 +84,7 @@ endif()
 if(FUNCTION_SWITCHES_RGB_LEDS)
   set(RGB_LEDS YES)
   add_definitions(-DFUNCTION_SWITCHES_RGB_LEDS)
-  add_definitions(-DRGB_LEDS_900NS)
+  list(APPEND BOARD_DEFINITIONS RGB_LEDS_900NS)
 endif()
 
 if(RGB_LEDS)
@@ -186,3 +181,7 @@ endif()
 
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)
+
+# Only the board code reads these
+target_compile_definitions(board PRIVATE ${BOARD_DEFINITIONS})
+target_compile_definitions(board_bl PRIVATE ${BOARD_DEFINITIONS})

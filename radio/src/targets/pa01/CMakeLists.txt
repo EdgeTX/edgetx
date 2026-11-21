@@ -1,4 +1,3 @@
-option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" ON)
 option(AFHDS3 "AFHDS3 TX Module" ON)
@@ -40,8 +39,7 @@ set(TARGET_EXTRAM_START 0xC0000000)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM1=8192")
 set(FIRMWARE_STRIP_BOOTLOADER YES)
 
-add_definitions(-DPCBPA01 -DPCBHORUS -DPCBFLYSKY)
-add_definitions(-DBATTERY_CHARGE)
+add_definitions(-DPCBPA01 -DPCBHORUS)
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
@@ -59,15 +57,14 @@ set(LCD_DRIVER lcd_driver.cpp)
 set(HARDWARE_TOUCH YES)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
-set(SOFTWARE_KEYBOARD ON)
 set(FLYSKY_GIMBAL ON)
 set(FUNCTION_SWITCHES ON)
 
 
 add_definitions(
-  -DSTM32H750ZBTx -DSTM32H750xx
-  -DSDRAM -DCCMRAM
-  -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
+  -DSTM32H750xx
+  -DSDRAM
+  -DHARDWARE_KEYS
   -DRGBLEDS_MAX_LEDS=24
 )
 
@@ -81,9 +78,6 @@ if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 
-if(NOT UNEXPECTED_SHUTDOWN)
-  add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
-endif()
 
 if(DISK_CACHE)
   set(SRC ${SRC} disk_cache.cpp)
@@ -93,7 +87,7 @@ endif()
 if(FUNCTION_SWITCHES_RGB_LEDS)
   set(RGB_LEDS YES)
   add_definitions(-DFUNCTION_SWITCHES_RGB_LEDS)
-  add_definitions(-DRGB_LEDS_900NS)
+  list(APPEND BOARD_DEFINITIONS RGB_LEDS_900NS)
 endif()
 
 if(RGB_LEDS)
@@ -188,3 +182,7 @@ endif()
 
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)
+
+# Only the board code reads these
+target_compile_definitions(board PRIVATE ${BOARD_DEFINITIONS})
+target_compile_definitions(board_bl PRIVATE ${BOARD_DEFINITIONS})

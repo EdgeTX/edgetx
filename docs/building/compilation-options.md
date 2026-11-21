@@ -126,9 +126,7 @@ These options enable or disable firmware features. Defaults are typically set by
 | `LUA_COMPILER` | ON | Pre-compile and cache Lua scripts on the radio |
 | `LUA_MIXER` | ON | Lua mixer / model scripts |
 | `MODULE_PROTOCOL_D8` | ON | FrSky D8 module protocol |
-| `MODULE_PROTOCOL_FCC` | ON | FCC module protocol |
 | `MODULE_PROTOCOL_FLEX` | OFF | Non-certified FLEX module protocol |
-| `MODULE_PROTOCOL_LBT` | ON | EU / LBT module protocol |
 | `MODULE_SIZE_STD` | ON | Standard size external module bay |
 | `MULTIMODULE` | ON | DIY Multiprotocol TX Module |
 | `OVERRIDE_CHANNEL_FUNCTION` | ON | OverrideChannel function |
@@ -137,7 +135,6 @@ These options enable or disable firmware features. Defaults are typically set by
 | `RAS` | ON | RAS (SWR) measurement |
 | `SPACEMOUSE` | OFF | SpaceMouse support (Horus only) |
 | `TEMPLATES` | OFF | Model templates menu |
-| `UNEXPECTED_SHUTDOWN` | ON | Unexpected shutdown warning screen |
 | `USB_SERIAL` | ON | USB serial (CDC) |
 | `WATCHDOG` | ON | Hardware watchdog |
 

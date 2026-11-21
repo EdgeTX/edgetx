@@ -1,4 +1,3 @@
-option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(PXX1 "PXX1 protocol support" OFF)
 option(PXX2 "PXX2 protocol support" OFF)
 option(AFHDS3 "AFHDS3 TX Module" OFF)
@@ -45,7 +44,7 @@ set(FIRMWARE_QSPI ON)
 add_definitions(
   -DSTM32H7S7xx -DFIRMWARE_QSPI
   -DSDRAM -DPCBHORUS -DPCBX10
-  -DHARDWARE_TOUCH -DSOFTWARE_KEYBOARD
+  -DHARDWARE_TOUCH
   -DSOFTWARE_VOLUME
 )
 

@@ -149,8 +149,6 @@ Please note that _INTERNAL_GPS_ is not listed, so we need to add it manually. Cl
 
 [![Qt Creator CMake Options](../assets/images/build/qtcreator/QtCreatorCMakeOptions.png)](../assets/images/build/qtcreator/QtCreatorCMakeOptions.png)
 
-In case you plan performing in-circuit-debugging, you might want to turn off _UNEXPECTED_SHUTDOWN_, in order not to enter EdgeTX _Emergency Mode_ screen on every boot that was not previously nicely shut-down. Be aware though that this has the potential to corrupt the file system on microSD card, thus ideally use a separate card for debugging, or at least make sure the file system is OK, before you go and fly with it.
-
 Click _Apply Configuration Settings_. Please wait for the process to end, it can take some moments.
 
 Under _Build Steps_, click _Details_ to open a selection menu of what to build. Here, we only want to build and debug _firmware_, thus select _firmware_ and then deselect _all_.
