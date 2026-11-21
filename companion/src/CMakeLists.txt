@@ -289,6 +289,33 @@ target_link_libraries(${SIMULATOR_NAME} PRIVATE
   ${SDL2_LIBRARIES}
 )
 
+# =========================================================================
+# Console-only SimulatorTwo
+# =========================================================================
+add_executable(simulatortwo simulatortwo.cpp)
+
+target_include_directories(simulatortwo PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/simulation
+)
+target_link_libraries(simulatortwo PRIVATE
+    datamodels
+    firmwares
+    progress
+    shared
+    simulation
+    storage
+    maxLibQt
+    Qt::Core
+    Qt::Xml
+    Qt::Widgets
+    Qt::SerialPort)
+if (WASM_SIMU)
+    target_link_libraries(simulatortwo PRIVATE vmlib)
+endif()
+install(TARGETS simulatortwo DESTINATION bin)
+
 # Copy WASM simulator modules next to executables for local dev
 if(SIMULATOR_WASM_DIR)
   foreach(_target ${COMPANION_NAME} ${SIMULATOR_NAME})

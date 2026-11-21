@@ -70,6 +70,13 @@ SimulatorMainWindow::SimulatorMainWindow(QWidget *parent, const QString & simula
   m_batVoltage(0)
 {
   if (m_simulatorId.isEmpty()) {
+    //QString simulatorId = getCurrentFirmware()->getSimulatorId();
+    //throw std::runtime_error(
+    //    QString("SimulatorMainWindow: no simulatorId provided, current "
+    //            "firmware simulatorId is '%1'")
+    //        .arg(simulatorId)
+    //        .toStdString());
+
     m_simulatorId = SimulatorLoader::findSimulatorByName(getCurrentFirmware()->getSimulatorId());
   }
   m_simulator = SimulatorLoader::loadSimulator(m_simulatorId);
