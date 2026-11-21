@@ -49,6 +49,33 @@ constexpr uint8_t KEY_RTN = 2;  // Return/Exit key for TX16S
 static qint32 currentChannels[16] = {0};
 static std::atomic<bool> isHapticActive{false};
 
+constexpr int NUM_SWITCHES = 8;  // SA .. SH
+
+static std::atomic<int8_t> currentSwitches[NUM_SWITCHES]{
+    SwitchPos::CENTER, SwitchPos::CENTER, SwitchPos::CENTER, SwitchPos::CENTER,
+    SwitchPos::CENTER, SwitchPos::CENTER, SwitchPos::CENTER, SwitchPos::CENTER};
+
+static void printSwitches()
+{
+  std::string header;
+  std::string states;
+
+  for (int i = 0; i < NUM_SWITCHES; ++i) {
+    header += static_cast<char>('A' + i);
+
+    int8_t st = currentSwitches[i].load();
+    if (st == SwitchPos::UP) {
+      states += '^';
+    } else if (st == SwitchPos::DOWN) {
+      states += 'v';
+    } else {
+      states += '-';
+    }
+  }
+
+  std::cout << header << "\n" << states << std::endl;
+}
+
 // ============================================================================
 static std::string toUpper(std::string str)
 {
@@ -92,10 +119,14 @@ static void handleStickCommand(const std::string& cmd, std::stringstream& ss,
 static void handleSwitchCommand(std::stringstream& ss, SimulatorInterface* sim)
 {
   std::string sw, pos;
-  if (!(ss >> sw >> pos)) return;
+  if (!(ss >> sw >> pos)) {
+    printSwitches();
+    return;
+  }
 
   char swLetter = static_cast<char>(std::toupper(sw.back()));
   uint8_t swIndex = static_cast<uint8_t>(swLetter - 'A');
+  if (swIndex >= NUM_SWITCHES) return;
 
   pos = toUpper(pos);
   int8_t state = SwitchPos::CENTER;
@@ -106,6 +137,8 @@ static void handleSwitchCommand(std::stringstream& ss, SimulatorInterface* sim)
   } else if (pos == "CENTER" || pos == "MID") {
     state = SwitchPos::CENTER;
   }
+
+  currentSwitches[swIndex].store(state);
 
   QMetaObject::invokeMethod(
       sim, [sim, swIndex, state]() { sim->setSwitch(swIndex, state); },
