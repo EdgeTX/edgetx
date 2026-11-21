@@ -1,7 +1,9 @@
 #include "clicommands.h"
 
 #include <QDateTime>
+#include <QDir>
 #include <QElapsedTimer>
+#include <QFileInfo>
 #include <QImage>
 #include <QThread>
 #include <QTimer>
@@ -293,13 +295,17 @@ static bool saveScreenshot(SimulatorInterface* sim, const QString& radioName,
 
 static void handleSchreenshotCommand(std::stringstream& ss,
                                      SimulatorInterface* sim,
-                                     const QString& radioName)
+                                     const QString& radioName,
+                                     const QString& sdPath)
 {
   std::string filePath;
   if (!(ss >> filePath)) {
     filePath = "screenshot.png";
   }
   QString qFilePath = QString::fromStdString(filePath);
+  if (!sdPath.isEmpty() && QFileInfo(qFilePath).isRelative()) {
+    qFilePath = QDir(sdPath).filePath(qFilePath);
+  }
   if (saveScreenshot(sim, radioName, qFilePath)) {
     std::cout << "Screenshot saved to: " << qFilePath.toStdString() << "\n"
               << std::flush;
@@ -475,7 +481,7 @@ void startConsoleInputThread(QApplication& app, SimulatorInterface* sim,
       } else if (cmd == "SW" || cmd == "SWITCH") {
         handleSwitchCommand(ss, sim);
       } else if (cmd == "SCREENSHOT" || cmd == "SHOT") {
-        handleSchreenshotCommand(ss, sim, radioName);
+        handleSchreenshotCommand(ss, sim, radioName, sdPath);
       } else if (cmd == "KEY") {
         validCommand = handleKeyCommand(ss, sim, keyMap);
       } else if (cmd == "SCROLL") {
