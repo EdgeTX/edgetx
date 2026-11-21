@@ -164,8 +164,6 @@ static void handle6PosCommand(std::stringstream& ss, SimulatorInterface* sim,
           });
         },
         Qt::QueuedConnection);
-    //} else if (analogMap.firstPos6Key != 255) {
-    //  PressKey(sim, analogMap.firstPos6Key + (pos - 1), 100);
   } else {
     std::cerr << "6POS is not available on this radio\n";
   }

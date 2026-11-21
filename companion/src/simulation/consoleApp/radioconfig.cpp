@@ -1,58 +1,129 @@
 #include "radioconfig.h"
 
+#include <QDirIterator>
+#include <QFile>
+#include <QFileInfo>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <iostream>
+
+static QJsonObject loadRadioJson(const QString& radioName)
+{
+  QString base = QFileInfo(radioName.trimmed()).completeBaseName().toLower();
+  if (base.startsWith("edgetx-")) {
+    base = base.mid(7);
+  }
+
+  const QString targetFileName = base + ".json";
+  QString foundPath;
+
+  QDirIterator it(":/", QStringList() << "*.json", QDir::Files,
+                  QDirIterator::Subdirectories);
+  while (it.hasNext()) {
+    const QString path = it.next();
+    if (QFileInfo(path).fileName().compare(targetFileName,
+                                           Qt::CaseInsensitive) == 0) {
+      foundPath = path;
+      break;
+    }
+  }
+
+  if (foundPath.isEmpty()) {
+    std::cerr << "[WARN] Hardware definition JSON not found for radio: "
+              << radioName.toStdString() << "\n";
+    return {};
+  }
+
+  QFile file(foundPath);
+  if (!file.open(QIODevice::ReadOnly)) {
+    std::cerr << "[WARN] Failed to open hardware definition: "
+              << foundPath.toStdString() << "\n";
+    return {};
+  }
+
+  QJsonParseError parseError;
+  const QJsonDocument doc =
+      QJsonDocument::fromJson(file.readAll(), &parseError);
+  if (parseError.error != QJsonParseError::NoError || !doc.isObject()) {
+    std::cerr << "[WARN] Failed to parse JSON " << foundPath.toStdString()
+              << ": " << parseError.errorString().toStdString() << "\n";
+    return {};
+  }
+
+  return doc.object();
+}
+
 AnalogMap getAnalogMapForRadio(const QString& radioName)
 {
-  const QString name = radioName.toLower();
-
-if (name.contains("tx16smk3") || (name.contains("tx16") && name.contains("mk3")) || name.contains("gx15")) {
-    // 0..3: Sticks, 4: S1, 5: S2, 6: LS, 7: RS; switches 0..9: SA..SJ, 10..15: SW1..SW6
-    return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/6, /*rs=*/7, /*pos6=*/255, /*firstFuncSwitch=*/10};
-  }
-  if (name.contains("tx16") || name.contains("t16") || name.contains("t18") ||
-      name.contains("x10") || name.contains("x12s")) {
-    // 4: S1, 5: 6POS, 6: S2, 7: LS, 8: RS
-    return {0, 1, 2, 3, /*s1=*/4, /*s2=*/6, /*ls=*/7, /*rs=*/8, /*pos6=*/5, /*firstFuncSwitch=*/255};
+  AnalogMap map;
+  const QJsonObject root = loadRadioJson(radioName);
+  if (root.isEmpty()) {
+    return map;
   }
 
-  if (name.contains("boxer")) {
-    // 4: S1 (POT1), 5: S2 (POT2), 6: 6POS (POT3)
-    return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/255, /*rs=*/255, /*pos6=*/6, /*firstFuncSwitch=*/255};
+  // 1. Parse ADC inputs (STICK -> 0..3, FLEX -> pots / sliders / 6POS)
+  const QJsonArray inputs =
+      root.value("adc_inputs").toObject().value("inputs").toArray();
+
+  uint8_t analogIdx = 0;
+  for (const QJsonValue& val : inputs) {
+    const QJsonObject obj = val.toObject();
+    const QString type = obj.value("type").toString().toUpper();
+
+    if (type == "STICK") {
+      ++analogIdx;
+    } else if (type == "FLEX") {
+      const QString name = obj.value("name").toString().toUpper();
+      const QString label = obj.value("label").toString().toUpper();
+      const QString def = obj.value("default").toString().toUpper();
+
+      if (def == "MULTIPOS" || label == "6P" || label == "6POS" ||
+          name == "6P" || name == "6POS") {
+        map.pos6 = analogIdx;
+      } else if (label == "S1" || name == "S1" ||
+                 (map.s1 == 255 && (label == "P1" || name == "P1"))) {
+        map.s1 = analogIdx;
+      } else if (label == "S2" || name == "S2" ||
+                 (map.s2 == 255 && (label == "P2" || name == "P2"))) {
+        map.s2 = analogIdx;
+      } else if (label == "LS" || name == "LS" || label == "SL1" ||
+                 name == "SL1") {
+        map.ls = analogIdx;
+      } else if (label == "RS" || name == "RS" || label == "SL2" ||
+                 name == "SL2") {
+        map.rs = analogIdx;
+      }
+
+      ++analogIdx;
+    }
   }
 
-if (name.contains("tx15")) {
-    // 4: S1, 5: S2, switches 6..11: SW1..SW6
-    return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/255, /*rs=*/255, /*pos6=*/255, /*firstFuncSwitch=*/6};
+  // 2. Parse function switches (SW1..SW6, marked with "is_cfs": true)
+  const QJsonArray switches = root.value("switches").toArray();
+  for (int i = 0; i < switches.size(); ++i) {
+    const QJsonObject swObj = switches.at(i).toObject();
+    const bool isCfs = swObj.value("is_cfs").toBool(false);
+    const QString swName = swObj.value("name").toString().toUpper();
+
+    if (isCfs || swName.startsWith("SW")) {
+      map.firstFuncSwitch = static_cast<uint8_t>(i);
+      break;
+    }
   }
 
-if (name.contains("gx12")) {
-    // 0..3: Sticks, 4: P1 (S1), 5: P2 (S2), 6: SL1 (LS), 7: SL2 (RS); switches 0..7: SA..SH, 8..13: SW1..SW6
-    return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/6, /*rs=*/7, /*pos6=*/255, /*firstFuncSwitch=*/8};
-  }
-
-  // TX12, TX12MK2, Zorro, Pocket: 4: S1, 5: S2
-  return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/255, /*rs=*/255, /*pos6=*/255, /*firstFuncSwitch=*/255};
+  return map;
 }
 
 LcdSpec getLcdSpecForRadio(const QString& radioName)
 {
-  const QString name = radioName.toLower();
-  if (name.contains("tx15")) {
-    return {480, 320, 16};
-  }
-
-  if (name.contains("nv14") || name.contains("el18") || name.contains("pl18")) {
-    return {320, 480, 16};
-  }
-
-  if (name.contains("tx16smk3") ||
-      (name.contains("tx16") && name.contains("mk3"))) {
-    return {800, 480, 16};
-  }
-
-  if (name.contains("tx16") || name.contains("t16") || name.contains("t18") ||
-      name.contains("t15") || name.contains("x10") || name.contains("x12s") ||
-      name.contains("gx15")) {
-    return {480, 272, 16};
+  const QJsonObject root = loadRadioJson(radioName);
+  if (root.contains("display")) {
+    const QJsonObject display = root.value("display").toObject();
+    const int width = display.value("lcd_w").toInt(128);
+    const int height = display.value("lcd_h").toInt(64);
+    const int depth = display.value("lcd_depth").toInt(1);
+    return {width, height, depth};
   }
 
   return {128, 64, 1};
