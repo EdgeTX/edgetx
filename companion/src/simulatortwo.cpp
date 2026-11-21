@@ -2,30 +2,27 @@
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QDateTime>
-#include <QMessageBox>
+#include <QDir>
 #include <QRegularExpression>
 #include <QString>
 #include <QTextStream>
 #include <QTimer>
+#include <algorithm>
+#include <atomic>
+#include <cmath>
 #include <iostream>
-#include <memory>
 #include <sstream>
 #include <thread>
 
-#include "eeprominterface.h"
 #include "appdata.h"
 #include "boardfactories.h"
 #include "constants.h"
 #include "customdebug.h"
-#include "helpers.h"
 #include "simulation/simulatorinterface.h"
 #include "simulator.h"
 #include "storage.h"
 #include "translations.h"
 #include "version.h"
-
-#include <algorithm>
-#include <cmath>
 
 using namespace Simulator;
 
@@ -34,12 +31,25 @@ int finish(int exitCode);
 
 namespace StickAxis
 {
-constexpr uint8_t ROLL = 0;      // Aileron (Roll)
-constexpr uint8_t PITCH = 1;     // Elevator (Pitch)
-constexpr uint8_t THROTTLE = 2;  // Throttle
-constexpr uint8_t YAW = 3;       // Rudder (Yaw)
-}
+    constexpr uint8_t ROLL = 0;      // Aileron
+    constexpr uint8_t PITCH = 1;     // Elevator
+    constexpr uint8_t THROTTLE = 2;  // Throttle
+    constexpr uint8_t YAW = 3;       // Rudder
+}  // namespace StickAxis
 
+namespace SwitchPos
+{
+    constexpr int8_t UP = -1;
+    constexpr int8_t CENTER = 0;
+    constexpr int8_t DOWN = 1;
+}  // namespace SwitchPos
+
+constexpr uint8_t KEY_RTN = 2;  // Return/Exit key for TX16S
+
+static qint32 currentChannels[16] = {0};
+static std::atomic<bool> isHapticActive{false};
+
+// ============================================================================
 static std::string toUpper(std::string str)
 {
   for (char& c : str) {
@@ -79,25 +89,15 @@ static void handleStickCommand(const std::string& cmd, std::stringstream& ss,
       Qt::QueuedConnection);
 }
 
-constexpr uint8_t KEY_RTN = 2;
-static qint32 currentChannels[16] = {0};
-static std::atomic<bool> isHapticActive {false};
-
-namespace SwitchPos
-{
-    constexpr int8_t UP = -1;
-    constexpr int8_t CENTER = 0;
-    constexpr int8_t DOWN = 1;
-}
-
 static void handleSwitchCommand(std::stringstream& ss, SimulatorInterface* sim)
 {
   std::string sw, pos;
   if (!(ss >> sw >> pos)) return;
-  
+
   char swLetter = static_cast<char>(std::toupper(sw.back()));
   uint8_t swIndex = static_cast<uint8_t>(swLetter - 'A');
 
+  pos = toUpper(pos);
   int8_t state = SwitchPos::CENTER;
   if (pos == "UP") {
     state = SwitchPos::UP;
@@ -112,19 +112,8 @@ static void handleSwitchCommand(std::stringstream& ss, SimulatorInterface* sim)
       Qt::QueuedConnection);
 }
 
-enum MessageLevel { MsgInfo, MsgWarning, MsgCritical };
-
-void showMessage(const QString& message, MessageLevel level = MsgInfo)
-{
-  if (level == MsgInfo) {
-    QTextStream(stdout) << message << Qt::endl;
-  } else {
-    QTextStream(stderr) << message << Qt::endl;
-  }
-}
-enum class InitResult { Success, ExitClean, Error };
-
-void initApplicationSubsystems(QApplication& app)
+// ============================================================================
+static void initApplicationSubsystems(QApplication& app)
 {
   app.setApplicationName(APP_SIMULATOR);
   app.setApplicationVersion(VERSION);
@@ -155,39 +144,88 @@ void initApplicationSubsystems(QApplication& app)
   Q_INIT_RESOURCE(hwdefs);
   gBoardFactories = new BoardFactories();
   registerStorageFactories();
-  registerOpenTxFirmwares();
   SimulatorLoader::registerSimulators();
 }
 
-InitResult setupSessionEnvironment(SimulatorOptions& simOptions, int& profileId)
+static bool parseCommandLine(const QApplication& app, QString& radioName,
+                             QString& sdPath)
 {
-  if (!SimulatorLoader::getAvailableSimulators().size()) {
-    showMessage(QCoreApplication::translate("SimulatorMain", "ERROR: No simulator libraries available."), MsgCritical);
-    return InitResult::Error;
+  QCommandLineParser parser;
+  parser.setApplicationDescription("EdgeTX Console Simulator Runner");
+  parser.addHelpOption();
+  parser.addVersionOption();
+
+  QCommandLineOption optRadio(QStringList() << "r" << "radio",
+                              "Radio type (e.g. tx16s, boxer, zorro)", "name");
+  QCommandLineOption optSd(QStringList() << "s" << "sd-path",
+                           "Path to SD card directory", "path");
+
+  parser.addOption(optRadio);
+  parser.addOption(optSd);
+
+  parser.addPositionalArgument(
+      "radio", "Radio type (optional if specified via -r)", "[radio]");
+  parser.addPositionalArgument(
+      "sd-path", "Path to SD card directory (optional if specified via -s)",
+      "[sd-path]");
+
+  if (!parser.parse(app.arguments())) {
+    std::cerr << parser.errorText().toStdString() << "\n";
+    return false;
   }
 
-  profileId = (g.simuLastProfId() > -1 ? g.simuLastProfId() : g.id());
-  simOptions = g.profile[profileId].simulatorOptions();
+  if (parser.isSet("help")) {
+    std::cout << parser.helpText().toStdString() << "\nAvailable radios:\n";
+    for (const QString& name : SimulatorLoader::getAvailableSimulators()) {
+      std::cout << "  " << name.toStdString() << "\n";
+    }
+    return false;
+  }
 
-  Firmware* simfw = Firmware::getFirmwareForId(simOptions.firmwareId + "-simulator");
-  delete simfw;
+  if (parser.isSet(optRadio)) {
+    radioName = parser.value(optRadio);
+  } else if (!parser.positionalArguments().isEmpty()) {
+    radioName = parser.positionalArguments().at(0);
+  }
 
-  Firmware::setCurrentVariant(Firmware::getFirmwareForId(simOptions.firmwareId));
-  static std::unique_ptr<QTemporaryDir> tempDir = std::make_unique<QTemporaryDir>(QDir::tempPath() % "/etx-cpn-XXXXXX");
+  if (parser.isSet(optSd)) {
+    sdPath = parser.value(optSd);
+  } else if (parser.positionalArguments().size() > 1) {
+    sdPath = parser.positionalArguments().at(1);
+  }
 
-  return InitResult::Success;
+  if (radioName.isEmpty() || sdPath.isEmpty()) {
+    std::cerr << "ERROR: Both radio name and sd-path are required!\n"
+              << "Usage: simulatortwo -r <radio> -s <sd-path>\n"
+              << "   or: simulatortwo <radio> <sd-path>\n"
+              << "Run with --help to view available radios.\n";
+    return false;
+  }
+
+  if (!QDir(sdPath).exists()) {
+    std::cerr << "ERROR: SD path does not exist: " << sdPath.toStdString()
+              << "\n";
+    return false;
+  }
+
+  return true;
 }
 
-SimulatorInterface* createAndStartSimulator(const SimulatorOptions& simOptions, QThread* simuThread, QApplication& app)
+// ============================================================================
+static SimulatorInterface* createAndStartSimulator(const QString& radioName,
+                                                   const QString& sdPath,
+                                                   QThread* simuThread,
+                                                   QApplication& app)
 {
-  SimulatorInterface* sim = SimulatorLoader::loadSimulator("tx16s");
+  SimulatorInterface* sim = SimulatorLoader::loadSimulator(radioName);
   if (!sim) {
-    qCritical() << "Cannot load simulator!";
+    std::cerr << "ERROR: Failed to load simulator library for: "
+              << radioName.toStdString() << "\n";
     return nullptr;
   }
 
   QObject::connect(sim, &SimulatorInterface::started, &app, []() {
-    std::cout << "Simulator started. Ready for console input." << std::flush;
+    std::cout << "Simulator started. Initializing radio...\n" << std::flush;
   });
 
   QObject::connect(sim, &SimulatorInterface::channelOutValueChange, &app,
@@ -199,35 +237,45 @@ SimulatorInterface* createAndStartSimulator(const SimulatorOptions& simOptions, 
                    });
 
   QObject::connect(sim, &SimulatorInterface::lcdChange, sim, &SimulatorInterface::lcdFlushed);
-  QObject::connect(sim, &SimulatorInterface::hapticChanged, &app, [](int intensity) { isHapticActive.store(intensity > 1); });
+  QObject::connect(sim, &SimulatorInterface::hapticChanged, &app, [](int intensity) { isHapticActive.store(intensity > 0); });
 
   sim->moveToThread(simuThread);
   simuThread->start();
 
   QMetaObject::invokeMethod(
       sim,
-      [sim]() {
-        sim->setSdPath("C:/SD");
+      [sim, sdPath]() {
+        sim->setSdPath(sdPath);
         sim->init();
         sim->start(nullptr, true);
+
+        sim->setAnalogValue(1, -1024);
+        sim->setAnalogValue(2, -1024);
 
         QTimer::singleShot(5000, sim, [sim]() {
           sim->setKey(KEY_RTN, true);
           QTimer::singleShot(100, sim, [sim]() {
             sim->setKey(KEY_RTN, false);
-            QTimer::singleShot(3000, sim, [sim]() {
-                std::cout << "\n===================================================================\n"
-                          << ">>> EdgeTX Simulator CLI Ready! Available commands:\n"
-                          << "-------------------------------------------------------------------\n"
-                          << "  THROTTLE <0..100>          ex: THROTTLE 0, THROTTLE 50\n"
-                          << "  ROLL|PITCH|YAW <-100..100> ex: PITCH -20, ROLL 50, YAW 0\n"
-                          << "  SW <A..H> <UP|MID|DOWN>    ex: SW A UP, SW B CENTER, SW SG DOWN\n"
-                          << "  CHANNELS                   Print current 16 channel outputs\n"
-                          << "  HAPTIC                     Check vibration status (ON / OFF)\n"
-                          << "  EXIT                       Shutdown simulator and exit\n"
-                          << "===================================================================\n\n"
-                          << std::flush;  
-            });
+            QTimer::singleShot(
+                3000, sim, [sim]() {
+                  sim->setAnalogValue(0, 0);
+                  sim->setAnalogValue(1, 0);
+                  sim->setAnalogValue(2, 0);
+                  sim->setAnalogValue(3, 0);
+
+                  std::cout
+                      << "\n===================================================================\n"
+                      << ">>> EdgeTX Simulator CLI Ready! Available commands:\n"
+                      << "-------------------------------------------------------------------\n"
+                      << "  THROTTLE <0..100>          ex: THROTTLE 0, THROTTLE 50\n"
+                      << "  ROLL|PITCH|YAW <-100..100> ex: PITCH -20, ROLL 50, YAW 0\n"
+                      << "  SW <A..H> <UP|MID|DOWN>    ex: SW A UP, SW B CENTER, SW SG DOWN\n"
+                      << "  CHANNELS                   Print current 16 channel outputs\n"
+                      << "  HAPTIC                     Check vibration status (ON / OFF)\n"
+                      << "  EXIT                       Shutdown simulator and exit\n"
+                      << "===================================================================\n\n"
+                      << std::flush;
+                });
           });
         });
       },
@@ -236,7 +284,7 @@ SimulatorInterface* createAndStartSimulator(const SimulatorOptions& simOptions, 
   return sim;
 }
 
-void startConsoleInputThread(QApplication& app, SimulatorInterface* sim)
+static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim)
 {
   std::thread cliThread([&app, sim]() {
     std::string line;
@@ -248,13 +296,14 @@ void startConsoleInputThread(QApplication& app, SimulatorInterface* sim)
       std::string cmd = toUpper(rawCmd);
 
       if (cmd == "EXIT") {
-        QMetaObject::invokeMethod(&app, &QCoreApplication::quit, Qt::QueuedConnection);
+        QMetaObject::invokeMethod(&app, &QCoreApplication::quit,
+                                  Qt::QueuedConnection);
         break;
       } else if (cmd == "CHANNELS") {
         QString channelsStr;
         for (int i = 0; i < 16; ++i) {
-          channelsStr += QString::number(i+1) + ":" + QString::number(currentChannels[i]) + " ";
-          //channelsStr += QString::number(currentChannels[i]) + " ";
+          channelsStr += QString::number(i + 1) + ":" +
+                         QString::number(currentChannels[i]) + " ";
         }
         std::cout << channelsStr.trimmed().toStdString() << "\n" << std::flush;
       } else if (cmd == "HAPTIC") {
@@ -270,21 +319,24 @@ void startConsoleInputThread(QApplication& app, SimulatorInterface* sim)
   cliThread.detach();
 }
 
+// ============================================================================
+// MAIN
+// ============================================================================
 int main(int argc, char* argv[])
 {
   QApplication app(argc, argv);
   initApplicationSubsystems(app);
 
-  int profileId = -1;
-  SimulatorOptions simOptions;
-  InitResult initRes = setupSessionEnvironment(simOptions, profileId);
+  QString radioName;
+  QString sdPath;
 
-  if (initRes == InitResult::ExitClean) return finish(0);
-  if (initRes == InitResult::Error) return finish(1);
+  if (!parseCommandLine(app, radioName, sdPath)) {
+    return finish(1);
+  }
 
   QThread* simuThread = new QThread();
   SimulatorInterface* sim =
-      createAndStartSimulator(simOptions, simuThread, app);
+      createAndStartSimulator(radioName, sdPath, simuThread, app);
   if (!sim) {
     delete simuThread;
     return finish(1);
@@ -292,8 +344,10 @@ int main(int argc, char* argv[])
 
   startConsoleInputThread(app, sim);
 
-  QObject::connect(&app, &QCoreApplication::aboutToQuit, sim, [sim]() { sim->stop(); });
-  QObject::connect(&app, &QCoreApplication::aboutToQuit, simuThread, &QThread::quit);
+  QObject::connect(&app, &QCoreApplication::aboutToQuit, sim,
+                   [sim]() { sim->stop(); });
+  QObject::connect(&app, &QCoreApplication::aboutToQuit, simuThread,
+                   &QThread::quit);
   QObject::connect(simuThread, &QThread::finished, sim, &QObject::deleteLater);
 
   const int result = app.exec();
@@ -306,7 +360,6 @@ int main(int argc, char* argv[])
 int finish(int exitCode)
 {
   SimulatorLoader::unregisterSimulators();
-  unregisterOpenTxFirmwares();
   unregisterStorageFactories();
   gBoardFactories->unregisterBoardFactories();
 
