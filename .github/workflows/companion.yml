@@ -76,12 +76,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - runs-on: ubuntu-24.04
+          # ubuntu-latest is 26.04, but there is no arm64 equivalent label, so
+          # pin both to the same release
+          - runs-on: ubuntu-26.04
             os: linux
             name-suffix: ''
           # edgetx-dev is multi-arch, so the same image tag pulls the arm64
           # variant here
-          - runs-on: ubuntu-24.04-arm
+          - runs-on: ubuntu-26.04-arm
             os: linux-arm64
             name-suffix: ' (arm64)'
 
