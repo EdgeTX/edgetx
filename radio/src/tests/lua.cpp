@@ -784,4 +784,44 @@ TEST(Lua, testOutputLimitsAsSources)
       "if o.min ~= -1500 or o.max ~= 1500 or o.offset ~= 1000 then error('extended') end");
 }
 
+TEST(Lua, testModelSensors)
+{
+  MODEL_RESET();
+  allowNewSensors = false;
+
+  // A new custom sensor in an empty slot, without discovery
+  luaExecStr(
+      "assert(model.getSensor(0).name == '')\n"
+      "assert(model.setSensor(0, {name = 'Tmp1', id = 0x1311, subId = 2,"
+      " instance = 5, unit = UNIT_CELSIUS, prec = 1}))\n"
+      "local s = model.getSensor(0)\n"
+      "assert(s.type == 0 and s.name == 'Tmp1' and s.id == 0x1311)\n"
+      "assert(s.subId == 2 and s.instance == 5)\n"
+      "assert(s.unit == UNIT_CELSIUS and s.prec == 1)\n");
+  EXPECT_TRUE(g_model.telemetrySensors[0].logs);
+
+  // Missing parameters remain unchanged; an empty name keeps the old one
+  luaExecStr(
+      "assert(model.setSensor(0, {instance = 6, name = ''}))\n"
+      "local s = model.getSensor(0)\n"
+      "assert(s.name == 'Tmp1' and s.id == 0x1311 and s.instance == 6)\n");
+
+  // A new sensor without a name is named after its ID
+  luaExecStr(
+      "assert(model.setSensor(1, {id = 0x1310, instance = 3}))\n"
+      "assert(model.getSensor(1).name == '1310')\n");
+
+  // Out of range, a calculated sensor: not set
+  g_model.telemetrySensors[2].type = TELEM_TYPE_CALCULATED;
+  strncpy(g_model.telemetrySensors[2].label, "Calc", TELEM_LABEL_LEN);
+  luaExecStr(
+      "assert(not model.setSensor(60000, {id = 1}))\n"
+      "assert(not model.setSensor(2, {id = 1}))\n");
+
+  luaExecStr(
+      "model.deleteSensor(0)\n"
+      "assert(model.getSensor(0).name == '')\n"
+      "assert(model.getSensor(1).name == '1310')\n");
+}
+
 #endif   // #if defined(LUA)
