@@ -19,6 +19,13 @@
  * GNU General Public License for more details.
  */
 
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <AppDebugMessageHandler>
 #include <QApplication>
 #include <QCommandLineParser>
@@ -35,6 +42,9 @@
 #include <iostream>
 #include <sstream>
 #include <thread>
+#include <QElapsedTimer>
+#include <functional>
+#include <mutex>
 
 #include "appdata.h"
 #include "boards.h"
@@ -89,17 +99,6 @@ namespace SwitchPos
     constexpr int8_t UP = -1;
     constexpr int8_t CENTER = 0;
     constexpr int8_t DOWN = 1;
-}
-
-static uint8_t getExitKeyForRadio(const QString& radioName)
-{
-  const QString name = radioName.toLower();
-  // тощо
-  if (name.startsWith("tx12") || name == "boxer" || name == "zorro" ||
-      name == "pocket") {
-    return 1;
-  }
-  return 2;
 }
 
 static qint32 currentChannels[16] = {0};
@@ -460,6 +459,128 @@ static void PressKey(SimulatorInterface* sim, int key, int durationMs = 100)
       Qt::QueuedConnection);
 }
 
+class StdoutWatcher
+{
+ public:
+  static StdoutWatcher& instance()
+  {
+    static StdoutWatcher inst;
+    return inst;
+  }
+
+  void start()
+  {
+    if (m_started.exchange(true)) return;
+
+    fflush(stdout);
+    setvbuf(stdout, nullptr, _IONBF, 0);
+
+    int pipeFds[2];
+#ifdef _WIN32
+    m_origStdoutFd = _dup(_fileno(stdout));
+    if (m_origStdoutFd == -1 || _pipe(pipeFds, 4096, _O_BINARY) != 0) {
+      return;
+    }
+    _dup2(pipeFds[1], _fileno(stdout));
+    _close(pipeFds[1]);
+#else
+    m_origStdoutFd = dup(STDOUT_FILENO);
+    if (m_origStdoutFd == -1 || pipe(pipeFds) != 0) {
+      return;
+    }
+    dup2(pipeFds[1], STDOUT_FILENO);
+    close(pipeFds[1]);
+#endif
+
+    const int readFd = pipeFds[0];
+    std::thread reader([this, readFd]() {
+      char buf[1024];
+      while (true) {
+#ifdef _WIN32
+        int n = _read(readFd, buf, sizeof(buf));
+#else
+        ssize_t n = read(readFd, buf, sizeof(buf));
+#endif
+        if (n <= 0) break;
+
+        if (m_origStdoutFd != -1) {
+#ifdef _WIN32
+          _write(m_origStdoutFd, buf, static_cast<unsigned int>(n));
+#else
+          (void)write(m_origStdoutFd, buf, static_cast<size_t>(n));
+#endif
+        }
+
+        if (m_capturing.load()) {
+          std::lock_guard<std::mutex> lock(m_mutex);
+          m_buffer.append(buf, static_cast<size_t>(n));
+        }
+      }
+#ifdef _WIN32
+      _close(readFd);
+#else
+      close(readFd);
+#endif
+    });
+    reader.detach();
+  }
+
+  void setCapturing(bool enabled)
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_capturing.store(enabled);
+    if (!enabled) {
+      m_buffer.clear();
+    }
+  }
+
+  bool contains(const std::string& text) const
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    return m_buffer.find(text) != std::string::npos;
+  }
+
+ private:
+  std::atomic<bool> m_started{false};
+  std::atomic<bool> m_capturing{true};
+  int m_origStdoutFd{-1};
+  mutable std::mutex m_mutex;
+  std::string m_buffer;
+};
+
+static void waitForLogOutput(SimulatorInterface* sim,
+                             const std::string& expectedText, int timeoutMs,
+                             std::function<void()> onCompleted)
+{
+  if (StdoutWatcher::instance().contains(expectedText)) {
+    onCompleted();
+    return;
+  }
+
+  auto* timer = new QTimer(sim);
+  QElapsedTimer elapsed;
+  elapsed.start();
+
+  QObject::connect(timer, &QTimer::timeout, sim,
+                   [timer, expectedText, timeoutMs, elapsed, onCompleted]() {
+                     if (StdoutWatcher::instance().contains(expectedText)) {
+                       timer->stop();
+                       timer->deleteLater();
+                       onCompleted();
+                     } else if (elapsed.hasExpired(timeoutMs)) {
+                       std::cerr
+                           << "[WARN] Timeout waiting for: " << expectedText
+                           << "\n"
+                           << std::flush;
+                       timer->stop();
+                       timer->deleteLater();
+                       onCompleted();
+                     }
+                   });
+
+  timer->start(50);
+}
+
 static SimulatorInterface* createAndStartSimulator(const QString& radioName,
                                                    const QString& sdPath,
                                                    QThread* simuThread,
@@ -484,63 +605,114 @@ static SimulatorInterface* createAndStartSimulator(const QString& radioName,
                      }
                    });
 
-  QObject::connect(sim, &SimulatorInterface::lcdChange, sim, &SimulatorInterface::lcdFlushed);
-  QObject::connect(sim, &SimulatorInterface::hapticChanged, &app, [](int intensity) { isHapticActive.store(intensity > 0); });
+  QObject::connect(sim, &SimulatorInterface::lcdChange, sim,
+                   &SimulatorInterface::lcdFlushed);
+  QObject::connect(sim, &SimulatorInterface::hapticChanged, &app,
+                   [](int intensity) { isHapticActive.store(intensity > 0); });
 
   sim->moveToThread(simuThread);
   simuThread->start();
+  StdoutWatcher::instance().start();
 
   const AnalogMap analogMap = getAnalogMapForRadio(radioName);
+  const bool isColorLcd = (getLcdSpecForRadio(radioName).depth == 16);
 
   QMetaObject::invokeMethod(
       sim,
-      [sim, sdPath, analogMap]() {
+      [sim, sdPath, analogMap, isColorLcd]() {
+        StdoutWatcher::instance().setCapturing(true);
+
         sim->setSdPath(sdPath);
         sim->init();
         sim->start(nullptr, true);
-        sim->setAnalogValue(2, -1024);
+        sim->setAnalogValue(analogMap.throttle, -1024);
+
+        auto onInitFinished = [sim, analogMap]() {
+          StdoutWatcher::instance().setCapturing(false);
 
           QTimer::singleShot(3000, sim, [sim, analogMap]() {
-                    sim->setAnalogValue(analogMap.roll, 0);
-                    sim->setAnalogValue(analogMap.pitch, 0);
-                    sim->setAnalogValue(analogMap.throttle, -1024);
-                    sim->setAnalogValue(analogMap.yaw, 0);
+            sim->setAnalogValue(analogMap.roll, 0);
+            sim->setAnalogValue(analogMap.pitch, 0);
+            sim->setAnalogValue(analogMap.throttle, -1024);
+            sim->setAnalogValue(analogMap.yaw, 0);
 
-                    if (analogMap.s1 != 255) sim->setAnalogValue(analogMap.s1, -1024);
-                    if (analogMap.s2 != 255) sim->setAnalogValue(analogMap.s2, -1024);
-                    if (analogMap.ls != 255) sim->setAnalogValue(analogMap.ls, -1024);
-                    if (analogMap.rs != 255) sim->setAnalogValue(analogMap.rs, -1024);
-                    if (analogMap.pos6 != 255) sim->setAnalogValue(analogMap.pos6, -1024);
+            if (analogMap.s1 != 255) sim->setAnalogValue(analogMap.s1, -1024);
+            if (analogMap.s2 != 255) sim->setAnalogValue(analogMap.s2, -1024);
+            if (analogMap.ls != 255) sim->setAnalogValue(analogMap.ls, -1024);
+            if (analogMap.rs != 255) sim->setAnalogValue(analogMap.rs, -1024);
+            if (analogMap.pos6 != 255)
+              sim->setAnalogValue(analogMap.pos6, -1024);
 
-                  for (uint8_t i = 0; i < NUM_SWITCHES; ++i) {
-                    currentSwitches[i].store(SwitchPos::UP);
-                    sim->setSwitch(i, SwitchPos::UP);
-                  }
+            for (uint8_t i = 0; i < NUM_SWITCHES; ++i) {
+              currentSwitches[i].store(SwitchPos::UP);
+              sim->setSwitch(i, SwitchPos::UP);
+            }
 
-                  std::cout
-                      << "\n===================================================================\n"
-                      << ">>> EdgeTX Simulator CLI Ready! Available commands:\n"
-                      << "-------------------------------------------------------------------\n"
-                      << "  THROTTLE <0..100>             ex: THROTTLE 0, THROTTLE 50\n"
-                      << "  ROLL|PITCH|YAW <-100..100>    ex: PITCH -20, ROLL 50, YAW 0\n"
-                      << "  SW <A..H> <UP|MID|DOWN>       ex: SW A UP, SW B CENTER, SW G DOWN\n"
-                      << "  POT <S1|S2|LS|RS> <-100..100> ex: POT S1 0, POT S2 -100\n"
-                      << "  6POS <1..6>                   ex: 6POS 1, 6POS 4\n"
-                      << "  KEY <id>                      ex: KEY 1, KEY 2\n"
-                      << "  SCREENSHOT [file]             Save LCD screenshot to PNG file\n"
-                      << "  CHANNELS                      Print current 16 channel outputs\n"
-                      << "  HAPTIC                        Check vibration status (ON / OFF)\n"
-                      << "  EXIT                          Shutdown simulator and exit\n"
-                      << "===================================================================\n\n"
-                      << std::flush;
-                });
+            QTimer::singleShot(1000, sim, []() {
+              std::cout
+                  << "\n===================================================================\n"
+                  << ">>> EdgeTX Simulator CLI Ready! Available commands:\n"
+                  << "-------------------------------------------------------------------\n"
+                  << "  THROTTLE <0..100>             ex: THROTTLE 0, THROTTLE 50\n"
+                  << "  ROLL|PITCH|YAW <-100..100>    ex: PITCH -20, ROLL 50, YAW 0\n"
+                  << "  SW <A..H> <UP|MID|DOWN>       ex: SW A UP, SW B CENTER, SW G DOWN\n"
+                  << "  POT <S1|S2|LS|RS> <-100..100> ex: POT S1 0, POT S2 -100\n"
+                  << "  6POS <1..6>                   ex: 6POS 1, 6POS 4\n"
+                  << "  KEY <id>                      ex: KEY 1, KEY 2\n"
+                  << "  SCREENSHOT [file]             Save LCD screenshot to PNG file\n"
+                  << "  CHANNELS                      Print current 16 channel outputs\n"
+                  << "  HAPTIC                        Check vibration status (ON / OFF)\n"
+                  << "  EXIT                          Shutdown simulator and exit\n"
+                  << "===================================================================\n\n"
+                  << std::flush;
+            });
+          });
+        };
+
+        waitForLogOutput(
+            sim, "YAML model reader", 15000,
+            [sim, isColorLcd, onInitFinished]() {
+              if (isColorLcd) {
+                waitForLogOutput(sim, "WidgetFactory::create()", 10000,
+                                 onInitFinished);
+              } else {
+                onInitFinished();
+              }
+            });
       },
       Qt::QueuedConnection);
 
   return sim;
 }
 
-static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim, const QString& radioName)
+static std::mutex coutMutex;
+
+static void printAck(const std::string& cmd)
+{
+  const QString ts =
+      QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss.zzz");
+  std::lock_guard<std::mutex> lock(coutMutex);
+  std::cout
+      << "[ACK] " << ts.toStdString() << " " << cmd << "\n"
+      << std::flush;
+}
+
+static void scheduleAck(SimulatorInterface* sim, const std::string& cmd, int delayMs = 0)
+{
+  QMetaObject::invokeMethod(
+      sim,
+      [cmd, delayMs]() {
+        if (delayMs > 0) {
+          QTimer::singleShot(delayMs, [cmd]() { printAck(cmd); });
+        } else {
+          printAck(cmd);
+        }
+      },
+      Qt::QueuedConnection);
+}
+
+static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim,
+                                    const QString& radioName)
 {
   const AnalogMap analogMap = getAnalogMapForRadio(radioName);
 
@@ -552,8 +724,11 @@ static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim, 
       if (!(ss >> rawCmd)) continue;
 
       std::string cmd = toUpper(rawCmd);
+      int ackDelayMs = 100;
+      bool validCommand = true;
 
       if (cmd == "EXIT") {
+        printAck(cmd);
         QMetaObject::invokeMethod(&app, &QCoreApplication::quit,
                                   Qt::QueuedConnection);
         break;
@@ -563,9 +738,15 @@ static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim, 
           channelsStr += QString::number(i + 1) + ":" +
                          QString::number(currentChannels[i]) + " ";
         }
-        std::cout << channelsStr.trimmed().toStdString() << "\n" << std::flush;
+        {
+          std::lock_guard<std::mutex> lock(coutMutex);
+          std::cout << channelsStr.trimmed().toStdString() << "\n"
+                    << std::flush;
+        }
       } else if (cmd == "HAPTIC") {
-        std::cout << (isHapticActive.load() ? "ON" : "OFF") << std::endl;
+        std::lock_guard<std::mutex> lock(coutMutex);
+        std::cout << (isHapticActive.load() ? "ON" : "OFF") << "\n"
+                  << std::flush;
       } else if (cmd == "THROTTLE" || cmd == "YAW" || cmd == "PITCH" ||
                  cmd == "ROLL") {
         handleStickCommand(cmd, ss, sim, analogMap);
@@ -581,7 +762,17 @@ static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim, 
         int keyId = 0;
         if (ss >> keyId) {
           PressKey(sim, keyId);
+        } else {
+          validCommand = false;
         }
+      } else {
+        validCommand = false;
+        std::lock_guard<std::mutex> lock(coutMutex);
+        std::cerr << "[ERR] Unknown command: " << cmd << "\n" << std::flush;
+      }
+
+      if (validCommand) {
+        scheduleAck(sim, line, ackDelayMs);
       }
     }
   });
