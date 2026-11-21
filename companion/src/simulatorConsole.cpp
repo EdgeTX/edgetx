@@ -52,21 +52,6 @@ using namespace Simulator;
 QFile simuDbgLog;
 int finish(int exitCode);
 
-//namespace AnalogAxis
-//{
-//    constexpr uint8_t ROLL = 0;
-//    constexpr uint8_t PITCH = 1;
-//    constexpr uint8_t THROTTLE = 2;
-//    constexpr uint8_t YAW = 3;
-//
-//    constexpr uint8_t S1 = 4; // POSSIBLY INCORRECT
-//    constexpr uint8_t S2 = 8; // POSSIBLY INCORRECT     
-//    constexpr uint8_t LS = 6; // POSSIBLY INCORRECT     
-//    constexpr uint8_t RS = 7; // POSSIBLY INCORRECT 
-//
-//    constexpr uint8_t POS6 = 5;   
-//}
-
 struct AnalogMap {
   uint8_t roll = 0;
   uint8_t pitch = 1;
@@ -77,6 +62,7 @@ struct AnalogMap {
   uint8_t ls = 255;
   uint8_t rs = 255;
   uint8_t pos6 = 255;
+  uint8_t firstFuncSwitch = 255;
 };
 
 static AnalogMap getAnalogMapForRadio(const QString& radioName)
@@ -86,16 +72,16 @@ static AnalogMap getAnalogMapForRadio(const QString& radioName)
   if (name.contains("tx16") || name.contains("t16") || name.contains("t18") ||
       name.contains("x10") || name.contains("x12s")) {
     // 4: S1, 5: 6POS, 6: S2, 7: LS, 8: RS
-    return {0, 1, 2, 3, /*s1=*/4, /*s2=*/6, /*ls=*/7, /*rs=*/8, /*pos6=*/5};
+    return {0, 1, 2, 3, /*s1=*/4, /*s2=*/6, /*ls=*/7, /*rs=*/8, /*pos6=*/5, /*firstFuncSwitch=*/255};
   }
 
   if (name.contains("tx15") || name == "boxer") {
-    // 4: S1, 5: S2, 6: 6POS (без слайдерів LS/RS)
-    return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/255, /*rs=*/255, /*pos6=*/6};
+    // 4: S1, 5: S2, 6: 6POS
+    return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/255, /*rs=*/255, /*pos6=*/255, /*firstFuncSwitch=*/6};
   }
 
-  // TX12, TX12MK2, Zorro, Pocket тощо: 4: S1, 5: S2
-  return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/255, /*rs=*/255, /*pos6=*/255};
+  // TX12, TX12MK2, Zorro, Pocket: 4: S1, 5: S2
+  return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/255, /*rs=*/255, /*pos6=*/255, /*firstFuncSwitch=*/255};
 }
 
 namespace SwitchPos
@@ -221,22 +207,36 @@ static void handlePotCommand(std::stringstream& ss, SimulatorInterface* sim,
 static void handle6PosCommand(std::stringstream& ss, SimulatorInterface* sim,
                               const AnalogMap& analogMap)
 {
-  if (analogMap.pos6 == 255) {
-    std::cerr << "6POS is not available on this radio\n";
-    return;
-  }
-
   int pos = 1;
   if (!(ss >> pos)) return;
   pos = std::clamp(pos, 1, 6);
 
-  static const int16_t posValues[6] = {-1024, -614, -205, 205, 614, 1024};
-  int16_t rawValue = posValues[pos - 1];
-  const uint8_t axis = analogMap.pos6;
+  if (analogMap.pos6 != 255) {
+    // Analog 6POS (TX16S)
+    static const int16_t posValues[6] = {-1024, -614, -205, 205, 614, 1024};
+    const int16_t rawValue = posValues[pos - 1];
+    const uint8_t axis = analogMap.pos6;
 
-  QMetaObject::invokeMethod(
-      sim, [sim, axis, rawValue]() { sim->setAnalogValue(axis, rawValue); },
-      Qt::QueuedConnection);
+    QMetaObject::invokeMethod(
+        sim, [sim, axis, rawValue]() { sim->setAnalogValue(axis, rawValue); },
+        Qt::QueuedConnection);
+  } else if (analogMap.firstFuncSwitch != 255) {
+    // Button 6POS / Function Switches SW1..SW6 (TX15, Boxer)
+    const uint8_t swIndex =
+        static_cast<uint8_t>(analogMap.firstFuncSwitch + (pos - 1));
+
+    QMetaObject::invokeMethod(
+        sim,
+        [sim, swIndex]() {
+          sim->setSwitch(swIndex, SwitchPos::DOWN);
+          QTimer::singleShot(100, sim, [sim, swIndex]() {
+            sim->setSwitch(swIndex, SwitchPos::UP);
+          });
+        },
+        Qt::QueuedConnection);
+  } else {
+    std::cerr << "6POS is not available on this radio\n";
+  }
 }
 
 static void handleSwitchCommand(std::stringstream& ss, SimulatorInterface* sim)
