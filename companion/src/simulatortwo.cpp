@@ -1,37 +1,35 @@
+#include <AppDebugMessageHandler>
 #include <QApplication>
-#include <QDateTime>
 #include <QCommandLineParser>
+#include <QDateTime>
 #include <QMessageBox>
+#include <QRegularExpression>
 #include <QString>
 #include <QTextStream>
-#include <QRegularExpression>
+#include <QTimer>
+#include <iostream>
+#include <sstream>
+#include <thread>
 
-#if defined(USE_SDL)
-  #include <SDL.h>
-  #undef main
-#endif
-
-#include <AppDebugMessageHandler>
-
+#include "eeprominterface.h"
 #include "appdata.h"
+#include "boardfactories.h"
 #include "constants.h"
 #include "customdebug.h"
-#include "eeprominterface.h"
+#include "helpers.h"
+#include "simulation/simulatorinterface.h"
 #include "simulator.h"
-#include "simulatormainwindow.h"
-#include "simulatorstartupdialog.h"
 #include "storage.h"
 #include "translations.h"
 #include "version.h"
-#include "boardfactories.h"
-#include "helpers.h"
-#include "simulation/simulatorinterface.h"
-#include <QTimer>
 
 using namespace Simulator;
 
 QFile simuDbgLog;
 int finish(int exitCode);
+
+// Масив для збереження останніх відомих значень каналів (1-16)
+static qint32 currentChannels[16] = {0};
 
 enum MessageLevel { MsgInfo, MsgWarning, MsgCritical };
 
@@ -48,7 +46,6 @@ const QString sharedHelpText()
 {
   QString ret;
   QTextStream stream(&ret);
-  // list all available profiles
   stream << Qt::endl
          << QCoreApplication::translate("SimulatorMain", "Available profiles:")
          << Qt::endl;
@@ -60,7 +57,6 @@ const QString sharedHelpText()
            << QCoreApplication::translate("SimulatorMain", "Name: ")
            << pi.value() << Qt::endl;
   }
-  // list all available radios
   stream << Qt::endl
          << QCoreApplication::translate("SimulatorMain", "Available radios:")
          << Qt::endl;
@@ -237,7 +233,6 @@ CommandLineParseResult cliOptions(SimulatorOptions* simOptions, int* profileId)
   }
 
   int flags = 0;
-
   if (cliOptions.isSet(optFlags)) {
     bool chk;
     flags = cliOptions.value(optFlags).toInt(&chk);
@@ -245,23 +240,13 @@ CommandLineParseResult cliOptions(SimulatorOptions* simOptions, int* profileId)
   }
 
   simOptions->flags = flags;
-
   *profileId = pId;
-  if (cliOptsFound)
-    return CommandLineFound;
-  else
-    return CommandLineNone;
+  return cliOptsFound ? CommandLineFound : CommandLineNone;
 }
 
 int main(int argc, char* argv[])
 {
   qWarning() << "DEBUG >> MAIN!";
-
-  //// Force offscreen platform so QtGui/QtWidgets works without X11/Wayland
-  //// display
-  //if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM")) {
-  //  qputenv("QT_QPA_PLATFORM", "offscreen");
-  //}
 
   QApplication app(argc, argv);
   app.setApplicationName(APP_SIMULATOR);
@@ -269,16 +254,12 @@ int main(int argc, char* argv[])
   app.setOrganizationName(COMPANY);
   app.setOrganizationDomain(COMPANY_DOMAIN);
 
-  qWarning() << "DEBUG >> Q_INIT_RESOURCE!";
-
   Q_INIT_RESOURCE(companion);
 
   if (AppDebugMessageHandler::instance())
     AppDebugMessageHandler::instance()->installAppMessageHandler();
 
   CustomDebug::setFilterRules();
-  qWarning() << "DEBUG >> setFilterRules!";
-
   g.init();
 
   if (AppDebugMessageHandler::instance() && g.appDebugLog() &&
@@ -294,20 +275,6 @@ int main(int argc, char* argv[])
 
   Translations::installTranslators();
 
-#if defined(USE_SDL)
-#if defined(_WIN32) || defined(_WIN64)
-  putenv("SDL_AUDIODRIVER=directsound");
-#endif
-  if (SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_AUDIO) < 0) {
-    showMessage(QCoreApplication::translate(
-                    "SimulatorMain", "WARNING: couldn't initialize SDL:\n%1")
-                    .arg(SDL_GetError()),
-                MsgWarning);
-  }
-#endif
-
-  qWarning() << "DEBUG >> Q_INIT_RESOURCE!";
-
   Q_INIT_RESOURCE(hwdefs);
   gBoardFactories = new BoardFactories();
   registerStorageFactories();
@@ -316,15 +283,14 @@ int main(int argc, char* argv[])
 
   if (!SimulatorLoader::getAvailableSimulators().size()) {
     showMessage(
-        QCoreApplication::translate("SimulatorMain", "ERROR: No simulator libraries available."),
+        QCoreApplication::translate("SimulatorMain",
+                                    "ERROR: No simulator libraries available."),
         MsgCritical);
     return finish(3);
   }
 
   int profileId = (g.simuLastProfId() > -1 ? g.simuLastProfId() : g.id());
   SimulatorOptions simOptions = g.profile[profileId].simulatorOptions();
-
-  qWarning() << "DEBUG >> CommandLineParseResult!";
 
   CommandLineParseResult cliResult = cliOptions(&simOptions, &profileId);
 
@@ -341,7 +307,6 @@ int main(int argc, char* argv[])
   simOptions.simulatorId = SimulatorLoader::findSimulatorByName(
       Firmware::getFirmwareForId(simOptions.firmwareId)->getSimulatorId());
 
-  // Fail immediately in console mode if parameters are missing (no UI dialog)
   if (cliResult == CommandLineNone || profileId == -1 ||
       simOptions.simulatorId.isEmpty() ||
       (simOptions.dataFile.isEmpty() && simOptions.dataFolder.isEmpty())) {
@@ -352,8 +317,6 @@ int main(int argc, char* argv[])
     showMessage(err, MsgCritical);
     return finish(1);
   }
-
-  qDebug() << "Starting with options: profileId=" << profileId << simOptions;
 
   QString resultMsg;
   if (!g.getActiveProfiles().contains(profileId) ||
@@ -374,8 +337,6 @@ int main(int argc, char* argv[])
   g.sessionId(profileId);
   g.simuLastProfId(profileId);
 
-  qWarning() << "DEBUG >> Firmware!";
-
   Firmware* simfw =
       Firmware::getFirmwareForId(simOptions.firmwareId + "-simulator");
   delete simfw;
@@ -384,161 +345,127 @@ int main(int argc, char* argv[])
       Firmware::getFirmwareForId(simOptions.firmwareId));
 
   QTemporaryDir tempDir(QDir::tempPath() % "/etx-cpn-XXXXXX");
-
-  qWarning() << "DEBUG >> QTemporaryDir!";
-
   if (!tempDir.isValid()) {
-    qDebug() << "Unable to create application temporary directory";
     gAppTempPath.clear();
     return finish(1);
   } else {
     gAppTempPath = tempDir.path();
-
     if (!QDir(gAppTempPath).mkdir("IMAGES")) {
-      qDebug() << "Unable to create images cache directory:"
-               << Helpers::getImagesCacheDir();
       return finish(1);
     }
   }
 
-  qDebug() << "Created images cache directory:" << Helpers::getImagesCacheDir();
-
-  // mainWindow.m_simulator
-  qWarning() << "DEBUG >> TRY LOAD SIMULATOR!";
   SimulatorInterface* sim = SimulatorLoader::loadSimulator("tx16s");
-  //QString m_simulatorId = SimulatorLoader::findSimulatorByName(getCurrentFirmware()->getSimulatorId());
-  //SimulatorInterface* sim = SimulatorLoader::loadSimulator(m_simulatorId);
-
   if (!sim) {
     qCritical() << "Cannot load simulator!";
-    return -1;
+    return finish(1);
   }
 
   QThread* simuThread = new QThread();
 
-  // Перевірка запуску симулятора
-  QObject::connect(sim, &SimulatorInterface::started, &app, []() { qInfo() << "Simulator started"; });
+  QObject::connect(sim, &SimulatorInterface::started, &app, []() {
+    qInfo() << "Simulator started. Ready for console input.";
+  });
 
-  //QObject::connect(sim, &SimulatorInterface::heartbeat, &app,
-  //                 [](qint32 loops, qint64 timestamp) {
-  //                   qInfo()
-  //                       << "Heartbeat:"
-  //                       << "loops =" << loops << "timestamp =" << timestamp;
-  //                 });
-
-  // Вихідні канали
+  // Оновлюємо стан каналів у пам'яті
   QObject::connect(sim, &SimulatorInterface::channelOutValueChange, &app,
                    [](quint8 index, qint32 value, qint32 limit) {
-                     if (index < 12) {
-                       qInfo() << "OUT"
-                               << "CH" << (index + 1) << "Value:" << value
-                               << "Limit:" << limit;
+                     Q_UNUSED(limit);
+                     if (index < 16) {
+                       currentChannels[index] = value;
                      }
                    });
 
-  // Канали мікшування
-  QObject::connect(sim, &SimulatorInterface::channelMixValueChange, &app,
-                   [](quint8 index, qint32 value, qint32 limit) {
-                     if (index < 12) {
-                       qInfo() << "MIX"
-                               << "CH" << (index + 1) << "Value:" << value
-                               << "Limit:" << limit;
-                     }
-                   });
-
-// Після підключення всіх сигналів
-
-  QObject::connect(sim, &SimulatorInterface::lcdChange, sim, &SimulatorInterface::lcdFlushed);
+  // Автоматичне скидання дисплея (необхідне для роботи рушія LVGL)
+  QObject::connect(sim, &SimulatorInterface::lcdChange, sim,
+                   &SimulatorInterface::lcdFlushed);
 
   sim->moveToThread(simuThread);
   simuThread->start();
+
   QMetaObject::invokeMethod(
       sim,
       [sim]() {
-        qInfo() << "Initializing simulator...";
-
         sim->setSdPath("C:/SD");
         sim->init();
         sim->start(nullptr, true);
 
-        qInfo() << "Simulator initialization completed";
-
-        // Початковий стан: газ мінімальний
-        sim->setAnalogValue(2, -1024);
+        // Початковий газ у мінімум
         sim->setAnalogValue(1, -1024);
+        sim->setAnalogValue(2, -1024);
 
-        // Чекаємо завантаження моделі
+        // Скидання попереджень старту через 5 сек
         QTimer::singleShot(5000, sim, [sim]() {
-          qInfo() << "Dismissing startup warnings...";
-
-          // Enter press
           sim->setKey(2, true);
-
           QTimer::singleShot(100, sim, [sim]() {
-            // Enter release
             sim->setKey(2, false);
-
-            // Чекаємо завершення завантаження
             QTimer::singleShot(3000, sim, [sim]() {
-              // =================================
-              // ЕТАП 1
-              // =================================
-
-              qInfo() << "STAGE 1";
-
-              sim->setAnalogValue(0, -512);
-              sim->setAnalogValue(1, 512);
-              sim->setAnalogValue(2, -512);
-              sim->setAnalogValue(3, 512);
-
-              sim->setSwitch(6, 1);
-
-              // Через 2 секунди наступний етап
-              QTimer::singleShot(2000, sim, [sim]() {
-                // =================================
-                // ЕТАП 2
-                // =================================
-
-                qInfo() << "STAGE 2";
-
-                sim->setSwitch(5, -1);
-                sim->setSwitch(6, -1);
-                sim->setSwitch(7, 0);
-                sim->setSwitch(8, 0);
-                sim->setSwitch(9, 1);
-                sim->setSwitch(10, 1);
-
-                // Через 2 секунди наступний етап
-                QTimer::singleShot(2000, sim, [sim]() {
-                  // =================================
-                  // ЕТАП 3
-                  // =================================
-
-                  qInfo() << "STAGE 3";
-
-                  sim->setSwitch(5, 1);
-                  sim->setSwitch(6, 1);
-                  sim->setSwitch(7, -1);
-                  sim->setSwitch(8, -1);
-                  sim->setSwitch(9, 0);
-                  sim->setSwitch(10, 0);
-                });
-              });
+              // Виставляємо стики в центр
+              sim->setAnalogValue(0, 0);
+              sim->setAnalogValue(1, 0);
+              sim->setAnalogValue(2, 0);
+              sim->setAnalogValue(3, 0);
+              qInfo() << ">>> Ready for commands: ANALOG, SWITCH, CHANNELS, "
+                         "EXIT <<<";
             });
           });
         });
       },
       Qt::QueuedConnection);
 
-  // Коректне завершення
-  QObject::connect(&app, &QCoreApplication::aboutToQuit, sim, [sim]() { sim->stop(); });
-  QObject::connect(&app, &QCoreApplication::aboutToQuit, simuThread, &QThread::quit);
+  // Окремий потік для зчитування команд з консолі
+  std::thread cliThread([&app, sim]() {
+    std::string line;
+    while (std::getline(std::cin, line)) {
+      std::stringstream ss(line);
+      std::string cmd;
+      if (!(ss >> cmd)) continue;
+
+      if (cmd == "EXIT") {
+        QMetaObject::invokeMethod(&app, &QCoreApplication::quit,
+                                  Qt::QueuedConnection);
+        break;
+      } else if (cmd == "CHANNELS") {
+        for (int i = 0; i < 16; ++i) {
+          std::cout << "CH" << (i + 1) << ": " << currentChannels[i] << "\n";
+        }
+        std::cout << std::flush;
+      } else if (cmd == "ANALOG") {
+        int x, y;
+        ss >> x >> y;
+        QMetaObject::invokeMethod(
+            sim,
+            [sim, x, y]() {
+              sim->setAnalogValue(static_cast<uint8_t>(x),
+                                  static_cast<int16_t>(y));
+            },
+            Qt::QueuedConnection);
+      } else if (cmd == "SWITCH") {
+        int x, y;
+        ss >> x >> y;
+        QMetaObject::invokeMethod(
+            sim,
+            [sim, x, y]() {
+              sim->setSwitch(static_cast<uint8_t>(x), static_cast<int8_t>(y));
+            },
+            Qt::QueuedConnection);
+      }
+    }
+  });
+  cliThread.detach();
+
+  // Завершення роботи
+  QObject::connect(&app, &QCoreApplication::aboutToQuit, sim,
+                   [sim]() { sim->stop(); });
+  QObject::connect(&app, &QCoreApplication::aboutToQuit, simuThread,
+                   &QThread::quit);
   QObject::connect(simuThread, &QThread::finished, sim, &QObject::deleteLater);
+
   const int result = app.exec();
   simuThread->wait();
   delete simuThread;
 
-  return result;
+  return finish(result);
 }
 
 int finish(int exitCode)
@@ -547,10 +474,6 @@ int finish(int exitCode)
   unregisterOpenTxFirmwares();
   unregisterStorageFactories();
   gBoardFactories->unregisterBoardFactories();
-
-#if defined(USE_SDL)
-  SDL_Quit();
-#endif
 
   qDebug() << "SIMULATOR EXIT" << exitCode;
   if (simuDbgLog.isOpen()) {
