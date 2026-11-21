@@ -72,8 +72,8 @@ struct AnalogMap {
   uint8_t s2 = 255;
   uint8_t ls = 255;
   uint8_t rs = 255;
-  uint8_t pos6 = 255;
-  uint8_t firstFuncSwitch = 255;
+  uint8_t pos6 = 255; 
+  uint8_t firstFuncSwitch = 255; // Function switches SW1..SW6 (TX15)
 };
 
 static AnalogMap getAnalogMapForRadio(const QString& radioName)
@@ -86,8 +86,13 @@ static AnalogMap getAnalogMapForRadio(const QString& radioName)
     return {0, 1, 2, 3, /*s1=*/4, /*s2=*/6, /*ls=*/7, /*rs=*/8, /*pos6=*/5, /*firstFuncSwitch=*/255};
   }
 
-  if (name.contains("tx15") || name == "boxer") {
-    // 4: S1, 5: S2, 6: 6POS
+  if (name.contains("boxer")) {
+    // 4: S1 (POT1), 5: S2 (POT2), 6: 6POS (POT3)
+    return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/255, /*rs=*/255, /*pos6=*/6, /*firstFuncSwitch=*/255};
+  }
+
+  if (name.contains("tx15")) {
+    // 4: S1, 5: S2, switches 6..11: SW1..SW6
     return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/255, /*rs=*/255, /*pos6=*/255, /*firstFuncSwitch=*/6};
   }
 
@@ -212,6 +217,21 @@ static void handlePotCommand(std::stringstream& ss, SimulatorInterface* sim,
       Qt::QueuedConnection);
 }
 
+static void PressKey(SimulatorInterface* sim, int key, int durationMs = 100)
+{
+  if (!sim) return;
+
+  QMetaObject::invokeMethod(
+      sim,
+      [sim, key, durationMs]() {
+        const uint8_t keyCode = static_cast<uint8_t>(key);
+        sim->setKey(keyCode, true);
+        QTimer::singleShot(durationMs, sim,
+                           [sim, keyCode]() { sim->setKey(keyCode, false); });
+      },
+      Qt::QueuedConnection);
+}
+
 static void handle6PosCommand(std::stringstream& ss, SimulatorInterface* sim,
                               const AnalogMap& analogMap)
 {
@@ -220,7 +240,6 @@ static void handle6PosCommand(std::stringstream& ss, SimulatorInterface* sim,
   pos = std::clamp(pos, 1, 6);
 
   if (analogMap.pos6 != 255) {
-    // Analog 6POS (TX16S)
     static const int16_t posValues[6] = {-1024, -614, -205, 205, 614, 1024};
     const int16_t rawValue = posValues[pos - 1];
     const uint8_t axis = analogMap.pos6;
@@ -229,7 +248,6 @@ static void handle6PosCommand(std::stringstream& ss, SimulatorInterface* sim,
         sim, [sim, axis, rawValue]() { sim->setAnalogValue(axis, rawValue); },
         Qt::QueuedConnection);
   } else if (analogMap.firstFuncSwitch != 255) {
-    // Button 6POS / Function Switches SW1..SW6 (TX15, Boxer)
     const uint8_t swIndex =
         static_cast<uint8_t>(analogMap.firstFuncSwitch + (pos - 1));
 
@@ -242,6 +260,8 @@ static void handle6PosCommand(std::stringstream& ss, SimulatorInterface* sim,
           });
         },
         Qt::QueuedConnection);
+  //} else if (analogMap.firstPos6Key != 255) {
+  //  PressKey(sim, analogMap.firstPos6Key + (pos - 1), 100);
   } else {
     std::cerr << "6POS is not available on this radio\n";
   }
@@ -453,21 +473,6 @@ static void handleSchreenshotCommand(std::stringstream& ss,
   }
 }
 
-static void PressKey(SimulatorInterface* sim, int key, int durationMs = 100)
-{
-  if (!sim) return;
-
-  QMetaObject::invokeMethod(
-      sim,
-      [sim, key, durationMs]() {
-        const uint8_t keyCode = static_cast<uint8_t>(key);
-        sim->setKey(keyCode, true);
-        QTimer::singleShot(durationMs, sim,
-                           [sim, keyCode]() { sim->setKey(keyCode, false); });
-      },
-      Qt::QueuedConnection);
-}
-
 class StdoutWatcher
 {
  public:
@@ -663,12 +668,18 @@ static SimulatorInterface* createAndStartSimulator(const QString& radioName,
             if (analogMap.s2 != 255) sim->setAnalogValue(analogMap.s2, -1024);
             if (analogMap.ls != 255) sim->setAnalogValue(analogMap.ls, -1024);
             if (analogMap.rs != 255) sim->setAnalogValue(analogMap.rs, -1024);
-            if (analogMap.pos6 != 255)
-              sim->setAnalogValue(analogMap.pos6, -1024);
+            if (analogMap.pos6 != 255) sim->setAnalogValue(analogMap.pos6, -1024);
 
             for (uint8_t i = 0; i < NUM_SWITCHES; ++i) {
               currentSwitches[i].store(SwitchPos::UP);
               sim->setSwitch(i, SwitchPos::UP);
+            }
+
+            if (analogMap.firstFuncSwitch != 255) {
+              for (uint8_t i = 0; i < 6; ++i) {
+                sim->setSwitch(analogMap.firstFuncSwitch + i, SwitchPos::UP);
+              }
+              sim->setSwitch(analogMap.firstFuncSwitch, SwitchPos::DOWN);
             }
 
             QTimer::singleShot(1000, sim, []() {
@@ -775,6 +786,7 @@ static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim,
         handlePotCommand(ss, sim, analogMap);
       } else if (cmd == "6POS" || cmd == "POS6") {
         handle6PosCommand(ss, sim, analogMap);
+        ackDelayMs = 200;
       } else if (cmd == "SW" || cmd == "SWITCH") {
         handleSwitchCommand(ss, sim);
       } else if (cmd == "SCREENSHOT" || cmd == "SHOT") {
