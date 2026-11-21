@@ -28,6 +28,7 @@
 #include <QString>
 #include <QTextStream>
 #include <QTimer>
+#include <QImage>
 #include <algorithm>
 #include <atomic>
 #include <cmath>
@@ -36,6 +37,7 @@
 #include <thread>
 
 #include "appdata.h"
+#include "boards.h"
 #include "boardfactories.h"
 #include "constants.h"
 #include "customdebug.h"
@@ -72,7 +74,16 @@ namespace SwitchPos
     constexpr int8_t DOWN = 1;
 }
 
-constexpr uint8_t KEY_RTN = 2;  // Return/Exit key for TX16S
+static uint8_t getExitKeyForRadio(const QString& radioName)
+{
+  const QString name = radioName.toLower();
+  // тощо
+  if (name.startsWith("tx12") || name == "boxer" || name == "zorro" ||
+      name == "pocket") {
+    return 1;
+  }
+  return 2;
+}
 
 static qint32 currentChannels[16] = {0};
 static std::atomic<bool> isHapticActive{false};
@@ -185,9 +196,7 @@ static void handle6PosCommand(std::stringstream& ss, SimulatorInterface* sim)
 
   QMetaObject::invokeMethod(
       sim,
-      [sim, pos, rawValue]() {
-        sim->setAnalogValue(AnalogAxis::POS6, rawValue);
-      },
+      [sim, rawValue]() { sim->setAnalogValue(AnalogAxis::POS6, rawValue); },
       Qt::QueuedConnection);
 }
 
@@ -318,6 +327,100 @@ static bool parseCommandLine(const QApplication& app, QString& radioName,
   return true;
 }
 
+struct LcdSpec {
+  int width;
+  int height;
+  int depth;
+};
+
+static LcdSpec getLcdSpecForRadio(const QString& radioName)
+{
+  const QString name = radioName.toLower();
+  if (name.contains("tx15")) {
+    return {480, 320, 16};
+  }
+  if (name.contains("nv14") || name.contains("el18") || name.contains("pl18")) {
+    return {320, 480, 16};
+  }
+  if (name.contains("tx16") || name.contains("t16") || name.contains("t18") ||
+      name.contains("t15") || name.contains("x10") || name.contains("x12s")) {
+    return {480, 272, 16};
+  }
+  return {128, 64, 1};
+}
+
+static bool saveScreenshot(SimulatorInterface* sim, const QString& radioName,
+                           const QString& filePath)
+{
+  const LcdSpec spec = getLcdSpecForRadio(radioName);
+  QImage image;
+  bool ok = false;
+
+  auto capture = [sim, spec, &image, &ok]() {
+    uint8_t* lcd = sim->getLcd();
+    if (!lcd || spec.width <= 0 || spec.height <= 0) return;
+
+    if (spec.depth == 16) {
+      image = QImage(lcd, spec.width, spec.height, spec.width * 2,
+                     QImage::Format_RGB16)
+                  .copy();
+      ok = true;
+    } else if (spec.depth == 1) {
+      image = QImage(spec.width, spec.height, QImage::Format_RGB32);
+      for (int y = 0; y < spec.height; ++y) {
+        for (int x = 0; x < spec.width; ++x) {
+          const bool pixelOn =
+              (lcd[(y / 8) * spec.width + x] & (1 << (y % 8))) != 0;
+          image.setPixel(x, y, pixelOn ? qRgb(0, 0, 0) : qRgb(47, 123, 227));
+        }
+      }
+      ok = true;
+    }
+  };
+
+  if (QThread::currentThread() == sim->thread()) {
+    capture();
+  } else {
+    QMetaObject::invokeMethod(sim, capture, Qt::BlockingQueuedConnection);
+  }
+
+  return ok && image.save(filePath, "PNG");
+}
+
+static void handleSchreenshotCommand(std::stringstream& ss,
+                                     SimulatorInterface* sim,
+                                     const QString& radioName)
+{
+  std::string filePath;
+  if (!(ss >> filePath)) {
+    filePath = "screenshot.png";
+  }
+  QString qFilePath = QString::fromStdString(filePath);
+  if (saveScreenshot(sim, radioName, qFilePath)) {
+    std::cout << "Screenshot saved to: " << qFilePath.toStdString() << "\n"
+              << std::flush;
+  } else {
+    std::cout << "Failed to save screenshot to: " << qFilePath.toStdString()
+              << "\n"
+              << std::flush;
+  }
+}
+
+static void PressKey(SimulatorInterface* sim, int key, int durationMs = 100)
+{
+  if (!sim) return;
+
+  QMetaObject::invokeMethod(
+      sim,
+      [sim, key, durationMs]() {
+        const uint8_t keyCode = static_cast<uint8_t>(key);
+        sim->setKey(keyCode, true);
+        QTimer::singleShot(durationMs, sim,
+                           [sim, keyCode]() { sim->setKey(keyCode, false); });
+      },
+      Qt::QueuedConnection);
+}
+
 static SimulatorInterface* createAndStartSimulator(const QString& radioName,
                                                    const QString& sdPath,
                                                    QThread* simuThread,
@@ -354,16 +457,9 @@ static SimulatorInterface* createAndStartSimulator(const QString& radioName,
         sim->setSdPath(sdPath);
         sim->init();
         sim->start(nullptr, true);
-
-        sim->setAnalogValue(1, -1024);
         sim->setAnalogValue(2, -1024);
 
-        QTimer::singleShot(5000, sim, [sim]() {
-          sim->setKey(KEY_RTN, true);
-          QTimer::singleShot(100, sim, [sim]() {
-            sim->setKey(KEY_RTN, false);
-            QTimer::singleShot(
-                3000, sim, [sim]() {
+          QTimer::singleShot(3000, sim, [sim]() {
                   sim->setAnalogValue(AnalogAxis::ROLL, 0);
                   sim->setAnalogValue(AnalogAxis::PITCH, 0);
                   sim->setAnalogValue(AnalogAxis::THROTTLE, -1024);
@@ -389,23 +485,23 @@ static SimulatorInterface* createAndStartSimulator(const QString& radioName,
                       << "  SW <A..H> <UP|MID|DOWN>       ex: SW A UP, SW B CENTER, SW G DOWN\n"
                       << "  POT <S1|S2|LS|RS> <-100..100> ex: POT S1 0, POT S2 -100\n"
                       << "  6POS <1..6>                   ex: 6POS 1, 6POS 4\n"
+                      << "  KEY <id>                      ex: KEY 1, KEY 2\n"
+                      << "  SCREENSHOT [file]             Save LCD screenshot to PNG file\n"
                       << "  CHANNELS                      Print current 16 channel outputs\n"
                       << "  HAPTIC                        Check vibration status (ON / OFF)\n"
                       << "  EXIT                          Shutdown simulator and exit\n"
                       << "===================================================================\n\n"
                       << std::flush;
                 });
-          });
-        });
       },
       Qt::QueuedConnection);
 
   return sim;
 }
 
-static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim)
+static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim, const QString& radioName)
 {
-  std::thread cliThread([&app, sim]() {
+  std::thread cliThread([&app, sim, radioName]() {
     std::string line;
     while (std::getline(std::cin, line)) {
       std::stringstream ss(line);
@@ -419,7 +515,7 @@ static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim)
                                   Qt::QueuedConnection);
         break;
       } else if (cmd == "CHANNELS") {
-        QString channelsStr;
+        QString channelsStr = "CHANNELS ";
         for (int i = 0; i < 16; ++i) {
           channelsStr += QString::number(i + 1) + ":" +
                          QString::number(currentChannels[i]) + " ";
@@ -436,6 +532,13 @@ static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim)
         handle6PosCommand(ss, sim);
       } else if (cmd == "SW" || cmd == "SWITCH") {
         handleSwitchCommand(ss, sim);
+      } else if (cmd == "SCREENSHOT" || cmd == "SHOT") {
+        handleSchreenshotCommand(ss, sim, radioName);
+      } else if (cmd == "KEY") {
+        int keyId = 0;
+        if (ss >> keyId) {
+          PressKey(sim, keyId);
+        }
       }
     }
   });
@@ -462,7 +565,7 @@ int main(int argc, char* argv[])
     return finish(1);
   }
 
-  startConsoleInputThread(app, sim);
+  startConsoleInputThread(app, sim, radioName);
 
   QObject::connect(&app, &QCoreApplication::aboutToQuit, sim,
                    [sim]() { sim->stop(); });
