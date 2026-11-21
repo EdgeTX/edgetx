@@ -323,14 +323,21 @@ target_include_directories(simulatorConsole PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/simulation/consoleApp
 )
 
-target_link_libraries(simulatorConsole PRIVATE
-  ${CPN_COMMON_LIB}
-  shared
-  simulation
-  ${CPN_COMMON_LIB}
-  ${SDL2_LIBRARIES}
-  Qt::Widgets
-)
+if(${CMAKE_SYSTEM_NAME} MATCHES "(Linux|FreeBSD)")
+  target_link_libraries(simulatorConsole PRIVATE
+    "-Wl,--whole-archive"
+    ${CPN_COMMON_LIB}
+    "-Wl,--no-whole-archive"
+    ${SDL2_LIBRARIES}
+    Qt::Widgets
+  )
+else()
+  target_link_libraries(simulatorConsole PRIVATE
+    ${CPN_COMMON_LIB}
+    ${SDL2_LIBRARIES}
+    Qt::Widgets
+  )
+endif()
 
 if(WASM_SIMU)
   target_link_libraries(simulatorConsole PRIVATE vmlib)
