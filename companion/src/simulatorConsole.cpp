@@ -52,19 +52,50 @@ using namespace Simulator;
 QFile simuDbgLog;
 int finish(int exitCode);
 
-namespace AnalogAxis
+//namespace AnalogAxis
+//{
+//    constexpr uint8_t ROLL = 0;
+//    constexpr uint8_t PITCH = 1;
+//    constexpr uint8_t THROTTLE = 2;
+//    constexpr uint8_t YAW = 3;
+//
+//    constexpr uint8_t S1 = 4; // POSSIBLY INCORRECT
+//    constexpr uint8_t S2 = 8; // POSSIBLY INCORRECT     
+//    constexpr uint8_t LS = 6; // POSSIBLY INCORRECT     
+//    constexpr uint8_t RS = 7; // POSSIBLY INCORRECT 
+//
+//    constexpr uint8_t POS6 = 5;   
+//}
+
+struct AnalogMap {
+  uint8_t roll = 0;
+  uint8_t pitch = 1;
+  uint8_t throttle = 2;
+  uint8_t yaw = 3;
+  uint8_t s1 = 4;
+  uint8_t s2 = 255;
+  uint8_t ls = 255;
+  uint8_t rs = 255;
+  uint8_t pos6 = 255;
+};
+
+static AnalogMap getAnalogMapForRadio(const QString& radioName)
 {
-    constexpr uint8_t ROLL = 0;
-    constexpr uint8_t PITCH = 1;
-    constexpr uint8_t THROTTLE = 2;
-    constexpr uint8_t YAW = 3;
+  const QString name = radioName.toLower();
 
-    constexpr uint8_t S1 = 4; // POSSIBLY INCORRECT
-    constexpr uint8_t S2 = 5; // POSSIBLY INCORRECT     
-    constexpr uint8_t LS = 6; // POSSIBLY INCORRECT     
-    constexpr uint8_t RS = 7; // POSSIBLY INCORRECT 
+  if (name.contains("tx16") || name.contains("t16") || name.contains("t18") ||
+      name.contains("x10") || name.contains("x12s")) {
+    // 4: S1, 5: 6POS, 6: S2, 7: LS, 8: RS
+    return {0, 1, 2, 3, /*s1=*/4, /*s2=*/6, /*ls=*/7, /*rs=*/8, /*pos6=*/5};
+  }
 
-    constexpr uint8_t POS6 = 5;   
+  if (name.contains("tx15") || name == "boxer") {
+    // 4: S1, 5: S2, 6: 6POS (без слайдерів LS/RS)
+    return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/255, /*rs=*/255, /*pos6=*/6};
+  }
+
+  // TX12, TX12MK2, Zorro, Pocket тощо: 4: S1, 5: S2
+  return {0, 1, 2, 3, /*s1=*/4, /*s2=*/5, /*ls=*/255, /*rs=*/255, /*pos6=*/255};
 }
 
 namespace SwitchPos
@@ -124,7 +155,7 @@ static std::string toUpper(std::string str)
 }
 
 static void handleStickCommand(const std::string& cmd, std::stringstream& ss,
-                               SimulatorInterface* sim)
+                               SimulatorInterface* sim, const AnalogMap& analogMap)
 {
   double percent = 0.0;
   if (!(ss >> percent)) return;
@@ -133,7 +164,7 @@ static void handleStickCommand(const std::string& cmd, std::stringstream& ss,
   int16_t rawValue = 0;
 
   if (cmd == "THROTTLE") {
-    axis = AnalogAxis::THROTTLE;
+    axis = analogMap.throttle;
     // 0..100% -> -1024..+1024
     rawValue = static_cast<int16_t>(std::round(-1024.0 + (percent * 20.48)));
   } else {
@@ -141,11 +172,11 @@ static void handleStickCommand(const std::string& cmd, std::stringstream& ss,
     rawValue = static_cast<int16_t>(std::round(percent * 10.24));
 
     if (cmd == "PITCH") {
-      axis = AnalogAxis::PITCH;
+      axis = analogMap.pitch;
     } else if (cmd == "ROLL") {
-      axis = AnalogAxis::ROLL;
+      axis = analogMap.roll;
     } else if (cmd == "YAW") {
-      axis = AnalogAxis::YAW;
+      axis = analogMap.yaw;
     }
   }
 
@@ -154,26 +185,29 @@ static void handleStickCommand(const std::string& cmd, std::stringstream& ss,
       Qt::QueuedConnection);
 }
 
-static void handlePotCommand(std::stringstream& ss, SimulatorInterface* sim)
+static void handlePotCommand(std::stringstream& ss, SimulatorInterface* sim,
+                             const AnalogMap& analogMap)
 {
   std::string potName;
   double percent = 0.0;
   if (!(ss >> potName >> percent)) return;
 
   potName = toUpper(potName);
-  uint8_t axis = AnalogAxis::S1;
+  uint8_t axis = 255;
 
   if (potName == "S1") {
-    axis = AnalogAxis::S1;
+    axis = analogMap.s1;
+  } else if (potName == "S2") {
+    axis = analogMap.s2;
+  } else if (potName == "LS") {
+    axis = analogMap.ls;
+  } else if (potName == "RS") {
+    axis = analogMap.rs;
   }
-  if (potName == "S2") {
-    axis = AnalogAxis::S2;
-  }
-  if (potName == "LS") {
-    axis = AnalogAxis::LS;
-  }
-  if (potName == "RS") {
-    axis = AnalogAxis::RS;
+
+  if (axis == 255) {
+    std::cerr << "Pot " << potName << " is not available on this radio\n";
+    return;
   }
 
   percent = std::clamp(percent, -100.0, 100.0);
@@ -184,19 +218,24 @@ static void handlePotCommand(std::stringstream& ss, SimulatorInterface* sim)
       Qt::QueuedConnection);
 }
 
-static void handle6PosCommand(std::stringstream& ss, SimulatorInterface* sim)
+static void handle6PosCommand(std::stringstream& ss, SimulatorInterface* sim,
+                              const AnalogMap& analogMap)
 {
+  if (analogMap.pos6 == 255) {
+    std::cerr << "6POS is not available on this radio\n";
+    return;
+  }
+
   int pos = 1;
   if (!(ss >> pos)) return;
-  if (pos < 1) pos = 1;
-  if (pos > 6) pos = 6;
+  pos = std::clamp(pos, 1, 6);
 
   static const int16_t posValues[6] = {-1024, -614, -205, 205, 614, 1024};
   int16_t rawValue = posValues[pos - 1];
+  const uint8_t axis = analogMap.pos6;
 
   QMetaObject::invokeMethod(
-      sim,
-      [sim, rawValue]() { sim->setAnalogValue(AnalogAxis::POS6, rawValue); },
+      sim, [sim, axis, rawValue]() { sim->setAnalogValue(axis, rawValue); },
       Qt::QueuedConnection);
 }
 
@@ -451,25 +490,27 @@ static SimulatorInterface* createAndStartSimulator(const QString& radioName,
   sim->moveToThread(simuThread);
   simuThread->start();
 
+  const AnalogMap analogMap = getAnalogMapForRadio(radioName);
+
   QMetaObject::invokeMethod(
       sim,
-      [sim, sdPath]() {
+      [sim, sdPath, analogMap]() {
         sim->setSdPath(sdPath);
         sim->init();
         sim->start(nullptr, true);
         sim->setAnalogValue(2, -1024);
 
-          QTimer::singleShot(3000, sim, [sim]() {
-                  sim->setAnalogValue(AnalogAxis::ROLL, 0);
-                  sim->setAnalogValue(AnalogAxis::PITCH, 0);
-                  sim->setAnalogValue(AnalogAxis::THROTTLE, -1024);
-                  sim->setAnalogValue(AnalogAxis::YAW, 0);
+          QTimer::singleShot(3000, sim, [sim, analogMap]() {
+                    sim->setAnalogValue(analogMap.roll, 0);
+                    sim->setAnalogValue(analogMap.pitch, 0);
+                    sim->setAnalogValue(analogMap.throttle, -1024);
+                    sim->setAnalogValue(analogMap.yaw, 0);
 
-                  sim->setAnalogValue(AnalogAxis::S1, -1024);
-                  sim->setAnalogValue(AnalogAxis::S2, -1024);
-                  sim->setAnalogValue(AnalogAxis::LS, -1024);
-                  sim->setAnalogValue(AnalogAxis::RS, -1024);
-                  sim->setAnalogValue(AnalogAxis::POS6, -1024);
+                    if (analogMap.s1 != 255) sim->setAnalogValue(analogMap.s1, -1024);
+                    if (analogMap.s2 != 255) sim->setAnalogValue(analogMap.s2, -1024);
+                    if (analogMap.ls != 255) sim->setAnalogValue(analogMap.ls, -1024);
+                    if (analogMap.rs != 255) sim->setAnalogValue(analogMap.rs, -1024);
+                    if (analogMap.pos6 != 255) sim->setAnalogValue(analogMap.pos6, -1024);
 
                   for (uint8_t i = 0; i < NUM_SWITCHES; ++i) {
                     currentSwitches[i].store(SwitchPos::UP);
@@ -501,7 +542,9 @@ static SimulatorInterface* createAndStartSimulator(const QString& radioName,
 
 static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim, const QString& radioName)
 {
-  std::thread cliThread([&app, sim, radioName]() {
+  const AnalogMap analogMap = getAnalogMapForRadio(radioName);
+
+  std::thread cliThread([&app, sim, radioName, analogMap]() {
     std::string line;
     while (std::getline(std::cin, line)) {
       std::stringstream ss(line);
@@ -525,11 +568,11 @@ static void startConsoleInputThread(QApplication& app, SimulatorInterface* sim, 
         std::cout << (isHapticActive.load() ? "ON" : "OFF") << std::endl;
       } else if (cmd == "THROTTLE" || cmd == "YAW" || cmd == "PITCH" ||
                  cmd == "ROLL") {
-        handleStickCommand(cmd, ss, sim);
+        handleStickCommand(cmd, ss, sim, analogMap);
       } else if (cmd == "POT" || cmd == "KNOB") {
-        handlePotCommand(ss, sim);
+        handlePotCommand(ss, sim, analogMap);
       } else if (cmd == "6POS" || cmd == "POS6") {
-        handle6PosCommand(ss, sim);
+        handle6PosCommand(ss, sim, analogMap);
       } else if (cmd == "SW" || cmd == "SWITCH") {
         handleSwitchCommand(ss, sim);
       } else if (cmd == "SCREENSHOT" || cmd == "SHOT") {
