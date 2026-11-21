@@ -415,7 +415,12 @@ static LcdSpec getLcdSpecForRadio(const QString& radioName)
     return {320, 480, 16};
   }
 
-if (name.contains("tx16") || name.contains("t16") || name.contains("t18") ||
+  if (name.contains("tx16smk3") ||
+      (name.contains("tx16") && name.contains("mk3"))) {
+    return {800, 480, 16};
+  }
+
+  if (name.contains("tx16") || name.contains("t16") || name.contains("t18") ||
       name.contains("t15") || name.contains("x10") || name.contains("x12s") ||
       name.contains("gx15")) {
     return {480, 272, 16};
