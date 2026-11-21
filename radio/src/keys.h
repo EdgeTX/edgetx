@@ -183,11 +183,9 @@ bool areKeysLocked();
 bool consumeKeysLockToggleEvent();
 void setKeyLockedState(bool);
 
-#if defined(USE_HATS_AS_KEYS)
 void setHatsAsKeys(bool val);
 bool getHatsAsKeys();
 void setTransposeHatsForLUA(bool val);
-#endif
 
 struct InactivityData
 {

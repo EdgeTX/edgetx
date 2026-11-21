@@ -109,10 +109,8 @@ typedef struct {
 // Init the internal module port data
 void modulePortInit();
 
-#if defined(CONFIGURABLE_MODULE_PORT)
 // Configure an extra port
 void modulePortConfigExtra(const etx_module_port_t* port);
-#endif
 
 const etx_module_t* modulePortGetModuleDescription(uint8_t module);
 

@@ -236,7 +236,7 @@
 #define STR_QUICK_MENU_FAVORITES currentLangStrings->STR_QUICK_MENU_FAVORITES
 // Main Menu
 
-#if defined(PDM_CLOCK)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(PDM_CLOCK)
 #define STR_AUTO_TRIM currentLangStrings->STR_AUTO_TRIM
 #define STR_GET_READY currentLangStrings->STR_GET_READY
 #define STR_MIC_RECORDER currentLangStrings->STR_MIC_RECORDER
@@ -272,18 +272,18 @@
 
 #endif // !COLORLCD
 
-#if defined(IMU)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(IMU)
 #define STR_IMU_LABEL currentLangStrings->STR_IMU_LABEL
 #define STR_IMU_MAX currentLangStrings->STR_IMU_MAX
 #define STR_IMU_OFFSET currentLangStrings->STR_IMU_OFFSET
 #define STR_IMU_VSRCRAW currentLangStrings->STR_IMU_VSRCRAW
 #endif
 
-#if defined(PCBHORUS)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(PCBHORUS)
 #define STR_SM_VSRCRAW currentLangStrings->STR_SM_VSRCRAW
 #endif
 
-#if defined(V16_CHARGE_UI)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(V16_CHARGE_UI)
 #define STR_CHARGE_DETECTING currentLangStrings->STR_CHARGE_DETECTING
 #define STR_CHARGE_TOPPING_OFF currentLangStrings->STR_CHARGE_TOPPING_OFF
 #define STR_CHARGE_NOT_CHARGING currentLangStrings->STR_CHARGE_NOT_CHARGING
@@ -291,7 +291,7 @@
 #define STR_PRESS_RTN_TO_POWER_OFF currentLangStrings->STR_PRESS_RTN_TO_POWER_OFF
 #endif
 
-#if defined(FUNCTION_SWITCHES)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(FUNCTION_SWITCHES)
 #define STR_FUNCTION_SWITCHES currentLangStrings->STR_FUNCTION_SWITCHES
 #define STR_GROUP_ALWAYS_ON currentLangStrings->STR_GROUP_ALWAYS_ON
 #define STR_GROUP currentLangStrings->STR_GROUP
@@ -306,7 +306,7 @@
 #define STR_FUNCTION_SWITCH_GROUPS currentLangStrings->STR_FUNCTION_SWITCH_GROUPS
 #endif
 
-#if defined(HELI)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(HELI)
 #define STR_AILERON currentLangStrings->STR_AILERON
 #define STR_COLLECTIVE currentLangStrings->STR_COLLECTIVE
 #define STR_ELEVATOR currentLangStrings->STR_ELEVATOR
@@ -316,7 +316,7 @@
 #define STR_VSWASHTYPE currentLangStrings->STR_VSWASHTYPE
 #endif
 
-#if defined(MULTIMODULE)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(MULTIMODULE)
 #define STR_MULTI_BAYANG_OPTIONS currentLangStrings->STR_MULTI_BAYANG_OPTIONS
 #define STR_MULTI_DSM_CLONE currentLangStrings->STR_MULTI_DSM_CLONE
 #define STR_MULTI_DSM_OPTIONS currentLangStrings->STR_MULTI_DSM_OPTIONS
@@ -325,7 +325,7 @@
 #define STR_MULTI_WBUS_MODE currentLangStrings->STR_MULTI_WBUS_MODE
 #endif
 
-#if defined(USE_HATS_AS_KEYS)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(USE_HATS_AS_KEYS)
 #define STR_HATSMODE_KEYS_HELP currentLangStrings->STR_HATSMODE_KEYS_HELP
 #define STR_HATSMODE_KEYS currentLangStrings->STR_HATSMODE_KEYS
 #define STR_HATSMODE_TRIMS currentLangStrings->STR_HATSMODE_TRIMS
@@ -333,21 +333,21 @@
 #define STR_HATSOPT currentLangStrings->STR_HATSOPT
 #endif
 
-#if defined(AUDIO)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(AUDIO)
 #define STR_BEEP_PITCH currentLangStrings->STR_BEEP_PITCH
 #endif
 
-#if defined(HAPTIC)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(HAPTIC)
 #define STR_HAPTIC_LABEL currentLangStrings->STR_HAPTIC_LABEL
 #define STR_PWR_ON_OFF_HAPTIC currentLangStrings->STR_PWR_ON_OFF_HAPTIC
 #define STR_STRENGTH currentLangStrings->STR_STRENGTH
 #endif
 
-#if defined(LUA)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(LUA)
 #define STR_MENUCUSTOMSCRIPTS currentLangStrings->STR_MENUCUSTOMSCRIPTS
 #endif
 
-#if defined(DSM2) || defined(PXX) || defined(DSMP)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(DSM2) || defined(PXX) || defined(DSMP)
 #define STR_BIND_OK currentLangStrings->STR_BIND_OK
 #define STR_REBIND currentLangStrings->STR_REBIND
 #define STR_RECEIVER_NUM currentLangStrings->STR_RECEIVER_NUM
@@ -355,18 +355,18 @@
 #define STR_REG_OK currentLangStrings->STR_REG_OK
 #endif
 
-#if defined(DSMP)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(DSMP)
 #define STR_DSMP_ENABLE_AETR currentLangStrings->STR_DSMP_ENABLE_AETR
 #endif
 
-#if defined(AFHDS3)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(AFHDS3)
 #define STR_AFHDS3_ACTUAL_POWER currentLangStrings->STR_AFHDS3_ACTUAL_POWER
 #define STR_AFHDS3_ONE_TO_MANY currentLangStrings->STR_AFHDS3_ONE_TO_MANY
 #define STR_AFHDS3_ONE_TO_ONE_TELEMETRY currentLangStrings->STR_AFHDS3_ONE_TO_ONE_TELEMETRY
 #define STR_IBUS2_SENSORS_MODE_ONLY currentLangStrings->STR_IBUS2_SENSORS_MODE_ONLY
 #endif
 
-#if defined(BLUETOOTH)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(BLUETOOTH)
 #define STR_BLUETOOTH_DIST_ADDR currentLangStrings->STR_BLUETOOTH_DIST_ADDR
 #define STR_BLUETOOTH_INIT currentLangStrings->STR_BLUETOOTH_INIT
 #define STR_BLUETOOTH_LOCAL_ADDR currentLangStrings->STR_BLUETOOTH_LOCAL_ADDR
@@ -377,7 +377,7 @@
 #define STR_BLUETOOTH_MODES currentLangStrings->STR_BLUETOOTH_MODES
 #endif
 
-#if defined(USBJ_EX)
+#if defined(STRING_LIST_DECLARE_ALL) || defined(USBJ_EX)
 #define STR_USBJOYSTICK_APPLY_CHANGES currentLangStrings->STR_USBJOYSTICK_APPLY_CHANGES
 #define STR_USBJOYSTICK_AXIS_COLLISION currentLangStrings->STR_USBJOYSTICK_AXIS_COLLISION
 #define STR_USBJOYSTICK_BTN_COLLISION currentLangStrings->STR_USBJOYSTICK_BTN_COLLISION

@@ -343,15 +343,11 @@ void getADC();
 
 void resetBacklightTimeout();
 void checkBacklight();
-#if defined(STATUS_LED_PWM)
 void calcStatusLedBright(int16_t source);
-#endif
-#if defined(STATUS_LED_COLORS)
 void checkStatusLed();
 void statusLedSetPhase(uint8_t phase);
 uint8_t statusLedPhaseColor(uint8_t phase);
 bool statusLedColorAvailable(int color);
-#endif
 
 #include "maths.h"
 
@@ -607,9 +603,7 @@ constexpr uint8_t SD_SCREEN_FILE_LENGTH = 32;
 constexpr uint8_t SD_SCREEN_FILE_LENGTH = 64;
 #endif
 
-#if defined(BLUETOOTH)
 #include "bluetooth.h"
-#endif
 
 constexpr uint8_t TEXT_FILENAME_MAXLEN = 40;
 
@@ -662,12 +656,10 @@ union ReusableBuffer
     BindInformation bindInformation;
     PXX2ModuleSetup pxx2;
 #endif
-#if defined(BLUETOOTH)
     struct {
       char devices[MAX_BLUETOOTH_DISTANT_ADDR][LEN_BLUETOOTH_ADDR+1];
       uint8_t devicesCount;
     } bt;
-#endif
   } moduleSetup;
 
   struct {
@@ -844,9 +836,7 @@ struct Clipboard {
 
 extern Clipboard clipboard;
 
-#if defined(INTERNAL_GPS)
-  #include "gps.h"
-#endif
+#include "gps.h"
 
 #if defined(SPACEMOUSE)
   #include "spacemouse.h"
@@ -861,9 +851,7 @@ enum JackMode {
 };
 #endif
 
-#if defined(IMU)
 #include "gyro.h"
-#endif
 
 #if defined(DEBUG_LATENCY)
 extern uint8_t latencyToggleSwitch;
