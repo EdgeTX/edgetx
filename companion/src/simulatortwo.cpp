@@ -426,10 +426,12 @@ int main(int argc, char* argv[])
                                   Qt::QueuedConnection);
         break;
       } else if (cmd == "CHANNELS") {
+        QString channelsStr;
         for (int i = 0; i < 16; ++i) {
-          std::cout << "CH" << (i + 1) << ": " << currentChannels[i] << "\n";
+          channelsStr += QString::number(currentChannels[i]) + " ";
         }
-        std::cout << std::flush;
+
+        std::cout << channelsStr.trimmed().toStdString() << "\n" << std::flush;
       } else if (cmd == "ANALOG") {
         int x, y;
         ss >> x >> y;
