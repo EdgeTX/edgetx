@@ -63,12 +63,27 @@ jobs:
     uses: ./.github/workflows/wasm_modules.yml
 
   build-linux:
-    name: Linux Companion
-    runs-on: ubuntu-latest
+    # x86_64 keeps the original job and artifact names, so required status
+    # checks and anything fetching edgetx-cpn-linux-* keep working
+    name: Linux Companion${{ matrix.name-suffix }}
+    runs-on: ${{ matrix.runs-on }}
     needs: modules
     if: |
       (inputs.target == 'all' || inputs.target == 'linux' || inputs.target == '') &&
       (github.event_name != 'pull_request' || !contains(github.event.pull_request.labels.*.name, 'ci: skip-cpn-linux'))
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runs-on: ubuntu-24.04
+            os: linux
+            name-suffix: ''
+          # edgetx-dev is multi-arch, so the same image tag pulls the arm64
+          # variant here
+          - runs-on: ubuntu-24.04-arm
+            os: linux-arm64
+            name-suffix: ' (arm64)'
 
     container:
       image: ghcr.io/edgetx/edgetx-dev:latest
@@ -91,7 +106,7 @@ jobs:
       - name: Setup and Build
         uses: ./.github/actions/build_companion
         with:
-          os: 'linux'
+          os: ${{ matrix.os }}
 
       - name: Run companion unit tests
         shell: bash
