@@ -72,7 +72,14 @@ class StdoutWatcher
 #ifdef _WIN32
           _write(m_origStdoutFd, buf, static_cast<unsigned int>(n));
 #else
-          (void)write(m_origStdoutFd, buf, static_cast<size_t>(n));
+          if (m_origStdoutFd != -1) {
+#ifdef _WIN32
+            _write(m_origStdoutFd, buf, static_cast<unsigned int>(n));
+#else
+            if (write(m_origStdoutFd, buf, static_cast<size_t>(n)) < 0) {
+            }
+#endif
+          }
 #endif
         }
 
