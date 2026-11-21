@@ -24,13 +24,92 @@
 #include "translations.h"
 #include "version.h"
 
+#include <algorithm>
+#include <cmath>
+
 using namespace Simulator;
 
 QFile simuDbgLog;
 int finish(int exitCode);
 
+namespace StickAxis
+{
+constexpr uint8_t ROLL = 0;      // Aileron (Roll)
+constexpr uint8_t PITCH = 1;     // Elevator (Pitch)
+constexpr uint8_t THROTTLE = 2;  // Throttle
+constexpr uint8_t YAW = 3;       // Rudder (Yaw)
+}
+
+static std::string toUpper(std::string str)
+{
+  for (char& c : str) {
+    c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
+  }
+  return str;
+}
+
+static void handleStickCommand(const std::string& cmd, std::stringstream& ss,
+                               SimulatorInterface* sim)
+{
+  double percent = 0.0;
+  if (!(ss >> percent)) return;
+
+  uint8_t axis = 0;
+  int16_t rawValue = 0;
+
+  if (cmd == "THROTTLE") {
+    axis = StickAxis::THROTTLE;
+    // 0..100% -> -1024..+1024
+    rawValue = static_cast<int16_t>(std::round(-1024.0 + (percent * 20.48)));
+  } else {
+    // -100..100% -> -1024..+1024
+    rawValue = static_cast<int16_t>(std::round(percent * 10.24));
+
+    if (cmd == "PITCH") {
+      axis = StickAxis::PITCH;
+    } else if (cmd == "ROLL") {
+      axis = StickAxis::ROLL;
+    } else if (cmd == "YAW") {
+      axis = StickAxis::YAW;
+    }
+  }
+
+  QMetaObject::invokeMethod(
+      sim, [sim, axis, rawValue]() { sim->setAnalogValue(axis, rawValue); },
+      Qt::QueuedConnection);
+}
+
 constexpr uint8_t KEY_RTN = 2;
 static qint32 currentChannels[16] = {0};
+
+namespace SwitchPos
+{
+constexpr int8_t UP = -1;
+constexpr int8_t CENTER = 0;
+constexpr int8_t DOWN = 1;
+}
+
+static void handleSwitchCommand(std::stringstream& ss, SimulatorInterface* sim)
+{
+  std::string sw, pos;
+  if (!(ss >> sw >> pos)) return;
+  
+  char swLetter = static_cast<char>(std::toupper(sw.back()));
+  uint8_t swIndex = static_cast<uint8_t>(swLetter - 'A');
+
+  int8_t state = SwitchPos::CENTER;
+  if (pos == "UP") {
+    state = SwitchPos::UP;
+  } else if (pos == "DOWN") {
+    state = SwitchPos::DOWN;
+  } else if (pos == "CENTER" || pos == "MID") {
+    state = SwitchPos::CENTER;
+  }
+
+  QMetaObject::invokeMethod(
+      sim, [sim, swIndex, state]() { sim->setSwitch(swIndex, state); },
+      Qt::QueuedConnection);
+}
 
 enum MessageLevel { MsgInfo, MsgWarning, MsgCritical };
 
@@ -408,8 +487,10 @@ void startConsoleInputThread(QApplication& app, SimulatorInterface* sim)
     std::string line;
     while (std::getline(std::cin, line)) {
       std::stringstream ss(line);
-      std::string cmd;
-      if (!(ss >> cmd)) continue;
+      std::string rawCmd;
+      if (!(ss >> rawCmd)) continue;
+
+      std::string cmd = toUpper(rawCmd);
 
       if (cmd == "EXIT") {
         QMetaObject::invokeMethod(&app, &QCoreApplication::quit, Qt::QueuedConnection);
@@ -417,19 +498,14 @@ void startConsoleInputThread(QApplication& app, SimulatorInterface* sim)
       } else if (cmd == "CHANNELS") {
         QString channelsStr;
         for (int i = 0; i < 16; ++i) {
-          channelsStr += QString::number(currentChannels[i]) + " ";
+          channelsStr += QString::number(i+1) + ":" + QString::number(currentChannels[i]) + " ";
+          //channelsStr += QString::number(currentChannels[i]) + " ";
         }
         std::cout << channelsStr.trimmed().toStdString() << "\n" << std::flush;
-      } else if (cmd == "ANALOG") {
-        int x, y;
-        ss >> x >> y;
-        QMetaObject::invokeMethod(
-            sim, [sim, x, y]() { sim->setAnalogValue(static_cast<uint8_t>(x), static_cast<int16_t>(y)); }, Qt::QueuedConnection);
-      } else if (cmd == "SWITCH") {
-        int x, y;
-        ss >> x >> y;
-        QMetaObject::invokeMethod(
-            sim, [sim, x, y]() { sim->setSwitch(static_cast<uint8_t>(x), static_cast<int8_t>(y)); }, Qt::QueuedConnection);
+      } else if (cmd == "THROTTLE" || cmd == "YAW" || cmd == "PITCH" || cmd == "ROLL") {
+        handleStickCommand(cmd, ss, sim);
+      } else if (cmd == "SW" || cmd == "SWITCH") {
+        handleSwitchCommand(ss, sim);
       }
     }
   });
