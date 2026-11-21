@@ -568,9 +568,19 @@ void initLoggingTimer();
 
 __attribute__((weak)) void customUIActions() {}
 
+#if defined(AFHDS3_FRM301_EXT)
+namespace afhds3 { void frmBackgroundTask(); }
+#endif
+
 void perMain()
 {
   DEBUG_TIMER_START(debugTimerPerMain1);
+
+#if defined(AFHDS3_FRM301_EXT)
+  // FRM301: store receiver block / module options in the model from the
+  // UI task (allocates memory, not allowed in the mixer task)
+  afhds3::frmBackgroundTask();
+#endif
 
   checkSpeakerVolume();
 

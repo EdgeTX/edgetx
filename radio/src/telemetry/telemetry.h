@@ -49,7 +49,10 @@ constexpr uint8_t TELEMETRY_TIMEOUT10ms = 100; // 1 second
 #define TELEMETRY_SERIAL_8E2           1
 #define TELEMETRY_SERIAL_WITHOUT_DMA   2
 
-#if defined(CROSSFIRE) || defined(MULTIMODULE) || defined(AFHDS3) || defined(PXX2)
+#if defined(AFHDS3_FRM301_EXT)
+// FRM301 sends its 168 byte receiver block after binding (cmd 0x05)
+#define TELEMETRY_RX_PACKET_SIZE       224
+#elif defined(CROSSFIRE) || defined(MULTIMODULE) || defined(AFHDS3) || defined(PXX2)
 #define TELEMETRY_RX_PACKET_SIZE       128
 // multi module Spektrum telemetry is 18 bytes, FlySky is 37 bytes
 #else

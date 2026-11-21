@@ -21,6 +21,8 @@
 
 #pragma once
 
+#include <stddef.h>
+
 #define AFHDS3_MAX_CHANNELS 18
 
 namespace afhds3
@@ -165,6 +167,9 @@ union Config_u
 };
 
 Config_u* getConfig(uint8_t moduleIdx);
+#if defined(AFHDS3_FRM301_EXT)
+bool isFRM301(uint8_t moduleIdx);  // external module answered as FRM301
+#endif
 void applyModelConfig(uint8_t moduleIdx);
 
 };
