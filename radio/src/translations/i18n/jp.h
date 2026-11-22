@@ -779,8 +779,6 @@
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH without telem.", "16CH テレメトリーなし")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH with telem.", "16CH テレメトリーあり")
 #define TR_EXT_ANTENNA                 "外部アンテナ"
-#define TR_PIN                         "ピン"
-#define TR_UPDATE_RX_OPTIONS           "受信オプションをアップデートしますか ?"
 #define TR_UPDATE_TX_OPTIONS           "送信オプションをアップデートしますか ?"
 #define TR_MODULES_RX_VERSION          BUTTON("モジュール / 受信機バージョン")
 #define TR_SHOW_MIXER_MONITORS         "チャンネルミキサーの表示"
@@ -945,9 +943,6 @@
 #define TR_INTERNALRF                  "内部RFモジュール"
 #define TR_INTERNAL_MODULE             TR("Int. module", "内部モジュール")
 #define TR_EXTERNAL_MODULE             TR("Ext. module", "外部モジュール")
-#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTXアップグレードが必要です"
-#define TR_TELEMETRY_DISABLED          "テレメトリー無効"
-#define TR_MORE_OPTIONS_AVAILABLE      "その他のオプション"
 #define TR_EXTERNALRF                  "外部RFモジュール"
 #define TR_FAILSAFE                    TR("Failsafe", "Failsafeモード")
 #define TR_FAILSAFESET                 "FAILSAFE設定"
@@ -1036,7 +1031,6 @@
 #define TR_REGISTER                    BUTTON(TR("Reg", "登録"))
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "受信強度"))
 #define TR_RANGE_TEST                  "受信強度テスト"
-#define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "受信機オプション")
 #define TR_RESET_BTN                   BUTTON("リセット")
 #define TR_KEYS_BTN                    BUTTON("キー")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "アナログ"))

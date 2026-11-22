@@ -785,8 +785,6 @@
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16KA uden telem.", "16KA uden telemetri")
 #define TR_16CH_WITH_TELEMETRY         TR("16KA med telem.", "16KA med telemetri")
 #define TR_EXT_ANTENNA                 TR("Ext. antenne", "Ekstern antenne")
-#define TR_PIN                         "Pind"
-#define TR_UPDATE_RX_OPTIONS           "Opdater RX tilvalg?"
 #define TR_UPDATE_TX_OPTIONS           "Opdater TX tilvalg?"
 #define TR_MODULES_RX_VERSION          BUTTON("Moduler / RX version")
 #define TR_SHOW_MIXER_MONITORS         "Vis mixer monitor"
@@ -951,9 +949,6 @@
 #define TR_INTERNALRF                  "Intern RF"
 #define TR_INTERNAL_MODULE             TR("Int. module", "Intern modul")
 #define TR_EXTERNAL_MODULE             TR("Ext. module", "Eksternt modul")
-#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX kræver opgradering"
-#define TR_TELEMETRY_DISABLED          "Telem. deaktiveret"
-#define TR_MORE_OPTIONS_AVAILABLE      "Flere tilvalg mulige"
 #define TR_EXTERNALRF                  "Ekstern RF"
 #define TR_FAILSAFE                    TR("Fejlsikring", "Fejlsikring tilst")
 #define TR_FAILSAFESET                 "FEJLSIKRING INDSTILLING"
@@ -1042,7 +1037,6 @@
 #define TR_REGISTER                    BUTTON(TR("Reg", "Registrer"))
 #define TR_MODULE_RANGE                BUTTON(TR("Ræk", "Rækkevidde"))
 #define TR_RANGE_TEST                  "Test af rækkevidde"
-#define TR_RECEIVER_OPTIONS            TR("MODT. VALG", "MODTAGER VALG")
 #define TR_RESET_BTN                   BUTTON("Nulstil")
 #define TR_KEYS_BTN                    BUTTON("Taster")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analo", "Analoge"))

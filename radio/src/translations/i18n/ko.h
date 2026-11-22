@@ -810,9 +810,7 @@
 #define TR_16CH_WITHOUT_TELEMETRY         TR("16채널(텔레메트리 없음)", "16채널(텔레메트리 비활성)")
 #define TR_16CH_WITH_TELEMETRY            TR("16채널(텔레메트리 포함)", "16채널(텔레메트리 사용)")
 #define TR_EXT_ANTENNA                    "외부 안테나"
-#define TR_PIN                            "핀"
 
-#define TR_UPDATE_RX_OPTIONS              "수신기 옵션을 업데이트할까요?"
 #define TR_UPDATE_TX_OPTIONS              "송신기 옵션을 업데이트할까요?"
 #define TR_MODULES_RX_VERSION             BUTTON("모듈 / 수신기 버전")
 #define TR_SHOW_MIXER_MONITORS            "믹서 모니터 표시"
@@ -988,9 +986,6 @@
 #define TR_INTERNALRF                     "내장 RF"
 #define TR_INTERNAL_MODULE                TR("내장 모듈", "내부 RF 모듈")
 #define TR_EXTERNAL_MODULE                TR("외장 모듈", "외부 RF 모듈")
-#define TR_EDGETX_UPGRADE_REQUIRED        "EdgeTX 업그레이드 필요"
-#define TR_TELEMETRY_DISABLED             "텔레메트리 비활성화됨"
-#define TR_MORE_OPTIONS_AVAILABLE         "추가 옵션 사용 가능"
 #define TR_EXTERNALRF                     "외장 RF"
 #define TR_FAILSAFE                       TR("페일세이프", "페일세이프 모드")
 #define TR_FAILSAFESET                    "페일세이프 설정"
@@ -1082,7 +1077,6 @@
 #define TR_REGISTER                       BUTTON(TR("등록", "등록"))
 #define TR_MODULE_RANGE                   BUTTON(TR("범위", "범위 테스트"))
 #define TR_RANGE_TEST                     "범위 테스트"
-#define TR_RECEIVER_OPTIONS               TR("수신기 옵션", "RECEIVER OPTIONS")
 #define TR_RESET_BTN                      BUTTON("초기화")
 #define TR_KEYS_BTN                       BUTTON("버튼")
 #define TR_ANALOGS_BTN                    BUTTON(TR("아날로그", "아날로그 입력"))

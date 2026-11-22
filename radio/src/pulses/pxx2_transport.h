@@ -99,8 +99,6 @@ class Pxx2Pulses: public Pxx2Transport {
 
     void setupModuleSettingsFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
 
-    void setupReceiverSettingsFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
-
     void setupChannelsFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
 
     void setupTelemetryFrame(uint8_t module);

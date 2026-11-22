@@ -776,8 +776,6 @@
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH sin telem.", "16CH sin telemetría")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH con telem.", "16CH con telemetría")
 #define TR_EXT_ANTENNA                 "Antena ext."
-#define TR_PIN                         "Pin"
-#define TR_UPDATE_RX_OPTIONS           "Actualizar opciones RX?"
 #define TR_UPDATE_TX_OPTIONS           "Actualizar opciones TX?"
 #define TR_MODULES_RX_VERSION          BUTTON("Módulos / versión RX")
 #define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
@@ -941,9 +939,6 @@
 #define TR_INTERNALRF                  "RF interna"
 #define TR_INTERNAL_MODULE             TR("Módulo int", "Módulo interno")
 #define TR_EXTERNAL_MODULE             TR("Módulo ext", "Módulo externo")
-#define TR_EDGETX_UPGRADE_REQUIRED     "Actualiz. EdgeTX requerida"
-#define TR_TELEMETRY_DISABLED          "Telem. inactiva"
-#define TR_MORE_OPTIONS_AVAILABLE      "Más opciones disp."
 #define TR_EXTERNALRF                  "RF externa"
 #define TR_FAILSAFE                    "Failsafe"
 #define TR_FAILSAFESET                 "AJUSTES FAILSAFE"
@@ -1032,7 +1027,6 @@
 #define TR_REGISTER             BUTTON(TR("Reg", "Registrar"))
 #define TR_MODULE_RANGE        "[Lim.]"
 #define TR_RANGE_TEST                  "Range test"
-#define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "OPCIONES RECEPTOR")
 #define TR_RESET_BTN           "[Reset]"
 #define TR_KEYS_BTN                BUTTON(TR("SW","Switches"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogs"))

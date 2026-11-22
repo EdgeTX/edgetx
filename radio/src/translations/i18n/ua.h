@@ -781,8 +781,6 @@
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH без телем.", "16CH без телеметрії")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH з телем.", "16CH з телметрією")
 #define TR_EXT_ANTENNA                 "Зовн. антена"
-#define TR_PIN                         "Pin"
-#define TR_UPDATE_RX_OPTIONS           "Оновити опції RX?"
 #define TR_UPDATE_TX_OPTIONS           "Оновити опції TX?"
 #define TR_MODULES_RX_VERSION          BUTTON("Модулі / RX версії")
 #define TR_SHOW_MIXER_MONITORS         "Показати монітори мікшеру"
@@ -947,9 +945,6 @@
 #define TR_INTERNALRF                  "Внутрійшній RF"
 #define TR_INTERNAL_MODULE             TR("Внутр. модуль", "Внутрішній модуль")
 #define TR_EXTERNAL_MODULE             TR("Зовн. модуль", "Зовнішній модуль")
-#define TR_EDGETX_UPGRADE_REQUIRED     "Потрібне оновлення EdgeTX"
-#define TR_TELEMETRY_DISABLED          "Телем. вимкнуто"
-#define TR_MORE_OPTIONS_AVAILABLE      "Доступні додаткові опції"
 #define TR_EXTERNALRF                  "Зовнішній RF"
 #define TR_FAILSAFE                    TR("Відмова", "Режим відмови")
 #define TR_FAILSAFESET                 "НАЛАШТУВАННЯ АВАРІЙНОГО РЕЖИМУ"
@@ -1038,7 +1033,6 @@
 #define TR_REGISTER                    BUTTON(TR("Регі.", "Регістр"))
 #define TR_MODULE_RANGE                BUTTON(TR("Діап.", "Діапазон"))
 #define TR_RANGE_TEST                  "Тест діапазону"
-#define TR_RECEIVER_OPTIONS            TR("ОПЦІЇ ПРМ.", "ОПЦІЇ ПРИЙМАЧА")
 #define TR_RESET_BTN                   BUTTON("Скин.")
 #define TR_KEYS_BTN                    BUTTON("Кнопк")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Анл.", "Аналоги"))

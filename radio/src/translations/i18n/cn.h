@@ -780,8 +780,6 @@
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH关回传", "16CH 禁用回传")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH开回传", "16CH 开启回传")
 #define TR_EXT_ANTENNA                 "外置天线"
-#define TR_PIN                         "插针"
-#define TR_UPDATE_RX_OPTIONS           "是否升级接收机?"
 #define TR_UPDATE_TX_OPTIONS           "是否升级发射机?"
 #define TR_MODULES_RX_VERSION          BUTTON("模块/接收机版本")
 #define TR_SHOW_MIXER_MONITORS         "显示通道混控"
@@ -946,9 +944,6 @@
 #define TR_INTERNALRF                  "内置发射"
 #define TR_INTERNAL_MODULE             TR("内置发射", "内置发射")
 #define TR_EXTERNAL_MODULE             TR("外置发射", "外置发射")
-#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX需要升级"
-#define TR_TELEMETRY_DISABLED          "禁用回传"
-#define TR_MORE_OPTIONS_AVAILABLE      "更多可用选项"
 #define TR_EXTERNALRF                  "外置发射"
 #define TR_FAILSAFE                    TR("失控保护", "失控保护模式")
 #define TR_FAILSAFESET                 "失控保护设置"
@@ -1037,7 +1032,6 @@
 #define TR_REGISTER                    BUTTON(TR("注册", "注册"))
 #define TR_MODULE_RANGE                BUTTON(TR("测距", "测距"))
 #define TR_RANGE_TEST                  "距离测试(低功率)"
-#define TR_RECEIVER_OPTIONS            TR("选项", "接收机选项")
 #define TR_RESET_BTN                   BUTTON("复位")
 #define TR_KEYS_BTN                    BUTTON("按键")
 #define TR_ANALOGS_BTN                 BUTTON(TR("ADC", "ADC"))

@@ -781,8 +781,6 @@
 #define TR_16CH_WITHOUT_TELEMETRY       TR("16KA utan telem.", "16 KA utan telemetri")
 #define TR_16CH_WITH_TELEMETRY          TR("16KA med telem.", "16 KA med telemetri")
 #define TR_EXT_ANTENNA                  "Ext. antenn"
-#define TR_PIN                          "Pin"
-#define TR_UPDATE_RX_OPTIONS            "Uppdatera Rx alternativ?"
 #define TR_UPDATE_TX_OPTIONS            "Uppdatera Tx alternativ?"
 #define TR_MODULES_RX_VERSION           BUTTON("Moduler / Rx version")
 #define TR_SHOW_MIXER_MONITORS          "Visa mixervärden"
@@ -948,9 +946,6 @@
 #define TR_INTERNALRF                   "Intern radiomodul"
 #define TR_INTERNAL_MODULE              TR("Int. modul","Intern modul")
 #define TR_EXTERNAL_MODULE              TR("Ext. modul","Extern modul")
-#define TR_EDGETX_UPGRADE_REQUIRED      "EdgeTX behöver uppgraderas"
-#define TR_TELEMETRY_DISABLED           "Telem. inaktiverad"
-#define TR_MORE_OPTIONS_AVAILABLE       "Fler alternativ finns"
 #define TR_EXTERNALRF                   "Extern radiomodul"
 #define TR_FAILSAFE                     TR("Failsafe", "Failsafeläge")
 #define TR_FAILSAFESET                  "Failsafeinställning"
@@ -1039,7 +1034,6 @@
 #define TR_REGISTER                     BUTTON(TR("Reg", "Registrera"))
 #define TR_MODULE_RANGE                 BUTTON(TR("Tst", "Testa"))
 #define TR_RANGE_TEST                   "Test av radiolänkkvalitet (begränsad signalstyrka)"
-#define TR_RECEIVER_OPTIONS             TR("RX ALTERNATIV", "MOTTAGARALTERNATIV")
 #define TR_RESET_BTN                    TR(BUTTON("Nolla"), BUTTON("Återställ"))
 #define TR_KEYS_BTN                     BUTTON(TR("Bryt.","Brytare"))
 #define TR_ANALOGS_BTN                  BUTTON(TR("Ana.","Analoga"))

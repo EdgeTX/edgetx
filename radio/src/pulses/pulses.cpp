@@ -204,20 +204,6 @@ void ModuleState::writeModuleSettings(ModuleSettings* source)
   mode = MODULE_MODE_MODULE_SETTINGS;
 }
 
-void ModuleState::readReceiverSettings(ReceiverSettings* destination)
-{
-  receiverSettings = destination;
-  receiverSettings->state = PXX2_SETTINGS_READ;
-  mode = MODULE_MODE_RECEIVER_SETTINGS;
-}
-
-void ModuleState::writeReceiverSettings(ReceiverSettings* source)
-{
-  receiverSettings = source;
-  receiverSettings->state = PXX2_SETTINGS_WRITE;
-  receiverSettings->timeout = 0;
-  mode = MODULE_MODE_RECEIVER_SETTINGS;
-}
 #endif
 
 void getModuleStatusString(uint8_t moduleIdx, char * statusText)

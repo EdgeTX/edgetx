@@ -790,8 +790,6 @@
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH بلا Telem", "16CH بدون Telemetry")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH مع Telem", "16CH مع Telemetry")
 #define TR_EXT_ANTENNA                 "هوائي خارجي"
-#define TR_PIN                         "Pin"
-#define TR_UPDATE_RX_OPTIONS           "تحديث خيارات RX؟"
 #define TR_UPDATE_TX_OPTIONS           "تحديث خيارات TX؟"
 #define TR_MODULES_RX_VERSION          BUTTON("إصدار الموديولات / RX")
 #define TR_SHOW_MIXER_MONITORS         "عرض مراقبة Mixer"
@@ -956,9 +954,6 @@
 #define TR_INTERNALRF                  "RF داخلي"
 #define TR_INTERNAL_MODULE             TR("الموديول الداخلي", "الموديول الداخلي")
 #define TR_EXTERNAL_MODULE             TR("الموديول الخارجي", "الموديول الخارجي")
-#define TR_EDGETX_UPGRADE_REQUIRED     "يحتاج تحديث EdgeTX"
-#define TR_TELEMETRY_DISABLED          "Telemetry معطل"
-#define TR_MORE_OPTIONS_AVAILABLE      "توجد خيارات أكثر"
 #define TR_EXTERNALRF                  "RF خارجي"
 #define TR_FAILSAFE                    TR("Failsafe", "وضع Failsafe")
 #define TR_FAILSAFESET                 "إعدادات Failsafe"
@@ -1047,7 +1042,6 @@
 #define TR_REGISTER                    BUTTON(TR("تسجيل", "تسجيل"))
 #define TR_MODULE_RANGE                BUTTON(TR("المدى", "المدى"))
 #define TR_RANGE_TEST                  "اختبار المدى"
-#define TR_RECEIVER_OPTIONS            TR("خيارات الرسيفر", "خيارات الرسيفر")
 #define TR_RESET_BTN                   BUTTON("إعادة ضبط")
 #define TR_KEYS_BTN                    BUTTON("الأزرار")
 #define TR_ANALOGS_BTN                 BUTTON(TR("التناظري", "التناظري"))

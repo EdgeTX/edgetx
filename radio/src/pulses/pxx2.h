@@ -50,17 +50,6 @@
 #define PXX2_CHANNELS_FLAG0_RANGECHECK       (1 << 7)
 #define PXX2_CHANNELS_FLAG1_RACING_MODE      (1 << 3)
 
-#define PXX2_RX_SETTINGS_FLAG0_WRITE               (1 << 6)
-
-#define PXX2_RX_SETTINGS_FLAG1_TELEMETRY_DISABLED  (1 << 7)
-#define PXX2_RX_SETTINGS_FLAG1_READONLY            (1 << 6)
-#define PXX2_RX_SETTINGS_FLAG1_SBUS24              (1 << 5)
-#define PXX2_RX_SETTINGS_FLAG1_FASTPWM             (1 << 4)
-#define PXX2_RX_SETTINGS_FLAG1_FPORT               (1 << 3)
-#define PXX2_RX_SETTINGS_FLAG1_TELEMETRY_25MW      (1 << 2)
-#define PXX2_RX_SETTINGS_FLAG1_ENABLE_PWM_CH5_CH6  (1 << 1)
-#define PXX2_RX_SETTINGS_FLAG1_FPORT2              (1 << 0)
-
 #define PXX2_TX_SETTINGS_FLAG0_WRITE               (1 << 6)
 #define PXX2_TX_SETTINGS_FLAG1_EXTERNAL_ANTENNA    (1 << 3)
 
@@ -72,15 +61,8 @@
 
 #define PXX2_MAX_CHANNELS               24
 
-// Channel mapping constants
-#define CH_ENABLE_SPORT 4
-#define CH_ENABLE_SBUS  5
-
-#define CH_MAP_SPORT    0x40
-#define CH_MAP_SBUS_OUT 0x80
-#define CH_MAP_SBUS_IN  0xA0
-#define CH_MAP_FBUS     0xC0
-
+// Receiver options are set by this Lua tool, from the SD card
+#define PXX2_RX_OPTIONS_SCRIPT          SCRIPTS_TOOLS_PATH "/AccessRx.lua"
 
 enum PXX2ModuleModelID {
   PXX2_MODULE_NONE,
@@ -129,16 +111,6 @@ enum {
 
 uint8_t getPXX2ReceiverOptions(uint8_t modelId);
 bool isPXX2ReceiverOptionAvailable(uint8_t modelId, uint8_t option);
-
-enum ReceiverCapabilities {
-  RECEIVER_CAPABILITY_FPORT,
-  RECEIVER_CAPABILITY_TELEMETRY_25MW,
-  RECEIVER_CAPABILITY_ENABLE_PWM_CH5_CH6,
-  RECEIVER_CAPABILITY_FPORT2,
-  RECEIVER_CAPABILITY_RACING_MODE,
-  RECEIVER_CAPABILITY_SBUS24,
-  RECEIVER_CAPABILITY_COUNT
-};
 
 enum PXX2Variant {
   PXX2_VARIANT_NONE,
@@ -237,23 +209,6 @@ struct PXX2ModuleSetup {
   ModuleSettings moduleSettings;
 };
 
-class ReceiverSettings {
-  public:
-    uint8_t state;  // 0x00 = READ 0x40 = WRITE
-    tmr10ms_t timeout;
-    uint8_t receiverId;
-    uint8_t dirty;
-    uint8_t telemetryDisabled;
-    uint8_t telemetry25mw;
-    uint8_t pwmRate;
-    uint8_t fport;
-    uint8_t enablePwmCh5Ch6;
-    uint8_t fport2;
-    uint8_t sbus24;
-    uint8_t outputsCount;
-    uint8_t outputsMapping[24];
-};
-
 class BindInformation {
   public:
     int8_t step;
@@ -271,8 +226,6 @@ struct PXX2HardwareAndSettings {
   ModuleInformation modules[MAX_MODULES];
   uint32_t updateTime;
   ModuleSettings moduleSettings;
-  ReceiverSettings receiverSettings;  // when dealing with receiver settings, we
-                                      // also need module settings
   char msg[64];
 };
 

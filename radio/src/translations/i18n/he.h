@@ -782,8 +782,6 @@
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH without telem.", "16CH without telemetry")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH with telem.", "16CH with telemetry")
 #define TR_EXT_ANTENNA                 "אנטנה חיצונית"
-#define TR_PIN                         "Pin"
-#define TR_UPDATE_RX_OPTIONS           "? לעדכן אפשרויות RX"
 #define TR_UPDATE_TX_OPTIONS           "? לעדכן אפשרויות TX"
 #define TR_MODULES_RX_VERSION          BUTTON("מודולים / גרסת RX")
 #define TR_SHOW_MIXER_MONITORS         "הצג תצוגת מיקסים"
@@ -948,9 +946,6 @@
 #define TR_INTERNALRF                  "מודול פנימי"
 #define TR_INTERNAL_MODULE             TR("Int. module", "מודול פנימי")
 #define TR_EXTERNAL_MODULE             TR("Ext. module", "מודול חיצוני")
-#define TR_EDGETX_UPGRADE_REQUIRED     "נדרש עדכון EdgeTX"
-#define TR_TELEMETRY_DISABLED          "טלמטריה מושבתת"
-#define TR_MORE_OPTIONS_AVAILABLE      "אפשרויות נוספות זמינות"
 #define TR_EXTERNALRF                  "מודול חיצוני"
 #define TR_FAILSAFE                    TR("Failsafe", "הגדרת כשל קליטה")
 #define TR_FAILSAFESET                 "הגדרת כשל קליטה"
@@ -1039,7 +1034,6 @@
 #define TR_REGISTER                    BUTTON(TR("רשום", "רישום"))
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "בדיקת טווח קליטה"))
 #define TR_RANGE_TEST                  "בדיקת טווח"
-#define TR_RECEIVER_OPTIONS            TR("אפשרויות מקלט", "אפשרויות מקלט")
 #define TR_RESET_BTN                   BUTTON("איפוס")
 #define TR_KEYS_BTN                    BUTTON("בדיקת מתגים")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "בדיקת אנלוגיות"))

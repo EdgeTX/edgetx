@@ -780,8 +780,6 @@
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16k bez telem.", "16k bez telemetrie")
 #define TR_16CH_WITH_TELEMETRY         TR("16k s telem.", "16k s telemetrií")
 #define TR_EXT_ANTENNA                 "Ext. anténa"
-#define TR_PIN                         "Pin"
-#define TR_UPDATE_RX_OPTIONS           "Uložit nastavení?"
 #define TR_UPDATE_TX_OPTIONS           "Uložit nastavení?"
 #define TR_MODULES_RX_VERSION          BUTTON("Verze modulu a RX")
 #define TR_SHOW_MIXER_MONITORS         "Zobrazit monitor mixů"
@@ -945,9 +943,6 @@
 #define TR_INTERNALRF                  "Interní RF modul"
 #define TR_INTERNAL_MODULE             "Interní modul"
 #define TR_EXTERNAL_MODULE             "Externí modul"
-#define TR_EDGETX_UPGRADE_REQUIRED     TR("Aktualizujte EdgeTX", "Vyžadována aktualizace EdgeTX")
-#define TR_TELEMETRY_DISABLED          "Telem. zakázána"
-#define TR_MORE_OPTIONS_AVAILABLE      TR("Více možností", "Více dostupných možností")
 #define TR_EXTERNALRF                  "Externí RF modul"
 #define TR_FAILSAFE                    TR("Failsafe", "Mód Failsafe")
 #define TR_FAILSAFESET                 "NASTAVENÍ FAILSAFE"
@@ -1036,7 +1031,6 @@
 #define TR_REGISTER                    BUTTON(TR("Reg", "Registrovat"))
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "Dosah"))
 #define TR_RANGE_TEST                  "Test dosahu"
-#define TR_RECEIVER_OPTIONS            TR("MOŽNOSTI RX", "MOŽNOSTI PŘIJÍMAČE")
 #define TR_RESET_BTN                   BUTTON("Reset")
 #define TR_KEYS_BTN                    BUTTON(TR("SW","Přepínače"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogy"))

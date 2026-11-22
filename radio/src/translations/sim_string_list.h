@@ -528,7 +528,6 @@
 #define STR_DISPLAY_TRIMS currentLangStrings->STR_DISPLAY_TRIMS
 #define STR_DURATION_MS currentLangStrings->STR_DURATION_MS
 #define STR_DURATION currentLangStrings->STR_DURATION
-#define STR_EDGETX_UPGRADE_REQUIRED currentLangStrings->STR_EDGETX_UPGRADE_REQUIRED
 #define STR_EDIT currentLangStrings->STR_EDIT
 #define STR_ELIMITS currentLangStrings->STR_ELIMITS
 #define STR_EMERGENCY_MODE currentLangStrings->STR_EMERGENCY_MODE
@@ -725,7 +724,6 @@
 #define STR_MONITOR_MIXER_DESC currentLangStrings->STR_MONITOR_MIXER_DESC
 #define STR_MONITOR_OUTPUT_DESC currentLangStrings->STR_MONITOR_OUTPUT_DESC
 #define STR_MONITOR_SWITCHES currentLangStrings->STR_MONITOR_SWITCHES
-#define STR_MORE_OPTIONS_AVAILABLE currentLangStrings->STR_MORE_OPTIONS_AVAILABLE
 #define STR_MOVE_DOWN currentLangStrings->STR_MOVE_DOWN
 #define STR_MOVE_MODEL currentLangStrings->STR_MOVE_MODEL
 #define STR_MOVE_UP currentLangStrings->STR_MOVE_UP
@@ -793,7 +791,6 @@
 #define STR_PATH_TOO_LONG currentLangStrings->STR_PATH_TOO_LONG
 #define STR_PERSISTENT currentLangStrings->STR_PERSISTENT
 #define STR_PHASENAME currentLangStrings->STR_PHASENAME
-#define STR_PIN currentLangStrings->STR_PIN
 #define STR_PITCH_AT_MAX currentLangStrings->STR_PITCH_AT_MAX
 #define STR_PITCH_AT_ZERO currentLangStrings->STR_PITCH_AT_ZERO
 #define STR_PLAY_FILE currentLangStrings->STR_PLAY_FILE
@@ -839,7 +836,6 @@
 #define STR_RANGE currentLangStrings->STR_RANGE
 #define STR_RATIO currentLangStrings->STR_RATIO
 #define STR_RECEIVER_DELETE currentLangStrings->STR_RECEIVER_DELETE
-#define STR_RECEIVER_OPTIONS currentLangStrings->STR_RECEIVER_OPTIONS
 #define STR_RECEIVER_RESET currentLangStrings->STR_RECEIVER_RESET
 #define STR_REFRESH currentLangStrings->STR_REFRESH
 #define STR_REFRESHRATE currentLangStrings->STR_REFRESHRATE
@@ -976,7 +972,6 @@
 #define STR_SWITCHWARN currentLangStrings->STR_SWITCHWARN
 #define STR_SWITCHWARNING currentLangStrings->STR_SWITCHWARNING
 #define STR_SYNC currentLangStrings->STR_SYNC
-#define STR_TELEMETRY_DISABLED currentLangStrings->STR_TELEMETRY_DISABLED
 #define STR_TELEMETRY_NEWSENSOR currentLangStrings->STR_TELEMETRY_NEWSENSOR
 #define STR_TELEMETRY_SENSORS currentLangStrings->STR_TELEMETRY_SENSORS
 #define STR_TELEMETRY_TYPE currentLangStrings->STR_TELEMETRY_TYPE
@@ -1026,7 +1021,6 @@
 #define STR_UNITS_SYSTEM currentLangStrings->STR_UNITS_SYSTEM
 #define STR_UNLABELEDMODEL currentLangStrings->STR_UNLABELEDMODEL
 #define STR_UNSUPPORTED_RX currentLangStrings->STR_UNSUPPORTED_RX
-#define STR_UPDATE_RX_OPTIONS currentLangStrings->STR_UPDATE_RX_OPTIONS
 #define STR_UPDATE_TX_OPTIONS currentLangStrings->STR_UPDATE_TX_OPTIONS
 #define STR_US currentLangStrings->STR_US
 #define STR_USB_CHARGE currentLangStrings->STR_USB_CHARGE
@@ -1123,7 +1117,6 @@
 #define STR_SAMPLE_MODES currentLangStrings->STR_SAMPLE_MODES
 #define STR_SBUS_INVERSION_VALUES currentLangStrings->STR_SBUS_INVERSION_VALUES
 #define STR_SBUS_PROTOCOLS currentLangStrings->STR_SBUS_PROTOCOLS
-#define STR_SPORT_MODES currentLangStrings->STR_SPORT_MODES
 #define STR_SPORT_UPDATE_POWER_MODES currentLangStrings->STR_SPORT_UPDATE_POWER_MODES
 #define STR_SUBTRIMMODES currentLangStrings->STR_SUBTRIMMODES
 #define STR_SWTYPES currentLangStrings->STR_SWTYPES

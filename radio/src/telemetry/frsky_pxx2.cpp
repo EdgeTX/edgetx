@@ -169,8 +169,6 @@ static void processGetHardwareInfoFrame(uint8_t module, const uint8_t * frame)
   else if (index < PXX2_MAX_RECEIVERS_PER_MODULE) {
     memcpy(&destination->receivers[index].information, &frame[4], length);
     destination->receivers[index].timestamp = get_tmr10ms();
-    if (destination->receivers[index].information.capabilities & ~((1 << RECEIVER_CAPABILITY_COUNT) - 1))
-      destination->information.capabilityNotSupported = true;
   }
 }
 
@@ -188,46 +186,6 @@ static void processModuleSettingsFrame(uint8_t module, const uint8_t * frame)
 
   // Power
   destination->txPower = frame[5];
-
-  destination->state = PXX2_SETTINGS_OK;
-  destination->timeout = 0;
-  moduleState[module].mode = MODULE_MODE_NORMAL;
-}
-
-static void processReceiverSettingsFrame(uint8_t module, const uint8_t * frame)
-{
-  if (moduleState[module].mode != MODULE_MODE_RECEIVER_SETTINGS) {
-    return;
-  }
-
-  ReceiverSettings * destination = moduleState[module].receiverSettings;
-
-  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_FPORT)
-    destination->fport = 1;
-
-  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_FASTPWM)
-    destination->pwmRate = 1;
-
-  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_TELEMETRY_DISABLED)
-    destination->telemetryDisabled = 1;
-
-  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_TELEMETRY_25MW)
-    destination->telemetry25mw = 1;
-
-  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_ENABLE_PWM_CH5_CH6)
-    destination->enablePwmCh5Ch6 = 1;
-
-  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_FPORT2)
-    destination->fport2 = 1;
-
-  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_SBUS24)
-    destination->sbus24 = 1;
-
-  uint8_t outputsCount = min<uint8_t>(PXX2_MAX_CHANNELS, frame[0] - 4);
-  destination->outputsCount = outputsCount;
-  for (uint8_t pin = 0; pin < outputsCount; pin++) {
-    destination->outputsMapping[pin] = frame[5 + pin];
-  }
 
   destination->state = PXX2_SETTINGS_OK;
   destination->timeout = 0;
@@ -474,10 +432,6 @@ static void processModuleFrame(uint8_t module, const uint8_t *frame,
 
     case PXX2_TYPE_ID_TX_SETTINGS:
       processModuleSettingsFrame(module, frame);
-      break;
-
-    case PXX2_TYPE_ID_RX_SETTINGS:
-      processReceiverSettingsFrame(module, frame);
       break;
 
     case PXX2_TYPE_ID_REGISTER:

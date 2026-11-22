@@ -448,43 +448,6 @@ void Pxx2Pulses::setupModuleSettingsFrame(uint8_t module, int16_t* channels, uin
   }
 }
 
-void Pxx2Pulses::setupReceiverSettingsFrame(uint8_t module, int16_t* channels, uint8_t nChannels)
-{
-  if (get_tmr10ms() > reusableBuffer.hardwareAndSettings.receiverSettings.timeout) {
-    addFrameType(PXX2_TYPE_C_MODULE, PXX2_TYPE_ID_RX_SETTINGS);
-    uint8_t flag0 = reusableBuffer.hardwareAndSettings.receiverSettings.receiverId;
-    if (reusableBuffer.hardwareAndSettings.receiverSettings.state == PXX2_SETTINGS_WRITE)
-      flag0 |= PXX2_RX_SETTINGS_FLAG0_WRITE;
-    Pxx2Transport::addByte(flag0);
-    if (reusableBuffer.hardwareAndSettings.receiverSettings.state == PXX2_SETTINGS_WRITE) {
-      uint8_t flag1 = 0;
-      if (reusableBuffer.hardwareAndSettings.receiverSettings.telemetryDisabled)
-        flag1 |= PXX2_RX_SETTINGS_FLAG1_TELEMETRY_DISABLED;
-      if (reusableBuffer.hardwareAndSettings.receiverSettings.pwmRate)
-        flag1 |= PXX2_RX_SETTINGS_FLAG1_FASTPWM;
-      if (reusableBuffer.hardwareAndSettings.receiverSettings.fport)
-        flag1 |= PXX2_RX_SETTINGS_FLAG1_FPORT;
-      if (reusableBuffer.hardwareAndSettings.receiverSettings.telemetry25mw)
-        flag1 |= PXX2_RX_SETTINGS_FLAG1_TELEMETRY_25MW;
-      if (reusableBuffer.hardwareAndSettings.receiverSettings.enablePwmCh5Ch6)
-        flag1 |= PXX2_RX_SETTINGS_FLAG1_ENABLE_PWM_CH5_CH6;
-      if (reusableBuffer.hardwareAndSettings.receiverSettings.fport2)
-        flag1 |= PXX2_RX_SETTINGS_FLAG1_FPORT2;
-      if (reusableBuffer.hardwareAndSettings.receiverSettings.sbus24)
-        flag1 |= PXX2_RX_SETTINGS_FLAG1_SBUS24;
-      Pxx2Transport::addByte(flag1);
-      uint8_t outputsCount = min<uint8_t>(PXX2_MAX_CHANNELS, reusableBuffer.hardwareAndSettings.receiverSettings.outputsCount);
-      for (int i = 0; i < outputsCount; i++) {
-        Pxx2Transport::addByte(reusableBuffer.hardwareAndSettings.receiverSettings.outputsMapping[i]);
-      }
-    }
-    reusableBuffer.hardwareAndSettings.receiverSettings.timeout = get_tmr10ms() + 200/*next try in 2s*/;
-  }
-  else {
-    setupChannelsFrame(module, channels, nChannels);
-  }
-}
-
 void Pxx2Pulses::setupAccstBindFrame(uint8_t module)
 {
   addFrameType(PXX2_TYPE_C_MODULE, PXX2_TYPE_ID_BIND);
@@ -724,9 +687,6 @@ bool Pxx2Pulses::setupFrame(uint8_t module, int16_t* channels, uint8_t nChannels
       break;
     case MODULE_MODE_MODULE_SETTINGS:
       setupModuleSettingsFrame(module, channels, nChannels);
-      break;
-    case MODULE_MODE_RECEIVER_SETTINGS:
-      setupReceiverSettingsFrame(module, channels, nChannels);
       break;
     case MODULE_MODE_REGISTER:
       setupRegisterFrame(module);
