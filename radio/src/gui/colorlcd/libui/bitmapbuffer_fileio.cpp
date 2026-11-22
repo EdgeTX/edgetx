@@ -55,6 +55,8 @@ void *stb_realloc(void *ptr, unsigned int oldsz, unsigned int newsz)
 
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+// stbi__f2f() adds a double 0.5 to float constants (folded at compile time)
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
 #undef __I
 #define STBI_ONLY_PNG
 #define STBI_ONLY_BMP
