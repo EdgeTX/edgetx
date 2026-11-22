@@ -249,6 +249,12 @@ void registerTelemetryQueue(TelemetryQueue*);
 void destroyTelemetryQueue(TelemetryQueue*);
 
 void pushTelemetryDataToQueues(uint8_t* data, int length);
+
+#if defined(PXX2)
+// Frames received from PXX2 modules, for accessFramePop(). Created by the
+// first call and never freed, as the producer runs in another task.
+extern TelemetryQueue* luaAccessFrameFifo;
+#endif
 #endif
 
 void processPXX2Frame(uint8_t idx, const uint8_t* frame,

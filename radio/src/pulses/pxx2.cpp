@@ -20,6 +20,7 @@
  */
 
 #include <stdio.h>
+#include <atomic>
 #include "edgetx.h"
 #include "io/frsky_firmware_update.h"
 #include "lib_file.h"
@@ -580,6 +581,81 @@ void Pxx2Pulses::setupPowerMeter(uint8_t module)
   }
 }
 
+#if defined(LUA)
+// Slot ownership: the Lua script writes it only when FREE, the mixer reads it
+// only after moving it from READY to SENDING.
+enum : uint8_t {
+  LUA_FRAME_FREE,
+  LUA_FRAME_READY,
+  LUA_FRAME_SENDING,
+};
+
+// A frame not sent within this delay (module off, or busy binding, reading
+// settings...) is dropped
+#define PXX2_LUA_FRAME_TIMEOUT 100 /* 1s */
+
+static struct {
+  std::atomic<uint8_t> state;
+  uint8_t module;
+  uint8_t typeC;
+  uint8_t typeId;
+  uint8_t length;
+  tmr10ms_t timestamp;
+  uint8_t payload[PXX2_LUA_FRAME_MAX_PAYLOAD];
+} luaFrame;
+
+bool pxx2LuaFrameAvailable()
+{
+  if (luaFrame.state.load() == LUA_FRAME_READY &&
+      tmr10ms_t(get_tmr10ms() - luaFrame.timestamp) >= PXX2_LUA_FRAME_TIMEOUT) {
+    // fails if the mixer has just taken it: the slot is then free very soon
+    uint8_t expected = LUA_FRAME_READY;
+    luaFrame.state.compare_exchange_strong(expected, LUA_FRAME_FREE);
+  }
+  return luaFrame.state.load() == LUA_FRAME_FREE;
+}
+
+bool pxx2LuaFramePush(uint8_t module, uint8_t typeC, uint8_t typeId,
+                      const uint8_t* payload, uint8_t length)
+{
+  if (module >= NUM_MODULES || length > PXX2_LUA_FRAME_MAX_PAYLOAD ||
+      !pxx2LuaFrameAvailable())
+    return false;
+
+  luaFrame.module = module;
+  luaFrame.typeC = typeC;
+  luaFrame.typeId = typeId;
+  luaFrame.length = length;
+  memcpy(luaFrame.payload, payload, length);
+  luaFrame.timestamp = get_tmr10ms();
+  luaFrame.state.store(LUA_FRAME_READY);
+  return true;
+}
+
+bool Pxx2Pulses::setupLuaFrame(uint8_t module)
+{
+  uint8_t expected = LUA_FRAME_READY;
+  if (!luaFrame.state.compare_exchange_strong(expected, LUA_FRAME_SENDING))
+    return false;
+
+  if (luaFrame.module != module) {
+    // for the other module
+    luaFrame.state.store(LUA_FRAME_READY);
+    return false;
+  }
+
+  addFrameType(luaFrame.typeC, luaFrame.typeId);
+  for (uint8_t i = 0; i < luaFrame.length; i++) {
+    Pxx2Transport::addByte(luaFrame.payload[i]);
+  }
+
+  luaFrame.state.store(LUA_FRAME_FREE);
+  return true;
+}
+#else
+bool Pxx2Pulses::setupLuaFrame(uint8_t module) { return false; }
+#endif
+
 void Pxx2Pulses::setupShareMode(uint8_t module)
 {
   addFrameType(PXX2_TYPE_C_MODULE, PXX2_TYPE_ID_SHARE);
@@ -671,6 +747,9 @@ bool Pxx2Pulses::setupFrame(uint8_t module, int16_t* channels, uint8_t nChannels
       setupShareMode(module);
       break;
     default:
+      if (setupLuaFrame(module)) {
+        break;
+      }
       if (outputTelemetryBuffer.isModuleDestination(module)) {
         setupTelemetryFrame(module);
         outputTelemetryBuffer.reset();

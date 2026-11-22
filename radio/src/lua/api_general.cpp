@@ -1213,6 +1213,115 @@ static int luaAccessTelemetryPush(lua_State * L)
   lua_pushboolean(L, false);
   return 1;
 }
+
+/*luadoc
+@function accessFramePush(module, typeC, typeId, payload)
+
+Queues a raw PXX2 frame toward an ACCESS module. It is sent instead of one
+channels frame as soon as the module is in normal mode. A frame not sent within
+1 second is dropped.
+
+When called without parameters, it will only return whether a frame can be
+queued, without sending anything.
+
+@param module   module index (0 = internal, 1 = external)
+
+@param typeC    frame TYPE_C
+
+@param typeId   frame TYPE_ID
+
+@param payload  (table) frame bytes following TYPE_ID, up to 58 bytes
+
+@retval nil     the module is not a PXX2 module
+
+@retval boolean frame queued or not
+
+@status current Introduced in 3.1.0
+*/
+static int luaAccessFramePush(lua_State* L)
+{
+  if (lua_gettop(L) == 0) {
+    lua_pushboolean(L, pxx2LuaFrameAvailable());
+    return 1;
+  }
+
+  lua_Integer module = luaL_checkinteger(L, 1);
+  if (module < 0 || module >= NUM_MODULES || !isModulePXX2(module)) {
+    lua_pushnil(L);
+    return 1;
+  }
+
+  uint8_t typeC = luaL_checkinteger(L, 2);
+  uint8_t typeId = luaL_checkinteger(L, 3);
+  luaL_checktype(L, 4, LUA_TTABLE);
+  lua_Integer length = luaL_len(L, 4);
+
+  if (length > PXX2_LUA_FRAME_MAX_PAYLOAD || !pxx2LuaFrameAvailable()) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
+  uint8_t payload[PXX2_LUA_FRAME_MAX_PAYLOAD];
+  for (lua_Integer i = 0; i < length; i++) {
+    lua_rawgeti(L, 4, i + 1);
+    payload[i] = luaL_checkinteger(L, -1);
+    lua_pop(L, 1);
+  }
+
+  lua_pushboolean(L, pxx2LuaFramePush(module, typeC, typeId, payload, length));
+  return 1;
+}
+
+/*luadoc
+@function accessFramePop()
+
+Pops a raw PXX2 frame received from an ACCESS module. All frames but telemetry
+(see sportTelemetryPop) and authentication are queued, from the first call on:
+call it once when the script starts, to begin receiving and drop what an
+earlier script left behind.
+
+@retval nil queue does not contain any frame
+
+@retval multiple returns 4 values:
+ * module (number)
+ * TYPE_C (number)
+ * TYPE_ID (number)
+ * payload (table) frame bytes following TYPE_ID
+
+@status current Introduced in 3.1.0
+*/
+static int luaAccessFramePop(lua_State* L)
+{
+  if (!luaAccessFrameFifo) {
+    luaAccessFrameFifo = new TelemetryQueue();
+  }
+
+  auto queue = luaAccessFrameFifo;
+  uint8_t length = 0;
+
+  // the receiving task may still be pushing the frame
+  if (!queue->probe(length) || queue->size() < uint32_t(length + 2)) {
+    lua_pushnil(L);
+    return 1;
+  }
+
+  uint8_t data;
+  queue->pop(data);  // length
+
+  for (uint8_t i = 0; i < 3; i++) {  // module, TYPE_C, TYPE_ID
+    queue->pop(data);
+    lua_pushinteger(L, data);
+  }
+
+  lua_newtable(L);
+  for (uint8_t i = 1; i <= length - 2; i++) {
+    queue->pop(data);
+    lua_pushinteger(L, data);
+    lua_rawseti(L, -2, i);
+  }
+
+  return 4;
+}
 #endif
 
 #if defined(CROSSFIRE)
@@ -3398,6 +3507,8 @@ LROT_BEGIN(etxlib, NULL, 0)
 #endif
 #if defined(PXX2)
   LROT_FUNCENTRY( accessTelemetryPush, luaAccessTelemetryPush )
+  LROT_FUNCENTRY( accessFramePush, luaAccessFramePush )
+  LROT_FUNCENTRY( accessFramePop, luaAccessFramePop )
 #endif
   LROT_FUNCENTRY( sportTelemetryPop, luaSportTelemetryPop )
   LROT_FUNCENTRY( sportTelemetryPush, luaSportTelemetryPush )

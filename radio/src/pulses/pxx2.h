@@ -276,6 +276,24 @@ struct PXX2HardwareAndSettings {
   char msg[64];
 };
 
+// Raw PXX2 frames exchanged with Lua scripts (accessFramePush / accessFramePop)
+//
+// Output: a single slot, filled by the script and sent by the mixer instead of
+// one channels frame while the module is in normal mode.
+//
+// Input: every frame received from a module, except telemetry and
+// authentication, is copied into a queue as
+//   [length] [module] [TYPE_C] [TYPE_ID] [payload...]
+// where length counts TYPE_C, TYPE_ID and the payload. The queue is created by
+// the first accessFramePop() call.
+
+// HEAD (2) + TYPE_C + TYPE_ID + CRC (2)
+#define PXX2_LUA_FRAME_MAX_PAYLOAD  (PXX2_FRAME_MAXLENGTH - 6)
+
+bool pxx2LuaFrameAvailable();
+bool pxx2LuaFramePush(uint8_t module, uint8_t typeC, uint8_t typeId,
+                      const uint8_t* payload, uint8_t length);
+
 PXX2ModuleSetup& getPXX2ModuleSetupBuffer();
 BindInformation& getPXX2BindInformationBuffer();
 PXX2HardwareAndSettings& getPXX2HardwareAndSettingsBuffer();

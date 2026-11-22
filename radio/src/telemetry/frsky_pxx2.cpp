@@ -515,9 +515,39 @@ static void processToolsFrame(uint8_t module, const uint8_t * frame)
   }
 }
 
+#if defined(LUA)
+TelemetryQueue* luaAccessFrameFifo = nullptr;
+
+static void pxx2LuaFrameForward(uint8_t module, const uint8_t* frame)
+{
+  auto queue = luaAccessFrameFifo;
+  uint8_t length = frame[0];
+
+  if (!queue || length < 2) return;
+
+  // telemetry has its own path (sportTelemetryPop) and authentication is
+  // none of the scripts' business
+  if (frame[1] == PXX2_TYPE_C_MODULE && (frame[2] == PXX2_TYPE_ID_TELEMETRY ||
+                                         frame[2] == PXX2_TYPE_ID_AUTHENTICATION))
+    return;
+
+  // whole frames only
+  if (!queue->hasSpace(length + 2)) return;
+
+  queue->push(length);
+  queue->push(module);
+  for (uint8_t i = 1; i <= length; i++) {
+    queue->push(frame[i]);
+  }
+}
+#endif
+
 void processPXX2Frame(uint8_t module, const uint8_t * frame,
                       const etx_serial_driver_t* drv, void* ctx)
 {
+#if defined(LUA)
+  pxx2LuaFrameForward(module, frame);
+#endif
 
   switch (frame[1]) {
     case PXX2_TYPE_C_MODULE:
