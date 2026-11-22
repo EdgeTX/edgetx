@@ -264,17 +264,24 @@ void ViewMain::doKeyShortcut(event_t event)
     QuickMenu::openPage(pg);
   }
 }
+
 void ViewMain::onPressPGUP()
 {
   if (!widget_select) {
     previousMainView();
   }
 }
+
 void ViewMain::onPressPGDN()
 {
   if (!widget_select) {
     nextMainView();
   }
+}
+
+void ViewMain::onLongPressRTN()
+{
+  customScreens[getCurrentMainView()]->cancelFullscreen();
 }
 #endif
 
@@ -287,13 +294,6 @@ void ViewMain::onCancel()
   if (activeWidget)
     lv_event_send(activeWidget->getLvObj(), LV_EVENT_CANCEL, nullptr);
 }
-
-#if defined(HARDWARE_KEYS)
-void ViewMain::onLongPressRTN()
-{
-  customScreens[getCurrentMainView()]->cancelFullscreen();
-}
-#endif
 
 void ViewMain::refreshWidgetSelectTimer()
 {
@@ -425,7 +425,7 @@ void ViewMain::refreshWidgets()
 
 void ViewMain::showTouchMask(Widget* widget)
 {
-  // Cancel selet mode
+  // Cancel select mode
   enableWidgetSelect(false);
 
   enableViewScrolling(false);

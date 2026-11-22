@@ -77,10 +77,6 @@ class ViewMain : public NavWindow
 
   void enableViewScrolling(bool enable);
 
-  #if defined(HARDWARE_KEYS)
-  void onLongPressRTN() override;
-#endif
-
  protected:
   static ViewMain* _instance;
 
@@ -103,5 +99,6 @@ class ViewMain : public NavWindow
   void doKeyShortcut(event_t event) override;
   void onPressPGUP() override;
   void onPressPGDN() override;
+  void onLongPressRTN() override;
 #endif
 };
