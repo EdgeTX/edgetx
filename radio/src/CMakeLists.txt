@@ -813,6 +813,14 @@ else()
   message("-- Bootloader contained in firmware binary")
 endif()
 
+# Keep newlib's double-precision conversion chain and scanf engine out
+add_custom_command(
+  TARGET firmware POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -DNM=${CMAKE_NM} -DELF=$<TARGET_FILE:firmware>
+          -P ${CMAKE_SOURCE_DIR}/cmake/CheckFirmwareSymbols.cmake
+  VERBATIM
+  )
+
 if(FIRMWARE_FORMAT_UF2)
   if(VERSION_TAG)
     set(UF2_VERSION_STRING "edgetx-${VERSION_TAG} (${GIT_STR})")
