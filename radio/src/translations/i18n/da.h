@@ -792,8 +792,6 @@
 #define TR_RF_PROTOCOL                 "RF protokol"
 #define TR_MODULE_OPTIONS              "Modul tilvalg"
 #define TR_RTC_BATT                    "RTC Bat."
-#define TR_POWER_METER_EXT             "Strøm meter (EXT)"
-#define TR_POWER_METER_INT             "Strøm meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
@@ -954,9 +952,6 @@
 #define TR_NONE                        "Ingen"
 #define TR_NONE_UPPERCASE              "INGEN"
 #define TR_MENUSENSOR                  "SENSOR"
-#define TR_POWERMETER_PEAK             "Spids"
-#define TR_POWERMETER_POWER            "Strøm"
-#define TR_POWERMETER_ATTN             "Attn"
 #define TR_POWERMETER_FREQ             "Freq."
 #define TR_MENUTOOLS                   "VÆRKTØJ"
 #define TR_MIC_RECORDER                "Mikrofon optager"
@@ -975,7 +970,6 @@
 #define TR_TURN_OFF_RECEIVER           "Sluk modtager"
 #define TR_STOPPING                    "Standser..."
 #define TR_MENU_SPECTRUM_ANALYSER      "SPECTRUM ANALYSE"
-#define TR_MENU_POWER_METER            "STRØM MÅLER"
 #define TR_SENSOR                      "SENSOR"
 #define TR_COUNTRY_CODE                "Lande kode"
 #define TR_USBMODE                     TR("USB tilst.", "USB tilstand")
@@ -1016,7 +1010,6 @@
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Tils", "Tilslut"))
 #define TR_MODULE_UNBIND               BUTTON("Afkobl")
-#define TR_POWERMETER_ATTN_NEEDED     "Attestering nødvendig"
 #define TR_PXX2_SELECT_RX              "Vælg RX"
 #define TR_PXX2_DEFAULT                "<default>"
 #define TR_BT_SELECT_DEVICE            "Vælg enhed"

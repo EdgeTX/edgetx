@@ -151,14 +151,6 @@ static uint8_t scanRadioTools()
   }
 #endif
 
-#if defined(INTERNAL_MODULE_PXX2)
-  if (isPXX2ModuleOptionAvailable(reusableBuffer.radioTools.modules[INTERNAL_MODULE].information.modelID, MODULE_OPTION_SPECTRUM_ANALYSER))
-    addRadioModuleToolHandler(index++, STR_SPECTRUM_ANALYSER_INT, menuRadioSpectrumAnalyser, INTERNAL_MODULE);
-
-  if (isPXX2ModuleOptionAvailable(reusableBuffer.radioTools.modules[INTERNAL_MODULE].information.modelID, MODULE_OPTION_POWER_METER))
-    addRadioModuleToolHandler(index++, STR_POWER_METER_INT, menuRadioPowerMeter, INTERNAL_MODULE);
-#endif
-
 #if defined(HARDWARE_INTERNAL_MODULE) && defined(MULTIMODULE)
   if (g_eeGeneral.internalModule == MODULE_TYPE_MULTIMODULE)
     addRadioModuleToolHandler(index++, STR_SPECTRUM_ANALYSER_INT, menuRadioSpectrumAnalyser, INTERNAL_MODULE);
@@ -166,22 +158,9 @@ static uint8_t scanRadioTools()
 
 #if defined(HARDWARE_EXTERNAL_MODULE)
 
-#if (defined(PXX2) || defined(MULTIMODULE))
-  bool has_spectrum_analyser = false;
-#if defined(PXX2)
-  if (isPXX2ModuleOptionAvailable(reusableBuffer.radioTools.modules[EXTERNAL_MODULE].information.modelID, MODULE_OPTION_SPECTRUM_ANALYSER))
-    has_spectrum_analyser = true;
-#endif
 #if defined(MULTIMODULE)
   if (isModuleMultimodule(EXTERNAL_MODULE))
-    has_spectrum_analyser = true;
-#endif
-  if (has_spectrum_analyser)
     addRadioModuleToolHandler(index++, STR_SPECTRUM_ANALYSER_EXT, menuRadioSpectrumAnalyser, EXTERNAL_MODULE);
-#endif
-#if defined(PXX2)
-  if (isPXX2ModuleOptionAvailable(reusableBuffer.radioTools.modules[EXTERNAL_MODULE].information.modelID, MODULE_OPTION_POWER_METER))
-    addRadioModuleToolHandler(index++, STR_POWER_METER_EXT, menuRadioPowerMeter, EXTERNAL_MODULE);
 #endif
 
 #if defined(GHOST)
@@ -203,13 +182,6 @@ void menuRadioTools(event_t event)
   if (event == EVT_ENTRY  || event == EVT_ENTRY_UP) {
     memclear(&reusableBuffer.radioTools, sizeof(reusableBuffer.radioTools));
     reusableBuffer.radioTools.oldOffset = 0xFF;
-#if defined(PXX2)
-    for (uint8_t module = 0; module < NUM_MODULES; module++) {
-      if (isModulePXX2(module) && (module == INTERNAL_MODULE ? modulePortPowered(INTERNAL_MODULE) : modulePortPowered(EXTERNAL_MODULE))) {
-        moduleState[module].readModuleInformation(&reusableBuffer.radioTools.modules[module], PXX2_HW_INFO_TX_ID, PXX2_HW_INFO_TX_ID);
-      }
-    }
-#endif
   }
 
   SIMPLE_MENU(STR_MENUTOOLS, menuTabGeneral, MENU_RADIO_TOOLS, HEADER_LINE + reusableBuffer.radioTools.linesCount);

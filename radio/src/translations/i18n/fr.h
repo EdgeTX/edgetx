@@ -787,8 +787,6 @@
 #define TR_RF_PROTOCOL                 "Protocole RF"
 #define TR_MODULE_OPTIONS              "Options Module"
 #define TR_RTC_BATT                    "Pile RTC"
-#define TR_POWER_METER_EXT             "Puissancemètre (EXT)"
-#define TR_POWER_METER_INT             "Puissancemètre (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       TR("Spectre (EXT)", "Analyseur Spectre (EXT)")
 #define TR_SPECTRUM_ANALYSER_INT       TR("Spectre (INT)", "Analyseur Spectre (INT)")
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
@@ -948,9 +946,6 @@
 #define TR_NONE                        "Aucun"
 #define TR_NONE_UPPERCASE              "AUCUN"
 #define TR_MENUSENSOR                  "CAPTEUR"
-#define TR_POWERMETER_PEAK             "Pic"
-#define TR_POWERMETER_POWER            "Puiss"
-#define TR_POWERMETER_ATTN             "Attn"
 #define TR_POWERMETER_FREQ             "Fréq."
 #define TR_MENUTOOLS                   "OUTILS"
 #define TR_MIC_RECORDER                "Enregistreur micro"
@@ -969,7 +964,6 @@
 #define TR_TURN_OFF_RECEIVER           "Éteindre Récepteur."
 #define TR_STOPPING                    "Arrêt..."
 #define TR_MENU_SPECTRUM_ANALYSER      "ANALYSEUR SPECTRE"
-#define TR_MENU_POWER_METER            "PUISSANCEMÈTRE."
 #define TR_SENSOR                      "CAPTEUR"
 #define TR_COUNTRY_CODE                 TR("Zone géo.", "Zone géographique")
 #define TR_USBMODE                     "Mode USB"
@@ -1010,7 +1004,6 @@
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_MODULE_UNBIND               BUTTON("Délier")
-#define TR_POWERMETER_ATTN_NEEDED      "Atténuateur requis"
 #define TR_PXX2_SELECT_RX              "Sélection RX..."
 #define TR_PXX2_DEFAULT                "<défaut>"
 #define TR_BT_SELECT_DEVICE            "Sélect. périph."

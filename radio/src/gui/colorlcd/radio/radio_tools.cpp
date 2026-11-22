@@ -169,7 +169,7 @@ static void run_gpstool(const std::string&)
   new RadioGpsTool();
 }
 
-#if defined(PXX2) || defined(MULTIMODULE)
+#if defined(MULTIMODULE)
 
 #if defined(HARDWARE_INTERNAL_MODULE)
 static void run_spektrum_int(const std::string&)
@@ -184,16 +184,7 @@ static void run_spektrum_ext(const std::string&)
   new RadioSpectrumAnalyser(EXTERNAL_MODULE);
 }
 #endif
-#endif  // defined(PXX2) || defined(MULTIMODULE)
-
-#if defined(INTERNAL_MODULE_PXX2)
-static void run_pxx2_power(const std::string&)
-{
-#if 0  // disabled Power Meter: not yet implemented
-  new RadioPowerMeter(INTERNAL_MODULE);
-#endif
-}
-#endif
+#endif  // defined(MULTIMODULE)
 
 #if defined(GHOST)
 static void run_ghost_config(const std::string&)
@@ -238,44 +229,7 @@ void RadioToolsPage::build(Window* window)
 {
   this->window = window;
 
-  memclear(&reusableBuffer.radioTools, sizeof(reusableBuffer.radioTools));
-  waiting = 0;
-
-#if defined(PXX2)
-  for (uint8_t module = 0; module < NUM_MODULES; module++) {
-    if (isModulePXX2(module) &&
-        (module == INTERNAL_MODULE ? modulePortPowered(INTERNAL_MODULE)
-                                   : modulePortPowered(EXTERNAL_MODULE))) {
-      waiting |= (1 << module);
-      moduleState[module].readModuleInformation(
-          &reusableBuffer.radioTools.modules[module], PXX2_HW_INFO_TX_ID,
-          PXX2_HW_INFO_TX_ID);
-    }
-  }
-#endif
-
   rebuild(window);
-}
-
-void RadioToolsPage::checkEvents()
-{
-#if defined(PXX2)
-  bool refresh = false;
-
-  for (uint8_t module = 0; module < NUM_MODULES; module++) {
-    if ((waiting & (1 << module)) &&
-        reusableBuffer.radioTools.modules[module].information.modelID) {
-      waiting &= ~(1 << module);
-      refresh = true;
-    }
-  }
-
-  if (refresh) {
-    rebuild(window);
-  }
-#endif
-
-  PageGroupItem::checkEvents();
 }
 
 __attribute__((weak)) void customUITools(std::list<ToolEntry>& tools) {}
@@ -293,38 +247,13 @@ void RadioToolsPage::rebuild(Window* window)
   bool extSpecAnalyser = false;
 #endif
 
-#if defined(PXX2)
-  auto hwSettings = &reusableBuffer.hardwareAndSettings;
-
-#if defined(INTERNAL_MODULE_PXX2)
-  auto intHwSettings = &hwSettings->modules[INTERNAL_MODULE];
-  // PXX2 modules tools
-  if (isPXX2ModuleOptionAvailable(intHwSettings->information.modelID,
-                                  MODULE_OPTION_SPECTRUM_ANALYSER)) {
-    intSpecAnalyser = true;
-  }
-  if (isPXX2ModuleOptionAvailable(intHwSettings->information.modelID,
-                                  MODULE_OPTION_POWER_METER)) {
-    tools.emplace_back(ToolEntry{STR_POWER_METER_INT, {}, run_pxx2_power});
-  }
-#endif
-
-#if defined(HARDWARE_EXTERNAL_MODULE)
-  auto extHwSettings = &hwSettings->modules[EXTERNAL_MODULE];
-  if (isPXX2ModuleOptionAvailable(extHwSettings->information.modelID,
-                                  MODULE_OPTION_SPECTRUM_ANALYSER)) {
-    extSpecAnalyser = true;
-  }
-#endif
-#endif  // defined(PXX2)
-
 #if defined(HARDWARE_INTERNAL_MODULE) && defined(MULTIMODULE)
   if (g_eeGeneral.internalModule == MODULE_TYPE_MULTIMODULE) {
     intSpecAnalyser = true;
   }
 #endif
 
-#if defined(HARDWARE_EXTERNAL_MODULE) && (defined(PXX2) || defined(MULTIMODULE))
+#if defined(HARDWARE_EXTERNAL_MODULE) && defined(MULTIMODULE)
   if (isModuleMultimodule(EXTERNAL_MODULE)) {
     extSpecAnalyser = true;
   }

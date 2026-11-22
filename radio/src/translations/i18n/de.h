@@ -788,8 +788,6 @@
 #define TR_RF_PROTOCOL                 "RF Protokoll"
 #define TR_MODULE_OPTIONS              "Modul Optionen"
 #define TR_RTC_BATT                    "RTC Batt"
-#define TR_POWER_METER_EXT             "Leistungsmesser (EXT)"
-#define TR_POWER_METER_INT             "Leistungsmesser (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spektrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spektrum (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost Konfig."
@@ -949,9 +947,6 @@
 #define TR_NONE                        "Kein"
 #define TR_NONE_UPPERCASE              "KEIN"
 #define TR_MENUSENSOR                  TR_BW_COL("SENSOR", "Sensor")
-#define TR_POWERMETER_PEAK             "Spitze"
-#define TR_POWERMETER_POWER            "Leistung"
-#define TR_POWERMETER_ATTN             "Dämpf."
 #define TR_POWERMETER_FREQ             "Freq."
 #define TR_MENUTOOLS                   TR_BW_COL("TOOLS", "Tools")
 #define TR_MIC_RECORDER                TR_BW_COL("Mikrofon Rek.", "Mikrofon Rekorder")
@@ -970,7 +965,6 @@
 #define TR_TURN_OFF_RECEIVER           "Empf. ausschalten"
 #define TR_STOPPING                    "Stoppe..."
 #define TR_MENU_SPECTRUM_ANALYSER      TR_BW_COL("SPEKTRUM ANALYSATOR", "Spektrum Analysator")
-#define TR_MENU_POWER_METER            TR_BW_COL("LEISTUNGSMESSER", "Leistungsmesser")
 #define TR_SENSOR                      TR_BW_COL("SENSOR", "Sensor")
 #define TR_COUNTRY_CODE                "Landescode"
 #define TR_USBMODE                     "USB Modus"
@@ -1011,7 +1005,6 @@
 #define TR_BYTES                       "Bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd","Binden"))   //9XR-Pro
 #define TR_MODULE_UNBIND               BUTTON("Trennen")
-#define TR_POWERMETER_ATTN_NEEDED      "Dämpfungsgl. nötig"
 #define TR_PXX2_SELECT_RX              "Wähle RX"
 #define TR_PXX2_DEFAULT                "<Standard>"
 #define TR_BT_SELECT_DEVICE            "Wähle Gerät"

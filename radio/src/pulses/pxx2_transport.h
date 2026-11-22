@@ -105,10 +105,6 @@ class Pxx2Pulses: public Pxx2Transport {
 
     bool setupLuaFrame(uint8_t module);
 
-    void setupSpectrumAnalyser(uint8_t module);
-
-    void setupPowerMeter(uint8_t module);
-
     void sendOtaUpdate(uint8_t module, const char * rxName, uint32_t address, const char * data);
 
     void addHead()

@@ -32,13 +32,6 @@ if(HELI)
   set(GUI_SRC ${GUI_SRC} ../common/stdlcd/model_heli.cpp)
 endif()
 
-if(PXX2)
-  set(GUI_SRC
-    ${GUI_SRC}
-    ../common/stdlcd/radio_power_meter.cpp
-    )
-endif()
-
 if(GHOST)
   set(GUI_SRC
     ${GUI_SRC}
@@ -46,7 +39,7 @@ if(GHOST)
     )
 endif()
 
-if(PXX2 OR MULTIMODULE)
+if(MULTIMODULE)
   set(GUI_SRC
     ${GUI_SRC}
     ../common/stdlcd/radio_spectrum_analyser.cpp

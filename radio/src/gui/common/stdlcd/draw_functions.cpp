@@ -316,32 +316,6 @@ bool isSwitchAvailableInCustomFunctions(int swtch)
     return isSwitchAvailable(swtch, GeneralCustomFunctionsContext);
 }
 
-void drawPower(coord_t x, coord_t y, int8_t dBm, LcdFlags att)
-{
-  float power_W_PREC1 = powf(10.0f, ((float)dBm - 30.0f) / 10.0f) * 10.0f;
-  if (dBm >= 30) {
-    lcdDrawNumber(x, y, power_W_PREC1, PREC1 | att);
-    lcdDrawText(lcdNextPos, y, "W", att);
-  }
-  else if (dBm < 10) {
-    uint16_t power_MW_PREC1 = roundf(power_W_PREC1 * 1000);
-    lcdDrawNumber(x, y, power_MW_PREC1, PREC1 | att);
-    lcdDrawText(lcdNextPos, y, "mW", att);
-  }
-  else {
-    uint16_t power_MW = roundf(power_W_PREC1 * 100);
-    if (power_MW >= 50) {
-      power_MW = (power_MW / 5) * 5;
-      lcdDrawNumber(x, y, power_MW, att);
-      lcdDrawText(lcdNextPos, y, "mW", att);
-    }
-    else {
-      lcdDrawNumber(x, y, power_MW, att);
-      lcdDrawText(lcdNextPos, y, "mW", att);
-    }
-  }
-}
-
 void drawReceiverName(coord_t x, coord_t y, uint8_t moduleIdx, uint8_t receiverIdx, LcdFlags flags)
 {
   if (isModulePXX2(moduleIdx)) {

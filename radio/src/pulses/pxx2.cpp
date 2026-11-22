@@ -40,46 +40,6 @@ static const etx_serial_init pxx2SerialInitParams = {
 
 #include "hal/module_port.h"
 
-/* Module options order:
- * - External antenna (0x01)
- * - Power (0x02)
- * - Spektrum analyser (0x04)
- * - Power meter (0x08)
- */
-static const uint8_t PXX2ModuleOptions[] = {
-#if defined(SIMU)
-  0b11111111, // None = display all options on SIMU
-#else
-  0b00000000, // None = no option available on unknown modules
-#endif
-  0b00000001, // XJT
-  0b00000001, // ISRM
-  0b00001101, // ISRM-PRO
-  0b00000101, // ISRM-S
-  0b00000010, // R9M
-  0b00000010, // R9MLite
-  0b00000110, // R9MLite-PRO
-  0b00000100, // ISRM-N
-  0b00000100, // ISRM-S-X9
-  0b00000101, // ISRM-S-X10E
-  0b00000001, // XJT_LITE
-  0b00000101, // ISRM-S-X10S
-  0b00000100, // ISRM-X9LITES
-};
-
-uint8_t getPXX2ModuleOptions(uint8_t modelId)
-{
-  if (modelId < DIM(PXX2ModuleOptions))
-    return PXX2ModuleOptions[modelId];
-  else
-    return PXX2ModuleOptions[0];
-}
-
-bool isPXX2ModuleOptionAvailable(uint8_t modelId, uint8_t option)
-{
-  return getPXX2ModuleOptions(modelId) & (1 << option);
-}
-
 /* Receiver options order:
  * - 2.4G (0x01)
  * - 900M (0x02)
@@ -476,31 +436,6 @@ void Pxx2Pulses::setupResetFrame(uint8_t module)
   moduleState[module].mode = MODULE_MODE_NORMAL;
 }
 
-void Pxx2Pulses::setupSpectrumAnalyser(uint8_t module)
-{
-  if (reusableBuffer.spectrumAnalyser.dirty) {
-    reusableBuffer.spectrumAnalyser.dirty = false;
-#if defined(PCBHORUS)
-    memclear(&reusableBuffer.spectrumAnalyser.max, sizeof(reusableBuffer.spectrumAnalyser.max));
-#endif
-    addFrameType(PXX2_TYPE_C_POWER_METER, PXX2_TYPE_ID_SPECTRUM);
-    Pxx2Transport::addByte(0x00);
-    Pxx2Transport::addWord(reusableBuffer.spectrumAnalyser.freq);
-    Pxx2Transport::addWord(reusableBuffer.spectrumAnalyser.span);
-    Pxx2Transport::addWord(reusableBuffer.spectrumAnalyser.step);
-  }
-}
-
-void Pxx2Pulses::setupPowerMeter(uint8_t module)
-{
-  if (reusableBuffer.powerMeter.dirty) {
-    reusableBuffer.powerMeter.dirty = false;
-    addFrameType(PXX2_TYPE_C_POWER_METER, PXX2_TYPE_ID_POWER_METER);
-    Pxx2Transport::addByte(0x00);
-    Pxx2Transport::addWord(reusableBuffer.powerMeter.freq);
-  }
-}
-
 #if defined(LUA)
 // Slot ownership: the Lua script writes it only when FREE, the mixer reads it
 // only after moving it from READY to SENDING.
@@ -654,12 +589,6 @@ bool Pxx2Pulses::setupFrame(uint8_t module, int16_t* channels, uint8_t nChannels
     case MODULE_MODE_RESET:
       setupResetFrame(module);
       break;
-    case MODULE_MODE_SPECTRUM_ANALYSER:
-      setupSpectrumAnalyser(module);
-      break;
-    case MODULE_MODE_POWER_METER:
-      setupPowerMeter(module);
-      break;
     case MODULE_MODE_SHARE:
       setupShareMode(module);
       break;
@@ -748,21 +677,6 @@ static void pxx2SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
   if (module == INTERNAL_MODULE) {
     Pxx2Pulses pxx2(buffer);
     bool should_send = pxx2.setupFrame(module, channels, nChannels);
-
-    if (moduleState[module].mode == MODULE_MODE_SPECTRUM_ANALYSER ||
-        moduleState[module].mode == MODULE_MODE_POWER_METER) {
-
-      // backup normal period into 'user_data'
-      if (!mod_st->user_data) {
-        mod_st->user_data = (void*)(uintptr_t)mixerSchedulerGetPeriod(module);
-      }
-      mixerSchedulerSetPeriod(module, PXX2_TOOLS_PERIOD);
-    } else if (mod_st->user_data) {
-      // restore old scheduling period
-      uintptr_t period = (uintptr_t)mod_st->user_data;
-      mixerSchedulerSetPeriod(module, period);
-      mod_st->user_data = nullptr;
-    }
 
     if (!should_send) return;
     _send_frame(mod_st, buffer, pxx2.getSize());

@@ -54,8 +54,6 @@
 
 #define PXX2_HW_INFO_TX_ID                         0xFF
 
-#define SPECTRUM_ANALYSER_POWER_FLOOR   -120 /*dBm*/
-
 #define PXX2_AUTH_REFUSED_FLAG          0xA5
 
 #define PXX2_MAX_CHANNELS               24
@@ -83,15 +81,6 @@ enum PXX2ModuleModelID {
 
 const char * getPXX2ModuleName(uint8_t modelId);
 
-enum {
-  MODULE_OPTION_EXTERNAL_ANTENNA,
-  MODULE_OPTION_POWER,
-  MODULE_OPTION_SPECTRUM_ANALYSER,
-  MODULE_OPTION_POWER_METER,
-};
-
-uint8_t getPXX2ModuleOptions(uint8_t modelId);
-bool isPXX2ModuleOptionAvailable(uint8_t modelId, uint8_t option);
 
 enum ModuleCapabilities {
   MODULE_CAPABILITY_COUNT

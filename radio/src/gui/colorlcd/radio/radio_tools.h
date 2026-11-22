@@ -44,11 +44,8 @@ class RadioToolsPage : public PageGroupItem
 
   void build(Window* window) override;
 
-  void checkEvents() override;
-
  protected:
   void rebuild(Window* window);
   Window* window = nullptr;
-  uint8_t waiting = 0;
   uint8_t linesCount = 0;
 };

@@ -349,53 +349,6 @@ static void processAuthenticationFrame(uint8_t module, const uint8_t * frame,
 #define processAuthenticationFrame(module, frame, drv, ctx)
 #endif
 
-static void processSpectrumAnalyserFrame(uint8_t module, const uint8_t * frame)
-{
-  if (moduleState[module].mode != MODULE_MODE_SPECTRUM_ANALYSER) {
-    return;
-  }
-
-  uint32_t frequency = *((uint32_t *)&frame[4]);
-  int8_t power = *((int8_t *)&frame[8]);
-
-  // center = 2440000000;  // 2440MHz
-  // span = 40000000;  // 40MHz
-  // left = 2440000000 - 20000000
-  // step = 10000
-
-  int32_t offset = frequency - (reusableBuffer.spectrumAnalyser.freq - reusableBuffer.spectrumAnalyser.span / 2);
-  TRACE("Fq=%u => %d, Pw=%d", frequency, offset, int32_t(power));
-
-  uint32_t x = offset / reusableBuffer.spectrumAnalyser.step;
-  if (x < LCD_W) {
-    reusableBuffer.spectrumAnalyser.bars[x] = max<int>(0, -SPECTRUM_ANALYSER_POWER_FLOOR + power); // we remove everything below -120dB
-#if defined(COLORLCD)
-    if (reusableBuffer.spectrumAnalyser.bars[x] >
-        reusableBuffer.spectrumAnalyser.max[x]) {
-      reusableBuffer.spectrumAnalyser.max[x] =
-          reusableBuffer.spectrumAnalyser.bars[x];
-    }
-    if (reusableBuffer.spectrumAnalyser.bars[x] >
-        reusableBuffer.spectrumAnalyser.peak[x]) {
-      reusableBuffer.spectrumAnalyser.peak[x] =
-          reusableBuffer.spectrumAnalyser.bars[x];
-    }
-#endif
-  }
-}
-
-static void processPowerMeterFrame(uint8_t module, const uint8_t * frame)
-{
-  if (moduleState[module].mode != MODULE_MODE_POWER_METER) {
-    return;
-  }
-
-  reusableBuffer.powerMeter.power = *((int16_t *)&frame[8]);
-  if (!reusableBuffer.powerMeter.peak || reusableBuffer.powerMeter.power > reusableBuffer.powerMeter.peak) {
-    reusableBuffer.powerMeter.peak = reusableBuffer.powerMeter.power;
-  }
-}
-
 static void processOtaUpdateFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_OTA_UPDATE) {
@@ -456,19 +409,6 @@ static void processModuleFrame(uint8_t module, const uint8_t *frame,
   }
 }
 
-static void processToolsFrame(uint8_t module, const uint8_t * frame)
-{
-  switch (frame[2]) {
-    case PXX2_TYPE_ID_POWER_METER:
-      processPowerMeterFrame(module, frame);
-      break;
-
-    case PXX2_TYPE_ID_SPECTRUM:
-      processSpectrumAnalyserFrame(module, frame);
-      break;
-  }
-}
-
 #if defined(LUA)
 TelemetryQueue* luaAccessFrameFifo = nullptr;
 
@@ -506,10 +446,6 @@ void processPXX2Frame(uint8_t module, const uint8_t * frame,
   switch (frame[1]) {
     case PXX2_TYPE_C_MODULE:
       processModuleFrame(module, frame, drv, ctx);
-      break;
-
-    case PXX2_TYPE_C_POWER_METER:
-      processToolsFrame(module, frame);
       break;
 
     case PXX2_TYPE_C_OTA:

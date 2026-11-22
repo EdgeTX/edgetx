@@ -716,16 +716,13 @@ union ReusableBuffer
   };
 #endif
 
-  struct {
 #if !defined(COLORLCD)
+  struct {
     scriptInfo script[NUM_BODY_LINES];
     uint8_t oldOffset;
     uint8_t linesCount;
-#endif
-#if defined(PXX2)
-    ModuleInformation modules[NUM_MODULES];
-#endif
   } radioTools;
+#endif
 
   struct {
     uint8_t bars[LCD_W];
@@ -752,14 +749,6 @@ union ReusableBuffer
     uint8_t buttonAction;
   } ghostMenu;
 #endif
-
-  struct {
-    uint32_t freq;
-    int16_t power;
-    int16_t peak;
-    uint8_t attn;
-    uint8_t dirty;
-  } powerMeter;
 
   struct {
     uint8_t maxNameLen;

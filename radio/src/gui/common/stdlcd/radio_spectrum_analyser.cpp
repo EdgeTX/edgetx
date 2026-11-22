@@ -66,23 +66,11 @@ void menuRadioSpectrumAnalyser(event_t event)
 
     memclear(reusableBuffer.spectrumAnalyser.bars, sizeof(reusableBuffer.spectrumAnalyser.bars));
 
-    if (isModuleR9MAccess(g_moduleIdx)) {
-      reusableBuffer.spectrumAnalyser.spanDefault = 20;
-      reusableBuffer.spectrumAnalyser.spanMax = 40;
-      reusableBuffer.spectrumAnalyser.freqDefault = 890;
-      reusableBuffer.spectrumAnalyser.freqMin = 850;
-      reusableBuffer.spectrumAnalyser.freqMax = 930;
-    }
-    else {
-      if (isModuleMultimodule(g_moduleIdx))
-        reusableBuffer.spectrumAnalyser.spanDefault = 80;  // 80MHz
-      else
-        reusableBuffer.spectrumAnalyser.spanDefault = 40;  // 40MHz
-      reusableBuffer.spectrumAnalyser.spanMax = 80;
-      reusableBuffer.spectrumAnalyser.freqDefault = 2440; // 2440MHz
-      reusableBuffer.spectrumAnalyser.freqMin = 2400;
-      reusableBuffer.spectrumAnalyser.freqMax = 2485;
-    }
+    reusableBuffer.spectrumAnalyser.spanDefault = 80;  // 80MHz
+    reusableBuffer.spectrumAnalyser.spanMax = 80;
+    reusableBuffer.spectrumAnalyser.freqDefault = 2440; // 2440MHz
+    reusableBuffer.spectrumAnalyser.freqMin = 2400;
+    reusableBuffer.spectrumAnalyser.freqMax = 2485;
 
     reusableBuffer.spectrumAnalyser.span = reusableBuffer.spectrumAnalyser.spanDefault * 1000000;
     reusableBuffer.spectrumAnalyser.freq = reusableBuffer.spectrumAnalyser.freqDefault * 1000000;
