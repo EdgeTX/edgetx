@@ -77,6 +77,8 @@ class ViewMain : public NavWindow
 
   void enableViewScrolling(bool enable);
 
+  bool widgetFocusMode() { return widget_select || activeWidget; }
+
  protected:
   static ViewMain* _instance;
 

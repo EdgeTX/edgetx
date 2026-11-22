@@ -255,26 +255,28 @@ void ViewMain::updateTopbarVisibility()
 #if defined(HARDWARE_KEYS)
 void ViewMain::doKeyShortcut(event_t event)
 {
-  QMPage pg = g_eeGeneral.getKeyShortcut(event);
-  if (pg == QM_APP) {
-    runLuaTool(g_eeGeneral.getKeyToolName(event));
-  } else if (pg == QM_OPEN_QUICK_MENU) {
-    QuickMenu::openQuickMenu();
-  } else {
-    QuickMenu::openPage(pg);
+  if (!widgetFocusMode()) {
+    QMPage pg = g_eeGeneral.getKeyShortcut(event);
+    if (pg == QM_APP) {
+      runLuaTool(g_eeGeneral.getKeyToolName(event));
+    } else if (pg == QM_OPEN_QUICK_MENU) {
+      QuickMenu::openQuickMenu();
+    } else {
+      QuickMenu::openPage(pg);
+    }
   }
 }
 
 void ViewMain::onPressPGUP()
 {
-  if (!widget_select) {
+  if (!widgetFocusMode()) {
     previousMainView();
   }
 }
 
 void ViewMain::onPressPGDN()
 {
-  if (!widget_select) {
+  if (!widgetFocusMode()) {
     nextMainView();
   }
 }
@@ -285,7 +287,11 @@ void ViewMain::onLongPressRTN()
 }
 #endif
 
-void ViewMain::onClicked() { QuickMenu::openQuickMenu(); }
+void ViewMain::onClicked()
+{
+  if (!widgetFocusMode())
+    QuickMenu::openQuickMenu();
+}
 
 void ViewMain::onCancel()
 {
@@ -344,14 +350,16 @@ void ViewMain::enableWidgetSelect(bool enable)
 
 bool ViewMain::onLongPress()
 {
-  killAllEvents();
-  lv_indev_reset(nullptr, nullptr);
-  if (isAppMode()) {
-    int view = getCurrentMainView();
-    if (customScreens[view]->getWidget(0))
-      customScreens[view]->getWidget(0)->setFullscreen(true);
-  } else {
-    enableWidgetSelect(true);
+  if (!widgetFocusMode()) {
+    killAllEvents();
+    lv_indev_reset(nullptr, nullptr);
+    if (isAppMode()) {
+      int view = getCurrentMainView();
+      if (customScreens[view]->getWidget(0))
+        customScreens[view]->getWidget(0)->setFullscreen(true);
+    } else {
+      enableWidgetSelect(true);
+    }
   }
   return false;
 }
