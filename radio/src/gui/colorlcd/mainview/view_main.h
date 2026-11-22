@@ -26,6 +26,7 @@
 
 class TopBar;
 class HeaderIcon;
+class widget;
 
 class ViewMain : public NavWindow
 {
@@ -70,10 +71,15 @@ class ViewMain : public NavWindow
 
   static void refreshWidgets();
 
-  void showTouchMask();
+  void showTouchMask(Widget* widget);
   void hideTouchMask();
+  void resetMainGroup();
 
   void enableViewScrolling(bool enable);
+
+  #if defined(HARDWARE_KEYS)
+  void onLongPressRTN() override;
+#endif
 
  protected:
   static ViewMain* _instance;
@@ -85,6 +91,7 @@ class ViewMain : public NavWindow
   bool widget_select = false;
   tmr10ms_t widgetSelectCancelTime = 0;
   Window* touchMask = nullptr;
+  Widget* activeWidget = nullptr;
 
   // Set topbar visibility [0.0 -> 1.0]
   void setTopbarVisible(float visible);

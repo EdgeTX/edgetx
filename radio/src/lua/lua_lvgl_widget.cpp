@@ -2780,6 +2780,7 @@ void LvglWidgetDialog::build(lua_State *L)
   dialog = new LvglDialog(title.txt, w, h,
       [=]() {
         pcallSimpleFunc(L, closeFunction);
+        clearRefs(L);
       },
       [=]() {
         callRefs(L);
@@ -2787,9 +2788,8 @@ void LvglWidgetDialog::build(lua_State *L)
           close();
       });
   dialog->onClosing([=]() {
-    clearRefs(L);
     if (!lvglManager->isFullscreen())
-      ViewMain::instance()->resetGroup();
+      ViewMain::instance()->resetMainGroup();
   });
 
   window = dialog->getBody();
@@ -2835,12 +2835,11 @@ void LvglWidgetConfirmDialog::clearRefs(lua_State *L)
 void LvglWidgetConfirmDialog::build(lua_State *L)
 {
   window = new ConfirmDialog(title.txt.c_str(), message.c_str(),
-      [=]() { pcallSimpleFunc(L, confirmFunction); },
-      [=]() { pcallSimpleFunc(L, cancelFunction); });
+      [=]() { pcallSimpleFunc(L, confirmFunction); clearRefs(L); },
+      [=]() { pcallSimpleFunc(L, cancelFunction); clearRefs(L); });
   window->onClosing([=]() {
-    clearRefs(L);
     if (!lvglManager->isFullscreen())
-      ViewMain::instance()->resetGroup();
+      ViewMain::instance()->resetMainGroup();
   });
 }
 
@@ -2876,7 +2875,7 @@ void LvglWidgetMessageDialog::build(lua_State *L)
   window->onClosing([=]() {
     clearRefs(L);
     if (!lvglManager->isFullscreen())
-      ViewMain::instance()->resetGroup();
+      ViewMain::instance()->resetMainGroup();
   });
 }
 
@@ -2995,6 +2994,7 @@ void LvglWidgetMenu::build(lua_State *L)
   for (size_t i = 0; i < values.size(); i += 1) {
     menu->addLine(values[i], [=]() {
       pcallSetIntVal(L, setFunction, i + 1);
+      clearRefs(L);
     });
   }
 
@@ -3003,10 +3003,13 @@ void LvglWidgetMenu::build(lua_State *L)
     menu->select(selected);
   }
 
-  menu->onClosing([=]() {
+  menu->setCancelHandler([=]() {
     clearRefs(L);
+  });
+
+  menu->onClosing([=]() {
     if (!lvglManager->isFullscreen())
-      ViewMain::instance()->resetGroup();
+      ViewMain::instance()->resetMainGroup();
   });
 
   window = menu;

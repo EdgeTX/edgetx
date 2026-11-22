@@ -282,10 +282,18 @@ void ViewMain::onClicked() { QuickMenu::openQuickMenu(); }
 
 void ViewMain::onCancel()
 {
-  if (widget_select) {
+  if (widget_select)
     enableWidgetSelect(false);
-  }
+  if (activeWidget)
+    lv_event_send(activeWidget->getLvObj(), LV_EVENT_CANCEL, nullptr);
 }
+
+#if defined(HARDWARE_KEYS)
+void ViewMain::onLongPressRTN()
+{
+  customScreens[getCurrentMainView()]->cancelFullscreen();
+}
+#endif
 
 void ViewMain::refreshWidgetSelectTimer()
 {
@@ -415,7 +423,7 @@ void ViewMain::refreshWidgets()
   if (_instance) _instance->_refreshWidgets();
 }
 
-void ViewMain::showTouchMask()
+void ViewMain::showTouchMask(Widget* widget)
 {
   // Cancel selet mode
   enableWidgetSelect(false);
@@ -434,10 +442,14 @@ void ViewMain::showTouchMask()
   touchMask->toForeground();
   headerIcon->toBackground();
   topbar->toBackground();
+
+  activeWidget = widget;
 }
 
 void ViewMain::hideTouchMask()
 {
+  activeWidget = nullptr;
+
   resetGroup();
 
   enableViewScrolling(true);
@@ -448,5 +460,14 @@ void ViewMain::hideTouchMask()
     touchMask->hide();
     topbar->toForeground();
     headerIcon->toForeground();
+  }
+}
+
+void ViewMain::resetMainGroup()
+{
+  if (activeWidget) {
+    activeWidget->resetGroup();
+  } else {
+    resetGroup();
   }
 }

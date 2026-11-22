@@ -184,9 +184,6 @@ Widget::Widget(const WidgetFactory* factory, Window* parent, const rect_t& rect,
         lv_obj_add_flag(focusBorder, LV_OBJ_FLAG_HIDDEN);
       }
     }
-    // Don't focus on widget - skip to first focusable child
-    if ((editBorder || fullscreen) && hasFocus)
-      lv_group_focus_next(widgetGroup);
   });
 }
 
@@ -213,16 +210,14 @@ void Widget::openMenu()
 #if defined(HARDWARE_KEYS)
 void Widget::onEvent(event_t event)
 {
-  if (fullscreen && (EVT_KEY_LONG(KEY_EXIT) == event)) {
+  if (EVT_KEY_LONG(KEY_EXIT) == event)
     setFullscreen(false);
-  }
 }
 #endif
 
 void Widget::onCancel()
 {
   if (!fullscreen) {
-    ButtonBase::onCancel();
     if (editBorder) {
       // Restore normal main view group and hide the touch overlay mask
       lv_group_remove_obj(lvobj);
@@ -230,6 +225,7 @@ void Widget::onCancel()
       lv_obj_del(editBorder);
       editBorder = nullptr;
     }
+    ButtonBase::onCancel();
   }
 }
 
@@ -269,7 +265,7 @@ void Widget::setFullscreen(bool enable)
     setRect(parent->getRect());
 
     // Ensure events are sent to the widget, not bubbled up to parent
-    lv_group_add_obj(widgetGroup, lvobj);
+    lv_group_add_obj(lv_group_get_default(), lvobj);
     assignLvGroup(widgetGroup, true);
 
     // disable scroll chaining (sliding main view)
@@ -285,10 +281,6 @@ void Widget::setFullscreen(bool enable)
 
   if (fullscreen)
     updateWithoutRefresh();
-
-  // Forced focus to ensure events go to correct place
-  if (enable)
-    lv_group_focus_obj(lvobj);
 }
 
 bool Widget::onLongPress()
@@ -299,21 +291,22 @@ bool Widget::onLongPress()
       if (isLvglWidget() && !editBorder) {
         // Show a border to indicate mode
         editBorder = lv_obj_create(lvobj);
-        lv_group_add_obj(widgetGroup, editBorder);
+        lv_group_add_obj(lv_group_get_default(), editBorder);
         lv_obj_set_size(editBorder, width(), height());
         etx_obj_add_style(editBorder, styles->border, LV_PART_MAIN);
         etx_obj_add_style(editBorder, styles->border_color[COLOR_THEME_EDIT_INDEX], LV_PART_MAIN);
         lv_obj_clear_flag(editBorder, LV_OBJ_FLAG_CLICKABLE);
+        lv_obj_clear_flag(editBorder, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
         // Make widget the active group for rotary encoder navigation
         // and overlay a mask on the rest of the screen to block
         // interactions
-        ViewMain::instance()->showTouchMask();
+        ViewMain::instance()->showTouchMask(this);
         toForeground();
-        // Activate group and force focus
-        lv_group_add_obj(widgetGroup, lvobj);
+        // Activate group
+        lv_group_add_obj(lv_group_get_default(), lvobj);
         assignLvGroup(widgetGroup, true);
-        lv_group_focus_obj(lvobj);
+        return false;
       }
     } else {
       openMenu();
@@ -335,6 +328,8 @@ void Widget::enableFocus(bool enable)
       lv_obj_set_size(focusBorder, width(), height());
       etx_obj_add_style(focusBorder, styles->border, LV_PART_MAIN);
       etx_obj_add_style(focusBorder, styles->border_color[COLOR_THEME_FOCUS_INDEX], LV_PART_MAIN);
+      lv_obj_clear_flag(focusBorder, LV_OBJ_FLAG_CLICKABLE);
+      lv_obj_clear_flag(focusBorder, LV_OBJ_FLAG_CLICK_FOCUSABLE);
 
       if (!hasFocus())
         lv_obj_add_flag(focusBorder, LV_OBJ_FLAG_HIDDEN);
