@@ -300,8 +300,11 @@ void ModelCell::setDefaultName()
 {
   // Reset name back to default 'MODELxx' where 'xx' is the model number
   // from the file name
+  // strtol instead of sscanf: sscanf drags in the full scanf engine and
+  // newlib's double-precision strtod on non-nano (color) targets
   int idx = -1;
-  sscanf(modelFilename, "model%d", &idx);
+  if (strncmp(modelFilename, "model", 5) == 0)
+    idx = (int)strtol(modelFilename + 5, nullptr, 10);
   if (idx > 0)
     sprintf(modelName, "MODEL%02d" MODEL_FILENAME_SUFFIX, idx);
   else

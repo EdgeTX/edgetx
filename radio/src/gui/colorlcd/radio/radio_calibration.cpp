@@ -63,7 +63,7 @@ class StickCalibrationWindow : public Window
     lv_obj_set_pos(bgCircle, PAD_TINY, PAD_TINY);
 
     for (int i = 0; i < MKR_CNT; i += 1) {
-      float angle = (i * 360.0f / MKR_CNT) / 180.0f * M_PI;
+      float angle = (i * 360.0f / MKR_CNT) / 180.0f * (float)M_PI;
       float x = cos(angle);
       float y = sin(angle);
       float r1 = (CAL_SIZ - PAD_SMALL) / 2;
