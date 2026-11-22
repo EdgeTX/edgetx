@@ -355,6 +355,36 @@ static inline int get_exp2(floating_point_with_bit_access x)
 }
 #define PRINTF_ABS(_x) SIGN( (_x) < 0, (_x) )
 
+/*
+ * Truncating conversion to int_fast64_t. With single-precision floats, a plain
+ * (int_fast64_t) cast compiles to libgcc's __aeabi_f2lz, which is implemented
+ * with double-precision arithmetic and drags ~1.3 KB of soft-double code into
+ * the image. Do it on the IEEE-754 bits instead. Out-of-range values (where
+ * the cast would be undefined) saturate.
+ */
+static inline int_fast64_t fp_to_int64(floating_point_t x)
+{
+#if PRINTF_USE_DOUBLE_INTERNALLY
+  return (int_fast64_t) x;
+#else
+  floating_point_with_bit_access dwba = get_bit_access(x);
+  int exp2 = get_exp2(dwba);
+  uint_fast64_t mag;
+  if (exp2 < 0) {
+    return 0;
+  }
+  if (exp2 > 62) {
+    mag = (uint_fast64_t) INT64_MAX;
+  }
+  else {
+    mag = (dwba.U & ((1U << FP_TYPE_STORED_MANTISSA_BITS) - 1U)) | (1U << FP_TYPE_STORED_MANTISSA_BITS);
+    mag = (exp2 >= FP_TYPE_STORED_MANTISSA_BITS) ? (mag << (exp2 - FP_TYPE_STORED_MANTISSA_BITS))
+                                                 : (mag >> (FP_TYPE_STORED_MANTISSA_BITS - exp2));
+  }
+  return get_sign_bit(x) ? -(int_fast64_t) mag : (int_fast64_t) mag;
+#endif
+}
+
 #endif /* (PRINTF_SUPPORT_DECIMAL_SPECIFIERS || PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS) */
 
 /*
@@ -688,9 +718,9 @@ static struct floating_point_components get_components(floating_point_t number, 
   const floating_point_t one_half = (floating_point_t) 0.5;
   number_.is_negative = get_sign_bit(number);
   abs_number = SIGN(number_.is_negative, number);
-  number_.integral = (int_fast64_t) abs_number;
+  number_.integral = fp_to_int64(abs_number);
   scaled_remainder = (abs_number - (floating_point_t) number_.integral) * powers_of_10[precision];
-  number_.fractional = (int_fast64_t) scaled_remainder; /* for precision == 0U, this will be 0 */
+  number_.fractional = fp_to_int64(scaled_remainder); /* for precision == 0U, this will be 0 */
 
   remainder = scaled_remainder - (floating_point_t) number_.fractional;
 
@@ -792,13 +822,13 @@ static struct floating_point_components get_normalized_components(bool negative,
      */
     return get_components(SIGN(negative, scaled), precision);
   }
-  components.integral = (int_fast64_t) scaled;
+  components.integral = fp_to_int64(scaled);
   remainder = non_normalized - unapply_scaling((floating_point_t) components.integral, normalization);
   prec_power_of_10 = powers_of_10[precision];
   account_for_precision = update_normalization(normalization, prec_power_of_10);
   scaled_remainder = apply_scaling(remainder, account_for_precision);
 
-  components.fractional = (int_fast64_t) scaled_remainder; /* when precision == 0, the assigned value should be 0 */
+  components.fractional = fp_to_int64(scaled_remainder); /* when precision == 0, the assigned value should be 0 */
   scaled_remainder -= (floating_point_t) components.fractional; /* when precision == 0, this will not change scaled_remainder */
 
   components.fractional += (scaled_remainder >= rounding_threshold);
