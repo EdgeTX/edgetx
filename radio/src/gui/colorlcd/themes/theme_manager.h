@@ -183,19 +183,13 @@ class HeaderDateTime : public Window
 class HeaderIcon : public StaticIcon
 {
  public:
-  HeaderIcon(Window *parent, EdgeTxIcon icon, std::function<void()> action = nullptr);
+  HeaderIcon(Window *parent, EdgeTxIcon icon, std::function<void()> action = nullptr, std::function<void()> longPress = nullptr);
   HeaderIcon(Window *parent, const char* iconFile, std::function<void()> action = nullptr);
 
   void setIcon(EdgeTxIcon newIcon) { if (icon) icon->setIcon(newIcon); }
 
  protected:
-  std::function<void()> action;
   StaticIcon* icon = nullptr;
-
-  void onClicked() override
-  {
-    if (action) action();
-  }
 };
 
 class HeaderBackIcon : public StaticIcon
@@ -204,10 +198,4 @@ class HeaderBackIcon : public StaticIcon
   HeaderBackIcon(Window *parent, std::function<void()> action = nullptr);
 
  protected:
-  std::function<void()> action;
-
-  void onClicked() override
-  {
-    if (action) action();
-  }
 };

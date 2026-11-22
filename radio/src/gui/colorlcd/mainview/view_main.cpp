@@ -105,7 +105,9 @@ ViewMain::ViewMain() :
 
   // create last to be on top
   topbar = new TopBar(this);
-  headerIcon = new HeaderIcon(this, ICON_EDGETX, [=]() { QuickMenu::openQuickMenu(); });
+  headerIcon = new HeaderIcon(this, ICON_EDGETX,
+                              [=]() { QuickMenu::openQuickMenu(); },
+                              [=]() { if (isAppMode()) lv_event_send(lvobj, LV_EVENT_LONG_PRESSED, nullptr); });
 
   onClosing([=]() {
     _instance = nullptr;

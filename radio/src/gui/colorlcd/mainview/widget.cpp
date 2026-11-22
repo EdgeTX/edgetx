@@ -265,7 +265,7 @@ void Widget::setFullscreen(bool enable)
     setRect(parent->getRect());
 
     // Ensure events are sent to the widget, not bubbled up to parent
-    lv_group_add_obj(lv_group_get_default(), lvobj);
+    lv_group_add_obj(widgetGroup, lvobj);
     assignLvGroup(widgetGroup, true);
 
     // disable scroll chaining (sliding main view)
@@ -306,8 +306,8 @@ bool Widget::onLongPress()
         // Activate group
         lv_group_add_obj(lv_group_get_default(), lvobj);
         assignLvGroup(widgetGroup, true);
-        return false;
       }
+      return false;
     } else {
       openMenu();
     }

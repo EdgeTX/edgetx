@@ -594,9 +594,9 @@ void Window::addBackButton()
       window_create);
 }
 
-void Window::addCustomButton(coord_t x, coord_t y, std::function<void()> action)
+ButtonBase* Window::addCustomButton(coord_t x, coord_t y, std::function<void()> action)
 {
-  new ButtonBase(
+  return new ButtonBase(
     this, {x, y, EdgeTxStyles::MENU_HEADER_HEIGHT, EdgeTxStyles::MENU_HEADER_HEIGHT},
     [=]() -> uint8_t {
       action();
