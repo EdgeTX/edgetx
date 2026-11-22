@@ -773,7 +773,6 @@
 #define TR_NO_FILES_ON_SD              "Žiadne súbory na SD karte!"
 #define TR_NO_SDCARD                   "Chýba SD karta"
 #define TR_WAITING_FOR_RX              "Čakám na RX..."
-#define TR_WAITING_FOR_TX              "Čakám na TX..."
 #define TR_WAITING_FOR_MODULE          TR("Čakanie modul", "Čakanie na modul...")
 #define TR_NO_TOOLS                    TR("Nie sú k dispozícii", "Žiadne nástroje k dispozícii")
 #define TR_NORMAL                      "Normálne"
@@ -784,8 +783,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16k bez telem.", "16k bez telemetrie")
 #define TR_16CH_WITH_TELEMETRY         TR("16k s telem.", "16k s telemetriou")
-#define TR_EXT_ANTENNA                 "Ext. anténa"
-#define TR_UPDATE_TX_OPTIONS           "Uložiť nastavenie?"
 #define TR_MODULES_RX_VERSION          BUTTON("Verzia modulu a RX")
 #define TR_SHOW_MIXER_MONITORS         "Zobraziť monitor mixov"
 #define TR_MENU_MODULES_RX_VERSION     "Verzia modulu a RX"
@@ -794,8 +791,6 @@
 #define TR_STICKS_POTS_SLIDERS         "Os/Pot/Ťahový"
 #define TR_RF_PROTOCOL                 "RF Protokol"
 #define TR_MODULE_OPTIONS              "Možnosti modulu"
-#define TR_POWER                       "Výkon"
-#define TR_NO_TX_OPTIONS               "Žiadne možnosti"
 #define TR_RTC_BATT                    "RTC Bat"
 #define TR_POWER_METER_EXT             "Merač výkonu (EXT)"
 #define TR_POWER_METER_INT             "Merač výkonu (INT)"

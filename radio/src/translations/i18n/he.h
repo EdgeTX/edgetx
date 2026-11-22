@@ -770,7 +770,6 @@
 #define TR_NO_FILES_ON_SD              "!SD אין קבצים על"
 #define TR_NO_SDCARD                   "SD אין כרטיס"
 #define TR_WAITING_FOR_RX              "...ממתין ל-RX"
-#define TR_WAITING_FOR_TX              "...ממתין ל-TX"
 #define TR_WAITING_FOR_MODULE          TR("ממתין למודול", "...ממתין למודול")
 #define TR_NO_TOOLS                    "אין כלי זמין"
 #define TR_NORMAL                      "רגיל"
@@ -781,8 +780,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH without telem.", "16CH without telemetry")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH with telem.", "16CH with telemetry")
-#define TR_EXT_ANTENNA                 "אנטנה חיצונית"
-#define TR_UPDATE_TX_OPTIONS           "? לעדכן אפשרויות TX"
 #define TR_MODULES_RX_VERSION          BUTTON("מודולים / גרסת RX")
 #define TR_SHOW_MIXER_MONITORS         "הצג תצוגת מיקסים"
 #define TR_MENU_MODULES_RX_VERSION     "מודולים / גרסת RX"
@@ -791,8 +788,6 @@
 #define TR_STICKS_POTS_SLIDERS         "סטיקים/גלגלות/סליידרים"
 #define TR_RF_PROTOCOL                 "RF פרוטוקול"
 #define TR_MODULE_OPTIONS              "אפשרויות מודול"
-#define TR_POWER                       "עוצמה"
-#define TR_NO_TX_OPTIONS               "אין אפשרויות TX"
 #define TR_RTC_BATT                    "RTC סוללת פנימית"
 #define TR_POWER_METER_EXT             "מד הספק (חיצוני)"
 #define TR_POWER_METER_INT             "מד הספק (פנימי)"

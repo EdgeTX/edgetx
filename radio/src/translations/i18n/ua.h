@@ -769,7 +769,6 @@
 #define TR_NO_FILES_ON_SD              "Немає файлів на SD!"
 #define TR_NO_SDCARD                   "SD карта відсутня"
 #define TR_WAITING_FOR_RX              "Чекаємо на RX..."
-#define TR_WAITING_FOR_TX              "Чекаємо на TX..."
 #define TR_WAITING_FOR_MODULE          TR("Чекаємо на модуль", "Чекаємо на модуль...")
 #define TR_NO_TOOLS                    "Немає інструментів"
 #define TR_NORMAL                      "Нормально"
@@ -780,8 +779,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH без телем.", "16CH без телеметрії")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH з телем.", "16CH з телметрією")
-#define TR_EXT_ANTENNA                 "Зовн. антена"
-#define TR_UPDATE_TX_OPTIONS           "Оновити опції TX?"
 #define TR_MODULES_RX_VERSION          BUTTON("Модулі / RX версії")
 #define TR_SHOW_MIXER_MONITORS         "Показати монітори мікшеру"
 #define TR_MENU_MODULES_RX_VERSION     "МОДУЛІ / RX ВЕРСІЇ"
@@ -790,8 +787,6 @@
 #define TR_STICKS_POTS_SLIDERS         "Вісі/Потенц./Повзунки"
 #define TR_RF_PROTOCOL                 "RF протокол"
 #define TR_MODULE_OPTIONS              "Опції модулю"
-#define TR_POWER                       "Потужність"
-#define TR_NO_TX_OPTIONS               "Немає опцій TX"
 #define TR_RTC_BATT                    "RTC Batt"
 #define TR_POWER_METER_EXT             "Power Meter (EXT)"
 #define TR_POWER_METER_INT             "Power Meter (INT)"

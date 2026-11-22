@@ -21,6 +21,20 @@
 
 #include "edgetx.h"
 
+// ACCESS module and receiver options are SD card Lua tools
+static void runAccessTool(const char * path)
+{
+#if defined(LUA)
+  if (isFileAvailable(path)) {
+    luaExec(path);
+  }
+  else {
+    POPUP_WARNING(STR_NEEDS_FILE);
+    SET_WARNING_INFO(path, strlen(path), SMLSIZE);
+  }
+#endif
+}
+
 void onPXX2R9MBindModeMenu(const char * result)
 {
   if (result == STR_16CH_WITH_TELEMETRY) {
@@ -112,13 +126,10 @@ void onPXX2ReceiverMenu(const char * result)
   uint8_t moduleIdx = CURRENT_MODULE_EDITED(menuVerticalPosition - HEADER_LINE);
   uint8_t receiverIdx = CURRENT_RECEIVER_EDITED(menuVerticalPosition - HEADER_LINE);
 
-#if defined(LUA)
   if (result == STR_OPTIONS) {
-    luaExec(PXX2_RX_OPTIONS_SCRIPT);
+    runAccessTool(PXX2_RX_OPTIONS_SCRIPT);
   }
-  else
-#endif
-  if (result == STR_BIND) {
+  else if (result == STR_BIND) {
     memclear(&reusableBuffer.moduleSetup.bindInformation, sizeof(BindInformation));
     reusableBuffer.moduleSetup.bindInformation.rxUid = receiverIdx;
     if (isModuleR9MAccess(moduleIdx)) {
@@ -332,10 +343,9 @@ void modelSetupModulePxx2ReceiverLine(uint8_t moduleIdx, uint8_t receiverIdx, co
 
   if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
 #if defined(LUA)
-    if (isFileAvailable(PXX2_RX_OPTIONS_SCRIPT))
-      POPUP_MENU_START(onPXX2ReceiverMenu, 5, STR_BIND, STR_OPTIONS, STR_SHARE, STR_DELETE, STR_RESET);
-    else
+    POPUP_MENU_START(onPXX2ReceiverMenu, 5, STR_BIND, STR_OPTIONS, STR_SHARE, STR_DELETE, STR_RESET);
+#else
+    POPUP_MENU_START(onPXX2ReceiverMenu, 4, STR_BIND, STR_SHARE, STR_DELETE, STR_RESET);
 #endif
-      POPUP_MENU_START(onPXX2ReceiverMenu, 4, STR_BIND, STR_SHARE, STR_DELETE, STR_RESET);
   }
 }

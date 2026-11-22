@@ -190,35 +190,6 @@ bool isPXX2ReceiverOptionAvailable(uint8_t modelId, uint8_t option)
   return getPXX2ReceiverOptions(modelId) & (1 << option);
 }
 
-bool isPXX2PowerAvailable(const PXX2HardwareInformation& info, int value)
-{
-  uint8_t modelId = info.modelID;
-  uint8_t variant = info.variant;
-
-  if (modelId == PXX2_MODULE_R9M_LITE) {
-    if (variant == PXX2_VARIANT_EU)
-      return (value == 14 /* 25 mW with telemetry */ ||
-              value == 20 /* 100 mW without telemetry */);
-    else
-      return value == 20; /* 100 mW */
-  }
-  else if (modelId == PXX2_MODULE_R9M || modelId == PXX2_MODULE_R9M_LITE_PRO) {
-      if (variant == PXX2_VARIANT_EU)
-        return (value == 14 /* 25 mW */ ||
-                value == 23 /* 200 mW */ ||
-                value == 27 /* 500 mW */);
-      else
-        return (value == 10 /* 10 mW */ ||
-                value == 20 /* 100 mW */ ||
-                value == 27 /* 500 mW */ ||
-                value == 30 /* 1000 mW */);
-  }
-  else {
-    // other modules do not have the power option
-    return false;
-  }
-}
-
 PXX2ModuleSetup& getPXX2ModuleSetupBuffer()
 {
   return reusableBuffer.moduleSetup.pxx2;
@@ -227,11 +198,6 @@ PXX2ModuleSetup& getPXX2ModuleSetupBuffer()
 BindInformation& getPXX2BindInformationBuffer()
 {
   return reusableBuffer.moduleSetup.bindInformation;
-}
-
-PXX2HardwareAndSettings& getPXX2HardwareAndSettingsBuffer()
-{
-  return reusableBuffer.hardwareAndSettings;
 }
 
 uint8_t Pxx2Pulses::addFlag0(uint8_t module)
@@ -429,18 +395,9 @@ void Pxx2Pulses::setupModuleSettingsFrame(uint8_t module, int16_t* channels, uin
   ModuleSettings * destination = moduleState[module].moduleSettings;
 
   if (get_tmr10ms() > destination->timeout) {
+    // read only: the settings are written by the AccessTx.lua tool
     addFrameType(PXX2_TYPE_C_MODULE, PXX2_TYPE_ID_TX_SETTINGS);
-    uint8_t flag0 = 0;
-    if (destination->state == PXX2_SETTINGS_WRITE)
-      flag0 |= PXX2_TX_SETTINGS_FLAG0_WRITE;
-    Pxx2Transport::addByte(flag0);
-    if (destination->state == PXX2_SETTINGS_WRITE) {
-      uint8_t flag1 = 0;
-      if (destination->externalAntenna)
-        flag1 |= PXX2_TX_SETTINGS_FLAG1_EXTERNAL_ANTENNA;
-      Pxx2Transport::addByte(flag1);
-      Pxx2Transport::addByte(destination->txPower);
-    }
+    Pxx2Transport::addByte(0x00);
     destination->timeout = get_tmr10ms() + 200/*next try in 2s*/;
   }
   else {

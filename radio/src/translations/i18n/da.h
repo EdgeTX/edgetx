@@ -773,7 +773,6 @@
 #define TR_NO_FILES_ON_SD              "Ingen filer på SD!"
 #define TR_NO_SDCARD                   "Ingen SD kort"
 #define TR_WAITING_FOR_RX              "Venter på RX..."
-#define TR_WAITING_FOR_TX              "Venter på TX..."
 #define TR_WAITING_FOR_MODULE          TR("Venter modul", "Venter på modul...")
 #define TR_NO_TOOLS                    "Ingen mulige værktøjer"
 #define TR_NORMAL                      "Normal"
@@ -784,8 +783,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16KA uden telem.", "16KA uden telemetri")
 #define TR_16CH_WITH_TELEMETRY         TR("16KA med telem.", "16KA med telemetri")
-#define TR_EXT_ANTENNA                 TR("Ext. antenne", "Ekstern antenne")
-#define TR_UPDATE_TX_OPTIONS           "Opdater TX tilvalg?"
 #define TR_MODULES_RX_VERSION          BUTTON("Moduler / RX version")
 #define TR_SHOW_MIXER_MONITORS         "Vis mixer monitor"
 #define TR_MENU_MODULES_RX_VERSION     "MODULER / RX VERSION"
@@ -794,8 +791,6 @@
 #define TR_STICKS_POTS_SLIDERS         "pinde/drejekontakter/skydere"
 #define TR_RF_PROTOCOL                 "RF protokol"
 #define TR_MODULE_OPTIONS              "Modul tilvalg"
-#define TR_POWER                       "Strøm"
-#define TR_NO_TX_OPTIONS               "Ingen TX tilvalg"
 #define TR_RTC_BATT                    "RTC Bat."
 #define TR_POWER_METER_EXT             "Strøm meter (EXT)"
 #define TR_POWER_METER_INT             "Strøm meter (INT)"

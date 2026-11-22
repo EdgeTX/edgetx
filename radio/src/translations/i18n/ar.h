@@ -778,7 +778,6 @@
 #define TR_NO_FILES_ON_SD              "لا ملفات على SD!"
 #define TR_NO_SDCARD                   "لا يوجد كرت SD"
 #define TR_WAITING_FOR_RX              "بانتظار RX..."
-#define TR_WAITING_FOR_TX              "بانتظار TX..."
 #define TR_WAITING_FOR_MODULE          TR("بانتظار الموديول", "بانتظار الموديول...")
 #define TR_NO_TOOLS                    "لا توجد أدوات"
 #define TR_NORMAL                      "عادي"
@@ -789,8 +788,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH بلا Telem", "16CH بدون Telemetry")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH مع Telem", "16CH مع Telemetry")
-#define TR_EXT_ANTENNA                 "هوائي خارجي"
-#define TR_UPDATE_TX_OPTIONS           "تحديث خيارات TX؟"
 #define TR_MODULES_RX_VERSION          BUTTON("إصدار الموديولات / RX")
 #define TR_SHOW_MIXER_MONITORS         "عرض مراقبة Mixer"
 #define TR_MENU_MODULES_RX_VERSION     "إصدار الموديولات / RX"
@@ -799,8 +796,6 @@
 #define TR_STICKS_POTS_SLIDERS         "المحاور/Pots/Sliders"
 #define TR_RF_PROTOCOL                 "بروتوكول RF"
 #define TR_MODULE_OPTIONS              "خيارات الموديول"
-#define TR_POWER                       "القوة"
-#define TR_NO_TX_OPTIONS               "لا خيارات TX"
 #define TR_RTC_BATT                    "بطارية RTC"
 #define TR_POWER_METER_EXT             "مقياس القوة (خارجي)"
 #define TR_POWER_METER_INT             "مقياس القوة (داخلي)"

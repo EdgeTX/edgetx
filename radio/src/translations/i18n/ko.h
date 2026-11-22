@@ -797,7 +797,6 @@
 #define TR_NO_FILES_ON_SD                 "SD 카드에 파일 없음!"
 #define TR_NO_SDCARD                      "SD 카드 없음"
 #define TR_WAITING_FOR_RX                 "수신기 대기 중..."
-#define TR_WAITING_FOR_TX                 "송신기 대기 중..."
 #define TR_WAITING_FOR_MODULE             TR("모듈 대기 중", "모듈 연결 대기 중...")
 #define TR_NO_TOOLS                       "사용 가능한 도구 없음"
 #define TR_NORMAL                         "정상"
@@ -809,9 +808,7 @@
 #define TR_FLEX_868                       "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY         TR("16채널(텔레메트리 없음)", "16채널(텔레메트리 비활성)")
 #define TR_16CH_WITH_TELEMETRY            TR("16채널(텔레메트리 포함)", "16채널(텔레메트리 사용)")
-#define TR_EXT_ANTENNA                    "외부 안테나"
 
-#define TR_UPDATE_TX_OPTIONS              "송신기 옵션을 업데이트할까요?"
 #define TR_MODULES_RX_VERSION             BUTTON("모듈 / 수신기 버전")
 #define TR_SHOW_MIXER_MONITORS            "믹서 모니터 표시"
 #define TR_MENU_MODULES_RX_VERSION        "모듈 / 수신기 버전"
@@ -820,8 +817,6 @@
 #define TR_STICKS_POTS_SLIDERS            "스틱 / 포트 / 슬라이더"
 #define TR_RF_PROTOCOL                    "RF 프로토콜"
 #define TR_MODULE_OPTIONS                 "모듈 옵션"
-#define TR_POWER                          "전원"
-#define TR_NO_TX_OPTIONS                  "송신기 옵션 없음"
 #define TR_RTC_BATT                       "RTC 배터리"
 #define TR_POWER_METER_EXT                "전력 측정기 (외부)"
 #define TR_POWER_METER_INT                "전력 측정기 (내부)"

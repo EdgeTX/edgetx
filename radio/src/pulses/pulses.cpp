@@ -196,14 +196,6 @@ void ModuleState::readModuleSettings(ModuleSettings* destination)
   mode = MODULE_MODE_MODULE_SETTINGS;
 }
 
-void ModuleState::writeModuleSettings(ModuleSettings* source)
-{
-  moduleSettings = source;
-  moduleSettings->state = PXX2_SETTINGS_WRITE;
-  moduleSettings->timeout = 0;
-  mode = MODULE_MODE_MODULE_SETTINGS;
-}
-
 #endif
 
 void getModuleStatusString(uint8_t moduleIdx, char * statusText)

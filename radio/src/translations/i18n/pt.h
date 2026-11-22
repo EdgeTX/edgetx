@@ -767,7 +767,6 @@
 #define TR_NO_FILES_ON_SD              "Sem aquiv. no SD!"
 #define TR_NO_SDCARD                   "Sem Cart. SD"
 #define TR_WAITING_FOR_RX              "Waiting for RX..."
-#define TR_WAITING_FOR_TX              "Waiting for TX..."
 #define TR_WAITING_FOR_MODULE          TR("Waiting module", "Waiting for module...")
 #define TR_NO_TOOLS                    "No tools available"
 #define TR_NORMAL                      "Normal"
@@ -778,8 +777,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH without telem.", "16CH without telemetry")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH with telem.", "16CH with telemetry")
-#define TR_EXT_ANTENNA                 "Ext. antenna"
-#define TR_UPDATE_TX_OPTIONS           "Update TX options?"
 #define TR_MODULES_RX_VERSION          BUTTON("Módulos / Vers. RX")
 #define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "MÓDULOS / Vers. RX"
@@ -788,8 +785,6 @@
 #define TR_STICKS_POTS_SLIDERS         "Eixos/Pots/Sliders"
 #define TR_RF_PROTOCOL                 "RF Protocol"
 #define TR_MODULE_OPTIONS              "Module options"
-#define TR_POWER                       "Potência"
-#define TR_NO_TX_OPTIONS               "No TX options"
 #define TR_RTC_BATT                    "Bat. RTC"
 #define TR_POWER_METER_EXT             "Power Meter (EXT)"
 #define TR_POWER_METER_INT             "Power Meter (INT)"

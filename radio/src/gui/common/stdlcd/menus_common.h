@@ -145,7 +145,6 @@ void menuServoPwmTool(event_t event);
 void menuModelSelect(event_t event);
 void menuModelSetup(event_t event);
 void menuModelFailsafe(event_t event);
-void menuModelModuleOptions(event_t event);
 void menuModelHeli(event_t event);
 void menuModelFlightModesAll(event_t event);
 void menuModelExpoOne(event_t event);

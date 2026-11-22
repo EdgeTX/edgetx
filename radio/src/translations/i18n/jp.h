@@ -767,7 +767,6 @@
 #define TR_NO_FILES_ON_SD              "SDにファイルがありません!!"
 #define TR_NO_SDCARD                   "SDカードがありません"
 #define TR_WAITING_FOR_RX              "受信機から応答を待っています..."
-#define TR_WAITING_FOR_TX              "送信機から応答を待っています..."
 #define TR_WAITING_FOR_MODULE          TR("Waiting module", "モジュールから応答を待っています...")
 #define TR_NO_TOOLS                    "ツールはありません"
 #define TR_NORMAL                      "標準"
@@ -778,8 +777,6 @@
 #define TR_FLEX_868                    "FLEX 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH without telem.", "16CH テレメトリーなし")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH with telem.", "16CH テレメトリーあり")
-#define TR_EXT_ANTENNA                 "外部アンテナ"
-#define TR_UPDATE_TX_OPTIONS           "送信オプションをアップデートしますか ?"
 #define TR_MODULES_RX_VERSION          BUTTON("モジュール / 受信機バージョン")
 #define TR_SHOW_MIXER_MONITORS         "チャンネルミキサーの表示"
 #define TR_MENU_MODULES_RX_VERSION     "モジュール / 受信機バージョン"
@@ -788,8 +785,6 @@
 #define TR_STICKS_POTS_SLIDERS         "スティック/ダイヤル/スライダー"
 #define TR_RF_PROTOCOL                 "RFプロトコル"
 #define TR_MODULE_OPTIONS              "モジュールオプション"
-#define TR_POWER                       "出力"
-#define TR_NO_TX_OPTIONS               "送信オプションなし"
 #define TR_RTC_BATT                    "内蔵電池"
 #define TR_POWER_METER_EXT             "出力メーター\n(外部)"
 #define TR_POWER_METER_INT             "出力メーター\n(内部)"

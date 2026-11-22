@@ -770,7 +770,6 @@
 #define TR_NO_FILES_ON_SD              "Нет данных на SD карте!"
 #define TR_NO_SDCARD                   "Нет CD карты"
 #define TR_WAITING_FOR_RX              "Ожид приемника..."
-#define TR_WAITING_FOR_TX              "Ожид передатчика..."
 #define TR_WAITING_FOR_MODULE          TR("Ожид модуля", "Ожид модуля...")
 #define TR_NO_TOOLS                    "Отсут инструменты"
 #define TR_NORMAL                      "Обычный"
@@ -781,8 +780,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16КН без телем", "16КН без телем")
 #define TR_16CH_WITH_TELEMETRY         TR("16КН с телем", "16КН с телем")
-#define TR_EXT_ANTENNA                 "Внеш антенна"
-#define TR_UPDATE_TX_OPTIONS           "Обнов опции передат?"
 #define TR_MODULES_RX_VERSION          BUTTON("Модули / Версия пульта")
 #define TR_SHOW_MIXER_MONITORS         "Показ мониторы миксера"
 #define TR_MENU_MODULES_RX_VERSION     "МОДУЛИ / ВЕРСИЯ ПУЛЬТА"
@@ -791,8 +788,6 @@
 #define TR_STICKS_POTS_SLIDERS         "Стики/Потенц/Слайдеры"
 #define TR_RF_PROTOCOL                 "TX Протокол"
 #define TR_MODULE_OPTIONS              "Опции модуля"
-#define TR_POWER                       "Питание"
-#define TR_NO_TX_OPTIONS               "Отсут опции передат"
 #define TR_RTC_BATT                    "RTC АКБ"
 #define TR_POWER_METER_EXT             "Изм мощност (Внеш)"
 #define TR_POWER_METER_INT             "Изм мощност (Внут)"

@@ -36,6 +36,17 @@
 namespace pxx2
 {
 
+void runAccessTool(const char* path)
+{
+#if defined(LUA)
+  if (isFileAvailable(path)) {
+    luaExecStandalone(path);
+  } else {
+    new MessageDialog(STR_NEEDS_FILE, path);
+  }
+#endif
+}
+
 class BindRxChoiceMenu : public Menu
 {
  public:
@@ -226,12 +237,10 @@ uint8_t ReceiverButton::pressBind()
       return 0;
     });
 #if defined(LUA)
-    if (isFileAvailable(PXX2_RX_OPTIONS_SCRIPT)) {
-      menu->addLine(STR_OPTIONS, [=]() {
-        luaExecStandalone(PXX2_RX_OPTIONS_SCRIPT);
-        return 0;
-      });
-    }
+    menu->addLine(STR_OPTIONS, [=]() {
+      runAccessTool(PXX2_RX_OPTIONS_SCRIPT);
+      return 0;
+    });
 #endif
     menu->addLine(STR_SHARE, [=]() {
       auto& modSetup = getPXX2ModuleSetupBuffer();
@@ -405,199 +414,6 @@ void RegisterDialog::checkEvents()
   }
 
   BaseDialog::checkEvents();
-}
-
-ModuleOptions::ModuleOptions(uint8_t moduleIdx) :
-    BaseDialog(STR_MODULE_OPTIONS, true), moduleIdx(moduleIdx)
-{
-  new StaticText(form, rect_t{}, STR_WAITING_FOR_MODULE);
-
-#if defined(SIMU)
-  auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-  memclear(&hwSettings, sizeof(hwSettings));
-  hwSettings.moduleSettings.state = PXX2_SETTINGS_OK;
-  moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;
-  state = MO_ReadModuleSettings;
-#endif
-  onClosing([=]() { moduleState[moduleIdx].mode = MODULE_MODE_NORMAL; });
-}
-
-void ModuleOptions::checkEvents()
-{
-  auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-  switch (state) {
-    case MO_Init:
-      // kickstart fetching HW settings
-      memclear(&hwSettings, sizeof(hwSettings));
-      moduleState[moduleIdx].readModuleInformation(
-          &hwSettings.modules[moduleIdx], PXX2_HW_INFO_TX_ID,
-          PXX2_HW_INFO_TX_ID);
-      state = MO_ReadModuleInfo;
-      break;
-    case MO_ReadModuleInfo:
-      // times out after a while (see pxx2.cpp)
-      if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL) {
-        moduleState[moduleIdx].readModuleSettings(&hwSettings.moduleSettings);
-        state = MO_ReadModuleSettings;
-      }
-      break;
-    case MO_ReadModuleSettings:
-      // this one does NOT timeout (see pxx2.cpp)
-      if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL &&
-          hwSettings.moduleSettings.state == PXX2_SETTINGS_OK) {
-        state = MO_DisplaySettings;
-        update();
-      }
-      break;
-    case MO_WriteSettings:
-      // TODO: ask for confirmation ???
-      moduleState[moduleIdx].writeModuleSettings(&hwSettings.moduleSettings);
-      state = MO_WritingSettings;
-      break;
-
-    case MO_WritingSettings:
-#if defined(SIMU)
-      statusText.clear();
-      closeWindow();
-#else
-      if (moduleState[moduleIdx].mode == MODULE_MODE_NORMAL &&
-          hwSettings.moduleSettings.state == PXX2_SETTINGS_OK) {
-        statusText.clear();
-        closeWindow();
-      }
-#endif
-      break;
-
-    default:  // MO_DisplaySettings
-      break;
-  }
-
-  BaseDialog::checkEvents();
-}
-
-uint8_t ModuleOptions::getModuleSettingsState()
-{
-  const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-  return hwSettings.moduleSettings.state;
-}
-
-void ModuleOptions::update()
-{
-  form->clear();
-
-  auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-  uint8_t modelId = hwSettings.modules[moduleIdx].information.modelID;
-
-#if defined(SIMU)
-  if (modelId == 0) {
-    modelId = PXX2_MODULE_R9M_LITE_PRO;
-    hwSettings.modules[moduleIdx].information.modelID = modelId;
-    hwSettings.modules[moduleIdx].information.variant = PXX2_VARIANT_FCC;
-  }
-#endif
-
-  uint8_t optionsAvailable =
-      getPXX2ModuleOptions(modelId) &
-      ((1 << MODULE_OPTION_EXTERNAL_ANTENNA) | (1 << MODULE_OPTION_POWER));
-
-  FlexGridLayout grid(line_col_dsc, line_row_dsc, PAD_TINY);
-
-  auto line = form->newLine(grid);
-  new StaticText(line, rect_t{}, STR_MODULE);
-  new StaticText(line, rect_t{}, getPXX2ModuleName(modelId));
-
-  if (!optionsAvailable) {
-    // no options available
-    line = form->newLine(grid);
-    new StaticText(line, rect_t{}, STR_NO_TX_OPTIONS);
-  } else {
-    // some options available
-    if (optionsAvailable & (1 << MODULE_OPTION_EXTERNAL_ANTENNA)) {
-      line = form->newLine(grid);
-      new StaticText(line, rect_t{}, STR_EXT_ANTENNA);
-      new ToggleSwitch(
-          line, rect_t{},
-          []() {
-            const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-            return hwSettings.moduleSettings.externalAntenna;
-          },
-          [&](uint8_t val) {
-            auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-            hwSettings.moduleSettings.externalAntenna = val;
-          });
-    }
-
-    if (optionsAvailable & (1 << MODULE_OPTION_POWER)) {
-      // TODO: use isTelemetryAvailable() to check if rebind is necessary
-      line = form->newLine(grid);
-      new StaticText(line, rect_t{}, STR_POWER);
-      auto txPower = new Choice(
-          line, rect_t{}, 0, 30,
-          []() {
-            const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-            return hwSettings.moduleSettings.txPower;
-          },
-          [&](int val) {
-            auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-            hwSettings.moduleSettings.txPower = val;
-            // state = MO_WriteSettings;
-          });
-
-      txPower->setTextHandler([](int val) {
-        switch (val) {
-          case 10:
-            return std::string("10 mW");
-          case 14:
-            return std::string("25 mW");
-          case 20:
-            return std::string("100 mW");
-          case 23:
-            return std::string("200 mW");
-          case 27:
-            return std::string("500 mW");
-          case 30:
-            return std::string("1000 mW");
-          default:
-            return std::string("---");
-        }
-      });
-
-      txPower->setAvailableHandler([=](int val) {
-        const auto& hwSettings = getPXX2HardwareAndSettingsBuffer();
-        return isPXX2PowerAvailable(hwSettings.modules[moduleIdx].information,
-                                    val);
-      });
-    }
-  }
-
-  line = form->newLine(grid);
-  new DynamicText(line, rect_t{}, [=]() { return statusText; });
-
-  line = form->newLine(grid);
-
-  auto box = new Window(form, rect_t{});
-  box->setFlexLayout(LV_FLEX_FLOW_ROW_WRAP, PAD_MEDIUM);
-  lv_obj_set_style_flex_main_place(box->getLvObj(), LV_FLEX_ALIGN_SPACE_EVENLY,
-                                   0);
-  box->padAll(PAD_MEDIUM);
-
-  new TextButton(box, rect_t{}, STR_CANCEL, [=]() -> int8_t {
-    this->closeWindow();
-    return 0;
-  });
-
-  new TextButton(box, rect_t{}, STR_SAVE, [=]() -> int8_t {
-    this->writeSettings();
-    return 0;
-  });
-}
-
-void ModuleOptions::writeSettings()
-{
-  if (state == MO_DisplaySettings) {
-    statusText = STR_WRITING;
-    state = MO_WriteSettings;
-  }
 }
 
 };  // namespace pxx2

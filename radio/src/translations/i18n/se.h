@@ -769,7 +769,6 @@
 #define TR_NO_FILES_ON_SD               "Inga filer på SD!"
 #define TR_NO_SDCARD                    "SD-kort saknas"
 #define TR_WAITING_FOR_RX               "Väntar på Rx..."
-#define TR_WAITING_FOR_TX               "Väntar på Tx..."
 #define TR_WAITING_FOR_MODULE           TR("Inväntar modul", "Inväntar radiomodulen...")
 #define TR_NO_TOOLS                     "Inga verktyg tillgängliga"
 #define TR_NORMAL                       "Normal"
@@ -780,8 +779,6 @@
 #define TR_FLEX_868                     "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY       TR("16KA utan telem.", "16 KA utan telemetri")
 #define TR_16CH_WITH_TELEMETRY          TR("16KA med telem.", "16 KA med telemetri")
-#define TR_EXT_ANTENNA                  "Ext. antenn"
-#define TR_UPDATE_TX_OPTIONS            "Uppdatera Tx alternativ?"
 #define TR_MODULES_RX_VERSION           BUTTON("Moduler / Rx version")
 #define TR_SHOW_MIXER_MONITORS          "Visa mixervärden"
 #define TR_MENU_MODULES_RX_VERSION      "MODULER / RX VERSION"
@@ -790,8 +787,6 @@
 #define TR_STICKS_POTS_SLIDERS          "Axlar/Vred/Reglage"
 #define TR_RF_PROTOCOL                  "RF Protokoll"
 #define TR_MODULE_OPTIONS               "Modulalternativ"
-#define TR_POWER                        "Power"
-#define TR_NO_TX_OPTIONS                "Inga TX-alternativ"
 #define TR_RTC_BATT                     "RTC batteri"
 #define TR_POWER_METER_EXT              "Power Meter (EXT)"
 #define TR_POWER_METER_INT              "Power Meter (INT)"

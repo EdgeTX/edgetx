@@ -50,7 +50,6 @@
 #define PXX2_CHANNELS_FLAG0_RANGECHECK       (1 << 7)
 #define PXX2_CHANNELS_FLAG1_RACING_MODE      (1 << 3)
 
-#define PXX2_TX_SETTINGS_FLAG0_WRITE               (1 << 6)
 #define PXX2_TX_SETTINGS_FLAG1_EXTERNAL_ANTENNA    (1 << 3)
 
 #define PXX2_HW_INFO_TX_ID                         0xFF
@@ -61,7 +60,8 @@
 
 #define PXX2_MAX_CHANNELS               24
 
-// Receiver options are set by this Lua tool, from the SD card
+// Module and receiver options are set by these Lua tools, from the SD card
+#define PXX2_TX_OPTIONS_SCRIPT          SCRIPTS_TOOLS_PATH "/AccessTx.lua"
 #define PXX2_RX_OPTIONS_SCRIPT          SCRIPTS_TOOLS_PATH "/AccessRx.lua"
 
 enum PXX2ModuleModelID {
@@ -149,7 +149,6 @@ enum PXX2OtaUpdateSteps {
 enum PXX2ReceiverStatus {
   PXX2_HARDWARE_INFO,
   PXX2_SETTINGS_READ,
-  PXX2_SETTINGS_WRITE,
   PXX2_SETTINGS_OK
 };
 
@@ -168,7 +167,6 @@ PACK(struct PXX2HardwareInformation {
   uint8_t capabilityNotSupported;
 });
 
-bool isPXX2PowerAvailable(const PXX2HardwareInformation& info, int value);
 
 PACK(struct ModuleInformation {
   int8_t current;
@@ -187,7 +185,6 @@ class ModuleSettings {
     tmr10ms_t timeout;
     uint8_t externalAntenna;
     int8_t txPower;
-    uint8_t dirty;
 };
 
 struct PXX2ModuleSetup {
@@ -225,7 +222,6 @@ class BindInformation {
 struct PXX2HardwareAndSettings {
   ModuleInformation modules[MAX_MODULES];
   uint32_t updateTime;
-  ModuleSettings moduleSettings;
   char msg[64];
 };
 
@@ -249,6 +245,5 @@ bool pxx2LuaFramePush(uint8_t module, uint8_t typeC, uint8_t typeId,
 
 PXX2ModuleSetup& getPXX2ModuleSetupBuffer();
 BindInformation& getPXX2BindInformationBuffer();
-PXX2HardwareAndSettings& getPXX2HardwareAndSettingsBuffer();
 
 extern const etx_proto_driver_t Pxx2Driver;

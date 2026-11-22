@@ -56,7 +56,6 @@ endif()
 if(PXX2)
   set(GUI_SRC
     ${GUI_SRC}
-    ../common/stdlcd/model_module_options.cpp
     )
 endif()
 

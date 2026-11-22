@@ -765,7 +765,6 @@
 #define TR_NO_FILES_ON_SD              "存儲卡中沒有文件!"
 #define TR_NO_SDCARD                   "存儲卡未安裝"
 #define TR_WAITING_FOR_RX              "等待接收機響應..."
-#define TR_WAITING_FOR_TX              "等待發射機響應..."
 #define TR_WAITING_FOR_MODULE          TR("等待模塊", "等待模塊響應...")
 #define TR_NO_TOOLS                    "無可用附加功能"
 #define TR_NORMAL                      "正常"
@@ -776,8 +775,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH關回傳", "16CH 禁用回傳")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH開回傳", "16CH 開啟回傳")
-#define TR_EXT_ANTENNA                 "外置天線"
-#define TR_UPDATE_TX_OPTIONS           "是否升級發射機?"
 #define TR_MODULES_RX_VERSION          BUTTON("模塊/接收機版本")
 #define TR_SHOW_MIXER_MONITORS         "顯示通道混控"
 #define TR_MENU_MODULES_RX_VERSION     "模塊/接收機版本"
@@ -786,8 +783,6 @@
 #define TR_STICKS_POTS_SLIDERS         "搖桿(軸)/旋鈕/滑塊"
 #define TR_RF_PROTOCOL                 "發射協議"
 #define TR_MODULE_OPTIONS              "選項"
-#define TR_POWER                       "功率"
-#define TR_NO_TX_OPTIONS               "無發射機選項"
 #define TR_RTC_BATT                    "時間驅動電池電壓"
 #define TR_POWER_METER_EXT             "功率計 (外置)"
 #define TR_POWER_METER_INT             "功率計 (內置)"

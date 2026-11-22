@@ -764,7 +764,6 @@
 #define TR_NO_FILES_ON_SD              "No files on SD!"
 #define TR_NO_SDCARD                   "No SDCARD"
 #define TR_WAITING_FOR_RX              "Esperando a RX..."
-#define TR_WAITING_FOR_TX              "Esperando a TX..."
 #define TR_WAITING_FOR_MODULE          TR("Waiting module", "Waiting for module...")
 #define TR_NO_TOOLS                    "No hay utils"
 #define TR_NORMAL                      "Normal"
@@ -775,8 +774,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH sin telem.", "16CH sin telemetría")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH con telem.", "16CH con telemetría")
-#define TR_EXT_ANTENNA                 "Antena ext."
-#define TR_UPDATE_TX_OPTIONS           "Actualizar opciones TX?"
 #define TR_MODULES_RX_VERSION          BUTTON("Módulos / versión RX")
 #define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "MÓDULOS / VERSIÓN RX"
@@ -785,8 +782,6 @@
 #define TR_STICKS_POTS_SLIDERS         "Sticks/Pots/Sliders"
 #define TR_RF_PROTOCOL                 "Protocolo RF"
 #define TR_MODULE_OPTIONS              "Opciones módulo"
-#define TR_POWER                       "Potencia"
-#define TR_NO_TX_OPTIONS               "Sin opciones TX"
 #define TR_RTC_BATT                    TR("Bat. RTC", "Batería RTC")
 #define TR_POWER_METER_EXT             "Medidor potencia(EXT)"
 #define TR_POWER_METER_INT             "Medidor potencia(INT)"

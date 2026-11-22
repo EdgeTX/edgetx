@@ -539,7 +539,6 @@
 #define STR_EXIT_BTN currentLangStrings->STR_EXIT_BTN
 #define STR_EXIT currentLangStrings->STR_EXIT
 #define STR_EXPONAME currentLangStrings->STR_EXPONAME
-#define STR_EXT_ANTENNA currentLangStrings->STR_EXT_ANTENNA
 #define STR_EXT_MULTI_SPEC currentLangStrings->STR_EXT_MULTI_SPEC
 #define STR_EXTERNAL_MODULE currentLangStrings->STR_EXTERNAL_MODULE
 #define STR_EXTERNALRF currentLangStrings->STR_EXTERNALRF
@@ -763,7 +762,6 @@
 #define STR_NO_SOUNDS_ON_SD currentLangStrings->STR_NO_SOUNDS_ON_SD
 #define STR_NO_TIMERS currentLangStrings->STR_NO_TIMERS
 #define STR_NO_TOOLS currentLangStrings->STR_NO_TOOLS
-#define STR_NO_TX_OPTIONS currentLangStrings->STR_NO_TX_OPTIONS
 #define STR_NODATA currentLangStrings->STR_NODATA
 #define STR_NOFREEEXPO currentLangStrings->STR_NOFREEEXPO
 #define STR_NOFREEMIXER currentLangStrings->STR_NOFREEMIXER
@@ -803,7 +801,6 @@
 #define STR_POTWARNINGSTATE currentLangStrings->STR_POTWARNINGSTATE
 #define STR_POWER_METER_EXT currentLangStrings->STR_POWER_METER_EXT
 #define STR_POWER_METER_INT currentLangStrings->STR_POWER_METER_INT
-#define STR_POWER currentLangStrings->STR_POWER
 #define STR_POWERMETER_ATTN_NEEDED currentLangStrings->STR_POWERMETER_ATTN_NEEDED
 #define STR_POWERMETER_ATTN currentLangStrings->STR_POWERMETER_ATTN
 #define STR_POWERMETER_FREQ currentLangStrings->STR_POWERMETER_FREQ
@@ -1021,7 +1018,6 @@
 #define STR_UNITS_SYSTEM currentLangStrings->STR_UNITS_SYSTEM
 #define STR_UNLABELEDMODEL currentLangStrings->STR_UNLABELEDMODEL
 #define STR_UNSUPPORTED_RX currentLangStrings->STR_UNSUPPORTED_RX
-#define STR_UPDATE_TX_OPTIONS currentLangStrings->STR_UPDATE_TX_OPTIONS
 #define STR_US currentLangStrings->STR_US
 #define STR_USB_CHARGE currentLangStrings->STR_USB_CHARGE
 #define STR_USB_JOYSTICK currentLangStrings->STR_USB_JOYSTICK
@@ -1067,7 +1063,6 @@
 #define STR_VTRIM currentLangStrings->STR_VTRIM
 #define STR_WAITING_FOR_MODULE currentLangStrings->STR_WAITING_FOR_MODULE
 #define STR_WAITING_FOR_RX currentLangStrings->STR_WAITING_FOR_RX
-#define STR_WAITING_FOR_TX currentLangStrings->STR_WAITING_FOR_TX
 #define STR_WAITING currentLangStrings->STR_WAITING
 #define STR_WARN_5VOLTS currentLangStrings->STR_WARN_5VOLTS
 #define STR_WARN_BATTVOLTAGE currentLangStrings->STR_WARN_BATTVOLTAGE

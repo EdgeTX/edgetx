@@ -86,7 +86,6 @@ PACK(struct ModuleState {
   void startBind(BindInformation * destination, ModuleCallback bindCallback = nullptr);
   void readModuleInformation(ModuleInformation * destination, int8_t first, int8_t last);
   void readModuleSettings(ModuleSettings * destination);
-  void writeModuleSettings(ModuleSettings * source);
 #endif
 });
 
