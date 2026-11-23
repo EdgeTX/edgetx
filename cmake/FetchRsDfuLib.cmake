@@ -26,7 +26,8 @@ endif()
 
 # rs-dfu release Companion is built against. Pinned so builds don't change
 # when a new rs-dfu release is published; bump it deliberately. CI reads this
-# line to fetch the same release (.github/actions/fetch_deps).
+# line to fetch the same release (.github/actions/fetch_deps). Keep in step
+# with RS_DFU_VERSION in cmake/FetchRdfuCli.cmake.
 set(RS_DFU_VERSION "v0.7.2")
 
 set(RS_DFU_BASE_URL "https://github.com/EdgeTX/rs-dfu/releases/download/${RS_DFU_VERSION}")

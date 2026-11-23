@@ -36,11 +36,15 @@ if(NOT RDFU_EXECUTABLE)
   endif()
 
   set(RDFU_FILENAME "rdfu-${RDFU_OS}-${RDFU_ARCH}${RDFU_EXT}")
-  set(RDFU_URL "https://github.com/EdgeTX/rs-dfu/releases/latest/download/${RDFU_FILENAME}")
+  # rs-dfu release to fetch the CLI from. Keep in step with RS_DFU_VERSION in
+  # cmake/FetchRsDfuLib.cmake.
+  set(RS_DFU_VERSION "v0.7.2")
+  set(RDFU_URL "https://github.com/EdgeTX/rs-dfu/releases/download/${RS_DFU_VERSION}/${RDFU_FILENAME}")
 
   # Manual cache (FetchContent needs a project/generator, unavailable in
-  # -P mode), mirroring FetchContent's _deps/<name>-src/ layout.
-  set(RDFU_CACHE_DIR "_deps/rdfucli-src")
+  # -P mode), mirroring FetchContent's _deps/<name>-src/ layout. The version
+  # is part of the path so a bump downloads the new release.
+  set(RDFU_CACHE_DIR "_deps/rdfucli-src/${RS_DFU_VERSION}")
   set(RDFU_CACHED_PATH "${RDFU_CACHE_DIR}/${RDFU_FILENAME}")
 
   if(NOT EXISTS "${RDFU_CACHED_PATH}")
