@@ -2512,7 +2512,7 @@ class WidgetPage : public NavWindow, public LuaEventHandler
     body->setWindowFlag(NO_FOCUS);
 
     if (iconFile.empty())
-      header = new PageHeader(this, ICON_EDGETX);
+      header = new PageHeader(this, ICON_TOOLS_APPS);
     else
       header = new PageHeader(this, iconFile.c_str());
 
