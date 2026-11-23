@@ -118,6 +118,16 @@ class Bluetooth
     uint8_t buffer[BLUETOOTH_LINE_LENGTH+1];
     uint8_t bufferIndex = 0;
     tmr10ms_t wakeupTime = 0;
+    // Nonblocking, bounded AT initialization.
+    tmr10ms_t initStateEntered = 0;
+    uint8_t initObservedState = 0xff;
+    uint8_t initAttemptCount = 0;
+    bool initEverCompleted = false;
+    // Separate guard against repeated late ERROR-triggered resets.
+    bool postInitRecoveryUsed = false;
+    bool initResetHold = false;
+    bool initExhausted = false;
+    bool initUserOffSeen = false;
     uint8_t crc;
 };
 

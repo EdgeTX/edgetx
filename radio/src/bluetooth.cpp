@@ -108,6 +108,14 @@ char * Bluetooth::readline(bool error_reset)
           BLUETOOTH_TRACE("BT Error..." CRLF);
 #else
           BLUETOOTH_TRACE("BT Reset..." CRLF);
+          // A successful AT role handshake grants ONE subsequent ERROR
+          // recovery per enabled session; ignore repeated late errors.
+          // This guard does not limit ordinary connection/disconnection.
+          if (initEverCompleted) {
+            if (postInitRecoveryUsed) return nullptr;
+            initAttemptCount = 0;
+            postInitRecoveryUsed = true;
+          }
           bluetoothDisable();
           state = BLUETOOTH_STATE_OFF;
           wakeupTime = get_tmr10ms() + 100; /* 1s */
@@ -389,6 +397,13 @@ void Bluetooth::wakeup(void)
 #endif
 }
 #else // PCBX9E
+// Startup-only limits. Four attempts per initialization, then remain
+// quiescent until an explicit user mode transition or bounded recovery. All timing is in 10ms
+// ticks; no blocking sleep, busy-loop or continuous background polling.
+static constexpr tmr10ms_t BT_INIT_RESET_HOLD = 15;   // 150 ms
+static constexpr tmr10ms_t BT_INIT_STAGE_TIMEOUT = 400; // 4 sec
+static constexpr uint8_t BT_INIT_MAX_ATTEMPTS = 4;
+
 void Bluetooth::wakeup()
 {
   if (state != BLUETOOTH_STATE_OFF) {
@@ -399,13 +414,66 @@ void Bluetooth::wakeup()
 
   tmr10ms_t now = get_tmr10ms();
 
-  if (now < wakeupTime)
+  // Switching Bluetooth OFF is an explicit user rearm. A missing module
+  // must not cause repeated module resets or UART traffic while flying.
+  const bool enabledByUser = g_eeGeneral.bluetoothMode != BLUETOOTH_OFF;
+  if (!enabledByUser) {
+    if (state != BLUETOOTH_STATE_OFF || initResetHold || initExhausted) {
+      bluetoothDisable();
+      state = BLUETOOTH_STATE_OFF;
+    }
+    initUserOffSeen = true;
+    initAttemptCount = 0;
+    initExhausted = false;
+    initEverCompleted = false;
+    postInitRecoveryUsed = false;
+    initResetHold = false;
+    initObservedState = 0xff;
+    wakeupTime = now + 10;
     return;
+  }
+  // A real OFF->ON transition restores the startup attempt budget.
+  if (initUserOffSeen) {
+    initUserOffSeen = false;
+    initAttemptCount = 0;
+    initExhausted = false;
+    initEverCompleted = false;
+    postInitRecoveryUsed = false;
+    initResetHold = false;
+    initObservedState = 0xff;
+  }
+  if (initExhausted) return;
+  if (now < wakeupTime) return;
 
   wakeupTime = now + 5; /* 50ms default */
 
   if (state == BLUETOOTH_STATE_FLASH_FIRMWARE) {
     return;
+  }
+
+  // Only the initial AT configuration is subject to this watchdog.
+  // Discovery, pairing, and a connected trainer are never retried here.
+  const bool initializing = state >= BLUETOOTH_STATE_FACTORY_BAUDRATE_INIT &&
+                            state <= BLUETOOTH_STATE_ROLE_SENT;
+  if (initializing) {
+    if (initObservedState != state) {
+      initObservedState = state;
+      initStateEntered = now;
+    } else if ((tmr10ms_t)(now - initStateEntered) >= BT_INIT_STAGE_TIMEOUT) {
+      bluetoothDisable();
+      state = BLUETOOTH_STATE_OFF;
+      initObservedState = 0xff;
+      if (initAttemptCount >= BT_INIT_MAX_ATTEMPTS) {
+        initExhausted = true;
+        return;
+      }
+      // Hold the module disabled before the next, and final, attempt.
+      initResetHold = true;
+      wakeupTime = now + BT_INIT_RESET_HOLD;
+      return;
+    }
+  } else {
+    initObservedState = 0xff;
   }
 
 #if defined(BT_PWR_GPIO)
@@ -428,6 +496,20 @@ void Bluetooth::wakeup()
     wakeupTime = now + 10; /* 100ms */
   }
   else if (state == BLUETOOTH_STATE_OFF) {
+    // Even after an MCU-only reboot, establish a real GPIO OFF interval.
+    // bluetoothDisable() drives BT_EN_GPIO inactive on radios with that pin.
+    if (!initResetHold) {
+      bluetoothDisable();
+      initResetHold = true;
+      wakeupTime = now + BT_INIT_RESET_HOLD;
+      return;
+    }
+    initResetHold = false;
+    if (initAttemptCount >= BT_INIT_MAX_ATTEMPTS) {
+      initExhausted = true;
+      return;
+    }
+    ++initAttemptCount;
     bluetoothInit(BLUETOOTH_FACTORY_BAUDRATE, true);
     state = BLUETOOTH_STATE_FACTORY_BAUDRATE_INIT;
   }
@@ -492,6 +574,12 @@ void Bluetooth::wakeup()
                (!strncmp(line, "Central:", 8) ||
                 !strncmp(line, "Peripheral:", 11))) {
       state = BLUETOOTH_STATE_IDLE;
+      // Successful AT role setup closes the startup retry window. Keep
+      // postInitRecoveryUsed independent, so a late ERROR cannot trigger
+      // an unlimited number of additional startup sequences.
+      initAttemptCount = 0;
+      initExhausted = false;
+      initEverCompleted = true;
     } else if (state == BLUETOOTH_STATE_DISCOVER_REQUESTED) {
       writeString("AT+DISC?");
       state = BLUETOOTH_STATE_DISCOVER_SENT;
@@ -532,6 +620,10 @@ void Bluetooth::wakeup()
                (line != nullptr) && !strncmp(line, "Connected:", 10)) {
       strcpy(distantAddr, &line[10]); // TODO quick & dirty
       state = BLUETOOTH_STATE_CONNECTED;
+      // A confirmed BLE link is another definitive success condition.
+      // Do not reset the one-time post-init recovery budget here.
+      initAttemptCount = 0;
+      initExhausted = false;
       if (g_model.trainerData.mode == TRAINER_MODE_SLAVE_BLUETOOTH) {
         wakeupTime += 500; // it seems a 5s delay is needed before sending the 1st frame
       }
