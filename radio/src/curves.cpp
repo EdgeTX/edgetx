@@ -377,6 +377,10 @@ int applyCustomCurve(int x, uint8_t idx)
   if (idx >= MAX_CURVES)
     return 0;
 
+  // An undefined curve behaves as Y = X instead of a flat Y = 0
+  if (!isCurveUsed(idx))
+    return x;
+
   CurveHeader & crv = g_model.curves[idx];
   if (crv.smooth)
     return hermite_spline(x, idx);
