@@ -36,11 +36,14 @@ if(NOT RDFU_EXECUTABLE)
   endif()
 
   set(RDFU_FILENAME "rdfu-${RDFU_OS}-${RDFU_ARCH}${RDFU_EXT}")
-  set(RDFU_URL "https://github.com/EdgeTX/rs-dfu/releases/latest/download/${RDFU_FILENAME}")
+  if(NOT RS_DFU_VERSION)
+    message(FATAL_ERROR "rdfu: RS_DFU_VERSION is not set")
+  endif()
+  set(RDFU_URL "https://github.com/EdgeTX/rs-dfu/releases/download/${RS_DFU_VERSION}/${RDFU_FILENAME}")
 
   # Manual cache (FetchContent needs a project/generator, unavailable in
   # -P mode), mirroring FetchContent's _deps/<name>-src/ layout.
-  set(RDFU_CACHE_DIR "_deps/rdfucli-src")
+  set(RDFU_CACHE_DIR "_deps/rdfucli-src/${RS_DFU_VERSION}")
   set(RDFU_CACHED_PATH "${RDFU_CACHE_DIR}/${RDFU_FILENAME}")
 
   if(NOT EXISTS "${RDFU_CACHED_PATH}")

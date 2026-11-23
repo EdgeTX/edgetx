@@ -24,7 +24,11 @@ else()
   message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
-set(RS_DFU_BASE_URL "https://github.com/EdgeTX/rs-dfu/releases/latest/download")
+if(NOT RS_DFU_VERSION)
+  message(FATAL_ERROR "RS_DFU_VERSION is not set")
+endif()
+
+set(RS_DFU_BASE_URL "https://github.com/EdgeTX/rs-dfu/releases/download/${RS_DFU_VERSION}")
 set(RS_DFU_FILENAME "rs_dfu-${RS_DFU_ARCH}-${RS_DFU_PLATFORM}")
 
 # RS_DFU_URL (CMake variable or environment variable) overrides the download
