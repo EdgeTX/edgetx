@@ -21,6 +21,8 @@ on:
       - 'radio/src/targets/simu/CMakeLists.txt'
       - 'radio/src/targets/simu/pch_std.h'
       - 'cmake/wasm/CMakeLists.txt'
+      - 'cmake/FetchRsDfuLib.cmake'
+      - 'CMakeLists.txt'
       - 'cmake/FetchWamr.cmake'
       - 'cmake/wamr-*.patch'
 
@@ -40,6 +42,8 @@ on:
       - 'radio/src/targets/simu/CMakeLists.txt'
       - 'radio/src/targets/simu/pch_std.h'
       - 'cmake/wasm/CMakeLists.txt'
+      - 'cmake/FetchRsDfuLib.cmake'
+      - 'CMakeLists.txt'
       - 'cmake/FetchWamr.cmake'
       - 'cmake/wamr-*.patch'
 
