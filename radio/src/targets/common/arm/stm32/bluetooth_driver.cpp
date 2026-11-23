@@ -89,6 +89,9 @@ void bluetoothDisable()
 #if defined(BT_EN_GPIO)
   // close bluetooth (recent modules will go to bootloader mode)
   gpio_set(BT_EN_GPIO);
+  // MCU-only reset may leave this pin in input mode; drive the module
+  // disable level before starting the next AT handshake.
+  gpio_init(BT_EN_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 #if defined(BT_PWR_GPIO)
   gpio_clear(BT_PWR_GPIO);
