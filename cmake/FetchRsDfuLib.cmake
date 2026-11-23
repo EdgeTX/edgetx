@@ -24,7 +24,12 @@ else()
   message(FATAL_ERROR "Unsupported architecture: ${CMAKE_SYSTEM_PROCESSOR}")
 endif()
 
-set(RS_DFU_BASE_URL "https://github.com/EdgeTX/rs-dfu/releases/latest/download")
+# rs-dfu release Companion is built against. Pinned so builds don't change
+# when a new rs-dfu release is published; bump it deliberately. CI reads this
+# line to fetch the same release (.github/actions/fetch_deps).
+set(RS_DFU_VERSION "v0.7.2")
+
+set(RS_DFU_BASE_URL "https://github.com/EdgeTX/rs-dfu/releases/download/${RS_DFU_VERSION}")
 set(RS_DFU_FILENAME "rs_dfu-${RS_DFU_ARCH}-${RS_DFU_PLATFORM}")
 
 # RS_DFU_URL (CMake variable or environment variable) overrides the download
