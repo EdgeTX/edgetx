@@ -30,6 +30,9 @@ endif()
 set(VERSION_FAMILY ${VERSION_MAJOR}.${VERSION_MINOR})
 set(VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_REVISION})
 
+# rs-dfu release used by Companion (cmake/FetchRsDfu.cmake)
+set(RS_DFU_VERSION "v0.7.2")
+
 option(EdgeTX_SUPERBUILD "Cross-compile EdgeTX for each toolchain" ON)
 include(ExternalProject)
 
