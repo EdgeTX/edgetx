@@ -36,7 +36,9 @@ jobs:
 
       # Stay quiet when no target changed memory or hit a budget alert, unless
       # an earlier run already commented: that comment is then updated so it
-      # does not go stale.
+      # does not go stale. Build-time strings (date, version) move every
+      # target by a few bytes, so region changes of MEMBROWSE_MIN_DELTA bytes
+      # or less, either way, do not count. Uploads to MemBrowse are unaffected.
       - name: Check for anything to report
         id: changes
         if: ${{ steps.reports.outputs.found == 'true' && env.MEMBROWSE_API_KEY != '' }}
@@ -45,6 +47,7 @@ jobs:
           MEMBROWSE_PACKAGE: git+https://github.com/membrowse/membrowse-action@v1
           COMMIT: ${{ github.event.workflow_run.head_sha }}
           GH_TOKEN: ${{ github.token }}
+          MEMBROWSE_MIN_DELTA: 16
         run: |
           python3 -m venv /tmp/membrowse
           /tmp/membrowse/bin/pip install --quiet "${MEMBROWSE_PACKAGE}"
@@ -57,17 +60,22 @@ jobs:
 
           read -r report pr < <(/tmp/membrowse/bin/python - <<'EOF'
           import json
+          import os
           from membrowse.utils.summary_formatter import build_summary_template_context
           with open("/tmp/membrowse-summary.json", encoding="utf-8") as f:
               summary = json.load(f)
           ctx = build_summary_template_context(summary)
-          report = any(t["has_changes"] or t["has_alerts"] for t in ctx["targets"])
+          min_delta = int(os.environ.get("MEMBROWSE_MIN_DELTA", "0"))
+          report = any(
+              t["has_alerts"] or any(abs(r["delta"]) > min_delta for r in t["regions"])
+              for t in ctx["targets"]
+          )
           print("true" if report else "false", summary.get("data", {}).get("pr_number") or "")
           EOF
           )
           # If the check itself broke, post rather than silently drop a report
           report=${report:-true}
-          echo "Memory changes or budget alerts: ${report} (PR: ${pr:-unknown})"
+          echo "Memory changes over ${MEMBROWSE_MIN_DELTA} B or budget alerts: ${report} (PR: ${pr:-unknown})"
 
           existing=0
           if [[ "${report}" != "true" && -n "${pr}" ]]; then
