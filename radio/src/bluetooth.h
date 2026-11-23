@@ -128,6 +128,7 @@ class Bluetooth
     bool initResetHold = false;
     bool initExhausted = false;
     bool initUserOffSeen = false;
+    uint8_t activeBluetoothMode = 0xff;
     uint8_t crc;
 };
 

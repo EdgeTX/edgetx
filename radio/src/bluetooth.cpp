@@ -416,7 +416,28 @@ void Bluetooth::wakeup()
 
   // Switching Bluetooth OFF is an explicit user rearm. A missing module
   // must not cause repeated module resets or UART traffic while flying.
-  const bool enabledByUser = g_eeGeneral.bluetoothMode != BLUETOOTH_OFF;
+  const uint8_t selectedMode = g_eeGeneral.bluetoothMode;
+  const bool enabledByUser = selectedMode != BLUETOOTH_OFF;
+  // Changing between active roles requires a fresh AT+ROLE handshake;
+  // otherwise EdgeTX updates its UI while the module stays in its old role.
+  const bool roleChangedWhileOn =
+      activeBluetoothMode != 0xff &&
+      activeBluetoothMode != BLUETOOTH_OFF &&
+      enabledByUser && activeBluetoothMode != selectedMode;
+  activeBluetoothMode = selectedMode;
+  if (roleChangedWhileOn) {
+    bluetoothDisable();
+    state = BLUETOOTH_STATE_OFF;
+    initUserOffSeen = true;
+    initAttemptCount = 0;
+    initExhausted = false;
+    initEverCompleted = false;
+    postInitRecoveryUsed = false;
+    initResetHold = false;
+    initObservedState = 0xff;
+    wakeupTime = now + BT_INIT_RESET_HOLD;
+    return;
+  }
   if (!enabledByUser) {
     if (state != BLUETOOTH_STATE_OFF || initResetHold || initExhausted) {
       bluetoothDisable();
