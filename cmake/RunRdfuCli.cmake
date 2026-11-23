@@ -3,7 +3,7 @@
 # time, not on every configure.
 #
 # -D args: RDFU_SUBCOMMAND, RDFU_FILE, RDFU_VENDOR, RDFU_PRODUCT,
-# RDFU_START_ADDRESS (optional, omitted for UF2 writes)
+# RDFU_START_ADDRESS (optional, omitted for UF2 writes), RS_DFU_VERSION
 cmake_minimum_required(VERSION 3.14)
 
 include(${CMAKE_CURRENT_LIST_DIR}/FetchRdfuCli.cmake)

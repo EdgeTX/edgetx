@@ -3,8 +3,8 @@ description: >
   Keeps CMake configure from depending on anonymous GitHub downloads, which
   fail when GitHub throttles unauthenticated traffic. Restores the FetchContent
   sources (googletest, WAMR, yaml-cpp, miniz, maxLibQt, imgui) from the Actions
-  cache, and downloads the rs-dfu release pinned in cmake/FetchRsDfuLib.cmake
-  through the authenticated API with gh, exporting RS_DFU_URL for it.
+  cache, and downloads the pinned rs-dfu release through the authenticated API
+  with gh, exporting RS_DFU_URL for cmake/FetchRsDfuLib.cmake.
 inputs:
   token:
     description: 'Token for the GitHub API'
@@ -16,8 +16,7 @@ runs:
     # FETCHCONTENT_BASE_DIR defaults to .cache/fetchcontent in the source tree
     # (top-level CMakeLists.txt) and is shared by every sub-build. The source
     # and stamp dirs are enough for FetchContent to skip the download. *-build
-    # holds build output and rs-dfu is fetched by the next step, so neither is
-    # cached.
+    # holds build output and rs-dfu is fetched below, so neither is cached.
     # Only a cache miss downloads anonymously.
     - name: Cache FetchContent sources
       uses: actions/cache@v6
@@ -56,9 +55,9 @@ runs:
           esac
         fi
 
-        version=$(sed -nE 's/^set\(RS_DFU_VERSION "([^"]+)"\)$/\1/p' cmake/FetchRsDfuLib.cmake)
+        version=$(sed -nE 's/^set\(RS_DFU_VERSION "([^"]+)"\)$/\1/p' CMakeLists.txt)
         if [[ -z "${version}" ]]; then
-          echo "::error::Could not read RS_DFU_VERSION from cmake/FetchRsDfuLib.cmake"
+          echo "::error::Could not read RS_DFU_VERSION from CMakeLists.txt"
           exit 1
         fi
 
