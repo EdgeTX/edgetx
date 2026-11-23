@@ -211,8 +211,7 @@ if (event == EVT_ENTRY) {
         if (y >= MENU_BODY_TOP && y < MENU_BODY_BOTTOM) {
           lcdDrawTextIndented(y, STR_RECEIVER);
           lcdDrawNumber(lcdLastRightPos + 2, y, receiver + 1);
-          uint8_t modelId = reusableBuffer.hardwareAndSettings.modules[module].receivers[receiver].information.modelID;
-          lcdDrawText(COLUMN2_X, y, getPXX2ReceiverName(modelId));
+          drawReceiverName(COLUMN2_X, y, module, receiver);
         }
         y += FH;
 

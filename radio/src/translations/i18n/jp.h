@@ -1167,7 +1167,6 @@
 #define TR_OTA_UPDATE                  "OTAアップデート..."
 #define TR_MODULE_RESET                "モジュールリセット..."
 #define TR_UNSUPPORTED_RX              "未サポート受信機"
-#define TR_OTA_UPDATE_ERROR            "OTAアップデートエラー"
 #define TR_DEVICE_RESET                "デバイスリセット..."
 #define TR_ALTITUDE                    "高度"
 #define TR_SCALE                       "スケール"

@@ -124,23 +124,18 @@ class FrskyOtaFlashDialog : public BaseDialog
     }
 
     if (reusableBuffer.sdManager.otaUpdateInformation.step == BIND_INFO_REQUEST) {
-      uint8_t modelId = reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.modelID;
-      if (isPXX2ReceiverOptionAvailable(modelId, RECEIVER_OPTION_OTA_TO_UPDATE_SELF)) {
-        char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, STR_CURRENT_VERSION);
-        tmp = strAppendUnsigned(tmp, 1 + reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.major);
-        *tmp++ = '.';
-        tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.minor);
-        *tmp++ = '.';
-        tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.revision);
+      OtaUpdateInformation * info = &reusableBuffer.sdManager.otaUpdateInformation;
+      char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, STR_CURRENT_VERSION);
+      tmp = strAppendUnsigned(tmp, 1 + info->receiverInformation.swVersion.major);
+      *tmp++ = '.';
+      tmp = strAppendUnsigned(tmp, info->receiverInformation.swVersion.minor);
+      *tmp++ = '.';
+      tmp = strAppendUnsigned(tmp, info->receiverInformation.swVersion.revision);
 
-        updateConfirmDialog = new ConfirmDialog(getPXX2ReceiverName(modelId),
-                          std::string(reusableBuffer.sdManager.otaReceiverVersion).c_str(),
-                          [=]() { onUpdateConfirmation(); },
-                          [=]() { closeWindow(); });
-      } else {
-        closeWindow();
-        POPUP_WARNING(STR_OTA_UPDATE_ERROR, STR_UNSUPPORTED_RX);
-      }
+      updateConfirmDialog = new ConfirmDialog(info->candidateReceiversNames[info->selectedReceiverIndex],
+                        std::string(reusableBuffer.sdManager.otaReceiverVersion).c_str(),
+                        [=]() { onUpdateConfirmation(); },
+                        [=]() { closeWindow(); });
     }
   }
 

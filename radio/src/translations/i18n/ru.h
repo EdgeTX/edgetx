@@ -1170,7 +1170,6 @@
 #define TR_OTA_UPDATE                  "OTA-обновление..."
 #define TR_MODULE_RESET                "Сброс модуля..."
 #define TR_UNSUPPORTED_RX              "Непод приёмник"
-#define TR_OTA_UPDATE_ERROR            "Ошибка OTA-обновл"
 #define TR_DEVICE_RESET                "Сброс устройства..."
 #define TR_ALTITUDE                    "Высота"
 #define TR_SCALE                       "Масштаб"

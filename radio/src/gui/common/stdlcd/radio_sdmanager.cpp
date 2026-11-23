@@ -107,22 +107,15 @@ void onUpdateConfirmation(const char * result)
 void onUpdateStateChanged()
 {
   if (reusableBuffer.sdManager.otaUpdateInformation.step == BIND_INFO_REQUEST) {
-    uint8_t modelId = reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.modelID;
-    if (isPXX2ReceiverOptionAvailable(modelId, RECEIVER_OPTION_OTA_TO_UPDATE_SELF)) {
-      POPUP_CONFIRMATION(getPXX2ReceiverName(modelId), onUpdateConfirmation);
-      char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, STR_CURRENT_VERSION);
-      tmp = strAppendUnsigned(tmp, 1 + reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.major);
-      *tmp++ = '.';
-      tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.minor);
-      *tmp++ = '.';
-      tmp = strAppendUnsigned(tmp, reusableBuffer.sdManager.otaUpdateInformation.receiverInformation.swVersion.revision);
-      SET_WARNING_INFO(reusableBuffer.sdManager.otaReceiverVersion, tmp - reusableBuffer.sdManager.otaReceiverVersion, 0);
-    }
-    else {
-      POPUP_WARNING(STR_OTA_UPDATE_ERROR);
-      SET_WARNING_INFO(STR_UNSUPPORTED_RX, strlen(STR_UNSUPPORTED_RX) - 1, 0);
-      moduleState[reusableBuffer.sdManager.otaUpdateInformation.module].mode = MODULE_MODE_NORMAL;
-    }
+    OtaUpdateInformation * info = &reusableBuffer.sdManager.otaUpdateInformation;
+    POPUP_CONFIRMATION(info->candidateReceiversNames[info->selectedReceiverIndex], onUpdateConfirmation);
+    char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, STR_CURRENT_VERSION);
+    tmp = strAppendUnsigned(tmp, 1 + info->receiverInformation.swVersion.major);
+    *tmp++ = '.';
+    tmp = strAppendUnsigned(tmp, info->receiverInformation.swVersion.minor);
+    *tmp++ = '.';
+    tmp = strAppendUnsigned(tmp, info->receiverInformation.swVersion.revision);
+    SET_WARNING_INFO(reusableBuffer.sdManager.otaReceiverVersion, tmp - reusableBuffer.sdManager.otaReceiverVersion, 0);
   }
 }
 #endif

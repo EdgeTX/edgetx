@@ -1169,7 +1169,6 @@
 #define TR_OTA_UPDATE                  "Actualización OTA..."
 #define TR_MODULE_RESET                "Reset módulo..."
 #define TR_UNSUPPORTED_RX              "RX no soportado"
-#define TR_OTA_UPDATE_ERROR            "Error actualización OTA"
 #define TR_DEVICE_RESET                "Reset dispositivo..."
 #define TR_ALTITUDE            "Altitud"
 #define TR_SCALE               "Escala"

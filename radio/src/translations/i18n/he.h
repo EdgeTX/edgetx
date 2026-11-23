@@ -1170,7 +1170,6 @@
 #define TR_OTA_UPDATE                  "...עדכון OTA"
 #define TR_MODULE_RESET                "...איפוס מודול"
 #define TR_UNSUPPORTED_RX              "מקלט לא נתמך"
-#define TR_OTA_UPDATE_ERROR            "שגיאת עדכון OTA"
 #define TR_DEVICE_RESET                "...איפוס התקן"
 #define TR_ALTITUDE                    "גובה"
 #define TR_SCALE                       "קנה מידה"

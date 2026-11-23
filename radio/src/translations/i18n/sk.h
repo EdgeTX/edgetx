@@ -1176,7 +1176,6 @@
 #define TR_OTA_UPDATE                  "Aktualizácia OTA..."
 #define TR_MODULE_RESET                "Reset modulu..."
 #define TR_UNSUPPORTED_RX              "Nepodporovaný RX"
-#define TR_OTA_UPDATE_ERROR            "Chyba aktualizácie"
 #define TR_DEVICE_RESET                "Reset zariadenia..."
 #define TR_ALTITUDE                    "Výška"
 #define TR_SCALE                       "Mierka"

@@ -776,7 +776,6 @@
 #define STR_ONLYPOSITIVE currentLangStrings->STR_ONLYPOSITIVE
 #define STR_OPEN_QUICK_MENU currentLangStrings->STR_OPEN_QUICK_MENU
 #define STR_OPTIONS currentLangStrings->STR_OPTIONS
-#define STR_OTA_UPDATE_ERROR currentLangStrings->STR_OTA_UPDATE_ERROR
 #define STR_OTA_UPDATE currentLangStrings->STR_OTA_UPDATE
 #define STR_OUTPUTS currentLangStrings->STR_OUTPUTS
 #define STR_OWN currentLangStrings->STR_OWN

@@ -1169,7 +1169,6 @@
 #define TR_OTA_UPDATE                  "Оновлення OTA..."
 #define TR_MODULE_RESET                "Скидання модулю..."
 #define TR_UNSUPPORTED_RX              "Несумісний RX"
-#define TR_OTA_UPDATE_ERROR            "Помилка оновлення OTA"
 #define TR_DEVICE_RESET                "Скидання пристрою..."
 #define TR_ALTITUDE                    "Висота"
 #define TR_SCALE                       "Масштаб"

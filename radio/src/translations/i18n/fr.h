@@ -1171,7 +1171,6 @@
 #define TR_OTA_UPDATE                  "MàJ via OTA ..."
 #define TR_MODULE_RESET                "RAZ Module..."
 #define TR_UNSUPPORTED_RX              "RX non supporté"
-#define TR_OTA_UPDATE_ERROR            "Erreur màj OTA"
 #define TR_DEVICE_RESET                "RAZ Périphérique..."
 #define TR_ALTITUDE                    "Altitude"
 #define TR_SCALE                       "Échelle"

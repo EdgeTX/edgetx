@@ -1179,7 +1179,6 @@
 #define TR_OTA_UPDATE                   "OTA uppdatering..."
 #define TR_MODULE_RESET                 "Module reset..."
 #define TR_UNSUPPORTED_RX               "Rx stöds ej"
-#define TR_OTA_UPDATE_ERROR             "OTA uppdateringsfel"
 #define TR_DEVICE_RESET                 "Device reset..."
 #define TR_ALTITUDE                     "Höjd"
 #define TR_SCALE                        "Skala"

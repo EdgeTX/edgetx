@@ -1168,7 +1168,6 @@
 #define TR_OTA_UPDATE                  "OTA 更新..."
 #define TR_MODULE_RESET                "正在复位模块..."
 #define TR_UNSUPPORTED_RX              "不支持此接收机"
-#define TR_OTA_UPDATE_ERROR            "OTA 更新失败"
 #define TR_DEVICE_RESET                "正在复位设备..."
 #define TR_ALTITUDE                    "高度"
 #define TR_SCALE                       "比例"

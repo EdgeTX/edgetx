@@ -1178,7 +1178,6 @@
 #define TR_OTA_UPDATE                  "تحديث OTA..."
 #define TR_MODULE_RESET                "إعادة تشغيل الموديول..."
 #define TR_UNSUPPORTED_RX              "RX غير مدعوم"
-#define TR_OTA_UPDATE_ERROR            "خطأ بتحديث OTA"
 #define TR_DEVICE_RESET                "إعادة تشغيل الجهاز..."
 #define TR_ALTITUDE                    "الارتفاع"
 #define TR_SCALE                       "المقياس"

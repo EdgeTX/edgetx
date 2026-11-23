@@ -1215,7 +1215,6 @@
 #define TR_OTA_UPDATE                     "OTA 업데이트 중..."
 #define TR_MODULE_RESET                   "모듈 초기화 중..."
 #define TR_UNSUPPORTED_RX                 "지원되지 않는 수신기"
-#define TR_OTA_UPDATE_ERROR               "OTA 업데이트 오류"
 #define TR_DEVICE_RESET                   "장치 초기화 중..."
 #define TR_ALTITUDE                       "고도"
 #define TR_SCALE                          "스케일"

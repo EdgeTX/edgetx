@@ -84,9 +84,9 @@ const char* Pxx2OtaUpdate::doFlashFirmware(const char* filename,
   UINT count;
   const char * result;
 
-  result = nextStep(OTA_UPDATE_START, rxName, 0, nullptr);
-  if (result) {
-    return result;
+  // Receivers that can't update themselves never answer the start frame
+  if (nextStep(OTA_UPDATE_START, rxName, 0, nullptr)) {
+    return STR_UNSUPPORTED_RX;
   }
 
   if (f_open(&file, filename, FA_READ) != FR_OK) {
