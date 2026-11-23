@@ -109,12 +109,7 @@ void onUpdateStateChanged()
   if (reusableBuffer.sdManager.otaUpdateInformation.step == BIND_INFO_REQUEST) {
     OtaUpdateInformation * info = &reusableBuffer.sdManager.otaUpdateInformation;
     POPUP_CONFIRMATION(info->candidateReceiversNames[info->selectedReceiverIndex], onUpdateConfirmation);
-    char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, STR_CURRENT_VERSION);
-    tmp = strAppendUnsigned(tmp, 1 + info->receiverInformation.swVersion.major);
-    *tmp++ = '.';
-    tmp = strAppendUnsigned(tmp, info->receiverInformation.swVersion.minor);
-    *tmp++ = '.';
-    tmp = strAppendUnsigned(tmp, info->receiverInformation.swVersion.revision);
+    char *tmp = getPxx2OtaConfirmInfo(reusableBuffer.sdManager.otaReceiverVersion, *info);
     SET_WARNING_INFO(reusableBuffer.sdManager.otaReceiverVersion, tmp - reusableBuffer.sdManager.otaReceiverVersion, 0);
   }
 }

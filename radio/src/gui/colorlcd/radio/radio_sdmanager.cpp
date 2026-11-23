@@ -125,12 +125,7 @@ class FrskyOtaFlashDialog : public BaseDialog
 
     if (reusableBuffer.sdManager.otaUpdateInformation.step == BIND_INFO_REQUEST) {
       OtaUpdateInformation * info = &reusableBuffer.sdManager.otaUpdateInformation;
-      char *tmp = strAppend(reusableBuffer.sdManager.otaReceiverVersion, STR_CURRENT_VERSION);
-      tmp = strAppendUnsigned(tmp, 1 + info->receiverInformation.swVersion.major);
-      *tmp++ = '.';
-      tmp = strAppendUnsigned(tmp, info->receiverInformation.swVersion.minor);
-      *tmp++ = '.';
-      tmp = strAppendUnsigned(tmp, info->receiverInformation.swVersion.revision);
+      getPxx2OtaConfirmInfo(reusableBuffer.sdManager.otaReceiverVersion, *info);
 
       updateConfirmDialog = new ConfirmDialog(info->candidateReceiversNames[info->selectedReceiverIndex],
                         std::string(reusableBuffer.sdManager.otaReceiverVersion).c_str(),
