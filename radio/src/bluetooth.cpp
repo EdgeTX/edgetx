@@ -555,7 +555,13 @@ void Bluetooth::wakeup()
         sendTrainer();
         wakeupTime = now + 2; /* 20ms */
       }
-      readline(); // to deal with "ERROR"
+      char * line = readline(); // also processes legacy ERROR recovery
+      // The Telemetry peripheral does not initiate its own reconnect.
+      // Return to IDLE so the next client's Connected: message is accepted.
+      if (g_eeGeneral.bluetoothMode == BLUETOOTH_TELEMETRY &&
+          line != nullptr && !strcmp(line, "DisConnected")) {
+        state = BLUETOOTH_STATE_IDLE;
+      }
     }
   }
   else {
