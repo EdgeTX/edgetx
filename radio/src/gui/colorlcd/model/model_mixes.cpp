@@ -79,6 +79,7 @@ class MixLineButton : public InputMixButtonBase
     }
 
     if (line.curve.value != 0) {
+      warning(!isCurveValid(line.curve));
       if (tmp_str[0]) s = strAppend(s, " ");
       getCurveRefString(s, sizeof(tmp_str) - (s - tmp_str), line.curve);
     }

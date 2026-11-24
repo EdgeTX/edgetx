@@ -48,6 +48,12 @@ bool CurveChoice::onLongPress()
   return true;
 }
 
+void CurveChoice::checkEvents()
+{
+  Choice::checkEvents();
+  warning(_getValue() && !isCurveUsed(abs(_getValue()) - 1));
+}
+
 CurveParam::CurveParam(Window* parent, const rect_t& rect, CurveRef* ref,
                        std::function<void(int32_t)> setRefValue, int16_t sourceMin, mixsrc_t source) :
     Window(parent, rect), ref(ref)

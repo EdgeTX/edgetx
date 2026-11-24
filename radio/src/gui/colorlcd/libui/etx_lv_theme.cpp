@@ -262,6 +262,7 @@ EdgeTxStyles::EdgeTxStyles()
   lv_style_init(&outline_color_normal);
   lv_style_init(&outline_color_focus);
   lv_style_init(&outline_color_edit);
+  lv_style_init(&outline_color_warning);
   lv_style_init(&graph_border);
   lv_style_init(&graph_dashed);
   lv_style_init(&graph_line);
@@ -365,6 +366,8 @@ void EdgeTxStyles::applyColors()
                              makeLvColor(COLOR_THEME_FOCUS));
   lv_style_set_outline_color(&outline_color_edit,
                              makeLvColor(COLOR_THEME_EDIT));
+  lv_style_set_outline_color(&outline_color_warning,
+                             makeLvColor(COLOR_THEME_WARNING));
 }
 
 static EdgeTxStyles* mainStyles = nullptr;
@@ -584,12 +587,16 @@ void etx_std_ctrl_colors(lv_obj_t* obj, lv_style_selector_t selector)
 
   etx_obj_add_style(obj, styles->border_color[COLOR_THEME_FOCUS_INDEX],
                     selector | LV_STATE_FOCUSED);
+  etx_obj_add_style(obj, styles->border_color[COLOR_THEME_WARNING_INDEX],
+                    selector | ETX_STATE_WARNING);
 
   etx_bg_color(obj, COLOR_THEME_ACTIVE_INDEX, selector | LV_STATE_CHECKED);
   etx_txt_color(obj, COLOR_THEME_PRIMARY1_INDEX, selector | LV_STATE_CHECKED);
 
   etx_obj_add_style(obj, styles->outline_color_focus,
                     selector | LV_STATE_FOCUSED);
+  etx_obj_add_style(obj, styles->outline_color_warning,
+                    selector | ETX_STATE_WARNING);
 }
 
 void etx_std_settings(lv_obj_t* obj, lv_style_selector_t selector)

@@ -158,6 +158,7 @@ class OutputLineButton : public ListLineButton
                           output->symetrical ? " =" : CHAR_DELTA);
 
     curve->show(output->curve);
+    warning(output->curve && !isCurveUsed(abs(output->curve) - 1));
   }
 
   static LAYOUT_SIZE_SCALED(CH_LINE_H, 32, 50)

@@ -35,6 +35,7 @@ class CurveChoice : public Choice
               mixsrc_t source);
 
   bool onLongPress() override;
+  void checkEvents() override;
 
  protected:
   mixsrc_t source;
