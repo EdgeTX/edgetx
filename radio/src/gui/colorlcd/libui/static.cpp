@@ -198,7 +198,7 @@ void StaticIcon::setIcon(EdgeTxIcon icon)
     auto newMask = getBuiltinIcon(icon);
     setSize(newMask->width, newMask->height);
     lv_canvas_set_buffer(lvobj, (void*)newMask->data, newMask->width, newMask->height,
-                        LV_IMG_CF_ALPHA_8BIT);
+                        LV_IMG_CF_ALPHA_4BIT);
   }
 }
 

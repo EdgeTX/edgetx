@@ -161,7 +161,7 @@ class LayoutFactory
   const char* getId() const { return id; }
   const char* getName() const { return name; }
 
-  const MaskBitmap* getBitmap() const { return bitmap; }
+  const MaskBitmap* getBitmap();
 
   const LayoutOption * getLayoutOptions() const
   {
@@ -200,7 +200,7 @@ class LayoutFactory
   const LayoutOption * options;
   uint8_t zoneCount;
   uint8_t* zoneMap;
-  MaskBitmap * bitmap = nullptr;
+  MaskBitmap* bitmap = nullptr;
 
   static WidgetsContainer* loadLayout(Window* parent, int screenNum);
   static const LayoutFactory* getLayoutFactory(const char* name);

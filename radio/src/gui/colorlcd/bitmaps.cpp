@@ -60,26 +60,15 @@ MaskBitmap* _decompressed_mask(const uint8_t* lz4_compressed)
   // skip 8 bytes header
   lz4_compressed += 8;
 
-  uint32_t pixels = width * height;
+  // Masks are stored as 4-bit alpha, 2 pixels per byte (high nibble first).
+  // Rows are padded with an extra nibble if the width is odd
+  uint32_t pixels = (width + 1) / 2 * height;
   MaskBitmap* raw = (MaskBitmap*)malloc(align32(pixels + 4));
 
   raw->width = width;
   raw->height = height;
 
-  // Masks are stored as 4-bit alpha, 2 pixels per byte (high nibble first).
-  // Decompress into the tail of the buffer, then expand to 8-bit in place:
-  // the write position never overtakes the read position.
-  uint32_t packed = (pixels + 1) / 2;
-  uint8_t* dst = (uint8_t*)&raw->data;
-  const uint8_t* src = dst + (pixels - packed);
-
-  LZ4_decompress_safe((const char*)lz4_compressed, (char*)src, len, packed);
-
-  for (uint32_t i = 0; i < pixels; i += 2) {
-    uint8_t b = *src++;
-    dst[i] = (b >> 4) * 17;
-    if (i + 1 < pixels) dst[i + 1] = (b & 0x0F) * 17;
-  }
+  LZ4_decompress_safe((const char*)lz4_compressed, (char*)&raw->data, len, pixels);
 
   return raw;
 }
@@ -451,17 +440,20 @@ static MaskBitmap* _screen_icon_mask(EdgeTxIcon id)
   LAYOUT_VAL_SCALED(SZ, 30)
   LAYOUT_VAL_SCALED(PAD, 1)
 
-  MaskBitmap* mask = (MaskBitmap*)malloc(align32(SZ * SZ + 4));
+  // Masks are stored as 4-bit alpha, 2 pixels per byte (high nibble first).
+  // Rows are padded with an extra nibble if the width is odd
+  int pixels = (SZ + 1) / 2 * SZ;
+  MaskBitmap* mask = (MaskBitmap*)malloc(align32(pixels + 4));
   if (!mask) return nullptr;
 
   mask->width = SZ;
   mask->height = SZ;
-  memset(mask->data, 0, SZ * SZ);
+  memset(mask->data, 0, pixels);
 
   // Draw straight into the mask: on an alpha canvas LVGL stores the
   // brightness of the drawn colour as the alpha value.
   lv_obj_t* canvas = lv_canvas_create(nullptr);
-  lv_canvas_set_buffer(canvas, mask->data, SZ, SZ, LV_IMG_CF_ALPHA_8BIT);
+  lv_canvas_set_buffer(canvas, mask->data, SZ, SZ, LV_IMG_CF_ALPHA_4BIT);
 
   // Rounded outline, matching the other menu icons
   lv_draw_rect_dsc_t rect;

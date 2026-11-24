@@ -147,7 +147,7 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
     fm_canvas = lv_canvas_create(lvobj);
     fm_buffer = malloc(FM_CANVAS_WIDTH * FM_CANVAS_HEIGHT);
     lv_canvas_set_buffer(fm_canvas, fm_buffer, FM_CANVAS_WIDTH,
-                         FM_CANVAS_HEIGHT, LV_IMG_CF_ALPHA_8BIT);
+                         FM_CANVAS_HEIGHT, LV_IMG_CF_ALPHA_4BIT);
     lv_obj_set_pos(fm_canvas, FM_X, FM_Y);
 
     lv_obj_set_style_img_recolor(fm_canvas, makeLvColor(COLOR_THEME_SECONDARY1), LV_PART_MAIN);

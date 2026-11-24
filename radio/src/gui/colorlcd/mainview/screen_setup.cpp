@@ -63,7 +63,7 @@ class LayoutChoice : public Button
   {
     auto menu = new Menu();
     for (auto layout : LayoutFactory::getRegisteredLayouts()) {
-      menu->addLine(layout->getBitmap(), layout->getName(),
+      menu->addLine(((LayoutFactory*)layout)->getBitmap(), layout->getName(),
                     [=]() { if (setValue) setValue(layout); update(); });
     }
 
@@ -90,12 +90,12 @@ class LayoutChoice : public Button
     auto layout = getValue();
     if (!layout) return;
 
-    const MaskBitmap* bitmap = layout->getBitmap();
+    const MaskBitmap* bitmap = ((LayoutFactory*)layout)->getBitmap();
     if (!bitmap) return;
 
     lv_coord_t w = bitmap->width;
     lv_coord_t h = bitmap->height;
-    lv_canvas_set_buffer(canvas, (void*)&bitmap->data[0], w, h, LV_IMG_CF_ALPHA_8BIT);
+    lv_canvas_set_buffer(canvas, (void*)&bitmap->data[0], w, h, LV_IMG_CF_ALPHA_4BIT);
   }
 };
 

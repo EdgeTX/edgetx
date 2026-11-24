@@ -143,16 +143,15 @@ class ImageEncoder:
         self.write_size(width, height)
         pending = None
         for y in range(height):
-            for x in range(width):
-                value = 0xFF - self.get_pixel(image, x, y)
-                nibble = (value * 15 + 127) // 255
-                if pending is None:
-                    pending = nibble
+            for x in range((width + 1) // 2):
+                value = 0xFF - self.get_pixel(image, x * 2, y)
+                nibble = ((value * 15 + 127) // 255) << 4
+                if (x * 2 + 1) < width:
+                    value = 0xFF - self.get_pixel(image, x * 2 + 1, y)
                 else:
-                    self.encode_byte((pending << 4) | nibble)
-                    pending = None
-        if pending is not None:
-            self.encode_byte(pending << 4)
+                    value = 0
+                nibble = nibble | ((value * 15 + 127) // 255)
+                self.encode_byte(nibble)
         self.encode_end()
 
     def encode_5_6_5(self, image):
