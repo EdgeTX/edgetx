@@ -127,11 +127,19 @@ enum EdgeTxIcon {
   EDGETX_ICONS_COUNT
 };
 
+// Built-in icons, layout bitmaps and slider ticks are 4-bit alpha
+// (LV_IMG_CF_ALPHA_4BIT); to8bitMask() masks are 8-bit.
 struct MaskBitmap {
   uint16_t width;
   uint16_t height;
   uint8_t data[];
 };
+
+constexpr uint32_t mask4BitStride(uint32_t w) { return (w + 1) / 2; }
+constexpr uint32_t mask4BitSize(uint32_t w, uint32_t h)
+{
+  return mask4BitStride(w) * h;
+}
 
 const MaskBitmap* getBuiltinIcon(EdgeTxIcon id);
 

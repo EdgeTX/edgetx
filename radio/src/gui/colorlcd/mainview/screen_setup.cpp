@@ -95,7 +95,7 @@ class LayoutChoice : public Button
 
     lv_coord_t w = bitmap->width;
     lv_coord_t h = bitmap->height;
-    lv_canvas_set_buffer(canvas, (void*)&bitmap->data[0], w, h, LV_IMG_CF_ALPHA_8BIT);
+    lv_canvas_set_buffer(canvas, (void*)&bitmap->data[0], w, h, LV_IMG_CF_ALPHA_4BIT);
   }
 };
 

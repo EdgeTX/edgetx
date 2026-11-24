@@ -40,17 +40,6 @@ mask_icon_tools_stats,30,30,2026-01-13 11:36:16
 mask_icon_tools_storage,30,30,2026-01-13 11:36:16
 mask_icon_ui_themes,30,30,2026-01-13 11:36:16
 mask_icon_ui_topbar_setup,30,30,2026-01-13 11:36:16
-mask_icon_ui_view1,30,30,2026-01-13 11:36:16
-mask_icon_ui_view10,30,30,2026-01-13 11:36:16
-mask_icon_ui_view2,30,30,2026-01-13 11:36:16
-mask_icon_ui_view3,30,30,2026-01-13 11:36:16
-mask_icon_ui_view4,30,30,2026-01-13 11:36:16
-mask_icon_ui_view5,30,30,2026-01-13 11:36:16
-mask_icon_ui_view6,30,30,2026-01-13 11:36:16
-mask_icon_ui_view7,30,30,2026-01-13 11:36:16
-mask_icon_ui_view8,30,30,2026-01-13 11:36:16
-mask_icon_ui_view9,30,30,2026-01-13 11:36:16
-mask_icon_ui_view_add,30,30,2026-01-13 11:36:16
 mask_info_busy,96,96,2026-01-13 13:10:04
 mask_info_error,96,96,2026-01-13 11:36:16
 mask_info_usb_plugged,211,110,2026-01-13 11:36:16
@@ -62,7 +51,6 @@ mask_inline_locked,11,16,2026-01-13 11:36:16
 mask_inline_multiply,17,17,2026-01-13 11:36:16
 mask_inline_replace,17,17,2026-01-13 11:36:16
 mask_menu_edgetx,122,25,2026-01-13 11:36:16
-mask_menu_favs,30,30,2026-01-13 11:36:16
 mask_ui_bg_topbar_left,45,45,2026-01-13 11:36:16
 mask_ui_bg_topbar_right,45,45,2026-01-13 11:36:16
 mask_ui_btn_close,30,30,2026-01-13 11:36:16

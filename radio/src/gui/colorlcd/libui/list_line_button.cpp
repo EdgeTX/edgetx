@@ -145,9 +145,9 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
 
   if (!fm_canvas) {
     fm_canvas = lv_canvas_create(lvobj);
-    fm_buffer = malloc(FM_CANVAS_WIDTH * FM_CANVAS_HEIGHT);
+    fm_buffer = malloc(mask4BitSize(FM_CANVAS_WIDTH, FM_CANVAS_HEIGHT));
     lv_canvas_set_buffer(fm_canvas, fm_buffer, FM_CANVAS_WIDTH,
-                         FM_CANVAS_HEIGHT, LV_IMG_CF_ALPHA_8BIT);
+                         FM_CANVAS_HEIGHT, LV_IMG_CF_ALPHA_4BIT);
     lv_obj_set_pos(fm_canvas, FM_X, FM_Y);
 
     lv_obj_set_style_img_recolor(fm_canvas, makeLvColor(COLOR_THEME_SECONDARY1), LV_PART_MAIN);
@@ -162,9 +162,19 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
   lv_coord_t w = mask->width;
   lv_coord_t h = mask->height;
 
-  coord_t x = 0;
-  lv_canvas_copy_buf(fm_canvas, mask->data, x, 0, w, h);
-  x += (w + PAD_TINY);
+  // lv_canvas_copy_buf() doesn't support 4-bit images
+  uint8_t* dst = (uint8_t*)fm_buffer;
+  const uint8_t* src = mask->data;
+  coord_t srcStride = mask4BitStride(w);
+  coord_t dstStride = mask4BitStride(FM_CANVAS_WIDTH);
+  coord_t copyBytes = min(srcStride, dstStride);
+  for (coord_t y = 0; y < min<coord_t>(h, FM_CANVAS_HEIGHT); y += 1) {
+    memcpy(dst, src, copyBytes);
+    dst += dstStride;
+    src += srcStride;
+  }
+
+  coord_t x = w + PAD_TINY;
 
   lv_draw_label_dsc_t label_dsc;
   lv_draw_label_dsc_init(&label_dsc);

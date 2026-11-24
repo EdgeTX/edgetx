@@ -136,6 +136,23 @@ class ImageEncoder:
                 self.encode_byte(value)
         self.encode_end()
 
+    def encode_4bits_mask(self, image):
+        # 4-bit alpha mask, row-major, 2 pixels per byte (first pixel in high nibble)
+        image = image.convert(mode='L')
+        width, height = image.size
+        self.write_size(width, height)
+        for y in range(height):
+            for x in range((width + 1) // 2):
+                value = 0xFF - self.get_pixel(image, x * 2, y)
+                byte = ((value * 15 + 127) // 255) << 4
+                if (x * 2 + 1) < width:
+                    value = 0xFF - self.get_pixel(image, x * 2 + 1, y)
+                else:
+                    value = 0
+                byte = byte | ((value * 15 + 127) // 255)
+                self.encode_byte(byte)
+        self.encode_end()
+
     def encode_5_6_5(self, image):
         width, height = image.size
         self.write_size(width, height)
@@ -203,6 +220,8 @@ def main():
         encoder.encode_4bits(image)
     elif args.format == "8bits":
         encoder.encode_8bits(image)
+    elif args.format == "4bits-mask":
+        encoder.encode_4bits_mask(image)
     elif args.format == "4/4/4/4":
         encoder.encode_4_4_4_4(image)
     elif args.format == "5/6/5":

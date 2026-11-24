@@ -136,7 +136,7 @@ class MenuBody : public TableField
 
       lv_coord_t w = icon_mask->width;
       lv_coord_t h = icon_mask->height;
-      lv_canvas_set_buffer(canvas, (void*)&icon_mask->data[0], w, h, LV_IMG_CF_ALPHA_8BIT);
+      lv_canvas_set_buffer(canvas, (void*)&icon_mask->data[0], w, h, LV_IMG_CF_ALPHA_4BIT);
     }
 
     auto l = new MenuLine(text, onPress, isChecked, canvas);
