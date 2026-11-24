@@ -827,17 +827,22 @@ static int str_gsub (lua_State *L) {
 #error "lua_number2strx assumes float lua_Number"
 #endif
 
+static char *l_pad (char *p, char c, int n) {
+  while (n-- > 0) *p++ = c;
+  return p;
+}
+
 static int lua_number2strx (lua_State *L, char *buff, int sz,
                             const char *fmt, lua_Number x) {
   int left = 0, zero = 0, alt = 0, plus = 0, space = 0, width = 0, prec = -1;
-  int e, nd, extra = 0, point, len, n = 0, i;
-  uint32_t bits, q, lead;
-  char sign, conv = fmt[strlen(fmt) - 1];
+  int e, nd = 0, extra = 0, point = 0, len, pad, i;
+  uint32_t bits, q, lead = 0;
+  char sign, conv = fmt[strlen(fmt) - 1], *p = buff;
   const char *digits = (conv == 'A') ? "0123456789ABCDEF" : "0123456789abcdef";
+  const char *special = NULL;
   char expbuf[8];
   int ne = 0;
   (void)L;
-#define PUTC(c)	do { if (n < sz - 1) buff[n] = (c); n++; } while (0)
   for (fmt++; *fmt && strchr("-+ #0", *fmt); fmt++) {
     switch (*fmt) {
       case '-': left = 1; break;
@@ -857,63 +862,65 @@ static int lua_number2strx (lua_State *L, char *buff, int sz,
   e = (int)((bits >> 23) & 0xFF);
   q = bits & 0x7FFFFF;
   if (e == 0xFF) {  /* inf or nan, padded with spaces */
-    const char *s = q ? "nan" : "inf";
-    len = 3 + (sign != 0);
-    if (!left) for (i = len; i < width; i++) PUTC(' ');
-    if (sign) PUTC(sign);
-    for (i = 0; i < 3; i++) PUTC(conv == 'A' ? toupper(uchar(s[i])) : s[i]);
-    if (left) for (i = len; i < width; i++) PUTC(' ');
-    buff[n < sz ? n : sz - 1] = '\0';
-    return n;
-  }
-  if (e == 0 && q == 0) {  /* zero */
-    lead = 0;
+    special = q ? "nan" : "inf";
+    zero = 0;
+    len = 3;
   }
   else {
-    if (e == 0) {  /* subnormal: normalize */
-      e = 1;
-      while (!(q & 0x800000)) { q <<= 1; e--; }
+    if (e != 0 || q != 0) {  /* zero stays 0x0p+0 */
+      if (e == 0) {  /* subnormal: normalize */
+        e = 1;
+        while (!(q & 0x800000)) { q <<= 1; e--; }
+      }
+      q = (q | 0x800000) << 1;  /* 1 + 24 fraction bits = 6 hex digits */
+      e -= 127;
     }
-    q = (q | 0x800000) << 1;  /* 1 + 24 fraction bits = 6 hex digits */
-    e -= 127;
-    lead = 1;
+    nd = 6;
+    if (prec >= 0 && prec < 6) {  /* round to 'prec' digits, ties to even */
+      int drop = 4 * (6 - prec);
+      uint32_t rem = q & ((1u << drop) - 1), half = 1u << (drop - 1);
+      q >>= drop;
+      if (rem > half || (rem == half && (q & 1))) q++;
+      nd = prec;
+    }
+    else if (prec > 6) extra = prec - 6;
+    lead = q >> (4 * nd);  /* may be 2 after rounding */
+    q &= (nd ? (1u << (4 * nd)) - 1 : 0);
+    if (prec < 0) {  /* shortest exact: drop trailing zeros */
+      while (nd > 0 && (q & 0xF) == 0) { q >>= 4; nd--; }
+    }
+    i = e < 0 ? -e : e;  /* exponent digits, reversed */
+    do { expbuf[ne++] = (char)('0' + i % 10); i /= 10; } while (i);
+    point = (nd || extra || alt);
+    len = 3 + point + nd + extra + 2 + ne;  /* 0xD[.ddd]p+E */
   }
-  if (lead == 0) e = 0;
-  nd = 6;
-  if (prec >= 0 && prec < 6) {  /* round to 'prec' digits, ties to even */
-    int drop = 4 * (6 - prec);
-    uint32_t rem = q & ((1u << drop) - 1), half = 1u << (drop - 1);
-    q >>= drop;
-    if (rem > half || (rem == half && (q & 1))) q++;
-    nd = prec;
+  len += (sign != 0);
+  pad = width > len ? width - len : 0;
+  if (len + pad >= sz) {  /* does not fit: never with Lua's limits */
+    buff[0] = '\0';
+    return 0;
   }
-  else if (prec > 6) extra = prec - 6;
-  lead = q >> (4 * nd);  /* may be 2 after rounding */
-  q &= (nd ? (1u << (4 * nd)) - 1 : 0);
-  if (prec < 0) {  /* shortest exact: drop trailing zeros */
-    while (nd > 0 && (q & 0xF) == 0) { q >>= 4; nd--; }
+  if (!left && !zero) p = l_pad(p, ' ', pad);
+  if (sign) *p++ = sign;
+  if (special) {
+    for (i = 0; i < 3; i++)
+      *p++ = (conv == 'A') ? (char)toupper(uchar(special[i])) : special[i];
   }
-  /* exponent text, reversed */
-  i = e < 0 ? -e : e;
-  do { expbuf[ne++] = (char)('0' + i % 10); i /= 10; } while (i);
-  point = (nd || extra || alt);
-  len = (sign != 0) + 3 + point + nd + extra + 2 + ne;
-  if (!left && !zero) for (i = len; i < width; i++) PUTC(' ');
-  if (sign) PUTC(sign);
-  PUTC('0');
-  PUTC(conv == 'A' ? 'X' : 'x');
-  if (!left && zero) for (i = len; i < width; i++) PUTC('0');
-  PUTC(digits[lead]);
-  if (point) PUTC(lua_getlocaledecpoint());
-  for (i = nd - 1; i >= 0; i--) PUTC(digits[(q >> (4 * i)) & 0xF]);
-  for (i = 0; i < extra; i++) PUTC('0');
-  PUTC(conv == 'A' ? 'P' : 'p');
-  PUTC(e < 0 ? '-' : '+');
-  while (ne) PUTC(expbuf[--ne]);
-  if (left) for (i = len; i < width; i++) PUTC(' ');
-#undef PUTC
-  buff[n < sz ? n : sz - 1] = '\0';
-  return n;
+  else {
+    *p++ = '0';
+    *p++ = (conv == 'A') ? 'X' : 'x';
+    if (!left) p = l_pad(p, '0', zero ? pad : 0);
+    *p++ = digits[lead];
+    if (point) *p++ = lua_getlocaledecpoint();
+    for (i = nd - 1; i >= 0; i--) *p++ = digits[(q >> (4 * i)) & 0xF];
+    p = l_pad(p, '0', extra);
+    *p++ = (conv == 'A') ? 'P' : 'p';
+    *p++ = e < 0 ? '-' : '+';
+    while (ne > 0) *p++ = expbuf[--ne];
+  }
+  if (left) p = l_pad(p, ' ', pad);
+  *p = '\0';
+  return (int)(p - buff);
 }
 
 #endif				/* } */
