@@ -1,0 +1,127 @@
+---
+name: Simulator UI automation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/simulator_ui_automation.yml'
+      - 'radio/src/targets/simu/automation_*'
+      - 'radio/src/targets/simu/CMakeLists.txt'
+      - 'radio/src/targets/simu/arg_parser.*'
+      - 'radio/src/targets/simu/sdl_simu.cpp'
+      - 'radio/src/tests/simu_automation_*'
+      - 'radio/src/tests/simu_arg_parser.cpp'
+      - 'radio/src/tests/CMakeLists.txt'
+      - 'radio/src/main.cpp'
+      - 'radio/src/gui/colorlcd/LvglWrapper.cpp'
+      - 'tools/ui-harness/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/simulator_ui_automation.yml'
+      - 'radio/src/targets/simu/automation_*'
+      - 'radio/src/targets/simu/CMakeLists.txt'
+      - 'radio/src/targets/simu/arg_parser.*'
+      - 'radio/src/targets/simu/sdl_simu.cpp'
+      - 'radio/src/tests/simu_automation_*'
+      - 'radio/src/tests/simu_arg_parser.cpp'
+      - 'radio/src/tests/CMakeLists.txt'
+      - 'radio/src/main.cpp'
+      - 'radio/src/gui/colorlcd/LvglWrapper.cpp'
+      - 'tools/ui-harness/**'
+
+permissions:
+  contents: read
+
+jobs:
+  host-tests:
+    name: Host tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v7
+
+      - name: Compile Python sources
+        run: python -m compileall -q tools/ui-harness
+
+      - name: Run host and hardening tests
+        run: python -m unittest discover -s tools/ui-harness/tests -p "test_*.py" -v
+
+  native-radio-tests:
+    name: Native radio automation tests (ASan/UBSan)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    container:
+      image: ghcr.io/edgetx/edgetx-dev@sha256:75a076b11bcf82128f25261d4e3149b0b9aac9bd24f49fb74076b3d0e723686c
+    steps:
+      - name: Check out the repo and submodules
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Configure native TX16S tests
+        run: >-
+          cmake --preset simu
+          -B build/ci-automation-radio
+          -DPCB=X10
+          -DPCBREV=TX16S
+          -DCMAKE_BUILD_TYPE=Debug
+          -DTESTS_ASAN=ON
+          '-DCMAKE_C_FLAGS_DEBUG=-fsanitize=undefined -fno-sanitize-recover=undefined'
+          '-DCMAKE_CXX_FLAGS_DEBUG=-fsanitize=undefined -fno-sanitize-recover=undefined'
+
+      - name: Build native radio tests
+        run: cmake --build build/ci-automation-radio --target gtests-radio --parallel 2
+
+      - name: Run native radio tests
+        env:
+          ASAN_OPTIONS: detect_leaks=0:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+        run: >-
+          ./build/ci-automation-radio/gtests-radio
+          --gtest_filter='SimuArgumentParser.*:SimuAutomation*.*'
+
+  wasi-isolation:
+    name: WASI automation isolation
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    container:
+      image: ghcr.io/edgetx/edgetx-dev@sha256:75a076b11bcf82128f25261d4e3149b0b9aac9bd24f49fb74076b3d0e723686c
+    steps:
+      - name: Check out the repo and submodules
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Configure TX16S WASI superbuild
+        run: >-
+          cmake -S .
+          -B build/ci-automation-wasi
+          -DPCB=X10
+          -DPCBREV=TX16S
+          -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build TX16S WASI module
+        run: >-
+          cmake --build build/ci-automation-wasi
+          --target wasi-module
+          --parallel 2
+
+      - name: Assert automation surface is absent
+        shell: bash
+        run: |
+          shopt -s nullglob
+          modules=(build/ci-automation-wasi/wasm/*.wasm)
+          test "${#modules[@]}" -gt 0
+          if grep -aE 'automation-stdio|automation-output|SIMU_AUTOMATION|AutomationStdio' "${modules[@]}"; then
+            echo "automation marker found in WASI output" >&2
+            exit 1
+          fi
