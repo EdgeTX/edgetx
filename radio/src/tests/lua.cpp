@@ -924,10 +924,10 @@ TEST(Lua, floatMathRandom)
     "for i = 1, 1000 do\n"
     "  local r = math.random()\n"
     "  assert(r >= 0.0 and r < 1.0, 'random() out of range: ' .. tostring(r))\n"
-    "  local s = r * 2^15\n"
+    "  local s = r * 2^23\n"
     "  if s ~= math.floor(s) then low = true end\n"
     "end\n"
-    "assert(low, 'random() has no bits below 2^-15')"
+    "assert(low, 'random() never uses its 24th bit')"
   );
 
   // math.random(n) returns integer in [1, n]
@@ -971,9 +971,38 @@ TEST(Lua, floatMathRandom)
     "math.randomseed(42)\n"
     "local a, b = math.random(1, 1000000), math.random()\n"
     "math.randomseed(42)\n"
-    "assert(math.random(1, 1000000) == a and math.random() == b)"
+    "assert(math.random(1, 1000000) == a and math.random() == b)\n"
+    "math.randomseed(43)\n"
+    "assert(math.random(1, 1000000) ~= a or math.random() ~= b, 'seed ignored')"
   );
 }
+
+#if defined(INTERNAL_GPS)
+TEST(Lua, txGpsDegrees)
+{
+  // Nearest float to micro-degrees / 1e6 (bits computed with exact
+  // arithmetic). The first three were 1 ulp off with float multiplication.
+  const struct {
+    int32_t lat, lon;
+    const char* check;
+  } cases[] = {
+    {125589001, 73534732, "g.lat == F(0x42FB2D92) and g.lon == F(0x429311C8)"},
+    {169821315, -180000000, "g.lat == F(0x4329D242) and g.lon == F(0xC3340000)"},
+    {45123457, -122419416, "g.lat == F(0x42347E6C) and g.lon == F(0xC2F4D6BE)"},
+    {90000000, 1, "g.lat == F(0x42B40000) and g.lon == F(0x358637BD)"},
+    {-127845, 0, "g.lat == F(0xBE02E9CD) and g.lon == 0"},
+  };
+  gpsdata_t saved = gpsData;
+  for (const auto& c : cases) {
+    gpsData.latitude = c.lat;
+    gpsData.longitude = c.lon;
+    std::string code = std::string(LUA_F "local g = getTxGPS() assert(") +
+                       c.check + ", string.format('%a %a', g.lat, g.lon))";
+    luaExecStr(code.c_str());
+  }
+  gpsData = saved;
+}
+#endif
 
 TEST(Lua, floatStringPack)
 {
