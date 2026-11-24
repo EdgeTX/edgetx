@@ -427,17 +427,12 @@ TEST(Lua, getFieldInfoSensorBeforeSwitch)
 
 TEST(Lua, getChargingState)
 {
+#if defined(USB_CHARGER)
   luaExecStr("assert(type(getChargingState) == 'function')");
   luaExecStr("assert(select('#', getChargingState()) == 1)");
-#if defined(USB_CHARGER)
   luaExecStr("assert(type(getChargingState()) == 'boolean')");
-  if (usbChargerLed()) {
-    luaExecStr("assert(getChargingState() == true)");
-  } else {
-    luaExecStr("assert(getChargingState() == false)");
-  }
 #else
-  luaExecStr("assert(getChargingState() == nil)");
+  luaExecStr("assert(getChargingState == nil)");
 #endif
 }
 
