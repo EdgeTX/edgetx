@@ -17,6 +17,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "lua.h"
@@ -817,76 +818,101 @@ static int str_gsub (lua_State *L) {
 #if !defined(lua_number2strx)	/* { */
 
 /*
-** Hexadecimal floating-point formatter
+** Hexadecimal floating-point formatter ('%a'/'%A') with C's flags,
+** width and precision, using integer arithmetic only. Output matches
+** C's '%a' of the float promoted to double: "0x1.8p+0", "0x1p-149".
 */
 
-#include <math.h>
-
-#define SIZELENMOD	(sizeof(LUA_NUMBER_FRMLEN)/sizeof(char))
-
-
-/*
-** Number of bits that goes into the first digit. It can be any value
-** between 1 and 4; the following definition tries to align the number
-** to nibble boundaries by making what is left after that first digit a
-** multiple of 4.
-*/
-#define L_NBFD		((l_mathlim(MANT_DIG) - 1) % 4 + 1)
-
-
-/*
-** Add integer part of 'x' to buffer and return new 'x'
-*/
-static lua_Number adddigit (char *buff, int n, lua_Number x) {
-  lua_Number dd = l_mathop(floor)(x);  /* get integer part from 'x' */
-  int d = (int)dd;
-  buff[n] = (d < 10 ? d + '0' : d - 10 + 'a');  /* add to buffer */
-  return x - dd;  /* return what is left */
-}
-
-
-static int num2straux (char *buff, int sz, lua_Number x) {
-  /* if 'inf' or 'NaN', format it like '%g' */
-  if (x != x || x == (lua_Number)HUGE_VAL || x == -(lua_Number)HUGE_VAL)
-    return l_sprintf(buff, sz, LUA_NUMBER_FMT, (LUAI_UACNUMBER)x);
-  else if (x == 0) {  /* can be -0... */
-    /* create "0" or "-0" followed by exponent */
-    return l_sprintf(buff, sz, LUA_NUMBER_FMT "x0p+0", (LUAI_UACNUMBER)x);
-  }
-  else {
-    int e;
-    lua_Number m = l_mathop(frexp)(x, &e);  /* 'x' fraction and exponent */
-    int n = 0;  /* character count */
-    if (m < 0) {  /* is number negative? */
-      buff[n++] = '-';  /* add signal */
-      m = -m;  /* make it positive */
-    }
-    buff[n++] = '0'; buff[n++] = 'x';  /* add "0x" */
-    m = adddigit(buff, n++, m * (1 << L_NBFD));  /* add first digit */
-    e -= L_NBFD;  /* this digit goes before the radix point */
-    if (m > 0) {  /* more digits? */
-      buff[n++] = lua_getlocaledecpoint();  /* add radix point */
-      do {  /* add as many digits as needed */
-        m = adddigit(buff, n++, m * 16);
-      } while (m > 0);
-    }
-    n += l_sprintf(buff + n, sz - n, "p%+d", e);  /* add exponent */
-    lua_assert(n < sz);
-    return n;
-  }
-}
-
+#if LUA_FLOAT_TYPE != LUA_FLOAT_FLOAT
+#error "lua_number2strx assumes float lua_Number"
+#endif
 
 static int lua_number2strx (lua_State *L, char *buff, int sz,
                             const char *fmt, lua_Number x) {
-  int n = num2straux(buff, sz, x);
-  if (fmt[SIZELENMOD] == 'A') {
-    int i;
-    for (i = 0; i < n; i++)
-      buff[i] = toupper(uchar(buff[i]));
+  int left = 0, zero = 0, alt = 0, plus = 0, space = 0, width = 0, prec = -1;
+  int e, nd, extra = 0, point, len, n = 0, i;
+  uint32_t bits, q, lead;
+  char sign, conv = fmt[strlen(fmt) - 1];
+  const char *digits = (conv == 'A') ? "0123456789ABCDEF" : "0123456789abcdef";
+  char expbuf[8];
+  int ne = 0;
+  (void)L;
+#define PUTC(c)	do { if (n < sz - 1) buff[n] = (c); n++; } while (0)
+  for (fmt++; *fmt && strchr("-+ #0", *fmt); fmt++) {
+    switch (*fmt) {
+      case '-': left = 1; break;
+      case '0': zero = 1; break;
+      case '#': alt = 1; break;
+      case '+': plus = 1; break;
+      case ' ': space = 1; break;
+    }
   }
-  else if (fmt[SIZELENMOD] != 'a')
-    return luaL_error(L, "modifiers for format '%%a'/'%%A' not implemented");
+  while (isdigit(uchar(*fmt))) width = width * 10 + (*fmt++ - '0');
+  if (*fmt == '.') {
+    prec = 0;
+    while (isdigit(uchar(*++fmt))) prec = prec * 10 + (*fmt - '0');
+  }
+  memcpy(&bits, &x, sizeof(bits));
+  sign = (bits >> 31) ? '-' : plus ? '+' : space ? ' ' : 0;
+  e = (int)((bits >> 23) & 0xFF);
+  q = bits & 0x7FFFFF;
+  if (e == 0xFF) {  /* inf or nan, padded with spaces */
+    const char *s = q ? "nan" : "inf";
+    len = 3 + (sign != 0);
+    if (!left) for (i = len; i < width; i++) PUTC(' ');
+    if (sign) PUTC(sign);
+    for (i = 0; i < 3; i++) PUTC(conv == 'A' ? toupper(uchar(s[i])) : s[i]);
+    if (left) for (i = len; i < width; i++) PUTC(' ');
+    buff[n < sz ? n : sz - 1] = '\0';
+    return n;
+  }
+  if (e == 0 && q == 0) {  /* zero */
+    lead = 0;
+  }
+  else {
+    if (e == 0) {  /* subnormal: normalize */
+      e = 1;
+      while (!(q & 0x800000)) { q <<= 1; e--; }
+    }
+    q = (q | 0x800000) << 1;  /* 1 + 24 fraction bits = 6 hex digits */
+    e -= 127;
+    lead = 1;
+  }
+  if (lead == 0) e = 0;
+  nd = 6;
+  if (prec >= 0 && prec < 6) {  /* round to 'prec' digits, ties to even */
+    int drop = 4 * (6 - prec);
+    uint32_t rem = q & ((1u << drop) - 1), half = 1u << (drop - 1);
+    q >>= drop;
+    if (rem > half || (rem == half && (q & 1))) q++;
+    nd = prec;
+  }
+  else if (prec > 6) extra = prec - 6;
+  lead = q >> (4 * nd);  /* may be 2 after rounding */
+  q &= (nd ? (1u << (4 * nd)) - 1 : 0);
+  if (prec < 0) {  /* shortest exact: drop trailing zeros */
+    while (nd > 0 && (q & 0xF) == 0) { q >>= 4; nd--; }
+  }
+  /* exponent text, reversed */
+  i = e < 0 ? -e : e;
+  do { expbuf[ne++] = (char)('0' + i % 10); i /= 10; } while (i);
+  point = (nd || extra || alt);
+  len = (sign != 0) + 3 + point + nd + extra + 2 + ne;
+  if (!left && !zero) for (i = len; i < width; i++) PUTC(' ');
+  if (sign) PUTC(sign);
+  PUTC('0');
+  PUTC(conv == 'A' ? 'X' : 'x');
+  if (!left && zero) for (i = len; i < width; i++) PUTC('0');
+  PUTC(digits[lead]);
+  if (point) PUTC(lua_getlocaledecpoint());
+  for (i = nd - 1; i >= 0; i--) PUTC(digits[(q >> (4 * i)) & 0xF]);
+  for (i = 0; i < extra; i++) PUTC('0');
+  PUTC(conv == 'A' ? 'P' : 'p');
+  PUTC(e < 0 ? '-' : '+');
+  while (ne) PUTC(expbuf[--ne]);
+  if (left) for (i = len; i < width; i++) PUTC(' ');
+#undef PUTC
+  buff[n < sz ? n : sz - 1] = '\0';
   return n;
 }
 
