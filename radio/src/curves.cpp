@@ -451,4 +451,15 @@ char *getCurveRefString(char *dest, size_t len, const CurveRef& curve)
 
   return dest;
 }
+
+bool isCurveValid(const CurveRef& curve)
+{
+  SourceNumVal v;
+  v.rawValue = curve.value;
+
+  if (v.value != 0 && curve.type == CURVE_REF_CUSTOM)
+    return isCurveUsed(curve.value - 1);
+
+  return true;
+}
 #endif

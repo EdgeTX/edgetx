@@ -118,7 +118,7 @@ HRSText::HRSText(Window *parent, const rect_t &rect, std::string text, HRSColor 
 
 void HRSText::setColor(HRSColor color)
 {
-  lv_obj_clear_state(lvobj, LV_STATE_USER_1 | LV_STATE_USER_2 | LV_STATE_USER_3 | LV_STATE_USER_4);
+  lv_obj_clear_state(lvobj, LV_STATE_USER_1 | LV_STATE_USER_2 | LV_STATE_USER_3);
   if (color != HRS_COLOR_MUTED)
     lv_obj_add_state(lvobj, color);
 }
@@ -184,7 +184,7 @@ HRSTool::HRSTool() : NavWindow(MainWindow::instance(), {0, 0, LCD_W, LCD_H})
 
 void HRSTool::setColor(lv_obj_t* obj, HRSColor color)
 {
-  lv_obj_clear_state(obj, LV_STATE_USER_1 | LV_STATE_USER_2 | LV_STATE_USER_3 | LV_STATE_USER_4);
+  lv_obj_clear_state(obj, LV_STATE_USER_1 | LV_STATE_USER_2 | LV_STATE_USER_3);
   if (color != HRS_COLOR_MUTED)
     lv_obj_add_state(obj, color);
 }

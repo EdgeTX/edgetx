@@ -31,6 +31,9 @@
 
 class Window;
 
+// Reserved state for warning highlight
+#define ETX_STATE_WARNING    LV_STATE_USER_4
+
 /*********************
  *      Layout
  *********************/
@@ -234,6 +237,7 @@ class EdgeTxStyles
   lv_style_t outline_color_normal;
   lv_style_t outline_color_focus;
   lv_style_t outline_color_edit;
+  lv_style_t outline_color_warning;
   lv_style_t graph_border;
   lv_style_t graph_dashed;
   lv_style_t graph_line;

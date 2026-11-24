@@ -557,6 +557,18 @@ void Window::enable(bool enabled)
   }
 }
 
+void Window::warning(bool state)
+{
+  if (!deleted() && lvobj) {
+    if (lv_obj_has_state(lvobj, ETX_STATE_WARNING) != state) {
+      if (!state)
+        lv_obj_clear_state(lvobj, ETX_STATE_WARNING);
+      else
+        lv_obj_add_state(lvobj, ETX_STATE_WARNING);
+    }
+  }
+}
+
 #if defined(HARDWARE_TOUCH)
 void Window::addBackButton()
 {

@@ -182,6 +182,8 @@ class Window
   virtual void enable(bool enabled = true);
   void disable() { enable(false); }
 
+  void warning(bool state);
+
   void pushLayer(bool hideParent = false);
   void popLayer();
   static Window* topWindow();

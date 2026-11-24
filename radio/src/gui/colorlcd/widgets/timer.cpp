@@ -25,10 +25,9 @@
 #include "edgetx.h"
 #include "static.h"
 
-#define ETX_STATE_WARNING    LV_STATE_USER_1
-#define EXT_NAME_ALIGN_RIGHT LV_STATE_USER_2
-#define ETX_NAME_COLOR_WHITE LV_STATE_USER_3
-#define ETX_SMALL_FONT       LV_STATE_USER_4
+#define EXT_NAME_ALIGN_RIGHT LV_STATE_USER_1
+#define ETX_NAME_COLOR_WHITE LV_STATE_USER_2
+#define ETX_SMALL_FONT       LV_STATE_USER_3
 
 class TimerWidget : public Widget
 {
