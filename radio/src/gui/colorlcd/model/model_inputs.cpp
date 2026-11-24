@@ -146,6 +146,7 @@ class InputLineButton : public InputMixButtonBase
     }
 
     if (line.curve.value != 0) {
+      warning(!isCurveValid(line.curve));
       getCurveRefString(s, maxlen, line.curve);
       int cnt = strnlen(s, maxlen);
       if ((size_t)cnt >= maxlen)

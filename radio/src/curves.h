@@ -46,4 +46,7 @@ int applyCustomCurve(int x, uint8_t idx);
 int applyCurve(int x, CurveRef & curve);
 int applyCurrentCurve(int x);
 
+#if defined(COLORLCD)
 char *getCurveRefString(char *dest, size_t len, const CurveRef& curve);
+bool isCurveValid(const CurveRef& curve);
+#endif
