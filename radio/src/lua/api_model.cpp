@@ -1933,7 +1933,7 @@ of range, or a calculated sensor)
 @notice If a parameter is missing from the value, then that parameter remains
 unchanged. The sensor's last value is cleared.
 
-@status current Introduced in 3.1.0
+@status current Introduced in 3.0.0
 */
 static int luaModelSetSensor(lua_State *L)
 {
@@ -2009,7 +2009,7 @@ Delete a Telemetry Sensor, as on the model's telemetry page
 
 @param sensor (unsigned number) sensor number (use 0 for sensor 1)
 
-@status current Introduced in 3.1.0
+@status current Introduced in 3.0.0
 */
 static int luaModelDeleteSensor(lua_State *L)
 {
