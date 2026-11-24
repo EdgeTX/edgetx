@@ -162,9 +162,18 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
   lv_coord_t w = mask->width;
   lv_coord_t h = mask->height;
 
-  coord_t x = 0;
-  lv_canvas_copy_buf(fm_canvas, mask->data, x, 0, w, h);
-  x += (w + PAD_TINY);
+  // lv_canvas_copy_buf() doesn't support 4-bit images
+  uint8_t* dst = (uint8_t*)fm_buffer;
+  const uint8_t* src = mask->data;
+  coord_t srcStride = (w + 1) / 2;
+  coord_t dstStride = (FM_CANVAS_WIDTH + 1) / 2;
+  for (coord_t y = 0; y < min<coord_t>(h, FM_CANVAS_HEIGHT); y += 1) {
+    memcpy(dst, src, srcStride);
+    dst += dstStride;
+    src += srcStride;
+  }
+
+  coord_t x = w + PAD_TINY;
 
   lv_draw_label_dsc_t label_dsc;
   lv_draw_label_dsc_init(&label_dsc);
