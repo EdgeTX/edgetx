@@ -275,14 +275,33 @@ static int luaGetRtcTime(lua_State * L)
 }
 #endif
 
+// Nearest float to v / 1e6 (micro-degrees to degrees), rounded once,
+// in integer arithmetic only
+static float luaMicroToUnit(int32_t v)
+{
+  uint32_t a = v < 0 ? 0u - (uint32_t)v : (uint32_t)v;
+  if (!a) return 0.0f;
+  int s = __builtin_clz(a) + 31;  // a << s has bit 62 set
+  uint64_t num = (uint64_t)a << s;
+  uint64_t q = num / 1000000u;  // >= 2^42
+  int sh = 40 - __builtin_clzll(q);  // keep 24 bits
+  uint32_t m = (uint32_t)(q >> sh);
+  uint64_t rem = q & ((1ull << sh) - 1), half = 1ull << (sh - 1);
+  if (rem > half || (rem == half && (q * 1000000u != num || (m & 1)))) m++;
+  if (m >> 24) { m >>= 1; sh++; }
+  union { uint32_t u; float f; } r;
+  r.u = (uint32_t)(v < 0) << 31 | (uint32_t)(sh - s + 150) << 23 | (m & 0x7FFFFFu);
+  return r.f;
+}
+
 static void luaPushLatLon(lua_State* L, TelemetrySensor & telemetrySensor, TelemetryItem & telemetryItem)
-/* result is lua table containing members ["lat"] and ["lon"] as lua_Number (doubles) in decimal degrees */
+/* result is lua table containing members ["lat"] and ["lon"] as lua_Number in decimal degrees */
 {
   lua_createtable(L, 0, 5);
-  lua_pushtablenumber(L, "lat", telemetryItem.gps.latitude * 0.000001f);
-  lua_pushtablenumber(L, "pilot-lat", telemetryItem.pilotLatitude * 0.000001f);
-  lua_pushtablenumber(L, "lon", telemetryItem.gps.longitude * 0.000001f);
-  lua_pushtablenumber(L, "pilot-lon", telemetryItem.pilotLongitude * 0.000001f);
+  lua_pushtablenumber(L, "lat", luaMicroToUnit(telemetryItem.gps.latitude));
+  lua_pushtablenumber(L, "pilot-lat", luaMicroToUnit(telemetryItem.pilotLatitude));
+  lua_pushtablenumber(L, "lon", luaMicroToUnit(telemetryItem.gps.longitude));
+  lua_pushtablenumber(L, "pilot-lon", luaMicroToUnit(telemetryItem.pilotLongitude));
 
   int8_t delay = telemetryItem.getDelaySinceLastValue();
   if (delay >= 0)
@@ -1472,8 +1491,8 @@ static int luaGetTxGPS(lua_State * L)
 {
 #if defined(INTERNAL_GPS)
   lua_createtable(L, 0, 8);
-  lua_pushtablenumber(L, "lat", gpsData.latitude * 0.000001f);
-  lua_pushtablenumber(L, "lon", gpsData.longitude * 0.000001f);
+  lua_pushtablenumber(L, "lat", luaMicroToUnit(gpsData.latitude));
+  lua_pushtablenumber(L, "lon", luaMicroToUnit(gpsData.longitude));
   lua_pushtableinteger(L, "numsat", gpsData.numSat);
   lua_pushtableinteger(L, "alt", gpsData.altitude);
   lua_pushtableinteger(L, "speed", gpsData.speed);
