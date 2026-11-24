@@ -305,7 +305,7 @@ void ModelCell::setDefaultName()
   int idx = -1;
   if (strncmp(modelFilename, "model", 5) == 0)
     idx = (int)strtol(modelFilename + 5, nullptr, 10);
-  if (idx > 0)
+  if (idx > 0 && idx < 1000000)  // fits modelName
     sprintf(modelName, "MODEL%02d" MODEL_FILENAME_SUFFIX, idx);
   else
     strAppend(modelName, modelFilename, LEN_MODEL_NAME);
