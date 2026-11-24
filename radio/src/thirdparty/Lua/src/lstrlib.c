@@ -894,11 +894,13 @@ static int lua_number2strx (lua_State *L, char *buff, int sz,
 
 
 /*
-** Maximum size of each formatted item. Unlike standard Lua which is
-** based on the maximum size is produceD by format('%.99f', -maxfloat),
-** NodeMCU just limits this to 128.
+** Maximum size of each formatted item. This maximum size is produced
+** by format('%.99f', -maxfloat), and is equal to 99 + 3 ('-', '.',
+** and '\0') + number of decimal digits to represent maxfloat (which
+** is maximum exponent + 1). (99+3+1 then rounded to 120 for "extra
+** expenses", turning it into 120 + MAX_10_EXP.)
 */
-#define MAX_ITEM        128
+#define MAX_ITEM	(120 + l_mathlim(MAX_10_EXP))
 
 
 /* valid flags in a format specification */

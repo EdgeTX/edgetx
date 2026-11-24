@@ -83,15 +83,6 @@
 #define PRINTF_INTEGER_BUFFER_SIZE    32
 #endif /* PRINTF_INTEGER_BUFFER_SIZE */
 
-/*
- * size of the fixed (on-stack) buffer for printing individual decimal numbers.
- * this must be big enough to hold one converted floating-point value including
- * padded zeros.
- */
-#ifndef PRINTF_DECIMAL_BUFFER_SIZE
-#define PRINTF_DECIMAL_BUFFER_SIZE    32
-#endif
-
 /* Support for the decimal notation floating point conversion specifiers (%f, %F) */
 #ifndef PRINTF_SUPPORT_DECIMAL_SPECIFIERS
 #define PRINTF_SUPPORT_DECIMAL_SPECIFIERS 1
@@ -118,34 +109,11 @@
 #endif
 
 /*
- * According to the C languages standard, printf() and related functions must be able to print any
- * integral number in floating-point notation, regardless of length, when using the %f specifier -
- * possibly hundreds of characters, potentially overflowing your buffers. In this implementation,
- * all values beyond this threshold are switched to exponential notation.
- */
-#ifndef PRINTF_MAX_INTEGRAL_DIGITS_FOR_DECIMAL
-#define PRINTF_MAX_INTEGRAL_DIGITS_FOR_DECIMAL 9
-#endif
-
-/*
  * Support for the long long integral types (with the ll, z and t length modifiers for specifiers
  * %d,%i,%o,%x,%X,%u, and with the %p specifier).
  */
 #ifndef PRINTF_SUPPORT_LONG_LONG
 #define PRINTF_SUPPORT_LONG_LONG 1
-#endif
-
-/*
- * The number of terms in a Taylor series expansion of log_10(x) to
- * use for approximation - including the power-zero term (i.e. the
- * value at the point of expansion).
- */
-#ifndef PRINTF_LOG10_TAYLOR_TERMS
-#define PRINTF_LOG10_TAYLOR_TERMS 4
-#endif
-
-#if PRINTF_LOG10_TAYLOR_TERMS <= 1
-#error "At least one non-constant Taylor expansion is necessary for the log10() calculation"
 #endif
 
 /*
@@ -162,9 +130,6 @@
 /*===========================================================================*/
 
 /* The following will convert the number-of-digits into an exponential-notation literal */
-#define PRINTF_CONCATENATE(s1, s2) s1##s2
-#define PRINTF_EXPAND_THEN_CONCATENATE(s1, s2) PRINTF_CONCATENATE(s1, s2)
-#define PRINTF_FLOAT_NOTATION_THRESHOLD ((floating_point_t) PRINTF_EXPAND_THEN_CONCATENATE(1e,PRINTF_MAX_INTEGRAL_DIGITS_FOR_DECIMAL))
 
 /* internal flag definitions */
 #define FLAGS_ZEROPAD     (1U <<  0U)
@@ -263,73 +228,20 @@ typedef unsigned int printf_size_t;
    * trailing '\0'.
    */
 
-#define SIGN(_negative,_x) ( (_negative) ? -(_x) : (_x))
 
 #if (PRINTF_SUPPORT_DECIMAL_SPECIFIERS || PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS)
 #include <float.h>
-#if FLT_RADIX != 2
-#error "Non-binary-radix floating-point types are unsupported."
-#endif /* PRINTF_SUPPORT_DECIMAL_SPECIFIERS || PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS */
-
-/**
- * This library supports taking float-point arguments up to and including
- * long double's; but - it currently does _not_ support internal
- * representation and manipulation of values as long doubles; the options
- * are either single-precision `float` or double-precision `double`.
- */
-#if PRINTF_USE_DOUBLE_INTERNALLY
-typedef double floating_point_t;
-#define FP_TYPE_MANT_DIG DBL_MANT_DIG
-#else
-typedef float  floating_point_t;
-#define FP_TYPE_MANT_DIG FLT_MANT_DIG
+#if PRINTF_USE_DOUBLE_INTERNALLY || FLT_RADIX != 2 || FLT_MANT_DIG != 24
+#error "Float formatting here supports IEEE-754 binary32 only"
 #endif
 
-#define NUM_DECIMAL_DIGITS_IN_INT64_T 18
-
-#if FP_TYPE_MANT_DIG == 24
-
-typedef uint32_t printf_fp_uint_t;
-#define FP_TYPE_SIZE_IN_BITS   32
-#define FP_TYPE_EXPONENT_MASK  0xFFU
-#define FP_TYPE_BASE_EXPONENT  127
-#define FP_TYPE_MAX            FLT_MAX
-#define FP_TYPE_MAX_10_EXP     FLT_MAX_10_EXP
-#define FP_TYPE_MAX_SUBNORMAL_EXPONENT_OF_10 -38
-#define FP_TYPE_MAX_SUBNORMAL_POWER_OF_10 1e-38f
-#define PRINTF_MAX_PRECOMPUTED_POWER_OF_10  10
-
-#elif FP_TYPE_MANT_DIG == 53
-
-typedef uint64_t printf_fp_uint_t;
-#define FP_TYPE_SIZE_IN_BITS   64
-#define FP_TYPE_EXPONENT_MASK  0x7FFU
-#define FP_TYPE_BASE_EXPONENT  1023
-#define FP_TYPE_MAX            DBL_MAX
-#define FP_TYPE_MAX_10_EXP     DBL_MAX_10_EXP
-#define FP_TYPE_MAX_10_EXP     DBL_MAX_10_EXP
-#define FP_TYPE_MAX_SUBNORMAL_EXPONENT_OF_10 -308
-#define FP_TYPE_MAX_SUBNORMAL_POWER_OF_10 1e-308
-#define PRINTF_MAX_PRECOMPUTED_POWER_OF_10  NUM_DECIMAL_DIGITS_IN_INT64_T - 1
-
-
-#else /* FP_TYPE_MANT_DIG is neither 24 nor 53 */
-#error "Unsupported floating point type configuration"
-#endif /* FP_TYPE_MANT_DIG */
-#define FP_TYPE_STORED_MANTISSA_BITS (FP_TYPE_MANT_DIG - 1)
+typedef float floating_point_t;
 
 typedef union {
-  printf_fp_uint_t  U;
-  floating_point_t  F;
+  uint32_t U;
+  floating_point_t F;
 } floating_point_with_bit_access;
 
-/*
- * This is unnecessary in C99, since compound initializers can be used,
- * but:
- * 1. Some compilers are finicky about this;
- * 2. Some people may want to convert this to C89;
- * 3. If you try to use it as C++, only C++20 supports compound literals
- */
 static inline floating_point_with_bit_access get_bit_access(floating_point_t x)
 {
   floating_point_with_bit_access dwba;
@@ -339,50 +251,7 @@ static inline floating_point_with_bit_access get_bit_access(floating_point_t x)
 
 static inline int get_sign_bit(floating_point_t x)
 {
-  /* The sign is stored in the highest bit */
-  return (int) (get_bit_access(x).U >> (FP_TYPE_SIZE_IN_BITS - 1));
-}
-
-static inline int get_exp2(floating_point_with_bit_access x)
-{
-  /*
-   * The exponent in an IEEE-754 floating-point number occupies a contiguous
-   * sequence of bits (e.g. 52..62 for 64-bit doubles), but with a non-trivial representation: An
-   * unsigned offset from some negative value (with the extremal offset values reserved for
-   * special use).
-   */
-  return (int)((x.U >> FP_TYPE_STORED_MANTISSA_BITS ) & FP_TYPE_EXPONENT_MASK) - FP_TYPE_BASE_EXPONENT;
-}
-#define PRINTF_ABS(_x) SIGN( (_x) < 0, (_x) )
-
-/*
- * Truncating conversion to int_fast64_t. With single-precision floats, a plain
- * (int_fast64_t) cast compiles to libgcc's __aeabi_f2lz, which is implemented
- * with double-precision arithmetic and drags ~1.3 KB of soft-double code into
- * the image. Do it on the IEEE-754 bits instead. Out-of-range values (where
- * the cast would be undefined) saturate.
- */
-static inline int_fast64_t fp_to_int64(floating_point_t x)
-{
-#if PRINTF_USE_DOUBLE_INTERNALLY
-  return (int_fast64_t) x;
-#else
-  floating_point_with_bit_access dwba = get_bit_access(x);
-  int exp2 = get_exp2(dwba);
-  uint_fast64_t mag;
-  if (exp2 < 0) {
-    return 0;
-  }
-  if (exp2 > 62) {
-    mag = (uint_fast64_t) INT64_MAX;
-  }
-  else {
-    mag = (dwba.U & ((1U << FP_TYPE_STORED_MANTISSA_BITS) - 1U)) | (1U << FP_TYPE_STORED_MANTISSA_BITS);
-    mag = (exp2 >= FP_TYPE_STORED_MANTISSA_BITS) ? (mag << (exp2 - FP_TYPE_STORED_MANTISSA_BITS))
-                                                 : (mag >> (FP_TYPE_STORED_MANTISSA_BITS - exp2));
-  }
-  return get_sign_bit(x) ? -(int_fast64_t) mag : (int_fast64_t) mag;
-#endif
+  return (int)(get_bit_access(x).U >> 31);
 }
 
 #endif /* (PRINTF_SUPPORT_DECIMAL_SPECIFIERS || PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS) */
@@ -674,558 +543,197 @@ static void print_integer(output_gadget_t* output, printf_unsigned_value_t value
 #if (PRINTF_SUPPORT_DECIMAL_SPECIFIERS || PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS)
 
 /*
- * Stores a fixed-precision representation of a floating-point number relative
- * to a fixed precision (which cannot be determined by examining this structure)
+ * Exact float formatting: digits come from integer arithmetic on the float's
+ * bits (x = m * 2^e), so output is correctly rounded (ties to even) for any
+ * precision. No floating-point arithmetic.
  */
-struct floating_point_components {
-  int_fast64_t integral;
-  int_fast64_t fractional;
-    /*
-     * ... truncation of the actual fractional part of the floating_point_t value, scaled
-     * by the precision value
-     */
-  bool is_negative;
-};
 
-static const floating_point_t powers_of_10[PRINTF_MAX_PRECOMPUTED_POWER_OF_10 + 1] = {
-  1e00, 1e01, 1e02, 1e03, 1e04, 1e05, 1e06, 1e07, 1e08, 1e09, 1e10
-#if PRINTF_MAX_PRECOMPUTED_POWER_OF_10 > 10
-  , 1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17
-#endif
-};
+/* Max significant digits in a float's exact decimal value ((2^24-1) * 2^-149) */
+#define FP_MAX_DIGITS 112
+#define FP_LIMBS 5
 
-/*
- * Note: This value does not mean that all floating-point values printed with the
- * library will be correct up to this precision; it is just an upper-bound for
- * avoiding buffer overruns and such
- */
-#define PRINTF_MAX_SUPPORTED_PRECISION (NUM_DECIMAL_DIGITS_IN_INT64_T - 1)
-
-
-/*
- * Break up a non-negative, finite, floating-point number into two integral
- * parts of its decimal representation: The number up to the decimal point,
- * and the number appearing after that point - whose number of digits
- * corresponds to the precision value. Example: The components of 12.621
- * are 12 and 621 for precision 3, or 12 and 62 for precision 2.
- */
-static struct floating_point_components get_components(floating_point_t number, printf_size_t precision)
+/* w = w * 10 + 0; returns the carry out (0..9) */
+static uint32_t fp_mul10(uint32_t* w)
 {
-  struct floating_point_components number_;
-  floating_point_t abs_number;
-  floating_point_t scaled_remainder;
-  floating_point_t remainder;
-  const floating_point_t one_half = (floating_point_t) 0.5;
-  number_.is_negative = get_sign_bit(number);
-  abs_number = SIGN(number_.is_negative, number);
-  number_.integral = fp_to_int64(abs_number);
-  scaled_remainder = (abs_number - (floating_point_t) number_.integral) * powers_of_10[precision];
-  number_.fractional = fp_to_int64(scaled_remainder); /* for precision == 0U, this will be 0 */
-
-  remainder = scaled_remainder - (floating_point_t) number_.fractional;
-
-  if ((remainder > one_half) ||
-      /* Banker's rounding, i.e. round half to even: 1.5 -> 2, but 2.5 -> 2 */
-      ((remainder == one_half) && (number_.fractional & 1U))) {
-    ++number_.fractional;
+  uint32_t carry = 0;
+  for (int i = 0; i < FP_LIMBS; i++) {
+    uint64_t t = (uint64_t)w[i] * 10U + carry;
+    w[i] = (uint32_t)t;
+    carry = (uint32_t)(t >> 32);
   }
-  if ((floating_point_t) number_.fractional >= powers_of_10[precision]) {
-    number_.fractional = 0;
-    ++number_.integral;
-  }
-
-  if (precision == 0U) {
-    remainder = abs_number - (floating_point_t) number_.integral;
-    if ((remainder == one_half) && (number_.integral & 1U)) {
-      /*
-       * Banker's rounding, i.e. round half to even:
-       * 1.5 -> 2, but 2.5 -> 2
-       */
-      ++number_.integral;
-    }
-  }
-  return number_;
+  return carry;
 }
 
-#if PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS
-struct scaling_factor {
-  floating_point_t raw_factor;
-  bool multiply; /* if true, need to multiply by raw_factor; otherwise need to divide by it */
-};
-
-static floating_point_t apply_scaling(floating_point_t num, struct scaling_factor normalization)
+/* w /= 10; returns the remainder. 16-bit steps avoid 64-bit division. */
+static uint32_t fp_div10(uint32_t* w)
 {
-  return normalization.multiply ? num * normalization.raw_factor : num / normalization.raw_factor;
+  uint32_t r = 0;
+  for (int i = FP_LIMBS - 1; i >= 0; i--) {
+    uint32_t hi = (r << 16) | (w[i] >> 16);
+    uint32_t lo = ((hi % 10U) << 16) | (w[i] & 0xFFFFU);
+    w[i] = ((hi / 10U) << 16) | (lo / 10U);
+    r = lo % 10U;
+  }
+  return r;
 }
 
-static floating_point_t unapply_scaling(floating_point_t normalized, struct scaling_factor normalization)
+static bool fp_is_zero(const uint32_t* w)
 {
-#ifdef __GNUC__
-/* accounting for a static analysis bug in GCC 6.x and earlier */
-#pragma GCC diagnostic push
-#if !defined(__has_warning)
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#elif __has_warning("-Wmaybe-uninitialized")
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-#endif
-  return normalization.multiply ? normalized / normalization.raw_factor : normalized * normalization.raw_factor;
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
+  for (int i = 0; i < FP_LIMBS; i++) {
+    if (w[i]) return false;
+  }
+  return true;
 }
 
-static struct scaling_factor update_normalization(struct scaling_factor sf, floating_point_t extra_multiplicative_factor)
+/* w = v << s (s may be negative: bits shifted out are dropped) */
+static void fp_set_shifted(uint32_t* w, uint32_t v, int s)
 {
-  struct scaling_factor result;
-  if (sf.multiply) {
-    result.multiply = true;
-    result.raw_factor = sf.raw_factor * extra_multiplicative_factor;
+  for (int i = 0; i < FP_LIMBS; i++) w[i] = 0;
+  if (s < 0) {
+    w[0] = s > -32 ? v >> -s : 0;
+    return;
   }
-  else {
-    int factor_exp2 = get_exp2(get_bit_access(sf.raw_factor));
-    int extra_factor_exp2 = get_exp2(get_bit_access(extra_multiplicative_factor));
-
-    /* Divide the larger-exponent raw raw_factor by the smaller */
-    if (PRINTF_ABS(factor_exp2) > PRINTF_ABS(extra_factor_exp2)) {
-      result.multiply = false;
-      result.raw_factor = sf.raw_factor / extra_multiplicative_factor;
-    }
-    else {
-      result.multiply = true;
-      result.raw_factor = extra_multiplicative_factor / sf.raw_factor;
-    }
-  }
-  return result;
-}
-
-static struct floating_point_components get_normalized_components(bool negative, printf_size_t precision, floating_point_t non_normalized, struct scaling_factor normalization, int floored_exp10)
-{
-  struct floating_point_components components;
-  floating_point_t scaled;
-  bool close_to_representation_extremum;
-  floating_point_t remainder;
-  floating_point_t prec_power_of_10;
-  struct scaling_factor account_for_precision;
-  floating_point_t scaled_remainder;
-  const floating_point_t rounding_threshold = 0.5;
-
-  components.is_negative = negative;
-  scaled = apply_scaling(non_normalized, normalization);
-
-  close_to_representation_extremum = ( (-floored_exp10 + (int) precision) >= FP_TYPE_MAX_10_EXP - 1 );
-  if (close_to_representation_extremum) {
-    /*
-     * We can't have a normalization factor which also accounts for the precision, i.e. moves
-     * some decimal digits into the mantissa, since it's unrepresentable, or nearly unrepresentable.
-     * So, we'll give up early on getting extra precision...
-     */
-    return get_components(SIGN(negative, scaled), precision);
-  }
-  components.integral = fp_to_int64(scaled);
-  remainder = non_normalized - unapply_scaling((floating_point_t) components.integral, normalization);
-  prec_power_of_10 = powers_of_10[precision];
-  account_for_precision = update_normalization(normalization, prec_power_of_10);
-  scaled_remainder = apply_scaling(remainder, account_for_precision);
-
-  components.fractional = fp_to_int64(scaled_remainder); /* when precision == 0, the assigned value should be 0 */
-  scaled_remainder -= (floating_point_t) components.fractional; /* when precision == 0, this will not change scaled_remainder */
-
-  components.fractional += (scaled_remainder >= rounding_threshold);
-  if (scaled_remainder == rounding_threshold) {
-    /* banker's rounding: Round towards the even number (making the mean error 0) */
-    components.fractional &= ~((int_fast64_t) 0x1);
-  }
-  /*
-   * handle rollover, e.g. the case of 0.99 with precision 1 becoming (0,100),
-   * and must then be corrected into (1, 0).
-   * Note: for precision = 0, this will "translate" the rounding effect from
-   * the fractional part to the integral part where it should actually be
-   * felt (as prec_power_of_10 is 1)
-   */
-  if ((floating_point_t) components.fractional >= prec_power_of_10) {
-    components.fractional = 0;
-    ++components.integral;
-  }
-  return components;
-}
-#endif /* PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS */
-
-static void print_broken_up_decimal(
-  struct floating_point_components number_, output_gadget_t* output, printf_size_t precision,
-  printf_size_t width, printf_flags_t flags, char *buf, printf_size_t len)
-{
-  if (precision != 0U) {
-    /* do fractional part, as an unsigned number */
-
-    printf_size_t count = precision;
-
-    /* %g/%G mandates we skip the trailing 0 digits... */
-    if ((flags & FLAGS_ADAPT_EXP) && !(flags & FLAGS_HASH) && (number_.fractional > 0)) {
-      while(true) {
-        int_fast64_t digit = number_.fractional % 10U;
-        if (digit != 0) {
-          break;
-        }
-        --count;
-        number_.fractional /= 10U;
-
-      }
-      /*
-       * ... and even the decimal point if there are no
-       * non-zero fractional part digits (see below)
-       */
-    }
-
-    if (number_.fractional > 0 || !(flags & FLAGS_ADAPT_EXP) || (flags & FLAGS_HASH) ) {
-      while (len < PRINTF_DECIMAL_BUFFER_SIZE) {
-        --count;
-        buf[len++] = (char)('0' + number_.fractional % 10U);
-        if (!(number_.fractional /= 10U)) {
-          break;
-        }
-      }
-      /* add extra 0s */
-      while ((len < PRINTF_DECIMAL_BUFFER_SIZE) && (count > 0U)) {
-        buf[len++] = '0';
-        --count;
-      }
-      if (len < PRINTF_DECIMAL_BUFFER_SIZE) {
-        buf[len++] = '.';
-      }
-    }
-  }
-  else {
-    if ((flags & FLAGS_HASH) && (len < PRINTF_DECIMAL_BUFFER_SIZE)) {
-      buf[len++] = '.';
-    }
-  }
-
-  /*
-   * Write the integer part of the number (it comes after the fractional
-   * since the character order is reversed)
-   */
-  while (len < PRINTF_DECIMAL_BUFFER_SIZE) {
-    buf[len++] = (char)('0' + (number_.integral % 10));
-    if (!(number_.integral /= 10)) {
-      break;
-    }
-  }
-
-  /* pad leading zeros */
-  if (!(flags & FLAGS_LEFT) && (flags & FLAGS_ZEROPAD)) {
-    if (width && (number_.is_negative || (flags & (FLAGS_PLUS | FLAGS_SPACE)))) {
-      width--;
-    }
-    while ((len < width) && (len < PRINTF_DECIMAL_BUFFER_SIZE)) {
-      buf[len++] = '0';
-    }
-  }
-
-  if (len < PRINTF_DECIMAL_BUFFER_SIZE) {
-    if (number_.is_negative) {
-      buf[len++] = '-';
-    }
-    else if (flags & FLAGS_PLUS) {
-      buf[len++] = '+';  /* ignore the space if the '+' exists */
-    }
-    else if (flags & FLAGS_SPACE) {
-      buf[len++] = ' ';
-    }
-  }
-
-  out_rev_(output, buf, len, width, flags);
-}
-
-/* internal ftoa for fixed decimal floating point */
-static void print_decimal_number(output_gadget_t* output, floating_point_t number, printf_size_t precision, printf_size_t width, printf_flags_t flags, char* buf, printf_size_t len)
-{
-  struct floating_point_components value_ = get_components(number, precision);
-  print_broken_up_decimal(value_, output, precision, width, flags, buf, len);
-}
-
-#if PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS
-
-/*
- * A floor function - but one which only works for numbers whose
- * floor value is representable by an int.
- */
-static int bastardized_floor(floating_point_t x)
-{
-  int n;
-  if (x >= 0) { return (int) x; }
-  n = (int) x;
-  return ( ((floating_point_t) n) == x ) ? n : n-1;
+  w[s >> 5] = v << (s & 31);
+  if ((s & 31) && (s >> 5) + 1 < FP_LIMBS) w[(s >> 5) + 1] = v >> (32 - (s & 31));
 }
 
 /*
- * Computes the base-10 logarithm of the input number - which must be an actual
- * positive number (not infinity or NaN, nor a sub-normal)
+ * Exact decimal digits of |x| (finite): |x| = d[0].d[1]d[2]... * 10^exp10,
+ * no trailing zeros. Returns the digit count (0 for zero, with exp10 = 0).
  */
-static floating_point_t log10_of_positive(floating_point_t positive_number)
+static int fp_exact_digits(floating_point_t x, char* d, int* exp10)
 {
-  /*
-   * The implementation follows David Gay (https://www.ampl.com/netlib/fp/dtoa.c).
-   *
-   * Since log_10 ( M * 2^x ) = log_10(M) + x , we can separate the components of
-   * our input number, and need only solve log_10(M) for M between 1 and 2 (as
-   * the base-2 mantissa is always 1-point-something). In that limited range, a
-   * Taylor series expansion of log10(x) should serve us well enough; and we'll
-   * take the mid-point, 1.5, as the point of expansion.
-   */
+  uint32_t bits = get_bit_access(x).U;
+  uint32_t m = bits & 0x7FFFFFU;
+  int e = (int)((bits >> 23) & 0xFFU);
+  uint32_t w[FP_LIMBS];
+  int n = 0;
 
-  floating_point_with_bit_access dwba = get_bit_access(positive_number);
-  /* based on the algorithm by David Gay (https://www.ampl.com/netlib/fp/dtoa.c) */
-  int exp2 = get_exp2(dwba);
-  floating_point_t z;
-  /* drop the exponent, so dwba.F comes into the range [1,2) */
-  dwba.U = (dwba.U & (((printf_fp_uint_t) (1) << FP_TYPE_STORED_MANTISSA_BITS) - 1U)) |
-           ((printf_fp_uint_t) FP_TYPE_BASE_EXPONENT << FP_TYPE_STORED_MANTISSA_BITS);
-  z = (dwba.F - (floating_point_t) 1.5);
-  return (
-    /* Taylor expansion around 1.5: */
-              (floating_point_t) 0.1760912590556812420 /* Expansion term 0: ln(1.5)            / ln(10) */
-    + z     * (floating_point_t) 0.2895296546021678851 /* Expansion term 1: (M - 1.5)   * 2/3  / ln(10) */
-#if PRINTF_LOG10_TAYLOR_TERMS > 2
-    - z*z   * (floating_point_t) 0.0965098848673892950 /* Expansion term 2: (M - 1.5)^2 * 2/9  / ln(10) */
-#if PRINTF_LOG10_TAYLOR_TERMS > 3
-    + z*z*z * (floating_point_t) 0.0428932821632841311 /* Expansion term 2: (M - 1.5)^3 * 8/81 / ln(10) */
-#endif
-#endif
-    /* exact log_2 of the exponent x, with logarithm base change */
-    + (floating_point_t) exp2 * (floating_point_t) 0.30102999566398119521 /* = exp2 * log_10(2) = exp2 * ln(2)/ln(10) */
-  );
-}
+  if (e) m |= 0x800000U;
+  else e = 1;
+  e -= 150;  /* |x| = m * 2^e */
+  *exp10 = 0;
+  if (!m) return 0;
 
-
-static floating_point_t pow10_of_int(int floored_exp10)
-{
-  floating_point_with_bit_access dwba;
-  int exp2;
-  floating_point_t z;
-  floating_point_t z2;
-
-  /* A crude hack for avoiding undesired behavior with barely-normal or slightly-subnormal values. */
-  if (floored_exp10 == FP_TYPE_MAX_SUBNORMAL_EXPONENT_OF_10) {
-    return FP_TYPE_MAX_SUBNORMAL_POWER_OF_10;
+  /* integer part, digits generated in reverse */
+  fp_set_shifted(w, m, e);
+  while (!fp_is_zero(w)) d[n++] = (char)('0' + fp_div10(w));
+  for (int i = 0; i < n / 2; i++) {
+    char c = d[i];
+    d[i] = d[n - 1 - i];
+    d[n - 1 - i] = c;
   }
-  /* Compute 10^(floored_exp10) but (try to) make sure that doesn't overflow */
-  exp2 = bastardized_floor(floored_exp10 * (floating_point_t) 3.321928094887362 + (floating_point_t) 0.5);
-  z  = floored_exp10 * (floating_point_t) 2.302585092994046 - exp2 * (floating_point_t) 0.6931471805599453;
-  z2 = z * z;
-  dwba.U = ((printf_fp_uint_t)(exp2) + FP_TYPE_BASE_EXPONENT) << FP_TYPE_STORED_MANTISSA_BITS;
-  /*
-   * compute exp(z) using continued fractions,
-   * see https://en.wikipedia.org/wiki/Exponential_function#Continued_fractions_for_ex
-   */
-  dwba.F *= 1 + 2 * z / (2 - z + (z2 / (6 + (z2 / (10 + z2 / 14)))));
-  return dwba.F;
-}
+  *exp10 = n - 1;
 
-static void print_exponential_number(output_gadget_t* output, floating_point_t number, printf_size_t precision, printf_size_t width, printf_flags_t flags, char* buf, printf_size_t len)
-{
-  const bool negative = get_sign_bit(number);
-  /* This number will decrease gradually (by factors of 10) as we "extract" the exponent out of it */
-  floating_point_t abs_number =  SIGN(negative, number);
-
-  int floored_exp10;
-  bool abs_exp10_covered_by_powers_table;
-  struct scaling_factor normalization;
-  struct floating_point_components decimal_part_components;
-  int original_floored_exp10;
-  bool fall_back_to_decimal_only_mode;
-  printf_size_t exp10_part_width;
-  printf_size_t decimal_part_width;
-  printf_size_t printed_exponential_start_pos;
-
-
-  /* Determine the decimal exponent */
-  if (abs_number == (floating_point_t) 0.0) {
-    /* TODO: This is a special-case for 0.0 (and -0.0); but proper handling is required for denormals more generally. */
-    floored_exp10 = 0; /* ... and no need to set a normalization factor or check the powers table */
-  }
-  else  {
-    floating_point_t exp10 = log10_of_positive(abs_number);
-    floating_point_t p10;
-    floored_exp10 = bastardized_floor(exp10);
-    p10 = pow10_of_int(floored_exp10);
-    /* correct for rounding errors */
-    if (abs_number < p10) {
-      floored_exp10--;
-      p10 /= 10;
-    }
-    abs_exp10_covered_by_powers_table = PRINTF_ABS(floored_exp10) < PRINTF_MAX_PRECOMPUTED_POWER_OF_10;
-    normalization.raw_factor = abs_exp10_covered_by_powers_table ? powers_of_10[PRINTF_ABS(floored_exp10)] : p10;
-  }
-
-  if (flags & FLAGS_ADAPT_EXP) {
-    /*
-     * Note: For now, still assuming we _don't_ fall-back to "%f" mode; we can't decide
-     * that until we've established the exact exponent.
-     */
-
-    /*
-     * In "%g" mode, "precision" is the number of _significant digits_; we must
-     * "translate" that  to an actual number of decimal digits.
-     */
-    precision = (precision > 1) ? (precision - 1U) : 0U;
-    flags |= FLAGS_PRECISION;   /* make sure print_broken_up_decimal respects our choice */
-  }
-
-  /*
-   * We now begin accounting for the widths of the two parts of our printed field:
-   * the decimal part after decimal exponent extraction, and the base-10 exponent part.
-   * For both of these, the value of 0 has a special meaning, but not the same one:
-   * a 0 exponent-part width means "don't print the exponent"; a 0 decimal-part width
-   * means "use as many characters as necessary".
-   */
-
-#ifdef __GNUC__
-/* accounting for a static analysis bug in GCC 6.x and earlier */
-#pragma GCC diagnostic push
-#if !defined(__has_warning)
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#elif __has_warning("-Wmaybe-uninitialized")
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-#endif
-  normalization.multiply = (floored_exp10 < 0 && abs_exp10_covered_by_powers_table);
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
-  decimal_part_components =
-    (floored_exp10 == 0) ?
-    get_components(SIGN(negative, abs_number), precision) :
-    get_normalized_components(negative, precision, abs_number, normalization, floored_exp10);
-
-  /*
-   * Account for roll-over, e.g. rounding from 9.99 to 100.0 - which effects
-   * the exponent and may require additional tweaking of the parts
-   * (and saving the floored_exp10 in case we'll need to undo the roll-over).
-   */
-  original_floored_exp10 = floored_exp10;
-  if (decimal_part_components.integral >= 10) {
-    floored_exp10++;
-    decimal_part_components.integral = 1;
-    decimal_part_components.fractional = 0;
-  }
-
-  /*
-   * Should we want to fall-back to "%f" mode, and only print the decimal part?
-   * (and remember we have decreased "precision" by 1
-   */
-  fall_back_to_decimal_only_mode = (flags & FLAGS_ADAPT_EXP) && (floored_exp10 >= -4) && (floored_exp10 < (int) precision + 1);
-
-  if (fall_back_to_decimal_only_mode) {
-    precision = ((int) precision > floored_exp10) ? (unsigned) ((int) precision - floored_exp10) : 0U;
-    /* Redo some work :-) */
-    floored_exp10 = original_floored_exp10;
-    decimal_part_components = get_components(SIGN(negative, abs_number), precision);
-    if ((flags & FLAGS_ADAPT_EXP) && floored_exp10 >= -1 && decimal_part_components.integral == powers_of_10[floored_exp10 + 1]) {
-      floored_exp10++; /* Not strictly necessary, since floored_exp10 is no longer really used */
-      if (precision > 0U) { precision--; }
-      /* ... and it should already be the case that decimal_part_components.fractional == 0 */
-    }
-    /* TODO: What about rollover strictly within the fractional part? */
-  }
-
-  /*
-   * the floored_exp10 format is "E%+03d" and largest possible floored_exp10 value for a 64-bit double
-   * is "307" (for 2^1023), so we set aside 4-5 characters overall
-   */
-  exp10_part_width = fall_back_to_decimal_only_mode ? 0U : (PRINTF_ABS(floored_exp10) < 100) ? 4U : 5U;
-
-  decimal_part_width =
-    ((flags & FLAGS_LEFT) && exp10_part_width) ?
-      /*
-       * We're padding on the right, so the width constraint is the exponent part's
-       * problem, not the decimal part's, so we'll use as many characters as we need:
-       */
-      0U :
-      /*
-       * We're padding on the left; so the width constraint is the decimal part's
-       * problem. Well, can both the decimal part and the exponent part fit within our overall width?
-       */
-      ((width > exp10_part_width) ?
-        /*
-         * Yes, so we limit our decimal part's width.
-         * (Note this is trivially valid even if we've fallen back to "%f" mode)
-         */
-        width - exp10_part_width :
-        /*
-         * No; we just give up on any restriction on the decimal part and use as many
-         * characters as we need
-         */
-        0U);
-
-  printed_exponential_start_pos = output->pos;
-  print_broken_up_decimal(decimal_part_components, output, precision, decimal_part_width, flags, buf, len);
-
-  if (! fall_back_to_decimal_only_mode) {
-    putchar_via_gadget(output, (flags & FLAGS_UPPERCASE) ? 'E' : 'e');
-    print_integer(output,
-                  ABS_FOR_PRINTING(floored_exp10),
-                  floored_exp10 < 0, 10, 0, exp10_part_width - 1,
-                FLAGS_ZEROPAD | FLAGS_PLUS);
-    if (flags & FLAGS_LEFT) {
-      /* We need to right-pad with spaces to meet the width requirement */
-      while (output->pos - printed_exponential_start_pos < width) {
-        putchar_via_gadget(output, ' ');
-      }
+  /* fraction, as w / 2^160 */
+  if (e < 0) {
+    int s = 160 + e;  /* -e <= 149 fraction bits */
+    fp_set_shifted(w, -e < 24 ? m & ((1U << -e) - 1U) : m, s);
+    while (!fp_is_zero(w)) {
+      char c = (char)('0' + fp_mul10(w));
+      if (n == 0 && c == '0') --*exp10;
+      else d[n++] = c;
     }
   }
+
+  while (n > 0 && d[n - 1] == '0') n--;
+  return n;
 }
-#endif  /* PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS */
+
+/* Keep 'keep' digits of d[0..n), rounding ties to even. May bump exp10. */
+static int fp_round(char* d, int n, int* exp10, int keep)
+{
+  if (keep >= n) return n;
+  if (keep < 0) return 0;
+  bool up = d[keep] > '5' ||
+            (d[keep] == '5' && (n > keep + 1 || (keep > 0 && (d[keep - 1] & 1))));
+  n = keep;
+  if (up) {
+    while (n > 0 && d[n - 1] == '9') n--;
+    if (n == 0) {
+      d[n++] = '1';
+      ++*exp10;
+    } else {
+      d[n - 1]++;
+    }
+  }
+  while (n > 0 && d[n - 1] == '0') n--;
+  return n;
+}
+
+static void fp_pad(output_gadget_t* output, char c, int count)
+{
+  while (count-- > 0) putchar_via_gadget(output, c);
+}
 
 static void print_floating_point(output_gadget_t* output, floating_point_t value, printf_size_t precision, printf_size_t width, printf_flags_t flags, bool prefer_exponential)
 {
-  char buf[PRINTF_DECIMAL_BUFFER_SIZE];
-  printf_size_t len = 0U;
+  char d[FP_MAX_DIGITS];
+  const char upper = (flags & FLAGS_UPPERCASE) ? 'A' - 'a' : 0;
+  const char sign = get_sign_bit(value) ? '-' : (flags & FLAGS_PLUS) ? '+' : (flags & FLAGS_SPACE) ? ' ' : 0;
+  int pad = (int)width - (sign != 0);
+  int n, x, frac, body, i;
+  bool exp_style = prefer_exponential;
 
-  /* test for special values */
-  if (value != value) {
-    out_rev_(output, "nan", 3, width, flags);
-    return;
-  }
-  if (value < -FP_TYPE_MAX) {
-    out_rev_(output, "fni-", 4, width, flags);
-    return;
-  }
-  if (value > FP_TYPE_MAX) {
-    out_rev_(output, (flags & FLAGS_PLUS) ? "fni+" : "fni", (flags & FLAGS_PLUS) ? 4U : 3U, width, flags);
-    return;
-  }
-
-  if (!prefer_exponential &&
-      ((value > PRINTF_FLOAT_NOTATION_THRESHOLD) || (value < -PRINTF_FLOAT_NOTATION_THRESHOLD))) {
-    /*
-     * The required behavior of standard printf is to print _every_ integral-part digit -- which could mean
-     * printing hundreds of characters, overflowing any fixed internal buffer and necessitating a more complicated
-     * implementation.
-     */
-#if PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS
-    print_exponential_number(output, value, precision, width, flags, buf, len);
-#endif
+  if ((get_bit_access(value).U & 0x7F800000U) == 0x7F800000U) {  /* nan or inf */
+    const char* s = (get_bit_access(value).U & 0x7FFFFFU) ? "nan" : "inf";
+    pad -= 3;
+    if (!(flags & FLAGS_LEFT)) fp_pad(output, ' ', pad);
+    if (sign) putchar_via_gadget(output, sign);
+    for (i = 0; i < 3; i++) putchar_via_gadget(output, (char)(s[i] + upper));
+    if (flags & FLAGS_LEFT) fp_pad(output, ' ', pad);
     return;
   }
 
-  /* set default precision, if not set explicitly */
-  if (!(flags & FLAGS_PRECISION)) {
-    precision = PRINTF_DEFAULT_FLOAT_PRECISION;
+  if (!(flags & FLAGS_PRECISION)) precision = PRINTF_DEFAULT_FLOAT_PRECISION;
+  if (precision > 0x3FFFFFFFU) precision = 0x3FFFFFFFU;  /* int-safe */
+  n = fp_exact_digits(value, d, &x);
+
+  if (flags & FLAGS_ADAPT_EXP) {  /* %g */
+    int p = precision ? (int)precision : 1;
+    n = fp_round(d, n, &x, p);
+    exp_style = !(x < p && x >= -4);
+    frac = exp_style ? p - 1 : p - 1 - x;
+    if (!(flags & FLAGS_HASH)) {
+      int need = exp_style ? n - 1 : n - 1 - x;
+      frac = need > 0 ? need : 0;
+    }
+  } else {
+    frac = (int)precision;
+    n = fp_round(d, n, &x, exp_style ? frac + 1 : x + 1 + frac);
+  }
+  if (n == 0) x = exp_style ? 0 : -1;  /* rounded or exact zero */
+
+  /* layout length, without sign */
+  body = (frac || (flags & FLAGS_HASH)) ? frac + 1 : 0;
+  if (exp_style) body += 4;  /* e+XX: |x| <= 45 for floats */
+  body += exp_style ? 1 : (x >= 0 ? x + 1 : 1);
+  pad -= body;
+
+  if (!(flags & (FLAGS_LEFT | FLAGS_ZEROPAD))) fp_pad(output, ' ', pad);
+  if (sign) putchar_via_gadget(output, sign);
+  if ((flags & (FLAGS_LEFT | FLAGS_ZEROPAD)) == FLAGS_ZEROPAD) fp_pad(output, '0', pad);
+
+  /* digit at index i has weight 10^(x - i), or 10^-i in exp style */
+  {
+    int first = exp_style ? 0 : (x >= 0 ? 0 : x);
+    int point = exp_style ? 0 : x;  /* index of the units digit */
+    int last = point + frac;
+    for (i = first; i <= last; i++) {
+      putchar_via_gadget(output, (i >= 0 && i < n) ? d[i] : '0');
+      if (i == point && (frac || (flags & FLAGS_HASH))) putchar_via_gadget(output, '.');
+    }
   }
 
-  /* limit precision so that our integer holding the fractional part does not overflow */
-  while ((len < PRINTF_DECIMAL_BUFFER_SIZE) && (precision > PRINTF_MAX_SUPPORTED_PRECISION)) {
-    buf[len++] = '0'; /* This respects the precision in terms of result length only */
-    precision--;
+  if (exp_style) {
+    int ex = x < 0 ? -x : x;
+    putchar_via_gadget(output, (char)('e' + upper));
+    putchar_via_gadget(output, x < 0 ? '-' : '+');
+    putchar_via_gadget(output, (char)('0' + ex / 10));
+    putchar_via_gadget(output, (char)('0' + ex % 10));
   }
 
-#if PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS
-  if (prefer_exponential)
-    print_exponential_number(output, value, precision, width, flags, buf, len);
-  else
-#endif
-    print_decimal_number(output, value, precision, width, flags, buf, len);
+  if (flags & FLAGS_LEFT) fp_pad(output, ' ', pad);
 }
 
 #endif  /* (PRINTF_SUPPORT_DECIMAL_SPECIFIERS || PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS) */
