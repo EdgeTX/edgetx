@@ -232,6 +232,7 @@ const MaskBitmap* LayoutFactory::getBitmap() const
   if (!bitmap) {
     uint32_t size = mask4BitSize(BM_W, BM_H);
     bitmap = (MaskBitmap*)malloc(align32(size + sizeof(MaskBitmap)));
+    if (!bitmap) return nullptr;
     bitmap->width = BM_W;
     bitmap->height = BM_H;
     memset((uint8_t*)bitmap->data, 0, size);

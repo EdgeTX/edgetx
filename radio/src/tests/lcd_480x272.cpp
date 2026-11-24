@@ -311,7 +311,7 @@ TEST(Lcd_colorlcd, masks)
       (MaskBitmap*)malloc(sizeof(MaskBitmap) + mask4->width * mask4->height);
   mask->width = mask4->width;
   mask->height = mask4->height;
-  int stride = (mask4->width + 1) / 2;
+  int stride = mask4BitStride(mask4->width);
   for (int y = 0; y < mask4->height; y += 1) {
     for (int x = 0; x < mask4->width; x += 1) {
       uint8_t b = mask4->data[y * stride + x / 2];

@@ -26,8 +26,6 @@
 #include "window.h"
 #include <vector>
 
-class MaskBitmap;
-
 class SliderIcon : public Window
 {
  public:

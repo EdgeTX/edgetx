@@ -144,13 +144,13 @@ class ImageEncoder:
         for y in range(height):
             for x in range((width + 1) // 2):
                 value = 0xFF - self.get_pixel(image, x * 2, y)
-                nibble = ((value * 15 + 127) // 255) << 4
+                byte = ((value * 15 + 127) // 255) << 4
                 if (x * 2 + 1) < width:
                     value = 0xFF - self.get_pixel(image, x * 2 + 1, y)
                 else:
                     value = 0
-                nibble = nibble | ((value * 15 + 127) // 255)
-                self.encode_byte(nibble)
+                byte = byte | ((value * 15 + 127) // 255)
+                self.encode_byte(byte)
         self.encode_end()
 
     def encode_5_6_5(self, image):

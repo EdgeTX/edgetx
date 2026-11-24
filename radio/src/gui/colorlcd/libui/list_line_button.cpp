@@ -165,10 +165,11 @@ void InputMixButtonBase::setFlightModes(uint16_t modes)
   // lv_canvas_copy_buf() doesn't support 4-bit images
   uint8_t* dst = (uint8_t*)fm_buffer;
   const uint8_t* src = mask->data;
-  coord_t srcStride = (w + 1) / 2;
-  coord_t dstStride = (FM_CANVAS_WIDTH + 1) / 2;
+  coord_t srcStride = mask4BitStride(w);
+  coord_t dstStride = mask4BitStride(FM_CANVAS_WIDTH);
+  coord_t copyBytes = min(srcStride, dstStride);
   for (coord_t y = 0; y < min<coord_t>(h, FM_CANVAS_HEIGHT); y += 1) {
-    memcpy(dst, src, srcStride);
+    memcpy(dst, src, copyBytes);
     dst += dstStride;
     src += srcStride;
   }
