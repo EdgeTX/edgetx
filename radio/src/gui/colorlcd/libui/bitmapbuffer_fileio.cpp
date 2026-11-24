@@ -53,6 +53,8 @@ void *stb_realloc(void *ptr, unsigned int oldsz, unsigned int newsz)
 }
 #endif  // #if defined(TRACE_STB_MALLOC)
 
+// Keep these warnings off for stb_image only
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 // stbi__f2f() adds a double 0.5 to float constants (folded at compile time)
@@ -66,6 +68,7 @@ void *stb_realloc(void *ptr, unsigned int oldsz, unsigned int newsz)
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_NO_THREAD_LOCALS
 #include "stb/stb_image.h"
+#pragma GCC diagnostic pop
 
 // fill 'data' with 'size' bytes.  return number of bytes actually read
 int stbc_read(void *user, char *data, int size)
