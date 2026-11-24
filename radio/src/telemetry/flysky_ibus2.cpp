@@ -584,9 +584,17 @@ void flySkyIbus2SetDefault(int index, uint16_t id, uint8_t subId, uint8_t instan
   storageDirty(EE_MODEL);
 }
 
+// a - b without int32 overflow. Converts through int32 halves, avoiding
+// libgcc's soft-float int64 conversion; exact for |a - b| < 2^25.
+static float udegDiff(int32_t a, int32_t b)
+{
+  int64_t d = (int64_t)a - b;
+  return (float)(int32_t)(d / 2) * 2 + (float)(int32_t)(d % 2);
+}
+
 // Haversine distance in cm between two positions given in micro-degrees.
 // Differences are taken in integer first so that float precision is not
-// lost on short distances (|lat| <= 90e6, |lng| <= 180e6: no overflow).
+// lost on short distances.
 static float GetDistance(int32_t lat1, int32_t lng1, int32_t lat2, int32_t lng2)
 {
   constexpr float UDEG_TO_RAD = (float)M_PI / 180e6f;
@@ -594,8 +602,8 @@ static float GetDistance(int32_t lat1, int32_t lng1, int32_t lat2, int32_t lng2)
   float radLat1 = (float)lat1 * UDEG_TO_RAD;
   float radLat2 = (float)lat2 * UDEG_TO_RAD;
 
-  float sa = sinf((float)(lat1 - lat2) * UDEG_TO_RAD / 2);
-  float sb = sinf((float)(lng1 - lng2) * UDEG_TO_RAD / 2);
+  float sa = sinf(udegDiff(lat1, lat2) * UDEG_TO_RAD / 2);
+  float sb = sinf(udegDiff(lng1, lng2) * UDEG_TO_RAD / 2);
 
   float s = 2.0f * asinf(sqrtf(sa * sa + cosf(radLat1) * cosf(radLat2) * sb * sb));
 
