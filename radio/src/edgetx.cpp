@@ -154,6 +154,8 @@ void checkValidMCU(void)
   #define TARGET_IDCODE   0x463
 #elif defined(STM32H750xx) || defined(STM32H747xx) || defined(STM32H743xx)
   #define TARGET_IDCODE   0x450
+#elif defined(STM32H5)
+  #define TARGET_IDCODE   0x484   // STM32H562/H563/H573
 #elif defined(STM32H7RS)
   #define TARGET_IDCODE   0x485
 #else
