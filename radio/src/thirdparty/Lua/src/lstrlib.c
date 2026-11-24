@@ -17,6 +17,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "lua.h"
@@ -817,88 +818,122 @@ static int str_gsub (lua_State *L) {
 #if !defined(lua_number2strx)	/* { */
 
 /*
-** Hexadecimal floating-point formatter
+** Hexadecimal floating-point formatter ('%a'/'%A') with C's flags,
+** width and precision, using integer arithmetic only. Output matches
+** C's '%a' of the float promoted to double: "0x1.8p+0", "0x1p-149".
 */
 
-#include <math.h>
+#if LUA_FLOAT_TYPE != LUA_FLOAT_FLOAT
+#error "lua_number2strx assumes float lua_Number"
+#endif
 
-#define SIZELENMOD	(sizeof(LUA_NUMBER_FRMLEN)/sizeof(char))
-
-
-/*
-** Number of bits that goes into the first digit. It can be any value
-** between 1 and 4; the following definition tries to align the number
-** to nibble boundaries by making what is left after that first digit a
-** multiple of 4.
-*/
-#define L_NBFD		((l_mathlim(MANT_DIG) - 1) % 4 + 1)
-
-
-/*
-** Add integer part of 'x' to buffer and return new 'x'
-*/
-static lua_Number adddigit (char *buff, int n, lua_Number x) {
-  lua_Number dd = l_mathop(floor)(x);  /* get integer part from 'x' */
-  int d = (int)dd;
-  buff[n] = (d < 10 ? d + '0' : d - 10 + 'a');  /* add to buffer */
-  return x - dd;  /* return what is left */
+static char *l_pad (char *p, char c, int n) {
+  while (n-- > 0) *p++ = c;
+  return p;
 }
-
-
-static int num2straux (char *buff, int sz, lua_Number x) {
-  /* if 'inf' or 'NaN', format it like '%g' */
-  if (x != x || x == (lua_Number)HUGE_VAL || x == -(lua_Number)HUGE_VAL)
-    return l_sprintf(buff, sz, LUA_NUMBER_FMT, (LUAI_UACNUMBER)x);
-  else if (x == 0) {  /* can be -0... */
-    /* create "0" or "-0" followed by exponent */
-    return l_sprintf(buff, sz, LUA_NUMBER_FMT "x0p+0", (LUAI_UACNUMBER)x);
-  }
-  else {
-    int e;
-    lua_Number m = l_mathop(frexp)(x, &e);  /* 'x' fraction and exponent */
-    int n = 0;  /* character count */
-    if (m < 0) {  /* is number negative? */
-      buff[n++] = '-';  /* add signal */
-      m = -m;  /* make it positive */
-    }
-    buff[n++] = '0'; buff[n++] = 'x';  /* add "0x" */
-    m = adddigit(buff, n++, m * (1 << L_NBFD));  /* add first digit */
-    e -= L_NBFD;  /* this digit goes before the radix point */
-    if (m > 0) {  /* more digits? */
-      buff[n++] = lua_getlocaledecpoint();  /* add radix point */
-      do {  /* add as many digits as needed */
-        m = adddigit(buff, n++, m * 16);
-      } while (m > 0);
-    }
-    n += l_sprintf(buff + n, sz - n, "p%+d", e);  /* add exponent */
-    lua_assert(n < sz);
-    return n;
-  }
-}
-
 
 static int lua_number2strx (lua_State *L, char *buff, int sz,
                             const char *fmt, lua_Number x) {
-  int n = num2straux(buff, sz, x);
-  if (fmt[SIZELENMOD] == 'A') {
-    int i;
-    for (i = 0; i < n; i++)
-      buff[i] = toupper(uchar(buff[i]));
+  int left = 0, zero = 0, alt = 0, plus = 0, space = 0, width = 0, prec = -1;
+  int e, nd = 0, extra = 0, point = 0, len, pad, i;
+  uint32_t bits, q, lead = 0;
+  char sign, conv = fmt[strlen(fmt) - 1], *p = buff;
+  const char *digits = (conv == 'A') ? "0123456789ABCDEF" : "0123456789abcdef";
+  const char *special = NULL;
+  char expbuf[8];
+  int ne = 0;
+  (void)L;
+  for (fmt++; *fmt && strchr("-+ #0", *fmt); fmt++) {
+    switch (*fmt) {
+      case '-': left = 1; break;
+      case '0': zero = 1; break;
+      case '#': alt = 1; break;
+      case '+': plus = 1; break;
+      case ' ': space = 1; break;
+    }
   }
-  else if (fmt[SIZELENMOD] != 'a')
-    return luaL_error(L, "modifiers for format '%%a'/'%%A' not implemented");
-  return n;
+  while (isdigit(uchar(*fmt))) width = width * 10 + (*fmt++ - '0');
+  if (*fmt == '.') {
+    prec = 0;
+    while (isdigit(uchar(*++fmt))) prec = prec * 10 + (*fmt - '0');
+  }
+  memcpy(&bits, &x, sizeof(bits));
+  sign = (bits >> 31) ? '-' : plus ? '+' : space ? ' ' : 0;
+  e = (int)((bits >> 23) & 0xFF);
+  q = bits & 0x7FFFFF;
+  if (e == 0xFF) {  /* inf or nan, padded with spaces */
+    special = q ? "nan" : "inf";
+    zero = 0;
+    len = 3;
+  }
+  else {
+    if (e != 0 || q != 0) {  /* zero stays 0x0p+0 */
+      if (e == 0) {  /* subnormal: normalize */
+        e = 1;
+        while (!(q & 0x800000)) { q <<= 1; e--; }
+      }
+      q = (q | 0x800000) << 1;  /* 1 + 24 fraction bits = 6 hex digits */
+      e -= 127;
+    }
+    nd = 6;
+    if (prec >= 0 && prec < 6) {  /* round to 'prec' digits, ties to even */
+      int drop = 4 * (6 - prec);
+      uint32_t rem = q & ((1u << drop) - 1), half = 1u << (drop - 1);
+      q >>= drop;
+      if (rem > half || (rem == half && (q & 1))) q++;
+      nd = prec;
+    }
+    else if (prec > 6) extra = prec - 6;
+    lead = q >> (4 * nd);  /* may be 2 after rounding */
+    q &= (nd ? (1u << (4 * nd)) - 1 : 0);
+    if (prec < 0) {  /* shortest exact: drop trailing zeros */
+      while (nd > 0 && (q & 0xF) == 0) { q >>= 4; nd--; }
+    }
+    i = e < 0 ? -e : e;  /* exponent digits, reversed */
+    do { expbuf[ne++] = (char)('0' + i % 10); i /= 10; } while (i);
+    point = (nd || extra || alt);
+    len = 3 + point + nd + extra + 2 + ne;  /* 0xD[.ddd]p+E */
+  }
+  len += (sign != 0);
+  pad = width > len ? width - len : 0;
+  if (len + pad >= sz) {  /* does not fit: never with Lua's limits */
+    buff[0] = '\0';
+    return 0;
+  }
+  if (!left && !zero) p = l_pad(p, ' ', pad);
+  if (sign) *p++ = sign;
+  if (special) {
+    for (i = 0; i < 3; i++)
+      *p++ = (conv == 'A') ? (char)toupper(uchar(special[i])) : special[i];
+  }
+  else {
+    *p++ = '0';
+    *p++ = (conv == 'A') ? 'X' : 'x';
+    if (!left) p = l_pad(p, '0', zero ? pad : 0);
+    *p++ = digits[lead];
+    if (point) *p++ = lua_getlocaledecpoint();
+    for (i = nd - 1; i >= 0; i--) *p++ = digits[(q >> (4 * i)) & 0xF];
+    p = l_pad(p, '0', extra);
+    *p++ = (conv == 'A') ? 'P' : 'p';
+    *p++ = e < 0 ? '-' : '+';
+    while (ne > 0) *p++ = expbuf[--ne];
+  }
+  if (left) p = l_pad(p, ' ', pad);
+  *p = '\0';
+  return (int)(p - buff);
 }
 
 #endif				/* } */
 
 
 /*
-** Maximum size of each formatted item. Unlike standard Lua which is
-** based on the maximum size is produceD by format('%.99f', -maxfloat),
-** NodeMCU just limits this to 128.
+** Maximum size of each formatted item. This maximum size is produced
+** by format('%.99f', -maxfloat), and is equal to 99 + 3 ('-', '.',
+** and '\0') + number of decimal digits to represent maxfloat (which
+** is maximum exponent + 1). (99+3+1 then rounded to 120 for "extra
+** expenses", turning it into 120 + MAX_10_EXP.)
 */
-#define MAX_ITEM        128
+#define MAX_ITEM	(120 + l_mathlim(MAX_10_EXP))
 
 
 /* valid flags in a format specification */

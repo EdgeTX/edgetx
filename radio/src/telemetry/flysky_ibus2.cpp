@@ -584,37 +584,36 @@ void flySkyIbus2SetDefault(int index, uint16_t id, uint8_t subId, uint8_t instan
   storageDirty(EE_MODEL);
 }
 
-double deg2rad(double deg) {
-  return deg * M_PI / 180.0;
+// a - b without int32 overflow. Converts through int32 halves, avoiding
+// libgcc's soft-float int64 conversion; exact for |a - b| < 2^25.
+static float udegDiff(int32_t a, int32_t b)
+{
+  int64_t d = (int64_t)a - b;
+  return (float)(int32_t)(d / 2) * 2 + (float)(int32_t)(d % 2);
 }
 
-static double GetDistance(double lat1, double lng1, double lat2, double lng2)
+// Haversine distance in cm between two positions given in micro-degrees.
+// Differences are taken in integer first so that float precision is not
+// lost on short distances.
+static float GetDistance(int32_t lat1, int32_t lng1, int32_t lat2, int32_t lng2)
 {
-  lat1 =lat1/1000000; lng1= lng1/1000000;
-  lat2 =lat2/1000000; lng2= lng2/1000000;
+  constexpr float UDEG_TO_RAD = (float)M_PI / 180e6f;
 
-  double radLat1 = deg2rad(lat1);
-  double radLat2 = deg2rad(lat2);
+  float radLat1 = (float)lat1 * UDEG_TO_RAD;
+  float radLat2 = (float)lat2 * UDEG_TO_RAD;
 
-  double a = radLat1 - radLat2;
-  double b = deg2rad(lng1) - deg2rad(lng2);
+  float sa = sinf(udegDiff(lat1, lat2) * UDEG_TO_RAD / 2);
+  float sb = sinf(udegDiff(lng1, lng2) * UDEG_TO_RAD / 2);
 
-  float s = 2.0f * asin(sqrt(pow(sin(a/2),2)
-                    + cos(radLat1)*cos(radLat2)*pow(sin(b/2),2)));
+  float s = 2.0f * asinf(sqrtf(sa * sa + cosf(radLat1) * cosf(radLat2) * sb * sb));
 
-  s = s * EARTH_RADIUS * 100; //cm
-  return s;
+  return s * EARTH_RADIUS * 100;  // cm
 }
 
 int32_t GpsSensorDistanceGet()
 {
-  double lats ,lngs, late, lnge;
-
-  lats = StartPos.Latitude;
-  lngs = StartPos.Longitude;
-  late = GPSData.Latitude;
-  lnge = GPSData.Longitude;
-  return GetDistance(lats, lngs, late, lnge);
+  return GetDistance(StartPos.Latitude, StartPos.Longitude,
+                     GPSData.Latitude, GPSData.Longitude);
 }
 
 int32_t GpsSensorHeighthGet()

@@ -33,8 +33,20 @@ endif()
 file(GLOB TEST_SRC_FILES ${RADIO_SRC_DIR}/tests/*.cpp
   CONFIGURE_DEPENDS "${RADIO_SRC_DIR}/tests/*.cpp")
 
+# The firmware's printf and strtof, under their own names (the simulator
+# and the rest of the tests use the host C library)
+set(FIRMWARE_FLOAT_SRC
+  ${RADIO_SRC_DIR}/thirdparty/printf/printf.c
+  ${RADIO_SRC_DIR}/thirdparty/printf/strtof.c
+)
+set_source_files_properties(${FIRMWARE_FLOAT_SRC} PROPERTIES
+  COMPILE_DEFINITIONS "PRINTF_INCLUDE_CONFIG_H=1;PRINTF_ALIAS_STANDARD_FUNCTION_NAMES_HARD=0"
+  INCLUDE_DIRECTORIES ${RADIO_SRC_DIR}/thirdparty
+)
+
 set(TEST_SRC_FILES ${TEST_SRC_FILES}
   ${SIMU_SRC}
+  ${FIRMWARE_FLOAT_SRC}
 )
 
 add_executable(gtests-radio EXCLUDE_FROM_ALL
