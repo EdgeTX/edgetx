@@ -283,6 +283,7 @@ class MixedContext {
     bool isTone() const { return fragment.type == FRAGMENT_TONE; };
     bool isFile() const { return fragment.type == FRAGMENT_FILE; };
     bool hasPromptId(uint8_t id) const { return fragment.id == id; };
+    uint8_t getPromptId() const { return fragment.id; };
 
     int mixBuffer(AudioBuffer *buffer, int toneVolume, int wavVolume, unsigned int fade)
     {
@@ -472,6 +473,12 @@ class AudioQueue {
 
     AudioBufferFifo buffersFifo;
 
+    // Records that a prompt's WAV was fully read so isPlaying() can keep
+    // returning true for a short grace period while its audio still drains
+    // from the buffer FIFO / DMA. Closes a repeat-trigger race that appears
+    // when a track's length is close to the special-function repeat interval.
+    void notePromptDrained(uint8_t id);
+
   private:
     volatile bool _started;
     MixedContext normalContext;
@@ -479,6 +486,13 @@ class AudioQueue {
     ToneContext  priorityContext;
     ToneContext  varioContext;
     AudioFragmentFifo fragmentsFifo;
+
+    volatile uint8_t   _lastDrainedId = 0;
+    volatile tmr10ms_t _lastDrainedTime = 0;
+
+    // Latch so an SD-starvation underrun is traced once per event (on the
+    // FIFO-empty -> still-playing edge), not on every wakeup() while starved.
+    bool _underrunReported = false;
 };
 
 extern uint8_t currentSpeakerVolume;

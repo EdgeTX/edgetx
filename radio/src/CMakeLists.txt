@@ -173,6 +173,10 @@ if(CPU_TYPE STREQUAL STM32H7 OR CPU_TYPE STREQUAL STM32H7RS)
   include(targets/common/arm/stm32/h7/CMakeLists.txt)
 endif()
 
+if(CPU_TYPE STREQUAL STM32H5)
+  include(targets/common/arm/stm32/h5/CMakeLists.txt)
+endif()
+
 if(CPU_TYPE STREQUAL STM32F4)
   include(targets/common/arm/stm32/f4/CMakeLists.txt)
 endif()
@@ -827,7 +831,7 @@ if(FIRMWARE_FORMAT_UF2)
   else()
     set(UF2_VERSION_STRING "edgetx-${VERSION_PREFIX}${VERSION}${VERSION_SUFFIX} (${GIT_STR})")
   endif()
-  
+
   add_custom_command(
     TARGET firmware POST_BUILD
     COMMAND ${PYTHON_EXECUTABLE} ${RADIO_DIRECTORY}/util/elf2uf2.py

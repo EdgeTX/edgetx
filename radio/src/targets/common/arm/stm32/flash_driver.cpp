@@ -24,6 +24,10 @@
 #include "stm32_cmsis.h"
 #include "stm32_hal.h"
 
+#if defined(STM32H5)
+  #include "stm32_hal_ll.h"
+#endif
+
 #include <string.h>
 
 static uint32_t stm32_flash_get_size_kb()
@@ -161,7 +165,7 @@ static void flash_drv_flush_caches(bool dcache_enabled)
   }
 }
 
-#elif defined(STM32H7) || defined(STM32H7RS)
+#elif defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
 
 static uint32_t stm32_flash_get_sector(uint32_t address)
 {
@@ -276,7 +280,7 @@ static int stm32_flash_erase_sector(uint32_t address)
   #define FLASH_PROG_WORDS FLASH_NB_32BITWORD_IN_FLASHWORD
   #define _FLASH_PROGRAM(address, p_data) \
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_FLASHWORD, address, (uintptr_t)p_data)
-#elif defined(STM32H7RS)
+#elif defined(STM32H7RS) || defined(STM32H5)
   #define FLASH_PROG_WORDS 4UL
   #define _FLASH_PROGRAM(address, p_data) \
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_QUADWORD, address, (uintptr_t)p_data)
@@ -389,6 +393,13 @@ bool flashWrite(uint32_t* address, const uint32_t* buffer)
   // drop any lines cached before the erase/program so the read back
   // below comes from flash
   SCB_InvalidateDCache_by_Addr(address, FLASH_PAGESIZE);
+#elif defined(STM32H5)
+  // H5 has no core D-cache, but its ICACHE caches data reads from flash
+  // too: lines read before the erase (e.g. the old firmware's vectors and
+  // version string) would make the read back below see stale data
+  LL_ICACHE_Invalidate();
+  while (!LL_ICACHE_IsActiveFlag_BSYEND()) {}
+  LL_ICACHE_ClearFlag_BSYEND();
 #endif
 
   // verify the page was actually written, independently of what the
@@ -446,6 +457,19 @@ uint32_t isFirmwareStart(const uint8_t * buffer)
 #else
   #error "Unsupported H7 storage layout"
 #endif
+#elif defined(STM32H5)
+  // Stack pointer in RAM (640K, top at 0x200A0000)
+  if ((block[0] & 0xFFF00000) != 0x20000000) {
+    return 0;
+  }
+  // First ISR pointer in FLASH (up to 2M)
+  if ((block[1] & 0xFFE00000) != 0x08000000) {
+    return 0;
+  }
+  // Second ISR pointer in FLASH
+  if ((block[2] & 0xFFE00000) != 0x08000000) {
+    return 0;
+  }
 #else
   // Stack pointer in RAM
   if ((block[0] & 0xFFFC0000) != 0x20000000) {
