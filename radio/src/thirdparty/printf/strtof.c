@@ -1,279 +1,352 @@
 /*
- * Lightweight strtof implementation — float-only, no double-precision math.
+ * Float-only strtof for EdgeTX: correctly rounded, no double arithmetic.
  *
  * Replaces newlib's strtof (which internally calls strtod + d2f) to avoid
- * pulling in ~10 KB of double-precision Bignum code and software FP emulation.
+ * pulling in newlib's double-precision Bignum code and software FP emulation.
  *
- * Correctly rounded for inputs with ≤9 significant digits (covers all values
- * that can be exactly represented as IEEE 754 single-precision float).
- * For inputs with >9 significant digits, the result matches (float)strtod()
- * in all but rare tie-breaking cases.
+ * The decimal (or hex) digits are read into a small fixed-size integer
+ * bignum, and the result is produced by one exact integer division, so the
+ * returned float is the nearest one to the input (ties to even), for any
+ * input length. No floating-point arithmetic is used at all.
  *
- * Handles: sign, decimal point, scientific notation (e/E), leading/trailing
- * whitespace, overflow (HUGE_VALF), underflow (0.0f), inf, nan.
+ * Up to MAX_DEC_DIGITS significant decimal digits are kept; further nonzero
+ * digits only set a "sticky" flag. That is still exact: every float, and
+ * every point halfway between two floats, has at most 112 significant
+ * decimal digits, so digits beyond that can only decide "above or below a
+ * halfway point", which the sticky flag records.
+ *
+ * Handles: leading whitespace, sign, decimal point, e/E exponent, hex floats
+ * (0x..., optional p/P exponent), inf/infinity, nan, overflow (HUGE_VALF,
+ * ERANGE) and underflow (0 or subnormal, ERANGE when the result is 0).
  *
  * Copyright (C) EdgeTX - GPLv2
  */
 
+#include <ctype.h>   /* isspace */
+#include <errno.h>
 #include <math.h>    /* HUGE_VALF */
-#include <ctype.h>   /* isspace, isdigit, tolower */
-#include <stddef.h>  /* NULL */
+#include <stddef.h>
 #include <stdint.h>
+#include <string.h>  /* memset, memcpy */
 
-/* Powers of 10 as exact floats (10^0 through 10^10) */
-static const float pos_pow10[] = {
-  1e0f, 1e1f, 1e2f, 1e3f, 1e4f, 1e5f, 1e6f, 1e7f, 1e8f, 1e9f, 1e10f
-};
+#define MAX_DEC_DIGITS 120   /* significant decimal digits kept exactly */
+#define MAX_HEX_DIGITS 32    /* significant hex digits kept exactly */
 
-/* Negative powers of 10 as exact floats (10^-1 through 10^-10) */
-static const float neg_pow10[] = {
-  1e-1f, 1e-2f, 1e-3f, 1e-4f, 1e-5f, 1e-6f, 1e-7f, 1e-8f, 1e-9f, 1e-10f
-};
+/* 20 x 32 = 640 bits. Worst cases: 120 digits (399 bits) times 10^38, or
+ * 10^165 shifted against a numerator scaled by up to 2^150, plus 27 bits of
+ * quotient headroom. */
+#define BIG_LIMBS 20
 
-/*
- * Apply a power-of-10 scaling to a float value.
- * Splits large exponents into steps of ≤10 to use the lookup tables,
- * ensuring no intermediate overflow for values within float range.
- */
-static float apply_exp10(float value, int exp10)
+typedef struct {
+  uint32_t w[BIG_LIMBS];
+} big_t;
+
+static void big_set(big_t* a, uint32_t v)
 {
-  /* Fast path: small exponent handled by lookup table */
-  if (exp10 >= 0) {
-    while (exp10 > 10) {
-      value *= 1e10f;
-      exp10 -= 10;
-    }
-    value *= pos_pow10[exp10];
-  } else {
-    exp10 = -exp10;
-    while (exp10 > 10) {
-      value *= 1e-10f;
-      exp10 -= 10;
-    }
-    value *= neg_pow10[exp10 - 1]; /* neg_pow10[0] = 1e-1f */
-    /* Correction: neg_pow10 is 0-indexed for 10^-1 through 10^-10 */
-  }
-  return value;
+  memset(a, 0, sizeof(*a));
+  a->w[0] = v;
 }
 
-float __wrap_strtof(const char *nptr, char **endptr)
+/* a = a * m + add */
+static void big_mul_add(big_t* a, uint32_t m, uint32_t add)
 {
-  const char *s = nptr;
+  uint64_t carry = add;
+  for (int i = 0; i < BIG_LIMBS; i++) {
+    uint64_t t = (uint64_t)a->w[i] * m + carry;
+    a->w[i] = (uint32_t)t;
+    carry = t >> 32;
+  }
+}
 
-  /* Skip leading whitespace */
-  while (isspace((unsigned char)*s)) s++;
+static int big_bitlen(const big_t* a)
+{
+  for (int i = BIG_LIMBS - 1; i >= 0; i--) {
+    if (a->w[i]) return i * 32 + 32 - __builtin_clz(a->w[i]);
+  }
+  return 0;
+}
 
-  /* Parse sign */
-  int neg = 0;
-  if (*s == '-') { neg = 1; s++; }
-  else if (*s == '+') { s++; }
+static void big_shl(big_t* a, int s)
+{
+  int ws = s >> 5, bs = s & 31;
+  for (int i = BIG_LIMBS - 1; i >= 0; i--) {
+    uint32_t hi = (i - ws >= 0) ? a->w[i - ws] : 0;
+    uint32_t lo = (i - ws - 1 >= 0) ? a->w[i - ws - 1] : 0;
+    a->w[i] = bs ? (hi << bs) | (lo >> (32 - bs)) : hi;
+  }
+}
 
-  /* Check for inf/infinity */
-  if (tolower((unsigned char)s[0]) == 'i' &&
-      tolower((unsigned char)s[1]) == 'n' &&
-      tolower((unsigned char)s[2]) == 'f') {
-    s += 3;
-    if (tolower((unsigned char)s[0]) == 'i' &&
-        tolower((unsigned char)s[1]) == 'n' &&
-        tolower((unsigned char)s[2]) == 'i' &&
-        tolower((unsigned char)s[3]) == 't' &&
-        tolower((unsigned char)s[4]) == 'y') {
-      s += 5;
+static int big_cmp(const big_t* a, const big_t* b)
+{
+  for (int i = BIG_LIMBS - 1; i >= 0; i--) {
+    if (a->w[i] != b->w[i]) return a->w[i] > b->w[i] ? 1 : -1;
+  }
+  return 0;
+}
+
+/* a -= b, requires a >= b */
+static void big_sub(big_t* a, const big_t* b)
+{
+  uint32_t borrow = 0;
+  for (int i = 0; i < BIG_LIMBS; i++) {
+    uint64_t t = (uint64_t)a->w[i] - b->w[i] - borrow;
+    a->w[i] = (uint32_t)t;
+    borrow = (uint32_t)(t >> 63);
+  }
+}
+
+static float float_from_bits(uint32_t bits)
+{
+  float f;
+  memcpy(&f, &bits, sizeof(f));
+  return f;
+}
+
+static float overflow(void)
+{
+  errno = ERANGE;
+  return HUGE_VALF;
+}
+
+/*
+ * The float nearest to num / den * 2^p2, rounding ties to even. When
+ * 'sticky' is set the true value is slightly larger than num / den * 2^p2
+ * (digits were dropped), which only matters for exact halfway cases.
+ * num must be nonzero; num and den are clobbered.
+ */
+static float big_to_float(big_t* num, big_t* den, int p2, int sticky)
+{
+  int span = big_bitlen(num) - big_bitlen(den);
+
+  /* num/den lies in (2^(span-1), 2^(span+1)) */
+  if (span - 1 + p2 >= 128) return overflow();
+
+  /* Scale so the quotient has 25 or 26 bits: 24 mantissa bits plus a
+   * rounding bit. Below the normal range keep the rounding bit at 2^-150. */
+  int b = span - 25;
+  if (b + p2 < -150) b = -150 - p2;
+  if (b > 0) big_shl(den, b);
+  else if (b < 0) big_shl(num, -b);
+
+  uint32_t q = 0;
+  big_t t;
+  for (int i = 26; i >= 0; i--) {
+    t = *den;
+    big_shl(&t, i);
+    if (big_cmp(num, &t) >= 0) {
+      big_sub(num, &t);
+      q |= 1u << i;
     }
-    if (endptr) *endptr = (char *)s;
-    return neg ? -HUGE_VALF : HUGE_VALF;
+  }
+  if (big_bitlen(num)) sticky = 1;
+
+  int e = b + p2;  /* weight of q's lowest bit */
+  while (q >= (1u << 25)) {
+    sticky |= q & 1;
+    q >>= 1;
+    e++;
   }
 
-  /* Check for nan */
-  if (tolower((unsigned char)s[0]) == 'n' &&
-      tolower((unsigned char)s[1]) == 'a' &&
-      tolower((unsigned char)s[2]) == 'n') {
-    s += 3;
-    /* Skip optional (n-char-sequence) */
-    if (*s == '(') {
-      const char *p = s + 1;
-      while (*p && *p != ')') p++;
-      if (*p == ')') s = p + 1;
-    }
-    if (endptr) *endptr = (char *)s;
-    return __builtin_nanf("");
+  uint32_t m = q >> 1;
+  if ((q & 1) && (sticky || (m & 1))) m++;
+  e++;  /* weight of m's lowest bit */
+  if (m >= (1u << 24)) {  /* rounding carried into a new power of two */
+    m >>= 1;
+    e++;
   }
 
-  /* Check for hex float (0x...) — delegate to strtod if available,
-   * but in practice Lua handles hex floats via lua_strx2number. */
-  if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) {
-    /* Hex float: accumulate mantissa as float, parse p-exponent */
-    s += 2;
-    float result = 0.0f;
-    int has_digits = 0;
-    int exp2 = 0;
-    int has_dot = 0;
-
-    while (1) {
-      if (*s == '.') {
-        if (has_dot) break;
-        has_dot = 1;
-        s++;
-        continue;
-      }
-      int digit = -1;
-      if (*s >= '0' && *s <= '9') digit = *s - '0';
-      else if (*s >= 'a' && *s <= 'f') digit = *s - 'a' + 10;
-      else if (*s >= 'A' && *s <= 'F') digit = *s - 'A' + 10;
-      if (digit < 0) break;
-      has_digits = 1;
-      result = result * 16.0f + (float)digit;
-      if (has_dot) exp2 -= 4;
-      s++;
-    }
-
-    if (!has_digits) {
-      /* "0x" with no hex digits — only "0" was valid */
-      if (endptr) *endptr = (char *)(nptr + 1);
-      /* Actually, just the "0" before 'x' */
-      if (endptr) *endptr = (char *)(s - 2); /* point to 'x', consumed "0" */
-      return neg ? -0.0f : 0.0f;
-    }
-
-    if (*s == 'p' || *s == 'P') {
-      s++;
-      int eneg = 0;
-      if (*s == '-') { eneg = 1; s++; }
-      else if (*s == '+') { s++; }
-      int eval = 0;
-      while (*s >= '0' && *s <= '9') {
-        eval = eval * 10 + (*s - '0');
-        s++;
-      }
-      if (eneg) eval = -eval;
-      exp2 += eval;
-    }
-
-    if (endptr) *endptr = (char *)s;
-    result = ldexpf(result, exp2);
-    return neg ? -result : result;
+  if (m == 0) {
+    errno = ERANGE;
+    return 0.0f;
   }
+  if (m < (1u << 23)) return float_from_bits(m);  /* subnormal, e == -149 */
 
-  /*
-   * Decimal float parsing.
-   *
-   * Accumulate up to 9 significant digits into a uint32_t (max 999999999,
-   * fits in 30 bits). Track the decimal exponent separately. This gives
-   * exact conversion for all representable floats (which have ≤9 significant
-   * decimal digits).
-   */
-  uint32_t mantissa = 0;
-  int sig_digits = 0;     /* count of significant digits accumulated */
-  int exp10 = 0;          /* decimal exponent adjustment */
-  int has_dot = 0;
-  int has_digits = 0;
-  const char *start = s;
+  int biased = e + 23 + 127;
+  if (biased >= 255) return overflow();
+  return float_from_bits(((uint32_t)biased << 23) | (m & 0x7FFFFFu));
+}
 
-  /* Skip leading zeros before dot */
-  while (*s == '0') { s++; has_digits = 1; }
+static int match_word(const char* s, const char* word)
+{
+  for (; *word; s++, word++) {
+    if (tolower((unsigned char)*s) != *word) return 0;
+  }
+  return 1;
+}
 
-  /* Parse digits */
-  while (1) {
-    if (*s == '.') {
-      if (has_dot) break;
-      has_dot = 1;
-      s++;
-      /* If no significant digits yet, skip leading zeros after dot */
-      if (sig_digits == 0) {
-        while (*s == '0') {
-          exp10--;
-          s++;
-          has_digits = 1;
-        }
-      }
-      continue;
-    }
-    if (*s < '0' || *s > '9') break;
-    has_digits = 1;
-    if (sig_digits < 9) {
-      mantissa = mantissa * 10 + (uint32_t)(*s - '0');
-      sig_digits++;
-      if (has_dot) exp10--;
-    } else {
-      /* Beyond 9 significant digits: ignore digit but count for exponent */
-      if (!has_dot) exp10++;
-    }
+/* Reads [+-]digits after an exponent letter. Returns the position after the
+ * last digit, or NULL when no digit follows (the letter is then not part of
+ * the number). The value saturates, which keeps huge exponents from
+ * overflowing an int. */
+static const char* parse_exponent(const char* s, int* value)
+{
+  int neg = 0, v = 0;
+  if (*s == '+' || *s == '-') neg = (*s++ == '-');
+  if (*s < '0' || *s > '9') return NULL;
+  while (*s >= '0' && *s <= '9') {
+    if (v < 100000) v = v * 10 + (*s - '0');
     s++;
   }
+  *value = neg ? -v : v;
+  return s;
+}
 
-  if (!has_digits) {
-    /* No valid digits found */
-    if (endptr) *endptr = (char *)nptr;
+static int hex_value(char c)
+{
+  if (c >= '0' && c <= '9') return c - '0';
+  if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+  if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+  return -1;
+}
+
+static float parse_hex(const char* zero, char** endptr)
+{
+  /* zero points at the '0' of "0x" */
+  const char* s = zero + 2;
+  big_t num, den;
+  big_set(&num, 0);
+  int ndig = 0, p2 = 0, sticky = 0, any = 0, dot = 0;
+
+  for (;; s++) {
+    if (*s == '.') {
+      if (dot) break;
+      dot = 1;
+      continue;
+    }
+    int v = hex_value(*s);
+    if (v < 0) break;
+    any = 1;
+    if (ndig == 0 && v == 0) {
+      if (dot) p2 -= 4;
+    } else if (ndig < MAX_HEX_DIGITS) {
+      big_mul_add(&num, 16, (uint32_t)v);
+      ndig++;
+      if (dot) p2 -= 4;
+    } else {
+      if (v) sticky = 1;
+      if (!dot) p2 += 4;
+    }
+  }
+
+  if (!any) {
+    /* "0x" without hex digits: only the "0" is a number */
+    if (endptr) *endptr = (char*)(zero + 1);
     return 0.0f;
   }
 
-  /* Parse exponent */
-  if (*s == 'e' || *s == 'E') {
-    const char *e_start = s;
-    s++;
-    int eneg = 0;
-    if (*s == '-') { eneg = 1; s++; }
-    else if (*s == '+') { s++; }
+  if (*s == 'p' || *s == 'P') {
+    int e;
+    const char* end = parse_exponent(s + 1, &e);
+    if (end) {
+      s = end;
+      p2 += e;
+    }
+  }
+  if (endptr) *endptr = (char*)s;
+  if (ndig == 0) return 0.0f;
 
-    if (*s >= '0' && *s <= '9') {
-      int eval = 0;
-      while (*s >= '0' && *s <= '9') {
-        if (eval < 10000) /* prevent overflow in exponent accumulation */
-          eval = eval * 10 + (*s - '0');
-        s++;
-      }
-      if (eneg) eval = -eval;
-      exp10 += eval;
+  int lead = big_bitlen(&num) - 1 + p2;  /* exponent of the leading bit */
+  if (lead > 127) return overflow();
+  if (lead < -150) {
+    errno = ERANGE;
+    return 0.0f;
+  }
+  big_set(&den, 1);
+  return big_to_float(&num, &den, p2, sticky);
+}
+
+static float parse_decimal(const char* start, const char* nptr, char** endptr)
+{
+  const char* s = start;
+  big_t num, den;
+  big_set(&num, 0);
+  int ndig = 0, exp10 = 0, sticky = 0, any = 0, dot = 0;
+
+  for (;; s++) {
+    if (*s == '.') {
+      if (dot) break;
+      dot = 1;
+      continue;
+    }
+    if (*s < '0' || *s > '9') break;
+    any = 1;
+    if (ndig == 0 && *s == '0') {
+      if (dot) exp10--;
+    } else if (ndig < MAX_DEC_DIGITS) {
+      big_mul_add(&num, 10, (uint32_t)(*s - '0'));
+      ndig++;
+      if (dot) exp10--;
     } else {
-      /* No digits after 'e' — 'e' is not consumed */
-      s = e_start;
+      if (*s != '0') sticky = 1;
+      if (!dot) exp10++;
     }
   }
 
-  if (endptr) *endptr = (char *)s;
-
-  /* Quick exit for zero mantissa */
-  if (mantissa == 0) {
-    return neg ? -0.0f : 0.0f;
+  if (!any) {
+    if (endptr) *endptr = (char*)nptr;
+    return 0.0f;
   }
 
-  /* Check for obvious overflow/underflow before conversion */
-  if (exp10 > 38) {
-    return neg ? -HUGE_VALF : HUGE_VALF;
-  }
-  if (exp10 < -55) {
-    return neg ? -0.0f : 0.0f;
-  }
-
-  /* Convert mantissa to float and apply exponent */
-  float result = (float)mantissa;
-
-  if (exp10 > 0) {
-    while (exp10 > 10) {
-      result *= 1e10f;
-      exp10 -= 10;
+  if (*s == 'e' || *s == 'E') {
+    int e;
+    const char* end = parse_exponent(s + 1, &e);
+    if (end) {
+      s = end;
+      exp10 += e;
     }
-    result *= pos_pow10[exp10];
-  } else if (exp10 < 0) {
-    int e = -exp10;
-    while (e > 10) {
-      result *= 1e-10f;
-      e -= 10;
+  }
+  if (endptr) *endptr = (char*)s;
+  if (ndig == 0) return 0.0f;
+
+  int lead = ndig - 1 + exp10;  /* decimal exponent of the leading digit */
+  if (lead > 38) return overflow();
+  if (lead < -46) {  /* below 1e-46, under half the smallest subnormal */
+    errno = ERANGE;
+    return 0.0f;
+  }
+
+  big_set(&den, 1);
+  big_t* scaled = exp10 >= 0 ? &num : &den;
+  int k = exp10 >= 0 ? exp10 : -exp10;
+  for (; k >= 9; k -= 9) big_mul_add(scaled, 1000000000u, 0);
+  for (; k > 0; k--) big_mul_add(scaled, 10, 0);
+
+  return big_to_float(&num, &den, 0, sticky);
+}
+
+float __wrap_strtof(const char* nptr, char** endptr)
+{
+  const char* s = nptr;
+  while (isspace((unsigned char)*s)) s++;
+
+  int neg = 0;
+  if (*s == '+' || *s == '-') neg = (*s++ == '-');
+
+  float result;
+  if (match_word(s, "inf")) {
+    s += match_word(s, "infinity") ? 8 : 3;
+    if (endptr) *endptr = (char*)s;
+    result = HUGE_VALF;
+  } else if (match_word(s, "nan")) {
+    s += 3;
+    if (*s == '(') {  /* optional (n-char-sequence) */
+      const char* p = s + 1;
+      while (isalnum((unsigned char)*p) || *p == '_') p++;
+      if (*p == ')') s = p + 1;
     }
-    if (e > 0) result *= neg_pow10[e - 1];
+    if (endptr) *endptr = (char*)s;
+    result = __builtin_nanf("");
+  } else if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) {
+    result = parse_hex(s, endptr);
+  } else {
+    result = parse_decimal(s, nptr, endptr);
   }
-
-  /* Clamp overflow to HUGE_VALF */
-  if (result == HUGE_VALF || result == -HUGE_VALF) {
-    return neg ? -HUGE_VALF : HUGE_VALF;
-  }
-
   return neg ? -result : result;
 }
 
-/* Also override strtod — any call to strtod goes through our strtof
+/* Also override strtod: any call to strtod goes through our strtof
  * (acceptable when lua_Number=float). */
-double __wrap_strtod(const char *nptr, char **endptr)
+double __wrap_strtod(const char* nptr, char** endptr)
 {
   return (double)__wrap_strtof(nptr, endptr);
 }
