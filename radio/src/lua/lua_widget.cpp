@@ -452,8 +452,6 @@ void LuaWidget::onFullscreen(bool enable)
 
 void LuaWidget::setErrorMessage(const char* funcName)
 {
-  constexpr int err_len = 255;
-
   scriptDisabled = true;
 
   const char* lua_err = lua_tostring(lsWidgets, -1);
