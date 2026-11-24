@@ -159,9 +159,9 @@ MaskBitmap* MainViewSlider::getTicksMask()
       lv_canvas_draw_line(canvas, p, 2, &line_dsc);
       x += SLIDER_TICK_SPACING;
     }
-
-    lv_obj_del(canvas);
   }
+
+  lv_obj_del(canvas);
 
   // TRACE("Created Mask %d %d",w,h);
   tickMasks.emplace_back(mask);
