@@ -1877,6 +1877,7 @@ Get Telemetry Sensor parameters
  * `unit` (number) See list of units in the appendix of the OpenTX Lua Reference Guide
  * `prec` (number) Number of decimals
  * `id`   (number) Only custom sensors
+ * `subId` (number) Only custom sensors
  * `instance` (number) Only custom sensors
  * `formula` (number) Only calculated sensors. 0 = Add etc. see list of formula choices in Companion popup
 
@@ -1894,6 +1895,7 @@ static int luaModelGetSensor(lua_State *L)
     lua_pushtableinteger(L, "prec", sensor.prec);
     if (sensor.type == TELEM_TYPE_CUSTOM) {
       lua_pushtableinteger(L, "id", sensor.id);
+      lua_pushtableinteger(L, "subId", sensor.subId);
       lua_pushtableinteger(L, "instance", sensor.instance);
     }
     else {
@@ -1904,6 +1906,118 @@ static int luaModelGetSensor(lua_State *L)
     lua_pushnil(L);
   }
   return 1;
+}
+
+/*luadoc
+@function model.setSensor(sensor, value)
+
+Set Telemetry Sensor parameters: edit a custom sensor, or create one in an
+empty sensor slot (its `name` empty in model.getSensor()), whether "Discover
+new sensors" is on or not. Tools use it to set up sensors whose identity the
+telemetry protocol can't give, e.g. Futaba S.BUS2 slots.
+
+@param sensor (unsigned number) sensor number (use 0 for sensor 1)
+
+@param value (table) sensor parameters:
+ * `name` (string) Name (up to 4 characters; a new sensor without one is
+   named after its `id`)
+ * `unit` (number) See list of units in the appendix of the OpenTX Lua
+   Reference Guide
+ * `prec` (number) Number of decimals, 0 to 2
+ * `id` (number), `subId` (number), `instance` (number) Identity, as the
+   telemetry protocol reports it
+
+@retval boolean true if the sensor was set, false if not (sensor number out
+of range, or a calculated sensor)
+
+@notice If a parameter is missing from the value, then that parameter remains
+unchanged. The sensor's last value is cleared.
+
+@status current Introduced in 3.0.0
+*/
+static int luaModelSetSensor(lua_State *L)
+{
+  unsigned int idx = luaL_checkinteger(L, 1);
+  luaL_checktype(L, 2, LUA_TTABLE);
+  if (idx >= MAX_TELEMETRY_SENSORS) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
+  TelemetrySensor & sensor = g_model.telemetrySensors[idx];
+  bool isNew = !sensor.isAvailable();
+  if (!isNew && sensor.type != TELEM_TYPE_CUSTOM) {
+    lua_pushboolean(L, false);
+    return 1;
+  }
+
+  TelemetrySensor value = sensor;
+  if (isNew) {
+    memclear(&value, sizeof(value));
+    value.type = TELEM_TYPE_CUSTOM;
+  }
+  for (lua_pushnil(L); lua_next(L, 2); lua_pop(L, 1)) {
+    luaL_checktype(L, -2, LUA_TSTRING); // key is string
+    const char * key = luaL_checkstring(L, -2);
+    if (!strcmp(key, "name")) {
+      const char * name = luaL_checkstring(L, -1);
+      memclear(value.label, TELEM_LABEL_LEN);
+      strncpy(value.label, name, TELEM_LABEL_LEN);
+    }
+    else if (!strcmp(key, "unit")) {
+      value.unit = limit<int>(0, luaL_checkinteger(L, -1), UNIT_MAX);
+    }
+    else if (!strcmp(key, "prec")) {
+      value.prec = limit<int>(0, luaL_checkinteger(L, -1), 2);
+    }
+    else if (!strcmp(key, "id")) {
+      value.id = luaL_checkinteger(L, -1);
+    }
+    else if (!strcmp(key, "subId")) {
+      value.subId = luaL_checkinteger(L, -1);
+    }
+    else if (!strcmp(key, "instance")) {
+      value.instance = luaL_checkinteger(L, -1);
+    }
+  }
+
+  // A sensor needs a name (an empty one frees its slot): a new one without
+  // is named after its ID (as a discovered one), an existing one keeps its
+  if (!ZLEN(value.label)) {
+    if (isNew) {
+      TelemetrySensor named;
+      named.init(value.id);
+      memcpy(value.label, named.label, TELEM_LABEL_LEN);
+    }
+    else {
+      memcpy(value.label, sensor.label, TELEM_LABEL_LEN);
+    }
+  }
+  if (isNew) value.logs = true;  // as a discovered one
+
+  sensor = value;
+  telemetryItems[idx].clear();
+  storageDirty(EE_MODEL);
+  lua_pushboolean(L, true);
+  return 1;
+}
+
+/*luadoc
+@function model.deleteSensor(sensor)
+
+Delete a Telemetry Sensor, as on the model's telemetry page
+
+@param sensor (unsigned number) sensor number (use 0 for sensor 1)
+
+@status current Introduced in 3.0.0
+*/
+static int luaModelDeleteSensor(lua_State *L)
+{
+  unsigned int idx = luaL_checkinteger(L, 1);
+  if (idx < MAX_TELEMETRY_SENSORS) {
+    delTelemetryIndex(idx);
+  }
+  return 0;
 }
 
 /*luadoc
@@ -2232,6 +2346,8 @@ LROT_BEGIN(modellib, NULL, 0)
   LROT_FUNCENTRY( setGlobalVariableDetails, luaModelSetGlobalVariableDetails )
 #endif
   LROT_FUNCENTRY( getSensor, luaModelGetSensor )
+  LROT_FUNCENTRY( setSensor, luaModelSetSensor )
+  LROT_FUNCENTRY( deleteSensor, luaModelDeleteSensor )
   LROT_FUNCENTRY( resetSensor, luaModelResetSensor )
 #if defined(HELI)
   LROT_FUNCENTRY( getSwashRing, luaModelGetSwashRing )
