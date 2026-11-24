@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <math.h>
+#include <stdint.h>
 
 #include "lua.h"
 
@@ -22,17 +23,37 @@
 #define PI	(l_mathop(3.141592653589793238462643383279502884))
 
 
-#if !defined(l_rand)		/* { */
-#if defined(LUA_USE_POSIX)
-#define l_rand()	random()
-#define l_srand(x)	srandom(x)
-#define L_RANDMAX	2147483647	/* (2^31 - 1), following POSIX */
+/*
+** xoshiro128** PRNG (as Lua 5.4, 32-bit variant). Fixed state at boot,
+** so sequences are deterministic until math.randomseed() is called.
+*/
+static uint32_t rng_state[4] = {0x9E3779B9u, 0x243F6A88u, 0xB7E15162u, 0x6A09E667u};
+
+static uint32_t rotl32 (uint32_t x, int n) {
+  return (x << n) | (x >> (32 - n));
+}
+
+static uint32_t rng_next (void) {
+  uint32_t *s = rng_state;
+  uint32_t r = rotl32(s[1] * 5, 7) * 9;
+  uint32_t t = s[1] << 9;
+  s[2] ^= s[0];
+  s[3] ^= s[1];
+  s[1] ^= s[2];
+  s[0] ^= s[3];
+  s[2] ^= t;
+  s[3] = rotl32(s[3], 11);
+  return r;
+}
+
+static lua_Unsigned rng_unsigned (void) {
+#if LUA_MAXINTEGER > 0x7FFFFFFF
+  lua_Unsigned hi = rng_next();
+  return (hi << 31 << 1) | rng_next();
 #else
-#define l_rand()	rand()
-#define l_srand(x)	srand(x)
-#define L_RANDMAX	RAND_MAX
+  return rng_next();
 #endif
-#endif				/* } */
+}
 
 
 static int math_abs (lua_State *L) {
@@ -240,27 +261,12 @@ static int math_max (lua_State *L) {
   return 1;
 }
 
-/*
-** Float-only math.random() — no double-precision arithmetic.
-**
-** math.random(): returns float in [0,1) by constructing an IEEE 754
-** float directly from random bits (uniform over 2^24 values).
-**
-** math.random(low,up): returns integer in [low,up] using integer-only
-** scaling with rejection to avoid modulo bias.
-*/
 static int math_random (lua_State *L) {
   lua_Integer low, up;
+  lua_Unsigned n, lim, r;
   switch (lua_gettop(L)) {  /* check number of arguments */
-    case 0: {  /* no arguments: float in [0, 1) */
-      /* Take top 24 bits from l_rand(), place into float mantissa.
-       * IEEE 754 float: [sign=0][exp=0x3F800000 (1.0)][mantissa=random]
-       * This gives a uniform value in [1.0, 2.0), then subtract 1.0. */
-      lua_Unsigned bits = (lua_Unsigned)l_rand();
-      bits = (bits >> (31 - 23)) & 0x7FFFFF;  /* top 23 random bits */
-      union { float f; lua_Unsigned u; } conv;
-      conv.u = 0x3F800000u | bits;  /* 1.0f + random fraction */
-      lua_pushnumber(L, conv.f - 1.0f);
+    case 0: {  /* no arguments: float in [0,1) with 24 random bits */
+      lua_pushnumber(L, (lua_Number)(rng_next() >> 8) * l_mathop(5.9604644775390625e-8));  /* 2^-24 */
       return 1;
     }
     case 1: {  /* only upper limit */
@@ -279,28 +285,30 @@ static int math_random (lua_State *L) {
   luaL_argcheck(L, low <= up, 1, "interval is empty");
   luaL_argcheck(L, low >= 0 || up <= LUA_MAXINTEGER + low, 1,
                    "interval too large");
-  {
-    /* Integer-only uniform random in [0, range] */
-    lua_Unsigned range = (lua_Unsigned)(up - low);
-    if (range == 0) {
-      lua_pushinteger(L, low);
-    } else {
-      /* Rejection sampling to avoid modulo bias */
-      lua_Unsigned limit = ((lua_Unsigned)L_RANDMAX / (range + 1)) * (range + 1);
-      lua_Unsigned r;
-      do {
-        r = (lua_Unsigned)l_rand();
-      } while (r >= limit);
-      lua_pushinteger(L, (lua_Integer)(r % (range + 1)) + low);
-    }
-  }
+  /* unbiased: mask to the smallest 2^b-1 >= n, reject (< 2 tries on average) */
+  n = (lua_Unsigned)up - (lua_Unsigned)low;
+  lim = n;
+  lim |= lim >> 1; lim |= lim >> 2; lim |= lim >> 4; lim |= lim >> 8;
+  lim |= lim >> 16;
+#if LUA_MAXINTEGER > 0x7FFFFFFF
+  lim |= lim >> 31 >> 1;
+#endif
+  while ((r = rng_unsigned() & lim) > n) {}
+  lua_pushinteger(L, (lua_Integer)(r + (lua_Unsigned)low));
   return 1;
 }
 
 
 static int math_randomseed (lua_State *L) {
-  l_srand((unsigned int)(lua_Integer)luaL_checknumber(L, 1));
-  (void)l_rand(); /* discard first value to avoid undesirable correlations */
+  int ok;
+  lua_Integer n = lua_tointegerx(L, 1, &ok);
+  int i;
+  if (!ok) luaL_checknumber(L, 1);  /* out-of-range floats seed 0 */
+  rng_state[0] = (uint32_t)n;
+  rng_state[1] = 0xff;  /* avoid an all-zero state */
+  rng_state[2] = 0;
+  rng_state[3] = 0;
+  for (i = 0; i < 16; i++) rng_next();  /* discard initial values */
   return 0;
 }
 
