@@ -44,15 +44,18 @@ static uint32_t r_color(const YamlNode* node, const char* val, uint8_t val_len)
 {
   if ((strncmp(val, RGBSTRING, strlen(RGBSTRING)) == 0) &&
       (val[val_len - 1] == ')')) {
-    char* p;
-    int r = strtol(val + strlen(RGBSTRING), &p, 0);
-    if (*p == ',') {
-      int g = strtol(p + 1, &p, 0);
-      if (*p == ',') {
-        int b = strtol(p + 1, &p, 0);
-        if (*p == ')') return RGB(r, g, b);
-      }
+    // "RGB(r,g,b)": no empty components, spaces allowed before ')'
+    const char* p = val + strlen(RGBSTRING);
+    int c[3], i;
+    for (i = 0; i < 3; i++) {
+      char* end;
+      c[i] = strtol(p, &end, 0);
+      if (end == p) break;
+      p = end;
+      while (i == 2 && *p == ' ') p++;
+      if (*p++ != (i < 2 ? ',' : ')')) break;
     }
+    if (i == 3) return RGB(c[0], c[1], c[2]);
   } else if (val_len > 2 && val[0] == '0' && (val[1] == 'x' || val[1] == 'X')) {
     val += 2;
     val_len -= 2;
