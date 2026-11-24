@@ -784,25 +784,26 @@ TEST(Lua, testOutputLimitsAsSources)
       "if o.min ~= -1500 or o.max ~= 1500 or o.offset ~= 1000 then error('extended') end");
 }
 
+// F(bits): the float with these IEEE-754 bits, built without the parser
+#define LUA_F "local function F(b) return string.unpack('<f', string.pack('<I4', b)) end "
+
 TEST(Lua, floatTonumber)
 {
-  // Basic decimal parsing
-  luaExecStr("assert(tonumber('3.14') == 3.14)");
+  // Compared with exact bit patterns, not with the parser's own output
+  luaExecStr(LUA_F "assert(tonumber('3.14') == F(0x4048F5C3))");
   luaExecStr("assert(tonumber('0') == 0)");
-  luaExecStr("assert(tonumber('-1.5') == -1.5)");
+  luaExecStr("assert(tonumber('-1.5') == -3 / 2)");
 
   // Scientific notation
-  luaExecStr("assert(tonumber('1e10') == 1e10)");
-  luaExecStr("assert(tonumber('1.5e-3') == 1.5e-3)");
-  luaExecStr("assert(tonumber('-2.5e8') == -2.5e8)");
-
-  // Edge cases: 7 significant digits (float precision boundary)
-  luaExecStr("assert(tonumber('0.0000001') == 0.0000001)");
+  luaExecStr(LUA_F "assert(tonumber('1e10') == F(0x501502F9))");
+  luaExecStr(LUA_F "assert(tonumber('1.5e-3') == F(0x3AC49BA6))");
+  luaExecStr(LUA_F "assert(tonumber('-2.5e8') == F(0xCD6E6B28))");
+  luaExecStr(LUA_F "assert(tonumber('0.0000001') == F(0x33D6BF95))");
   luaExecStr("assert(tonumber('9999999') == 9999999)");
 
   // Float boundaries
-  luaExecStr("assert(tonumber('3.4028235e38') == 3.4028235e38)");  // FLT_MAX
-  luaExecStr("assert(tonumber('1.17549435e-38') == 1.17549435e-38)");  // FLT_MIN
+  luaExecStr(LUA_F "assert(tonumber('3.4028235e38') == F(0x7F7FFFFF))");  // FLT_MAX
+  luaExecStr(LUA_F "assert(tonumber('1.17549435e-38') == F(0x00800000))");  // FLT_MIN
 
   // Invalid input
   luaExecStr("assert(tonumber('not_a_number') == nil)");
@@ -812,17 +813,17 @@ TEST(Lua, floatTonumber)
   luaExecStr("assert(tonumber('0xff') == 255)");
 
   // Hex float
-  luaExecStr("assert(tonumber('0x1.8p0') == 1.5)");
-  luaExecStr("assert(tonumber('0x1p10') == 1024.0)");
-  luaExecStr("assert(tonumber('0x1.0p-1') == 0.5)");
+  luaExecStr("assert(tonumber('0x1.8p0') == 3 / 2)");
+  luaExecStr("assert(tonumber('0x1p10') == 2.0 ^ 10)");
+  luaExecStr("assert(tonumber('0x1.0p-1') == 1 / 2)");
 }
 
 TEST(Lua, floatTostring)
 {
   // Basic formatting (uses "%.7g")
-  luaExecStr("assert(tostring(3.14) == '3.14')");
-  luaExecStr("assert(tostring(-1.5) == '-1.5')");
-  luaExecStr("assert(tostring(0.0001) == '0.0001')");
+  luaExecStr(LUA_F "assert(tostring(F(0x4048F5C3)) == '3.14')");
+  luaExecStr("assert(tostring(-3 / 2) == '-1.5')");
+  luaExecStr(LUA_F "assert(tostring(F(0x38D1B717)) == '0.0001')");
   luaExecStr("assert(tostring(100000.0) == '100000.0', 'got: ' .. tostring(100000.0))");
 
   // 7 significant digits
@@ -847,9 +848,9 @@ TEST(Lua, floatTostring)
 TEST(Lua, floatStringFormat)
 {
   // Fixed decimal with precision
-  luaExecStr("assert(string.format('%.3f', 3.14159) == '3.142')");
+  luaExecStr(LUA_F "assert(string.format('%.3f', F(0x40490FD0)) == '3.142')");
   luaExecStr("assert(string.format('%.1f', 2.5) == '2.5')");
-  luaExecStr("assert(string.format('%.0f', 3.7) == '4')");
+  luaExecStr("assert(string.format('%.0f', 3.75) == '4')");
 
   // Scientific notation
   luaExecStr("assert(string.format('%e', 12345.0) == '1.234500e+04')");
@@ -858,64 +859,120 @@ TEST(Lua, floatStringFormat)
   luaExecStr("assert(string.format('%g', 100000.0) == '100000')");
   luaExecStr("assert(string.format('%g', 1000000.0) == '1e+06')");
 
-  // High precision (more digits than float can deliver — exposes float mantissa)
+  // More digits than float precision: the exact value of the float
   luaExecStr("assert(string.format('%.10g', 1/3) == '0.3333333433', 'got: ' .. string.format('%.10g', 1/3))");
 
-  // Hex float output (%a) - verify round-trip
-  luaExecStr("local s = string.format('%a', 1.5); assert(string.find(s, '0x') == 1, 'got: ' .. s)");
-  luaExecStr("assert(tonumber(string.format('%a', 1.5)) == 1.5)");
-  luaExecStr("assert(tonumber(string.format('%a', 0.1)) == 0.1)");
-
-  // Integer formatting of float
+  // Integer formatting
   luaExecStr("assert(string.format('%d', 42) == '42')");
   luaExecStr("assert(string.format('%d', -7) == '-7')");
 }
 
+TEST(Lua, floatHexFormat)
+{
+  // C layout, as standard Lua 5.3 prints on a PC
+  luaExecStr("assert(string.format('%a', 1.5) == '0x1.8p+0', 'got: ' .. string.format('%a', 1.5))");
+  luaExecStr(LUA_F "assert(string.format('%a', F(0x3DCCCCCD)) == '0x1.99999ap-4')");
+  luaExecStr(LUA_F "assert(string.format('%a', F(1)) == '0x1p-149')");  // subnormal
+  luaExecStr("assert(string.format('%a', 0.0) == '0x0p+0')");
+  luaExecStr("assert(string.format('%a', -0.0) == '-0x0p+0')");
+  luaExecStr("assert(string.format('%A', 1.5) == '0X1.8P+0')");
+
+  // Precision rounds (ties to even); a carry can make the leading digit 2
+  luaExecStr(LUA_F "assert(string.format('%.2a', F(0x3DCCCCCD)) == '0x1.9ap-4')");
+  luaExecStr("assert(string.format('%.0a', 1.5) == '0x2p+0')");
+  luaExecStr("assert(string.format('%.0a', 1.25) == '0x1p+0')");
+  luaExecStr("assert(string.format('%.8a', 1.5) == '0x1.80000000p+0')");
+  luaExecStr("assert(string.format('%#.0a', 1.0) == '0x1.p+0')");
+
+  // Width and flags
+  luaExecStr("assert(string.format('%12a', 1.5) == '    0x1.8p+0')");
+  luaExecStr("assert(string.format('%-12a|', 1.5) == '0x1.8p+0    |')");
+  luaExecStr("assert(string.format('%012a', -1.5) == '-0x0001.8p+0')");
+  luaExecStr("assert(string.format('%+a', 1.5) == '+0x1.8p+0')");
+  luaExecStr("assert(string.format('% a', 1.5) == ' 0x1.8p+0')");
+
+  // inf and nan as C prints them
+  luaExecStr("assert(string.format('%a', 1/0) == 'inf')");
+  luaExecStr("assert(string.format('%+6A', -1/0) == '  -INF')");
+  luaExecStr("assert(string.format('%06a', 1/0) == '   inf')");
+
+  // %q of floats, and round trip
+  luaExecStr("assert(string.format('%q', 1.5) == '0x1.8p+0')");
+  luaExecStr(LUA_F "assert(tonumber(string.format('%a', F(0x3DCCCCCD))) == F(0x3DCCCCCD))");
+}
+
 TEST(Lua, floatArithmeticRoundTrip)
 {
-  // Values that round-trip through tostring/tonumber exactly
-  luaExecStr("assert(tonumber(tostring(3.14)) == 3.14)");
-  luaExecStr("assert(tonumber(tostring(1e10)) == 1e10)");
-  luaExecStr("assert(tonumber(tostring(0.0001)) == 0.0001)");
-  luaExecStr("assert(tonumber(tostring(-999.5)) == -999.5)");
+  // tostring keeps 7 digits, so these come back exactly
+  luaExecStr(LUA_F "assert(tonumber(tostring(F(0x4048F5C3))) == F(0x4048F5C3))");
+  luaExecStr(LUA_F "assert(tonumber(tostring(F(0x501502F9))) == F(0x501502F9))");
+  luaExecStr(LUA_F "assert(tonumber(tostring(F(0x38D1B717))) == F(0x38D1B717))");
+  luaExecStr(LUA_F "assert(tonumber(tostring(F(0xC479E000))) == F(0xC479E000))");
 
-  // Arithmetic consistency
-  luaExecStr("assert(0.1 + 0.2 == 0.1 + 0.2)");  // same float result both sides
-  luaExecStr("assert(1e10 + 1 == 1e10)");  // float precision: 1 is lost
-  luaExecStr("assert(math.floor(3.7) == 3)");
-  luaExecStr("assert(math.ceil(3.2) == 4)");
+  // Arithmetic
+  luaExecStr("assert(2.0 ^ 24 + 1 == 2.0 ^ 24)");  // float precision: 1 is lost
+  luaExecStr("assert(math.floor(3.75) == 3)");
+  luaExecStr("assert(math.ceil(3.25) == 4)");
   luaExecStr("assert(math.abs(-5.5) == 5.5)");
 }
 
 TEST(Lua, floatMathRandom)
 {
-  // math.random() returns float in [0, 1)
+  // math.random() returns float in [0, 1), using all 24 bits
   luaExecStr(
-    "for i = 1, 100 do\n"
+    "local low = false\n"
+    "for i = 1, 1000 do\n"
     "  local r = math.random()\n"
     "  assert(r >= 0.0 and r < 1.0, 'random() out of range: ' .. tostring(r))\n"
-    "end"
+    "  local s = r * 2^15\n"
+    "  if s ~= math.floor(s) then low = true end\n"
+    "end\n"
+    "assert(low, 'random() has no bits below 2^-15')"
   );
 
   // math.random(n) returns integer in [1, n]
   luaExecStr(
     "for i = 1, 100 do\n"
     "  local r = math.random(10)\n"
-    "  assert(r >= 1 and r <= 10 and r == math.floor(r), 'random(10) bad: ' .. tostring(r))\n"
+    "  assert(r >= 1 and r <= 10 and math.type(r) == 'integer', 'random(10) bad: ' .. tostring(r))\n"
     "end"
   );
 
-  // math.random(low, up) returns integer in [low, up]
+  // math.random(low, up) returns integer in [low, up], all values reached
+  luaExecStr(
+    "local seen = {}\n"
+    "for i = 1, 1000 do\n"
+    "  local r = math.random(5, 15)\n"
+    "  assert(r >= 5 and r <= 15, 'random(5,15) bad: ' .. tostring(r))\n"
+    "  seen[r] = true\n"
+    "end\n"
+    "for v = 5, 15 do assert(seen[v], 'never got ' .. v) end"
+  );
+
+  // Large ranges return (they used to loop forever)
   luaExecStr(
     "for i = 1, 100 do\n"
-    "  local r = math.random(5, 15)\n"
-    "  assert(r >= 5 and r <= 15 and r == math.floor(r), 'random(5,15) bad: ' .. tostring(r))\n"
+    "  local r = math.random(0, 0x7fffffff)\n"
+    "  assert(r >= 0)\n"
+    "  r = math.random(-0x7fffffff, 0)\n"
+    "  assert(r <= 0)\n"
     "end"
   );
+
+  // Floats are floored (LUA_FLOORN2I)
+  luaExecStr("assert(math.random(1.5) == 1)");
 
   // Degenerate case
   luaExecStr("assert(math.random(1, 1) == 1)");
   luaExecStr("assert(math.random(42, 42) == 42)");
+
+  // Same seed, same sequence
+  luaExecStr(
+    "math.randomseed(42)\n"
+    "local a, b = math.random(1, 1000000), math.random()\n"
+    "math.randomseed(42)\n"
+    "assert(math.random(1, 1000000) == a and math.random() == b)"
+  );
 }
 
 TEST(Lua, floatStringPack)
