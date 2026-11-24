@@ -21,11 +21,10 @@
 
 #pragma once
 
+#include "bitmaps.h"
 #include "dataconstants.h"
 #include "window.h"
 #include <vector>
-
-class MaskBitmap;
 
 class SliderIcon : public Window
 {
@@ -40,7 +39,7 @@ class SliderIcon : public Window
   lv_obj_t* shadow = nullptr;
 
   static bool maskCreated;
-  static uint8_t maskBuffer[SLIDER_MASK_SIZE * SLIDER_MASK_SIZE];
+  static uint8_t maskBuffer[mask4BitSize(SLIDER_MASK_SIZE, SLIDER_MASK_SIZE)];
 };
 
 class MainViewSlider : public Window

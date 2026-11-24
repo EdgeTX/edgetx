@@ -35,13 +35,13 @@ SliderIcon::SliderIcon(Window* parent) :
   setWindowFlag(NO_FOCUS);
 
   shadow = lv_canvas_create(lvobj);
-  lv_canvas_set_buffer(shadow, maskBuffer, SLIDER_MASK_SIZE, SLIDER_MASK_SIZE, LV_IMG_CF_ALPHA_8BIT);
+  lv_canvas_set_buffer(shadow, maskBuffer, SLIDER_MASK_SIZE, SLIDER_MASK_SIZE, LV_IMG_CF_ALPHA_4BIT);
   etx_img_color(shadow, COLOR_THEME_PRIMARY1_INDEX);
   lv_obj_set_style_img_opa(shadow, LV_OPA_40, LV_PART_MAIN);
   lv_obj_set_pos(shadow, 2, 2);
 
   mask = lv_canvas_create(lvobj);
-  lv_canvas_set_buffer(mask, maskBuffer, SLIDER_MASK_SIZE, SLIDER_MASK_SIZE, LV_IMG_CF_ALPHA_8BIT);
+  lv_canvas_set_buffer(mask, maskBuffer, SLIDER_MASK_SIZE, SLIDER_MASK_SIZE, LV_IMG_CF_ALPHA_4BIT);
   etx_img_color(mask, COLOR_THEME_FOCUS_INDEX);
   lv_obj_set_pos(mask, 1, 1);
 
@@ -69,7 +69,7 @@ MainViewSlider::MainViewSlider(Window* parent, const rect_t& rect, uint8_t idx,
   if (mask) {
     maskCanvas = lv_canvas_create(lvobj);
     etx_img_color(maskCanvas, COLOR_THEME_SECONDARY1_INDEX);
-    lv_canvas_set_buffer(maskCanvas, mask->data, mask->width, mask->height, LV_IMG_CF_ALPHA_8BIT);
+    lv_canvas_set_buffer(maskCanvas, mask->data, mask->width, mask->height, LV_IMG_CF_ALPHA_4BIT);
 
     if (isVertical) {
       lv_obj_set_pos(maskCanvas, 2, SliderIcon::SLIDER_ICON_SIZE / 2);
@@ -103,7 +103,8 @@ MaskBitmap* MainViewSlider::getTicksMask()
     if (mask->width == w && mask->height == h) return mask;
   }
 
-  MaskBitmap* mask =(MaskBitmap*)malloc(w * h + sizeof(uint16_t) * 2);
+  uint32_t size = mask4BitSize(w, h);
+  MaskBitmap* mask = (MaskBitmap*)malloc(size + sizeof(MaskBitmap));
   if (!mask) {
     TRACE("Could not create Slider mask");
     return nullptr;
@@ -111,7 +112,18 @@ MaskBitmap* MainViewSlider::getTicksMask()
 
   mask->width = w;
   mask->height = h;
-  memset(mask->data, 0, w * h);
+  memset(mask->data, 0, size);
+
+  lv_obj_t* canvas = lv_canvas_create(nullptr);
+  lv_canvas_set_buffer(canvas, mask->data, w, h, LV_IMG_CF_ALPHA_4BIT);
+
+  lv_draw_line_dsc_t line_dsc;
+  lv_draw_line_dsc_init(&line_dsc);
+  line_dsc.width = 1;
+  line_dsc.opa = LV_OPA_COVER;
+  line_dsc.color = lv_color_white();
+
+  lv_point_t p[2];
 
   if (isVertical) {
     // Create vertical mask for tick lines
@@ -125,7 +137,9 @@ MaskBitmap* MainViewSlider::getTicksMask()
         x = PAD_TINY;
         l = w - PAD_TINY * 2;
       }
-      memset(&mask->data[y * w + x], 0xFF, l);
+      p[0].x = x; p[0].y = y;
+      p[1].x = x + l; p[1].y = y;
+      lv_canvas_draw_line(canvas, p, 2, &line_dsc);
       y += SLIDER_TICK_SPACING;
     }
   } else {
@@ -140,11 +154,14 @@ MaskBitmap* MainViewSlider::getTicksMask()
         y = PAD_TINY;
         l = h - PAD_TINY * 2;
       }
-      for (uint8_t n = y; n < y + l; n += 1)
-        mask->data[n * w + x] = 0xFF;
+      p[0].x = x; p[0].y = y;
+      p[1].x = x; p[1].y = y + l;
+      lv_canvas_draw_line(canvas, p, 2, &line_dsc);
       x += SLIDER_TICK_SPACING;
     }
   }
+
+  lv_obj_del(canvas);
 
   // TRACE("Created Mask %d %d",w,h);
   tickMasks.emplace_back(mask);

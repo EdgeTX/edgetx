@@ -197,7 +197,7 @@ class TimerWidget : public Widget
   lv_obj_t* minusLabel = nullptr;
   lv_obj_t* timerArc = nullptr;
   lv_obj_t* timerBg = nullptr;
-  static uint8_t timerBgBuffer[TMR_LRG_W * TMR_LRG_H];
+  static uint8_t timerBgBuffer[mask4BitSize(TMR_LRG_W, TMR_LRG_H)];
   static bool timerBgDrawn;
   StaticIcon* timerIcon = nullptr;
   Messaging updateMsg;
@@ -305,7 +305,7 @@ class TimerWidget : public Widget
       if (timerBg) {
         lv_obj_move_background(timerBg);
         lv_canvas_set_buffer(timerBg, timerBgBuffer, TMR_LRG_W,
-                             TMR_LRG_H, LV_IMG_CF_ALPHA_8BIT);
+                             TMR_LRG_H, LV_IMG_CF_ALPHA_4BIT);
         etx_img_color(timerBg, COLOR_THEME_PRIMARY2_INDEX, LV_PART_MAIN);
         etx_img_color(timerBg, COLOR_THEME_WARNING_INDEX, LV_PART_MAIN | ETX_STATE_WARNING);
         lv_obj_set_style_img_opa(timerBg, LV_OPA_70, LV_PART_MAIN);

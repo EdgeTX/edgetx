@@ -304,7 +304,21 @@ TEST(Lcd_colorlcd, masks)
 
   dc.clear(COLOR_THEME_SECONDARY3);
 
-  MaskBitmap* mask = _decompressed_mask(mask_menu_radio);
+  MaskBitmap* mask4 = _decompressed_mask(mask_menu_radio);
+
+  // drawBitmapPattern() needs an 8-bit mask
+  MaskBitmap* mask =
+      (MaskBitmap*)malloc(sizeof(MaskBitmap) + mask4->width * mask4->height);
+  mask->width = mask4->width;
+  mask->height = mask4->height;
+  int stride = mask4BitStride(mask4->width);
+  for (int y = 0; y < mask4->height; y += 1) {
+    for (int x = 0; x < mask4->width; x += 1) {
+      uint8_t b = mask4->data[y * stride + x / 2];
+      mask->data[y * mask->width + x] = ((x & 1) ? (b & 0x0F) : (b >> 4)) * 17;
+    }
+  }
+  free(mask4);
 
   for (int i = 0; i < LCD_W; i += mask->width) {
     for (int j = 0; j < LCD_H; j += mask->height) {

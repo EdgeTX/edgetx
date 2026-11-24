@@ -217,36 +217,6 @@ LayoutFactory::LayoutFactory(const char* id, const char* name, const LayoutOptio
     id(id), name(name), options(options), zoneCount(zoneCount), zoneMap(zoneMap)
 {
   getRegisteredLayouts().push_back(this);
-
-  bitmap = (MaskBitmap*)malloc(align32(BM_W * BM_H + sizeof(MaskBitmap)));
-  bitmap->width = BM_W;
-  bitmap->height = BM_H;
-
-  uint8_t* bm = (uint8_t*)bitmap->data;
-  memset(bm, 0, BM_W * BM_H);
-
-  memset(bm, 0xFF, BM_W);
-  memset(bm+((BM_H-1)*BM_W), 0xFF, BM_W);
-
-  for (int y = 1; y < BM_H - 1; y += 1) {
-    bm[y*BM_W] = 0xFF;
-    bm[y*BM_W+BM_W-1] = 0xFF;
-  }
-
-  for (int i = 0; i < zoneCount * 4; i += 4) {
-    uint8_t xo = BM_W * zoneMap[i] / LAYOUT_MAP_DIV;
-    uint8_t yo = BM_H * zoneMap[i+1] / LAYOUT_MAP_DIV;
-    uint8_t w = BM_W * zoneMap[i+2] / LAYOUT_MAP_DIV;
-    uint8_t h = (BM_H * zoneMap[i+3] + LAYOUT_MAP_DIV/2) / LAYOUT_MAP_DIV;
-
-    if (yo > 0)
-      memset(bm+(yo*BM_W+xo), 0xFF, w);
-    if (xo > 0) {
-      for (int y = 0; y < h; y += 1) {
-        bm[(yo+y)*BM_W+xo] = 0xFF;
-      }
-    }
-  }
 }
 
 LayoutFactory::~LayoutFactory()
@@ -255,6 +225,58 @@ LayoutFactory::~LayoutFactory()
     free((void*)bitmap);
     bitmap = nullptr;
   }
+}
+
+const MaskBitmap* LayoutFactory::getBitmap() const
+{
+  if (!bitmap) {
+    uint32_t size = mask4BitSize(BM_W, BM_H);
+    bitmap = (MaskBitmap*)malloc(align32(size + sizeof(MaskBitmap)));
+    if (!bitmap) return nullptr;
+    bitmap->width = BM_W;
+    bitmap->height = BM_H;
+    memset((uint8_t*)bitmap->data, 0, size);
+
+    lv_obj_t* canvas = lv_canvas_create(nullptr);
+    lv_canvas_set_buffer(canvas, bitmap->data, BM_W, BM_H, LV_IMG_CF_ALPHA_4BIT);
+
+    lv_draw_rect_dsc_t rect;
+    lv_draw_rect_dsc_init(&rect);
+    rect.bg_opa = LV_OPA_TRANSP;
+    rect.border_color = lv_color_white();
+    rect.border_width = 1;
+    lv_canvas_draw_rect(canvas, 0, 0, BM_W, BM_H, &rect);
+
+    lv_draw_line_dsc_t line_dsc;
+    lv_draw_line_dsc_init(&line_dsc);
+    line_dsc.width = 1;
+    line_dsc.opa = LV_OPA_COVER;
+    line_dsc.color = lv_color_white();
+
+    lv_point_t p[2];
+
+    for (int i = 0; i < zoneCount * 4; i += 4) {
+      uint8_t xo = BM_W * zoneMap[i] / LAYOUT_MAP_DIV;
+      uint8_t yo = BM_H * zoneMap[i+1] / LAYOUT_MAP_DIV;
+      uint8_t w = BM_W * zoneMap[i+2] / LAYOUT_MAP_DIV;
+      uint8_t h = (BM_H * zoneMap[i+3] + LAYOUT_MAP_DIV/2) / LAYOUT_MAP_DIV;
+
+      if (yo > 0) {
+        p[0].x = xo; p[0].y = yo;
+        p[1].x = xo + w; p[1].y = yo;
+        lv_canvas_draw_line(canvas, p, 2, &line_dsc);
+      }
+      if (xo > 0) {
+        p[0].x = xo; p[0].y = yo;
+        p[1].x = xo; p[1].y = yo + h;
+        lv_canvas_draw_line(canvas, p, 2, &line_dsc);
+      }
+    }
+
+    lv_obj_del(canvas);
+  }
+
+  return bitmap;
 }
 
 inline LayoutOptionValueEnum layoutValueEnumFromType(LayoutOption::Type type)
