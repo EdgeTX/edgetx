@@ -183,6 +183,9 @@ static const ParseCase parseCases[] = {
   {"-Infinity", 0xFF800000u, 9, false},
   {"inf", 0x7F800000u, 3, false},
   {"e5", 0x00000000u, 0, false},
+  {"-", 0x00000000u, 0, false},  // no conversion: +0, not -0
+  {"-abc", 0x00000000u, 0, false},
+  {"-0x", 0x80000000u, 2, false},  // "-0" converts
   {"", 0x00000000u, 0, false},
 };
 

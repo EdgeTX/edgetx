@@ -317,6 +317,7 @@ static float parse_decimal(const char* start, const char* nptr, char** endptr)
 float __wrap_strtof(const char* nptr, char** endptr)
 {
   const char* s = nptr;
+  char* end;
   while (isspace((unsigned char)*s)) s++;
 
   int neg = 0;
@@ -325,7 +326,7 @@ float __wrap_strtof(const char* nptr, char** endptr)
   float result;
   if (match_word(s, "inf")) {
     s += match_word(s, "infinity") ? 8 : 3;
-    if (endptr) *endptr = (char*)s;
+    end = (char*)s;
     result = HUGE_VALF;
   } else if (match_word(s, "nan")) {
     s += 3;
@@ -334,13 +335,15 @@ float __wrap_strtof(const char* nptr, char** endptr)
       while (isalnum((unsigned char)*p) || *p == '_') p++;
       if (*p == ')') s = p + 1;
     }
-    if (endptr) *endptr = (char*)s;
+    end = (char*)s;
     result = __builtin_nanf("");
   } else if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X')) {
-    result = parse_hex(s, endptr);
+    result = parse_hex(s, &end);
   } else {
-    result = parse_decimal(s, nptr, endptr);
+    result = parse_decimal(s, nptr, &end);
   }
+  if (endptr) *endptr = end;
+  if (end == nptr) return 0.0f;  /* no conversion: +0, even after '-' */
   return neg ? -result : result;
 }
 
