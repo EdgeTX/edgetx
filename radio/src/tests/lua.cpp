@@ -331,7 +331,7 @@ TEST(Lua, getSwitchInfo)
   RADIO_RESET();
   MODEL_RESET();
   char name[32];
-  char lua[256];
+  char lua[320];
 
   // Unconfigured switches still return a table, with type SWITCH_NONE
   int unconfigured = -1;
@@ -1052,7 +1052,7 @@ TEST(Lua, testModelSensors)
 
   // Out of range, a calculated sensor: not set
   g_model.telemetrySensors[2].type = TELEM_TYPE_CALCULATED;
-  strncpy(g_model.telemetrySensors[2].label, "Calc", TELEM_LABEL_LEN);
+  memcpy(g_model.telemetrySensors[2].label, "Calc", TELEM_LABEL_LEN);
   luaExecStr(
       "assert(not model.setSensor(60000, {id = 1}))\n"
       "assert(not model.setSensor(2, {id = 1}))\n");
