@@ -149,8 +149,8 @@ static void clear_frame_buffers()
 {
   memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
   memset(LCD_SECOND_FRAME_BUFFER, 0, sizeof(LCD_SECOND_FRAME_BUFFER));
-#if defined(RADIO_TX16SMK3) && !defined(SIMU)
-  // LTDC reads SDRAM directly: push the cleared buffers out of D-cache
+#if !defined(SIMU) && defined(__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
+  // Make the cleared buffers visible to the display controller.
   SCB_CleanDCache();
 #endif
 }
@@ -202,12 +202,8 @@ void lcdInitDisplayDriver()
 
   // Clear buffers first
   clear_frame_buffers();
-#if defined(RADIO_TX16SMK3) && !defined(SIMU)
-  // Keep scanout on the other cleared buffer while drawing frame one.
+  // Keep scanout separate from LVGL's first draw buffer.
   lcdSetInitalFrameBuffer(LCD_SECOND_FRAME_BUFFER);
-#else
-  lcdSetInitalFrameBuffer(LCD_FIRST_FRAME_BUFFER);
-#endif
 
   // Init hardware LCD driver
   lcdInit();
