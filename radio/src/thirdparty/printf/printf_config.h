@@ -1,0 +1,18 @@
+#pragma once
+
+// eyalroz/printf v6.3.0 configuration for EdgeTX firmware
+// Float-only (no double) to avoid pulling in newlib's double-precision code
+
+#define PRINTF_SUPPORT_DECIMAL_SPECIFIERS       1
+#define PRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS   1
+#define PRINTF_SUPPORT_WRITEBACK_SPECIFIER      0
+#define PRINTF_SUPPORT_LONG_LONG                0
+#define PRINTF_USE_DOUBLE_INTERNALLY            0
+#define PRINTF_ALIAS_STANDARD_FUNCTION_NAMES_SOFT    0
+#ifndef PRINTF_ALIAS_STANDARD_FUNCTION_NAMES_HARD  // unit tests keep the _ names
+#define PRINTF_ALIAS_STANDARD_FUNCTION_NAMES_HARD    1
+#endif
+
+#define PRINTF_INTEGER_BUFFER_SIZE              32
+#define PRINTF_DEFAULT_FLOAT_PRECISION          6
+#define PRINTF_CHECK_FOR_NUL_IN_FORMAT_SPECIFIER 0

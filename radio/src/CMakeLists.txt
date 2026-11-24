@@ -599,7 +599,7 @@ endforeach()
 add_definitions(-DCORRECT_NEGATIVE_SHIFTS)
 
 if(NOT MSVC)
-  set(WARNING_FLAGS "${WARNING_FLAGS} -Wall -Wno-address-of-packed-member -Wno-strict-aliasing -Wformat -Wreturn-type -Wunused -Wuninitialized -Wunknown-pragmas -Wno-switch -Wtype-limits")
+  set(WARNING_FLAGS "${WARNING_FLAGS} -Wall -Wno-address-of-packed-member -Wno-strict-aliasing -Wformat -Wreturn-type -Wunused -Wuninitialized -Wunknown-pragmas -Wno-switch -Wtype-limits -Wdouble-promotion")
   if(WARNINGS_AS_ERRORS)
     set(WARNING_FLAGS "${WARNING_FLAGS} -Werror")
   endif(WARNINGS_AS_ERRORS)
@@ -702,6 +702,8 @@ if(BOOTLOADER)
   set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} bootloader)
 endif()
 
+add_subdirectory(thirdparty/printf)
+
 add_executable(firmware ${SRC})
 link_libraries(firmware -lstdc++)
 add_dependencies(firmware ${RADIO_DEPENDENCIES})
@@ -710,6 +712,8 @@ set_target_properties(firmware PROPERTIES EXCLUDE_FROM_ALL TRUE)
 if(ARCH STREQUAL ARM)
   target_link_libraries(firmware PRIVATE cmsis)
 endif()
+
+target_link_libraries(firmware PRIVATE printf)
 
 target_compile_definitions(board PUBLIC FREE_RTOS)
 target_compile_definitions(board_lib PUBLIC FREE_RTOS)
@@ -758,6 +762,7 @@ endif()
 target_link_options(firmware PRIVATE
   -lm -T${LINKER_DIR}/${LINKER_SCRIPT}
   -Wl,-Map=firmware.map,--cref,--no-warn-mismatch,--gc-sections
+  -Wl,--wrap=strtof,--wrap=strtod
 )
 
 if(NANO)
@@ -791,12 +796,8 @@ if (DEFINED TARGET_PSRAM_START)
   )
 endif()
 
-if (LUA)
-  # Lua needs %g and %f
-  target_link_options(firmware PRIVATE
-    "SHELL:-u _printf_float" "SHELL:-u _scanf_float"
-  )
-endif()
+# _printf_float / _scanf_float no longer needed:
+# eyalroz/printf provides float formatting, custom strtof replaces newlib's
 
 if(ACCESS_DENIED)
   add_subdirectory(thirdparty/AccessDenied)
@@ -811,6 +812,14 @@ if(FIRMWARE_STRIP_BOOTLOADER)
 else()
   message("-- Bootloader contained in firmware binary")
 endif()
+
+# Keep newlib's double-precision conversion chain and scanf engine out
+add_custom_command(
+  TARGET firmware POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -DNM=${CMAKE_NM} -DELF=$<TARGET_FILE:firmware>
+          -P ${CMAKE_SOURCE_DIR}/cmake/CheckFirmwareSymbols.cmake
+  VERBATIM
+  )
 
 if(FIRMWARE_FORMAT_UF2)
   if(VERSION_TAG)
