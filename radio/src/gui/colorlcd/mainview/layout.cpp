@@ -227,14 +227,14 @@ LayoutFactory::~LayoutFactory()
   }
 }
 
-const MaskBitmap* LayoutFactory::getBitmap()
+const MaskBitmap* LayoutFactory::getBitmap() const
 {
   if (!bitmap) {
-    int pixels = (BM_W + 1) / 2 * BM_H;
-    bitmap = (MaskBitmap*)malloc(align32(pixels + sizeof(MaskBitmap)));
+    uint32_t size = mask4BitSize(BM_W, BM_H);
+    bitmap = (MaskBitmap*)malloc(align32(size + sizeof(MaskBitmap)));
     bitmap->width = BM_W;
     bitmap->height = BM_H;
-    memset((uint8_t*)bitmap->data, 0, pixels);
+    memset((uint8_t*)bitmap->data, 0, size);
 
     lv_obj_t* canvas = lv_canvas_create(nullptr);
     lv_canvas_set_buffer(canvas, bitmap->data, BM_W, BM_H, LV_IMG_CF_ALPHA_4BIT);

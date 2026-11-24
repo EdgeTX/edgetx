@@ -103,8 +103,8 @@ MaskBitmap* MainViewSlider::getTicksMask()
     if (mask->width == w && mask->height == h) return mask;
   }
 
-  int pixels = (w + 1) / 2 * h;
-  MaskBitmap* mask =(MaskBitmap*)malloc(pixels + sizeof(uint16_t) * 2);
+  uint32_t size = mask4BitSize(w, h);
+  MaskBitmap* mask = (MaskBitmap*)malloc(size + sizeof(MaskBitmap));
   if (!mask) {
     TRACE("Could not create Slider mask");
     return nullptr;
@@ -112,7 +112,7 @@ MaskBitmap* MainViewSlider::getTicksMask()
 
   mask->width = w;
   mask->height = h;
-  memset(mask->data, 0, pixels);
+  memset(mask->data, 0, size);
 
   lv_obj_t* canvas = lv_canvas_create(nullptr);
   lv_canvas_set_buffer(canvas, mask->data, w, h, LV_IMG_CF_ALPHA_4BIT);

@@ -60,15 +60,13 @@ MaskBitmap* _decompressed_mask(const uint8_t* lz4_compressed)
   // skip 8 bytes header
   lz4_compressed += 8;
 
-  // Masks are stored as 4-bit alpha, 2 pixels per byte (high nibble first).
-  // Rows are padded with an extra nibble if the width is odd
-  uint32_t pixels = (width + 1) / 2 * height;
-  MaskBitmap* raw = (MaskBitmap*)malloc(align32(pixels + 4));
+  uint32_t size = mask4BitSize(width, height);
+  MaskBitmap* raw = (MaskBitmap*)malloc(align32(size + 4));
 
   raw->width = width;
   raw->height = height;
 
-  LZ4_decompress_safe((const char*)lz4_compressed, (char*)&raw->data, len, pixels);
+  LZ4_decompress_safe((const char*)lz4_compressed, (char*)&raw->data, len, size);
 
   return raw;
 }
@@ -440,15 +438,13 @@ static MaskBitmap* _screen_icon_mask(EdgeTxIcon id)
   LAYOUT_VAL_SCALED(SZ, 30)
   LAYOUT_VAL_SCALED(PAD, 1)
 
-  // Masks are stored as 4-bit alpha, 2 pixels per byte (high nibble first).
-  // Rows are padded with an extra nibble if the width is odd
-  int pixels = (SZ + 1) / 2 * SZ;
-  MaskBitmap* mask = (MaskBitmap*)malloc(align32(pixels + 4));
+  uint32_t size = mask4BitSize(SZ, SZ);
+  MaskBitmap* mask = (MaskBitmap*)malloc(align32(size + 4));
   if (!mask) return nullptr;
 
   mask->width = SZ;
   mask->height = SZ;
-  memset(mask->data, 0, pixels);
+  memset(mask->data, 0, size);
 
   // Draw straight into the mask: on an alpha canvas LVGL stores the
   // brightness of the drawn colour as the alpha value.

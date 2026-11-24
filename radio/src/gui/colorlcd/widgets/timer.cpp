@@ -198,7 +198,7 @@ class TimerWidget : public Widget
   lv_obj_t* minusLabel = nullptr;
   lv_obj_t* timerArc = nullptr;
   lv_obj_t* timerBg = nullptr;
-  static uint8_t timerBgBuffer[TMR_LRG_W * TMR_LRG_H];
+  static uint8_t timerBgBuffer[mask4BitSize(TMR_LRG_W, TMR_LRG_H)];
   static bool timerBgDrawn;
   StaticIcon* timerIcon = nullptr;
   Messaging updateMsg;

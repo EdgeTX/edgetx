@@ -141,7 +141,6 @@ class ImageEncoder:
         image = image.convert(mode='L')
         width, height = image.size
         self.write_size(width, height)
-        pending = None
         for y in range(height):
             for x in range((width + 1) // 2):
                 value = 0xFF - self.get_pixel(image, x * 2, y)

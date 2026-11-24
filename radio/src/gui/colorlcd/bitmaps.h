@@ -135,6 +135,12 @@ struct MaskBitmap {
   uint8_t data[];
 };
 
+// Size in bytes of the data for a 4-bit mask of the given dimensions
+constexpr uint32_t mask4BitSize(uint32_t w, uint32_t h)
+{
+  return (w + 1) / 2 * h;
+}
+
 // Returns a 4-bit mask (see above)
 const MaskBitmap* getBuiltinIcon(EdgeTxIcon id);
 

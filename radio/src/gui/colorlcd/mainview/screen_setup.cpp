@@ -63,7 +63,7 @@ class LayoutChoice : public Button
   {
     auto menu = new Menu();
     for (auto layout : LayoutFactory::getRegisteredLayouts()) {
-      menu->addLine(((LayoutFactory*)layout)->getBitmap(), layout->getName(),
+      menu->addLine(layout->getBitmap(), layout->getName(),
                     [=]() { if (setValue) setValue(layout); update(); });
     }
 
@@ -90,7 +90,7 @@ class LayoutChoice : public Button
     auto layout = getValue();
     if (!layout) return;
 
-    const MaskBitmap* bitmap = ((LayoutFactory*)layout)->getBitmap();
+    const MaskBitmap* bitmap = layout->getBitmap();
     if (!bitmap) return;
 
     lv_coord_t w = bitmap->width;
