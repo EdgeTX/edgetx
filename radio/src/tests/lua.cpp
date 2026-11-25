@@ -425,6 +425,17 @@ TEST(Lua, getFieldInfoSensorBeforeSwitch)
   MODEL_RESET();
 }
 
+TEST(Lua, getChargingState)
+{
+#if defined(USB_CHARGER)
+  luaExecStr("assert(type(getChargingState) == 'function')");
+  luaExecStr("assert(select('#', getChargingState()) == 1)");
+  luaExecStr("assert(type(getChargingState()) == 'boolean')");
+#else
+  luaExecStr("assert(getChargingState == nil)");
+#endif
+}
+
 #if defined(MODULE_BATTERY_SENSOR)
 // Fixed names, so scripts work whatever language the source names are in
 TEST(Lua, batterySensorFields)
