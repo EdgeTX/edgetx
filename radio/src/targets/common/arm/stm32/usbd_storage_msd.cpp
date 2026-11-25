@@ -35,6 +35,12 @@
 #include "debug.h"
 
 #include "usb_descriptor.h"
+
+// Hand-written descriptors only give an 8 byte USB_PRODUCT
+#if !defined(USB_INQUIRY_PRODUCT)
+#define USB_INQUIRY_PRODUCT USB_PRODUCT, 'R', 'a', 'd', 'i', 'o', ' ', ' ', ' '
+#endif
+
 #include "usbd_storage_msd.h"
 
 #include <string.h>
@@ -86,8 +92,7 @@ const uint8_t STORAGE_Inquirydata[] = {/* 36 */
   0x00,
   0x00,
   USB_MANUFACTURER,                        /* Manufacturer : 8 bytes */
-  USB_PRODUCT,                             /* Product      : 16 Bytes */
-  'R', 'a', 'd', 'i', 'o', ' ', ' ', ' ',
+  USB_INQUIRY_PRODUCT,                     /* Product      : 16 Bytes */
   '1', '.', '0', '0',                      /* Version      : 4 Bytes */
 
 #if USE_UF2_DRIVE
@@ -101,8 +106,7 @@ const uint8_t STORAGE_Inquirydata[] = {/* 36 */
   0x00,
   0x00,
   USB_MANUFACTURER,                        /* Manufacturer : 8 bytes */
-  USB_PRODUCT,                             /* Product      : 16 Bytes */
-  'R', 'a', 'd', 'i', 'o', ' ', ' ', ' ',
+  USB_INQUIRY_PRODUCT,                     /* Product      : 16 Bytes */
   '1', '.', '0' ,'0',                      /* Version      : 4 Bytes */
 #endif
 };

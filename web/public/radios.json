@@ -1,5 +1,138 @@
 [
   {
+    "name": "BETAFPV NexRadio 14",
+    "wasm": "edgetx-n14-simulator.wasm",
+    "display": {
+      "w": 128,
+      "h": 64,
+      "depth": 1
+    },
+    "inputs": [
+      {
+        "name": "LH",
+        "type": "STICK",
+        "label": "LH"
+      },
+      {
+        "name": "LV",
+        "type": "STICK",
+        "label": "LV"
+      },
+      {
+        "name": "RV",
+        "type": "STICK",
+        "label": "RV"
+      },
+      {
+        "name": "RH",
+        "type": "STICK",
+        "label": "RH"
+      },
+      {
+        "name": "P1",
+        "type": "FLEX",
+        "label": "P1",
+        "default": "POT"
+      },
+      {
+        "name": "P2",
+        "type": "FLEX",
+        "label": "P2",
+        "default": "POT"
+      },
+      {
+        "name": "SL1",
+        "type": "FLEX",
+        "label": "S1",
+        "default": "SLIDER"
+      },
+      {
+        "name": "SL2",
+        "type": "FLEX",
+        "label": "S2",
+        "default": "SLIDER"
+      }
+    ],
+    "switches": [
+      {
+        "name": "SA",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SB",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SC",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SD",
+        "type": "3POS",
+        "default": "3POS"
+      },
+      {
+        "name": "SE",
+        "type": "2POS",
+        "default": "2POS"
+      },
+      {
+        "name": "SF",
+        "type": "2POS",
+        "default": "2POS"
+      }
+    ],
+    "trims": [
+      {
+        "name": "T1"
+      },
+      {
+        "name": "T2"
+      },
+      {
+        "name": "T3"
+      },
+      {
+        "name": "T4"
+      }
+    ],
+    "keys": [
+      {
+        "key": "KEY_MODEL",
+        "label": "MDL",
+        "side": "R"
+      },
+      {
+        "key": "KEY_SYS",
+        "label": "SYS",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEUP",
+        "label": "PAGE◀",
+        "side": "L"
+      },
+      {
+        "key": "KEY_PAGEDN",
+        "label": "PAGE▶",
+        "side": "R"
+      },
+      {
+        "key": "KEY_EXIT",
+        "label": "EXIT",
+        "side": "L"
+      },
+      {
+        "key": "KEY_ENTER",
+        "label": "Enter ⏎",
+        "side": "R"
+      }
+    ]
+  },
+  {
     "name": "Fatfish F16",
     "wasm": "edgetx-f16-simulator.wasm",
     "display": {

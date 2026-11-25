@@ -24,6 +24,7 @@
 #include "hal/gpio.h"
 #include "hal/usb_driver.h"
 #include "stm32_gpio.h"
+#include "stm32_gpio_driver.h"
 
 void pwrInit()
 {
@@ -99,8 +100,10 @@ void pwrInit()
 void pwrOn()
 {
 #if defined(PWR_ON_GPIO)
-  gpio_init(PWR_ON_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
+  // set high before output mode to avoid a low glitch
+  stm32_gpio_enable_clock(gpio_get_port(PWR_ON_GPIO));
   gpio_set(PWR_ON_GPIO);
+  gpio_init(PWR_ON_GPIO, GPIO_OUT, GPIO_PIN_SPEED_LOW);
 #endif
 }
 

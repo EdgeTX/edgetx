@@ -49,6 +49,12 @@ int8_t slider_5pos(coord_t y, int8_t value, event_t event, uint8_t attr, const c
   #define CASE_HAS_BACKLIGHT_COLOR(x)
 #endif
 
+#if defined(USB_CHARGE_CONTROL)
+  #define CASE_USB_CHARGE_CONTROL(x) x,
+#else
+  #define CASE_USB_CHARGE_CONTROL(x)
+#endif
+
 enum MenuRadioSetupItems {
   CASE_RTCLOCK(ITEM_RADIO_SETUP_DATE)
   CASE_RTCLOCK(ITEM_RADIO_SETUP_TIME)
@@ -116,6 +122,7 @@ enum MenuRadioSetupItems {
   ITEM_RADIO_SETUP_SWITCHES_DELAY,
   ITEM_RADIO_SETUP_USB_MODE,
   ITEM_RADIO_SETUP_USB_MODE_OVERRIDE,
+  CASE_USB_CHARGE_CONTROL(ITEM_RADIO_SETUP_USB_CHARGE)
   ITEM_RADIO_SETUP_RX_CHANNEL_ORD,
   CASE_ROTARY_ENCODER(ITEM_RADIO_SETUP_ROTARY_ENC_MODE)
   ITEM_RADIO_SETUP_STICK_MODE_LABELS,
@@ -266,6 +273,7 @@ void menuRadioSetup(event_t event)
     0, // switches delay
     0, // USB mode
     USB_MODE_OVERRIDE_ROW(LABEL(0)), // model USB mode override
+    CASE_USB_CHARGE_CONTROL(0) // Charge while radio on
     0, // RX channels order
     CASE_ROTARY_ENCODER(0)  // Invert rotary encoder
     LABEL(TX_MODE),
@@ -799,6 +807,19 @@ void menuRadioSetup(event_t event)
         s += STR_MODEL_USBMODES[g_model.usbMode];
         lcdDrawText(LCD_W - MENUS_SCROLLBAR_WIDTH, y, s.c_str(), RIGHT);
       } break;
+
+#if defined(USB_CHARGE_CONTROL)
+      case ITEM_RADIO_SETUP_USB_CHARGE: {
+        uint8_t charge = !g_eeGeneral.usbChargeDisabled;
+        uint8_t newCharge = editCheckBox(charge, RADIO_SETUP_2ND_COLUMN, y, STR_USB_CHARGE, attr, event);
+        if (newCharge != charge) {
+          g_eeGeneral.usbChargeDisabled = !newCharge;
+          // take effect now, not only on the next plug
+          if (usbPlugged())
+            usbChargerEnableCharge(newCharge);
+        }
+      } break;
+#endif
 
       case ITEM_RADIO_SETUP_RX_CHANNEL_ORD:
         lcdDrawTextAlignedLeft(y, STR_DEF_CHAN_ORD); // RAET->AETR
