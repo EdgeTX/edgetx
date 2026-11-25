@@ -47,6 +47,12 @@
     },
 
     {
+      "name": "n14",
+      "displayName": "BETAFPV NexRadio 14",
+      "inherits": "firmware",
+      "cacheVariables": { "PCB": "N14" }
+    },
+    {
       "name": "f16",
       "displayName": "Fatfish F16",
       "inherits": "firmware",

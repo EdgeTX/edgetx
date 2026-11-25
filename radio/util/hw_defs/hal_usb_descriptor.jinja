@@ -7,4 +7,7 @@
 
 #define USB_NAME "{{ identity.manufacturer }} {{ identity.model }}"
 #define USB_MANUFACTURER {% for c in identity.usb_manufacturer.ljust(8) %}'{{ c }}'{% if not loop.last %}, {% endif %}{% endfor %}  /* 8 bytes */
-#define USB_PRODUCT {% for c in identity.usb_product.ljust(8) %}'{{ c }}'{% if not loop.last %}, {% endif %}{% endfor %}  /* 8 Bytes */
+{# SCSI inquiry product: up to 8 chars get the legacy "Radio" suffix, longer names fill all 16 bytes -#}
+{% set p = identity.usb_product -%}
+{% set inquiry = (p.ljust(8) ~ 'Radio   ') if p|length <= 8 else p.ljust(16) -%}
+#define USB_INQUIRY_PRODUCT {% for c in inquiry %}'{{ c }}'{% if not loop.last %}, {% endif %}{% endfor %}  /* 16 Bytes */

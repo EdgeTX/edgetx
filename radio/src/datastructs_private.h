@@ -1299,9 +1299,21 @@ PACK(struct RadioData {
 #endif
 #elif LCD_W == 128
   uint8_t invertLCD:1;          // Invert B&W LCD display
+#if defined(USB_CHARGE_CONTROL)
+  // 0 = charge while USB active (default), 1 = hold the charger off
+  NOBACKUP(uint8_t usbChargeDisabled:1);
+  NOBACKUP(uint8_t spare:3 SKIP);
+#else
+  NOBACKUP(uint8_t spare:4 SKIP);
+#endif
+#else
+#if defined(USB_CHARGE_CONTROL)
+  // 0 = charge while USB active (default), 1 = hold the charger off
+  NOBACKUP(uint8_t usbChargeDisabled:1);
   NOBACKUP(uint8_t spare:4 SKIP);
 #else
   NOBACKUP(uint8_t spare:5 SKIP);
+#endif
 #endif
 
   NOBACKUP(uint8_t pwrOffIfInactive);

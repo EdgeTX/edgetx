@@ -61,6 +61,7 @@ jobs:
       matrix:
         # each target uses one of the 20 runners available, keep grouped to manage concurrency
         target:
+          - n14 # BETAFPV
           - el18;nv14 # Flysky
           - nb4p;pa01 # Flysky
           - pl18;pl18ev # Flysky
@@ -113,6 +114,7 @@ jobs:
       matrix:
         # each target uses one of the 20 runners available, keep grouped to manage concurrency
         target:
+          - n14 # BETAFPV
           - f16 # Fatfish
           - el18;nv14 # Flysky
           - nb4p;pa01;st16 # Flysky

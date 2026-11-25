@@ -67,7 +67,7 @@
         "manufacturer":     { "type": "string", "minLength": 1 },
         "model":            { "type": "string", "minLength": 1 },
         "usb_manufacturer": { "type": "string", "minLength": 1, "maxLength": 8, "description": "USB manufacturer string (USB_MANUFACTURER); space-padded to a fixed 8 bytes at codegen time." },
-        "usb_product":      { "type": "string", "minLength": 1, "maxLength": 8, "description": "USB product string (USB_PRODUCT); space-padded to a fixed 8 bytes at codegen time." }
+        "usb_product":      { "type": "string", "minLength": 1, "maxLength": 16, "description": "USB mass storage (SCSI inquiry) product string. Up to 8 characters are space-padded and followed by \"Radio\"; longer names fill the whole 16 bytes." }
       }
     },
 
@@ -88,7 +88,7 @@
       "properties": {
         "name":                   { "type": "string" },
         "adc":                    { "type": "string", "pattern": "^(ADC[1-9]|SPI[1-9])$" },
-        "dma":                    { "type": ["string", "null"], "pattern": "^DMA[12]$" },
+        "dma":                    { "type": ["string", "null"], "pattern": "^(GP)?DMA[12]$" },
         "dma_channel":            { "type": "string" },
         "dma_stream":             { "type": "string" },
         "dma_stream_irq":         { "type": "string" },
@@ -346,7 +346,7 @@
       "required": ["cpu", "cpu_type"],
       "properties": {
         "cpu":                     { "type": "string", "pattern": "^STM32[A-Za-z0-9]+$" },
-        "cpu_type":                { "type": "string", "enum": ["STM32F2", "STM32F4", "STM32H7"] },
+        "cpu_type":                { "type": "string", "enum": ["STM32F2", "STM32F4", "STM32H5", "STM32H7"] },
         "has_audio_mute":          { "type": "boolean" },
         "has_aux_serial":          { "type": "boolean" },
         "has_aux_serial_pwr":      { "type": "boolean" },
