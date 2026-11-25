@@ -41,6 +41,10 @@ constexpr char UF2_INFO_FILENAME[]          {"INFO_UF2.TXT"};
 //constexpr char UF2_INDEX_FILENAME[]         {"INDEX.HTM"};  // commented to stop compiler warning
 constexpr char UF2_NEW_FIRMWARE_FILENAME[]  {"firmware.uf2"};
 
+constexpr unsigned long REDISCOVER_INITIAL_DELAY_MS {500};
+constexpr unsigned long REDISCOVER_POLL_INTERVAL_MS {200};
+constexpr int           REDISCOVER_RESET_RETRIES    {5};
+
 using namespace std::chrono_literals;
 
 FirmwareReaderWorker::FirmwareReaderWorker(QObject *parent) :
@@ -385,18 +389,45 @@ void FirmwareWriterWorker::rebootAndRediscover(DfuDevice &device, uint32_t addr,
 
   emit newMessage(tr("Waiting for device to reconnect..."));
 
+  // give the old device time to drop off the bus, otherwise it may
+  // still be enumerated and be picked up instead of the rebooted one
+  QThread::msleep(REDISCOVER_INITIAL_DELAY_MS);
+
   auto start = std::chrono::steady_clock::now();
+  bool found = false;
 
   while (std::chrono::steady_clock::now() - start < timeout) {
-    if (device.rediscover()) {
-      emit newMessage(tr("Device reconnected"));
-      emit progressChanged(2, 2);
-      return;
+    try {
+      // enumeration may fail transiently while the device re-enumerates
+      if (device.rediscover()) {
+        found = true;
+        break;
+      }
+    } catch (const std::exception &e) {
+      qDebug() << "DFU rediscover failed, retrying:" << e.what();
+    }
+    QThread::msleep(REDISCOVER_POLL_INTERVAL_MS);
+  }
+
+  if (!found) {
+    throw std::runtime_error(
+        tr("Timeout while reconnecting to device").toStdString());
+  }
+
+  // make sure the rebooted device is ready (dfuIDLE, no error status)
+  for (int retry = 1;; retry++) {
+    try {
+      device.reset_state();
+      break;
+    } catch (const std::exception &e) {
+      if (retry >= REDISCOVER_RESET_RETRIES) throw;
+      qDebug() << "DFU reset state failed, retrying:" << e.what();
+      QThread::msleep(REDISCOVER_POLL_INTERVAL_MS);
     }
   }
 
-  throw std::runtime_error(
-      tr("Timeout while reconnecting to device").toStdString());
+  emit newMessage(tr("Device reconnected"));
+  emit progressChanged(2, 2);
 }
 
 template <typename Worker>
@@ -503,6 +534,7 @@ bool writeFirmware(const QString &filename, ProgressWidget *progress)
                           TR("Cannot open file '%1': %2")
                           .arg(QDir::toNativeSeparators(filename))
                           .arg(f.errorString()));
+    return false;
   }
 
   auto data = f.readAll();
