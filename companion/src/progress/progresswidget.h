@@ -70,6 +70,8 @@ class ProgressWidget : public QWidget
     void onShowDetailsToggled(bool checked);
 
   private:
+    static void processEvents();
+
     Ui::ProgressWidget *ui;
     bool m_forceOpen;
     bool m_hasDetails;
