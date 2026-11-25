@@ -69,7 +69,10 @@ class FirmwareInterface
 
     inline QString getDate() { return date; }
     inline QString getTime() { return time; }
+    // flash image used for inspection (for UF2 this is the concatenated block payloads)
     inline const QByteArray& getFlash() { return flash; }
+    // unmodified input data, to be used when writing to the radio
+    inline const QByteArray& getRawData() const { return rawData; }
     inline int getSize() { return flashSize; }
     inline QString getFlavour() const { return flavour; }
     bool isHardwareCompatible(const FirmwareInterface &previousFirmware) const;
@@ -86,10 +89,12 @@ class FirmwareInterface
     unsigned int save(const QString & fileName);
     bool isValid();
     FirmwareType getType() { return type; }
+    bool isUF2() const { return type == FIRMWARE_TYPE_UF2; }
     const QString typeFileExtn() const { return (type == FIRMWARE_TYPE_UF2 ? "uf2" : "bin"); }
 
   private:
     QDialog* parentDialog;
+    QByteArray rawData;
     QByteArray flash;
     uint flashSize = 0;
     QString filename;
@@ -107,7 +112,7 @@ class FirmwareInterface
     uint splashHeight = 0;
     QImage::Format splashFormat;
     bool isValidFlag = false;
-    FirmwareType type;
+    FirmwareType type = FIRMWARE_TYPE_BIN;
 
     void initFlash(const QByteArray & flashData);
     QString seekString(const QString & string);
