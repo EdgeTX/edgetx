@@ -768,7 +768,6 @@
 #define TR_NO_FILES_ON_SD              "Žádné soubory na SD kartě!"
 #define TR_NO_SDCARD                   "Není SD karta"
 #define TR_WAITING_FOR_RX              "Čekám na RX..."
-#define TR_WAITING_FOR_TX              "Čekám na TX..."
 #define TR_WAITING_FOR_MODULE          TR("Čekání modul", "Čekání na modul...")
 #define TR_NO_TOOLS                    TR("Nejsou k dispozici", "Žádné nástroje k dispozici")
 #define TR_NORMAL                      "Normální"
@@ -779,10 +778,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16k bez telem.", "16k bez telemetrie")
 #define TR_16CH_WITH_TELEMETRY         TR("16k s telem.", "16k s telemetrií")
-#define TR_EXT_ANTENNA                 "Ext. anténa"
-#define TR_PIN                         "Pin"
-#define TR_UPDATE_RX_OPTIONS           "Uložit nastavení?"
-#define TR_UPDATE_TX_OPTIONS           "Uložit nastavení?"
 #define TR_MODULES_RX_VERSION          BUTTON("Verze modulu a RX")
 #define TR_SHOW_MIXER_MONITORS         "Zobrazit monitor mixů"
 #define TR_MENU_MODULES_RX_VERSION     "VERZE MODULU A RX"
@@ -791,11 +786,7 @@
 #define TR_STICKS_POTS_SLIDERS         "Osa/Pot/Slider"
 #define TR_RF_PROTOCOL                 "RF Protokol"
 #define TR_MODULE_OPTIONS              "Možnosti modulu"
-#define TR_POWER                       "Výkon"
-#define TR_NO_TX_OPTIONS               "Žádné možnosti"
 #define TR_RTC_BATT                    "RTC Bat"
-#define TR_POWER_METER_EXT             "Měřič výkonu (EXT)"
-#define TR_POWER_METER_INT             "Měřič výkonu (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spektální an. (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spektální an. (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
@@ -945,9 +936,6 @@
 #define TR_INTERNALRF                  "Interní RF modul"
 #define TR_INTERNAL_MODULE             "Interní modul"
 #define TR_EXTERNAL_MODULE             "Externí modul"
-#define TR_EDGETX_UPGRADE_REQUIRED     TR("Aktualizujte EdgeTX", "Vyžadována aktualizace EdgeTX")
-#define TR_TELEMETRY_DISABLED          "Telem. zakázána"
-#define TR_MORE_OPTIONS_AVAILABLE      TR("Více možností", "Více dostupných možností")
 #define TR_EXTERNALRF                  "Externí RF modul"
 #define TR_FAILSAFE                    TR("Failsafe", "Mód Failsafe")
 #define TR_FAILSAFESET                 "NASTAVENÍ FAILSAFE"
@@ -958,9 +946,6 @@
 #define TR_NONE                        "Nic"
 #define TR_NONE_UPPERCASE              "NIC"
 #define TR_MENUSENSOR                  "SENZOR"
-#define TR_POWERMETER_PEAK             "Špička"
-#define TR_POWERMETER_POWER            "Výkon"
-#define TR_POWERMETER_ATTN             "Útlum"
 #define TR_POWERMETER_FREQ             "Frek."
 #define TR_MENUTOOLS                   "NÁSTROJE"
 #define TR_MIC_RECORDER                "Záznam mikrofonu"
@@ -979,7 +964,6 @@
 #define TR_TURN_OFF_RECEIVER           "Vypněte přijímač"
 #define TR_STOPPING                    "Zastavuji..."
 #define TR_MENU_SPECTRUM_ANALYSER      "SPEKTRÁLNÍ ANALYZÉR"
-#define TR_MENU_POWER_METER            "MĚŘIČ VÝKONU"
 #define TR_SENSOR                      "SENZOR"
 #define TR_COUNTRY_CODE                "Kód regionu"
 #define TR_USBMODE                     "Režim USB"
@@ -1020,7 +1004,6 @@
 #define TR_BYTES                       "[B]"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_MODULE_UNBIND               BUTTON("Odpárovat")
-#define TR_POWERMETER_ATTN_NEEDED     "Útlumový člen nutný!"
 #define TR_PXX2_SELECT_RX              "Vyber RX..."
 #define TR_PXX2_DEFAULT                "<výchozí>"
 #define TR_BT_SELECT_DEVICE            "Vyberte zařízení"
@@ -1036,7 +1019,6 @@
 #define TR_REGISTER                    BUTTON(TR("Reg", "Registrovat"))
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "Dosah"))
 #define TR_RANGE_TEST                  "Test dosahu"
-#define TR_RECEIVER_OPTIONS            TR("MOŽNOSTI RX", "MOŽNOSTI PŘIJÍMAČE")
 #define TR_RESET_BTN                   BUTTON("Reset")
 #define TR_KEYS_BTN                    BUTTON(TR("SW","Přepínače"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogy"))
@@ -1189,7 +1171,6 @@
 #define TR_OTA_UPDATE                  "Aktualizace OTA..."
 #define TR_MODULE_RESET                "Reset modulu..."
 #define TR_UNSUPPORTED_RX              "Nepodporovaný RX"
-#define TR_OTA_UPDATE_ERROR            "Chyba aktualizace"
 #define TR_DEVICE_RESET                "Reset zařízení..."
 #define TR_ALTITUDE                    "Výška"
 #define TR_SCALE                       "Měřítko"

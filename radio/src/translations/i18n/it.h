@@ -768,7 +768,6 @@
 #define TR_NO_FILES_ON_SD               "SD senza file!"
 #define TR_NO_SDCARD                    "Scheda SD assente"
 #define TR_WAITING_FOR_RX               "Attendo la RX..."
-#define TR_WAITING_FOR_TX               "Attendo la TX..."
 #define TR_WAITING_FOR_MODULE           TR("Attendo modulo", "Attendo il modulo...")
 #define TR_NO_TOOLS                     "Strumenti non disp."
 #define TR_NORMAL                       "Normale"
@@ -779,10 +778,6 @@
 #define TR_FLEX_868                     "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY       TR("16CH senza telem.", "16CH senza telemetria")
 #define TR_16CH_WITH_TELEMETRY          TR("16CH con telem.", "16CH con telemetria")
-#define TR_EXT_ANTENNA                  "Antenna Ext."
-#define TR_PIN                          "Pin"
-#define TR_UPDATE_RX_OPTIONS            "Agg. opzioni RX?"
-#define TR_UPDATE_TX_OPTIONS            "Agg. opzioni TX?"
 #define TR_MODULES_RX_VERSION           BUTTON("Versioni Moduli / RX")
 #define TR_SHOW_MIXER_MONITORS          "Mostra monitors mixer"
 #define TR_MENU_MODULES_RX_VERSION      "VERSIONI MODULI / RX"
@@ -791,11 +786,7 @@
 #define TR_STICKS_POTS_SLIDERS          "Assi/Pot/Slider"
 #define TR_RF_PROTOCOL                  "Protocollo RF"
 #define TR_MODULE_OPTIONS               "Opzioni modulo"
-#define TR_POWER                        "Potenza"
-#define TR_NO_TX_OPTIONS                "Nessuna opzione TX"
 #define TR_RTC_BATT                     "RTC Batt"
-#define TR_POWER_METER_EXT              "Meter Potenza (EST)"
-#define TR_POWER_METER_INT              "Meter Potenza (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT        "Spettro (EST)"
 #define TR_SPECTRUM_ANALYSER_INT        "Spettro (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Config. modulo Ghost"
@@ -946,9 +937,6 @@
 #define TR_INTERNALRF                   "Modulo interno"
 #define TR_INTERNAL_MODULE              TR("Modulo int.", "Modulo interno")
 #define TR_EXTERNAL_MODULE              TR("Modulo est.", "Modulo esterno")
-#define TR_EDGETX_UPGRADE_REQUIRED      "EdgeTX richiede aggiornamento"
-#define TR_TELEMETRY_DISABLED           TR("Telem. off", "Telem. disabilitata")
-#define TR_MORE_OPTIONS_AVAILABLE       "Altre opzioni assenti"
 #define TR_EXTERNALRF                   "Modulo esterno"
 #define TR_FAILSAFE                     TR("Failsafe", "Modo failsafe")
 #define TR_FAILSAFESET                  TR("FAILSAFE", "IMPOSTAZIONI FAILSAFE")
@@ -959,9 +947,6 @@
 #define TR_NONE                         "Nessuno"
 #define TR_NONE_UPPERCASE               "NESSUNO"
 #define TR_MENUSENSOR                   "SENSORE"
-#define TR_POWERMETER_PEAK              "Picco"
-#define TR_POWERMETER_POWER             "Potenza"
-#define TR_POWERMETER_ATTN              "Att."
 #define TR_POWERMETER_FREQ              "Freq."
 #define TR_MENUTOOLS                    "TOOLS"
 #define TR_MIC_RECORDER                "Registr. microfono"
@@ -980,7 +965,6 @@
 #define TR_TURN_OFF_RECEIVER            "Spegni la RX"
 #define TR_STOPPING                     "Fermando..."
 #define TR_MENU_SPECTRUM_ANALYSER       "ANALIZZATORE SPETTRO"
-#define TR_MENU_POWER_METER             "MISURATORE POTENZA"
 #define TR_SENSOR                       "SENSORE"
 #define TR_COUNTRY_CODE                 TR("Cod. Paese", "Codice del Paese")
 #define TR_USBMODE                      "Modo USB"
@@ -1021,7 +1005,6 @@
 #define TR_BYTES                        "Bytes"
 #define TR_MODULE_BIND                  TR("[Bnd]","[Bind]")
 #define TR_MODULE_UNBIND                BUTTON("Unbind")
-#define TR_POWERMETER_ATTN_NEEDED       "Attenuatore necessario"
 #define TR_PXX2_SELECT_RX               "Seleziona RX..."
 #define TR_PXX2_DEFAULT                 "<default>"
 #define TR_BT_SELECT_DEVICE             "Seleziona dispositivo"
@@ -1037,7 +1020,6 @@
 #define TR_REGISTER                     BUTTON(TR("Reg", "Registra"))
 #define TR_MODULE_RANGE                 TR("[Rng]","[Range]")
 #define TR_RANGE_TEST                  "Test del link radio a bassa potenza"
-#define TR_RECEIVER_OPTIONS             TR("OPZIONI RX", "OPZIONI RICEVENTE")
 #define TR_RESET_BTN                    "[Reset]"
 #define TR_KEYS_BTN                     BUTTON(TR("SW", "Tasti"))
 #define TR_ANALOGS_BTN                  BUTTON("Analogici")
@@ -1186,7 +1168,6 @@
 #define TR_OTA_UPDATE                   "Aggiorn. OTA..."
 #define TR_MODULE_RESET                 "Reset modulo..."
 #define TR_UNSUPPORTED_RX               "RX non compatibile"
-#define TR_OTA_UPDATE_ERROR             "Errore agg. OTA"
 #define TR_DEVICE_RESET                 "Resetto dispositivo..."
 #define TR_ALTITUDE                     "Altitudine"
 #define TR_SCALE                        "Scala"

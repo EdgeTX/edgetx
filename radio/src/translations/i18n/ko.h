@@ -797,7 +797,6 @@
 #define TR_NO_FILES_ON_SD                 "SD 카드에 파일 없음!"
 #define TR_NO_SDCARD                      "SD 카드 없음"
 #define TR_WAITING_FOR_RX                 "수신기 대기 중..."
-#define TR_WAITING_FOR_TX                 "송신기 대기 중..."
 #define TR_WAITING_FOR_MODULE             TR("모듈 대기 중", "모듈 연결 대기 중...")
 #define TR_NO_TOOLS                       "사용 가능한 도구 없음"
 #define TR_NORMAL                         "정상"
@@ -809,11 +808,7 @@
 #define TR_FLEX_868                       "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY         TR("16채널(텔레메트리 없음)", "16채널(텔레메트리 비활성)")
 #define TR_16CH_WITH_TELEMETRY            TR("16채널(텔레메트리 포함)", "16채널(텔레메트리 사용)")
-#define TR_EXT_ANTENNA                    "외부 안테나"
-#define TR_PIN                            "핀"
 
-#define TR_UPDATE_RX_OPTIONS              "수신기 옵션을 업데이트할까요?"
-#define TR_UPDATE_TX_OPTIONS              "송신기 옵션을 업데이트할까요?"
 #define TR_MODULES_RX_VERSION             BUTTON("모듈 / 수신기 버전")
 #define TR_SHOW_MIXER_MONITORS            "믹서 모니터 표시"
 #define TR_MENU_MODULES_RX_VERSION        "모듈 / 수신기 버전"
@@ -822,11 +817,7 @@
 #define TR_STICKS_POTS_SLIDERS            "스틱 / 포트 / 슬라이더"
 #define TR_RF_PROTOCOL                    "RF 프로토콜"
 #define TR_MODULE_OPTIONS                 "모듈 옵션"
-#define TR_POWER                          "전원"
-#define TR_NO_TX_OPTIONS                  "송신기 옵션 없음"
 #define TR_RTC_BATT                       "RTC 배터리"
-#define TR_POWER_METER_EXT                "전력 측정기 (외부)"
-#define TR_POWER_METER_INT                "전력 측정기 (내부)"
 #define TR_SPECTRUM_ANALYSER_EXT          "스펙트럼 분석 (외부)"
 #define TR_SPECTRUM_ANALYSER_INT          "스펙트럼 분석 (내부)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
@@ -988,9 +979,6 @@
 #define TR_INTERNALRF                     "내장 RF"
 #define TR_INTERNAL_MODULE                TR("내장 모듈", "내부 RF 모듈")
 #define TR_EXTERNAL_MODULE                TR("외장 모듈", "외부 RF 모듈")
-#define TR_EDGETX_UPGRADE_REQUIRED        "EdgeTX 업그레이드 필요"
-#define TR_TELEMETRY_DISABLED             "텔레메트리 비활성화됨"
-#define TR_MORE_OPTIONS_AVAILABLE         "추가 옵션 사용 가능"
 #define TR_EXTERNALRF                     "외장 RF"
 #define TR_FAILSAFE                       TR("페일세이프", "페일세이프 모드")
 #define TR_FAILSAFESET                    "페일세이프 설정"
@@ -1001,9 +989,6 @@
 #define TR_NONE                           "없음"
 #define TR_NONE_UPPERCASE                 "NONE"
 #define TR_MENUSENSOR                     "센서"
-#define TR_POWERMETER_PEAK                "최대값"
-#define TR_POWERMETER_POWER               "출력"
-#define TR_POWERMETER_ATTN                "감쇠"
 #define TR_POWERMETER_FREQ                "주파수"
 #define TR_MENUTOOLS                      "도구"
 #define TR_MIC_RECORDER                "마이크 녹음기"
@@ -1023,7 +1008,6 @@
 #define TR_TURN_OFF_RECEIVER              "수신기 전원 끄기"
 #define TR_STOPPING                       "중지 중..."
 #define TR_MENU_SPECTRUM_ANALYSER         "스펙트럼 분석기"
-#define TR_MENU_POWER_METER               "전력 측정기"
 #define TR_SENSOR                         "센서"
 #define TR_COUNTRY_CODE                   "국가 코드"
 #define TR_USBMODE                        "USB 모드"
@@ -1065,7 +1049,6 @@
 #define TR_BYTES                          "바이트"
 #define TR_MODULE_BIND                    BUTTON(TR("바인드", "바인딩"))
 #define TR_MODULE_UNBIND                  BUTTON("바인딩 해제")
-#define TR_POWERMETER_ATTN_NEEDED         "감쇠기 필요"
 #define TR_PXX2_SELECT_RX                 "수신기 선택"
 #define TR_PXX2_DEFAULT                   "<기본값>"
 #define TR_BT_SELECT_DEVICE               "기기 선택"
@@ -1082,7 +1065,6 @@
 #define TR_REGISTER                       BUTTON(TR("등록", "등록"))
 #define TR_MODULE_RANGE                   BUTTON(TR("범위", "범위 테스트"))
 #define TR_RANGE_TEST                     "범위 테스트"
-#define TR_RECEIVER_OPTIONS               TR("수신기 옵션", "RECEIVER OPTIONS")
 #define TR_RESET_BTN                      BUTTON("초기화")
 #define TR_KEYS_BTN                       BUTTON("버튼")
 #define TR_ANALOGS_BTN                    BUTTON(TR("아날로그", "아날로그 입력"))
@@ -1233,7 +1215,6 @@
 #define TR_OTA_UPDATE                     "OTA 업데이트 중..."
 #define TR_MODULE_RESET                   "모듈 초기화 중..."
 #define TR_UNSUPPORTED_RX                 "지원되지 않는 수신기"
-#define TR_OTA_UPDATE_ERROR               "OTA 업데이트 오류"
 #define TR_DEVICE_RESET                   "장치 초기화 중..."
 #define TR_ALTITUDE                       "고도"
 #define TR_SCALE                          "스케일"

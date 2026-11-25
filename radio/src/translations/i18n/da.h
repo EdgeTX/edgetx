@@ -773,7 +773,6 @@
 #define TR_NO_FILES_ON_SD              "Ingen filer på SD!"
 #define TR_NO_SDCARD                   "Ingen SD kort"
 #define TR_WAITING_FOR_RX              "Venter på RX..."
-#define TR_WAITING_FOR_TX              "Venter på TX..."
 #define TR_WAITING_FOR_MODULE          TR("Venter modul", "Venter på modul...")
 #define TR_NO_TOOLS                    "Ingen mulige værktøjer"
 #define TR_NORMAL                      "Normal"
@@ -784,10 +783,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16KA uden telem.", "16KA uden telemetri")
 #define TR_16CH_WITH_TELEMETRY         TR("16KA med telem.", "16KA med telemetri")
-#define TR_EXT_ANTENNA                 TR("Ext. antenne", "Ekstern antenne")
-#define TR_PIN                         "Pind"
-#define TR_UPDATE_RX_OPTIONS           "Opdater RX tilvalg?"
-#define TR_UPDATE_TX_OPTIONS           "Opdater TX tilvalg?"
 #define TR_MODULES_RX_VERSION          BUTTON("Moduler / RX version")
 #define TR_SHOW_MIXER_MONITORS         "Vis mixer monitor"
 #define TR_MENU_MODULES_RX_VERSION     "MODULER / RX VERSION"
@@ -796,11 +791,7 @@
 #define TR_STICKS_POTS_SLIDERS         "pinde/drejekontakter/skydere"
 #define TR_RF_PROTOCOL                 "RF protokol"
 #define TR_MODULE_OPTIONS              "Modul tilvalg"
-#define TR_POWER                       "Strøm"
-#define TR_NO_TX_OPTIONS               "Ingen TX tilvalg"
 #define TR_RTC_BATT                    "RTC Bat."
-#define TR_POWER_METER_EXT             "Strøm meter (EXT)"
-#define TR_POWER_METER_INT             "Strøm meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
@@ -951,9 +942,6 @@
 #define TR_INTERNALRF                  "Intern RF"
 #define TR_INTERNAL_MODULE             TR("Int. module", "Intern modul")
 #define TR_EXTERNAL_MODULE             TR("Ext. module", "Eksternt modul")
-#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX kræver opgradering"
-#define TR_TELEMETRY_DISABLED          "Telem. deaktiveret"
-#define TR_MORE_OPTIONS_AVAILABLE      "Flere tilvalg mulige"
 #define TR_EXTERNALRF                  "Ekstern RF"
 #define TR_FAILSAFE                    TR("Fejlsikring", "Fejlsikring tilst")
 #define TR_FAILSAFESET                 "FEJLSIKRING INDSTILLING"
@@ -964,9 +952,6 @@
 #define TR_NONE                        "Ingen"
 #define TR_NONE_UPPERCASE              "INGEN"
 #define TR_MENUSENSOR                  "SENSOR"
-#define TR_POWERMETER_PEAK             "Spids"
-#define TR_POWERMETER_POWER            "Strøm"
-#define TR_POWERMETER_ATTN             "Attn"
 #define TR_POWERMETER_FREQ             "Freq."
 #define TR_MENUTOOLS                   "VÆRKTØJ"
 #define TR_MIC_RECORDER                "Mikrofon optager"
@@ -985,7 +970,6 @@
 #define TR_TURN_OFF_RECEIVER           "Sluk modtager"
 #define TR_STOPPING                    "Standser..."
 #define TR_MENU_SPECTRUM_ANALYSER      "SPECTRUM ANALYSE"
-#define TR_MENU_POWER_METER            "STRØM MÅLER"
 #define TR_SENSOR                      "SENSOR"
 #define TR_COUNTRY_CODE                "Lande kode"
 #define TR_USBMODE                     TR("USB tilst.", "USB tilstand")
@@ -1026,7 +1010,6 @@
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Tils", "Tilslut"))
 #define TR_MODULE_UNBIND               BUTTON("Afkobl")
-#define TR_POWERMETER_ATTN_NEEDED     "Attestering nødvendig"
 #define TR_PXX2_SELECT_RX              "Vælg RX"
 #define TR_PXX2_DEFAULT                "<default>"
 #define TR_BT_SELECT_DEVICE            "Vælg enhed"
@@ -1042,7 +1025,6 @@
 #define TR_REGISTER                    BUTTON(TR("Reg", "Registrer"))
 #define TR_MODULE_RANGE                BUTTON(TR("Ræk", "Rækkevidde"))
 #define TR_RANGE_TEST                  "Test af rækkevidde"
-#define TR_RECEIVER_OPTIONS            TR("MODT. VALG", "MODTAGER VALG")
 #define TR_RESET_BTN                   BUTTON("Nulstil")
 #define TR_KEYS_BTN                    BUTTON("Taster")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analo", "Analoge"))
@@ -1191,7 +1173,6 @@
 #define TR_OTA_UPDATE                  "OTA opdatering..."
 #define TR_MODULE_RESET                "Nulstil modul..."
 #define TR_UNSUPPORTED_RX              "Ikke understøttet RX"
-#define TR_OTA_UPDATE_ERROR            "OTA opdaterings fejl"
 #define TR_DEVICE_RESET                "Nulstil enhed..."
 #define TR_ALTITUDE                    "Højde"
 #define TR_SCALE                       "Skala"

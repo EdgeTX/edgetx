@@ -768,7 +768,6 @@
 #define TR_NO_FILES_ON_SD              "Pas de fichiers sur SD!"
 #define TR_NO_SDCARD                   "Pas de Carte SD"
 #define TR_WAITING_FOR_RX              "Attente du RX..."
-#define TR_WAITING_FOR_TX              "Attente du TX..."
 #define TR_WAITING_FOR_MODULE          TR("Attente module", "Attente du module...")
 #define TR_NO_TOOLS                    "Pas d'outils dispo."
 #define TR_NORMAL                      "Normal"
@@ -779,10 +778,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH sans télém.", "16CH sans télémétrie")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH avec télém.", "16CH avec télémétrie")
-#define TR_EXT_ANTENNA                 "Antenne Ext."
-#define TR_PIN                         "Pin"
-#define TR_UPDATE_RX_OPTIONS           "Sauver options RX?"
-#define TR_UPDATE_TX_OPTIONS           "Sauver options TX?"
 #define TR_MODULES_RX_VERSION          BUTTON("Versions modules / RX")
 #define TR_SHOW_MIXER_MONITORS         "Voir monit. mixeurs"
 #define TR_MENU_MODULES_RX_VERSION     "VERSIONS MODULES / RX "
@@ -791,11 +786,7 @@
 #define TR_STICKS_POTS_SLIDERS         "Manches/Pots/Inters"
 #define TR_RF_PROTOCOL                 "Protocole RF"
 #define TR_MODULE_OPTIONS              "Options Module"
-#define TR_POWER                       "Puissance"
-#define TR_NO_TX_OPTIONS               "Pas d'options TX"
 #define TR_RTC_BATT                    "Pile RTC"
-#define TR_POWER_METER_EXT             "Puissancemètre (EXT)"
-#define TR_POWER_METER_INT             "Puissancemètre (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       TR("Spectre (EXT)", "Analyseur Spectre (EXT)")
 #define TR_SPECTRUM_ANALYSER_INT       TR("Spectre (INT)", "Analyseur Spectre (INT)")
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
@@ -945,9 +936,6 @@
 #define TR_INTERNALRF                  "HF interne"
 #define TR_INTERNAL_MODULE             TR("Module int.","Module interne")
 #define TR_EXTERNAL_MODULE             TR("Module ext.","Module externe")
-#define TR_EDGETX_UPGRADE_REQUIRED     "Màj EdgeTX nécessaire"
-#define TR_TELEMETRY_DISABLED          "Télém. désactivée"
-#define TR_MORE_OPTIONS_AVAILABLE      "Autres options disponibles"
 #define TR_EXTERNALRF                  "HF externe"
 #define TR_FAILSAFE                    TR("Failsafe", "Type failsafe")
 #define TR_FAILSAFESET                 "RÉGLAGES FAILSAFE"
@@ -958,9 +946,6 @@
 #define TR_NONE                        "Aucun"
 #define TR_NONE_UPPERCASE              "AUCUN"
 #define TR_MENUSENSOR                  "CAPTEUR"
-#define TR_POWERMETER_PEAK             "Pic"
-#define TR_POWERMETER_POWER            "Puiss"
-#define TR_POWERMETER_ATTN             "Attn"
 #define TR_POWERMETER_FREQ             "Fréq."
 #define TR_MENUTOOLS                   "OUTILS"
 #define TR_MIC_RECORDER                "Enregistreur micro"
@@ -979,7 +964,6 @@
 #define TR_TURN_OFF_RECEIVER           "Éteindre Récepteur."
 #define TR_STOPPING                    "Arrêt..."
 #define TR_MENU_SPECTRUM_ANALYSER      "ANALYSEUR SPECTRE"
-#define TR_MENU_POWER_METER            "PUISSANCEMÈTRE."
 #define TR_SENSOR                      "CAPTEUR"
 #define TR_COUNTRY_CODE                 TR("Zone géo.", "Zone géographique")
 #define TR_USBMODE                     "Mode USB"
@@ -1020,7 +1004,6 @@
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_MODULE_UNBIND               BUTTON("Délier")
-#define TR_POWERMETER_ATTN_NEEDED      "Atténuateur requis"
 #define TR_PXX2_SELECT_RX              "Sélection RX..."
 #define TR_PXX2_DEFAULT                "<défaut>"
 #define TR_BT_SELECT_DEVICE            "Sélect. périph."
@@ -1036,7 +1019,6 @@
 #define TR_REGISTER                    BUTTON(TR("Enr.", "Enregistr."))
 #define TR_MODULE_RANGE                BUTTON(TR("Prt", "Port."))
 #define TR_RANGE_TEST                  "Test de portée"
-#define TR_RECEIVER_OPTIONS            TR("OPTIONS REC.", "OPTIONS RÉCEPTEUR")
 #define TR_RESET_BTN                   BUTTON("RAZ")
 #define TR_KEYS_BTN                    BUTTON(TR("Btns","Inters"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "Analogs"))
@@ -1189,7 +1171,6 @@
 #define TR_OTA_UPDATE                  "MàJ via OTA ..."
 #define TR_MODULE_RESET                "RAZ Module..."
 #define TR_UNSUPPORTED_RX              "RX non supporté"
-#define TR_OTA_UPDATE_ERROR            "Erreur màj OTA"
 #define TR_DEVICE_RESET                "RAZ Périphérique..."
 #define TR_ALTITUDE                    "Altitude"
 #define TR_SCALE                       "Échelle"

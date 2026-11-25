@@ -422,7 +422,11 @@ inline uint8_t EXTERNAL_MODULE_TYPE_ROW()
   #define TOPLCD_ROWS
 #endif
 
+#if defined(LUA)  // module options are a Lua tool
 #define IF_PXX2_MODULE(module, xxx)          (isModulePXX2(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
+#else
+#define IF_PXX2_MODULE(module, xxx)      HIDDEN_ROW
+#endif
 #define IF_NOT_PXX2_MODULE(module, xxx)      (isModulePXX2(module) ? HIDDEN_ROW : (uint8_t)(xxx))
 #define IF_ACCESS_MODULE_RF(module, xxx)     (isModuleRFAccess(module) ? (uint8_t)(xxx) : HIDDEN_ROW)
 #define IF_NOT_ACCESS_MODULE_RF(module, xxx) (isModuleRFAccess(module) ? HIDDEN_ROW : (uint8_t)(xxx))
@@ -1940,8 +1944,7 @@ void menuModelSetup(event_t event)
         lcdDrawTextIndented(y, STR_OPTIONS);
         lcdDrawText(MODEL_SETUP_2ND_COLUMN, y, STR_SET, attr);
         if (event == EVT_KEY_BREAK(KEY_ENTER) && attr) {
-          g_moduleIdx = CURRENT_MODULE_EDITED(k);
-          pushMenu(menuModelModuleOptions);
+          runAccessTool(PXX2_TX_OPTIONS_SCRIPT);
         }
         break;
 

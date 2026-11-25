@@ -767,7 +767,6 @@
 #define TR_NO_FILES_ON_SD              "SDにファイルがありません!!"
 #define TR_NO_SDCARD                   "SDカードがありません"
 #define TR_WAITING_FOR_RX              "受信機から応答を待っています..."
-#define TR_WAITING_FOR_TX              "送信機から応答を待っています..."
 #define TR_WAITING_FOR_MODULE          TR("Waiting module", "モジュールから応答を待っています...")
 #define TR_NO_TOOLS                    "ツールはありません"
 #define TR_NORMAL                      "標準"
@@ -778,10 +777,6 @@
 #define TR_FLEX_868                    "FLEX 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH without telem.", "16CH テレメトリーなし")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH with telem.", "16CH テレメトリーあり")
-#define TR_EXT_ANTENNA                 "外部アンテナ"
-#define TR_PIN                         "ピン"
-#define TR_UPDATE_RX_OPTIONS           "受信オプションをアップデートしますか ?"
-#define TR_UPDATE_TX_OPTIONS           "送信オプションをアップデートしますか ?"
 #define TR_MODULES_RX_VERSION          BUTTON("モジュール / 受信機バージョン")
 #define TR_SHOW_MIXER_MONITORS         "チャンネルミキサーの表示"
 #define TR_MENU_MODULES_RX_VERSION     "モジュール / 受信機バージョン"
@@ -790,11 +785,7 @@
 #define TR_STICKS_POTS_SLIDERS         "スティック/ダイヤル/スライダー"
 #define TR_RF_PROTOCOL                 "RFプロトコル"
 #define TR_MODULE_OPTIONS              "モジュールオプション"
-#define TR_POWER                       "出力"
-#define TR_NO_TX_OPTIONS               "送信オプションなし"
 #define TR_RTC_BATT                    "内蔵電池"
-#define TR_POWER_METER_EXT             "出力メーター\n(外部)"
-#define TR_POWER_METER_INT             "出力メーター\n(内部)"
 #define TR_SPECTRUM_ANALYSER_EXT       "スペクトラム\n(外部)"
 #define TR_SPECTRUM_ANALYSER_INT       "スペクトラム\n(内部)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
@@ -945,9 +936,6 @@
 #define TR_INTERNALRF                  "内部RFモジュール"
 #define TR_INTERNAL_MODULE             TR("Int. module", "内部モジュール")
 #define TR_EXTERNAL_MODULE             TR("Ext. module", "外部モジュール")
-#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTXアップグレードが必要です"
-#define TR_TELEMETRY_DISABLED          "テレメトリー無効"
-#define TR_MORE_OPTIONS_AVAILABLE      "その他のオプション"
 #define TR_EXTERNALRF                  "外部RFモジュール"
 #define TR_FAILSAFE                    TR("Failsafe", "Failsafeモード")
 #define TR_FAILSAFESET                 "FAILSAFE設定"
@@ -958,9 +946,6 @@
 #define TR_NONE                        "なし"
 #define TR_NONE_UPPERCASE              "なし"
 #define TR_MENUSENSOR                  "センサー"
-#define TR_POWERMETER_PEAK             "ピーク"
-#define TR_POWERMETER_POWER            "出力"
-#define TR_POWERMETER_ATTN             "Attn"
 #define TR_POWERMETER_FREQ             "周波数"
 #define TR_MENUTOOLS                   "ツール"
 #define TR_MIC_RECORDER                "Mic recorder"
@@ -979,7 +964,6 @@
 #define TR_TURN_OFF_RECEIVER           "受信機 電源OFF"
 #define TR_STOPPING                    "停止中..."
 #define TR_MENU_SPECTRUM_ANALYSER      "スペクトラムアナライザー"
-#define TR_MENU_POWER_METER            "出力メーター"
 #define TR_SENSOR                      "センサー"
 #define TR_COUNTRY_CODE                "カントリーコード"
 #define TR_USBMODE                     "USBモード"
@@ -1020,7 +1004,6 @@
 #define TR_BYTES                       "バイト"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_MODULE_UNBIND               BUTTON("バインド解除")
-#define TR_POWERMETER_ATTN_NEEDED     "減衰器が必要です"
 #define TR_PXX2_SELECT_RX              "受信機選択"
 #define TR_PXX2_DEFAULT                "<default>"
 #define TR_BT_SELECT_DEVICE            "デバイス選択"
@@ -1036,7 +1019,6 @@
 #define TR_REGISTER                    BUTTON(TR("Reg", "登録"))
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "受信強度"))
 #define TR_RANGE_TEST                  "受信強度テスト"
-#define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "受信機オプション")
 #define TR_RESET_BTN                   BUTTON("リセット")
 #define TR_KEYS_BTN                    BUTTON("キー")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "アナログ"))
@@ -1185,7 +1167,6 @@
 #define TR_OTA_UPDATE                  "OTAアップデート..."
 #define TR_MODULE_RESET                "モジュールリセット..."
 #define TR_UNSUPPORTED_RX              "未サポート受信機"
-#define TR_OTA_UPDATE_ERROR            "OTAアップデートエラー"
 #define TR_DEVICE_RESET                "デバイスリセット..."
 #define TR_ALTITUDE                    "高度"
 #define TR_SCALE                       "スケール"

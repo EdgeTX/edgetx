@@ -763,7 +763,6 @@
 #define TR_NO_FILES_ON_SD      "Brak plików na SD!"
 #define TR_NO_SDCARD           "Brak karty SD"
 #define TR_WAITING_FOR_RX              "Czekam na RX..."
-#define TR_WAITING_FOR_TX              "Czekam na TX..."
 #define TR_WAITING_FOR_MODULE          TR("Waiting module", "Waiting for module...")
 #define TR_NO_TOOLS                    "Brak narzędzi"
 #define TR_NORMAL                      "Normal"
@@ -774,10 +773,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH without telem.", "16CH without telemetry")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH with telem.", "16CH with telemetry")
-#define TR_EXT_ANTENNA                 "Zewn. antena"
-#define TR_PIN                         "Pin"
-#define TR_UPDATE_RX_OPTIONS           "Update RX options?"
-#define TR_UPDATE_TX_OPTIONS           "Update TX options?"
 #define TR_MODULES_RX_VERSION          BUTTON("Modules / RX version")
 #define TR_SHOW_MIXER_MONITORS         "Show mixer monitors"
 #define TR_MENU_MODULES_RX_VERSION     "MODULES / RX VERSION"
@@ -786,11 +781,7 @@
 #define TR_STICKS_POTS_SLIDERS         "Drążki/Pot./Suwaki"
 #define TR_RF_PROTOCOL                 "Protokół RF"
 #define TR_MODULE_OPTIONS              "Module options"
-#define TR_POWER                       "Power"
-#define TR_NO_TX_OPTIONS               "No TX options"
 #define TR_RTC_BATT                    "RTC Batt"
-#define TR_POWER_METER_EXT             "Power Meter (EXT)"
-#define TR_POWER_METER_INT             "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Spectrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT       "Spectrum (INT)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
@@ -940,9 +931,6 @@
 #define TR_INTERNALRF                  "Wewn.Moduł RF"
 #define TR_INTERNAL_MODULE             TR("Moduł wewn.", "Moduł wewnętrzny")
 #define TR_EXTERNAL_MODULE             TR("Moduł zewn.", "Moduł zewnętrzny")
-#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX upgrade required"
-#define TR_TELEMETRY_DISABLED          "Telem. disabled"
-#define TR_MORE_OPTIONS_AVAILABLE      "More options available"
 #define TR_EXTERNALRF          "Zewn.Moduł RF"
 #define TR_FAILSAFE            TR("Failsafe","Tryb Failsafe")
 #define TR_FAILSAFESET         "USTAWIENIE FAILSAFE"
@@ -953,9 +941,6 @@
 #define TR_NONE                "Nic"
 #define TR_NONE_UPPERCASE              "NIC"
 #define TR_MENUSENSOR          "CZUJNIK"
-#define TR_POWERMETER_PEAK             "Peak"
-#define TR_POWERMETER_POWER            "Moc"
-#define TR_POWERMETER_ATTN             "Attn"
 #define TR_POWERMETER_FREQ             "Freq."
 #define TR_MENUTOOLS                   "NARZĘDZIA"
 #define TR_MIC_RECORDER                "Nagrywarka mikrofonu"
@@ -974,7 +959,6 @@
 #define TR_TURN_OFF_RECEIVER           "Wyłącz odbiornik"
 #define TR_STOPPING                    "Stopping..."
 #define TR_MENU_SPECTRUM_ANALYSER      "SPECTRUM ANALYSER"
-#define TR_MENU_POWER_METER            "POWER METER"
 #define TR_SENSOR              "SENSOR"
 #define TR_COUNTRY_CODE        "Kod regionu"
 #define TR_USBMODE             "Tryb USB"
@@ -1015,7 +999,6 @@
 #define TR_BYTES               "bajty"
 #define TR_MODULE_BIND         TR("[BND]","[Bind]")
 #define TR_MODULE_UNBIND               BUTTON("Unbind")
-#define TR_POWERMETER_ATTN_NEEDED     "Attenuator needed"
 #define TR_PXX2_SELECT_RX              "Select RX"
 #define TR_PXX2_DEFAULT                "<default>"
 #define TR_BT_SELECT_DEVICE            "Wybierz urządzenie"
@@ -1031,7 +1014,6 @@
 #define TR_REGISTER                    BUTTON(TR("Reg", "Register"))
 #define TR_MODULE_RANGE        TR("[Zas]","Zasięg")
 #define TR_RANGE_TEST                  "Test zasięgu"
-#define TR_RECEIVER_OPTIONS            TR("REC. OPTIONS", "RECEIVER OPTIONS")
 #define TR_RESET_BTN           "[Reset]"
 #define TR_KEYS_BTN                BUTTON(TR("SW","Switches"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogi"))
@@ -1184,7 +1166,6 @@
 #define TR_OTA_UPDATE                  "OTA update..."
 #define TR_MODULE_RESET                "Module reset..."
 #define TR_UNSUPPORTED_RX              "Niewspierany RX"
-#define TR_OTA_UPDATE_ERROR            "OTA update error"
 #define TR_DEVICE_RESET                "Device reset..."
 #define TR_ALTITUDE            "Wysokość"
 #define TR_SCALE               "Skala"

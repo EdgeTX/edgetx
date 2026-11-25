@@ -336,11 +336,11 @@ class ModuleWindow : public Window
           }
         });
 
-  #if defined(PXX2)
+  #if defined(PXX2) && defined(LUA)
         if (isModuleISRM(moduleIdx)) {
           auto options = new TextButton(box, rect_t{}, LV_SYMBOL_SETTINGS);
           options->setPressHandler([=]() {
-            new pxx2::ModuleOptions(moduleIdx);
+            pxx2::runAccessTool(PXX2_TX_OPTIONS_SCRIPT);
             return 0;
           });
         }
@@ -376,11 +376,13 @@ class ModuleWindow : public Window
         }
       });
 
+#if defined(LUA)
       auto options = new TextButton(box, rect_t{}, LV_SYMBOL_SETTINGS);
       options->setPressHandler([=]() {
-        new pxx2::ModuleOptions(moduleIdx);
+        pxx2::runAccessTool(PXX2_TX_OPTIONS_SCRIPT);
         return 0;
       });
+#endif
 
       // Model index
       line = newLine(grid);

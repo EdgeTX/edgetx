@@ -274,11 +274,10 @@ class VersionDialog : public BaseDialog
             rx_ver += "\n";
           }
 
-          // Receiver model
-          uint8_t modelId = reusableBuffer.hardwareAndSettings.modules[module]
-                                .receivers[receiver]
-                                .information.modelID;
-          rx_n += getPXX2ReceiverName(modelId);
+          // Receiver name, as bound in the model
+          const char* rxName =
+              g_model.moduleData[module].pxx2.receiverName[receiver];
+          rx_n.append(rxName, strnlen(rxName, PXX2_LEN_RX_NAME));
 
           // Receiver version
           rx_ver +=

@@ -29,6 +29,9 @@
 
 namespace pxx2 {
 
+// Runs an ACCESS options Lua tool from the SD card
+void runAccessTool(const char* path);
+
 class ReceiverButton : public TextButton
 {
  public:
@@ -60,34 +63,6 @@ class RegisterDialog : public BaseDialog
   TextEdit* rx_name = nullptr;
   StaticText* status = nullptr;
   Window* btn_ok = nullptr;
-};
-
-class ModuleOptions : public BaseDialog
-{
- public:
-  ModuleOptions(uint8_t moduleIdx);
-  void checkEvents() override;
-
- protected:
-
-  enum {
-    MO_Init=0,
-    MO_ReadModuleInfo,
-    MO_ReadModuleSettings,
-    MO_DisplaySettings,
-    MO_WriteSettings,
-    MO_WritingSettings,
-  };
-
-  uint8_t moduleIdx;
-  uint8_t state = MO_Init;
-
-  std::string statusText;
-
-  uint8_t getModuleSettingsState();
-
-  void update();
-  void writeSettings();
 };
 
 };

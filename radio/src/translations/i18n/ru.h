@@ -770,7 +770,6 @@
 #define TR_NO_FILES_ON_SD              "Нет данных на SD карте!"
 #define TR_NO_SDCARD                   "Нет CD карты"
 #define TR_WAITING_FOR_RX              "Ожид приемника..."
-#define TR_WAITING_FOR_TX              "Ожид передатчика..."
 #define TR_WAITING_FOR_MODULE          TR("Ожид модуля", "Ожид модуля...")
 #define TR_NO_TOOLS                    "Отсут инструменты"
 #define TR_NORMAL                      "Обычный"
@@ -781,10 +780,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16КН без телем", "16КН без телем")
 #define TR_16CH_WITH_TELEMETRY         TR("16КН с телем", "16КН с телем")
-#define TR_EXT_ANTENNA                 "Внеш антенна"
-#define TR_PIN                         "Pin"
-#define TR_UPDATE_RX_OPTIONS           "Обнов опции прием?"
-#define TR_UPDATE_TX_OPTIONS           "Обнов опции передат?"
 #define TR_MODULES_RX_VERSION          BUTTON("Модули / Версия пульта")
 #define TR_SHOW_MIXER_MONITORS         "Показ мониторы миксера"
 #define TR_MENU_MODULES_RX_VERSION     "МОДУЛИ / ВЕРСИЯ ПУЛЬТА"
@@ -793,11 +788,7 @@
 #define TR_STICKS_POTS_SLIDERS         "Стики/Потенц/Слайдеры"
 #define TR_RF_PROTOCOL                 "TX Протокол"
 #define TR_MODULE_OPTIONS              "Опции модуля"
-#define TR_POWER                       "Питание"
-#define TR_NO_TX_OPTIONS               "Отсут опции передат"
 #define TR_RTC_BATT                    "RTC АКБ"
-#define TR_POWER_METER_EXT             "Изм мощност (Внеш)"
-#define TR_POWER_METER_INT             "Изм мощност (Внут)"
 #define TR_SPECTRUM_ANALYSER_EXT       "Спек анализ (Внеш)"
 #define TR_SPECTRUM_ANALYSER_INT       "Спек анализ (Внут)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
@@ -948,9 +939,6 @@
 #define TR_INTERNALRF                  "Внут TX"
 #define TR_INTERNAL_MODULE             TR("Внут. Модуль", "Внут Модуль")
 #define TR_EXTERNAL_MODULE             TR("Внеш. Модуль", "Внеш Модуль")
-#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX требуется обновл"
-#define TR_TELEMETRY_DISABLED          "Телем. откл"
-#define TR_MORE_OPTIONS_AVAILABLE      "Доступно больше опций"
 #define TR_EXTERNALRF                  "Внеш TX"
 #define TR_FAILSAFE                    TR("Сбой", "Режим сбоя")
 #define TR_FAILSAFESET                 "Настройки сбоя"
@@ -961,9 +949,6 @@
 #define TR_NONE                        "Отсутствует"
 #define TR_NONE_UPPERCASE              "ОТСУТСТВУЕТ"
 #define TR_MENUSENSOR                  "Сенсор"
-#define TR_POWERMETER_PEAK             "Пиковое"
-#define TR_POWERMETER_POWER            "Мощность"
-#define TR_POWERMETER_ATTN             "Аттен"
 #define TR_POWERMETER_FREQ             "Частота"
 #define TR_MENUTOOLS                   "ИНСТРУМЕНТЫ"
 #define TR_MIC_RECORDER                "Запись микрофона"
@@ -982,7 +967,6 @@
 #define TR_TURN_OFF_RECEIVER           "Выкл приемник"
 #define TR_STOPPING                    "Остановка..."
 #define TR_MENU_SPECTRUM_ANALYSER      "АНАЛИЗАТОР СПЕКТРА"
-#define TR_MENU_POWER_METER            "ИЗМЕРИТЕЛЬ МОЩНОСТИ"
 #define TR_SENSOR                      "СЕНСОР"
 #define TR_COUNTRY_CODE                "Код страны"
 #define TR_USBMODE                     "Режим USB"
@@ -1023,7 +1007,6 @@
 #define TR_BYTES                       "Байты"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "Bind"))
 #define TR_MODULE_UNBIND               BUTTON("Unbind")
-#define TR_POWERMETER_ATTN_NEEDED     "Требуется аттенюатор"
 #define TR_PXX2_SELECT_RX              "Выбор RX"
 #define TR_PXX2_DEFAULT                "<По умолчанию>"
 #define TR_BT_SELECT_DEVICE            "Выбор устройства"
@@ -1039,7 +1022,6 @@
 #define TR_REGISTER                    BUTTON(TR("Рег", "Регистр"))
 #define TR_MODULE_RANGE                BUTTON(TR("Диап", "Диапазон"))
 #define TR_RANGE_TEST                  "Тест диапазона"
-#define TR_RECEIVER_OPTIONS            TR("ОПЦИИ ПРИЕМНИКА", "ОПЦИИ ПРИЕМНИКА")
 #define TR_RESET_BTN                   BUTTON("Сброс")
 #define TR_KEYS_BTN                    BUTTON("Кноп")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Анлг", "Аналоги"))
@@ -1188,7 +1170,6 @@
 #define TR_OTA_UPDATE                  "OTA-обновление..."
 #define TR_MODULE_RESET                "Сброс модуля..."
 #define TR_UNSUPPORTED_RX              "Непод приёмник"
-#define TR_OTA_UPDATE_ERROR            "Ошибка OTA-обновл"
 #define TR_DEVICE_RESET                "Сброс устройства..."
 #define TR_ALTITUDE                    "Высота"
 #define TR_SCALE                       "Масштаб"

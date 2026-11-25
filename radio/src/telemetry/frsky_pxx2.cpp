@@ -53,98 +53,6 @@ const char * getPXX2ModuleName(uint8_t modelId)
     return PXX2ModulesNames[0];
 }
 
-static const char * const PXX2ReceiversNames[] = {
-    "---",
-    "X8R",
-    "RX8R",
-    "RX8R Pro",
-    "RX6R",
-    "RX4R",
-    "G-RX8",
-    "G-RX6",
-    "X6R",
-    "X4R",
-    "X4R SB",
-    "XSR",
-    "XSR M",
-    "RXSR",
-    "S6R",
-    "S8R",
-    "XM",
-    "XM+",
-    "XMR",
-    "R9",
-    "R9 SLIM",
-    "R9 SLIM+",
-    "R9 MINI",
-    "R9 MM",
-    "R9 Stab",
-    "R9 Mini OTA",
-    "R9 MM OTA",
-    "R9 SLIM+ OTA",
-    "Archer X",
-    "R9MX",
-    "R9SX",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "---",
-    "SR10 Plus", // 0x40
-    "R10 Plus",
-    "GR8 Plus",
-    "R8 Plus",
-    "SR8 Plus",
-    "GR6 Plus",
-    "R6 Plus",
-    "R6M (ESC DC)",
-    "Rs Plus",
-    "RS Mini",
-    "R6FB",
-    "GR6FB",
-    "SR12 Plus",
-    "R12 Plus",
-    "R6 Mini ESC",
-    "SR6 Mini",
-    "SR6 Mini ESC", // 0x50
-};
-
-const char * getPXX2ReceiverName(uint8_t modelId)
-{
-  if (modelId < DIM(PXX2ReceiversNames))
-    return PXX2ReceiversNames[modelId];
-  else
-    return PXX2ReceiversNames[0];
-}
-
 static void processGetHardwareInfoFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_GET_HARDWARE_INFO) {
@@ -169,8 +77,6 @@ static void processGetHardwareInfoFrame(uint8_t module, const uint8_t * frame)
   else if (index < PXX2_MAX_RECEIVERS_PER_MODULE) {
     memcpy(&destination->receivers[index].information, &frame[4], length);
     destination->receivers[index].timestamp = get_tmr10ms();
-    if (destination->receivers[index].information.capabilities & ~((1 << RECEIVER_CAPABILITY_COUNT) - 1))
-      destination->information.capabilityNotSupported = true;
   }
 }
 
@@ -188,46 +94,6 @@ static void processModuleSettingsFrame(uint8_t module, const uint8_t * frame)
 
   // Power
   destination->txPower = frame[5];
-
-  destination->state = PXX2_SETTINGS_OK;
-  destination->timeout = 0;
-  moduleState[module].mode = MODULE_MODE_NORMAL;
-}
-
-static void processReceiverSettingsFrame(uint8_t module, const uint8_t * frame)
-{
-  if (moduleState[module].mode != MODULE_MODE_RECEIVER_SETTINGS) {
-    return;
-  }
-
-  ReceiverSettings * destination = moduleState[module].receiverSettings;
-
-  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_FPORT)
-    destination->fport = 1;
-
-  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_FASTPWM)
-    destination->pwmRate = 1;
-
-  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_TELEMETRY_DISABLED)
-    destination->telemetryDisabled = 1;
-
-  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_TELEMETRY_25MW)
-    destination->telemetry25mw = 1;
-
-  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_ENABLE_PWM_CH5_CH6)
-    destination->enablePwmCh5Ch6 = 1;
-
-  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_FPORT2)
-    destination->fport2 = 1;
-
-  if (frame[4] & PXX2_RX_SETTINGS_FLAG1_SBUS24)
-    destination->sbus24 = 1;
-
-  uint8_t outputsCount = min<uint8_t>(PXX2_MAX_CHANNELS, frame[0] - 4);
-  destination->outputsCount = outputsCount;
-  for (uint8_t pin = 0; pin < outputsCount; pin++) {
-    destination->outputsMapping[pin] = frame[5 + pin];
-  }
 
   destination->state = PXX2_SETTINGS_OK;
   destination->timeout = 0;
@@ -391,53 +257,6 @@ static void processAuthenticationFrame(uint8_t module, const uint8_t * frame,
 #define processAuthenticationFrame(module, frame, drv, ctx)
 #endif
 
-static void processSpectrumAnalyserFrame(uint8_t module, const uint8_t * frame)
-{
-  if (moduleState[module].mode != MODULE_MODE_SPECTRUM_ANALYSER) {
-    return;
-  }
-
-  uint32_t frequency = *((uint32_t *)&frame[4]);
-  int8_t power = *((int8_t *)&frame[8]);
-
-  // center = 2440000000;  // 2440MHz
-  // span = 40000000;  // 40MHz
-  // left = 2440000000 - 20000000
-  // step = 10000
-
-  int32_t offset = frequency - (reusableBuffer.spectrumAnalyser.freq - reusableBuffer.spectrumAnalyser.span / 2);
-  TRACE("Fq=%u => %d, Pw=%d", frequency, offset, int32_t(power));
-
-  uint32_t x = offset / reusableBuffer.spectrumAnalyser.step;
-  if (x < LCD_W) {
-    reusableBuffer.spectrumAnalyser.bars[x] = max<int>(0, -SPECTRUM_ANALYSER_POWER_FLOOR + power); // we remove everything below -120dB
-#if defined(COLORLCD)
-    if (reusableBuffer.spectrumAnalyser.bars[x] >
-        reusableBuffer.spectrumAnalyser.max[x]) {
-      reusableBuffer.spectrumAnalyser.max[x] =
-          reusableBuffer.spectrumAnalyser.bars[x];
-    }
-    if (reusableBuffer.spectrumAnalyser.bars[x] >
-        reusableBuffer.spectrumAnalyser.peak[x]) {
-      reusableBuffer.spectrumAnalyser.peak[x] =
-          reusableBuffer.spectrumAnalyser.bars[x];
-    }
-#endif
-  }
-}
-
-static void processPowerMeterFrame(uint8_t module, const uint8_t * frame)
-{
-  if (moduleState[module].mode != MODULE_MODE_POWER_METER) {
-    return;
-  }
-
-  reusableBuffer.powerMeter.power = *((int16_t *)&frame[8]);
-  if (!reusableBuffer.powerMeter.peak || reusableBuffer.powerMeter.power > reusableBuffer.powerMeter.peak) {
-    reusableBuffer.powerMeter.peak = reusableBuffer.powerMeter.power;
-  }
-}
-
 static void processOtaUpdateFrame(uint8_t module, const uint8_t * frame)
 {
   if (moduleState[module].mode != MODULE_MODE_OTA_UPDATE) {
@@ -476,10 +295,6 @@ static void processModuleFrame(uint8_t module, const uint8_t *frame,
       processModuleSettingsFrame(module, frame);
       break;
 
-    case PXX2_TYPE_ID_RX_SETTINGS:
-      processReceiverSettingsFrame(module, frame);
-      break;
-
     case PXX2_TYPE_ID_REGISTER:
       processRegisterFrame(module, frame);
       break;
@@ -502,30 +317,43 @@ static void processModuleFrame(uint8_t module, const uint8_t *frame,
   }
 }
 
-static void processToolsFrame(uint8_t module, const uint8_t * frame)
-{
-  switch (frame[2]) {
-    case PXX2_TYPE_ID_POWER_METER:
-      processPowerMeterFrame(module, frame);
-      break;
+#if defined(LUA)
+TelemetryQueue* luaAccessFrameFifo = nullptr;
 
-    case PXX2_TYPE_ID_SPECTRUM:
-      processSpectrumAnalyserFrame(module, frame);
-      break;
+static void pxx2LuaFrameForward(uint8_t module, const uint8_t* frame)
+{
+  auto queue = luaAccessFrameFifo;
+  uint8_t length = frame[0];
+
+  if (!queue || length < 2) return;
+
+  // telemetry has its own path (sportTelemetryPop) and authentication is
+  // none of the scripts' business
+  if (frame[1] == PXX2_TYPE_C_MODULE && (frame[2] == PXX2_TYPE_ID_TELEMETRY ||
+                                         frame[2] == PXX2_TYPE_ID_AUTHENTICATION))
+    return;
+
+  // whole frames only
+  if (!queue->hasSpace(length + 2)) return;
+
+  queue->push(length);
+  queue->push(module);
+  for (uint8_t i = 1; i <= length; i++) {
+    queue->push(frame[i]);
   }
 }
+#endif
 
 void processPXX2Frame(uint8_t module, const uint8_t * frame,
                       const etx_serial_driver_t* drv, void* ctx)
 {
+#if defined(LUA)
+  pxx2LuaFrameForward(module, frame);
+#endif
 
   switch (frame[1]) {
     case PXX2_TYPE_C_MODULE:
       processModuleFrame(module, frame, drv, ctx);
-      break;
-
-    case PXX2_TYPE_C_POWER_METER:
-      processToolsFrame(module, frame);
       break;
 
     case PXX2_TYPE_C_OTA:

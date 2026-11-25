@@ -1074,4 +1074,182 @@ TEST(Lua, testModelSensors)
       "assert(model.getSensor(1).name == '1310')\n");
 }
 
+#if defined(PXX2) && defined(HARDWARE_INTERNAL_MODULE) && defined(HARDWARE_EXTERNAL_MODULE)
+#include "pulses/pxx2.h"
+#include "pulses/pxx2_transport.h"
+
+extern tmr10ms_t luaCycleStart;
+
+class LuaAccessFrame : public testing::Test
+{
+ protected:
+  void SetUp() override
+  {
+    memclear(g_model.moduleData, sizeof(g_model.moduleData));
+    g_model.moduleData[EXTERNAL_MODULE].type = MODULE_TYPE_R9M_PXX2;
+    for (auto& state : moduleState) state.mode = MODULE_MODE_NORMAL;
+    luaCycleStart = g_tmr10ms;
+  }
+
+  void TearDown() override
+  {
+    // leave the output slot free for the next test
+    advanceTime(100);
+    EXPECT_TRUE(pxx2LuaFrameAvailable());
+    memclear(g_model.moduleData, sizeof(g_model.moduleData));
+  }
+
+  // the Lua hook yields scripts running for longer than a Lua task period
+  void advanceTime(tmr10ms_t ticks)
+  {
+    g_tmr10ms += ticks;
+    luaCycleStart = g_tmr10ms;
+  }
+
+  // returns TYPE_ID of the frame the mixer sends next
+  uint8_t sendFrame(uint8_t module, uint8_t* buffer, uint32_t* size = nullptr)
+  {
+    int16_t channels[MAX_OUTPUT_CHANNELS] = {};
+    Pxx2Pulses pxx2(buffer);
+    pxx2.setupFrame(module, channels, 16);
+    if (size) *size = pxx2.getSize();
+    return buffer[3];
+  }
+};
+
+TEST_F(LuaAccessFrame, push)
+{
+  luaExecStr("assert(accessFramePush() == true)");
+  luaExecStr("assert(accessFramePush(1, 0x01, 0x05, {0x40, 0x12, 0x00, 0x01}) == true)");
+
+  // one frame at a time
+  luaExecStr("assert(accessFramePush() == false)");
+  luaExecStr("assert(accessFramePush(1, 0x01, 0x05, {}) == false)");
+
+  uint8_t buffer[PXX2_FRAME_MAXLENGTH];
+  uint32_t size = 0;
+  sendFrame(EXTERNAL_MODULE, buffer, &size);
+
+  // HEAD, LEN, TYPE_C, TYPE_ID, payload, CRC
+  const uint8_t expected[] = {0x7E, 0x06, 0x01, 0x05, 0x40,
+                              0x12, 0x00, 0x01, 0xFF, 0xA6};
+  ASSERT_EQ(sizeof(expected), size);
+  EXPECT_EQ(0, memcmp(expected, buffer, size));
+
+  luaExecStr("assert(accessFramePush() == true)");
+
+  // back to channels
+  EXPECT_EQ(PXX2_TYPE_ID_CHANNELS, sendFrame(EXTERNAL_MODULE, buffer));
+}
+
+TEST_F(LuaAccessFrame, pushInvalid)
+{
+  // not a PXX2 module, or no module at all
+  luaExecStr("assert(accessFramePush(0, 0x01, 0x05, {0}) == nil)");
+  luaExecStr("assert(accessFramePush(2, 0x01, 0x05, {0}) == nil)");
+  luaExecStr("assert(accessFramePush(-1, 0x01, 0x05, {0}) == nil)");
+
+  // payload too long
+  char cmd[128];
+  snprintf(cmd, sizeof(cmd),
+           "local p = {} for i = 1, %d do p[i] = i end "
+           "assert(accessFramePush(1, 0x01, 0x05, p) == false)",
+           PXX2_LUA_FRAME_MAX_PAYLOAD + 1);
+  luaExecStr(cmd);
+  luaExecStr("assert(accessFramePush() == true)");
+}
+
+TEST_F(LuaAccessFrame, otherModule)
+{
+  g_model.moduleData[INTERNAL_MODULE].type = MODULE_TYPE_ISRM_PXX2;
+  luaExecStr("assert(accessFramePush(1, 0x01, 0x06, {0x00}) == true)");
+
+  uint8_t buffer[PXX2_FRAME_MAXLENGTH];
+  EXPECT_EQ(PXX2_TYPE_ID_CHANNELS, sendFrame(INTERNAL_MODULE, buffer));
+  luaExecStr("assert(accessFramePush() == false)");
+
+  EXPECT_EQ(PXX2_TYPE_ID_HW_INFO, sendFrame(EXTERNAL_MODULE, buffer));
+  luaExecStr("assert(accessFramePush() == true)");
+}
+
+TEST_F(LuaAccessFrame, waitForNormalMode)
+{
+  luaExecStr("assert(accessFramePush(1, 0x01, 0x06, {0x00}) == true)");
+
+  uint8_t buffer[PXX2_FRAME_MAXLENGTH];
+  moduleState[EXTERNAL_MODULE].mode = MODULE_MODE_REGISTER;
+  EXPECT_EQ(PXX2_TYPE_ID_REGISTER, sendFrame(EXTERNAL_MODULE, buffer));
+
+  moduleState[EXTERNAL_MODULE].mode = MODULE_MODE_NORMAL;
+  EXPECT_EQ(PXX2_TYPE_ID_HW_INFO, sendFrame(EXTERNAL_MODULE, buffer));
+}
+
+TEST_F(LuaAccessFrame, timeout)
+{
+  luaExecStr("assert(accessFramePush(1, 0x01, 0x06, {0x00}) == true)");
+
+  advanceTime(99);
+  luaExecStr("assert(accessFramePush() == false)");
+
+  advanceTime(1);
+  luaExecStr("assert(accessFramePush() == true)");
+
+  // dropped
+  uint8_t buffer[PXX2_FRAME_MAXLENGTH];
+  EXPECT_EQ(PXX2_TYPE_ID_CHANNELS, sendFrame(EXTERNAL_MODULE, buffer));
+}
+
+TEST_F(LuaAccessFrame, pop)
+{
+  // the first call creates the queue
+  luaExecStr("while accessFramePop() do end");
+  luaExecStr("assert(accessFramePop() == nil)");
+
+  // LEN, TYPE_C, TYPE_ID, payload: receiver settings
+  const uint8_t settings[] = {0x06, 0x01, 0x05, 0x00, 0x12, 0x00, 0x01};
+  processPXX2Frame(EXTERNAL_MODULE, settings, nullptr, nullptr);
+
+  // telemetry is not queued
+  const uint8_t telemetry[] = {0x0B, 0x01, 0xFE, 0x00, 0x00, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  processPXX2Frame(EXTERNAL_MODULE, telemetry, nullptr, nullptr);
+
+  // spectrum analyser: another TYPE_C
+  const uint8_t spectrum[] = {0x03, 0x02, 0x02, 0x7F};
+  processPXX2Frame(INTERNAL_MODULE, spectrum, nullptr, nullptr);
+
+  luaExecStr(
+      "local m, c, t, p = accessFramePop() "
+      "assert(m == 1 and c == 0x01 and t == 0x05) "
+      "assert(#p == 4 and p[1] == 0x00 and p[2] == 0x12 and p[3] == 0x00 and p[4] == 0x01)");
+  luaExecStr(
+      "local m, c, t, p = accessFramePop() "
+      "assert(m == 0 and c == 0x02 and t == 0x02 and #p == 1 and p[1] == 0x7F)");
+  luaExecStr("assert(accessFramePop() == nil)");
+}
+
+TEST_F(LuaAccessFrame, popFull)
+{
+  luaExecStr("while accessFramePop() do end");
+
+  // the queue keeps whole frames only
+  const uint8_t settings[] = {0x06, 0x01, 0x05, 0x00, 0x12, 0x00, 0x01};
+  for (int i = 0; i < 100; i++) {
+    processPXX2Frame(EXTERNAL_MODULE, settings, nullptr, nullptr);
+  }
+  // [length] [module] + frame without its LEN byte
+  const int pushed =
+      (LUA_TELEMETRY_INPUT_FIFO_SIZE - 1) / (sizeof(settings) + 1);
+
+  char cmd[160];
+  snprintf(cmd, sizeof(cmd),
+           "local n = 0 "
+           "while true do local m, c, t, p = accessFramePop() "
+           "if not m then break end assert(#p == 4) n = n + 1 end "
+           "assert(n == %d, n)",
+           pushed);
+  luaExecStr(cmd);
+}
+#endif
+
 #endif   // #if defined(LUA)

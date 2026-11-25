@@ -20,6 +20,7 @@
  */
 
 #include <stdio.h>
+#include <atomic>
 #include "edgetx.h"
 #include "io/frsky_firmware_update.h"
 #include "lib_file.h"
@@ -39,185 +40,6 @@ static const etx_serial_init pxx2SerialInitParams = {
 
 #include "hal/module_port.h"
 
-/* Module options order:
- * - External antenna (0x01)
- * - Power (0x02)
- * - Spektrum analyser (0x04)
- * - Power meter (0x08)
- */
-static const uint8_t PXX2ModuleOptions[] = {
-#if defined(SIMU)
-  0b11111111, // None = display all options on SIMU
-#else
-  0b00000000, // None = no option available on unknown modules
-#endif
-  0b00000001, // XJT
-  0b00000001, // ISRM
-  0b00001101, // ISRM-PRO
-  0b00000101, // ISRM-S
-  0b00000010, // R9M
-  0b00000010, // R9MLite
-  0b00000110, // R9MLite-PRO
-  0b00000100, // ISRM-N
-  0b00000100, // ISRM-S-X9
-  0b00000101, // ISRM-S-X10E
-  0b00000001, // XJT_LITE
-  0b00000101, // ISRM-S-X10S
-  0b00000100, // ISRM-X9LITES
-};
-
-uint8_t getPXX2ModuleOptions(uint8_t modelId)
-{
-  if (modelId < DIM(PXX2ModuleOptions))
-    return PXX2ModuleOptions[modelId];
-  else
-    return PXX2ModuleOptions[0];
-}
-
-bool isPXX2ModuleOptionAvailable(uint8_t modelId, uint8_t option)
-{
-  return getPXX2ModuleOptions(modelId) & (1 << option);
-}
-
-/* Receiver options order:
- * - 2.4G (0x01)
- * - 900M (0x02)
- * - OTA to update self (0x04)
- * - OTA to update sensors (0x08)
- * - Tandem Receiver (0x10)
- * - Twin Receiver (0x20)
- * - Dynamic Telemetry Port (0x40)
- */
-static const uint8_t PXX2ReceiverOptions[] = {
-#if defined(SIMU)
-    0b11111111, // None = display all options on SIMU
-#else
-    0b00000000, // None
-#endif
-    0b00000001, // X8R
-    0b00000001, // RX8R
-    0b00000001, // RX8R-PRO
-    0b00001001, // RX6R, flash sensors by OTA
-    0b00001001, // RX4R, flash sensors by OTA
-    0b00001001, // G-RX8, flash sensors by OTA
-    0b00001001, // G-RX6, flash sensors by OTA
-    0b00000001, // X6R
-    0b00000001, // X4R
-    0b00000001, // X4R-SB
-    0b00000001, // XSR
-    0b00000001, // XSR-M
-    0b00001001, // RXSR, flash sensors by OTA
-    0b00000001, // S6R
-    0b00000001, // S8R
-    0b00000001, // XM
-    0b00000001, // XM+
-    0b00000001, // XMR
-    0b00000010, // R9
-    0b00000010, // R9-SLIM
-    0b00000010, // R9-SLIM+
-    0b00000010, // R9-MINI
-    0b00000010, // R9-MM
-    0b00001110, // R9-STAB+OTA, flash self + sensors by OTA
-    0b00001110, // R9-MINI+OTA, flash self + sensors by OTA
-    0b00001110, // R9-MM+OTA, flash self + sensors by OTA
-    0b00001110, // R9-SLIM+OTA, flash self + sensors by OTA
-    0b00001101, // ARCHER-X, flash self + sensors by OTA
-    0b00001110, // R9MX, flash self + sensors by OTA
-    0b00001110, // R9SX, flash self + sensors by OTA
-    0b00010100, // TDMX, flash self by OTA
-    0b01010100, // TDR18, flash self by OTA
-    0b01010100, // TDR10, flash self by OTA
-    0b00010100, // TDR6, flash self by OTA
-    0b01010100, // TDR12
-    0b01010100, // TDSR12
-    0b01010100, // TDSR18
-    0b00010100, // 0x26
-    0b00010100,
-    0b00010100,
-    0b00010100,
-    0b00010100, // 0x2A
-    0b00010100,
-    0b00010100,
-    0b00010100,
-    0b00010100,
-    0b00010100, // 0x2F
-    0b00010100, // reserve 0x23 ~ 0x30 for TD Receivers
-    0b00100100, // TWMX, flash self by OTA
-    0b01100100, // TWSR12, flash self by OTA
-    0b01100100, // TWR12, flash self by OTA
-    0b00100100, // TWGR6, flash self by OTA
-    0b00100100, // TWGR8
-    0b00100100, // TWR6
-    0b00100100, // TWR8
-    0b00100100, // TWGR6FB
-    0b00100100, // TWR6FB
-    0b00100100, // 0x3A
-    0b00100100,
-    0b00100100,
-    0b00100100,
-    0b00100100,
-    0b00100100, // reserve 0x38 ~ 0x3F for TW Receivers
-    0b01001101, // SR10-plus
-    0b01001101, // R10-plus
-    0b00001101, // GR8-plus
-    0b00001101, // R8-plus
-    0b00001101, // SR8-plus
-    0b00001101, // GR6-plus
-    0b00001101, // R6-plus
-    0b00001101, // R6M (ESC DC)
-    0b00001101, // RS-plus
-    0b00001101, // RS Mini
-    0b00001101, // R6FB
-    0b00001101, // GR6FB
-    0b01001101, // SR12-plus
-    0b01001101, // R12-plus
-    0b00001101, // R6 Mini E
-    0b00001101, // SR6 Mini
-    0b00001101, // SR6 Mini E
-};
-
-uint8_t getPXX2ReceiverOptions(uint8_t modelId)
-{
-  if (modelId < DIM(PXX2ReceiverOptions))
-    return PXX2ReceiverOptions[modelId];
-  else
-    return PXX2ReceiverOptions[0];
-}
-
-bool isPXX2ReceiverOptionAvailable(uint8_t modelId, uint8_t option)
-{
-  return getPXX2ReceiverOptions(modelId) & (1 << option);
-}
-
-bool isPXX2PowerAvailable(const PXX2HardwareInformation& info, int value)
-{
-  uint8_t modelId = info.modelID;
-  uint8_t variant = info.variant;
-
-  if (modelId == PXX2_MODULE_R9M_LITE) {
-    if (variant == PXX2_VARIANT_EU)
-      return (value == 14 /* 25 mW with telemetry */ ||
-              value == 20 /* 100 mW without telemetry */);
-    else
-      return value == 20; /* 100 mW */
-  }
-  else if (modelId == PXX2_MODULE_R9M || modelId == PXX2_MODULE_R9M_LITE_PRO) {
-      if (variant == PXX2_VARIANT_EU)
-        return (value == 14 /* 25 mW */ ||
-                value == 23 /* 200 mW */ ||
-                value == 27 /* 500 mW */);
-      else
-        return (value == 10 /* 10 mW */ ||
-                value == 20 /* 100 mW */ ||
-                value == 27 /* 500 mW */ ||
-                value == 30 /* 1000 mW */);
-  }
-  else {
-    // other modules do not have the power option
-    return false;
-  }
-}
-
 PXX2ModuleSetup& getPXX2ModuleSetupBuffer()
 {
   return reusableBuffer.moduleSetup.pxx2;
@@ -226,11 +48,6 @@ PXX2ModuleSetup& getPXX2ModuleSetupBuffer()
 BindInformation& getPXX2BindInformationBuffer()
 {
   return reusableBuffer.moduleSetup.bindInformation;
-}
-
-PXX2HardwareAndSettings& getPXX2HardwareAndSettingsBuffer()
-{
-  return reusableBuffer.hardwareAndSettings;
 }
 
 uint8_t Pxx2Pulses::addFlag0(uint8_t module)
@@ -428,56 +245,10 @@ void Pxx2Pulses::setupModuleSettingsFrame(uint8_t module, int16_t* channels, uin
   ModuleSettings * destination = moduleState[module].moduleSettings;
 
   if (get_tmr10ms() > destination->timeout) {
+    // read only: the settings are written by the AccessTx.lua tool
     addFrameType(PXX2_TYPE_C_MODULE, PXX2_TYPE_ID_TX_SETTINGS);
-    uint8_t flag0 = 0;
-    if (destination->state == PXX2_SETTINGS_WRITE)
-      flag0 |= PXX2_TX_SETTINGS_FLAG0_WRITE;
-    Pxx2Transport::addByte(flag0);
-    if (destination->state == PXX2_SETTINGS_WRITE) {
-      uint8_t flag1 = 0;
-      if (destination->externalAntenna)
-        flag1 |= PXX2_TX_SETTINGS_FLAG1_EXTERNAL_ANTENNA;
-      Pxx2Transport::addByte(flag1);
-      Pxx2Transport::addByte(destination->txPower);
-    }
+    Pxx2Transport::addByte(0x00);
     destination->timeout = get_tmr10ms() + 200/*next try in 2s*/;
-  }
-  else {
-    setupChannelsFrame(module, channels, nChannels);
-  }
-}
-
-void Pxx2Pulses::setupReceiverSettingsFrame(uint8_t module, int16_t* channels, uint8_t nChannels)
-{
-  if (get_tmr10ms() > reusableBuffer.hardwareAndSettings.receiverSettings.timeout) {
-    addFrameType(PXX2_TYPE_C_MODULE, PXX2_TYPE_ID_RX_SETTINGS);
-    uint8_t flag0 = reusableBuffer.hardwareAndSettings.receiverSettings.receiverId;
-    if (reusableBuffer.hardwareAndSettings.receiverSettings.state == PXX2_SETTINGS_WRITE)
-      flag0 |= PXX2_RX_SETTINGS_FLAG0_WRITE;
-    Pxx2Transport::addByte(flag0);
-    if (reusableBuffer.hardwareAndSettings.receiverSettings.state == PXX2_SETTINGS_WRITE) {
-      uint8_t flag1 = 0;
-      if (reusableBuffer.hardwareAndSettings.receiverSettings.telemetryDisabled)
-        flag1 |= PXX2_RX_SETTINGS_FLAG1_TELEMETRY_DISABLED;
-      if (reusableBuffer.hardwareAndSettings.receiverSettings.pwmRate)
-        flag1 |= PXX2_RX_SETTINGS_FLAG1_FASTPWM;
-      if (reusableBuffer.hardwareAndSettings.receiverSettings.fport)
-        flag1 |= PXX2_RX_SETTINGS_FLAG1_FPORT;
-      if (reusableBuffer.hardwareAndSettings.receiverSettings.telemetry25mw)
-        flag1 |= PXX2_RX_SETTINGS_FLAG1_TELEMETRY_25MW;
-      if (reusableBuffer.hardwareAndSettings.receiverSettings.enablePwmCh5Ch6)
-        flag1 |= PXX2_RX_SETTINGS_FLAG1_ENABLE_PWM_CH5_CH6;
-      if (reusableBuffer.hardwareAndSettings.receiverSettings.fport2)
-        flag1 |= PXX2_RX_SETTINGS_FLAG1_FPORT2;
-      if (reusableBuffer.hardwareAndSettings.receiverSettings.sbus24)
-        flag1 |= PXX2_RX_SETTINGS_FLAG1_SBUS24;
-      Pxx2Transport::addByte(flag1);
-      uint8_t outputsCount = min<uint8_t>(PXX2_MAX_CHANNELS, reusableBuffer.hardwareAndSettings.receiverSettings.outputsCount);
-      for (int i = 0; i < outputsCount; i++) {
-        Pxx2Transport::addByte(reusableBuffer.hardwareAndSettings.receiverSettings.outputsMapping[i]);
-      }
-    }
-    reusableBuffer.hardwareAndSettings.receiverSettings.timeout = get_tmr10ms() + 200/*next try in 2s*/;
   }
   else {
     setupChannelsFrame(module, channels, nChannels);
@@ -555,30 +326,80 @@ void Pxx2Pulses::setupResetFrame(uint8_t module)
   moduleState[module].mode = MODULE_MODE_NORMAL;
 }
 
-void Pxx2Pulses::setupSpectrumAnalyser(uint8_t module)
+#if defined(LUA)
+// Slot ownership: the Lua script writes it only when FREE, the mixer reads it
+// only after moving it from READY to SENDING.
+enum : uint8_t {
+  LUA_FRAME_FREE,
+  LUA_FRAME_READY,
+  LUA_FRAME_SENDING,
+};
+
+// A frame not sent within this delay (module off, or busy binding, reading
+// settings...) is dropped
+#define PXX2_LUA_FRAME_TIMEOUT 100 /* 1s */
+
+static struct {
+  std::atomic<uint8_t> state;
+  uint8_t module;
+  uint8_t typeC;
+  uint8_t typeId;
+  uint8_t length;
+  tmr10ms_t timestamp;
+  uint8_t payload[PXX2_LUA_FRAME_MAX_PAYLOAD];
+} luaFrame;
+
+bool pxx2LuaFrameAvailable()
 {
-  if (reusableBuffer.spectrumAnalyser.dirty) {
-    reusableBuffer.spectrumAnalyser.dirty = false;
-#if defined(PCBHORUS)
-    memclear(&reusableBuffer.spectrumAnalyser.max, sizeof(reusableBuffer.spectrumAnalyser.max));
-#endif
-    addFrameType(PXX2_TYPE_C_POWER_METER, PXX2_TYPE_ID_SPECTRUM);
-    Pxx2Transport::addByte(0x00);
-    Pxx2Transport::addWord(reusableBuffer.spectrumAnalyser.freq);
-    Pxx2Transport::addWord(reusableBuffer.spectrumAnalyser.span);
-    Pxx2Transport::addWord(reusableBuffer.spectrumAnalyser.step);
+  if (luaFrame.state.load() == LUA_FRAME_READY &&
+      tmr10ms_t(get_tmr10ms() - luaFrame.timestamp) >= PXX2_LUA_FRAME_TIMEOUT) {
+    // fails if the mixer has just taken it: the slot is then free very soon
+    uint8_t expected = LUA_FRAME_READY;
+    luaFrame.state.compare_exchange_strong(expected, LUA_FRAME_FREE);
   }
+  return luaFrame.state.load() == LUA_FRAME_FREE;
 }
 
-void Pxx2Pulses::setupPowerMeter(uint8_t module)
+bool pxx2LuaFramePush(uint8_t module, uint8_t typeC, uint8_t typeId,
+                      const uint8_t* payload, uint8_t length)
 {
-  if (reusableBuffer.powerMeter.dirty) {
-    reusableBuffer.powerMeter.dirty = false;
-    addFrameType(PXX2_TYPE_C_POWER_METER, PXX2_TYPE_ID_POWER_METER);
-    Pxx2Transport::addByte(0x00);
-    Pxx2Transport::addWord(reusableBuffer.powerMeter.freq);
-  }
+  if (module >= NUM_MODULES || length > PXX2_LUA_FRAME_MAX_PAYLOAD ||
+      !pxx2LuaFrameAvailable())
+    return false;
+
+  luaFrame.module = module;
+  luaFrame.typeC = typeC;
+  luaFrame.typeId = typeId;
+  luaFrame.length = length;
+  memcpy(luaFrame.payload, payload, length);
+  luaFrame.timestamp = get_tmr10ms();
+  luaFrame.state.store(LUA_FRAME_READY);
+  return true;
 }
+
+bool Pxx2Pulses::setupLuaFrame(uint8_t module)
+{
+  uint8_t expected = LUA_FRAME_READY;
+  if (!luaFrame.state.compare_exchange_strong(expected, LUA_FRAME_SENDING))
+    return false;
+
+  if (luaFrame.module != module) {
+    // for the other module
+    luaFrame.state.store(LUA_FRAME_READY);
+    return false;
+  }
+
+  addFrameType(luaFrame.typeC, luaFrame.typeId);
+  for (uint8_t i = 0; i < luaFrame.length; i++) {
+    Pxx2Transport::addByte(luaFrame.payload[i]);
+  }
+
+  luaFrame.state.store(LUA_FRAME_FREE);
+  return true;
+}
+#else
+bool Pxx2Pulses::setupLuaFrame(uint8_t module) { return false; }
+#endif
 
 void Pxx2Pulses::setupShareMode(uint8_t module)
 {
@@ -649,9 +470,6 @@ bool Pxx2Pulses::setupFrame(uint8_t module, int16_t* channels, uint8_t nChannels
     case MODULE_MODE_MODULE_SETTINGS:
       setupModuleSettingsFrame(module, channels, nChannels);
       break;
-    case MODULE_MODE_RECEIVER_SETTINGS:
-      setupReceiverSettingsFrame(module, channels, nChannels);
-      break;
     case MODULE_MODE_REGISTER:
       setupRegisterFrame(module);
       break;
@@ -661,16 +479,13 @@ bool Pxx2Pulses::setupFrame(uint8_t module, int16_t* channels, uint8_t nChannels
     case MODULE_MODE_RESET:
       setupResetFrame(module);
       break;
-    case MODULE_MODE_SPECTRUM_ANALYSER:
-      setupSpectrumAnalyser(module);
-      break;
-    case MODULE_MODE_POWER_METER:
-      setupPowerMeter(module);
-      break;
     case MODULE_MODE_SHARE:
       setupShareMode(module);
       break;
     default:
+      if (setupLuaFrame(module)) {
+        break;
+      }
       if (outputTelemetryBuffer.isModuleDestination(module)) {
         setupTelemetryFrame(module);
         outputTelemetryBuffer.reset();
@@ -752,21 +567,6 @@ static void pxx2SendPulses(void* ctx, uint8_t* buffer, int16_t* channels, uint8_
   if (module == INTERNAL_MODULE) {
     Pxx2Pulses pxx2(buffer);
     bool should_send = pxx2.setupFrame(module, channels, nChannels);
-
-    if (moduleState[module].mode == MODULE_MODE_SPECTRUM_ANALYSER ||
-        moduleState[module].mode == MODULE_MODE_POWER_METER) {
-
-      // backup normal period into 'user_data'
-      if (!mod_st->user_data) {
-        mod_st->user_data = (void*)(uintptr_t)mixerSchedulerGetPeriod(module);
-      }
-      mixerSchedulerSetPeriod(module, PXX2_TOOLS_PERIOD);
-    } else if (mod_st->user_data) {
-      // restore old scheduling period
-      uintptr_t period = (uintptr_t)mod_st->user_data;
-      mixerSchedulerSetPeriod(module, period);
-      mod_st->user_data = nullptr;
-    }
 
     if (!should_send) return;
     _send_frame(mod_st, buffer, pxx2.getSize());

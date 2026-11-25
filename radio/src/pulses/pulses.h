@@ -78,7 +78,6 @@ PACK(struct ModuleState {
   {
     ModuleInformation * moduleInformation;
     ModuleSettings * moduleSettings;
-    ReceiverSettings * receiverSettings;
     BindInformation * bindInformation;
     OtaUpdateInformation * otaUpdateInformation;
   };
@@ -87,9 +86,6 @@ PACK(struct ModuleState {
   void startBind(BindInformation * destination, ModuleCallback bindCallback = nullptr);
   void readModuleInformation(ModuleInformation * destination, int8_t first, int8_t last);
   void readModuleSettings(ModuleSettings * destination);
-  void writeModuleSettings(ModuleSettings * source);
-  void readReceiverSettings(ReceiverSettings * destination);
-  void writeReceiverSettings(ReceiverSettings * source);
 #endif
 });
 

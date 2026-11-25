@@ -34,7 +34,6 @@
 /* microseconds longest period (isrm/accst) + 1ms heartbeat backup*/
 #define PXX2_MAX_HEARTBEAT_PERIOD          (9000 + 1000)
 
-#define PXX2_TOOLS_PERIOD                  1000/*us*/
 #define PXX2_FRAME_MAXLENGTH               64
 
 #define PXX1_DEFAULT_PERIOD                9000/*us*/
