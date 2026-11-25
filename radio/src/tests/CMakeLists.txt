@@ -2,7 +2,7 @@
 add_library(gtests-radio-lib STATIC EXCLUDE_FROM_ALL
   ${googletest_SOURCE_DIR}/googletest/src/gtest-all.cc
 )
-target_include_directories(gtests-radio-lib PRIVATE
+target_include_directories(gtests-radio-lib SYSTEM PRIVATE
   ${googletest_SOURCE_DIR}/googletest
 )
 

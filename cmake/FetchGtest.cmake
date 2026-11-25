@@ -18,6 +18,8 @@ option(INSTALL_GTEST "Install GTest" OFF)
 
 FetchContent_MakeAvailable(googletest)
 
-include_directories(
+# SYSTEM: keep our warning flags (e.g. -Wdouble-promotion) from firing
+# inside the gtest headers included by every test file
+include_directories(SYSTEM
   ${googletest_SOURCE_DIR}/googletest/include
 )
