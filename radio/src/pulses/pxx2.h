@@ -50,37 +50,17 @@
 #define PXX2_CHANNELS_FLAG0_RANGECHECK       (1 << 7)
 #define PXX2_CHANNELS_FLAG1_RACING_MODE      (1 << 3)
 
-#define PXX2_RX_SETTINGS_FLAG0_WRITE               (1 << 6)
-
-#define PXX2_RX_SETTINGS_FLAG1_TELEMETRY_DISABLED  (1 << 7)
-#define PXX2_RX_SETTINGS_FLAG1_READONLY            (1 << 6)
-#define PXX2_RX_SETTINGS_FLAG1_SBUS24              (1 << 5)
-#define PXX2_RX_SETTINGS_FLAG1_FASTPWM             (1 << 4)
-#define PXX2_RX_SETTINGS_FLAG1_FPORT               (1 << 3)
-#define PXX2_RX_SETTINGS_FLAG1_TELEMETRY_25MW      (1 << 2)
-#define PXX2_RX_SETTINGS_FLAG1_ENABLE_PWM_CH5_CH6  (1 << 1)
-#define PXX2_RX_SETTINGS_FLAG1_FPORT2              (1 << 0)
-
-#define PXX2_TX_SETTINGS_FLAG0_WRITE               (1 << 6)
 #define PXX2_TX_SETTINGS_FLAG1_EXTERNAL_ANTENNA    (1 << 3)
 
 #define PXX2_HW_INFO_TX_ID                         0xFF
-
-#define SPECTRUM_ANALYSER_POWER_FLOOR   -120 /*dBm*/
 
 #define PXX2_AUTH_REFUSED_FLAG          0xA5
 
 #define PXX2_MAX_CHANNELS               24
 
-// Channel mapping constants
-#define CH_ENABLE_SPORT 4
-#define CH_ENABLE_SBUS  5
-
-#define CH_MAP_SPORT    0x40
-#define CH_MAP_SBUS_OUT 0x80
-#define CH_MAP_SBUS_IN  0xA0
-#define CH_MAP_FBUS     0xC0
-
+// Module and receiver options are set by these Lua tools, from the SD card
+#define PXX2_TX_OPTIONS_SCRIPT          SCRIPTS_TOOLS_PATH "/AccessTx.lua"
+#define PXX2_RX_OPTIONS_SCRIPT          SCRIPTS_TOOLS_PATH "/AccessRx.lua"
 
 enum PXX2ModuleModelID {
   PXX2_MODULE_NONE,
@@ -101,43 +81,9 @@ enum PXX2ModuleModelID {
 
 const char * getPXX2ModuleName(uint8_t modelId);
 
-enum {
-  MODULE_OPTION_EXTERNAL_ANTENNA,
-  MODULE_OPTION_POWER,
-  MODULE_OPTION_SPECTRUM_ANALYSER,
-  MODULE_OPTION_POWER_METER,
-};
-
-uint8_t getPXX2ModuleOptions(uint8_t modelId);
-bool isPXX2ModuleOptionAvailable(uint8_t modelId, uint8_t option);
 
 enum ModuleCapabilities {
   MODULE_CAPABILITY_COUNT
-};
-
-const char * getPXX2ReceiverName(uint8_t modelId);
-
-enum {
-  RECEIVER_OPTION_24G,
-  RECEIVER_OPTION_900M,
-  RECEIVER_OPTION_OTA_TO_UPDATE_SELF,
-  RECEIVER_OPTION_OTA_TO_UPDATE_OTHER,
-  RECEIVER_OPTION_TANDEM,
-  RECEIVER_OPTION_TWIN,
-  RECEIVER_OPTION_D_TELE_PORT,
-};
-
-uint8_t getPXX2ReceiverOptions(uint8_t modelId);
-bool isPXX2ReceiverOptionAvailable(uint8_t modelId, uint8_t option);
-
-enum ReceiverCapabilities {
-  RECEIVER_CAPABILITY_FPORT,
-  RECEIVER_CAPABILITY_TELEMETRY_25MW,
-  RECEIVER_CAPABILITY_ENABLE_PWM_CH5_CH6,
-  RECEIVER_CAPABILITY_FPORT2,
-  RECEIVER_CAPABILITY_RACING_MODE,
-  RECEIVER_CAPABILITY_SBUS24,
-  RECEIVER_CAPABILITY_COUNT
 };
 
 enum PXX2Variant {
@@ -177,7 +123,6 @@ enum PXX2OtaUpdateSteps {
 enum PXX2ReceiverStatus {
   PXX2_HARDWARE_INFO,
   PXX2_SETTINGS_READ,
-  PXX2_SETTINGS_WRITE,
   PXX2_SETTINGS_OK
 };
 
@@ -196,7 +141,6 @@ PACK(struct PXX2HardwareInformation {
   uint8_t capabilityNotSupported;
 });
 
-bool isPXX2PowerAvailable(const PXX2HardwareInformation& info, int value);
 
 PACK(struct ModuleInformation {
   int8_t current;
@@ -215,7 +159,6 @@ class ModuleSettings {
     tmr10ms_t timeout;
     uint8_t externalAntenna;
     int8_t txPower;
-    uint8_t dirty;
 };
 
 struct PXX2ModuleSetup {
@@ -237,23 +180,6 @@ struct PXX2ModuleSetup {
   ModuleSettings moduleSettings;
 };
 
-class ReceiverSettings {
-  public:
-    uint8_t state;  // 0x00 = READ 0x40 = WRITE
-    tmr10ms_t timeout;
-    uint8_t receiverId;
-    uint8_t dirty;
-    uint8_t telemetryDisabled;
-    uint8_t telemetry25mw;
-    uint8_t pwmRate;
-    uint8_t fport;
-    uint8_t enablePwmCh5Ch6;
-    uint8_t fport2;
-    uint8_t sbus24;
-    uint8_t outputsCount;
-    uint8_t outputsMapping[24];
-};
-
 class BindInformation {
   public:
     int8_t step;
@@ -270,14 +196,28 @@ class BindInformation {
 struct PXX2HardwareAndSettings {
   ModuleInformation modules[MAX_MODULES];
   uint32_t updateTime;
-  ModuleSettings moduleSettings;
-  ReceiverSettings receiverSettings;  // when dealing with receiver settings, we
-                                      // also need module settings
   char msg[64];
 };
 
+// Raw PXX2 frames exchanged with Lua scripts (accessFramePush / accessFramePop)
+//
+// Output: a single slot, filled by the script and sent by the mixer instead of
+// one channels frame while the module is in normal mode.
+//
+// Input: every frame received from a module, except telemetry and
+// authentication, is copied into a queue as
+//   [length] [module] [TYPE_C] [TYPE_ID] [payload...]
+// where length counts TYPE_C, TYPE_ID and the payload. The queue is created by
+// the first accessFramePop() call.
+
+// HEAD (2) + TYPE_C + TYPE_ID + CRC (2)
+#define PXX2_LUA_FRAME_MAX_PAYLOAD  (PXX2_FRAME_MAXLENGTH - 6)
+
+bool pxx2LuaFrameAvailable();
+bool pxx2LuaFramePush(uint8_t module, uint8_t typeC, uint8_t typeId,
+                      const uint8_t* payload, uint8_t length);
+
 PXX2ModuleSetup& getPXX2ModuleSetupBuffer();
 BindInformation& getPXX2BindInformationBuffer();
-PXX2HardwareAndSettings& getPXX2HardwareAndSettingsBuffer();
 
 extern const etx_proto_driver_t Pxx2Driver;

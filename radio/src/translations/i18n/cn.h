@@ -768,7 +768,6 @@
 #define TR_NO_FILES_ON_SD              "存储卡中没有文件!"
 #define TR_NO_SDCARD                   "存储卡未安装"
 #define TR_WAITING_FOR_RX              "等待接收机响应..."
-#define TR_WAITING_FOR_TX              "等待发射机响应..."
 #define TR_WAITING_FOR_MODULE          TR("等待模块", "等待模块响应...")
 #define TR_NO_TOOLS                    "无可用附加功能"
 #define TR_NORMAL                      "正常"
@@ -779,10 +778,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH关回传", "16CH 禁用回传")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH开回传", "16CH 开启回传")
-#define TR_EXT_ANTENNA                 "外置天线"
-#define TR_PIN                         "插针"
-#define TR_UPDATE_RX_OPTIONS           "是否升级接收机?"
-#define TR_UPDATE_TX_OPTIONS           "是否升级发射机?"
 #define TR_MODULES_RX_VERSION          BUTTON("模块/接收机版本")
 #define TR_SHOW_MIXER_MONITORS         "显示通道混控"
 #define TR_MENU_MODULES_RX_VERSION     "模块/接收机版本"
@@ -791,11 +786,7 @@
 #define TR_STICKS_POTS_SLIDERS         "摇杆(轴)/旋钮/滑块"
 #define TR_RF_PROTOCOL                 "射频协议"
 #define TR_MODULE_OPTIONS              "选项"
-#define TR_POWER                       "功率"
-#define TR_NO_TX_OPTIONS               "无发射机选项"
 #define TR_RTC_BATT                    "RTC电池电压"
-#define TR_POWER_METER_EXT             "功率计 (外置)"
-#define TR_POWER_METER_INT             "功率计 (内置)"
 #define TR_SPECTRUM_ANALYSER_EXT       "频谱仪 (外置)"
 #define TR_SPECTRUM_ANALYSER_INT       "频谱仪 (内置)"
 #define TR_GHOST_MODULE_CONFIG         "Ghost module config"
@@ -946,9 +937,6 @@
 #define TR_INTERNALRF                  "内置发射"
 #define TR_INTERNAL_MODULE             TR("内置发射", "内置发射")
 #define TR_EXTERNAL_MODULE             TR("外置发射", "外置发射")
-#define TR_EDGETX_UPGRADE_REQUIRED     "EdgeTX需要升级"
-#define TR_TELEMETRY_DISABLED          "禁用回传"
-#define TR_MORE_OPTIONS_AVAILABLE      "更多可用选项"
 #define TR_EXTERNALRF                  "外置发射"
 #define TR_FAILSAFE                    TR("失控保护", "失控保护模式")
 #define TR_FAILSAFESET                 "失控保护设置"
@@ -959,9 +947,6 @@
 #define TR_NONE                        "无效"
 #define TR_NONE_UPPERCASE              "无效"
 #define TR_MENUSENSOR                  "传感器"
-#define TR_POWERMETER_PEAK             "提取"
-#define TR_POWERMETER_POWER            "功率"
-#define TR_POWERMETER_ATTN             "衰减器"
 #define TR_POWERMETER_FREQ             "频率"
 #define TR_MENUTOOLS                   "扩展工具"
 #define TR_MIC_RECORDER                "麦克风录音"
@@ -980,7 +965,6 @@
 #define TR_TURN_OFF_RECEIVER           "请关闭接收机"
 #define TR_STOPPING                    "正在停止..."
 #define TR_MENU_SPECTRUM_ANALYSER      "频谱仪"
-#define TR_MENU_POWER_METER            "功率计"
 #define TR_SENSOR                      "传感器"
 #define TR_COUNTRY_CODE                "国别码"
 #define TR_USBMODE                     "USB模式"
@@ -1021,7 +1005,6 @@
 #define TR_BYTES                       "bytes"
 #define TR_MODULE_BIND                 BUTTON(TR("对频", "对频"))
 #define TR_MODULE_UNBIND               BUTTON("解绑")
-#define TR_POWERMETER_ATTN_NEEDED     "需要串联衰减器"
 #define TR_PXX2_SELECT_RX              "Select RX"
 #define TR_PXX2_DEFAULT                "<default>"
 #define TR_BT_SELECT_DEVICE            "选择设备"
@@ -1037,7 +1020,6 @@
 #define TR_REGISTER                    BUTTON(TR("注册", "注册"))
 #define TR_MODULE_RANGE                BUTTON(TR("测距", "测距"))
 #define TR_RANGE_TEST                  "距离测试(低功率)"
-#define TR_RECEIVER_OPTIONS            TR("选项", "接收机选项")
 #define TR_RESET_BTN                   BUTTON("复位")
 #define TR_KEYS_BTN                    BUTTON("按键")
 #define TR_ANALOGS_BTN                 BUTTON(TR("ADC", "ADC"))
@@ -1186,7 +1168,6 @@
 #define TR_OTA_UPDATE                  "OTA 更新..."
 #define TR_MODULE_RESET                "正在复位模块..."
 #define TR_UNSUPPORTED_RX              "不支持此接收机"
-#define TR_OTA_UPDATE_ERROR            "OTA 更新失败"
 #define TR_DEVICE_RESET                "正在复位设备..."
 #define TR_ALTITUDE                    "高度"
 #define TR_SCALE                       "比例"

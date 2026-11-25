@@ -140,7 +140,7 @@ if(HELI)
   add_gui_src(model/model_heli.cpp)
 endif()
 
-if(PXX2 OR MULTIMODULE)
+if(MULTIMODULE)
   add_gui_src(radio/radio_spectrum_analyser.cpp)
 endif()
 

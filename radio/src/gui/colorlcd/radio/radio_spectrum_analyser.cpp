@@ -385,23 +385,11 @@ void RadioSpectrumAnalyser::init()
   }
 #endif
 
-  if (isModuleR9MAccess(moduleIdx)) {
-    reusableBuffer.spectrumAnalyser.spanDefault = 20;
-    reusableBuffer.spectrumAnalyser.spanMax = 40;
-    reusableBuffer.spectrumAnalyser.freqDefault = 890;
-    reusableBuffer.spectrumAnalyser.freqMin = 850;
-    reusableBuffer.spectrumAnalyser.freqMax = 930;
-  } else {
-    if (isModuleMultimodule(moduleIdx)) {
-      reusableBuffer.spectrumAnalyser.spanDefault = 80;  // 80MHz
-    } else {
-      reusableBuffer.spectrumAnalyser.spanDefault = 40;  // 40MHz
-    }
-    reusableBuffer.spectrumAnalyser.spanMax = 80;
-    reusableBuffer.spectrumAnalyser.freqDefault = 2440;  // 2440MHz
-    reusableBuffer.spectrumAnalyser.freqMin = 2400;
-    reusableBuffer.spectrumAnalyser.freqMax = 2485;
-  }
+  reusableBuffer.spectrumAnalyser.spanDefault = 80;  // 80MHz
+  reusableBuffer.spectrumAnalyser.spanMax = 80;
+  reusableBuffer.spectrumAnalyser.freqDefault = 2440;  // 2440MHz
+  reusableBuffer.spectrumAnalyser.freqMin = 2400;
+  reusableBuffer.spectrumAnalyser.freqMax = 2485;
 
   reusableBuffer.spectrumAnalyser.span =
       reusableBuffer.spectrumAnalyser.spanDefault * 1000000;
@@ -420,14 +408,6 @@ void RadioSpectrumAnalyser::start()
 
 void RadioSpectrumAnalyser::stop()
 {
-#if defined(PXX2)
-  if (isModulePXX2(moduleIdx)) {
-    moduleState[moduleIdx].readModuleInformation(
-        &reusableBuffer.moduleSetup.pxx2.moduleInformation, PXX2_HW_INFO_TX_ID,
-        PXX2_HW_INFO_TX_ID);
-  }
-#endif
-
 #if defined(MULTIMODULE)
   if (isModuleMultimodule(moduleIdx)) {
     moduleState[moduleIdx].mode = MODULE_MODE_NORMAL;

@@ -28,6 +28,25 @@
 #include "pxx2_ota.h"
 #include "pxx2_transport.h"
 
+char* getPxx2OtaConfirmInfo(char* dest, const OtaUpdateInformation& info)
+{
+  // The .frsk product ID is the model ID the receiver reports
+  FrSkyFirmwareInformation file;
+  if (!readFrSkyFirmwareInformation(info.filename, file) &&
+      (file.productFamily != FIRMWARE_FAMILY_RECEIVER ||
+       file.productId != info.receiverInformation.modelID)) {
+    return strAppend(dest, STR_INCOMPATIBLE);
+  }
+
+  const PXX2Version& version = info.receiverInformation.swVersion;
+  dest = strAppend(dest, STR_CURRENT_VERSION);
+  dest = strAppendUnsigned(dest, 1 + version.major);
+  *dest++ = '.';
+  dest = strAppendUnsigned(dest, version.minor);
+  *dest++ = '.';
+  return strAppendUnsigned(dest, version.revision);
+}
+
 bool Pxx2OtaUpdate::waitStep(uint8_t step, uint8_t timeout)
 {
   OtaUpdateInformation * destination = moduleState[module].otaUpdateInformation;
@@ -84,9 +103,9 @@ const char* Pxx2OtaUpdate::doFlashFirmware(const char* filename,
   UINT count;
   const char * result;
 
-  result = nextStep(OTA_UPDATE_START, rxName, 0, nullptr);
-  if (result) {
-    return result;
+  // Receivers that can't update themselves never answer the start frame
+  if (nextStep(OTA_UPDATE_START, rxName, 0, nullptr)) {
+    return STR_UNSUPPORTED_RX;
   }
 
   if (f_open(&file, filename, FA_READ) != FR_OK) {

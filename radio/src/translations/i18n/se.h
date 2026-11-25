@@ -769,7 +769,6 @@
 #define TR_NO_FILES_ON_SD               "Inga filer på SD!"
 #define TR_NO_SDCARD                    "SD-kort saknas"
 #define TR_WAITING_FOR_RX               "Väntar på Rx..."
-#define TR_WAITING_FOR_TX               "Väntar på Tx..."
 #define TR_WAITING_FOR_MODULE           TR("Inväntar modul", "Inväntar radiomodulen...")
 #define TR_NO_TOOLS                     "Inga verktyg tillgängliga"
 #define TR_NORMAL                       "Normal"
@@ -780,10 +779,6 @@
 #define TR_FLEX_868                     "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY       TR("16KA utan telem.", "16 KA utan telemetri")
 #define TR_16CH_WITH_TELEMETRY          TR("16KA med telem.", "16 KA med telemetri")
-#define TR_EXT_ANTENNA                  "Ext. antenn"
-#define TR_PIN                          "Pin"
-#define TR_UPDATE_RX_OPTIONS            "Uppdatera Rx alternativ?"
-#define TR_UPDATE_TX_OPTIONS            "Uppdatera Tx alternativ?"
 #define TR_MODULES_RX_VERSION           BUTTON("Moduler / Rx version")
 #define TR_SHOW_MIXER_MONITORS          "Visa mixervärden"
 #define TR_MENU_MODULES_RX_VERSION      "MODULER / RX VERSION"
@@ -792,11 +787,7 @@
 #define TR_STICKS_POTS_SLIDERS          "Axlar/Vred/Reglage"
 #define TR_RF_PROTOCOL                  "RF Protokoll"
 #define TR_MODULE_OPTIONS               "Modulalternativ"
-#define TR_POWER                        "Power"
-#define TR_NO_TX_OPTIONS                "Inga TX-alternativ"
 #define TR_RTC_BATT                     "RTC batteri"
-#define TR_POWER_METER_EXT              "Power Meter (EXT)"
-#define TR_POWER_METER_INT              "Power Meter (INT)"
 #define TR_SPECTRUM_ANALYSER_EXT        "Spektrum (EXT)"
 #define TR_SPECTRUM_ANALYSER_INT        "Spektrum (INT)"
 #define TR_GHOST_MODULE_CONFIG          "Konfig Ghostmodul"
@@ -948,9 +939,6 @@
 #define TR_INTERNALRF                   "Intern radiomodul"
 #define TR_INTERNAL_MODULE              TR("Int. modul","Intern modul")
 #define TR_EXTERNAL_MODULE              TR("Ext. modul","Extern modul")
-#define TR_EDGETX_UPGRADE_REQUIRED      "EdgeTX behöver uppgraderas"
-#define TR_TELEMETRY_DISABLED           "Telem. inaktiverad"
-#define TR_MORE_OPTIONS_AVAILABLE       "Fler alternativ finns"
 #define TR_EXTERNALRF                   "Extern radiomodul"
 #define TR_FAILSAFE                     TR("Failsafe", "Failsafeläge")
 #define TR_FAILSAFESET                  "Failsafeinställning"
@@ -961,9 +949,6 @@
 #define TR_NONE                         "Ingen"
 #define TR_NONE_UPPERCASE               "INGEN"
 #define TR_MENUSENSOR                   "SENSOR"
-#define TR_POWERMETER_PEAK              "Topp"
-#define TR_POWERMETER_POWER             "Styrka"
-#define TR_POWERMETER_ATTN              "Attn"
 #define TR_POWERMETER_FREQ              "Frekv."
 #define TR_MENUTOOLS                    "VERKTYG"
 #define TR_MIC_RECORDER                 "Mikrofoninspelning"
@@ -982,7 +967,6 @@
 #define TR_TURN_OFF_RECEIVER            "Stäng av mottagare"
 #define TR_STOPPING                     "Stoppar..."
 #define TR_MENU_SPECTRUM_ANALYSER       "SPEKTRUMANALYSATOR"
-#define TR_MENU_POWER_METER             "EFFEKTMÄTARE"
 #define TR_SENSOR                       "SENSOR"
 #define TR_COUNTRY_CODE                 "Landskod"
 #define TR_USBMODE                      "USB-läge"
@@ -1023,7 +1007,6 @@
 #define TR_BYTES                        "byte"
 #define TR_MODULE_BIND                  BUTTON(TR("Bnd", "Parkoppla"))
 #define TR_MODULE_UNBIND                BUTTON("Glöm")
-#define TR_POWERMETER_ATTN_NEEDED       "Attenuator behövs"
 #define TR_PXX2_SELECT_RX               "Välj Rx"
 #define TR_PXX2_DEFAULT                 "<default>"
 #define TR_BT_SELECT_DEVICE             "Välj enhet"
@@ -1039,7 +1022,6 @@
 #define TR_REGISTER                     BUTTON(TR("Reg", "Registrera"))
 #define TR_MODULE_RANGE                 BUTTON(TR("Tst", "Testa"))
 #define TR_RANGE_TEST                   "Test av radiolänkkvalitet (begränsad signalstyrka)"
-#define TR_RECEIVER_OPTIONS             TR("RX ALTERNATIV", "MOTTAGARALTERNATIV")
 #define TR_RESET_BTN                    TR(BUTTON("Nolla"), BUTTON("Återställ"))
 #define TR_KEYS_BTN                     BUTTON(TR("Bryt.","Brytare"))
 #define TR_ANALOGS_BTN                  BUTTON(TR("Ana.","Analoga"))
@@ -1197,7 +1179,6 @@
 #define TR_OTA_UPDATE                   "OTA uppdatering..."
 #define TR_MODULE_RESET                 "Module reset..."
 #define TR_UNSUPPORTED_RX               "Rx stöds ej"
-#define TR_OTA_UPDATE_ERROR             "OTA uppdateringsfel"
 #define TR_DEVICE_RESET                 "Device reset..."
 #define TR_ALTITUDE                     "Höjd"
 #define TR_SCALE                        "Skala"

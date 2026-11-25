@@ -83,7 +83,6 @@
 #define TR_SBUS_PROTOCOLS               TR("No Telem", "No Telemetry"),"SPort"
 #define TR_MULTI_POWER                  "1.6mW","2.0mW","2.5mW","3.2mW","4.0mW","5.0mW","6.3mW","7.9mW","10mW","13mW","16mW","20mW","25mW","32mW","40mW","50mW"
 #define TR_MULTI_WBUS_MODE              "WBUS","PPM"
-#define TR_SPORT_MODES                  STR_SPORT,"F.PORT",STR_FBUS
 #define TR_AFHDS3_PROTOCOLS             "PWM/IBUS","PWM/SBUS","PPM/IBUS","PPM/SBUS"
 #define TR_AFHDS3_POWERS                "25mW","50mW","100mW","250mW","500mW","1W","2W"
 #define TR_FLYSKY_PULSE_PROTO           "PWM","PPM"

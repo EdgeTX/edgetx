@@ -778,7 +778,6 @@
 #define TR_NO_FILES_ON_SD              "لا ملفات على SD!"
 #define TR_NO_SDCARD                   "لا يوجد كرت SD"
 #define TR_WAITING_FOR_RX              "بانتظار RX..."
-#define TR_WAITING_FOR_TX              "بانتظار TX..."
 #define TR_WAITING_FOR_MODULE          TR("بانتظار الموديول", "بانتظار الموديول...")
 #define TR_NO_TOOLS                    "لا توجد أدوات"
 #define TR_NORMAL                      "عادي"
@@ -789,10 +788,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH بلا Telem", "16CH بدون Telemetry")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH مع Telem", "16CH مع Telemetry")
-#define TR_EXT_ANTENNA                 "هوائي خارجي"
-#define TR_PIN                         "Pin"
-#define TR_UPDATE_RX_OPTIONS           "تحديث خيارات RX؟"
-#define TR_UPDATE_TX_OPTIONS           "تحديث خيارات TX؟"
 #define TR_MODULES_RX_VERSION          BUTTON("إصدار الموديولات / RX")
 #define TR_SHOW_MIXER_MONITORS         "عرض مراقبة Mixer"
 #define TR_MENU_MODULES_RX_VERSION     "إصدار الموديولات / RX"
@@ -801,11 +796,7 @@
 #define TR_STICKS_POTS_SLIDERS         "المحاور/Pots/Sliders"
 #define TR_RF_PROTOCOL                 "بروتوكول RF"
 #define TR_MODULE_OPTIONS              "خيارات الموديول"
-#define TR_POWER                       "القوة"
-#define TR_NO_TX_OPTIONS               "لا خيارات TX"
 #define TR_RTC_BATT                    "بطارية RTC"
-#define TR_POWER_METER_EXT             "مقياس القوة (خارجي)"
-#define TR_POWER_METER_INT             "مقياس القوة (داخلي)"
 #define TR_SPECTRUM_ANALYSER_EXT       "الطيف (خارجي)"
 #define TR_SPECTRUM_ANALYSER_INT       "الطيف (داخلي)"
 #define TR_GHOST_MODULE_CONFIG         "إعداد موديول Ghost"
@@ -956,9 +947,6 @@
 #define TR_INTERNALRF                  "RF داخلي"
 #define TR_INTERNAL_MODULE             TR("الموديول الداخلي", "الموديول الداخلي")
 #define TR_EXTERNAL_MODULE             TR("الموديول الخارجي", "الموديول الخارجي")
-#define TR_EDGETX_UPGRADE_REQUIRED     "يحتاج تحديث EdgeTX"
-#define TR_TELEMETRY_DISABLED          "Telemetry معطل"
-#define TR_MORE_OPTIONS_AVAILABLE      "توجد خيارات أكثر"
 #define TR_EXTERNALRF                  "RF خارجي"
 #define TR_FAILSAFE                    TR("Failsafe", "وضع Failsafe")
 #define TR_FAILSAFESET                 "إعدادات Failsafe"
@@ -969,9 +957,6 @@
 #define TR_NONE                        "لا شيء"
 #define TR_NONE_UPPERCASE              "لا شيء"
 #define TR_MENUSENSOR                  "المستشعر"
-#define TR_POWERMETER_PEAK             "الذروة"
-#define TR_POWERMETER_POWER            "القوة"
-#define TR_POWERMETER_ATTN             "التخفيف"
 #define TR_POWERMETER_FREQ             "التردد"
 #define TR_MENUTOOLS                   "الأدوات"
 #define TR_MIC_RECORDER                "مسجل الصوت"
@@ -990,7 +975,6 @@
 #define TR_TURN_OFF_RECEIVER           "أطفئ الرسيفر"
 #define TR_STOPPING                    "جاري الإيقاف..."
 #define TR_MENU_SPECTRUM_ANALYSER      "محلل الطيف"
-#define TR_MENU_POWER_METER            "مقياس القوة"
 #define TR_SENSOR                      "المستشعر"
 #define TR_COUNTRY_CODE                "رمز الدولة"
 #define TR_USBMODE                     "وضع USB"
@@ -1031,7 +1015,6 @@
 #define TR_BYTES                       "بايت"
 #define TR_MODULE_BIND                 BUTTON(TR("ربط", "ربط"))
 #define TR_MODULE_UNBIND               BUTTON("فك الربط")
-#define TR_POWERMETER_ATTN_NEEDED     "يحتاج مخفف إشارة"
 #define TR_PXX2_SELECT_RX              "اختيار RX"
 #define TR_PXX2_DEFAULT                "<افتراضي>"
 #define TR_BT_SELECT_DEVICE            "اختيار جهاز"
@@ -1047,7 +1030,6 @@
 #define TR_REGISTER                    BUTTON(TR("تسجيل", "تسجيل"))
 #define TR_MODULE_RANGE                BUTTON(TR("المدى", "المدى"))
 #define TR_RANGE_TEST                  "اختبار المدى"
-#define TR_RECEIVER_OPTIONS            TR("خيارات الرسيفر", "خيارات الرسيفر")
 #define TR_RESET_BTN                   BUTTON("إعادة ضبط")
 #define TR_KEYS_BTN                    BUTTON("الأزرار")
 #define TR_ANALOGS_BTN                 BUTTON(TR("التناظري", "التناظري"))
@@ -1196,7 +1178,6 @@
 #define TR_OTA_UPDATE                  "تحديث OTA..."
 #define TR_MODULE_RESET                "إعادة تشغيل الموديول..."
 #define TR_UNSUPPORTED_RX              "RX غير مدعوم"
-#define TR_OTA_UPDATE_ERROR            "خطأ بتحديث OTA"
 #define TR_DEVICE_RESET                "إعادة تشغيل الجهاز..."
 #define TR_ALTITUDE                    "الارتفاع"
 #define TR_SCALE                       "المقياس"

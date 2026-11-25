@@ -99,15 +99,11 @@ class Pxx2Pulses: public Pxx2Transport {
 
     void setupModuleSettingsFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
 
-    void setupReceiverSettingsFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
-
     void setupChannelsFrame(uint8_t module, int16_t* channels, uint8_t nChannels);
 
     void setupTelemetryFrame(uint8_t module);
 
-    void setupSpectrumAnalyser(uint8_t module);
-
-    void setupPowerMeter(uint8_t module);
+    bool setupLuaFrame(uint8_t module);
 
     void sendOtaUpdate(uint8_t module, const char * rxName, uint32_t address, const char * data);
 

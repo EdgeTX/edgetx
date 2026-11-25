@@ -32,6 +32,10 @@ class OtaUpdateInformation: public BindInformation {
     uint32_t module;
 };
 
+// Info line of the OTA confirmation: the receiver's current version, or a
+// warning when the file's header is for another receiver
+char* getPxx2OtaConfirmInfo(char* dest, const OtaUpdateInformation& info);
+
 class Pxx2OtaUpdate {
   public:
     Pxx2OtaUpdate(uint8_t module, const char * rxName):

@@ -770,7 +770,6 @@
 #define TR_NO_FILES_ON_SD              "!SD אין קבצים על"
 #define TR_NO_SDCARD                   "SD אין כרטיס"
 #define TR_WAITING_FOR_RX              "...ממתין ל-RX"
-#define TR_WAITING_FOR_TX              "...ממתין ל-TX"
 #define TR_WAITING_FOR_MODULE          TR("ממתין למודול", "...ממתין למודול")
 #define TR_NO_TOOLS                    "אין כלי זמין"
 #define TR_NORMAL                      "רגיל"
@@ -781,10 +780,6 @@
 #define TR_FLEX_868                    "Flex 868MHz"
 #define TR_16CH_WITHOUT_TELEMETRY      TR("16CH without telem.", "16CH without telemetry")
 #define TR_16CH_WITH_TELEMETRY         TR("16CH with telem.", "16CH with telemetry")
-#define TR_EXT_ANTENNA                 "אנטנה חיצונית"
-#define TR_PIN                         "Pin"
-#define TR_UPDATE_RX_OPTIONS           "? לעדכן אפשרויות RX"
-#define TR_UPDATE_TX_OPTIONS           "? לעדכן אפשרויות TX"
 #define TR_MODULES_RX_VERSION          BUTTON("מודולים / גרסת RX")
 #define TR_SHOW_MIXER_MONITORS         "הצג תצוגת מיקסים"
 #define TR_MENU_MODULES_RX_VERSION     "מודולים / גרסת RX"
@@ -793,11 +788,7 @@
 #define TR_STICKS_POTS_SLIDERS         "סטיקים/גלגלות/סליידרים"
 #define TR_RF_PROTOCOL                 "RF פרוטוקול"
 #define TR_MODULE_OPTIONS              "אפשרויות מודול"
-#define TR_POWER                       "עוצמה"
-#define TR_NO_TX_OPTIONS               "אין אפשרויות TX"
 #define TR_RTC_BATT                    "RTC סוללת פנימית"
-#define TR_POWER_METER_EXT             "מד הספק (חיצוני)"
-#define TR_POWER_METER_INT             "מד הספק (פנימי)"
 #define TR_SPECTRUM_ANALYSER_EXT       "ספקטרום (חיצוני)"
 #define TR_SPECTRUM_ANALYSER_INT       "ספקטרום (פנימי)"
 #define TR_GHOST_MODULE_CONFIG         "הגדרות מודול Ghost"
@@ -948,9 +939,6 @@
 #define TR_INTERNALRF                  "מודול פנימי"
 #define TR_INTERNAL_MODULE             TR("Int. module", "מודול פנימי")
 #define TR_EXTERNAL_MODULE             TR("Ext. module", "מודול חיצוני")
-#define TR_EDGETX_UPGRADE_REQUIRED     "נדרש עדכון EdgeTX"
-#define TR_TELEMETRY_DISABLED          "טלמטריה מושבתת"
-#define TR_MORE_OPTIONS_AVAILABLE      "אפשרויות נוספות זמינות"
 #define TR_EXTERNALRF                  "מודול חיצוני"
 #define TR_FAILSAFE                    TR("Failsafe", "הגדרת כשל קליטה")
 #define TR_FAILSAFESET                 "הגדרת כשל קליטה"
@@ -961,9 +949,6 @@
 #define TR_NONE                        "ללא"
 #define TR_NONE_UPPERCASE              "ללא"
 #define TR_MENUSENSOR                  "חיישן"
-#define TR_POWERMETER_PEAK             "שיא"
-#define TR_POWERMETER_POWER            "הספק"
-#define TR_POWERMETER_ATTN             "החלשה"
 #define TR_POWERMETER_FREQ             "תדר"
 #define TR_MENUTOOLS                   "כלים וסקריפטים"
 #define TR_MIC_RECORDER                "מקליט מיקרופון"
@@ -982,7 +967,6 @@
 #define TR_TURN_OFF_RECEIVER           "כיבוי מקלט"
 #define TR_STOPPING                    "...עוצר"
 #define TR_MENU_SPECTRUM_ANALYSER      "מנתח ספקטרום"
-#define TR_MENU_POWER_METER            "מד הספק"
 #define TR_SENSOR                      "חיישן"
 #define TR_COUNTRY_CODE                "קוד ארץ"
 #define TR_USBMODE                     "USB מצב"
@@ -1023,7 +1007,6 @@
 #define TR_BYTES                       "בייטים"
 #define TR_MODULE_BIND                 BUTTON(TR("Bnd", "צימוד"))
 #define TR_MODULE_UNBIND               BUTTON("בטל צימוד")
-#define TR_POWERMETER_ATTN_NEEDED     "נדרש מחליש אות"
 #define TR_PXX2_SELECT_RX              "בחר מקלט"
 #define TR_PXX2_DEFAULT                "<default>"
 #define TR_BT_SELECT_DEVICE            "בחר מכשיר"
@@ -1039,7 +1022,6 @@
 #define TR_REGISTER                    BUTTON(TR("רשום", "רישום"))
 #define TR_MODULE_RANGE                BUTTON(TR("Rng", "בדיקת טווח קליטה"))
 #define TR_RANGE_TEST                  "בדיקת טווח"
-#define TR_RECEIVER_OPTIONS            TR("אפשרויות מקלט", "אפשרויות מקלט")
 #define TR_RESET_BTN                   BUTTON("איפוס")
 #define TR_KEYS_BTN                    BUTTON("בדיקת מתגים")
 #define TR_ANALOGS_BTN                 BUTTON(TR("Anas", "בדיקת אנלוגיות"))
@@ -1188,7 +1170,6 @@
 #define TR_OTA_UPDATE                  "...עדכון OTA"
 #define TR_MODULE_RESET                "...איפוס מודול"
 #define TR_UNSUPPORTED_RX              "מקלט לא נתמך"
-#define TR_OTA_UPDATE_ERROR            "שגיאת עדכון OTA"
 #define TR_DEVICE_RESET                "...איפוס התקן"
 #define TR_ALTITUDE                    "גובה"
 #define TR_SCALE                       "קנה מידה"
