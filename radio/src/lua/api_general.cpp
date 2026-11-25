@@ -1063,7 +1063,7 @@ static bool _supports_sport(uint8_t module)
 {
   return IS_NATIVE_FRSKY_PROTOCOL(module) ||
     (isModuleMultimodule(module) &&
-     (IS_D16_MULTI(module) || IS_R9_MULTI(module)));
+     (IS_D16_MULTI(module) || IS_ACCESS_MULTI(module) || IS_R9_MULTI(module)));
 }
 
 static int luaSportTelemetryPush(lua_State * L)

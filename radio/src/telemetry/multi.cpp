@@ -56,7 +56,7 @@ enum MultiPacketTypes : uint8_t
   MLinkTelemetry,
   ConfigTelemetry,
   MultiProtoDef,
-  RLinkTelemetry = 18,
+  LuaPipeTelemetry = 18,
   FutabaTelemetry = 19,
 };
 
@@ -312,12 +312,12 @@ static void processConfigPacket(const uint8_t * packet, uint8_t len)
   }
 }
 
-static void processRLinkPacket(const uint8_t * packet, uint8_t len)
+static void processLuaPipePacket(const uint8_t * packet, uint8_t len)
 {
-  // Multi_Buffer[0..3] == "RLnk" / Lua script is running
+  // Multi_Buffer[0..3] == "Pipe" (or "RLnk") / Lua script is running
   // Multi_Buffer[14]   == 0 RX buffer can be written / >0 Lua has not consumed it
-  // Multi_Buffer[15..] == payload from receiver
-  if (Multi_Buffer && memcmp(Multi_Buffer, "RLnk", 4) == 0 && Multi_Buffer[14] == 0 && len < 32) {
+  // Multi_Buffer[15..] == payload from the module
+  if (isMultiLuaPipe() && Multi_Buffer[14] == 0 && len < 32) {
     memcpy(&Multi_Buffer[15], packet, len);
     Multi_Buffer[14] = len;
   }
@@ -475,8 +475,8 @@ static void processMultiTelemetryPaket(const uint8_t * packet, uint8_t module)
         TRACE("[MP] Received Config telemetry len %d < 20", len);
       break;
 
-    case RLinkTelemetry:
-      processRLinkPacket(data, len);
+    case LuaPipeTelemetry:
+      processLuaPipePacket(data, len);
       break;
 #endif
 
