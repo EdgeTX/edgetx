@@ -81,6 +81,7 @@ class Bluetooth
 {
   public:
     void writeString(const char * str);
+    void sendHeadTrackerReset();
     char * readline(bool error_reset = true);
     void write(const uint8_t * data, uint8_t length);
 

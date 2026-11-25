@@ -75,6 +75,7 @@ enum AssignFunc {
   FuncLCDtoVideo,
   FuncPushCustomSwitch1,
   FuncPushCustomSwitchLast = FuncPushCustomSwitch1 + CPN_MAX_SWITCHES_FUNCTION - 1,
+  FuncHtReset,
   FuncCount,
   FuncReserve = -1
 };

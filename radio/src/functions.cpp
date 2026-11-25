@@ -441,6 +441,14 @@ void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & func
             break;
 #endif
 
+          case FUNC_HT_RESET:
+#if defined(BLUETOOTH)
+            if (isRepeatDelayElapsed(functions, functionsContext, i)) {
+              bluetooth.sendHeadTrackerReset();
+            }
+#endif
+            break;
+
 #if defined(DEBUG)
           case FUNC_TEST:
             testFunc();
@@ -714,6 +722,8 @@ const char* funcGetLabel(uint8_t func)
   case FUNC_PUSH_CUST_SWITCH:
     return STR_SF_PUSH_CUST_SWITCH;
 #endif
+  case FUNC_HT_RESET:
+    return STR_SF_HT_RESET;
 #if defined(DEBUG)
   case FUNC_TEST:
     return STR_SF_TEST;

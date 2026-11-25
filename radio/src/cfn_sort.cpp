@@ -946,6 +946,7 @@ Functions cfn_sorted[] = {
   /* Vario */ FUNC_VARIO,
   /* Volume */ FUNC_VOLUME,
 #endif
+  /* HT Reset */ FUNC_HT_RESET,
 };
 
 uint8_t getFuncSortIdx(uint8_t func)

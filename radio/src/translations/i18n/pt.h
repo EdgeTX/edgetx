@@ -249,6 +249,7 @@
 #define TR_SF_DISABLE_TOUCH            "No Touch"
 #define TR_SF_DISABLE_KEYS             "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP        "Amp Audio Desl"
+#define TR_SF_HT_RESET                "HT Reset"
 #define TR_SF_SET_SCREEN               TR_BW_COL("Def Tela", "Def Tela Princ")
 #define TR_SF_PUSH_CUST_SWITCH         "Push CS"
 #define TR_SF_LCD_TO_VIDEO             "LCD to Video"

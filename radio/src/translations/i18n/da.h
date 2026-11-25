@@ -250,6 +250,7 @@
 #define TR_SF_DISABLE_TOUCH            "Ikke berøringsaktiv"
 #define TR_SF_DISABLE_KEYS             "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP        TR("Sluk audio amp", "Sluk audio amplifier")
+#define TR_SF_HT_RESET                "HT Reset"
 #define TR_SF_SET_SCREEN               TR_BW_COL("Vis skærm", "Vælg hoved skærm")
 #define TR_SF_PUSH_CUST_SWITCH         TR("Tryk BK", "Tryk bruger kontakt")
 #define TR_SF_LCD_TO_VIDEO             "LCD til Video"
