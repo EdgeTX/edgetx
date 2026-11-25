@@ -399,10 +399,11 @@ void stm32_pulse_dma_tc_isr(const stm32_pulse_timer_t* tim)
 #if defined(STM32H7RS) || defined(STM32H5)
   // Disable DMA channel (GPDMA normal mode may already be stopped)
   LL_DMA_DisableChannel(tim->DMAx, tim->DMA_Stream);
-#endif
 
   // Stop timer from generating further DMA requests
+  // (not on F4/F7/H7: softserial relies on them staying enabled)
   LL_TIM_DisableDMAReq_UPDATE(tim->TIMx);
+#endif
 
   if (tim->DMA_TC_CallbackPtr) {
     auto closure = tim->DMA_TC_CallbackPtr;
