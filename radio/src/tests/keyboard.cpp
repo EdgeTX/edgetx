@@ -125,4 +125,87 @@ TEST(Keyboard, closePageWithKeyboardOpen)
   EXPECT_EQ(Keyboard::keyboardWindow(), nullptr);
 }
 
+// Press an on-screen keyboard key the way LVGL does: select the button
+// in the keyboard's button matrix, then send LV_EVENT_VALUE_CHANGED.
+static void pressKeyboardKey(const char* key)
+{
+  auto kb = Keyboard::keyboardWindow();
+  ASSERT_NE(kb, nullptr);
+  lv_obj_t* obj = kb->getLvObj();
+  for (uint16_t id = 0;; id += 1) {
+    const char* txt = lv_btnmatrix_get_btn_text(obj, id);
+    ASSERT_NE(txt, nullptr) << "key not found: " << key;
+    if (strcmp(txt, key) == 0) {
+      lv_btnmatrix_set_selected_btn(obj, id);
+      lv_event_send(obj, LV_EVENT_VALUE_CHANGED, &id);
+      return;
+    }
+  }
+}
+
+// The Enter key on a one-line text area must commit the value and close
+// the keyboard (like the OK key), then call the field's enter handler.
+TEST(Keyboard, enterKeyCommitsAndCallsEnterHandler)
+{
+  ViewMain::instance();
+  MainWindow::instance()->run();
+
+  auto page = new KeyboardTestPage();
+  int enterCalls = 0;
+  std::string textAtEnter;
+  page->textEdit->setEnterHandler([&]() {
+    enterCalls += 1;
+    textAtEnter = page->textEdit->text;
+  });
+  MainWindow::instance()->run();
+
+  page->clickTextEdit();
+  MainWindow::instance()->run();
+  ASSERT_NE(Keyboard::keyboardWindow(), nullptr);
+  ASSERT_TRUE(page->textArea()->isEditMode());
+
+  lv_textarea_add_char(page->textArea()->getLvObj(), 'd');
+  pressKeyboardKey(LV_SYMBOL_NEW_LINE);
+  MainWindow::instance()->run();
+
+  EXPECT_EQ(Keyboard::keyboardWindow(), nullptr);
+  EXPECT_FALSE(page->textArea()->isEditMode());
+  EXPECT_STREQ(page->textEdit->text, "abcd");
+  EXPECT_EQ(enterCalls, 1);
+  // value is committed before the enter handler is called
+  EXPECT_EQ(textAtEnter, "abcd");
+
+  page->simulateCancelButtonClick();
+  MainWindow::instance()->run();
+}
+
+// The OK key commits the value and closes the keyboard, but is not
+// "Enter": the enter handler must not be called.
+TEST(Keyboard, okKeyDoesNotCallEnterHandler)
+{
+  ViewMain::instance();
+  MainWindow::instance()->run();
+
+  auto page = new KeyboardTestPage();
+  int enterCalls = 0;
+  page->textEdit->setEnterHandler([&]() { enterCalls += 1; });
+  MainWindow::instance()->run();
+
+  page->clickTextEdit();
+  MainWindow::instance()->run();
+  ASSERT_NE(Keyboard::keyboardWindow(), nullptr);
+
+  lv_textarea_add_char(page->textArea()->getLvObj(), 'x');
+  pressKeyboardKey(LV_SYMBOL_OK);
+  MainWindow::instance()->run();
+
+  EXPECT_EQ(Keyboard::keyboardWindow(), nullptr);
+  EXPECT_FALSE(page->textArea()->isEditMode());
+  EXPECT_STREQ(page->textEdit->text, "abcx");
+  EXPECT_EQ(enterCalls, 0);
+
+  page->simulateCancelButtonClick();
+  MainWindow::instance()->run();
+}
+
 #endif

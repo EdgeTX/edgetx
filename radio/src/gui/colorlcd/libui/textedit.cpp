@@ -39,12 +39,12 @@ class TextArea : public FormField
     setWindowFlag(NO_FOCUS | IS_EDIT_WINDOW);
 
     lv_textarea_set_max_length(lvobj, length);
-    lv_textarea_set_placeholder_text(lvobj, "---");
-
     setFocusHandler([=](bool focus) {
       if (!focus && editMode)
         Keyboard::hideKeyboard();
     });
+
+    lv_obj_add_event_cb(lvobj, TextArea::onReady, LV_EVENT_READY, this);
 
     update();
   }
@@ -69,6 +69,16 @@ class TextArea : public FormField
     setEditMode(true);
   }
 
+  void setEnterHandler(std::function<void()> handler)
+  {
+    enterHandler = std::move(handler);
+  }
+
+  void setPlaceholder(const std::string& p)
+  {
+    lv_textarea_set_placeholder_text(lvobj, p.c_str());
+  }
+
   void setExcludedChars(std::string& excludedChars) {
     if (excludedChars.size() > 0) {
       allowedChars = "";
@@ -86,7 +96,22 @@ class TextArea : public FormField
   char* value;
   uint8_t length;
   std::function<void()> changeHandler = nullptr;
+  std::function<void()> enterHandler = nullptr;
   std::string allowedChars;
+
+  // For a one-line text area, the keyboard "Enter" key sends LV_EVENT_READY
+  // to the text area only. The "OK" key sends it to the keyboard first, which
+  // closes the keyboard and ends edit mode, then to the text area. So a READY
+  // received while still in edit mode can only come from the "Enter" key.
+  static void onReady(lv_event_t* e)
+  {
+    auto ta = (TextArea*)lv_event_get_user_data(e);
+    if (!ta || !ta->editMode) return;
+    auto handler = ta->enterHandler;
+    // Commit the value and close the keyboard, as the "OK" key does
+    Keyboard::hideKeyboard();
+    if (handler) handler();
+  }
 
   void trim()
   {
@@ -146,8 +171,15 @@ void TextEdit::update()
     std::string s(text, length);
     setText(s);
   } else {
-    setText("---");
+    setText(placeholder);
   }
+}
+
+void TextEdit::setPlaceholder(const char* p)
+{
+  placeholder = p ? p : "";
+  if (edit) edit->setPlaceholder(placeholder);
+  update();
 }
 
 void TextEdit::openEdit()
@@ -164,6 +196,8 @@ void TextEdit::openEdit()
   }
   // Show focus outline around this field since TextArea will be clipped
   lv_obj_add_state(lvobj, LV_STATE_USER_1);
+  edit->setPlaceholder(placeholder);
+  edit->setEnterHandler(enterHandler);
   edit->setExcludedChars(excludedChars);
   edit->openKeyboard();
 }
@@ -175,6 +209,7 @@ void TextEdit::preview(bool edited, char* text, uint8_t length)
   edit = new TextArea(this,
                       {-(PAD_MEDIUM + PAD_BORDER), -(PAD_TINY + PAD_BORDER), width(), height()},
                       text, length, nullptr);
+  edit->setPlaceholder(placeholder);
   edit->setWindowFlag(NO_CLICK);
   lv_group_focus_obj(edit->getLvObj());
   // Show focus outline around this field since TextArea will be clipped

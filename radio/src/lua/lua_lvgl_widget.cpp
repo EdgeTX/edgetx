@@ -2298,8 +2298,12 @@ void LvglWidgetTextEdit::parseParam(lua_State *L, const char *key)
     maxLen = luaL_checkinteger(L, -1);
     if (maxLen > MAX_TEXT_EDIT_LEN) maxLen = MAX_TEXT_EDIT_LEN;
     if (maxLen <= 0) maxLen = DEFAULT_TEXT_EDIT_LEN;
+  } else if (!strcmp(key, "placeholder")) {
+    placeholder = luaL_checkstring(L, -1);
   } else if (!strcmp(key, "set")) {
     setFunction.parse(L);
+  } else if (!strcmp(key, "enter")) {
+    enterFunction.parse(L);
   } else {
     LvglWidgetObject::parseParam(L, key);
   }
@@ -2328,33 +2332,53 @@ void LvglWidgetTextEdit::clearRefs(lua_State *L)
 
   txt.clearRef(L);
   setFunction.clear(L);
+  enterFunction.clear(L);
   LvglWidgetObject::clearRefs(L);
+}
+
+void LvglWidgetTextEdit::callWithValue(lua_State *L, LvglFuncRef& func)
+{
+  if (!func.isFunc()) return;
+
+  int t = lua_gettop(L);
+  PROTECT_LUA()
+  {
+    std::string s(value, maxLen); // Ensure string is terminated
+    if (!func.pcallFuncWithString(L, 0, s.c_str())) {
+      lvglManager->luaShowError();
+    }
+  }
+  else
+  {
+    lvglManager->luaShowError();
+  }
+  UNPROTECT_LUA();
+  lua_settop(L, t);
 }
 
 void LvglWidgetTextEdit::build(lua_State *L)
 {
   strAppend(value, txt.chars(), MAX_TEXT_EDIT_LEN);
   if (h == LV_SIZE_CONTENT) h = 0;
-  window = new TextEdit(lvglManager->getCurrentParent(), {x, y, w, h}, value,
-                        maxLen, [=]() {
-                          if (setFunction.isFunc()) {
-                            int t = lua_gettop(L);
-                            PROTECT_LUA()
-                            {
-                              std::string s(value, maxLen); // Ensure string is terminated
-                              txt.changedText(s.c_str());
-                              if (!setFunction.pcallFuncWithString(L, 0, s.c_str())) {
-                                lvglManager->luaShowError();
-                              }
-                            }
-                            else
-                            {
-                              lvglManager->luaShowError();
-                            }
-                            UNPROTECT_LUA();
-                            lua_settop(L, t);
-                          }
-                        });
+  auto edit = new TextEdit(lvglManager->getCurrentParent(), {x, y, w, h},
+                           value, maxLen,
+                           [=]() {
+                             if (setFunction.isFunc()) {
+                               std::string s(value, maxLen);
+                               txt.changedText(s.c_str());
+                               callWithValue(L, setFunction);
+                             }
+                           });
+  edit->setPlaceholder(placeholder.c_str());
+  // "Enter" key: called after the value is committed (and after "set")
+  edit->setEnterHandler([=]() { callWithValue(L, enterFunction); });
+  window = edit;
+}
+
+void LvglWidgetTextEdit::refresh()
+{
+  ((TextEdit*)window)->setPlaceholder(placeholder.c_str());
+  LvglWidgetObject::refresh();
 }
 
 //-----------------------------------------------------------------------------
