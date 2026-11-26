@@ -29,6 +29,7 @@
 
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QtEndian>
 
 #include <chrono>
 #include <stdexcept>
@@ -44,6 +45,11 @@ constexpr char UF2_NEW_FIRMWARE_FILENAME[]  {"firmware.uf2"};
 constexpr unsigned long REDISCOVER_INITIAL_DELAY_MS {500};
 constexpr unsigned long REDISCOVER_POLL_INTERVAL_MS {200};
 constexpr int           REDISCOVER_RESET_RETRIES    {5};
+
+// the EdgeTX bootloader of UF2 radios is at most this size (BOOTLOADER_SIZE)
+constexpr uint32_t BOOTLOADER_READ_SIZE {64 * 1024};
+// size of firmware_description_t (radio/src/fw_desc.h)
+constexpr int      FW_DESC_SIZE         {16};
 
 using namespace std::chrono_literals;
 
@@ -311,6 +317,8 @@ void FirmwareWriterWorker::writeUf2(DfuDevice &device, const SliceU8 &data)
   auto range_it = UF2RangeIterator::from_slice(data);
   auto addr_range = UF2AddressRange::new_empty();
 
+  bool backupPending = false;
+
   while (range_it->next(*addr_range)) {
     auto addr = addr_range->start_address();
     const auto &payload = addr_range->payload();
@@ -319,10 +327,105 @@ void FirmwareWriterWorker::writeUf2(DfuDevice &device, const SliceU8 &data)
 
     if (addr_range->reboot_address(reboot_address)) {
       rebootAndRediscover(device, addr, payload, reboot_address, 30s);
+      // the new bootloader's DFU exposes the firmware flash, which still
+      // holds the previous firmware until the next range is written
+      backupPending = backupAfterReboot;
     } else {
+      if (backupPending) {
+        backupFirmware(device, addr);
+        backupPending = false;
+      }
       writeRegion(device, addr, payload);
     }
   }
+}
+
+void FirmwareWriterWorker::backupFirmware(const DfuDevice &device, uint32_t addr)
+{
+  emit statusChanged(tr("Reading current firmware..."));
+
+  const QByteArray image = readFirmwareImage(device, addr);
+  const QString skipped(tr("Backup of current firmware skipped: %1"));
+
+  if (image.isEmpty()) {
+    emit newWarning(skipped.arg(tr("no firmware found at 0x%1")
+                                .arg(addr, 8, 16, QChar('0'))));
+    return;
+  }
+
+  FirmwareInterface fw(image);
+  if (!fw.isValid()) {
+    emit newWarning(skipped.arg(tr("the firmware on the radio could not be identified")));
+    return;
+  }
+
+  emit newMessage(tr("Current firmware: %1 %2").arg(fw.getFlavour()).arg(fw.getVersion()));
+
+  bool saved = false;
+  emit backupRead(FirmwareInterface::encodeUF2(addr, image), &saved);
+
+  if (!saved) {
+    throw std::runtime_error(
+        tr("Backup of current firmware failed, so the new firmware was not "
+           "written. The new bootloader has been written; the radio still has "
+           "its previous firmware.").toStdString());
+  }
+}
+
+QByteArray FirmwareWriterWorker::readFirmwareImage(const DfuDevice &device,
+                                                   uint32_t addr)
+{
+  QByteArray data;
+
+  {
+    auto ctx = device.start_upload(addr, 0);
+    const uint32_t available = ctx->get_length();
+    const uint32_t xfer_size = ctx->get_transfer_size();
+
+    auto upload = [&](uint32_t length) {
+      auto chunk = ctx->upload(uint16_t(std::min(xfer_size, length)));
+      if (chunk.empty()) {
+        throw std::runtime_error(tr("No data read from device").toStdString());
+      }
+      data.append(chunk);
+    };
+
+    // the image starts with firmware_description_t (radio/src/fw_desc.h):
+    // stack address, reset handler, image length, version pointer. Its
+    // length is the size of the whole image, as used by the bootloader for
+    // CURRENT.UF2 (radio/src/drivers/uf2_ghostfat.cpp)
+    upload(available);
+
+    const auto field = [&data](int offset) {
+      return qFromLittleEndian<uint32_t>(data.constData() + offset);
+    };
+    const bool hasDesc = data.size() >= FW_DESC_SIZE;
+    const uint32_t reset_handler = hasDesc ? field(4) & ~1U : 0;  // clear the Thumb bit
+    const uint32_t length = hasDesc ? field(8) : 0;
+
+    // erased flash reads as 0xFF, which fails these checks too
+    if (length < FW_DESC_SIZE || length > available || reset_handler < addr ||
+        reset_handler - addr >= length) {
+      qDebug() << "No valid firmware description at" << Qt::hex << addr
+               << "reset handler:" << reset_handler << "length:" << length;
+      data.clear();
+    } else {
+      emit newMessage("placeholder");  // anchor for updateMessage
+
+      while (uint32_t(data.size()) < length) {
+        upload(length - uint32_t(data.size()));
+        const auto bytes = std::min(uint32_t(data.size()), length);
+        emit progressChanged(bytes, length);
+        emit updateMessage(tr("Reading %1 of %2").arg(bytes).arg(length));
+      }
+
+      data.truncate(length);
+    }
+  }
+
+  // UPLOAD leaves the device in dfuUPLOAD_IDLE
+  device.reset_state();
+  return data;
 }
 
 void FirmwareWriterWorker::writeRegion(const DfuDevice &device, uint32_t addr,
@@ -545,12 +648,119 @@ bool writeFirmware(const QString &filename, ProgressWidget *progress)
 
 bool writeFirmware(const QByteArray &data, ProgressWidget *progress)
 {
+  return writeFirmware(data, progress, nullptr);
+}
+
+bool writeFirmware(const QByteArray &data, ProgressWidget *progress,
+                   const std::function<bool(const QByteArray &)> &onBackup)
+{
   auto worker = std::make_unique<FirmwareWriterWorker>(data, progress);
   connectProgress(worker.get(), progress);
+
+  progress->connect(worker.get(), &FirmwareWriterWorker::newWarning, progress,
+                    [progress](const QString &msg) {
+                      progress->addMessage(msg, QtWarningMsg);
+                    });
+
+  if (onBackup) {
+    worker->setBackupAfterReboot(true);
+    // blocking: the worker waits for the backup to be saved before it
+    // writes the new firmware
+    progress->connect(
+        worker.get(), &FirmwareWriterWorker::backupRead, progress,
+        [onBackup](const QByteArray &backup, bool *saved) {
+          *saved = onBackup(backup);
+        },
+        Qt::BlockingQueuedConnection);
+  }
 
   // now start it!
   worker.release()->start();
   return true;
+}
+
+Uf2DfuLayout getUf2DfuLayout(const QByteArray &uf2)
+{
+  Uf2DfuLayout layout;
+
+  try {
+    SliceU8 slice((const uint8_t *)uf2.constData(), uf2.size());
+    if (!is_uf2_payload(slice)) {
+      return layout;
+    }
+
+    auto range_it = UF2RangeIterator::from_slice(slice);
+    auto range = UF2AddressRange::new_empty();
+    bool rebooted = false;
+
+    while (range_it->next(*range)) {
+      uint32_t reboot_address = 0;
+
+      if (range->reboot_address(reboot_address)) {
+        if (rebooted) break;
+        layout.bootloaderAddress = reboot_address;
+        rebooted = true;
+      } else if (rebooted) {
+        layout.firmwareAddress = range->start_address();
+        layout.hasReboot = true;
+        break;
+      }
+    }
+  } catch (const std::exception &e) {
+    qDebug() << "Invalid UF2 data:" << e.what();
+    layout = Uf2DfuLayout();
+  }
+
+  return layout;
+}
+
+bool readDfuBootloaderInfo(uint32_t addr, DfuBootloaderInfo &info, QString &error)
+{
+  try {
+    auto device_filter = DfuDeviceFilter::empty_filter();
+    auto devices = device_filter->find_devices();
+
+    if (devices.empty()) {
+      error = TR("No DFU devices found");
+      return false;
+    } else if (devices.size() > 1) {
+      error = TR("More than one DFU device found");
+      return false;
+    }
+
+    auto &device = devices[0];
+    device.reset_state();
+
+    QByteArray data;
+    {
+      auto ctx = device.start_upload(addr, 0);
+      const uint32_t length = std::min(ctx->get_length(), BOOTLOADER_READ_SIZE);
+      const uint32_t xfer_size = ctx->get_transfer_size();
+
+      while (uint32_t(data.size()) < length) {
+        auto rest = length - uint32_t(data.size());
+        auto chunk = ctx->upload(uint16_t(std::min(xfer_size, rest)));
+        if (chunk.empty()) break;
+        data.append(chunk);
+      }
+    }
+
+    // UPLOAD leaves the device in dfuUPLOAD_IDLE
+    device.reset_state();
+
+    info = DfuBootloaderInfo();
+    if (!FirmwareInterface::parseBootloaderInfo(data, info.flavour, info.version)) {
+      error = TR("no EdgeTX bootloader identification found at 0x%1")
+                  .arg(addr, 8, 16, QChar('0'));
+      return false;
+    }
+
+    return true;
+
+  } catch (const std::exception &e) {
+    error = QString::fromUtf8(e.what());
+    return false;
+  }
 }
 
 QString printDevicesInfo(const Vec<DfuDevice> &devices)

@@ -92,6 +92,15 @@ class FirmwareInterface
     bool isUF2() const { return type == FIRMWARE_TYPE_UF2; }
     const QString typeFileExtn() const { return (type == FIRMWARE_TYPE_UF2 ? "uf2" : "bin"); }
 
+    // encode a flash image that starts at addr as UF2 (256 byte payloads,
+    // main flash, no family ID)
+    static QByteArray encodeUF2(uint32_t addr, const QByteArray &payload);
+
+    // board flavour and version from an EdgeTX bootloader image, which has no
+    // labelled version stamps
+    static bool parseBootloaderInfo(const QByteArray &data, QString &flavour,
+                                    QString &version);
+
   private:
     QDialog* parentDialog;
     QByteArray rawData;
