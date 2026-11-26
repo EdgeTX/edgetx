@@ -58,7 +58,7 @@ coord_t LcdRotator::firstLine(coord_t x1, coord_t x2) const
 
 // Transpose 'n' landscape columns of 'h' rows (stride 'w') into 'n' tile
 // lines of stride 'ts' (even), in portrait line order. Works on 2x2 pixel
-// blocks: two 32-bit loads, two 32-bit stores (PKHBT/PKHTB on Cortex-M).
+// blocks: two 32-bit loads, two packs, two 32-bit stores.
 void LcdRotator::transposeStrip(pixel_t* tile, coord_t ts, const pixel_t* src,
                                 coord_t w, coord_t h, coord_t n) const
 {
@@ -79,8 +79,15 @@ void LcdRotator::transposeStrip(pixel_t* tile, coord_t ts, const pixel_t* src,
       uint32_t a, b;
       memcpy(&a, s0 + i, sizeof(a));  // (i, y)   (i+1, y)
       memcpy(&b, s1 + i, sizeof(b));  // (i, y+1) (i+1, y+1)
-      uint32_t c0 = (a & 0xFFFF) | (b << 16);
-      uint32_t c1 = (a >> 16) | (b & 0xFFFF0000);
+      uint32_t c0, c1;
+#if defined(__ARM_FEATURE_DSP)
+      // GCC does not combine the C version below into these
+      asm("pkhbt %0, %1, %2, lsl #16" : "=r"(c0) : "r"(a), "r"(b));
+      asm("pkhtb %0, %1, %2, asr #16" : "=r"(c1) : "r"(b), "r"(a));
+#else
+      c0 = (a & 0xFFFF) | (b << 16);
+      c1 = (a >> 16) | (b & 0xFFFF0000);
+#endif
       memcpy(d, &c0, sizeof(c0));     // column i
       d += step;
       memcpy(d, &c1, sizeof(c1));     // column i + 1
