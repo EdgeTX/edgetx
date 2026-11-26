@@ -189,7 +189,7 @@ extern "C" void SDRAM_Init(void)
   FMC_SDRAM_TimingTypeDef  FMC_SDRAMTimingInitStructure;
 
   /* FMC SDRAM Bank configuration */
-  // SDCLK = HCLK (200 MHz, see system_clock.c) / 2 = 100 MHz (10 ns),
+  // SDCLK = PLL2R (200 MHz, see system_clock.c) / 2 = 100 MHz (10 ns),
   // W9864G6KH-6I timings
   FMC_SDRAMTimingInitStructure.LoadToActiveDelay    = 2; // tMRD = 2 clocks
   FMC_SDRAMTimingInitStructure.ExitSelfRefreshDelay = 8; // tXSR = 72ns
