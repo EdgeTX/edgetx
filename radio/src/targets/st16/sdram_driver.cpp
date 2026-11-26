@@ -26,7 +26,7 @@
 
 #define SDRAM_MEMORY_WIDTH    FMC_SDRAM_MEM_BUS_WIDTH_16
 
-#define SDRAM_CAS_LATENCY     FMC_SDRAM_CAS_LATENCY_3
+#define SDRAM_CAS_LATENCY     FMC_SDRAM_CAS_LATENCY_2
 
 #define SDCLOCK_PERIOD    FMC_SDRAM_CLOCK_PERIOD_2
 
@@ -149,7 +149,7 @@ extern "C" void SDRAM_InitSequence(void)
   /* Program the external memory mode register */
   tmpr = (uint32_t)SDRAM_MODEREG_BURST_LENGTH_2 |
          SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL |
-         SDRAM_MODEREG_CAS_LATENCY_3 |
+         SDRAM_MODEREG_CAS_LATENCY_2 |
          SDRAM_MODEREG_OPERATING_MODE_STANDARD |
          SDRAM_MODEREG_WRITEBURST_MODE_SINGLE;
 
@@ -207,7 +207,8 @@ extern "C" void SDRAM_Init(void)
   FMC_SDRAMInitStructure.RowBitsNumber = FMC_SDRAM_ROW_BITS_NUM_12;
   FMC_SDRAMInitStructure.MemoryDataWidth = FMC_SDRAM_MEM_BUS_WIDTH_16;
   FMC_SDRAMInitStructure.InternalBankNumber = FMC_SDRAM_INTERN_BANKS_NUM_4;
-  FMC_SDRAMInitStructure.CASLatency = FMC_SDRAM_CAS_LATENCY_3;
+  // CL2: the W9864G6KH-6I is rated for it up to 133 MHz
+  FMC_SDRAMInitStructure.CASLatency = FMC_SDRAM_CAS_LATENCY_2;
   FMC_SDRAMInitStructure.WriteProtection = FMC_SDRAM_WRITE_PROTECTION_DISABLE;
   FMC_SDRAMInitStructure.SDClockPeriod = FMC_SDRAM_CLOCK_PERIOD_2;
   FMC_SDRAMInitStructure.ReadBurst = FMC_SDRAM_RBURST_ENABLE;
