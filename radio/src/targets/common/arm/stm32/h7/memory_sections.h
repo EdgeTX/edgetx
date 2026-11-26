@@ -27,6 +27,7 @@
 #define __DISK_CACHE   __attribute__((section(".disk_cache"), aligned(4)))
 #define __DMA          __attribute__((section(".ram"), aligned(32)))
 #define __DMA_NO_CACHE __attribute__((section(".dram"), aligned(4)))
+#define __D2_RAM       __attribute__((section(".d2_ram"), aligned(32)))
 #define __FLASH        __attribute__((section(".flash")))
 #define __IRAM         __attribute__((section(".iram")))
 #define __SDRAM        __attribute__((section(".sdram"), aligned(4)))

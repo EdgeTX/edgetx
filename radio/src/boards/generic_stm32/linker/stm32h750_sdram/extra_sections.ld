@@ -48,6 +48,15 @@ _stext_iram = LOADADDR(.iram);
 
 _dram_addr = ADDR(.dram);
 
+/* Cacheable buffers in D2 SRAM, past the 64KB non-cacheable MPU region
+   that covers .dram (see MPU_Config()) */
+.d2_ram (NOLOAD) :
+{
+  . = ALIGN(0x10000);
+  *(.d2_ram)
+  . = ALIGN(4);
+} > RAM_D2
+
 .sdram (NOLOAD) :
 {
   . = ALIGN(4);

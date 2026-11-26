@@ -44,6 +44,14 @@ char* get_lvgl_mem(int nbytes)
 pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 
+#if defined(LCD_SW_ROTATE_90) && !defined(SIMU)
+// LVGL renders into internal SRAM, in bands, and the LCD driver rotates each
+// band into its own frame buffers: much faster than rendering into SDRAM and
+// reading it back from there.
+#define LCD_DRAW_BUF_LINES (LCD_H / 2)
+static pixel_t LCD_DRAW_BUFFER[LCD_W * LCD_DRAW_BUF_LINES] __D2_RAM;
+#endif
+
 static lv_disp_draw_buf_t disp_buf;
 static lv_disp_drv_t disp_drv;
 
@@ -165,10 +173,15 @@ static void init_lvgl_disp_drv()
 #endif
 #endif
 
+#if defined(LCD_SW_ROTATE_90) && !defined(SIMU)
+  lv_disp_draw_buf_init(&disp_buf, LCD_DRAW_BUFFER, nullptr,
+                        LCD_W * LCD_DRAW_BUF_LINES);
+#else
   lv_disp_draw_buf_init(&disp_buf,
                         LCD_FIRST_FRAME_BUFFER,
                         direct_mode ? LCD_SECOND_FRAME_BUFFER : nullptr,
                         LCD_W * LCD_H);
+#endif
   lv_disp_drv_init(&disp_drv); /*Basic initialization*/
 
   disp_drv.draw_buf = &disp_buf; /*Set an initialized buffer*/

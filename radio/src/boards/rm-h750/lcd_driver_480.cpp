@@ -88,8 +88,10 @@ static pixel_t* _back_buffer = _LCD_BUF_2;
 static pixel_t _rotate_tiles[2][ROTATE_STRIP_W * LCD_H] __DMA;
 static uint8_t _rotate_tile_idx = 0;
 
-// Landscape areas written into the back buffer since the last swap
-static lv_area_t _dirty_areas[LV_INV_BUF_SIZE];
+// Landscape areas written into the back buffer since the last swap. LVGL
+// may flush an area in several bands (see LCD_DRAW_BUF_LINES in lcd.cpp).
+#define DIRTY_MAX_AREAS (2 * LV_INV_BUF_SIZE)
+static lv_area_t _dirty_areas[DIRTY_MAX_AREAS];
 static uint8_t _dirty_count = 0;
 static bool _dirty_full = false;
 static bool _sync_pending = false;
@@ -99,7 +101,7 @@ static bool _sync_pending = false;
 
 // Areas left to copy into the back buffer, after removing what the next
 // frame redraws anyway (each removal splits an area in up to 4)
-#define SYNC_MAX_AREAS 64
+#define SYNC_MAX_AREAS (2 * DIRTY_MAX_AREAS)
 static lv_area_t _sync_areas[2][SYNC_MAX_AREAS];
 
 static inline void _dma_wait()
@@ -137,7 +139,7 @@ static void _sync_copy(const lv_area_t& area)
 static void _add_dirty_area(const rect_t& area)
 {
   if (_dirty_full) return;
-  if (_dirty_count < LV_INV_BUF_SIZE) {
+  if (_dirty_count < DIRTY_MAX_AREAS) {
     _dirty_areas[_dirty_count++] = {area.x, area.y,
                                     (lv_coord_t)(area.x + area.w - 1),
                                     (lv_coord_t)(area.y + area.h - 1)};
@@ -242,7 +244,7 @@ static void _sync_back_buffer()
   if (_dirty_full) {
     todo[todo_n++] = {0, 0, LCD_W - 1, LCD_H - 1};
   } else {
-    for (uint8_t i = 0; i < _dirty_count; i++) todo[todo_n++] = _dirty_areas[i];
+    for (uint32_t i = 0; i < _dirty_count; i++) todo[todo_n++] = _dirty_areas[i];
   }
 
   lv_disp_t* disp = _lv_refr_get_disp_refreshing();
@@ -281,10 +283,9 @@ static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
 {
   if (_sync_pending) _sync_back_buffer();
 
-  // LVGL may have drawn parts of the area with the DMA2D. Cleaning the whole
-  // D-cache is cheaper than by address for a full screen area.
+  // LVGL may have drawn parts of the area with the DMA2D (EdgeTX's DMA
+  // helpers clean & invalidate the D-cache before each transfer)
   _dma_wait();
-  SCB_CleanInvalidateDCache();
 
   _copy_rotate_90(_back_buffer, buffer, copy_area);
   _add_dirty_area(copy_area);
