@@ -46,8 +46,6 @@ constexpr unsigned long REDISCOVER_INITIAL_DELAY_MS {500};
 constexpr unsigned long REDISCOVER_POLL_INTERVAL_MS {200};
 constexpr int           REDISCOVER_RESET_RETRIES    {5};
 
-// the EdgeTX bootloader of UF2 radios is at most this size (BOOTLOADER_SIZE)
-constexpr uint32_t BOOTLOADER_READ_SIZE {64 * 1024};
 // size of firmware_description_t (radio/src/fw_desc.h)
 constexpr int      FW_DESC_SIZE         {16};
 
@@ -361,8 +359,24 @@ void FirmwareWriterWorker::backupFirmware(const DfuDevice &device, uint32_t addr
 
   emit newMessage(tr("Current firmware: %1 %2").arg(fw.getFlavour()).arg(fw.getVersion()));
 
+  // same layout as CURRENT.UF2 and release files: the UF2 bootloader relies
+  // on it (block numbers) when writing a file from its drive
+  FirmwareInterface::UF2Range bootloader;
+  bootloader.addr = backupBootloaderAddress;
+  bootloader.payload = backupBootloader;
+
+  FirmwareInterface::UF2Range reboot;
+  reboot.addr = backupRebootBlockAddress;
+  reboot.payload = backupRebootPayload;
+  reboot.reboot = true;
+  reboot.rebootAddress = backupBootloaderAddress;
+
+  FirmwareInterface::UF2Range firmware;
+  firmware.addr = addr;
+  firmware.payload = image;
+
   bool saved = false;
-  emit backupRead(FirmwareInterface::encodeUF2(addr, image), &saved);
+  emit backupRead(FirmwareInterface::encodeUF2({bootloader, reboot, firmware}), &saved);
 
   if (!saved) {
     throw std::runtime_error(
@@ -370,6 +384,16 @@ void FirmwareWriterWorker::backupFirmware(const DfuDevice &device, uint32_t addr
            "written. The new bootloader has been written; the radio still has "
            "its previous firmware.").toStdString());
   }
+}
+
+void FirmwareWriterWorker::setBackupAfterReboot(const Uf2DfuLayout &layout,
+                                                const QByteArray &oldBootloader)
+{
+  backupAfterReboot = true;
+  backupBootloaderAddress = layout.bootloaderAddress;
+  backupBootloader = oldBootloader;
+  backupRebootBlockAddress = layout.rebootBlockAddress;
+  backupRebootPayload = layout.rebootPayload;
 }
 
 QByteArray FirmwareWriterWorker::readFirmwareImage(const DfuDevice &device,
@@ -646,13 +670,10 @@ bool writeFirmware(const QString &filename, ProgressWidget *progress)
   return writeFirmware(data, progress);
 }
 
-bool writeFirmware(const QByteArray &data, ProgressWidget *progress)
-{
-  return writeFirmware(data, progress, nullptr);
-}
-
-bool writeFirmware(const QByteArray &data, ProgressWidget *progress,
-                   const std::function<bool(const QByteArray &)> &onBackup)
+static bool startFirmwareWriter(
+    const QByteArray &data, ProgressWidget *progress, const Uf2DfuLayout *layout,
+    const QByteArray &oldBootloader,
+    const std::function<bool(const QByteArray &)> &onBackup)
 {
   auto worker = std::make_unique<FirmwareWriterWorker>(data, progress);
   connectProgress(worker.get(), progress);
@@ -662,8 +683,8 @@ bool writeFirmware(const QByteArray &data, ProgressWidget *progress,
                       progress->addMessage(msg, QtWarningMsg);
                     });
 
-  if (onBackup) {
-    worker->setBackupAfterReboot(true);
+  if (layout && onBackup) {
+    worker->setBackupAfterReboot(*layout, oldBootloader);
     // blocking: the worker waits for the backup to be saved before it
     // writes the new firmware
     progress->connect(
@@ -677,6 +698,18 @@ bool writeFirmware(const QByteArray &data, ProgressWidget *progress,
   // now start it!
   worker.release()->start();
   return true;
+}
+
+bool writeFirmware(const QByteArray &data, ProgressWidget *progress)
+{
+  return startFirmwareWriter(data, progress, nullptr, QByteArray(), nullptr);
+}
+
+bool writeFirmware(const QByteArray &data, ProgressWidget *progress,
+                   const Uf2DfuLayout &layout, const QByteArray &oldBootloader,
+                   const std::function<bool(const QByteArray &)> &onBackup)
+{
+  return startFirmwareWriter(data, progress, &layout, oldBootloader, onBackup);
 }
 
 Uf2DfuLayout getUf2DfuLayout(const QByteArray &uf2)
@@ -699,8 +732,13 @@ Uf2DfuLayout getUf2DfuLayout(const QByteArray &uf2)
       if (range->reboot_address(reboot_address)) {
         if (rebooted) break;
         layout.bootloaderAddress = reboot_address;
+        layout.rebootBlockAddress = range->start_address();
+        const auto &payload = range->payload();
+        layout.rebootPayload = QByteArray((const char *)payload.data(), payload.size());
         rebooted = true;
-      } else if (rebooted) {
+      } else if (!rebooted) {
+        layout.bootloaderSize += range->payload().size();
+      } else {
         layout.firmwareAddress = range->start_address();
         layout.hasReboot = true;
         break;
@@ -714,8 +752,10 @@ Uf2DfuLayout getUf2DfuLayout(const QByteArray &uf2)
   return layout;
 }
 
-bool readDfuBootloaderInfo(uint32_t addr, DfuBootloaderInfo &info, QString &error)
+bool readDfuMemory(uint32_t addr, uint32_t size, QByteArray &data, QString &error)
 {
+  data.clear();
+
   try {
     auto device_filter = DfuDeviceFilter::empty_filter();
     auto devices = device_filter->find_devices();
@@ -731,10 +771,9 @@ bool readDfuBootloaderInfo(uint32_t addr, DfuBootloaderInfo &info, QString &erro
     auto &device = devices[0];
     device.reset_state();
 
-    QByteArray data;
     {
-      auto ctx = device.start_upload(addr, 0);
-      const uint32_t length = std::min(ctx->get_length(), BOOTLOADER_READ_SIZE);
+      auto ctx = device.start_upload(addr, size);
+      const uint32_t length = ctx->get_length();
       const uint32_t xfer_size = ctx->get_transfer_size();
 
       while (uint32_t(data.size()) < length) {
@@ -748,10 +787,10 @@ bool readDfuBootloaderInfo(uint32_t addr, DfuBootloaderInfo &info, QString &erro
     // UPLOAD leaves the device in dfuUPLOAD_IDLE
     device.reset_state();
 
-    info = DfuBootloaderInfo();
-    if (!FirmwareInterface::parseBootloaderInfo(data, info.flavour, info.version)) {
-      error = TR("no EdgeTX bootloader identification found at 0x%1")
+    if (uint32_t(data.size()) != size) {
+      error = TR("read %1 of %2 bytes at 0x%3").arg(data.size()).arg(size)
                   .arg(addr, 8, 16, QChar('0'));
+      data.clear();
       return false;
     }
 
@@ -759,6 +798,7 @@ bool readDfuBootloaderInfo(uint32_t addr, DfuBootloaderInfo &info, QString &erro
 
   } catch (const std::exception &e) {
     error = QString::fromUtf8(e.what());
+    data.clear();
     return false;
   }
 }
@@ -1081,7 +1121,8 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
     f.close();
     return false;
   } else {
-    progress->updateInfoAndMessages(TR("Writing finished"));
+    progress->updateInfoAndMessages(TR("Firmware saved to %1")
+                                    .arg(QDir::toNativeSeparators(f.fileName())));
   }
 
   f.close();

@@ -44,6 +44,7 @@
 #define UF2_FLAG_FAMILYID_PRESENT       0x00002000
 #define UF2_FLAG_MD5_CHECKSUM_PRESENT   0x00004000
 #define UF2_FLAG_EXT_FLAGS_PRESENT      0x00008000
+#define UF2_REBOOT_TAG                  0xE60835
 
 
 class RleBitmap
@@ -567,32 +568,56 @@ bool FirmwareInterface::parseBootloaderInfo(const QByteArray &data, QString &fla
   return true;
 }
 
-QByteArray FirmwareInterface::encodeUF2(uint32_t addr, const QByteArray &payload)
+QByteArray FirmwareInterface::encodeUF2(const QList<UF2Range> &ranges)
 {
   static_assert(sizeof(UF2_Block) == UF2_BLOCK_SIZE, "unexpected UF2 block size");
   constexpr qsizetype UF2_PAYLOAD_SIZE = 256;
-  const qsizetype numBlocks = (payload.size() + UF2_PAYLOAD_SIZE - 1) / UF2_PAYLOAD_SIZE;
+
+  qsizetype numBlocks = 0;
+  for (const auto &range : ranges) {
+    numBlocks += range.reboot
+                     ? 1
+                     : (range.payload.size() + UF2_PAYLOAD_SIZE - 1) / UF2_PAYLOAD_SIZE;
+  }
 
   QByteArray out;
   out.reserve(numBlocks * UF2_BLOCK_SIZE);
+  uint32_t blockNo = 0;
 
-  for (qsizetype i = 0; i < numBlocks; i++) {
-    const QByteArray chunk = payload.mid(i * UF2_PAYLOAD_SIZE, UF2_PAYLOAD_SIZE);
-
-    UF2_Block block;
+  const auto newBlock = [&](UF2_Block &block, uint32_t addr, const QByteArray &data) {
     memset(&block, 0, sizeof(block));
     block.magicStart0 = UF2_MAGICSTART0;
     block.magicStart1 = UF2_MAGICSTART1;
-    block.flags = 0;
-    block.targetAddr = addr + uint32_t(i * UF2_PAYLOAD_SIZE);
-    block.payloadSize = uint32_t(chunk.size());
-    block.blockNo = uint32_t(i);
+    block.targetAddr = addr;
+    block.payloadSize = uint32_t(data.size());
+    block.blockNo = blockNo++;
     block.numBlocks = uint32_t(numBlocks);
-    block.fileSize = 0;
-    memcpy(block.data, chunk.constData(), chunk.size());
+    memcpy(block.data, data.constData(), data.size());
     block.magicEnd = UF2_MAGICEND;
+  };
 
-    out.append(reinterpret_cast<const char *>(&block), sizeof(block));
+  for (const auto &range : ranges) {
+    UF2_Block block;
+
+    if (range.reboot) {
+      // as written by the bootloader for CURRENT.UF2
+      // (writeUF2RebootBlock() in radio/src/io/uf2.cpp)
+      const QByteArray data = range.payload.left(UF2_PAYLOAD_SIZE);
+      newBlock(block, range.addr, data);
+      block.flags = UF2_FLAG_NOT_MAIN_FLASH | UF2_FLAG_EXT_FLAGS_PRESENT;
+      const qsizetype ext = (data.size() + 3) & ~3;
+      const uint32_t tag = (UF2_REBOOT_TAG << 8) | 8;
+      memcpy(block.data + ext, &tag, sizeof(tag));
+      memcpy(block.data + ext + 4, &range.rebootAddress, sizeof(range.rebootAddress));
+      out.append(reinterpret_cast<const char *>(&block), sizeof(block));
+      continue;
+    }
+
+    for (qsizetype offset = 0; offset < range.payload.size(); offset += UF2_PAYLOAD_SIZE) {
+      newBlock(block, range.addr + uint32_t(offset),
+               range.payload.mid(offset, UF2_PAYLOAD_SIZE));
+      out.append(reinterpret_cast<const char *>(&block), sizeof(block));
+    }
   }
 
   return out;

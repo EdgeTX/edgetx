@@ -31,6 +31,8 @@
 using SliceU8 = rust::Slice<const uint8_t>;
 using ::rust::Vec;
 
+struct Uf2DfuLayout;
+
 class FirmwareReaderWorker : public QThread
 {
   Q_OBJECT
@@ -83,11 +85,17 @@ class FirmwareWriterWorker : public QThread
 
   public:
     // back up the firmware in the flash area written after the UF2 reboot
-    // block, once the radio has restarted into the new bootloader's DFU
-    void setBackupAfterReboot(bool enable) { backupAfterReboot = enable; }
+    // block, once the radio has restarted into the new bootloader's DFU.
+    // The backup is a complete UF2 (old bootloader, reboot block, firmware).
+    void setBackupAfterReboot(const Uf2DfuLayout &layout,
+                              const QByteArray &oldBootloader);
 
   private:
     bool backupAfterReboot = false;
+    uint32_t backupBootloaderAddress = 0;
+    QByteArray backupBootloader;
+    uint32_t backupRebootBlockAddress = 0;
+    QByteArray backupRebootPayload;
 
     void writeUf2(DfuDevice &device, const SliceU8 &data);
     void backupFirmware(const DfuDevice &device, uint32_t addr);
@@ -124,10 +132,12 @@ bool readFirmware(QByteArray &data, ProgressWidget *progress);
 bool readFirmware(const QString &filename, ProgressWidget *progress);
 
 bool writeFirmware(const QByteArray &data, ProgressWidget *progress);
-// writes UF2 firmware over DFU and calls onBackup (in the GUI thread) with the
-// current firmware, read between the bootloader and firmware stages. The
-// firmware is not written if onBackup returns false.
+// writes UF2 firmware over DFU and calls onBackup (in the GUI thread) with a
+// UF2 backup of oldBootloader and the current firmware, read between the
+// bootloader and firmware stages. The firmware is not written if onBackup
+// returns false.
 bool writeFirmware(const QByteArray &data, ProgressWidget *progress,
+                   const Uf2DfuLayout &layout, const QByteArray &oldBootloader,
                    const std::function<bool(const QByteArray &)> &onBackup);
 bool writeFirmware(const QString &filename, ProgressWidget *progress);
 
@@ -142,18 +152,16 @@ bool writeSettings(const QString &filename, ProgressWidget *progress);
 struct Uf2DfuLayout {
   bool hasReboot = false;
   uint32_t bootloaderAddress = 0;
-  uint32_t firmwareAddress = 0;   // first range written after the reboot
+  uint32_t bootloaderSize = 0;      // bytes written before the reboot block
+  uint32_t rebootBlockAddress = 0;  // RAM address of the reboot command
+  QByteArray rebootPayload;
+  uint32_t firmwareAddress = 0;     // first range written after the reboot
 };
 
 Uf2DfuLayout getUf2DfuLayout(const QByteArray &uf2);
 
-struct DfuBootloaderInfo {
-  QString flavour;
-  QString version;
-};
-
-// read the board identification from an EdgeTX bootloader at addr over DFU
-bool readDfuBootloaderInfo(uint32_t addr, DfuBootloaderInfo &info, QString &error);
+// read size bytes at addr from the (single) connected DFU device
+bool readDfuMemory(uint32_t addr, uint32_t size, QByteArray &data, QString &error);
 
 QString printDevicesInfo(const Vec<DfuDevice> &devices);
 QString getDevicesInfo();

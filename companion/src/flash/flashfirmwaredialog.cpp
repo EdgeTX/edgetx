@@ -334,13 +334,16 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
   // Instead:
   //  - the hardware and profile checks use the board identification in the
   //    EdgeTX bootloader, which the ROM DFU can read from internal flash;
-  //  - the backup is read by the writer once the radio has restarted into the
-  //    new bootloader's DFU (which exposes the firmware flash), before the new
-  //    firmware is written.
+  //  - the firmware is read by the writer once the radio has restarted into
+  //    the new bootloader's DFU (which exposes the firmware flash), before the
+  //    new firmware is written. The backup also holds the old bootloader read
+  //    here, so it has the same layout as CURRENT.UF2 and release files.
   const bool canReadCurrentFw = !newfw.isUF2() || isUf2DeviceFound();
 
   Uf2DfuLayout uf2Layout;
-  DfuBootloaderInfo blInfo;
+  QByteArray oldBootloader;
+  QString blFlavour;
+  QString blVersion;
   QString blError;
   bool haveBlInfo = false;
 
@@ -349,9 +352,15 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
 
     if (!uf2Layout.hasReboot) {
       blError = tr("the firmware file has no bootloader stage");
-    } else if (checkHw || checkProfile) {
+    } else if (checkHw || checkProfile || backup) {
       QApplication::setOverrideCursor(Qt::WaitCursor);
-      haveBlInfo = readDfuBootloaderInfo(uf2Layout.bootloaderAddress, blInfo, blError);
+      if (readDfuMemory(uf2Layout.bootloaderAddress, uf2Layout.bootloaderSize,
+                        oldBootloader, blError)) {
+        haveBlInfo = FirmwareInterface::parseBootloaderInfo(oldBootloader, blFlavour,
+                                                            blVersion);
+        if (!haveBlInfo)
+          blError = tr("no EdgeTX bootloader identification found");
+      }
       QApplication::restoreOverrideCursor();
     }
   }
@@ -386,14 +395,14 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
   if (!canReadCurrentFw) {
     if (haveBlInfo) {
       progress->addMessage(tr("Bootloader on radio: %1 %2")
-                           .arg(blInfo.flavour).arg(blInfo.version));
+                           .arg(blFlavour).arg(blVersion));
     }
 
     if (checkHw) {
       if (haveBlInfo) {
         progress->addMessage(tr("Performing hardware compatibility check (radio: %1, new firmware: %2)")
-                             .arg(blInfo.flavour).arg(newfw.getFlavour()));
-        if (!newfw.getFlavour().isEmpty() && newfw.getFlavour() != blInfo.flavour) {
+                             .arg(blFlavour).arg(newfw.getFlavour()));
+        if (!newfw.getFlavour().isEmpty() && newfw.getFlavour() != blFlavour) {
           QString errMsg(tr("New firmware is not compatible with the radio"));
           progress->updateInfoAndMessages(errMsg, QtFatalMsg);
           abort = true;
@@ -409,12 +418,12 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
       const QString profileFlavour = getCurrentFirmware()->getFlavour();
       if (haveBlInfo) {
         progress->addMessage(tr("Performing profile compatibility check (profile: %1, radio: %2, new firmware: %3)")
-                             .arg(profileFlavour).arg(blInfo.flavour).arg(newfw.getFlavour()));
+                             .arg(profileFlavour).arg(blFlavour).arg(newfw.getFlavour()));
       } else {
         progress->addMessage(tr("Performing profile compatibility check (profile: %1, new firmware: %2)")
                              .arg(profileFlavour).arg(newfw.getFlavour()));
       }
-      if (haveBlInfo && blInfo.flavour != profileFlavour) {
+      if (haveBlInfo && blFlavour != profileFlavour) {
         QString errMsg(tr("Radio is not compatible with profile"));
         progress->updateInfoAndMessages(errMsg, QtFatalMsg);
         abort = true;
@@ -427,7 +436,7 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
     }
 
     if (backup && !abort) {
-      if (uf2Layout.hasReboot) {
+      if (!oldBootloader.isEmpty()) {
         // the backup is saved after the new bootloader has been written, so
         // check the backup directory now rather than fail half way through
         // (writeFirmwareToFile() makes the final choice of directory)
@@ -518,7 +527,7 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
     progress->setInfo(tr("Flashing new firmware..."));
     progress->addMessage(tr("The current firmware will be backed up once the "
                             "new bootloader has been written"));
-    writeFirmware(newfw.getRawData(), progress,
+    writeFirmware(newfw.getRawData(), progress, uf2Layout, oldBootloader,
                   [this, progress](const QByteArray &data) {
                     progress->addMessage(tr("Backing up current firmware"));
                     return writeFirmwareToFile(this, data, progress);

@@ -89,32 +89,63 @@ TEST(FirmwareInterface, parseBootloaderInfo)
 
 TEST(FirmwareInterface, encodeUF2RoundTrip)
 {
-  constexpr uint32_t addr = 0x90000000;
+  constexpr uint32_t blAddr = 0x08000000;
+  constexpr uint32_t rebootAddr = 0x2001fffc;
+  constexpr uint32_t fwAddr = 0x90000000;
+
+  // full layout as in CURRENT.UF2: bootloader, reboot block, firmware
+  FirmwareInterface::UF2Range bootloader;
+  bootloader.addr = blAddr;
+  bootloader.payload = QByteArray(64 * 1024, '\x11');
+
+  FirmwareInterface::UF2Range reboot;
+  reboot.addr = rebootAddr;
+  reboot.payload = "BDFU";
+  reboot.reboot = true;
+  reboot.rebootAddress = blAddr;
 
   // labelled version stamps, as in a colour LCD firmware
-  QByteArray image(1000, '\0');
-  image.append("FW\037\033: edgetx-tx15");
-  image.append('\0');
-  image.append("VERS\037\033: 3.0.0 (abcdef12)");
-  image.append('\0');
-  image.append(QByteArray(301, '\x42'));  // not a multiple of 256
+  FirmwareInterface::UF2Range firmware;
+  firmware.addr = fwAddr;
+  firmware.payload = QByteArray(1000, '\0');
+  firmware.payload.append("FW\037\033: edgetx-tx15");
+  firmware.payload.append('\0');
+  firmware.payload.append("VERS\037\033: 3.0.0 (abcdef12)");
+  firmware.payload.append('\0');
+  firmware.payload.append(QByteArray(301, '\x42'));  // not a multiple of 256
 
-  const QByteArray uf2 = FirmwareInterface::encodeUF2(addr, image);
-  const qsizetype blocks = (image.size() + 255) / 256;
+  const QByteArray uf2 = FirmwareInterface::encodeUF2({bootloader, reboot, firmware});
+  const qsizetype fwBlocks = (firmware.payload.size() + 255) / 256;
+  const qsizetype blocks = 256 + 1 + fwBlocks;
   ASSERT_EQ(uf2.size(), blocks * 512);
 
+  const auto field = [&uf2](qsizetype block, int offset) {
+    return qFromLittleEndian<uint32_t>(uf2.constData() + block * 512 + offset);
+  };
+
   for (qsizetype i = 0; i < blocks; i++) {
-    const char *block = uf2.constData() + i * 512;
-    EXPECT_EQ(qFromLittleEndian<uint32_t>(block + 12), addr + i * 256);
-    EXPECT_EQ(qFromLittleEndian<uint32_t>(block + 20), uint32_t(i));
-    EXPECT_EQ(qFromLittleEndian<uint32_t>(block + 24), uint32_t(blocks));
+    EXPECT_EQ(field(i, 20), uint32_t(i));       // blockNo
+    EXPECT_EQ(field(i, 24), uint32_t(blocks));  // numBlocks
   }
+
+  // the UF2 bootloader expects the reboot block right after 64 KB of
+  // bootloader (radio/src/drivers/uf2_ghostfat.cpp)
+  EXPECT_EQ(field(0, 12), blAddr);
+  EXPECT_EQ(field(255, 12), blAddr + 255 * 256);
+  EXPECT_EQ(field(256, 8), 0x00008001u);  // not main flash, extension tags
+  EXPECT_EQ(field(256, 12), rebootAddr);
+  EXPECT_EQ(field(256, 16), 4u);
+  EXPECT_EQ(uf2.mid(256 * 512 + 32, 4), QByteArray("BDFU"));
+  EXPECT_EQ(field(256, 36), (0xE60835u << 8) | 8);
+  EXPECT_EQ(field(256, 40), blAddr);
+  EXPECT_EQ(field(257, 12), fwAddr);
+  EXPECT_EQ(field(blocks - 1, 12), fwAddr + uint32_t(fwBlocks - 1) * 256);
+  EXPECT_EQ(field(blocks - 1, 16), uint32_t(firmware.payload.size() % 256));
 
   FirmwareInterface fw(uf2);
   EXPECT_TRUE(fw.isUF2());
   EXPECT_TRUE(fw.isValid());
   EXPECT_EQ(fw.getFlavour(), "tx15");
   EXPECT_EQ(fw.getVersion(), "3.0.0 (abcdef12)");
-  EXPECT_EQ(fw.getFlash(), image);
   EXPECT_EQ(fw.typeFileExtn(), "uf2");
 }
