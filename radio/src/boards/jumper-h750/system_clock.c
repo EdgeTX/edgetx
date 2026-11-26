@@ -71,14 +71,14 @@ BOOTSTRAP void SystemClock_Config(void)
   while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL1) {
   }
 
-  /* Config & activate PLL2 */
-  LL_RCC_PLL2P_Enable();
+  /* Config & activate PLL2: FMC kernel clock */
+  LL_RCC_PLL2R_Enable();
   LL_RCC_PLL2FRACN_Disable();
   LL_RCC_PLL2_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_2_4);
   LL_RCC_PLL2_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
-  LL_RCC_PLL2_SetM(24);
-  LL_RCC_PLL2_SetN(96);
-  LL_RCC_PLL2_SetP(17); // 11.294 MHz
+  LL_RCC_PLL2_SetM(24);  // 2 MHz
+  LL_RCC_PLL2_SetN(200); // 400 MHz VCO
+  LL_RCC_PLL2_SetR(2);   // 200 MHz -> SDCLK 100 MHz
   LL_RCC_PLL2_Enable();
   while (LL_RCC_PLL2_IsReady() != 1) {
   }
@@ -108,4 +108,5 @@ BOOTSTRAP void SystemClock_Config(void)
   LL_RCC_SetSPIClockSource(LL_RCC_SPI123_CLKSOURCE_PLL1Q); 
   LL_RCC_SetUSBClockSource(LL_RCC_USB_CLKSOURCE_PLL1Q);
   LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSOURCE_CLKP);
+  LL_RCC_SetFMCClockSource(LL_RCC_FMC_CLKSOURCE_PLL2R);
 }

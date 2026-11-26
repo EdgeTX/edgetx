@@ -24,12 +24,6 @@
 
 #include "board.h"
 
-#define SDRAM_MEMORY_WIDTH    FMC_SDRAM_MEM_BUS_WIDTH_16
-
-#define SDRAM_CAS_LATENCY     FMC_SDRAM_CAS_LATENCY_3
-
-#define SDCLOCK_PERIOD    FMC_SDRAM_CLOCK_PERIOD_2
-
 #define SDRAM_TIMEOUT     ((uint32_t)0xFFFF)
 
 #define SDRAM_READBURST    FMC_SDRAM_RBURST_DISABLE
@@ -147,7 +141,7 @@ extern "C" void SDRAM_InitSequence(void)
   /* Program the external memory mode register */
   tmpr = (uint32_t)SDRAM_MODEREG_BURST_LENGTH_2 |
          SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL |
-         SDRAM_MODEREG_CAS_LATENCY_3 |
+         SDRAM_MODEREG_CAS_LATENCY_2 |
          SDRAM_MODEREG_OPERATING_MODE_STANDARD |
          SDRAM_MODEREG_WRITEBURST_MODE_SINGLE;
 
@@ -161,11 +155,11 @@ extern "C" void SDRAM_InitSequence(void)
 
   /* Step 8 --------------------------------------------------------------------*/
   /* Set the refresh rate counter */
-  // SDCLK = HCLK3 (240 MHz) / 3 = 80 MHz
+  // SDCLK = PLL2R (200 MHz) / 2 = 100 MHz
   // COUNT = (64 ms / rows) x SDCLK - 20
-  // 4096 rows: 15.62 us x 80 MHz - 20 = 1230
+  // 4096 rows: 15.62 us x 100 MHz - 20 = 1542
   FMC_SDRAM_SetAutoRefreshNumber(FMC_Bank5_6_R, 15);
-  FMC_SDRAM_ProgramRefreshRate(FMC_Bank5_6_R, 1230);
+  FMC_SDRAM_ProgramRefreshRate(FMC_Bank5_6_R, 1542);
 }
 
 extern "C" void SDRAM_Init(void)
@@ -184,13 +178,17 @@ extern "C" void SDRAM_Init(void)
   FMC_SDRAM_TimingTypeDef  FMC_SDRAMTimingInitStructure;
 
   /* FMC SDRAM Bank configuration */
-  FMC_SDRAMTimingInitStructure.LoadToActiveDelay    = 3;  // tMRD
-  FMC_SDRAMTimingInitStructure.ExitSelfRefreshDelay = 11; // tXSR = 70ns
-  FMC_SDRAMTimingInitStructure.SelfRefreshTime      = 7;  // tRAS = 42ns
-  FMC_SDRAMTimingInitStructure.RowCycleDelay        = 10; // tRC = 60ns
-  FMC_SDRAMTimingInitStructure.WriteRecoveryTime    = 2;  // tWR
-  FMC_SDRAMTimingInitStructure.RPDelay              = 3;  // tRP = 18ns
-  FMC_SDRAMTimingInitStructure.RCDDelay             = 3;  // tRCD = 18ns
+  // SDCLK 100 MHz (10 ns). Worst case of AS4C4M16SA-6 (T15 Pro, T22,
+  // T15H7) and W9812G6KH-6 (T18H7), both rated for CL2 at >= 111 MHz.
+  FMC_SDRAMTimingInitStructure.LoadToActiveDelay    = 2; // tMRD = 2 clocks
+  FMC_SDRAMTimingInitStructure.ExitSelfRefreshDelay = 8; // tXSR = 72ns
+  FMC_SDRAMTimingInitStructure.SelfRefreshTime      = 5; // tRAS = 42ns
+  FMC_SDRAMTimingInitStructure.RowCycleDelay        = 7; // tRC = 60ns (tRFC)
+  // tWR = 2 clocks, but the FMC also needs
+  // TWR >= TRAS - TRCD and TWR >= TRC - TRCD - TRP
+  FMC_SDRAMTimingInitStructure.WriteRecoveryTime    = 3;
+  FMC_SDRAMTimingInitStructure.RPDelay              = 2; // tRP = 18ns
+  FMC_SDRAMTimingInitStructure.RCDDelay             = 2; // tRCD = 18ns
 
   /* FMC SDRAM control configuration */
   FMC_SDRAMInitStructure.SDBank = FMC_SDRAM_BANK2;
@@ -198,9 +196,9 @@ extern "C" void SDRAM_Init(void)
   FMC_SDRAMInitStructure.RowBitsNumber = FMC_SDRAM_ROW_BITS_NUM_12;
   FMC_SDRAMInitStructure.MemoryDataWidth = FMC_SDRAM_MEM_BUS_WIDTH_16;
   FMC_SDRAMInitStructure.InternalBankNumber = FMC_SDRAM_INTERN_BANKS_NUM_4;
-  FMC_SDRAMInitStructure.CASLatency = FMC_SDRAM_CAS_LATENCY_3;
+  FMC_SDRAMInitStructure.CASLatency = FMC_SDRAM_CAS_LATENCY_2;
   FMC_SDRAMInitStructure.WriteProtection = FMC_SDRAM_WRITE_PROTECTION_DISABLE;
-  FMC_SDRAMInitStructure.SDClockPeriod = FMC_SDRAM_CLOCK_PERIOD_3;
+  FMC_SDRAMInitStructure.SDClockPeriod = FMC_SDRAM_CLOCK_PERIOD_2;
   FMC_SDRAMInitStructure.ReadBurst = FMC_SDRAM_RBURST_ENABLE;
   FMC_SDRAMInitStructure.ReadPipeDelay = FMC_SDRAM_RPIPE_DELAY_0;
 
