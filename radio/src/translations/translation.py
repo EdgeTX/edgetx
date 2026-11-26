@@ -26,7 +26,12 @@ def add_line(filename, newline, pattern, args):
     newline += "\n"
     if args.before or args.after:
         i = find_line(lines, pattern)
-        lines.insert(i if args.before else i + 1, newline)
+        if not args.before:
+            # Skip the continuation lines of a multi-line define
+            while i + 1 < len(lines) and lines[i].rstrip().endswith("\\"):
+                i += 1
+            i += 1
+        lines.insert(i, newline)
     else:
         lines.append(newline)
     with open(filename, encoding='utf-8', mode='w') as f:
