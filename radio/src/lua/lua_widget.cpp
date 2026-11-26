@@ -472,8 +472,9 @@ void LuaWidget::luaShowError()
 
 void LuaWidget::refresh(BitmapBuffer* dc)
 {
-  if (lsWidgets == 0 || luaFactory()->refreshFunction == LUA_REFNIL) return;
+  if (lsWidgets == 0) return;
 
+  // Show errors even without a refresh function
   if (scriptDisabled) {
     if (dc) {
       dc->drawTextLines(0, 0, fullscreen ? LCD_W : rect.w,
@@ -493,6 +494,8 @@ void LuaWidget::refresh(BitmapBuffer* dc)
     }
     return;
   }
+
+  if (luaFactory()->refreshFunction == LUA_REFNIL) return;
 
   luaSetInstructionsLimit(lsWidgets, MAX_INSTRUCTIONS);
   lua_rawgeti(lsWidgets, LUA_REGISTRYINDEX, luaFactory()->refreshFunction);
