@@ -166,9 +166,10 @@ extern "C" void SDRAM_InitSequence(void)
   /* Step 8 --------------------------------------------------------------------*/
   /* Set the refresh rate counter */
   /* (15.62 us x Freq) - 20 */
-  /* Set the device refresh counter */
+  // 4096 rows in 64 ms at SDCLK = 100 MHz: 15.62 us x 100 MHz - 20 = 1542
+  // (1855 was for 120 MHz: the 4096 rows took 76.8 ms)
   FMC_SDRAM_SetAutoRefreshNumber(FMC_Bank5_6_R, 15);
-  FMC_SDRAM_ProgramRefreshRate(FMC_Bank5_6_R, 1855);
+  FMC_SDRAM_ProgramRefreshRate(FMC_Bank5_6_R, 1542);
   // delay_ms(1);
 }
 
@@ -188,14 +189,17 @@ extern "C" void SDRAM_Init(void)
   FMC_SDRAM_TimingTypeDef  FMC_SDRAMTimingInitStructure;
 
   /* FMC SDRAM Bank configuration */
-  /* Timing configuration for 80 Mhz of SD clock */
-  FMC_SDRAMTimingInitStructure.LoadToActiveDelay    = 2;
-  FMC_SDRAMTimingInitStructure.ExitSelfRefreshDelay = 7;
-  FMC_SDRAMTimingInitStructure.SelfRefreshTime      = 4;
-  FMC_SDRAMTimingInitStructure.RowCycleDelay        = 7;
+  // SDCLK = HCLK (200 MHz, see system_clock.c) / 2 = 100 MHz (10 ns),
+  // W9864G6KH-6I timings
+  FMC_SDRAMTimingInitStructure.LoadToActiveDelay    = 2; // tMRD = 2 clocks
+  FMC_SDRAMTimingInitStructure.ExitSelfRefreshDelay = 8; // tXSR = 72ns
+  FMC_SDRAMTimingInitStructure.SelfRefreshTime      = 5; // tRAS = 42ns
+  FMC_SDRAMTimingInitStructure.RowCycleDelay        = 7; // tRC = 60ns (tRFC)
+  // tWR = 2 clocks, but the FMC also needs
+  // TWR >= TRAS - TRCD and TWR >= TRC - TRCD - TRP
   FMC_SDRAMTimingInitStructure.WriteRecoveryTime    = 3;
-  FMC_SDRAMTimingInitStructure.RPDelay              = 2;
-  FMC_SDRAMTimingInitStructure.RCDDelay             = 2;
+  FMC_SDRAMTimingInitStructure.RPDelay              = 2; // tRP = 15ns
+  FMC_SDRAMTimingInitStructure.RCDDelay             = 2; // tRCD = 15ns
 
   /* FMC SDRAM control configuration */
   FMC_SDRAMInitStructure.SDBank = FMC_SDRAM_BANK1;
