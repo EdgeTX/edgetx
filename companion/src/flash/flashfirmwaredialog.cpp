@@ -391,7 +391,8 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
 
     if (checkHw) {
       if (haveBlInfo) {
-        progress->addMessage(tr("Performing hardware compatibity check"));
+        progress->addMessage(tr("Performing hardware compatibility check (radio: %1, new firmware: %2)")
+                             .arg(blInfo.flavour).arg(newfw.getFlavour()));
         if (!newfw.getFlavour().isEmpty() && newfw.getFlavour() != blInfo.flavour) {
           QString errMsg(tr("New firmware is not compatible with the radio"));
           progress->updateInfoAndMessages(errMsg, QtFatalMsg);
@@ -405,8 +406,14 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
     }
 
     if (checkProfile && !abort) {
-      progress->addMessage(tr("Performing profile compatibity check"));
       const QString profileFlavour = getCurrentFirmware()->getFlavour();
+      if (haveBlInfo) {
+        progress->addMessage(tr("Performing profile compatibility check (profile: %1, radio: %2, new firmware: %3)")
+                             .arg(profileFlavour).arg(blInfo.flavour).arg(newfw.getFlavour()));
+      } else {
+        progress->addMessage(tr("Performing profile compatibility check (profile: %1, new firmware: %2)")
+                             .arg(profileFlavour).arg(newfw.getFlavour()));
+      }
       if (haveBlInfo && blInfo.flavour != profileFlavour) {
         QString errMsg(tr("Radio is not compatible with profile"));
         progress->updateInfoAndMessages(errMsg, QtFatalMsg);
@@ -469,7 +476,8 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
               return;
             }
 
-            progress->addMessage(tr("Performing hardware compatibity check"));
+            progress->addMessage(tr("Performing hardware compatibility check (radio: %1, new firmware: %2)")
+                                 .arg(currfw.getFlavour()).arg(newfw.getFlavour()));
             if (!newfw.isHardwareCompatible(currfw)) {
               QString errMsg(tr("New firmware is not compatible with current firmware"));
               progress->updateInfoAndMessages(errMsg, QtFatalMsg);
@@ -478,7 +486,9 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
           }
 
           if (checkProfile) {
-            progress->addMessage(tr("Performing profile compatibity check"));
+            progress->addMessage(tr("Performing profile compatibility check (profile: %1, radio: %2, new firmware: %3)")
+                                 .arg(getCurrentFirmware()->getFlavour())
+                                 .arg(currfw.getFlavour()).arg(newfw.getFlavour()));
             if (currfw.getFlavour() != getCurrentFirmware()->getFlavour()) {
               QString errMsg(tr("Current firmware is not compatible with profile"));
               progress->updateInfoAndMessages(errMsg, QtFatalMsg);
