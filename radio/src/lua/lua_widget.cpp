@@ -454,7 +454,9 @@ void LuaWidget::setErrorMessage(const char* funcName)
 {
   scriptDisabled = true;
 
+  // lua_tostring returns NULL when the top of the stack is not a string
   const char* lua_err = lua_tostring(lsWidgets, -1);
+  if (!lua_err) lua_err = "unknown error";
   TRACE("Error in widget %s %s function: %s", factory->getName(), funcName,
         lua_err);
   TRACE("Widget disabled");
