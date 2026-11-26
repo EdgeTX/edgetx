@@ -36,7 +36,15 @@
 pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 
-BitmapBuffer lcd(BMP_RGB565, LCD_W, LCD_H, (uint16_t*)LCD_FIRST_FRAME_BUFFER);
+#if defined(LCD_FLUSHER)
+// The LCD driver owns the two buffers above (see lcd_flush.h): LVGL draws
+// whole frames into a buffer of its own
+static pixel_t LCD_DRAW_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
+#else
+#define LCD_DRAW_BUFFER LCD_FIRST_FRAME_BUFFER
+#endif
+
+BitmapBuffer lcd(BMP_RGB565, LCD_W, LCD_H, (uint16_t*)LCD_DRAW_BUFFER);
 
 static lv_disp_draw_buf_t disp_buf;
 static lv_disp_drv_t disp_drv;
@@ -82,7 +90,9 @@ static void clear_frame_buffers()
 static void init_lvgl_disp_drv()
 {
   int direct_mode = 1;
-#if LCD_VERTICAL_INVERT
+#if defined(LCD_FLUSHER)
+  direct_mode = 0;
+#elif LCD_VERTICAL_INVERT
 #if defined(RADIO_F16)
   direct_mode = (hardwareOptions.pcbrev > 0) ? 1 : 0;
 #else
@@ -91,7 +101,7 @@ static void init_lvgl_disp_drv()
 #endif
 
   lv_disp_draw_buf_init(&disp_buf,
-                        LCD_FIRST_FRAME_BUFFER,
+                        LCD_DRAW_BUFFER,
                         direct_mode ? LCD_SECOND_FRAME_BUFFER : nullptr,
                         LCD_W * LCD_H);
   lv_disp_drv_init(&disp_drv); /*Basic initialization*/

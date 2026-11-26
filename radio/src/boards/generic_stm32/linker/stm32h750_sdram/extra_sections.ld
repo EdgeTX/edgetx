@@ -48,6 +48,16 @@ _stext_iram = LOADADDR(.iram);
 
 _dram_addr = ADDR(.dram);
 
+/* LVGL draw buffer (__LVGL_DRAW_BUF, see memory_sections.h): cacheable, in
+   D2 SRAM past the 64KB non-cacheable MPU region covering .dram
+   (MPU_Config()) */
+.lvgl_draw_buf (NOLOAD) :
+{
+  . = ALIGN(0x10000);
+  *(.lvgl_draw_buf)
+  . = ALIGN(4);
+} > RAM_D2
+
 .sdram (NOLOAD) :
 {
   . = ALIGN(4);

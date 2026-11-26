@@ -30,3 +30,9 @@
 #define __FLASH        __attribute__((section(".flash")))
 #define __IRAM         __attribute__((section(".iram")))
 #define __SDRAM        __attribute__((section(".sdram"), aligned(4)))
+
+// LVGL draw buffer with LCD_FLUSHER (see lcd.cpp): cacheable D2 SRAM, past
+// the 64KB non-cacheable region of .dram (extra_sections.ld), so at most
+// 288KB - 64KB.
+#define __LVGL_DRAW_BUF __attribute__((section(".lvgl_draw_buf"), aligned(32)))
+#define LVGL_DRAW_BUF_SIZE_MAX (224 * 1024)
