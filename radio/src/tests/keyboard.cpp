@@ -208,4 +208,40 @@ TEST(Keyboard, okKeyDoesNotCallEnterHandler)
   MainWindow::instance()->run();
 }
 
+// Closing a window without a click (e.g. shutdown) must hide the keyboard
+TEST(Keyboard, closeWindowWithKeyboardOpen)
+{
+  ViewMain::instance();
+  MainWindow::instance()->run();
+
+  auto page = new KeyboardTestPage();
+  MainWindow::instance()->run();
+  page->clickTextEdit();
+  MainWindow::instance()->run();
+  ASSERT_NE(Keyboard::keyboardWindow(), nullptr);
+
+  page->closeWindow();
+  EXPECT_EQ(Keyboard::keyboardWindow(), nullptr);
+  MainWindow::instance()->run();
+}
+
+// Close handler hiding the keyboard after children are deleted
+// (as StandaloneLuaWindow does)
+TEST(Keyboard, closeHandlerHidesKeyboardAfterFieldDeleted)
+{
+  ViewMain::instance();
+  MainWindow::instance()->run();
+
+  auto page = new KeyboardTestPage();
+  page->onClosing([]() { Keyboard::hideKeyboard(); });
+  MainWindow::instance()->run();
+  page->clickTextEdit();
+  MainWindow::instance()->run();
+  ASSERT_NE(Keyboard::keyboardWindow(), nullptr);
+
+  page->closeWindow();
+  EXPECT_EQ(Keyboard::keyboardWindow(), nullptr);
+  MainWindow::instance()->run();
+}
+
 #endif

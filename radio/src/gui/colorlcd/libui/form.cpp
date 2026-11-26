@@ -17,6 +17,7 @@
  */
 
 #include "form.h"
+#include "keyboard_base.h"
 
 #include "etx_lv_theme.h"
 
@@ -46,6 +47,8 @@ FormField::FormField(Window* parent, const rect_t& rect, LvglCreate objConstruct
   lv_obj_add_flag(lvobj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
 
   onClosing([=]() {
+    // Hide keyboard before parent windows finish closing
+    Keyboard::fieldClosing(this);
     if (isEditMode()) setEditMode(false);
   });
 }

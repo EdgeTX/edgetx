@@ -110,7 +110,10 @@ void Keyboard::clearField()
     hide();
 
     if (field) {
-      bool focused = lv_obj_has_state(field->getLvObj(), LV_STATE_FOCUSED);
+      // Field closing: abandon the edit
+      bool closing = field->deleted();
+      bool focused = !closing &&
+                     lv_obj_has_state(field->getLvObj(), LV_STATE_FOCUSED);
 
       // restore field's group
       if (fieldGroup) {
@@ -120,7 +123,7 @@ void Keyboard::clearField()
        }
 
       // End changes and restore focus
-      field->changeEnd();
+      if (!closing) field->changeEnd();
       if (focused)
         lv_group_focus_obj(field->getParent()->getLvObj());
       field = nullptr;
@@ -128,13 +131,15 @@ void Keyboard::clearField()
 
     // Reset parent if moved
     if (fieldContainer) {
-      fieldContainer->setTop(fieldContainerTop);
+      if (!fieldContainer->deleted())
+        fieldContainer->setTop(fieldContainerTop);
       fieldContainer = nullptr;
     }
 
     // Restore scroll position
     if (scrollWindow) {
-      lv_obj_scroll_to_y(scrollWindow->getLvObj(), scrollPos, LV_ANIM_OFF);
+      if (!scrollWindow->deleted())
+        lv_obj_scroll_to_y(scrollWindow->getLvObj(), scrollPos, LV_ANIM_OFF);
       scrollWindow = nullptr;
     }
   }
@@ -146,6 +151,12 @@ void Keyboard::hideKeyboard()
     activeKeyboard->clearField();
     activeKeyboard = nullptr;
   }
+}
+
+void Keyboard::fieldClosing(FormField* closingField)
+{
+  if (activeKeyboard && activeKeyboard->field == closingField)
+    hideKeyboard();
 }
 
 void Keyboard::setField(FormField* newField, bool useTextArea)
