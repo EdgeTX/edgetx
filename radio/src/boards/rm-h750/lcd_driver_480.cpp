@@ -35,6 +35,11 @@
 
 static LTDC_HandleTypeDef hltdc;
 
+// The ST7365 is a 320x480 portrait panel, mounted in landscape: it is driven
+// in its native portrait order, and the UI is rotated while copied into the
+// frame buffers (see lcd_flush.h for why the panel does not rotate it).
+static pixel_t _rotate_tiles[LCD_FLUSH_TILES_SIZE] __DMA;
+
 static void LCD_Delay(void) {
   volatile unsigned int i;
 
@@ -237,20 +242,25 @@ void LCD_ST7365_Init(void) {
   lcdWriteCommand(0xF0);
   lcdWriteData(0x96);
 
-  lcdWriteCommand(0x36);     // Memory Data Access Control MY,MX~~
-  lcdWriteData(0xE8);
+  // Memory Data Access Control: native portrait order (MV=0), so that the
+  // RGB data is written along the lines the panel refreshes (see above).
+  // MX=1, MY=0 shows the frame buffer rotated 90 degrees from the former
+  // landscape setting (0xE8: MY, MX, MV), with lines written top to bottom
+  // like the panel refresh. BGR=1.
+  lcdWriteCommand(0x36);
+  lcdWriteData(0x48);
 
-  lcdWriteCommand(0x2A);//480-1
+  lcdWriteCommand(0x2A); // 0 .. 320-1
+  lcdWriteData(0x00);
+  lcdWriteData(0x00);
+  lcdWriteData(0x01);
+  lcdWriteData(0x3F);
+
+  lcdWriteCommand(0x2B); // 0 .. 480-1
   lcdWriteData(0x00);
   lcdWriteData(0x00);
   lcdWriteData(0x01);
   lcdWriteData(0xDF);
-
-  lcdWriteCommand(0x2B);
-  lcdWriteData(0x00);
-  lcdWriteData(0x00);
-  lcdWriteData(0x01);
-  lcdWriteData(0x3F); //320-1
 
 
   lcdWriteCommand(0x3A);
@@ -429,7 +439,7 @@ void LCD_LayerInit() {
   layer.ImageHeight = LCD_PHYS_H;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-  layer.FBStartAdress = (intptr_t)lcdFlusherInit(LCD_ROTATE_NONE);
+  layer.FBStartAdress = (intptr_t)lcdFlusherInit(LCD_ROTATE_90, _rotate_tiles);
 
   /* Initialize LTDC layer 1 */
   HAL_LTDC_ConfigLayer(&hltdc, &hltdc.LayerCfg[0], 0);

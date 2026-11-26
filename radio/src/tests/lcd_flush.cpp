@@ -144,6 +144,10 @@ class LcdFlushTest : public ::testing::TestWithParam<LcdRotation>
         uint32_t idx = y * LCD_W + x;
         if (GetParam() == LCD_ROTATE_180)
           idx = (LCD_H - 1 - y) * LCD_W + (LCD_W - 1 - x);
+        else if (GetParam() == LCD_ROTATE_90)
+          idx = (LCD_W - 1 - x) * LCD_H + y;
+        else if (GetParam() == LCD_ROTATE_TRANSPOSE)
+          idx = x * LCD_H + y;
         ASSERT_EQ(shown[idx], screen[y * LCD_W + x])
             << "frame " << frame << " at (" << x << ", " << y << ")";
       }
@@ -165,7 +169,7 @@ TEST_P(LcdFlushTest, SmallAreasKeepTheRest)
 {
   drawFrame({{0, 0, LCD_W - 1, LCD_H - 1}}, LCD_H);
   checkShown(0);
-  // single pixels, odd sizes, and areas larger than a tile
+  // single pixels, odd sizes, and areas larger than a tile or a strip
   drawFrame({{5, 7, 5, 7}}, LCD_H);
   checkShown(1);
   drawFrame({{1, 2, 18, 4}, {LCD_W - 3, LCD_H - 2, LCD_W - 1, LCD_H - 1}},
@@ -206,6 +210,8 @@ TEST_P(LcdFlushTest, PartlyRedrawnSingleLine)
 }
 
 INSTANTIATE_TEST_SUITE_P(Rotation, LcdFlushTest,
-                         ::testing::Values(LCD_ROTATE_NONE, LCD_ROTATE_180));
+                         ::testing::Values(LCD_ROTATE_NONE, LCD_ROTATE_180,
+                                           LCD_ROTATE_90,
+                                           LCD_ROTATE_TRANSPOSE));
 
 #endif
