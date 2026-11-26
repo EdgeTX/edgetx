@@ -45,8 +45,6 @@ class Widget : public ButtonBase
   const ZoneOption* getOptionDefinitions() const;
   bool hasOptions() const { return getOptionDefinitions() && getOptionDefinitions()->name; }
 
-  virtual const char* getErrorMessage() const { return nullptr; }
-
   ZoneOptionValue* getOptionValue(unsigned int index) const
   {
     return &persistentData->options[index].value;
