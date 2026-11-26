@@ -34,6 +34,12 @@ BOOTSTRAP void SystemClock_Config(void)
   while (LL_PWR_IsActiveFlag_VOS() == 0){
   }
 
+  /* VOS0 (VCORE boost) for 480 MHz: from VOS1, set SYSCFG ODEN */
+  LL_APB4_GRP1_EnableClock(LL_APB4_GRP1_PERIPH_SYSCFG);
+  SET_BIT(SYSCFG->PWRCR, SYSCFG_PWRCR_ODEN);
+  while (LL_PWR_IsActiveFlag_VOS() == 0){
+  }
+
   /* Enable HSE oscillator */
   LL_RCC_HSE_Enable();
   while (LL_RCC_HSE_IsReady() != 1) {
