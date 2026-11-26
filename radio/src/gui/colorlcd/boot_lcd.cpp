@@ -82,7 +82,7 @@ static void clear_frame_buffers()
 static void init_lvgl_disp_drv()
 {
   int direct_mode = 1;
-#if defined(LCD_SW_ROTATE_90) && !defined(SIMU)
+#if defined(LCD_SW_ROTATION) && !defined(SIMU)
   // the LCD driver rotates each flushed area into its own frame buffers
   direct_mode = 0;
 #elif LCD_VERTICAL_INVERT

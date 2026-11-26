@@ -44,7 +44,7 @@ char* get_lvgl_mem(int nbytes)
 pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 
-#if defined(LCD_SW_ROTATE_90) && !defined(SIMU)
+#if defined(LCD_SW_ROTATION) && !defined(SIMU)
 // LVGL renders into internal SRAM, in bands, and the LCD driver rotates each
 // band into its own frame buffers: much faster than rendering into SDRAM and
 // reading it back from there.
@@ -162,7 +162,7 @@ static void clear_frame_buffers()
 static void init_lvgl_disp_drv()
 {
   int direct_mode = 1;
-#if defined(LCD_SW_ROTATE_90) && !defined(SIMU)
+#if defined(LCD_SW_ROTATION) && !defined(SIMU)
   // the LCD driver rotates each flushed area into its own frame buffers
   direct_mode = 0;
 #elif LCD_VERTICAL_INVERT
@@ -173,7 +173,7 @@ static void init_lvgl_disp_drv()
 #endif
 #endif
 
-#if defined(LCD_SW_ROTATE_90) && !defined(SIMU)
+#if defined(LCD_SW_ROTATION) && !defined(SIMU)
   lv_disp_draw_buf_init(&disp_buf, LCD_DRAW_BUFFER, nullptr,
                         LCD_W * LCD_DRAW_BUF_LINES);
 #else

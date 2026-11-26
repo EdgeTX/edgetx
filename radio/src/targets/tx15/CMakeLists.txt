@@ -55,7 +55,7 @@ set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM1=8192")
 set(FIRMWARE_STRIP_BOOTLOADER YES)
 
 add_definitions(-DPCBTX15 -DPCBHORUS)
-add_definitions(-DLCD_SW_ROTATE_90)
+add_definitions(-DLCD_SW_ROTATION)
 add_definitions(-DBATTERY_CHARGE)
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 add_definitions(-DFIRMWARE_QSPI)
@@ -157,6 +157,7 @@ set(BOARD_COMMON_SRC
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/dma2d.cpp
+  targets/common/arm/stm32/stm32_lcd_rotate.cpp
   targets/common/arm/stm32/flash_driver.cpp
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/rotary_encoder_driver.cpp

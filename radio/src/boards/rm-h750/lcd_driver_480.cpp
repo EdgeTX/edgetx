@@ -32,280 +32,17 @@
 #include "stm32_gpio.h"
 #include "stm32_qspi.h"
 
-#include "delays_driver.h"
-#include "timers_driver.h"
+#include "stm32_lcd_rotate.h"
 
-#if !defined(LCD_SW_ROTATE_90)
-#error "lcd_driver_480 rotates in software: define LCD_SW_ROTATE_90 for this target"
+#if !defined(LCD_SW_ROTATION)
+#error "lcd_driver_480 rotates in software: define LCD_SW_ROTATION for this target"
 #endif
 
 static LTDC_HandleTypeDef hltdc;
 
-//
-// The ST7365 is a 320x480 portrait panel, mounted in landscape.
-//
-// The panel could rotate the picture itself (MADCTL MV), but it refreshes the
-// glass from its GRAM along its own portrait lines, i.e. along the landscape
-// columns, while the LTDC writes landscape rows. Both sweeps cross on every
-// frame that changes, showing a diagonal line between the old and new picture.
-//
-// So the panel is driven in its native portrait order instead, and every area
-// LVGL flushes (landscape, LCD_W x LCD_H) is rotated by 90 degrees into a
-// portrait frame buffer (LCD_PHYS_W x LCD_PHYS_H):
-//
-//   landscape (x, y)  ->  portrait (y, LCD_PHYS_H - 1 - x)
-//
-// DMA2D cannot rotate: the CPU transposes strips of the area into SRAM tiles,
-// which the DMA2D then copies into the SDRAM frame buffer. Frame buffers are
-// only ever written by the DMA2D, so there is no D-cache maintenance on them,
-// and the DMA2D is programmed directly: DMACopyBitmap() would clean and
-// invalidate the whole D-cache for each tile.
-//
-// Two portrait buffers are used: the front one is scanned out by the LTDC, the
-// back one is updated, then swapped in on the next vertical blanking. The areas
-// of a frame are copied into the other buffer before the next frame is drawn,
-// once the swap has happened.
-//
-
-static pixel_t _LCD_BUF_1[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
-// not used by LVGL, which is not in direct mode here (see lcd.cpp)
-extern pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE];
-#define _LCD_BUF_2 LCD_SECOND_FRAME_BUFFER
-
-static pixel_t* _front_buffer = _LCD_BUF_1;
-static pixel_t* _back_buffer = _LCD_BUF_2;
-
-// Landscape columns transposed per DMA2D transfer. 16 pixels is one 32-byte
-// cache line of each source row.
-#define ROTATE_STRIP_W 16
-
-// Source rows prefetched ahead of the transpose: each row of a strip is a
-// separate cache line, so the transpose is otherwise bound by SDRAM latency.
-#define ROTATE_PREFETCH_ROWS 8
-
-// Double buffered, so the CPU fills one tile while the DMA2D reads the other.
-// A tile holds up to ROTATE_STRIP_W portrait lines of up to LCD_H pixels.
-static pixel_t _rotate_tiles[2][ROTATE_STRIP_W * LCD_H] __DMA;
-static uint8_t _rotate_tile_idx = 0;
-
-// Landscape areas written into the back buffer since the last swap. LVGL
-// may flush an area in several bands (see LCD_DRAW_BUF_LINES in lcd.cpp).
-#define DIRTY_MAX_AREAS (2 * LV_INV_BUF_SIZE)
-static lv_area_t _dirty_areas[DIRTY_MAX_AREAS];
-static uint8_t _dirty_count = 0;
-static bool _dirty_full = false;
-static bool _sync_pending = false;
-
-// The LTDC scans a frame in ~18ms: wait a couple of frames before giving up
-#define LCD_RELOAD_TIMEOUT_MS 50
-
-// Areas left to copy into the back buffer, after removing what the next
-// frame redraws anyway (each removal splits an area in up to 4)
-#define SYNC_MAX_AREAS (2 * DIRTY_MAX_AREAS)
-static lv_area_t _sync_areas[2][SYNC_MAX_AREAS];
-
-static inline void _dma_wait()
-{
-  while (DMA2D->CR & DMA2D_CR_START);
-}
-
-// RGB565 copy, w x h pixels. Strides in pixels. No D-cache maintenance:
-// the callers take care of the source, and the destination is only ever
-// written by the DMA2D.
-static void _dma_copy(pixel_t* dst, uint32_t dst_stride, const pixel_t* src,
-                      uint32_t src_stride, uint32_t w, uint32_t h)
-{
-  _dma_wait();
-  DMA2D->CR = LL_DMA2D_MODE_M2M;
-  DMA2D->FGMAR = (uint32_t)src;
-  DMA2D->FGOR = src_stride - w;
-  DMA2D->FGPFCCR = LL_DMA2D_INPUT_MODE_RGB565;
-  DMA2D->OPFCCR = LL_DMA2D_OUTPUT_MODE_RGB565;
-  DMA2D->OMAR = (uint32_t)dst;
-  DMA2D->OOR = dst_stride - w;
-  DMA2D->NLR = (w << DMA2D_NLR_PL_Pos) | h;
-  DMA2D->CR |= DMA2D_CR_START;
-}
-
-// Copy a landscape area from the front to the back buffer
-static void _sync_copy(const lv_area_t& area)
-{
-  // landscape (x, y) -> portrait (y, LCD_PHYS_H - 1 - x)
-  uint32_t offset = (LCD_PHYS_H - 1 - area.x2) * LCD_PHYS_W + area.y1;
-  _dma_copy(_back_buffer + offset, LCD_PHYS_W, _front_buffer + offset,
-            LCD_PHYS_W, area.y2 - area.y1 + 1, area.x2 - area.x1 + 1);
-}
-
-static void _add_dirty_area(const rect_t& area)
-{
-  if (_dirty_full) return;
-  if (_dirty_count < DIRTY_MAX_AREAS) {
-    _dirty_areas[_dirty_count++] = {area.x, area.y,
-                                    (lv_coord_t)(area.x + area.w - 1),
-                                    (lv_coord_t)(area.y + area.h - 1)};
-  } else {
-    _dirty_full = true;
-  }
-}
-
-// Transpose 'n' landscape columns of 'h' rows (stride 'w') into 'n' tile
-// lines of stride 'ts' (even): tile line (n - 1 - i) is column i, top to
-// bottom. Works on 2x2 pixel blocks: two 32-bit loads, two 32-bit stores.
-static void _transpose_strip(pixel_t* tile, coord_t ts, const pixel_t* src,
-                             coord_t w, coord_t h, coord_t n)
-{
-  pixel_t* last_line = tile + (n - 1) * ts;
-
-  coord_t y = 0;
-  for (; y + 1 < h; y += 2) {
-    const pixel_t* s0 = src + y * w;
-    const pixel_t* s1 = s0 + w;
-    __builtin_prefetch(s0 + ROTATE_PREFETCH_ROWS * w);
-    __builtin_prefetch(s1 + ROTATE_PREFETCH_ROWS * w);
-
-    // 'y' and 'ts' are even: 32-bit aligned
-    pixel_t* d = last_line + y;
-    coord_t i = 0;
-    for (; i + 1 < n; i += 2) {
-      uint32_t a = __UNALIGNED_UINT32_READ(s0 + i);  // (i, y)   (i+1, y)
-      uint32_t b = __UNALIGNED_UINT32_READ(s1 + i);  // (i, y+1) (i+1, y+1)
-      *(uint32_t*)d = __PKHBT(a, b, 16);             // column i
-      d -= ts;
-      *(uint32_t*)d = __PKHTB(b, a, 16);             // column i + 1
-      d -= ts;
-    }
-    if (i < n) {
-      *(uint32_t*)d = s0[i] | ((uint32_t)s1[i] << 16);
-    }
-  }
-
-  if (y < h) {
-    // odd height: last row on its own
-    const pixel_t* s0 = src + y * w;
-    pixel_t* d = last_line + y;
-    for (coord_t i = 0; i < n; i++) {
-      *d = s0[i];
-      d -= ts;
-    }
-  }
-}
-
-// 'src' holds the area only (LVGL is not in direct mode): stride is area.w
-static void _copy_rotate_90(pixel_t* dst, const pixel_t* src,
-                            const rect_t& area)
-{
-  const coord_t w = area.w;
-  const coord_t h = area.h;
-  const coord_t ts = (h + 1) & ~1;
-
-  for (coord_t col = 0; col < w; col += ROTATE_STRIP_W) {
-    const coord_t n = (w - col < ROTATE_STRIP_W) ? w - col : ROTATE_STRIP_W;
-
-    // The DMA2D may still read the other tile, but not this one: it was
-    // waited for before the last transfer was started.
-    pixel_t* tile = _rotate_tiles[_rotate_tile_idx];
-    _rotate_tile_idx ^= 1;
-
-    _transpose_strip(tile, ts, src + col, w, h, n);
-    SCB_CleanDCache_by_Addr(tile, n * ts * sizeof(pixel_t));
-
-    // Landscape column (area.x + col + n - 1) is portrait line
-    // LCD_PHYS_H - 1 - (area.x + col + n - 1)
-    coord_t line = LCD_PHYS_H - (area.x + col + n);
-    _dma_copy(dst + line * LCD_PHYS_W + area.y, LCD_PHYS_W, tile, ts, h, n);
-  }
-}
-
-static void _wait_frame_reloaded()
-{
-  // Not delay_us(): it stops when a debugger disables the DWT cycle counter
-  uint32_t start = timersGetMsTick();
-  while (LTDC->SRCR & LTDC_SRCR_VBR) {
-    if (timersGetMsTick() - start > LCD_RELOAD_TIMEOUT_MS) {
-      // LTDC stopped? Better a torn frame than a hung UI.
-      LTDC->SRCR = LTDC_SRCR_IMR;
-      break;
-    }
-  }
-}
-
-// Bring the back buffer (previous front) up to date with the areas drawn
-// into the current front buffer during the last frame, except for what the
-// frame being drawn now redraws anyway (LVGL already knows all its areas
-// when it flushes the first one).
-static void _sync_back_buffer()
-{
-  _wait_frame_reloaded();
-
-  lv_area_t* todo = _sync_areas[0];
-  lv_area_t* next = _sync_areas[1];
-  uint32_t todo_n = 0;
-
-  if (_dirty_full) {
-    todo[todo_n++] = {0, 0, LCD_W - 1, LCD_H - 1};
-  } else {
-    for (uint32_t i = 0; i < _dirty_count; i++) todo[todo_n++] = _dirty_areas[i];
-  }
-
-  lv_disp_t* disp = _lv_refr_get_disp_refreshing();
-  for (uint32_t j = 0; disp && j < disp->inv_p && todo_n > 0; j++) {
-    if (disp->inv_area_joined[j]) continue;
-    const lv_area_t* redrawn = &disp->inv_areas[j];
-
-    uint32_t next_n = 0;
-    for (uint32_t i = 0; i < todo_n; i++) {
-      lv_area_t res[4];
-      int8_t res_n = _lv_area_diff(res, &todo[i], redrawn);
-      if (res_n < 0 || next_n + res_n > SYNC_MAX_AREAS) {
-        // untouched, or no room to split it: copy it whole
-        if (next_n < SYNC_MAX_AREAS) next[next_n++] = todo[i];
-        else _sync_copy(todo[i]);
-      } else {
-        for (int8_t k = 0; k < res_n; k++) next[next_n++] = res[k];
-      }
-    }
-
-    lv_area_t* tmp = todo;
-    todo = next;
-    next = tmp;
-    todo_n = next_n;
-  }
-
-  for (uint32_t i = 0; i < todo_n; i++) _sync_copy(todo[i]);
-
-  _dirty_count = 0;
-  _dirty_full = false;
-  _sync_pending = false;
-}
-
-static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
-                            const rect_t &copy_area)
-{
-  if (_sync_pending) _sync_back_buffer();
-
-  // LVGL may have drawn parts of the area with the DMA2D (EdgeTX's DMA
-  // helpers clean & invalidate the D-cache before each transfer)
-  _dma_wait();
-
-  _copy_rotate_90(_back_buffer, buffer, copy_area);
-  _add_dirty_area(copy_area);
-
-  if (lv_disp_flush_is_last(disp_drv)) {
-    pixel_t* tmp = _front_buffer;
-    _front_buffer = _back_buffer;
-    _back_buffer = tmp;
-
-    _dma_wait();
-    LTDC_Layer1->CFBAR = (uint32_t)_front_buffer;
-    // reload shadow registers on vertical blank
-    LTDC->SRCR = LTDC_SRCR_VBR;
-
-    _sync_pending = true;
-  }
-
-  // LVGL's buffer has been consumed: it can draw the next area
-  lcdFlushed();
-}
+// The ST7365 is a 320x480 portrait panel, mounted in landscape: it is driven
+// in its native portrait order, and the UI is rotated in software (see
+// lcd_rotate.h for why the panel does not rotate it).
 
 static void LCD_Delay(void) {
   volatile unsigned int i;
@@ -704,7 +441,7 @@ void LCD_LayerInit() {
   layer.ImageHeight = LCD_PHYS_H;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-  layer.FBStartAdress = (intptr_t)_front_buffer;
+  layer.FBStartAdress = (intptr_t)lcdRotateInit(LCD_ROTATE_90);
 
   /* Initialize LTDC layer 1 */
   HAL_LTDC_ConfigLayer(&hltdc, &hltdc.LayerCfg[0], 0);
@@ -729,10 +466,6 @@ void lcdInit(void)
   stm32_qspi_nor_deinit();
 #endif
 
-  memset(_LCD_BUF_1, 0, sizeof(_LCD_BUF_1));
-  memset(_LCD_BUF_2, 0, sizeof(_LCD_BUF_2));
-  SCB_CleanDCache();
-
   /* Configure the LCD SPI+RESET pins */
   lcdSpiConfig();
 
@@ -755,7 +488,7 @@ void lcdInit(void)
   // Enable LCD display
   __HAL_LTDC_ENABLE(&hltdc);
 
-  lcdSetFlushCb(startLcdRefresh);
+  lcdSetFlushCb(lcdRotateFlush);
 
 #if defined(LCD_SPI_CONFLICTS_WITH_QSPI)
   stm32_qspi_nor_init();
