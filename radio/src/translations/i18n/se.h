@@ -1094,9 +1094,6 @@
 #define TR_PREFLIGHT_POTSLIDER_CHECK_2  "På"
 #define TR_PREFLIGHT_POTSLIDER_CHECK_3  "Auto"
 #define TR_PREFLIGHT                    "Startkontroller"
-#define TR_PREFLIGHT_POTSLIDER_CHECK_1  "Av"
-#define TR_PREFLIGHT_POTSLIDER_CHECK_2  "På"
-#define TR_PREFLIGHT_POTSLIDER_CHECK_3  "Auto"
 #define TR_CHECKLIST                    TR("Checklista", "Visa checklista")
 #define TR_CHECKLIST_INTERACTIVE        TR3("C-Interakt", "Interakt. checklista", "Interaktiv checklista")
 #define TR_AUX_SERIAL_MODE              "Serieport"
