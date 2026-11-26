@@ -97,10 +97,9 @@ class LcdRotateTest : public ::testing::TestWithParam<LcdRotation>
                  tiles.data());
   }
 
-  int rnd(int lo, int hi)
-  {
-    return std::uniform_int_distribution<int>(lo, hi)(rng);
-  }
+  // not std::uniform_int_distribution: the same seed gives different
+  // values with different standard libraries
+  int rnd(int lo, int hi) { return lo + (int)(rng() % (uint32_t)(hi - lo + 1)); }
 
   lv_area_t randomArea()
   {
@@ -185,8 +184,22 @@ TEST_P(LcdRotateTest, RandomFrames)
     // more bands than LCD_ROTATE_DIRTY_MAX from time to time
     coord_t band_h = rnd(0, 3) ? LCD_H / 2 : rnd(1, 16);
     drawFrame(areas, band_h);
-    checkShown(frame);
+    ASSERT_NO_FATAL_FAILURE(checkShown(frame));
   }
+}
+
+// Last band of an area is a single line, and the next frame redraws only
+// part of it: the rest must still be copied into the back buffer.
+TEST_P(LcdRotateTest, PartlyRedrawnSingleLine)
+{
+  drawFrame({{0, 0, LCD_W - 1, LCD_H - 1}}, LCD_H);
+  checkShown(0);
+  drawFrame({{101, 5, 164, 248}}, 9);  // bands 5..13, ..., 248..248
+  checkShown(1);
+  drawFrame({{156, 175, LCD_W - 1, LCD_H - 1}}, LCD_H);
+  checkShown(2);
+  drawFrame({{0, 0, 10, 10}}, LCD_H);
+  checkShown(3);
 }
 
 INSTANTIATE_TEST_SUITE_P(Rotation, LcdRotateTest,

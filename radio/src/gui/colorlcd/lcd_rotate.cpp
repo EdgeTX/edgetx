@@ -145,6 +145,29 @@ void LcdRotator::addDirty(const rect_t& area)
   }
 }
 
+// 'a' minus 'b' as up to 4 non-overlapping areas, or -1 if they do not
+// intersect. Unlike _lv_area_diff(), it is exact: the pieces do not overlap
+// 'b', and nothing is lost when the intersection is a single line.
+static int areaDiff(lv_area_t* res, const lv_area_t& a, const lv_area_t& b)
+{
+  if (b.x1 > a.x2 || b.x2 < a.x1 || b.y1 > a.y2 || b.y2 < a.y1) return -1;
+
+  int n = 0;
+  if (b.y1 > a.y1)  // above
+    res[n++] = {a.x1, a.y1, a.x2, (lv_coord_t)(b.y1 - 1)};
+  if (b.y2 < a.y2)  // below
+    res[n++] = {a.x1, (lv_coord_t)(b.y2 + 1), a.x2, a.y2};
+
+  lv_coord_t y1 = b.y1 > a.y1 ? b.y1 : a.y1;
+  lv_coord_t y2 = b.y2 < a.y2 ? b.y2 : a.y2;
+  if (b.x1 > a.x1)  // left
+    res[n++] = {a.x1, y1, (lv_coord_t)(b.x1 - 1), y2};
+  if (b.x2 < a.x2)  // right
+    res[n++] = {(lv_coord_t)(b.x2 + 1), y1, a.x2, y2};
+
+  return n;
+}
+
 // Copy a landscape area from the front to the back buffer
 void LcdRotator::syncCopy(const lv_area_t& area)
 {
@@ -173,13 +196,13 @@ void LcdRotator::syncBackBuffer(const lv_area_t* redrawn, uint32_t redrawn_n)
     uint32_t next_n = 0;
     for (uint32_t i = 0; i < todo_n; i++) {
       lv_area_t res[4];
-      int8_t res_n = _lv_area_diff(res, &todo[i], &redrawn[j]);
+      int res_n = areaDiff(res, todo[i], redrawn[j]);
       if (res_n < 0 || next_n + res_n > SYNC_MAX) {
         // untouched, or no room to split it: copy it whole
         if (next_n < SYNC_MAX) next[next_n++] = todo[i];
         else syncCopy(todo[i]);
       } else {
-        for (int8_t k = 0; k < res_n; k++) next[next_n++] = res[k];
+        for (int k = 0; k < res_n; k++) next[next_n++] = res[k];
       }
     }
 
