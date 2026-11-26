@@ -32,24 +32,190 @@
 #include "stm32_gpio.h"
 #include "stm32_qspi.h"
 
+#include "delays_driver.h"
+#include "dma2d.h"
+
+#if !defined(LCD_SW_ROTATE_90)
+#error "lcd_driver_480 rotates in software: define LCD_SW_ROTATE_90 for this target"
+#endif
+
 static LTDC_HandleTypeDef hltdc;
-static void* initialFrameBuffer = nullptr;
+
+//
+// The ST7365 is a 320x480 portrait panel, mounted in landscape.
+//
+// The panel could rotate the picture itself (MADCTL MV), but it refreshes the
+// glass from its GRAM along its own portrait lines, i.e. along the landscape
+// columns, while the LTDC writes landscape rows. Both sweeps cross on every
+// frame that changes, showing a diagonal line between the old and new picture.
+//
+// So the panel is driven in its native portrait order instead, and every area
+// LVGL flushes (landscape, LCD_W x LCD_H) is rotated by 90 degrees into a
+// portrait frame buffer (LCD_PHYS_W x LCD_PHYS_H):
+//
+//   landscape (x, y)  ->  portrait (y, LCD_PHYS_H - 1 - x)
+//
+// DMA2D cannot rotate: the CPU transposes strips of the area into SRAM tiles,
+// which the DMA2D then copies into the SDRAM frame buffer. Frame buffers are
+// only ever written by the DMA2D, so there is no D-cache maintenance on them.
+//
+// Two portrait buffers are used: the front one is scanned out by the LTDC, the
+// back one is updated, then swapped in on the next vertical blanking. The areas
+// of a frame are copied into the other buffer before the next frame is drawn,
+// once the swap has happened.
+//
+
+static pixel_t _LCD_BUF_1[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
+// not used by LVGL, which is not in direct mode here (see lcd.cpp)
+extern pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE];
+#define _LCD_BUF_2 LCD_SECOND_FRAME_BUFFER
+
+static pixel_t* _front_buffer = _LCD_BUF_1;
+static pixel_t* _back_buffer = _LCD_BUF_2;
+
+// Landscape columns transposed per DMA2D transfer. 16 pixels is one 32-byte
+// cache line of each source row.
+#define ROTATE_STRIP_W 16
+
+// Double buffered, so the CPU fills one tile while the DMA2D reads the other
+static pixel_t _rotate_tiles[2][ROTATE_STRIP_W * LCD_H] __DMA;
+static uint8_t _rotate_tile_idx = 0;
+
+// Portrait areas written into the back buffer since the last swap
+static rect_t _dirty_areas[LV_INV_BUF_SIZE];
+static uint8_t _dirty_count = 0;
+static bool _dirty_full = false;
+static bool _sync_pending = false;
+
+// The LTDC scans a frame in ~18ms: wait a couple of frames before giving up
+#define LCD_RELOAD_TIMEOUT_US 50000
+
+// DMAWait() is a no-op in the bootloader, but DMACopyBitmap() resets the
+// DMA2D: always wait for the previous transfer before starting a new one.
+static inline void _dma_wait()
+{
+  while (DMA2D->CR & DMA2D_CR_START);
+}
+
+static void _dma_copy(pixel_t* dst, const pixel_t* src, const rect_t& area)
+{
+  _dma_wait();
+  DMACopyBitmap(dst, LCD_PHYS_W, LCD_PHYS_H, area.x, area.y,
+                src, LCD_PHYS_W, LCD_PHYS_H, area.x, area.y,
+                area.w, area.h);
+}
+
+static rect_t _rotate_area_90(const rect_t& area)
+{
+  return {area.y, (coord_t)(LCD_PHYS_H - area.x - area.w), area.h, area.w};
+}
+
+static void _add_dirty_area(const rect_t& area)
+{
+  if (_dirty_full) return;
+  if (_dirty_count < LV_INV_BUF_SIZE) {
+    _dirty_areas[_dirty_count++] = area;
+  } else {
+    _dirty_full = true;
+  }
+}
+
+// 'src' holds the area only (LVGL is not in direct mode): stride is area.w
+static void _copy_rotate_90(pixel_t* dst, const pixel_t* src,
+                            const rect_t& area)
+{
+  const coord_t w = area.w;
+  const coord_t h = area.h;
+
+  for (coord_t col = 0; col < w; col += ROTATE_STRIP_W) {
+    const coord_t n = (w - col < ROTATE_STRIP_W) ? w - col : ROTATE_STRIP_W;
+
+    // The DMA2D may still read the other tile, but not this one: it was
+    // waited for before the last transfer was started.
+    pixel_t* tile = _rotate_tiles[_rotate_tile_idx];
+    _rotate_tile_idx ^= 1;
+
+    // Tile row 't' is landscape column (col + n - 1 - t), top to bottom
+    const pixel_t* px_src = src + col;
+    for (coord_t y = 0; y < h; y++) {
+      pixel_t* px_dst = tile + (n - 1) * h + y;
+      for (coord_t i = 0; i < n; i++) {
+        *px_dst = px_src[i];
+        px_dst -= h;
+      }
+      px_src += w;
+    }
+
+    // Landscape column (area.x + col + n - 1) is portrait line
+    // LCD_PHYS_H - 1 - (area.x + col + n - 1)
+    _dma_wait();
+    DMACopyBitmap(dst, LCD_PHYS_W, LCD_PHYS_H, area.y,
+                  LCD_PHYS_H - (area.x + col + n),
+                  tile, h, n, 0, 0, h, n);
+  }
+}
+
+static void _wait_frame_reloaded()
+{
+  uint32_t timeout = LCD_RELOAD_TIMEOUT_US / 10;
+  while (LTDC->SRCR & LTDC_SRCR_VBR) {
+    if (--timeout == 0) {
+      // LTDC stopped? Better a torn frame than a hung UI.
+      LTDC->SRCR = LTDC_SRCR_IMR;
+      break;
+    }
+    delay_us(10);
+  }
+}
+
+// Bring the back buffer (previous front) up to date with the areas drawn
+// into the current front buffer during the last frame.
+static void _sync_back_buffer()
+{
+  _wait_frame_reloaded();
+
+  if (_dirty_full) {
+    _dma_copy(_back_buffer, _front_buffer,
+              {0, 0, LCD_PHYS_W, LCD_PHYS_H});
+  } else {
+    for (uint8_t i = 0; i < _dirty_count; i++) {
+      _dma_copy(_back_buffer, _front_buffer, _dirty_areas[i]);
+    }
+  }
+
+  _dirty_count = 0;
+  _dirty_full = false;
+  _sync_pending = false;
+}
 
 static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
                             const rect_t &copy_area)
 {
-  (void)disp_drv;
-  (void)copy_area;
+  if (_sync_pending) _sync_back_buffer();
 
-  // given the data cache size, this is probably
-  // faster than cleaning by address
-  SCB_CleanDCache();
+  // LVGL may have drawn parts of the area with the DMA2D. Cleaning the whole
+  // D-cache is cheaper than by address for a full screen area.
+  _dma_wait();
+  SCB_CleanInvalidateDCache();
 
-  LTDC_Layer1->CFBAR = (uint32_t)buffer;
-  // reload shadow registers on vertical blank
-  LTDC->SRCR = LTDC_SRCR_VBR;
+  _copy_rotate_90(_back_buffer, buffer, copy_area);
+  _add_dirty_area(_rotate_area_90(copy_area));
 
-  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
+  if (lv_disp_flush_is_last(disp_drv)) {
+    pixel_t* tmp = _front_buffer;
+    _front_buffer = _back_buffer;
+    _back_buffer = tmp;
+
+    _dma_wait();
+    LTDC_Layer1->CFBAR = (uint32_t)_front_buffer;
+    // reload shadow registers on vertical blank
+    LTDC->SRCR = LTDC_SRCR_VBR;
+
+    _sync_pending = true;
+  }
+
+  // LVGL's buffer has been consumed: it can draw the next area
+  lcdFlushed();
 }
 
 static void LCD_Delay(void) {
@@ -254,20 +420,25 @@ void LCD_ST7365_Init(void) {
   lcdWriteCommand(0xF0);
   lcdWriteData(0x96);
 
-  lcdWriteCommand(0x36);     // Memory Data Access Control MY,MX~~
-  lcdWriteData(0xE8);
+  // Memory Data Access Control: native portrait order (MV=0), so that the
+  // RGB data is written along the lines the panel refreshes (see above).
+  // MX=1, MY=0 shows the frame buffer rotated 90 degrees from the former
+  // landscape setting (0xE8: MY, MX, MV), with lines written top to bottom
+  // like the panel refresh. BGR=1.
+  lcdWriteCommand(0x36);
+  lcdWriteData(0x48);
 
-  lcdWriteCommand(0x2A);//480-1
+  lcdWriteCommand(0x2A); // 0 .. 320-1
+  lcdWriteData(0x00);
+  lcdWriteData(0x00);
+  lcdWriteData(0x01);
+  lcdWriteData(0x3F);
+
+  lcdWriteCommand(0x2B); // 0 .. 480-1
   lcdWriteData(0x00);
   lcdWriteData(0x00);
   lcdWriteData(0x01);
   lcdWriteData(0xDF);
-
-  lcdWriteCommand(0x2B);
-  lcdWriteData(0x00);
-  lcdWriteData(0x00);
-  lcdWriteData(0x01);
-  lcdWriteData(0x3F); //320-1
 
 
   lcdWriteCommand(0x3A);
@@ -413,13 +584,6 @@ void LCD_Init_LTDC() {
   hltdc.Init.TotalHeigh = LCD_PHYS_H + VBP + VFP+VSH-1;
 
   HAL_LTDC_Init(&hltdc);
-
-  // Configure IRQ (line)
-  NVIC_SetPriority(LTDC_IRQn, LTDC_IRQ_PRIO);
-  NVIC_EnableIRQ(LTDC_IRQn);
-  
-  // Trigger on last line
-  HAL_LTDC_ProgramLineEvent(&hltdc, LCD_PHYS_H);
 }
 
 void LCD_LayerInit() {
@@ -451,7 +615,7 @@ void LCD_LayerInit() {
   layer.ImageHeight = LCD_PHYS_H;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-  layer.FBStartAdress = (intptr_t)initialFrameBuffer;
+  layer.FBStartAdress = (intptr_t)_front_buffer;
 
   /* Initialize LTDC layer 1 */
   HAL_LTDC_ConfigLayer(&hltdc, &hltdc.LayerCfg[0], 0);
@@ -460,10 +624,11 @@ void LCD_LayerInit() {
   HAL_LTDC_EnableDither(&hltdc);
 }
 
+// LVGL's buffer is never scanned out: the LTDC shows the driver's own buffers
 extern "C"
 void lcdSetInitalFrameBuffer(void* fbAddress)
 {
-  initialFrameBuffer = fbAddress;
+  (void)fbAddress;
 }
 
 const char* boardLcdType = "";
@@ -474,6 +639,10 @@ void lcdInit(void)
 #if defined(LCD_SPI_CONFLICTS_WITH_QSPI)
   stm32_qspi_nor_deinit();
 #endif
+
+  memset(_LCD_BUF_1, 0, sizeof(_LCD_BUF_1));
+  memset(_LCD_BUF_2, 0, sizeof(_LCD_BUF_2));
+  SCB_CleanDCache();
 
   /* Configure the LCD SPI+RESET pins */
   lcdSpiConfig();
@@ -503,12 +672,4 @@ void lcdInit(void)
   stm32_qspi_nor_init();
   stm32_qspi_nor_memory_mapped();
 #endif
-}
-
-extern "C" void LTDC_IRQHandler(void)
-{
-  __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
-  __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
-
-  lcdFlushed();
 }
