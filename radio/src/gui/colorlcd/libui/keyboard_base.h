@@ -28,6 +28,8 @@ class Keyboard : public NavWindow
   explicit Keyboard(coord_t height);
 
   static void hideKeyboard();
+  // Hide the keyboard if it is editing this field
+  static void fieldClosing(FormField* closingField);
 
   static Keyboard* keyboardWindow() { return activeKeyboard; }
 
