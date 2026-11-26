@@ -265,7 +265,8 @@ void StandaloneLuaWindow::checkEvents()
           } else {
             if (useLvglLayout() && !scriptDisabled) {
               PROTECT_LUA() {
-                if (!callRefs(lsStandalone)) {
+                // callRefs reports its own errors; avoid reporting twice
+                if (!callRefs(lsStandalone) && !scriptDisabled) {
                   luaShowError();
                 }
               } else {

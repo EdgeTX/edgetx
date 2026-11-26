@@ -445,10 +445,13 @@ bool LvglWidgetObjectBase::pcallUpdateBool(lua_State *L, LvglFuncRef getFuncRef,
           val = luaL_optinteger(L, -1, 0) != 0;
         update(val);
       } else {
+        // Report now, while the error is still on top of the stack
+        lvglManager->luaShowError();
         res = false;
       }
     } else {
       lvglManager->luaShowError();
+      res = false;
     }
     UNPROTECT_LUA();
     lua_settop(L, t);
@@ -471,10 +474,13 @@ bool LvglWidgetObjectBase::pcallUpdate1Int(lua_State *L, LvglFuncRef getFuncRef,
         int val = luaL_checkunsigned(L, -1);
         update(val);
       } else {
+        // Report now, while the error is still on top of the stack
+        lvglManager->luaShowError();
         res = false;
       }
     } else {
       lvglManager->luaShowError();
+      res = false;
     }
     UNPROTECT_LUA();
     lua_settop(L, t);
@@ -498,10 +504,13 @@ bool LvglWidgetObjectBase::pcallUpdate2Int(lua_State *L, LvglFuncRef getFuncRef,
         int v2 = luaL_checkunsigned(L, -1);
         update(v1, v2);
       } else {
+        // Report now, while the error is still on top of the stack
+        lvglManager->luaShowError();
         res = false;
       }
     } else {
       lvglManager->luaShowError();
+      res = false;
     }
     UNPROTECT_LUA();
     lua_settop(L, t);
@@ -524,10 +533,13 @@ bool LvglWidgetObjectBase::pcallUpdateStringVal(lua_State *L, LvglFuncRef getFun
         const char* val = luaL_checkstring(L, -1);
         update(val);
       } else {
+        // Report now, while the error is still on top of the stack
+        lvglManager->luaShowError();
         res = false;
       }
     } else {
       lvglManager->luaShowError();
+      res = false;
     }
     UNPROTECT_LUA();
     lua_settop(L, t);

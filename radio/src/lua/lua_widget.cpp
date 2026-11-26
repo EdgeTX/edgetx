@@ -304,7 +304,8 @@ void LuaWidget::foreground()
         luaScriptManager = this;
         refresh(nullptr);
         if (!scriptDisabled) {
-          if (!callRefs(lsWidgets)) {
+          // callRefs reports its own errors; only add a fallback message
+          if (!callRefs(lsWidgets) && !scriptDisabled) {
             setErrorMessage("foreground calRefs error");
           }
         }
@@ -380,7 +381,7 @@ void LuaWidget::update()
       // Check widget is at least partially visible
       if (a.x2 >= 0 && a.x1 < LCD_W) {
         PROTECT_LUA() {
-          if (!callRefs(lsWidgets)) {
+          if (!callRefs(lsWidgets) && !scriptDisabled) {
             setErrorMessage("update callRefs error");
           }
         } else {
