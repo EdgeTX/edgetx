@@ -81,10 +81,11 @@ class LuaScriptManager : public LuaEventHandler
   virtual Window* getCurrentParent() const = 0;
   virtual void clear() = 0;
   virtual bool useLvglLayout() const = 0;
-  virtual bool isAppMode() const = 0;
   virtual bool isWidget() = 0;
+  virtual bool isAppMode() const = 0;
   virtual bool isFullscreen() = 0;
   virtual void exitFullscreen() {}
+  bool isFullscreenOrAppMode() { return isFullscreen() || isAppMode(); }
 
   virtual void luaShowError() = 0;
 
@@ -94,6 +95,8 @@ class LuaScriptManager : public LuaEventHandler
   TelemetryQueue* telemetryQueue() { return luaInputTelemetryFifo; }
 
   bool isDisabled() const { return scriptDisabled; }
+
+  virtual lv_group_t* getLvglGroup() const = 0;
 
  protected:
   int luaScriptContextRef = LUA_REFNIL;
@@ -131,8 +134,8 @@ class LuaWidget : public Widget, public LuaScriptManager
   Window* getCurrentParent() const override { return (tempParent && tempParent->getWindow()) ? tempParent->getWindow() : (Window*)this; }
 
   bool useLvglLayout() const override;
-  bool isAppMode() const override;
   bool isWidget() override { return !inSettings; }
+  bool isAppMode() const override { return Widget::isAppMode(); }
   bool isFullscreen() override { return Widget::isFullscreen(); }
   void exitFullscreen() override { closeFullscreen(); }
 
@@ -142,6 +145,8 @@ class LuaWidget : public Widget, public LuaScriptManager
   void luaShowError() override;
 
   void pushOptionsTable();
+
+  lv_group_t* getLvglGroup() const override { return widgetGroup; }
 
  protected:
   bool inSettings = false;
