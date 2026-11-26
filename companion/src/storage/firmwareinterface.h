@@ -92,6 +92,24 @@ class FirmwareInterface
     bool isUF2() const { return type == FIRMWARE_TYPE_UF2; }
     const QString typeFileExtn() const { return (type == FIRMWARE_TYPE_UF2 ? "uf2" : "bin"); }
 
+    struct UF2Range {
+      uint32_t addr = 0;
+      QByteArray payload;
+      // reboot block: the payload is written to RAM at addr (not flash), and
+      // the device then restarts at rebootAddress
+      bool reboot = false;
+      uint32_t rebootAddress = 0;
+    };
+
+    // encode ranges as one UF2 file with sequential block numbers (256 byte
+    // payloads, no family ID). A reboot range is encoded as a single block.
+    static QByteArray encodeUF2(const QList<UF2Range> &ranges);
+
+    // board flavour and version from an EdgeTX bootloader image, which has no
+    // labelled version stamps
+    static bool parseBootloaderInfo(const QByteArray &data, QString &flavour,
+                                    QString &version);
+
   private:
     QDialog* parentDialog;
     QByteArray rawData;
