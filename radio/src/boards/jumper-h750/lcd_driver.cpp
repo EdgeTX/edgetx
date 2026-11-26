@@ -28,6 +28,7 @@
 #include "debug.h"
 #include "lcd.h"
 #include "lcd_driver.h"
+#include "stm32_lcd_rotate.h"
 #include "board.h"
 
 #include "stm32_gpio.h"
@@ -37,24 +38,9 @@ static volatile uint16_t lcd_phys_w = LCD_H;
 static volatile uint16_t lcd_phys_h = LCD_W;
 
 static LTDC_HandleTypeDef hltdc;
-static void* initialFrameBuffer = nullptr;
-
-static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
-                            const rect_t &copy_area)
-{
-  (void)disp_drv;
-  (void)copy_area;
-
-  // given the data cache size, this is probably
-  // faster than cleaning by address
-  SCB_CleanDCache();
-
-  LTDC_Layer1->CFBAR = (uint32_t)buffer;
-  // reload shadow registers on vertical blank
-  LTDC->SRCR = LTDC_SRCR_VBR;
-
-  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
-}
+// The ST7796S is a 320x480 portrait panel, mounted in landscape: it is driven
+// in its native portrait order, and the UI is rotated in software (see
+// lcd_rotate.h for why the panel does not rotate it).
 
 lcdSpiInitFucPtr lcdInitFunction;
 lcdSpiInitFucPtr lcdOffFunction;
@@ -275,18 +261,18 @@ void LCD_ST7796S_Init(void) {
   lcdWriteData(0x96);
 
   lcdWriteCommand(0x36);
-  lcdWriteData(0x28);
+  lcdWriteData(0x08);
 
   lcdWriteCommand(0x2A);
   lcdWriteData(0x00);
   lcdWriteData(0x00);
   lcdWriteData(0x01);
-  lcdWriteData(0xDF);
+  lcdWriteData(0x3F);
   lcdWriteCommand(0x2B);
   lcdWriteData(0x00);
   lcdWriteData(0x00);
   lcdWriteData(0x01);
-  lcdWriteData(0x3F);
+  lcdWriteData(0xDF);
 
   lcdWriteCommand(0x3A);
   lcdWriteData(0x55);
@@ -1865,13 +1851,6 @@ void LCD_Init_LTDC() {
   hltdc.Init.TotalHeigh = lcd_phys_h + VBP + VFP;
 
   HAL_LTDC_Init(&hltdc);
-
-  // Configure IRQ (line)
-  NVIC_SetPriority(LTDC_IRQn, LTDC_IRQ_PRIO);
-  NVIC_EnableIRQ(LTDC_IRQn);
-
-  // Trigger on last line
-  HAL_LTDC_ProgramLineEvent(&hltdc, lcd_phys_h);
 }
 
 void LCD_LayerInit() {
@@ -1903,7 +1882,7 @@ void LCD_LayerInit() {
   layer.ImageHeight = lcd_phys_h;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-  layer.FBStartAdress = (intptr_t)initialFrameBuffer;
+  layer.FBStartAdress = (intptr_t)lcdRotateInit(LCD_ROTATE_TRANSPOSE);
 
   /* Initialize LTDC layer 1 */
   HAL_LTDC_ConfigLayer(&hltdc, &hltdc.LayerCfg[0], 0);
@@ -1915,7 +1894,8 @@ void LCD_LayerInit() {
 extern "C"
 void lcdSetInitalFrameBuffer(void* fbAddress)
 {
-  initialFrameBuffer = fbAddress;
+  // LVGL's buffer is never scanned out: the LTDC shows the rotated buffers
+  (void)fbAddress;
 }
 
 const char* boardLcdType = "";
@@ -1989,13 +1969,5 @@ void lcdInit(void)
   // Enable LCD display
   __HAL_LTDC_ENABLE(&hltdc);
 
-  lcdSetFlushCb(startLcdRefresh);
-}
-
-extern "C" void LTDC_IRQHandler(void)
-{
-  __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
-  __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
-
-  lcdFlushed();
+  lcdSetFlushCb(lcdRotateFlush);
 }
