@@ -65,16 +65,22 @@ class NumberArea : public FormField
 
   void changeEnd() override
   {
+    setEditMode(false);
+    hide();
+
     // Clear extra focus outline setting from parent field
     lv_obj_clear_state(parent->getLvObj(), LV_STATE_USER_1);
 
-    setEditMode(false);
-    hide();
+    // Move back to parent group
+    lv_group_add_obj((lv_group_t*)lv_obj_get_group(parent->getLvObj()), lvobj);
+
     if (changeHandler) changeHandler();
   }
 
   void openKeyboard()
   {
+    // Move to default active group
+    lv_group_add_obj(lv_group_get_default(), lvobj);
     update();
     show();
     lv_group_focus_obj(lvobj);

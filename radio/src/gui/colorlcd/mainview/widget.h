@@ -97,6 +97,7 @@ class Widget : public ButtonBase
   void setFullscreen(bool enable);
   void closeFullscreen() { closeFS = true; }
   bool isFullscreen() const { return fullscreen; }
+  bool isAppMode() const;
 
   // Should rotary encoder events be enabled when full screen
   virtual bool enableFullScreenRE() const { return true; }
@@ -125,6 +126,7 @@ class Widget : public ButtonBase
   bool fullscreen = false;
   bool closeFS = false;
   lv_obj_t* focusBorder = nullptr;
+  lv_group_t* widgetGroup = nullptr;
 
   void onCancel() override;
   bool onLongPress() override;
