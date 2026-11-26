@@ -93,6 +93,8 @@ class LuaScriptManager : public LuaEventHandler
   void createTelemetryQueue();
   TelemetryQueue* telemetryQueue() { return luaInputTelemetryFifo; }
 
+  bool isDisabled() const { return scriptDisabled; }
+
  protected:
   int luaScriptContextRef = LUA_REFNIL;
   std::vector<int> lvglObjectRefs;
@@ -100,6 +102,7 @@ class LuaScriptManager : public LuaEventHandler
 #if defined(LUA)
   TelemetryQueue* luaInputTelemetryFifo = nullptr;
 #endif
+  bool scriptDisabled = false;
 };
 
 class LuaWidget : public Widget, public LuaScriptManager
@@ -116,7 +119,6 @@ class LuaWidget : public Widget, public LuaScriptManager
   void setErrorMessage(const char* funcName);
 
   // Widget interface
-  const char* getErrorMessage() const override;
   void updateWithoutRefresh() override;
   void update() override;
   void background() override;
@@ -146,7 +148,7 @@ class LuaWidget : public Widget, public LuaScriptManager
   lv_obj_t* errorLabel = nullptr;
   int zoneRectDataRef;
   int optionsDataRef;
-  char* errorMessage;
+  std::string errorMessage;
 
   // Window interface
   void onClicked() override;
