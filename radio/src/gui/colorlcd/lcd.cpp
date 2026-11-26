@@ -49,7 +49,7 @@ pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 // band into its own frame buffers: much faster than rendering into SDRAM and
 // reading it back from there.
 #define LCD_DRAW_BUF_LINES (LCD_H / 2)
-static pixel_t LCD_DRAW_BUFFER[LCD_W * LCD_DRAW_BUF_LINES] __D2_RAM;
+static pixel_t LCD_DRAW_BUFFER[LCD_W * LCD_DRAW_BUF_LINES] __LVGL_DRAW_BUF;
 #endif
 
 static lv_disp_draw_buf_t disp_buf;

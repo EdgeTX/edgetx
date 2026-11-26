@@ -48,12 +48,12 @@ _stext_iram = LOADADDR(.iram);
 
 _dram_addr = ADDR(.dram);
 
-/* Cacheable buffers in D2 SRAM, past the 64KB non-cacheable MPU region
-   that covers .dram (see MPU_Config()) */
-.d2_ram (NOLOAD) :
+/* LVGL draw buffer for software rotation (see lcd.cpp): cacheable, in D2
+   SRAM past the 64KB non-cacheable MPU region covering .dram (MPU_Config()) */
+.lvgl_draw_buf (NOLOAD) :
 {
   . = ALIGN(0x10000);
-  *(.d2_ram)
+  *(.lvgl_draw_buf)
   . = ALIGN(4);
 } > RAM_D2
 
