@@ -24,6 +24,7 @@
 
 #include <QFile>
 #include <QMessageBox>
+#include <QRegularExpression>
 #include <vector>
 
 #define FW_MARK     "FW"
@@ -43,6 +44,7 @@
 #define UF2_FLAG_FAMILYID_PRESENT       0x00002000
 #define UF2_FLAG_MD5_CHECKSUM_PRESENT   0x00004000
 #define UF2_FLAG_EXT_FLAGS_PRESENT      0x00008000
+#define UF2_REBOOT_TAG                  0xE60835
 
 
 class RleBitmap
@@ -512,6 +514,113 @@ unsigned int FirmwareInterface::save(const QString & filename)
 
   free(binflash);
   return flashSize;
+}
+
+bool FirmwareInterface::parseBootloaderInfo(const QByteArray &data, QString &flavour,
+                                            QString &version)
+{
+  flavour.clear();
+  version.clear();
+
+  const auto readString = [&data](qsizetype start, qsizetype maxLen) {
+    qsizetype end = start;
+    while (end < data.size() && end - start < maxLen) {
+      const char c = data.at(end);
+      if (c == '\0' || c == '\r' || c == '\n') break;
+      end++;
+    }
+    return QString::fromLatin1(data.mid(start, end - start)).trimmed();
+  };
+
+  // "Board-ID: <flavour>" from the UF2 info file
+  // (radio/src/drivers/uf2_ghostfat.cpp)
+  const QByteArray boardIdMark("Board-ID: ");
+  qsizetype idx = data.indexOf(boardIdMark);
+  if (idx >= 0) {
+    flavour = readString(idx + boardIdMark.size(), 32);
+  }
+
+  // boot_version "edgetx-<flavour>-<version> (<git hash>)", at the start of
+  // the bootloader's .text (radio/src/stamp.cpp). Flavours contain no '-'.
+  const QByteArray versionMark("edgetx-");
+  idx = data.indexOf(versionMark);
+  if (idx >= 0) {
+    const QString bootVersion = readString(idx + versionMark.size(), 100);
+    const int dash = bootVersion.indexOf('-');
+    if (dash > 0) {
+      const QString versionFlavour = bootVersion.left(dash);
+      if (flavour.isEmpty()) {
+        flavour = versionFlavour;
+      }
+      if (versionFlavour == flavour) {
+        version = bootVersion.mid(dash + 1);
+      }
+    }
+  }
+
+  static const QRegularExpression validFlavour("^[a-z0-9+]+$");
+  if (!validFlavour.match(flavour).hasMatch()) {
+    flavour.clear();
+    version.clear();
+    return false;
+  }
+
+  return true;
+}
+
+QByteArray FirmwareInterface::encodeUF2(const QList<UF2Range> &ranges)
+{
+  static_assert(sizeof(UF2_Block) == UF2_BLOCK_SIZE, "unexpected UF2 block size");
+  constexpr qsizetype UF2_PAYLOAD_SIZE = 256;
+
+  qsizetype numBlocks = 0;
+  for (const auto &range : ranges) {
+    numBlocks += range.reboot
+                     ? 1
+                     : (range.payload.size() + UF2_PAYLOAD_SIZE - 1) / UF2_PAYLOAD_SIZE;
+  }
+
+  QByteArray out;
+  out.reserve(numBlocks * UF2_BLOCK_SIZE);
+  uint32_t blockNo = 0;
+
+  const auto newBlock = [&](UF2_Block &block, uint32_t addr, const QByteArray &data) {
+    memset(&block, 0, sizeof(block));
+    block.magicStart0 = UF2_MAGICSTART0;
+    block.magicStart1 = UF2_MAGICSTART1;
+    block.targetAddr = addr;
+    block.payloadSize = uint32_t(data.size());
+    block.blockNo = blockNo++;
+    block.numBlocks = uint32_t(numBlocks);
+    memcpy(block.data, data.constData(), data.size());
+    block.magicEnd = UF2_MAGICEND;
+  };
+
+  for (const auto &range : ranges) {
+    UF2_Block block;
+
+    if (range.reboot) {
+      // as written by the bootloader for CURRENT.UF2
+      // (writeUF2RebootBlock() in radio/src/io/uf2.cpp)
+      const QByteArray data = range.payload.left(UF2_PAYLOAD_SIZE);
+      newBlock(block, range.addr, data);
+      block.flags = UF2_FLAG_NOT_MAIN_FLASH | UF2_FLAG_EXT_FLAGS_PRESENT;
+      const qsizetype ext = (data.size() + 3) & ~3;
+      const uint32_t tag = (UF2_REBOOT_TAG << 8) | 8;
+      memcpy(block.data + ext, &tag, sizeof(tag));
+      memcpy(block.data + ext + 4, &range.rebootAddress, sizeof(range.rebootAddress));
+      out.append(reinterpret_cast<const char *>(&block), sizeof(block));
+      continue;
+    }
+
+    for (qsizetype offset = 0; offset < range.payload.size(); offset += UF2_PAYLOAD_SIZE) {
+      newBlock(block, range.addr + uint32_t(offset),
+               range.payload.mid(offset, UF2_PAYLOAD_SIZE));
+      out.append(reinterpret_cast<const char *>(&block), sizeof(block));
+    }
+  }
+
+  return out;
 }
 
 bool FirmwareInterface::concatUF2Payloads(QByteArray & flashData)
