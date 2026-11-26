@@ -22,11 +22,11 @@
 #include "stm32_hal_ll.h"
 #include "stm32_hal.h"
 #include "edgetx_types.h"
-#include "dma2d.h"
 #include "hal.h"
 #include "delays_driver.h"
 #include "debug.h"
 #include "lcd.h"
+#include "stm32_lcd_flush.h"
 #include "lcd_driver.h"
 #include "board.h"
 
@@ -41,147 +41,17 @@ static volatile uint16_t lcd_phys_w = LCD_PHYS_W;
 static volatile uint16_t lcd_phys_h = LCD_PHYS_H;
 
 static LTDC_HandleTypeDef hltdc;
-static void* initialFrameBuffer = nullptr;
-
-static volatile uint8_t _frame_addr_reloaded = 0;
 
 #if LCD_VERTICAL_INVERT
 // The H17 panel is mounted upside-down, exactly like the tx16s/horus panel.
-// LTDC cannot rotate, so we software-rotate every refreshed area 180 into a
-// dedicated back buffer and swap it in on the last flush of a frame. Mirrors
-// radio/src/targets/horus/lcd_driver.cpp.
-typedef uint16_t pixel_t;
-static pixel_t _LCD_BUF_1[DISPLAY_BUFFER_SIZE] __SDRAM;
-static pixel_t _LCD_BUF_2[DISPLAY_BUFFER_SIZE] __SDRAM;
-
-static pixel_t _line_buffer[LCD_W];
-
-static uint16_t* _front_buffer = _LCD_BUF_1;
-static uint16_t* _back_buffer = _LCD_BUF_2;
-
-// Copy 2 pixels at once to speed up a little
-static void _copy_rotate_180(uint16_t* dst, uint16_t* src, const rect_t& copy_area)
-{
-  coord_t x1 = LCD_W - copy_area.w - copy_area.x;
-  coord_t y1 = LCD_H - copy_area.h - copy_area.y;
-
-  src += copy_area.w - 2;
-  dst += (y1 + copy_area.h - 1) * LCD_W + x1;
-
-  for (auto line = 0; line < copy_area.h; line++) {
-
-    // invert line into _line_buffer first (SRAM)
-    auto px_dst = _line_buffer;
-
-    auto line_end = px_dst + (copy_area.w & ~1);
-    while (px_dst != line_end) {
-      uint32_t* px2_src = (uint32_t*)src;
-
-      *((uint32_t*)px_dst) = ((*px2_src & 0xFFFF0000) >> 16) | ((*px2_src & 0xFFFF) << 16);
-
-      src -= 2;
-      px_dst += 2;
-    }
-
-    if (copy_area.w & 1) {
-      *px_dst = *(src+1);
-      src--;
-    }
-
-    // ... and DMA back into SDRAM
-    DMACopyBitmap(dst, copy_area.w, 1, 0, 0,
-                  _line_buffer, copy_area.w, 1, 0, 0,
-                  copy_area.w, 1);
-
-    src += copy_area.w * 2;
-    dst -= LCD_W;
-  }
-}
-
-static void _rotate_area_180(lv_area_t& area)
-{
-  lv_coord_t tmp_coord;
-  tmp_coord = area.y2;
-  area.y2 = LCD_H - area.y1 - 1;
-  area.y1 = LCD_H - tmp_coord - 1;
-  tmp_coord = area.x2;
-  area.x2 = LCD_W - area.x1 - 1;
-  area.x1 = LCD_W - tmp_coord - 1;
-}
-#endif
-
-static void _update_frame_buffer_addr(uint16_t* buffer)
-{
-  // given the data cache size, this is probably
-  // faster than cleaning by address
-  SCB_CleanDCache();
-
-  LTDC_Layer1->CFBAR = (uint32_t)buffer;
-  // reload shadow registers on vertical blank
-  _frame_addr_reloaded = 0;
-  LTDC->SRCR = LTDC_SRCR_VBR;
-
-  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
-
-  // wait for reload
-  // TODO: replace through some smarter mechanism without busy wait
-  while(_frame_addr_reloaded == 0);
-}
-
-static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
-                            const rect_t &copy_area)
-{
-#if LCD_VERTICAL_INVERT
-  _copy_rotate_180(_back_buffer, buffer, copy_area);
-
-  if (lv_disp_flush_is_last(disp_drv)) {
-
-    // swap back/front
-    if (_front_buffer == _LCD_BUF_1) {
-      _front_buffer = _LCD_BUF_2;
-      _back_buffer = _LCD_BUF_1;
-    } else {
-      _front_buffer = _LCD_BUF_1;
-      _back_buffer = _LCD_BUF_2;
-    }
-
-    // Trigger async refresh
-    _update_frame_buffer_addr(_front_buffer);
-
-    // Copy refreshed & rotated areas into new back buffer
-    uint16_t* src = _front_buffer;
-    uint16_t* dst = _back_buffer;
-
-    lv_disp_t* disp = _lv_refr_get_disp_refreshing();
-    for(int i = 0; i < disp->inv_p; i++) {
-      if(disp->inv_area_joined[i]) continue;
-
-      lv_area_t refr_area;
-      lv_area_copy(&refr_area, &disp->inv_areas[i]);
-
-      _rotate_area_180(refr_area);
-
-      auto area_w = refr_area.x2 - refr_area.x1 + 1;
-      auto area_h = refr_area.y2 - refr_area.y1 + 1;
-
-      DMACopyBitmap(dst, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
-                    src, LCD_W, LCD_H, refr_area.x1, refr_area.y1,
-                    area_w, area_h);
-    }
-  }
+// LTDC cannot rotate: each refreshed area is rotated by 180 degrees into the
+// frame buffers (see lcd_flush.h).
+#define LCD_ROTATION LCD_ROTATE_180
+static pixel_t _rotate_tiles[LCD_FLUSH_TILES_SIZE] __DMA;
 #else
-  (void)disp_drv;
-  (void)copy_area;
-
-  _update_frame_buffer_addr(buffer);
+#define LCD_ROTATION LCD_ROTATE_NONE
+#define _rotate_tiles nullptr
 #endif
-
-  // Since #7483 the shared LVGL flush path (gui/colorlcd/lcd.cpp) no longer
-  // signals completion after invoking the flush callback; the driver must call
-  // lcdFlushed() itself, otherwise LVGL's flush stays pending forever and the
-  // UI freezes on the first frame (e.g. stuck on the boot logo).
-  lcdFlushed();
-}
 
 // LTDC RGB666 data + sync lines (all on AF14). Layout matches the tx15/rm-h750
 // panel wiring: PI12-14 (HSYNC/VSYNC/CLK), PJ1-6 (R2-R7), PJ9-11 + PK0-2
@@ -272,13 +142,6 @@ void LCD_Init_LTDC() {
 
   HAL_LTDC_Init(&hltdc);
 
-  // Configure IRQ (line)
-  NVIC_SetPriority(LTDC_IRQn, LTDC_IRQ_PRIO);
-  NVIC_EnableIRQ(LTDC_IRQn);
-
-  // Trigger on last line
-  HAL_LTDC_ProgramLineEvent(&hltdc, lcd_phys_h);
-  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 }
 
 void LCD_LayerInit() {
@@ -310,11 +173,8 @@ void LCD_LayerInit() {
   layer.ImageHeight = lcd_phys_h;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-#if LCD_VERTICAL_INVERT
-  layer.FBStartAdress = (intptr_t)_LCD_BUF_1;
-#else
-  layer.FBStartAdress = (intptr_t)initialFrameBuffer;
-#endif
+  layer.FBStartAdress =
+      (intptr_t)lcdFlusherInit(LCD_ROTATION, _rotate_tiles);
 
   /* Initialize LTDC layer 1 */
   HAL_LTDC_ConfigLayer(&hltdc, &hltdc.LayerCfg[0], 0);
@@ -326,7 +186,8 @@ void LCD_LayerInit() {
 extern "C"
 void lcdSetInitalFrameBuffer(void* fbAddress)
 {
-  initialFrameBuffer = fbAddress;
+  // LVGL's buffer is never scanned out
+  (void)fbAddress;
 }
 
 const char* boardLcdType = "";
@@ -334,12 +195,6 @@ const char* boardLcdType = "";
 extern "C"
 void lcdInit(void)
 {
-#if LCD_VERTICAL_INVERT
-  // Clear buffers first
-  memset(_LCD_BUF_1, 0, sizeof(_LCD_BUF_1));
-  memset(_LCD_BUF_2, 0, sizeof(_LCD_BUF_2));
-#endif
-
   /* Configure the LCD reset pin */
   lcdResetConfig();
 
@@ -360,12 +215,7 @@ void lcdInit(void)
   // Enable LCD display
   __HAL_LTDC_ENABLE(&hltdc);
 
-  lcdSetFlushCb(startLcdRefresh);
-}
-
-extern "C" void LTDC_IRQHandler(void)
-{
-  __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
-  __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
-  _frame_addr_reloaded = 1;
+  // LVGL renders into a draw buffer of its own, copied into the frame
+  // buffers (see lcd_flush.h)
+  lcdSetFlushCb(lcdFlusherFlush);
 }

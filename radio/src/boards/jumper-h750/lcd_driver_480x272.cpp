@@ -27,6 +27,7 @@
 #include "delays_driver.h"
 #include "debug.h"
 #include "lcd.h"
+#include "stm32_lcd_flush.h"
 #include "lcd_driver_480x272.h"
 #include "board.h"
 
@@ -37,24 +38,6 @@ static const uint16_t lcd_phys_w = LCD_PHYS_W;
 static const uint16_t lcd_phys_h = LCD_PHYS_H;
 
 static LTDC_HandleTypeDef hltdc;
-static void* initialFrameBuffer = nullptr;
-
-static void startLcdRefresh(lv_disp_drv_t *disp_drv, uint16_t *buffer,
-                            const rect_t &copy_area)
-{
-  (void)disp_drv;
-  (void)copy_area;
-
-  // given the data cache size, this is probably
-  // faster than cleaning by address
-  SCB_CleanDCache();
-
-  LTDC_Layer1->CFBAR = (uint32_t)buffer;
-  // reload shadow registers on vertical blank
-  LTDC->SRCR = LTDC_SRCR_VBR;
-
-  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
-}
 
 static void LCD_AF_GPIOConfig(void)
 {
@@ -138,13 +121,7 @@ void LCD_Init_LTDC()
 
   HAL_LTDC_Init(&hltdc);
 
-  // Configure IRQ (line)
-  NVIC_SetPriority(LTDC_IRQn, LTDC_IRQ_PRIO);
-  NVIC_EnableIRQ(LTDC_IRQn);
 
-  // Trigger on last line
-  HAL_LTDC_ProgramLineEvent(&hltdc, lcd_phys_h);
-  __HAL_LTDC_ENABLE_IT(&hltdc, LTDC_IT_LI);
 }
 
 void LCD_LayerInit()
@@ -177,7 +154,7 @@ void LCD_LayerInit()
   layer.ImageHeight = lcd_phys_h;
 
   /* Start Address configuration : the LCD Frame buffer is defined on SDRAM w/ Offset */
-  layer.FBStartAdress = (intptr_t)initialFrameBuffer;
+  layer.FBStartAdress = (intptr_t)lcdFlusherInit(LCD_ROTATE_NONE);
 
   /* Initialize LTDC layer 1 */
   HAL_LTDC_ConfigLayer(&hltdc, &hltdc.LayerCfg[0], 0);
@@ -189,7 +166,8 @@ void LCD_LayerInit()
 extern "C"
 void lcdSetInitalFrameBuffer(void* fbAddress)
 {
-  initialFrameBuffer = fbAddress;
+  // LVGL's buffer is never scanned out
+  (void)fbAddress;
 }
 
 const char* boardLcdType = "";
@@ -216,13 +194,7 @@ void lcdInit(void)
   // Enable LCD display
   __HAL_LTDC_ENABLE(&hltdc);
 
-  lcdSetFlushCb(startLcdRefresh);
-}
-
-extern "C" void LTDC_IRQHandler(void)
-{
-  __HAL_LTDC_CLEAR_FLAG(&hltdc, LTDC_FLAG_LI);
-  __HAL_LTDC_DISABLE_IT(&hltdc, LTDC_IT_LI);
-
-  lcdFlushed();
+  // LVGL renders into a draw buffer of its own, copied into the frame
+  // buffers (see lcd_flush.h)
+  lcdSetFlushCb(lcdFlusherFlush);
 }
