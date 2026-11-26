@@ -50,54 +50,16 @@ class NumberEdit : public TextButton
   void setAccelFactor(int value) { accelFactor = value; }
   void setValue(int value);
 
-  void setPrefix(const std::string& value)
-  {
-    prefix = std::move(value);
-    update();
-  }
+  void setPrefix(const std::string& value);
+  void setSuffix(const std::string& value);
+  void setZeroText(const std::string& value);
 
-  void setSuffix(const std::string& value)
-  {
-    suffix = std::move(value);
-    update();
-  }
-
-  void setZeroText(const std::string& value)
-  {
-    zeroText = std::move(value);
-    update();
-  }
-
-  void setAvailableHandler(std::function<bool(int)> handler)
-  {
-    isValueAvailable = std::move(handler);
-  }
-
-  void setDisplayHandler(std::function<std::string(int value)> function)
-  {
-    displayFunction = std::move(function);
-    update();
-  }
-
-  void setSetValueHandler(std::function<void(int)> handler)
-  {
-    _setValue = std::move(handler);
-  }
-
-  void setGetValueHandler(std::function<int()> handler)
-  {
-    _getValue = std::move(handler);
-  }
-
-  void setOnEditedHandler(std::function<void(int)> handler)
-  {
-    onEdited = std::move(handler);
-  }
-
-  void setOnEditStartHandler(std::function<void()> handler)
-  {
-    onEditStart = std::move(handler);
-  }
+  void setAvailableHandler(std::function<bool(int)> handler);
+  void setDisplayHandler(std::function<std::string(int value)> function);
+  void setSetValueHandler(std::function<void(int)> handler);
+  void setGetValueHandler(std::function<int()> handler);
+  void setOnEditedHandler(std::function<void(int)> handler);
+  void setOnEditStartHandler(std::function<void()> handler);
 
   int32_t getValue() const { return _getValue != nullptr ? _getValue() : 0; }
 

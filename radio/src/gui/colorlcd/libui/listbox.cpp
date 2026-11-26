@@ -177,3 +177,18 @@ void ListBox::onDrawEnd(uint16_t row, uint16_t col, lv_obj_draw_part_dsc_t* dsc)
 
   lv_draw_label(dsc->draw_ctx, &label_dsc, &coords, sym, nullptr);
 }
+
+void ListBox::setMultiSelectHandler(std::function<void(std::set<uint32_t>, std::set<uint32_t>)> handler)
+{
+  _multiSelectHandler = std::move(handler);
+}
+
+void ListBox::setGetSelectedSymbol(std::function<const char*(uint16_t)> handler)
+{
+  getSelectedSymbol = std::move(handler);
+}
+
+void ListBox::setPressHandler(std::function<void()> handler)
+{
+  pressHandler = std::move(handler);
+}

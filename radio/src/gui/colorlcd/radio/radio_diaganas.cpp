@@ -93,15 +93,15 @@ class AnaViewWindow : public Window
 
       new StaticText(line, rect_t{}, s);
 
-      auto lbl = new DynamicNumber<int16_t>(line, rect_t{},
+      auto lbl = new DynamicNumber(DN_SIGNED, line, rect_t{},
           [=]() { return calibratedAnalogs[i] * 25 / 256; },
           COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 
-      lbl = new DynamicNumber<int16_t>(line, rect_t{},
+      lbl = new DynamicNumber(DN_SIGNED, line, rect_t{},
           [=]() { return column3(i); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 
       if (column4size() > 0) {
-        lbl = new DynamicNumber<int16_t>(line, rect_t{},
+        lbl = new DynamicNumber(DN_SIGNED, line, rect_t{},
             [=]() { return column4(i); },
             COLOR_THEME_PRIMARY1_INDEX, (column4size() == 2) ? 0 : RIGHT,
             column4prefix());
@@ -118,7 +118,7 @@ class AnaViewWindow : public Window
       }
 
       if (column5size() > 0) {
-        lbl = new DynamicNumber<int16_t>(line, rect_t{}, [=]() { return column5(i); });
+        lbl = new DynamicNumber(DN_SIGNED, line, rect_t{}, [=]() { return column5(i); });
       } else {
         grid.nextCell();
       }
@@ -141,7 +141,7 @@ class AnaViewWindow : public Window
       grid.setColSpan(2);
       new StaticText(line, rect_t{}, "Tilt X");
       grid.setColSpan(2);
-      new DynamicNumber<int16_t>(line, rect_t{},
+      new DynamicNumber(DN_SIGNED, line, rect_t{},
              [=]() { return gyroScaledX(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 
       for (int i = 0; i < 3; i++) {grid.nextCell();}
@@ -152,7 +152,7 @@ class AnaViewWindow : public Window
       grid.setColSpan(2);
       new StaticText(line, rect_t{}, "Tilt Y");
       grid.setColSpan(2);
-      new DynamicNumber<int16_t>(line, rect_t{},
+      new DynamicNumber(DN_SIGNED, line, rect_t{},
              [=]() { return gyroScaledY(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 
       if (imuHasGForce()) {
@@ -164,10 +164,10 @@ class AnaViewWindow : public Window
         grid.setColSpan(2);
         new StaticText(line, rect_t{}, "Accl");
         grid.setColSpan(2);
-        new DynamicNumber<int16_t>(line, rect_t{},
+        new DynamicNumber(DN_SIGNED, line, rect_t{},
                [=]() { return gyroScaledG(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
         grid.setColSpan(4);
-        new DynamicNumber<int16_t>(
+        new DynamicNumber(DN_SIGNED, 
             line, rect_t{},
             [peak = int16_t(-RESX)]() mutable {
               peak = max<int16_t>(peak, gyroScaledG());
@@ -185,7 +185,7 @@ class AnaViewWindow : public Window
     grid.setColSpan(2);
     new StaticText(line, rect_t{}, STR_SRC_LIGHT);
     grid.setColSpan(1);
-    new DynamicNumber<uint16_t>(
+    new DynamicNumber(DN_UNSIGNED, 
            line, rect_t{},
            [=]() { return getLuxSensorValue(); }, COLOR_THEME_PRIMARY1_INDEX, RIGHT);
 #endif

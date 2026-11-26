@@ -137,7 +137,7 @@ const static SetupLineDef setupLines[] = {
                        GET_SET_INVERTED(g_eeGeneral.disableRtcWarning));
 
       // RTC Batt display
-      new DynamicNumber<uint16_t>(
+      new DynamicNumber(DN_UNSIGNED, 
           parent,
           {x + ToggleSwitch::TOGGLE_W + PAD_SMALL, y + PAD_SMALL + 1, 0, 0},
           [] { return getRTCBatteryVoltage(); }, COLOR_THEME_PRIMARY1_INDEX, PREC2,

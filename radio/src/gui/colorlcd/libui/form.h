@@ -38,26 +38,11 @@ class FlexGridLayout
 
   void add(Window* w);
 
-  void resetPos()
-  {
-    col_pos = 0;
-    row_pos = 0;
-  }
+  void resetPos();
 
-  void nextColumn() { col_pos += col_span; }
-  void nextRow()
-  {
-    row_pos += row_span;
-    col_pos = 0;
-  }
-
-  void nextCell()
-  {
-    nextColumn();
-    if (col_dsc[col_pos] == LV_GRID_TEMPLATE_LAST) {
-      nextRow();
-    }
-  }
+  void nextColumn();
+  void nextRow();
+  void nextCell();
 
   void setColSpan(uint8_t span) { col_span = span; }
   void setRowSpan(uint8_t span) { row_span = span; }

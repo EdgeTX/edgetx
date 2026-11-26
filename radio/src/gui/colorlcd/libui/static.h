@@ -53,63 +53,36 @@ class DynamicText : public StaticText
  public:
   DynamicText(Window *parent, const rect_t &rect,
               std::function<std::string()> textHandler,
-              LcdColorIndex color = COLOR_THEME_PRIMARY1_INDEX, LcdFlags textFlags = 0) :
-      StaticText(parent, rect, "", color, textFlags),
-      textHandler(std::move(textHandler))
-  {
-  }
+              LcdColorIndex color = COLOR_THEME_PRIMARY1_INDEX, LcdFlags textFlags = 0);
 
-  void checkEvents() override
-  {
-    StaticText::checkEvents();
-    setText(textHandler());
-  }
+  void checkEvents() override;
 
  protected:
   std::function<std::string()> textHandler;
 };
 
-template <class T>
+enum DNType {
+  DN_UNSIGNED,
+  DN_SIGNED,
+};
+
 class DynamicNumber : public StaticText
 {
  public:
-  DynamicNumber(Window *parent, const rect_t &rect,
-                std::function<T()> numberHandler,
+  DynamicNumber(DNType _type, Window *parent, const rect_t &rect,
+                std::function<uint32_t()> numberHandler,
                 LcdColorIndex color = COLOR_THEME_PRIMARY1_INDEX, LcdFlags textFlags = 0,
-                const char *prefix = nullptr, const char *suffix = nullptr) :
-      StaticText(parent, rect, "", color, textFlags),
-      numberHandler(std::move(numberHandler)),
-      prefix(prefix),
-      suffix(suffix)
-  {
-    value = this->numberHandler();
-    updateText();
-  }
+                const char *prefix = nullptr, const char *suffix = nullptr);
 
-  void checkEvents() override
-  {
-    T newValue = numberHandler();
-    if (value != newValue) {
-      value = newValue;
-      updateText();
-    }
-  }
-
-  void setPrefix(const char *value)
-  {
-    prefix = value;
-    updateText();
-  }
-
-  void setSuffix(const char *value)
-  {
-    suffix = value;
-    updateText();
-  }
+  void setPrefix(const char *value);
+  void setSuffix(const char *value);
+    
+  void checkEvents() override;
 
  protected:
-  T value = 0;
-  std::function<T()> numberHandler;
+  DNType type;
+  uint32_t value = 0;
+  std::function<uint32_t()> numberHandler;
   const char *prefix;
   const char *suffix;
 

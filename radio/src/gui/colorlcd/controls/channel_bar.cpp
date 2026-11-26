@@ -243,7 +243,7 @@ ComboChannelBar::ComboChannelBar(Window* parent, const rect_t& rect,
 
   // Channel value in µS
   const char* suffix = (g_eeGeneral.ppmunit == PPM_US) ? "%" : STR_US;
-  new DynamicNumber<int16_t>(
+  new DynamicNumber(DN_SIGNED, 
       this, {width() - ChannelBar::VAL_W, 0, ChannelBar::VAL_W, ChannelBar::VAL_H},
       [=] {
         if (g_eeGeneral.ppmunit == PPM_US)

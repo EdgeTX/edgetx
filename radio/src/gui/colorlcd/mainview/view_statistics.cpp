@@ -56,12 +56,11 @@ static LAYOUT_ORIENTATION(CV_SCALE, 3, 4)
 #define CV_HEIGHT (CV_SCALE * EdgeTxStyles::UI_ELEMENT_HEIGHT + PAD_SMALL + 1)
 static LAYOUT_VAL_SCALED(RST_BTN_H, 24)
 
-template <class T>
 class DebugInfoNumber : public Window
 {
  public:
-  DebugInfoNumber(Window* parent, const rect_t& rect,
-                  std::function<T()> numberHandler,
+  DebugInfoNumber(DNType type, Window* parent, const rect_t& rect,
+                  std::function<uint32_t()> numberHandler,
                   const char* prefix = nullptr) :
       Window(parent, rect)
   {
@@ -70,7 +69,7 @@ class DebugInfoNumber : public Window
       prefixSize = getTextWidth(prefix, 0, FONT(XS));
       new StaticText(this, {0, 1, prefixSize, rect.h}, prefix, COLOR_THEME_PRIMARY1_INDEX, FONT(XS));
     }
-    new DynamicNumber<uint32_t>(this,
+    new DynamicNumber(type, this,
                                 {prefixSize, 0, rect.w - prefixSize, rect.h},
                                 numberHandler);
   }
@@ -236,11 +235,11 @@ void DebugViewPage::build(Window* window)
   static std::string pad_STR_MS = " " + std::string(STR_MS);
   static std::string pad_STR_PERIOD = std::string(STR_PERIOD) + ": ";
   new StaticText(line, rect_t{}, STR_TMIXMAXMS);
-  new DynamicNumber<uint16_t>(
+  new DynamicNumber(DN_UNSIGNED, 
       line, rect_t{}, [] { return DURATION_MS_PREC2(maxMixerDuration); },
       COLOR_THEME_PRIMARY1_INDEX, PREC2, nullptr, pad_STR_MS.c_str());
 
-  new DynamicNumber<uint16_t>(
+  new DynamicNumber(DN_UNSIGNED, 
           line, rect_t{}, [] { return getMixerSchedulerPeriod() / 1000; },
           COLOR_THEME_PRIMARY1_INDEX, 0, pad_STR_PERIOD.c_str(), pad_STR_MS.c_str());
 
@@ -250,7 +249,7 @@ void DebugViewPage::build(Window* window)
   // Free mem
   static std::string pad_STR_BYTES = " " + std::string(STR_BYTES);
   new StaticText(line, rect_t{}, STR_FREE_MEM_LABEL);
-  new DynamicNumber<int32_t>(
+  new DynamicNumber(DN_UNSIGNED, 
       line, rect_t{}, [] { return availableMemory(); }, COLOR_THEME_PRIMARY1_INDEX, 0,
       nullptr, pad_STR_BYTES.c_str());
 
@@ -265,10 +264,10 @@ void DebugViewPage::build(Window* window)
   line->padAll(PAD_ZERO);
   line->padLeft(PAD_LARGE);
 #endif
-  new DebugInfoNumber<uint16_t>(
+  new DebugInfoNumber(DN_UNSIGNED,
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return 10 * maxLuaDuration; }, STR_DURATION_MS);
-  new DebugInfoNumber<uint16_t>(
+  new DebugInfoNumber(DN_UNSIGNED,
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return 10 * maxLuaInterval; }, STR_INTERVAL_MS);
 
@@ -281,10 +280,10 @@ void DebugViewPage::build(Window* window)
 #endif
 
   // lUA memory data
-  new DebugInfoNumber<uint32_t>(
+  new DebugInfoNumber(DN_UNSIGNED,
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return luaGetMemUsed(lsScripts); }, STR_MEM_USED_SCRIPT);
-  new DebugInfoNumber<uint32_t>(
+  new DebugInfoNumber(DN_UNSIGNED,
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return luaGetMemUsed(lsWidgets); }, STR_MEM_USED_WIDGET);
 
@@ -294,7 +293,7 @@ void DebugViewPage::build(Window* window)
   line->padLeft(PAD_LARGE);
 #endif
 
-  new DebugInfoNumber<uint32_t>(
+  new DebugInfoNumber(DN_UNSIGNED,
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return luaExtraMemoryUsage; }, STR_MEM_USED_EXTRA);
 #endif
@@ -309,14 +308,14 @@ void DebugViewPage::build(Window* window)
   line->padAll(PAD_ZERO);
   line->padLeft(PAD_LARGE);
 #endif
-  new DebugInfoNumber<uint32_t>(
+  new DebugInfoNumber(DN_UNSIGNED,
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return task_get_stack_usage(&menusTaskId); }, STR_STACK_MENU);
-  new DebugInfoNumber<uint32_t>(
+  new DebugInfoNumber(DN_UNSIGNED,
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return task_get_stack_usage(&mixerTaskId); }, STR_STACK_MIX);
 #if defined(AUDIO)
-  new DebugInfoNumber<uint32_t>(
+  new DebugInfoNumber(DN_UNSIGNED,
       line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
       [] { return task_get_stack_usage(&audioTaskId); }, STR_STACK_AUDIO);
 #endif
@@ -327,7 +326,7 @@ void DebugViewPage::build(Window* window)
 
   new StaticText(line, rect_t{}, STR_HEARTBEAT_LABEL);
   if (heartbeatCapture.valid)
-    new DebugInfoNumber<uint16_t>(
+    new DebugInfoNumber(DN_UNSIGNED,
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
         [] { return heartbeatCapture.count; }, COLOR_THEME_PRIMARY1);
   else
@@ -350,10 +349,10 @@ void DebugViewPage::build(Window* window)
         [] {
           return std::string(gpsData.fix ? STR_GPS_FIX_YES : STR_GPS_FIX_NO);
         });
-    new DebugInfoNumber<uint8_t>(
+    new DebugInfoNumber(DN_UNSIGNED,
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
         [] { return gpsData.numSat; }, STR_GPS_SATS);
-    new DebugInfoNumber<uint16_t>(
+    new DebugInfoNumber(DN_UNSIGNED,
         line, rect_t{0, 0, DBG_B_WIDTH, DBG_B_HEIGHT},
         [] { return gpsData.hdop; }, STR_GPS_HDOP);
   }

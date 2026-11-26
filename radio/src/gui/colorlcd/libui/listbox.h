@@ -29,11 +29,6 @@
 // Class for lists of elements with names
 class ListBox : public TableField
 {
-  std::function<void()> pressHandler = nullptr;
-  std::function<void(std::set<uint32_t>, std::set<uint32_t>)>
-      _multiSelectHandler = nullptr;
-  std::function<const char*(uint16_t row)> getSelectedSymbol = nullptr;
-
  public:
   ListBox(Window* parent, const rect_t& rect,
           const std::vector<std::string>& names,
@@ -54,21 +49,9 @@ class ListBox : public TableField
   virtual void setActiveItem(int item);
   int getActiveItem() const;
 
-  void setMultiSelectHandler(
-      std::function<void(std::set<uint32_t>, std::set<uint32_t>)> handler)
-  {
-    _multiSelectHandler = std::move(handler);
-  }
-
-  void setGetSelectedSymbol(std::function<const char*(uint16_t)> handler)
-  {
-    getSelectedSymbol = std::move(handler);
-  }
-
-  void setPressHandler(std::function<void()> handler)
-  {
-    pressHandler = std::move(handler);
-  }
+  void setMultiSelectHandler(std::function<void(std::set<uint32_t>, std::set<uint32_t>)> handler);
+  void setGetSelectedSymbol(std::function<const char*(uint16_t)> handler);
+  void setPressHandler(std::function<void()> handler);
 
   void setSmallSelectMarker() { smallSelectMarker = true; }
 
@@ -84,8 +67,13 @@ class ListBox : public TableField
   bool multiSelect = false;
   bool smallSelectMarker = false;
 
-  void onPress(uint16_t row, uint16_t col) override;
+  std::function<void()> pressHandler = nullptr;
+  std::function<void(std::set<uint32_t>, std::set<uint32_t>)>
+      _multiSelectHandler = nullptr;
+  std::function<const char*(uint16_t row)> getSelectedSymbol = nullptr;
 
+  void onPress(uint16_t row, uint16_t col) override;
+    
   void onClicked() override;
   void onCancel() override;
 

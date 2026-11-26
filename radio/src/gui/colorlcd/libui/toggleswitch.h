@@ -36,15 +36,8 @@ class ToggleSwitch : public FormField
   uint8_t getValue() const { return _getValue(); }
   void setValue(uint8_t value) { _setValue(value); }
 
-  void setSetValueHandler(std::function<void(uint8_t)> handler)
-  {
-    _setValue = std::move(handler);
-  }
-
-  void setGetValueHandler(std::function<uint8_t()> handler)
-  {
-    _getValue = std::move(handler);
-  }
+  void setSetValueHandler(std::function<void(uint8_t)> handler);
+  void setGetValueHandler(std::function<uint8_t()> handler);
 
   void update() const;
 

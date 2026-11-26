@@ -294,7 +294,7 @@ class InternalGPSWidget : public Widget
         new StaticIcon(this, width() / 2 - PAD_LARGE - PAD_TINY, ICON_H,
                        ICON_TOPMENU_GPS, COLOR_THEME_PRIMARY3_INDEX);
 
-    numSats = new DynamicNumber<uint16_t>(
+    numSats = new DynamicNumber(DN_UNSIGNED, 
         this, {0, 1, width(), SATS_H}, [=] { return gpsData.numSat; },
         COLOR_THEME_PRIMARY2_INDEX, CENTERED | FONT(XS));
   }
@@ -316,7 +316,7 @@ class InternalGPSWidget : public Widget
 
  protected:
   StaticIcon* icon;
-  DynamicNumber<uint16_t>* numSats;
+  DynamicNumber* numSats;
 
   static LAYOUT_VAL_SCALED(ICON_H, 19)
   static LAYOUT_VAL_SCALED(SATS_H, 12)

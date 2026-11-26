@@ -44,10 +44,7 @@ class ButtonBase : public FormField
   void check(bool checked = true);
   bool checked() const;
 
-  void setPressHandler(std::function<uint8_t(void)> handler)
-  {
-    pressHandler = std::move(handler);
-  }
+  void setPressHandler(std::function<uint8_t(void)> handler);
 
   void setLongPressHandler(std::function<uint8_t(void)> handler)
   {
@@ -93,18 +90,7 @@ class TextButton : public ButtonBase
 #endif
 
   void setText(std::string value);
-
-  void setFont(FontIndex font)
-  {
-    etx_font(label, font);
-  }
-
-  void setWrap()
-  {
-    lv_obj_set_width(label, lv_pct(100));
-    etx_obj_add_style(label, styles->text_align_center, LV_PART_MAIN);
-    lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
-  }
+  void setFont(FontIndex font);
 
  protected:
   std::string text;
@@ -137,18 +123,8 @@ class MomentaryButton : public FormField
   std::string getName() const override { return "MomentaryButton"; }
 #endif
 
-  void setText(std::string value)
-  {
-    if (value != text) {
-      text = std::move(value);
-      lv_label_set_text(label, text.c_str());
-    }
-  }
-
-  void setFont(FontIndex font)
-  {
-    etx_font(label, font);
-  }
+  void setText(std::string value);
+  void setFont(FontIndex font);
 
  protected:
   std::function<void(void)> pressHandler;

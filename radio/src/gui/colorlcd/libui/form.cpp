@@ -40,6 +40,31 @@ void FlexGridLayout::add(Window* w)
   }
 }
 
+void FlexGridLayout::resetPos()
+{
+  col_pos = 0;
+  row_pos = 0;
+}
+
+void FlexGridLayout::nextColumn()
+{
+  col_pos += col_span;
+}
+
+void FlexGridLayout::nextRow()
+{
+  row_pos += row_span;
+  col_pos = 0;
+}
+
+void FlexGridLayout::nextCell()
+{
+  nextColumn();
+  if (col_dsc[col_pos] == LV_GRID_TEMPLATE_LAST) {
+    nextRow();
+  }
+}
+
 FormField::FormField(Window* parent, const rect_t& rect, LvglCreate objConstruct) :
     Window(parent, rect, objConstruct)
 {

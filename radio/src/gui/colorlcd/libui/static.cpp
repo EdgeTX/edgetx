@@ -67,78 +67,87 @@ const std::string& StaticText::getText() const { return text; }
 
 //-----------------------------------------------------------------------------
 
-template <>
-void DynamicNumber<uint32_t>::updateText()
+DynamicText::DynamicText(Window *parent, const rect_t &rect,
+            std::function<std::string()> textHandler,
+            LcdColorIndex color, LcdFlags textFlags) :
+    StaticText(parent, rect, "", color, textFlags),
+    textHandler(std::move(textHandler))
 {
-  if (lvobj) {
-    const char* p = prefix ? prefix : "";
-    const char* s = suffix ? suffix : "";
-    if ((textFlags & PREC2) == PREC2) {
-      lv_label_set_text_fmt(lvobj, "%s%" PRIu32 ".%02" PRIu32 "%s", p,
-                            value / 100, value % 100, s);
-    } else if (textFlags & PREC1) {
-      lv_label_set_text_fmt(lvobj, "%s%" PRIu32 ".%01" PRIu32 "%s", p,
-                            value / 10, value % 10, s);
-    } else {
-      lv_label_set_text_fmt(lvobj, "%s%" PRIu32 "%s", p, value, s);
-    }
+}
+
+void DynamicText::checkEvents()
+{
+  StaticText::checkEvents();
+  setText(textHandler());
+}
+
+//-----------------------------------------------------------------------------
+
+DynamicNumber::DynamicNumber(DNType _type, Window *parent, const rect_t &rect,
+              std::function<uint32_t()> _numberHandler,
+              LcdColorIndex color, LcdFlags textFlags,
+              const char *prefix, const char *suffix) :
+    StaticText(parent, rect, "", color, textFlags),
+    type(_type),
+    numberHandler(std::move(_numberHandler)),
+    prefix(prefix),
+    suffix(suffix)
+{
+  value = numberHandler();
+  updateText();
+}
+
+void DynamicNumber::setPrefix(const char *value)
+{
+  prefix = value;
+  updateText();
+}
+
+void DynamicNumber::setSuffix(const char *value)
+{
+  suffix = value;
+  updateText();
+}
+    
+void DynamicNumber::checkEvents()
+{
+  StaticText::checkEvents();
+  uint32_t newValue = numberHandler();
+  if (value != newValue) {
+    value = newValue;
+    updateText();
   }
 }
 
-template <>
-void DynamicNumber<int32_t>::updateText()
+void DynamicNumber::updateText()
 {
-  if (lvobj) {
-    const char* p = prefix ? prefix : "";
-    const char* s = suffix ? suffix : "";
-    if ((textFlags & PREC2) == PREC2) {
-      lv_label_set_text_fmt(lvobj, "%s%" PRId32 ".%02" PRIu32 "%s", p,
-                            value / 100, (uint32_t)abs(value % 100), s);
-    } else if (textFlags & PREC1) {
-      lv_label_set_text_fmt(lvobj, "%s%" PRId32 ".%01" PRIu32 "%s", p,
-                            value / 10, (uint32_t)abs(value % 10), s);
-    } else {
-      lv_label_set_text_fmt(lvobj, "%s%" PRId32 "%s", p, value, s);
-    }
-  }
-}
+  const char* p = prefix ? prefix : "";
+  const char* s = suffix ? suffix : "";
 
-template <>
-void DynamicNumber<uint16_t>::updateText()
-{
-  if (lvobj) {
-    const char* p = prefix ? prefix : "";
-    const char* s = suffix ? suffix : "";
-    if ((textFlags & PREC2) == PREC2) {
-      lv_label_set_text_fmt(lvobj, "%s%" PRIu16 ".%02" PRIu16 "%s", p,
-                            (uint16_t)(value / 100), (uint16_t)(value % 100),
-                            s);
-    } else if (textFlags & PREC1) {
-      lv_label_set_text_fmt(lvobj, "%s%" PRIu16 ".%01" PRIu16 "%s", p,
-                            (uint16_t)(value / 10), (uint16_t)(value % 10), s);
-    } else {
-      lv_label_set_text_fmt(lvobj, "%s%" PRIu16 "%s", p, value, s);
-    }
-  }
-}
+  switch(type) {
+    case DN_UNSIGNED:
+      if ((textFlags & PREC2) == PREC2) {
+        lv_label_set_text_fmt(lvobj, "%s%" PRIu32 ".%02" PRIu32 "%s", p,
+                              value / 100, value % 100, s);
+      } else if (textFlags & PREC1) {
+        lv_label_set_text_fmt(lvobj, "%s%" PRIu32 ".%01" PRIu32 "%s", p,
+                              value / 10, value % 10, s);
+      } else {
+        lv_label_set_text_fmt(lvobj, "%s%" PRIu32 "%s", p, value, s);
+      }
+      break;
 
-template <>
-void DynamicNumber<int16_t>::updateText()
-{
-  if (lvobj) {
-    const char* p = prefix ? prefix : "";
-    const char* s = suffix ? suffix : "";
-    if ((textFlags & PREC2) == PREC2) {
-      lv_label_set_text_fmt(lvobj, "%s%" PRId16 ".%02" PRIu16 "%s", p,
-                            (int16_t)(value / 100), (uint16_t)abs(value % 100),
-                            s);
-    } else if (textFlags & PREC1) {
-      lv_label_set_text_fmt(lvobj, "%s%" PRId16 ".%01" PRIu16 "%s", p,
-                            (int16_t)(value / 10), (uint16_t)abs(value % 10),
-                            s);
-    } else {
-      lv_label_set_text_fmt(lvobj, "%s%" PRId16 "%s", p, value, s);
-    }
+    case DN_SIGNED:
+      if ((textFlags & PREC2) == PREC2) {
+        lv_label_set_text_fmt(lvobj, "%s%" PRId32 ".%02" PRIu32 "%s", p,
+                              (int32_t)value / 100, (uint32_t)abs((int32_t)value % 100), s);
+      } else if (textFlags & PREC1) {
+        lv_label_set_text_fmt(lvobj, "%s%" PRId32 ".%01" PRIu32 "%s", p,
+                              (int32_t)value / 10, (uint32_t)abs((int32_t)value % 10), s);
+      } else {
+        lv_label_set_text_fmt(lvobj, "%s%" PRId32 "%s", p, value, s);
+      }
+      break;
   }
 }
 

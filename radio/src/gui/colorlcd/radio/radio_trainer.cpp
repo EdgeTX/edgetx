@@ -83,7 +83,7 @@ void RadioTrainerPage::build(Window* form)
       LcdFlags flags = LEFT;
       if (g_eeGeneral.ppmunit == PPM_PERCENT_PREC1) flags |= PREC1;
 
-      new DynamicNumber<int16_t>(
+      new DynamicNumber(DN_SIGNED, 
           line, rect_t{},
           [=]() {
             return (trainerInput[i] - g_eeGeneral.trainer.calib[i]) * 2;
