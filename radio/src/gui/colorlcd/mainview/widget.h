@@ -82,8 +82,6 @@ class Widget : public ButtonBase
   const WidgetOption* getOptionDefinitions() const;
   bool hasOptions() const { return getOptionDefinitions() && getOptionDefinitions()->name; }
 
-  virtual const char* getErrorMessage() const { return nullptr; }
-
   WidgetPersistentData* getPersistentData();
 
 #if defined(DEBUG_WINDOWS)
