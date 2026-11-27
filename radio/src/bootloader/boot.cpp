@@ -37,8 +37,6 @@ bool adcIsSliderInput(uint8_t) { return false; }
   #include "thirdparty/Segger/SEGGER/SEGGER_RTT.h"
 #endif
 
-#define REBOOT_CMD_DFU 0x55464442
-
 #if !defined(SIMU)
 // Bootloader marker:
 // -> used to detect valid bootloader files
@@ -94,12 +92,19 @@ void bootloaderInitApp()
 
     start_firmware = !boardBLStartCondition(); 
     if (start_firmware) {
+#if defined(BOOTLOADER_DFU)
+      // Only the ST ROM bootloader starts us with system memory mapped, i.e.
+      // the host left its DFU mode: power on without the button
+      if (abnormalRebootStartedFromSystemMemory()) {
+        abnormalRebootRequestPowerOn();
+      }
+#endif
       // Start main application
       boardBLPreJump();
       jumpTo(APP_START_ADDRESS);
     }
   } else {
-#if defined(FIRMWARE_QSPI)
+#if defined(FIRMWARE_QSPI) || defined(BOOTLOADER_DFU)
     abnormalRebootResetCmd();
     setSelectedUsbMode(USB_DFU_MODE);
 #endif
@@ -132,7 +137,7 @@ int  bootloaderMain()
   // init screen
   bootloaderInitScreen();
 
-#if defined(FIRMWARE_FORMAT_UF2)
+#if defined(FIRMWARE_FORMAT_UF2) || defined(BOOTLOADER_DFU)
   if (getSelectedUsbMode() == USB_DFU_MODE) {
     bootloaderDFU();
   }

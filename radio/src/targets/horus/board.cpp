@@ -30,6 +30,7 @@
 #include "hal/switch_driver.h"
 #include "hal/rotary_encoder.h"
 #include "hal/usb_driver.h"
+#include "flash_driver.h"
 #include "hal/gpio.h"
 #include "hal/rgbleds.h"
 
@@ -110,6 +111,10 @@ void boardBLInit()
 {
   rotaryEncoderInit();
   SDRAM_Init();
+
+#if defined(BOOTLOADER_DFU)
+  usbRegisterDFUMedia(stm32_flash_dfu_media);
+#endif
 }
 
 #if !defined(BOOT)

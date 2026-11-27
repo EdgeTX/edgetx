@@ -78,7 +78,10 @@
 /*---------- -----------*/
 #define USBD_MAX_NUM_CONFIGURATION 1U
 /*---------- -----------*/
-#define USBD_MAX_STR_DESC_SIZ      98U
+/* bytes, i.e. (n - 2) / 2 characters: fits the longest DFU memory layout
+   string (F429 dual bank, 66 characters). USBD_GetString() caps the reported
+   length but copies the whole string, so it must not be shorter. */
+#define USBD_MAX_STR_DESC_SIZ      256U
 /*---------- -----------*/
 #define USBD_DEBUG_LEVEL           0U
 /*---------- -----------*/
@@ -91,6 +94,11 @@
 /* Required for DFU media description */
 #define USBD_SUPPORT_USER_STRING_DESC 1U
 #define USBD_DFU_XFER_SIZE 4096U
+
+#if defined(BOOTLOADER_DFU)
+/* DFU leave starts the firmware without a reset (see abnormal_reboot.h) */
+#define USBD_DFU_VENDOR_EXIT_ENABLED 1U
+#endif
 
 #if !defined(USBJ_EX)
 #define HID_IN_PACKET              19

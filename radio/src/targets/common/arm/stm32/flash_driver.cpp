@@ -368,6 +368,102 @@ const etx_flash_driver_t stm32_flash_driver = {
   .read = stm32_flash_read,
 };
 
+#if defined(BOOT) && defined(BOOTLOADER_DFU)
+//
+// USB DFU interface: the firmware area of the internal flash. The
+// bootloader runs from flash, so its own sectors are not exposed.
+//
+#include "board.h"
+#include "usbd_dfu.h"
+#include "hal/watchdog_driver.h"
+
+#if !defined(STM32F429xx)
+  #error "BOOTLOADER_DFU: sector layout only defined for STM32F429xI"
+#endif
+
+static_assert(APP_START_ADDRESS == 0x08020000, "firmware must start at sector 5");
+
+// 2 MB dual bank: bank 1 sectors 5..11, then all of bank 2
+#define DFU_MEDIA_DESC \
+  "@Internal Flash   /0x08020000/07*128Kg,04*016Kg,01*064Kg,07*128Kg"
+
+static bool dfu_in_app_area(uint32_t address, uint32_t len)
+{
+  return address >= APP_START_ADDRESS && len <= FLASH_END + 1 - address;
+}
+
+static uint16_t stm32_flash_dfu_init() { return USBD_OK; }
+static uint16_t stm32_flash_dfu_deinit() { return USBD_OK; }
+
+static uint16_t stm32_flash_dfu_erase(uint32_t address)
+{
+  if (!dfu_in_app_area(address, 1)) return USBD_FAIL;
+  // back to back erases from the USB interrupt starve the main loop, which
+  // feeds the watchdog otherwise (one 128 KB erase: 2 s max < its 4 s)
+  WDG_RESET();
+  return stm32_flash_erase_sector(address) < 0 ? USBD_FAIL : USBD_OK;
+}
+
+static uint16_t stm32_flash_dfu_write(uint8_t* src, uint8_t* dest,
+                                      uint32_t len)
+{
+  uint32_t address = (uintptr_t)dest;
+  if (!dfu_in_app_area(address, len)) return USBD_FAIL;
+
+  // the driver programs whole words: pad a partial last word with the
+  // erased value (only the last block can be shorter than the buffer)
+  uint32_t padded = (len + 3) & ~3UL;
+  if (padded > USBD_DFU_XFER_SIZE) return USBD_FAIL;
+  memset(src + len, 0xFF, padded - len);
+
+  WDG_RESET();
+  return stm32_flash_program(address, src, padded) < 0 ? USBD_FAIL : USBD_OK;
+}
+
+static uint8_t* stm32_flash_dfu_read(uint8_t* src, uint8_t* dest, uint32_t len)
+{
+  if (!dfu_in_app_area((uintptr_t)src, len)) return nullptr;
+  memcpy(dest, src, len);
+  return dest;
+}
+
+static uint16_t stm32_flash_dfu_get_status(uint32_t address, uint8_t cmd,
+                                           uint8_t* buffer)
+{
+  (void)address;
+  // poll timeout in ms (24 bits); typical sector erase is up to 1 s for
+  // 128 KB (DS9405), and the erase runs with interrupts disabled
+  uint32_t timeout = (cmd == DFU_MEDIA_ERASE) ? 1000 : 20;
+  buffer[1] = timeout & 0xFF;
+  buffer[2] = (timeout >> 8) & 0xFF;
+  buffer[3] = (timeout >> 16) & 0xFF;
+  return USBD_OK;
+}
+
+// called from the USB interrupt: the jump is done by bootloaderDFU()
+extern volatile bool bootloaderDFULeaveRequested;
+static uint16_t stm32_flash_dfu_leave(uint32_t address)
+{
+  (void)address;
+  bootloaderDFULeaveRequested = true;
+  return USBD_OK;
+}
+
+static const USBD_DFU_MediaTypeDef _stm32_flash_dfu_media = {
+  .pStrDesc = (uint8_t*)DFU_MEDIA_DESC,
+  .Init = stm32_flash_dfu_init,
+  .DeInit = stm32_flash_dfu_deinit,
+  .Erase = stm32_flash_dfu_erase,
+  .Write = stm32_flash_dfu_write,
+  .Read = stm32_flash_dfu_read,
+  .GetStatus = stm32_flash_dfu_get_status,
+  .LeaveDFU = stm32_flash_dfu_leave,
+};
+
+const void* stm32_flash_dfu_media = &_stm32_flash_dfu_media;
+
+#endif // BOOT && BOOTLOADER_DFU
+
 // Legacy API
 
 #define FLASH_PAGESIZE 256
