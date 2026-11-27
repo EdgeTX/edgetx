@@ -25,7 +25,8 @@
 #include <gtest/gtest.h>
 
 #if !defined(COLORLCD)
-#include "edgetx.h"
+#include "myeeprom.h"   // g_model, TimerData, TMRMODE_ON
+#include "timers.h"     // TimerState, timersStates
 #include "simulib.h"
 #include "simulcd.h"
 
