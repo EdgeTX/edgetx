@@ -182,8 +182,19 @@ enum MODULE_POWER_SOURCE {
   EXTERNAL = 0x02,
 };
 
+#if defined(AFHDS3_FRM301_EXT)
+// FRM301: MODULE_MODE values of the closed (FlySkyOS) protocol - different from
+// the open protocol! 3 starts the RF hardware test (LED blue/green/red).
+enum CLOSED_MODE : uint8_t {
+  CLOSED_STANDBY = 0x01,
+  CLOSED_RUN = 0x02,
+  CLOSED_HW_TEST = 0x03,  // RF hardware test (LED red/green/blue, state 0xFF) - never sent
+};
+#endif
+
 enum DeviceAddress {
   TRANSMITTER = 0x01,
+  FRM301 = 0x02,  // FlySky FRM301 (Paladin EV module bay)
   FRM303 = 0x04,
   IRM301 = 0x05,
 };
@@ -250,7 +261,13 @@ class ProtoState
    /**
     * Sends prepared buffers
     */
-   void sendFrame() { trsp.sendBuffer(); }
+   void sendFrame()
+   {
+#if defined(AFHDS3_FRM301_EXT)
+     if (skipSend) { skipSend = false; return; }
+#endif
+     trsp.sendBuffer();
+   }
 
    /**
     * Gets actual module status into provided buffer
@@ -317,6 +334,69 @@ class ProtoState
     //bool modelcfgGet;
     uint8_t modelID;
     bool rx_state; //false:disconnect; true:connect
+
+#if defined(AFHDS3_FRM301_EXT)
+    /*
+     * FlySky FRM301 (Paladin EV module bay). Same port as the FRM303, but it
+     * speaks the FlySkyOS ("closed") variant of AFHDS3 with device address 2:
+     * the module also sends requests to the radio (config parts, receiver
+     * block), MODULE_MODE values differ and it keeps no bindings itself.
+     * Auto detection: without a reply the address is toggled until the
+     * module answers.
+     */
+  public:
+    bool isFRM301() const
+    {
+      return (trsp.getAddress() >> 4) != DeviceAddress::FRM303;
+    }
+    bool isClosedMode() const { return trsp.closedMode; }
+    // called from the UI task: store receiver block / options in the model
+    void storeInModel()
+    {
+      if (rxBlockSave) { rxBlockSave = false; saveRxBlock(); }
+      if (optionsSave) { optionsSave = false; saveClosedOptions(); }
+    }
+
+  private:
+    uint8_t getDevAddress() const { return trsp.getAddress() >> 4; }
+    void handleNoReply();
+    void setDevAddress(uint8_t dev);
+    uint8_t selectedDev() const;
+    bool handleModuleRequest(bool immediate = false);
+    void modulePowerCycle();
+    uint8_t buildClosedConfig(uint8_t part, uint8_t* out);
+    void loadRxBlock();
+    void saveRxBlock();
+    void saveClosedOptions();
+
+    bool addrConfirmed;
+    uint8_t noReplyCount;
+    uint8_t autoIdx;
+    uint8_t pollToggle;
+    bool skipSend;            // keep the line free in this tick
+    tmr10ms_t lastReqTime;    // last request from the module
+    uint8_t quietToggle;
+    uint8_t cfgPush;          // 1..5 = next config push step, 0 = idle
+    uint8_t cfgKind;          // 1 = bind, 2 = settings only
+    uint8_t bindStep;         // bind running
+    tmr10ms_t bindTime;       // last bind push
+    uint8_t postBind;         // after bind: 1 = push settings, 3 = wait
+    tmr10ms_t postBindTime;
+    uint8_t pwrPhase;         // bind restart: 1 = module off, 2 = booting
+    tmr10ms_t pwrTime;
+    bool pwrReady;            // module reported state 3/5 after the restart
+    bool closedLinkUp;        // module up: send channel data continuously
+    uint8_t chPoll;
+    uint8_t lastPart;         // last config part requested by the module
+    uint8_t p2rep;            // repeated requests of config part 2
+    bool p2NoEndByte;         // part 2 without the FRM301 end byte
+    bool cmd7030Pending;      // RX command 0x7030 after connect
+    bool rxBlockNew;          // receiver block received during this bind
+    volatile bool rxBlockSave;
+    volatile bool optionsSave;
+    bool rxBlockValid;
+    uint8_t rxBlock[168];     // receiver block (bind result incl. RX ID)
+#endif
 
     /**
      * Command count used for counting actual number of commands sent in run mode
@@ -389,6 +469,12 @@ void processTelemetryData(void* ctx, uint8_t data, uint8_t* buffer, uint8_t* len
 
 void ProtoState::getStatusString(char* buffer) const
 {
+#if defined(AFHDS3_FRM301_EXT)
+  if (trsp.closedMode && (uint8_t)state == 0xFF) {
+    strcpy(buffer, "HW test");
+    return;
+  }
+#endif
   strcpy(buffer, state <= ModuleState::STATE_READY ? moduleStateText[state]
                                                    : "Unknown");
 }
@@ -396,11 +482,23 @@ void ProtoState::getStatusString(char* buffer) const
 void ProtoState::processTelemetryData(uint8_t byte, uint8_t* buffer, uint8_t* len)
 {
   uint8_t maxSize = TELEMETRY_RX_PACKET_SIZE;
-  if (!trsp.processTelemetryData(byte, buffer, *len, maxSize))
+  if (!trsp.processTelemetryData(byte, buffer, *len, maxSize)) {
+#if defined(AFHDS3_FRM301_EXT)
+    // FRM301: answer module requests at once (FlySkyOS does, the module
+    // only waits a short time); if the port is busy the next tick answers
+    if (*len == 0 && trsp.closedMode && trsp.modReq.valid && trsp.txIdle())
+      handleModuleRequest(true);
+#endif
     return;
+  }
 
   parseData(buffer, *len);
   *len = 0;
+#if defined(AFHDS3_FRM301_EXT)
+  // FRM301: SET requests of the module (e.g. receiver block 0x05) too
+  if (trsp.closedMode && trsp.modReq.valid && trsp.txIdle())
+    handleModuleRequest(true);
+#endif
 }
 
 bool ProtoState::isConnected()
@@ -428,18 +526,114 @@ void setIbusType(uint8_t* ibus_type_buf)
   }
 }
 
+#if defined(AFHDS3_FRM301_EXT)
+// called from perMain() (UI task): store the receiver block / options in the
+// model - never from the mixer task
+void frmBackgroundTask()
+{
+  protoState[EXTERNAL_MODULE].storeInModel();
+}
+
+// switch the module bay off; setupFrame() switches it on again after 300 ms
+void ProtoState::modulePowerCycle()
+{
+  modulePortSetPower(module_index, 0);
+  pwrPhase = 1;
+  pwrReady = false;
+  pwrTime = get_tmr10ms();
+  closedLinkUp = false;
+  cfgPush = 0;
+  lastPart = 0;
+  lastReqTime = 0;
+  trsp.modReq.valid = false;
+  state = ModuleState::STATE_NOT_READY;
+  clearFrameData();
+}
+#endif
+
 void ProtoState::setupFrame()
 {
+#if defined(AFHDS3_FRM301_EXT)
+  if (module_index == EXTERNAL_MODULE) {
+    uint8_t want = selectedDev();
+    if (want && want != getDevAddress()) {
+      setDevAddress(want);
+      this->state = ModuleState::STATE_NOT_READY;
+      clearFrameData();
+    }
+  }
+  // FRM301: answer pending requests of the module first
+  if (trsp.closedMode && handleModuleRequest()) return;
+  // while the module itself is asking (config phase) keep the line free on
+  // every second tick, so its requests and our own commands both get through
+  if (trsp.closedMode && lastReqTime &&
+      (tmr10ms_t)(get_tmr10ms() - lastReqTime) < 5) {
+    quietToggle ^= 1;
+    if (quietToggle) {
+      skipSend = true;
+      return;
+    }
+  }
+  // FRM301: push the config like FlySkyOS: 0x04 <kind> part 0..3, for a
+  // bind (kind 1) followed by 0x05
+  if (trsp.closedMode && cfgPush > 0 && !trsp.isAwaiting()) {
+    static uint8_t out[184];
+    if (cfgPush <= 4) {
+      uint8_t part = cfgPush - 1;
+      out[0] = cfgKind;
+      uint8_t n;
+      if (part == 0) { out[1] = 0; n = 2; }
+      else n = 1 + buildClosedConfig(part, out + 1);
+      trsp.putFrame(COMMAND::MODULE_SET_CONFIG,
+                    FRAME_TYPE::REQUEST_SET_EXPECT_DATA, out, n);
+    } else {
+      trsp.putFrame((COMMAND)0x05, FRAME_TYPE::REQUEST_SET_EXPECT_DATA);
+    }
+    cfgPush = (cfgPush >= 5 || (cfgKind == 2 && cfgPush >= 4)) ? 0 : cfgPush + 1;
+    return;
+  }
+  // FRM301 bind restart: module bay off for 300 ms, then on again - the
+  // module boots and asks for its config like after power-on
+  if (pwrPhase == 1) {
+    if ((tmr10ms_t)(get_tmr10ms() - pwrTime) < 30) {
+      skipSend = true;
+      return;
+    }
+    modulePortSetPower(module_index, 1);
+    pwrPhase = 2;
+    pwrTime = get_tmr10ms();
+    state = ModuleState::STATE_NOT_READY;
+    clearFrameData();
+    skipSend = true;
+    return;
+  }
+#endif
   bool trsp_error = false;
   if (trsp.handleRetransmissions(trsp_error)) return;
 
   if (trsp_error) {
+#if defined(AFHDS3_FRM301_EXT)
+    // FRM301: the module is busy with its own requests, our poll just was
+    // not answered - keep the state it reported
+    if (!(trsp.closedMode && lastReqTime &&
+          (tmr10ms_t)(get_tmr10ms() - lastReqTime) < 50))
+#endif
     this->state = ModuleState::STATE_NOT_READY;
     clearFrameData();
+#if defined(AFHDS3_FRM301_EXT)
+    handleNoReply();
+#endif
   }
 
   if (this->state == ModuleState::STATE_NOT_READY) {
 //     TRACE("AFHDS3 [GET MODULE READY]");
+#if defined(AFHDS3_FRM301_EXT)
+    // FRM301: FlySkyOS starts with "get module state" (0x02) instead of 0x01
+    if (trsp.closedMode && (pollToggle ^= 1)) {
+      trsp.putFrame(COMMAND::MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
+      return;
+    }
+#endif
     trsp.putFrame(COMMAND::MODULE_READY, FRAME_TYPE::REQUEST_GET_DATA);
     return;
   }
@@ -447,12 +641,75 @@ void ProtoState::setupFrame()
   // Process backlog, not check states
   if (trsp.processQueue()) return;
 
+#if defined(AFHDS3_FRM301_EXT)
+  if (trsp.closedMode && cmd7030Pending && (uint8_t)state == 4 && !cfgPush) {
+    cmd7030Pending = false;
+    uint8_t d[4] = {0x30, 0x70, 0x01, 0x01};
+    trsp.putFrame(COMMAND::SEND_COMMAND, FRAME_TYPE::REQUEST_SET_EXPECT_DATA,
+                  d, 4);
+    return;
+  }
+#endif
+
   ::ModuleSettingsMode moduleMode = getModuleMode(module_index);
 
+#if defined(AFHDS3_FRM301_EXT)
+  if (trsp.closedMode && moduleMode == ::ModuleSettingsMode::MODULE_MODE_BIND &&
+      bindStep == 1 &&
+      ((uint8_t)state == 4 || (rxBlockNew && (uint8_t)state != 2))) {
+    // receiver bound (module sent the receiver block): leave bind mode,
+    // the NORMAL branch then hands the block to the module
+    setModuleMode(module_index, ::ModuleSettingsMode::MODULE_MODE_NORMAL);
+    moduleMode = ::ModuleSettingsMode::MODULE_MODE_NORMAL;
+  }
+#endif
   if (moduleMode == ::ModuleSettingsMode::MODULE_MODE_BIND) {
     if (state != STATE_BINDING) {
 //       TRACE("AFHDS3 [BIND]");
       applyConfigFromModel();
+#if defined(AFHDS3_FRM301_EXT)
+      if (trsp.closedMode) {
+        // FRM301 bind like FlySkyOS: push the whole config as kind 1
+        // (0x04 <1> part 0..3) followed by 0x05 - this makes the module
+        // bind (state 2, LED fast green). Repeated every 3 s until the
+        // module reports binding (2) or connected (4).
+        uint8_t st = (uint8_t)state;
+        if (bindStep == 0) {
+          // restart the module first (power off/on): it only starts a
+          // bind reliably right after power-on
+          rxBlockNew = false;
+          postBind = 0;
+          bindStep = 1;
+          modulePowerCycle();
+          skipSend = true;
+          return;
+        }
+        if (pwrPhase == 2) {
+          // module booting: it fetches its config (part 1..3) and reports
+          // state 3 or 5 - bind 1.5 s later (at the latest after 6 s)
+          bool up = (lastPart == 3 && cfgPush == 0 && (st == 3 || st == 5));
+          if (up && !pwrReady) {
+            pwrReady = true;
+            pwrTime = get_tmr10ms();
+          } else if ((pwrReady && (tmr10ms_t)(get_tmr10ms() - pwrTime) >= 150) ||
+                     (!pwrReady && (tmr10ms_t)(get_tmr10ms() - pwrTime) >= 600)) {
+            pwrPhase = 0;
+            bindTime = get_tmr10ms() - 300;  // push now
+          }
+        }
+        if (pwrPhase == 0 && st != 2 && st != 4 && cfgPush == 0 &&
+            (tmr10ms_t)(get_tmr10ms() - bindTime) >= 300) {
+          bindTime = get_tmr10ms();
+          cfgKind = 1;
+          cfgPush = 1;
+          return;
+        }
+        // otherwise fall through to the normal polling below - NOT into the
+        // open protocol bind (its config is garbage for the closed module
+        // and its MODE 2 = BIND means RUN here: it stopped the binding)
+      }
+      if (!trsp.closedMode) {
+#endif
 
       trsp.putFrame(COMMAND::MODULE_SET_CONFIG,
                      FRAME_TYPE::REQUEST_SET_EXPECT_DATA, cfg.buffer,
@@ -461,12 +718,53 @@ void ProtoState::setupFrame()
       trsp.enqueue(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, true,
                    (uint8_t)MODULE_MODE_E::BIND);
       return;
+#if defined(AFHDS3_FRM301_EXT)
+      }
+#endif
     }
   }
   else if (moduleMode == ::ModuleSettingsMode::MODULE_MODE_RANGECHECK) {
     TRACE("AFHDS3 [RANGE CHECK] not supported");
   }
   else if (moduleMode == ::ModuleSettingsMode::MODULE_MODE_NORMAL) {
+#if defined(AFHDS3_FRM301_EXT)
+    if (trsp.closedMode && bindStep) {
+      // bind ended
+      bindStep = 0;
+      if (pwrPhase == 2) pwrPhase = 0;
+      if (rxBlockNew) {
+        // bound: give the module the new receiver block (config part 3)
+        postBind = 1;
+      } else {
+        uint8_t mode = CLOSED_RUN;
+        trsp.putFrame(COMMAND::MODULE_MODE,
+                      FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
+        return;
+      }
+    }
+    if (trsp.closedMode && postBind) {
+      // after bind: FlySkyOS only stores the receiver block and treats the
+      // module as connected - it sends nothing. Wait up to 5 s for state 4
+      // (Connected), otherwise MODE 2 (run) once.
+      if (postBind == 1) {
+        // the new receiver block (with ID) as settings, kind 2 (no 0x05)
+        cfgKind = 2;
+        cfgPush = 1;
+        postBind = 3;
+        postBindTime = get_tmr10ms();
+        return;
+      } else if (cfgPush) {
+      } else if ((uint8_t)state == 4) {
+        postBind = 0;
+      } else if ((tmr10ms_t)(get_tmr10ms() - postBindTime) >= 500) {
+        postBind = 0;
+        uint8_t mode = CLOSED_RUN;
+        trsp.putFrame(COMMAND::MODULE_MODE,
+                      FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
+        return;
+      }
+    }
+#endif
 
     // If module is ready but not started
     if (this->state == ModuleState::STATE_READY) {
@@ -476,6 +774,10 @@ void ProtoState::setupFrame()
 
     // ModelID change detection, if changed => STATE_STANDBY => Set ModelID => RUN mode => STATE_SYNC_XXX
     uint8_t newModelID = g_model.header.modelId[module_index] % MAX_NO_OF_MODELS;  // Rotate the model ID when exceed no. of stored models
+#if defined(AFHDS3_FRM301_EXT)
+    // FRM301: the FlySkyOS protocol has no MODEL_ID command (0x2F)
+    if (trsp.closedMode) modelID = newModelID;
+#endif
     if (modelID != newModelID)
     {
       if (this->state != ModuleState::STATE_STANDBY) {
@@ -497,6 +799,9 @@ void ProtoState::setupFrame()
       cmdCount = 0;
 //      requestInfoAndRun(true);
       auto mode = (uint8_t)MODULE_MODE_E::RUN;
+#if defined(AFHDS3_FRM301_EXT)
+      if (trsp.closedMode) mode = CLOSED_RUN;
+#endif
       trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
       return;
     }
@@ -506,6 +811,9 @@ void ProtoState::setupFrame()
       TRACE("AFHDS3 [EXIT BIND]");
 //      modelcfgGet = true;
       auto mode = (uint8_t)MODULE_MODE_E::RUN;
+#if defined(AFHDS3_FRM301_EXT)
+      if (trsp.closedMode) mode = CLOSED_RUN;
+#endif
       trsp.putFrame(COMMAND::MODULE_MODE, FRAME_TYPE::REQUEST_SET_EXPECT_DATA, &mode, 1);
       trsp.enqueue(COMMAND::MODULE_GET_CONFIG, FRAME_TYPE::REQUEST_GET_DATA);
       return;
@@ -517,6 +825,11 @@ void ProtoState::setupFrame()
     return;
   }*/
 
+#if defined(AFHDS3_FRM301_EXT)
+  // FRM301: no open protocol extras (virtual failsafe, RX commands 0x0C with
+  // open protocol codes) - FlySkyOS sends only channels and state polls
+  if (trsp.closedMode) cmdCount = 0;
+#endif
   if (cmdCount++ >= 150) {
 
     cmdCount = 0;
@@ -552,6 +865,32 @@ void ProtoState::setupFrame()
 
   // Sync settings when dirty flag is set
   auto *cfg = this->getConfig();
+#if defined(AFHDS3_FRM301_EXT)
+  if (trsp.closedMode) {
+    clearDirtyFlag(DC_RX_CMD_TX_PWR);
+    // module options changed in the options page (bus type, PWM ...):
+    // store them in the model and hand them to the module as settings
+    // (config kind 2), like FlySkyOS after a settings change
+    const uint32_t optMask =
+        (1u << DC_RX_CMD_FAILSAFE_VALUE) | (1u << DC_RX_CMD_FAILSAFE_TIME) |
+        (1u << DC_RX_CMD_RSSI_CHANNEL_SETUP) |
+        (1u << DC_RX_CMD_OUT_PWM_PPM_MODE) | (1u << DC_RX_CMD_FREQUENCY_V0) |
+        (1u << DC_RX_CMD_PORT_TYPE_V1) | (1u << DC_RX_CMD_FREQUENCY_V1) |
+        (1u << DC_RX_CMD_BUS_TYPE_V0) | (1u << DC_RX_CMD_IBUS_SETUP) |
+        (1u << DC_RX_CMD_BUS_FAILSAFE);
+    bool optChanged = (cfg->others.dirtyFlag & optMask) != 0;
+    cfg->others.dirtyFlag = 0;  // the open protocol RX commands are not used
+    if (optChanged) {
+      optionsSave = true;
+      uint8_t st = (uint8_t)state;
+      if (!cfgPush && !bindStep && (st == 3 || st == 4 || st == 5)) {
+        cfgKind = 2;
+        cfgPush = 1;
+        return;
+      }
+    }
+  }
+#endif
   if (checkDirtyFlag(DC_RX_CMD_TX_PWR))
   {
 //     TRACE("AFHDS3 [RX_CMD_TX_PWR] %d", AFHDS3_POWER[moduleData->afhds3.rfPower] / 4);
@@ -572,13 +911,33 @@ void ProtoState::setupFrame()
 
   if (isConnected()) {
     // Sync config, with commands
+#if defined(AFHDS3_FRM301_EXT)
+    if (!trsp.closedMode) {
+#endif
     if (syncSettings()) { return; }
 
     if (sensorCalibration()) { return; }
+#if defined(AFHDS3_FRM301_EXT)
+    }
+#endif
 
     // Send channels data
     sendChannelsData();
   } else {
+#if defined(AFHDS3_FRM301_EXT)
+    // FRM301: FlySkyOS sends the channel data in every mixer cycle as soon
+    // as the module is up - also while binding and while it searches its
+    // receiver - and asks the state only about once per second
+    if (trsp.closedMode && closedLinkUp && pwrPhase == 0) {
+      if (++chPoll >= 100) {
+        chPoll = 0;
+        trsp.putFrame(MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
+      } else {
+        sendChannelsData();
+      }
+      return;
+    }
+#endif
     //default frame - request state
     trsp.putFrame(MODULE_STATE, FRAME_TYPE::REQUEST_GET_DATA);
   }
@@ -611,6 +970,40 @@ void ProtoState::init(uint8_t moduleIndex, void* buffer,
   moduleData = &g_model.moduleData[module_index];
   state = ModuleState::STATE_NOT_READY;
   modelID = 0xff;  // Valid range 0-19
+#if defined(AFHDS3_FRM301_EXT)
+  addrConfirmed = false;
+  noReplyCount = 0;
+  autoIdx = 0;
+  pollToggle = 0;
+  skipSend = false;
+  lastReqTime = 0;
+  quietToggle = 0;
+  cfgPush = 0;
+  cfgKind = 1;
+  bindStep = 0;
+  bindTime = 0;
+  postBind = 0;
+  postBindTime = 0;
+  pwrPhase = 0;
+  pwrTime = 0;
+  pwrReady = false;
+  closedLinkUp = false;
+  chPoll = 0;
+  lastPart = 0;
+  p2rep = 0;
+  p2NoEndByte = false;
+  cmd7030Pending = false;
+  rxBlockNew = false;
+  rxBlockSave = false;
+  optionsSave = false;
+  rxBlockValid = false;
+  memclear(rxBlock, sizeof(rxBlock));
+  loadRxBlock();
+  if (module_index == EXTERNAL_MODULE) {
+    uint8_t dev = selectedDev();
+    setDevAddress(dev ? dev : DeviceAddress::FRM303);
+  }
+#endif
 //  modelIDSet = false;
   clearFrameData();
 }
@@ -641,12 +1034,43 @@ void ProtoState::setState(ModuleState state)
 
   uint8_t oldState = this->state;
   this->state = state;
-  if (oldState == ModuleState::STATE_BINDING) {
+#if defined(AFHDS3_FRM301_EXT)
+  if (trsp.closedMode) {
+    uint8_t s = (uint8_t)state;
+    closedLinkUp = (s >= 2 && s <= 5);
+  }
+  // FRM301: the module may leave state 2 without a bound receiver, FlySkyOS
+  // then simply triggers the bind again - so do not end bind here
+  if (oldState == ModuleState::STATE_BINDING && !trsp.closedMode)
+#else
+  if (oldState == ModuleState::STATE_BINDING)
+#endif
+  {
     setModuleMode(module_index, ::ModuleSettingsMode::MODULE_MODE_NORMAL);
   }
   if (state == ModuleState::STATE_NOT_READY) {
     trsp.clear();
   }
+#if defined(AFHDS3_FRM301_EXT)
+  if (trsp.closedMode) {
+    // FRM301: reactions of FlySkyOS to the state reported by the module
+    switch ((uint8_t)state) {
+      case 1:  // module wants its configuration
+        cfgPush = 1;
+        cfgKind = 1;
+        break;
+      case 4:  // connected: FlySkyOS sends RX command 0x7030 = 1, the
+               // module answers with 0x0D later
+        cmd7030Pending = true;
+        break;
+      case 5:  // standby: FlySkyOS asks 0x10
+        trsp.enqueue((COMMAND)0x10, FRAME_TYPE::REQUEST_GET_DATA);
+        break;
+      default:
+        break;
+    }
+  }
+#endif
   else if (state == ModuleState::STATE_SYNC_RUNNING || state == ModuleState::STATE_SYNC_DONE)
   {
     // Get config when switched to STATE_SYNC_XXX
@@ -673,9 +1097,350 @@ void ProtoState::requestInfoAndRun(bool send)
   if (send) { trsp.processQueue(); }
 }*/
 
+#if defined(AFHDS3_FRM301_EXT)
+/*
+ * FRM301 (FlySkyOS closed protocol): the module requests its configuration
+ * from the radio with "GET 0x04 <part>". Layout as sent by FlySkyOS
+ * (PL18EV firmware 1.0.9, verified with a serial capture):
+ *
+ * part 1 (V1 = Routine/LoRa): 01 01 freq[32]*u16 sync:u32 portTypes[4]
+ *                             flag 0 0                       (77 bytes)
+ * part 1 (V0 = Classic):      01 00 freq[32]*u16 0:u32 analog freq:u16
+ *                             bus flag                       (75 bytes)
+ * part 2: 02 0 0 0 0 0C 0*11 0 timeout:u32 chCount failsafe[32]*i16
+ *         chMode[32] FF*32 0                                 (152 bytes)
+ * part 3: 03 + 168 byte receiver block (mostly zero)         (169 bytes)
+ */
+// PHY constants FlySkyOS writes to receiver block offset 0x92..0x9c
+static const uint8_t closedPhyConst[3][11] = {
+  {0x03, 0x70, 0x04, 0x10, 0x00, 0x00, 0x30, 0x08, 0xc7, 0x00, 0x00},  // 18ch
+  {0x01, 0x0c, 0x80, 0x00, 0x00, 0x40, 0x00, 0x00, 0x50, 0x18, 0x05},  // LoRa 12ch
+  {0x03, 0x70, 0x04, 0x10, 0x00, 0x00, 0x30, 0x08, 0x45, 0x00, 0x00},  // 8ch
+};
+
+// receiver block FlySkyOS sends for a new bind (Classic 18CH, two way),
+// taken from a serial capture
+static const uint8_t closedDefaultBlock[168] = {
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x46, 0x00, 0xff, 0x00, 0x03, 0x0a, 0x0a, 0x00,
+  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00,
+  0x00, 0xe6, 0x00, 0x04, 0x00, 0x21, 0x00, 0x15, 0x00, 0x13, 0x00, 0x0e,
+  0x00, 0x0d, 0x00, 0x0c, 0x00, 0x24, 0x00, 0x01, 0x00, 0x18, 0x00, 0x19,
+  0x00, 0x03, 0x00, 0x25, 0x00, 0x08, 0x00, 0x14, 0x00, 0x1d, 0x00, 0x05,
+  0x00, 0x22, 0x00, 0x16, 0x00, 0x14, 0x00, 0x0f, 0x00, 0x10, 0x00, 0x12,
+  0x00, 0x27, 0x00, 0x02, 0x00, 0x1a, 0x00, 0x1b, 0x00, 0x11, 0x00, 0x26,
+  0x00, 0x0b, 0x00, 0x19, 0x00, 0x07, 0x00, 0x38, 0x00, 0x01, 0x00, 0x00,
+  0x00, 0x02, 0x03, 0x70, 0x04, 0x10, 0x00, 0x00, 0x30, 0x08, 0xc7, 0x00,
+  0x00, 0x0a, 0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+
+uint8_t ProtoState::buildClosedConfig(uint8_t part, uint8_t* out)
+{
+  applyConfigFromModel();
+  uint8_t phy = moduleData->afhds3.phyMode;
+  bool v1 = phy >= ROUTINE_FLCR1_18CH;
+  uint8_t chCount = _phyMode_channels[phy];
+  uint16_t n = 0;
+  auto put8 = [&](uint8_t v) { out[n++] = v; };
+  auto put16 = [&](uint16_t v) { out[n++] = v & 0xFF; out[n++] = v >> 8; };
+  auto put32 = [&](uint32_t v) { put16(v & 0xFFFF); put16(v >> 16); };
+
+  if (part == 1) {
+    put8(1);
+    put8(v1 ? 1 : 0);
+    for (uint8_t i = 0; i < 32; i++) put16(50);  // PWM frequency
+    put32(0);                                    // synchronised PWM
+    if (v1) {
+      for (uint8_t i = 0; i < 4; i++) put8(cfg.v1.NewPortTypes[i]);
+      put8(0);
+      put8(0);
+      put8(0);
+    } else {
+      put8(0);    // analog output PWM
+      put16(50);  // PWM frequency
+      put8(cfg.v0.ExternalBusType == EB_BT_SBUS1 ? 2 : 0);
+      put8(1);
+    }
+  } else if (part == 2) {
+    put8(2);
+    for (uint8_t i = 0; i < 4; i++) put8(0);
+    put32(0x0C);
+    for (uint8_t i = 0; i < 9; i++) put8(0);
+    put32(500);  // failsafe timeout
+    put8(chCount);
+    int16_t fs[32];
+    for (uint8_t i = 0; i < 32; i++) fs[i] = FAILSAFE_NOPULSES_VALUE;
+    setFailSafe(fs, chCount);
+    if (moduleData->failsafeMode == FAILSAFE_NOT_SET ||
+        moduleData->failsafeMode == FAILSAFE_NOPULSES) {
+      for (uint8_t i = 0; i < 32; i++) fs[i] = FAILSAFE_NOPULSES_VALUE;
+    }
+    int16_t last = fs[0];
+    for (uint8_t i = 0; i < 32; i++) {
+      if (i >= 30) last = FAILSAFE_HOLD_VALUE;
+      else if (i < chCount) last = fs[i];
+      put16((uint16_t)last);
+    }
+    for (uint8_t i = 0; i < 32; i++) put8(0x1C);  // channel modes
+    for (uint8_t i = 0; i < 32; i++) put8(0xFF);
+    // end byte: sent by FlySkyOS and expected by current FRM301 firmware,
+    // older firmware only accepts part 2 without it
+    if (!p2NoEndByte) put8(0);
+  } else if (part == 3) {
+    put8(3);
+    uint8_t* blk = out + n;
+    memcpy(blk, closedDefaultBlock, 168);
+    n += 168;
+    if (rxBlockValid && !bindStep) {
+      // receiver block the module sent after binding (cmd 0x05). FlySkyOS
+      // overwrites the fields below in the stored block before sending.
+      for (uint8_t i = 0; i < 168; i++) blk[i] = rxBlock[i];
+    }
+    // 3 = two way (telemetry), 0 = one way
+    blk[0x44] = moduleData->afhds3.telemetry ? 3 : 0;
+    uint16_t t = 500 - 230;  // failsafe time as stored by FlySkyOS (300 ms -> 0x46)
+    blk[0x34] = t & 0xFF;
+    blk[0x35] = t >> 8;
+    blk[0x36] = 0xFF;  // no RSSI channel
+    uint16_t pwr = AFHDS3_POWER[moduleData->afhds3.rfPower % 7];
+    blk[0x8b] = pwr & 0xFF;
+    blk[0x8c] = pwr >> 8;
+    if (v1) {
+      const uint8_t* c = closedPhyConst[phy == ROUTINE_LORA_12CH  ? 1
+                                        : phy == ROUTINE_FLCR6_8CH ? 2
+                                                                   : 0];
+      for (uint8_t i = 0; i < 11; i++) blk[0x92 + i] = c[i];
+    }
+  }
+  return n;
+}
+
+// The receiver block (bind result incl. receiver ID) and the module options
+// are stored in the model as user data (hex strings). The FRM303 keeps both
+// inside the module; the FRM301 does not, so the radio hands them over on
+// every start, like FlySkyOS does.
+#define FRM301_UD_RXBLOCK "FRM301|rxBlock"
+#define FRM301_UD_OPTIONS "FRM301|options"
+#define FRM301_CFG_LEN (sizeof(sDATA_ConfigV1) + 1)  // config + ExternalBusType
+
+static void hexEncode(char* dst, const uint8_t* src, size_t n)
+{
+  static const char hx[] = "0123456789ABCDEF";
+  for (size_t i = 0; i < n; i++) {
+    *dst++ = hx[src[i] >> 4];
+    *dst++ = hx[src[i] & 0x0F];
+  }
+  *dst = 0;
+}
+
+static int hexNibble(char c)
+{
+  if (c >= '0' && c <= '9') return c - '0';
+  if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+  if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+  return -1;
+}
+
+// true if the user data entry holds exactly n bytes as hex
+static bool hexDecode(uint8_t* dst, size_t n, const char* key)
+{
+  auto ud = g_model.getUserData(key);
+  if (!ud || ud->value.size() != 2 * n) return false;
+  const char* src = ud->value.c_str();
+  for (size_t i = 0; i < n; i++) {
+    int h = hexNibble(src[2 * i]), l = hexNibble(src[2 * i + 1]);
+    if (h < 0 || l < 0) return false;
+    dst[i] = (uint8_t)(h << 4 | l);
+  }
+  return true;
+}
+
+void ProtoState::loadRxBlock()
+{
+  if (module_index != EXTERNAL_MODULE) return;
+  uint8_t tmp[sizeof(rxBlock)];
+  if (hexDecode(tmp, sizeof(tmp), FRM301_UD_RXBLOCK)) {
+    memcpy(rxBlock, tmp, sizeof(rxBlock));
+    rxBlockValid = true;
+  }
+  // module options (bus type, PWM ...): only if they match the PHY version
+  uint8_t c[FRM301_CFG_LEN];
+  if (hexDecode(c, sizeof(c), FRM301_UD_OPTIONS)) {
+    bool v1 = moduleData->afhds3.phyMode >= ROUTINE_FLCR1_18CH;
+    if (c[0] == (v1 ? 1 : 0)) memcpy(cfg.buffer, c, FRM301_CFG_LEN);
+  }
+}
+
+void ProtoState::saveRxBlock()
+{
+  if (module_index != EXTERNAL_MODULE) return;
+  char hex[2 * sizeof(rxBlock) + 1];
+  hexEncode(hex, rxBlock, sizeof(rxBlock));
+  g_model.setUserData(FRM301_UD_RXBLOCK, hex);
+}
+
+void ProtoState::saveClosedOptions()
+{
+  if (module_index != EXTERNAL_MODULE) return;
+  char hex[2 * FRM301_CFG_LEN + 1];
+  hexEncode(hex, cfg.buffer, FRM301_CFG_LEN);
+  g_model.setUserData(FRM301_UD_OPTIONS, hex);
+}
+
+bool ProtoState::handleModuleRequest(bool immediate)
+{
+  auto& req = trsp.modReq;
+  if (!req.valid) return false;
+  lastReqTime = get_tmr10ms();
+
+  // the module is talking to us: keep (or learn) its address, stop searching
+  addrConfirmed = true;
+  noReplyCount = 0;
+  if (module_index == EXTERNAL_MODULE && !selectedDev() &&
+      (req.address >> 4) == DeviceAddress::TRANSMITTER) {
+    uint8_t src = req.address & 0x0F;
+    if (src && src != DeviceAddress::TRANSMITTER && src != getDevAddress())
+      setDevAddress(src);
+  }
+
+  static uint8_t resp[180];
+  uint8_t len = 0;
+  bool answer = true;
+  FRAME_TYPE rtype = FRAME_TYPE::RESPONSE_DATA;
+
+  if (req.frameType == FRAME_TYPE::REQUEST_SET_EXPECT_ACK) {
+    rtype = FRAME_TYPE::RESPONSE_ACK;  // e.g. receiver block 0x05: plain ACK
+    len = 0;
+  } else if (req.frameType == FRAME_TYPE::REQUEST_SET_EXPECT_DATA) {
+    len = 0;  // FlySkyOS answers with an empty RESPONSE_DATA
+  } else if (req.command == COMMAND::MODULE_READY) {
+    resp[0] = 0x02;  // radio ready, RF on
+    len = 1;
+  } else if (req.command == COMMAND::MODULE_SET_CONFIG) {
+    uint8_t part = req.len ? req.data[0] : 1;
+    if (part != lastPart) {
+      lastPart = part;
+      p2rep = 0;
+    } else if (part == 2 && ++p2rep >= 3) {
+      // part 2 not accepted (asked 3x) - try the other layout
+      p2rep = 0;
+      p2NoEndByte = !p2NoEndByte;
+    }
+    len = buildClosedConfig(part, resp);
+    answer = len > 0;
+  } else {
+    answer = false;  // unknown request (e.g. firmware update)
+  }
+
+  if (answer) {
+    if (immediate) {
+      static uint8_t respFrame[MODULE_BUFFER_SIZE] __DMA;
+      trsp.sendResponseNow(respFrame, req.command, req.frameNumber, resp, len,
+                           rtype);
+    } else {
+      trsp.putResponse(req.command, req.frameNumber, resp, len, rtype);
+    }
+  }
+  req.valid = false;
+  return answer;
+}
+
+// model setting (afhds3.reserved): 0 = auto, 1 = FRM303, 2 = FRM301
+uint8_t ProtoState::selectedDev() const
+{
+  switch (moduleData->afhds3.reserved) {
+    case 1: return DeviceAddress::FRM303;
+    case 2: return DeviceAddress::FRM301;
+    default: return 0;
+  }
+}
+
+void ProtoState::setDevAddress(uint8_t dev)
+{
+  trsp.setAddress(dev << 4 | DeviceAddress::TRANSMITTER);
+  // FRM301: FlySkyOS (closed) protocol, the module also sends requests
+  trsp.closedMode = (dev != DeviceAddress::FRM303);
+  // FlySkyOS sends a frame every 2.5 ms to the FRM301, the FRM303 uses 5 ms
+  if (module_index == EXTERNAL_MODULE)
+    mixerSchedulerSetPeriod(module_index, trsp.closedMode
+                                              ? 2500
+                                              : AFHDS3_UART_COMMAND_TIMEOUT * 1000);
+}
+
+void ProtoState::handleNoReply()
+{
+  if (module_index != EXTERNAL_MODULE) return;
+  // module is restarting / binding (it is silent for a while then): keep
+  // its address
+  if (pwrPhase || bindStep || postBind) return;
+  if (trsp.closedMode && lastReqTime &&
+      (tmr10ms_t)(get_tmr10ms() - lastReqTime) < 3000)
+    return;  // FRM301 talked to us in the last 30 s
+
+  if (addrConfirmed) {
+    // module answered before: give it one more round with the same address
+    // (e.g. short disturbance), then start searching again
+    addrConfirmed = false;
+    noReplyCount = 0;
+    return;
+  }
+
+  if (selectedDev()) return;  // fixed module type
+
+  // a few rounds per address (module may still be booting), then switch
+  if (++noReplyCount < 3) return;
+  noReplyCount = 0;
+
+  static const uint8_t autoList[] = {DeviceAddress::FRM303,
+                                     DeviceAddress::FRM301,
+                                     DeviceAddress::IRM301};
+  autoIdx = (autoIdx + 1) % sizeof(autoList);
+  setDevAddress(autoList[autoIdx]);
+}
+#endif
+
 void ProtoState::parseData(uint8_t* rxBuffer, uint8_t rxBufferCount)
 {
   AfhdsFrame* responseFrame = reinterpret_cast<AfhdsFrame*>(rxBuffer);
+#if defined(AFHDS3_FRM301_EXT)
+  if (trsp.closedMode && responseFrame->command == 0x05) {
+    // the module sends its receiver block after binding as a request;
+    // FlySkyOS stores it in the model and returns it as config part 3.
+    // The response to our own 0x05 is not the receiver block.
+    if (responseFrame->frameType != FRAME_TYPE::RESPONSE_DATA &&
+        responseFrame->frameType != FRAME_TYPE::RESPONSE_ACK &&
+        rxBufferCount >= 7 + 168) {
+      // receiver ID at block offset 0x40 = data offset 0x41
+      const uint8_t* idp = rxBuffer + 5 + 1 + 0x40;
+      uint32_t rxId = (uint32_t)idp[0] | ((uint32_t)idp[1] << 8) |
+                 ((uint32_t)idp[2] << 16) | ((uint32_t)idp[3] << 24);
+      // one way has no receiver answer, so the block comes with ID 0 and
+      // is still the bind result. Two way: only with a receiver ID.
+      bool oneWay = !moduleData->afhds3.telemetry;
+      if (oneWay || (rxId != 0 && rxId != 0xFFFFFFFF)) {
+        for (uint8_t i = 0; i < 167; i++) rxBlock[i] = rxBuffer[5 + 1 + i];
+        rxBlockValid = true;
+        rxBlockSave = true;
+        if (bindStep) rxBlockNew = true;
+      }
+    }
+  }
+  addrConfirmed = true;
+  noReplyCount = 0;
+  if (module_index == EXTERNAL_MODULE) {
+    // address byte from the module: high nibble = destination (TRANSMITTER),
+    // low nibble = source = the module's own address -> talk to that one
+    uint8_t src = rxBuffer[1] & 0x0F;
+    uint8_t dst = rxBuffer[1] >> 4;
+    if (dst == DeviceAddress::TRANSMITTER && src != getDevAddress() &&
+        src != DeviceAddress::TRANSMITTER && src != 0 && !selectedDev()) {
+      setDevAddress(src);
+    }
+  }
+#endif
   if (containsData((enum FRAME_TYPE) responseFrame->frameType)) {
     switch (responseFrame->command) {
       case COMMAND::MODULE_READY:
@@ -1230,6 +1995,14 @@ uint8_t ProtoState::setFailSafe(int16_t* target, uint8_t rfchannelsCount )
   return (uint8_t) (AFHDS3_MAX_CHANNELS);
 }
 
+#if defined(AFHDS3_FRM301_EXT)
+bool isFRM301(uint8_t module)
+{
+  return module == EXTERNAL_MODULE && protoState[module].isFRM301();
+}
+
+#endif
+
 Config_u* getConfig(uint8_t module)
 {
   auto p_state = &protoState[module];
@@ -1287,6 +2060,10 @@ static void* initModule(uint8_t module)
   p_state->init(module, pulsesGetModuleBuffer(module), mod_st, fAddr);
   mod_st->user_data = (void*)p_state;
 
+#if defined(AFHDS3_FRM301_EXT)
+  // FRM301 (closed protocol) runs with 2.5 ms like FlySkyOS
+  if (module == EXTERNAL_MODULE && p_state->isClosedMode()) period = 2500;
+#endif
   mixerSchedulerSetPeriod(module, period);
 
   return mod_st;
