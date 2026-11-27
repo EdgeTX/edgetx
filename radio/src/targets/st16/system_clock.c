@@ -34,6 +34,12 @@ BOOTSTRAP void SystemClock_Config(void)
   while (LL_PWR_IsActiveFlag_VOS() == 0){
   }
 
+  /* VOS0 (VCORE boost) for 480 MHz: from VOS1, set SYSCFG ODEN */
+  LL_APB4_GRP1_EnableClock(LL_APB4_GRP1_PERIPH_SYSCFG);
+  SET_BIT(SYSCFG->PWRCR, SYSCFG_PWRCR_ODEN);
+  while (LL_PWR_IsActiveFlag_VOS() == 0){
+  }
+
   /* Enable HSE oscillator */
   LL_RCC_HSE_Enable();
   while (LL_RCC_HSE_IsReady() != 1) {
@@ -48,20 +54,21 @@ BOOTSTRAP void SystemClock_Config(void)
   LL_RCC_PLL1Q_Enable();
   LL_RCC_PLL1R_Enable();
   LL_RCC_PLL1FRACN_Disable();
-  LL_RCC_PLL1_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_2_4);
+  LL_RCC_PLL1_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_8_16);
   LL_RCC_PLL1_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
-  LL_RCC_PLL1_SetM(1);
-  LL_RCC_PLL1_SetN(100);
-  LL_RCC_PLL1_SetP(2);
-  LL_RCC_PLL1_SetQ(4);
+  LL_RCC_PLL1_SetM(1);   // 8 MHz
+  LL_RCC_PLL1_SetN(120); // 960 MHz VCO
+  LL_RCC_PLL1_SetP(2);   // 480 MHz SYSCLK
+  LL_RCC_PLL1_SetQ(6);   // 160 MHz: SDMMC kernel clock (20 MHz SD clock)
   LL_RCC_PLL1_SetR(2);
   LL_RCC_PLL1_Enable();
   while (LL_RCC_PLL1_IsReady() != 1) {
   }
 
-  /* Set Sys & AHB & APB1 & APB2 & APB4  prescaler */
+  /* Set Sys & AHB & APB1 & APB2 & APB3 & APB4 prescaler */
   LL_RCC_SetSysPrescaler(LL_RCC_SYSCLK_DIV_1);
   LL_RCC_SetAHBPrescaler(LL_RCC_AHB_DIV_2);
+  LL_RCC_SetAPB3Prescaler(LL_RCC_APB3_DIV_2);
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_2);
   LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_2);
   LL_RCC_SetAPB4Prescaler(LL_RCC_APB4_DIV_2);
@@ -71,18 +78,14 @@ BOOTSTRAP void SystemClock_Config(void)
   while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL1) {
   }
 
-  /* Config & activate PLL2 */
-  LL_RCC_PLL2P_Enable();
-  LL_RCC_PLL2Q_Enable();
+  /* Config & activate PLL2: FMC kernel clock */
   LL_RCC_PLL2R_Enable();
   LL_RCC_PLL2FRACN_Disable();
-  LL_RCC_PLL2_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_2_4);
+  LL_RCC_PLL2_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_8_16);
   LL_RCC_PLL2_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
-  LL_RCC_PLL2_SetM(1);
-  LL_RCC_PLL2_SetN(120);
-  LL_RCC_PLL2_SetP(12);
-  LL_RCC_PLL2_SetQ(2);
-  LL_RCC_PLL2_SetR(4);
+  LL_RCC_PLL2_SetM(1);   // 8 MHz
+  LL_RCC_PLL2_SetN(100); // 800 MHz VCO
+  LL_RCC_PLL2_SetR(4);   // 200 MHz -> SDCLK 100 MHz
   LL_RCC_PLL2_Enable();
   while (LL_RCC_PLL2_IsReady() != 1) {
   }
@@ -92,7 +95,7 @@ BOOTSTRAP void SystemClock_Config(void)
   LL_RCC_PLL3Q_Enable();
   LL_RCC_PLL3R_Enable();
   LL_RCC_PLL3FRACN_Disable();
-  LL_RCC_PLL3_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_2_4);
+  LL_RCC_PLL3_SetVCOInputRange(LL_RCC_PLLINPUTRANGE_8_16);
   LL_RCC_PLL3_SetVCOOutputRange(LL_RCC_PLLVCORANGE_WIDE);
   LL_RCC_PLL3_SetM(1);
   LL_RCC_PLL3_SetN(120);
@@ -109,7 +112,7 @@ BOOTSTRAP void SystemClock_Config(void)
                            LL_AHB2_GRP1_PERIPH_D2SRAM3);
 
   /* Set periph clock sources */
-  LL_RCC_SetFMCClockSource(LL_RCC_FMC_CLKSOURCE_HCLK);
+  LL_RCC_SetFMCClockSource(LL_RCC_FMC_CLKSOURCE_PLL2R);
   LL_RCC_SetSPIClockSource(LL_RCC_SPI123_CLKSOURCE_PLL3P);
   LL_RCC_SetUSBClockSource(LL_RCC_USB_CLKSOURCE_PLL3Q);
   LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSOURCE_CLKP);
