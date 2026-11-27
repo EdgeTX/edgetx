@@ -214,7 +214,7 @@ void drawTimerWithMode(coord_t x, coord_t y, uint8_t index, LcdFlags att)
       lcdDrawNumber(x - 5, y, qr.rem, att | LEADING0 | negative, 2);
       lcdDrawText(lcdLastLeftPos, y, ":", att | BLINK | negative);
       lcdDrawNumber(lcdLastLeftPos, y, qr.quot, att | negative);
-      if (negative)
+      if (val < 0)
         lcdDrawText(lcdLastLeftPos, y, "-", att | negative);
     }
     else if (val < (99 * 60 * 60) + (59 * 60)) { // display HHhMM
@@ -222,14 +222,14 @@ void drawTimerWithMode(coord_t x, coord_t y, uint8_t index, LcdFlags att)
       lcdDrawNumber(x - 5, y, qr.rem, att | LEADING0, 2);
       lcdDrawText(lcdLastLeftPos, y, "h", att);
       lcdDrawNumber(lcdLastLeftPos, y, qr.quot, att);
-      if (negative)
+      if (val < 0)
         lcdDrawText(lcdLastLeftPos, y, "-", att);
     }
     else {  //display HHHH for crazy large persistent timers
       lcdDrawText(x - 5, y, "h", att);
       lcdDrawNumber(lcdLastLeftPos, y, val / 3600, att);
     }
-    uint8_t xLabel = (negative ? x - 56 : x - 49);
+    uint8_t xLabel = (val < 0 ? x - 56 : x - 49);
     uint8_t len = zlen(timer.name, LEN_TIMER_NAME);
     if (len > 0) {
       lcdDrawSizedText(xLabel, y + FH, timer.name, len, RIGHT);
