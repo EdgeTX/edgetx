@@ -85,26 +85,26 @@ static inline void check_struct()
 #endif
 
 #if defined(PCBXLITES)
-  CHKSIZE(RadioData, 951 + STATUS_LED_SIZE);
+  CHKSIZE(RadioData, 963 + STATUS_LED_SIZE);
 #elif defined(RADIO_T18H7)
   // as the group below, less the 3 IMU bytes
-  CHKSIZE(RadioData, 1180 + STATUS_LED_SIZE);
+  CHKSIZE(RadioData, 1192 + STATUS_LED_SIZE);
 #elif defined(RADIO_ST16) || defined(PCBPA01) || defined(RADIO_TX15) || defined(RADIO_GX15) || defined(RADIO_T15PRO) || defined(RADIO_T15H7) || defined(RADIO_TX16SMK3) || defined(RADIO_T22) || defined(RADIO_V15)
-  CHKSIZE(RadioData, 1183 + STATUS_LED_SIZE);
+  CHKSIZE(RadioData, 1195 + STATUS_LED_SIZE);
 #elif defined(RADIO_V12)
-  CHKSIZE(RadioData, 1180 + STATUS_LED_SIZE);
+  CHKSIZE(RadioData, 1192 + STATUS_LED_SIZE);
 #elif defined(RADIO_H17)
-  CHKSIZE(RadioData, 1060 + STATUS_LED_SIZE);
+  CHKSIZE(RadioData, 1072 + STATUS_LED_SIZE);
 #elif defined(COLORLCD)
   #if defined(IMU)
-    CHKSIZE(RadioData, 1063 + STATUS_LED_SIZE);
+    CHKSIZE(RadioData, 1075 + STATUS_LED_SIZE);
   #else
-    CHKSIZE(RadioData, 1062 + STATUS_LED_SIZE);
+    CHKSIZE(RadioData, 1074 + STATUS_LED_SIZE);
   #endif
 #elif defined(RADIO_GX12)
-  CHKSIZE(RadioData, 1068 + STATUS_LED_SIZE);
+  CHKSIZE(RadioData, 1080 + STATUS_LED_SIZE);
 #else
-  CHKSIZE(RadioData, 948 + STATUS_LED_SIZE);
+  CHKSIZE(RadioData, 960 + STATUS_LED_SIZE);
 #endif
 
 #if defined(RADIO_TPRO) || defined(RADIO_TPROV2) || defined(RADIO_BUMBLEBEE)

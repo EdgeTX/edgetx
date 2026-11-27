@@ -31,7 +31,11 @@
 #else
 #define BLUETOOTH_FACTORY_BAUDRATE      57600
 #endif
+#if defined(BLUETOOTH_A2DP)
+#define BT_TX_FIFO_SIZE    1024  // 32 kHz PCM burst buffer
+#else
 #define BT_TX_FIFO_SIZE    64
+#endif
 #define BT_RX_FIFO_SIZE    256
 
 void bluetoothInit(uint32_t baudrate, bool enable);

@@ -5,6 +5,7 @@ option(AFHDS3 "AFHDS3 TX Module" ON)
 option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger/DIY-Multiprotocol-TX-Module)" ON)
 option(GHOST "Ghost TX Module" ON)
 option(MODULE_SIZE_STD "Standard size TX Module" ON)
+option(BLUETOOTH "Support Bluetooth module on UART5" OFF)
 option(LUA_MIXER "Enable LUA mixer/model scripts support" ON)
 option(DISK_CACHE "Enable SD card disk cache" ON)
 option(INTERNAL_GPS "Support for internal GPS" ON)
@@ -67,7 +68,11 @@ set(FIRMWARE_DEPENDENCIES datacopy)
 set(SOFTWARE_KEYBOARD ON)
 set(FUNCTION_SWITCHES ON)
 set(USB_CHARGER YES)
-set(AUX_SERIAL YES)
+if(BLUETOOTH)
+  set(AUX_SERIAL OFF)
+else()
+  set(AUX_SERIAL YES)
+endif()
 set(AUX2_SERIAL YES)
 
 add_definitions(
@@ -178,6 +183,9 @@ add_library(board OBJECT EXCLUDE_FROM_ALL
   targets/common/arm/stm32/stm32_rgbleds.cpp
   targets/common/arm/stm32/trainer_driver.cpp
 )
+if(BLUETOOTH)
+  target_sources(board PRIVATE targets/common/arm/stm32/bluetooth_driver.cpp)
+endif()
 add_dependencies(board board_lib)
 set(FIRMWARE_SRC ${FIRMWARE_SRC} $<TARGET_OBJECTS:board>)
 

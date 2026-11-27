@@ -1024,11 +1024,13 @@ PACK(struct TrainerData {
   #define EXTRA_GENERAL_FIELDS \
     NOBACKUP(char currModelFilename[LEN_MODEL_FILENAME+1]); \
     NOBACKUP(uint8_t blOffBright); \
-    NOBACKUP(char bluetoothName[LEN_BLUETOOTH_NAME]);
+    NOBACKUP(char bluetoothName[LEN_BLUETOOTH_NAME]); \
+    NOBACKUP(char bluetoothAudioAddr[LEN_BLUETOOTH_AUDIO_ADDR]);
 #else
   #define EXTRA_GENERAL_FIELDS \
     uint8_t  backlightColor; \
-    char bluetoothName[LEN_BLUETOOTH_NAME];
+    char bluetoothName[LEN_BLUETOOTH_NAME]; \
+    NOBACKUP(char bluetoothAudioAddr[LEN_BLUETOOTH_AUDIO_ADDR]);
 #endif
 
 PACK(struct switchDef {

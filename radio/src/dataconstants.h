@@ -267,6 +267,7 @@ enum UartModes {
 #define LEN_ANA_NAME       3
 #define LEN_MODEL_FILENAME 16
 #define LEN_BLUETOOTH_NAME 10
+#define LEN_BLUETOOTH_AUDIO_ADDR 12  // A2DP sink, 12 hex digits
 
 enum TelemetryProtocol
 {
@@ -673,8 +674,11 @@ enum BluetoothModes {
   BLUETOOTH_OFF,
   BLUETOOTH_TELEMETRY,
   BLUETOOTH_TRAINER,
+  BLUETOOTH_AUDIO, // A2DP audio streaming, only selectable with BLUETOOTH_A2DP
 #if defined(PCBX9E)
   BLUETOOTH_MAX SKIP = BLUETOOTH_TELEMETRY
+#elif defined(BLUETOOTH_A2DP)
+  BLUETOOTH_MAX SKIP = BLUETOOTH_AUDIO
 #else
   BLUETOOTH_MAX SKIP = BLUETOOTH_TRAINER
 #endif

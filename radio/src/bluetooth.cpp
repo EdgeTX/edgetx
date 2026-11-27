@@ -48,6 +48,12 @@ extern FIL g_bluetoothFile;
 
 Bluetooth bluetooth;
 
+[[maybe_unused]] static bool isRoleAck(const char * line, bool audio)
+{
+  if (audio) return !strncmp(line, "Mode:A2DP", 9);
+  return !strncmp(line, "Central:", 8) || !strncmp(line, "Peripheral:", 11);
+}
+
 void Bluetooth::write(const uint8_t * data, uint8_t length)
 {
   BLUETOOTH_TRACE_VERBOSE("BT>");
@@ -146,7 +152,7 @@ void Bluetooth::processTrainerFrame(const uint8_t * buffer)
 
 void Bluetooth::appendTrainerByte(uint8_t data)
 {
-  if (bufferIndex < BLUETOOTH_LINE_LENGTH) {
+  if (bufferIndex < BLUETOOTH_LINE_LENGTH - 1) {
     buffer[bufferIndex++] = data;
     // we check for "DisConnected", but the first byte could be altered (if received in state STATE_DATA_XOR)
     if (data == '\n') {
@@ -333,6 +339,11 @@ void Bluetooth::receiveTrainer()
 #if defined(PCBX9E)
 void Bluetooth::wakeup(void)
 {
+#if defined(PCBX9E)
+  if (g_eeGeneral.bluetoothMode == BLUETOOTH_AUDIO) {
+    g_eeGeneral.bluetoothMode = BLUETOOTH_OFF;
+  }
+#endif
 #if !defined(SIMU)
   if (!g_eeGeneral.bluetoothMode) {
     if (state != BLUETOOTH_INIT) {
@@ -391,6 +402,16 @@ void Bluetooth::wakeup(void)
 #else // PCBX9E
 void Bluetooth::wakeup()
 {
+#if defined(BLUETOOTH_A2DP)
+  if (audioWakeup(get_tmr10ms())) {
+    return;
+  }
+#else
+  if (g_eeGeneral.bluetoothMode == BLUETOOTH_AUDIO) {
+    g_eeGeneral.bluetoothMode = BLUETOOTH_OFF;  // setting from an A2DP build
+  }
+#endif
+
   if (state != BLUETOOTH_STATE_OFF) {
     if (bluetoothIsWriting()) {
       return;
@@ -398,6 +419,15 @@ void Bluetooth::wakeup()
   }
 
   tmr10ms_t now = get_tmr10ms();
+
+#if defined(BLUETOOTH_A2DP)
+  if (state == BLUETOOTH_STATE_BOOT_WAIT) {
+    discardInput();
+    if (now < wakeupTime) return;
+    state = BLUETOOTH_STATE_BAUDRATE_INIT;
+    discardInput();
+  }
+#endif
 
   if (now < wakeupTime)
     return;
@@ -407,6 +437,28 @@ void Bluetooth::wakeup()
   if (state == BLUETOOTH_STATE_FLASH_FIRMWARE) {
     return;
   }
+
+#if defined(BLUETOOTH_A2DP)
+  // The A2DP role needs a different init sequence than telemetry/trainer
+  const bool wantAudio = g_eeGeneral.bluetoothMode == BLUETOOTH_AUDIO;
+  if (wantAudio != audioMode) {
+    const bool leavingAudio = audioMode;
+    audioMode = wantAudio;
+    state = leavingAudio ? (audioLink ? BLUETOOTH_STATE_AUDIO_BAUD_DOWN
+                                      : BLUETOOTH_STATE_AUDIO_STOP)
+                         : BLUETOOTH_STATE_OFF;
+    audioNextState = BLUETOOTH_STATE_AUDIO_STOP;
+  }
+#endif
+
+#if defined(BLUETOOTH_A2DP)
+  if (state == BLUETOOTH_STATE_AUDIO_STOP) {
+    writeString("AT+A2DPOFF");
+    state = BLUETOOTH_STATE_OFF;
+    wakeupTime = now + 10;
+    return;
+  }
+#endif
 
 #if defined(BT_PWR_GPIO)
   if (g_eeGeneral.bluetoothMode == BLUETOOTH_OFF) {
@@ -428,8 +480,19 @@ void Bluetooth::wakeup()
     wakeupTime = now + 10; /* 100ms */
   }
   else if (state == BLUETOOTH_STATE_OFF) {
+#if defined(BLUETOOTH_A2DP)
+    audioConnectTried = false;
+    if (audioMode) {
+      memset(distantAddr, 0, sizeof(distantAddr));
+      memcpy(distantAddr, g_eeGeneral.bluetoothAudioAddr, LEN_BLUETOOTH_AUDIO_ADDR);
+    }
+    bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
+    state = BLUETOOTH_STATE_BOOT_WAIT;
+    wakeupTime = now + 100;
+#else
     bluetoothInit(BLUETOOTH_FACTORY_BAUDRATE, true);
     state = BLUETOOTH_STATE_FACTORY_BAUDRATE_INIT;
+#endif
   }
 
   if (state == BLUETOOTH_STATE_FACTORY_BAUDRATE_INIT) {
@@ -458,6 +521,9 @@ void Bluetooth::wakeup()
   else {
     char * line = readline();
     if (state == BLUETOOTH_STATE_BAUDRATE_INIT) {
+    #if defined(BLUETOOTH_A2DP)
+      discardInput();
+    #endif
       char command[32];
       char * cur = strAppend(command, BLUETOOTH_COMMAND_NAME);
       uint8_t len = ZLEN(g_eeGeneral.bluetoothName);
@@ -480,7 +546,13 @@ void Bluetooth::wakeup()
     } else if (state == BLUETOOTH_STATE_POWER_SENT &&
                (line != nullptr) &&
                (!strncmp(line, "Central:", 8) ||
-                !strncmp(line, "Peripheral:", 11))) {
+                !strncmp(line, "Peripheral:", 11) ||
+                !strncmp(line, "Mode:", 5))) {
+#if defined(BLUETOOTH_A2DP)
+      if (audioMode)
+        writeString("AT+A2DPON");
+      else
+#endif
       if (g_eeGeneral.bluetoothMode == BLUETOOTH_TRAINER &&
           g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH)
         writeString("AT+ROLE1");
@@ -489,8 +561,11 @@ void Bluetooth::wakeup()
       state = BLUETOOTH_STATE_ROLE_SENT;
     } else if (state == BLUETOOTH_STATE_ROLE_SENT &&
                (line != nullptr) &&
-               (!strncmp(line, "Central:", 8) ||
-                !strncmp(line, "Peripheral:", 11))) {
+#if defined(BLUETOOTH_A2DP)
+               isRoleAck(line, audioMode)) {
+#else
+               isRoleAck(line, false)) {
+#endif
       state = BLUETOOTH_STATE_IDLE;
     } else if (state == BLUETOOTH_STATE_DISCOVER_REQUESTED) {
       writeString("AT+DISC?");
@@ -502,6 +577,20 @@ void Bluetooth::wakeup()
     } else if (state == BLUETOOTH_STATE_DISCOVER_START &&
                (line != nullptr) &&
                !strncmp(line, "OK+DISC:", 8)) {
+#if defined(BLUETOOTH_A2DP)
+      if (audioMode) {
+        const char * addr = &line[8];
+        bool known = false;
+        for (uint8_t i = 0; i < audioDevicesCount; i++) {
+          known = known || !strcmp(audioDevices[i], addr);
+        }
+        if (strlen(addr) == LEN_BLUETOOTH_AUDIO_ADDR && !known &&
+            audioDevicesCount < MAX_BLUETOOTH_DISTANT_ADDR) {
+          strcpy(audioDevices[audioDevicesCount], addr);
+          audioDevicesCount = audioDevicesCount + 1;
+        }
+      } else
+#endif
       if (strlen(line) < 8 + LEN_BLUETOOTH_ADDR &&
           reusableBuffer.moduleSetup.bt.devicesCount <
               MAX_BLUETOOTH_DISTANT_ADDR) {
@@ -511,6 +600,12 @@ void Bluetooth::wakeup()
         ++reusableBuffer.moduleSetup.bt.devicesCount;
       }
     }
+#if defined(BLUETOOTH_A2DP)
+    else if (audioMode && state == BLUETOOTH_STATE_DISCOVER_START &&
+             (line != nullptr) && !strcmp(line, "OK+DISCE")) {
+      state = BLUETOOTH_STATE_DISCOVER_END;
+    }
+#endif
 #if defined(PCBHORUS)
     else if (state == BLUETOOTH_STATE_DISCOVER_START &&
              (line != nullptr) && !strcmp(line, "OK+DISCE")) {
@@ -518,15 +613,47 @@ void Bluetooth::wakeup()
     }
 #endif
     else if (state == BLUETOOTH_STATE_CLEAR_REQUESTED) {
-      char command[] = "AT+CLEAR";
-      writeString(command);
-      state = BLUETOOTH_STATE_IDLE;
+#if defined(BLUETOOTH_A2DP)
+      if (audioMode) {
+        // drop the sink connection by restarting the A2DP role
+        writeString("AT+A2DPOFF");
+        state = BLUETOOTH_STATE_POWER_SENT;
+      } else
+#endif
+      {
+        char command[] = "AT+CLEAR";
+        writeString(command);
+        state = BLUETOOTH_STATE_IDLE;
+      }
     } else if (state == BLUETOOTH_STATE_BIND_REQUESTED) {
       char command[32];
+#if defined(BLUETOOTH_A2DP)
+      strAppend(strAppend(command, audioMode ? "AT+A2DPCON" : "AT+CON"), distantAddr);
+#else
       strAppend(strAppend(command, "AT+CON"), distantAddr);
+#endif
       writeString(command);
       state = BLUETOOTH_STATE_CONNECT_SENT;
-    } else if ((state == BLUETOOTH_STATE_IDLE ||
+    }
+#if defined(BLUETOOTH_A2DP)
+    else if (audioMode && state == BLUETOOTH_STATE_CONNECT_SENT &&
+             (line != nullptr) && !strncmp(line, "OK+A2DPCON", 10)) {
+      audioSetStoredAddr(distantAddr);
+      writeString(BLUETOOTH_AUDIO_BAUD_CMD);
+      state = BLUETOOTH_STATE_AUDIO_BAUD_UP;
+      wakeupTime = now + 10;
+    } else if (audioMode && state == BLUETOOTH_STATE_AUDIO_BAUD_UP) {
+      bluetoothInit(BLUETOOTH_AUDIO_BAUDRATE, true);
+      audioRidx = audioWidx = 0;
+      audioLink = true;
+      state = BLUETOOTH_STATE_CONNECTED;
+    } else if (audioMode && !audioConnectTried && distantAddr[0] &&
+               (state == BLUETOOTH_STATE_IDLE || state == BLUETOOTH_STATE_DISCOVER_END)) {
+      audioConnectTried = true;
+      state = BLUETOOTH_STATE_BIND_REQUESTED;
+    }
+#endif
+    else if ((state == BLUETOOTH_STATE_IDLE ||
                 state == BLUETOOTH_STATE_DISCONNECTED ||
                 state == BLUETOOTH_STATE_CONNECT_SENT) &&
                (line != nullptr) && !strncmp(line, "Connected:", 10)) {
@@ -544,6 +671,185 @@ void Bluetooth::wakeup()
   }
 }
 #endif
+
+#if defined(BLUETOOTH_A2DP)
+static constexpr uint16_t AUDIO_RING_MASK = BLUETOOTH_AUDIO_RING_SIZE - 1;
+
+void Bluetooth::discardInput()
+{
+  uint8_t byte;
+  while (bluetoothRead(&byte)) {}
+  bufferIndex = 0;
+}
+
+bool Bluetooth::audioActive() const
+{
+  return audioLink && state == BLUETOOTH_STATE_CONNECTED &&
+         g_eeGeneral.bluetoothMode == BLUETOOTH_AUDIO;
+}
+
+// Producer side (audio task): mono s16 LE at AUDIO_SAMPLE_RATE, no conversion of the rate
+bool Bluetooth::audioPush(const void * samples, uint16_t count)
+{
+  if (!audioActive()) return false;
+
+  auto in = (const audio_data_t *)samples;
+  uint16_t w = audioWidx;
+  const uint16_t r = audioRidx;
+
+  for (uint16_t i = 0; i < count; i++) {
+    if (((r - w - 1) & AUDIO_RING_MASK) < 2) break;
+    int16_t s = (int16_t)((int32_t)in[i] - AUDIO_DATA_SILENCE);
+    audioRing[w] = s & 0xFF;
+    audioRing[(w + 1) & AUDIO_RING_MASK] = (s >> 8) & 0xFF;
+    w = (w + 2) & AUDIO_RING_MASK;
+  }
+
+  audioWidx = w;
+  return true;
+}
+
+// Consumer side (mixer task)
+void Bluetooth::audioPump()
+{
+  if (bluetoothIsWriting()) return;
+
+  static uint8_t chunk[BLUETOOTH_AUDIO_MAX_CHUNK];
+  const uint16_t w = audioWidx;
+  uint16_t r = audioRidx;
+  uint16_t n = 0;
+
+  while (r != w && n < sizeof(chunk)) {
+    chunk[n++] = audioRing[r];
+    r = (r + 1) & AUDIO_RING_MASK;
+  }
+  if (n & 1) {  // never split a sample
+    n--;
+    r = (r - 1) & AUDIO_RING_MASK;
+  }
+  if (n > 0) {
+    char command[32];
+    snprintf(command, sizeof(command), "AT+A2DPSAMPLES%u", n / 2);
+    writeString(command);
+    bluetoothWrite(chunk, n);
+    audioRidx = r;
+  }
+}
+
+void Bluetooth::audioSetStoredAddr(const char * addr)
+{
+  if (strncmp(g_eeGeneral.bluetoothAudioAddr, addr, LEN_BLUETOOTH_AUDIO_ADDR) != 0) {
+    memset(g_eeGeneral.bluetoothAudioAddr, 0, LEN_BLUETOOTH_AUDIO_ADDR);
+    strncpy(g_eeGeneral.bluetoothAudioAddr, addr, LEN_BLUETOOTH_AUDIO_ADDR);
+    storageDirty(EE_GENERAL);
+  }
+}
+
+void Bluetooth::audioStartScan()
+{
+  audioDevicesCount = 0;
+  audioConnectTried = false;
+  state = BLUETOOTH_STATE_DISCOVER_REQUESTED;
+}
+
+void Bluetooth::audioSelectDevice(const char * addr)
+{
+  memset(distantAddr, 0, sizeof(distantAddr));
+  strncpy(distantAddr, addr, LEN_BLUETOOTH_AUDIO_ADDR);
+  state = BLUETOOTH_STATE_BIND_REQUESTED;
+}
+
+void Bluetooth::audioForgetDevice()
+{
+  memset(distantAddr, 0, sizeof(distantAddr));
+  audioSetStoredAddr("");
+  state = BLUETOOTH_STATE_CLEAR_REQUESTED;
+}
+
+// Handles the PCM link; returns true when it consumed this wakeup
+bool Bluetooth::audioWakeup(tmr10ms_t now)
+{
+  if (!audioLink) return false;
+
+  if (g_eeGeneral.bluetoothMode == BLUETOOTH_AUDIO && state == BLUETOOTH_STATE_CONNECTED) {
+    audioPump();
+    readline(false);  // module chatter such as A2DPVOL:n
+    return true;
+  }
+
+  if (state == BLUETOOTH_STATE_AUDIO_STATS_WAIT) {
+    if (bluetoothIsWriting()) return true;
+    discardInput();
+    writeString("AT+A2DPSTATS?");
+    state = BLUETOOTH_STATE_AUDIO_STATS_SENT;
+    wakeupTime = now + 25;
+    return true;
+  }
+
+  if (state == BLUETOOTH_STATE_AUDIO_STATS_SENT) {
+    char * line = readline(false);
+    if (line && !strncmp(line, "OK+A2DPSTATS:", 13)) {
+      unsigned int underruns;
+      unsigned int uartDropBytes;
+      unsigned int uartOverflowEvents;
+      unsigned int uartFifoOverflowEvents;
+      unsigned int uartBufferFullEvents;
+      unsigned int pcmDropBytes;
+      unsigned int pcmQueueDropBytes;
+      unsigned int pcmPacketTimeoutBytes;
+      unsigned int resets;
+      unsigned int lowWaterBytes;
+      if (sscanf(line,
+                 "OK+A2DPSTATS:underruns=%u,uart_drop_bytes=%u,uart_overflow_events=%u,uart_fifo_overflow_events=%u,uart_buffer_full_events=%u,pcm_drop_bytes=%u,pcm_queue_drop_bytes=%u,pcm_packet_timeout_bytes=%u,resets=%u,low_water_bytes=%u",
+                 &underruns, &uartDropBytes, &uartOverflowEvents,
+                 &uartFifoOverflowEvents, &uartBufferFullEvents, &pcmDropBytes,
+                 &pcmQueueDropBytes, &pcmPacketTimeoutBytes, &resets,
+                 &lowWaterBytes) == 10) {
+        audioUnderruns = underruns;
+        audioUartDropBytes = uartDropBytes;
+        audioUartOverflowEvents = uartOverflowEvents;
+        audioUartFifoOverflowEvents = uartFifoOverflowEvents;
+        audioUartBufferFullEvents = uartBufferFullEvents;
+        audioPcmDropBytes = pcmDropBytes;
+        audioPcmQueueDropBytes = pcmQueueDropBytes;
+        audioPcmPacketTimeoutBytes = pcmPacketTimeoutBytes;
+        audioResets = resets;
+        audioLowWaterBytes = lowWaterBytes;
+        audioStatsValid = true;
+        BLUETOOTH_TRACE("BT A2DP stats: %s" CRLF, line);
+      }
+    }
+
+    if ((line && !strncmp(line, "OK+A2DPSTATS:", 13)) || now >= wakeupTime) {
+      discardInput();
+      writeString("AT+BAUD4");
+      state = BLUETOOTH_STATE_AUDIO_BAUD_DOWN;
+      wakeupTime = now + 10;
+    }
+    return true;
+  }
+
+  // Leave PCM mode first: the module only understands AT commands at the default rate
+  if (state == BLUETOOTH_STATE_AUDIO_BAUD_DOWN) {
+    if (now >= wakeupTime && !bluetoothIsWriting()) {
+      bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
+      audioLink = false;
+      audioConnectTried = false;
+      state = audioNextState;
+      wakeupTime = now + 10;
+    }
+    return true;
+  }
+
+  if (bluetoothIsWriting()) return true;
+
+  audioNextState = BLUETOOTH_STATE_AUDIO_STOP;
+  audioStatsValid = false;
+  state = BLUETOOTH_STATE_AUDIO_STATS_WAIT;
+  wakeupTime = now;
+  return true;
+}
+#endif // BLUETOOTH_A2DP
 
 uint8_t Bluetooth::bootloaderChecksum(uint8_t command, const uint8_t * data, uint8_t size)
 {

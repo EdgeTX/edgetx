@@ -57,6 +57,7 @@ const struct YamlIdStr enum_BluetoothModes[] = {
   {  BLUETOOTH_OFF, "OFF"  },
   {  BLUETOOTH_TELEMETRY, "TELEMETRY"  },
   {  BLUETOOTH_TRAINER, "TRAINER"  },
+  {  BLUETOOTH_AUDIO, "AUDIO"  },
   {  0, NULL  }
 };
 const struct YamlIdStr enum_Functions[] = {
@@ -436,6 +437,7 @@ static const struct YamlNode struct_RadioData[] = {
   YAML_STRING("currModelFilename", 17),
   YAML_UNSIGNED( "blOffBright", 8 ),
   YAML_STRING("bluetoothName", 10),
+  YAML_STRING("bluetoothAudioAddr", 12),
   YAML_STRING("ownerRegistrationID", 8),
   YAML_CUSTOM("rotEncDirection",r_rotEncDirection,nullptr),
   YAML_UNSIGNED( "rotEncMode", 3 ),

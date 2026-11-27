@@ -200,6 +200,8 @@
 #define TR_VPREC                    SA3(TR_VPREC)
 #if defined(PCBX9E)
 #define TR_BLUETOOTH_MODES          TR_BLUETOOTH_MODES_1, TR_BLUETOOTH_MODES_4
+#elif defined(BLUETOOTH_A2DP)
+#define TR_BLUETOOTH_MODES          SA3(TR_BLUETOOTH_MODES), "Audio"
 #else
 #define TR_BLUETOOTH_MODES          SA3(TR_BLUETOOTH_MODES)
 #endif

@@ -279,6 +279,12 @@ TIM17:	ROTARY_ENCODER_TIMER
 #define AUX_SERIAL_DMA_RX_CHANNEL           LL_DMAMUX1_REQ_UART5_RX
 #define AUX_SERIAL_PWR_GPIO                 GPIO_PIN(GPIOB, 7) // PB.07
 
+#define BT_USART                            UART5
+#define BT_USART_IRQn                       UART5_IRQn
+#define BT_TX_GPIO                          GPIO_PIN(GPIOB, 6)
+#define BT_RX_GPIO                          GPIO_PIN(GPIOB, 5)
+#define BT_PWR_GPIO                         GPIO_PIN(GPIOB, 7)
+
 #define AUX2_SERIAL_TX_GPIO                 GPIO_PIN(GPIOB, 10) // PB.10
 #define AUX2_SERIAL_RX_GPIO                 GPIO_PIN(GPIOB, 11) // PB.11
 #define AUX2_SERIAL_USART                   USART3

@@ -31,4 +31,5 @@ class BluetoothConfigWindow
  protected:
   Window* settingsBtn = nullptr;
   Window* nameEdit = nullptr;
+  Window* audioLine = nullptr;
 };

@@ -315,9 +315,32 @@ endif()
 
 set(SRC ${SRC} sdcard.cpp rtc.cpp logs.cpp lib_file.cpp)
 
+# Bluetooth support levels:
+#   BLUETOOTH=OFF                       no Bluetooth
+#   BLUETOOTH=ON, BLUETOOTH_A2DP=OFF    Bluetooth telemetry/trainer only
+#   BLUETOOTH=ON, BLUETOOTH_A2DP=ON     additionally A2DP audio (PCM over the BT UART)
+option(BLUETOOTH_A2DP "Bluetooth A2DP audio streaming (needs BLUETOOTH and an A2DP capable module)" OFF)
+
 if(BLUETOOTH)
   add_definitions(-DBLUETOOTH)
   set(SRC ${SRC} bluetooth.cpp)
+  if(BLUETOOTH_A2DP)
+    if(PCB STREQUAL X9E)
+      message(WARNING "BLUETOOTH_A2DP is not supported on X9E, ignored")
+    elseif(NOT AUDIO)
+      message(FATAL_ERROR "BLUETOOTH_A2DP requires AUDIO=ON")
+    else()
+      set(BLUETOOTH_AUDIO_BAUDRATE "921600" CACHE STRING "Bluetooth A2DP PCM UART baud rate (921600, 1870000, 3750000, 5250000)")
+      set_property(CACHE BLUETOOTH_AUDIO_BAUDRATE PROPERTY STRINGS 921600 1870000 3750000 5250000)
+      if(NOT BLUETOOTH_AUDIO_BAUDRATE MATCHES "^(921600|1870000|3750000|5250000)$")
+        message(FATAL_ERROR "Unsupported BLUETOOTH_AUDIO_BAUDRATE=${BLUETOOTH_AUDIO_BAUDRATE}")
+      endif()
+      add_definitions(-DBLUETOOTH_A2DP)
+      add_definitions(-DBLUETOOTH_AUDIO_BAUDRATE=${BLUETOOTH_AUDIO_BAUDRATE})
+    endif()
+  endif()
+elseif(BLUETOOTH_A2DP)
+  message(WARNING "BLUETOOTH_A2DP requires BLUETOOTH, ignored")
 endif()
 
 if(SHUTDOWN_CONFIRMATION)

@@ -697,6 +697,15 @@ void AudioQueue::wakeup()
       // TRACE("pushing buffer %p", buffer);
       buffer->size = size;
 
+#if defined(BLUETOOTH_A2DP)
+      if (bluetooth.audioPush(buffer->data, size)) {
+        // streamed to the sink; keep pushing silence so the local output still paces the queue
+        for (int i = 0; i < size; i++) {
+          buffer->data[i] = AUDIO_DATA_SILENCE;
+        }
+      }
+#endif
+
 #if defined(SOFTWARE_VOLUME)
       if (currentSpeakerVolume > 0) {
         for (uint32_t i=0; i<buffer->size; ++i) {
@@ -714,6 +723,11 @@ void AudioQueue::wakeup()
       buffersFifo.audioPushBuffer();
 #endif
     } else {
+#if defined(BLUETOOTH_A2DP)
+      if (bluetooth.audioActive()) {
+        bluetooth.audioPush(buffer->data, AUDIO_SAMPLE_RATE / 250);
+      }
+#endif
       // break the endless loop
       break;
     }

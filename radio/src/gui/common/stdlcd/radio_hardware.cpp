@@ -85,6 +85,9 @@ enum {
   ITEM_RADIO_HARDWARE_BLUETOOTH_LOCAL_ADDR,
   ITEM_RADIO_HARDWARE_BLUETOOTH_DISTANT_ADDR,
   ITEM_RADIO_HARDWARE_BLUETOOTH_NAME,
+#if defined(BLUETOOTH_A2DP)
+  ITEM_RADIO_HARDWARE_BLUETOOTH_AUDIO,
+#endif
 #endif
 #if defined(EXTERNAL_ANTENNA)
   ITEM_RADIO_HARDWARE_EXTERNAL_ANTENNA,
@@ -346,6 +349,13 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   tab[ITEM_RADIO_HARDWARE_BLUETOOTH_LOCAL_ADDR] = bt_off ? HIDDEN_ROW : READONLY_ROW;
   tab[ITEM_RADIO_HARDWARE_BLUETOOTH_DISTANT_ADDR] = bt_off ? HIDDEN_ROW : READONLY_ROW;
   tab[ITEM_RADIO_HARDWARE_BLUETOOTH_NAME] = bt_off ? HIDDEN_ROW : 0;
+#if defined(BLUETOOTH_A2DP)
+  // discover + clear when a sink is stored
+  tab[ITEM_RADIO_HARDWARE_BLUETOOTH_AUDIO] =
+      g_eeGeneral.bluetoothMode != BLUETOOTH_AUDIO ? HIDDEN_ROW
+      : bluetooth.distantAddr[0]                   ? 1
+                                                   : 0;
+#endif
 #endif
 
 #if defined(EXTERNAL_ANTENNA)
@@ -392,6 +402,22 @@ static void _init_menu_tab_array(uint8_t* tab, size_t len)
   tab[ITEM_RADIO_HARDWARE_DEBUG_FS] = 0;
 #endif
 }
+
+#if defined(BLUETOOTH_A2DP)
+static void onBluetoothAudioMenu(const char * result)
+{
+  if (result != STR_EXIT) {
+    for (uint8_t i = 0; i < bluetooth.audioDevicesCount; i++) {
+      if (result == bluetooth.audioDevices[i]) {
+        bluetooth.audioSelectDevice(bluetooth.audioDevices[i]);
+        return;
+      }
+    }
+  }
+  bluetooth.audioDevicesCount = 0;
+  bluetooth.state = BLUETOOTH_STATE_IDLE;
+}
+#endif
 
 static bool editInversion(bool state, event_t event, coord_t y, LcdFlags flags)
 {
@@ -573,6 +599,46 @@ void menuRadioHardware(event_t event)
         editName(HW_SETTINGS_COLUMN2, y, g_eeGeneral.bluetoothName,
                  LEN_BLUETOOTH_NAME, event, (attr != 0), attr, old_editMode);
         break;
+
+#if defined(BLUETOOTH_A2DP)
+      case ITEM_RADIO_HARDWARE_BLUETOOTH_AUDIO: {
+        const uint8_t st = bluetooth.state;
+        const bool scanning = st == BLUETOOTH_STATE_DISCOVER_REQUESTED ||
+                              st == BLUETOOTH_STATE_DISCOVER_SENT ||
+                              st == BLUETOOTH_STATE_DISCOVER_START;
+        lcdDrawTextIndented(y, st == BLUETOOTH_STATE_CONNECTED ? STR_CONNECTED : STR_NOT_CONNECTED);
+        lcdDrawText(HW_SETTINGS_COLUMN2, y,
+                    st < BLUETOOTH_STATE_IDLE ? STR_BUTTON_INIT
+                    : scanning                ? STR_BLUETOOTH_SCANNING
+                                              : STR_DISCOVER,
+                    menuHorizontalPosition == 0 ? attr : 0);
+        if (bluetooth.distantAddr[0]) {
+          lcdDrawText(lcdNextPos + FW, y, STR_CLEAR_BTN, menuHorizontalPosition == 1 ? attr : 0);
+        }
+        if (attr) s_editMode = 0;
+        if (attr && event == EVT_KEY_BREAK(KEY_ENTER)) {
+          if (menuHorizontalPosition == 1) {
+            bluetooth.audioForgetDevice();
+          } else if (st < BLUETOOTH_STATE_IDLE) {
+            bluetooth.state = BLUETOOTH_STATE_OFF;
+          } else if (!scanning) {
+            bluetooth.audioStartScan();
+          }
+        }
+        if ((st == BLUETOOTH_STATE_DISCOVER_START || st == BLUETOOTH_STATE_DISCOVER_END) &&
+            bluetooth.audioDevicesCount > 0) {
+          popupMenuItemsCount = min<uint8_t>(bluetooth.audioDevicesCount, MAX_BLUETOOTH_DISTANT_ADDR);
+          for (uint8_t i = 0; i < popupMenuItemsCount; i++) {
+            popupMenuItems[i] = bluetooth.audioDevices[i];
+          }
+          POPUP_MENU_TITLE(STR_BT_SELECT_DEVICE);
+          POPUP_MENU_START(onBluetoothAudioMenu);
+        } else if (st == BLUETOOTH_STATE_DISCOVER_END) {
+          bluetooth.state = BLUETOOTH_STATE_IDLE;
+        }
+        break;
+      }
+#endif
 #endif
 
 #if defined(EXTERNAL_ANTENNA)

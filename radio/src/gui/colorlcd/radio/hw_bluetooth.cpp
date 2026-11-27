@@ -25,6 +25,7 @@
 #include "dialog.h"
 #include "edgetx.h"
 #include "getset_helpers.h"
+#include "menu.h"
 #include "static.h"
 #include "textedit.h"
 
@@ -70,6 +71,105 @@ class BTDetailsDialog : public BaseDialog
   }
 };
 
+#if defined(BLUETOOTH_A2DP)
+class BTAudioDiscoverMenu : public Menu
+{
+ public:
+  BTAudioDiscoverMenu() : Menu() { setTitle(STR_BT_SELECT_DEVICE); }
+
+  void checkEvents() override
+  {
+    for (; devCount < bluetooth.audioDevicesCount; devCount++) {
+      const char* addr = bluetooth.audioDevices[devCount];
+      addLine(addr, [=]() { bluetooth.audioSelectDevice(addr); });
+    }
+    Menu::checkEvents();
+  }
+
+ protected:
+  uint8_t devCount = 0;
+};
+
+// Sink selection line: address, scan/init button and clear button
+class BTAudioBox : public Window
+{
+ public:
+  BTAudioBox(Window* parent) : Window(parent, rect_t{})
+  {
+    setFlexLayout(LV_FLEX_FLOW_COLUMN, PAD_SMALL);
+    lv_obj_set_style_flex_cross_place(getLvObj(), LV_FLEX_ALIGN_START, 0);
+
+    addr = new StaticText(this, rect_t{}, "");
+    auto actions = new Window(this, rect_t{});
+    actions->setFlexLayout(LV_FLEX_FLOW_ROW, PAD_SMALL);
+    scanBtn = new TextButton(actions, rect_t{}, "", []() -> uint8_t {
+      if (bluetooth.state < BLUETOOTH_STATE_IDLE) {
+        bluetooth.state = BLUETOOTH_STATE_OFF;
+      } else if (bluetooth.state >= BLUETOOTH_STATE_IDLE &&
+                 bluetooth.state != BLUETOOTH_STATE_DISCOVER_REQUESTED &&
+                 bluetooth.state != BLUETOOTH_STATE_DISCOVER_SENT &&
+                 bluetooth.state != BLUETOOTH_STATE_DISCOVER_START) {
+        bluetooth.audioStartScan();
+      }
+      return 0;
+    });
+    clearBtn = new TextButton(actions, rect_t{}, STR_CLEAR, []() -> uint8_t {
+      bluetooth.audioForgetDevice();
+      return 0;
+    });
+  }
+
+  void checkEvents() override
+  {
+    const uint8_t st = bluetooth.state;
+    const bool scanning = st == BLUETOOTH_STATE_DISCOVER_REQUESTED ||
+                          st == BLUETOOTH_STATE_DISCOVER_SENT ||
+                          st == BLUETOOTH_STATE_DISCOVER_START;
+
+    if ((st == BLUETOOTH_STATE_DISCOVER_START || st == BLUETOOTH_STATE_DISCOVER_END) &&
+        bluetooth.audioDevicesCount > 0 && !menuOpen) {
+      menuOpen = true;
+      auto menu = new BTAudioDiscoverMenu();
+      menu->onClosing([=]() {
+        menuOpen = false;
+        if (bluetooth.state != BLUETOOTH_STATE_BIND_REQUESTED)
+          bluetooth.state = BLUETOOTH_STATE_IDLE;
+      });
+    } else if (st == BLUETOOTH_STATE_DISCOVER_END && !menuOpen &&
+               bluetooth.audioDevicesCount == 0) {
+      new MessageDialog(STR_BLUETOOTH, STR_BLUETOOTH_NODEVICES);
+      bluetooth.state = BLUETOOTH_STATE_IDLE;
+    }
+
+    std::string a = bluetooth.distantAddr[0] ? bluetooth.distantAddr : "---";
+    if (st == BLUETOOTH_STATE_CONNECTED) a += std::string(" ") + STR_CONNECTED;
+    if (a != lastAddr) {
+      lastAddr = a;
+      addr->setText(a);
+    }
+
+    const char* label = st < BLUETOOTH_STATE_IDLE ? STR_BLUETOOTH_INIT
+                        : scanning                ? STR_BLUETOOTH_SCANNING
+                                                  : STR_DISCOVER;
+    if (label != lastLabel) {
+      lastLabel = label;
+      scanBtn->setText(label);
+    }
+
+    clearBtn->show(bluetooth.distantAddr[0] != 0);
+    Window::checkEvents();
+  }
+
+ protected:
+  StaticText* addr = nullptr;
+  TextButton* scanBtn = nullptr;
+  TextButton* clearBtn = nullptr;
+  std::string lastAddr;
+  const char* lastLabel = nullptr;
+  bool menuOpen = false;
+};
+#endif
+
 BluetoothConfigWindow::BluetoothConfigWindow(Window* parent, FlexGridLayout& grid)
 {
   auto line = parent->newLine(grid);
@@ -83,11 +183,14 @@ BluetoothConfigWindow::BluetoothConfigWindow(Window* parent, FlexGridLayout& gri
   lv_obj_set_style_flex_cross_place(box->getLvObj(), LV_FLEX_ALIGN_CENTER, 0);
 
   new Choice(
-      box, rect_t{}, STR_BLUETOOTH_MODES, BLUETOOTH_OFF, BLUETOOTH_TRAINER,
+      box, rect_t{}, STR_BLUETOOTH_MODES, BLUETOOTH_OFF, BLUETOOTH_MAX,
       GET_DEFAULT(g_eeGeneral.bluetoothMode), [=](int value) {
         g_eeGeneral.bluetoothMode = value;
         settingsBtn->show(g_eeGeneral.bluetoothMode != BLUETOOTH_OFF);
         nameEdit->show(g_eeGeneral.bluetoothMode != BLUETOOTH_OFF);
+#if defined(BLUETOOTH_A2DP)
+        audioLine->show(g_eeGeneral.bluetoothMode == BLUETOOTH_AUDIO);
+#endif
       });
 
   settingsBtn =
@@ -110,4 +213,12 @@ BluetoothConfigWindow::BluetoothConfigWindow(Window* parent, FlexGridLayout& gri
   new RadioTextEdit(box, rect_t{}, g_eeGeneral.bluetoothName,
                     LEN_BLUETOOTH_NAME);
   nameEdit->show(g_eeGeneral.bluetoothMode != BLUETOOTH_OFF);
+
+#if defined(BLUETOOTH_A2DP)
+  audioLine = parent->newLine(grid);
+  audioLine->padLeft(PAD_SMALL);
+  new StaticText(audioLine, rect_t{}, STR_BLUETOOTH_DIST_ADDR);
+  new BTAudioBox(audioLine);
+  audioLine->show(g_eeGeneral.bluetoothMode == BLUETOOTH_AUDIO);
+#endif
 }
