@@ -903,6 +903,7 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
   do {
     bitfield_channels_t passDirtyChannels = 0;
+    int16_t chanDest = -1;  // channel of the last line evaluated
 
     for (uint8_t i=0; i<MAX_MIXERS; i++) {
       if (mode == e_perout_mode_normal && pass == 0)
@@ -912,21 +913,18 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
       mixsrc_t srcRaw = md->srcRaw;
       mixsrc_t srcRawAbs = abs(srcRaw);
 
-      if (srcRaw == 0) {
-#if defined(COLORLCD)
-        continue;
-#else
-        break;
-#endif
-      }
+      // a line without source contributes nothing
+      if (srcRaw == 0) continue;
 
       if (!channel_dirty(dirtyChannels, md->destCh))
         continue;
 
       // if this is the first calculation for the destination channel,
       // initialize it with 0 (otherwise would be random)
-      if (i == 0 || md->destCh != (md - 1)->destCh)
+      if (md->destCh != chanDest) {
         chans[md->destCh] = 0;
+        chanDest = md->destCh;
+      }
 
       //========== FLIGHT MODE && SWITCH =====
       bool mixCondition = (md->flightModes != 0 || md->swtch);

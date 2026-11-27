@@ -822,7 +822,7 @@ static unsigned int getFirstMix(unsigned int chn)
 {
   for (unsigned int i=0; i<MAX_MIXERS; i++) {
     MixData * mix = mixAddress(i);
-    if (!mix->srcRaw || mix->destCh>=chn) {
+    if (is_memclear(mix, sizeof(MixData)) || mix->destCh>=chn) {
       return i;
     }
   }
@@ -834,7 +834,7 @@ static unsigned int getMixesCountFromFirst(unsigned int chn, unsigned int first)
   unsigned int count = 0;
   for (unsigned int i=first; i<MAX_MIXERS; i++) {
     MixData * mix = mixAddress(i);
-    if (!mix->srcRaw || mix->destCh!=chn) break;
+    if (is_memclear(mix, sizeof(MixData)) || mix->destCh!=chn) break;
     count++;
   }
   return count;
