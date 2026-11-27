@@ -716,6 +716,33 @@ TEST(Curves, LinearIntpol)
   EXPECT_EQ(applyCustomCurve(-192, 0), -192);
 }
 
+TEST(Curves, UndefinedCurveIsIdentity)
+{
+  SYSTEM_RESET();
+  MODEL_RESET();
+  MIXER_RESET();
+  setModelDefaults();
+  EXPECT_FALSE(isCurveUsed(0));
+  EXPECT_EQ(applyCustomCurve(-1024, 0), -1024);
+  EXPECT_EQ(applyCustomCurve(0, 0), 0);
+  EXPECT_EQ(applyCustomCurve(1024, 0), 1024);
+  EXPECT_EQ(applyCustomCurve(-192, 0), -192);
+}
+
+TEST_F(MixerTest, UndefinedCurveOnInputFollowsStick)
+{
+  g_eeGeneral.stickMode = 1;  // mode 2
+  ExpoData * expo = expoAddress(THR_STICK);
+  expo->curve.type = CURVE_REF_CUSTOM;
+  expo->curve.value = makeSourceNumVal(1);  // CV1, never defined
+
+  const int stick = inputMappingConvertMode(THR_STICK);
+  for (int pos : {-1024, 0, 1024}) {
+    anaSetFiltered(stick, pos);
+    evalMixes(1);
+    EXPECT_EQ(channelOutputs[THR_CHAN], pos);
+  }
+}
 
 
 TEST_F(MixerTest, LimitsFromGVar)
