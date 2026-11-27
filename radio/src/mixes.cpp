@@ -27,7 +27,7 @@
 
 static uint8_t _nb_mix_lines;
 
-MixData* mixAddress(uint8_t idx) { return &g_model.mixData[idx]; }
+__IRAM MixData* mixAddress(uint8_t idx) { return &g_model.mixData[idx]; }
 
 uint8_t getMixCount() { return _nb_mix_lines; }
 

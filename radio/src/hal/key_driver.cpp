@@ -36,7 +36,7 @@ uint8_t keysGetMaxKeys()
   return _n_keys;
 }
 
-uint8_t keysGetMaxTrims()
+__IRAM uint8_t keysGetMaxTrims()
 {
   return _n_trims;
 }

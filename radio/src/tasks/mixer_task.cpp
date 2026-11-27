@@ -138,7 +138,7 @@ void execMixerFrequentActions()
 
 __attribute__((weak)) void customMixerActions() {}
 
-void mixerTask()
+__IRAM void mixerTask()
 {
   while (task_running()) {
 
@@ -214,7 +214,7 @@ void mixerTask()
   }
 }
 
-void doMixerCalculations()
+__IRAM void doMixerCalculations()
 {
   static tmr10ms_t lastTMR = 0;
 

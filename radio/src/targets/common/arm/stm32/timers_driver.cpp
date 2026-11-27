@@ -25,6 +25,7 @@
 
 #include "hal.h"
 #include "hal/watchdog_driver.h"
+#include "memory_sections.h"
 
 static volatile uint32_t _ms_ticks;
 
@@ -56,7 +57,7 @@ uint32_t timersGetMsTick()
   return _ms_ticks;
 }
 
-uint32_t timersGetUsTick()
+__IRAM uint32_t timersGetUsTick()
 {
   uint32_t ms;
   uint32_t us;

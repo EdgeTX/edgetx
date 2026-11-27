@@ -121,7 +121,7 @@ uint16_t bsp_input_get()
   return inputState;
 }
 
-SwitchHwPos boardSwitchGetPosition(uint8_t idx)
+__IRAM SwitchHwPos boardSwitchGetPosition(uint8_t idx)
 {
   if (idx < 6) {
     extern const stm32_switch_t* boardGetSwitchDef(uint8_t idx);

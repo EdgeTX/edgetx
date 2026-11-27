@@ -70,7 +70,7 @@ static void adc_deinit()
   stm32_hal_adc_deinit(_ADC_adc, n_ADC);
 }
 
-static bool adc_start_read()
+__IRAM static bool adc_start_read()
 {
   bool success = stm32_hal_adc_start_read(_ADC_adc, n_ADC, _ADC_inputs, n_inputs);
 #if defined(USE_ADS79XX)

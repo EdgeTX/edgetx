@@ -22,7 +22,7 @@
 #include "edgetx.h"
 #include "hal/switch_driver.h"
 
-SwitchConfig ModelData::getSwitchType(uint8_t n)
+__IRAM SwitchConfig ModelData::getSwitchType(uint8_t n)
 {
 #if defined(FUNCTION_SWITCHES)
   if (switchIsCustomSwitch(n) && cfsType(n) != SWITCH_GLOBAL)
@@ -87,7 +87,7 @@ void ModelData::setSwitchStart(uint8_t n, fsStartPositionType v) {
   g_eeGeneral.switchSetStart(n, v);
 }
 
-SwitchConfig ModelData::cfsType(uint8_t n) {
+__IRAM SwitchConfig ModelData::cfsType(uint8_t n) {
   return (SwitchConfig)customSwitches[switchGetCustomSwitchIdx(n)].type;
 }
 

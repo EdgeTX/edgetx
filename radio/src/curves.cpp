@@ -276,7 +276,7 @@ int16_t hermite_spline(int16_t x, uint8_t idx)
   return 0;
 }
 
-int intpol(int x, uint8_t idx) // -100, -75, -50, -25, 0 ,25 ,50, 75, 100
+__IRAM int intpol(int x, uint8_t idx) // -100, -75, -50, -25, 0 ,25 ,50, 75, 100
 {
   CurveHeader& crv = g_model.curves[idx];
   int8_t* points = curveAddress(idx);
@@ -314,7 +314,7 @@ int intpol(int x, uint8_t idx) // -100, -75, -50, -25, 0 ,25 ,50, 75, 100
   return erg / 25; // 100*D5/RESX;
 }
 
-int applyCurve(int x, CurveRef & curve)
+__IRAM int applyCurve(int x, CurveRef & curve)
 {
   SourceNumVal v;
   v.rawValue = curve.value;
@@ -372,7 +372,7 @@ int applyCurve(int x, CurveRef & curve)
   return x;
 }
 
-int applyCustomCurve(int x, uint8_t idx)
+__IRAM int applyCustomCurve(int x, uint8_t idx)
 {
   if (idx >= MAX_CURVES)
     return 0;

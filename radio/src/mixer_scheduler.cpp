@@ -27,7 +27,7 @@
 #include "dataconstants.h"
 #include <string.h>
 
-bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
+__IRAM bool mixerSchedulerWaitForTrigger(uint8_t timeoutMs)
 {
 #if !defined(SIMU)
   uint32_t ulNotificationValue;

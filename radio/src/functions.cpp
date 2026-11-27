@@ -184,7 +184,7 @@ static bool isUIFunction(uint16_t f, int16_t p)
           || (f == FUNC_RESET && p == FUNC_RESET_FLIGHT);
 }
 
-void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
+__IRAM void evalFunctions(CustomFunctionData * functions, CustomFunctionsContext & functionsContext)
 {
   MASK_FUNC_TYPE newActiveFunctions = 0;
   MASK_CFN_TYPE  newActiveSwitches = 0;
