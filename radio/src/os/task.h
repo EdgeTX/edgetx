@@ -48,6 +48,15 @@ bool mutex_lock(mutex_handle_t* h);
 void mutex_unlock(mutex_handle_t* h);
 bool mutex_trylock(mutex_handle_t* h);
 
+// Binary signal: a task waits for an event posted by an interrupt.
+// A post with no waiter stays pending until the next wait or clear.
+void signal_create(signal_handle_t* h);
+// waits at least timeout_ms; false on timeout
+bool signal_wait(signal_handle_t* h, uint32_t timeout_ms);
+// drops a pending post
+void signal_clear(signal_handle_t* h);
+void signal_post_from_isr(signal_handle_t* h);
+
 
 // this helper class is only to be used on the stack and never to be shared outside the scope where it was created
 /* example usage

@@ -33,6 +33,10 @@
 #include <string.h>
 #include "FreeRTOSConfig.h"
 
+#if defined(FREE_RTOS)
+  #include "os/task.h"
+#endif
+
 #if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   // Disable software oversampling as HW one is used
   #define OVERSAMPLING 1
@@ -41,6 +45,12 @@
 #endif
 
 #define SAMPLING_TIMEOUT_US 500
+
+#if defined(FREE_RTOS)
+// a task waiting for the conversions blocks instead of spinning
+static signal_handle_t _adc_signal;
+static volatile bool _adc_waiting;
+#endif
 
 // Please note that we use the same prio for DMA TC and ADC IRQs
 // to avoid issues with preemption between these 2
@@ -241,6 +251,12 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
       wait_loop_index--;
     }
   }
+
+#if defined(STM32H7)
+  // BOOST must match fadc_ker_ck (see stm32_hal_adc_init()); reset value is
+  // for <= 6.25 MHz. On rev Y, LL writes the single BOOST bit (> 20 MHz).
+  LL_ADC_SetBoostMode(ADCx, LL_ADC_BOOST_MODE_50MHZ);
+#endif
 
   /* Start ADC calibration in mode single-ended or differential */
 #if defined(STM32H7RS) || defined(STM32H5)
@@ -479,6 +495,10 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
   _adc_inhibit_mask = 0;
   _adc_oversampling_disabled = 0;
 
+#if defined(FREE_RTOS)
+  signal_create(&_adc_signal);
+#endif
+
   adc_init_pins(ADC_GPIOs, n_GPIO);
   memset(_adc_dma_buffer, 0, sizeof(_adc_dma_buffer));
 
@@ -486,8 +506,20 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
   LL_ADC_CommonInitTypeDef commonInit;
   LL_ADC_CommonStructInit(&commonInit);
 
-#if defined(LL_ADC_CLOCK_ASYNC_DIV4)
-  // H7 and H7RS use their own clock
+#if defined(STM32H7)
+  // H7 uses its own kernel clock: per_ck = HSI = 64 MHz on all boards
+  // (CKPERSEL is left at reset). The datasheet limit applies to fadc_ker_ck,
+  // after PRESC and, on rev V, a fixed /2:
+  //  - rev V (REV_ID 0x2003): 64 / 1 / 2 = 32 MHz, BOOST = 11 (<= 50 MHz)
+  //  - rev Y/W (0x1003): no /2, 64 / 2 = 32 MHz, BOOST = 1 (<= 36 MHz)
+  //  - rev X (0x2001) is not described by RM0433: DIV2 is within limits
+  //    with or without the /2
+  // See RM0433 25.4.3, DS12556 tables 85 / 182 and ES0392 table 2.
+  commonInit.CommonClock = (LL_DBGMCU_GetRevisionID() < 0x2003)
+                               ? LL_ADC_CLOCK_ASYNC_DIV2
+                               : LL_ADC_CLOCK_ASYNC_DIV1;
+#elif defined(LL_ADC_CLOCK_ASYNC_DIV4)
+  // H7RS uses its own clock
   commonInit.CommonClock = LL_ADC_CLOCK_ASYNC_DIV4;
 #else
   // others can only use the peripheral clock
@@ -507,21 +539,11 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
     uint8_t nconv = adc->n_channels;
     if (nconv > 0) {
 
-#if defined(STM32H5)
       // enable periph clock first: the common registers live in the ADC's
       // clock domain, so CommonInit() is silently dropped if it runs before
-      // this (CCR reads back 0 = async kernel clock, PRESC = DIV1).
-      // Only reordered for H5 here: every other target has shipped with the
-      // original order and its ADC timing is calibrated around it.
+      // this (F4: ADCPRE stays at PCLK2/2; H5/H7: PRESC stays at DIV1)
       adc_enable_clock(adc->ADCx);
       LL_ADC_CommonInit(__LL_ADC_COMMON_INSTANCE(adc->ADCx), &commonInit);
-#else
-      // enable common instance
-      LL_ADC_CommonInit(__LL_ADC_COMMON_INSTANCE(adc->ADCx), &commonInit);
-
-      // enable periph clock
-      adc_enable_clock(adc->ADCx);
-#endif
 
       // configure each channel
       const uint8_t* chan = adc->channels;
@@ -784,6 +806,10 @@ bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC,
   _adc_n_inputs = n_inputs;
 
   memset(_adc_oversampling, 0, sizeof(_adc_oversampling));
+#if defined(FREE_RTOS)
+  // a post left by an earlier read that timed out
+  signal_clear(&_adc_signal);
+#endif
   adc_start_read(_adc_ADCs, _adc_n_ADC);
 
   return true;
@@ -830,6 +856,18 @@ void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
   (void)inputs;
   (void)n_inputs;
 
+#if defined(FREE_RTOS)
+  if (scheduler_is_running()) {
+    // the last conversion's ISR posts the signal if we are waiting; if it
+    // completes before we check, the pending post is cleared on next start
+    _adc_waiting = true;
+    if (!_adc_completed && !signal_wait(&_adc_signal, 1) && !_adc_completed)
+      _adc_timeout_error = true;
+    _adc_waiting = false;
+    return;
+  }
+#endif
+
   auto timeout = timersGetUsTick();
   while(!_adc_completed) {
     // busy wait
@@ -872,6 +910,9 @@ static void _adc_chain_conversions(const stm32_adc_t* adc)
 
   // we're done!
   _adc_completed = 1;
+#if defined(FREE_RTOS)
+  if (_adc_waiting) signal_post_from_isr(&_adc_signal);
+#endif
 }
 
 void stm32_hal_adc_dma_isr(const stm32_adc_t* adc)

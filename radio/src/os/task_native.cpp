@@ -164,4 +164,32 @@ bool mutex_trylock(mutex_handle_t* h)
   return h->try_lock();
 }
 
+void signal_create(signal_handle_t* h)
+{
+  std::lock_guard lock(h->_m);
+  h->_posted = false;
+}
 
+bool signal_wait(signal_handle_t* h, uint32_t timeout_ms)
+{
+  std::unique_lock lock(h->_m);
+  bool posted = h->_cv.wait_for(lock, std::chrono::milliseconds(timeout_ms),
+                                [h] { return h->_posted; });
+  h->_posted = false;
+  return posted;
+}
+
+void signal_clear(signal_handle_t* h)
+{
+  std::lock_guard lock(h->_m);
+  h->_posted = false;
+}
+
+void signal_post_from_isr(signal_handle_t* h)
+{
+  {
+    std::lock_guard lock(h->_m);
+    h->_posted = true;
+  }
+  h->_cv.notify_one();
+}
