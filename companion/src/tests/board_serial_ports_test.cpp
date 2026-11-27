@@ -53,7 +53,7 @@ TEST(BoardSerialPorts, MatchFirmware)
     {Firmware::getFirmware("x12s"), true, false, true, false},
     // no AUX ports at all
     {Firmware::getFirmware("t15pro"), false, false, false, false},
-    {Firmware::getFirmware("x10"), false, false, false, false},
+    {Firmware::getFirmware("x10express"), false, false, false, false},
     {Firmware::getFirmware("x7"), false, false, false, false},
     // AUX1 the old rules missed
     {Firmware::getFirmware("nv14"), true, false, false, false},
