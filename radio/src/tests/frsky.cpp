@@ -21,6 +21,8 @@
 
 #include "gtests.h"
 
+#include <cstring>
+
 void frskyDProcessPacket(const uint8_t *packet);
 bool checkSportPacket(const uint8_t *packet);
 bool checkSportPacket(const uint8_t *packet);
@@ -512,5 +514,47 @@ TEST(FrSkySPORT, frskyCurrent)
   EXPECT_EQ(telemetryItems[0].value, 205);
   EXPECT_EQ(telemetryItems[0].valueMin, 5);
   EXPECT_EQ(telemetryItems[0].valueMax, 505);
+}
+
+TEST(FrSkySPORT, BetaflightAngleSensors)
+{
+  uint8_t packet[FRSKY_SPORT_PACKET_SIZE];
+
+  MODEL_RESET();
+  TELEMETRY_RESET();
+  telemetryStreaming = TELEMETRY_TIMEOUT10ms;
+  telemetryData.telemetryValid = 0x07;
+  allowNewSensors = true;
+
+  // Betaflight S.Port telemetry sends Pitch (0x5230) and Roll (0x5240)
+  // as degree * 10, which must be discovered with UNIT_DEGREE and prec 1.
+  // S.Port dataId and value are little-endian on the wire.
+  packet[0] = 0x52;  // physical ID (DIY)
+  packet[1] = 0x10;  // DATA_FRAME
+  packet[2] = 0x30;  // dataId 0x5230 (Pitch), low byte
+  packet[3] = 0x52;  // dataId 0x5230, high byte
+  int32_t value = 532;  // 53.2 deg
+  memcpy(packet + 4, &value, sizeof(value));
+  setSportPacketCrc(packet);
+  sportProcessTelemetryPacket(0, packet, sizeof(packet));
+
+  ASSERT_EQ(g_model.telemetrySensors[0].id, 0x5230);
+  EXPECT_EQ(g_model.telemetrySensors[0].unit, UNIT_DEGREE);
+  EXPECT_EQ(g_model.telemetrySensors[0].prec, 1);
+  EXPECT_EQ(telemetryItems[0].value, 532);
+
+  packet[0] = 0x52;
+  packet[1] = 0x10;
+  packet[2] = 0x40;  // dataId 0x5240 (Roll), low byte
+  packet[3] = 0x52;  // dataId 0x5240, high byte
+  value = -124;  // -12.4 deg
+  memcpy(packet + 4, &value, sizeof(value));
+  setSportPacketCrc(packet);
+  sportProcessTelemetryPacket(0, packet, sizeof(packet));
+
+  ASSERT_EQ(g_model.telemetrySensors[1].id, 0x5240);
+  EXPECT_EQ(g_model.telemetrySensors[1].unit, UNIT_DEGREE);
+  EXPECT_EQ(g_model.telemetrySensors[1].prec, 1);
+  EXPECT_EQ(telemetryItems[1].value, -124);
 }
 
