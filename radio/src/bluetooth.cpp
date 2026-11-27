@@ -67,6 +67,14 @@ void Bluetooth::writeString(const char * str)
   bluetoothWrite(_bt_crlf, sizeof(_bt_crlf) - 1);
 }
 
+void Bluetooth::sendHeadTrackerReset()
+{
+  if (state == BLUETOOTH_STATE_CONNECTED &&
+      g_model.trainerData.mode == TRAINER_MODE_MASTER_BLUETOOTH) {
+    writeString("AT+HTRESET");
+  }
+}
+
 char * Bluetooth::readline(bool error_reset)
 {
   uint8_t byte;

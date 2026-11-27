@@ -65,6 +65,7 @@ static const YamlLookupTable customFnLut = {
   {  FuncLCDtoVideo, "LCD_TO_VIDEO"  },
   {  FuncPushCustomSwitch1, "PUSH_CUST_SWITCH"  },
   {  FuncDisableKeys, "DISABLE_KEYS"  },
+  {  FuncHtReset, "HT_RESET"  },
 };
 
 static const YamlLookupTable trainerLut = {

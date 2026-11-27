@@ -252,6 +252,7 @@
 #define TR_SF_DISABLE_TOUCH            "Сенсор вык"
 #define TR_SF_DISABLE_KEYS             "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP        "Вык аудио усил."
+#define TR_SF_HT_RESET                "HT Reset"
 #define TR_SF_SET_SCREEN               TR_BW_COL("Устан экран", "Выбр глав экран")
 #define TR_SF_PUSH_CUST_SWITCH         "Нажать CS"
 #define TR_SF_LCD_TO_VIDEO             "LCD в видео"

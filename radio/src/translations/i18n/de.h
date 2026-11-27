@@ -251,6 +251,7 @@
 #define TR_SF_DISABLE_TOUCH            "Kein Touch"
 #define TR_SF_DISABLE_KEYS             "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP        "Audio Verst. Aus"
+#define TR_SF_HT_RESET                "HT Reset"
 #define TR_SF_SET_SCREEN               TR_BW_COL("Seite anz.", "Hauptseite anzeigen")
 #define TR_SF_PUSH_CUST_SWITCH         "LS setzen"
 #define TR_SF_LCD_TO_VIDEO             "LCD zu Video"

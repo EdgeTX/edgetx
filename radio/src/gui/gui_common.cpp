@@ -695,6 +695,10 @@ bool isAssignableFunctionAvailable(int function, bool modelFunctions)
     case FUNC_RGB_LED:
       return false;
 #endif
+#if !defined(BLUETOOTH)
+    case FUNC_HT_RESET:
+      return false;
+#endif
 #if !defined(DEBUG)
     case FUNC_TEST:
       return false;

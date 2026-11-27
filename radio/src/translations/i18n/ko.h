@@ -249,6 +249,7 @@
 #define TR_SF_DISABLE_TOUCH           "터치 비활성화"
 #define TR_SF_DISABLE_KEYS            "No Keys"
 #define TR_SF_DISABLE_AUDIO_AMP       "오디오 앰프 끄기"
+#define TR_SF_HT_RESET                "HT Reset"
 #define TR_SF_SET_SCREEN              TR_BW_COL("텔레 화면 설정", "메인 화면 설정")
 #define TR_SF_PUSH_CUST_SWITCH        "커스텀 스위치 실행"
 #define TR_SF_LCD_TO_VIDEO            "LCD -> 비디오 출력"

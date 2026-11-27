@@ -132,6 +132,8 @@ QString CustomFunctionData::funcToString(const AssignFunc func, const ModelData 
     return tr("RGB leds");
   else if (func == FuncLCDtoVideo)
     return tr("LCD to Video");
+  else if (func == FuncHtReset)
+    return tr("HT Reset");
   else if (func >= FuncPushCustomSwitch1 && func <= FuncPushCustomSwitchLast && Boards::getCapability(getCurrentBoard(), Board::FunctionSwitches)) {
     const int idx = Boards::getSwitchIndexForCFSOffset(func - FuncPushCustomSwitch1) + 1;
     return tr("Push Custom Switch %1").arg(RawSource(SOURCE_TYPE_SWITCH, idx).toString(model));
@@ -256,6 +258,7 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
         ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))) ||
         ((index == FuncRGBLed && !(Boards::getCapability(fw->getBoard(), Board::HasBlingLEDS) || Boards::getCapability(fw->getBoard(), Board::FunctionSwitchColors)))) ||
         ((index == FuncLCDtoVideo && !IS_FATFISH_F16(fw->getBoard()))) ||
+        ((index == FuncHtReset) && !fw->getCapability(BluetoothEnabled)) ||
         ((index >= FuncPushCustomSwitch1 && index <= FuncPushCustomSwitchLast) &&
           !Boards::isSwitchFunc(Boards::getSwitchIndexForCFSOffset(index - FuncPushCustomSwitch1)))
         );

@@ -884,6 +884,7 @@
 #define STR_SF_BG_MUSIC_PAUSE currentLangStrings->STR_SF_BG_MUSIC_PAUSE
 #define STR_SF_BG_MUSIC currentLangStrings->STR_SF_BG_MUSIC
 #define STR_SF_DISABLE_AUDIO_AMP currentLangStrings->STR_SF_DISABLE_AUDIO_AMP
+#define STR_SF_HT_RESET currentLangStrings->STR_SF_HT_RESET
 #define STR_SF_DISABLE_TOUCH currentLangStrings->STR_SF_DISABLE_TOUCH
 #define STR_SF_DISABLE_KEYS currentLangStrings->STR_SF_DISABLE_KEYS
 #define STR_SF_FAILSAFE currentLangStrings->STR_SF_FAILSAFE
