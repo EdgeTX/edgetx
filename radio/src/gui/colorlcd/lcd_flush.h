@@ -37,11 +37,24 @@
 // areas of the previous one are copied into the other buffer, except for
 // what the new frame redraws anyway.
 //
+// Portrait panels mounted in landscape (e.g. ST7365, ST7796S) can rotate the
+// picture themselves (MADCTL MV), but they refresh the glass from their GRAM
+// along their own portrait lines, i.e. along the landscape columns, while the
+// host writes landscape rows. Both sweeps cross on every frame that changes:
+// a diagonal line shows between the old and the new picture. So such panels
+// are driven in their native portrait order, and the UI is rotated while
+// copying: the CPU transposes strips of each flushed area into tiles, which
+// are then copied into portrait frame buffers.
+//
 
 // UI pixel (x, y) is shown at frame buffer pixel...
 enum LcdRotation : uint8_t {
-  LCD_ROTATE_NONE,  // (x, y)
-  LCD_ROTATE_180,   // (LCD_W - 1 - x, LCD_H - 1 - y): panel upside down
+  LCD_ROTATE_NONE,       // (x, y)
+  LCD_ROTATE_180,        // (LCD_W - 1 - x, LCD_H - 1 - y): panel upside down
+  // Portrait frame buffers (LCD_H pixels wide, LCD_W lines high), for a
+  // portrait panel mounted in landscape (see above):
+  LCD_ROTATE_90,         // (y, LCD_W - 1 - x)
+  LCD_ROTATE_TRANSPOSE,  // (y, x)
 };
 
 // Platform operations
@@ -60,10 +73,14 @@ struct LcdFlushOps {
   void (*wait_shown)();
 };
 
+// UI columns transposed per tile for the portrait rotations. 16 pixels is
+// one 32-byte cache line of each source row.
+#define LCD_FLUSH_STRIP_W 16
+
 // Rotated areas are prepared by the CPU in tiles, which are then copied into
 // the back buffer. Double buffered: the CPU fills one while the other one is
 // being copied.
-#define LCD_FLUSH_TILES_SIZE (2 * 16 * LCD_H)
+#define LCD_FLUSH_TILES_SIZE (2 * LCD_FLUSH_STRIP_W * LCD_H)
 
 // Areas flushed into the back buffer per frame before giving up tracking
 // them (LVGL may flush an area in several bands)
@@ -109,9 +126,14 @@ class LcdFlusher
   static constexpr uint32_t SYNC_MAX = 2 * LCD_FLUSH_DIRTY_MAX;
   lv_area_t sync_areas[2][SYNC_MAX];
 
+  bool portrait() const { return rotation >= LCD_ROTATE_90; }
   pixel_t* nextTile();
   void copyArea(const pixel_t* src, const rect_t& area);
   void copyRotate180(const pixel_t* src, const rect_t& area);
+  coord_t firstLine(coord_t x1, coord_t x2) const;
+  void transposeStrip(pixel_t* tile, coord_t ts, const pixel_t* src,
+                      coord_t w, coord_t h, coord_t n) const;
+  void copyTranspose(const pixel_t* src, const rect_t& area);
   void addDirty(const rect_t& area);
   void syncCopy(const lv_area_t& area);
   void syncBackBuffer(const lv_area_t* redrawn, uint32_t redrawn_n);

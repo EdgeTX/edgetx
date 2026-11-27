@@ -23,6 +23,13 @@
 
 #include <string.h>
 
+// Portrait frame buffers
+#define PORTRAIT_W LCD_H
+#define PORTRAIT_H LCD_W
+
+// Source rows prefetched ahead of the transpose
+#define PREFETCH_ROWS 8
+
 void LcdFlusher::init(const LcdFlushOps* ops, LcdRotation rotation,
                       pixel_t* buf1, pixel_t* buf2, pixel_t* tiles)
 {
@@ -91,10 +98,95 @@ void LcdFlusher::copyRotate180(const pixel_t* src, const rect_t& area)
   }
 }
 
+// First portrait line of UI columns x1..x2
+coord_t LcdFlusher::firstLine(coord_t x1, coord_t x2) const
+{
+  return rotation == LCD_ROTATE_90 ? PORTRAIT_H - 1 - x2 : x1;
+}
+
+// Transpose 'n' UI columns of 'h' rows (stride 'w') into 'n' tile lines of
+// stride 'ts' (even), in portrait line order. Works on 2x2 pixel blocks: two
+// 32-bit loads, two packs, two 32-bit stores.
+void LcdFlusher::transposeStrip(pixel_t* tile, coord_t ts, const pixel_t* src,
+                                coord_t w, coord_t h, coord_t n) const
+{
+  // column i goes to tile line i, or (n - 1 - i) when rotating
+  pixel_t* line0 = rotation == LCD_ROTATE_90 ? tile + (n - 1) * ts : tile;
+  const coord_t step = rotation == LCD_ROTATE_90 ? -ts : ts;
+
+  coord_t y = 0;
+  for (; y + 1 < h; y += 2) {
+    const pixel_t* s0 = src + y * w;
+    const pixel_t* s1 = s0 + w;
+    __builtin_prefetch(s0 + PREFETCH_ROWS * w);
+    __builtin_prefetch(s1 + PREFETCH_ROWS * w);
+
+    pixel_t* d = line0 + y;
+    coord_t i = 0;
+    for (; i + 1 < n; i += 2) {
+      uint32_t a, b;
+      memcpy(&a, s0 + i, sizeof(a));  // (i, y)   (i+1, y)
+      memcpy(&b, s1 + i, sizeof(b));  // (i, y+1) (i+1, y+1)
+      uint32_t c0, c1;
+#if defined(__ARM_FEATURE_DSP)
+      // GCC does not combine the C version below into these
+      asm("pkhbt %0, %1, %2, lsl #16" : "=r"(c0) : "r"(a), "r"(b));
+      asm("pkhtb %0, %1, %2, asr #16" : "=r"(c1) : "r"(b), "r"(a));
+#else
+      c0 = (a & 0xFFFF) | (b << 16);
+      c1 = (a >> 16) | (b & 0xFFFF0000);
+#endif
+      memcpy(d, &c0, sizeof(c0));     // column i
+      d += step;
+      memcpy(d, &c1, sizeof(c1));     // column i + 1
+      d += step;
+    }
+    if (i < n) {
+      d[0] = s0[i];
+      d[1] = s1[i];
+    }
+  }
+
+  if (y < h) {
+    // odd height: last row on its own
+    const pixel_t* s0 = src + y * w;
+    pixel_t* d = line0 + y;
+    for (coord_t i = 0; i < n; i++) {
+      *d = s0[i];
+      d += step;
+    }
+  }
+}
+
+// Strips of UI columns are transposed into tiles, each copied as a block of
+// portrait lines into the back buffer.
+void LcdFlusher::copyTranspose(const pixel_t* src, const rect_t& area)
+{
+  const coord_t w = area.w;
+  const coord_t h = area.h;
+  const coord_t ts = (h + 1) & ~1;
+
+  for (coord_t col = 0; col < w; col += LCD_FLUSH_STRIP_W) {
+    const coord_t n =
+        (w - col < LCD_FLUSH_STRIP_W) ? w - col : LCD_FLUSH_STRIP_W;
+    pixel_t* tile = nextTile();
+
+    transposeStrip(tile, ts, src + col, w, h, n);
+    ops->clean(tile, n * ts * sizeof(pixel_t));
+
+    coord_t line = firstLine(area.x + col, area.x + col + n - 1);
+    ops->copy(back + line * PORTRAIT_W + area.y, PORTRAIT_W, tile, ts, h, n);
+  }
+}
+
 void LcdFlusher::copyArea(const pixel_t* src, const rect_t& area)
 {
   if (rotation == LCD_ROTATE_180) {
     copyRotate180(src, area);
+    return;
+  }
+  if (portrait()) {
+    copyTranspose(src, area);
     return;
   }
 
@@ -141,6 +233,13 @@ static int areaDiff(lv_area_t* res, const lv_area_t& a, const lv_area_t& b)
 // Copy a UI area from the front to the back buffer
 void LcdFlusher::syncCopy(const lv_area_t& area)
 {
+  if (portrait()) {
+    uint32_t offset = firstLine(area.x1, area.x2) * PORTRAIT_W + area.y1;
+    ops->copy(back + offset, PORTRAIT_W, front + offset, PORTRAIT_W,
+              area.y2 - area.y1 + 1, area.x2 - area.x1 + 1);
+    return;
+  }
+
   coord_t x = area.x1;
   coord_t y = area.y1;
   if (rotation == LCD_ROTATE_180) {
