@@ -23,6 +23,7 @@
 
 #include "stm32_i2c_driver.h"
 #include "stm32_switch_driver.h"
+#include "memory_sections.h"
 
 extern const stm32_switch_t* boardGetSwitchDef(uint8_t idx);
 
@@ -113,7 +114,7 @@ uint16_t bsp_input_get()
   return inputState;
 }
 
-SwitchHwPos boardSwitchGetPosition(uint8_t idx)
+__IRAM SwitchHwPos boardSwitchGetPosition(uint8_t idx)
 {
   const stm32_switch_t* sw = boardGetSwitchDef(idx);
 

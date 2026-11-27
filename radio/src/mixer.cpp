@@ -66,7 +66,7 @@ int16_t cyc_anas[3] = {0};
 #endif
 
 // Source value in tenths of a percent
-static int32_t getSourceValuePrec1(int16_t src)
+__IRAM static int32_t getSourceValuePrec1(int16_t src)
 {
   int32_t result = getValue(src);
   int idx = abs(src);
@@ -80,7 +80,7 @@ static int32_t getSourceValuePrec1(int16_t src)
 }
 
 // TOOD: find better home for this.
-int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max)
+__IRAM int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max)
 {
   int32_t result;
   SourceNumVal v; v.rawValue = val;
@@ -91,7 +91,7 @@ int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max)
   return limit<int>(min * 10, result, max * 10);
 }
 
-int32_t getLimitNumFieldValue(uint16_t val, int32_t numOffset, int32_t min,
+__IRAM int32_t getLimitNumFieldValue(uint16_t val, int32_t numOffset, int32_t min,
                               int32_t max)
 {
   LimitNumVal v; v.rawValue = val;
@@ -201,7 +201,7 @@ int expo(int x, int k)
   return neg ? -y : y;
 }
 
-void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue)
+__IRAM void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue)
 {
   int8_t cur_chn = -1;
 
@@ -289,7 +289,7 @@ void applyExpos(int16_t * anas, uint8_t mode, int16_t ovwrIdx, int16_t ovwrValue
 // value = outputvalue with 100 mulitplied usual range -102400 to 102400; output -1024 to 1024
 // changed rescaling from *100 to *256 to optimize performance
 // rescaled from -262144 to 262144
-int16_t applyLimits(uint8_t channel, int32_t value)
+__IRAM int16_t applyLimits(uint8_t channel, int32_t value)
 {
 #if defined(OVERRIDE_CHANNEL_FUNCTION)
   if (safetyCh[channel] != OVERRIDE_CHANNEL_UNDEFINED) {
@@ -371,7 +371,7 @@ static const getvalue_t _switch_3pos_lookup[] = {
 
 // TODO same naming convention than the drawSource
 // *valid added to return status to Lua for invalid sources
-getvalue_t _getValue(mixsrc_t i, bool* valid)
+__IRAM getvalue_t _getValue(mixsrc_t i, bool* valid)
 {
   if (i == MIXSRC_NONE) {
     if (valid != nullptr) *valid = false;
@@ -593,7 +593,7 @@ getvalue_t _getValue(mixsrc_t i, bool* valid)
   return 0;
 }
 
-void evalTrims()
+__IRAM void evalTrims()
 {
   uint8_t phase = mixerCurrentFlightMode;
   for (uint8_t i = 0; i < keysGetMaxTrims(); i++) {
@@ -608,7 +608,7 @@ void evalTrims()
 }
 
 // TODO: move to analogs.cpp
-void evalInputs(uint8_t mode)
+__IRAM void evalInputs(uint8_t mode)
 {
   BeepANACenter anaCenter = 0;
 
@@ -712,7 +712,7 @@ void evalInputs(uint8_t mode)
   }
 }
 
-getvalue_t getValue(mixsrc_t i, bool* valid)
+__IRAM getvalue_t getValue(mixsrc_t i, bool* valid)
 {
   bool invert = false;
   if (i < 0) {
@@ -730,7 +730,7 @@ getvalue_t getValue(mixsrc_t i, bool* valid)
   constexpr int IDLE_TRIM_SCALE = 2;
 #endif
 
-int getStickTrimValue(int stick, int stickValue)
+__IRAM int getStickTrimValue(int stick, int stickValue)
 {
   if (stick < 0)
     return 0;
@@ -761,7 +761,7 @@ int getStickTrimValue(int stick, int stickValue)
   return trim;
 }
 
-int getSourceTrimOrigin(int source)
+__IRAM int getSourceTrimOrigin(int source)
 {
   if (source >= MIXSRC_FIRST_STICK && source <= MIXSRC_LAST_STICK)
     return source - MIXSRC_FIRST_STICK;
@@ -771,7 +771,7 @@ int getSourceTrimOrigin(int source)
     return -1;
 }
 
-int getSourceTrimValue(int source, int stickValue=0)
+__IRAM int getSourceTrimValue(int source, int stickValue=0)
 {
   int rv = 0;
   auto absSource = abs(source);
@@ -815,7 +815,7 @@ static inline bitfield_channels_t upper_channels_mask(uint16_t ch)
 
 uint8_t mixerCurrentFlightMode;
 
-void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
+__IRAM void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 {
   evalInputs(mode);
 
@@ -1202,7 +1202,7 @@ uint8_t lastFlightMode = 255; // TODO reinit everything here when the model chan
 tmr10ms_t flightModeTransitionTime;
 uint8_t   flightModeTransitionLast = 255;
 
-void evalMixes(uint8_t tick10ms)
+__IRAM void evalMixes(uint8_t tick10ms)
 {
   int32_t sum_chans512[MAX_OUTPUT_CHANNELS];
 

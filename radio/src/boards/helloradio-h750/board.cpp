@@ -176,7 +176,7 @@ static SwitchHwPos _get_fs_switch_pos(uint8_t idx)
 
 bool boardIsCustomSwitch(uint8_t idx);
 
-SwitchHwPos boardSwitchGetPosition(uint8_t idx)
+__IRAM SwitchHwPos boardSwitchGetPosition(uint8_t idx)
 {
   if (boardIsCustomSwitch(idx)) {
     return _get_fs_switch_pos(idx);

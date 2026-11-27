@@ -266,12 +266,12 @@ FlightModeData *flightModeAddress(uint8_t idx)
   return &g_model.flightModeData[idx];
 }
 
-ExpoData *expoAddress(uint8_t idx )
+__IRAM ExpoData *expoAddress(uint8_t idx )
 {
   return &g_model.expoData[idx];
 }
 
-LimitData *limitAddress(uint8_t idx)
+__IRAM LimitData *limitAddress(uint8_t idx)
 {
   return &g_model.limitData[idx];
 }
@@ -550,7 +550,7 @@ int8_t getMovedSource(uint8_t min)
 #endif
 
 #if defined(FLIGHT_MODES)
-uint8_t getFlightMode()
+__IRAM uint8_t getFlightMode()
 {
   for (uint8_t i=1; i<MAX_FLIGHT_MODES; i++) {
     FlightModeData *phase = &g_model.flightModeData[i];
@@ -562,13 +562,13 @@ uint8_t getFlightMode()
 }
 #endif
 
-trim_t getRawTrimValue(uint8_t phase, uint8_t idx)
+__IRAM trim_t getRawTrimValue(uint8_t phase, uint8_t idx)
 {
   FlightModeData * p = flightModeAddress(phase);
   return p->trim[idx];
 }
 
-int getTrimValue(uint8_t phase, uint8_t idx)
+__IRAM int getTrimValue(uint8_t phase, uint8_t idx)
 {
   int result = 0;
   for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {

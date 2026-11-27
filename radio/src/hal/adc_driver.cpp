@@ -69,7 +69,7 @@ static bool adcSingleRead()
   return true;
 }
 
-bool adcRead()
+__IRAM bool adcRead()
 {
   adcSingleRead();
 
@@ -239,7 +239,7 @@ void adcCalibStore()
   storageDirty(EE_GENERAL);
 }
 
-uint16_t getAnalogValue(uint8_t index)
+__IRAM uint16_t getAnalogValue(uint8_t index)
 {
   if (index >= MAX_ANALOG_INPUTS) return 0;
   return adcValues[index];
@@ -251,7 +251,7 @@ void setAnalogValue(uint8_t index, uint16_t value)
   adcValues[index] = value;
 }
 
-uint16_t* getAnalogValues()
+__IRAM uint16_t* getAnalogValues()
 {
   return adcValues;
 }
@@ -265,7 +265,7 @@ uint32_t s_anaFilt[MAX_ANALOG_INPUTS];
   #error "JITTER_FILTER_STRENGTH and ANALOG_SCALE are too big, their summ should be <= 5 !!!"
 #endif
 
-uint16_t anaIn(uint8_t chan)
+__IRAM uint16_t anaIn(uint8_t chan)
 {
   if (chan >= MAX_ANALOG_INPUTS) return 0;
   return ANA_FILT(chan);
@@ -415,7 +415,7 @@ static uint32_t apply_multipos_simu(uint32_t v)
 }
 #endif
 
-void getADC()
+__IRAM void getADC()
 {
   auto max_analogs = adcGetMaxInputs(ADC_INPUT_ALL);
   auto max_mains = adcGetMaxInputs(ADC_INPUT_MAIN);
@@ -490,19 +490,19 @@ potconfig_t adcGetDefaultPotsConfig()
   return _hal_adc_driver->default_pots_cfg;
 }
 
-uint8_t adcGetMaxInputs(uint8_t type)
+__IRAM uint8_t adcGetMaxInputs(uint8_t type)
 {
   if (type > ADC_INPUT_ALL) return 0;
   return _hal_adc_inputs[type].n_inputs;
 }
 
-uint8_t adcGetInputOffset(uint8_t type)
+__IRAM uint8_t adcGetInputOffset(uint8_t type)
 {
   if (type > ADC_INPUT_ALL) return 0;
   return _hal_adc_inputs[type].offset;
 }
 
-bool adcIsSliderInput(uint8_t idx)
+__IRAM bool adcIsSliderInput(uint8_t idx)
 {
   auto offset = adcGetInputOffset(ADC_INPUT_FLEX);
   if (idx < offset || idx >= offset + adcGetMaxInputs(ADC_INPUT_FLEX))
@@ -510,7 +510,7 @@ bool adcIsSliderInput(uint8_t idx)
   return IS_SLIDER(idx - offset);
 }
 
-uint8_t adcGetMaxCalibratedInputs()
+__IRAM uint8_t adcGetMaxCalibratedInputs()
 {
   // ADC_INPUT_MAIN + ADC_INPUT_FLEX + ADC_INPUT_AXIS
   return adcGetInputOffset(ADC_INPUT_VBAT);

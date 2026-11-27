@@ -20,9 +20,10 @@
  */
 
 #include "stm32_switch_driver.h"
+#include "memory_sections.h"
 #include "hal/adc_driver.h"
 
-SwitchHwPos stm32_switch_get_position(const stm32_switch_t* sw)
+__IRAM SwitchHwPos stm32_switch_get_position(const stm32_switch_t* sw)
 {
   bool inv = sw->inverted;
   SwitchHwPos ret = SWITCH_HW_UP;

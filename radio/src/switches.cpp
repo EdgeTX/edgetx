@@ -396,7 +396,7 @@ static uint64_t checkSwitchPosition(uint8_t idx, bool startup)
   return result;
 }
 
-void getSwitchesPosition(bool startup)
+__IRAM void getSwitchesPosition(bool startup)
 {
   uint64_t newPos = 0;
   for (unsigned i = 0; i < switchGetMaxAllSwitches(); i++) {
@@ -469,7 +469,7 @@ uint8_t switchGetMaxRow(uint8_t col)
 }
 #endif
 
-getvalue_t getValueForLogicalSwitch(mixsrc_t i)
+__IRAM getvalue_t getValueForLogicalSwitch(mixsrc_t i)
 {
   getvalue_t result = getValue(i);
   if (i>=MIXSRC_FIRST_INPUT && i<=MIXSRC_LAST_INPUT) {
@@ -511,7 +511,7 @@ void logicalSwitchesInit(bool force)
   }
 }
 
-bool getLogicalSwitch(uint8_t idx)
+__IRAM bool getLogicalSwitch(uint8_t idx)
 {
   LogicalSwitchData * ls = lswAddress(idx);
   LogicalSwitchContext &context = lswFm[mixerCurrentFlightMode].lsw[idx];
@@ -692,7 +692,7 @@ DurationAndDelayProcessing:
   return result;
 }
 
-bool getSwitch(swsrc_t swtch, uint8_t flags)
+__IRAM bool getSwitch(swsrc_t swtch, uint8_t flags)
 {
   bool result;
 
@@ -792,7 +792,7 @@ uint8_t getXPotPosition(uint8_t idx)
 /**
   @brief Calculates new state of logical switches for mixerCurrentFlightMode
 */
-void evalLogicalSwitches(bool isCurrentFlightmode)
+__IRAM void evalLogicalSwitches(bool isCurrentFlightmode)
 {
   for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
     LogicalSwitchContext & context = lswFm[mixerCurrentFlightMode].lsw[idx];
@@ -1060,7 +1060,7 @@ void checkSwitches()
 }
 #endif // GUI
 
-void logicalSwitchesTimerTick()
+__IRAM void logicalSwitchesTimerTick()
 {
 #if (MAX_LOGICAL_SWITCHES != 64)
 #warning "The following code assumes that MAX_LOGICAL_SWITCHES == 64!"
@@ -1165,7 +1165,7 @@ LogicalSwitchData * lswAddress(uint8_t idx)
   return &g_model.logicalSw[idx];
 }
 
-uint8_t lswFamily(uint8_t func)
+__IRAM uint8_t lswFamily(uint8_t func)
 {
   if (func <= LS_FUNC_ANEG)
     return LS_FAMILY_OFS;

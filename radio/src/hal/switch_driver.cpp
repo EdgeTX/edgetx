@@ -60,12 +60,12 @@ void switchInit()
 SwitchConfig switchGetDefaultConfig(uint8_t n) { return boardSwitchGetDefaultConfig(n); }
 
 #if defined(FUNCTION_SWITCHES)
-bool switchIsCustomSwitch(int sw)
+__IRAM bool switchIsCustomSwitch(int sw)
 {
   return boardIsCustomSwitch(sw);
 }
 
-uint8_t switchGetCustomSwitchIdx(uint8_t sw)
+__IRAM uint8_t switchGetCustomSwitchIdx(uint8_t sw)
 {
   return boardGetCustomSwitchIdx(sw);
 }
@@ -78,15 +78,15 @@ uint8_t switchGetSwitchFromCustomIdx(uint8_t idx)
   return switchGetMaxSwitches();
 }
 #else
-bool switchIsCustomSwitch(int sw) { return false; }
+__IRAM bool switchIsCustomSwitch(int sw) { return false; }
 #endif
 
-uint8_t switchGetMaxSwitches()
+__IRAM uint8_t switchGetMaxSwitches()
 {
   return boardGetMaxSwitches();
 }
 
-uint8_t switchGetMaxAllSwitches()
+__IRAM uint8_t switchGetMaxAllSwitches()
 {
   uint8_t n = boardGetMaxSwitches() + MAX_FLEX_SWITCHES;
 #if defined(VOICE_CONTROL_SENSOR)
@@ -95,7 +95,7 @@ uint8_t switchGetMaxAllSwitches()
   return n;
 }
 
-uint32_t switchState(uint8_t pos_idx)
+__IRAM uint32_t switchState(uint8_t pos_idx)
 {
   auto d = div(pos_idx, 3);
   auto idx = (uint8_t)d.quot;
@@ -104,7 +104,7 @@ uint32_t switchState(uint8_t pos_idx)
   return switchGetPosition(idx) == pos;
 }
 
-SwitchHwPos switchGetPosition(uint8_t sw_idx)
+__IRAM SwitchHwPos switchGetPosition(uint8_t sw_idx)
 {
 #if defined(VOICE_CONTROL_SENSOR)
   SwitchHwPos pos;

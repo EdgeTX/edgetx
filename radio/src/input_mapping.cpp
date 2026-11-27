@@ -108,7 +108,7 @@ uint8_t inputMappingGetThrottle()
 #endif
 }
 
-uint8_t inputMappingConvertMode(uint8_t mode, uint8_t ch)
+__IRAM uint8_t inputMappingConvertMode(uint8_t mode, uint8_t ch)
 {
 #if !defined(SURFACE_RADIO)
   if (ch < adcGetMaxInputs(ADC_INPUT_MAIN)) {
@@ -119,7 +119,7 @@ uint8_t inputMappingConvertMode(uint8_t mode, uint8_t ch)
   return ch;
 }
 
-uint8_t inputMappingConvertMode(uint8_t ch)
+__IRAM uint8_t inputMappingConvertMode(uint8_t ch)
 {
   return inputMappingConvertMode(g_eeGeneral.stickMode, ch);
 }

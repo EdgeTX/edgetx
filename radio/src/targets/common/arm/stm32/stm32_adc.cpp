@@ -725,7 +725,7 @@ static void adc_start_normal_conversion(ADC_TypeDef* ADCx)
   _START_ADC_SINGLE(ADCx);
 }
 
-static void adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC)
+__IRAM static void adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC)
 {
   // Start all ADCs in parallel
 
@@ -771,7 +771,7 @@ static void adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC)
   }
 }
 
-bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC,
+__IRAM bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC,
                               const stm32_adc_input_t* inputs, uint8_t n_inputs)
 {
   _adc_timeout_error = false;
@@ -789,7 +789,7 @@ bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC,
   return true;
 }
 
-static void copy_adc_values(uint16_t* src, const stm32_adc_t* adc,
+__IRAM static void copy_adc_values(uint16_t* src, const stm32_adc_t* adc,
                             const stm32_adc_input_t* inputs)
 {
   for (uint8_t i=0; i < adc->n_channels; i++) {
@@ -822,7 +822,7 @@ static void copy_adc_values(uint16_t* src, const stm32_adc_t* adc,
   }
 }
 
-void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
+__IRAM void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
                                    const stm32_adc_input_t* inputs, uint8_t n_inputs)
 {
   (void)ADCs;
@@ -851,7 +851,7 @@ static void _adc_mark_completed(const stm32_adc_t* adc)
   _adc_started_mask &= ~(1 << adc_idx);
 }
 
-static void _adc_chain_conversions(const stm32_adc_t* adc)
+__IRAM static void _adc_chain_conversions(const stm32_adc_t* adc)
 {
   _adc_mark_completed(adc);
 

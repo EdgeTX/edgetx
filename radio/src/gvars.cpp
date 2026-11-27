@@ -24,7 +24,7 @@
 uint8_t gvarDisplayTimer = 0;
 uint8_t gvarLastChanged = 0;
 
-uint8_t getGVarFlightMode(uint8_t fm, uint8_t gv) // TODO change params order to be consistent!
+__IRAM uint8_t getGVarFlightMode(uint8_t fm, uint8_t gv) // TODO change params order to be consistent!
 {
   for (uint8_t i=0; i<MAX_FLIGHT_MODES; i++) {
     if (fm == 0) return 0;
