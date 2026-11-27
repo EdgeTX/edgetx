@@ -92,7 +92,6 @@ if(NOT NATIVE_BUILD)
     ${STM32_DRIVER_DIR}/stm32_timer.cpp
     ${STM32_DRIVER_DIR}/stm32_dma.cpp
     ${STM32_DRIVER_DIR}/stm32_gpio.cpp
-    ${STM32_DRIVER_DIR}/stm32_adc.cpp
     ${STM32_DRIVER_DIR}/cpu_id.cpp
   )
 
@@ -115,15 +114,18 @@ if(NOT NATIVE_BUILD)
   endif()
 
   # HAL/LL drivers using TRACE
+  # built for each binary: FREE_RTOS (firmware) or BOOT (bootloader)
   add_library(stm32_drivers_w_dbg_fw OBJECT EXCLUDE_FROM_ALL
       ${STM32_DRIVER_DIR}/sdcard_spi.cpp
       ${STM32_DRIVER_DIR}/diskio_sdio.cpp
       ${STM32_DRIVER_DIR}/stm32_i2c_driver.cpp
+      ${STM32_DRIVER_DIR}/stm32_adc.cpp
   )
   add_library(stm32_drivers_w_dbg_bl OBJECT EXCLUDE_FROM_ALL
       ${STM32_DRIVER_DIR}/sdcard_spi.cpp
       ${STM32_DRIVER_DIR}/diskio_sdio.cpp
       ${STM32_DRIVER_DIR}/stm32_i2c_driver.cpp
+      ${STM32_DRIVER_DIR}/stm32_adc.cpp
   )
 
   add_dependencies(stm32_drivers hal_settings hal_pwm_sticks)

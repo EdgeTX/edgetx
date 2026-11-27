@@ -33,6 +33,10 @@
 #include <string.h>
 #include "FreeRTOSConfig.h"
 
+#if defined(FREE_RTOS)
+  #include "os/task.h"
+#endif
+
 #if defined(STM32H7) || defined(STM32H7RS) || defined(STM32H5)
   // Disable software oversampling as HW one is used
   #define OVERSAMPLING 1
@@ -41,6 +45,12 @@
 #endif
 
 #define SAMPLING_TIMEOUT_US 500
+
+#if defined(FREE_RTOS)
+// a task waiting for the conversions blocks instead of spinning
+static signal_handle_t _adc_signal;
+static volatile bool _adc_waiting;
+#endif
 
 // Please note that we use the same prio for DMA TC and ADC IRQs
 // to avoid issues with preemption between these 2
@@ -479,6 +489,10 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
   _adc_inhibit_mask = 0;
   _adc_oversampling_disabled = 0;
 
+#if defined(FREE_RTOS)
+  signal_create(&_adc_signal);
+#endif
+
   adc_init_pins(ADC_GPIOs, n_GPIO);
   memset(_adc_dma_buffer, 0, sizeof(_adc_dma_buffer));
 
@@ -785,6 +799,10 @@ bool stm32_hal_adc_start_read(const stm32_adc_t* ADCs, uint8_t n_ADC,
   _adc_n_inputs = n_inputs;
 
   memset(_adc_oversampling, 0, sizeof(_adc_oversampling));
+#if defined(FREE_RTOS)
+  // a post left by an earlier read that timed out
+  signal_clear(&_adc_signal);
+#endif
   adc_start_read(_adc_ADCs, _adc_n_ADC);
 
   return true;
@@ -831,6 +849,18 @@ void stm32_hal_adc_wait_completion(const stm32_adc_t* ADCs, uint8_t n_ADC,
   (void)inputs;
   (void)n_inputs;
 
+#if defined(FREE_RTOS)
+  if (scheduler_is_running()) {
+    // the last conversion's ISR posts the signal if we are waiting; if it
+    // completes before we check, the pending post is cleared on next start
+    _adc_waiting = true;
+    if (!_adc_completed && !signal_wait(&_adc_signal, 1) && !_adc_completed)
+      _adc_timeout_error = true;
+    _adc_waiting = false;
+    return;
+  }
+#endif
+
   auto timeout = timersGetUsTick();
   while(!_adc_completed) {
     // busy wait
@@ -873,6 +903,9 @@ static void _adc_chain_conversions(const stm32_adc_t* adc)
 
   // we're done!
   _adc_completed = 1;
+#if defined(FREE_RTOS)
+  if (_adc_waiting) signal_post_from_isr(&_adc_signal);
+#endif
 }
 
 void stm32_hal_adc_dma_isr(const stm32_adc_t* adc)
