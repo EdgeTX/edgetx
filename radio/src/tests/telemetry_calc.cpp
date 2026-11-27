@@ -80,12 +80,12 @@ class TelemetryCalcTest : public EdgeTxTest
     return sensor;
   }
 
-  // Custom sensor with a fresh value (volts, prec 2)
-  static void customSensor(uint8_t idx, int32_t value)
+  // Custom sensor with a fresh value (prec 2)
+  static void customSensor(uint8_t idx, int32_t value, uint8_t unit = UNIT_VOLTS)
   {
     TelemetrySensor& sensor = g_model.telemetrySensors[idx];
-    sensor.init("VFAS", UNIT_VOLTS, 2);
-    telemetryItems[idx].setValue(sensor, value, UNIT_VOLTS, 2);
+    sensor.init("VFAS", unit, 2);
+    telemetryItems[idx].setValue(sensor, value, unit, 2);
   }
 };
 
@@ -171,6 +171,19 @@ TEST_F(TelemetryCalcTest, YamlReadInvalidSources)
 
   readModelFromString(yaml);
   for (int i = 0; i < 4; i++) EXPECT_EQ(0, sensor.calc.sources[i]) << i;
+}
+
+TEST_F(TelemetryCalcTest, AverageNegativeValues)
+{
+  customSensor(0, -120, UNIT_METERS_PER_SECOND);
+  customSensor(1, -126, UNIT_METERS_PER_SECOND);
+
+  auto& sensor = calcSensor(2, TELEM_FORMULA_AVERAGE);
+  sensor.unit = UNIT_METERS_PER_SECOND;
+  sensor.calc.sources[0] = 1;
+  sensor.calc.sources[1] = 2;
+  telemetryItems[2].eval(sensor);
+  EXPECT_EQ(-123, telemetryItems[2].value);
 }
 
 #if defined(GVARS)
