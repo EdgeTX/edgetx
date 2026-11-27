@@ -816,6 +816,105 @@ static inline bitfield_channels_t upper_channels_mask(uint16_t ch)
 uint8_t mixerCurrentFlightMode;
 uint8_t mixerActiveFlightMode;
 
+// Mix evaluation order. In index order, a mix reading a channel computed
+// further down sees its previous cycle value, and the channels depending on it
+// are recomputed in extra passes (up to 5). Walking the channels in dependency
+// order instead computes every channel source first, so one pass is enough.
+//
+// The order is used only for models where it gives the same result: mixes
+// contiguous from slot 0, one run of mixes per channel, no circular channel
+// references. Other models keep the index order and its passes.
+//
+// The order is rebuilt whenever the mix sources or destinations change, which
+// is checked before each evaluation (a hash over the mixes, ~1-2 us), so
+// edits from any UI, Lua or the simulator apply on the next cycle.
+static struct {
+  uint8_t order[MAX_MIXERS];       // mix indexes, in evaluation order
+  uint8_t count;                   // 0: index order
+  bitfield_channels_t noMixes;     // channels without any mix
+  uint32_t signature;              // of the mixes the order was built for
+} mixOrder = {{0}, 0, 0, 0};
+
+// tests: force the index order, to compare results
+bool mixerForceIndexOrder = false;
+
+// tests: number of mixes walked in dependency order (0: index order)
+uint8_t mixerOrderCount() { return mixOrder.count; }
+
+static uint32_t mixesSignature()
+{
+  uint32_t h = 2166136261u;  // FNV-1a
+  uint8_t n = 0;
+  for (; n < MAX_MIXERS; n++) {
+    const MixData* md = mixAddress(n);
+    if (!md->srcRaw) break;
+    h = (h ^ (uint16_t)md->srcRaw) * 16777619u;
+    h = (h ^ md->destCh) * 16777619u;
+  }
+  return (h ^ n) * 16777619u;
+}
+
+static void mixerOrderCompile(uint32_t signature)
+{
+  mixOrder.count = 0;
+  mixOrder.signature = signature;
+
+  uint8_t n = 0;
+  while (n < MAX_MIXERS && mixAddress(n)->srcRaw) n++;
+  for (uint8_t i = n; i < MAX_MIXERS; i++) {
+    if (mixAddress(i)->srcRaw) return;  // gap between mixes
+  }
+  if (n == 0) return;
+
+  // runs of consecutive mixes with the same destination channel
+  static uint8_t runStart[MAX_OUTPUT_CHANNELS];
+  static uint8_t runEnd[MAX_OUTPUT_CHANNELS];
+  static int8_t runOfChannel[MAX_OUTPUT_CHANNELS];
+  static bitfield_channels_t runDeps[MAX_OUTPUT_CHANNELS];  // bit r: run r first
+
+  memset(runOfChannel, -1, sizeof(runOfChannel));
+  uint8_t nRuns = 0;
+  for (uint8_t i = 0; i < n;) {
+    uint8_t dest = mixAddress(i)->destCh;
+    if (dest >= MAX_OUTPUT_CHANNELS || runOfChannel[dest] >= 0)
+      return;  // channel split over several runs
+    runOfChannel[dest] = nRuns;
+    runStart[nRuns] = i;
+    while (i < n && mixAddress(i)->destCh == dest) i++;
+    runEnd[nRuns++] = i;
+  }
+
+  bitfield_channels_t withMixes = 0;
+  for (uint8_t r = 0; r < nRuns; r++) {
+    uint8_t dest = mixAddress(runStart[r])->destCh;
+    withMixes |= channel_bit(dest);
+    runDeps[r] = 0;
+    for (uint8_t i = runStart[r]; i < runEnd[r]; i++) {
+      mixsrc_t src = abs(mixAddress(i)->srcRaw);
+      if (src < MIXSRC_FIRST_CH || src > MIXSRC_LAST_CH) continue;
+      uint8_t srcChan = src - MIXSRC_FIRST_CH;
+      if (srcChan == dest || runOfChannel[srcChan] < 0) continue;
+      runDeps[r] |= channel_bit(runOfChannel[srcChan]);
+    }
+  }
+
+  // topological order (Kahn), lowest run first to stay close to index order
+  bitfield_channels_t placed = 0;
+  uint8_t k = 0;
+  for (uint8_t step = 0; step < nRuns; step++) {
+    uint8_t r = 0;
+    while (r < nRuns &&
+           ((placed & channel_bit(r)) || (runDeps[r] & ~placed)))
+      r++;
+    if (r == nRuns) return;  // circular channel references
+    placed |= channel_bit(r);
+    for (uint8_t i = runStart[r]; i < runEnd[r]; i++) mixOrder.order[k++] = i;
+  }
+
+  mixOrder.noMixes = ~withMixes;
+  mixOrder.count = n;
+}
+
 void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 {
   evalInputs(mode);
@@ -892,18 +991,30 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
   //========== MIXER LOOP ===============
 
+  uint32_t signature = mixesSignature();
+  if (signature != mixOrder.signature) mixerOrderCompile(signature);
+  const bool ordered = mixOrder.count && !mixerForceIndexOrder;
+  const uint8_t slots = ordered ? mixOrder.count : MAX_MIXERS;
+
   uint8_t pass = 0;
   uint8_t lv_mixWarning = 0;
   bitfield_channels_t dirtyChannels = all_channels_dirty;
 
   // Calculate locally and then copy to mixState array - prevent UI seeing phantom values while calculating
   bool activeMixes[MAX_MIXERS];
+  if (ordered && mode == e_perout_mode_normal)
+    memclear(activeMixes, sizeof(activeMixes));
 
   do {
     bitfield_channels_t passDirtyChannels = 0;
 
-    for (uint8_t i=0; i<MAX_MIXERS; i++) {
-      if (mode == e_perout_mode_normal && pass == 0)
+    // ordered: channels whose mixes are all computed in this pass
+    bitfield_channels_t doneChannels = mixOrder.noMixes;
+    int16_t runDest = -1;
+
+    for (uint8_t k = 0; k < slots; k++) {
+      uint8_t i = ordered ? mixOrder.order[k] : k;
+      if (!ordered && mode == e_perout_mode_normal && pass == 0)
         activeMixes[i] = 0;
 
       MixData * md = mixAddress(i);
@@ -916,6 +1027,11 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 #else
         break;
 #endif
+      }
+
+      if (ordered && md->destCh != runDest) {
+        if (runDest >= 0) doneChannels |= channel_bit(runDest);
+        runDest = md->destCh;
       }
 
       if (!channel_dirty(dirtyChannels, md->destCh))
@@ -971,7 +1087,8 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
           if (srcChan <= MAX_OUTPUT_CHANNELS && md->destCh != srcChan) {
 
             // check whether we need to recompute the current channel later
-            bitfield_channels_t upperChansMask = upper_channels_mask(md->destCh);
+            bitfield_channels_t upperChansMask =
+                ordered ? ~doneChannels : upper_channels_mask(md->destCh);
             bitfield_channels_t srcChanDirtyMask = channel_dirty(dirtyChannels, srcChan);
 
             // if the source is any of the channels marked as dirty
@@ -982,7 +1099,9 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 
             // if the source has already be computed,
             // then use it!
-            if (srcChan < md->destCh || pass > 0) {
+            bool computed = ordered ? channel_dirty(doneChannels, srcChan) != 0
+                                    : srcChan < md->destCh;
+            if (computed || pass > 0) {
               // channels are in [ -1024 * 256, 1024 * 256 ]
               v = chans[srcChan] >> 8;
             }
