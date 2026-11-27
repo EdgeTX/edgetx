@@ -402,6 +402,7 @@ void LvglWidgetObjectBase::getParams(lua_State *L, int index)
 {
   luaL_checktype(L, index, LUA_TTABLE);
   for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+    luaL_checktype(L, -2, LUA_TSTRING);
     int top = lua_gettop(L);
     parseParam(L, lua_tostring(L, -2));
     // Replace value on Lua stack if consumed by parseParam
@@ -1505,6 +1506,7 @@ void LvglWidgetObject::parseParam(lua_State *L, const char *key)
     } else {
       luaL_checktype(L, -1, LUA_TTABLE);
       for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+        luaL_checktype(L, -2, LUA_TSTRING);
         const char *key = lua_tostring(L, -2);
         if (!strcmp(key, "left")) {
           borderPadLeft = luaL_checkinteger(L, -1);
@@ -2636,6 +2638,7 @@ void LvglWidgetPage::parseParam(lua_State *L, const char *key)
   } else if (!strcmp(key, "prevButton")) {
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+      luaL_checktype(L, -2, LUA_TSTRING);
       const char *key = lua_tostring(L, -2);
       if (!strcmp(key, "press")) {
         prevActionFunction.parse(L);
@@ -2648,6 +2651,7 @@ void LvglWidgetPage::parseParam(lua_State *L, const char *key)
   } else if (!strcmp(key, "nextButton")) {
     luaL_checktype(L, -1, LUA_TTABLE);
     for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+      luaL_checktype(L, -2, LUA_TSTRING);
       const char *key = lua_tostring(L, -2);
       if (!strcmp(key, "press")) {
         nextActionFunction.parse(L);
