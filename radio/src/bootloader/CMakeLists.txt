@@ -24,6 +24,9 @@ else()
     boot_menu.cpp
     bin_fw_files.cpp
   )
+  if(BOOTLOADER_DFU)
+    set(BOOTLOADER_SRC ${BOOTLOADER_SRC} boot_dfu.cpp)
+  endif()
 endif()
 
 if(DEBUG_SEGGER_RTT)

@@ -1,6 +1,10 @@
 
 /* Highest address of the user mode stack */
-STACK_ADDRESS = 0x10010000; /* end of 64K CCM */
+/* end of 64K CCM, minus a gap keeping the reboot command word (last word of
+   CCM, see abnormal_reboot.cpp) out of the stack. The ST ROM bootloader does
+   not touch the stack once it has loaded our initial SP (unlike the H7RS
+   one), so no larger gap is needed here. */
+STACK_ADDRESS = 0x10010000 - 16;
 
 /* Required amount of stack for interrupt stack (Main stack) */
 MAIN_STACK_SIZE = 8192;

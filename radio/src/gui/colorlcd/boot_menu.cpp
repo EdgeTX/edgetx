@@ -243,6 +243,14 @@ void bootloaderInitScreen()
   backlightEnable(BACKLIGHT_LEVEL_MAX);
 }
 
+#if defined(BOOTLOADER_DFU)
+void bootloaderDrawDFUScreen()
+{
+  bootloaderDrawBackground();
+  lcd.drawText(LCD_W / 2, LCD_H / 2, TR_BL_DFU_MODE, CENTERED | BL_FOREGROUND);
+}
+#endif
+
 void bootloaderDrawItem(const char* symbol, const char* text, coord_t& y, coord_t& lastX, coord_t symXO = 0)
 {
   lcd.drawText(SYM_X - symXO, y, symbol, BL_FOREGROUND);
