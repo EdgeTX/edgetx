@@ -499,7 +499,7 @@ void TelemetryItem::eval(const TelemetrySensor & sensor)
           return;
         }
         else {
-          value = (value + count/2) / count;
+          value = divRoundClosest(value, count);
         }
       }
       else if (sensor.formula == TELEM_FORMULA_MULTIPLY) {
