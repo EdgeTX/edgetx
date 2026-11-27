@@ -159,7 +159,6 @@ PreviewWindow::PreviewWindow(Window *window, rect_t rect,
 
   auto qm = new Window(this, {QM_X, QM_Y, QM_W, QM_H});
   etx_solid_bg(qm->getLvObj(), COLOR_THEME_QM_BG_INDEX);
-  etx_obj_add_style(qm->getLvObj(), styles->bg_opacity_90, LV_PART_MAIN);
   auto sep = lv_obj_create(qm->getLvObj());
   etx_solid_bg(sep, COLOR_THEME_QM_FG_INDEX);
   lv_obj_set_size(sep, LCD_W, PAD_THREE);

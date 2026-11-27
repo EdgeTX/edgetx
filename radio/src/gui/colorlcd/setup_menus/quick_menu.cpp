@@ -255,8 +255,7 @@ QuickMenu::QuickMenu() :
 {
   setWindowFlag(OPAQUE);
 
-  etx_obj_add_style(lvobj, styles->bg_opacity_90, LV_PART_MAIN);
-  etx_bg_color(lvobj, COLOR_THEME_QM_BG_INDEX);
+  etx_solid_bg(lvobj, COLOR_THEME_QM_BG_INDEX);
 
   auto sep = lv_obj_create(lvobj);
   etx_solid_bg(sep, COLOR_THEME_QM_FG_INDEX);
