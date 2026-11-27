@@ -40,6 +40,9 @@ set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM1=8192")
 set(FIRMWARE_STRIP_BOOTLOADER YES)
 
 add_definitions(-DPCBH17 -DPCBHORUS)
+# LVGL renders into internal SRAM, the LCD driver copies it into the frame
+# buffers (see lcd_flush.h)
+add_definitions(-DLCD_FLUSHER)
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
@@ -118,6 +121,7 @@ set(BOARD_COMMON_SRC
   targets/common/arm/stm32/abnormal_reboot.cpp
   targets/common/arm/stm32/delays_driver.cpp
   targets/common/arm/stm32/dma2d.cpp
+  targets/common/arm/stm32/stm32_lcd_flush.cpp
   targets/common/arm/stm32/flash_driver.cpp
   targets/common/arm/stm32/pwr_driver.cpp
   targets/common/arm/stm32/rotary_encoder_driver.cpp

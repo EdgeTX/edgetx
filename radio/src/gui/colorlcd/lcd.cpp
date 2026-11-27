@@ -44,6 +44,18 @@ char* get_lvgl_mem(int nbytes)
 pixel_t LCD_FIRST_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 pixel_t LCD_SECOND_FRAME_BUFFER[DISPLAY_BUFFER_SIZE] __SDRAM __ALIGNED(64);
 
+#if defined(LCD_FLUSHER) && !defined(SIMU)
+// LVGL renders into internal SRAM, in as few bands as fit, and the LCD driver
+// copies each band into its frame buffers (the two above, see lcd_flush.h):
+// much faster than rendering into SDRAM and reading it back from there.
+#define LCD_DRAW_BUF_BANDS                                    \
+  ((DISPLAY_BUFFER_SIZE * sizeof(pixel_t) + LVGL_DRAW_BUF_SIZE_MAX - 1) / \
+   LVGL_DRAW_BUF_SIZE_MAX)
+#define LCD_DRAW_BUF_LINES \
+  ((LCD_H + LCD_DRAW_BUF_BANDS - 1) / LCD_DRAW_BUF_BANDS)
+static pixel_t LCD_DRAW_BUFFER[LCD_W * LCD_DRAW_BUF_LINES] __LVGL_DRAW_BUF;
+#endif
+
 static lv_disp_draw_buf_t disp_buf;
 static lv_disp_drv_t disp_drv;
 
@@ -154,6 +166,11 @@ static void clear_frame_buffers()
 static void init_lvgl_disp_drv()
 {
   int direct_mode = 1;
+#if defined(LCD_FLUSHER) && !defined(SIMU)
+  direct_mode = 0;
+  lv_disp_draw_buf_init(&disp_buf, LCD_DRAW_BUFFER, nullptr,
+                        LCD_W * LCD_DRAW_BUF_LINES);
+#else
 #if LCD_VERTICAL_INVERT
 #if defined(RADIO_F16)
   direct_mode = (hardwareOptions.pcbrev > 0) ? 1 : 0;
@@ -166,6 +183,7 @@ static void init_lvgl_disp_drv()
                         LCD_FIRST_FRAME_BUFFER,
                         direct_mode ? LCD_SECOND_FRAME_BUFFER : nullptr,
                         LCD_W * LCD_H);
+#endif
   lv_disp_drv_init(&disp_drv); /*Basic initialization*/
 
   disp_drv.draw_buf = &disp_buf; /*Set an initialized buffer*/

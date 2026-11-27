@@ -53,6 +53,7 @@ set(GUI_SRC
   colors.cpp
   fonts.cpp
   lcd.cpp
+  lcd_flush.cpp
   LvglWrapper.cpp
   startup_shutdown.cpp
 
@@ -198,6 +199,7 @@ set(BOOTLOADER_SRC ${BOOTLOADER_SRC}
   ${LVGL_SOURCES_MINIMAL}
   ${LVGL_FONT_SOURCES_MINIMAL}
   ${RADIO_SRC_DIR}/gui/colorlcd/boot_lcd.cpp
+  ${RADIO_SRC_DIR}/gui/colorlcd/lcd_flush.cpp
   ${RADIO_SRC_DIR}/gui/colorlcd/fonts.cpp
   ${RADIO_SRC_DIR}/gui/colorlcd/colors.cpp
   ${RADIO_SRC_DIR}/gui/colorlcd/bitmaps.cpp
