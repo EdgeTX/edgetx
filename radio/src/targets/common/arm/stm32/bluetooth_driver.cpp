@@ -118,3 +118,13 @@ uint8_t bluetoothIsWriting(void)
 
   return !STM32SerialDriver.txCompleted(_bt_usart_ctx);
 }
+
+const etx_serial_driver_t* bluetoothGetSerialDrv(void)
+{
+  return &STM32SerialDriver;
+}
+
+void* bluetoothGetCtx(void)
+{
+  return _bt_usart_ctx;
+}

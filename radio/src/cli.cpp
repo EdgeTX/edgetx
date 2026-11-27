@@ -1585,6 +1585,43 @@ static void spExtModuleDeInit(int port_n)
 }
 #endif // HARDWARE_EXTERNAL_MODULE
 
+#if defined(BLUETOOTH)
+// Bluetooth module passthrough: power on the module and hand the BT UART to
+// the generic USB<->UART bridge. The host then sends AT+DOWNLOAD over the
+// bridge to enter the ESP32 ROM bootloader and flashes it with esptool.
+//
+// Keep this short and side-effect free: it runs with the RTOS scheduler
+// suspended, so we only ensure power and the UART are up (bluetoothInit is
+// idempotent) and avoid de-initialising a live UART (its RX DMA may be
+// feeding bytes from the module while the scheduler is suspended).
+static void spBluetoothInit(int port_n, int baudrate)
+{
+  (void)port_n;
+  (void)baudrate;
+
+  bluetoothInit(BLUETOOTH_DEFAULT_BAUDRATE, true);
+
+  auto* drv = bluetoothGetSerialDrv();
+  _sp_drv = drv;
+  _sp_ctx = bluetoothGetCtx();
+
+  // Clear any stale RX data (boot logs, "invalid header" spam) left in the
+  // UART buffer so esptool sees a clean link.
+  if (drv->clearRxBuffer) drv->clearRxBuffer(_sp_ctx);
+}
+
+static void spBluetoothDeInit(int port_n)
+{
+  (void)port_n;
+
+  // Power-cycle the module to clear the ROM download flag and boot the
+  // freshly-flashed app. The Bluetooth state machine re-initialises the link.
+  bluetoothDisable();
+  delay_ms(200);
+  bluetooth.state = BLUETOOTH_STATE_OFF;
+}
+#endif
+
 #if defined(FLYSKY_GIMBAL)
 #include "flysky_gimbal_driver.h"
 
@@ -1695,6 +1732,18 @@ int cliSerialPassthrough(const char **argv)
     deinitCB = spGimbalDeInit;
 #else
     cliSerialPrint("%s: serial gimbals not supported", argv[0]);
+    return -1;
+#endif
+  } else if (!strcmp("bt", port_type)) {
+#if defined(BLUETOOTH)
+    // optional baudrate (the module stays at 115200; kept for symmetry)
+    if (toInt(argv, 2, &baudrate) <= 0) {
+      baudrate = 0;
+    }
+    initCB = spBluetoothInit;
+    deinitCB = spBluetoothDeInit;
+#else
+    cliSerialPrint("%s: bluetooth not supported", argv[0]);
     return -1;
 #endif
   } else {

@@ -21,7 +21,20 @@ Summary of the commands available in CLI mode.
 
 | Function | Parameters (if any) | Description |
 |--|--|--|
-| `serialpassthrough` | `<port type> [<port number>] [<baudrate>]` | Enable serial passthrough. |
+| `serialpassthrough` | `<port type> [<port number>] [<baudrate>] [sport\|ppm] [hangup]` | Enable serial passthrough. `port type`: `rfmod` (RF module), `gimbals`, or `bt` (Bluetooth module). |
+
+The `bt` port type only bridges the radio's Bluetooth UART to USB and is
+generic: it works with any Bluetooth module. Flashing the module is a separate,
+**ESP32-C3 / BTWifiModule-specific** step done by `tools/bt_flash.py` (it sends
+`AT+DOWNLOAD` and flashes with esptool). It does not apply to the native FrSky
+(CC26xx) Bluetooth module, which is left untouched.
+
+The `serialpassthrough` command is part of the CLI, which is not compiled into
+stock firmware: it needs a build with `CLI=ON` (plus `BLUETOOTH=ON` for `bt`).
+The CLI carries a significant flash footprint, so on 512 KB targets
+(STM32F407xE, e.g. X9D+ 2019) enabling `CLI` together with `BLUETOOTH` can
+overflow `FLASH`. Targets with 2 MB of flash (STM32F429xI and larger, e.g.
+TX16S) build fine.
 
 
 ## If `DEBUG` set

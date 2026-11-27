@@ -275,7 +275,7 @@ void hapticOff();
 void hapticOn(uint32_t pwmPercent);
 
 // BT driver
-#define BT_TX_FIFO_SIZE    64
+#define BT_TX_FIFO_SIZE    2048
 #define BT_RX_FIFO_SIZE    256
 #define BLUETOOTH_BOOTLOADER_BAUDRATE  230400
 #define BLUETOOTH_FACTORY_BAUDRATE     57600
