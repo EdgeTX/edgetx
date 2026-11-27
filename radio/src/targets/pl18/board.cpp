@@ -243,6 +243,11 @@ void boardInit()
   if (UNEXPECTED_SHUTDOWN()) {
     pwrOn();
   } else if (isChargerActive()) {
+#if defined(RADIO_PL18EV)
+    // battery voltage for the "full" check on the charge screen
+    adcInit(&_adc_driver);
+    battery_charge_adc_ready(true);
+#endif
     while (true) {
       pwrOn();
       uint32_t now = timersGetMsTick();
@@ -268,6 +273,9 @@ void boardInit()
       }
     }
     battery_charge_end();
+#if defined(RADIO_PL18EV)
+    battery_charge_adc_ready(false);
+#endif
   }
 
   keysInit();

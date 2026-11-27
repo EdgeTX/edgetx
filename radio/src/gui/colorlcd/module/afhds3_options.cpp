@@ -138,7 +138,12 @@ AFHDS3_Options::AFHDS3_Options(uint8_t moduleIdx) : Page(ICON_MODEL_SETUP)
   header->setTitle(title);
 
   title = "AFHDS3 (";
+#if defined(AFHDS3_FRM301_EXT)
+  title += (moduleIdx == INTERNAL_MODULE ? "INRM301"
+            : afhds3::isFRM301(moduleIdx) ? "FRM301" : "FRM303");
+#else
   title += (moduleIdx == INTERNAL_MODULE ? "INRM301" : "FRM303");
+#endif
   title += ")";
   header->setTitle2(title);
 

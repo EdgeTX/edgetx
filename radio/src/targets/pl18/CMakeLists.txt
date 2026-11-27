@@ -97,6 +97,33 @@ elseif(PCBREV STREQUAL PL18EV)
   set(LED_STRIP ON)
   set(AFHDS3 ON)
   set(KEY_DRIVER key_driver.cpp)
+
+  # Optional internal module on the Bluetooth pads (USART3 on PB.10/PB.11 =
+  # TX_BLE/RX_BLE), e.g. a CRSF (ELRS) or Multi module instead of the
+  # Bluetooth board. UART7 (PF.06/PF.07) is left untouched.
+  option(PL18EV_INTERNAL_CRSF "Internal CRSF/Multi module on the Bluetooth pads (USART3)" OFF)
+  if(PL18EV_INTERNAL_CRSF)
+    add_definitions(-DPL18EV_INTERNAL_CRSF)
+    set(INTERNAL_MODULES CRSF;MULTI CACHE STRING "Internal modules")
+    set(DEFAULT_INTERNAL_MODULE CROSSFIRE CACHE STRING "Default internal module")
+
+    # Power switching of the internal module via BT_EN (PI.08), high = on.
+    # PI.08 switches BT_3V3 on the Bluetooth socket. Also needed for
+    # flashing a Multi module from the radio.
+    option(PL18EV_INTMODULE_PWR_PI8 "Switch internal module power via PI.08 (BT_EN)" ON)
+    if(PL18EV_INTMODULE_PWR_PI8)
+      add_definitions(-DPL18EV_INTMODULE_PWR_PI8)
+    endif()
+  endif()
+
+  # FlySky FRM301 (Paladin EV module bay) as external AFHDS3 module. Same
+  # port as the FRM303 (USART6, 1.5 Mbaud 8N1), but FlySkyOS protocol and
+  # device address 2 instead of 4. Detected automatically (or selected in
+  # the module settings), the FRM303 keeps working unchanged.
+  option(PL18EV_FRM301 "FlySky FRM301 as external AFHDS3 module" ON)
+  if(PL18EV_FRM301)
+    add_definitions(-DAFHDS3_FRM301_EXT)
+  endif()
 else()
   set(FLAVOUR pl18)
   add_definitions(-DUSE_HATS_AS_KEYS)

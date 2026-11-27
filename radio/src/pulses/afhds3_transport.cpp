@@ -219,6 +219,10 @@ void Transport::init(void* buffer, etx_module_state_t* mod_st, uint8_t fAddr)
 {
   trsp.init(buffer, fAddr);
   this->mod_st = mod_st;
+#if defined(AFHDS3_FRM301_EXT)
+  closedMode = false;
+  modReq.valid = false;
+#endif
 }
 
 void Transport::clear()
@@ -229,6 +233,11 @@ void Transport::clear()
   // reset command layer
   fifo.clearCommandFifo();
 
+#if defined(AFHDS3_FRM301_EXT)
+  // FRM301: keep counting - the module takes a request with the same frame
+  // number as the last one for a repetition and ignores it
+  if (!closedMode)
+#endif
   frameIndex = 1;
   repeatCount = 0;
 
@@ -270,6 +279,36 @@ void Transport::sendBuffer()
   drv->sendBuffer(ctx, (uint8_t*)trsp.trsp_buffer, trsp.getFrameSize());
 #endif
 }
+
+#if defined(AFHDS3_FRM301_EXT)
+bool Transport::txIdle()
+{
+#if !defined(SIMU)
+  auto drv = modulePortGetSerialDrv(mod_st->tx);
+  auto ctx = modulePortGetCtx(mod_st->tx);
+  if (drv && drv->txCompleted) return drv->txCompleted(ctx);
+#endif
+  return true;
+}
+
+void Transport::sendResponseNow(uint8_t* buf, uint8_t command,
+                                uint8_t frameNumber, uint8_t* data,
+                                uint8_t len, FRAME_TYPE type)
+{
+  uint8_t* saveBuf = trsp.trsp_buffer;
+  uint8_t* savePtr = trsp.data_ptr;
+  trsp.trsp_buffer = buf;
+  trsp.putFrame((enum COMMAND)command, type, data, len, frameNumber);
+  uint32_t size = trsp.getFrameSize();
+  trsp.trsp_buffer = saveBuf;
+  trsp.data_ptr = savePtr;
+#if !defined(SIMU)
+  auto drv = modulePortGetSerialDrv(mod_st->tx);
+  auto ctx = modulePortGetCtx(mod_st->tx);
+  drv->sendBuffer(ctx, buf, size);
+#endif
+}
+#endif
 
 bool Transport::processQueue()
 {
@@ -321,6 +360,34 @@ bool Transport::handleReply(uint8_t* buffer, uint8_t len)
   // TODO: check len...
 
   AfhdsFrame* responseFrame = reinterpret_cast<AfhdsFrame*>(buffer);
+
+#if defined(AFHDS3_FRM301_EXT)
+  // FRM301 (closed protocol): the module also sends requests to the radio,
+  // e.g. "host ready?" (0x01, GET) or its receiver block (0x05,
+  // SET_EXPECT_ACK). They are answered with the same frame number like
+  // FlySkyOS does, from a separate buffer so a pending own request is kept.
+  if (closedMode && (responseFrame->frameType == FRAME_TYPE::REQUEST_GET_DATA ||
+                     responseFrame->frameType ==
+                         FRAME_TYPE::REQUEST_SET_EXPECT_DATA ||
+                     responseFrame->frameType ==
+                         FRAME_TYPE::REQUEST_SET_EXPECT_ACK)) {
+    // remember the request, the protocol layer answers it in setupFrame()
+    if (!modReq.valid) {
+      modReq.address = buffer[1];
+      modReq.command = responseFrame->command;
+      modReq.frameNumber = responseFrame->frameNumber;
+      modReq.frameType = responseFrame->frameType;
+      uint8_t n = len > 7 ? len - 7 : 0;  // start, addr, num, type, cmd ... crc, end
+      if (n > sizeof(modReq.data)) n = sizeof(modReq.data);
+      for (uint8_t i = 0; i < n; i++) modReq.data[i] = buffer[5 + i];
+      modReq.len = n;
+      modReq.valid = true;
+    }
+    // GET: nothing for the protocol layer, SET: let it parse the data too
+    return responseFrame->frameType == FRAME_TYPE::REQUEST_GET_DATA;
+  }
+#endif
+
   if (responseFrame->frameType == FRAME_TYPE::REQUEST_SET_EXPECT_ACK) {
 
     // check if such request is not queued

@@ -357,8 +357,13 @@
   #define INTMODULE_TIMER_IRQn            TIM3_IRQn
   #define INTMODULE_TIMER_IRQHandler      TIM3_IRQHandler
   #define INTMODULE_TIMER_FREQ            (PERI1_FREQUENCY * TIMER_MULT_APB1)
-#elif defined(RADIO_NB4P)
+#elif defined(RADIO_NB4P) || defined(PL18EV_INTERNAL_CRSF)
+  // NB4P internal module / PL18EV internal module on the Bluetooth port
+  // (TX3/RX3). On the PL18EV PI.08 (BT_EN) switches BT_3V3 on the Bluetooth
+  // socket, high = on.
+  #if !defined(PL18EV_INTERNAL_CRSF) || defined(PL18EV_INTMODULE_PWR_PI8)
   #define INTMODULE_PWR_GPIO              GPIO_PIN(GPIOI, 8)  // PI.08
+  #endif
   #define INTMODULE_TX_GPIO               GPIO_PIN(GPIOB, 10) // PB.10
   #define INTMODULE_RX_GPIO               GPIO_PIN(GPIOB, 11) // PB.11
   #define INTMODULE_USART                 USART3
