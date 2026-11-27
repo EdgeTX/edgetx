@@ -33,6 +33,7 @@
 // Frame id
 #define GPS_ID                         0x02
 #define GPS_TIME_ID                    0x03
+#define GPS_EXT_ID                     0x06
 #define CF_VARIO_ID                    0x07
 #define BATTERY_ID                     0x08
 #define BARO_ALT_ID                    0x09
@@ -41,6 +42,9 @@
 #define TEMP_ID                        0x0D
 #define CELLS_ID                       0x0E
 #define VOLT_ARRAY_ID                  0xFE  // Pseudo sensor out of 0x0E frame
+#define BAROMETER_ID                   0x11
+#define MAGNETOMETER_ID                0x12
+#define ACCGYRO_ID                     0x13
 #define LINK_ID                        0x14
 #define CHANNELS_ID                    0x16
 #define LINK_RX_ID                     0x1C
@@ -87,9 +91,32 @@ enum CrossfireSensorIndexes {
   GPS_ALTITUDE_INDEX,
   GPS_SATELLITES_INDEX,
   GPS_TIME_INDEX,
+  GPS_FIX_INDEX,
+  GPS_NSPEED_INDEX,
+  GPS_ESPEED_INDEX,
+  GPS_VSPEED_INDEX,
+  GPS_HSPEED_ACC_INDEX,
+  GPS_TRACK_ACC_INDEX,
+  GPS_ALT_ELLIPSOID_INDEX,
+  GPS_HACC_INDEX,
+  GPS_VACC_INDEX,
+  GPS_HDOP_INDEX,
+  GPS_VDOP_INDEX,
   ATTITUDE_PITCH_INDEX,
   ATTITUDE_ROLL_INDEX,
   ATTITUDE_YAW_INDEX,
+  ACCGYRO_GYRO_X_INDEX,
+  ACCGYRO_GYRO_Y_INDEX,
+  ACCGYRO_GYRO_Z_INDEX,
+  ACCGYRO_ACC_X_INDEX,
+  ACCGYRO_ACC_Y_INDEX,
+  ACCGYRO_ACC_Z_INDEX,
+  ACCGYRO_TEMP_INDEX,
+  BAROMETER_PRESSURE_INDEX,
+  BAROMETER_TEMP_INDEX,
+  MAGNETOMETER_X_INDEX,
+  MAGNETOMETER_Y_INDEX,
+  MAGNETOMETER_Z_INDEX,
   FLIGHT_MODE_INDEX,
   VERTICAL_SPEED_INDEX,
   BARO_ALTITUDE_INDEX,
