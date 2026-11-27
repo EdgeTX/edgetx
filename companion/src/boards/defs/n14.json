@@ -7,6 +7,7 @@
         "vmin": 67,
         "vwarn": 66
     },
+    "chargeWhileOn": true,
     "contrast": {
         "max": 254,
         "min": 2

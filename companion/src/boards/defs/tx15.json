@@ -10,6 +10,7 @@
         "vmin": 67,
         "vwarn": 66
     },
+    "chargeWhileOn": true,
     "flashSize": 2097152,
     "modules": [
         {

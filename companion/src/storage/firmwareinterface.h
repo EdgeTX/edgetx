@@ -74,7 +74,7 @@ class FirmwareInterface
     // unmodified input data, to be used when writing to the radio
     inline const QByteArray& getRawData() const { return rawData; }
     inline int getSize() { return flashSize; }
-    inline QString getBoardId() const { return boardId; }
+    inline QString getFlavour() const { return flavour; }
     bool isHardwareCompatible(const FirmwareInterface &previousFirmware) const;
     inline QString getVersion() { return version; }
     inline int getEEpromVersion() { return eepromVersion; }
@@ -118,7 +118,7 @@ class FirmwareInterface
     QString filename;
     QString date;
     QString time;
-    QString boardId;
+    QString flavour;
     QString version;
     QString eepromId;
     int eepromVersion = 0;

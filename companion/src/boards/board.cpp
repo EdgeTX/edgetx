@@ -2125,6 +2125,7 @@ void Board::buildJson()
   const QStringList hasInputsAccl = {};
   const QStringList hasSwitchesFlex = {"f16", "mt12", "tx16s", "tx16smk3", "v16"};
   const QStringList hasSwitchesVoice = {"v16"};
+  const QStringList hasChargeWhileOn = {"gx10", "gx15", "n14", "tx16smk3", "tx15"};
 
   while (!regbdsin.atEnd()) {
     regbdrec = regbdsin.readLine().split(";");
@@ -2150,6 +2151,9 @@ void Board::buildJson()
     }
 
     obj["basedOn"] = basedOn;
+
+    if (hasChargeWhileOn.contains(hwdef))
+      obj["chargeWhileOn"] = QJsonValue(true);
 
     if (regbdrec[regbdheader.indexOf("eepromsize")].toInt() > 0)
       obj["eepromSize"] = regbdrec[regbdheader.indexOf("eepromsize")].toInt();;

@@ -207,13 +207,13 @@ void FirmwareInterface::initFlash(const QByteArray& flashData)
       return;
     }
 
-    boardId = seekLabel(FW_MARK).remove("edgetx-");
+    flavour = seekLabel(FW_MARK).remove("edgetx-");
     version = seekLabel(VERS_MARK);
 
     if (version.startsWith("opentx-")) {
       // old version format
       int index = version.lastIndexOf('-');
-      boardId = version.mid(0, index);
+      flavour = version.mid(0, index);
       version = version.mid(index + 1);
     }
 
@@ -281,12 +281,12 @@ QString FirmwareInterface::seekLabel(const QString & label)
 
 bool FirmwareInterface::isHardwareCompatible(const FirmwareInterface &previousFirmware) const
 {
-  QString newFlavour = getBoardId();
+  QString newFlavour = getFlavour();
 
   if (newFlavour.isEmpty())
     return true;
 
-  QString previousFlavour = previousFirmware.getBoardId();
+  QString previousFlavour = previousFirmware.getFlavour();
 
   if (previousFlavour.isEmpty())
     return true;
