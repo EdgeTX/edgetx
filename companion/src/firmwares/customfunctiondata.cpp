@@ -258,6 +258,7 @@ bool CustomFunctionData::isFuncAvailable(const int index, const ModelData * mode
         ((index == FuncDisableAudioAmp && !Boards::getCapability(fw->getBoard(), Board::HasAudioMuteGPIO))) ||
         ((index == FuncRGBLed && !(Boards::getCapability(fw->getBoard(), Board::HasBlingLEDS) || Boards::getCapability(fw->getBoard(), Board::FunctionSwitchColors)))) ||
         ((index == FuncLCDtoVideo && !IS_FATFISH_F16(fw->getBoard()))) ||
+        ((index == FuncHtReset) && !fw->getCapability(BluetoothEnabled)) ||
         ((index >= FuncPushCustomSwitch1 && index <= FuncPushCustomSwitchLast) &&
           !Boards::isSwitchFunc(Boards::getSwitchIndexForCFSOffset(index - FuncPushCustomSwitch1)))
         );
