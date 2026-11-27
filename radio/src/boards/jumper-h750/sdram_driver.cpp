@@ -161,10 +161,11 @@ extern "C" void SDRAM_InitSequence(void)
 
   /* Step 8 --------------------------------------------------------------------*/
   /* Set the refresh rate counter */
-  /* (15.62 us x Freq) - 20 */
-  /* Set the device refresh counter */
+  // SDCLK = HCLK3 (240 MHz) / 3 = 80 MHz
+  // COUNT = (64 ms / rows) x SDCLK - 20
+  // 4096 rows: 15.62 us x 80 MHz - 20 = 1230
   FMC_SDRAM_SetAutoRefreshNumber(FMC_Bank5_6_R, 15);
-  FMC_SDRAM_ProgramRefreshRate(FMC_Bank5_6_R, 2479);
+  FMC_SDRAM_ProgramRefreshRate(FMC_Bank5_6_R, 1230);
 }
 
 extern "C" void SDRAM_Init(void)
