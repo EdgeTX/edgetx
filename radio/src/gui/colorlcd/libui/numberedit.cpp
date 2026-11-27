@@ -345,3 +345,52 @@ void NumberEdit::handleKBEvent(int n)
   }
   setValue(value);
 }
+
+void NumberEdit::setPrefix(const std::string& value)
+{
+  prefix = std::move(value);
+  update();
+}
+
+void NumberEdit::setSuffix(const std::string& value)
+{
+  suffix = std::move(value);
+  update();
+}
+
+void NumberEdit::setZeroText(const std::string& value)
+{
+  zeroText = std::move(value);
+  update();
+}
+
+void NumberEdit::setAvailableHandler(std::function<bool(int)> handler)
+{
+  isValueAvailable = std::move(handler);
+}
+
+void NumberEdit::setDisplayHandler(std::function<std::string(int value)> function)
+{
+  displayFunction = std::move(function);
+  update();
+}
+
+void NumberEdit::setSetValueHandler(std::function<void(int)> handler)
+{
+  _setValue = std::move(handler);
+}
+
+void NumberEdit::setGetValueHandler(std::function<int()> handler)
+{
+  _getValue = std::move(handler);
+}
+
+void NumberEdit::setOnEditedHandler(std::function<void(int)> handler)
+{
+  onEdited = std::move(handler);
+}
+
+void NumberEdit::setOnEditStartHandler(std::function<void()> handler)
+{
+  onEditStart = std::move(handler);
+}

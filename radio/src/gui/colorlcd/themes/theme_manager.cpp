@@ -507,6 +507,38 @@ void ThemePersistance::insertDefaultTheme()
   themes.insert(themes.begin(), themeFile);
 }
 
+std::vector<std::string> ThemePersistance::getNames()
+{
+  std::vector<std::string> names;
+  for (auto theme:themes) {
+      names.emplace_back(theme->getName());
+  }
+
+  return names;
+}
+
+void ThemePersistance::applyTheme(int index)
+{
+  if (index >= 0 && index < (int)themes.size()) {
+    auto theme = themes[index];
+    theme->applyTheme();
+  }
+}
+
+ThemeFile* ThemePersistance::getCurrentTheme()
+{
+  if (currentTheme < (int)themes.size())
+    return themes[currentTheme];
+  return nullptr;
+}
+
+ThemeFile* ThemePersistance::getThemeByIndex(int index)
+{
+  if (index < (int) themes.size())
+    return themes[index];
+  return nullptr;
+}
+
 HeaderDateTime::HeaderDateTime(Window* parent, coord_t x, coord_t y) :
   Window(parent, {x, y, HDR_DATE_WIDTH, HDR_DATE_LINE2 + HDR_DATE_HEIGHT + 2})
 {

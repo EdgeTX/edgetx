@@ -97,68 +97,42 @@ class ThemeFile
 
 class ThemePersistance
 {
-  public:
-    ThemePersistance()
-    {
-    }
+ public:
+  ThemePersistance() {}
 
-    static ThemePersistance *instance() {
-      return &themePersistance;
-    }
+  static ThemePersistance *instance() {
+    return &themePersistance;
+  }
 
-    void loadDefaultTheme();
-    void setDefaultTheme(int index);
-    static char **getColorNames();
-    bool deleteThemeByIndex(int index);
-    bool createNewTheme(const std::string& name, ThemeFile &theme);
+  void loadDefaultTheme();
+  void setDefaultTheme(int index);
+  static char **getColorNames();
+  bool deleteThemeByIndex(int index);
+  bool createNewTheme(const std::string& name, ThemeFile &theme);
 
-    std::vector<std::string> getNames()
-    {
-        std::vector<std::string> names;
-        for (auto theme:themes) {
-            names.emplace_back(theme->getName());
-        }
+  std::vector<std::string> getNames();
 
-        return names;
-    }
+  void applyTheme(int index);
 
-    void applyTheme(int index)
-    {
-      if (index >= 0 && index < (int)themes.size()) {
-        auto theme = themes[index];
-        theme->applyTheme();
-      }
-    }
+  inline int getThemeIndex() {return currentTheme;}
+  inline void setThemeIndex(int index) { currentTheme = index;}
+  inline bool isDefaultTheme() { if (currentTheme == 0) return true; else return false; }
 
-    inline int getThemeIndex() {return currentTheme;}
-    inline void setThemeIndex(int index) { currentTheme = index;}
-    inline bool isDefaultTheme() { if (currentTheme == 0) return true; else return false; }
+  ThemeFile* getCurrentTheme();
 
-    inline ThemeFile* getCurrentTheme()
-    {
-      if (currentTheme < (int)themes.size())
-        return themes[currentTheme];
-      return nullptr;
-    }
+  ThemeFile* getThemeByIndex(int index);
 
-    inline ThemeFile* getThemeByIndex(int index)
-    {
-      if (index < (int) themes.size())
-        return themes[index];
-      return nullptr;
-    }
+  void refresh();
 
-    void refresh();
+ protected:
+  std::vector<ThemeFile *> themes;
+  int currentTheme = 0;
+  void scanForThemes();
+  void insertDefaultTheme();
+  void clearThemes();
+  void scanThemeFolder(char *fullPath);
 
-  protected:
-    std::vector<ThemeFile *> themes;
-    int currentTheme = 0;
-    void scanForThemes();
-    void insertDefaultTheme();
-    void clearThemes();
-    void scanThemeFolder(char *fullPath);
-
-    static ThemePersistance themePersistance;
+  static ThemePersistance themePersistance;
 };
 
 class HeaderDateTime : public Window

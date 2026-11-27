@@ -77,6 +77,13 @@ void ChoiceBase::checkEvents()
   Window::checkEvents();
 }
 
+void ChoiceBase::setTextHandler(std::function<std::string(int)> handler)
+{
+  textHandler = std::move(handler);
+  currentValue = INT_MAX; // Force update
+  update();
+}
+
 std::string Choice::getLabelText()
 {
   std::string text;
@@ -235,4 +242,56 @@ void Choice::openMenu()
   fillMenu(menu);
 
   menu->onClosing([=]() { setEditMode(false); });
+}
+
+unsigned Choice::getIndexFromValue(int value) const
+{
+  if (!isValueAvailable) {
+    return value - vmin;
+  }
+
+  unsigned index = 0;
+  for (int i = vmin; i < value; i++) {
+    if (isValueAvailable(i)) {
+      index++;
+    }
+  }
+  return index;
+}
+
+int Choice::getValueFromIndex(int index) const
+{
+  if (!isValueAvailable) {
+    return vmin + index;
+  }
+
+  int value = vmin - 1;
+  while (index >= 0) {
+    index--;
+    value++;
+    while (value < vmax && !isValueAvailable(value)) {
+      value++;
+    }
+  }
+  return value;
+}
+
+void Choice::setFillMenuHandler(std::function<void(Menu *, int, int &)> handler)
+{
+  fillMenuHandler = std::move(handler);
+}
+
+void Choice::setSetValueHandler(std::function<void(int)> handler)
+{
+  _setValue = std::move(handler);
+}
+
+void Choice::setGetValueHandler(std::function<int()> handler)
+{
+  _getValue = std::move(handler);
+}
+
+void Choice::setAvailableHandler(std::function<bool(int)> handler)
+{
+  isValueAvailable = std::move(handler);
 }

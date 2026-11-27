@@ -113,7 +113,7 @@ MainViewTrim::MainViewTrim(Window* parent, const rect_t& rect, uint8_t idx,
 
   trimIcon = new TrimIcon(this, isVertical);
 
-  trimValue = new DynamicNumber<int16_t>(
+  trimValue = new DynamicNumber(DN_UNSIGNED, 
       this, {0, 0, SliderIcon::SLIDER_ICON_SIZE, SliderIcon::SLIDER_MASK_SIZE},
       [=]() { return divRoundClosest(abs(value) * 100, trimMax); },
       COLOR_THEME_PRIMARY2_INDEX, FONT(XXS) | CENTERED);

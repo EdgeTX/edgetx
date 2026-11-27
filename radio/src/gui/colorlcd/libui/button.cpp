@@ -108,6 +108,11 @@ void ButtonBase::setCheckHandler(std::function<void(void)> handler)
   if (checkHandler) checkHandler();
 }
 
+void ButtonBase::setPressHandler(std::function<uint8_t(void)> handler)
+{
+  pressHandler = std::move(handler);
+}
+
 //-----------------------------------------------------------------------------
 
 TextButton::TextButton(Window* parent, const rect_t& rect, std::string text,
@@ -126,6 +131,11 @@ void TextButton::setText(std::string value)
     text = std::move(value);
     lv_label_set_text(label, text.c_str());
   }
+}
+
+void TextButton::setFont(FontIndex font)
+{
+  etx_font(label, font);
 }
 
 //-----------------------------------------------------------------------------
@@ -173,4 +183,17 @@ bool MomentaryButton::customEventHandler(lv_event_code_t code, lv_event_t *e)
     default:
       return false;
   };
+}
+
+void MomentaryButton::setText(std::string value)
+{
+    if (value != text) {
+        text = std::move(value);
+        lv_label_set_text(label, text.c_str());
+    }
+}
+
+void MomentaryButton::setFont(FontIndex font)
+{
+    etx_font(label, font);
 }

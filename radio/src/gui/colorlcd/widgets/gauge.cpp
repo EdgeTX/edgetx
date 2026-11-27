@@ -40,8 +40,8 @@ class GaugeWidget : public Widget
     sourceText = new StaticText(this, {0, 0, LV_SIZE_CONTENT, 16}, "",
                                 COLOR_THEME_PRIMARY2_INDEX, FONT(XS));
 
-    valueText = new DynamicNumber<int16_t>(
-        this, {0, 0, lv_pct(100), GUAGE_H}, [=]() { return getGuageValue(); },
+    valueText = new DynamicNumber(DN_SIGNED, 
+        this, {0, 0, lv_pct(100), GUAGE_H}, [=]() { return getGaugeValue(); },
         COLOR_THEME_PRIMARY2_INDEX, FONT(XS) | CENTERED, "", "%");
     etx_obj_add_style(valueText->getLvObj(), styles->text_align_right,
                       LV_STATE_USER_1);
@@ -60,7 +60,7 @@ class GaugeWidget : public Widget
     update();
   }
 
-  int16_t getGuageValue()
+  int16_t getGaugeValue()
   {
     auto widgetData = getPersistentData();
 
@@ -102,14 +102,14 @@ class GaugeWidget : public Widget
  protected:
   int16_t lastValue = -10000;
   StaticText* sourceText = nullptr;
-  DynamicNumber<int16_t>* valueText = nullptr;
+  DynamicNumber* valueText = nullptr;
   lv_obj_t* bar = nullptr;
 
   void foreground() override
   {
     if (!loaded || deleted()) return;
 
-    auto newValue = getGuageValue();
+    auto newValue = getGaugeValue();
     if (lastValue != newValue) {
       lastValue = newValue;
 

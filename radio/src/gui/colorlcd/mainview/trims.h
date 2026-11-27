@@ -50,7 +50,7 @@ class MainViewTrim : public Window
   bool extendedTrims = false;
   bool hidden = false;
   TrimIcon* trimIcon = nullptr;
-  DynamicNumber<int16_t>* trimValue = nullptr;
+  DynamicNumber* trimValue = nullptr;
   lv_obj_t* trimBar = nullptr;
 
   void setRange();

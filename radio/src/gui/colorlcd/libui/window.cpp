@@ -696,7 +696,10 @@ class SetupTextButton : public TextButton
       if (entry.isActive) check(entry.isActive());
       if (entry.enabled) show(entry.enabled());
     });
-    setWrap();
+
+    lv_obj_set_width(label, lv_pct(100));
+    etx_obj_add_style(label, styles->text_align_center, LV_PART_MAIN);
+    lv_label_set_long_mode(label, LV_LABEL_LONG_WRAP);
   }
 
  protected:

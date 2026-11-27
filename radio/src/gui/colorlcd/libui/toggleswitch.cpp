@@ -111,3 +111,13 @@ void ToggleSwitch::checkEvents()
       update();
   }
 }
+
+void ToggleSwitch::setSetValueHandler(std::function<void(uint8_t)> handler)
+{
+  _setValue = std::move(handler);
+}
+
+void ToggleSwitch::setGetValueHandler(std::function<uint8_t()> handler)
+{
+  _getValue = std::move(handler);
+}

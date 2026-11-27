@@ -39,12 +39,7 @@ class ChoiceBase : public FormField
 
   void update();
 
-  void setTextHandler(std::function<std::string(int)> handler)
-  {
-    textHandler = std::move(handler);
-    currentValue = INT_MAX; // Force update
-    update();
-  }
+  void setTextHandler(std::function<std::string(int)> handler);
 
   int getMin() const { return vmin; }
   void setMin(int value) { vmin = value; }
@@ -102,57 +97,13 @@ class Choice : public ChoiceBase
 
   void onClicked() override;
 
-  void setFillMenuHandler(std::function<void(Menu *, int, int &)> handler)
-  {
-    fillMenuHandler = std::move(handler);
-  }
+  void setFillMenuHandler(std::function<void(Menu *, int, int &)> handler);
+  void setSetValueHandler(std::function<void(int)> handler);
+  void setGetValueHandler(std::function<int()> handler);
+  void setAvailableHandler(std::function<bool(int)> handler);
 
-  void setSetValueHandler(std::function<void(int)> handler)
-  {
-    _setValue = std::move(handler);
-  }
-
-  void setGetValueHandler(std::function<int()> handler)
-  {
-    _getValue = std::move(handler);
-  }
-
-  void setAvailableHandler(std::function<bool(int)> handler)
-  {
-    isValueAvailable = std::move(handler);
-  }
-
-  unsigned getIndexFromValue(int value) const
-  {
-    if (!isValueAvailable) {
-      return value - vmin;
-    }
-
-    unsigned index = 0;
-    for (int i = vmin; i < value; i++) {
-      if (isValueAvailable(i)) {
-        index++;
-      }
-    }
-    return index;
-  }
-
-  int getValueFromIndex(int index) const
-  {
-    if (!isValueAvailable) {
-      return vmin + index;
-    }
-
-    int value = vmin - 1;
-    while (index >= 0) {
-      index--;
-      value++;
-      while (value < vmax && !isValueAvailable(value)) {
-        value++;
-      }
-    }
-    return value;
-  }
+  unsigned getIndexFromValue(int value) const;
+  int getValueFromIndex(int index) const;
 
   virtual void setValue(int val);
   virtual int getIntValue() const { return _getValue(); }
