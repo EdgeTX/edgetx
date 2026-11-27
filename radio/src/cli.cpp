@@ -150,6 +150,43 @@ void cliSetSerialDriver(void* ctx, const etx_serial_driver_t* drv)
   }
 }
 
+#if defined(USB_SERIAL)
+void usbSerialPutc(void*, uint8_t);
+
+// The USB TX ring drops bytes when full, and the CLI is the one writer
+// allowed to wait for room. If the host stops reading (port closed), give
+// up after a while and drop until it reads again, instead of stalling on
+// every byte.
+#define CLI_USB_TX_TIMEOUT_MS 200
+
+static void cliUsbWaitTx()
+{
+  static bool stalled = false;
+
+  if (usbSerialFreeSpace() > 0) {
+    stalled = false;
+    return;
+  }
+  if (stalled) return;
+
+  for (int i = 0; i < CLI_USB_TX_TIMEOUT_MS; i++) {
+    sleep_ms(1);
+    if (usbSerialFreeSpace() > 0) return;
+  }
+  stalled = true;
+}
+#endif
+
+static void cliPutc(uint8_t c)
+{
+  auto send = cliSendCb;
+  if (!send) return;
+#if defined(USB_SERIAL)
+  if (send == usbSerialPutc) cliUsbWaitTx();
+#endif
+  send(cliSendCtx, c);
+}
+
 static void cliSerialPrintf(const char * format, ...)
 {
   va_list arglist;
@@ -163,19 +200,13 @@ static void cliSerialPrintf(const char * format, ...)
   tmp[CLI_PRINT_BUFFER_SIZE-1] = '\0';
   va_end(arglist);
 
-  const char *t = tmp;
-  while (*t && cliSendCb) {
-    cliSendCb(cliSendCtx, *t++);
-  }
+  for (const char* t = tmp; *t; t++) cliPutc(*t);
 }
 
 #define cliSerialPrint(...) \
   do { cliSerialPrintf(__VA_ARGS__); cliSerialCrlf(); } while(0)
 
-static void cliSerialPutc(uint8_t c)
-{
-  if (cliSendCb) cliSendCb(cliSendCtx, c);
-}
+static void cliSerialPutc(uint8_t c) { cliPutc(c); }
 
 static void cliSerialCrlf()
 {
@@ -394,20 +425,6 @@ int cliLs(const char ** argv)
 }
 
 #if defined(CLI_FILE_ACCESS)
-#if defined(USB_SERIAL)
-void usbSerialPutc(void*, uint8_t);
-uint32_t usbSerialFreeSpace();
-#endif
-
-// The USB TX ring overwrites instead of blocking: wait until it can take `need` more bytes
-static void cliTxWait(uint32_t need)
-{
-#if defined(USB_SERIAL)
-  if (cliSendCb == usbSerialPutc) {
-    for (int i = 0; i < 1000 && usbSerialFreeSpace() < need; i++) sleep_ms(1);
-  }
-#endif
-}
 
 static bool cliUInt(const char ** argv, int index, uint32_t * val)
 {
@@ -458,13 +475,11 @@ int cliFRead(const char ** argv)
   uint8_t buf[256];
   static const char hex[] = "0123456789abcdef";
   bool ok = f_lseek(&file, offset) == FR_OK;
-  cliTxWait(64);
   cliSerialPrintf("OK ");
   while (ok && len) {
     UINT n = 0;
     if (f_read(&file, buf, len < sizeof(buf) ? len : sizeof(buf), &n) != FR_OK || n == 0) break;
     for (UINT i = 0; i < n; i++) {
-      if ((i & 63) == 0) cliTxWait(256);
       cliSerialPutc(hex[buf[i] >> 4]);
       cliSerialPutc(hex[buf[i] & 15]);
     }

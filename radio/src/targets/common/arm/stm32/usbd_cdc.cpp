@@ -53,6 +53,12 @@ uint8_t UserRxBufferFS[CDC_DATA_FS_OUT_PACKET_SIZE];
 uint8_t  UserTxBufferFS[APP_TX_DATA_SIZE];
 volatile uint32_t APP_Tx_ptr_in = 0;
 volatile uint32_t APP_Tx_ptr_out = 0;
+// Start of the bytes still owned by the USB stack: the IN transfer reads
+// [APP_Tx_ptr_done, APP_Tx_ptr_out) from the ring until it completes, so
+// these bytes must not be overwritten before.
+static volatile uint32_t APP_Tx_ptr_done = 0;
+// Bytes dropped because the ring was full
+static volatile uint32_t APP_Tx_dropped = 0;
 
 // Number of frames between IN transfers (0: every frame)
 static volatile uint8_t cdcInFrameInterval = CDC_IN_FRAME_INTERVAL;
@@ -149,6 +155,7 @@ static int8_t VCP_DeInit_FS(void)
   baudRateCb = nullptr;
   APP_Tx_ptr_in = 0;
   APP_Tx_ptr_out = 0;
+  APP_Tx_ptr_done = 0;
   return (USBD_OK);
   /* USER CODE END 4 */
 }
@@ -256,6 +263,8 @@ static int8_t VCP_TransmitCplt_FS(uint8_t *Buf, uint32_t *Len, uint8_t epnum)
   UNUSED(Buf);
   UNUSED(Len);
   UNUSED(epnum);
+  // the transfer started by VCP_StartOfFrame_FS() is done with the ring
+  APP_Tx_ptr_done = APP_Tx_ptr_out % APP_TX_DATA_SIZE;
   /* USER CODE END 13 */
   return result;
 }
@@ -314,20 +323,16 @@ uint32_t usbSerialHangupCount() { return cdcHangups; }
 
 uint32_t usbSerialBreakCount() { return cdcBreaks; }
 
-// return the bytes free in the circular buffer
+// return the bytes free in the circular buffer (one slot stays empty to
+// tell a full ring from an empty one)
 uint32_t usbSerialFreeSpace()
 {
-  // functionally equivalent to:
-  //
-  //      (APP_Tx_ptr_out > APP_Tx_ptr_in ? APP_Tx_ptr_out - APP_Tx_ptr_in :
-  //      APP_TX_DATA_SIZE - APP_Tx_ptr_in + APP_Tx_ptr_in)
-  //
-  //  but without the impact of the condition check.
-
-  return ((APP_Tx_ptr_out - APP_Tx_ptr_in) +
-          (-((int)(APP_Tx_ptr_out <= APP_Tx_ptr_in)) & APP_TX_DATA_SIZE)) -
-         1;
+  uint32_t in = APP_Tx_ptr_in;
+  uint32_t done = APP_Tx_ptr_done;
+  return (done + APP_TX_DATA_SIZE - in - 1) % APP_TX_DATA_SIZE;
 }
+
+uint32_t usbSerialDroppedCount() { return APP_Tx_dropped; }
 
 void usbSerialPutc(void*, uint8_t c)
 {
@@ -352,8 +357,14 @@ void usbSerialPutc(void*, uint8_t c)
   uint32_t prim = __get_PRIMASK();
   __disable_irq();
 
-  UserTxBufferFS[APP_Tx_ptr_in] = c;
-  APP_Tx_ptr_in = (APP_Tx_ptr_in + 1) % APP_TX_DATA_SIZE;
+  // Never block here (any task or interrupt may print): drop when full.
+  // Callers that can wait use usbSerialFreeSpace() to pace themselves.
+  if (usbSerialFreeSpace() > 0) {
+    UserTxBufferFS[APP_Tx_ptr_in] = c;
+    APP_Tx_ptr_in = (APP_Tx_ptr_in + 1) % APP_TX_DATA_SIZE;
+  } else {
+    APP_Tx_dropped = APP_Tx_dropped + 1;
+  }
 
   if (!prim) __enable_irq();
 }
