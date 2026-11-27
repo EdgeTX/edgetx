@@ -1,4 +1,3 @@
-option(UNEXPECTED_SHUTDOWN "Enable the Unexpected Shutdown screen" ON)
 option(PXX1 "PXX1 protocol support" ON)
 option(PXX2 "PXX2 protocol support" OFF)
 option(AFHDS3 "AFHDS3 TX Module" ON)
@@ -27,7 +26,7 @@ set(HARDWARE_EXTERNAL_MODULE YES)
 set(INTERNAL_MODULE_AFHDS3 NO)
 set(ROTARY_ENCODER YES)
 set(FUNCTION_SWITCHES_WITH_RGB YES)
-add_definitions(-DRGB_LEDS_900NS)
+list(APPEND BOARD_DEFINITIONS RGB_LEDS_900NS)
 add_definitions(-DSTATUS_LED_PWM)
 
 # IMU support
@@ -40,7 +39,7 @@ set(TARGET_EXTRAM_START 0xD0000000)
 set(SIZE_TARGET_MEM_DEFINE "MEM_SIZE_SDRAM1=8192")
 set(FIRMWARE_STRIP_BOOTLOADER YES)
 
-add_definitions(-DPCBT22 -DPCBHORUS)
+add_definitions(-DPCBHORUS)
 add_definitions(-DSTM32_SUPPORT_32BIT_TIMERS)
 add_definitions(-DFIRMWARE_QSPI)
 add_definitions(-DFIRMWARE_FORMAT_UF2)
@@ -59,18 +58,17 @@ set(LCD_DRIVER lcd_driver.cpp)
 set(HARDWARE_TOUCH YES)
 set(RADIO_DEPENDENCIES ${RADIO_DEPENDENCIES} ${BITMAPS_TARGET})
 set(FIRMWARE_DEPENDENCIES datacopy)
-set(SOFTWARE_KEYBOARD ON)
 set(FLYSKY_GIMBAL OFF)
 
 add_definitions(
-  -DSTM32H750XBTx -DSTM32H750xx
-  -DSDRAM -DCCMRAM
-  -DHARDWARE_TOUCH -DHARDWARE_KEYS -DSOFTWARE_KEYBOARD
+  -DSTM32H750xx
+  -DSDRAM
+  -DHARDWARE_TOUCH -DHARDWARE_KEYS
 )
 
 set(SDRAM ON)
 
-add_definitions(-DAUDIO -DVOICE)
+add_definitions(-DAUDIO)
 add_definitions(-DSOFTWARE_VOLUME)
 add_definitions(-DRTCLOCK)
 add_definitions(-DPWR_BUTTON_${PWR_BUTTON})
@@ -79,9 +77,6 @@ if(STICK_DEAD_ZONE)
   add_definitions(-DSTICK_DEAD_ZONE)
 endif()
 
-if(NOT UNEXPECTED_SHUTDOWN)
-  add_definitions(-DNO_UNEXPECTED_SHUTDOWN)
-endif()
 
 if(DISK_CACHE)
   set(SRC ${SRC} disk_cache.cpp)
@@ -178,3 +173,7 @@ endif()
 
 # Make malloc() thread-safe
 add_definitions(-DTHREADSAFE_MALLOC)
+
+# Only the board code reads these
+target_compile_definitions(board PRIVATE ${BOARD_DEFINITIONS})
+target_compile_definitions(board_bl PRIVATE ${BOARD_DEFINITIONS})
