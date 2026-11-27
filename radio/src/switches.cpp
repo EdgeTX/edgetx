@@ -67,13 +67,22 @@ PACK(struct LogicalSwitchContext {
   int16_t lastValue;
 });
 
-PACK(struct LogicalSwitchesFlightModeContext {
-  LogicalSwitchContext lsw[MAX_LOGICAL_SWITCHES];
-});
-LogicalSwitchesFlightModeContext lswFm[MAX_FLIGHT_MODES];
+// One context per logical switch, shared by all flight modes (#7219).
+static LogicalSwitchContext lswCtx[MAX_LOGICAL_SWITCHES];
+
+// LS states frozen when a flight mode is left: during a fade, the mixes of
+// the fading-out flight mode see the LS states it had at the transition.
+#define FROZEN_LS_WORDS ((MAX_LOGICAL_SWITCHES + 31) / 32)
+static uint32_t frozenLsState[MAX_FLIGHT_MODES][FROZEN_LS_WORDS];
+
+static inline bool frozenLsGet(uint8_t fm, uint8_t idx)
+{
+  return (frozenLsState[fm][idx >> 5] >> (idx & 31)) & 1;
+}
+
 CircularBuffer<uint8_t, 8> luaSetStickySwitchBuffer;
 
-#define LS_LAST_VALUE(fm, idx) lswFm[fm].lsw[idx].lastValue
+#define LS_LAST_VALUE(idx) lswCtx[idx].lastValue
 
 tmr10ms_t switchesMidposStart[MAX_SWITCHES];
 uint64_t  switchesPos = 0;
@@ -498,7 +507,7 @@ PACK(typedef struct {
 
 bool getLSStickyState(uint8_t idx)
 {
-  return lswFm[mixerCurrentFlightMode].lsw[idx].lastValue & 1;
+  return lswCtx[idx].lastValue & 1;
 }
 
 void logicalSwitchesInit(bool force)
@@ -506,7 +515,7 @@ void logicalSwitchesInit(bool force)
   for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
     LogicalSwitchData * ls = lswAddress(idx);
     if (ls->func == LS_FUNC_STICKY && (force || ls->lsPersist)) {
-      lswFm[mixerCurrentFlightMode].lsw[idx].lastValue = ls->lsState;
+      lswCtx[idx].lastValue = ls->lsState;
     }
   }
 }
@@ -514,7 +523,7 @@ void logicalSwitchesInit(bool force)
 bool getLogicalSwitch(uint8_t idx)
 {
   LogicalSwitchData * ls = lswAddress(idx);
-  LogicalSwitchContext &context = lswFm[mixerCurrentFlightMode].lsw[idx];
+  LogicalSwitchContext &context = lswCtx[idx];
   bool result;
 
   swsrc_t s = ls->andsw;
@@ -776,7 +785,10 @@ bool getSwitch(swsrc_t swtch, uint8_t flags)
   }
   else {
     cs_idx -= SWSRC_FIRST_LOGICAL_SWITCH;
-    result = lswFm[mixerCurrentFlightMode].lsw[cs_idx].state;
+    if (mixerCurrentFlightMode != mixerActiveFlightMode)
+      result = frozenLsGet(mixerCurrentFlightMode, cs_idx);
+    else
+      result = lswCtx[cs_idx].state;
   }
 
   return swtch > 0 ? result : !result;
@@ -792,18 +804,16 @@ uint8_t getXPotPosition(uint8_t idx)
 /**
   @brief Calculates new state of logical switches for mixerCurrentFlightMode
 */
-void evalLogicalSwitches(bool isCurrentFlightmode)
+void evalLogicalSwitches()
 {
   for (unsigned int idx=0; idx<MAX_LOGICAL_SWITCHES; idx++) {
-    LogicalSwitchContext & context = lswFm[mixerCurrentFlightMode].lsw[idx];
+    LogicalSwitchContext & context = lswCtx[idx];
     bool result = getLogicalSwitch(idx);
-    if (isCurrentFlightmode) {
-      if (result) {
-        if (!context.state) PLAY_LOGICAL_SWITCH_ON(idx);
-      }
-      else {
-        if (context.state) PLAY_LOGICAL_SWITCH_OFF(idx);
-      }
+    if (result != context.state) {
+      if (result)
+        PLAY_LOGICAL_SWITCH_ON(idx);
+      else
+        PLAY_LOGICAL_SWITCH_OFF(idx);
     }
     context.state = result;
     if ((g_model.logicalSw[idx].func == LS_FUNC_STICKY) && (g_model.logicalSw[idx].lsState != result)) {
@@ -1072,90 +1082,85 @@ void logicalSwitchesTimerTick()
     uint8_t s = msg >> 7;
     LogicalSwitchData * ls = lswAddress(i);
     if (ls->func == LS_FUNC_STICKY) {
-      for (uint8_t fm=0; fm<MAX_FLIGHT_MODES; fm++) {
-        ls_sticky_struct & lastValue = (ls_sticky_struct &)LS_LAST_VALUE(fm, i);
-        lastValue.state = s;
-        bool now;
-        if (s)
-          now = getSwitch(ls->v2);
-        else
-          now = getSwitch(ls->v1);
-        if (now)
-          lastValue.last |= 1;
-        else
-          lastValue.last &= ~1;
-      }
+      ls_sticky_struct & lastValue = (ls_sticky_struct &)LS_LAST_VALUE(i);
+      lastValue.state = s;
+      bool now;
+      if (s)
+        now = getSwitch(ls->v2);
+      else
+        now = getSwitch(ls->v1);
+      if (now)
+        lastValue.last |= 1;
+      else
+        lastValue.last &= ~1;
     }
     msg = luaSetStickySwitchBuffer.read();
   }
 
   // Update logical switches
-  for (uint8_t fm=0; fm<MAX_FLIGHT_MODES; fm++) {
-    for (uint8_t i=0; i<MAX_LOGICAL_SWITCHES; i++) {
-      LogicalSwitchData * ls = lswAddress(i);
-      if (ls->func == LS_FUNC_TIMER) {
-        int16_t *lastValue = &LS_LAST_VALUE(fm, i);
-        if (*lastValue == 0 || *lastValue == CS_LAST_VALUE_INIT) {
-          *lastValue = -lswTimerValue(ls->v1);
-        } else if (*lastValue < 0) {
-          if (++(*lastValue) == 0) *lastValue = lswTimerValue(ls->v2);
-        } else {  // if (*lastValue > 0)
-          if (--(*lastValue) == 0) *lastValue = -lswTimerValue(ls->v1);
-        }
-      } else if (ls->func == LS_FUNC_STICKY) {
-        ls_sticky_struct & lastValue = (ls_sticky_struct &)LS_LAST_VALUE(fm, i);
-        bool before = lastValue.last & 0x01;
-        if (lastValue.state) {
-            if (ls->v2 != SWSRC_NONE) { // only if used / source set
-                bool now = getSwitch(ls->v2);
-                if (now != before) {
-                  lastValue.last ^= 1;
-                  if (!before) {
-                    lastValue.state = 0;
-                  }
-                }
-            }
-        }
-        else {
-            if (ls->v1 != SWSRC_NONE) { // only if used / source set
-                bool now = getSwitch(ls->v1);
-                if (before != now) {
-                  lastValue.last ^= 1;
-                  if (!before) {
-                    lastValue.state = 1;
-                  }
-                }
-            }
-        }
-      } else if (ls->func == LS_FUNC_EDGE) {
-        ls_stay_struct & lastValue = (ls_stay_struct &)LS_LAST_VALUE(fm, i);
-        // if this ls was reset by the logicalSwitchesReset() the lastValue will be set to CS_LAST_VALUE_INIT(0x8000)
-        // when it is unpacked into ls_stay_struct the lastValue.duration will have a value of 0x4000
-        // this will produce an instant true for edge logical switch if the second parameter is big enough.
-        // So we reset it here.
-        if (LS_LAST_VALUE(fm, i) == CS_LAST_VALUE_INIT) {
-          lastValue.duration = 0;
-        }
-        lastValue.state = false;
-        bool state = getSwitch(ls->v1);
-        if (state) {
-          if (ls->v3 == -1 && lastValue.duration == lswTimerValue(ls->v2))
-            lastValue.state = true;
-          if (lastValue.duration < 1000)
-            lastValue.duration++;
-        }
-        else {
-          if (lastValue.duration > lswTimerValue(ls->v2) && (ls->v3 == 0 || lastValue.duration <= lswTimerValue(ls->v2+ls->v3)))
-            lastValue.state = true;
-          lastValue.duration = 0;
-        }
+  for (uint8_t i=0; i<MAX_LOGICAL_SWITCHES; i++) {
+    LogicalSwitchData * ls = lswAddress(i);
+    if (ls->func == LS_FUNC_TIMER) {
+      int16_t *lastValue = &LS_LAST_VALUE(i);
+      if (*lastValue == 0 || *lastValue == CS_LAST_VALUE_INIT) {
+        *lastValue = -lswTimerValue(ls->v1);
+      } else if (*lastValue < 0) {
+        if (++(*lastValue) == 0) *lastValue = lswTimerValue(ls->v2);
+      } else {  // if (*lastValue > 0)
+        if (--(*lastValue) == 0) *lastValue = -lswTimerValue(ls->v1);
       }
+    } else if (ls->func == LS_FUNC_STICKY) {
+      ls_sticky_struct & lastValue = (ls_sticky_struct &)LS_LAST_VALUE(i);
+      bool before = lastValue.last & 0x01;
+      if (lastValue.state) {
+          if (ls->v2 != SWSRC_NONE) { // only if used / source set
+              bool now = getSwitch(ls->v2);
+              if (now != before) {
+                lastValue.last ^= 1;
+                if (!before) {
+                  lastValue.state = 0;
+                }
+              }
+          }
+      }
+      else {
+          if (ls->v1 != SWSRC_NONE) { // only if used / source set
+              bool now = getSwitch(ls->v1);
+              if (before != now) {
+                lastValue.last ^= 1;
+                if (!before) {
+                  lastValue.state = 1;
+                }
+              }
+          }
+      }
+    } else if (ls->func == LS_FUNC_EDGE) {
+      ls_stay_struct & lastValue = (ls_stay_struct &)LS_LAST_VALUE(i);
+      // if this ls was reset by the logicalSwitchesReset() the lastValue will be set to CS_LAST_VALUE_INIT(0x8000)
+      // when it is unpacked into ls_stay_struct the lastValue.duration will have a value of 0x4000
+      // this will produce an instant true for edge logical switch if the second parameter is big enough.
+      // So we reset it here.
+      if (LS_LAST_VALUE(i) == CS_LAST_VALUE_INIT) {
+        lastValue.duration = 0;
+      }
+      lastValue.state = false;
+      bool state = getSwitch(ls->v1);
+      if (state) {
+        if (ls->v3 == -1 && lastValue.duration == lswTimerValue(ls->v2))
+          lastValue.state = true;
+        if (lastValue.duration < 1000)
+          lastValue.duration++;
+      }
+      else {
+        if (lastValue.duration > lswTimerValue(ls->v2) && (ls->v3 == 0 || lastValue.duration <= lswTimerValue(ls->v2+ls->v3)))
+          lastValue.state = true;
+        lastValue.duration = 0;
+      }
+    }
 
-      // decrement delay/duration timer
-      LogicalSwitchContext &context = lswFm[fm].lsw[i];
-      if (context.timer) {
-        context.timer--;
-      }
+    // decrement delay/duration timer
+    if (lswCtx[i].timer) {
+      lswCtx[i].timer--;
     }
   }
 }
@@ -1192,12 +1197,11 @@ int16_t lswTimerValue(delayval_t val)
 
 void logicalSwitchesReset()
 {
-  memset(lswFm, 0, sizeof(lswFm));
+  memset(lswCtx, 0, sizeof(lswCtx));
+  memset(frozenLsState, 0, sizeof(frozenLsState));
 
-  for (uint8_t fm=0; fm<MAX_FLIGHT_MODES; fm++) {
-    for (uint8_t i=0; i<MAX_LOGICAL_SWITCHES; i++) {
-      LS_LAST_VALUE(fm, i) = CS_LAST_VALUE_INIT;
-    }
+  for (uint8_t i=0; i<MAX_LOGICAL_SWITCHES; i++) {
+    LS_LAST_VALUE(i) = CS_LAST_VALUE_INIT;
   }
 
   luaSetStickySwitchBuffer.clear();
@@ -1210,9 +1214,30 @@ getvalue_t convertLswTelemValue(LogicalSwitchData * ls)
   return val;
 }
 
-void logicalSwitchesCopyState(uint8_t src, uint8_t dst)
+void lswFreezeState(uint8_t fm)
 {
-  lswFm[dst] = lswFm[src];
+  uint32_t* frozen = frozenLsState[fm];
+  memset(frozen, 0, sizeof(frozenLsState[fm]));
+  for (uint8_t i = 0; i < MAX_LOGICAL_SWITCHES; i++) {
+    if (lswCtx[i].state) frozen[i >> 5] |= 1u << (i & 31);
+  }
+}
+
+bool lswGetState(uint8_t idx)
+{
+  return lswCtx[idx].state;
+}
+
+int16_t lswGetLastValue(uint8_t idx)
+{
+  return lswCtx[idx].lastValue;
+}
+
+void lswSetState(uint8_t idx, uint8_t state, uint8_t timer, int16_t lastValue)
+{
+  lswCtx[idx].state = state;
+  lswCtx[idx].timer = timer;
+  lswCtx[idx].lastValue = lastValue;
 }
 
 void setAllPreflightSwitchStates()
