@@ -86,7 +86,7 @@ const struct YamlIdStr enum_Functions[] = {
   {  FUNC_DISABLE_AUDIO_AMP, "DISABLE_AUDIO_AMP"  },
   {  FUNC_RGB_LED, "RGB_LED"  },
   {  FUNC_DISABLE_KEYS, "DISABLE_KEYS"  },
-{  FUNC_HT_RESET, "HT_RESET"  },
+  {  FUNC_HT_RESET, "HT_RESET"  },
   {  FUNC_TEST, "TEST"  },
   {  0, NULL  }
 };
