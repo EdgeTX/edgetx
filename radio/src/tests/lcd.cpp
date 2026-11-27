@@ -25,6 +25,8 @@
 #include <gtest/gtest.h>
 
 #if !defined(COLORLCD)
+#include "myeeprom.h"   // g_model, TimerData, TMRMODE_ON
+#include "timers.h"     // TimerState, timersStates
 #include "simulib.h"
 #include "simulcd.h"
 
@@ -141,6 +143,42 @@ TEST(outdezNAtt, testBigNumbers)
   lcdDrawNumber(0, FH, -1234567, LEFT);
   EXPECT_TRUE(checkScreenshot("big_numbers"));
 }
+
+#if LCD_W == 128
+TEST(Lcd, ElapsedTimerSignAfterExpiry)
+{
+  const TimerData savedTimer = g_model.timers[0];
+  const TimerState savedState = timersStates[0];
+  TimerData &timer = g_model.timers[0];
+  timer = {};
+  timer.mode = TMRMODE_ON;
+  memcpy(timer.name, "T1", 2);
+
+  for (int start : {60, 3600}) {
+    timer.start = start;
+    timer.showElapsed = false;
+    timersStates[0].val = start + 1;
+
+    // Render the positive elapsed value with the same expiry warning.
+    LcdFlags flags = RIGHT | DBLSIZE;
+    if (start == 60) flags |= BLINK | INVERS;
+    lcdClear();
+    drawTimerWithMode(125, 2 * FH, 0, flags);
+    pixel_t expected[DISPLAY_BUFFER_SIZE];
+    memcpy(expected, displayBuf, sizeof(expected));
+
+    timer.showElapsed = true;
+    timersStates[0].val = -1;
+    lcdClear();
+    drawTimerWithMode(125, 2 * FH, 0, RIGHT | DBLSIZE);
+    EXPECT_EQ(0, memcmp(expected, displayBuf, sizeof(expected)))
+        << "start " << start;
+  }
+
+  g_model.timers[0] = savedTimer;
+  timersStates[0] = savedState;
+}
+#endif
 
 TEST(Lcd, Invers_0_0)
 {
