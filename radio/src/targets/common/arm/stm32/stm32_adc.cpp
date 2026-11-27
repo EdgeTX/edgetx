@@ -252,6 +252,12 @@ static void adc_setup_scan_mode(ADC_TypeDef* ADCx, uint8_t nconv)
     }
   }
 
+#if defined(STM32H7)
+  // BOOST must match fadc_ker_ck (see stm32_hal_adc_init()); reset value is
+  // for <= 6.25 MHz. On rev Y, LL writes the single BOOST bit (> 20 MHz).
+  LL_ADC_SetBoostMode(ADCx, LL_ADC_BOOST_MODE_50MHZ);
+#endif
+
   /* Start ADC calibration in mode single-ended or differential */
 #if defined(STM32H7RS) || defined(STM32H5)
   LL_ADC_StartCalibration(ADCx, LL_ADC_SINGLE_ENDED);
@@ -500,8 +506,20 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
   LL_ADC_CommonInitTypeDef commonInit;
   LL_ADC_CommonStructInit(&commonInit);
 
-#if defined(LL_ADC_CLOCK_ASYNC_DIV4)
-  // H7 and H7RS use their own clock
+#if defined(STM32H7)
+  // H7 uses its own kernel clock: per_ck = HSI = 64 MHz on all boards
+  // (CKPERSEL is left at reset). The datasheet limit applies to fadc_ker_ck,
+  // after PRESC and, on rev V, a fixed /2:
+  //  - rev V (REV_ID 0x2003): 64 / 1 / 2 = 32 MHz, BOOST = 11 (<= 50 MHz)
+  //  - rev Y/W (0x1003): no /2, 64 / 2 = 32 MHz, BOOST = 1 (<= 36 MHz)
+  //  - rev X (0x2001) is not described by RM0433: DIV2 is within limits
+  //    with or without the /2
+  // See RM0433 25.4.3, DS12556 tables 85 / 182 and ES0392 table 2.
+  commonInit.CommonClock = (LL_DBGMCU_GetRevisionID() < 0x2003)
+                               ? LL_ADC_CLOCK_ASYNC_DIV2
+                               : LL_ADC_CLOCK_ASYNC_DIV1;
+#elif defined(LL_ADC_CLOCK_ASYNC_DIV4)
+  // H7RS uses its own clock
   commonInit.CommonClock = LL_ADC_CLOCK_ASYNC_DIV4;
 #else
   // others can only use the peripheral clock
@@ -521,13 +539,13 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
     uint8_t nconv = adc->n_channels;
     if (nconv > 0) {
 
-#if defined(STM32H5) || defined(STM32F4)
+#if defined(STM32H5) || defined(STM32F4) || defined(STM32H7)
       // enable periph clock first: the common registers live in the ADC's
       // clock domain, so CommonInit() is silently dropped if it runs before
-      // this. H5: CCR reads back 0 = async kernel clock, PRESC = DIV1.
+      // this. H5/H7: CCR reads back 0 = async kernel clock, PRESC = DIV1.
       // F4: ADCPRE stays at PCLK2/2, e.g. 42 MHz on F429/F407, above the
       // 36 MHz maximum.
-      // H7/H7RS keep the original order until checked on hardware.
+      // H7RS keeps the original order until checked on hardware.
       adc_enable_clock(adc->ADCx);
       LL_ADC_CommonInit(__LL_ADC_COMMON_INSTANCE(adc->ADCx), &commonInit);
 #else
