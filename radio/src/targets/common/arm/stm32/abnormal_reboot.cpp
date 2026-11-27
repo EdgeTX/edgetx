@@ -136,6 +136,17 @@ void abnormalRebootQuiesce()
   RCC->APB1RSTR = 0;
   RCC->APB2RSTR = 0xFFFFFFFF;
   RCC->APB2RSTR = 0;
+
+  // Peripheral clocks off too, as after a reset: some init code depends on
+  // it (e.g. the F4 ADC prescaler write is dropped while the ADC clock is
+  // off, so leaving it on changes the ADC timing). CCM holds the stack and
+  // the reboot command word; GPIO clocks off would not change the pins.
+  RCC->AHB1ENR &= AHB1_GPIO_RESET_MASK | RCC_AHB1ENR_CCMDATARAMEN;
+  RCC->AHB2ENR = 0;
+  RCC->AHB3ENR = 0;
+  RCC->APB1ENR = 0;
+  RCC->APB2ENR = 0;
+  (void)RCC->APB2ENR;
 }
 
 void abnormalRebootRequestPowerOn()
