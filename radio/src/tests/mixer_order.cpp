@@ -167,5 +167,6 @@ static void compareModel(const char* name)
 TEST(MixerOrder, esoarplus) { compareModel("esoarplus.yml"); }
 TEST(MixerOrder, f3f) { compareModel("f3f.yml"); }
 TEST(MixerOrder, dlg6s) { compareModel("dlg6s.yml"); }
+TEST(MixerOrder, esoarplus310) { compareModel("esoarplus310.yml"); }
 
 #endif
