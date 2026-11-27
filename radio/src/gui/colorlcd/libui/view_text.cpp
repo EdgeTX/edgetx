@@ -39,6 +39,8 @@ const lv_style_const_prop_t cb_marker_checked_props[] = {
 };
 LV_STYLE_CONST_MULTI_INIT(cb_marker_checked, cb_marker_checked_props);
 
+static LAYOUT_VAL_SCALED(CB_SZ, 25)
+
 static void checkbox_constructor(const lv_obj_class_t* class_p, lv_obj_t* obj)
 {
   etx_std_style(obj, LV_PART_INDICATOR, PAD_TINY);
@@ -55,8 +57,8 @@ static const lv_obj_class_t checkbox_class = {
     .destructor_cb = nullptr,
     .user_data = nullptr,
     .event_cb = nullptr,
-    .width_def = 25,
-    .height_def = 25,
+    .width_def = CB_SZ,
+    .height_def = CB_SZ,
     .editable = LV_OBJ_CLASS_EDITABLE_INHERIT,
     .group_def = LV_OBJ_CLASS_GROUP_DEF_INHERIT,
     .instance_size = sizeof(lv_checkbox_t),
