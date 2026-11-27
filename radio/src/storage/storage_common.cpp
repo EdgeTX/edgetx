@@ -165,7 +165,8 @@ static bool sortMixerLines()
 
 static void sanitizeMixerLines()
 {
-  bool dirty = sortMixerLines();
+  bool dirty = compactMixLines();
+  dirty |= sortMixerLines();
   updateMixCount();
   if (dirty) storageDirty(EE_MODEL);
 }

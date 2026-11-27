@@ -129,7 +129,7 @@ uint8_t moveMix(uint8_t idx, bool up)
   // TODO: check what happens with the mixer
   //       when channel is changed on-the-fly
   //
-  if(!y->srcRaw || destCh != y->destCh) {
+  if(is_memclear(y, sizeof(MixData)) || destCh != y->destCh) {
     if (up) {
       if (destCh > 0) {
 	x->destCh--;
@@ -151,6 +151,24 @@ uint8_t moveMix(uint8_t idx, bool up)
 
   storageDirty(EE_MODEL);
   return tgt_idx;
+}
+
+bool compactMixLines()
+{
+  // drop the empty slots between lines (hand-edited files)
+  uint8_t n = 0;
+  bool moved = false;
+  for (uint8_t i = 0; i < MAX_MIXERS; i++) {
+    MixData* md = mixAddress(i);
+    if (is_memclear(md, sizeof(MixData))) continue;
+    if (i != n) {
+      memcpy(mixAddress(n), md, sizeof(MixData));
+      memclear(md, sizeof(MixData));
+      moved = true;
+    }
+    n++;
+  }
+  return moved;
 }
 
 static uint8_t _countMixLines()

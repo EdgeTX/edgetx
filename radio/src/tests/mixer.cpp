@@ -21,6 +21,7 @@
 
 #include "gtests.h"
 #include "hal/adc_driver.h"
+#include "mixes.h"
 
 class TrimsTest : public EdgeTxTest {};
 extern int32_t getSourceNumFieldValue(int16_t val, int16_t min, int16_t max);
@@ -1844,4 +1845,59 @@ TEST_F(MixerTest, SequencerSlowRampThroughCurve)
 
   EXPECT_NEAR(channelOutputs[0], -1024, 20) << "Timebase should return to -100%";
   EXPECT_NEAR(channelOutputs[1], -1024, 40) << "Servo should return to start via reversed curve";
+}
+
+TEST_F(MixerTest, LineWithoutSourceIsSkipped)
+{
+  memclear(g_model.mixData, sizeof(g_model.mixData));
+  // a source this radio lacks loads as none: the lines after it still count
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].srcRaw = 0;
+  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[1].destCh = 1;
+  g_model.mixData[1].srcRaw = MIXSRC_MAX;
+  g_model.mixData[1].weight = makeSourceNumVal(100);
+  evalMixes(1);
+  EXPECT_EQ(channelOutputs[0], 0);
+  EXPECT_EQ(channelOutputs[1], 1024);
+}
+
+TEST_F(MixerTest, LineWithoutSourceFirstInChannel)
+{
+  memclear(g_model.mixData, sizeof(g_model.mixData));
+  // CH1 reads CH2 (computed after it): CH1 is evaluated a second time
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].srcRaw = 0;
+  g_model.mixData[0].weight = makeSourceNumVal(100);
+  g_model.mixData[1].destCh = 0;
+  g_model.mixData[1].srcRaw = MIXSRC_MAX;
+  g_model.mixData[1].weight = makeSourceNumVal(25);
+  g_model.mixData[2].destCh = 0;
+  g_model.mixData[2].srcRaw = MIXSRC_FIRST_CH + 1;
+  g_model.mixData[2].weight = makeSourceNumVal(100);
+  g_model.mixData[3].destCh = 1;
+  g_model.mixData[3].srcRaw = MIXSRC_MAX;
+  g_model.mixData[3].weight = makeSourceNumVal(50);
+  evalFlightModeMixes(e_perout_mode_normal, 0);
+  EXPECT_EQ(chans[1] >> 8, 512);
+  EXPECT_EQ(chans[0] >> 8, 256 + 512);  // not 2 * 256 + 512
+}
+
+TEST_F(MixerTest, CompactMixLines)
+{
+  memclear(g_model.mixData, sizeof(g_model.mixData));
+  g_model.mixData[0].destCh = 0;
+  g_model.mixData[0].srcRaw = MIXSRC_MAX;
+  g_model.mixData[3].destCh = 1;
+  g_model.mixData[3].srcRaw = MIXSRC_MAX;
+  g_model.mixData[5].destCh = 2;  // line without source is kept
+  g_model.mixData[5].weight = makeSourceNumVal(100);
+  EXPECT_TRUE(compactMixLines());
+  EXPECT_EQ(g_model.mixData[1].destCh, 1);
+  EXPECT_EQ(g_model.mixData[1].srcRaw, MIXSRC_MAX);
+  EXPECT_EQ(g_model.mixData[2].destCh, 2);
+  EXPECT_EQ(g_model.mixData[2].srcRaw, 0);
+  for (int i = 3; i < MAX_MIXERS; i++)
+    EXPECT_TRUE(is_memclear(&g_model.mixData[i], sizeof(MixData))) << i;
+  EXPECT_FALSE(compactMixLines());
 }

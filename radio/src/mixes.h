@@ -46,3 +46,7 @@ uint8_t getMixCount();
 // Should only be called from storage
 // right after a model has been loaded
 void updateMixCount();
+
+// Remove empty slots between mix lines, returns true if lines moved.
+// Should only be called from storage right after a model has been loaded.
+bool compactMixLines();
