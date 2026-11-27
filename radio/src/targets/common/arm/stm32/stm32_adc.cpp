@@ -539,22 +539,11 @@ bool stm32_hal_adc_init(const stm32_adc_t* ADCs, uint8_t n_ADC,
     uint8_t nconv = adc->n_channels;
     if (nconv > 0) {
 
-#if defined(STM32H5) || defined(STM32F4) || defined(STM32H7)
       // enable periph clock first: the common registers live in the ADC's
       // clock domain, so CommonInit() is silently dropped if it runs before
-      // this. H5/H7: CCR reads back 0 = async kernel clock, PRESC = DIV1.
-      // F4: ADCPRE stays at PCLK2/2, e.g. 42 MHz on F429/F407, above the
-      // 36 MHz maximum.
-      // H7RS keeps the original order until checked on hardware.
+      // this (F4: ADCPRE stays at PCLK2/2; H5/H7: PRESC stays at DIV1)
       adc_enable_clock(adc->ADCx);
       LL_ADC_CommonInit(__LL_ADC_COMMON_INSTANCE(adc->ADCx), &commonInit);
-#else
-      // enable common instance
-      LL_ADC_CommonInit(__LL_ADC_COMMON_INSTANCE(adc->ADCx), &commonInit);
-
-      // enable periph clock
-      adc_enable_clock(adc->ADCx);
-#endif
 
       // configure each channel
       const uint8_t* chan = adc->channels;
