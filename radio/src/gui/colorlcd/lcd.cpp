@@ -149,6 +149,10 @@ static void clear_frame_buffers()
 {
   memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
   memset(LCD_SECOND_FRAME_BUFFER, 0, sizeof(LCD_SECOND_FRAME_BUFFER));
+#if !defined(SIMU) && defined(__DCACHE_PRESENT) && (__DCACHE_PRESENT == 1U)
+  // Make the cleared buffers visible to the display controller.
+  SCB_CleanDCache();
+#endif
 }
 
 static void init_lvgl_disp_drv()
@@ -198,7 +202,8 @@ void lcdInitDisplayDriver()
 
   // Clear buffers first
   clear_frame_buffers();
-  lcdSetInitalFrameBuffer(LCD_FIRST_FRAME_BUFFER);
+  // Keep scanout separate from LVGL's first draw buffer.
+  lcdSetInitalFrameBuffer(LCD_SECOND_FRAME_BUFFER);
 
   // Init hardware LCD driver
   lcdInit();
