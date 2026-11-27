@@ -103,6 +103,11 @@ if(EdgeTX_SUPERBUILD)
     DEPENDS native-configure
   )
 
+  add_custom_target(simulatorConsole
+    COMMAND ${CMAKE_COMMAND} --build native --target simulatorConsole
+    DEPENDS native-configure
+  )
+
   add_custom_target(simu
     COMMAND ${CMAKE_COMMAND} --build native --target simu
     DEPENDS native-configure

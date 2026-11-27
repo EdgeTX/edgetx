@@ -289,6 +289,62 @@ target_link_libraries(${SIMULATOR_NAME} PRIVATE
   ${SDL2_LIBRARIES}
 )
 
+# =========================================================================
+# Headless Simulator ConsoleApp
+# =========================================================================
+set(simulatorConsole_SRCS
+  simulation/consoleApp/main.cpp
+  simulation/consoleApp/radioconfig.cpp
+  simulation/consoleApp/clicommands.cpp
+)
+
+set(simulatorConsole_HDRS
+  simulation/consoleApp/radioconfig.h
+  simulation/consoleApp/clicommands.h
+)
+
+add_executable(simulatorConsole
+  ${simulatorConsole_SRCS}
+  ${simulatorConsole_HDRS}
+)
+
+set_target_properties(simulatorConsole PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
+
+if(WIN32)
+  target_sources(simulatorConsole PRIVATE images/winicons/icon.rc)
+endif()
+
+target_include_directories(simulatorConsole PRIVATE
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/simulation
+  ${CMAKE_CURRENT_SOURCE_DIR}/simulation/consoleApp
+)
+
+if(${CMAKE_SYSTEM_NAME} MATCHES "(Linux|FreeBSD)")
+  target_link_libraries(simulatorConsole PRIVATE
+    "-Wl,--whole-archive"
+    ${CPN_COMMON_LIB}
+    "-Wl,--no-whole-archive"
+    ${SDL2_LIBRARIES}
+    Qt::Widgets
+  )
+else()
+  target_link_libraries(simulatorConsole PRIVATE
+    ${CPN_COMMON_LIB}
+    ${SDL2_LIBRARIES}
+    Qt::Widgets
+  )
+endif()
+
+if(WASM_SIMU)
+  target_link_libraries(simulatorConsole PRIVATE vmlib)
+endif()
+
+install(TARGETS simulatorConsole DESTINATION bin)
+
 # Copy WASM simulator modules next to executables for local dev
 if(SIMULATOR_WASM_DIR)
   foreach(_target ${COMPANION_NAME} ${SIMULATOR_NAME})
