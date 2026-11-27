@@ -573,7 +573,7 @@ int cliRead(const char ** argv)
   FIL file;
   uint32_t bytesRead = 0;
   int bufferSize;
-  if (toInt(argv, 2, &bufferSize) == 0 || bufferSize < 0 ) {
+  if (toInt(argv, 2, &bufferSize) == 0 || bufferSize <= 0 || bufferSize > 4096 ) {
     cliSerialPrint("%s: Invalid buffer size \"%s\"", argv[0], cliArg(argv, 2));
     return 0;
   }
@@ -595,16 +595,18 @@ int cliRead(const char ** argv)
 
   while (true) {
     UINT read;
-    result = f_read(&file, buffer, sizeof(buffer), &read);
-    if (result == FR_OK) {
-      if (read == 0) {
-        // end of file
-        f_close(&file);
-        break;
-      }
-      bytesRead += read;
+    result = f_read(&file, buffer, (UINT)bufferSize, &read);
+    if (result != FR_OK) {
+      cliSerialPrint("%s: SD read failed (%u)", argv[0], (unsigned)result);
+      break;
     }
+    if (read == 0) {
+      // end of file
+      break;
+    }
+    bytesRead += read;
   }
+  f_close(&file);
   uint32_t elapsedTime = (get_tmr10ms() - start) * 10;
   if (elapsedTime == 0) elapsedTime = 1;
   uint32_t speed = bytesRead / elapsedTime;
