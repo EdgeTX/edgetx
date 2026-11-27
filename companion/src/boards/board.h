@@ -435,6 +435,7 @@ class Board
       int           sport_max_baudrate      {false};
       bool          surface                 {false};
       int           trainer_jack_crossover  {0};
+      bool          trainerPort             {true};
 
       // sourced from board definitions
       bool          auxSerialMode           {false};

@@ -67,7 +67,6 @@ enum Capability {
   ModelImageNameLen,
   ModelName,
   Models,
-  ModelTrainerEnable,
   NumCurves,
   NumCurvePoints,
   OffsetWeight,
@@ -141,6 +140,7 @@ enum Capability {
   HasSDCard,
   HasStickDeadZone,
   HasSwitchableJack,
+  HasTrainerEnabled,
   HasTrainerJackCrossover,
   HasTrainerModuleCPPM,
   HasTrainerModuleSBUS,
@@ -154,6 +154,7 @@ enum Capability {
   Inputs,
   InputSwitches,
   IsLandscape,
+  IsNarrowLayout,
   IsPortrait,
   IsWideLayout,
   Keys,
@@ -161,7 +162,7 @@ enum Capability {
   LcdHeight,
   LcdOLED,
   LcdWidth,
-  MavlinkTelemetry, // TODO remove
+  MavlinkTelemetry, // TODO remove as not used
   MaxContrast,
   MaxVolume,
   MinContrast,

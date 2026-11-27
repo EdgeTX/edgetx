@@ -366,7 +366,7 @@ QString MultiModelPrinter::printModules()
     COMPARECELLWIDTH(modelPrinter->printModule(i), 80);
     columns.appendRowEnd();
   }
-  if (firmware->getCapability(ModelTrainerEnable)) {
+  if (firmware->getCapability(HasTrainerEnabled)) {
     columns.appendRowStart(tr("Trainer port"));
     COMPARECELL(modelPrinter->printModule(-1));
     columns.appendRowEnd();

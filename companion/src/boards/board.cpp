@@ -386,7 +386,7 @@ int Board::getCapability(const Capability capability) const
     case Capability::HasIntModuleMulti:
       return IS_IN_ARRAY(m_hardware.internalModules.available, "multi");
 
-    case Capability::HasModuleR9MMini:
+    case Capability::HasModuleR9MMini:              // TODO revisit in Modules refactor
       return m_id == "xlite" || m_id == "xlites";
 
     case Capability::HasSportConnector:
@@ -403,6 +403,9 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::HasTopLcd:
       return m_hardware.topLCD;
+
+    case Capability::HasTrainerEnabled:
+      return m_hardware.trainerPort;
 
     case Capability::HasTrainerJackCrossover:
       return m_hardware.trainer_jack_crossover;
@@ -431,11 +434,16 @@ int Board::getCapability(const Capability capability) const
     case Capability::IsLandscape:
       return m_display.w > m_display.h;
 
+    case Capability::IsNarrowLayout:
+      // based on radio/src/gui/colorlcd/libui/etx_lv_theme.h
+      return (getCapability(Capability::IsPortrait) && getCapability(Capability::LcdWidth) == 320);
+
     case Capability::IsPortrait:
       return m_display.w < m_display.h;
 
-    case Capability::IsWideLayout:  // check
-      return m_display.w > 400;
+    case Capability::IsWideLayout:
+      // based on radio/src/gui/colorlcd/libui/etx_lv_theme.h
+      return (!getCapability(Capability::IsNarrowLayout) && getCapability(Capability::LcdWidth) >= 800);
 
     case Capability::Keys:
       return m_keys.size();
@@ -460,9 +468,6 @@ int Board::getCapability(const Capability capability) const
 
     case Capability::MinContrast:
       return m_hardware.contrast.min;
-
-    case Capability::ModelTrainerEnable:
-      return m_id != "xlite";
 
     case Capability::MultiposPots:
       // assumes every input has potential to be one
@@ -1853,6 +1858,7 @@ void Board::loadTrainer(QJsonObject::const_iterator & oit)
   //JSON_ITER_VAL(oit);
   JSON_OBJ_INIT_R(oit, o);
   m_hardware.trainer_jack_crossover = Json::valueBool(o, "trainer_jack_crossover", m_hardware.trainer_jack_crossover, false);
+  m_hardware.trainerPort = (Json::exists(o, "trainer_in_gpio") && Json::exists(o, "trainer_out_gpio"));
 }
 
 void Board::loadTrims(QJsonObject::const_iterator & oit)
@@ -2126,6 +2132,7 @@ void Board::buildJson()
   const QStringList hasSwitchesFlex = {"f16", "mt12", "tx16s", "tx16smk3", "v16"};
   const QStringList hasSwitchesVoice = {"v16"};
   const QStringList hasChargeWhileOn = {"gx10", "gx15", "n14", "tx16smk3", "tx15"};
+  const QStringList hasHats = {"el18", "nv14", "pl18", "pl18ev", "pl18u"};
 
   while (!regbdsin.atEnd()) {
     regbdrec = regbdsin.readLine().split(";");
@@ -2154,6 +2161,9 @@ void Board::buildJson()
 
     if (hasChargeWhileOn.contains(hwdef))
       obj["chargeWhileOn"] = QJsonValue(true);
+
+    if (hasHats.contains(hwdef))
+      obj["hats"] = QJsonValue(true);
 
     if (regbdrec[regbdheader.indexOf("eepromsize")].toInt() > 0)
       obj["eepromSize"] = regbdrec[regbdheader.indexOf("eepromsize")].toInt();;

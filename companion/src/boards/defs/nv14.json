@@ -11,6 +11,7 @@
         "vwarn": 37
     },
     "flashSize": 2097152,
+    "hats": true,
     "modules": [
         {
             "internal": {
