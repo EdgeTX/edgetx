@@ -26,7 +26,7 @@
 
 #include "board.h"
 
-#define HAPTIC_TIMER_FREQ 200000000
+#define HAPTIC_TIMER_FREQ (PERI1_FREQUENCY * TIMER_MULT_APB1)
 
 static const stm32_pulse_timer_t _haptic_timer = {
   .GPIO = (gpio_t)HAPTIC_GPIO,

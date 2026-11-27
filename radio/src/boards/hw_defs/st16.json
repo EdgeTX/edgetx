@@ -453,9 +453,9 @@
     "cpu_type": "STM32H7"
   },
   "timers": {
-    "cpu_freq": 400000000,
-    "peri1_frequency": 100000000,
-    "peri2_frequency": 100000000,
+    "cpu_freq": 480000000,
+    "peri1_frequency": 120000000,
+    "peri2_frequency": 120000000,
     "timer_mult_apb1": 2,
     "timer_mult_apb2": 2,
     "ms_timer": "TIM14",
