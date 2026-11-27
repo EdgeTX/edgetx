@@ -97,7 +97,7 @@ inline void MIXER_RESET()
   memset(ex_chans, 0, sizeof(ex_chans));
   memset(act, 0, sizeof(act));
   memset(mixState, 0, sizeof(mixState));
-  mixerCurrentFlightMode = lastFlightMode = 0;
+  mixerCurrentFlightMode = mixerActiveFlightMode = lastFlightMode = 0;
   lastAct = 0;
   logicalSwitchesReset();
 }

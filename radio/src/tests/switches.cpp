@@ -556,3 +556,239 @@ TEST(FunctionSwitches, holdIsNotRepeatedToggle)
   }
 }
 #endif
+
+// ---------------------------------------------------------------------------
+// Single logical switch context (lswCtx[]), shared by all flight modes.
+// Timer, sticky, edge, delay/duration and delta state no longer depend on
+// the flight mode; only a fading-out flight mode sees the LS states frozen
+// at the transition.
+// ---------------------------------------------------------------------------
+
+class LswTest : public EdgeTxTest {};
+
+// Mixer timing: LS evaluated every 10 ms, LS timers ticked every 100 ms.
+static uint8_t s_test_100ms_cnt = 0;
+static void mixerTickRealistic(int ticks10ms)
+{
+  for (int i = 0; i < ticks10ms; i++) {
+    evalLogicalSwitches();
+    if (++s_test_100ms_cnt >= 10) {
+      s_test_100ms_cnt = 0;
+      logicalSwitchesTimerTick();
+    }
+  }
+}
+
+TEST_F(LswTest, ResetInitsSingleContext)
+{
+  lswSetState(0, 1, 42, 999);
+
+  logicalSwitchesReset();
+
+  EXPECT_FALSE(lswGetState(0));
+  EXPECT_EQ(-32768, lswGetLastValue(0));  // CS_LAST_VALUE_INIT
+}
+
+TEST_F(LswTest, TimerOscillates)
+{
+  setLogicalSwitch(0, LS_FUNC_TIMER, -109, -109);  // shortest periods
+  logicalSwitchesReset();
+
+  bool sawTrue = false, sawFalse = false;
+  for (int tick = 0; tick < 50; tick++) {
+    evalLogicalSwitches();
+    logicalSwitchesTimerTick();
+    if (lswGetState(0))
+      sawTrue = true;
+    else
+      sawFalse = true;
+  }
+  EXPECT_TRUE(sawTrue) << "Timer should produce true states";
+  EXPECT_TRUE(sawFalse) << "Timer should produce false states";
+}
+
+TEST_F(LswTest, StickyToggle)
+{
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;  // no 3-pos switch on this target
+  int swUp = (sw * 3) + SWSRC_FIRST_SWITCH;
+  int swDn = swUp + 2;
+
+  setLogicalSwitch(0, LS_FUNC_STICKY, swUp, swDn);
+  logicalSwitchesReset();
+
+  simuSetSwitch(sw, 0);
+  tickLogicalSwitches(5);
+  EXPECT_FALSE(lswGetState(0));
+
+  simuSetSwitch(sw, -1);
+  tickLogicalSwitches(5);
+  EXPECT_TRUE(lswGetState(0));
+
+  simuSetSwitch(sw, 0);
+  tickLogicalSwitches(3);
+  simuSetSwitch(sw, 1);
+  tickLogicalSwitches(5);
+  EXPECT_FALSE(lswGetState(0));
+}
+
+// A delay keeps running through flight mode changes (with per-FM contexts,
+// a change copied the old FM's context and the timers of all FMs ticked
+// independently).
+TEST_F(LswTest, DelayContinuesThroughFMSwitch)
+{
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
+  int swUp = (sw * 3) + SWSRC_FIRST_SWITCH;
+
+  setLogicalSwitch(0, LS_FUNC_AND, swUp, SWSRC_NONE, 0, 10 /* 1.0 s delay */);
+  logicalSwitchesReset();
+  s_test_100ms_cnt = 0;
+
+  simuSetSwitch(sw, -1);
+
+  mixerCurrentFlightMode = mixerActiveFlightMode = 0;
+  mixerTickRealistic(50);
+  EXPECT_FALSE(lswGetState(0)) << "Delay should still be running";
+
+  mixerCurrentFlightMode = mixerActiveFlightMode = 2;
+  mixerTickRealistic(30);
+  EXPECT_FALSE(lswGetState(0)) << "Delay should still be running after FM switch";
+
+  mixerCurrentFlightMode = mixerActiveFlightMode = 0;
+  mixerTickRealistic(30);
+  EXPECT_TRUE(lswGetState(0)) << "Delay should have expired after 1.1 s total";
+}
+
+TEST_F(LswTest, DurationContinuesThroughFMSwitch)
+{
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
+  int swUp = (sw * 3) + SWSRC_FIRST_SWITCH;
+
+  setLogicalSwitch(0, LS_FUNC_AND, swUp, SWSRC_NONE, 0, 0, 10 /* 1.0 s */);
+  logicalSwitchesReset();
+  s_test_100ms_cnt = 0;
+
+  simuSetSwitch(sw, -1);
+
+  mixerCurrentFlightMode = mixerActiveFlightMode = 0;
+  mixerTickRealistic(50);
+  EXPECT_TRUE(lswGetState(0)) << "Should be active during duration";
+
+  mixerCurrentFlightMode = mixerActiveFlightMode = 1;
+  mixerTickRealistic(30);
+  EXPECT_TRUE(lswGetState(0)) << "Duration should continue after FM switch";
+
+  mixerTickRealistic(30);
+  EXPECT_FALSE(lswGetState(0)) << "Duration should have expired after 1.1 s";
+}
+
+TEST_F(LswTest, GetSwitchReadsSingleContext)
+{
+  int sw = findHwSwitch(SWITCH_3POS);
+  if (sw < 0) return;
+  int swUp = (sw * 3) + SWSRC_FIRST_SWITCH;
+
+  setLogicalSwitch(0, LS_FUNC_AND, swUp, SWSRC_NONE);
+  logicalSwitchesReset();
+
+  simuSetSwitch(sw, -1);
+  mixerCurrentFlightMode = mixerActiveFlightMode = 0;
+  evalLogicalSwitches();
+  EXPECT_TRUE(getSwitch(SWSRC_SW1));
+
+  // same state from any FM while no fade is active
+  mixerCurrentFlightMode = mixerActiveFlightMode = 1;
+  EXPECT_TRUE(getSwitch(SWSRC_SW1));
+  mixerCurrentFlightMode = mixerActiveFlightMode = 5;
+  EXPECT_TRUE(getSwitch(SWSRC_SW1));
+}
+
+TEST_F(LswTest, DeltaTracksLastValue)
+{
+  setLogicalSwitch(0, LS_FUNC_DIFFEGREATER, MIXSRC_FIRST_STICK, 10);
+  logicalSwitchesReset();
+
+  uint8_t stickIdx = inputMappingConvertMode(0);
+  calibratedAnalogs[stickIdx] = 0;
+
+  evalLogicalSwitches();
+  EXPECT_EQ(0, lswGetLastValue(0));
+
+  calibratedAnalogs[stickIdx] = 512;
+  evalLogicalSwitches();
+  EXPECT_EQ(512, lswGetLastValue(0));
+
+  mixerCurrentFlightMode = mixerActiveFlightMode = 3;
+  calibratedAnalogs[stickIdx] = 256;
+  evalLogicalSwitches();
+  EXPECT_EQ(256, lswGetLastValue(0));
+}
+
+TEST_F(LswTest, ComparisonNoAccumulatedState)
+{
+  setLogicalSwitch(0, LS_FUNC_VPOS, MIXSRC_FIRST_STICK, 50);
+  logicalSwitchesReset();
+
+  uint8_t stickIdx = inputMappingConvertMode(0);
+
+  calibratedAnalogs[stickIdx] = 1024;
+  mixerCurrentFlightMode = mixerActiveFlightMode = 0;
+  evalLogicalSwitches();
+  EXPECT_TRUE(lswGetState(0));
+
+  mixerCurrentFlightMode = mixerActiveFlightMode = 3;
+  evalLogicalSwitches();
+  EXPECT_TRUE(lswGetState(0));
+
+  calibratedAnalogs[stickIdx] = 0;
+  evalLogicalSwitches();
+  EXPECT_FALSE(lswGetState(0));
+}
+
+// During a fade, the fading-out FM's mixes see the LS states frozen at the
+// transition (as its stale per-FM context did before), while the active FM
+// sees the live state.
+TEST(getSwitch, fadingOutFmSeesFrozenLsState)
+{
+  SYSTEM_RESET();
+  MODEL_RESET();
+  setModelDefaults();
+  MIXER_RESET();
+
+  int sw = findHwSwitch();
+  ASSERT_GE(sw, 0) << "No usable hardware switch found";
+  // "down" for all types: getSwitch handles 2POS/TOGGLE aliasing
+  int swActive = (sw * 3) + 2 + SWSRC_FIRST_SWITCH;
+
+  // LS1: stick0 > 0
+  setLogicalSwitch(0, LS_FUNC_VPOS, MIXSRC_FIRST_STICK, 0);
+
+  // FM1 selected by the switch, 1 s fade
+  g_model.flightModeData[1].swtch = swActive;
+  g_model.flightModeData[1].fadeIn = 10;
+  g_model.flightModeData[0].fadeOut = 10;
+
+  // FM0, stick positive: LS1 true
+  simuSetSwitch(sw, -1);
+  anaSetFiltered(0, 512);
+  evalMixes(1);
+  evalMixes(1);
+  EXPECT_TRUE(getSwitch(SWSRC_SW1)) << "LS1 should be TRUE with positive stick";
+
+  // FM1: the fade starts, LS1 still true at the transition
+  simuSetSwitch(sw, 1);
+  evalMixes(1);
+
+  // stick negative: LS1 becomes false for the active FM
+  anaSetFiltered(0, -512);
+  for (int i = 0; i < 5; i++) evalMixes(1);
+
+  uint8_t savedFM = mixerCurrentFlightMode;
+  mixerCurrentFlightMode = 1;
+  EXPECT_FALSE(getSwitch(SWSRC_SW1)) << "active FM sees the live LS state";
+  mixerCurrentFlightMode = 0;
+  EXPECT_TRUE(getSwitch(SWSRC_SW1)) << "fading-out FM sees the frozen LS state";
+  mixerCurrentFlightMode = savedFM;
+}

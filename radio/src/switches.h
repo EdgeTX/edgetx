@@ -44,8 +44,14 @@ uint8_t lswFamily(uint8_t func);
 int16_t lswTimerValue(delayval_t val);
 
 bool getLSStickyState(uint8_t idx);
-void evalLogicalSwitches(bool isCurrentFlightmode=true);
-void logicalSwitchesCopyState(uint8_t src, uint8_t dst);
+void evalLogicalSwitches();
+// Snapshot of the LS states for a flight mode being left (fade-out).
+void lswFreezeState(uint8_t fm);
+
+// Test-only accessors for the logical switch runtime state
+bool lswGetState(uint8_t idx);
+int16_t lswGetLastValue(uint8_t idx);
+void lswSetState(uint8_t idx, uint8_t state, uint8_t timer, int16_t lastValue);
 void logicalSwitchesReset();
 void logicalSwitchesTimerTick();
 
