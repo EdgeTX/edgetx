@@ -56,6 +56,7 @@ struct MixerTrace {
   std::vector<int16_t> outputs;  // MAX_OUTPUT_CHANNELS per cycle
   std::vector<uint8_t> flightModes;
   uint8_t orderCount = 0;
+  bool contiguous = true;  // no empty slot between mixes once loaded
 };
 
 static MixerTrace runModel(const std::string& path, bool indexOrder,
@@ -68,6 +69,13 @@ static MixerTrace runModel(const std::string& path, bool indexOrder,
   if (!loadModelFile(path)) return trace;
   loadCurves();
   logicalSwitchesInit(true);
+
+  // mixes whose source this radio lacks load as empty slots
+  bool empty = false;
+  for (uint8_t i = 0; i < MAX_MIXERS; i++) {
+    if (!g_model.mixData[i].srcRaw) empty = true;
+    else if (empty) trace.contiguous = false;
+  }
   mixerForceIndexOrder = indexOrder;
   g_tmr10ms = 100000;
 
@@ -117,7 +125,12 @@ static void compareModel(const char* name)
     MixerTrace ref = runModel(path, true, seed, cycles);
     MixerTrace dep = runModel(path, false, seed, cycles);
     ASSERT_FALSE(ref.outputs.empty()) << "cannot read " << path;
-    EXPECT_GT(dep.orderCount, 0) << name << ": dependency order not used";
+    if (dep.contiguous) {
+      EXPECT_GT(dep.orderCount, 0) << name << ": dependency order not used";
+    } else {
+      // sources missing on this radio left gaps: index order kept
+      EXPECT_EQ(dep.orderCount, 0) << name << ": order used despite gaps";
+    }
 
     std::vector<int> mismatches(MAX_OUTPUT_CHANNELS, 0);
     std::vector<int> maxDiff(MAX_OUTPUT_CHANNELS, 0);
