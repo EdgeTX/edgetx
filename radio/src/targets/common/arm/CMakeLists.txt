@@ -252,6 +252,7 @@ if(CROSSFIRE)
   set(PULSES_SRC
     ${PULSES_SRC}
     crossfire.cpp
+    crossfire_sd.cpp
     )
   set(SRC
     ${SRC}
