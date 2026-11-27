@@ -23,14 +23,32 @@
 
 #include "boot.h"
 #include "hal/usb_driver.h"
+#include "hal/watchdog_driver.h"
 #include "os/time.h"
 
 #include "lcd.h"
 
 #define FRAME_INTERVAL_MS 20
 
+#if defined(BOOTLOADER_DFU)
+#include "hal/abnormal_reboot.h"
+#include "board.h"
+
+volatile bool bootloaderDFULeaveRequested = false;
+
+// board hook from boot.cpp (sets up what the firmware expects)
+void boardBLPreJump();
+#endif
+
+// DFU is entered from the firmware, whose watchdog keeps running (it cannot
+// be stopped): re-arm it longer than a 128 KB F4 sector erase (up to 2 s
+// with interrupts off) and feed it from the main loop.
+#define DFU_WATCHDOG_MS 4000
+
 void bootloaderDFU()
 {
+  WDG_ENABLE(DFU_WATCHDOG_MS);
+
   usbPlugged();
   usbStart();
 
@@ -40,8 +58,19 @@ void bootloaderDFU()
   for (;;) {
     if (time_get_ms() - next_frame >= FRAME_INTERVAL_MS) {
       next_frame += FRAME_INTERVAL_MS;
+      WDG_RESET();
 
       if (!usbPlugged()) break;
+#if defined(BOOTLOADER_DFU)
+      if (bootloaderDFULeaveRequested) {
+        // a reset would start the ST ROM bootloader with USB attached
+        blExit();
+        abnormalRebootRequestPowerOn();
+        abnormalRebootQuiesce();
+        boardBLPreJump();
+        abnormalRebootJump(APP_START_ADDRESS);
+      }
+#endif
       bootloaderDrawDFUScreen();
       lcdRefresh();
     }

@@ -24,6 +24,13 @@ set(ROTARY_ENCODER YES)
 set(HARDWARE_EXTERNAL_MODULE YES)
 set(NANO OFF)
 
+# DFU mode in the bootloader (firmware area of the internal flash), entered
+# with the CLI command "reboot dfu"
+option(BOOTLOADER_DFU "DFU mode in the bootloader" OFF)
+if(BOOTLOADER_DFU)
+  add_definitions(-DBOOTLOADER_DFU)
+endif()
+
 # for size report script
 set(CPU_TYPE_FULL STM32F429xI)
 set(TARGET_LINKER_DIR stm32f429_sdram)

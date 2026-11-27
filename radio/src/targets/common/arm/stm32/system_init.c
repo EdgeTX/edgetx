@@ -46,6 +46,19 @@ extern uint32_t _sisr_vector;
 
 NAKED BOOTSTRAP void Reset_Handler()
 {
+#if defined(BOOT) && defined(CCMDATARAM_BASE)
+  // The ST ROM bootloader clears the RCC enable registers before starting
+  // us (DFU leave), turning off the CCM clock: enable it before the stack
+  // (in CCM) is used. 0x40023830: RCC->AHB1ENR, 0x100000: CCMDATARAMEN.
+  asm inline (
+    "ldr r0, =0x40023830 \n"
+    "ldr r1, [r0]        \n"
+    "orr r1, r1, #0x100000 \n"
+    "str r1, [r0]        \n"
+    "dsb                 \n"
+  );
+#endif
+
   asm inline (
     "ldr sp, =_estack \n"
   );

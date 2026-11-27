@@ -22,6 +22,7 @@
 #include <FreeRTOS/include/FreeRTOS.h>
 #include <FreeRTOS/include/stream_buffer.h>
 
+#include "hal/abnormal_reboot.h"
 #include "hal/adc_driver.h"
 #include "hal/audio_driver.h"
 #include "hal/fatfs_diskio.h"
@@ -1278,6 +1279,19 @@ int cliReboot(const char ** argv)
     // do a user requested watchdog test by pausing mixer thread
     pulsesStop();
   }
+#if defined(FIRMWARE_QSPI) || defined(BOOTLOADER_DFU)
+  else if (!strcmp(cliArg(argv, 1), "dfu")) {
+    // start the bootloader in DFU mode
+    abnormalRebootSetCmd(REBOOT_CMD_DFU);
+#if defined(BOOTLOADER_DFU)
+    abnormalRebootQuiesce();
+    abnormalRebootResetClocks();
+    abnormalRebootJump(FIRMWARE_ADDRESS);
+#else
+    NVIC_SystemReset();
+#endif
+  }
+#endif
   else {
     NVIC_SystemReset();
   }
@@ -2339,7 +2353,11 @@ const CliCommand cliCommands[] = {
 #if defined(PDM_CLOCK)
   { "rec", cliRecord, "<filename> [<seconds>]" },
 #endif
+#if defined(FIRMWARE_QSPI) || defined(BOOTLOADER_DFU)
+  { "reboot", cliReboot, "[wdt | dfu]" },
+#else
   { "reboot", cliReboot, "[wdt]" },
+#endif
   { "set", cliSet, "<what> <value>" },
 #if defined(ENABLE_SERIAL_PASSTHROUGH)
   { "serialpassthrough", cliSerialPassthrough, "<port type> [<port number>] [<baudrate>] [sport|ppm] [hangup]"},
