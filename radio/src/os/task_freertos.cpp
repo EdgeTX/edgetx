@@ -87,3 +87,24 @@ static inline bool _lock_mutex(mutex_handle_t* h, TickType_t xTickToWait)
 bool mutex_lock(mutex_handle_t* h) { return _lock_mutex(h, portMAX_DELAY); }
 bool mutex_trylock(mutex_handle_t* h) { return _lock_mutex(h, (TickType_t)0); }
 void mutex_unlock(mutex_handle_t* h) { xSemaphoreGive(h->_rtos_handle); }
+
+void signal_create(signal_handle_t* h)
+{
+  h->_rtos_handle = xSemaphoreCreateBinaryStatic(&h->_sem_struct);
+}
+
+bool signal_wait(signal_handle_t* h, uint32_t timeout_ms)
+{
+  // +1: the first tick may come right away
+  return xSemaphoreTake(h->_rtos_handle, pdMS_TO_TICKS(timeout_ms) + 1) ==
+         pdTRUE;
+}
+
+void signal_clear(signal_handle_t* h) { xSemaphoreTake(h->_rtos_handle, 0); }
+
+void signal_post_from_isr(signal_handle_t* h)
+{
+  BaseType_t woken = pdFALSE;
+  xSemaphoreGiveFromISR(h->_rtos_handle, &woken);
+  portYIELD_FROM_ISR(woken);
+}

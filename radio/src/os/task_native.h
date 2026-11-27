@@ -25,6 +25,7 @@
 
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 #include <memory>
 
 #define TASK_DEFINE_STACK(name, size) void* name
@@ -37,6 +38,12 @@ struct task_handle_t {
 };
 
 typedef std::mutex mutex_handle_t;
+
+struct signal_handle_t {
+  std::mutex _m;
+  std::condition_variable _cv;
+  bool _posted = false;
+};
 
 bool task_running();
 
