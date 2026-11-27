@@ -207,9 +207,11 @@ extern uint32_t EXTRAM_SIZE;
 extern uint32_t NORFLASH_START;
 extern uint32_t NORFLASH_SIZE;
 
+// RASR.SIZE encodes a region of 2^(SIZE + 1) bytes:
+// round up to the next power of two
 __STATIC_FORCEINLINE uint32_t mpu_region_size(uint32_t size)
 {
-  return 32 - __CLZ(size) - 1;
+  return 31 - __CLZ(size - 1);
 }
 
 void MPU_Config()
