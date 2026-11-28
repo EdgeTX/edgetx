@@ -35,7 +35,7 @@ jobs:
           pacman -S --noconfirm mingw-w64-x86_64-cmake \
                                 mingw-w64-x86_64-python-pip \
                                 mingw-w64-x86_64-python-pillow \
-                                mingw-w64-x86_64-python-lz4 \
+                                mingw-w64-x86_64-lz4 \
                                 mingw-w64-x86_64-libjpeg-turbo \
                                 mingw-w64-x86_64-zlib \
                                 mingw-w64-x86_64-libtiff \
@@ -56,15 +56,17 @@ jobs:
         with:
           submodules: recursive
 
-      # MSYS2 dropped dfu-util and libusb from its mingw64 package database,
+      # MSYS2 dropped dfu-util, libusb and python-lz4 from its mingw64 package database,
       # so install the last signed mingw64 builds vendored in .github/msys2.
       # They go in one pacman -U call so libusb satisfies dfu-util's
-      # dependency on it.
-      - name: Install dfu-util and libusb
+      # dependency on it. python-lz4 is needed by radio/util/encode-bitmap.py.
+      - name: Install dfu-util, libusb and python-lz4
         working-directory: ${{github.workspace}}
         run: |
           pacman -U --noconfirm .github/msys2/mingw-w64-x86_64-libusb-1.0.30-1-any.pkg.tar.zst \
-                                .github/msys2/mingw-w64-x86_64-dfu-util-0.11-2-any.pkg.tar.zst
+                                .github/msys2/mingw-w64-x86_64-dfu-util-0.11-2-any.pkg.tar.zst \
+                                .github/msys2/mingw-w64-x86_64-python-lz4-4.4.5-3-any.pkg.tar.zst
+          python -c "import lz4.block; print('lz4', lz4.version.version)"
 
       - name: Install Qt
         uses: jdpurcell/install-qt-action@v5

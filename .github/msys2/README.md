@@ -39,3 +39,27 @@ package database.
 - Dependencies: none.
 - Licence: LGPL-2.1 (per the package metadata). Upstream source:
   https://libusb.info/
+
+## mingw-w64-x86_64-python-lz4-4.4.5-3-any.pkg.tar.zst
+
+- Source: https://repo.msys2.org/mingw/mingw64/ (built by MSYS2 CI
+  2026-01-26, signed 2026-01-28). The detached signature
+  (`.pkg.tar.zst.sig`) is kept alongside, so `pacman -U` can check it
+  against the runner's MSYS2 keyring. It is the newest mingw64 build
+  still on the server, built after MSYS2 moved to Python 3.14.
+- SHA-256: `ad1408fa5076be10d11fda783541d3d45571cac487b7f1b865362f77c3a3e59b`
+- Why vendored: MSYS2 dropped `python-lz4` from the `mingw64`
+  environment (it's still packaged for `ucrt64`, `clang64` and
+  `clangarm64`), so `pacman -S mingw-w64-x86_64-python-lz4` fails with
+  "target not found". `radio/util/encode-bitmap.py` imports `lz4.block`
+  to compress the colour LCD bitmaps, so the build can't run without it.
+  The workflow checks `import lz4.block` right after installing it.
+- Dependencies: `mingw-w64-x86_64-python` (still in the `mingw64`
+  database). Its PKGBUILD builds against `mingw-w64-x86_64-lz4` through
+  pkg-config, so that library (still in the `mingw64` database) is
+  installed with `pacman -S` in case the extension links to `liblz4.dll`.
+- Licence: BSD-3-Clause (per the PKGBUILD). Upstream source:
+  https://github.com/python-lz4/python-lz4
+- If it stops working (for example after a Python minor-version change
+  in MSYS2), the fallback is `python -m pip install lz4`, built from
+  source with the MSYS2 toolchain.
