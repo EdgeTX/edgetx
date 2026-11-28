@@ -1403,3 +1403,5 @@
 #define TR_LONG_PRESS             "長按"
 #define TR_OPEN_QUICK_MENU        "打開快捷選項"
 #define TR_QUICK_MENU_FAVORITES   "編輯快捷選項"
+
+#define NOVAFLY_THEME_LUA_CN      "。三專業兩久人仍令們會但你候先共再削勾匣即廠去受各四坐處如家少就層座得性慣我才擔損授掉舊朝權束槳槽每永由畫稍符第答簡結繞繪緒缺臂致識該越軟達返還閒際驟黑齒（），：？" 
