@@ -307,11 +307,9 @@ void LuaWidget::foreground()
       PROTECT_LUA() {
         luaScriptManager = this;
         refresh(nullptr);
-        if (!scriptDisabled) {
-          // callRefs reports its own errors; only add a fallback message
-          if (!callRefs(lsWidgets) && !scriptDisabled) {
-            setErrorMessage("foreground calRefs error");
-          }
+        // callRefs reports its own errors; only add a fallback message
+        if (!callRefs(lsWidgets) && !scriptDisabled) {
+          setErrorMessage("foreground callRefs error");
         }
         refreshInstructionsPercent = instructionsPercent;
       } else {
@@ -593,11 +591,17 @@ void LuaScriptManager::clearRefs(lua_State *L)
 
 bool LuaScriptManager::callRefs(lua_State *L)
 {
-  for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
-    lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
-    auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
-    lua_pop(L, 1);
-    if (p) if (!p->callRefs(L)) return false;
+  if (!scriptDisabled) {
+    for (size_t i = 0; i < lvglObjectRefs.size(); i += 1) {
+      lua_rawgeti(L, LUA_REGISTRYINDEX, lvglObjectRefs[i]);
+      auto p = LvglWidgetObjectBase::checkLvgl(L, -1);
+      lua_pop(L, 1);
+      if (p) {
+        if (!p->callRefs(L)) return false;
+        // Check for error in callbacks
+        if (scriptDisabled) break;
+      }
+    }
   }
   return true;
 }
