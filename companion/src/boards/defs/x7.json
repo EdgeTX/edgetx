@@ -42,5 +42,6 @@
         }
     ],
     "name": "Taranis X7/X7S",
-    "rotEncNav": true
+    "rotEncNav": true,
+    "supported": false
 }

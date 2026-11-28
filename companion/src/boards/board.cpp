@@ -2133,6 +2133,7 @@ void Board::buildJson()
   const QStringList hasSwitchesVoice = {"v16"};
   const QStringList hasChargeWhileOn = {"gx10", "gx15", "n14", "tx16smk3", "tx15"};
   const QStringList hasHats = {"el18", "nv14", "pl18", "pl18ev", "pl18u"};
+  const QStringList unsupported = {"lr3pro", "t12", "t8", "tlite", "tpro", "tx12", "x7", "x9d", "x9d+", "x9lite", "x9lites", "xlite", "xlites" };
 
   while (!regbdsin.atEnd()) {
     regbdrec = regbdsin.readLine().split(";");
@@ -2145,6 +2146,9 @@ void Board::buildJson()
     obj["name"] = regbdrec[regbdheader.indexOf("name")];
     QJsonArray basedOn;
     basedOn.append(regbdrec[regbdheader.indexOf("lcd")]);
+
+    if (unsupported.contains(hwdef))
+      obj["supported"] = QJsonValue(false);
 
     if (hasInputsAccl.contains(hwdef))
       basedOn.append("inputs_accl");

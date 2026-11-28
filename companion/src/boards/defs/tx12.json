@@ -46,6 +46,7 @@
     ],
     "name": "Radiomaster TX12",
     "rotEncNav": true,
+    "supported": false,
     "trainerModuleCPPM": false,
     "trainerModuleSBUS": false
 }

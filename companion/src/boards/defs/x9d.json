@@ -42,5 +42,6 @@
         }
     ],
     "name": "Taranis X9D",
-    "pwrButtonPress": false
+    "pwrButtonPress": false,
+    "supported": false
 }

@@ -43,5 +43,6 @@
         }
     ],
     "name": "Taranis X9-Lite",
-    "rotEncNav": true
+    "rotEncNav": true,
+    "supported": false
 }

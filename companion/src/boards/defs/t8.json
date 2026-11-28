@@ -26,6 +26,7 @@
         }
     ],
     "name": "Radiomaster T8",
+    "supported": false,
     "trainerModuleCPPM": false,
     "trainerModuleSBUS": false
 }

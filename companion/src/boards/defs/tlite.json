@@ -43,6 +43,7 @@
         }
     ],
     "name": "Jumper T-Lite",
+    "supported": false,
     "trainerModuleCPPM": false,
     "trainerModuleSBUS": false
 }

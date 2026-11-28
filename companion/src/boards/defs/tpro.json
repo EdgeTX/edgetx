@@ -44,6 +44,7 @@
     ],
     "name": "Jumper T-Pro",
     "rotEncNav": true,
+    "supported": false,
     "trainerModuleCPPM": false,
     "trainerModuleSBUS": false,
     "vcpSerialMode": true

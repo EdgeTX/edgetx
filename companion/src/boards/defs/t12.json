@@ -45,6 +45,7 @@
         }
     ],
     "name": "Jumper T12",
+    "supported": false,
     "trainerModuleCPPM": false,
     "trainerModuleSBUS": false
 }

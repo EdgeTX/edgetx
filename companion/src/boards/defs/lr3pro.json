@@ -44,6 +44,7 @@
         }
     ],
     "name": "BETAFPV LR3PRO",
+    "supported": false,
     "trainerModuleCPPM": false,
     "trainerModuleSBUS": false
 }

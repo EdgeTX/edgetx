@@ -42,5 +42,6 @@
             }
         }
     ],
-    "name": "Taranis X-Lite"
+    "name": "Taranis X-Lite",
+    "supported": false
 }
