@@ -30,6 +30,7 @@
 class FlexGridLayout;
 class FormLine;
 class PageGroup;
+class ButtonBase;
 
 typedef uint32_t WindowFlags;
 
@@ -155,11 +156,14 @@ class Window
   void attach(Window *window);
   void detach();
 
+  void toForeground();
+  void toBackground();
+
   bool deleted() const { return _deleted; }
 
 #if defined(HARDWARE_TOUCH)
   void addBackButton();
-  void addCustomButton(coord_t x, coord_t y, std::function<void()> action);
+  ButtonBase* addCustomButton(coord_t x, coord_t y, std::function<void()> action);
 #endif
 
   inline lv_obj_t *getLvObj() { return lvobj; }

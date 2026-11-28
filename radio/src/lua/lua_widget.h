@@ -138,6 +138,7 @@ class LuaWidget : public Widget, public LuaScriptManager
   bool isAppMode() const override { return Widget::isAppMode(); }
   bool isFullscreen() override { return Widget::isFullscreen(); }
   void exitFullscreen() override { closeFullscreen(); }
+  bool isLvglWidget() override { return useLvglLayout(); }
 
   // Should rotary encoder events be enabled when full screen
   bool enableFullScreenRE() const override { return !useLvglLayout(); }

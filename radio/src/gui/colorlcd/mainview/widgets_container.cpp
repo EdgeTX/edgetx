@@ -93,3 +93,11 @@ void WidgetsContainer::refreshWidgets(bool inForeground)
     }
   }
 }
+
+void WidgetsContainer::cancelFullscreen()
+{
+  for (int i = 0; i < zoneCount; i++) {
+    if (widgets[i] && !widgets[i]->deleted())
+      widgets[i]->setFullscreen(false);
+  }
+}

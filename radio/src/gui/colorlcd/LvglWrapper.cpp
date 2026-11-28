@@ -36,8 +36,6 @@ static lv_indev_drv_t touchDriver;
 static lv_indev_drv_t keyboard_drv;
 #if defined(ROTARY_ENCODER_NAVIGATION)
 static lv_indev_drv_t rotaryDriver;
-
-static lv_indev_t* rotaryDevice = nullptr;
 #endif
 static lv_indev_t* keyboardDevice = nullptr;
 static lv_indev_t* touchDevice = nullptr;
@@ -52,54 +50,7 @@ static void reset_inactivity()
 
 static lv_obj_t* get_focus_obj(lv_indev_t* indev)
 {
-  lv_group_t * g = indev->group;
-  if(g == nullptr) return nullptr;
-  return lv_group_get_focused(g);
-}
-
-static lv_indev_data_t kb_data_backup;
-
-static void backup_kb_data(lv_indev_data_t* data)
-{
-  memcpy(&kb_data_backup, data, sizeof(lv_indev_data_t));
-}
-
-static void copy_kb_data_backup(lv_indev_data_t* data)
-{
-  memcpy(data, &kb_data_backup, sizeof(lv_indev_data_t));
-}
-
-static bool evt_to_indev_data(event_t evt, lv_indev_data_t *data)
-{
-  event_t key = EVT_KEY_MASK(evt);
-
-  switch(key) {
-
-  case KEY_ENTER:
-    data->key = LV_KEY_ENTER;
-    break;
-
-  case KEY_EXIT:
-    if (evt == EVT_KEY_BREAK(KEY_EXIT)) {
-      data->key = LV_KEY_ESC;
-      data->state = LV_INDEV_STATE_PRESSED;
-      return true;
-    }
-    return false;
-
-  default:
-    // abort LVGL event
-    return false;
-  }
-
-  event_t flgs = evt & _MSK_KEY_FLAGS;
-  if (flgs != _MSK_KEY_BREAK && flgs != _MSK_KEY_LONG_BRK) {
-    data->state = LV_INDEV_STATE_PRESSED;
-  } else {
-    data->state = LV_INDEV_STATE_RELEASED;
-  }
-
-  return true;
+  return lv_group_get_focused(indev->group);
 }
 
 static void dispatch_kb_event(Window* w, event_t evt)
@@ -108,9 +59,9 @@ static void dispatch_kb_event(Window* w, event_t evt)
 
   event_t key = EVT_KEY_MASK(evt);
   if (evt == EVT_KEY_BREAK(KEY_ENTER)) {
-    w->onClicked();
+    lv_event_send(w->getLvObj(), LV_EVENT_CLICKED, nullptr);
   } else if (evt == EVT_KEY_BREAK(KEY_EXIT)) {
-    w->onCancel();
+    lv_event_send(w->getLvObj(), LV_EVENT_CANCEL, nullptr);
   } else if (key != KEY_ENTER) {
     w->onEvent(evt);
   } else if (evt == EVT_KEY_LONG(KEY_ENTER)) {
@@ -120,60 +71,53 @@ static void dispatch_kb_event(Window* w, event_t evt)
 
 static void keyboardDriverRead(lv_indev_drv_t *drv, lv_indev_data_t *data)
 {
+  static lv_indev_data_t kb_data_backup;
+
   data->key = 0;
 
   if (isEvent()) { // event waiting
     event_t evt = getEvent();
+    event_t flgs = evt & _MSK_KEY_FLAGS;
 
-    if ((evt & _MSK_KEY_FLAGS) == _MSK_KEY_LONG_BRK) {
+    if (flgs == _MSK_KEY_LONG_BRK) {
       data->state = LV_INDEV_STATE_RELEASED;
-      backup_kb_data(data);
-      return;
+    } else {
+      if (flgs == _MSK_KEY_FIRST) {
+        // generate acoustic/haptic feedback if radio settings allow
+        audioKeyPress();
+      }
+
+      auto obj = get_focus_obj(keyboardDevice);
+      if (!obj) {
+        // no focused item ?
+        auto w = Window::topWindow();
+        dispatch_kb_event(w, evt);
+      } else {
+        // check for LVGL key handling
+        if (EVT_KEY_MASK(evt) == KEY_ENTER) {
+          data->key = LV_KEY_ENTER;
+
+          if (flgs != _MSK_KEY_BREAK && flgs != _MSK_KEY_LONG_BRK) {
+            data->state = LV_INDEV_STATE_PRESSED;
+          } else {
+            data->state = LV_INDEV_STATE_RELEASED;
+          }
+        } else {
+          auto w = (Window*)lv_obj_get_user_data(obj);
+          // If no window, check for keyboard window
+          if (!w) w = Keyboard::keyboardWindow();
+          dispatch_kb_event(w, evt);
+          return;
+        }
+      }
     }
 
-    if(evt == EVT_KEY_FIRST(KEY_PAGEUP) ||
-       evt == EVT_KEY_FIRST(KEY_PAGEDN) ||
-       evt == EVT_KEY_FIRST(KEY_ENTER) ||
-       evt == EVT_KEY_FIRST(KEY_MODEL) ||
-       evt == EVT_KEY_FIRST(KEY_EXIT) ||
-       evt == EVT_KEY_FIRST(KEY_TELE) ||
-       evt == EVT_KEY_FIRST(KEY_SYS)) {
-      // generate acoustic/haptic feedback if radio settings allow
-      audioKeyPress();
-    }
-
-    // no focused item ?
-    auto obj = get_focus_obj(keyboardDevice);
-    if (!obj) {
-      auto w = Window::topWindow();
-      dispatch_kb_event(w, evt);
-      backup_kb_data(data);
-      return;
-    }
-
-    // not an LVGL key ?
-    bool is_lvgl_evt = evt_to_indev_data(evt, data);
-    if (!is_lvgl_evt) {
-      auto w = (Window*)lv_obj_get_user_data(obj);
-      // If no window, check for keyboard window
-      if (!w) w = Keyboard::keyboardWindow();
-      dispatch_kb_event(w, evt);
-      return;
-    }
-
-    backup_kb_data(data);
+    memcpy(&kb_data_backup, data, sizeof(lv_indev_data_t));
     return;
   }
 
   // no event: send a copy of the last one
-  copy_kb_data_backup(data);
-
-  // simulate EXIT release: necessary to map
-  // EVT_KEY_BREAK(KEY_EXIT) to LV_EVENT_CANCEL
-  if (data->key == LV_KEY_ESC && data->state == LV_INDEV_STATE_PRESSED) {
-    data->state = LV_INDEV_STATE_RELEASED;
-    backup_kb_data(data);
-  }
+  memcpy(data, &kb_data_backup, sizeof(lv_indev_data_t));
 }
 
 #if defined(VOICE_CONTROL_SENSOR)
@@ -401,7 +345,7 @@ static void init_lvgl_drivers()
   lv_indev_drv_init(&rotaryDriver);
   rotaryDriver.type = LV_INDEV_TYPE_ENCODER;
   rotaryDriver.read_cb = rotaryDriverRead;
-  rotaryDevice = lv_indev_drv_register(&rotaryDriver);
+  lv_indev_drv_register(&rotaryDriver);
 #endif
 
   lv_indev_drv_init(&keyboard_drv);

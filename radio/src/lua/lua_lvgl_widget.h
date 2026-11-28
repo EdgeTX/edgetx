@@ -49,8 +49,7 @@ enum LuaLvglType
   ETX_BOX,
 
   // Controls - tools / fullscreen widgets only
-  ETX_FIRST_CONTROL,
-  ETX_BUTTON = ETX_FIRST_CONTROL,
+  ETX_BUTTON,
   ETX_MOMENTARY_BUTTON,
   ETX_TOGGLE,
   ETX_TEXTEDIT,
@@ -261,6 +260,8 @@ class LvglWidgetObjectBase
   void push(lua_State *L, bool saveRef = true);
   void saveLvglObjectRef(int ref);
 
+  virtual void preBuildCallRefs(lua_State *L) {}
+  virtual void postBuildCallRefs(lua_State *L) { callRefs(L); }
   virtual bool callRefs(lua_State *L);
   virtual void clearRefs(lua_State *L);
   void clearChildRefs(lua_State *L);
@@ -524,6 +525,22 @@ class LvglWidgetObject : public LvglWidgetObjectBase
   void parseParam(lua_State *L, const char *key) override;
 
   bool setFlex();
+};
+
+class LvglWidgetGetSetObject : public LvglWidgetObject, public LvglGetSetParams
+{
+ public:
+  LvglWidgetGetSetObject(const char* meta = LVGL_METATABLE) : LvglWidgetObject(meta) {}
+
+  void preBuildCallRefs(lua_State *L) override { callRefs(L); }
+  void postBuildCallRefs(lua_State *L) override {}
+  bool callRefs(lua_State *L) override;
+  void clearRefs(lua_State *L) override;
+
+ protected:
+  int value;
+
+  void parseParam(lua_State *L, const char *key) override;
 };
 
 //-----------------------------------------------------------------------------
@@ -795,16 +812,13 @@ class LvglWidgetMomentaryButton : public LvglWidgetTextButtonBase
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetToggleSwitch : public LvglWidgetObject, public LvglGetSetParams
+class LvglWidgetToggleSwitch : public LvglWidgetGetSetObject
 {
  public:
-  LvglWidgetToggleSwitch() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
-
-  void clearRefs(lua_State *L) override;
+  LvglWidgetToggleSwitch() : LvglWidgetGetSetObject(LVGL_SIMPLEMETATABLE) {}
 
  protected:
   void build(lua_State *L) override;
-  void parseParam(lua_State *L, const char *key) override;
 };
 
 //-----------------------------------------------------------------------------
@@ -837,10 +851,10 @@ class LvglWidgetTextEdit : public LvglWidgetObject
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetNumberEdit : public LvglWidgetObject, public LvglGetSetParams, public LvglMinMaxParams
+class LvglWidgetNumberEdit : public LvglWidgetGetSetObject, public LvglMinMaxParams
 {
  public:
-  LvglWidgetNumberEdit() : LvglWidgetObject(LVGL_SIMPLEMETATABLE), LvglMinMaxParams(-1024, 1024) {}
+  LvglWidgetNumberEdit() : LvglWidgetGetSetObject(LVGL_SIMPLEMETATABLE), LvglMinMaxParams(-1024, 1024) {}
 
   void clearRefs(lua_State *L) override;
 
@@ -854,17 +868,15 @@ class LvglWidgetNumberEdit : public LvglWidgetObject, public LvglGetSetParams, p
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetSliderBase : public LvglWidgetObject, public LvglGetSetParams, public LvglMinMaxParams
+class LvglWidgetSliderBase : public LvglWidgetGetSetObject, public LvglMinMaxParams
 {
  public:
-  LvglWidgetSliderBase() : LvglWidgetObject(LVGL_SIMPLEMETATABLE), LvglMinMaxParams(0, 100)
+  LvglWidgetSliderBase() : LvglWidgetGetSetObject(LVGL_SIMPLEMETATABLE), LvglMinMaxParams(0, 100)
   {
     color.flags = -1;
   }
 
   void setColor(LcdFlags newColor) override;
-
-  void clearRefs(lua_State *L) override;
 
  protected:
   void parseParam(lua_State *L, const char *key) override;
@@ -945,6 +957,7 @@ class LvglWidgetDialog : public LvglWidgetObject, public LvglTitleParam
 
  protected:
   LvglDialog* dialog = nullptr;
+  lv_obj_t* saveFocus = nullptr;
 
   LvglFuncRef closeFunction;
 
@@ -991,23 +1004,10 @@ class LvglWidgetMessageDialog : public LvglWidgetObject, public LvglTitleParam, 
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetPicker : public LvglWidgetObject, public LvglGetSetParams
+class LvglWidgetChoice : public LvglWidgetGetSetObject, public LvglTitleParam, public LvglValuesParam
 {
  public:
-  LvglWidgetPicker() : LvglWidgetObject(LVGL_SIMPLEMETATABLE) {}
-
-  void clearRefs(lua_State *L) override;
-
- protected:
-  void parseParam(lua_State *L, const char *key) override;
-};
-
-//-----------------------------------------------------------------------------
-
-class LvglWidgetChoice : public LvglWidgetPicker, public LvglTitleParam, public LvglValuesParam
-{
- public:
-  LvglWidgetChoice() : LvglWidgetPicker() {}
+  LvglWidgetChoice() : LvglWidgetGetSetObject() {}
 
   void clearRefs(lua_State *L) override;
 
@@ -1022,10 +1022,10 @@ class LvglWidgetChoice : public LvglWidgetPicker, public LvglTitleParam, public 
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetMenu : public LvglWidgetPicker, public LvglTitleParam, public LvglValuesParam
+class LvglWidgetMenu : public LvglWidgetGetSetObject, public LvglTitleParam, public LvglValuesParam
 {
  public:
-  LvglWidgetMenu() : LvglWidgetPicker() {}
+  LvglWidgetMenu() : LvglWidgetGetSetObject() {}
 
   void clearRefs(lua_State *L) override;
 
@@ -1038,10 +1038,10 @@ class LvglWidgetMenu : public LvglWidgetPicker, public LvglTitleParam, public Lv
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetFontPicker : public LvglWidgetPicker
+class LvglWidgetFontPicker : public LvglWidgetGetSetObject
 {
  public:
-  LvglWidgetFontPicker() : LvglWidgetPicker() {}
+  LvglWidgetFontPicker() : LvglWidgetGetSetObject() {}
 
  protected:
   void build(lua_State *L) override;
@@ -1049,10 +1049,10 @@ class LvglWidgetFontPicker : public LvglWidgetPicker
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetAlignPicker : public LvglWidgetPicker
+class LvglWidgetAlignPicker : public LvglWidgetGetSetObject
 {
  public:
-  LvglWidgetAlignPicker() : LvglWidgetPicker() {}
+  LvglWidgetAlignPicker() : LvglWidgetGetSetObject() {}
 
  protected:
   void build(lua_State *L) override;
@@ -1060,10 +1060,10 @@ class LvglWidgetAlignPicker : public LvglWidgetPicker
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetColorPicker : public LvglWidgetPicker
+class LvglWidgetColorPicker : public LvglWidgetGetSetObject
 {
  public:
-  LvglWidgetColorPicker() : LvglWidgetPicker() {}
+  LvglWidgetColorPicker() : LvglWidgetGetSetObject() {}
 
  protected:
   void build(lua_State *L) override;
@@ -1071,10 +1071,10 @@ class LvglWidgetColorPicker : public LvglWidgetPicker
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetTimerPicker : public LvglWidgetPicker
+class LvglWidgetTimerPicker : public LvglWidgetGetSetObject
 {
  public:
-  LvglWidgetTimerPicker() : LvglWidgetPicker() {}
+  LvglWidgetTimerPicker() : LvglWidgetGetSetObject() {}
 
  protected:
   void build(lua_State *L) override;
@@ -1082,24 +1082,10 @@ class LvglWidgetTimerPicker : public LvglWidgetPicker
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetSwitchPicker : public LvglWidgetPicker
+class LvglWidgetSwitchPicker : public LvglWidgetGetSetObject
 {
  public:
-  LvglWidgetSwitchPicker() : LvglWidgetPicker() {}
-
- protected:
-  uint32_t filter = 0xFFFFFFFF;
-
-  void build(lua_State *L) override;
-  void parseParam(lua_State *L, const char *key) override;
-};
-
-//-----------------------------------------------------------------------------
-
-class LvglWidgetSourcePicker : public LvglWidgetPicker
-{
- public:
-  LvglWidgetSourcePicker() : LvglWidgetPicker() {}
+  LvglWidgetSwitchPicker() : LvglWidgetGetSetObject() {}
 
  protected:
   uint32_t filter = 0xFFFFFFFF;
@@ -1110,10 +1096,24 @@ class LvglWidgetSourcePicker : public LvglWidgetPicker
 
 //-----------------------------------------------------------------------------
 
-class LvglWidgetFilePicker : public LvglWidgetPicker, public LvglTitleParam
+class LvglWidgetSourcePicker : public LvglWidgetGetSetObject
 {
  public:
-  LvglWidgetFilePicker() : LvglWidgetPicker() {}
+  LvglWidgetSourcePicker() : LvglWidgetGetSetObject() {}
+
+ protected:
+  uint32_t filter = 0xFFFFFFFF;
+
+  void build(lua_State *L) override;
+  void parseParam(lua_State *L, const char *key) override;
+};
+
+//-----------------------------------------------------------------------------
+
+class LvglWidgetFilePicker : public LvglWidgetObject, public LvglGetSetParams, public LvglTitleParam
+{
+ public:
+  LvglWidgetFilePicker() : LvglWidgetObject() {}
 
   void clearRefs(lua_State *L) override;
 
