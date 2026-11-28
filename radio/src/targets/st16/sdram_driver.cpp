@@ -26,7 +26,7 @@
 
 #define SDRAM_MEMORY_WIDTH    FMC_SDRAM_MEM_BUS_WIDTH_16
 
-#define SDRAM_CAS_LATENCY     FMC_SDRAM_CAS_LATENCY_3
+#define SDRAM_CAS_LATENCY     FMC_SDRAM_CAS_LATENCY_2
 
 #define SDCLOCK_PERIOD    FMC_SDRAM_CLOCK_PERIOD_2
 
@@ -169,7 +169,7 @@ extern "C" void SDRAM_InitSequence(void)
   /* Program the external memory mode register */
   tmpr = (uint32_t)SDRAM_MODEREG_BURST_LENGTH_2 |
          SDRAM_MODEREG_BURST_TYPE_SEQUENTIAL |
-         SDRAM_MODEREG_CAS_LATENCY_3 |
+         SDRAM_MODEREG_CAS_LATENCY_2 |
          SDRAM_MODEREG_OPERATING_MODE_STANDARD |
          SDRAM_MODEREG_WRITEBURST_MODE_SINGLE;
 
@@ -192,9 +192,10 @@ extern "C" void SDRAM_InitSequence(void)
   /* Step 8 --------------------------------------------------------------------*/
   /* Set the refresh rate counter */
   /* (15.62 us x Freq) - 20 */
-  /* Set the device refresh counter */
+  // 4096 rows in 64 ms at SDCLK = 100 MHz: 15.62 us x 100 MHz - 20 = 1542
+  // (1855 was for 120 MHz: the 4096 rows took 76.8 ms)
   FMC_SDRAM_SetAutoRefreshNumber(FMC_Bank5_6_R, 15);
-  FMC_SDRAM_ProgramRefreshRate(FMC_Bank5_6_R, 1855);
+  FMC_SDRAM_ProgramRefreshRate(FMC_Bank5_6_R, 1542);
   /* Wait until the SDRAM controller is ready */
   // timeout = SDRAM_TIMEOUT;
   // while((__FMC_SDRAM_GET_FLAG(FMC_Bank5_6_R, FMC_SDRAM_FLAG_BUSY) != 0) && (timeout > 0))
@@ -220,14 +221,17 @@ extern "C" void SDRAM_Init(void)
   FMC_SDRAM_TimingTypeDef  FMC_SDRAMTimingInitStructure;
 
   /* FMC SDRAM Bank configuration */
-  /* Timing configuration for 80 Mhz of SD clock */
-  FMC_SDRAMTimingInitStructure.LoadToActiveDelay    = 2;
-  FMC_SDRAMTimingInitStructure.ExitSelfRefreshDelay = 7;
-  FMC_SDRAMTimingInitStructure.SelfRefreshTime      = 4;
-  FMC_SDRAMTimingInitStructure.RowCycleDelay        = 7;
+  // SDCLK = PLL2R (200 MHz, see system_clock.c) / 2 = 100 MHz (10 ns),
+  // W9864G6KH-6I timings
+  FMC_SDRAMTimingInitStructure.LoadToActiveDelay    = 2; // tMRD = 2 clocks
+  FMC_SDRAMTimingInitStructure.ExitSelfRefreshDelay = 8; // tXSR = 72ns
+  FMC_SDRAMTimingInitStructure.SelfRefreshTime      = 5; // tRAS = 42ns
+  FMC_SDRAMTimingInitStructure.RowCycleDelay        = 7; // tRC = 60ns (tRFC)
+  // tWR = 2 clocks, but the FMC also needs
+  // TWR >= TRAS - TRCD and TWR >= TRC - TRCD - TRP
   FMC_SDRAMTimingInitStructure.WriteRecoveryTime    = 3;
-  FMC_SDRAMTimingInitStructure.RPDelay              = 2;
-  FMC_SDRAMTimingInitStructure.RCDDelay             = 2;
+  FMC_SDRAMTimingInitStructure.RPDelay              = 2; // tRP = 15ns
+  FMC_SDRAMTimingInitStructure.RCDDelay             = 2; // tRCD = 15ns
 
   /* FMC SDRAM control configuration */
   FMC_SDRAMInitStructure.SDBank = FMC_SDRAM_BANK1;
@@ -235,7 +239,8 @@ extern "C" void SDRAM_Init(void)
   FMC_SDRAMInitStructure.RowBitsNumber = FMC_SDRAM_ROW_BITS_NUM_12;
   FMC_SDRAMInitStructure.MemoryDataWidth = FMC_SDRAM_MEM_BUS_WIDTH_16;
   FMC_SDRAMInitStructure.InternalBankNumber = FMC_SDRAM_INTERN_BANKS_NUM_4;
-  FMC_SDRAMInitStructure.CASLatency = FMC_SDRAM_CAS_LATENCY_3;
+  // CL2: the W9864G6KH-6I is rated for it up to 133 MHz
+  FMC_SDRAMInitStructure.CASLatency = FMC_SDRAM_CAS_LATENCY_2;
   FMC_SDRAMInitStructure.WriteProtection = FMC_SDRAM_WRITE_PROTECTION_DISABLE;
   FMC_SDRAMInitStructure.SDClockPeriod = FMC_SDRAM_CLOCK_PERIOD_2;
   FMC_SDRAMInitStructure.ReadBurst = FMC_SDRAM_RBURST_ENABLE;

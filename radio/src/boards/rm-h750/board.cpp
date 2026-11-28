@@ -119,6 +119,9 @@ void boardBLEarlyInit()
   gpio_clear(AUDIO_RESET_PIN);
 #endif
 
+  // keep the backlight off until the LCD is driven
+  backlightLowInit();
+
   timersInit();
   delaysInit();
 #if defined(IO_EXPANDER_I2C_BUS)
@@ -162,6 +165,8 @@ void boardInit()
 {
   // enable interrupts
   __enable_irq();
+
+  backlightLowInit();
 
   ledInit();
   boardInitModulePorts();

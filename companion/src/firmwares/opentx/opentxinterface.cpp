@@ -351,6 +351,8 @@ int OpenTxFirmware::getCapability(::Capability capability)
     case HasIntModuleELRS:
       return id.contains("internalelrs") || IS_RADIOMASTER_TX12_MK2(board) ||
              IS_IFLIGHT_COMMANDO8(board) || IS_RADIOMASTER_BOXER(board) ||
+             IS_IFLIGHT_C14(board) || IS_HELLORADIOSKY_V12(board) ||
+             IS_HELLORADIOSKY_V15(board) || IS_RADIOMASTER_TX16SMK3(board) ||
              IS_RADIOMASTER_POCKET(board) || IS_JUMPER_T20(board) ||
              IS_RADIOMASTER_MT12(board) || IS_RADIOMASTER_TX15(board) || IS_JUMPER_T15PRO(board) || IS_JUMPER_T15H7(board) || IS_JUMPER_T22(board) || IS_JUMPER_T18H7(board) ||
              IS_SENDUWING_H17(board) || IS_RADIOMASTER_GX15(board) || IS_RADIOMASTER_GX10(board) ||
@@ -778,14 +780,14 @@ void registerOpenTxFirmwares()
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
 
-  /* Jumper T15-H7 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("t15h7"), Firmware::tr("Jumper T15-H7"), BOARD_JUMPER_T15H7);
+  /* Jumper T15 H7 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("t15h7"), Firmware::tr("Jumper T15 H7"), BOARD_JUMPER_T15H7);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);
 
-  /* Jumper T18H7 board */
-  firmware = new OpenTxFirmware(FIRMWAREID("t18h7"), Firmware::tr("Jumper T18H7"), BOARD_JUMPER_T18H7);
+  /* Jumper T18 H7 board */
+  firmware = new OpenTxFirmware(FIRMWAREID("t18h7"), Firmware::tr("Jumper T18 H7"), BOARD_JUMPER_T18H7);
   addOpenTxFrskyOptions(firmware);
   addOpenTxRfOptions(firmware, FLEX);
   registerOpenTxFirmware(firmware);

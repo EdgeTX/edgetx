@@ -73,6 +73,10 @@ static void clear_frame_buffers()
 {
   memset(LCD_FIRST_FRAME_BUFFER, 0, sizeof(LCD_FIRST_FRAME_BUFFER));
   memset(LCD_SECOND_FRAME_BUFFER, 0, sizeof(LCD_SECOND_FRAME_BUFFER));
+#if __CORTEX_M >= 0x07
+  // LTDC reads SDRAM directly: push the cleared buffers out of D-cache
+  SCB_CleanDCache();
+#endif
 }
 
 static void init_lvgl_disp_drv()

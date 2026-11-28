@@ -3240,12 +3240,12 @@ För att &lt;b&gt;ta bort ett sparat värde&lt;/b&gt; från filterlistan, marker
     <message>
         <location filename="../dialogs/filesyncdialog.cpp" line="127"/>
         <source>Folder A</source>
-        <translation>Mapp A</translation>
+        <translation>Katalog A</translation>
     </message>
     <message>
         <location filename="../dialogs/filesyncdialog.cpp" line="128"/>
         <source>Folder B</source>
-        <translation>Mapp B</translation>
+        <translation>Katalog B</translation>
     </message>
     <message>
         <location filename="../dialogs/filesyncdialog.cpp" line="151"/>
@@ -8002,7 +8002,7 @@ Vill du fortsätta?</translation>
     <message>
         <location filename="../mainwindow.cpp" line="645"/>
         <source>The EdgeTX project was originally forked from &lt;a href=&apos;%1&apos;&gt;OpenTX&lt;/a&gt;</source>
-        <translation>EdgeTX har sitt ursprung från &lt;a href=&apos;%1&apos;&gt;OpenTX&lt;/a&gt;</translation>
+        <translation>EdgeTX har sitt ursprung i &lt;a href=&apos;%1&apos;&gt;OpenTX&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="663"/>
