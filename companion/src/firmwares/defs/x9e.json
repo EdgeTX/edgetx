@@ -1,0 +1,44 @@
+{
+    "basedOn": [
+        "bw"
+    ],
+    "buildOpts": [
+        "shutdownconfirm",
+        "horussticks",
+        [
+            "faichoice",
+            "faimode"
+        ],
+        "nooverridech",
+        "noheli",
+        "nogvars",
+        "lua",
+        "sqt5font",
+        [
+            "eu",
+            "flexr9m"
+        ]
+    ],
+    "expos": {
+        "name": 8
+    },
+    "mixes": {
+        "name": 8
+    },
+    "modelImage": {
+        "filters": "*.bmp",
+        "name": 10
+    },
+    "modelName": 12,
+    "modelSlots": 60,
+    "name": "Taranis X9E",
+    "outputs": {
+        "name": 6
+    },
+    "sensors": {
+        "cnt": 60
+    },
+    "timers": {
+        "name": 8
+    }
+}

@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "constants.h"
 #include "curvereference.h"
 #include "rawsource.h"
 #include "rawswitch.h"
@@ -34,8 +35,6 @@ enum MltpxValue {
   MLTPX_MUL,
   MLTPX_REP
 };
-
-#define MIXDATA_NAME_LEN  10
 
 class MixData {
   Q_DECLARE_TR_FUNCTIONS(MixData)

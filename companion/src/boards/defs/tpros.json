@@ -1,0 +1,51 @@
+{
+    "basedOn": [
+        "bw"
+    ],
+    "battery": {
+        "vmax": 80,
+        "vmin": 60,
+        "vwarn": 65
+    },
+    "contrast": {
+        "max": 254,
+        "min": 2
+    },
+    "eepromSize": 32768,
+    "flashSize": 1048576,
+    "modules": [
+        {
+            "internal": {
+                "available": [
+                    "xjt",
+                    "isrm",
+                    "crsf",
+                    "multi"
+                ],
+                "default": "crsf"
+            }
+        },
+        {
+            "external": {
+                "available": [
+                    "r9mlite",
+                    "r9mliteaccess",
+                    "r9mliteproaccess",
+                    "xjtlite",
+                    "crsf",
+                    "multi",
+                    "ghost",
+                    "ppm",
+                    "sbus",
+                    "lemondsmp"
+                ],
+                "size": "small"
+            }
+        }
+    ],
+    "name": "Jumper T-Pro S",
+    "rotEncNav": true,
+    "trainerModuleCPPM": false,
+    "trainerModuleSBUS": false,
+    "vcpSerialMode": true
+}

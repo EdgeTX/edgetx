@@ -1,0 +1,47 @@
+{
+    "basedOn": [
+        "bw",
+        "switches_flex"
+    ],
+    "battery": {
+        "vmax": 80,
+        "vmin": 60,
+        "vwarn": 65
+    },
+    "contrast": {
+        "max": 30
+    },
+    "eepromSize": 32768,
+    "flashSize": 1048576,
+    "modules": [
+        {
+            "internal": {
+                "available": [
+                    "elrs",
+                    "multi"
+                ],
+                "default": "elrs"
+            }
+        },
+        {
+            "external": {
+                "available": [
+                    "r9mlite",
+                    "r9mliteaccess",
+                    "r9mliteproaccess",
+                    "xjtlite",
+                    "crsf",
+                    "multi",
+                    "ghost",
+                    "ppm",
+                    "sbus",
+                    "lemondsmp"
+                ],
+                "size": "small"
+            }
+        }
+    ],
+    "name": "Radiomaster MT12",
+    "rotEncNav": true,
+    "vcpSerialMode": true
+}

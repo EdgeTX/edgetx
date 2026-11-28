@@ -1042,7 +1042,7 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
 
   QString backupDir;
 
-  if (g.currentProfile().getVariantFromType() == fw.getFlavour()) {
+  if (g.currentProfile().getBoardId() == fw.getFlavour()) {
     backupDir = g.currentProfile().pBackupDir();
   }
   else {
@@ -1057,7 +1057,7 @@ bool writeFirmwareToFile(QWidget *parent, const QByteArray &data, ProgressWidget
       QMapIterator<int, QString> i(map);
       while (i.hasNext()) {
           i.next();
-          if (g.getProfile(i.key()).getVariantFromType() == fw.getFlavour()) {
+          if (g.getProfile(i.key()).getBoardId() == fw.getFlavour()) {
             progress->addMessage(TR("Firmware type match found in profile %1 %2")
                                   .arg(QString::number(i.key()))
                                   .arg(i.value()));

@@ -29,7 +29,6 @@
 
 GeneralKeysPanel::GeneralKeysPanel(QWidget * parent, GeneralSettings & generalSettings, Firmware * firmware):
   GeneralPanel(parent, generalSettings, firmware),
-  board(firmware->getBoard()),
   params(new QList<QWidget *>),
   row(0),
   col(0),

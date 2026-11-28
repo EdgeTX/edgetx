@@ -37,12 +37,12 @@ CustomScreen::CustomScreen(QWidget *parent, ModelData & model, FrSkyScreenData &
   parentLock(parentLock)
 {
   ui->setupUi(this);
-
+  Board *board = firmware->getBoard();
   FilteredItemModel * rawSourceFilteredModel = panelFilteredItemModels->getItemModel(FIM_RAWSOURCE);
   connectItemModelEvents(rawSourceFilteredModel);
 
-  for (int l = 0; l < firmware->getCapability(TelemetryCustomScreensLines); l++) {
-    for (int c = 0; c < firmware->getCapability(TelemetryCustomScreensFieldsPerLine); c++) {
+  for (int l = 0; l < firmware->getCapability(Capability::TelemetryCustomScreensLines); l++) {
+    for (int c = 0; c < firmware->getCapability(Capability::TelemetryCustomScreensFieldsPerLine); c++) {
       fieldsCB[l][c] = new QComboBox(this);
       fieldsCB[l][c]->setProperty("index", c + (l << 8));
       fieldsCB[l][c]->setModel(rawSourceFilteredModel);
@@ -51,7 +51,7 @@ CustomScreen::CustomScreen(QWidget *parent, ModelData & model, FrSkyScreenData &
     }
   }
 
-  for (int l = 0; l < firmware->getCapability(TelemetryCustomScreensBars); l++) {
+  for (int l = 0; l < firmware->getCapability(Capability::TelemetryCustomScreensBars); l++) {
     barsCB[l] = new QComboBox(this);
     barsCB[l]->setProperty("index", l);
     barsCB[l]->setModel(rawSourceFilteredModel);
@@ -97,12 +97,12 @@ CustomScreen::CustomScreen(QWidget *parent, ModelData & model, FrSkyScreenData &
   ui->screenType->addItem(tr("None"), TELEMETRY_SCREEN_NONE);
   ui->screenType->addItem(tr("Numbers"), TELEMETRY_SCREEN_NUMBERS);
   ui->screenType->addItem(tr("Bars"), TELEMETRY_SCREEN_BARS);
-  if (IS_TARANIS(firmware->getBoard()))
+  if (!board->getCapability(Capability::HasColorLcd))
     ui->screenType->addItem(tr("Script"), TELEMETRY_SCREEN_SCRIPT);
   ui->screenType->setField(screen.type, this);
   lock = false;
 
-  if (IS_TARANIS(firmware->getBoard())) {
+  if (!board->getCapability(Capability::HasColorLcd)) {
     QSet<QString> scriptsSet = getFilesSet(g.profile[g.id()].sdPath() + "/SCRIPTS/TELEMETRY", QStringList() << "*.lua", 6);
     Helpers::populateFileComboBox(ui->scriptName, scriptsSet, screen.body.script.filename);
     connect(ui->scriptName, SIGNAL(currentIndexChanged(int)), this, SLOT(scriptNameEdited()));
@@ -125,18 +125,18 @@ void CustomScreen::update()
   ui->screenNums->setVisible(screen.type == TELEMETRY_SCREEN_NUMBERS);
   ui->screenBars->setVisible(screen.type == TELEMETRY_SCREEN_BARS);
 
-  for (int l = 0; l < firmware->getCapability(TelemetryCustomScreensLines); l++) {
-    for (int c = 0; c < firmware->getCapability(TelemetryCustomScreensFieldsPerLine); c++) {
+  for (int l = 0; l < firmware->getCapability(Capability::TelemetryCustomScreensLines); l++) {
+    for (int c = 0; c < firmware->getCapability(Capability::TelemetryCustomScreensFieldsPerLine); c++) {
       fieldsCB[l][c]->setCurrentIndex(fieldsCB[l][c]->findData(screen.body.lines[l].source[c].toValue()));
     }
   }
 
-  for (int l = 0; l < firmware->getCapability(TelemetryCustomScreensBars); l++) {
+  for (int l = 0; l < firmware->getCapability(Capability::TelemetryCustomScreensBars); l++) {
     barsCB[l]->setCurrentIndex(barsCB[l]->findData(screen.body.bars[l].source.toValue()));
   }
 
   if (screen.type == TELEMETRY_SCREEN_BARS) {
-    for (int i = 0; i < firmware->getCapability(TelemetryCustomScreensBars); i++) {
+    for (int i = 0; i < firmware->getCapability(Capability::TelemetryCustomScreensBars); i++) {
       updateBar(i);
     }
   }
@@ -332,7 +332,7 @@ TelemetryCustomScreensPanel::TelemetryCustomScreensPanel(QWidget *parent, ModelD
   grid = new QGridLayout(this);
   tabWidget = new QTabWidget(this);
 
-  for (int i = 0; i < firmware->getCapability(TelemetryCustomScreens); i++) {
+  for (int i = 0; i < firmware->getCapability(Capability::TelemetryCustomScreens); i++) {
     CustomScreen * tab = new CustomScreen(this, model, model.frsky.screens[i], generalSettings, firmware, lock,
                                                             panelFilteredItemModels);
     tab->setProperty("index", i + 1);

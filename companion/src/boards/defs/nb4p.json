@@ -1,0 +1,27 @@
+{
+    "basedOn": [
+        "bw"
+    ],
+    "battery": {
+        "vmax": 43,
+        "vmin": 35,
+        "vwarn": 37
+    },
+    "flashSize": 2097152,
+    "modules": [
+        {
+            "internal": {
+                "available": [
+                    "xjt",
+                    "isrm",
+                    "crsf",
+                    "multi"
+                ],
+                "default": "multi"
+            }
+        }
+    ],
+    "name": "FlySky NB4+",
+    "trainerModuleSBUS": false,
+    "vcpSerialMode": true
+}

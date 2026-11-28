@@ -28,7 +28,7 @@
 
 #include <QByteArray>
 
-#include "firmwares/eeprominterface.h"
+#include "firmwares/opentx/opentxinterface.h"
 #include "firmwares/edgetx/edgetxinterface.h"
 #include "firmwares/edgetx/yaml_rawsource.h"
 #include "firmwares/mixdata.h"
@@ -49,10 +49,10 @@ class BatterySensorV15 : public ::testing::Test
  protected:
   void SetUp() override
   {
-    Firmware::setCurrentVariant(Firmware::getFirmwareForFlavour("v15"));
+    Firmware::setCurrent(Firmware::getFirmware("v15"));
     ASSERT_NE(getCurrentFirmware(), nullptr)
         << "v15 (HelloRadioSky V15) firmware must be registered for this test";
-    ASSERT_TRUE(IS_HELLORADIOSKY_V15(getCurrentBoard()));
+    ASSERT_TRUE(getCurrentBoard()->getId() == "v15");
   }
 };
 
@@ -61,7 +61,7 @@ class BatterySensorOtherBoard : public ::testing::Test
  protected:
   void SetUp() override
   {
-    Firmware::setCurrentVariant(Firmware::getFirmwareForFlavour("tx16s"));
+    Firmware::setCurrent(Firmware::getFirmware("tx16s"));
     ASSERT_NE(getCurrentFirmware(), nullptr)
         << "tx16s firmware must be registered for this test";
   }
@@ -89,7 +89,7 @@ TEST_F(BatterySensorV15, MixSrcEncodeDecodeRoundTrips)
 
 TEST_F(BatterySensorV15, MixSrcAvailable)
 {
-  Board::Type board = getCurrentBoard();
+  auto board = getCurrentBoard();
   const RawSource cur(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_TX_BAT_CURRENT);
   const RawSource pwr(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_TX_BAT_POWER);
   const RawSource reserved1(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_RESERVED1);
@@ -123,8 +123,8 @@ TEST_F(BatterySensorV15, ModelUsingBatterySourceRoundTrips)
 // The battery sources must not leak into other radios' source pickers.
 TEST_F(BatterySensorOtherBoard, MixSrcNotAvailableOnOtherBoards)
 {
-  Board::Type board = getCurrentBoard();
-  ASSERT_FALSE(IS_HELLORADIOSKY_V15(board));
+  auto board = getCurrentBoard();
+  ASSERT_FALSE(board->getId() == "v15");
 
   const RawSource cur(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_TX_BAT_CURRENT);
   const RawSource pwr(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_TX_BAT_POWER);

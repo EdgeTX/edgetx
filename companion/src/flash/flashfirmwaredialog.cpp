@@ -189,12 +189,12 @@ void FlashFirmwareDialog::loadClicked()
     }
 
     if (chkProfComp->isChecked() &&
-        newfw.getFlavour() != getCurrentFirmware()->getFlavour()) {
+        newfw.getFlavour() != getCurrentFirmware()->getBoard()->getId()) {
       QMessageBox::critical(this, tr("Open Firmware File"),
                             tr("%1 \nIncompatability - File: '%2' Profile: '%3'")
                             .arg(fileName)
                             .arg(newfw.getFlavour())
-                            .arg(getCurrentFirmware()->getFlavour()));
+                            .arg(getCurrentFirmware()->getBoard()->getId()));
       return;
     }
 
@@ -415,7 +415,7 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
     }
 
     if (checkProfile && !abort) {
-      const QString profileFlavour = getCurrentFirmware()->getFlavour();
+      const QString profileFlavour = getCurrentFirmware()->getBoard()->getId();
       if (haveBlInfo) {
         progress->addMessage(tr("Performing profile compatibility check (profile: %1, radio: %2, new firmware: %3)")
                              .arg(profileFlavour).arg(blFlavour).arg(newfw.getFlavour()));
@@ -473,7 +473,7 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
         [this, &newfw, progress, checkHw, checkProfile, backup](const QByteArray &_data) {
           FirmwareInterface currfw(_data);
 
-          qDebug() << "profile:" << getCurrentFirmware()->getFlavour()
+          qDebug() << "profile:" << getCurrentFirmware()->getBoard()->getId()
                     << "current:" << currfw.getFlavour()
                     << "new:" << newfw.getFlavour();
 
@@ -496,13 +496,13 @@ void FlashFirmwareDialog::startWrite(const QString &filename)
 
           if (checkProfile) {
             progress->addMessage(tr("Performing profile compatibility check (profile: %1, radio: %2, new firmware: %3)")
-                                 .arg(getCurrentFirmware()->getFlavour())
+                                 .arg(getCurrentFirmware()->getBoard()->getId())
                                  .arg(currfw.getFlavour()).arg(newfw.getFlavour()));
-            if (currfw.getFlavour() != getCurrentFirmware()->getFlavour()) {
+            if (currfw.getFlavour() != getCurrentFirmware()->getBoard()->getId()) {
               QString errMsg(tr("Current firmware is not compatible with profile"));
               progress->updateInfoAndMessages(errMsg, QtFatalMsg);
               return;
-            } else if (newfw.getFlavour() != getCurrentFirmware()->getFlavour()) {
+            } else if (newfw.getFlavour() != getCurrentFirmware()->getBoard()->getId()) {
               QString errMsg(tr("New firmware is not compatible with profile"));
               progress->updateInfoAndMessages(errMsg, QtFatalMsg);
               return;

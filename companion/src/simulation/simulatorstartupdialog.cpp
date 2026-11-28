@@ -337,6 +337,6 @@ void SimulatorStartupDialog::onSdPathSelect(bool)
 
 void SimulatorStartupDialog::setGlobalFirmware(const QString & id)
 {
-  Firmware::setCurrentVariant(Firmware::getFirmwareForId(id));
+  Firmware::setCurrent(Firmware::getFirmware(id));
   //qDebug() << "current firmware:" << getCurrentFirmware()->getId();
 }

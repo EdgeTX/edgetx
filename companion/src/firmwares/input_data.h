@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "constants.h"
 #include "curvereference.h"
 #include "rawsource.h"
 #include "rawswitch.h"
@@ -47,8 +48,6 @@ enum CarryTrimGroups {
   CarryTrimSticksGroup      = 0x001,
   CarryTrimNotSticksGroup   = 0x002
 };
-
-#define EXPODATA_NAME_LEN  10
 
 class ExpoData {
   Q_DECLARE_TR_FUNCTIONS(ExpoData)

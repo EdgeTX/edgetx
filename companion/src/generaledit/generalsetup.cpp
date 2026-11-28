@@ -26,7 +26,7 @@
 #include "autocombobox.h"
 #include "namevalidator.h"
 #include "helpers.h"
-#include "boardjson.h"
+#include "board.h"
 
 constexpr char FIM_HATSMODE[]       {"Hats Mode"};
 constexpr char FIM_STICKMODE[]      {"Stick Mode"};
@@ -51,13 +51,14 @@ GeneralPanel(parent, generalSettings, firmware),
 ui(new Ui::GeneralSetup)
 {
   ui->setupUi(this);
-  Board::Type board = firmware->getBoard();
+  Board *board = firmware->getBoard();
   panelFilteredModels = new FilteredItemModelFactory();
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::hatsModeItemModel()), FIM_HATSMODE);
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::stickModeItemModel()), FIM_STICKMODE);
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::templateSetupItemModel(),
-                                                               Boards::isAir(board) ? GeneralSettings::RadioTypeContextAir :
-                                                                                      GeneralSettings::RadioTypeContextSurface),
+                                                               board->getCapability(Capability::Air) ?
+                                                                GeneralSettings::RadioTypeContextAir :
+                                                                GeneralSettings::RadioTypeContextSurface),
                                          FIM_TEMPLATESETUP);
   panelFilteredModels->registerItemModel(new FilteredItemModel(GeneralSettings::backlightModeItemModel()), FIM_BACKLIGHTMODE);
   panelFilteredModels->registerItemModel(new FilteredItemModel(sharedItemModels->getItemModel(AbstractItemModel::IMID_ControlSource)),
@@ -77,12 +78,13 @@ ui(new Ui::GeneralSetup)
   if (ui->brightCtrl_CB->currentIndex() < 0 && generalSettings.backlightSrc.toValue() == 0)
     ui->brightCtrl_CB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->brightCtrl_CB));
 
-  if (Boards::getCapability(board, Board::HasStatusLedPwm)) {
+  if (board->getCapability(Capability::HasStatusLedPwm)) {
     ui->statusLedBright_SB->setValue(100 - generalSettings.statusLedDim);
 
     ui->statusLedCtrl_CB->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     ui->statusLedCtrl_CB->setModel(panelFilteredModels->getItemModel(FIM_CONTROLSRC));
     ui->statusLedCtrl_CB->setCurrentIndex(ui->statusLedCtrl_CB->findData(generalSettings.statusLedSrc.toValue()));
+
     if (ui->statusLedCtrl_CB->currentIndex() < 0 && generalSettings.statusLedSrc.toValue() == 0)
       ui->statusLedCtrl_CB->setCurrentIndex(Helpers::getFirstPosValueIndex(ui->statusLedCtrl_CB));
   }
@@ -94,7 +96,7 @@ ui(new Ui::GeneralSetup)
   }
 
   // a colour per phase needs at least two colours to choose from
-  int ledColors = Boards::getCapability(board, Board::StatusLedColors);
+  int ledColors = board->getCapability(Capability::StatusLedColors);
   if (qPopulationCount((quint32)ledColors) >= 2) {
     populateStatusLedColorCB(ui->statusLedError_CB, ledColors, generalSettings.statusLedError);
     populateStatusLedColorCB(ui->statusLedReady_CB, ledColors, generalSettings.statusLedReady);
@@ -113,9 +115,9 @@ ui(new Ui::GeneralSetup)
   ui->backlightswCB->setCurrentIndex(ui->backlightswCB->findData(generalSettings.backlightMode));
 
   populateVoiceLangCB(ui->voiceLang_CB, generalSettings.ttsLanguage);
-  populateTextLangCB(ui->textLang_CB, generalSettings.uiLanguage, Boards::getCapability(board, Board::HasColorLcd));
+  populateTextLangCB(ui->textLang_CB, generalSettings.uiLanguage, board->getCapability(Capability::HasColorLcd));
 
-  if (!firmware->getCapability(MavlinkTelemetry)) {
+  if (!firmware->getCapability(Capability::MavlinkTelemetry)) {
     ui->mavbaud_CB->hide();
     ui->mavbaud_label->hide();
   }
@@ -142,9 +144,7 @@ ui(new Ui::GeneralSetup)
 
   // "Charge while radio on" is only available on radios that expose a
   // charger-enable pin (rm-h750 based targets and the BETAFPV N14).
-  if (IS_RADIOMASTER_TX16SMK3(board) || IS_RADIOMASTER_TX15(board) ||
-      IS_RADIOMASTER_GX15(board) || IS_RADIOMASTER_GX10(board) ||
-      IS_BETAFPV_N14(board)) {
+  if (board->getCapability(Capability::HasChargeWhileOn)) {
     ui->usbChargeChkB->setChecked(!generalSettings.usbChargeDisabled); // Default is zero=checked
   }
   else {
@@ -152,7 +152,7 @@ ui(new Ui::GeneralSetup)
     ui->usbChargeChkB->hide();
   }
 
-  if (IS_FLYSKY_EL18(board) || IS_FLYSKY_NV14(board) || IS_FAMILY_PL18(board)) {
+  if (board->getCapability(Capability::HasHats)) {
     ui->hatsModeCB->setModel(panelFilteredModels->getItemModel(FIM_HATSMODE));
     ui->hatsModeCB->setField(generalSettings.hatsMode, this);
   }
@@ -161,7 +161,7 @@ ui(new Ui::GeneralSetup)
     ui->hatsModeCB->hide();
   }
 
-  if (Boards::getCapability(board, Board::HasSwitchableJack)) {
+  if (board->getCapability(Capability::HasSwitchableJack)) {
     ui->jackModeCB->setCurrentIndex(generalSettings.jackMode);
   }
   else {
@@ -169,7 +169,7 @@ ui(new Ui::GeneralSetup)
     ui->jackModeCB->hide();
   }
 
-  if (Boards::getCapability(board, Board::RotaryEncoderNavigation)) {
+  if (board->getCapability(Capability::RotaryEncoderNavigation)) {
     populateRotEncModeCB();
   }
   else {
@@ -177,39 +177,46 @@ ui(new Ui::GeneralSetup)
     ui->rotEncMode_CB->hide();
   }
 
-  ui->volume_SL->setMaximum(Boards::getCapability(board, Board::MaxVolume));
+  if (board->getCapability(Capability::RotaryEncoderNavigation)) {
+    populateRotEncModeCB();
+  }
+  else {
+    ui->rotEncMode_label->hide();
+    ui->rotEncMode_CB->hide();
+  }
 
-  if (!IS_FAMILY_HORUS_OR_T16(board)) {
+  ui->volume_SL->setMaximum(board->getCapability(Capability::MaxVolume));
+
+  if (!board->getCapability(Capability::HasColorLcd)) {
     ui->OFFBright_SB->hide();
     ui->OFFBright_SB->setDisabled(true);
     ui->label_OFFBright->hide();
   }
 
-  if (!IS_JUMPER_T18(board)) {
+  if (!firmware->getCapability(Capability::HasBacklightKeys)) {
     ui->keysBl_ChkB->hide();
     ui->keysBl_ChkB->setDisabled(true);
     ui->label_KeysBl->hide();
   }
 
-  if (!firmware->getCapability(Haptic)) {
+  if (!firmware->getCapability(Capability::HasHaptic)) {
     ui->hapticStrength->setDisabled(true);
     ui->hapticmodeCB->setDisabled(true);
   }
 
-  if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
+  if (board->getCapability(Capability::HasColorLcd)) {
     ui->backlightautoSB->setMinimum(5);
     // colour LCDs have no contrast setting
     ui->label_contrast->hide();
     ui->contrastSB->hide();
     ui->contrastSB->setDisabled(true);
   }
-  else {
-    ui->contrastSB->setMinimum(Boards::getCapability(board, Board::MinContrast));
-    ui->contrastSB->setMaximum(Boards::getCapability(board, Board::MaxContrast));
-    ui->contrastSB->setValue(generalSettings.contrast);
-  }
 
-  if (Boards::getCapability(board, Board::LcdOLED)) {
+  ui->contrastSB->setMinimum(board->getCapability(Capability::MinContrast));
+  ui->contrastSB->setMaximum(board->getCapability(Capability::MaxContrast));
+  ui->contrastSB->setValue(generalSettings.contrast);
+
+  if (board->getCapability(Capability::LcdOLED)) {
     // OLED radios have no backlight - "contrast" is the panel brightness
     ui->label_contrast->setText(tr("Brightness"));
     ui->BLBright_SB->hide();
@@ -229,11 +236,11 @@ ui(new Ui::GeneralSetup)
   ui->trainerPowerOffWarnChkB->setChecked(!generalSettings.disableTrainerPoweroffAlarm); // Default is zero=checked
 
   ui->splashScreenDuration->setCurrentIndex(3 - generalSettings.splashMode);
-  if (IS_FAMILY_HORUS_OR_T16(firmware->getBoard())) {
-    ui->splashScreenDuration->setItemText(0, QCoreApplication::translate("GeneralSetup", "1s", nullptr));
-  }
 
-  if (!Boards::getCapability(board, Board::PwrButtonPress)) {
+  if (board->getCapability(Capability::HasColorLcd))
+    ui->splashScreenDuration->setItemText(0, QCoreApplication::translate("GeneralSetup", "1s", nullptr));
+
+  if (!board->getCapability(Capability::PwrButtonPress)) {
     ui->pwrOnDelayLabel->hide();
     ui->pwrOnDelay->hide();
     ui->pwrOffDelayLabel->hide();
@@ -241,7 +248,7 @@ ui(new Ui::GeneralSetup)
     ui->pwrOffIfInactiveLabel->hide();
     ui->pwrOffIfInactiveSB->hide();
   }
-  else if (!IS_TARANIS(board)) {
+  else if (!firmware->getCapability(Capability::HasPowerOnDelay)) {
     ui->pwrOnDelayLabel->hide();
     ui->pwrOnDelay->hide();
   }
@@ -258,7 +265,7 @@ ui(new Ui::GeneralSetup)
 
   lock = false;
 
-  if (Boards::getCapability(board, Board::HasBacklightColor)) {
+  if (board->getCapability(Capability::HasBacklightColor)) {
     ui->backlightColor_SL->setValue(generalSettings.backlightColor);
   }
   else {
@@ -271,12 +278,12 @@ ui(new Ui::GeneralSetup)
   ui->switchesDelay->setValue(10 * (generalSettings.switchesDelay + 15));
   ui->blAlarm_ChkB->setChecked(generalSettings.alarmsFlash);
 
-  if (Boards::getCapability(board, Board::Surface)) {
+  if (board->getCapability(Capability::Surface)) {
     ui->stickModeLabel->hide();
     ui->stickmodeCB->hide();
   }
 
-  if (!firmware->getCapability(HasVario)) {
+  if (!firmware->getCapability(Capability::HasVario)) {
     ui->varioVolume_label->hide();
     ui->varioVolume_SL->hide();
     ui->varioP0_label->hide();
@@ -532,18 +539,18 @@ int pwrDelayToYaml(int delay)
 
 void GeneralSetupPanel::setValues()
 {
-  Board::Type board = firmware->getBoard();
+  Board *board = firmware->getBoard();
   ui->beeperCB->setCurrentIndex(generalSettings.beeperMode+2);
   ui->channelorderCB->setCurrentIndex(ui->channelorderCB->findData(generalSettings.templateSetup));
   ui->stickmodeCB->setCurrentIndex(ui->stickmodeCB->findData(generalSettings.stickMode));
-  if (firmware->getCapability(Haptic)) {
+  if (firmware->getCapability(Capability::HasHaptic)) {
     ui->hapticLengthCB->setCurrentIndex(generalSettings.hapticLength + 2);
   }
   else {
     ui->label_HL->hide();
     ui->hapticLengthCB->hide();
   }
-  ui->OFFBright_SB->setMinimum(Boards::getCapability(board, Board::BacklightLevelMin));
+  ui->OFFBright_SB->setMinimum(firmware->getCapability(Capability::BacklightLevelMin));
   if (generalSettings.backlightOffBright > 100 - generalSettings.backlightBright)
     generalSettings.backlightOffBright = 100 - generalSettings.backlightBright;
   ui->BLBright_SB->setValue(100 - generalSettings.backlightBright);
@@ -565,8 +572,7 @@ void GeneralSetupPanel::setValues()
   ui->modelQuickSelect_CB->setChecked(generalSettings.modelQuickSelect);
   ui->chkOneLogPerDay->setChecked(generalSettings.oneLogPerDay);
   {
-    BoardJson* bj = Boards::getBoardJson(board);
-    bool hasCombo = bj && bj->hasKeyLockCombo();
+    bool hasCombo = board->getCapability(Capability::HasKeyLockCombo);
     ui->chkKeyLockEnabled->setChecked(hasCombo && generalSettings.keyLockEnabled);
     ui->chkKeyLockEnabled->setEnabled(hasCombo);
     ui->label_keyLockEnabled->setEnabled(hasCombo);
@@ -576,7 +582,7 @@ void GeneralSetupPanel::setValues()
     }
   }
 
-  if (Boards::getCapability(board, Board::HasColorLcd)) {
+  if (board->getCapability(Capability::HasColorLcd)) {
     ui->modelSelectLayout_CB->setCurrentIndex(generalSettings.modelSelectLayout);
     ui->labelSingleSelect_CB->setCurrentIndex(generalSettings.labelSingleSelect);
     ui->labelMultiMode_CB->setCurrentIndex(generalSettings.labelMultiMode);
@@ -621,7 +627,7 @@ void GeneralSetupPanel::populateRotEncModeCB()
   int itemCount = 5;
 
   // colour LCD radios only support Normal and Inverted
-  if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
+  if (getCurrentBoard()->getCapability(Capability::HasColorLcd)) {
     itemCount = 2;
   }
 

@@ -34,7 +34,7 @@ class SensorCalcYaml : public ::testing::Test
  protected:
   void SetUp() override
   {
-    Firmware::setCurrentVariant(Firmware::getFirmwareForFlavour("tx16s"));
+    Firmware::setCurrent(Firmware::getFirmware("tx16s"));
     ASSERT_NE(getCurrentFirmware(), nullptr)
         << "tx16s firmware must be registered for this test";
   }

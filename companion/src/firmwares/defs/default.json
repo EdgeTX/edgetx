@@ -1,0 +1,120 @@
+{
+  "comments": [
+    "This file is always loaded first and variations overlaid in basedOn sequence",
+    "hidden: true prevents the name being displayed in any ui lists",
+    "supported: false prevents the name being displayed in any ui list however available for raio and model settions",
+    "Hardcoded CPN_MAX_xxx limits/sizes applied to char[] and data arrays until refactoring to std::string and std::vector respectively",
+    "Some entries are future proofing and for parsing consistency",
+    "Some values are used for field initialisation only",
+    "Values are accessed using Firmware::getCapability"
+  ],
+  "hidden": true,
+  "basedOn": [
+  ],
+  "supported": true,
+  "name": "",
+  "board": "",
+  "downloadId": "",
+  "simulator": "",
+  "bluetoothName": "unknown",
+  "buildOpts": [
+  ],
+  "curves": {
+    "comments": "",
+    "cnt": 32,
+    "name": 3,
+    "points": {
+      "min": 2,
+      "max": 17,
+      "total": 512
+    }
+  },
+  "customScreens": {
+    "comments": "color",
+    "cnt": 9,
+    "layoutOptions": 10,
+    "layoutZones": 10,
+    "themeOptions": 5,
+    "topBarOptions": 1,
+    "topBarZones": 7,
+    "widgetOptions": 50
+  },
+  "expos": {
+    "comments": "input lines",
+    "cnt": 64,
+    "name": 10
+  },
+  "flightModes": {
+    "comments": "Flight Drive etc TODO rename operatingModes",
+    "cnt": 9,
+    "name": 4
+  },
+  "globalFuncs": {
+    "comments": "",
+    "cnt": 32,
+    "name": 0
+  },
+  "globalVars": {
+    "comments": "h7 cnt: 15",
+    "cnt": 9,
+    "name": 3
+  },
+  "inputs": {
+    "comments": "",
+    "cnt": 32,
+    "name": 4
+  },
+  "keyShortcuts": 0,
+  "lcdToVideo": false,
+  "logicalSw": {
+    "comments": "",
+    "cnt": 40,
+    "name": 0
+  },
+  "mixes": {
+    "comments": "",
+    "cnt": 64,
+    "name": 3,
+    "scripts": {
+      "cnt": 9,
+      "name": 6,
+      "inputs": 6,
+      "outputs": 6
+    }
+  },
+  "modelName": 15,
+  "modelImage": {
+    "comments": "",
+    "filters": "",
+    "name": 0
+  },
+  "modelSlots": 0,
+  "outputs": {
+    "comments": "name 4 or 6",
+    "cnt": 32,
+    "name": 4
+  },
+  "powerOnDelay": false,
+  "quickMenuFavs": 0,
+  "sensors": {
+    "comments": "40, 60 or 99",
+    "cnt": 40,
+    "name": 4
+  },
+  "specialFuncs": {
+    "comments": "",
+    "cnt": 32
+  },
+  "teleCstmScrns": {
+    "comments": "only used for b&w radios fieldsPerLine 2 or 3",
+    "cnt": 4,
+    "bars": 4,
+    "fieldsPerLine": 3,
+    "lines": 4
+  },
+  "timers": {
+    "comments": "",
+    "cnt": 3,
+    "name": 8
+  }
+}

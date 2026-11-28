@@ -52,7 +52,7 @@ class SourceNumRef {
     int toValue() { return srcNum.toValue(); }
 
     QString toString(const ModelData * model = nullptr, const GeneralSettings * const generalSettings = nullptr,
-                     Board::Type board = Board::BOARD_UNKNOWN, bool prefixCustomName = true) const;
+                     QString board = Board::BOARD_UNKNOWN, bool prefixCustomName = true) const;
 
     const bool isNumber() const { return srcNum.type == SOURCE_TYPE_NONE; }
     const bool isSource() const { return srcNum.type != SOURCE_TYPE_NONE; }

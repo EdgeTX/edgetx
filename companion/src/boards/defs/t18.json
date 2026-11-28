@@ -1,0 +1,49 @@
+{
+    "backlight": {
+        "min": 1
+    },
+    "basedOn": [
+        "color"
+    ],
+    "battery": {
+        "vmax": 83,
+        "vmin": 67,
+        "vwarn": 66
+    },
+    "flashSize": 2097152,
+    "modules": [
+        {
+            "internal": {
+                "available": [
+                    "xjt",
+                    "isrm",
+                    "crsf",
+                    "multi"
+                ],
+                "default": "multi"
+            }
+        },
+        {
+            "external": {
+                "available": [
+                    "xjt",
+                    "isrm",
+                    "r9m",
+                    "r9maccess",
+                    "dsm2",
+                    "crsf",
+                    "multi",
+                    "ghost",
+                    "afhds3",
+                    "lemondsmp",
+                    "ppm",
+                    "sbus"
+                ],
+                "size": "standard"
+            }
+        }
+    ],
+    "name": "Jumper T18",
+    "rotEncNav": true,
+    "vcpSerialMode": true
+}

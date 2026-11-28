@@ -1,0 +1,43 @@
+{
+    "basedOn": [
+        "color",
+        "cpuh7"
+    ],
+    "buildOpts": [
+        [
+            "faichoice",
+            "faimode"
+        ],
+        "nooverridech",
+        "noheli",
+        "nogvars",
+        "lua",
+        "flexr9m",
+        "bluetooth",
+        "nogps"
+    ],
+    "expos": {
+        "name": 6
+    },
+    "keyShortcuts": 6,
+    "mixes": {
+        "name": 6
+    },
+    "modelImage": {
+        "filters": "*.bmp|*.jpg|*.png",
+        "name": 14
+    },
+    "modelName": 15,
+    "name": "TX16S MK3",
+    "outputs": {
+        "name": 6
+    },
+    "quickMenuFavs": 12,
+    "sensors": {
+        "cnt": 99
+    },
+    "timers": {
+        "name": 8
+    },
+    "topBarZones": 6
+}

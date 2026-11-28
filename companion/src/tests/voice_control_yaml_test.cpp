@@ -28,11 +28,11 @@
 
 #include <QByteArray>
 
-#include "firmwares/eeprominterface.h"
+#include "firmwares/firmware.h"
 #include "firmwares/edgetx/edgetxinterface.h"
 #include "firmwares/edgetx/yaml_rawsource.h"
 #include "firmwares/edgetx/yaml_rawswitch.h"
-#include "firmwares/boardjson.h"
+#include "boards/board.h"
 #include "firmwares/generalsettings.h"
 #include "firmwares/mixdata.h"
 
@@ -52,10 +52,10 @@ class VoiceControlV16 : public ::testing::Test
  protected:
   void SetUp() override
   {
-    Firmware::setCurrentVariant(Firmware::getFirmwareForFlavour("v16"));
+    Firmware::setCurrent(Firmware::getFirmware("v16"));
     ASSERT_NE(getCurrentFirmware(), nullptr)
         << "v16 (HelloRadioSky V16) firmware must be registered for this test";
-    ASSERT_TRUE(IS_HELLORADIOSKY_V16(getCurrentBoard()));
+    ASSERT_TRUE(getCurrentBoard()->getId() == "v16");
   }
 };
 
@@ -64,7 +64,7 @@ class VoiceControlOtherBoard : public ::testing::Test
  protected:
   void SetUp() override
   {
-    Firmware::setCurrentVariant(Firmware::getFirmwareForFlavour("tx16s"));
+    Firmware::setCurrent(Firmware::getFirmware("tx16s"));
     ASSERT_NE(getCurrentFirmware(), nullptr)
         << "tx16s firmware must be registered for this test";
   }
@@ -94,7 +94,7 @@ TEST_F(VoiceControlV16, MixSrcEncodeDecodeRoundTrips)
 // VGR/VFL are offered on the V16 board; RESERVED3/4 stay excluded.
 TEST_F(VoiceControlV16, MixSrcAvailableOnlyForVoiceReservedSlots)
 {
-  Board::Type board = getCurrentBoard();
+  auto board = getCurrentBoard();
   const RawSource vgr(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_RESERVED1);
   const RawSource vfl(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_RESERVED2);
   const RawSource reserved3(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_RESERVED3);
@@ -110,8 +110,8 @@ TEST_F(VoiceControlV16, MixSrcAvailableOnlyForVoiceReservedSlots)
 // user disables VGR on the Hardware Switches screen.
 TEST_F(VoiceControlV16, MixSrcNotAvailableWhenSwitchDisabled)
 {
-  Board::Type board = getCurrentBoard();
-  int vgrIdx = Boards::getSwitchYamlIndex(QStringLiteral("VGR"), BoardJson::YLT_REF, board);
+  auto board = getCurrentBoard();
+  int vgrIdx = board->getSwitchYamlIndex(QStringLiteral("VGR"), Board::YLT_REF);
   ASSERT_GE(vgrIdx, 0);
 
   const RawSource vgr(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_RESERVED1);
@@ -128,8 +128,8 @@ TEST_F(VoiceControlV16, MixSrcNotAvailableWhenSwitchDisabled)
 // VGR/VFL must not leak into other radios' source pickers.
 TEST_F(VoiceControlOtherBoard, MixSrcNotAvailableOnOtherBoards)
 {
-  Board::Type board = getCurrentBoard();
-  ASSERT_FALSE(IS_HELLORADIOSKY_V16(board));
+  auto board = getCurrentBoard();
+  ASSERT_FALSE(board->getId() == "v16");
 
   const RawSource vgr(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_RESERVED1);
   const RawSource vfl(SOURCE_TYPE_SPECIAL, SOURCE_TYPE_SPECIAL_RESERVED2);
@@ -142,10 +142,10 @@ TEST_F(VoiceControlOtherBoard, MixSrcNotAvailableOnOtherBoards)
 // on how many physical switches precede VGR/VFL in the table.
 TEST_F(VoiceControlV16, SwitchEncodeDecodeRoundTrips)
 {
-  Board::Type board = getCurrentBoard();
+  auto board = getCurrentBoard();
 
   for (const QString& tag : {QStringLiteral("VGR"), QStringLiteral("VFL")}) {
-    int swIdx = Boards::getSwitchYamlIndex(tag, BoardJson::YLT_REF, board);
+    int swIdx = board->getSwitchYamlIndex(tag, Board::YLT_REF);
     ASSERT_GE(swIdx, 0) << tag.toStdString() << " switch not registered for this board";
 
     for (int pos = 0; pos < 3; pos++) {
@@ -164,8 +164,8 @@ TEST_F(VoiceControlV16, SwitchEncodeDecodeRoundTrips)
 // full YAML round-trip unchanged.
 TEST_F(VoiceControlV16, ModelUsingVoiceSourceAndSwitchRoundTrips)
 {
-  Board::Type board = getCurrentBoard();
-  int vflIdx = Boards::getSwitchYamlIndex(QStringLiteral("VFL"), BoardJson::YLT_REF, board);
+  auto board = getCurrentBoard();
+  int vflIdx = board->getSwitchYamlIndex(QStringLiteral("VFL"), Board::YLT_REF);
   ASSERT_GE(vflIdx, 0);
 
   ModelData m;
@@ -198,13 +198,13 @@ TEST_F(VoiceControlV16, ModelUsingVoiceSourceAndSwitchRoundTrips)
 // switches and 2 flex switches.
 TEST_F(VoiceControlV16, VoiceSwitchIndexesFollowFlexSwitches)
 {
-  Board::Type board = getCurrentBoard();
+  auto board = getCurrentBoard();
 
-  EXPECT_EQ(Boards::getCapability(board, Board::FlexSwitches), 2);
-  EXPECT_EQ(Boards::getSwitchYamlIndex(QStringLiteral("FL1"), BoardJson::YLT_REF, board), 10);
-  EXPECT_EQ(Boards::getSwitchYamlIndex(QStringLiteral("FL2"), BoardJson::YLT_REF, board), 11);
-  EXPECT_EQ(Boards::getSwitchYamlIndex(QStringLiteral("VGR"), BoardJson::YLT_REF, board), 12);
-  EXPECT_EQ(Boards::getSwitchYamlIndex(QStringLiteral("VFL"), BoardJson::YLT_REF, board), 13);
+  EXPECT_EQ(board->getCapability(Capability::FlexSwitches), 2);
+  EXPECT_EQ(board->getSwitchYamlIndex(QStringLiteral("FL1"), Board::YLT_REF), 10);
+  EXPECT_EQ(board->getSwitchYamlIndex(QStringLiteral("FL2"), Board::YLT_REF), 11);
+  EXPECT_EQ(board->getSwitchYamlIndex(QStringLiteral("VGR"), Board::YLT_REF), 12);
+  EXPECT_EQ(board->getSwitchYamlIndex(QStringLiteral("VFL"), Board::YLT_REF), 13);
 }
 
 // VGR (voice gear) is a 2POS switch on real hardware -- see
@@ -212,14 +212,14 @@ TEST_F(VoiceControlV16, VoiceSwitchIndexesFollowFlexSwitches)
 // (voice flap) is 3POS.
 TEST_F(VoiceControlV16, VgrIsTwoPosVflIsThreePos)
 {
-  Board::Type board = getCurrentBoard();
-  int vgrIdx = Boards::getSwitchYamlIndex(QStringLiteral("VGR"), BoardJson::YLT_REF, board);
-  int vflIdx = Boards::getSwitchYamlIndex(QStringLiteral("VFL"), BoardJson::YLT_REF, board);
+  auto board = getCurrentBoard();
+  int vgrIdx = board->getSwitchYamlIndex(QStringLiteral("VGR"), Board::YLT_REF);
+  int vflIdx = board->getSwitchYamlIndex(QStringLiteral("VFL"), Board::YLT_REF);
   ASSERT_GE(vgrIdx, 0);
   ASSERT_GE(vflIdx, 0);
 
-  EXPECT_EQ(Boards::getSwitchInfo(vgrIdx, board).dflt, Board::SWITCH_2POS);
-  EXPECT_EQ(Boards::getSwitchInfo(vflIdx, board).dflt, Board::SWITCH_3POS);
+  EXPECT_EQ(board->getSwitchInfo(vgrIdx).dflt, Board::SWITCH_2POS);
+  EXPECT_EQ(board->getSwitchInfo(vflIdx).dflt, Board::SWITCH_3POS);
 }
 
 // Firmware (radio/src/drivers/CI1302.cpp, CI1302_voiceSwitchSetDefaults())
@@ -231,9 +231,9 @@ TEST_F(VoiceControlV16, VgrIsTwoPosVflIsThreePos)
 // explicit NONE if the user disabled one on the radio.
 TEST_F(VoiceControlV16, GeneralSettingsRoundTripHonoursVoiceSwitchType)
 {
-  Board::Type board = getCurrentBoard();
-  int vgrIdx = Boards::getSwitchYamlIndex(QStringLiteral("VGR"), BoardJson::YLT_REF, board);
-  int vflIdx = Boards::getSwitchYamlIndex(QStringLiteral("VFL"), BoardJson::YLT_REF, board);
+  auto board = getCurrentBoard();
+  int vgrIdx = board->getSwitchYamlIndex(QStringLiteral("VGR"), Board::YLT_REF);
+  int vflIdx = board->getSwitchYamlIndex(QStringLiteral("VFL"), Board::YLT_REF);
   ASSERT_GE(vgrIdx, 0);
   ASSERT_GE(vflIdx, 0);
 
@@ -274,8 +274,8 @@ TEST_F(VoiceControlV16, GeneralSettingsRoundTripHonoursVoiceSwitchType)
 // file -- there's no special-casing left for these two on the Companion side.
 TEST_F(VoiceControlV16, GeneralSettingsRoundTripDefaultsMissingVoiceSwitchesToNone)
 {
-  Board::Type board = getCurrentBoard();
-  int vgrIdx = Boards::getSwitchYamlIndex(QStringLiteral("VGR"), BoardJson::YLT_REF, board);
+  auto board = getCurrentBoard();
+  int vgrIdx = board->getSwitchYamlIndex(QStringLiteral("VGR"), Board::YLT_REF);
   ASSERT_GE(vgrIdx, 0);
 
   const QByteArray deviceYaml =

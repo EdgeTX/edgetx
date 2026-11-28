@@ -92,8 +92,8 @@ class CurveDialog : public QDialog
     const int curveIdx;
     CompoundItemModelFactory *sharedItemModels;
 
-    QSpinBox *spnx[CPN_MAX_POINTS];
-    QSpinBox *spny[CPN_MAX_POINTS];
+    QSpinBox *spnx[CPN_MAX_CURVE_POINTS];
+    QSpinBox *spny[CPN_MAX_CURVE_POINTS];
     QVector<CurveCreatorTemplate> templates;
     CustomScene *scene;
     QGraphicsPathItem *smoothPath = nullptr;

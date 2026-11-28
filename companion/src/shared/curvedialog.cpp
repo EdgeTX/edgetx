@@ -164,7 +164,7 @@ CurveDialog::CurveDialog(QWidget * parent, ModelData & model, const int curveIdx
 
   ui->curvePreview->setScene(scene);
 
-  for (int i = 0; i < CPN_MAX_POINTS; i++) {
+  for (int i = 0; i < CPN_MAX_CURVE_POINTS; i++) {
     spnx[i] = new QSpinBox(this);
     spnx[i]->setProperty("index", i);
     spnx[i]->setMinimum(-100);
@@ -391,7 +391,7 @@ void CurveDialog::updateCurvePoints()
     }
   }
 
-  for (int i = count; i < CPN_MAX_POINTS; i++) {
+  for (int i = count; i < CPN_MAX_CURVE_POINTS; i++) {
     spny[i]->hide();
     spnx[i]->hide();
   }
@@ -589,7 +589,7 @@ void CurveDialog::onNodeDelete()
 void CurveDialog::onSceneNewPoint(int x, int y)
 {
   if (!lock) {
-    if ((curve.type == CurveData::CURVE_TYPE_CUSTOM) && (curve.count < CPN_MAX_POINTS)) {
+    if ((curve.type == CurveData::CURVE_TYPE_CUSTOM) && (curve.count < CPN_MAX_CURVE_POINTS)) {
       int newidx = 0;
       int numpoints = curve.count;
       if (x < curve.points[0].x) {

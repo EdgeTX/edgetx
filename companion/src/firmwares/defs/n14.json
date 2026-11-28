@@ -1,0 +1,25 @@
+{
+    "basedOn": [
+        "bw"
+    ],
+    "buildOpts": [
+        [
+            "faichoice",
+            "faimode"
+        ],
+        "nooverridech",
+        "sqt5font",
+        "flexr9m"
+    ],
+    "expos": {
+        "name": 6
+    },
+    "mixes": {
+        "name": 6
+    },
+    "modelSlots": 60,
+    "name": "NexRadio 14",
+    "teleCstmScrns": {
+        "fieldsPerLine": 2
+    }
+}

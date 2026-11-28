@@ -19,9 +19,9 @@
  * GNU General Public License for more details.
  */
 
-#ifndef TELEMETRYDATA_H
-#define TELEMETRYDATA_H
+#pragma once
 
+#include "constants.h"
 #include "rawsource.h"
 
 #include <QtCore>
@@ -85,7 +85,7 @@ struct FrSkyBarData {
 };
 
 struct FrSkyLineData {
-  RawSource source[3];
+  RawSource source[CPN_TELE_CUST_SCRNS_PERLINE];
 };
 
 struct TelemetryScriptData {
@@ -165,8 +165,8 @@ class FrSkyScreenData {
     FrSkyScreenData() { clear(); }
 
     typedef struct {
-      FrSkyBarData bars[4];
-      FrSkyLineData lines[4];
+      FrSkyBarData bars[CPN_TELE_CUST_SCRNS_BARS];
+      FrSkyLineData lines[CPN_TELE_CUST_SCRNS_LINES];
       TelemetryScriptData script;
     } FrSkyScreenBody;
 
@@ -212,7 +212,7 @@ class FrSkyData {
     unsigned int voltsSource;
     unsigned int altitudeSource;
     unsigned int currentSource;
-    FrSkyScreenData screens[4];
+    FrSkyScreenData screens[CPN_TELE_CUST_SCRNS];
     unsigned int varioSource;
     bool varioCenterSilent;
     int varioMin;
@@ -234,5 +234,3 @@ class MavlinkData {
     unsigned int pc_rssi_en;
     void clear() { memset(this, 0, sizeof(MavlinkData)); }
 };
-
-#endif // TELEMETRYDATA_H

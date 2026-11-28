@@ -78,6 +78,7 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}
   ${COMPANION_SRC_DIRECTORY}
+  ${COMPANION_SRC_DIRECTORY}/helpers
   ${COMPANION_SRC_DIRECTORY}/shared
   ${SIMU_SRC_DIRECTORY}
   ${COMPANION_SRC_DIRECTORY}/thirdparty/qcustomplot
@@ -147,21 +148,53 @@ foreach(json_file ${HWDEF_JSON_FILES})
   get_filename_component(json_file_name ${json_file} NAME)
   list(APPEND HWDEF_JSON_ENTRIES "    <file alias=\"${json_file_name}\">${json_file}</file>")
 endforeach()
-list(JOIN HWDEF_JSON_ENTRIES "\n" HWDEF_JSON_LIST)
-configure_file(${COMPANION_SRC_DIRECTORY}/hwdefs.qrc.in ${HWDEFS_QRC} @ONLY)
+list(JOIN HWDEF_JSON_ENTRIES "\n" HWDEFS_JSON_LIST)
+configure_file(${COMPANION_SRC_DIRECTORY}/boards/defs/hwdefs.qrc.in ${HWDEFS_QRC} @ONLY)
+
+############# Import board definitions ###############
+
+set(BDDEFS_DIR "${COMPANION_SRC_DIRECTORY}/boards/defs")
+set(BDDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/bddefs.qrc")
+
+# CONFIGURE_DEPENDS re-runs the glob on each build, so adding or removing
+# a definition regenerates the qrc in an existing build folder
+file(GLOB BDDEF_JSON_FILES CONFIGURE_DEPENDS "${BDDEFS_DIR}/*.json")
+list(SORT BDDEF_JSON_FILES)
+set(BDDEF_JSON_ENTRIES "")
+foreach(json_file ${BDDEF_JSON_FILES})
+  get_filename_component(json_file_name ${json_file} NAME)
+  list(APPEND BDDEF_JSON_ENTRIES "    <file alias=\"${json_file_name}\">${json_file}</file>")
+endforeach()
+list(JOIN BDDEF_JSON_ENTRIES "\n" BDDEFS_JSON_LIST)
+configure_file(${COMPANION_SRC_DIRECTORY}/boards/defs/bddefs.qrc.in ${BDDEFS_QRC} @ONLY)
+
+############# Import firmware definitions ###############
+
+set(FWDEFS_DIR "${COMPANION_SRC_DIRECTORY}/firmwares/defs")
+set(FWDEFS_QRC "${CMAKE_CURRENT_BINARY_DIR}/fwdefs.qrc")
+
+# CONFIGURE_DEPENDS re-runs the glob on each build, so adding or removing
+# a definition regenerates the qrc in an existing build folder
+file(GLOB FWDEF_JSON_FILES CONFIGURE_DEPENDS "${FWDEFS_DIR}/*.json")
+list(SORT FWDEF_JSON_FILES)
+set(FWDEF_JSON_ENTRIES "")
+foreach(json_file ${FWDEF_JSON_FILES})
+  get_filename_component(json_file_name ${json_file} NAME)
+  list(APPEND FWDEF_JSON_ENTRIES "    <file alias=\"${json_file_name}\">${json_file}</file>")
+endforeach()
+list(JOIN FWDEF_JSON_ENTRIES "\n" FWDEFS_JSON_LIST)
+configure_file(${COMPANION_SRC_DIRECTORY}/firmwares/defs/fwdefs.qrc.in ${FWDEFS_QRC} @ONLY)
 
 ############# Common lib ###############
 
 set(common_SRCS
   customdebug.cpp
-  helpers.cpp
   translations.cpp
   modeledit/node.cpp  # used in simulator
   modeledit/edge.cpp  # used by node
   )
 
 set(common_MOC_HDRS
-  helpers.h
   modeledit/node.h
   )
 
@@ -171,6 +204,8 @@ set(common_RESOURCES
   companion.qrc
   ${TRANSLATIONS_QRC}
   ${HWDEFS_QRC}
+  ${FWDEFS_QRC}
+  ${BDDEFS_QRC}
 )
 qt_add_resources(common_RCC ${common_RESOURCES})
 
@@ -178,7 +213,9 @@ add_library(common ${common_SRCS} ${common_RCC})
 
 target_link_libraries(common
   datamodels
+  boards
   firmwares
+  helpers
   progress
   shared
   simulation
@@ -200,9 +237,11 @@ include(FetchYamlCpp)
 include(FetchMaxLibQt)
 
 add_subdirectory(datamodels)
+add_subdirectory(boards)
 add_subdirectory(firmwares)
 add_subdirectory(flash)
 add_subdirectory(generaledit)
+add_subdirectory(helpers)
 add_subdirectory(modeledit)
 add_subdirectory(print)
 add_subdirectory(progress)
@@ -219,7 +258,6 @@ add_subdirectory(wizard)
 include_directories(${maxLibQt_SOURCE_DIR}/widgets)
 
 set(companion_NAMES
-  helpers_html
   logsdialog
   mainwindow
   mdichild

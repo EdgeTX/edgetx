@@ -1,0 +1,46 @@
+{
+    "basedOn": [
+        "bw"
+    ],
+    "buildOpts": [
+        "noras",
+        [
+            "faichoice",
+            "faimode"
+        ],
+        "nooverridech",
+        "noheli",
+        "nogvars",
+        "lua",
+        "sqt5font",
+        "bluetooth",
+        [
+            "eu",
+            "flexr9m"
+        ],
+        "afhds2a",
+        "afhds3"
+    ],
+    "expos": {
+        "name": 8
+    },
+    "mixes": {
+        "name": 8
+    },
+    "modelImage": {
+        "filters": "*.bmp",
+        "name": 10
+    },
+    "modelName": 12,
+    "modelSlots": 60,
+    "name": "Taranis X9D+",
+    "outputs": {
+        "name": 6
+    },
+    "sensors": {
+        "cnt": 60
+    },
+    "timers": {
+        "name": 8
+    }
+}

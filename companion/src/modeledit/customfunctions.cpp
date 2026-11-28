@@ -29,12 +29,14 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
                                            CompoundItemModelFactory * sharedItemModels):
   GenericPanel(parent, model, generalSettings, firmware),
   functions(model ? model->customFn : generalSettings.customFn),
+  board(firmware->getBoard()),
   mediaPlayerCurrent(-1),
   mediaPlayer(nullptr),
   modelsUpdateCnt(0)
 {
   lock = true;
-  fswCapability = model ? firmware->getCapability(CustomFunctions) : firmware->getCapability(GlobalFunctions);
+  fswCapability = model ? firmware->getCapability(Capability::SpecialFunctions) :
+                          firmware->getCapability(Capability::GlobalFunctions);
 
   tabModelFactory = new CompoundItemModelFactory(&generalSettings, model);
   playSoundId = tabModelFactory->registerItemModel(CustomFunctionData::playSoundItemModel());
@@ -204,7 +206,7 @@ CustomFunctionsPanel::CustomFunctionsPanel(QWidget * parent, ModelData * model, 
     fswtchRepeat[i]->setProperty("index", i);
     if (functions[i].func == FuncPlayScript || functions[i].func == FuncRGBLed)
       fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatLuaId));
-    else if (functions[i].func == FuncSetScreen && !Boards::getCapability(firmware->getBoard(), Board::HasColorLcd))
+    else if (functions[i].func == FuncSetScreen && !board->getCapability(Capability::HasColorLcd))
       fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatSetScreenId));
     else
       fswtchRepeat[i]->setModel(tabModelFactory->getItemModel(repeatId));
@@ -528,7 +530,7 @@ void CustomFunctionsPanel::refreshCustomFunction(int i, bool changed)
           cfn.repeatParam = fswtchRepeat[i]->currentData().toInt();
         }
         fswtchParam[i]->setDecimals(0);
-        if (Boards::getCapability(firmware->getBoard(), Board::HasColorLcd)) {
+        if (board->getCapability(Capability::HasColorLcd)) {
           fswtchParam[i]->setMinimum(1);
           if(model)
             fswtchParam[i]->setMaximum(model->getCustomScreensCount());

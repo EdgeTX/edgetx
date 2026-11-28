@@ -70,7 +70,7 @@ class CurveReference {
     const bool isValueNumber() const;
     const bool isValueReference() const { return !isValueNumber(); }
     const QString toString(const ModelData * model = nullptr, bool verbose = true, const GeneralSettings * const generalSettings = nullptr,
-                           Board::Type board = Board::BOARD_UNKNOWN, bool prefixCustomName = true) const;
+                           QString board = Board::BOARD_UNKNOWN, bool prefixCustomName = true) const;
     const bool isAvailable() const;
 
     CurveRefType type;

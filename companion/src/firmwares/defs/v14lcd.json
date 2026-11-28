@@ -1,0 +1,26 @@
+{
+    "basedOn": [
+        "bw"
+    ],
+    "buildOpts": [
+        [
+            "faichoice",
+            "faimode"
+        ],
+        "nooverridech",
+        "sqt5font",
+        "bluetooth",
+        "flexr9m"
+    ],
+    "expos": {
+        "name": 6
+    },
+    "mixes": {
+        "name": 6
+    },
+    "modelSlots": 60,
+    "name": "V14LCD",
+    "teleCstmScrns": {
+        "fieldsPerLine": 2
+    }
+}

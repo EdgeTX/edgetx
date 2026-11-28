@@ -1,0 +1,48 @@
+{
+    "backlight": {
+        "min": 1
+    },
+    "basedOn": [
+        "color",
+        "inputs_accl"
+    ],
+    "battery": {
+        "vmax": 83,
+        "vmin": 67,
+        "vwarn": 66
+    },
+    "chargeWhileOn": true,
+    "flashSize": 2097152,
+    "modules": [
+        {
+            "internal": {
+                "available": [
+                    "elrs"
+                ],
+                "default": "elrs"
+            }
+        },
+        {
+            "external": {
+                "available": [
+                    "xjt",
+                    "isrm",
+                    "r9m",
+                    "r9maccess",
+                    "dsm2",
+                    "crsf",
+                    "multi",
+                    "ghost",
+                    "afhds3",
+                    "lemondsmp",
+                    "ppm",
+                    "sbus"
+                ],
+                "size": "standard"
+            }
+        }
+    ],
+    "name": "Radiomaster GX15",
+    "rotEncNav": true,
+    "vcpSerialMode": true
+}

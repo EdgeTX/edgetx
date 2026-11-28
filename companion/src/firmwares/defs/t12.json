@@ -1,0 +1,30 @@
+{
+    "basedOn": [
+        "bw"
+    ],
+    "buildOpts": [
+        [
+            "faichoice",
+            "faimode"
+        ],
+        "nooverridech",
+        "noheli",
+        "nogvars",
+        "lua",
+        "internalmulti",
+        "sqt5font",
+        "bluetooth",
+        "flexr9m"
+    ],
+    "expos": {
+        "name": 6
+    },
+    "mixes": {
+        "name": 6
+    },
+    "modelSlots": 60,
+    "name": "T12 / T12 Pro",
+    "teleCstmScrns": {
+        "fieldsPerLine": 2
+    }
+}

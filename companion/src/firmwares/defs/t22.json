@@ -1,0 +1,35 @@
+{
+    "basedOn": [
+        "color",
+        "cpuh7"
+    ],
+    "buildOpts": [
+        [
+            "faichoice",
+            "faimode"
+        ],
+        "nooverridech",
+        "noheli",
+        "nogvars",
+        "lua",
+        "flexr9m"
+    ],
+    "expos": {
+        "name": 6
+    },
+    "keyShortcuts": 6,
+    "mixes": {
+        "name": 6
+    },
+    "modelImage": {
+        "filters": "*.bmp",
+        "name": 10
+    },
+    "modelSlots": 60,
+    "name": "T22",
+    "quickMenuFavs": 12,
+    "sensors": {
+        "cnt": 99
+    },
+    "topBarZones": 6
+}

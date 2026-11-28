@@ -1,0 +1,43 @@
+{
+    "basedOn": [
+        "color"
+    ],
+    "buildOpts": [
+        [
+            "faichoice",
+            "faimode"
+        ],
+        "nooverridech",
+        "noheli",
+        "nogvars",
+        "lua",
+        "flexr9m",
+        "afhds2a",
+        "afhds3",
+        "bluetooth"
+    ],
+    "expos": {
+        "name": 6
+    },
+    "keyShortcuts": 6,
+    "mixes": {
+        "name": 6
+    },
+    "modelImage": {
+        "filters": "*.bmp|*.jpg|*.png",
+        "name": 14
+    },
+    "modelName": 15,
+    "name": "NV14",
+    "outputs": {
+        "name": 6
+    },
+    "quickMenuFavs": 12,
+    "sensors": {
+        "cnt": 60
+    },
+    "timers": {
+        "name": 8
+    },
+    "topBarZones": 6
+}

@@ -944,43 +944,52 @@ void AppData::convertSettings(QSettings & settings)
     qInfo().noquote() << "Converting profiles firmware type";
     static const QString profilePath = QStringLiteral("Profiles/profile%1");
     static const QString profileFwTypePath = QStringLiteral("Profiles/profile%1/fwType");
+
     for (int i = 0; i < MAX_PROFILES; i++) {
       if (settings.contains(profileFwTypePath.arg(i))) {
-        const QVariant oldValue = settings.value(profileFwTypePath.arg(i));
+        QVariant oldValue = settings.value(profileFwTypePath.arg(i));
+
         if (oldValue.isValid()) {
-          const QStringList oldparts = settings.value(profileFwTypePath.arg(i)).toString().split("-");
-          QString newfwType;
-          QString newfwOpts;
-          QString newfwLang;
-          if (oldparts.count() > 1) {
-            newfwType = oldparts.mid(0, 2).join("-");
+          const QStringList oldfwtype = oldValue.toString().split("-");
+
+          if (oldfwtype.count() > 1) {
+            QString newfwType;
+            QString newfwOpts;
+            QString newfwLang;
+
+            const int fwidx = oldfwtype.first() == "edgetx" ? 1 : 0;
+            newfwType = oldfwtype.at(fwidx);
+
             settings.setValue(profileFwTypePath.arg(i), newfwType);
-          }
-          if (oldparts.count() > 2) {
-            newfwLang = oldparts.last();
-            settings.setValue(profilePath.arg(i) % "/fwLanguage", newfwLang);
-          }
-          if (oldparts.count() > 3) {
-            newfwOpts = oldparts.mid(2, oldparts.count() - 3).join("-");
-            settings.setValue(profilePath.arg(i) % "/fwOptions", newfwOpts);
-          }
 
-          // Firmwares are not registered yet when settings are converted, so the language cannot be
-          // checked against the firmware here. The profile settings fall back to a supported
-          // language if the stored one is not, so only fill in a missing language, and never
-          // overwrite one already split out by an earlier conversion.
-          if (newfwLang.isEmpty() && !settings.contains(profilePath.arg(i) % "/fwLanguage")) {
-            newfwLang = "en";
-            settings.setValue(profilePath.arg(i) % "/fwLanguage", newfwLang);
-          }
+            if (oldfwtype.count() > 2) {
+              if (oldfwtype.last().size() == 2)
+                newfwLang = oldfwtype.last();
 
-          qInfo().noquote() << "Converted entry" << profileFwTypePath.arg(i)
-                            << "from (" << oldValue << ")"
-                            << "to (type:" << newfwType << "opts:" << newfwOpts << "lang:" << newfwLang << ")";
+              // invalid or non-existent language
+              if (!Firmware::getLanguageList().contains(newfwLang)) {
+                // depending on the OS environment this does not always return a valid language
+                newfwLang = QLocale::languageToString(QLocale().language()).split("_").first();
+              }
+            }
+
+            if (!Firmware::getLanguageList().contains(newfwLang))
+              newfwLang = "en"; // give up trying
+
+            settings.setValue(profilePath.arg(i) % "/fwLanguage", newfwLang);
+
+            if ((oldfwtype.count() - fwidx - (newfwLang.isEmpty() ? 0 : 1)) > 1) {
+              newfwOpts = oldfwtype.mid(fwidx + 1, oldfwtype.count() - fwidx - 1 - (newfwLang.isEmpty() ? 0 : 1)).join("-");
+              settings.setValue(profilePath.arg(i) % "/fwOptions", newfwOpts);
+            }
+
+            qInfo().noquote() << "Converted entry" << profileFwTypePath.arg(i)
+                              << "from (" << oldValue << ")"
+                              << "to (type:" << newfwType << "opts:" << newfwOpts << "lang:" << newfwLang << ")";
+          }
         }
       }
     }
-
   }
 
   if (removeUnused)

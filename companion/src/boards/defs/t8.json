@@ -1,0 +1,32 @@
+{
+    "basedOn": [
+        "bw"
+    ],
+    "battery": {
+        "vmax": 42,
+        "vmin": 34,
+        "vwarn": 36
+    },
+    "contrast": {
+        "max": 30
+    },
+    "eepromSize": 32768,
+    "flashSize": 524288,
+    "modules": [
+        {
+            "internal": {
+                "available": [
+                    "xjt",
+                    "isrm",
+                    "crsf",
+                    "multi"
+                ],
+                "default": "multi"
+            }
+        }
+    ],
+    "name": "Radiomaster T8",
+    "supported": false,
+    "trainerModuleCPPM": false,
+    "trainerModuleSBUS": false
+}

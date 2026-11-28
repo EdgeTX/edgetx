@@ -1,0 +1,46 @@
+{
+    "basedOn": [
+        "bw"
+    ],
+    "battery": {
+        "vmax": 80,
+        "vmin": 60,
+        "vwarn": 65
+    },
+    "contrast": {
+        "min": 0
+    },
+    "eepromSize": 32768,
+    "flashSize": 524288,
+    "modules": [
+        {
+            "internal": {
+                "available": [
+                    "isrm"
+                ],
+                "default": "isrm"
+            }
+        },
+        {
+            "external": {
+                "available": [
+                    "xjt",
+                    "isrm",
+                    "r9m",
+                    "r9maccess",
+                    "dsm2",
+                    "crsf",
+                    "multi",
+                    "ghost",
+                    "afhds3",
+                    "lemondsmp",
+                    "ppm",
+                    "sbus"
+                ],
+                "size": "standard"
+            }
+        }
+    ],
+    "name": "Taranis X9D+ 2019",
+    "rotEncNav": true
+}

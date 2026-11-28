@@ -37,7 +37,7 @@ void CurveData::clear(int count)
 
 void CurveData::init()
 {
-  memset(points, 0, sizeof(CurvePoint) * CPN_MAX_POINTS);
+  memset(points, 0, sizeof(CurvePoint) * CPN_MAX_CURVE_POINTS);
 
   float incr = 200.0 / (float)(count - 1);
 
@@ -124,7 +124,7 @@ AbstractStaticItemModel * CurveData::pointsItemModel()
   AbstractStaticItemModel * mdl = new AbstractStaticItemModel();
   mdl->setName("curvedata.points");
 
-  for (int i = 2; i <= CPN_MAX_POINTS; i++) {
+  for (int i = 2; i <= CPN_MAX_CURVE_POINTS; i++) {
     mdl->appendToItemList(tr("%1 points").arg(i), i);
   }
 
