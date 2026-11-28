@@ -20,7 +20,7 @@ option(MULTIMODULE "DIY Multiprotocol TX Module (https://github.com/pascallanger
 option(DEBUG_INTERRUPTS "Count interrupts" OFF)
 option(DEBUG_LATENCY "Debug latency" OFF)
 option(DEBUG_USB_INTERRUPTS "Count individual USB interrupts" OFF)
-option(DEBUG_TIMERS "Time critical parts of the code" OFF)
+option(PERF_PROBES "Performance probes, read with the 'perf' CLI command" OFF)
 option(DEBUG_BLUETOOTH "Debug Bluetooth" OFF)
 
 if(INTERNAL_MODULES)
@@ -136,9 +136,10 @@ if(DEBUG_INTERRUPTS)
   endif()
 endif()
 
-if(DEBUG_TIMERS)
-  add_definitions(-DDEBUG_TIMERS)
-  set(DEBUG ON)
+if(PERF_PROBES)
+  add_definitions(-DPERF_PROBES)
+  set(CLI ON)
+  set(FIRMWARE_SRC ${FIRMWARE_SRC} perf.cpp)
 endif()
 
 if(DEBUG_LATENCY STREQUAL MIXER_RF)

@@ -609,8 +609,6 @@ bool ModelsList::loadYaml()
   // Clear labels + map
   clear();
 
-  DEBUG_TIMER_START(debugTimerYamlScan);
-
   FRESULT result;
   FIL file;
 
@@ -651,12 +649,6 @@ bool ModelsList::loadYaml()
     f_closedir(&moddir);
   }
 
-#if defined(DEBUG_TIMERS)
-  DEBUG_TIMER_SAMPLE(debugTimerYamlScan);
-  TRACE("Labels: Time to scan models folder %luus",
-        debugTimers[debugTimerYamlScan].getLast());
-#endif
-
   // Scan labels.yml
   result = f_open(&file, LABELSLIST_YAML_PATH, FA_OPEN_EXISTING | FA_READ);
   if (result == FR_OK) {
@@ -672,12 +664,6 @@ bool ModelsList::loadYaml()
     }
     f_close(&file);
   }
-
-#if defined(DEBUG_TIMERS)
-  DEBUG_TIMER_SAMPLE(debugTimerYamlScan);
-  TRACE("Lables: Time to scan labels.yml %luus",
-        debugTimers[debugTimerYamlScan].getLast());
-#endif
 
   // Activate current model from radio settings
   auto mdl = getModel(g_eeGeneral.currModelFilename);

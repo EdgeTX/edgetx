@@ -41,9 +41,9 @@ static void loggingTimerCb(timer_handle_t* timer)
 {
   (void)timer;
   if (mixerTaskRunning()) {
-    DEBUG_TIMER_START(debugTimerLoggingWakeup);
+    PERF_START(LOGS);
     logsWrite();
-    DEBUG_TIMER_STOP(debugTimerLoggingWakeup);
+    PERF_STOP(LOGS);
   }
 }
 

@@ -132,7 +132,7 @@ hapticQueue haptic;
 // from timers_driver.cpp
 void per5ms()
 {
-  DEBUG_TIMER_START(debugTimerHaptic);
+  PERF_START(HAPTIC);
   HAPTIC_HEARTBEAT();
-  DEBUG_TIMER_STOP(debugTimerHaptic);
+  PERF_STOP(HAPTIC);
 }

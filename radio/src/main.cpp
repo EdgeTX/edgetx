@@ -441,9 +441,9 @@ void guiMain(event_t evt)
 
   luaDoGc(lsWidgets, false);
 
-  DEBUG_TIMER_START(debugTimerLua);
+  PERF_START(UI_LUA);
   luaTask(false);
-  DEBUG_TIMER_STOP(debugTimerLua);
+  PERF_STOP(UI_LUA);
 
   t0 = get_tmr10ms() - t0;
   if (t0 > maxLuaDuration) {
@@ -570,7 +570,7 @@ __attribute__((weak)) void customUIActions() {}
 
 void perMain()
 {
-  DEBUG_TIMER_START(debugTimerPerMain1);
+  PERF_START(UI_PERIODIC);
 
   checkSpeakerVolume();
 
@@ -587,7 +587,7 @@ void perMain()
 
   checkTrainerSettings();
   periodicTick();
-  DEBUG_TIMER_STOP(debugTimerPerMain1);
+  PERF_STOP(UI_PERIODIC);
 
   checkBacklight();
 #if defined(STATUS_LED_COLORS)
@@ -655,7 +655,7 @@ void perMain()
     evalUIFunctions(g_model.customFn, modelFunctionsContext);
 
 #if defined(GUI)
-  DEBUG_TIMER_START(debugTimerGuiMain);
+  PERF_START(UI_GUI);
 #if defined(COLORLCD)
 
   // Radio specific UI actions
@@ -665,7 +665,7 @@ void perMain()
 #else
   guiMain(evt);
 #endif
-  DEBUG_TIMER_STOP(debugTimerGuiMain);
+  PERF_STOP(UI_GUI);
 #endif
 
 #if defined(PCBX9E) && !defined(SIMU)

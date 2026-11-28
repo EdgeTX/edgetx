@@ -93,7 +93,9 @@ static void flushLcd(lv_disp_drv_t* disp_drv, const lv_area_t* area,
     rect_t copy_area = {area->x1, area->y1, area->x2 - area->x1 + 1,
                         area->y2 - area->y1 + 1};
 
+    PERF_START(LCD_FLUSH);
     lcd_flush_cb(disp_drv, (uint16_t*)color_p, copy_area);
+    PERF_STOP(LCD_FLUSH);
   } else {
     lcdFlushed();
   }
@@ -129,8 +131,24 @@ static void perfUpdate()
   }
 }
 
+#if PERF_ENABLED
+static bool _perf_frame_drawn = false;
+
+// LVGL refresh timer, timed only when it actually drew something
+static void perfRefrTimerCb(lv_timer_t* t)
+{
+  _perf_frame_drawn = false;
+  PERF_START(LCD_REFRESH);
+  _lv_disp_refr_timer(t);
+  if (_perf_frame_drawn) PERF_STOP(LCD_REFRESH);
+}
+#endif
+
 static void perfMonitorCb(lv_disp_drv_t* disp_drv, uint32_t time, uint32_t px)
 {
+#if PERF_ENABLED
+  _perf_frame_drawn = true;
+#endif
   perfUpdate();
   if (px > 5000) {
     perf_elaps_sum += time;
@@ -207,7 +225,12 @@ void lcdInitDisplayDriver()
   init_lvgl_disp_drv();
 
   // Register the driver and save the created display object
-  lv_disp_drv_register(&disp_drv);
+  lv_disp_t* disp = lv_disp_drv_register(&disp_drv);
+#if PERF_ENABLED
+  disp->refr_timer->timer_cb = perfRefrTimerCb;
+#else
+  (void)disp;
+#endif
 
   // remove all styles on default screen (makes it transparent as well)
   lv_obj_remove_style_all(lv_scr_act());

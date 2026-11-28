@@ -57,10 +57,10 @@ static timer_handle_t spacemouseTimer = TIMER_INITIALIZER;
 static void spacemouseTimerCb(timer_handle_t* timer)
 {
   if (mixerTaskRunning()) {
-    DEBUG_TIMER_START(debugTimerSpacemouseWakeup);
+    PERF_START(SPACEMOUSE);
     spacemousePoll();
     spacemouseWakeup();
-    DEBUG_TIMER_STOP(debugTimerSpacemouseWakeup);
+    PERF_STOP(SPACEMOUSE);
   }
 }
 

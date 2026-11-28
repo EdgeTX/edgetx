@@ -819,8 +819,11 @@ void evalFlightModeMixes(uint8_t mode, uint8_t tick10ms)
 {
   evalInputs(mode);
 
-  if (tick10ms)
+  if (tick10ms) {
+    PERF_START(MIXER_LS);
     evalLogicalSwitches(mode==e_perout_mode_normal);
+    PERF_STOP(MIXER_LS);
+  }
 
 #if defined(HELI)
   if (modelHeliEnabled()) {
@@ -1204,6 +1207,8 @@ uint8_t   flightModeTransitionLast = 255;
 
 void evalMixes(uint8_t tick10ms)
 {
+  PERF_START(MIXER_EVAL);
+
   int32_t sum_chans512[MAX_OUTPUT_CHANNELS];
 
   static uint16_t fp_act[MAX_FLIGHT_MODES] = {0};
@@ -1251,6 +1256,9 @@ void evalMixes(uint8_t tick10ms)
     }
   }
 
+  // timed separately: a fade evaluates the mixes of every fading FM
+  const bool fading = flightModesFade != 0;
+
   int32_t weight = 0;
   if (flightModesFade) {
     memclear(sum_chans512, sizeof(sum_chans512));
@@ -1274,6 +1282,7 @@ void evalMixes(uint8_t tick10ms)
   // must be done after mixing because some functions use the inputs/channels values
   // must be done before limits because of the applyLimit function: it checks for safety switches which would be not initialized otherwise
   if (tick10ms) {
+    PERF_START(MIXER_SF);
     if (radioGFEnabled()) {
       evalFunctions(g_eeGeneral.customFn, globalFunctionsContext);
     } else {
@@ -1291,6 +1300,7 @@ void evalMixes(uint8_t tick10ms)
       }
     }
 #endif
+    PERF_STOP(MIXER_SF);
   }
 
   //========== LIMITS ===============
@@ -1333,6 +1343,8 @@ void evalMixes(uint8_t tick10ms)
       }
     }
   }
+
+  PERF_STOP_AS(MIXER_EVAL, fading ? PERF_MIXER_EVAL_FADE : PERF_MIXER_EVAL);
 }
 
 #if defined(THRTRACE)
@@ -1355,7 +1367,7 @@ void doMixerPeriodicUpdates()
   // therefore forget the exact calculation and use only 1 instead; good compromise
   lastTMR = tmr10ms;
 
-  DEBUG_TIMER_START(debugTimerMixes10ms);
+  PERF_START(MIXER_PERIODIC);
   if (tick10ms) {
     /* Throttle trace */
     int16_t val;
@@ -1415,7 +1427,9 @@ void doMixerPeriodicUpdates()
       s_cnt_100ms -= 10;
       s_cnt_1s += 1;
 
+      PERF_START(MIXER_LS_TICK);
       logicalSwitchesTimerTick();
+      PERF_STOP(MIXER_LS_TICK);
       checkTrainerSignalWarning();
 
       if (s_cnt_1s >= 10) { // 1sec
@@ -1474,7 +1488,7 @@ void doMixerPeriodicUpdates()
     checkTrims();
   }
 
-  DEBUG_TIMER_STOP(debugTimerMixes10ms);
+  PERF_STOP(MIXER_PERIODIC);
 
   s_mixer_first_run_done = true;
 }

@@ -184,9 +184,9 @@ static timer_handle_t telemetryTimer = TIMER_INITIALIZER;
 
 static void telemetryTimerCb(timer_handle_t* h)
 {
-  DEBUG_TIMER_START(debugTimerTelemetryWakeup);
+  PERF_START(TELEMETRY);
   telemetryWakeup();
-  DEBUG_TIMER_STOP(debugTimerTelemetryWakeup);
+  PERF_STOP(TELEMETRY);
 }
 
 void telemetryStart()
