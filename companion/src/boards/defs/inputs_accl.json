@@ -1,5 +1,5 @@
 {
-  "comments": "Acceleration source",
+  "comments": "Accl needs the SC7U22 IMU (IMU_SC7U22 in the radio targets)",
   "hidden": true,
   "adc_inputs": {
     "inputs": [

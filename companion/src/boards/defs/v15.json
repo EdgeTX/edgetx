@@ -3,7 +3,8 @@
         "min": 1
     },
     "basedOn": [
-        "color"
+        "color",
+        "inputs_accl"
     ],
     "battery": {
         "vmax": 86,

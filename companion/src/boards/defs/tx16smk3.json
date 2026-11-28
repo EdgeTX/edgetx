@@ -4,6 +4,7 @@
     },
     "basedOn": [
         "color",
+        "inputs_accl",
         "switches_flex"
     ],
     "battery": {
