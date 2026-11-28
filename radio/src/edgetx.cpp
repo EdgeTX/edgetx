@@ -178,8 +178,8 @@ void checkValidMCU(void)
 
 void per10ms()
 {
-  DEBUG_TIMER_START(debugTimerPer10ms);
-  DEBUG_TIMER_SAMPLE(debugTimerPer10msPeriod);
+  PERF_START(TIMER_10MS);
+  PERF_MARK(TIMER_10MS_PERIOD);
 
   g_tmr10ms++;
 
@@ -258,7 +258,7 @@ void per10ms()
 
   heartbeat |= HEART_TIMER_10MS;
 
-  DEBUG_TIMER_STOP(debugTimerPer10ms);
+  PERF_STOP(TIMER_10MS);
 }
 
 FlightModeData *flightModeAddress(uint8_t idx)

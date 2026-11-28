@@ -178,8 +178,9 @@ void mixerTask()
     if (_mixer_running) {
 
       uint32_t t0 = timersGetUsTick();
+      PERF_MARK(MIXER_PERIOD);
+      PERF_START(MIXER);
 
-      DEBUG_TIMER_START(debugTimerMixer);
       mixerTaskLock();
 
       doMixerCalculations();
@@ -190,12 +191,7 @@ void mixerTask()
       pulsesSendChannels();
       doMixerPeriodicUpdates();
 
-      // TODO: what are these for???
-      DEBUG_TIMER_START(debugTimerMixerCalcToUsage);
-      DEBUG_TIMER_SAMPLE(debugTimerMixerIterval);
-
       mixerTaskUnlock();
-      DEBUG_TIMER_STOP(debugTimerMixer);
 
 #if defined(STM32) && !defined(SIMU)
       if (getSelectedUsbMode() == USB_JOYSTICK_MODE) {
@@ -207,6 +203,7 @@ void mixerTask()
       // so let's do it here.
       WDG_RESET();
 
+      PERF_STOP(MIXER);
       t0 = timersGetUsTick() - t0;
       if (t0 > maxMixerDuration)
         maxMixerDuration = t0;
@@ -238,17 +235,15 @@ void doMixerCalculations()
   // therefore forget the exact calculation and use only 1 instead; good compromise
   lastTMR = tmr10ms;
 
-  DEBUG_TIMER_START(debugTimerGetAdc);
+  PERF_START(MIXER_ADC);
   getADC();
-  DEBUG_TIMER_STOP(debugTimerGetAdc);
+  PERF_STOP(MIXER_ADC);
 
-  DEBUG_TIMER_START(debugTimerGetSwitches);
+  PERF_START(MIXER_SWITCHES);
   getSwitchesPosition(!s_mixer_first_run_done);
-  DEBUG_TIMER_STOP(debugTimerGetSwitches);
+  PERF_STOP(MIXER_SWITCHES);
 
-  DEBUG_TIMER_START(debugTimerEvalMixes);
   evalMixes(tick10ms);
-  DEBUG_TIMER_STOP(debugTimerEvalMixes);
 
 #if defined(HALL_SYNC) && !defined(SIMU)
   gpio_clear(HALL_SYNC);

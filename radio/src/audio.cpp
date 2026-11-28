@@ -643,9 +643,9 @@ int ToneContext::mixBuffer(AudioBuffer * buffer, int volume, unsigned int fade)
 
 void AudioQueue::wakeup()
 {
-  DEBUG_TIMER_START(debugTimerAudioConsume);
+  PERF_START(AUDIO_CONSUME);
   audioConsumeCurrentBuffer();
-  DEBUG_TIMER_STOP(debugTimerAudioConsume);
+  PERF_STOP(AUDIO_CONSUME);
 
   // SD starvation: the consumer (DMA) has drained the whole buffer FIFO while a
   // WAV is still mid-file, i.e. the card couldn't feed the pipeline in time.
@@ -734,9 +734,9 @@ void AudioQueue::wakeup()
       // break the endless loop
       break;
     }
-    DEBUG_TIMER_START(debugTimerAudioConsume);
+    PERF_START(AUDIO_CONSUME);
     audioConsumeCurrentBuffer();
-    DEBUG_TIMER_STOP(debugTimerAudioConsume);
+    PERF_STOP(AUDIO_CONSUME);
   }
 }
 

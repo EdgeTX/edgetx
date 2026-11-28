@@ -1794,31 +1794,65 @@ void printInterrupts()
 }
 #endif //#if defined(DEBUG_INTERRUPTS)
 
-#if defined(DEBUG_TIMERS)
-void printDebugTime(uint32_t time)
+#if PERF_ENABLED
+// cycles -> tenths of a microsecond
+static uint32_t perfTenthsUs(uint64_t cycles, uint32_t cpu)
 {
-  if (time >= 30000) {
-    cliSerialPrintf("%dms", time/1000);
-  }
-  else {
-    cliSerialPrintf("%d.%03dms", time/1000, time%1000);
-  }
+  return (uint32_t)(cycles * 10 / cpu);
 }
 
-void printDebugTimer(const char * name, DebugTimer & timer)
+static void perfPrintUs(uint64_t cycles, uint32_t cpu)
 {
-  cliSerialPrintf("%s: ", name);
-  printDebugTime( timer.getMin());
-  cliSerialPrintf(" - ");
-  printDebugTime(timer.getMax());
-  cliSerialCrlf();
-  timer.reset();
+  uint32_t t = perfTenthsUs(cycles, cpu);
+  cliSerialPrintf(" %7u.%u", t / 10, t % 10);
 }
-void printDebugTimers()
+
+static void perfPrintProbe(PerfProbe probe, uint32_t cpu)
 {
-  for(int n = 0; n < DEBUG_TIMERS_COUNT; n++) {
-    printDebugTimer(debugTimerNames[n], debugTimers[n]);
+  PerfStats s;
+  if (!perfGetStats(probe, s)) return;
+
+  cliSerialPrintf("%-18s %8u", perfProbeName(probe), s.count);
+  perfPrintUs(s.min, cpu);
+  perfPrintUs(s.sum / s.count, cpu);
+  perfPrintUs(s.max, cpu);
+
+  // histogram: first non-empty bucket, then counts up to the last one
+  int first = 0, last = PERF_HIST_BUCKETS - 1;
+  while (first < last && !s.hist[first]) first++;
+  while (last > first && !s.hist[last]) last--;
+  cliSerialPrintf("  %d:", first);
+  for (int b = first; b <= last; b++) {
+    cliSerialPrintf(b == first ? "%u" : ",%u", s.hist[b]);
   }
+  cliSerialCrlf();
+}
+
+static int cliPerf(const char ** argv)
+{
+  if (!strcmp(cliArg(argv, 1), "reset")) {
+    perfReset();
+    return 0;
+  }
+  if (*cliArg(argv, 1)) {
+    cliSerialPrint("%s: Invalid argument \"%s\"", argv[0], cliArg(argv, 1));
+    return -1;
+  }
+
+  uint32_t cpu = perfCyclesPerUs();
+  uint32_t ms = perfMsSinceReset();
+  cliSerialPrint("perf: %u MHz, %u.%03u s since reset, cpu load %d%%", cpu,
+                 ms / 1000, ms % 1000, task_get_cpu_load());
+  if (!perfCounterRunning()) {
+    cliSerialPrint("perf: cycle counter stopped (debugger?), run 'perf reset'");
+  }
+  cliSerialPrint("%-18s %8s %9s %9s %9s  %s", "probe", "count", "min us",
+                 "avg us", "max us", "hist");
+  for (int p = 0; p < PERF_PROBE_COUNT; p++) {
+    perfPrintProbe((PerfProbe)p, cpu);
+  }
+  cliSerialPrint("hist: <first bucket>:<counts>, bucket b = [2^(b-1), 2^b) us");
+  return 0;
 }
 #endif
 
@@ -2093,11 +2127,6 @@ int cliDisplay(const char ** argv)
     printInterrupts();
   }
 #endif
-#if defined(DEBUG_TIMERS)
-  else if (!strcmp(cliArg(argv, 1), "dt")) {
-    printDebugTimers();
-  }
-#endif
 #if defined(DEBUG_AUDIO)
   else if (!strcmp(cliArg(argv, 1), "audio")) {
     printAudioVars();
@@ -2367,6 +2396,9 @@ const CliCommand cliCommands[] = {
   { "play", cliPlay, "<filename>" },
 #if defined(PDM_CLOCK)
   { "rec", cliRecord, "<filename> [<seconds>]" },
+#endif
+#if PERF_ENABLED
+  { "perf", cliPerf, "[reset]" },
 #endif
 #if defined(FIRMWARE_QSPI) || defined(BOOTLOADER_DFU)
   { "reboot", cliReboot, "[wdt | dfu]" },

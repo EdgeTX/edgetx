@@ -87,7 +87,7 @@ static void menusTask()
   while (pwrCheck() != e_power_off) {
 #endif
     time_point_t next_tick = time_point_now();
-    DEBUG_TIMER_START(debugTimerPerMain);
+    PERF_START(UI);
 #if defined(COLORLCD) && defined(CLI)
     if (perMainEnabled) {
       perMain();
@@ -95,7 +95,7 @@ static void menusTask()
 #else
     perMain();
 #endif
-    DEBUG_TIMER_STOP(debugTimerPerMain);
+    PERF_STOP(UI);
 
     sleep_until(&next_tick, MENU_TASK_PERIOD);
     resetForcePowerOffRequest();
@@ -129,8 +129,8 @@ static void audioTask()
 
   time_point_t next_tick = time_point_now();
   while (task_running()) {
-    DEBUG_TIMER_SAMPLE(debugTimerAudioIterval);
-    DEBUG_TIMER_START(debugTimerAudioDuration);
+    PERF_MARK(AUDIO_PERIOD);
+    PERF_START(AUDIO);
     audioQueue.wakeup();
 #if defined(PDM_CLOCK)
     // Drive microphone recording (if any) at the audio-task cadence.
@@ -138,7 +138,7 @@ static void audioTask()
     // never fills enough to trigger skip-ahead / sample drops.
     PdmWavRecorder::audioTick();
 #endif
-    DEBUG_TIMER_STOP(debugTimerAudioDuration);
+    PERF_STOP(AUDIO);
     sleep_until(&next_tick, 4);
   }
 }

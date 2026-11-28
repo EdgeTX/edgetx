@@ -434,9 +434,9 @@ void getADC()
   }
 #endif
 
-  DEBUG_TIMER_START(debugTimerAdcRead);
+  PERF_START(ADC_READ);
   if (!adcRead()) { TRACE("adcRead failed"); }
-  DEBUG_TIMER_STOP(debugTimerAdcRead);
+  PERF_STOP(ADC_READ);
 
   for (uint8_t x = 0; x < max_analogs; x++) {
 
